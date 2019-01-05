@@ -1419,7 +1419,162 @@ namespace NBitcoin.Tests
 				result.PSBT.TryFinalize(out var errors3);
 				Assert.Empty(errors3);
 				var txResult = result.PSBT.ExtractTX();
-				client.TestMempoolAccept(txResult, true);
+				var acceptResult = client.TestMempoolAccept(txResult, true);
+				Assert.True(acceptResult.IsAllowed, acceptResult.RejectReason);
+			}
+		}
+
+		// refs: https://github.com/bitcoin/bitcoin/blob/df73c23f5fac031cc9b2ec06a74275db5ea322e3/doc/psbt.md#workflows
+		// with 2 difference.
+		// 1. one user (David) do not use bitcoin core (only NBitcoin)
+		// 2. 4-of-4 instead of 2-of-3
+		// 3. In version 0.17, `importmulti` can not handle witness script so only p2sh are considered here. TODO: fix
+		[Fact]
+		public void ShouldPerformMultisigProcessingWithCore()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				if (!builder.NodeImplementation.Version.Contains("0.17"))
+					throw new Exception("Test must be updated!");
+				var nodeAlice = builder.CreateNode();
+				var nodeBob = builder.CreateNode();
+				var nodeCarol = builder.CreateNode();
+				var nodeFunder = builder.CreateNode();
+				var david = new Key();
+				builder.StartAll();
+
+				// prepare multisig script and watch with node.
+				var nodes = new CoreNode[]{nodeAlice, nodeBob, nodeCarol};
+				var clients = nodes.Select(n => n.CreateRPCClient()).ToArray();
+				var addresses = clients.Select(c => c.GetNewAddress());
+				var addrInfos = addresses.Select((a, i) => clients[i].GetAddressInfo(a));
+				var pubkeys = new List<PubKey> { david.PubKey };
+				pubkeys.AddRange(addrInfos.Select(i => i.PubKey).ToArray());
+				var script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(4, pubkeys.ToArray());
+				var aMultiP2SH = script.Hash.ScriptPubKey;
+				// var aMultiP2WSH = script.WitHash.ScriptPubKey;
+				// var aMultiP2SH_P2WSH = script.WitHash.ScriptPubKey.Hash.ScriptPubKey;
+				var multiAddresses = new BitcoinAddress[] { aMultiP2SH.GetDestinationAddress(builder.Network) };
+				var importMultiObject = new ImportMultiAddress[] {
+						new ImportMultiAddress()
+						{
+							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(multiAddresses[0]),
+							RedeemScript = script.ToHex(),
+							Internal = true,
+						},
+						/*
+						new ImportMultiAddress()
+						{
+							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2WSH),
+							RedeemScript = script.ToHex(),
+							Internal = true,
+						},
+						new ImportMultiAddress()
+						{
+							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2SH_P2WSH),
+							RedeemScript = script.WitHash.ScriptPubKey.ToHex(),
+							Internal = true,
+						},
+						new ImportMultiAddress()
+						{
+							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2SH_P2WSH),
+							RedeemScript = script.ToHex(),
+							Internal = true,
+						}
+						*/
+					};
+
+				for (var i = 0; i < clients.Length; i++)
+				{
+					var c = clients[i];
+					Output.WriteLine($"Importing for {i}");
+					c.ImportMulti(importMultiObject, false);
+				}
+
+				// pay from funder
+				nodeFunder.Generate(103);
+				var funderClient = nodeFunder.CreateRPCClient();
+				funderClient.SendToAddress(aMultiP2SH, Money.Coins(40));
+				// funderClient.SendToAddress(aMultiP2WSH, Money.Coins(40));
+				// funderClient.SendToAddress(aMultiP2SH_P2WSH, Money.Coins(40));
+				nodeFunder.Generate(1);
+				foreach (var n in nodes)
+				{
+					nodeFunder.Sync(n, true);
+				}
+
+				// pay from multisig address
+				// first carol creates psbt
+				var carol = clients[2];
+				// check if we have enough balance
+				var info = carol.GetBlockchainInfoAsync().Result;
+				Assert.Equal((ulong)104, info.Blocks);
+				var balance = carol.GetBalance(0, true);
+				// Assert.Equal(Money.Coins(120), balance);
+				Assert.Equal(Money.Coins(40), balance);
+
+				var aSend = new Key().PubKey.GetAddress(nodeAlice.Network);
+				var outputs = new Dictionary<BitcoinAddress, Money>();
+				outputs.Add(aSend, Money.Coins(10));
+				var fundOptions = new FundRawTransactionOptions() { SubtractFeeFromOutputs = new int[] {0}, IncludeWatching = true };
+				PSBT psbt = carol.WalletCreateFundedPSBT(null, outputs, 0, fundOptions).PSBT;
+				psbt = carol.WalletProcessPSBT(psbt).PSBT;
+
+				// second, Bob checks and process psbt.
+				var bob = clients[1];
+				Assert.Contains(multiAddresses, a =>
+					psbt.inputs.Any(psbtin => psbtin.WitnessUtxo?.ScriptPubKey == a.ScriptPubKey) ||
+					psbt.inputs.Any(psbtin => (bool)psbtin.NonWitnessUtxo?.Outputs.Any(o => a.ScriptPubKey == o.ScriptPubKey))
+					);
+				var psbt1 = bob.WalletProcessPSBT(psbt.Clone()).PSBT;
+
+				// at the same time, David may do the ;
+				psbt.TrySignAll(david);
+				var alice = clients[0];
+				var psbt2 = alice.WalletProcessPSBT(psbt).PSBT;
+				psbt2.TryFinalize(out var errors);
+				Assert.NotEmpty(errors); // not enough signature.
+
+				// So let's combine.
+				var psbtCombined = psbt1.Combine(psbt2);
+
+				// Finally, anyone can finalize and broadcast the psbt.
+				var tx = psbtCombined.Finalize().ExtractTX();
+				var result = alice.TestMempoolAccept(tx);
+				Assert.True(result.IsAllowed, result.RejectReason);
+			}
+		}
+
+
+		[Fact]
+		/// <summary>
+		/// For p2sh, p2wsh, p2sh-p2wsh, we must also test the case for `solvable` to the wallet.
+		/// For that, both script and the address must be imported by `importmulti`.
+		/// but importmulti can not handle witness script(in v0.17).
+		/// TODO: add test for solvable scripts.
+		/// </summary>
+		public void ShouldGetAddressInfo()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				if (!builder.NodeImplementation.Version.Contains("0.17"))
+					throw new Exception("Test must be updated!");
+				var client = builder.CreateNode(true).CreateRPCClient();
+				var addrLegacy = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Legacy });
+				var addrBech32 = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Bech32 });
+				var addrP2SHSegwit = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.P2SHSegwit });
+				var pubkeys = new PubKey[] { new Key().PubKey, new Key().PubKey, new Key().PubKey };
+				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, pubkeys);
+				client.ImportAddress(redeem.Hash);
+				client.ImportAddress(redeem.WitHash);
+				client.ImportAddress(redeem.WitHash.ScriptPubKey.Hash);
+
+				Assert.NotNull(client.GetAddressInfo(addrLegacy));
+				Assert.NotNull(client.GetAddressInfo(addrBech32));
+				Assert.NotNull(client.GetAddressInfo(addrP2SHSegwit));
+				Assert.NotNull(client.GetAddressInfo(redeem.Hash));
+				Assert.NotNull(client.GetAddressInfo(redeem.WitHash));
+				Assert.NotNull(client.GetAddressInfo(redeem.WitHash.ScriptPubKey.Hash));
 			}
 		}
 
