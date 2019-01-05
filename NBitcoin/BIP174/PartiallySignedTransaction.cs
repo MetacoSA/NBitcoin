@@ -750,7 +750,7 @@ namespace NBitcoin.BIP174
 			return null;
 		}
 
-		internal void TryAddKeyPath(PubKey key, Tuple<uint, KeyPath> path, TxIn txin)
+		internal void AddKeyPath(PubKey key, Tuple<uint, KeyPath> path, TxIn txin)
 		{
 			if (OrphanPubKeys.Contains(key))
 			{
@@ -766,7 +766,7 @@ namespace NBitcoin.BIP174
 				hd_keypaths.AddOrReplace(key, path);
 		}
 
-		internal void TryAddScript(Script script, TxIn txin)
+		internal void AddScript(Script script, TxIn txin)
 		{
 			var output = GetOutput(txin.PrevOut);
 			if (output == null)
@@ -1158,7 +1158,7 @@ namespace NBitcoin.BIP174
 				unknown.TryAdd(uk.Key, uk.Value);
 		}
 
-		internal void TryAddScript(Script script, TxOut output)
+		internal void AddScript(Script script, TxOut output)
 		{
 			if (script.Hash.ScriptPubKey == output.ScriptPubKey)
 			{
@@ -1176,7 +1176,7 @@ namespace NBitcoin.BIP174
 			}
 		}
 
-		internal void TryAddKeyPath(PubKey key, Tuple<uint, KeyPath> path, TxOut output)
+		internal void AddKeyPath(PubKey key, Tuple<uint, KeyPath> path, TxOut output)
 		{
 			if (IsRelatedKey(key, output.ScriptPubKey))
 				hd_keypaths.Add(key, path);
@@ -1517,7 +1517,7 @@ namespace NBitcoin.BIP174
 		/// </summary>
 		/// <param name="errors"></param>
 		/// <returns></returns>
-		public PSBT TryFinalize(out InvalidOperationException[] errors)
+		public PSBT Finalize(out InvalidOperationException[] errors)
 		{
 			var elist = new List<InvalidOperationException> ();
 			for (var i = 0; i < inputs.Count; i++)
@@ -1539,7 +1539,7 @@ namespace NBitcoin.BIP174
 
 		public PSBT Finalize()
 		{
-			TryFinalize(out var errors);
+			Finalize(out var errors);
 			if (errors.Length != 0)
 				throw new AggregateException(errors);
 			return this;
@@ -1553,7 +1553,7 @@ namespace NBitcoin.BIP174
 		/// </summary>
 		private bool _UseLowR = true;
 		internal bool UseLowR { get => _UseLowR; set => _UseLowR = value; }
-		public PSBT TrySignAll(params Key[] keys)
+		public PSBT SignAll(params Key[] keys)
 		{
 			CheckSanity();
 			for (var i = 0; i < inputs.Count; i++)
@@ -1621,7 +1621,7 @@ namespace NBitcoin.BIP174
 			return this;
 		}
 
-		public PSBT TryAddKeyPath(PubKey key, Tuple<uint, KeyPath> path)
+		public PSBT AddKeyPath(PubKey key, Tuple<uint, KeyPath> path)
 		{
 			if (key == null)
 				return this;
@@ -1630,17 +1630,17 @@ namespace NBitcoin.BIP174
 
 			for (int i = 0; i < inputs.Count; i++)
 			{
-				inputs[i].TryAddKeyPath(key, path, tx.Inputs[i]);
+				inputs[i].AddKeyPath(key, path, tx.Inputs[i]);
 			}
 			for (int i = 0; i < outputs.Count; i++)
 			{
-				outputs[i].TryAddKeyPath(key, path, tx.Outputs[i]);
+				outputs[i].AddKeyPath(key, path, tx.Outputs[i]);
 			}
 
 			return this;
 		}
 
-		public PSBT TryAddScript(params Script[] scripts)
+		public PSBT AddScript(params Script[] scripts)
 		{
 			if (scripts == null)
 				return this;
@@ -1650,14 +1650,14 @@ namespace NBitcoin.BIP174
 				{
 					var psbtin = this.inputs[i];
 					var txin = tx.Inputs[i];
-					psbtin.TryAddScript(script, txin);
+					psbtin.AddScript(script, txin);
 					psbtin.TrySlimOutput(txin);
 				}
 				for (int i = 0; i < outputs.Count; i++)
 				{
 					var psbtout = this.outputs[i];
 					var txout = tx.Outputs[i];
-					psbtout.TryAddScript(script, txout);
+					psbtout.AddScript(script, txout);
 				}
 			}
 

@@ -79,7 +79,7 @@ namespace NBitcoin.Tests.Generators
 				.FromTransaction(tx, true)
 				.AddTransactions(prevTxs.ToArray())
 				.AddCoins(CoinsToAdd.ToArray())
-				.TryAddScript(scriptsToAdd.ToArray())
+				.AddScript(scriptsToAdd.ToArray())
 			select psbt;
 
 		private static Gen<TxOut> OutputFromRedeemOrKey(Script sc, PubKey key) =>
