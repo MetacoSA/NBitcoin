@@ -311,10 +311,18 @@ namespace NBitcoin.BIP174
 
 		internal void AddCoin(ICoin coin, TxIn txin = null)
 		{
-			if (coin is ScriptCoin && !IsFinalized() && txin != null)
+			if (coin is ScriptCoin scriptCoin && !IsFinalized() && txin != null)
 			{
-				var sCoin = (coin as ScriptCoin);
-				this.TryAddScript(sCoin.Redeem, txin);
+				if (scriptCoin.RedeemType == RedeemType.P2SH)
+				{
+					redeem_script = scriptCoin.Redeem;
+				}
+				else
+				{
+					witness_script = scriptCoin.Redeem;
+					if (scriptCoin.IsP2SH)
+						redeem_script = witness_script.WitHash.ScriptPubKey;
+				}
 			}
 
 			// Why we need this check? because we should never add witness_utxo to non_segwit input.
