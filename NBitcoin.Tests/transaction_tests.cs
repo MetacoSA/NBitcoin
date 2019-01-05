@@ -2421,8 +2421,6 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void Play()
         {
-			System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
-			var response = client.GetAsync("https://btcpay763334.lndyn.com/spark/btc/?access-key=SgXdcHuAMvURyLSG7oSfHzhelyL1hwLZlt6utQS0#/").GetAwaiter().GetResult();
 		}
 
 		protected virtual BigInteger CalculateE(BigInteger n, byte[] message)
