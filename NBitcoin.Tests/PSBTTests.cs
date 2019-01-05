@@ -137,7 +137,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(tmp, psbtWithCoins, ComparerInstance);
 
 			var signedPSBTWithCoins = psbtWithCoins
-				.TrySignAll(alice);
+				.SignAll(alice);
 			Assert.Empty(signedPSBTWithCoins.inputs[0].PartialSigs); // can not sign for non segwit input without non-witness UTXO
 			Assert.Empty(signedPSBTWithCoins.inputs[2].PartialSigs); // This too.
 			// otherwise, It will increase Partial sigs count.
@@ -145,7 +145,7 @@ namespace NBitcoin.Tests
 			Assert.Single(signedPSBTWithCoins.inputs[3].PartialSigs);
 			Assert.Single(signedPSBTWithCoins.inputs[4].PartialSigs);
 			Assert.Single(signedPSBTWithCoins.inputs[5].PartialSigs);
-			signedPSBTWithCoins.TryFinalize(out var finalizationErrors);
+			signedPSBTWithCoins.Finalize(out var finalizationErrors);
 			Assert.Equal(4, finalizationErrors.Length); // Only p2wpkh and p2sh-p2wpkh will succeed.
 
 			var psbtWithTXs = PSBT.FromTransaction(tx, true)
@@ -167,8 +167,8 @@ namespace NBitcoin.Tests
 
 			var clonedPSBT = psbtWithTXs.Clone();
 
-			clonedPSBT.TrySignAll(keys[0]);
-			psbtWithTXs.TrySignAll(keys[1], keys[2]);
+			clonedPSBT.SignAll(keys[0]);
+			psbtWithTXs.SignAll(keys[1], keys[2]);
 
 			var whollySignedPSBT = clonedPSBT.Combine(psbtWithTXs);
 
@@ -208,7 +208,7 @@ namespace NBitcoin.Tests
 			foreach (string i in testcases)
 			{
 				var psbt = PSBT.Parse(i);
-				Assert.Throws<FormatException>(() => psbt.TrySignAll(new Key()));
+				Assert.Throws<FormatException>(() => psbt.SignAll(new Key()));
 			}
 		}
 
@@ -224,7 +224,7 @@ namespace NBitcoin.Tests
 			var tx = CreateTxToSpendFunds(funds, keys, redeem, false, false);
 			var psbt = PSBT.FromTransaction(tx);
 
-			psbt.TryFinalize(out var errors);
+			psbt.Finalize(out var errors);
 			Assert.Equal(6, errors.Length);
 		}
 
@@ -243,8 +243,8 @@ namespace NBitcoin.Tests
 			// case 1: Check that it will result to more info by adding ScriptCoin in case of p2sh-p2wpkh
 			var coins1 = DummyFundsToCoins(funds, null, null); // without script
 			var scriptCoins2 = DummyFundsToCoins(funds, null, keys[0]); // only with p2sh-p2wpkh redeem.
-			var psbt1 = psbt.Clone().AddCoins(coins1).TryAddScript(redeem);
-			var psbt2 = psbt.Clone().AddCoins(scriptCoins2).TryAddScript(redeem);
+			var psbt1 = psbt.Clone().AddCoins(coins1).AddScript(redeem);
+			var psbt2 = psbt.Clone().AddCoins(scriptCoins2).AddScript(redeem);
 			for (int i = 0; i < 6; i++)
 			{
 				Output.WriteLine($"Testing {i}");
@@ -326,14 +326,14 @@ namespace NBitcoin.Tests
 			var redeem2 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["redeem2"]));
 			var witness_script1 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["witness1"]));
 			foreach (var sc in new Script[] {redeem1, redeem2, witness_script1})
-				psbt.TryAddScript(sc);
+				psbt.AddScript(sc);
 
 			for (int i = 0; i < 6; i++)
 			{
 				var pk = testcase[$"pubkey{i}"];
 				var pubkey = new PubKey((string)pk["hex"]);
 				var path = KeyPath.Parse((string)pk["path"]);
-				psbt.TryAddKeyPath(pubkey, Tuple.Create(masterFP, path));
+				psbt.AddKeyPath(pubkey, Tuple.Create(masterFP, path));
 			}
 
 			expected = PSBT.Parse((string)testcase["psbt2"]);
@@ -351,7 +351,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(psbt, psbtForBob, ComparerInstance);
 			var aliceKey1 = master.Derive(new KeyPath((string)testcase["key7"]["path"])).PrivateKey;
 			var aliceKey2 = master.Derive(new KeyPath((string)testcase["key8"]["path"])).PrivateKey;
-			psbt.TrySignAll(aliceKey1, aliceKey2);
+			psbt.SignAll(aliceKey1, aliceKey2);
 			expected = PSBT.Parse((string)testcase["psbt4"]);
 			Assert.Equal(expected, psbt);
 
@@ -363,7 +363,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(bobKey1, new BitcoinSecret(bobKeyhex1, network).PrivateKey);
 			Assert.Equal(bobKey2, new BitcoinSecret(bobKeyhex2, network).PrivateKey);
 			psbtForBob.UseLowR = false;
-			psbtForBob.TrySignAll(bobKey1, bobKey2);
+			psbtForBob.SignAll(bobKey1, bobKey2);
 			expected = PSBT.Parse((string)testcase["psbt5"]);
 			Assert.Equal(expected, psbtForBob);
 
