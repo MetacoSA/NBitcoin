@@ -1517,7 +1517,7 @@ namespace NBitcoin.BIP174
 		/// </summary>
 		/// <param name="errors"></param>
 		/// <returns></returns>
-		public PSBT Finalize(out InvalidOperationException[] errors)
+		private PSBT Finalize(out InvalidOperationException[] errors)
 		{
 			var elist = new List<InvalidOperationException> ();
 			for (var i = 0; i < inputs.Count; i++)

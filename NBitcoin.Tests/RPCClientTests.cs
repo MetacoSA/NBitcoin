@@ -1406,7 +1406,10 @@ namespace NBitcoin.Tests
 				result = client.WalletProcessPSBT(psbtUnFinalized, false, type, bip32derivs: true);
 				Assert.False(result.Complete);
 				Assert.False(result.PSBT.CanExtractTX());
-				result.PSBT.Finalize(out var errors2);
+				var ex2 = Assert.Throws<AggregateException>(
+					() => result.PSBT.Finalize()
+				);
+				var errors2 = ex2.InnerExceptions;
 				Assert.NotEmpty(errors2);
 				foreach (var psbtin in result.PSBT.inputs)
 				{
@@ -1416,7 +1419,10 @@ namespace NBitcoin.Tests
 
 				// signed
 				result = client.WalletProcessPSBT(psbtUnFinalized, true, type);
-				result.PSBT.Finalize(out var errors3);
+				var ex3 = Assert.Throws<AggregateException>(
+					() => result.PSBT.Finalize()
+				);
+				var errors3 = ex3.InnerExceptions;
 				Assert.Empty(errors3);
 				var txResult = result.PSBT.ExtractTX();
 				var acceptResult = client.TestMempoolAccept(txResult, true);
