@@ -1419,11 +1419,9 @@ namespace NBitcoin.Tests
 
 				// signed
 				result = client.WalletProcessPSBT(psbtUnFinalized, true, type);
-				var ex3 = Assert.Throws<AggregateException>(
-					() => result.PSBT.Finalize()
-				);
-				var errors3 = ex3.InnerExceptions;
-				Assert.Empty(errors3);
+				// does not throw
+				result.PSBT.Finalize();
+
 				var txResult = result.PSBT.ExtractTX();
 				var acceptResult = client.TestMempoolAccept(txResult, true);
 				Assert.True(acceptResult.IsAllowed, acceptResult.RejectReason);
@@ -1538,8 +1536,9 @@ namespace NBitcoin.Tests
 				psbt.SignAll(david);
 				var alice = clients[0];
 				var psbt2 = alice.WalletProcessPSBT(psbt).PSBT;
-				psbt2.Finalize(out var errors);
-				Assert.NotEmpty(errors); // not enough signature.
+
+				// not enough signatures
+				Assert.Throws<AggregateException>(() => psbt.Finalize());
 
 				// So let's combine.
 				var psbtCombined = psbt1.Combine(psbt2);

@@ -145,8 +145,12 @@ namespace NBitcoin.Tests
 			Assert.Single(signedPSBTWithCoins.Inputs[3].PartialSigs);
 			Assert.Single(signedPSBTWithCoins.Inputs[4].PartialSigs);
 			Assert.Single(signedPSBTWithCoins.Inputs[5].PartialSigs);
-			signedPSBTWithCoins.Finalize(out var finalizationErrors);
-			Assert.Equal(4, finalizationErrors.Length); // Only p2wpkh and p2sh-p2wpkh will succeed.
+			var ex = Assert.Throws<AggregateException>(() =>
+				signedPSBTWithCoins.Finalize()
+			);
+			var finalizationErrors = ex.InnerExceptions;
+			// Only p2wpkh and p2sh-p2wpkh will succeed.
+			Assert.Equal(4, finalizationErrors.Count);
 
 			var psbtWithTXs = PSBT.FromTransaction(tx, true)
 				.AddTransactions(funds);
@@ -226,7 +230,7 @@ namespace NBitcoin.Tests
 
 			var ex = Assert.Throws<AggregateException>(() => psbt.Finalize());
 			var errors = ex.InnerExceptions;
-			Assert.Equal(6, errors.Length);
+			Assert.Equal(6, errors.Count);
 		}
 
 		[Fact]
