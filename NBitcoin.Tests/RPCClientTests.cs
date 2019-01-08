@@ -1411,7 +1411,7 @@ namespace NBitcoin.Tests
 				);
 				var errors2 = ex2.InnerExceptions;
 				Assert.NotEmpty(errors2);
-				foreach (var psbtin in result.PSBT.inputs)
+				foreach (var psbtin in result.PSBT.Inputs)
 				{
 					Assert.Equal(SigHash.Undefined, psbtin.SighashType);
 					Assert.NotEmpty(psbtin.HDKeyPaths);
@@ -1529,8 +1529,8 @@ namespace NBitcoin.Tests
 				// second, Bob checks and process psbt.
 				var bob = clients[1];
 				Assert.Contains(multiAddresses, a =>
-					psbt.inputs.Any(psbtin => psbtin.WitnessUtxo?.ScriptPubKey == a.ScriptPubKey) ||
-					psbt.inputs.Any(psbtin => (bool)psbtin.NonWitnessUtxo?.Outputs.Any(o => a.ScriptPubKey == o.ScriptPubKey))
+					psbt.Inputs.Any(psbtin => psbtin.WitnessUtxo?.ScriptPubKey == a.ScriptPubKey) ||
+					psbt.Inputs.Any(psbtin => (bool)psbtin.NonWitnessUtxo?.Outputs.Any(o => a.ScriptPubKey == o.ScriptPubKey))
 					);
 				var psbt1 = bob.WalletProcessPSBT(psbt.Clone()).PSBT;
 
