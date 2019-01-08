@@ -1406,9 +1406,12 @@ namespace NBitcoin.Tests
 				result = client.WalletProcessPSBT(psbtUnFinalized, false, type, bip32derivs: true);
 				Assert.False(result.Complete);
 				Assert.False(result.PSBT.CanExtractTX());
-				result.PSBT.Finalize(out var errors2);
+				var ex2 = Assert.Throws<AggregateException>(
+					() => result.PSBT.Finalize()
+				);
+				var errors2 = ex2.InnerExceptions;
 				Assert.NotEmpty(errors2);
-				foreach (var psbtin in result.PSBT.inputs)
+				foreach (var psbtin in result.PSBT.Inputs)
 				{
 					Assert.Equal(SigHash.Undefined, psbtin.SighashType);
 					Assert.NotEmpty(psbtin.HDKeyPaths);
@@ -1416,8 +1419,9 @@ namespace NBitcoin.Tests
 
 				// signed
 				result = client.WalletProcessPSBT(psbtUnFinalized, true, type);
-				result.PSBT.Finalize(out var errors3);
-				Assert.Empty(errors3);
+				// does not throw
+				result.PSBT.Finalize();
+
 				var txResult = result.PSBT.ExtractTX();
 				var acceptResult = client.TestMempoolAccept(txResult, true);
 				Assert.True(acceptResult.IsAllowed, acceptResult.RejectReason);
@@ -1523,8 +1527,8 @@ namespace NBitcoin.Tests
 				// second, Bob checks and process psbt.
 				var bob = clients[1];
 				Assert.Contains(multiAddresses, a =>
-					psbt.inputs.Any(psbtin => psbtin.WitnessUtxo?.ScriptPubKey == a.ScriptPubKey) ||
-					psbt.inputs.Any(psbtin => (bool)psbtin.NonWitnessUtxo?.Outputs.Any(o => a.ScriptPubKey == o.ScriptPubKey))
+					psbt.Inputs.Any(psbtin => psbtin.WitnessUtxo?.ScriptPubKey == a.ScriptPubKey) ||
+					psbt.Inputs.Any(psbtin => (bool)psbtin.NonWitnessUtxo?.Outputs.Any(o => a.ScriptPubKey == o.ScriptPubKey))
 					);
 				var psbt1 = bob.WalletProcessPSBT(psbt.Clone()).PSBT;
 
@@ -1532,8 +1536,9 @@ namespace NBitcoin.Tests
 				psbt.SignAll(david);
 				var alice = clients[0];
 				var psbt2 = alice.WalletProcessPSBT(psbt).PSBT;
-				psbt2.Finalize(out var errors);
-				Assert.NotEmpty(errors); // not enough signature.
+
+				// not enough signatures
+				Assert.Throws<AggregateException>(() => psbt.Finalize());
 
 				// So let's combine.
 				var psbtCombined = psbt1.Combine(psbt2);

@@ -49,15 +49,15 @@ namespace NBitcoin.Tests.PropertyTest
 		[Trait("UnitTest", "UnitTest")]
 		public void ShouldAddKeyInfo(PSBT psbt, Key key, uint MasterKeyFingerPrint, KeyPath path)
 		{
-			for (var i = 0; i < psbt.inputs.Count; i++)
+			for (var i = 0; i < psbt.Inputs.Count; i++)
 			{
 				psbt.AddPathTo(i, key.PubKey, MasterKeyFingerPrint, path);
-				Assert.Single(psbt.inputs[i].HDKeyPaths);
+				Assert.Single(psbt.Inputs[i].HDKeyPaths);
 			}
-			for (var i = 0; i < psbt.outputs.Count; i++)
+			for (var i = 0; i < psbt.Outputs.Count; i++)
 			{
 				psbt.AddPathTo(i, key.PubKey, MasterKeyFingerPrint, path, false);
-				Assert.Single(psbt.outputs[i].HDKeyPaths);
+				Assert.Single(psbt.Outputs[i].HDKeyPaths);
 			}
 		}
 
@@ -75,8 +75,8 @@ namespace NBitcoin.Tests.PropertyTest
 		public void CanCoinJoin(PSBT a, PSBT b)
 		{
 			var result = a.CoinJoin(b);
-			Assert.Equal(result.inputs.Count, a.inputs.Count + b.inputs.Count);
-			Assert.Equal(result.outputs.Count, a.outputs.Count + b.outputs.Count);
+			Assert.Equal(result.Inputs.Count, a.Inputs.Count + b.Inputs.Count);
+			Assert.Equal(result.Outputs.Count, a.Outputs.Count + b.Outputs.Count);
 			Assert.Equal(result.tx.Inputs.Count, a.tx.Inputs.Count + b.tx.Inputs.Count);
 			Assert.Equal(result.tx.Outputs.Count, a.tx.Outputs.Count + b.tx.Outputs.Count);
 			// These will work in netcoreapp2.1, but not in net461 ... :(
