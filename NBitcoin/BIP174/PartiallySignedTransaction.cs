@@ -1051,12 +1051,6 @@ namespace NBitcoin.BIP174
 		public override int GetHashCode() => Utils.GetHashCode(this.ToBytes());
 
 		public virtual ConsensusFactory GetConsensusFactory() => Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
-
-		public override string ToString()
-		{
-			return "Not Implemented";
-			// return JsonConvert.SerializeObject(this);
-		}
 	}
 
 	public class PSBTInputList : UnsignedList<PSBTInput>
@@ -1301,12 +1295,6 @@ namespace NBitcoin.BIP174
 			}
 		}
 		#endregion
-
-		public override string ToString()
-		{
-			return "Not Implemented";
-			// return JsonConvert.SerializeObject(this);
-		}
 
 		public override bool Equals(object obj)
 		{
