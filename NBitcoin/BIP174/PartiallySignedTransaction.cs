@@ -1540,8 +1540,8 @@ namespace NBitcoin.BIP174
 		/// This should be turned false only in the test.
 		/// ref: https://github.com/bitcoin/bitcoin/pull/13666
 		/// </summary>
-		private bool _UseLowR = true;
-		internal bool UseLowR { get => _UseLowR; set => _UseLowR = value; }
+		internal bool UseLowR { get; set; } = true;
+
 		public PSBT SignAll(params Key[] keys)
 		{
 			CheckSanity();
