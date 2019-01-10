@@ -343,11 +343,13 @@ namespace NBitcoin
 			return a;
 		}		
 
+		[Obsolete("You shouldn't use 'int' for a satoshi amount; you should use long/int64, as Int32.MaxValue is only 2,147,483,647, while there can be 21,000,000*100,000,000 satoshis")]
 		public Money(int satoshis)
 		{
 			Satoshi = satoshis;
 		}
 
+		[Obsolete("You shouldn't use 'uint' for a satoshi amount; you should use long/int64, as UInt32.MaxValue is only 4,294,967,295, while there can be 21,000,000*100,000,000 satoshis")]
 		public Money(uint satoshis)
 		{
 			Satoshi = satoshis;
