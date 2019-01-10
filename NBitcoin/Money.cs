@@ -380,6 +380,27 @@ namespace NBitcoin
 		}
 
 
+		public Money(long amount, MoneyUnit unit)
+		{
+			// sanity check. Only valid units are allowed
+			CheckMoneyUnit(unit, "unit");
+			checked
+			{
+				Satoshi = amount * (int)unit;
+			}
+		}
+
+		public Money(ulong amount, MoneyUnit unit)
+		{
+			// sanity check. Only valid units are allowed
+			CheckMoneyUnit(unit, "unit");
+			checked
+			{
+				var satoshi = (long)amount * (int)unit;
+				Satoshi = satoshi;
+			}
+		}
+
 		/// <summary>
 		/// Split the Money in parts without loss
 		/// </summary>
