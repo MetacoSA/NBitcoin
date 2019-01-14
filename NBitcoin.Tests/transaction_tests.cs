@@ -3412,5 +3412,28 @@ namespace NBitcoin.Tests
 		{
 			return Encoders.Hex.DecodeData(data);
 		}
+
+		[Fact]
+		public void ShouldSendAll()
+		{
+			var builder = Network
+				.CreateTransactionBuilder();
+
+			var k = new Key();
+			var dest = k.PubKey.Hash;
+
+			var rate = new FeeRate(Money.Coins(0.0004m));
+			builder
+				.AddCoins(RandomCoin(Money.Coins(0.5m), k))
+				.AddCoins(RandomCoin(Money.Coins(0.5m), k))
+				.AddKeys(k)
+				.SendAll(dest, rate);
+
+			var tx = builder.BuildTransaction(true);
+			if (!builder.Verify(tx, out var errors))
+				throw new AggregateException(errors.Select(e => new Exception(e.ToString())));
+			Assert.Equal(2, tx.Inputs.Count);
+			Assert.Equal(1, tx.Outputs.Count);
+		}
 	}
 }
