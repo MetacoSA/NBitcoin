@@ -481,7 +481,6 @@ namespace NBitcoin
 			internal Dictionary<AssetId, List<Builder>> BuildersByAsset = new Dictionary<AssetId, List<Builder>>();
 			internal Script[] ChangeScript = new Script[3];
 
-			internal bool AssumeNoChange = false;
 			internal void Shuffle()
 			{
 				Shuffle(Builders);
@@ -707,17 +706,13 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="destination"></param>
 		/// <returns></returns>
-		public TransactionBuilder SendAll(IDestination destination, FeeRate rate)
-			=> SendAll(destination.ScriptPubKey, rate);
+		public TransactionBuilder SendAll(IDestination destination)
+			=> SendAll(destination.ScriptPubKey);
 
-		public TransactionBuilder SendAll(Script scriptPubKey, FeeRate rate)
+		public TransactionBuilder SendAll(Script scriptPubKey)
 		{
 			var totalInput = CurrentGroup.Coins.Values.OfType<Coin>().Sum(coin => coin.Amount);
-			// Since fee estimation requires to build the non-completed transaction.
-			CurrentGroup.AssumeNoChange = true;
-			var fee = EstimateFees(rate);
-			var amount = totalInput - fee;
-			return Send(scriptPubKey, amount).SubtractFees();
+			return Send(scriptPubKey, totalInput).SubtractFees();
 		}
 
 		readonly static TxNullDataTemplate _OpReturnTemplate = new TxNullDataTemplate(1024 * 1024);
@@ -1253,12 +1248,12 @@ namespace NBitcoin
 					);
 			var total = selection.Select(s => s.Amount).Sum(zero);
 			var change = total.Sub(target);
-			if(!group.AssumeNoChange && change.CompareTo(zero) == -1)
+			if(change.CompareTo(zero) == -1)
 				throw new NotEnoughFundsException("Not enough funds to cover the target",
 					group.Name,
 					change.Negate()
 				);
-			if(!group.AssumeNoChange && change.CompareTo(ctx.Dust) == 1)
+			if(change.CompareTo(ctx.Dust) == 1)
 			{
 				var changeScript = group.ChangeScript[(int)ctx.ChangeType];
 				if(changeScript == null)

@@ -3427,13 +3427,17 @@ namespace NBitcoin.Tests
 				.AddCoins(RandomCoin(Money.Coins(0.5m), k))
 				.AddCoins(RandomCoin(Money.Coins(0.5m), k))
 				.AddKeys(k)
-				.SendAll(dest, rate);
+				.SendAll(dest);
+			
+			var fee = builder.EstimateFees(rate);
+			builder.SendFees(fee);
 
 			var tx = builder.BuildTransaction(true);
 			if (!builder.Verify(tx, out var errors))
 				throw new AggregateException(errors.Select(e => new Exception(e.ToString())));
 			Assert.Equal(2, tx.Inputs.Count);
 			Assert.Equal(1, tx.Outputs.Count);
+			Assert.Equal(Money.Coins(1.0m), fee + tx.Outputs[0].Value);
 		}
 	}
 }
