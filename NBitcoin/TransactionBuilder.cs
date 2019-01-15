@@ -480,6 +480,7 @@ namespace NBitcoin
 			internal List<Builder> IssuanceBuilders = new List<Builder>();
 			internal Dictionary<AssetId, List<Builder>> BuildersByAsset = new Dictionary<AssetId, List<Builder>>();
 			internal Script[] ChangeScript = new Script[3];
+
 			internal void Shuffle()
 			{
 				Shuffle(Builders);
@@ -698,6 +699,20 @@ namespace NBitcoin
 		public TransactionBuilder Send(IDestination destination, Money amount)
 		{
 			return Send(destination.ScriptPubKey, amount);
+		}
+
+		/// <summary>
+		/// Send all coins added so far with no change. It will automatically estimate the fee.
+		/// </summary>
+		/// <param name="destination"></param>
+		/// <returns></returns>
+		public TransactionBuilder SendAll(IDestination destination)
+			=> SendAll(destination.ScriptPubKey);
+
+		public TransactionBuilder SendAll(Script scriptPubKey)
+		{
+			var totalInput = CurrentGroup.Coins.Values.OfType<Coin>().Sum(coin => coin.Amount);
+			return Send(scriptPubKey, totalInput).SubtractFees();
 		}
 
 		readonly static TxNullDataTemplate _OpReturnTemplate = new TxNullDataTemplate(1024 * 1024);
