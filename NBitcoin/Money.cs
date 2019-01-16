@@ -736,7 +736,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(amount));
 			if(margin < 0.0m || margin > 1.0m)
 				throw new ArgumentOutOfRangeException(nameof(margin), "margin should be between 0 and 1");
-			var dust = Money.Satoshis((decimal)this.Satoshi * margin);
+			var dust = Money.Satoshis(this.Satoshi * margin);
 			return Almost(amount, dust);
 		}
 
