@@ -173,7 +173,7 @@ namespace NBitcoin
 		public string Group
 		{
 			get;
-			set;
+			private set;
 		}
 
 		/// <summary>
@@ -182,7 +182,7 @@ namespace NBitcoin
 		public IMoney Missing
 		{
 			get;
-			set;
+			private set;
 		}
 	}
 
@@ -702,13 +702,19 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Send all coins added so far with no change. It will automatically estimate the fee.
+		/// Send all coins added so far with no change (sweep), substracting fees from the total amount
 		/// </summary>
 		/// <param name="destination"></param>
 		/// <returns></returns>
 		public TransactionBuilder SendAll(IDestination destination)
 			=> SendAll(destination.ScriptPubKey);
 
+
+		/// <summary>
+		/// Send all coins added so far with no change (sweep), substracting fees from the total amount
+		/// </summary>
+		/// <param name="scriptPubKey"></param>
+		/// <returns></returns>
 		public TransactionBuilder SendAll(Script scriptPubKey)
 		{
 			var totalInput = CurrentGroup.Coins.Values.OfType<Coin>().Sum(coin => coin.Amount);
@@ -726,7 +732,7 @@ namespace NBitcoin
 		public TransactionBuilder Send(Script scriptPubKey, Money amount)
 		{
 			if(amount < Money.Zero)
-				throw new ArgumentOutOfRangeException("amount", "amount can't be negative");
+				throw new ArgumentOutOfRangeException(nameof(amount), "amount can't be negative");
 			_LastSendBuilder = null; //If the amount is dust, we don't want the fee to be paid by the previous Send
 			if(DustPrevention && amount < GetDust(scriptPubKey) && !_OpReturnTemplate.CheckScriptPubKey(scriptPubKey))
 			{
@@ -785,7 +791,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Send a money amount to the destination
 		/// </summary>
-		/// <param name="destination">The destination</param>
+		/// <param name="scriptPubKey">The destination</param>
 		/// <param name="amount">The amount (supported : Money, AssetMoney, MoneyBag)</param>
 		/// <returns></returns>
 		/// <exception cref="System.NotSupportedException">The coin type is not supported</exception>
@@ -822,7 +828,7 @@ namespace NBitcoin
 		/// Send assets (Open Asset) to a destination
 		/// </summary>
 		/// <param name="destination">The destination</param>
-		/// <param name="asset">The asset and amount</param>
+		/// <param name="assetId">The asset and amount</param>
 		/// <returns></returns>
 		public TransactionBuilder SendAsset(IDestination destination, AssetId assetId, ulong quantity)
 		{
@@ -867,7 +873,7 @@ namespace NBitcoin
 		public TransactionBuilder SendAsset(Script scriptPubKey, AssetMoney asset)
 		{
 			if(asset.Quantity < 0)
-				throw new ArgumentOutOfRangeException("asset", "Asset amount can't be negative");
+				throw new ArgumentOutOfRangeException(nameof(asset), "Asset amount can't be negative");
 			if(asset.Quantity == 0)
 				return this;
 			AssertOpReturn("Colored Coin");
@@ -934,7 +940,7 @@ namespace NBitcoin
 		public TransactionBuilder Send(BitcoinStealthAddress address, Money amount, Key ephemKey = null)
 		{
 			if(amount < Money.Zero)
-				throw new ArgumentOutOfRangeException("amount", "amount can't be negative");
+				throw new ArgumentOutOfRangeException(nameof(amount), "amount can't be negative");
 
 			if(_OpReturnUser == null)
 				_OpReturnUser = "Stealth Payment";
