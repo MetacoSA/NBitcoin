@@ -139,7 +139,7 @@ namespace NBitcoin.Stealth
 				throw new ArgumentNullException(nameof(transaction));
 			if(value == null)
 				throw new ArgumentNullException(nameof(value));
-			transaction.Outputs.Add(new TxOut(0, Metadata.Script));
+			transaction.Outputs.Add(new TxOut(Money.Zero, Metadata.Script));
 			transaction.Outputs.Add(new TxOut(value, ScriptPubKey));
 		}
 
