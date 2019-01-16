@@ -6648,15 +6648,6 @@ references:
   commentId: M:NBitcoin.BIP174.PSBT.Finalize
   fullName: NBitcoin.BIP174.PSBT.Finalize()
   nameWithType: PSBT.Finalize()
-- uid: NBitcoin.BIP174.PSBT.Finalize(System.InvalidOperationException[]@)
-  name: Finalize(out InvalidOperationException[])
-  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_Finalize_System_InvalidOperationException____
-  commentId: M:NBitcoin.BIP174.PSBT.Finalize(System.InvalidOperationException[]@)
-  name.vb: Finalize(ByRef InvalidOperationException())
-  fullName: NBitcoin.BIP174.PSBT.Finalize(out System.InvalidOperationException[])
-  fullName.vb: NBitcoin.BIP174.PSBT.Finalize(ByRef System.InvalidOperationException())
-  nameWithType: PSBT.Finalize(out InvalidOperationException[])
-  nameWithType.vb: PSBT.Finalize(ByRef InvalidOperationException())
 - uid: NBitcoin.BIP174.PSBT.Finalize*
   name: Finalize
   href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_Finalize_
@@ -6716,12 +6707,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BIP174.PSBT.HasEqualTx
   nameWithType: PSBT.HasEqualTx
-- uid: NBitcoin.BIP174.PSBT.inputs
-  name: inputs
-  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_inputs
-  commentId: F:NBitcoin.BIP174.PSBT.inputs
-  fullName: NBitcoin.BIP174.PSBT.inputs
-  nameWithType: PSBT.inputs
+- uid: NBitcoin.BIP174.PSBT.Inputs
+  name: Inputs
+  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_Inputs
+  commentId: P:NBitcoin.BIP174.PSBT.Inputs
+  fullName: NBitcoin.BIP174.PSBT.Inputs
+  nameWithType: PSBT.Inputs
+- uid: NBitcoin.BIP174.PSBT.Inputs*
+  name: Inputs
+  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_Inputs_
+  commentId: Overload:NBitcoin.BIP174.PSBT.Inputs
+  isSpec: "True"
+  fullName: NBitcoin.BIP174.PSBT.Inputs
+  nameWithType: PSBT.Inputs
 - uid: NBitcoin.BIP174.PSBT.IsAllFinalized
   name: IsAllFinalized()
   href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_IsAllFinalized
@@ -6735,12 +6733,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BIP174.PSBT.IsAllFinalized
   nameWithType: PSBT.IsAllFinalized
-- uid: NBitcoin.BIP174.PSBT.outputs
-  name: outputs
-  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_outputs
-  commentId: F:NBitcoin.BIP174.PSBT.outputs
-  fullName: NBitcoin.BIP174.PSBT.outputs
-  nameWithType: PSBT.outputs
+- uid: NBitcoin.BIP174.PSBT.Outputs
+  name: Outputs
+  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_Outputs
+  commentId: P:NBitcoin.BIP174.PSBT.Outputs
+  fullName: NBitcoin.BIP174.PSBT.Outputs
+  nameWithType: PSBT.Outputs
+- uid: NBitcoin.BIP174.PSBT.Outputs*
+  name: Outputs
+  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_Outputs_
+  commentId: Overload:NBitcoin.BIP174.PSBT.Outputs
+  isSpec: "True"
+  fullName: NBitcoin.BIP174.PSBT.Outputs
+  nameWithType: PSBT.Outputs
 - uid: NBitcoin.BIP174.PSBT.Parse(System.String,System.Boolean)
   name: Parse(String, Boolean)
   href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_Parse_System_String_System_Boolean_
@@ -7073,19 +7078,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BIP174.PSBTInput.SighashType
   nameWithType: PSBTInput.SighashType
-- uid: NBitcoin.BIP174.PSBTInput.ToString
-  name: ToString()
-  href: api/NBitcoin.BIP174.PSBTInput.html#NBitcoin_BIP174_PSBTInput_ToString
-  commentId: M:NBitcoin.BIP174.PSBTInput.ToString
-  fullName: NBitcoin.BIP174.PSBTInput.ToString()
-  nameWithType: PSBTInput.ToString()
-- uid: NBitcoin.BIP174.PSBTInput.ToString*
-  name: ToString
-  href: api/NBitcoin.BIP174.PSBTInput.html#NBitcoin_BIP174_PSBTInput_ToString_
-  commentId: Overload:NBitcoin.BIP174.PSBTInput.ToString
-  isSpec: "True"
-  fullName: NBitcoin.BIP174.PSBTInput.ToString
-  nameWithType: PSBTInput.ToString
 - uid: NBitcoin.BIP174.PSBTInput.Unknown
   name: Unknown
   href: api/NBitcoin.BIP174.PSBTInput.html#NBitcoin_BIP174_PSBTInput_Unknown
@@ -7295,19 +7287,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BIP174.PSBTOutput.Serialize
   nameWithType: PSBTOutput.Serialize
-- uid: NBitcoin.BIP174.PSBTOutput.ToString
-  name: ToString()
-  href: api/NBitcoin.BIP174.PSBTOutput.html#NBitcoin_BIP174_PSBTOutput_ToString
-  commentId: M:NBitcoin.BIP174.PSBTOutput.ToString
-  fullName: NBitcoin.BIP174.PSBTOutput.ToString()
-  nameWithType: PSBTOutput.ToString()
-- uid: NBitcoin.BIP174.PSBTOutput.ToString*
-  name: ToString
-  href: api/NBitcoin.BIP174.PSBTOutput.html#NBitcoin_BIP174_PSBTOutput_ToString_
-  commentId: Overload:NBitcoin.BIP174.PSBTOutput.ToString
-  isSpec: "True"
-  fullName: NBitcoin.BIP174.PSBTOutput.ToString
-  nameWithType: PSBTOutput.ToString
 - uid: NBitcoin.BIP174.PSBTOutput.Unknown
   name: Unknown
   href: api/NBitcoin.BIP174.PSBTOutput.html#NBitcoin_BIP174_PSBTOutput_Unknown
@@ -25822,6 +25801,12 @@ references:
   commentId: M:NBitcoin.Money.#ctor(System.Int64)
   fullName: NBitcoin.Money.Money(System.Int64)
   nameWithType: Money.Money(Int64)
+- uid: NBitcoin.Money.#ctor(System.Int64,NBitcoin.MoneyUnit)
+  name: Money(Int64, MoneyUnit)
+  href: api/NBitcoin.Money.html#NBitcoin_Money__ctor_System_Int64_NBitcoin_MoneyUnit_
+  commentId: M:NBitcoin.Money.#ctor(System.Int64,NBitcoin.MoneyUnit)
+  fullName: NBitcoin.Money.Money(System.Int64, NBitcoin.MoneyUnit)
+  nameWithType: Money.Money(Int64, MoneyUnit)
 - uid: NBitcoin.Money.#ctor(System.UInt32)
   name: Money(UInt32)
   href: api/NBitcoin.Money.html#NBitcoin_Money__ctor_System_UInt32_
@@ -25834,6 +25819,12 @@ references:
   commentId: M:NBitcoin.Money.#ctor(System.UInt64)
   fullName: NBitcoin.Money.Money(System.UInt64)
   nameWithType: Money.Money(UInt64)
+- uid: NBitcoin.Money.#ctor(System.UInt64,NBitcoin.MoneyUnit)
+  name: Money(UInt64, MoneyUnit)
+  href: api/NBitcoin.Money.html#NBitcoin_Money__ctor_System_UInt64_NBitcoin_MoneyUnit_
+  commentId: M:NBitcoin.Money.#ctor(System.UInt64,NBitcoin.MoneyUnit)
+  fullName: NBitcoin.Money.Money(System.UInt64, NBitcoin.MoneyUnit)
+  nameWithType: Money.Money(UInt64, MoneyUnit)
 - uid: NBitcoin.Money.#ctor*
   name: Money
   href: api/NBitcoin.Money.html#NBitcoin_Money__ctor_
@@ -56097,6 +56088,25 @@ references:
   isSpec: "True"
   fullName: NBitcoin.TransactionBuilder.Send
   nameWithType: TransactionBuilder.Send
+- uid: NBitcoin.TransactionBuilder.SendAll(NBitcoin.IDestination)
+  name: SendAll(IDestination)
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_SendAll_NBitcoin_IDestination_
+  commentId: M:NBitcoin.TransactionBuilder.SendAll(NBitcoin.IDestination)
+  fullName: NBitcoin.TransactionBuilder.SendAll(NBitcoin.IDestination)
+  nameWithType: TransactionBuilder.SendAll(IDestination)
+- uid: NBitcoin.TransactionBuilder.SendAll(NBitcoin.Script)
+  name: SendAll(Script)
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_SendAll_NBitcoin_Script_
+  commentId: M:NBitcoin.TransactionBuilder.SendAll(NBitcoin.Script)
+  fullName: NBitcoin.TransactionBuilder.SendAll(NBitcoin.Script)
+  nameWithType: TransactionBuilder.SendAll(Script)
+- uid: NBitcoin.TransactionBuilder.SendAll*
+  name: SendAll
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_SendAll_
+  commentId: Overload:NBitcoin.TransactionBuilder.SendAll
+  isSpec: "True"
+  fullName: NBitcoin.TransactionBuilder.SendAll
+  nameWithType: TransactionBuilder.SendAll
 - uid: NBitcoin.TransactionBuilder.SendAsset(NBitcoin.IDestination,NBitcoin.OpenAsset.AssetId,System.UInt64)
   name: SendAsset(IDestination, AssetId, UInt64)
   href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_SendAsset_NBitcoin_IDestination_NBitcoin_OpenAsset_AssetId_System_UInt64_
