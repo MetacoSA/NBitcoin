@@ -195,7 +195,7 @@ namespace NBitcoin.Altcoins.Elements
 		}
 
 
-		ConfidentialValue _Amount = new ConfidentialValue(0);
+		ConfidentialValue _Amount = new ConfidentialValue(Money.Zero);
 		public ConfidentialValue ConfidentialAmount
 		{
 			get
@@ -209,7 +209,7 @@ namespace NBitcoin.Altcoins.Elements
 		}
 
 
-		ConfidentialValue _InflationKeys = new ConfidentialValue(0);
+		ConfidentialValue _InflationKeys = new ConfidentialValue(Money.Zero);
 		public ConfidentialValue InflationKeys
 		{
 			get
