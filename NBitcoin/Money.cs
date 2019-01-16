@@ -700,7 +700,7 @@ namespace NBitcoin
 		}
 
 
-		static Money _Zero = new Money(0);
+		static readonly Money _Zero = new Money(0L);
 		public static Money Zero
 		{
 			get
