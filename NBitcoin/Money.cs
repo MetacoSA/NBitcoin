@@ -619,11 +619,13 @@ namespace NBitcoin
 		{
 			return new Money(value);
 		}
+		[Obsolete("You shouldn't use 'int' for a satoshi amount; you should use long/int64, as Int32.MaxValue is only 2,147,483,647, while there can be 21,000,000*100,000,000 satoshis")]
 		public static implicit operator Money(int value)
 		{
 			return new Money(value);
 		}
 
+		[Obsolete("You shouldn't use 'int' for a satoshi amount; you should use long/int64, as Int32.MaxValue is only 2,147,483,647, while there can be 21,000,000*100,000,000 satoshis")]
 		public static implicit operator Money(uint value)
 		{
 			return new Money(value);

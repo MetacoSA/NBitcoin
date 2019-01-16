@@ -586,7 +586,7 @@ namespace NBitcoin
 			ScriptPubKey = scriptPubKey;
 		}
 
-		internal readonly static Money NullMoney = new Money(-1);
+		internal readonly static Money NullMoney = new Money(-1L);
 		Money _Value = NullMoney;
 		public virtual Money Value
 		{
@@ -2062,7 +2062,7 @@ namespace NBitcoin
 			long nValueOut = 0;
 			foreach (var txout in Outputs)
 			{
-				if (txout.Value < 0)
+				if (txout.Value < Money.Zero)
 					return TransactionCheckResult.NegativeOutput;
 				if (txout.Value > MAX_MONEY)
 					return TransactionCheckResult.OutputTooLarge;

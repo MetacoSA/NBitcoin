@@ -219,7 +219,7 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void util_FormatMoney()
 		{
-			AssertEx.Equal(new Money(0).ToString(false), "0.00");
+			AssertEx.Equal(Money.Zero.ToString(false), "0.00");
 			AssertEx.Equal(new Money((Money.COIN / 10000) * 123456789).ToString(false), "12345.6789");
 			AssertEx.Equal(new Money(Money.COIN).ToString(true), "+1.00");
 			AssertEx.Equal(new Money(-Money.COIN).ToString(false), "-1.00");
@@ -331,7 +331,7 @@ namespace NBitcoin.Tests
 			{
 				int multiplier = prefix == "-" ? -1 : 1;
 				Assert.True(Money.TryParse(prefix + "0.0", out ret));
-				AssertEx.Equal(ret, multiplier * new Money(0));
+				AssertEx.Equal(ret, multiplier * Money.Zero);
 
 				Assert.True(Money.TryParse(prefix + "12345.6789", out ret));
 				AssertEx.Equal(ret, multiplier * new Money((Money.COIN / 10000) * 123456789));
@@ -927,7 +927,7 @@ namespace NBitcoin.Tests
 
 			// (10 MSFT + 3 GOOG) + 1000 satoshis
 			Assert.Equal(
-				new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 3), new Money(1000)),
+				new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 3), new Money(1000L)),
 				mb + Money.Satoshis(1000));
 
 			// (10 MSFT + 3 GOOG) + 30 GOOG == (10 MSFT + 33 GOOG)
@@ -943,7 +943,7 @@ namespace NBitcoin.Tests
 			//-----
 			// (10 MSFT + 3 GOOG) - 1000 satoshis
 			Assert.Equal(
-				new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 3), new Money(-1000)),
+				new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 3), new Money(-1000L)),
 				mb - (Money.Satoshis(1000)));
 
 			// (10 MSFT + 3 GOOG) - 30 GOOG == (10 MSFT - 27 GOOG)
@@ -960,9 +960,9 @@ namespace NBitcoin.Tests
 			var b1 = new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 3));
 			var b2 = new MoneyBag(new AssetMoney(msft, 1), new AssetMoney(goog, -5));
 
-			var b1_2 = b1 - (b2) + (new Money(10000));
+			var b1_2 = b1 - (b2) + (new Money(10000L));
 			Assert.True(
-				b1_2.SequenceEqual(new IMoney[] { new AssetMoney(msft, 9), new AssetMoney(goog, 8), new Money(10000) }));
+				b1_2.SequenceEqual(new IMoney[] { new AssetMoney(msft, 9), new AssetMoney(goog, 8), new Money(10000L) }));
 		}
 	}
 }

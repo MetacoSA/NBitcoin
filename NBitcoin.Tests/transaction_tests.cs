@@ -1936,7 +1936,7 @@ namespace NBitcoin.Tests
 
 			var builder = Network.CreateTransactionBuilder();
 			builder.StandardTransactionPolicy = EasyPolicy.Clone();
-			builder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(new Money(1000));
+			builder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(new Money(1000L));
 			builder.MergeOutputs = false;
 			Func<Transaction> create = () => builder
 				.AddCoins(coins)
@@ -1963,7 +1963,7 @@ namespace NBitcoin.Tests
 			builder.MergeOutputs = false;
 			builder.DustPrevention = false;
 			builder.StandardTransactionPolicy = EasyPolicy.Clone();
-			builder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(new Money(1000));
+			builder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(new Money(1000L));
 			signed = create();
 			Assert.True(signed.Outputs.Count == 4);
 			Assert.False(builder.Verify(signed, out errors));
@@ -3436,7 +3436,7 @@ namespace NBitcoin.Tests
 			if (!builder.Verify(tx, out var errors))
 				throw new AggregateException(errors.Select(e => new Exception(e.ToString())));
 			Assert.Equal(2, tx.Inputs.Count);
-			Assert.Equal(1, tx.Outputs.Count);
+			Assert.Single(tx.Outputs);
 			Assert.Equal(Money.Coins(1.0m), fee + tx.Outputs[0].Value);
 		}
 	}
