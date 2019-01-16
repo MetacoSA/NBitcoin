@@ -24163,6 +24163,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Key.ScriptPubKey
   nameWithType: Key.ScriptPubKey
+- uid: NBitcoin.Key.Sign(NBitcoin.uint256)
+  name: Sign(uint256)
+  href: api/NBitcoin.Key.html#NBitcoin_Key_Sign_NBitcoin_uint256_
+  commentId: M:NBitcoin.Key.Sign(NBitcoin.uint256)
+  fullName: NBitcoin.Key.Sign(NBitcoin.uint256)
+  nameWithType: Key.Sign(uint256)
 - uid: NBitcoin.Key.Sign(NBitcoin.uint256,NBitcoin.SigHash,System.Boolean)
   name: Sign(uint256, SigHash, Boolean)
   href: api/NBitcoin.Key.html#NBitcoin_Key_Sign_NBitcoin_uint256_NBitcoin_SigHash_System_Boolean_
