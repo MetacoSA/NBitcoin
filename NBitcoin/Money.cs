@@ -236,7 +236,7 @@ namespace NBitcoin
 		public IEnumerable<MoneyBag> Split(int parts)
 		{
 			if(parts <= 0)
-				throw new ArgumentOutOfRangeException("Parts should be more than 0", "parts");
+				throw new ArgumentOutOfRangeException("parts", "Parts should be more than 0");
 			List<List<IMoney>> splits = new List<List<IMoney>>();
 			foreach(var money in this)
 			{
@@ -411,7 +411,7 @@ namespace NBitcoin
 		public IEnumerable<Money> Split(int parts)
 		{
 			if(parts <= 0)
-				throw new ArgumentOutOfRangeException("Parts should be more than 0", "parts");
+				throw new ArgumentOutOfRangeException("parts", "Parts should be more than 0");
 			long remain;
 			long result = DivRem(_Satoshis, parts, out remain);
 
