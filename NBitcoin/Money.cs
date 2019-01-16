@@ -50,7 +50,7 @@ namespace NBitcoin
 				if(id == null)
 					id = money.Id;
 				else if(id != money.Id)
-					throw new ArgumentException("Impossible to add AssetMoney with different asset ids", "moneys");
+					throw new ArgumentException("Impossible to add AssetMoney with different asset ids", nameof(moneys));
 			}
 			if(id == null)
 				return new AssetMoney(assetId);
@@ -236,7 +236,7 @@ namespace NBitcoin
 		public IEnumerable<MoneyBag> Split(int parts)
 		{
 			if(parts <= 0)
-				throw new ArgumentOutOfRangeException("parts", "Parts should be more than 0");
+				throw new ArgumentOutOfRangeException(nameof(parts), "Parts should be more than 0");
 			List<List<IMoney>> splits = new List<List<IMoney>>();
 			foreach(var money in this)
 			{
@@ -373,7 +373,7 @@ namespace NBitcoin
 		public Money(decimal amount, MoneyUnit unit)
 		{
 			// sanity check. Only valid units are allowed
-			CheckMoneyUnit(unit, "unit");
+			CheckMoneyUnit(unit, nameof(unit));
 			checked
 			{
 				var satoshi = amount * (int)unit;
@@ -385,7 +385,7 @@ namespace NBitcoin
 		public Money(long amount, MoneyUnit unit)
 		{
 			// sanity check. Only valid units are allowed
-			CheckMoneyUnit(unit, "unit");
+			CheckMoneyUnit(unit, nameof(unit));
 			checked
 			{
 				Satoshi = amount * (int)unit;
@@ -395,7 +395,7 @@ namespace NBitcoin
 		public Money(ulong amount, MoneyUnit unit)
 		{
 			// sanity check. Only valid units are allowed
-			CheckMoneyUnit(unit, "unit");
+			CheckMoneyUnit(unit, nameof(unit));
 			checked
 			{
 				var satoshi = (long)amount * (int)unit;
@@ -411,7 +411,7 @@ namespace NBitcoin
 		public IEnumerable<Money> Split(int parts)
 		{
 			if(parts <= 0)
-				throw new ArgumentOutOfRangeException("parts", "Parts should be more than 0");
+				throw new ArgumentOutOfRangeException(nameof(parts), "Parts should be more than 0");
 			long remain;
 			long result = DivRem(_Satoshis, parts, out remain);
 
@@ -440,7 +440,7 @@ namespace NBitcoin
 		/// <returns></returns>
 		public decimal ToUnit(MoneyUnit unit)
 		{
-			CheckMoneyUnit(unit, "unit");
+			CheckMoneyUnit(unit, nameof(unit));
 			// overflow safe because (long / int) always fit in decimal 
 			// decimal operations are checked by default
 			return (decimal)Satoshi / (int)unit;
@@ -735,7 +735,7 @@ namespace NBitcoin
 			if(amount == null)
 				throw new ArgumentNullException(nameof(amount));
 			if(margin < 0.0m || margin > 1.0m)
-				throw new ArgumentOutOfRangeException("margin", "margin should be between 0 and 1");
+				throw new ArgumentOutOfRangeException(nameof(margin), "margin should be between 0 and 1");
 			var dust = Money.Satoshis((decimal)this.Satoshi * margin);
 			return Almost(amount, dust);
 		}

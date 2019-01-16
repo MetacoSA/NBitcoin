@@ -732,7 +732,7 @@ namespace NBitcoin
 		public TransactionBuilder Send(Script scriptPubKey, Money amount)
 		{
 			if(amount < Money.Zero)
-				throw new ArgumentOutOfRangeException("amount", "amount can't be negative");
+				throw new ArgumentOutOfRangeException(nameof(amount), "amount can't be negative");
 			_LastSendBuilder = null; //If the amount is dust, we don't want the fee to be paid by the previous Send
 			if(DustPrevention && amount < GetDust(scriptPubKey) && !_OpReturnTemplate.CheckScriptPubKey(scriptPubKey))
 			{
@@ -873,7 +873,7 @@ namespace NBitcoin
 		public TransactionBuilder SendAsset(Script scriptPubKey, AssetMoney asset)
 		{
 			if(asset.Quantity < 0)
-				throw new ArgumentOutOfRangeException("asset", "Asset amount can't be negative");
+				throw new ArgumentOutOfRangeException(nameof(asset), "Asset amount can't be negative");
 			if(asset.Quantity == 0)
 				return this;
 			AssertOpReturn("Colored Coin");
@@ -940,7 +940,7 @@ namespace NBitcoin
 		public TransactionBuilder Send(BitcoinStealthAddress address, Money amount, Key ephemKey = null)
 		{
 			if(amount < Money.Zero)
-				throw new ArgumentOutOfRangeException("amount", "amount can't be negative");
+				throw new ArgumentOutOfRangeException(nameof(amount), "amount can't be negative");
 
 			if(_OpReturnUser == null)
 				_OpReturnUser = "Stealth Payment";
