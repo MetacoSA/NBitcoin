@@ -173,7 +173,7 @@ namespace NBitcoin
 		public string Group
 		{
 			get;
-			set;
+			private set;
 		}
 
 		/// <summary>
@@ -182,7 +182,7 @@ namespace NBitcoin
 		public IMoney Missing
 		{
 			get;
-			set;
+			private set;
 		}
 	}
 
