@@ -702,13 +702,19 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Send all coins added so far with no change. It will automatically estimate the fee.
+		/// Send all coins added so far with no change (sweep), substracting fees from the total amount
 		/// </summary>
 		/// <param name="destination"></param>
 		/// <returns></returns>
 		public TransactionBuilder SendAll(IDestination destination)
 			=> SendAll(destination.ScriptPubKey);
 
+
+		/// <summary>
+		/// Send all coins added so far with no change (sweep), substracting fees from the total amount
+		/// </summary>
+		/// <param name="scriptPubKey"></param>
+		/// <returns></returns>
 		public TransactionBuilder SendAll(Script scriptPubKey)
 		{
 			var totalInput = CurrentGroup.Coins.Values.OfType<Coin>().Sum(coin => coin.Amount);
@@ -785,7 +791,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Send a money amount to the destination
 		/// </summary>
-		/// <param name="destination">The destination</param>
+		/// <param name="scriptPubKey">The destination</param>
 		/// <param name="amount">The amount (supported : Money, AssetMoney, MoneyBag)</param>
 		/// <returns></returns>
 		/// <exception cref="System.NotSupportedException">The coin type is not supported</exception>
@@ -822,7 +828,7 @@ namespace NBitcoin
 		/// Send assets (Open Asset) to a destination
 		/// </summary>
 		/// <param name="destination">The destination</param>
-		/// <param name="asset">The asset and amount</param>
+		/// <param name="assetId">The asset and amount</param>
 		/// <returns></returns>
 		public TransactionBuilder SendAsset(IDestination destination, AssetId assetId, ulong quantity)
 		{
