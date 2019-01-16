@@ -89,11 +89,15 @@ namespace NBitcoin
 			}
 		}
 
-		public ECDSASignature Sign(uint256 hash, bool useLowR = true)
+		public ECDSASignature Sign(uint256 hash, bool useLowR)
 		{
 			return _ECKey.Sign(hash, useLowR);
 		}
 
+		public ECDSASignature Sign(uint256 hash)
+		{
+			return _ECKey.Sign(hash, true);
+		}
 
 		public string SignMessage(String message)
 		{
