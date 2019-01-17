@@ -23,8 +23,8 @@ namespace NBitcoin.Altcoins.HashX11
 			var shavite512 = HashFactory.Crypto.SHA3.CreateSHAvite3_512_Custom();
 			var simd512 = HashFactory.Crypto.SHA3.CreateSIMD512();
 			var echo512 = HashFactory.Crypto.SHA3.CreateEcho512();
-            var hamsi512 = HashFactory.Crypto.SHA3.CreateHamsi512();
-            var fugue512 = HashFactory.Crypto.SHA3.CreateFugue512();
+            		var hamsi512 = HashFactory.Crypto.SHA3.CreateHamsi512();
+           		var fugue512 = HashFactory.Crypto.SHA3.CreateFugue512();
 			_hashers = new IHash[] 
 			{
 				blake512, bmw512, groestl512, skein512, jh512, keccak512,
