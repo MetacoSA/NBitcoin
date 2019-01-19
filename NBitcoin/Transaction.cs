@@ -1301,18 +1301,47 @@ namespace NBitcoin
 			return network.Consensus.ConsensusFactory.CreateTransaction();
 		}
 
-		[Obsolete("You should instantiate Transaction from ConsensusFactory.CreateTransaction")]
+		[Obsolete("You should instantiate Transaction from Transaction.Parse(string hex, Network network)")]
 		public Transaction(string hex, uint? version = null)
 			: this()
 		{
 			this.FromBytes(Encoders.Hex.DecodeData(hex), version);
 		}
 
-		[Obsolete("You should instantiate Transaction from ConsensusFactory.CreateTransaction")]
+		public static Transaction Parse(string hex, Network network)
+		{
+			return Parse(hex, null, network);
+		}
+		public static Transaction Parse(string hex, uint? version, Network network)
+		{
+			if (hex == null)
+				throw new ArgumentNullException(nameof(hex));
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			return Load(Encoders.Hex.DecodeData(hex), network);
+		}
+
+
+		[Obsolete("You should instantiate Transaction from Transaction.Load(byte[] bytes, Network network)")]
 		public Transaction(byte[] bytes)
 			: this()
 		{
 			this.FromBytes(bytes);
+		}
+
+		public static Transaction Load(byte[] bytes, Network network)
+		{
+			return Load(bytes, null, network);
+		}
+		public static Transaction Load(byte[] bytes, uint? version, Network network)
+		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			if (bytes == null)
+				throw new ArgumentNullException(nameof(bytes));
+			var transaction = network.Consensus.ConsensusFactory.CreateTransaction();
+			transaction.FromBytes(bytes, version);
+			return transaction;
 		}
 
 		public Money TotalOut
@@ -1782,16 +1811,6 @@ namespace NBitcoin
 			return GetFormatter(format, network).ParseJson(tx);
 		}
 #endif
-
-		public static Transaction Parse(string hex, Network network)
-		{
-			var tx = network.Consensus.ConsensusFactory.CreateTransaction();
-			var data = Encoders.Hex.DecodeData(hex);
-			var stream = new BitcoinStream(data);
-			stream.ConsensusFactory = network.Consensus.ConsensusFactory;
-			tx.ReadWrite(stream);
-			return tx;
-		}
 
 
 		[Obsolete("Use Transaction.Parse(string hex, Network network)")]
@@ -2324,7 +2343,11 @@ namespace NBitcoin
 
 		public void FromBytes(byte[] bytes)
 		{
-			this.ReadWrite(new BitcoinStream(bytes) { ConsensusFactory = GetConsensusFactory() });
+			this.FromBytes(bytes, null);
+		}
+		public void FromBytes(byte[] bytes, uint? version)
+		{
+			this.ReadWrite(new BitcoinStream(bytes) { ConsensusFactory = GetConsensusFactory(), ProtocolVersion = version });
 		}
 
 	}
