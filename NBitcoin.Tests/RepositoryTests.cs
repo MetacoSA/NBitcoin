@@ -63,23 +63,6 @@ namespace NBitcoin.Tests
 		{
 			Assert.Equal(301, StoredBlock.EnumerateFile(@"data/blocks/incompleteblk.dat").Count());
 		}
-		
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public static void CanRequestTransactionOnQBit()
-		{
-			var repo = new QBitNinjaTransactionRepository(Network.Main);
-			var result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de");
-			Assert.NotNull(result);
-			Assert.Equal("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de", result.GetHash().ToString());
-
-			result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927df");
-			Assert.Null(result);
-
-			repo = new QBitNinjaTransactionRepository(Network.TestNet);
-			result = repo.Get("7d4c5d69a85c70ff70daff789114b9b76fb6d2613ac18764bd96f0a2b9358782");
-			Assert.NotNull(result);
-		}
 
 		enum CoinType : int
 		{

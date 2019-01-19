@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	[Obsolete()]
 	public class QBitNinjaTransactionRepository : ITransactionRepository
 	{
 		private readonly Uri _BaseUri;
