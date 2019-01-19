@@ -4294,6 +4294,41 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Altcoins.HashX11.X11.ComputeBytes
   nameWithType: X11.ComputeBytes
+- uid: NBitcoin.Altcoins.HashX11.X13
+  name: X13
+  href: api/NBitcoin.Altcoins.HashX11.X13.html
+  commentId: T:NBitcoin.Altcoins.HashX11.X13
+  fullName: NBitcoin.Altcoins.HashX11.X13
+  nameWithType: X13
+- uid: NBitcoin.Altcoins.HashX11.X13.#ctor
+  name: X13()
+  href: api/NBitcoin.Altcoins.HashX11.X13.html#NBitcoin_Altcoins_HashX11_X13__ctor
+  commentId: M:NBitcoin.Altcoins.HashX11.X13.#ctor
+  fullName: NBitcoin.Altcoins.HashX11.X13.X13()
+  nameWithType: X13.X13()
+- uid: NBitcoin.Altcoins.HashX11.X13.#ctor*
+  name: X13
+  href: api/NBitcoin.Altcoins.HashX11.X13.html#NBitcoin_Altcoins_HashX11_X13__ctor_
+  commentId: Overload:NBitcoin.Altcoins.HashX11.X13.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.Altcoins.HashX11.X13.X13
+  nameWithType: X13.X13
+- uid: NBitcoin.Altcoins.HashX11.X13.ComputeBytes(System.Byte[])
+  name: ComputeBytes(Byte[])
+  href: api/NBitcoin.Altcoins.HashX11.X13.html#NBitcoin_Altcoins_HashX11_X13_ComputeBytes_System_Byte___
+  commentId: M:NBitcoin.Altcoins.HashX11.X13.ComputeBytes(System.Byte[])
+  name.vb: ComputeBytes(Byte())
+  fullName: NBitcoin.Altcoins.HashX11.X13.ComputeBytes(System.Byte[])
+  fullName.vb: NBitcoin.Altcoins.HashX11.X13.ComputeBytes(System.Byte())
+  nameWithType: X13.ComputeBytes(Byte[])
+  nameWithType.vb: X13.ComputeBytes(Byte())
+- uid: NBitcoin.Altcoins.HashX11.X13.ComputeBytes*
+  name: ComputeBytes
+  href: api/NBitcoin.Altcoins.HashX11.X13.html#NBitcoin_Altcoins_HashX11_X13_ComputeBytes_
+  commentId: Overload:NBitcoin.Altcoins.HashX11.X13.ComputeBytes
+  isSpec: "True"
+  fullName: NBitcoin.Altcoins.HashX11.X13.ComputeBytes
+  nameWithType: X13.ComputeBytes
 - uid: NBitcoin.Altcoins.Koto
   name: Koto
   href: api/NBitcoin.Altcoins.Koto.html
@@ -55089,6 +55124,15 @@ references:
   fullName.vb: NBitcoin.Transaction.FromBytes(System.Byte())
   nameWithType: Transaction.FromBytes(Byte[])
   nameWithType.vb: Transaction.FromBytes(Byte())
+- uid: NBitcoin.Transaction.FromBytes(System.Byte[],System.Nullable{System.UInt32})
+  name: FromBytes(Byte[], Nullable<UInt32>)
+  href: api/NBitcoin.Transaction.html#NBitcoin_Transaction_FromBytes_System_Byte___System_Nullable_System_UInt32__
+  commentId: M:NBitcoin.Transaction.FromBytes(System.Byte[],System.Nullable{System.UInt32})
+  name.vb: FromBytes(Byte(), Nullable(Of UInt32))
+  fullName: NBitcoin.Transaction.FromBytes(System.Byte[], System.Nullable<System.UInt32>)
+  fullName.vb: NBitcoin.Transaction.FromBytes(System.Byte(), System.Nullable(Of System.UInt32))
+  nameWithType: Transaction.FromBytes(Byte[], Nullable<UInt32>)
+  nameWithType.vb: Transaction.FromBytes(Byte(), Nullable(Of UInt32))
 - uid: NBitcoin.Transaction.FromBytes*
   name: FromBytes
   href: api/NBitcoin.Transaction.html#NBitcoin_Transaction_FromBytes_
@@ -55275,6 +55319,31 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Transaction.IsFinal
   nameWithType: Transaction.IsFinal
+- uid: NBitcoin.Transaction.Load(System.Byte[],NBitcoin.Network)
+  name: Load(Byte[], Network)
+  href: api/NBitcoin.Transaction.html#NBitcoin_Transaction_Load_System_Byte___NBitcoin_Network_
+  commentId: M:NBitcoin.Transaction.Load(System.Byte[],NBitcoin.Network)
+  name.vb: Load(Byte(), Network)
+  fullName: NBitcoin.Transaction.Load(System.Byte[], NBitcoin.Network)
+  fullName.vb: NBitcoin.Transaction.Load(System.Byte(), NBitcoin.Network)
+  nameWithType: Transaction.Load(Byte[], Network)
+  nameWithType.vb: Transaction.Load(Byte(), Network)
+- uid: NBitcoin.Transaction.Load(System.Byte[],System.Nullable{System.UInt32},NBitcoin.Network)
+  name: Load(Byte[], Nullable<UInt32>, Network)
+  href: api/NBitcoin.Transaction.html#NBitcoin_Transaction_Load_System_Byte___System_Nullable_System_UInt32__NBitcoin_Network_
+  commentId: M:NBitcoin.Transaction.Load(System.Byte[],System.Nullable{System.UInt32},NBitcoin.Network)
+  name.vb: Load(Byte(), Nullable(Of UInt32), Network)
+  fullName: NBitcoin.Transaction.Load(System.Byte[], System.Nullable<System.UInt32>, NBitcoin.Network)
+  fullName.vb: NBitcoin.Transaction.Load(System.Byte(), System.Nullable(Of System.UInt32), NBitcoin.Network)
+  nameWithType: Transaction.Load(Byte[], Nullable<UInt32>, Network)
+  nameWithType.vb: Transaction.Load(Byte(), Nullable(Of UInt32), Network)
+- uid: NBitcoin.Transaction.Load*
+  name: Load
+  href: api/NBitcoin.Transaction.html#NBitcoin_Transaction_Load_
+  commentId: Overload:NBitcoin.Transaction.Load
+  isSpec: "True"
+  fullName: NBitcoin.Transaction.Load
+  nameWithType: Transaction.Load
 - uid: NBitcoin.Transaction.LockTime
   name: LockTime
   href: api/NBitcoin.Transaction.html#NBitcoin_Transaction_LockTime
@@ -55367,6 +55436,15 @@ references:
   commentId: M:NBitcoin.Transaction.Parse(System.String,NBitcoin.RawFormat,NBitcoin.Network)
   fullName: NBitcoin.Transaction.Parse(System.String, NBitcoin.RawFormat, NBitcoin.Network)
   nameWithType: Transaction.Parse(String, RawFormat, Network)
+- uid: NBitcoin.Transaction.Parse(System.String,System.Nullable{System.UInt32},NBitcoin.Network)
+  name: Parse(String, Nullable<UInt32>, Network)
+  href: api/NBitcoin.Transaction.html#NBitcoin_Transaction_Parse_System_String_System_Nullable_System_UInt32__NBitcoin_Network_
+  commentId: M:NBitcoin.Transaction.Parse(System.String,System.Nullable{System.UInt32},NBitcoin.Network)
+  name.vb: Parse(String, Nullable(Of UInt32), Network)
+  fullName: NBitcoin.Transaction.Parse(System.String, System.Nullable<System.UInt32>, NBitcoin.Network)
+  fullName.vb: NBitcoin.Transaction.Parse(System.String, System.Nullable(Of System.UInt32), NBitcoin.Network)
+  nameWithType: Transaction.Parse(String, Nullable<UInt32>, Network)
+  nameWithType.vb: Transaction.Parse(String, Nullable(Of UInt32), Network)
 - uid: NBitcoin.Transaction.Parse*
   name: Parse
   href: api/NBitcoin.Transaction.html#NBitcoin_Transaction_Parse_
