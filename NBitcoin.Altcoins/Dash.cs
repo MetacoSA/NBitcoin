@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace NBitcoin.Altcoins
 {
@@ -36,9 +37,15 @@ namespace NBitcoin.Altcoins
 			{
 				return new DashBlockHeader();
 			}
+
 			public override Block CreateBlock()
 			{
 				return new DashBlock(new DashBlockHeader());
+			}
+
+			public override Transaction CreateTransaction()
+			{
+				return new DashTransaction();
 			}
 		}
 
@@ -57,6 +64,33 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
+		public class DashTransaction : Transaction
+		{
+			
+			public override void ReadWrite(BitcoinStream stream)
+			{
+				//Dash uses version 3 in first byte, then 0, then 1, then 0, which is 0x03000100 = 65539
+				base.ReadWrite(stream);
+				
+				//Console.WriteLine("Transaction nLockTime=" + nLockTime+" nVersion="+nVersion);
+				// Dummy support for Dash 0.13 extraPayloadSize (1-3 byte)+ extraPayload (based on length of extraPayloadSize)
+				if (nVersion >= 65539)//see above, might also be: 327683 or higher
+				{
+					// Extra payload size is a byte if below 253, but 1+2 bytes (short) if bigger, doc says int, but it isn't
+					byte extraPayloadSize = 0;
+					stream.ReadWrite(ref extraPayloadSize);
+					ushort totalExtraPayloadSize = extraPayloadSize;
+					//TODO: use compact_int
+					if (extraPayloadSize == 253)
+						stream.ReadWrite(ref totalExtraPayloadSize);
+					//Console.WriteLine("Transaction totalExtraPayloadSize=" + totalExtraPayloadSize);
+					byte dummy = 0;
+					for (int i = 0; i < totalExtraPayloadSize; i++)
+						stream.ReadWrite(ref dummy);
+				}
+			}
+		}
+
 		public class DashBlock : Block
 		{
 #pragma warning disable CS0612 // Type or member is obsolete
@@ -68,6 +102,12 @@ namespace NBitcoin.Altcoins
 			public override ConsensusFactory GetConsensusFactory()
 			{
 				return Dash.Instance.Mainnet.Consensus.ConsensusFactory;
+			}
+
+			public override string ToString()
+			{
+				return "DashBlock " + Header.ToString() + ", Height=" + GetCoinbaseHeight() +
+					", Version=" + Header.Version + ", Txs=" + Transactions.Count;
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
