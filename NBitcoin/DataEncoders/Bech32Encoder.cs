@@ -378,8 +378,11 @@ namespace NBitcoin.DataEncoders
 				return;
 			throw new FormatException("Invalid bech32 string, mixed case detected");
 		}
-
 		public override byte[] DecodeData(string encoded)
+		{
+			throw new NotSupportedException();
+		}
+		byte[] DecodeDataCore(string encoded)
 		{
 			if(encoded == null)
 				throw new ArgumentNullException(nameof(encoded));
@@ -461,7 +464,7 @@ namespace NBitcoin.DataEncoders
 			if(addr == null)
 				throw new ArgumentNullException(nameof(addr));
 			CheckCase(addr);
-			var data = DecodeData(addr);
+			var data = DecodeDataCore(addr);
 
 			var decoded = ConvertBits(data.Skip(1), 5, 8, false);
 			if(decoded.Length < 2 || decoded.Length > 40)
