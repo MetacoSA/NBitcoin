@@ -764,7 +764,7 @@
 				}
 			};
 		}
-	public class KotoNodeDownloadData
+		public class KotoNodeDownloadData
 		{
 			public NodeDownloadData v2_0_0 = new NodeDownloadData()
 			{
@@ -793,7 +793,34 @@
 			};
 		}
 
-
+        public class BitcoinplusNodeDownloadData
+        {
+            public NodeDownloadData v2_7_0 = new NodeDownloadData()
+            {
+                Version = "2.7.0",
+                Windows = new NodeOSDownloadData()
+                {
+                    DownloadLink = "https://downloads.bitcoinplus.org/bitcoinplus-2.7.0.zip",
+                    Archive = "bitcoinplus-{0}-win64.zip",
+                    Executable = "bitcoinplus-{0}/bin/bitcoinplusd.exe",
+                    Hash = "3eb8fc8c57eba865c4818653f1745adbca7ee5c9065e622311907eb4d5c34273"
+                },
+                Linux = new NodeOSDownloadData()
+                {
+                    DownloadLink = "https://downloads.bitcoinplus.org/bitcoinplus-2.7.0-x86_64.tar.gz",
+                    Archive = "bitcoinplus-{0}-x86_64-linux-gnu.tar.gz",
+                    Executable = "bitcoinplus-{0}/bin/bitcoinplusd",
+                    Hash = "753547b23988124defbf9bee029b4902d6277ce467c63f2ad6588c53817b2251"
+                },
+                Mac = new NodeOSDownloadData()
+                {
+                    DownloadLink = "https://downloads.bitcoinplus.org/bitcoinplus-2.7.0-osx64.tar.gz",
+                    Archive = "Bitcoinplus-Core.dmg",
+                    Executable = "bitcoinplusd",
+                    Hash = "09d381ed0082fccd6e3af4792b975fee177cffc546fd449181a4c37b4907cff8"
+                }
+            };
+        }
 
 		public static GoByteNodeDownloadData GoByte
 		{
@@ -903,6 +930,11 @@
 		{
 			get; set;
 		} = new KotoNodeDownloadData();
+
+		public static BitcoinplusNodeDownloadData Bitcoinplus
+		{
+			get; set;
+		} = new BitcoinplusNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }

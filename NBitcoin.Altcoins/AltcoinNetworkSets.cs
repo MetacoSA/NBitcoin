@@ -28,6 +28,7 @@ namespace NBitcoin.Altcoins
 		public static GoByte GoByte { get; } = GoByte.Instance;
 		public static Liquid Liquid { get; } = Liquid.Instance;
 		public static Koto Koto { get; } = Koto.Instance;
+		public static Bitcoinplus Bitcoinplus { get; } = Bitcoinplus.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
@@ -51,6 +52,7 @@ namespace NBitcoin.Altcoins
 			yield return GoByte;
 			yield return Liquid;
 			yield return Koto;
+			yield return Bitcoinplus;
 		}
 	}
 }
