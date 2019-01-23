@@ -1,11 +1,6 @@
-﻿using System.Net;
-using System.Threading.Tasks;
-using NBitcoin.Altcoins;
+﻿using NBitcoin.Altcoins;
 using NBitcoin.DataEncoders;
-using NBitcoin.RPC;
-using Newtonsoft.Json;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace NBitcoin.Tests
 {
@@ -209,6 +204,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(Hex, tx.ToHex());
 		}
 
+		/*for manually testing via running Dash Testnet node
 		public DashTests(ITestOutputHelper output)
 		{
 			this.output = output;
@@ -216,7 +212,7 @@ namespace NBitcoin.Tests
 
 		private readonly ITestOutputHelper output;
 
-		//[Fact(DisplayName = "Enable manually to test when having local Dash testnet running")]
+		[Fact(DisplayName = "Enable manually to test when having local Dash testnet running")]
 		public async Task ConnectToDashTestnetAndCheckBlock7000()
 		{
 			var connectionString = new RPCCredentialString();
@@ -302,5 +298,6 @@ namespace NBitcoin.Tests
 			Assert.Equal("000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", Encoders.Hex.EncodeData(tx.QcTx.Commitment.QuorumPublicKey));
 			Assert.Equal("03000600000000000000fd49010100581b0000010001e3aeae4a2d013f6bdd3525318bcc579f95c3420e8897a23e8a479f1c39000000320000000000000032000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", tx.ToHex());
 		}
+		*/
 	}
 }

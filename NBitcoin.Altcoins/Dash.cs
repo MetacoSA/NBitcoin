@@ -1,16 +1,9 @@
-﻿using NBitcoin;
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace NBitcoin.Altcoins
 {
@@ -32,6 +25,7 @@ namespace NBitcoin.Altcoins
 			{
 			}
 
+			// ReSharper disable once MemberHidesStaticFromOuterClass
 			public static DashConsensusFactory Instance { get; } = new DashConsensusFactory();
 
 			public override BlockHeader CreateBlockHeader()
@@ -314,82 +308,34 @@ namespace NBitcoin.Altcoins
 		/// </summary>
 		public class DashTransaction : Transaction
 		{
-			public uint DashVersion
-			{
-				get
-				{
-					return Version & 0xffff;
-				}
-			}
-			public DashTransactionType DashType
-			{
-				get
-				{
-					return (DashTransactionType)((Version >> 16) & 0xffff);
-				}
-			}
+			public uint DashVersion => Version & 0xffff;
+			public DashTransactionType DashType => (DashTransactionType)((Version >> 16) & 0xffff);
 			public byte[] ExtraPayload = new byte[0];
-			/*
-			MasternodeRegistration = 1,
-			 = 2,
-			 = 3,
-			 = 4,
-			*/
-			public ProviderRegistrationTransaction ProRegTx
-			{
-				get
-				{
-					return DashType == DashTransactionType.MasternodeRegistration
-						? new ProviderRegistrationTransaction(ExtraPayload)
-						: null;
-				}
-			}
-			public ProviderUpdateServiceTransaction ProUpServTx
-			{
-				get
-				{
-					return DashType == DashTransactionType.UpdateMasternodeService
-						? new ProviderUpdateServiceTransaction(ExtraPayload)
-						: null;
-				}
-			}
-			public ProviderUpdateRegistrarTransaction ProUpRegTx
-			{
-				get
-				{
-					return DashType == DashTransactionType.UpdateMasternodeOperator
-						? new ProviderUpdateRegistrarTransaction(ExtraPayload)
-						: null;
-				}
-			}
-			public ProviderUpdateRevocationTransaction ProUpRevTx
-			{
-				get
-				{
-					return DashType == DashTransactionType.MasternodeRevocation
-						? new ProviderUpdateRevocationTransaction(ExtraPayload)
-						: null;
-				}
-			}
-			public CoinbaseSpecialTransaction CbTx
-			{
-				get
-				{
-					return DashType == DashTransactionType.MasternodeListMerkleProof
-						? new CoinbaseSpecialTransaction(ExtraPayload)
-						: null;
-				}
-			}
-			public QuorumCommitmentTransaction QcTx
-			{
-				get
-				{
-					return DashType == DashTransactionType.QuorumCommitment
-						? new QuorumCommitmentTransaction(ExtraPayload)
-						: null;
-				}
-			}
-	  
+			public ProviderRegistrationTransaction ProRegTx =>
+				DashType == DashTransactionType.MasternodeRegistration
+					? new ProviderRegistrationTransaction(ExtraPayload)
+					: null;
+			public ProviderUpdateServiceTransaction ProUpServTx =>
+				DashType == DashTransactionType.UpdateMasternodeService
+					? new ProviderUpdateServiceTransaction(ExtraPayload)
+					: null;
+			public ProviderUpdateRegistrarTransaction ProUpRegTx =>
+				DashType == DashTransactionType.UpdateMasternodeOperator
+					? new ProviderUpdateRegistrarTransaction(ExtraPayload)
+					: null;
+			public ProviderUpdateRevocationTransaction ProUpRevTx =>
+				DashType == DashTransactionType.MasternodeRevocation
+					? new ProviderUpdateRevocationTransaction(ExtraPayload)
+					: null;
+			public CoinbaseSpecialTransaction CbTx =>
+				DashType == DashTransactionType.MasternodeListMerkleProof
+					? new CoinbaseSpecialTransaction(ExtraPayload)
+					: null;
+			public QuorumCommitmentTransaction QcTx =>
+				DashType == DashTransactionType.QuorumCommitment
+					? new QuorumCommitmentTransaction(ExtraPayload)
+					: null;
+
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				base.ReadWrite(stream);
@@ -422,7 +368,7 @@ namespace NBitcoin.Altcoins
 
 			public override string ToString()
 			{
-				return "DashBlock " + Header.ToString() + ", Height=" + GetCoinbaseHeight() +
+				return "DashBlock " + Header + ", Height=" + GetCoinbaseHeight() +
 					", Version=" + Header.Version + ", Txs=" + Transactions.Count;
 			}
 		}
@@ -472,7 +418,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xBD6B0CBF)
 			.SetPort(9999)
 			.SetRPCPort(9998)
-			.SetMaxP2PVersion(70208)
+			.SetMaxP2PVersion(70213)
 			.SetName("dash-main")
 			.AddAlias("dash-mainnet")
 			.AddDNSSeeds(new[]
@@ -490,7 +436,7 @@ namespace NBitcoin.Altcoins
 		protected override NetworkBuilder CreateTestnet()
 		{
 			var builder = new NetworkBuilder();
-			var res = builder.SetConsensus(new Consensus()
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 210240,
 				MajorityEnforceBlockUpgrade = 51,
@@ -519,7 +465,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xFFCAE2CE)
 			.SetPort(19999)
 			.SetRPCPort(19998)
-			.SetMaxP2PVersion(70208)
+			.SetMaxP2PVersion(70213)
 		   .SetName("dash-test")
 		   .AddAlias("dash-testnet")
 		   .AddDNSSeeds(new[]
@@ -564,7 +510,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xDCB7C1FC)
 			.SetPort(19994)
 			.SetRPCPort(19993)
-			.SetMaxP2PVersion(70208)
+			.SetMaxP2PVersion(70213)
 			.SetName("dash-reg")
 			.AddAlias("dash-regtest")
 			.AddDNSSeeds(new DNSSeedData[0])
