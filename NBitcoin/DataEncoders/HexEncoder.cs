@@ -21,6 +21,8 @@ namespace NBitcoin.DataEncoders
 
 			int pos = 0;
 			var spaces = (Space ? Math.Max((count - 1), 0) : 0);
+
+#if !HAS_SPAN
 			var s = new char[2 * count + spaces];
 			for(var i = offset; i < offset + count; i++)
 			{
@@ -31,7 +33,25 @@ namespace NBitcoin.DataEncoders
 				s[pos++] = c[1];
 			}
 			return new string(s);
+#else
+			return string.Create(2 * count + spaces, (offset, count, data), CreateHexString);
+#endif
 		}
+
+#if HAS_SPAN
+		void CreateHexString(Span<char> s, (int offset, int count, byte[] data) state)
+		{
+			int pos = 0;
+			for (var i = state.offset; i < state.offset + state.count; i++)
+			{
+				if (Space && i != 0)
+					s[pos++] = ' ';
+				var c = HexTbl[state.data[i]];
+				s[pos++] = c[0];
+				s[pos++] = c[1];
+			}
+		}
+#endif
 
 		public override byte[] DecodeData(string encoded)
 		{
@@ -41,7 +61,7 @@ namespace NBitcoin.DataEncoders
 				throw new FormatException("Invalid Hex String");
 
 			var result = new byte[encoded.Length / 2];
-			for(int i = 0, j = 0; i < encoded.Length; i += 2, j++)
+			for (int i = 0, j = 0; i < encoded.Length; i += 2, j++)
 			{
 				var a = IsDigit(encoded[i]);
 				var b = IsDigit(encoded[i + 1]);
