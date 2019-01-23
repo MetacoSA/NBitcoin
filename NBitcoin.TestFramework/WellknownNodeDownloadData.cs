@@ -285,29 +285,29 @@
 
 		public class DashNodeDownloadData
 		{
-			public NodeDownloadData v0_12_2 = new NodeDownloadData()
+			public NodeDownloadData v0_13_0 = new NodeDownloadData()
 			{
-				Version = "0.12.2.3",
+				Version = "0.13.0.0",
 				Windows = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-win64.zip",
 					Archive = "dashcore-{0}-win64.zip",
-					Executable = "dashcore-0.12.2/bin/dashd.exe",
-					Hash = "04e95d11443d785ad9d98b04fd2313ca96d937e424be80f639b73846304d154c"
+					Executable = "dashcore-0.13.0/bin/dashd.exe",
+					Hash = "89d2e06701f948cfecea612fb6b1a0175227108990a29849fc6fcc8a28fb62fd"
 				},
 				Linux = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-linux64.tar.gz",
-					Archive = "dashcore-{0}-linux64.tar.gz",
-					Executable = "dashcore-0.12.2/bin/dashd",
-					Hash = "8b7c72197f87be1f5d988c274cac06f6539ddb4591a578bfb852a412022378f2"
+					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "dashcore-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "dashcore-0.13.0/bin/dashd",
+					Hash = "99b4309c7f53b2a93d4b60a45885000b88947af2f329e24ca757ff8cf882ab18"
 				},
 				Mac = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-osx.dmg",
-					Archive = "dashcore-{0}-osx.dmg",
-					Executable = "dashcore-0.12.2/bin/dashd",
-					Hash = "90ca27d6733df6fc69b0fc8220f2315623fe5b0cbd1fe31f247684d51808cb81"
+					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-osx-unsigned.dmg",
+					Archive = "dashcore-{0}-osx-unsigned.dmg",
+					Executable = "dashcore-0.13.0/bin/dashd",
+					Hash = "6f97f502732e5b63a431d0edb5a9d14e95ff8afb8e7eb94463566a75e7589a70"
 				}
 			};
 		}
