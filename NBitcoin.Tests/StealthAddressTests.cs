@@ -250,7 +250,7 @@ namespace NBitcoin.Tests
 				AssertEx.CollectionEquals(generatedKey.PubKey.ToBytes(), uncovertedReceiver.ToBytes());
 
 				var transaction = Network.Main.CreateTransaction();
-				payment.AddToTransaction(transaction, 100);
+				payment.AddToTransaction(transaction, 100UL);
 			}
 		}
 

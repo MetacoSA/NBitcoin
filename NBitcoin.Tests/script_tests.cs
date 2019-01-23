@@ -672,11 +672,11 @@ namespace NBitcoin.Tests
 			txTo12.Outputs.Add(new TxOut());
 			txTo12.Inputs[0].PrevOut.N = 0;
 			txTo12.Inputs[0].PrevOut.Hash = txFrom12.GetHash();
-			txTo12.Outputs[0].Value = 1;
+			txTo12.Outputs[0].Value = 1UL;
 			txTo12.Inputs[0].ScriptSig = sign_multisig(scriptPubKey12, key1, txTo12);
 
 			AssertValidScript(txFrom12.Outputs[0], txTo12, 0, flags);
-			txTo12.Outputs[0].Value = 2;
+			txTo12.Outputs[0].Value = 2UL;
 			AssertInvalidScript(txFrom12.Outputs[0], txTo12, 0, flags);
 
 			txTo12.Inputs[0].ScriptSig = sign_multisig(scriptPubKey12, key2, txTo12);
@@ -715,7 +715,7 @@ namespace NBitcoin.Tests
 			txTo23.Outputs.Add(new TxOut());
 			txTo23.Inputs[0].PrevOut.N = 0;
 			txTo23.Inputs[0].PrevOut.Hash = txFrom23.GetHash();
-			txTo23.Outputs[0].Value = 1;
+			txTo23.Outputs[0].Value = 1UL;
 
 			var keys = new Key[] { key1, key2 };
 			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
