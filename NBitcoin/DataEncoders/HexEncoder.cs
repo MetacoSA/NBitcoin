@@ -19,10 +19,10 @@ namespace NBitcoin.DataEncoders
 			if(data == null)
 				throw new ArgumentNullException(nameof(data));
 
-			int pos = 0;
 			var spaces = (Space ? Math.Max((count - 1), 0) : 0);
 
 #if !HAS_SPAN
+			int pos = 0;
 			var s = new char[2 * count + spaces];
 			for(var i = offset; i < offset + count; i++)
 			{
