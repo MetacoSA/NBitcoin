@@ -483,7 +483,7 @@ namespace NBitcoin
 		}
 
 
-		public void ReadWrite(BitcoinStream stream)
+		public virtual void ReadWrite(BitcoinStream stream)
 		{
 			using(stream.ConsensusFactoryScope(GetConsensusFactory()))
 			{

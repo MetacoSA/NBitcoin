@@ -69,8 +69,13 @@ namespace NBitcoin.Protocol
 		internal static string GetCommandName(Type type)
 		{
 			string result;
-			if(!_TypeToName.TryGetValue(type, out result))
-				throw new ArgumentException(type.FullName + " is not a payload");
+			if (!_TypeToName.TryGetValue(type, out result))
+			{
+				// try base type too
+				if (!_TypeToName.TryGetValue(type.GetTypeInfo().BaseType, out result))
+					throw new ArgumentException(type.FullName + " is not a payload");
+			}
+
 			return result;
 		}
 	}
