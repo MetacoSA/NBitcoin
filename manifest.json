@@ -9,7 +9,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.AltNetworkSets.html",
-          "hash": "lOChMIMwbj2RSDpXqSD4BA=="
+          "hash": "hgS0JpMytLal9yXL86V9lg=="
         }
       },
       "is_incremental": false,
@@ -21,7 +21,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.BCash.BTrashPubKeyAddress.html",
-          "hash": "0pLfA114ty4Ti5dJpj9ZMQ=="
+          "hash": "WF8t/2zJQw4PD/yl0i+Y+w=="
         }
       },
       "is_incremental": false,
@@ -33,7 +33,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.BCash.BTrashScriptAddress.html",
-          "hash": "KJmuKQS+h5aCG290lbxyWA=="
+          "hash": "5kMCJiBqo2WkSSYaeXkn/A=="
         }
       },
       "is_incremental": false,
@@ -45,7 +45,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.BCash.html",
-          "hash": "p/T3T7qoDgK+/K3UVQkyBA=="
+          "hash": "iQzvmHUTTMDxN1qhZVW+UA=="
         }
       },
       "is_incremental": false,
@@ -57,7 +57,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.BGold.BitcoinGoldBlock.html",
-          "hash": "+LvAkp0sIsEnl9yrWNKMpw=="
+          "hash": "RQyBPJh9qst6bwj0ENtBQg=="
         }
       },
       "is_incremental": false,
@@ -69,7 +69,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.BGold.BitcoinGoldBlockHeader.html",
-          "hash": "Ok8i+kyLwQOPsrsthOaR/Q=="
+          "hash": "eFG0FEW4jNSsh5XIQryD/A=="
         }
       },
       "is_incremental": false,
@@ -81,7 +81,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.BGold.BitcoinGoldConsensusFactory.html",
-          "hash": "0VLBcOMPiXV7Fv2hPs1xUg=="
+          "hash": "2pke4mXMpwP8YdeJYzwBBg=="
         }
       },
       "is_incremental": false,
@@ -93,7 +93,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.BGold.html",
-          "hash": "gg9KvtbUwc9ubx07XOOIFQ=="
+          "hash": "zMn3iFc60h19daUhyGPofQ=="
         }
       },
       "is_incremental": false,
@@ -105,7 +105,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Bitcoinplus.BitcoinplusBlock.html",
-          "hash": "qBJdUOyde21IPc7pkBIQZA=="
+          "hash": "wc8Lv9Yq09P8yziQebsRxQ=="
         }
       },
       "is_incremental": false,
@@ -117,7 +117,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Bitcoinplus.BitcoinplusBlockHeader.html",
-          "hash": "Q9vgNn5Y+e20tdBtfuoIeA=="
+          "hash": "m6P600otkgYxYVegA2FK6g=="
         }
       },
       "is_incremental": false,
@@ -129,7 +129,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Bitcoinplus.BitcoinplusBlockSignature.html",
-          "hash": "pqxLgWZHhhAb7iZWHv/8ow=="
+          "hash": "y/MGUeaee8+Chi0RowuGqQ=="
         }
       },
       "is_incremental": false,
@@ -141,7 +141,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Bitcoinplus.BitcoinplusConsensusFactory.html",
-          "hash": "x4Cr1t34bsQD9gB1q2VAow=="
+          "hash": "XRL6FrGRMNNxg/M2Y3Ez2Q=="
         }
       },
       "is_incremental": false,
@@ -153,7 +153,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Bitcoinplus.BitcoinplusHeadersPayload.html",
-          "hash": "J0ilDaGAFd0eAojjuV38pg=="
+          "hash": "1/+woEfytmUsLctb3DIqTw=="
         }
       },
       "is_incremental": false,
@@ -165,7 +165,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Bitcoinplus.BitcoinplusTransaction.html",
-          "hash": "GxNUmSp5POZAzwei2wcUoQ=="
+          "hash": "W61BlRmhwQ4Hkr5GvBlW6A=="
         }
       },
       "is_incremental": false,
@@ -177,7 +177,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Bitcoinplus.html",
-          "hash": "fHNrO5osEGOGSzZTFgqSCQ=="
+          "hash": "zXx8cheW6rDlNPGLsudZrA=="
         }
       },
       "is_incremental": false,
@@ -189,7 +189,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Bitcore.BitcoreBlock.html",
-          "hash": "TeKwLwy2tXp5PzYxayAZSA=="
+          "hash": "U1rsGghagnHbIcask66dwA=="
         }
       },
       "is_incremental": false,
@@ -201,7 +201,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Bitcore.BitcoreBlockHeader.html",
-          "hash": "MUuQ/evydkId/WszqhT+HQ=="
+          "hash": "gZtZDU0Eq2Npj5ZDcr465A=="
         }
       },
       "is_incremental": false,
@@ -213,7 +213,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Bitcore.BitcoreConsensusFactory.html",
-          "hash": "NAO86QSSDna1y8n4Netpcg=="
+          "hash": "zs5UDMHtK17Cre7MEGhgRg=="
         }
       },
       "is_incremental": false,
@@ -225,7 +225,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Bitcore.html",
-          "hash": "7pEAOOxvgECGfCjxlbPRgA=="
+          "hash": "Xn/mdg6l/5HBR+jWd6NNEg=="
         }
       },
       "is_incremental": false,
@@ -237,7 +237,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Chaincoin.ChaincoinBlock.html",
-          "hash": "8KPWisuukmPLTvtRR+9gVA=="
+          "hash": "ySAOKkdI6YMEZdCEdVDAIQ=="
         }
       },
       "is_incremental": false,
@@ -249,7 +249,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Chaincoin.ChaincoinBlockHeader.html",
-          "hash": "OSf2z1f3rJnFmxLAx1YMkQ=="
+          "hash": "mzufSMlac06pzBiYSsDMIw=="
         }
       },
       "is_incremental": false,
@@ -261,7 +261,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Chaincoin.ChaincoinConsensusFactory.html",
-          "hash": "WI+sxlJJjw02EkekgbsVWw=="
+          "hash": "9QvDapfcvAhD8m4tAbzOrw=="
         }
       },
       "is_incremental": false,
@@ -273,7 +273,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Chaincoin.html",
-          "hash": "G8JNqqhCt6ryVf4LQX10eg=="
+          "hash": "VNkX3s0pc8MxKaepiT1LAw=="
         }
       },
       "is_incremental": false,
@@ -285,7 +285,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Colossus.ColossusBlock.html",
-          "hash": "l854Dd+y+bUCWzPNXR1MQA=="
+          "hash": "8aB/Ua7nB/CsuvIN6biPJA=="
         }
       },
       "is_incremental": false,
@@ -297,7 +297,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Colossus.ColossusBlockHeader.html",
-          "hash": "rPXPfrbXt0mWDpRFGtqKyg=="
+          "hash": "LqLq4DKgF5qpqNeA5CWIWg=="
         }
       },
       "is_incremental": false,
@@ -309,7 +309,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Colossus.ColossusConsensusFactory.html",
-          "hash": "4gUsk5wqNab6EUZYAb5Knw=="
+          "hash": "vhwA3g6zUMDT5UFAhz2G9A=="
         }
       },
       "is_incremental": false,
@@ -321,7 +321,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Colossus.html",
-          "hash": "BdUg7TQHZ1E9GfbdJ3EhiQ=="
+          "hash": "DVeWM0v73aCXksjAebe3vw=="
         }
       },
       "is_incremental": false,
@@ -333,7 +333,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.CoinbaseSpecialTransaction.html",
-          "hash": "MH8s07wnlCUTY+0FTEtY/w=="
+          "hash": "b/1jK1WQ+0SP1iAOe63S/g=="
         }
       },
       "is_incremental": false,
@@ -345,7 +345,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.DashBlock.html",
-          "hash": "fKmG6x8s8kPnBtlffZzqvA=="
+          "hash": "U5uQ2/wdCDFTSHDRoxvh0Q=="
         }
       },
       "is_incremental": false,
@@ -357,7 +357,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.DashBlockHeader.html",
-          "hash": "+Wu/lTenflXx8GIsOat/hw=="
+          "hash": "yGeU2dAd5C5ygE9O0llvZA=="
         }
       },
       "is_incremental": false,
@@ -369,7 +369,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.DashConsensusFactory.html",
-          "hash": "/m2trGvgCFa2qqSGrjoTKw=="
+          "hash": "9NY0GZvWMyrHEMPwvrfHkA=="
         }
       },
       "is_incremental": false,
@@ -381,7 +381,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.DashTransaction.html",
-          "hash": "qZYs0sYjBDNzMDIjOy17BA=="
+          "hash": "cfvT9S9yueWB7iB6Zyxn1Q=="
         }
       },
       "is_incremental": false,
@@ -393,7 +393,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.DashTransactionType.html",
-          "hash": "rkTZJ9SD0Pa9iYdCNazlgQ=="
+          "hash": "Wsx4d4Bk6061781d8bucwA=="
         }
       },
       "is_incremental": false,
@@ -405,7 +405,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.ProviderRegistrationTransaction.html",
-          "hash": "IPHqFowOHUMUxIWb5byWpA=="
+          "hash": "637oV+Oio+wXOAWsVVc0WA=="
         }
       },
       "is_incremental": false,
@@ -417,7 +417,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.ProviderUpdateRegistrarTransaction.html",
-          "hash": "mZ+Gp32KQcNJGNFIgju7zw=="
+          "hash": "obz85Ebyu8F7Gcuz53/nhg=="
         }
       },
       "is_incremental": false,
@@ -429,7 +429,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.ProviderUpdateRevocationTransaction.html",
-          "hash": "a2fuD78ynWphu7KQcLQREw=="
+          "hash": "ixUNy01skH5jh1Dc3wl6vQ=="
         }
       },
       "is_incremental": false,
@@ -441,7 +441,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.ProviderUpdateServiceTransaction.html",
-          "hash": "PUoy+D8lzSmY+A8LsbFoTg=="
+          "hash": "uaY+xtUGq8pZ4/yJrsCUGA=="
         }
       },
       "is_incremental": false,
@@ -453,7 +453,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.QuorumCommitment.html",
-          "hash": "BGMnrJwv7zZ6XQLEHXIRlg=="
+          "hash": "JC++G86sxEt50EQGSveM8Q=="
         }
       },
       "is_incremental": false,
@@ -465,7 +465,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.QuorumCommitmentTransaction.html",
-          "hash": "35mYnarY5wBxpf+bDDS49Q=="
+          "hash": "VWA5y/3GKwKgVdvQXoU0zA=="
         }
       },
       "is_incremental": false,
@@ -477,7 +477,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.SpecialTransaction.html",
-          "hash": "6Gp+hhGGfWhU/tkTYKjbEw=="
+          "hash": "3Jk+ZxQ9kTZ3ym0enNs4FA=="
         }
       },
       "is_incremental": false,
@@ -489,7 +489,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.SpecialTransactionWithHeight.html",
-          "hash": "7KTTyHxwPcfyhteBBGcYqg=="
+          "hash": "rJ4yaINaqwojXZiyPoCu4g=="
         }
       },
       "is_incremental": false,
@@ -501,7 +501,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dash.html",
-          "hash": "7Mx2j71OV+T/qBkshCuQpQ=="
+          "hash": "Ev3L0seLZDoheT97MortFg=="
         }
       },
       "is_incremental": false,
@@ -513,7 +513,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dogecoin.AuxPow.html",
-          "hash": "TQYit1PZsAbS5YuABlO/bg=="
+          "hash": "IPXv1lZ18FllkELpoZyaqQ=="
         }
       },
       "is_incremental": false,
@@ -525,7 +525,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.html",
-          "hash": "JZgyVG9Ya8/kshlDJF5jDw=="
+          "hash": "vRv08xFi7cucCs5qqq5kyw=="
         }
       },
       "is_incremental": false,
@@ -537,7 +537,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dogecoin.DogecoinBlock.html",
-          "hash": "RUVm3v/fsFAuUkOrBGap1g=="
+          "hash": "qxQg/UeJ5M6crvHdle4Tww=="
         }
       },
       "is_incremental": false,
@@ -549,7 +549,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dogecoin.DogecoinBlockHeader.html",
-          "hash": "5geqXEiaTFWrmPaC/VMoQA=="
+          "hash": "8+LJObuBEK/QnqbvLAOGBA=="
         }
       },
       "is_incremental": false,
@@ -561,7 +561,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dogecoin.html",
-          "hash": "CepClt+6gJd1mtjTufbFVw=="
+          "hash": "YVcgB81W1KFUwS3hMPHoVA=="
         }
       },
       "is_incremental": false,
@@ -573,7 +573,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dystem.DystemBlock.html",
-          "hash": "Ga8xTOeLNwpX6jcl/vu4eA=="
+          "hash": "84z/T8q7jIAfy99GPKq0EA=="
         }
       },
       "is_incremental": false,
@@ -585,7 +585,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dystem.DystemBlockHeader.html",
-          "hash": "KLt/aKON8waWDoKu/vlFow=="
+          "hash": "dlmdV4/LBRahqF5GdEz+xQ=="
         }
       },
       "is_incremental": false,
@@ -597,7 +597,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dystem.DystemConsensusFactory.html",
-          "hash": "+OTysbXSbl+IFyi3SfN0bA=="
+          "hash": "W2FYmpGI19BvowroqIu+5A=="
         }
       },
       "is_incremental": false,
@@ -609,7 +609,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Dystem.html",
-          "hash": "Fpa68gVcO6bDp4pnumv5/g=="
+          "hash": "8bc6POC+h80UYvznGBlzSA=="
         }
       },
       "is_incremental": false,
@@ -621,7 +621,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.AssetIssuance.html",
-          "hash": "S9u3pZOk/J5CYF1ZiEYumA=="
+          "hash": "1elaCVpF8xa7bIxGxOzfVA=="
         }
       },
       "is_incremental": false,
@@ -633,7 +633,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.BitcoinBlindedAddress.html",
-          "hash": "9MISaJ4/41/B+UualjoRSA=="
+          "hash": "wovRRoMBTdXmxgeMOkP9Pw=="
         }
       },
       "is_incremental": false,
@@ -645,7 +645,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.BlockProof.html",
-          "hash": "iKTKuuAM1C421N7fHcJP/g=="
+          "hash": "h5U6yw7KRWrxGCyjKGWlbA=="
         }
       },
       "is_incremental": false,
@@ -657,7 +657,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ConfidentialAsset-1.html",
-          "hash": "TR+cA+/yQJK3b/DE3qOmXw=="
+          "hash": "q1HWxSn9RR/KPPQDWTMnjQ=="
         }
       },
       "is_incremental": false,
@@ -669,7 +669,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ConfidentialAsset.html",
-          "hash": "lmwPXtO/caVUzOdKR5KXGQ=="
+          "hash": "GCocQ/2nMi60tR6xKBIE9Q=="
         }
       },
       "is_incremental": false,
@@ -681,7 +681,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ConfidentialCommitment.Def.html",
-          "hash": "Wn0Pac4S7VFPd4QeGnhYbA=="
+          "hash": "Aj4pi6EACboloOywGW9M1A=="
         }
       },
       "is_incremental": false,
@@ -693,7 +693,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ConfidentialCommitment.html",
-          "hash": "w7+bY3vWMwrM3/Y3toTT2w=="
+          "hash": "qV1gilgnIGjPcq3nRvN+vw=="
         }
       },
       "is_incremental": false,
@@ -705,7 +705,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ConfidentialNonce.html",
-          "hash": "ATYCrdQhIRQi+kZ2eyQBvA=="
+          "hash": "cbkC63BJ6Yjzms8TgulgXw=="
         }
       },
       "is_incremental": false,
@@ -717,7 +717,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ConfidentialValue.html",
-          "hash": "Kka5LeVTgJNM4asrIHYgcg=="
+          "hash": "7CZJ0ndxs8fsBYk5yVgD8Q=="
         }
       },
       "is_incremental": false,
@@ -729,7 +729,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ElementsBlock.html",
-          "hash": "DY6JqspGiKejPhlVLNCXZg=="
+          "hash": "IzfbI7ierKIyLLSc6J9xuw=="
         }
       },
       "is_incremental": false,
@@ -741,7 +741,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ElementsBlockHeader.html",
-          "hash": "mapVC2YV6p/kS7GT8jXo2Q=="
+          "hash": "Vn3BdRhuAhw2umlMdrGvnw=="
         }
       },
       "is_incremental": false,
@@ -753,7 +753,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ElementsConsensusFactory-1.html",
-          "hash": "rYFOEXVAmOh7xc0fSEmXUA=="
+          "hash": "zVG6S4Xr7dg3rhADQAZtXw=="
         }
       },
       "is_incremental": false,
@@ -765,7 +765,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ElementsExtensions.html",
-          "hash": "SLcvtKMNbgYi7qi37G65uA=="
+          "hash": "tyiCyYXzeriNwrFvi7YtMA=="
         }
       },
       "is_incremental": false,
@@ -777,7 +777,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ElementsParams-1.html",
-          "hash": "Snn49VI8eXQj4uFVxfF40Q=="
+          "hash": "mRHtUS0QYGnzVfQNtidHkQ=="
         }
       },
       "is_incremental": false,
@@ -789,7 +789,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ElementsStringParser.html",
-          "hash": "ycEgdpuUg1G8BP9LaO/vtA=="
+          "hash": "amI6vb1uUQXm2FhAPEkCQg=="
         }
       },
       "is_incremental": false,
@@ -801,7 +801,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ElementsTransaction-1.html",
-          "hash": "E32BGlTDJjR3BWLxjtHW+w=="
+          "hash": "IxmK7kaO3kFxZFnWPWg4nw=="
         }
       },
       "is_incremental": false,
@@ -813,7 +813,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ElementsTransaction.html",
-          "hash": "vscqv1WuSsp60hcl5GUIBw=="
+          "hash": "ZMw/hYQnfpGuCqP2RwDNXQ=="
         }
       },
       "is_incremental": false,
@@ -825,7 +825,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ElementsTxIn-1.html",
-          "hash": "VpewNG7rxL5fdfNs8LIv3g=="
+          "hash": "Vga+daj84k1S4xFIngJt6w=="
         }
       },
       "is_incremental": false,
@@ -837,7 +837,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ElementsTxIn.html",
-          "hash": "ZD7tFIRXFpESPyn/hRCBMA=="
+          "hash": "qCiB8p7ujhZMxkkTD70mbg=="
         }
       },
       "is_incremental": false,
@@ -849,7 +849,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ElementsTxOut-1.html",
-          "hash": "ffwPOmzMcsWGgBZa/aGwBw=="
+          "hash": "MsFnSG3gp1UZ8EMtIEpgSA=="
         }
       },
       "is_incremental": false,
@@ -861,7 +861,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Elements.ElementsTxOut.html",
-          "hash": "Nzu9rGeTq/d7e5B9ctou3A=="
+          "hash": "YbJ8n7JiGGN7JJcd7BNg3A=="
         }
       },
       "is_incremental": false,
@@ -885,7 +885,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Feathercoin.FeathercoinBlock.html",
-          "hash": "zJqj/ReeXBjRb3zbhZmN/Q=="
+          "hash": "cJDdA/rAAdzVYW39PHki4g=="
         }
       },
       "is_incremental": false,
@@ -897,7 +897,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Feathercoin.FeathercoinBlockHeader.html",
-          "hash": "cJ1c/B4sIzPMrs3Z2xp9Jw=="
+          "hash": "1cP2lrYuVEGB9coSDt2K6Q=="
         }
       },
       "is_incremental": false,
@@ -909,7 +909,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Feathercoin.FeathercoinConsensusFactory.html",
-          "hash": "C1aA7nf1zxRPzRHLLga/4A=="
+          "hash": "l2BqPtWvCJWjSM2DgjKOJg=="
         }
       },
       "is_incremental": false,
@@ -921,7 +921,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Feathercoin.html",
-          "hash": "M0yYVoOS3fOBmO7lUkYE/g=="
+          "hash": "EhYtml9hTwqlwnKPKnzyJg=="
         }
       },
       "is_incremental": false,
@@ -933,7 +933,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.ForkIdTransaction.html",
-          "hash": "oWaaC6vN6UdtFrN3UujcBg=="
+          "hash": "nuEQDqHg1C55Iad3VqA3zQ=="
         }
       },
       "is_incremental": false,
@@ -945,7 +945,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Gincoin.GincoinBlock.html",
-          "hash": "ZpRkaaoPYAH1xaHZKg74Lg=="
+          "hash": "xwvgq05UIL/Via2kMhfXbg=="
         }
       },
       "is_incremental": false,
@@ -957,7 +957,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Gincoin.GincoinBlockHeader.html",
-          "hash": "pMxDKPGf8gYB85xtp5FEkA=="
+          "hash": "cjMi6GHhBTvWQRKbqZZ3mA=="
         }
       },
       "is_incremental": false,
@@ -969,7 +969,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Gincoin.GincoinConsensusFactory.html",
-          "hash": "q1XjxwAE5Aw3/eAg3fS55Q=="
+          "hash": "goEEP+LElRmakEvB8vUwKQ=="
         }
       },
       "is_incremental": false,
@@ -981,7 +981,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Gincoin.html",
-          "hash": "svJsHNfreaLho5CSykasHw=="
+          "hash": "m+QOzP0RzFqx43eXxoUCyg=="
         }
       },
       "is_incremental": false,
@@ -993,7 +993,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.GincoinInternals.Lyra2.Lyra2.html",
-          "hash": "a8gb9GjgRYfHaM5UNGP0Vw=="
+          "hash": "qphL6hEya2LkdG9H+kZ8fw=="
         }
       },
       "is_incremental": false,
@@ -1005,7 +1005,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.GincoinInternals.Lyra2.LyraConstants.html",
-          "hash": "bjEOKXr07qGleJ9bxLhEEw=="
+          "hash": "cTymHq2Qj/Z581R4irY2tg=="
         }
       },
       "is_incremental": false,
@@ -1017,7 +1017,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.GincoinInternals.Lyra2.MemoryMatrix.html",
-          "hash": "PYRe055iTagQgrJGIeCW5Q=="
+          "hash": "/WbcGWLi09l7S3dBrj+dAA=="
         }
       },
       "is_incremental": false,
@@ -1029,7 +1029,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.GincoinInternals.Lyra2.Sponge.html",
-          "hash": "J9zuxnDz/3x/xfWM3vvIhQ=="
+          "hash": "4wzwOLpHPbMXRrAmnkmFpw=="
         }
       },
       "is_incremental": false,
@@ -1053,7 +1053,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.GincoinInternals.Lyra2Z.html",
-          "hash": "hgvQ9srH0JBNVDSymc2gng=="
+          "hash": "z3LDn4ySgybZ26UXqXACGA=="
         }
       },
       "is_incremental": false,
@@ -1077,7 +1077,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.GoByte.GoByteBlock.html",
-          "hash": "GS3DKcHMicvsSlchUAGN/A=="
+          "hash": "bsErcR01CEN74uUgo20Lxg=="
         }
       },
       "is_incremental": false,
@@ -1089,7 +1089,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.GoByte.GoByteBlockHeader.html",
-          "hash": "RhMpjBJ3F48AOAFbzFQvJA=="
+          "hash": "cUNwssPAvuUiKy6vPwniKQ=="
         }
       },
       "is_incremental": false,
@@ -1101,7 +1101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.GoByte.GoByteConsensusFactory.html",
-          "hash": "GgER42/rXXV/BHSZ9VOluw=="
+          "hash": "llx6k6DuzFRWrXNrUCNRkA=="
         }
       },
       "is_incremental": false,
@@ -1113,7 +1113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.GoByte.html",
-          "hash": "0yz7Ryp76LMN3++JVR6sEg=="
+          "hash": "FvOk2tVI3vCiovWfmGgGYg=="
         }
       },
       "is_incremental": false,
@@ -1125,7 +1125,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Groestlcoin.GroestlEncoder.html",
-          "hash": "3c7yU5e/g4BYKFngeI3c6g=="
+          "hash": "J65RB4mjh73ussleoOJV+Q=="
         }
       },
       "is_incremental": false,
@@ -1137,7 +1137,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Groestlcoin.html",
-          "hash": "cpETXDiSwUhacF0CEKSg1g=="
+          "hash": "vSWXaG14lJ42cUfhkb4/zw=="
         }
       },
       "is_incremental": false,
@@ -1149,7 +1149,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.HashX11.C11.html",
-          "hash": "6pM3Wo5116Wjiop/rZQOtA=="
+          "hash": "q949r4n93VNJ5PCAWjCVTw=="
         }
       },
       "is_incremental": false,
@@ -1161,7 +1161,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.HashX11.HashSize.html",
-          "hash": "7rq76xajYJzf6tdET9x3+g=="
+          "hash": "5nhSNgqtx6l8drC4txQw5Q=="
         }
       },
       "is_incremental": false,
@@ -1173,7 +1173,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.HashX11.IBlockHash.html",
-          "hash": "xjRmpgA3HFvz52QE9nyEZA=="
+          "hash": "pts8NwxvEE+EOdwZrh/dsw=="
         }
       },
       "is_incremental": false,
@@ -1185,7 +1185,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.HashX11.IChecksum.html",
-          "hash": "YR+MFDIdvrCpkOzyBEqvdw=="
+          "hash": "3Bzv9nIpNKfLVOQ1tzVvAw=="
         }
       },
       "is_incremental": false,
@@ -1197,7 +1197,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.HashX11.INonBlockHash.html",
-          "hash": "c25vnuj4lArODzDATJWTow=="
+          "hash": "EDYvuNrD/1yiAyo2viSEbw=="
         }
       },
       "is_incremental": false,
@@ -1209,7 +1209,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.HashX11.Quark.html",
-          "hash": "NX73M/n9DZkuFk+JXVOIpw=="
+          "hash": "MzseORCdjB6aRLjrtoYU9g=="
         }
       },
       "is_incremental": false,
@@ -1221,7 +1221,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.HashX11.X11.html",
-          "hash": "kEgwBN1Wnh/Vw2Gj4nnJ0Q=="
+          "hash": "3vM7GwcCzq64rdgebaSlWg=="
         }
       },
       "is_incremental": false,
@@ -1233,7 +1233,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.HashX11.X13.html",
-          "hash": "5aTM8IPXrzGbL2o4hfAEYA=="
+          "hash": "y5R3F1nRyj6YBF3iVkL7rg=="
         }
       },
       "is_incremental": false,
@@ -1257,7 +1257,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Koto.KotoBlock.html",
-          "hash": "FiE9f/SHYwnakJ/1COUrZA=="
+          "hash": "Kb/wQhMQaXFG4pMfmrWSyw=="
         }
       },
       "is_incremental": false,
@@ -1269,7 +1269,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Koto.KotoBlockHeader.html",
-          "hash": "HjXCx42Mx7waRnCl4UIQCw=="
+          "hash": "rzSsPmC168DBrCvjmVgDPg=="
         }
       },
       "is_incremental": false,
@@ -1281,7 +1281,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Koto.KotoConsensusFactory.html",
-          "hash": "NBUdZFsVY5LzQffgHZJj/g=="
+          "hash": "h4ASDLTdzkL1F+MLUKYsAw=="
         }
       },
       "is_incremental": false,
@@ -1293,7 +1293,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Koto.html",
-          "hash": "Ftrup3j2WEvPXGfc1XaPPQ=="
+          "hash": "H9MEwW2ZFNQBu7J/0b/P/g=="
         }
       },
       "is_incremental": false,
@@ -1305,7 +1305,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Liquid.html",
-          "hash": "fRaRyU/dHWD2kYDN1seMng=="
+          "hash": "dlGj+iADCplF5FT+eL5R/g=="
         }
       },
       "is_incremental": false,
@@ -1317,7 +1317,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Litecoin.LitecoinBlock.html",
-          "hash": "e7fWD/Tp+OjD2AuV2R2zKg=="
+          "hash": "zLUzhTdaT0fb8juz5i0fpQ=="
         }
       },
       "is_incremental": false,
@@ -1329,7 +1329,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Litecoin.LitecoinBlockHeader.html",
-          "hash": "eOOCkXgao5vnuG4JNZvruw=="
+          "hash": "HfRwOfna+/YafBROAC4kdw=="
         }
       },
       "is_incremental": false,
@@ -1341,7 +1341,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Litecoin.LitecoinConsensusFactory.html",
-          "hash": "JMiQVHzMSjv2XmDHxTESzQ=="
+          "hash": "d4A8Vbm9+L30Oqo3fSA07w=="
         }
       },
       "is_incremental": false,
@@ -1353,7 +1353,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Litecoin.LitecoinMainnetAddressStringParser.html",
-          "hash": "4k4ZwHbVlyyxDZ1BhO++iQ=="
+          "hash": "bFO3F0wjYbqwTx42qzM1Sw=="
         }
       },
       "is_incremental": false,
@@ -1365,7 +1365,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Litecoin.html",
-          "hash": "n10awn5NtMt3jxL8cp+kGw=="
+          "hash": "AfGDrUuuG2DEJlExvBNMAw=="
         }
       },
       "is_incremental": false,
@@ -1377,7 +1377,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Mogwai.MogwaiBlockHeader.html",
-          "hash": "T+fNA7NSbPzD/PawRPtY5Q=="
+          "hash": "EbJ+hY+HDQN22xTobNdCTA=="
         }
       },
       "is_incremental": false,
@@ -1389,7 +1389,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Mogwai.MogwaiConsensusFactory.html",
-          "hash": "xELVWhZ9diOu7PtJp7QImQ=="
+          "hash": "i7DwLuuDSEW5/h84RgnjaQ=="
         }
       },
       "is_incremental": false,
@@ -1401,7 +1401,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Mogwai.html",
-          "hash": "L3lRthbwGlhYWVTOcbN0Cw=="
+          "hash": "PUboMdSoWt9AE1GiXPuwgQ=="
         }
       },
       "is_incremental": false,
@@ -1413,7 +1413,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Monacoin.MonacoinBlock.html",
-          "hash": "IMJbmOk3sZJuE54GFrgNjw=="
+          "hash": "+MbrAQUjaHDshScr6JdkHg=="
         }
       },
       "is_incremental": false,
@@ -1425,7 +1425,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Monacoin.MonacoinBlockHeader.html",
-          "hash": "Q9o7oYUlJ5regXyk1cbH9g=="
+          "hash": "DAOk0mDSVkoK0kTg3db0MA=="
         }
       },
       "is_incremental": false,
@@ -1437,7 +1437,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Monacoin.MonacoinConsensusFactory.html",
-          "hash": "fBnhFDfCsRJsl0wmWpgDfw=="
+          "hash": "Rq5n+Ib9w2T8PNtKuznPBw=="
         }
       },
       "is_incremental": false,
@@ -1449,7 +1449,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Monacoin.html",
-          "hash": "+IBAugdvN9Y3OzUsgiBZxw=="
+          "hash": "/cRaMu/09438uGeucycx3Q=="
         }
       },
       "is_incremental": false,
@@ -1461,7 +1461,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Monoeci.MonoeciBlock.html",
-          "hash": "sQs9Ft+795XzUyLjP543EQ=="
+          "hash": "zaYYeP3Rh3spk7e1uHokKA=="
         }
       },
       "is_incremental": false,
@@ -1473,7 +1473,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Monoeci.MonoeciBlockHeader.html",
-          "hash": "5OMCBRLercWszY+r3x0BNg=="
+          "hash": "q5rPsVW/63gEu+Qh0spM8w=="
         }
       },
       "is_incremental": false,
@@ -1485,7 +1485,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Monoeci.MonoeciConsensusFactory.html",
-          "hash": "AcCCefJySieOoM9IA5VQYQ=="
+          "hash": "pwF2ppGrz0R6Fli62gS3Rw=="
         }
       },
       "is_incremental": false,
@@ -1497,7 +1497,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Monoeci.html",
-          "hash": "VEb78X3fRgqZMrS03lBVTw=="
+          "hash": "R1S5CC/4pxD4FCDvmPQsJA=="
         }
       },
       "is_incremental": false,
@@ -1509,7 +1509,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Polis.PolisBlock.html",
-          "hash": "MGmp34RIzUUWNcXgEfnxkQ=="
+          "hash": "BAAU/UcoWqSgoao8L3evfQ=="
         }
       },
       "is_incremental": false,
@@ -1521,7 +1521,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Polis.PolisBlockHeader.html",
-          "hash": "nLhsx/C5u8qSfDFMLHFU0g=="
+          "hash": "14XaId2h7JQY1lgWxc0B4Q=="
         }
       },
       "is_incremental": false,
@@ -1533,7 +1533,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Polis.PolisConsensusFactory.html",
-          "hash": "NzZOQ/qIWgCUGZ3BL9ZuIA=="
+          "hash": "b/A8zCUAt9Ze7SKwLa0ydg=="
         }
       },
       "is_incremental": false,
@@ -1545,7 +1545,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Polis.html",
-          "hash": "2SMfaV/UEugjem/3YqW4ow=="
+          "hash": "U4GdGbfBLWXb502mUIy4TQ=="
         }
       },
       "is_incremental": false,
@@ -1557,7 +1557,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Ufo.UfoBlock.html",
-          "hash": "+VyKgESIMLJrPglk7VGYow=="
+          "hash": "hZN/iXVs4sf6bgG1jyIXlg=="
         }
       },
       "is_incremental": false,
@@ -1569,7 +1569,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Ufo.UfoBlockHeader.html",
-          "hash": "h4YI9qldpKL4CJcKUapusg=="
+          "hash": "9iUYulVEdweGZtWM1lIsOg=="
         }
       },
       "is_incremental": false,
@@ -1581,7 +1581,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Ufo.UfoConsensusFactory.html",
-          "hash": "T4j+KvTybsM9OhOwC4IsQg=="
+          "hash": "Irqm1Tt+zdrEU0XBidt1kg=="
         }
       },
       "is_incremental": false,
@@ -1593,7 +1593,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Ufo.html",
-          "hash": "Wkl5suurmSUKQOMv7sUNtw=="
+          "hash": "GwD530UHIjinH7t2ORy7Zg=="
         }
       },
       "is_incremental": false,
@@ -1605,7 +1605,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Viacoin.AuxPow.html",
-          "hash": "pbQ8GYvU2eRn4aoAxZnh8A=="
+          "hash": "WRKamF6d8P7k7oFuSkNLcA=="
         }
       },
       "is_incremental": false,
@@ -1617,7 +1617,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Viacoin.ViacoinBlock.html",
-          "hash": "S+rBnyV9tR5bbN9t7U6cww=="
+          "hash": "RZZ1kcvva7Wf6bNIxutc8w=="
         }
       },
       "is_incremental": false,
@@ -1629,7 +1629,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Viacoin.ViacoinBlockHeader.html",
-          "hash": "YztdhqZomDSO3HAZ3/LHkA=="
+          "hash": "x+Ni8FqlyGATJza+l7pjrg=="
         }
       },
       "is_incremental": false,
@@ -1641,7 +1641,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Viacoin.ViacoinConsensusFactory.html",
-          "hash": "8Nedpwe7Dps9SlNynMA3Dw=="
+          "hash": "Lwc17uT30+5fc3DMVJmkbA=="
         }
       },
       "is_incremental": false,
@@ -1653,7 +1653,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Viacoin.html",
-          "hash": "5Lp/mgvp2WTCPlaF4jMeRg=="
+          "hash": "5eIT5j/3IEycArXp1y522A=="
         }
       },
       "is_incremental": false,
@@ -1665,7 +1665,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Zclassic.ZclassicBlock.html",
-          "hash": "Tlue7y5cee/ZmIRoEO7FiA=="
+          "hash": "ancNa1kGhnXA9Zy3+0ZiEQ=="
         }
       },
       "is_incremental": false,
@@ -1677,7 +1677,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Zclassic.ZclassicBlockHeader.html",
-          "hash": "HHvpRZFj/F5j520S4sJgBg=="
+          "hash": "VsVjJkI+XwLPdD8IM+SoWw=="
         }
       },
       "is_incremental": false,
@@ -1689,7 +1689,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Zclassic.ZclassicConsensusFactory.html",
-          "hash": "GPGlDSFlcl0X6DSfaY6/8Q=="
+          "hash": "yjorTNKtH3hmV8gK2jg07g=="
         }
       },
       "is_incremental": false,
@@ -1701,7 +1701,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Altcoins.Zclassic.html",
-          "hash": "DcWjt9jXrSZ9C/fOWtRY7A=="
+          "hash": "Z+lBEjGCVrvst28uF8ahKg=="
         }
       },
       "is_incremental": false,
@@ -1725,7 +1725,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BIP174.PSBT.html",
-          "hash": "5Koa5TeccYHzJO63gGbL5Q=="
+          "hash": "LKSPoOauuq45P6u7uMHUFA=="
         }
       },
       "is_incremental": false,
@@ -1737,7 +1737,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BIP174.PSBTInput.html",
-          "hash": "YfYGRSua+0S6HIxHnrQPrQ=="
+          "hash": "8m2eUHyoDmeeeLNegxQTjQ=="
         }
       },
       "is_incremental": false,
@@ -1749,7 +1749,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BIP174.PSBTInputList.html",
-          "hash": "Rq/xhQkgkSX/68HV6zNjcA=="
+          "hash": "JaFHXrLs6ciNVvDRaGuCig=="
         }
       },
       "is_incremental": false,
@@ -1761,7 +1761,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BIP174.PSBTOutput.html",
-          "hash": "WmUNfLiKYxNogyY6lvOCqw=="
+          "hash": "OodzSDd8pKTZw5EH3vG49g=="
         }
       },
       "is_incremental": false,
@@ -1773,7 +1773,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BIP174.PSBTOutputList.html",
-          "hash": "XsxNMV6mcvzrUWAsyWoOyg=="
+          "hash": "gnLkYhxE8x3Wkw+z2NuSFA=="
         }
       },
       "is_incremental": false,
@@ -1797,7 +1797,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BIP9Deployments.html",
-          "hash": "QSknFVxRoqbur0jze4UWFA=="
+          "hash": "TBh+J+xpvXp0Xrvx7kYthA=="
         }
       },
       "is_incremental": false,
@@ -1809,7 +1809,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BIP9DeploymentsParameters.html",
-          "hash": "xR5Eiv6AIXrKuh3PvgDoSA=="
+          "hash": "TOHNaWHjPY9W8avur3f5iA=="
         }
       },
       "is_incremental": false,
@@ -1821,7 +1821,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Base58Data.html",
-          "hash": "6uhyRsUzfQlpEEXCT4GiLw=="
+          "hash": "KweuhhKBST1GatOOG0n4ig=="
         }
       },
       "is_incremental": false,
@@ -1833,7 +1833,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Base58Type.html",
-          "hash": "4nIrtiFGJq0OG3UO5mOb8w=="
+          "hash": "2lod0wWES45NSmnhFVuziQ=="
         }
       },
       "is_incremental": false,
@@ -1845,7 +1845,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Bech32Type.html",
-          "hash": "svE8lLU+NU7J5nnAE6rXVw=="
+          "hash": "GEz7cb9A4btOrE5WYSTIaQ=="
         }
       },
       "is_incremental": false,
@@ -1857,7 +1857,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Bitcoin.html",
-          "hash": "xyrg7nbnsihkzbpTwNJl/g=="
+          "hash": "+aXY7R7jWOgSph0/nbd5jg=="
         }
       },
       "is_incremental": false,
@@ -1869,7 +1869,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinAddress.html",
-          "hash": "sSt41mLkW1N0Lz53KI3haA=="
+          "hash": "zgDtVNw9oQblx+23G+P7Yg=="
         }
       },
       "is_incremental": false,
@@ -1881,7 +1881,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinColoredAddress.html",
-          "hash": "lVc5gVpZjfxSfaREyD+WCA=="
+          "hash": "W4UOlBR13kuN1oE0KOD2tQ=="
         }
       },
       "is_incremental": false,
@@ -1893,7 +1893,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinConfirmationCode.html",
-          "hash": "82onXn/610Oq88Oqqwdr8g=="
+          "hash": "xP+0m2CHHKKm9bQYMNsPxg=="
         }
       },
       "is_incremental": false,
@@ -1905,7 +1905,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.BlockRepository.html",
-          "hash": "nI8XHpG4zrSs9q1GJMw7Ow=="
+          "hash": "4ExN/L84YfQQAB5xbaCQJw=="
         }
       },
       "is_incremental": false,
@@ -1917,7 +1917,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.BlockStore.html",
-          "hash": "T/v20ymWiiiabBReGog7Gw=="
+          "hash": "adk/Y0TztipqC+2LG/qchw=="
         }
       },
       "is_incremental": false,
@@ -1929,7 +1929,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.BlockUndo.html",
-          "hash": "rMq63JsbIdIQDBGtSwHBkQ=="
+          "hash": "jtYGUJdeLFwa35UkWaxShA=="
         }
       },
       "is_incremental": false,
@@ -1941,7 +1941,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.BlockUndoStore.html",
-          "hash": "+WZBYmc8SQ381oP8srTwtg=="
+          "hash": "j6MiLK+xfVNxlTbZutkkKw=="
         }
       },
       "is_incremental": false,
@@ -1953,7 +1953,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.CachedBlockProvider.html",
-          "hash": "64wmCnrYzMgGtqYbdItPLg=="
+          "hash": "54o1ZIXt+pxmIUGh6e1LUg=="
         }
       },
       "is_incremental": false,
@@ -1965,7 +1965,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.Coins.html",
-          "hash": "NRoaHJ0xsEkAQo3mDA1THw=="
+          "hash": "n4CSNVwzw9yXfdVbC9ttzg=="
         }
       },
       "is_incremental": false,
@@ -1977,7 +1977,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.CoinsView.html",
-          "hash": "oabj82NiuGgoJFbLX4mNhQ=="
+          "hash": "+N3NUCLhGPZAmAJ35dG92w=="
         }
       },
       "is_incremental": false,
@@ -1989,7 +1989,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.DataDirectory.html",
-          "hash": "jy2zDLr4GJQSiRuzVYCL9g=="
+          "hash": "CemafIoN8bxc3I3Je6qOHA=="
         }
       },
       "is_incremental": false,
@@ -2001,7 +2001,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.DiskBlockPos.html",
-          "hash": "eHw+Qr4UvCKsz7lZF10QPQ=="
+          "hash": "rhJij9Q/MR4+rL2g5On29A=="
         }
       },
       "is_incremental": false,
@@ -2013,7 +2013,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.DiskBlockPosRange.html",
-          "hash": "c0uFnCN3MasWSzBvYgEWwA=="
+          "hash": "IMZCwDh/EPmibm5NHZdfzw=="
         }
       },
       "is_incremental": false,
@@ -2025,7 +2025,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.IBlockProvider.html",
-          "hash": "hGJ7e+cFOG0MzH4QKNeuCg=="
+          "hash": "ESleu/VIqzTUcR6Q2h1Kkg=="
         }
       },
       "is_incremental": false,
@@ -2037,7 +2037,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.IndexedBlockStore.html",
-          "hash": "0LzANw3JfMfSTKjX21QYEQ=="
+          "hash": "ASN0O4dOpTFkusYgAV6Qrg=="
         }
       },
       "is_incremental": false,
@@ -2049,7 +2049,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.IndexedBlockUndoStore.html",
-          "hash": "UEk1UslQ+PILQpR0K7lISg=="
+          "hash": "PyyXy4dBCbFMtgoIP0R7Qg=="
         }
       },
       "is_incremental": false,
@@ -2061,7 +2061,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.IndexedStore-2.html",
-          "hash": "Ot/G6/VqWannA6ukypn0Pg=="
+          "hash": "OyQCupIui5IwcmXljWsZqw=="
         }
       },
       "is_incremental": false,
@@ -2073,7 +2073,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.Store-2.html",
-          "hash": "uenxAGwHyJRWHJ5eK2EWYQ=="
+          "hash": "m217QfOBMNFAAFT7woiIZw=="
         }
       },
       "is_incremental": false,
@@ -2085,7 +2085,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.StoredBlock.html",
-          "hash": "M9YFuwtYoyMYDIoUGVaBsw=="
+          "hash": "klCLh0+aEOc1Kvq3A0ujPA=="
         }
       },
       "is_incremental": false,
@@ -2097,7 +2097,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.StoredHeader.html",
-          "hash": "C3BCPPj0i8A2qG4E02rw5w=="
+          "hash": "DkXScrd+7sYm6JiXGnDx7Q=="
         }
       },
       "is_incremental": false,
@@ -2109,7 +2109,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.StoredItem-1.html",
-          "hash": "bUdm/8hWapVGn7JOgtIKZg=="
+          "hash": "mR4w3q5sWLtf8HTQtp9nwA=="
         }
       },
       "is_incremental": false,
@@ -2121,7 +2121,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.TxInUndo.html",
-          "hash": "AEObYEcySjNOocc+n0WdrQ=="
+          "hash": "aqq3xExGBTf8x4D9sXOVKw=="
         }
       },
       "is_incremental": false,
@@ -2133,7 +2133,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinCore.TxUndo.html",
-          "hash": "rjDhWTviBc6jzzOrMuCc8w=="
+          "hash": "/dEEg128JZ+T69tZbwx9hg=="
         }
       },
       "is_incremental": false,
@@ -2157,7 +2157,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinEncryptedSecret.html",
-          "hash": "OwgdzjL02GvXZ2oZcvdK4w=="
+          "hash": "rn0TLrekigyduIctbo+lIw=="
         }
       },
       "is_incremental": false,
@@ -2169,7 +2169,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinEncryptedSecretEC.html",
-          "hash": "hK9aM3KALY1evDiQQots+A=="
+          "hash": "Hbhx1qKR3KStWARu95585g=="
         }
       },
       "is_incremental": false,
@@ -2181,7 +2181,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinEncryptedSecretNoEC.html",
-          "hash": "1aQd+qQ54Fbt1D0DUVVmoQ=="
+          "hash": "tRxSmDHMyQgqg7cBYz0BqQ=="
         }
       },
       "is_incremental": false,
@@ -2193,7 +2193,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinExtKey.html",
-          "hash": "bjw45UWD12EFru7X5ngmfg=="
+          "hash": "gzfn/AE/q5RZWsB4T26T2g=="
         }
       },
       "is_incremental": false,
@@ -2205,7 +2205,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinExtKeyBase.html",
-          "hash": "QJ/6rZfyM6vyeSHEvTiuxg=="
+          "hash": "8PUTSb7BrmGJ+5e46ZM96A=="
         }
       },
       "is_incremental": false,
@@ -2217,7 +2217,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinExtPubKey.html",
-          "hash": "Ijzre+aV21simA68gw3LuQ=="
+          "hash": "Zqn4fWIS8oqzpSy7EnwMDA=="
         }
       },
       "is_incremental": false,
@@ -2229,7 +2229,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinPassphraseCode.html",
-          "hash": "8aIGE1kVqGPkI4FY8JLsIA=="
+          "hash": "WxXgbSRDkfGgR8VurduKgA=="
         }
       },
       "is_incremental": false,
@@ -2241,7 +2241,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinPubKeyAddress.html",
-          "hash": "njSJKJFNENJAlKxWxyCqOg=="
+          "hash": "TL+LNbS1FZgo0D00Yz+Eew=="
         }
       },
       "is_incremental": false,
@@ -2253,7 +2253,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinScriptAddress.html",
-          "hash": "1Fm4OY58Alp+jyFYRxFA9Q=="
+          "hash": "RWMMmV0/EB1SuRj3Y4E9fQ=="
         }
       },
       "is_incremental": false,
@@ -2265,7 +2265,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinSecret.html",
-          "hash": "HP1pkaoE3V3V5ihMKGVPUw=="
+          "hash": "ZSoxoEAzdQCLMYpRY9gdbw=="
         }
       },
       "is_incremental": false,
@@ -2277,7 +2277,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinSerializableExtensions.html",
-          "hash": "DBU8Q4fZX4MXtzwfCiT23Q=="
+          "hash": "3w0YaiDtxX4N17tIOX9oow=="
         }
       },
       "is_incremental": false,
@@ -2289,7 +2289,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinStream.html",
-          "hash": "eLa5caFRpBiusqawq94jKw=="
+          "hash": "FQc7RSJx1ZyxnJXILDeICA=="
         }
       },
       "is_incremental": false,
@@ -2301,7 +2301,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinWitPubKeyAddress.html",
-          "hash": "ojKzT6n9mm3H8tB02GA1Sw=="
+          "hash": "pRMyYR4Np2jza3ifEtUvhg=="
         }
       },
       "is_incremental": false,
@@ -2313,7 +2313,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BitcoinWitScriptAddress.html",
-          "hash": "ljSHYp/j2wynqreO+9GWpg=="
+          "hash": "LcFr/hRcgHv/uP9vxACmCg=="
         }
       },
       "is_incremental": false,
@@ -2325,7 +2325,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Block.html",
-          "hash": "2hNjQETCNMwVu+gQdfbt9A=="
+          "hash": "kYAK1aKt+leGXphoXu6PPQ=="
         }
       },
       "is_incremental": false,
@@ -2337,7 +2337,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BlockHeader.html",
-          "hash": "xOCuB0iVVwqg+PAal0I0Bg=="
+          "hash": "UtffrKGApZ2MGTGN1+35AA=="
         }
       },
       "is_incremental": false,
@@ -2349,7 +2349,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BlockLocator.html",
-          "hash": "sNMqD+VXPXDoLXL9D8+M9g=="
+          "hash": "Uowx1ZtXGJ/nkR/3+V7wGg=="
         }
       },
       "is_incremental": false,
@@ -2361,7 +2361,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BloomFilter.html",
-          "hash": "E2KQUABxHG25M/XxkpSHbA=="
+          "hash": "4ikIpomPQcx0lXcsDLN6fw=="
         }
       },
       "is_incremental": false,
@@ -2373,7 +2373,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BloomFlags.html",
-          "hash": "y2WI76kcTS7vRvhey85tdw=="
+          "hash": "AIGOIqpVu14frNZWUhgcDA=="
         }
       },
       "is_incremental": false,
@@ -2385,7 +2385,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BouncyCastle.Math.BigInteger.html",
-          "hash": "vA9xbvEtgjnwKinfgRE/8Q=="
+          "hash": "UDyjZdzPtya4tcmj916OIA=="
         }
       },
       "is_incremental": false,
@@ -2409,7 +2409,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BoundedDictionary-2.html",
-          "hash": "GlmLG/0jwfQ8fGFinceYlw=="
+          "hash": "2jZKzLgOh2DWAVYizvwOdA=="
         }
       },
       "is_incremental": false,
@@ -2421,7 +2421,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BuilderExtensions.BuilderExtension.html",
-          "hash": "GQAFKd4d9RU45uCLF4hPsA=="
+          "hash": "cUweBgy/S3S9PZBmyogS2Q=="
         }
       },
       "is_incremental": false,
@@ -2433,7 +2433,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BuilderExtensions.IKeyRepository.html",
-          "hash": "CmctUlz0XMwh0bntVzvXjA=="
+          "hash": "rk57kJWxC3OyWedmZ62JpQ=="
         }
       },
       "is_incremental": false,
@@ -2445,7 +2445,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BuilderExtensions.ISigner.html",
-          "hash": "fabymce1zZiRCzs0pBj28g=="
+          "hash": "ldJPhzslgmlTbT/1EiGHGQ=="
         }
       },
       "is_incremental": false,
@@ -2457,7 +2457,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BuilderExtensions.OPTrueExtension.html",
-          "hash": "5gJv7e5UQv8hIenL3yx1/A=="
+          "hash": "j89W+vsbP5Y0YvJNKKTAsQ=="
         }
       },
       "is_incremental": false,
@@ -2469,7 +2469,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.html",
-          "hash": "8lkfS6JogEG0c7alA36RyA=="
+          "hash": "/S7bm5o09qYBIAuVPjYkOA=="
         }
       },
       "is_incremental": false,
@@ -2481,7 +2481,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BuilderExtensions.P2PKBuilderExtension.html",
-          "hash": "w9xx6yhulLb4EeIEMt8yLA=="
+          "hash": "2rmQiMS0Z3ltaMKZWgx4Sg=="
         }
       },
       "is_incremental": false,
@@ -2493,7 +2493,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BuilderExtensions.P2PKHBuilderExtension.html",
-          "hash": "oj84N3Xhq4Xz1uTF14/9nw=="
+          "hash": "OE3b1ScONyRkLUDQqpgIvA=="
         }
       },
       "is_incremental": false,
@@ -2517,7 +2517,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BuriedDeployments.html",
-          "hash": "CWSHt6HoZ0frcRidTsh2yA=="
+          "hash": "8J4rXtK2lquR84YtkjJxFw=="
         }
       },
       "is_incremental": false,
@@ -2529,7 +2529,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.BytesComparer.html",
-          "hash": "nkXQzhhGAN0P4WX48ZmiRg=="
+          "hash": "5XnLZEXq52N6Jttd4YUDqA=="
         }
       },
       "is_incremental": false,
@@ -2541,7 +2541,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.CachedNoSqlRepository.html",
-          "hash": "H+ZRZtuQnqzz5O+XIpvSUQ=="
+          "hash": "uUWgW1P7XqZ6IdJ/SbH4Sg=="
         }
       },
       "is_incremental": false,
@@ -2553,7 +2553,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.CachedTransactionRepository.html",
-          "hash": "+Gf6ubRXaS31mM3zcbnnbA=="
+          "hash": "lKLz2bgvCzWP+QJLxaswcw=="
         }
       },
       "is_incremental": false,
@@ -2565,7 +2565,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ChainBase.html",
-          "hash": "kEvXZHxHQ4Hwho9eapQw5Q=="
+          "hash": "5H90Ju2R6stO30mVW47bFQ=="
         }
       },
       "is_incremental": false,
@@ -2577,7 +2577,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ChainedBlock.html",
-          "hash": "zA0cJQcQJZMytLwkTxFS+g=="
+          "hash": "r/lW/iIGnn5n27QyIWlNGw=="
         }
       },
       "is_incremental": false,
@@ -2589,7 +2589,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ChangeType.html",
-          "hash": "xqoWGwY7eSsymhw1ETiXpw=="
+          "hash": "MPKKYMWlQJmk61uMg5Mkog=="
         }
       },
       "is_incremental": false,
@@ -2601,7 +2601,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Coin.html",
-          "hash": "DuHg2KvSMnxqkqcFgY4Bhw=="
+          "hash": "JDz0R5E7TJDa1mG/F7EhRg=="
         }
       },
       "is_incremental": false,
@@ -2613,7 +2613,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.CoinNotFoundException.html",
-          "hash": "ELMCQ7dzPemdr97+iKZv6w=="
+          "hash": "MHd7DZVjlb20nDkb+h4Q1g=="
         }
       },
       "is_incremental": false,
@@ -2625,7 +2625,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ColoredCoin.html",
-          "hash": "f79unf9NhehVvoEVyTcYnw=="
+          "hash": "dVDc2jb7Idp/tKcarYkdYg=="
         }
       },
       "is_incremental": false,
@@ -2637,7 +2637,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ConcurrentChain.ChainSerializationFormat.html",
-          "hash": "c2bP/caeuviD8AS0xnvoCw=="
+          "hash": "9A6BFInAsoHpozDYZK7pBg=="
         }
       },
       "is_incremental": false,
@@ -2649,7 +2649,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ConcurrentChain.html",
-          "hash": "2NSnmJbd9scr3NvKfLk/lA=="
+          "hash": "thjkFPbIEPnNm4NAHIYPaQ=="
         }
       },
       "is_incremental": false,
@@ -2661,7 +2661,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Consensus.BIP9DeploymentsArray.html",
-          "hash": "vsqvpS9DVkNEzfj7whTQ5g=="
+          "hash": "8Wylmo1XxmbVWz+7zKMWPA=="
         }
       },
       "is_incremental": false,
@@ -2673,7 +2673,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Consensus.BuriedDeploymentsArray.html",
-          "hash": "r2CzsS5qZ5177qfKxoDUbw=="
+          "hash": "D2Z9CVwhxljgEx9DrUs9wQ=="
         }
       },
       "is_incremental": false,
@@ -2685,7 +2685,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Consensus.html",
-          "hash": "/P76L/Soqrm5FEbO6VA3Vw=="
+          "hash": "9DMAfud7r1Vzx3RIT8k+tA=="
         }
       },
       "is_incremental": false,
@@ -2697,7 +2697,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ConsensusFactory.html",
-          "hash": "fgLrVdor8H6QHsjfKiPadA=="
+          "hash": "wwk62oipLaExI6X7yx9Tyg=="
         }
       },
       "is_incremental": false,
@@ -2709,7 +2709,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ContextStack-1.Enumerator.html",
-          "hash": "Er/Zo36v3nr/TkQ9QrxrhQ=="
+          "hash": "9tq4RjfCj/uO7/IvstIMXA=="
         }
       },
       "is_incremental": false,
@@ -2721,7 +2721,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ContextStack-1.html",
-          "hash": "fRuVP9KEpk0eefEBH0X0tQ=="
+          "hash": "kywnYEDsAEe2Kpu0JEQiRw=="
         }
       },
       "is_incremental": false,
@@ -2733,7 +2733,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.BufferedHashStream.html",
-          "hash": "teNewUq2EVsaEQTEI8G9kg=="
+          "hash": "pY1FfxsSRvWW5Q/BGw3TQQ=="
         }
       },
       "is_incremental": false,
@@ -2745,7 +2745,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.ECDSASignature.html",
-          "hash": "1xwfjuUfAh6ZFgi+JBVPxw=="
+          "hash": "UtK4GfCmCdyXhTDBZ/NfDA=="
         }
       },
       "is_incremental": false,
@@ -2757,7 +2757,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.HashStream.html",
-          "hash": "BhPbOO73yspE/IpBAqNX3w=="
+          "hash": "WfOeOxHytdMPg3cUZyn8NA=="
         }
       },
       "is_incremental": false,
@@ -2769,7 +2769,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.HashStreamBase.html",
-          "hash": "lqcA0HanuhsTBJdVP5X8YQ=="
+          "hash": "Ikp3T0M3CUOX99CBAS4mRQ=="
         }
       },
       "is_incremental": false,
@@ -2781,7 +2781,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.Hashes.html",
-          "hash": "ryB3AmhfIoW4tDtKMr2duw=="
+          "hash": "mFYDj02L099olc5IwJ6HxA=="
         }
       },
       "is_incremental": false,
@@ -2793,7 +2793,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.Pbkdf2.html",
-          "hash": "mQPMEGl9+aK2rNCm3yYwlA=="
+          "hash": "TlHVbPC6CvocHQSd8L5iQQ=="
         }
       },
       "is_incremental": false,
@@ -2805,7 +2805,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.SCrypt.html",
-          "hash": "sTFH31CopIGilq9PpLzDKw=="
+          "hash": "VPz7fTo31ANESog905RaMg=="
         }
       },
       "is_incremental": false,
@@ -2817,7 +2817,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.Salsa20Core.html",
-          "hash": "LMUKmN6f3scnlT7fujIF/Q=="
+          "hash": "jnv9zT668zm64G8SdtX3Aw=="
         }
       },
       "is_incremental": false,
@@ -2829,7 +2829,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.SchnorrBlinding.Requester.html",
-          "hash": "m1jjYtQubE9R5Zc9x6cXpw=="
+          "hash": "EP22yzvEd2m6NF3K9S/BSQ=="
         }
       },
       "is_incremental": false,
@@ -2841,7 +2841,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.SchnorrBlinding.Signer.html",
-          "hash": "ZVv6prW09Fji/P8GytrggQ=="
+          "hash": "aqEqdzi2a3wS4K1Ucy3SUA=="
         }
       },
       "is_incremental": false,
@@ -2853,7 +2853,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.SchnorrBlinding.html",
-          "hash": "euiohQ6gFAANNss83a1/8g=="
+          "hash": "HX2isCB162/mNLWHIKjNPg=="
         }
       },
       "is_incremental": false,
@@ -2865,7 +2865,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.SchnorrSignature.html",
-          "hash": "zx0CyUIkhUVEwCvzBfQ6lQ=="
+          "hash": "SYYDjm53ShNB4sfXezyCiQ=="
         }
       },
       "is_incremental": false,
@@ -2877,7 +2877,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.SchnorrSigner.html",
-          "hash": "wEkE7jNdghSpmoD6/9QApw=="
+          "hash": "zpkNHb1Mc0hIAQp7Je+E5w=="
         }
       },
       "is_incremental": false,
@@ -2889,7 +2889,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Crypto.UnblindedSignature.html",
-          "hash": "VvxJGnqGD8n2oj60qFnk3g=="
+          "hash": "O2u/e6W78IdP3NBty/3ZQQ=="
         }
       },
       "is_incremental": false,
@@ -2913,7 +2913,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.DNSSeedData.html",
-          "hash": "dERQTEtGn6Z9NssTPfYM2g=="
+          "hash": "pzQMyQglE991AYlsYrtRUA=="
         }
       },
       "is_incremental": false,
@@ -2925,7 +2925,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.DataEncoders.ASCIIEncoder.html",
-          "hash": "PQWzGKSpI/RifvH/XaD6fQ=="
+          "hash": "4n5dFEOcejERE0BAKM0ZyQ=="
         }
       },
       "is_incremental": false,
@@ -2937,7 +2937,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.DataEncoders.Base58CheckEncoder.html",
-          "hash": "FNd9MPN67XPuXrbdsayqKg=="
+          "hash": "LoGbX2J533GnKbItU6V1Kg=="
         }
       },
       "is_incremental": false,
@@ -2949,7 +2949,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.DataEncoders.Base58Encoder.html",
-          "hash": "ikE5niEp13Rme+BLpLW29A=="
+          "hash": "xwgkwfMtwZXdHvHMYHVT1A=="
         }
       },
       "is_incremental": false,
@@ -2961,7 +2961,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.DataEncoders.Base64Encoder.html",
-          "hash": "sXFiDtJMvEZwOUkXfA3law=="
+          "hash": "Wz4d08XmBanyvmGiTfj52Q=="
         }
       },
       "is_incremental": false,
@@ -2973,7 +2973,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.DataEncoders.Bech32Encoder.html",
-          "hash": "obJJspOwfVWRz6xc1chrpA=="
+          "hash": "8XuAPfe+/GU2JzgtzIIgpA=="
         }
       },
       "is_incremental": false,
@@ -2985,7 +2985,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.DataEncoders.Bech32FormatException.html",
-          "hash": "xSHzQbRYeBwTSjC2/Hq+Sg=="
+          "hash": "GQpti2EjOFzOM54B8NZ3sQ=="
         }
       },
       "is_incremental": false,
@@ -2997,7 +2997,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.DataEncoders.DataEncoder.html",
-          "hash": "1gxwYvXh/P1qBtUt8TxPew=="
+          "hash": "buNgABreGenpvYDH6TVgLQ=="
         }
       },
       "is_incremental": false,
@@ -3009,7 +3009,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.DataEncoders.Encoders.html",
-          "hash": "japRYSyBMR/fYApXBO5hvA=="
+          "hash": "i3+LQXNYHjnUMvswcnG52w=="
         }
       },
       "is_incremental": false,
@@ -3021,7 +3021,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.DataEncoders.HexEncoder.html",
-          "hash": "rEafDGU4GtIuytUlmlxHZw=="
+          "hash": "weC/AI8pDON7V3UfUhRBTA=="
         }
       },
       "is_incremental": false,
@@ -3045,7 +3045,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.DecryptionResult.html",
-          "hash": "tOohBOOpZZ2cs07HnySP2A=="
+          "hash": "9aAT+zOxjWyG5cHy2jcEwQ=="
         }
       },
       "is_incremental": false,
@@ -3057,7 +3057,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.DefaultCoinSelector.html",
-          "hash": "uaEVVFTArFCmXAcMk7qxBg=="
+          "hash": "eIHqdPumYR6jjZzzER/35Q=="
         }
       },
       "is_incremental": false,
@@ -3069,7 +3069,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.EncryptedKeyResult.html",
-          "hash": "/eS/nL1u0GkCYGO975++tQ=="
+          "hash": "JmCI35Fj/ABZsgsXPFQi/g=="
         }
       },
       "is_incremental": false,
@@ -3081,7 +3081,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ExtKey.html",
-          "hash": "kwZ4DD/s9LMIXccqE3RyWQ=="
+          "hash": "kAmSvz+2bGrgPvFJjLzIEQ=="
         }
       },
       "is_incremental": false,
@@ -3093,7 +3093,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ExtPubKey.html",
-          "hash": "c2O7MQVunpcxfN106GCr5w=="
+          "hash": "FyVAVIH4gZvZ/tM15DzcPg=="
         }
       },
       "is_incremental": false,
@@ -3105,7 +3105,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Extensions.html",
-          "hash": "/gf1sCkB2flmddiVHyPT/g=="
+          "hash": "ebUQc1xjUEsYcvuipT+CaQ=="
         }
       },
       "is_incremental": false,
@@ -3117,7 +3117,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.FeeRate.html",
-          "hash": "7hPqe64CKG7DzRx3Rm3ZNQ=="
+          "hash": "D96Ng2GPn6g1fPoK1FcZwA=="
         }
       },
       "is_incremental": false,
@@ -3129,7 +3129,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.FileLock.html",
-          "hash": "w3B09llujbD+W8pwi49Qxw=="
+          "hash": "scXrMWg+q80g+9Y8F+JL+Q=="
         }
       },
       "is_incremental": false,
@@ -3141,7 +3141,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.FileLockType.html",
-          "hash": "K5tPbcggu5RYOIjYei9gSw=="
+          "hash": "0GluD7WM476PHAYu3gNAZg=="
         }
       },
       "is_incremental": false,
@@ -3153,7 +3153,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.GolombRiceFilter.html",
-          "hash": "XP+5R04D8m2IO5IuzkfYng=="
+          "hash": "kNWZC5fSE0iYdDhewZDRvA=="
         }
       },
       "is_incremental": false,
@@ -3165,7 +3165,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.GolombRiceFilterBuilder.html",
-          "hash": "bWE3/6apWT8EBydDkjnYSw=="
+          "hash": "H4ldoznHz0YeieUlC/GqSw=="
         }
       },
       "is_incremental": false,
@@ -3177,7 +3177,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.HardcodedWordlistSource.html",
-          "hash": "+N/ajsJzJrnWiR7Hk0wl2A=="
+          "hash": "f1MOLNP1iGwMSpkmLtkgfQ=="
         }
       },
       "is_incremental": false,
@@ -3189,7 +3189,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.HashVersion.html",
-          "hash": "swkEe33UReyJ4WQgbuWfQw=="
+          "hash": "u2oKnPb/OHPB+VM38DTtPw=="
         }
       },
       "is_incremental": false,
@@ -3201,7 +3201,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IBase58Data.html",
-          "hash": "cxTB42raHr3Q9u0yUZo1uw=="
+          "hash": "eD+8JyhFoL6qh2yq1xS4bw=="
         }
       },
       "is_incremental": false,
@@ -3213,7 +3213,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IBech32Data.html",
-          "hash": "4HIixSMTWsrUCvp/a8Fk0g=="
+          "hash": "VJ+Z8IoPlDACsmj+4c0Fhw=="
         }
       },
       "is_incremental": false,
@@ -3225,7 +3225,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IBitcoinSerializable.html",
-          "hash": "dPSdgvSeJGRAzUnwNHja3g=="
+          "hash": "ywSQUoHVsT2mB2Ijq+mV5w=="
         }
       },
       "is_incremental": false,
@@ -3237,7 +3237,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IBitcoinString.html",
-          "hash": "4H7B6FDPjR1ID/Yn3vuOKQ=="
+          "hash": "z8cR6SNvGpEzKt5qlYZvNg=="
         }
       },
       "is_incremental": false,
@@ -3249,7 +3249,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IBlockRepository.html",
-          "hash": "xAxBgshuu9/inOzOLv1jUQ=="
+          "hash": "4cxx5upKO541O3KtjDXnMA=="
         }
       },
       "is_incremental": false,
@@ -3261,7 +3261,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ICoin.html",
-          "hash": "TYlN20eR56igjV5/ZfBSxA=="
+          "hash": "Z+jz01ggJB3TtnG1v5b3Bw=="
         }
       },
       "is_incremental": false,
@@ -3273,7 +3273,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ICoinSelector.html",
-          "hash": "kNBBjcoS7wlPus6Qaj2CnA=="
+          "hash": "HZy8T5eCp1/+WWsCzuGkqQ=="
         }
       },
       "is_incremental": false,
@@ -3285,7 +3285,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IColoredCoin.html",
-          "hash": "apjTxNOWsofqXKNBezNmCg=="
+          "hash": "w2wncqTF7/eV5LRsQg4Qpw=="
         }
       },
       "is_incremental": false,
@@ -3297,7 +3297,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IDestination.html",
-          "hash": "F4HYb2Wwq1x1stExTmjw2A=="
+          "hash": "3di2bc3euotXNQCwPcyyNw=="
         }
       },
       "is_incremental": false,
@@ -3309,7 +3309,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IHasForkId.html",
-          "hash": "WH+3ThJjfS+vIss2ylhdYw=="
+          "hash": "R8hx2drGhqhW9gBUe4z4VQ=="
         }
       },
       "is_incremental": false,
@@ -3321,7 +3321,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IMoney.html",
-          "hash": "NXbixbQRbAvULPsvcrewPA=="
+          "hash": "NzMO9vPoc4fQO6GKzT/m+w=="
         }
       },
       "is_incremental": false,
@@ -3333,7 +3333,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.INetworkSet.html",
-          "hash": "SO8bB8pKLv/VRcqApRQgrQ=="
+          "hash": "/CaitgPI2x08CKahSq2zVg=="
         }
       },
       "is_incremental": false,
@@ -3345,7 +3345,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IPubkeyHashUsable.html",
-          "hash": "u2Xicb7F39rTHS5rb5sUVg=="
+          "hash": "7k9vz3BByrhTbUKHSL/ALQ=="
         }
       },
       "is_incremental": false,
@@ -3357,7 +3357,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IRandom.html",
-          "hash": "V8DBu0J3bSyOOFqiBkMigg=="
+          "hash": "mRU7KwSbHgs1vK1LiV2klA=="
         }
       },
       "is_incremental": false,
@@ -3369,7 +3369,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ISecret.html",
-          "hash": "+lqN0V17hChpQgx2uc454A=="
+          "hash": "stqTkVOhUAhryOD1AyxmXQ=="
         }
       },
       "is_incremental": false,
@@ -3381,7 +3381,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ITransactionRepository.html",
-          "hash": "z2zO9x9BbjYxKwayM9BO3A=="
+          "hash": "4JhBYe6LhDYxI5pZgjsseg=="
         }
       },
       "is_incremental": false,
@@ -3393,7 +3393,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IWordlistSource.html",
-          "hash": "alITqSkdKAXDgTpLmnQLsg=="
+          "hash": "3pgntXqPZC9Lyrc5EH14Ng=="
         }
       },
       "is_incremental": false,
@@ -3405,7 +3405,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.InMemoryNoSqlRepository.html",
-          "hash": "hSqRp1Fkhd38uZgTQNX82w=="
+          "hash": "I/sYAXjb4e2InTD+dN1UXg=="
         }
       },
       "is_incremental": false,
@@ -3417,7 +3417,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IndexedTxIn.html",
-          "hash": "KjJnukA0bir8Lsg+RM91GQ=="
+          "hash": "/+K+DelvcvAfFe0BkAG3XA=="
         }
       },
       "is_incremental": false,
@@ -3429,7 +3429,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IndexedTxOut.html",
-          "hash": "5BRJxDiMuCOFjjkTahLMAg=="
+          "hash": "3+92xIZVyj9oHxWoBWWQIw=="
         }
       },
       "is_incremental": false,
@@ -3441,7 +3441,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IpExtensions.html",
-          "hash": "sEOrgOnQvpkT3DT7FLrTTQ=="
+          "hash": "gFpG274HIwBDl7AakcANkA=="
         }
       },
       "is_incremental": false,
@@ -3453,7 +3453,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.IssuanceCoin.html",
-          "hash": "DYFvjrlOOtltM85efGiGCA=="
+          "hash": "5+giSPznozO6Ww17BqK9TQ=="
         }
       },
       "is_incremental": false,
@@ -3465,7 +3465,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.AssetIdJsonConverter.html",
-          "hash": "Y2K6EpwOPHjmO4rrK96nOw=="
+          "hash": "ic7FTu/GkTcyoHAh//5fmg=="
         }
       },
       "is_incremental": false,
@@ -3477,7 +3477,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.BitcoinSerializableJsonConverter.html",
-          "hash": "AxM2KkejDCPCIvCdfGHiDQ=="
+          "hash": "gO2Kv0B5FBneU9ZqSHa/Xw=="
         }
       },
       "is_incremental": false,
@@ -3489,7 +3489,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.BitcoinStringJsonConverter.html",
-          "hash": "g2NeGtlYe7a+UliFq6jrDw=="
+          "hash": "087UajgdhgdZ5YC6f49skA=="
         }
       },
       "is_incremental": false,
@@ -3501,7 +3501,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.CoinJsonConverter.CoinJson.html",
-          "hash": "OHImLw0vaV4unXNhI9XCaw=="
+          "hash": "h05d9J1RojGJjAX4cHowmA=="
         }
       },
       "is_incremental": false,
@@ -3513,7 +3513,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.CoinJsonConverter.html",
-          "hash": "9r8Hakud/KxDRnEm2GL2XA=="
+          "hash": "jXv6X7keM6pDR4MxelMYfg=="
         }
       },
       "is_incremental": false,
@@ -3525,7 +3525,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.DateTimeToUnixTimeConverter.html",
-          "hash": "XgakGiN6yjuxgvXSSrpBsQ=="
+          "hash": "zwveCbdzoLJmqV3rku/0og=="
         }
       },
       "is_incremental": false,
@@ -3537,7 +3537,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.FeeRateJsonConverter.html",
-          "hash": "P1p8bIUwPvAl1JwpdMmoMg=="
+          "hash": "+bRweI/k3y48MjkgVEM4og=="
         }
       },
       "is_incremental": false,
@@ -3549,7 +3549,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.HexJsonConverter.html",
-          "hash": "swyWRMnbhHufMWDbtQHTdw=="
+          "hash": "7rqSf53EYMvFOiL9fqZ4Zw=="
         }
       },
       "is_incremental": false,
@@ -3561,7 +3561,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.JsonObjectException.html",
-          "hash": "QfCi4pBPm5h+ZzXUytLN+g=="
+          "hash": "UNxyUqFVf9sYI8mjPPsP5Q=="
         }
       },
       "is_incremental": false,
@@ -3573,7 +3573,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.KeyJsonConverter.html",
-          "hash": "0JjAWpVjSpVXGxBrDOMz/w=="
+          "hash": "610XcO2fkUFsPq99F10kZQ=="
         }
       },
       "is_incremental": false,
@@ -3585,7 +3585,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.KeyPathJsonConverter.html",
-          "hash": "XEYM802L/c03ply6uYIlXA=="
+          "hash": "t/76wdYLA99SGgHb3NqSSA=="
         }
       },
       "is_incremental": false,
@@ -3597,7 +3597,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.LockTimeJsonConverter.html",
-          "hash": "q7jwJd3Kv5i+C0BSPuhXlg=="
+          "hash": "WjogQ38ML+39caWxpmFCZA=="
         }
       },
       "is_incremental": false,
@@ -3609,7 +3609,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.MoneyJsonConverter.html",
-          "hash": "D8zkSmNfj5jr/268MYF9Mw=="
+          "hash": "1Jv23DK/uVdxNiUsrz5Ouw=="
         }
       },
       "is_incremental": false,
@@ -3621,7 +3621,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.NetworkJsonConverter.html",
-          "hash": "uIptOqa6Ibxjxl8Eb4EvvQ=="
+          "hash": "hk0TXBxeZdnyq8g6oq++MA=="
         }
       },
       "is_incremental": false,
@@ -3633,7 +3633,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.ScriptJsonConverter.html",
-          "hash": "qS3AZyL784JAFU9RZUL2PQ=="
+          "hash": "Hg50zwpNYZpUNt3g1RrbWA=="
         }
       },
       "is_incremental": false,
@@ -3645,7 +3645,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.Serializer.html",
-          "hash": "2LV29jSbnP2LH+aCO85WyA=="
+          "hash": "fxAjqsz1Z138Tfqgww3o/A=="
         }
       },
       "is_incremental": false,
@@ -3657,7 +3657,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.SignatureJsonConverter.html",
-          "hash": "HxKuvvVr9LEUl2y2At5Hvw=="
+          "hash": "RFlrF334ekrRujA91y9jZw=="
         }
       },
       "is_incremental": false,
@@ -3669,7 +3669,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.TxDestinationJsonConverter.html",
-          "hash": "5fDp6tv3PRfmzgzwDRPbPA=="
+          "hash": "MTYensTwmuJmQ1yXnn8QnA=="
         }
       },
       "is_incremental": false,
@@ -3681,7 +3681,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.UInt160JsonConverter.html",
-          "hash": "LVVbmHXW6zL0VMTM3YvVWA=="
+          "hash": "SqZe3zIqddl1as+9CagAoA=="
         }
       },
       "is_incremental": false,
@@ -3693,7 +3693,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.JsonConverters.UInt256JsonConverter.html",
-          "hash": "/WsUbGt3vlPWKyTQ2rEu9A=="
+          "hash": "ys9BtvjL+RbFR6f5w+0fWg=="
         }
       },
       "is_incremental": false,
@@ -3717,7 +3717,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Key.html",
-          "hash": "DOdpQig91YD9EtvqUU7sCw=="
+          "hash": "745KaxZ3el6n4gRYho1KFQ=="
         }
       },
       "is_incremental": false,
@@ -3729,7 +3729,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.KeyId.html",
-          "hash": "fBBw98NZ30LBBNimfQ10Fg=="
+          "hash": "j7ssnX9Ll7DFsOEIULaGLw=="
         }
       },
       "is_incremental": false,
@@ -3741,7 +3741,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.KeyPath.html",
-          "hash": "5doUKIMVsG1eGmmao26IgQ=="
+          "hash": "oaImavxczcrziZKRVeiQUQ=="
         }
       },
       "is_incremental": false,
@@ -3753,7 +3753,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Language.html",
-          "hash": "7QDjeZqjdirpL8r02eOdMg=="
+          "hash": "yv9bhcqkHmTR938vzgtVzQ=="
         }
       },
       "is_incremental": false,
@@ -3765,7 +3765,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.LockTime.html",
-          "hash": "vGKUOWAvh0EHQXCasRYleQ=="
+          "hash": "P5QpKjk8xgIKgbCSBL1OTQ=="
         }
       },
       "is_incremental": false,
@@ -3777,7 +3777,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Logging.FuncLoggerFactory.html",
-          "hash": "nevxpYSq5/HahZmAo1Ca3Q=="
+          "hash": "hdHmo1eNnmTQR6mIatmF2Q=="
         }
       },
       "is_incremental": false,
@@ -3789,7 +3789,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Logging.Logs.html",
-          "hash": "qPlSyOlfb6Zctmh5GpRlsg=="
+          "hash": "n9NQicvNCPiWBmNBffdsFQ=="
         }
       },
       "is_incremental": false,
@@ -3801,7 +3801,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Logging.NullLogger.html",
-          "hash": "8QAXZMuxqNT3gpp95Ye3NA=="
+          "hash": "FQSRTAqflt9+IxcxpzS5kg=="
         }
       },
       "is_incremental": false,
@@ -3813,7 +3813,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Logging.NullScope.html",
-          "hash": "LrjRbgw/Uxgocfebrmyq2g=="
+          "hash": "8rZab2czeZN6FCtezIkB0g=="
         }
       },
       "is_incremental": false,
@@ -3837,7 +3837,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.LotSequence.html",
-          "hash": "QoR/tUUrjeoja61BIXd+PA=="
+          "hash": "WpDByVcB0fdW/oeKUrSgxQ=="
         }
       },
       "is_incremental": false,
@@ -3849,7 +3849,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.MedianFilterInt32.html",
-          "hash": "b+m2XK/o5fPxjwWWd6DM4A=="
+          "hash": "meJiJsk4/cfrz1VUBWntAg=="
         }
       },
       "is_incremental": false,
@@ -3861,7 +3861,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.MedianFilterInt64.html",
-          "hash": "0d9Ug0OkqbGzFXCgJgTrvA=="
+          "hash": "4NKfFfXVcbLr2/2ReobXXQ=="
         }
       },
       "is_incremental": false,
@@ -3873,7 +3873,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.MemPoolInfo.html",
-          "hash": "wAWoxZLZ5wcp72aVS5uiQw=="
+          "hash": "HgeXEi9uWrB8mgSmXc4h9w=="
         }
       },
       "is_incremental": false,
@@ -3885,7 +3885,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.MerkleBlock.html",
-          "hash": "B47Q3Kgg06rqv2GiakXmJg=="
+          "hash": "cBd9GnTP8yrpYNehExRkEA=="
         }
       },
       "is_incremental": false,
@@ -3897,7 +3897,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.MerkleNode.html",
-          "hash": "pjUe0V2lvTtNiB+eJp5tpw=="
+          "hash": "oHMjKqKU3ZkZVi9vSFFn0w=="
         }
       },
       "is_incremental": false,
@@ -3909,7 +3909,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Mnemonic.html",
-          "hash": "1D0wjk8NPilCa5fu7KKP8Q=="
+          "hash": "RUG6PhgDMvi8LrMOnDsQeQ=="
         }
       },
       "is_incremental": false,
@@ -3921,7 +3921,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Money.html",
-          "hash": "oPciNqeI+cHubME9FAWiMg=="
+          "hash": "GUz569ZjdiDJ3q5ENcfZ3g=="
         }
       },
       "is_incremental": false,
@@ -3933,7 +3933,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.MoneyBag.html",
-          "hash": "ORmjcUuYoiW3zg/EyGDSFQ=="
+          "hash": "qG6dFphOLWSg2yANoc007w=="
         }
       },
       "is_incremental": false,
@@ -3945,7 +3945,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.MoneyExtensions.html",
-          "hash": "okw3obWp2ucaJu1EAQTHJg=="
+          "hash": "l6otkBJdH5AuyPL4/2cYPA=="
         }
       },
       "is_incremental": false,
@@ -3957,7 +3957,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.MoneyUnit.html",
-          "hash": "KdgefzHqA2KWXTUtyQFWWA=="
+          "hash": "Hd+KukJ3/Lvv2QQn/OB3wA=="
         }
       },
       "is_incremental": false,
@@ -3969,7 +3969,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Network.html",
-          "hash": "jQaBgfXvpekrkDfkVP8FYg=="
+          "hash": "iOtTjrSt7RHJn+yPFdmLYA=="
         }
       },
       "is_incremental": false,
@@ -3981,7 +3981,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.NetworkBuilder.html",
-          "hash": "BFEMN8SWbieo8XvmCgEkjg=="
+          "hash": "luVM+wrxUeZuR6Q/hv2c7g=="
         }
       },
       "is_incremental": false,
@@ -3993,7 +3993,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.NetworkSetBase.FolderName.html",
-          "hash": "26XIaFM0863AzdJYhl6ilg=="
+          "hash": "v33UpOOTA0dldlNHms41wg=="
         }
       },
       "is_incremental": false,
@@ -4005,7 +4005,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.NetworkSetBase.html",
-          "hash": "ZIUaB9h/UhO+FE+L/4czYg=="
+          "hash": "UALfBgOL5KGD2M3dNkf81Q=="
         }
       },
       "is_incremental": false,
@@ -4017,7 +4017,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.NetworkStringParser.html",
-          "hash": "xHfx7KavUFuWcPHKVUbs3w=="
+          "hash": "axFdo5IGhxQjZyCAr3hwNA=="
         }
       },
       "is_incremental": false,
@@ -4029,7 +4029,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.NetworkType.html",
-          "hash": "xjoKgcgCcEPjBrenMxkm/Q=="
+          "hash": "nVFVHWBs1XaAtE1/t8J37A=="
         }
       },
       "is_incremental": false,
@@ -4041,7 +4041,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.NoSqlBlockRepository.html",
-          "hash": "OrF5A+xbENJ/Phq81jMVkw=="
+          "hash": "XInEAZp1uXlE99ga/fkxdA=="
         }
       },
       "is_incremental": false,
@@ -4053,7 +4053,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.NoSqlRepository.html",
-          "hash": "dCBL6Cdddesrd18jhgP3bQ=="
+          "hash": "Cc5atWVT57d4TTGikoRZVg=="
         }
       },
       "is_incremental": false,
@@ -4065,7 +4065,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.NoSqlTransactionRepository.html",
-          "hash": "C5p2oa7ilHFVAj2oxB5jXg=="
+          "hash": "f8aM8QToZM55J17p4i4yDg=="
         }
       },
       "is_incremental": false,
@@ -4077,7 +4077,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.NotEnoughFundsException.html",
-          "hash": "ZphZIzUIaiSA8nreDSL1Ug=="
+          "hash": "zgaw7hYjAYiCoRcv059wzg=="
         }
       },
       "is_incremental": false,
@@ -4089,7 +4089,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Op.html",
-          "hash": "TEwMBs5N2r4aAOUvnDVLug=="
+          "hash": "1R1YL2NfOXuaHb6Yo5n0/g=="
         }
       },
       "is_incremental": false,
@@ -4101,7 +4101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpcodeType.html",
-          "hash": "T3w5dnZuBN1g6IgFex6Tcw=="
+          "hash": "Dh5J0nPT/+z7NYQPwsQspQ=="
         }
       },
       "is_incremental": false,
@@ -4113,7 +4113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpenAsset.AssetId.html",
-          "hash": "ted4OA/mqMa5S7zuSiHQwQ=="
+          "hash": "atFmBNLCnUtUc+gT9xJ7IQ=="
         }
       },
       "is_incremental": false,
@@ -4125,7 +4125,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpenAsset.AssetMoney.html",
-          "hash": "L9gWVQHHWJsY6rk6/tJ0Pg=="
+          "hash": "n5h2b/7S99DfpN3Wl9vVGA=="
         }
       },
       "is_incremental": false,
@@ -4137,7 +4137,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpenAsset.BitcoinAssetId.html",
-          "hash": "Y07oCa3BIkRt/Qsn+SpOQQ=="
+          "hash": "Va9aoUPecfBCc0mNZiUYpw=="
         }
       },
       "is_incremental": false,
@@ -4149,7 +4149,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpenAsset.CachedColoredTransactionRepository.html",
-          "hash": "fmZUt7e09vbUlAFNw5COYA=="
+          "hash": "U2M90lT/ORjXukeijLXiPQ=="
         }
       },
       "is_incremental": false,
@@ -4161,7 +4161,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpenAsset.ColorMarker.html",
-          "hash": "KYbi+Cmdzu2eP+rIKJjLJA=="
+          "hash": "SMVbDqwCTw4bYg9qVHAUww=="
         }
       },
       "is_incremental": false,
@@ -4173,7 +4173,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpenAsset.ColoredEntry.html",
-          "hash": "pPRyznDQbXIOjv0FQhX6iA=="
+          "hash": "aXw+pV81WTugcwI2e4MemA=="
         }
       },
       "is_incremental": false,
@@ -4185,7 +4185,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpenAsset.ColoredTransaction.html",
-          "hash": "ojHfCx6iIa/dlH7y0nZqqw=="
+          "hash": "u82dl5y8G/BVyvpvXSwHjg=="
         }
       },
       "is_incremental": false,
@@ -4197,7 +4197,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpenAsset.ColoredTxRepoExtensions.html",
-          "hash": "+bbON7YwfdYe+t7HHxaHwA=="
+          "hash": "jlX2zbuy6NRH2SelDT+aJQ=="
         }
       },
       "is_incremental": false,
@@ -4209,7 +4209,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpenAsset.Extensions.html",
-          "hash": "ZV/hla3kZupF9BXt0sFwCw=="
+          "hash": "xdm0P2wLzR7s/dk+AFrYQQ=="
         }
       },
       "is_incremental": false,
@@ -4221,7 +4221,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpenAsset.IColoredTransactionRepository.html",
-          "hash": "E76uZDd7pWUliXcGrnXVqA=="
+          "hash": "31X9AtdO4T4XC3pkYnBfEw=="
         }
       },
       "is_incremental": false,
@@ -4233,7 +4233,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpenAsset.NoSqlColoredTransactionRepository.html",
-          "hash": "cxyLhf3laIx6Y4XBVvrURw=="
+          "hash": "cZzXU/aWEqsSlUDRMKlb0Q=="
         }
       },
       "is_incremental": false,
@@ -4245,7 +4245,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OpenAsset.NullColoredTransactionRepository.html",
-          "hash": "RMZI9gPG3Wgn8sLriy3l/Q=="
+          "hash": "S/UXrLaqHK5Nj/+lyb2lrg=="
         }
       },
       "is_incremental": false,
@@ -4269,7 +4269,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.OutPoint.html",
-          "hash": "rurXFTc7+7GAFoVHeCS2qw=="
+          "hash": "3jHZ7ou6WrgBxofub4Pc9Q=="
         }
       },
       "is_incremental": false,
@@ -4281,7 +4281,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PartialMerkleTree.html",
-          "hash": "EXDbrx7nsWGTg0NuhPYMlQ=="
+          "hash": "ahfPcoXFGxs7ig947QkJdA=="
         }
       },
       "is_incremental": false,
@@ -4293,7 +4293,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PayToMultiSigTemplate.html",
-          "hash": "frVlpBDpmQduCFnvSo50+A=="
+          "hash": "1SCX8PjUyV3NcYZUQD/Mcw=="
         }
       },
       "is_incremental": false,
@@ -4305,7 +4305,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PayToMultiSigTemplateParameters.html",
-          "hash": "LryxCHidVjdSbFgPe1WBOg=="
+          "hash": "5iLkVfxOyTE0ZRxfHuwWGA=="
         }
       },
       "is_incremental": false,
@@ -4317,7 +4317,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PayToPubkeyHashScriptSigParameters.html",
-          "hash": "CuSvjDXSVoR2KBHitZBgmQ=="
+          "hash": "4fNT0jb6PPRbJBTXrSsucA=="
         }
       },
       "is_incremental": false,
@@ -4329,7 +4329,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PayToPubkeyHashTemplate.html",
-          "hash": "6F+aV9pvKfVP3CsjDp7l+A=="
+          "hash": "7q1BQR3bdyMlFuryfAfZ3w=="
         }
       },
       "is_incremental": false,
@@ -4341,7 +4341,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PayToPubkeyTemplate.html",
-          "hash": "mbSXop4f7cgLCU21s5H/9Q=="
+          "hash": "iJ0qOP6lwt1QC8XGTtPDFQ=="
         }
       },
       "is_incremental": false,
@@ -4353,7 +4353,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PayToScriptHashSigParameters.html",
-          "hash": "QzAmGwUQZTGbI81y4QTUbg=="
+          "hash": "laLpfdf9hMI/dm8/Sqi4+A=="
         }
       },
       "is_incremental": false,
@@ -4365,7 +4365,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PayToScriptHashTemplate.html",
-          "hash": "uwV7P3eHW5wE4weJlKkO0g=="
+          "hash": "M8N/pPOWlK+2Jy+PWMwxLw=="
         }
       },
       "is_incremental": false,
@@ -4377,7 +4377,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PayToWitPubKeyHashTemplate.html",
-          "hash": "BkPGTffALure8VZhlHTTSA=="
+          "hash": "BqPFJEuiR46EiFJacrPaRw=="
         }
       },
       "is_incremental": false,
@@ -4389,7 +4389,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PayToWitPubkeyHashScriptSigParameters.html",
-          "hash": "42+N2CHhTn2BFSFROZdrIw=="
+          "hash": "h9CGeb2cMzKBbQzpgcPDnA=="
         }
       },
       "is_incremental": false,
@@ -4401,7 +4401,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PayToWitScriptHashTemplate.html",
-          "hash": "Ut99LYJe2a1woPva2r+9Ag=="
+          "hash": "mfRg5fthUSfpMfKMXLbvVg=="
         }
       },
       "is_incremental": false,
@@ -4413,7 +4413,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PayToWitTemplate.html",
-          "hash": "4NLFuKqkFaP9qlcHSLZPKA=="
+          "hash": "yaTcbsSMpKICU9smKAEMqA=="
         }
       },
       "is_incremental": false,
@@ -4425,7 +4425,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.BitcoinUrlBuilder.html",
-          "hash": "0ZWRvMJ8AGtHXdblbILOkw=="
+          "hash": "UngEAOzBvc5/kmmzMxZEkQ=="
         }
       },
       "is_incremental": false,
@@ -4437,7 +4437,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.ICertificateServiceProvider.html",
-          "hash": "UXKH+kn30u3VPumAJVUu4w=="
+          "hash": "Gwv4BdlGeittYZplP5o4Vw=="
         }
       },
       "is_incremental": false,
@@ -4449,7 +4449,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.IChainChecker.html",
-          "hash": "GLb+kqBJHUVV5uPgJmY4QA=="
+          "hash": "DmmbaKDoQdHHmTihByirMA=="
         }
       },
       "is_incremental": false,
@@ -4461,7 +4461,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.ISignatureChecker.html",
-          "hash": "HqCF5qDhNPOOQrYnk8s8XQ=="
+          "hash": "TOalHLoCBr8rONClXfvqbg=="
         }
       },
       "is_incremental": false,
@@ -4473,7 +4473,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.ISigner.html",
-          "hash": "d90ppOIQvD/24JKuRPVUbQ=="
+          "hash": "ukFXosSykOjEXwecGKiRWg=="
         }
       },
       "is_incremental": false,
@@ -4485,7 +4485,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.PKIType.html",
-          "hash": "hszXP6dEjKaJrqSlX1Q0vQ=="
+          "hash": "vF8iJWGbv7zTWAcV1vVyYA=="
         }
       },
       "is_incremental": false,
@@ -4497,7 +4497,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.PaymentACK.html",
-          "hash": "KPR0HypwPB1o1arOh8KD+A=="
+          "hash": "Fs7J0p6ldivh3bneXslAsA=="
         }
       },
       "is_incremental": false,
@@ -4509,7 +4509,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.PaymentDetails.html",
-          "hash": "uuPU+BO5mf+G6eDX1ZaxsQ=="
+          "hash": "8+cSabQwonpx1rqJ8NtBrw=="
         }
       },
       "is_incremental": false,
@@ -4521,7 +4521,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.PaymentMessage.html",
-          "hash": "+AiXVUQZKs3G6CrZdUTJcA=="
+          "hash": "10y7c7/KNKAdLJAaZIazFg=="
         }
       },
       "is_incremental": false,
@@ -4533,7 +4533,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.PaymentOutput.html",
-          "hash": "LtMQK9xi9JlCr6xQ0ZroLw=="
+          "hash": "fez5rsovtUu3vgxszC0ccw=="
         }
       },
       "is_incremental": false,
@@ -4545,7 +4545,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.PaymentRequest.html",
-          "hash": "M+V/jrPeUYgMepX0Y3QNLQ=="
+          "hash": "riRLpbXzK99CB8hCcSHc0A=="
         }
       },
       "is_incremental": false,
@@ -4557,7 +4557,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.WindowsCertificateServiceProvider.WindowsChainChecker.html",
-          "hash": "d7bFxgLijkKS7PHhPKQkKA=="
+          "hash": "FxAzpupuQmkR49byeRSBfw=="
         }
       },
       "is_incremental": false,
@@ -4569,7 +4569,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.WindowsCertificateServiceProvider.WindowsHashChecker.html",
-          "hash": "OVC1KaKa5ZdniUfaCvk1nQ=="
+          "hash": "e3qNKhSq8+tcP534ewnKyg=="
         }
       },
       "is_incremental": false,
@@ -4581,7 +4581,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.WindowsCertificateServiceProvider.WindowsSigner.html",
-          "hash": "zrnNtebnIYRbbd525d143A=="
+          "hash": "kgNYwZtReJh4xp09mdzD3A=="
         }
       },
       "is_incremental": false,
@@ -4593,7 +4593,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Payment.WindowsCertificateServiceProvider.html",
-          "hash": "3AL7r7q/1fekcRjR4ABZdA=="
+          "hash": "FmhLGN+hSGxAF29xl3+ROw=="
         }
       },
       "is_incremental": false,
@@ -4617,7 +4617,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PerformanceCounter.html",
-          "hash": "4cqoxsws4zp8kmp6Y0GI7w=="
+          "hash": "i+GIguznmX/Cko1Ql5Kpjg=="
         }
       },
       "is_incremental": false,
@@ -4629,7 +4629,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PerformanceSnapshot.html",
-          "hash": "NtiHv0Dw9qBj8LvmskU/ew=="
+          "hash": "lo63c/s6LFD9LVNlAVc7gQ=="
         }
       },
       "is_incremental": false,
@@ -4641,7 +4641,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.CoinNotFoundPolicyError.html",
-          "hash": "MhcjPZYj+XO8v4mPfZZO7w=="
+          "hash": "ra0mkkRyTed6LWNPH8Kefg=="
         }
       },
       "is_incremental": false,
@@ -4653,7 +4653,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.DuplicateInputPolicyError.html",
-          "hash": "fkEyiKfHn/DGcLwRq5m9lg=="
+          "hash": "CO6UfiX9TRJSVUxhi0jfVA=="
         }
       },
       "is_incremental": false,
@@ -4665,7 +4665,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.DustPolicyError.html",
-          "hash": "nlEwwoRCrRt9Lrl9QyYtAw=="
+          "hash": "+0tRZmd+EJliJjy0MMYE6A=="
         }
       },
       "is_incremental": false,
@@ -4677,7 +4677,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.FeeTooHighPolicyError.html",
-          "hash": "5O+4ixX2WzT+HBNhDSVqAw=="
+          "hash": "BQ0FcFilFQVPWOjrYbf4NQ=="
         }
       },
       "is_incremental": false,
@@ -4689,7 +4689,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.FeeTooLowPolicyError.html",
-          "hash": "jraPYGcmgT7stwu4sFkq2w=="
+          "hash": "FPkV2LhExlrcR3egrprS1A=="
         }
       },
       "is_incremental": false,
@@ -4701,7 +4701,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.ITransactionPolicy.html",
-          "hash": "nx3m7OrU27LxXttYGKe6qA=="
+          "hash": "VDfKpCPX7PyI3rmdFb171w=="
         }
       },
       "is_incremental": false,
@@ -4713,7 +4713,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.InputPolicyError.html",
-          "hash": "S6+wJ59xMnfIGKzvwMmpyw=="
+          "hash": "zVWD9xRUvmAmCbrElw9swA=="
         }
       },
       "is_incremental": false,
@@ -4725,7 +4725,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.MinerTransactionPolicy.html",
-          "hash": "lM+yMdn7tQKPHsjhfonm1g=="
+          "hash": "ZidblbZz0ySlCVnYpOm5pg=="
         }
       },
       "is_incremental": false,
@@ -4737,7 +4737,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.NotEnoughFundsPolicyError.html",
-          "hash": "J5hvWAaZlX6DEJYKQKL5sg=="
+          "hash": "2KVHCWJLpPOwPzUS0pRF2A=="
         }
       },
       "is_incremental": false,
@@ -4749,7 +4749,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.OutputPolicyError.html",
-          "hash": "SRlzwtP29Q73ZwImfVUwAA=="
+          "hash": "hNFnpo11cCYv0RGU73RKyQ=="
         }
       },
       "is_incremental": false,
@@ -4761,7 +4761,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.ScriptPolicyError.html",
-          "hash": "Gh64OBQC9MoZIyLdfJpTbQ=="
+          "hash": "VNC32lZpMbWMQSynxhfaEA=="
         }
       },
       "is_incremental": false,
@@ -4773,7 +4773,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.StandardTransactionPolicy.html",
-          "hash": "zEEYHtSM4V3asXtMbCb24A=="
+          "hash": "bsXRf9HceFlg7af4wdfk1A=="
         }
       },
       "is_incremental": false,
@@ -4785,7 +4785,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.StandardTransactionPolicyStrategy.html",
-          "hash": "fcRMbtdu2l8UZWtJYaCzMw=="
+          "hash": "XbvLZ+ujvQSNJvHaI6XcTA=="
         }
       },
       "is_incremental": false,
@@ -4797,7 +4797,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.TransactionPolicyError.html",
-          "hash": "I/LtXrokQZkyA8GAaoQuXg=="
+          "hash": "2YhfvPXkx9byU6J5Anoj0A=="
         }
       },
       "is_incremental": false,
@@ -4809,7 +4809,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Policy.TransactionSizePolicyError.html",
-          "hash": "kVkYmhBWJgWqaVVJpAu5tg=="
+          "hash": "DxYllvy9Dyfc2L4fETijHQ=="
         }
       },
       "is_incremental": false,
@@ -4833,7 +4833,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PrecomputedTransactionData.html",
-          "hash": "GDb7YHDfyuk+b+xBy7tFcw=="
+          "hash": "tFBN59Fn89Z9kvrmnISKdg=="
         }
       },
       "is_incremental": false,
@@ -4845,7 +4845,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.AddrPayload.html",
-          "hash": "J/Bkhrsrvsb705G5Fvm/vw=="
+          "hash": "gn082lWd1FK/KrMuT7jyWA=="
         }
       },
       "is_incremental": false,
@@ -4857,7 +4857,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.AddressManager.html",
-          "hash": "IaUfLN4zToHkigrfl3zXhg=="
+          "hash": "iwRb7c05+AddXYcO9G7dSw=="
         }
       },
       "is_incremental": false,
@@ -4869,7 +4869,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.AddressManagerBehavior.html",
-          "hash": "vKzyjqy7enJo8QWH5xl8tA=="
+          "hash": "xsIysGfbfDPmeV7qM2pmcg=="
         }
       },
       "is_incremental": false,
@@ -4881,7 +4881,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.AddressManagerBehaviorMode.html",
-          "hash": "HCPN84Ms3XF7DV+u0cK2qg=="
+          "hash": "00gMhEV/GM9BKu4DhSQihA=="
         }
       },
       "is_incremental": false,
@@ -4893,7 +4893,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.BroadcastHub.html",
-          "hash": "uSenC8+2uYD5RsLhQYcVCQ=="
+          "hash": "B2Zois7HH+W8nPqM35VgKg=="
         }
       },
       "is_incremental": false,
@@ -4905,7 +4905,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.BroadcastHubBehavior.html",
-          "hash": "X+IGNSX6zpKXhtK6tHTwtQ=="
+          "hash": "rJZ4xBysv2th+aBnZbZJGA=="
         }
       },
       "is_incremental": false,
@@ -4917,7 +4917,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.BroadcastState.html",
-          "hash": "RnwGOZVJdwv0q1eeX4N1GA=="
+          "hash": "9kBKZ5BLtiLm19KKiBbrGA=="
         }
       },
       "is_incremental": false,
@@ -4929,7 +4929,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.ChainBehavior.State.html",
-          "hash": "RANcnJPwLk2Pm2exoGrtOQ=="
+          "hash": "swnQ9W6jiykSqr38AZWYMA=="
         }
       },
       "is_incremental": false,
@@ -4941,7 +4941,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.ChainBehavior.html",
-          "hash": "9mA8t0eU7ip/g8Yfs+RjHw=="
+          "hash": "o3ht1HKfgor4CmO2fFIylg=="
         }
       },
       "is_incremental": false,
@@ -4953,7 +4953,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.INodeBehavior.html",
-          "hash": "1cIRKuot3uew+EZvMAlWTw=="
+          "hash": "rQylVMybYTd8odGgtcJ5Cg=="
         }
       },
       "is_incremental": false,
@@ -4965,7 +4965,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.NodeBehavior.html",
-          "hash": "fNrCyOcxvrHn8keCfWFo5w=="
+          "hash": "17nJc5QqMaps5BgMdf1Icw=="
         }
       },
       "is_incremental": false,
@@ -4977,7 +4977,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.NodeBehaviorsCollection.html",
-          "hash": "yQ9CpzJ0PH39+BCscAO16w=="
+          "hash": "YD3F6FlHNqsxubJ8XPVz6A=="
         }
       },
       "is_incremental": false,
@@ -4989,7 +4989,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.PingPongBehavior.html",
-          "hash": "MiNofOyxkQdbsl8F4tWU2w=="
+          "hash": "4nwsaNWnKm0P8M7kszH2GQ=="
         }
       },
       "is_incremental": false,
@@ -5001,7 +5001,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.PingPongMode.html",
-          "hash": "10kXbXqL03RfCpq/xBOLcw=="
+          "hash": "zzyijfk2eVzNsca1gg+x1Q=="
         }
       },
       "is_incremental": false,
@@ -5013,7 +5013,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.SlimChainBehavior.html",
-          "hash": "egGntYJ0Vu/Ql8LXEZ1qjQ=="
+          "hash": "P5QCWVttYrq303Wz2Q8+Jw=="
         }
       },
       "is_incremental": false,
@@ -5025,7 +5025,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.TransactionBroadcast.html",
-          "hash": "gXpv2RWD3qlVsh9XblAqrg=="
+          "hash": "0uyGkyKcqJO7D2gmRok7wQ=="
         }
       },
       "is_incremental": false,
@@ -5037,7 +5037,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.TransactionBroadcastedDelegate.html",
-          "hash": "Gggx8JOX40zHVV8bfz0v3w=="
+          "hash": "yX40YLURn5Dc4p2PZitBuw=="
         }
       },
       "is_incremental": false,
@@ -5049,7 +5049,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Behaviors.TransactionRejectedDelegate.html",
-          "hash": "GXMrE0SFYXzb0OuVwOaJ7w=="
+          "hash": "rhbKP3R3NXmUIOU/9iDYNw=="
         }
       },
       "is_incremental": false,
@@ -5073,7 +5073,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.BitcoinSerializablePayload-1.html",
-          "hash": "sn1Z+nRaRkqGHCzHyHoTFw=="
+          "hash": "dYHjeYUh6+K3Z0MOWR00TA=="
         }
       },
       "is_incremental": false,
@@ -5085,7 +5085,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.BlockPayload.html",
-          "hash": "VE5cppG9hl3Yj8UA3q271Q=="
+          "hash": "A9d4+8YTekwgaOmoW5+AQA=="
         }
       },
       "is_incremental": false,
@@ -5097,7 +5097,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.BlockTxnPayload.html",
-          "hash": "bvOlxsFSMJAl0jCCJANAHw=="
+          "hash": "nMVHqSg87VlO0ryFlZIqqg=="
         }
       },
       "is_incremental": false,
@@ -5109,7 +5109,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.CmpctBlockPayload.html",
-          "hash": "jEdF8YvKN9CSUJ4hR7ByLA=="
+          "hash": "FJ2R0ZxvZjXutHyjnhl12w=="
         }
       },
       "is_incremental": false,
@@ -5121,7 +5121,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.CompactVarInt.html",
-          "hash": "SbupY4zhvKTHvaYnxOMaAA=="
+          "hash": "jqW9YpM8DzFFYPQN9g1kkA=="
         }
       },
       "is_incremental": false,
@@ -5133,7 +5133,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.EventLoopMessageListener-1.html",
-          "hash": "Sy3dEWBo7UINV+sBMmLnEw=="
+          "hash": "EqQLXrRIZUU8dN3p/S9GtQ=="
         }
       },
       "is_incremental": false,
@@ -5145,7 +5145,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.FilterAddPayload.html",
-          "hash": "o3w6wF1FbkgA1PCZzGG5+w=="
+          "hash": "z8PhXKf9V7Ak35s7K961uQ=="
         }
       },
       "is_incremental": false,
@@ -5157,7 +5157,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.FilterLoadPayload.html",
-          "hash": "DD9maA4FrWIqPxbSshqHUw=="
+          "hash": "eMR6ppAZZZEF++lEWMIilA=="
         }
       },
       "is_incremental": false,
@@ -5169,7 +5169,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Filters.ActionFilter.html",
-          "hash": "wR3Kz+YGzaNxxCDzbmbe4Q=="
+          "hash": "Hj3IOvKPfjhVwzJTGFd9xg=="
         }
       },
       "is_incremental": false,
@@ -5181,7 +5181,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Filters.INodeFilter.html",
-          "hash": "bxAL3b4MWg5kesKX1m0yrw=="
+          "hash": "RnBbajbtUxuQCN2YDEn2ug=="
         }
       },
       "is_incremental": false,
@@ -5193,7 +5193,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Filters.NodeFiltersCollection.html",
-          "hash": "mCq4WlpG5x2/3lUJmnwjlA=="
+          "hash": "CMxVtCU4rmBYgn1xNpRl2Q=="
         }
       },
       "is_incremental": false,
@@ -5217,7 +5217,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.GetAddrPayload.html",
-          "hash": "HEQ5Nh7NoXRdAjOlKmywHg=="
+          "hash": "lSm9t8pPf5EAFaaZUgzAMw=="
         }
       },
       "is_incremental": false,
@@ -5229,7 +5229,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.GetBlockTxnPayload.html",
-          "hash": "PNd7Z54qlmI95ENmRJ3r9A=="
+          "hash": "vv8X8YvgfDwcAX2VLhrbmA=="
         }
       },
       "is_incremental": false,
@@ -5241,7 +5241,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.GetBlocksPayload.html",
-          "hash": "9UH7jYOqhnP5ul4V/nG9fw=="
+          "hash": "0/4pZGYhbsydlfRL4L+xsw=="
         }
       },
       "is_incremental": false,
@@ -5253,7 +5253,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.GetDataPayload.html",
-          "hash": "goHZ6PLZQSSoIjXC4u2xMA=="
+          "hash": "6hWiDX0s2s5Aax5uRSouRg=="
         }
       },
       "is_incremental": false,
@@ -5265,7 +5265,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.GetHeadersPayload.html",
-          "hash": "+y9IT7ox1IANJ6sOqUIHaA=="
+          "hash": "tDcqqPO/d+uWb5h78ppeDA=="
         }
       },
       "is_incremental": false,
@@ -5277,7 +5277,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.HaveWitnessPayload.html",
-          "hash": "jhHgKwuGo0/N7FJO1sjqlQ=="
+          "hash": "MgavfIVifX+Fub0YUhNIVQ=="
         }
       },
       "is_incremental": false,
@@ -5289,7 +5289,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.HeadersPayload.html",
-          "hash": "PExvsI7+wgFFZxyMAmZZww=="
+          "hash": "mQgKNaIylNvF9QkkeAGC8w=="
         }
       },
       "is_incremental": false,
@@ -5301,7 +5301,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.IReadOnlyNodesCollection.html",
-          "hash": "hE5tV+5Zj31m8EJMSS3LAg=="
+          "hash": "7CxO0ffQzCkLl42s+N0trQ=="
         }
       },
       "is_incremental": false,
@@ -5313,7 +5313,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.IncomingMessage.html",
-          "hash": "ei5AkJDzwxD4AdPLf0z2JQ=="
+          "hash": "pYp2oU/LEP34yNbLvU8AKw=="
         }
       },
       "is_incremental": false,
@@ -5325,7 +5325,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.InvPayload.html",
-          "hash": "bwV/3lzqAz8bp7O7+BqnwA=="
+          "hash": "ZiHuhl6imtoWkZSBPPANcg=="
         }
       },
       "is_incremental": false,
@@ -5337,7 +5337,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.InventoryType.html",
-          "hash": "1RzbDoERAoaEHpLhxEm/+g=="
+          "hash": "zQz8AhHF1CwNKBH09MB+cw=="
         }
       },
       "is_incremental": false,
@@ -5349,7 +5349,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.InventoryVector.html",
-          "hash": "Zn62dUtNZY1vqN10Nlx2/A=="
+          "hash": "orNu4eVrV2ZCMW0fpPUnbA=="
         }
       },
       "is_incremental": false,
@@ -5361,7 +5361,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.MempoolPayload.html",
-          "hash": "M8eWc5v/k02JZvpUlI9W1g=="
+          "hash": "OI3zwmm4fWAOcRIeebIpSA=="
         }
       },
       "is_incremental": false,
@@ -5373,7 +5373,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.MerkleBlockPayload.html",
-          "hash": "smm4myy2NbZWWtlC1/Dljg=="
+          "hash": "0ZRz/UEX5z27nsYBdeEXsw=="
         }
       },
       "is_incremental": false,
@@ -5385,7 +5385,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Message.html",
-          "hash": "Fcl9s/06ryajhlhPh5tC4w=="
+          "hash": "ZtaJ0Ts+NCWGREB1vf39eQ=="
         }
       },
       "is_incremental": false,
@@ -5397,7 +5397,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.MessageListener-1.html",
-          "hash": "ujD7YIF1RVpwcGCvPboneg=="
+          "hash": "6JSQhBArtHKfWVJPRmWV3g=="
         }
       },
       "is_incremental": false,
@@ -5409,7 +5409,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.MessageProducer-1.html",
-          "hash": "vi1vsMBcIbA6h8ShNlR95Q=="
+          "hash": "Sx25fmxB8GGQ+zRwlcjCrQ=="
         }
       },
       "is_incremental": false,
@@ -5421,7 +5421,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NetworkAddress.html",
-          "hash": "U+obZ3E9Hl+UgCZ0Xoc8tg=="
+          "hash": "UtyFmeYqXzQmISjWu0Xg7w=="
         }
       },
       "is_incremental": false,
@@ -5433,7 +5433,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NewThreadMessageListener-1.html",
-          "hash": "O+LIddlOQfWUZ1cW4XnpYA=="
+          "hash": "VszTqMQtCs126UzXBi7qyA=="
         }
       },
       "is_incremental": false,
@@ -5445,7 +5445,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Node.NodeConnection.html",
-          "hash": "HGxxw+WzkICJVrR9IX8qow=="
+          "hash": "LQsvj7SRNr9F+OC3rg6SVg=="
         }
       },
       "is_incremental": false,
@@ -5457,7 +5457,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Node.NodeExceptionDelegate.html",
-          "hash": "rO4Rv7avid9izHXDPSeKxQ=="
+          "hash": "YkNHxyNgE5RAYWAd95qvNw=="
         }
       },
       "is_incremental": false,
@@ -5469,7 +5469,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Node.html",
-          "hash": "KavehKIGFb0POxDinSumLw=="
+          "hash": "POi/qoegJqFUqozwZof8tg=="
         }
       },
       "is_incremental": false,
@@ -5481,7 +5481,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeConnectionParameters.html",
-          "hash": "8nk71NqtcxE7wb3uDS0s9w=="
+          "hash": "xBhWcav8J0VV1BtZ8E5oqA=="
         }
       },
       "is_incremental": false,
@@ -5493,7 +5493,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeDisconnectReason.html",
-          "hash": "KgUeSuoUFK0m6TNDmQrKHg=="
+          "hash": "GEWWwOb7EawvksxWR2Qfwg=="
         }
       },
       "is_incremental": false,
@@ -5505,7 +5505,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeEventArgs.html",
-          "hash": "mT9PsR3L7voJEi5u1s+3Eg=="
+          "hash": "UMq8KVbSaFw1/3ayodf0Hw=="
         }
       },
       "is_incremental": false,
@@ -5517,7 +5517,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeEventHandler.html",
-          "hash": "NVVDG1Vqop8mUBaqjlApKw=="
+          "hash": "FAHZUCUf2PencJwGNE6ZBg=="
         }
       },
       "is_incremental": false,
@@ -5529,7 +5529,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeEventMessageIncoming.html",
-          "hash": "6SKjqnrt/IWWwUKc7SiGpA=="
+          "hash": "jZ2j0unKCX2oqlOxxowZrg=="
         }
       },
       "is_incremental": false,
@@ -5541,7 +5541,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeListener.html",
-          "hash": "l5u9MjF4xQbWP7FyLupaLw=="
+          "hash": "0/wvQsfvPMkRqYNPGMmQAw=="
         }
       },
       "is_incremental": false,
@@ -5553,7 +5553,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeRequirement.html",
-          "hash": "Qrmb8tZ+VJiodHlmc0gmTA=="
+          "hash": "hwlIVZq4KsLm6gPsWptBwA=="
         }
       },
       "is_incremental": false,
@@ -5565,7 +5565,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeServer.html",
-          "hash": "qlDvHN1ErZEp31YSutvDoQ=="
+          "hash": "yeQqOIWzGr3jSQbw0urYQw=="
         }
       },
       "is_incremental": false,
@@ -5577,7 +5577,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeServerMessageEventHandler.html",
-          "hash": "bjCauH6XhHhB9514Mta1MQ=="
+          "hash": "WERX/DtC29Uz/lsTpjzvAw=="
         }
       },
       "is_incremental": false,
@@ -5589,7 +5589,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeServerNodeEventHandler.html",
-          "hash": "elxUlR7SKPUNKqnYkfodPg=="
+          "hash": "L0A6Gt802BmsQa9b8z+1Hw=="
         }
       },
       "is_incremental": false,
@@ -5601,7 +5601,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeServices.html",
-          "hash": "5vdM1//06DR9R+OooMpAtA=="
+          "hash": "04MjNVIrAy6kTw3lDxqHZw=="
         }
       },
       "is_incremental": false,
@@ -5613,7 +5613,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeState.html",
-          "hash": "3PFDM3rqt0nNIpMUhE40ow=="
+          "hash": "P+jSzG4bGdR7W8EgOUXuhw=="
         }
       },
       "is_incremental": false,
@@ -5625,7 +5625,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodeStateEventHandler.html",
-          "hash": "+ANoVZc9IOKT3/IomqfkRg=="
+          "hash": "0FKWCyWHOOlVshWTXvkWng=="
         }
       },
       "is_incremental": false,
@@ -5637,7 +5637,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodesCollection.html",
-          "hash": "KwMQVYnxQf0Lwpybk7iycA=="
+          "hash": "FTrKmxsUyclCbsh4PzQG8Q=="
         }
       },
       "is_incremental": false,
@@ -5649,7 +5649,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NodesGroup.html",
-          "hash": "uuqsbNEJ4T0nZ6LL59Ec+w=="
+          "hash": "gvogjBhKxkcxllGmdhKsYQ=="
         }
       },
       "is_incremental": false,
@@ -5661,7 +5661,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NotFoundPayload.html",
-          "hash": "ZjjnV4XTXGdplH2Tzl/XCA=="
+          "hash": "PdT9P5Aw1khBckwpcrctzw=="
         }
       },
       "is_incremental": false,
@@ -5673,7 +5673,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.NullMessageListener-1.html",
-          "hash": "VbQ1OIjN9gwlf/aO3b5uLw=="
+          "hash": "H5dCWhGsRPru0fxTUVShRw=="
         }
       },
       "is_incremental": false,
@@ -5685,7 +5685,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Payload.html",
-          "hash": "0vSgXUaW5Q309NBJsdvmHQ=="
+          "hash": "qiZwxVJo6o1QbdJ+woVRHQ=="
         }
       },
       "is_incremental": false,
@@ -5697,7 +5697,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.PayloadAttribute.html",
-          "hash": "LIY0ClP/zOrlmANTbnZnSg=="
+          "hash": "j2AOI2Y3kjSiIkFikgsX3g=="
         }
       },
       "is_incremental": false,
@@ -5709,7 +5709,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Payloads.UTxOut.html",
-          "hash": "CideNTZCEIRsWmhaNSTmeA=="
+          "hash": "8ed9/AquhXBKDPiT879HIQ=="
         }
       },
       "is_incremental": false,
@@ -5721,7 +5721,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Payloads.UTxOutputPayload.html",
-          "hash": "oWHpO0cOc1YoCEjOggWzZg=="
+          "hash": "9tSv/ug2yXmqSmIi1fQPjg=="
         }
       },
       "is_incremental": false,
@@ -5733,7 +5733,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.Payloads.UTxOutputs.html",
-          "hash": "oJYq+qyRPlj8R0bXWvhZpg=="
+          "hash": "fiLZ2YTcXVPB/EckxkT+ww=="
         }
       },
       "is_incremental": false,
@@ -5757,7 +5757,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.PingPayload.html",
-          "hash": "ModKdgeJfWPIoOBtE3A2Dg=="
+          "hash": "Z6SfAeSbB4atj1CgZ+A+qg=="
         }
       },
       "is_incremental": false,
@@ -5769,7 +5769,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.PollMessageListener-1.html",
-          "hash": "UTGLVXKWkqGgVPoWcCMhYw=="
+          "hash": "LFrnjGhBLKEN7bUaOtthwA=="
         }
       },
       "is_incremental": false,
@@ -5781,7 +5781,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.PongPayload.html",
-          "hash": "e3tffU9AJI6Hh+x0+vEsfA=="
+          "hash": "sMjDT2D23EQUDeHGZWdnsg=="
         }
       },
       "is_incremental": false,
@@ -5793,7 +5793,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.PrefilledTransaction.html",
-          "hash": "P34KqecYnzbDQ0bjYDZh5w=="
+          "hash": "4VK5hOa95nkEb3Ku0N5CyA=="
         }
       },
       "is_incremental": false,
@@ -5805,7 +5805,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.ProtocolCapabilities.html",
-          "hash": "7GM4y81I6Y4ZkXRqGua/AA=="
+          "hash": "qq3YqGl+co+/MKtEQH+11g=="
         }
       },
       "is_incremental": false,
@@ -5817,7 +5817,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.ProtocolException.html",
-          "hash": "YR+BUZt12Ux64FVrzFIeFw=="
+          "hash": "cNg7EHPJ20FTmtHIi5f90w=="
         }
       },
       "is_incremental": false,
@@ -5829,7 +5829,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.RejectCode.html",
-          "hash": "aj6gIaP0fAKMTpMz2inJQA=="
+          "hash": "cErCyFjUDTInxhRisDa+Sg=="
         }
       },
       "is_incremental": false,
@@ -5841,7 +5841,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.RejectCodeType.html",
-          "hash": "0N32ks76VzWijHYb/czZJQ=="
+          "hash": "vCI4BktUA10bh8pBWVkBHw=="
         }
       },
       "is_incremental": false,
@@ -5853,7 +5853,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.RejectPayload.html",
-          "hash": "KCKzNlYdIhJMsYDxz3G09w=="
+          "hash": "HFr+MZ83XWXAWEZYDVsE4w=="
         }
       },
       "is_incremental": false,
@@ -5865,7 +5865,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.SendCmpctPayload.html",
-          "hash": "HBqe2AyosHhObyMJNkV9Fw=="
+          "hash": "8UF3Pto6h6ntaWcMb0TGCg=="
         }
       },
       "is_incremental": false,
@@ -5877,7 +5877,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.SendHeadersPayload.html",
-          "hash": "HsiYbxkR81vPi2sldVFYdw=="
+          "hash": "4rCsS30/y9C0OZ77mtxYiQ=="
         }
       },
       "is_incremental": false,
@@ -5889,7 +5889,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.SynchronizeChainOptions.html",
-          "hash": "VM7PlDk4u+Qsovv8tHJICw=="
+          "hash": "dwdHBtTyH8JttaiwNKXm/w=="
         }
       },
       "is_incremental": false,
@@ -5901,7 +5901,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.TxPayload.html",
-          "hash": "zm7FcrgIbFE3sIOhWr7Txg=="
+          "hash": "ekdnMlEoo8aIbrHVgNZLPg=="
         }
       },
       "is_incremental": false,
@@ -5913,7 +5913,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.UnknowPayload.html",
-          "hash": "nLlPgHZxZiskENYjRCKWLQ=="
+          "hash": "RHv4U/eoHPGAQPlHEN0jEA=="
         }
       },
       "is_incremental": false,
@@ -5925,7 +5925,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.VarInt.html",
-          "hash": "v28htigpQtDW6p5A36eqmQ=="
+          "hash": "iSoEToRImEujy+23sDi62w=="
         }
       },
       "is_incremental": false,
@@ -5937,7 +5937,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.VarString.html",
-          "hash": "XSpMk6kk6N00zqiNhg7K5Q=="
+          "hash": "MugSm6vtR6PCSOX1BxFymA=="
         }
       },
       "is_incremental": false,
@@ -5949,7 +5949,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.VerAckPayload.html",
-          "hash": "BahPjJuZXlepd1IYH/zKyw=="
+          "hash": "OvbovyDmHRlgp9h8LJ1+YA=="
         }
       },
       "is_incremental": false,
@@ -5961,7 +5961,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.VersionPayload.html",
-          "hash": "Crk6mpmHex/pYXlP9GRkBg=="
+          "hash": "QhfYWUcTJnzv3tBu5TXfUA=="
         }
       },
       "is_incremental": false,
@@ -5973,7 +5973,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Protocol.WellKnownGroupSelectors.html",
-          "hash": "/i5rB9OI5MXNkSpAnAeJFA=="
+          "hash": "f1f0GCwkspF8EdZQscmzUA=="
         }
       },
       "is_incremental": false,
@@ -5997,7 +5997,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.PubKey.html",
-          "hash": "jCPXEE259tD12dGiNebdTg=="
+          "hash": "6slLQLzF+goViCTeVxmO6g=="
         }
       },
       "is_incremental": false,
@@ -6009,7 +6009,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.QBitNinjaTransactionRepository.html",
-          "hash": "r0bhFufqAXqlosJCp4F2/Q=="
+          "hash": "k2Dljj7fAbW+fzS06Y/UBA=="
         }
       },
       "is_incremental": false,
@@ -6021,7 +6021,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.AddedNodeInfo.html",
-          "hash": "yoaZmj+afMmFG/ccKVhFtg=="
+          "hash": "+T0/LH5oNe7feA11JwkafA=="
         }
       },
       "is_incremental": false,
@@ -6033,7 +6033,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.AddressGrouping.html",
-          "hash": "6SI7sMJajQ0nrMw3kQ7hOg=="
+          "hash": "rFEle8o+GfdEtnWsTtgbdQ=="
         }
       },
       "is_incremental": false,
@@ -6045,7 +6045,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.AddressType.html",
-          "hash": "/mgidHH4w4MWzVdRtPIv7Q=="
+          "hash": "19XTPLC7IArwZcYm+uHoSQ=="
         }
       },
       "is_incremental": false,
@@ -6057,7 +6057,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.BlockchainInfo.Bip9SoftFork.html",
-          "hash": "MC6U/cwXnr0R8186gMtbOQ=="
+          "hash": "YhuWOvfilsvpoGNe0qXUbQ=="
         }
       },
       "is_incremental": false,
@@ -6069,7 +6069,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.BlockchainInfo.SoftFork.html",
-          "hash": "FgBLMeHrlIrelN0vQTWrlw=="
+          "hash": "P5ZU7TIKHTmiGxWdsw/gQg=="
         }
       },
       "is_incremental": false,
@@ -6081,7 +6081,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.BlockchainInfo.html",
-          "hash": "a8QL49M3H2YBfvdSLi/M/Q=="
+          "hash": "g4+5pwUl5t1qiilAQkbLiQ=="
         }
       },
       "is_incremental": false,
@@ -6093,7 +6093,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.BumpResponse.html",
-          "hash": "q1uyQbaXnBRp5+yHgF3iVQ=="
+          "hash": "aWCtR/+cFC6UwR3+BzE4iw=="
         }
       },
       "is_incremental": false,
@@ -6105,7 +6105,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.ChainInfo.html",
-          "hash": "VK1PdPteDLQhldeNVCZHwQ=="
+          "hash": "bmmRXiDacJN/SY0Mb/vvJg=="
         }
       },
       "is_incremental": false,
@@ -6117,7 +6117,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.ChangeAddress.html",
-          "hash": "09X/NDVQwJQhXX9pgx4Dcg=="
+          "hash": "AV1xaq6r4yqohIvbkZAYkQ=="
         }
       },
       "is_incremental": false,
@@ -6129,7 +6129,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.EstimateSmartFeeMode.html",
-          "hash": "2dWEWCoWhgieKAqD9amg7A=="
+          "hash": "kTXQxZH6buPso9CYBY+Rug=="
         }
       },
       "is_incremental": false,
@@ -6141,7 +6141,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.EstimateSmartFeeResponse.html",
-          "hash": "d6vmVkBAKp8A+dBkHRYyhQ=="
+          "hash": "218Ox62OYR7+S7m23GgDRA=="
         }
       },
       "is_incremental": false,
@@ -6153,7 +6153,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.FundRawTransactionOptions.html",
-          "hash": "8SqSqQlMdc8F42afPUtVog=="
+          "hash": "7xu8UCYznKMjpMjWct+6JQ=="
         }
       },
       "is_incremental": false,
@@ -6165,7 +6165,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.FundRawTransactionResponse.html",
-          "hash": "tA6gcgufOL+I5jomLQvD8w=="
+          "hash": "LaH83oRtBgHgtDbWkPdpVg=="
         }
       },
       "is_incremental": false,
@@ -6177,7 +6177,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.GetAddressInfoResponse.html",
-          "hash": "aTP+gzsyeHoLIHjnqyXjow=="
+          "hash": "VLiUL9WJYmmNCe/owaAItA=="
         }
       },
       "is_incremental": false,
@@ -6189,7 +6189,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html",
-          "hash": "pEyijQ58IVoB1RSHCUx/lw=="
+          "hash": "9pneQlgzgTBBtTmfJRv4Jg=="
         }
       },
       "is_incremental": false,
@@ -6201,7 +6201,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.GetNewAddressRequest.html",
-          "hash": "7bI3/TXt4muWwQBDmB0S0w=="
+          "hash": "fnIwTEZxYNKA2QfR+wSu1A=="
         }
       },
       "is_incremental": false,
@@ -6213,7 +6213,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.GetTxOutResponse.html",
-          "hash": "Vxf1kCku2jeUjdWty6bMaA=="
+          "hash": "rb2Jf7UYERbuTxtRg+dbUA=="
         }
       },
       "is_incremental": false,
@@ -6225,7 +6225,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.ImportMultiAddress.ScriptPubKeyObject.html",
-          "hash": "Os1gUsnXluV0tKJBoue4PQ=="
+          "hash": "2aNGXgp20wStAVgS9mBSxA=="
         }
       },
       "is_incremental": false,
@@ -6237,7 +6237,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.ImportMultiAddress.html",
-          "hash": "bdHXs7Hwn6Vhxwxy56wEuw=="
+          "hash": "02lawVRwi0eRYgKSfLZ8vg=="
         }
       },
       "is_incremental": false,
@@ -6249,7 +6249,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.ListUnspentOptions.html",
-          "hash": "EYdSaVJWic/Tio1SfYi0Ag=="
+          "hash": "YAo63XK/vzUQLmPsyiBeDg=="
         }
       },
       "is_incremental": false,
@@ -6261,7 +6261,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.MempoolAcceptResult.html",
-          "hash": "6aXQpCZM2qn7dff8SFlbaQ=="
+          "hash": "0js2UFJjgGG0uDWDOQpxcQ=="
         }
       },
       "is_incremental": false,
@@ -6273,7 +6273,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.MempoolEntry.html",
-          "hash": "sx0UW1IDLGLr0OJXDvTWVA=="
+          "hash": "nlyHq5emo0OIy7Ev2FIYxQ=="
         }
       },
       "is_incremental": false,
@@ -6285,7 +6285,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.NoEstimationException.html",
-          "hash": "LptCYcgg4MG7+XBmhE2Zgw=="
+          "hash": "r/grqOwPlrVauQkxsXGTmw=="
         }
       },
       "is_incremental": false,
@@ -6297,7 +6297,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.NodeAddressInfo.html",
-          "hash": "WVKpFQpwHEFWRQwR1jpy4A=="
+          "hash": "0Nkld1f7ragYKy+P/dGxFw=="
         }
       },
       "is_incremental": false,
@@ -6309,7 +6309,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.PeerInfo.html",
-          "hash": "bWJzD6BzojXt9dUKU+oD7Q=="
+          "hash": "ZERkCyS/nmgEh/zEzs1DhQ=="
         }
       },
       "is_incremental": false,
@@ -6321,7 +6321,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RPCAccount.html",
-          "hash": "5+Woii3ys2+fTuNZLZ10OQ=="
+          "hash": "y8F2Fz1q9kY+NT/DAR+O/w=="
         }
       },
       "is_incremental": false,
@@ -6333,7 +6333,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RPCCapabilities.html",
-          "hash": "9Kd6jt9rYYMrd6Tg16wHNw=="
+          "hash": "AV6GozSd8MwoJ5nLUTeBzg=="
         }
       },
       "is_incremental": false,
@@ -6345,7 +6345,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RPCClient.html",
-          "hash": "sP0ewQy18PbqoB0tBdLJFg=="
+          "hash": "7apwcMIbH6skgH46Lo/7tQ=="
         }
       },
       "is_incremental": false,
@@ -6357,7 +6357,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RPCCredentialString.html",
-          "hash": "pFQLfB7VL0LYoDYYkqmUrA=="
+          "hash": "PZuyVeXj15pdw9mz+9Uhog=="
         }
       },
       "is_incremental": false,
@@ -6369,7 +6369,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RPCError.html",
-          "hash": "RjqvwU0iDyyZF60bsLTdEQ=="
+          "hash": "MLwMVtvPchWEWKU5OGaSUw=="
         }
       },
       "is_incremental": false,
@@ -6381,7 +6381,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RPCErrorCode.html",
-          "hash": "9JJ2rGARIArK2pltySsQEA=="
+          "hash": "Nd1gs3BVZR6GBQxickVWLw=="
         }
       },
       "is_incremental": false,
@@ -6393,7 +6393,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RPCException.html",
-          "hash": "6UiUoefWqaHDV3GunAyMIg=="
+          "hash": "QF2A7R1GlVA5DRCDQDCcHg=="
         }
       },
       "is_incremental": false,
@@ -6405,7 +6405,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RPCOperations.html",
-          "hash": "DO25p26kgqpgdNUM/VJvXw=="
+          "hash": "L0SrYlD9/6U56nKJKJN3YQ=="
         }
       },
       "is_incremental": false,
@@ -6417,7 +6417,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RPCRequest.html",
-          "hash": "h7LxfLr2e/nlBt4iNMjuVw=="
+          "hash": "pqUAFcIoyclUickamHHlxg=="
         }
       },
       "is_incremental": false,
@@ -6429,7 +6429,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RPCResponse.html",
-          "hash": "IEf9kumSHFJH5098P7bnKg=="
+          "hash": "zWw7jM2q8Xc7q68x4hzqWg=="
         }
       },
       "is_incremental": false,
@@ -6441,7 +6441,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RPCTransactionInput.html",
-          "hash": "CPGhix25wCCae9dsEfZ28w=="
+          "hash": "hdTcZM9dLiXDJXwz9PlfvA=="
         }
       },
       "is_incremental": false,
@@ -6453,7 +6453,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RawTransactionInfo.html",
-          "hash": "wpSD+mTF/CL5+Vv11UgyLA=="
+          "hash": "I4jHJufH07MjAr7L5jdZzg=="
         }
       },
       "is_incremental": false,
@@ -6465,7 +6465,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RestApiException.html",
-          "hash": "brDQhz1STeIuRqREWF9usg=="
+          "hash": "jbfgW6Xi6ECnjwiewLhKig=="
         }
       },
       "is_incremental": false,
@@ -6477,7 +6477,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RestClient.html",
-          "hash": "j+0jWjNUYYDfdXqB+xvj9g=="
+          "hash": "+gaCK0mnSfMSTkCuRr26pw=="
         }
       },
       "is_incremental": false,
@@ -6489,7 +6489,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.RestResponseFormat.html",
-          "hash": "jJJFtp07cbjqJIufEILIig=="
+          "hash": "QIaCalP0GO5VUlrfVGqONQ=="
         }
       },
       "is_incremental": false,
@@ -6501,7 +6501,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.ScanTxoutDescriptor.html",
-          "hash": "yiPB0OIuVnPV6VBtnCqbsA=="
+          "hash": "5lt5whVoPgvooal9vTmp9A=="
         }
       },
       "is_incremental": false,
@@ -6513,7 +6513,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.ScanTxoutOutput.html",
-          "hash": "BflfogET4JA7LHK3hbISWw=="
+          "hash": "7UBDEL0IVyX22EA1f5VHLg=="
         }
       },
       "is_incremental": false,
@@ -6525,7 +6525,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.ScanTxoutPubkey.html",
-          "hash": "HHkAyziIpWbROkd+T0BKlg=="
+          "hash": "adf7O8K1NJD+zjNd6qspxg=="
         }
       },
       "is_incremental": false,
@@ -6537,7 +6537,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.ScanTxoutSetObject.html",
-          "hash": "ZoFT8oY8jiBVHWwKzkV3fQ=="
+          "hash": "MvG5OJyUkxmCbb17YWWVZg=="
         }
       },
       "is_incremental": false,
@@ -6549,7 +6549,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.ScanTxoutSetResponse.html",
-          "hash": "YDNNsOTvttIk5QrJUyqtIw=="
+          "hash": "gtyuVNxb5N6A7iXmReOMKg=="
         }
       },
       "is_incremental": false,
@@ -6561,7 +6561,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.SignRawTransactionRequest.PrevTx.html",
-          "hash": "ANeNpngBpNxHWBwBIwV3ag=="
+          "hash": "s3gbj/sB0xog+xslY8RvkA=="
         }
       },
       "is_incremental": false,
@@ -6573,7 +6573,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.SignRawTransactionRequest.html",
-          "hash": "OMDAIkHE2+OT/WuT/klhEw=="
+          "hash": "0BSdh+zgIZrZqyy7wtTj6g=="
         }
       },
       "is_incremental": false,
@@ -6585,7 +6585,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.SignRawTransactionResponse.ScriptError.html",
-          "hash": "4t5L6s7qXOdnsThWHKgG9w=="
+          "hash": "L0QGYInPA1CdTKT7TNOYIQ=="
         }
       },
       "is_incremental": false,
@@ -6597,7 +6597,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.SignRawTransactionResponse.html",
-          "hash": "NwuIIs6b/HYR+dRxa2jqQg=="
+          "hash": "nEQLA+2TakDKJ1Mg6oJl9g=="
         }
       },
       "is_incremental": false,
@@ -6609,7 +6609,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.SignRawTransactionWithKeyRequest.html",
-          "hash": "iPuk33t3QIammUFWkO17Ag=="
+          "hash": "Px+mCwJFJbhFf7o10lcf4Q=="
         }
       },
       "is_incremental": false,
@@ -6621,7 +6621,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.TxInExtension.html",
-          "hash": "ud0Pda66j8A+JhPNpByiUA=="
+          "hash": "MLQH+DOU0KLmbJcIkRJ3jw=="
         }
       },
       "is_incremental": false,
@@ -6633,7 +6633,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.UnspentCoin.html",
-          "hash": "Nvv/9e4fMiGh3QDwZHhmxA=="
+          "hash": "/tQSwujfPJwETdngOaPLWg=="
         }
       },
       "is_incremental": false,
@@ -6645,7 +6645,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.WalletCreateFundedPSBTResponse.html",
-          "hash": "byqhIImXoegqk1lm5uI4NQ=="
+          "hash": "NjERQ3Tp1SN3oa4cOJHdIQ=="
         }
       },
       "is_incremental": false,
@@ -6657,7 +6657,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPC.WalletProcessPSBTResponse.html",
-          "hash": "IoctDJ6AKyRm7uSF4Wa5+w=="
+          "hash": "pMj2GyFvzFN1ojEE/iE4jQ=="
         }
       },
       "is_incremental": false,
@@ -6681,7 +6681,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RPCTransactionRepository.html",
-          "hash": "RhCGmOot5O5Rnmm5eIAUrw=="
+          "hash": "lZ9UagXY+1eo8EAj4/DVRA=="
         }
       },
       "is_incremental": false,
@@ -6693,7 +6693,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RandomNumberGeneratorRandom.html",
-          "hash": "qzt6ELH/QE3lLeoUL/v2Zg=="
+          "hash": "pA6W4vLS4v3yz1G7X+w6KA=="
         }
       },
       "is_incremental": false,
@@ -6705,7 +6705,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RandomUtils.html",
-          "hash": "9NTBBzhDTZRny7bvghwR2A=="
+          "hash": "K4LvY1TUvs4neGrldyazOw=="
         }
       },
       "is_incremental": false,
@@ -6717,7 +6717,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RawFormat.html",
-          "hash": "2KAEQ45PHJWTV6kebsteBQ=="
+          "hash": "h5e1yjbrX1BAXBz1c7iR2A=="
         }
       },
       "is_incremental": false,
@@ -6729,7 +6729,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.RedeemType.html",
-          "hash": "4LHLfTjhbmU9jfzDHUS07A=="
+          "hash": "0nbJ6CpoecjHGHNgNHNPIg=="
         }
       },
       "is_incremental": false,
@@ -6741,7 +6741,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.BlockInformation.html",
-          "hash": "JFPFCqcYVcM5J26nXuLN8Q=="
+          "hash": "vNmQ3JXFD5FgH0ddPCQ52Q=="
         }
       },
       "is_incremental": false,
@@ -6753,7 +6753,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.FilterState.html",
-          "hash": "PBjOeOnB3Fbu45G/BQ2L4g=="
+          "hash": "gXgDkzzntGn7N5oEQF7CAw=="
         }
       },
       "is_incremental": false,
@@ -6765,7 +6765,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.NewWalletTransactionDelegate.html",
-          "hash": "BQmZW9vVTHhY7mD4NBjLlA=="
+          "hash": "HL9kChVOp95J0w94GEPgCA=="
         }
       },
       "is_incremental": false,
@@ -6777,7 +6777,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.Tracker.IOperation.html",
-          "hash": "JCCAglHgaHnv7Z0SWeQEtw=="
+          "hash": "3iWCZ3cMfIa76pR1YsD3vg=="
         }
       },
       "is_incremental": false,
@@ -6789,7 +6789,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.Tracker.NewTrackerOperation.html",
-          "hash": "+Jp0ni7qFF2o+y2Kt1s8ag=="
+          "hash": "qFKCx38E7EJ6Cvk/PvTX/A=="
         }
       },
       "is_incremental": false,
@@ -6801,7 +6801,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.Tracker.html",
-          "hash": "akYvOGe1kPbSvyeHL87h2A=="
+          "hash": "lkem8QvM2cQQ3WxqSktaew=="
         }
       },
       "is_incremental": false,
@@ -6813,7 +6813,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.TrackerBehavior.html",
-          "hash": "3oALXvNY2/jGe+7YUHgJ5w=="
+          "hash": "y9FRme4Gq8MTBqEXLVNZJg=="
         }
       },
       "is_incremental": false,
@@ -6825,7 +6825,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.TrackerScanPosition.html",
-          "hash": "qReIOozT3lsUOZOe94gTAg=="
+          "hash": "anbrnMj0kqrIEVPR2gbNrg=="
         }
       },
       "is_incremental": false,
@@ -6837,7 +6837,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.Wallet.html",
-          "hash": "ukyYw3fuuoV4125PGjF/og=="
+          "hash": "mOheHZzzgTuAg4xn0eVNaQ=="
         }
       },
       "is_incremental": false,
@@ -6849,7 +6849,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.WalletCreation.html",
-          "hash": "CJKWtIPCm+xSDJ6Nz9gCTA=="
+          "hash": "f0CFbwKYQC/RgYik7ULZGQ=="
         }
       },
       "is_incremental": false,
@@ -6861,7 +6861,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.WalletState.html",
-          "hash": "w9rWd+m76UsGYAMf5HZsOg=="
+          "hash": "A2+uZp29Fxy2I3Bjkdf5Fw=="
         }
       },
       "is_incremental": false,
@@ -6873,7 +6873,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.WalletSummary.html",
-          "hash": "I8E8b1TccPN7K76nETfVkg=="
+          "hash": "PRXUcsTExAes8jZT1bguHA=="
         }
       },
       "is_incremental": false,
@@ -6885,7 +6885,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.WalletSummaryDetails.html",
-          "hash": "04w+LlsKTZeZiUXo17+Jvw=="
+          "hash": "yOmIj3vLgLBc9KYTmD04HQ=="
         }
       },
       "is_incremental": false,
@@ -6897,7 +6897,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.WalletTransaction.html",
-          "hash": "9H0eeqh422R3cJ25yFixuQ=="
+          "hash": "OWEdcK1XTlZ7z6sRO6dkSw=="
         }
       },
       "is_incremental": false,
@@ -6909,7 +6909,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SPV.WalletTransactionsCollection.html",
-          "hash": "ZM9wusuGe3Q+Ctp/G/T9wg=="
+          "hash": "VEhqvbpwLPTK8saV8J9OPg=="
         }
       },
       "is_incremental": false,
@@ -6933,7 +6933,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Scope.html",
-          "hash": "n4lALcYDyV7jZcs3EJxVrg=="
+          "hash": "KactkPkeYCsCDoO8/xx86w=="
         }
       },
       "is_incremental": false,
@@ -6945,7 +6945,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Script.BitcoinConsensusError.html",
-          "hash": "osTOOyPK1oDduzEJrOqF5Q=="
+          "hash": "nDrv7PyKhqT8YkahydfkiQ=="
         }
       },
       "is_incremental": false,
@@ -6957,7 +6957,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Script.html",
-          "hash": "JTSz60+EkVo1/tgyLUy1QA=="
+          "hash": "OU2tDknsf1MQjd8ZsUR3Ig=="
         }
       },
       "is_incremental": false,
@@ -6969,7 +6969,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ScriptCoin.html",
-          "hash": "56g/fJmDEEEP0SfqOqMrag=="
+          "hash": "M1mNnQv+ZBDl5L8lCU+gWA=="
         }
       },
       "is_incremental": false,
@@ -6981,7 +6981,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ScriptCompressor.html",
-          "hash": "MX671XVRciwbzdaVTM+/gA=="
+          "hash": "tftI7qTke/CQZzSLAJUdtA=="
         }
       },
       "is_incremental": false,
@@ -6993,7 +6993,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ScriptError.html",
-          "hash": "daPA9OiMuwAY7zHQCJyUnQ=="
+          "hash": "6zum13hy6JnQx/rTj1/zww=="
         }
       },
       "is_incremental": false,
@@ -7005,7 +7005,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ScriptEvaluationContext.html",
-          "hash": "JH/F0CFc3xZz1IOFgV3S5Q=="
+          "hash": "ht0cd3CfstA6rl5+l8bIBw=="
         }
       },
       "is_incremental": false,
@@ -7017,7 +7017,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ScriptId.html",
-          "hash": "NvISWtoQ0tPMz6a4G+XkDA=="
+          "hash": "CF+ezYr/I56Fat0J5x4YXg=="
         }
       },
       "is_incremental": false,
@@ -7029,7 +7029,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ScriptReader.html",
-          "hash": "vn1Qt3CN9bojsTn9y1NAUA=="
+          "hash": "xUvyXe76/GOWqvCa4bLvBA=="
         }
       },
       "is_incremental": false,
@@ -7041,7 +7041,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ScriptSigs.html",
-          "hash": "U80dwciXvnqGZ5e0AIoKiw=="
+          "hash": "dPG1SSBhPmatKRobDBI+sg=="
         }
       },
       "is_incremental": false,
@@ -7053,7 +7053,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ScriptTemplate.html",
-          "hash": "8JNZNHsIHynr6sOc2zIL1Q=="
+          "hash": "V5pJ9Jr00nxbABMYw/RlSQ=="
         }
       },
       "is_incremental": false,
@@ -7065,7 +7065,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ScriptVerify.html",
-          "hash": "XiSn0s9Nf6TZ11jgLsPSSA=="
+          "hash": "vMWxMUTD9KzqnwvuC0cHJw=="
         }
       },
       "is_incremental": false,
@@ -7077,7 +7077,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Sequence.html",
-          "hash": "DBJPuI81HT8Ju/hXfYI0NA=="
+          "hash": "qBVZ02FtE3QIlBYHZvdV0Q=="
         }
       },
       "is_incremental": false,
@@ -7089,7 +7089,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SequenceLock.html",
-          "hash": "45v73Yx2ggtTeijx/f1Lcw=="
+          "hash": "o/UonvsZjl0eYC0JHuFkZQ=="
         }
       },
       "is_incremental": false,
@@ -7101,7 +7101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SequenceLockType.html",
-          "hash": "JQUVxjy+H3PthXtMrMCRcA=="
+          "hash": "up3xJ5KDf8kbh/v7e2ZmiA=="
         }
       },
       "is_incremental": false,
@@ -7113,7 +7113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SerializationType.html",
-          "hash": "sa1xZhqIZn4CDwW3o/DGvA=="
+          "hash": "F2Hx2gyx1jQ33Jx8/gvyqQ=="
         }
       },
       "is_incremental": false,
@@ -7125,7 +7125,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SigHash.html",
-          "hash": "NUc2oMk7HulJfjT5FOMOVg=="
+          "hash": "preT8Lg/MO9iVX4UQBB4vA=="
         }
       },
       "is_incremental": false,
@@ -7137,7 +7137,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SignedHash.html",
-          "hash": "/2jfUxb5PnCmLrAGNQoTRg=="
+          "hash": "v+wFWjTuN8EZiMUCGsIEKA=="
         }
       },
       "is_incremental": false,
@@ -7149,7 +7149,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SlimChain.html",
-          "hash": "RJs74xn423+nv02ar71dCA=="
+          "hash": "qYoh3HQ6KKiEw/7/7+d7gA=="
         }
       },
       "is_incremental": false,
@@ -7161,7 +7161,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.SlimChainedBlock.html",
-          "hash": "A6S2QH6xbz+1vcXpbfsw2w=="
+          "hash": "FDpxUAXkjc8Bb1MIMIcGHA=="
         }
       },
       "is_incremental": false,
@@ -7173,7 +7173,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.StandardScripts.html",
-          "hash": "zJU/8Rw+iqtxZ/+yMgzoSw=="
+          "hash": "zLfP0L0TwImQKrYyFnly/A=="
         }
       },
       "is_incremental": false,
@@ -7185,7 +7185,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Stealth.BitField.html",
-          "hash": "ZehrAbWxAB2DlJlgQPV+3Q=="
+          "hash": "rIzMM0nMdnLJoGJRdHjWQA=="
         }
       },
       "is_incremental": false,
@@ -7197,7 +7197,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Stealth.BitcoinStealthAddress.html",
-          "hash": "+Z+l66/Npiz37EUOpDH7pg=="
+          "hash": "++rBLKZZVaT6kNZ99K/LeA=="
         }
       },
       "is_incremental": false,
@@ -7209,7 +7209,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Stealth.StealthMetadata.html",
-          "hash": "LhkrQkBDJiYS6UIa88oK8w=="
+          "hash": "suDrhR3ju4YhUa/ksUcpKA=="
         }
       },
       "is_incremental": false,
@@ -7221,7 +7221,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Stealth.StealthPayment.html",
-          "hash": "FHpS7mmxMvNVK+N2I33adg=="
+          "hash": "roLxHzIOTYpW6BvKqPKulA=="
         }
       },
       "is_incremental": false,
@@ -7233,7 +7233,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Stealth.StealthSpendKey.html",
-          "hash": "nQVP0VYMf+nyyAW2UlWS/A=="
+          "hash": "TU+iUfaPjLmlZ9A9S6vthw=="
         }
       },
       "is_incremental": false,
@@ -7257,7 +7257,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.StealthCoin.html",
-          "hash": "A8Sav/jR9MHWhKF9x+VXPQ=="
+          "hash": "kdLhckWwTi6ERBdc9un+bA=="
         }
       },
       "is_incremental": false,
@@ -7269,7 +7269,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Target.html",
-          "hash": "O174/dnfQPvAU2267OviXA=="
+          "hash": "BhHIP9Wo2AHui5pSi9iogw=="
         }
       },
       "is_incremental": false,
@@ -7281,7 +7281,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.ThreadSafeCollection-1.html",
-          "hash": "OZhkhjPmVwzW9Iru6qGJOw=="
+          "hash": "UHKdo/TZoSryYtMmtY73xw=="
         }
       },
       "is_incremental": false,
@@ -7293,7 +7293,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Transaction.LockTimeFlags.html",
-          "hash": "a7DU2DLvgJ0B2+VnVT2mnA=="
+          "hash": "Vv6FsnPL7u+/GozS2z/85A=="
         }
       },
       "is_incremental": false,
@@ -7305,7 +7305,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Transaction.html",
-          "hash": "Bn1/iBqnjK6aW5o2p0qOaA=="
+          "hash": "vNhlaOGAcIDcYwjBHCrPng=="
         }
       },
       "is_incremental": false,
@@ -7317,7 +7317,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TransactionBuilder.html",
-          "hash": "fipzvWfKmEvwA0Etl3L5BA=="
+          "hash": "CkNd7oMQOWe+yWbqq76ZFg=="
         }
       },
       "is_incremental": false,
@@ -7329,7 +7329,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TransactionCheckResult.html",
-          "hash": "rh8GtN2+zGfiCGhAfa7zWw=="
+          "hash": "g4okfWhvHiGhI9Q9MN3h+g=="
         }
       },
       "is_incremental": false,
@@ -7341,7 +7341,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TransactionChecker.html",
-          "hash": "6WSBqCBR//YOg2YsnjBgmw=="
+          "hash": "GDUB8bsLXDZN9gWodWocSA=="
         }
       },
       "is_incremental": false,
@@ -7353,7 +7353,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TransactionNotFoundException.html",
-          "hash": "C5rDJJv54Ujtpn2OTUu99g=="
+          "hash": "G9+Xw4ThpCqoPeV9YsG3KQ=="
         }
       },
       "is_incremental": false,
@@ -7365,7 +7365,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TransactionOptions.html",
-          "hash": "ZSJxPr9O/wuJH8iN9ZhDXQ=="
+          "hash": "VGcd/1wb5oPMoU7J83XEYg=="
         }
       },
       "is_incremental": false,
@@ -7377,7 +7377,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TransactionSignature.html",
-          "hash": "rO8/9vS7sdO5gPn+5Fxj0w=="
+          "hash": "x1ZNcRCjcvFgFvIujyCiQQ=="
         }
       },
       "is_incremental": false,
@@ -7389,7 +7389,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TxDestination.html",
-          "hash": "DQue6TxyiRC2pgtkuKSIfA=="
+          "hash": "9qnVZP1pYlcmNLZsaAbNRw=="
         }
       },
       "is_incremental": false,
@@ -7401,7 +7401,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TxIn.html",
-          "hash": "ov/kBPL4N2A83lYhJiv5ow=="
+          "hash": "/nSO3XHtKukY0kganEnaag=="
         }
       },
       "is_incremental": false,
@@ -7413,7 +7413,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TxInList.html",
-          "hash": "Z51NiVL7LscDg+xFN74elg=="
+          "hash": "Xwq5aYNf5FkgUiDF8TaD5A=="
         }
       },
       "is_incremental": false,
@@ -7425,7 +7425,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TxNullDataTemplate.html",
-          "hash": "J4+w7CEJV4kHENaqwcyMYw=="
+          "hash": "G4jWra6LxocdS9HX+F7h8A=="
         }
       },
       "is_incremental": false,
@@ -7437,7 +7437,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TxOut.html",
-          "hash": "gt/b3H2jCW0G60KluFqISQ=="
+          "hash": "DYOt+nDR9xm7GJ0mNojiPw=="
         }
       },
       "is_incremental": false,
@@ -7449,7 +7449,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TxOutCompressor.html",
-          "hash": "R9sd+ehQQUsVRwv1kFA2Aw=="
+          "hash": "gAJESNKQhKwPli5W6NpJSQ=="
         }
       },
       "is_incremental": false,
@@ -7461,7 +7461,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TxOutList.html",
-          "hash": "h7rUfW+8HHSwlrGqyM8U7w=="
+          "hash": "B4rTJ1wmEFoNAW6PtCS8ug=="
         }
       },
       "is_incremental": false,
@@ -7473,7 +7473,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TxOutType.html",
-          "hash": "j6Tba5lFAoXjKgVN+v+LRA=="
+          "hash": "+lumdAWK5xQkO1UoTEVowA=="
         }
       },
       "is_incremental": false,
@@ -7485,7 +7485,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.TxRepoExtensions.html",
-          "hash": "weyET9kgkqTZojsT+a+iqg=="
+          "hash": "AZSfxNhDTTH24DIawrGfvw=="
         }
       },
       "is_incremental": false,
@@ -7497,7 +7497,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.UnsecureRandom.html",
-          "hash": "mo6wD/QaT1Jrp3YOehMESQ=="
+          "hash": "d0xJmIktbOUNJtO4+ZyrxQ=="
         }
       },
       "is_incremental": false,
@@ -7509,7 +7509,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.UnsignedList-1.html",
-          "hash": "EJ0eRTFv9myR9jWPCI0GZg=="
+          "hash": "qmqzou0jLdg4MZij5ChE0g=="
         }
       },
       "is_incremental": false,
@@ -7521,7 +7521,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Utils.html",
-          "hash": "z/zfjO5LWMv+hX1VUj3EHw=="
+          "hash": "9RTUSAlVVbfGoz0iAGuD6A=="
         }
       },
       "is_incremental": false,
@@ -7533,7 +7533,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.WitKeyId.html",
-          "hash": "xgzi2j8P0T3FYSBBoCQ+pA=="
+          "hash": "ar2o+Zi5yCxSPLzO+3FWkw=="
         }
       },
       "is_incremental": false,
@@ -7545,7 +7545,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.WitProgramParameters.html",
-          "hash": "XpBobpsm3vug6MijYFPb+w=="
+          "hash": "a6KanPzBX1lIFwSwggU3Kg=="
         }
       },
       "is_incremental": false,
@@ -7557,7 +7557,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.WitScript.html",
-          "hash": "0uu9faUyrhDunfoXYt61PQ=="
+          "hash": "jWo3y7XdYpd36MiUoGIc2A=="
         }
       },
       "is_incremental": false,
@@ -7569,7 +7569,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.WitScriptId.html",
-          "hash": "yEBGJkShITT+EhGANAEGVg=="
+          "hash": "9B5VY95MGtH7Yf0RjcXsYA=="
         }
       },
       "is_incremental": false,
@@ -7581,7 +7581,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.WordCount.html",
-          "hash": "MMAtfhhUs75eTJ6cuaLlOw=="
+          "hash": "0g1Tw6d7c5WVLI+ZDksnmQ=="
         }
       },
       "is_incremental": false,
@@ -7593,7 +7593,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Wordlist.html",
-          "hash": "U72830zGpbOEnRytfDdH9g=="
+          "hash": "Is1CIw2sc7LH1vJO3p+3WQ=="
         }
       },
       "is_incremental": false,
@@ -7605,7 +7605,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.uint160.MutableUint160.html",
-          "hash": "dy81kUUebYmNKyxnN11ayw=="
+          "hash": "mjtfCXuGtituX9d5Gs7q/g=="
         }
       },
       "is_incremental": false,
@@ -7617,7 +7617,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.uint160.html",
-          "hash": "l5P67izkBqneKy5ZxMPE7w=="
+          "hash": "ELUJrG5P4x0c0c+0Dl2ang=="
         }
       },
       "is_incremental": false,
@@ -7629,7 +7629,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.uint256.MutableUint256.html",
-          "hash": "qOLHak3p89YMU0QNS7MaLw=="
+          "hash": "DETztZATgCkTdRLkGjsEOg=="
         }
       },
       "is_incremental": false,
@@ -7641,7 +7641,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.uint256.html",
-          "hash": "m3xgRRqMq+Zk/gz2jm8nHQ=="
+          "hash": "YuBpbi9ztKKNeSCECrxLug=="
         }
       },
       "is_incremental": false,
@@ -7665,7 +7665,7 @@
       "output": {
         ".html": {
           "relative_path": "api/System.Web.NBitcoin.HttpUtility.html",
-          "hash": "mZOMA54UeLJ6vy/ynx1Nag=="
+          "hash": "PfHe14QHTa9itiiO1iAg5A=="
         }
       },
       "is_incremental": false,
@@ -7692,7 +7692,7 @@
       "output": {
         ".html": {
           "relative_path": "api/index.html",
-          "hash": "mYTGDEUDphUCmi1zSvBmxw=="
+          "hash": "J71HaBhMfGUUXIZJTBpEjQ=="
         }
       },
       "is_incremental": false,
@@ -7716,7 +7716,7 @@
       "output": {
         ".html": {
           "relative_path": "articles/intro.html",
-          "hash": "qwFceC4AQAc9Nqpx6Evaxg=="
+          "hash": "ZxNVaxlhYTEjUcsrBCCoJQ=="
         }
       },
       "is_incremental": false,
@@ -7740,7 +7740,7 @@
       "output": {
         ".html": {
           "relative_path": "index.html",
-          "hash": "ysj5xdxNtSdkigkOd3HCqA=="
+          "hash": "jmSSGLSqqrHnM+/2hOUK0A=="
         }
       },
       "is_incremental": false,
@@ -7767,17 +7767,17 @@
         "incrementalPhase": "build"
       },
       "processors": {
+        "TocDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build"
+        },
         "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build"
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
-          "incrementalPhase": "build"
-        },
-        "TocDocumentProcessor": {
-          "can_incremental": false,
-          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
           "incrementalPhase": "build"
         }
       }
