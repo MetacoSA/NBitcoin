@@ -53,11 +53,8 @@ namespace NBitcoin.Altcoins
 			yield return GoByte;
 			yield return Liquid;
 			yield return Koto;
-<<<<<<< HEAD
 			yield return Bitcoinplus;
-=======
 			yield return Chaincoin;
->>>>>>> rebase
 		}
 	}
 }
