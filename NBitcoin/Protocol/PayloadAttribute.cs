@@ -72,7 +72,7 @@ namespace NBitcoin.Protocol
 			if (!_TypeToName.TryGetValue(type, out result))
 			{
 				// try base type too
-				if (!_TypeToName.TryGetValue(type.BaseType, out result))
+				if (!_TypeToName.TryGetValue(Type.GetTypeInfo().BaseType, out result))
 					throw new ArgumentException(type.FullName + " is not a payload");
 			}
 
