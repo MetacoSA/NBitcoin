@@ -193,14 +193,8 @@ namespace NBitcoin
 			if(!Utils.ArrayEqual(mac, hashMAC))
 				throw new ArgumentException("Encrypted text is invalid, Invalid mac.");
 
-			var aes = System.Security.Cryptography.Aes.Create();
-			aes.KeySize = 128;
-			aes.Key = encryptionKey;
-			aes.Mode = System.Security.Cryptography.CipherMode.CBC;
-			aes.IV = iv;
-
-			var decryptor = aes.CreateDecryptor();
-			var message = decryptor.TransformFinalBlock(cipherText, 0, cipherText.Length);
+			var aes = new AesBuilder().SetKey(encryptionKey).SetIv(iv).IsUsedForEncryption(false).Build();
+			var message = aes.Process(cipherText, 0, cipherText.Length);
 			return message;
 		}
 

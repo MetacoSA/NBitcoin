@@ -711,7 +711,9 @@ namespace NBitcoin.Tests
 			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest());
 			mac.Init(new NBitcoin.BouncyCastle.Crypto.Parameters.KeyParameter(bytes));
 
+#pragma warning disable CS0618 // Type or member is obsolete
 			var secret = Pbkdf2.ComputeDerivedKey(mac, new byte[0], 1024, 32);
+#pragma warning restore CS0618 
 			return new Key(secret);
 		}
 

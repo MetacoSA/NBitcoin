@@ -484,13 +484,8 @@ namespace NBitcoin
 			var encryptionKey = sharedKey.SafeSubarray(16, 16);
 			var hashingKey = sharedKey.SafeSubarray(32);
 
-			var aes = AES.Create();
-			aes.KeySize = 128;
-			aes.Key = encryptionKey;
-			aes.Mode = System.Security.Cryptography.CipherMode.CBC;
-			aes.IV = iv;
-			var encryptor = aes.CreateEncryptor();
-			var cipherText = encryptor.TransformFinalBlock(message, 0, message.Length);
+			var aes = new AesBuilder().SetKey(encryptionKey).SetIv(iv).IsUsedForEncryption(true).Build();
+			var cipherText = aes.Process(message, 0, message.Length);
 			var ephemeralPubkeyBytes = ephemeral.PubKey.ToBytes();
 			var encrypted = Encoders.ASCII.DecodeData("BIE1").Concat(ephemeralPubkeyBytes, cipherText);
 			var hashMAC = Hashes.HMACSHA256(hashingKey, encrypted);
