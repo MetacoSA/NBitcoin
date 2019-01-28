@@ -640,6 +640,27 @@ namespace NBitcoin.Crypto
 		}
 
 
+		public static byte[] SHA512(byte[] data)
+		{
+			return SHA512(data, 0, data.Length);
+		}
+
+		public static byte[] SHA512(byte[] data, int offset, int count)
+		{
+#if USEBC || WINDOWS_UWP || NETSTANDARD1X
+			Sha512Digest sha512 = new Sha512Digest();
+			sha512.BlockUpdate(data, offset, count);
+			byte[] rv = new byte[32];
+			sha512.DoFinal(rv, 0);
+			return rv;
+#else
+			using(var sha = new SHA512Managed())
+			{
+				return sha.ComputeHash(data, offset, count);
+			}
+#endif
+		}
+
 		private static uint rotl32(uint x, byte r)
 		{
 			return (x << r) | (x >> (32 - r));
@@ -739,10 +760,26 @@ namespace NBitcoin.Crypto
 			mac.DoFinal(result, 0);
 			return result;
 		}
+
+		public static byte[] HMACSHA256(byte[] key, byte[] data)
+		{
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new Sha256Digest());
+			mac.Init(new KeyParameter(key));
+			mac.Update(data);
+			byte[] result = new byte[mac.GetMacSize()];
+			mac.DoFinal(result, 0);
+			return result;
+		}
+
 #else
 		public static byte[] HMACSHA512(byte[] key, byte[] data)
 		{
 			return new HMACSHA512(key).ComputeHash(data);
+		}
+		
+		public static byte[] HMACSHA256(byte[] key, byte[] data)
+		{
+			return new HMACSHA256(key).ComputeHash(data);
 		}
 #endif
 		public static byte[] BIP32Hash(byte[] chainCode, uint nChild, byte header, byte[] data)

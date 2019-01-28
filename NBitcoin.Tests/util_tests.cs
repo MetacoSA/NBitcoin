@@ -9,6 +9,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using Xunit;
 
@@ -680,6 +681,38 @@ namespace NBitcoin.Tests
 				var secret = pubKey.GetSharedPubkey(key);
 				Assert.Equal(test.ExpectedSecret, Encoders.Hex.EncodeData(Hashes.SHA256(secret.ToBytes())));
 			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanEncryptAndDecryptMessages()
+		{
+			var key = GetKeyFromPassword("my-little-passwrod");
+
+			var msgs = new byte[][]{
+				new byte[555],
+				Encoders.ASCII.DecodeData("Chancellor on the brink of second bailout for banks")
+			};
+			foreach(var plainText in msgs)
+			{
+				var cipherText1 = key.PubKey.Encrypt(plainText);
+				var cipherText2 = key.PubKey.Encrypt(plainText);
+				var text1 = key.Decrypt(cipherText1);
+				var text2 = key.Decrypt(cipherText2);
+				Assert.True(Utils.ArrayEqual(text1, plainText));
+				Assert.True(Utils.ArrayEqual(text2, plainText));
+				Assert.True(!Utils.ArrayEqual(cipherText1, cipherText2));
+			}
+		}
+
+		private Key GetKeyFromPassword(string password)
+		{
+			var bytes = Encoding.UTF8.GetBytes(password);
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest());
+			mac.Init(new NBitcoin.BouncyCastle.Crypto.Parameters.KeyParameter(bytes));
+
+			var secret = Pbkdf2.ComputeDerivedKey(mac, new byte[0], 1024, 32);
+			return new Key(secret);
 		}
 
 		[Fact]
