@@ -138,7 +138,7 @@ namespace NBitcoin.Crypto
 		/// <param name="iterations">The number of iterations to apply.</param>
 		/// <param name="derivedKeyLength">The desired length of the derived key.</param>
 		/// <returns>The derived key.</returns>
-#if USEBC || WINDOWS_UWP || NETCORE || NETSTANDARD1X
+#if USEBC || WINDOWS_UWP || NETSTANDARD1X
 		internal static byte[] ComputeDerivedKey(IMac hmacAlgorithm, byte[] salt, int iterations,
 											   int derivedKeyLength)
 		{

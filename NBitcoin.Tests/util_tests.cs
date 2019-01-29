@@ -714,7 +714,7 @@ namespace NBitcoin.Tests
 		{
 			var bytes = Encoding.UTF8.GetBytes(password);
 #pragma warning disable CS0618 // Type or member is obsolete
-#if USEBC || WINDOWS_UWP || NETCORE || NETSTANDARD1X
+#if USEBC || WINDOWS_UWP || NETSTANDARD1X
 			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest());
 			mac.Init(new NBitcoin.BouncyCastle.Crypto.Parameters.KeyParameter(bytes));
 			var secret = Pbkdf2.ComputeDerivedKey(mac, new byte[0], 1024, 32);
