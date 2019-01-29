@@ -20023,6 +20023,22 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Crypto.Hashes.Hash256RawBytes
   nameWithType: Hashes.Hash256RawBytes
+- uid: NBitcoin.Crypto.Hashes.HMACSHA256(System.Byte[],System.Byte[])
+  name: HMACSHA256(Byte[], Byte[])
+  href: api/NBitcoin.Crypto.Hashes.html#NBitcoin_Crypto_Hashes_HMACSHA256_System_Byte___System_Byte___
+  commentId: M:NBitcoin.Crypto.Hashes.HMACSHA256(System.Byte[],System.Byte[])
+  name.vb: HMACSHA256(Byte(), Byte())
+  fullName: NBitcoin.Crypto.Hashes.HMACSHA256(System.Byte[], System.Byte[])
+  fullName.vb: NBitcoin.Crypto.Hashes.HMACSHA256(System.Byte(), System.Byte())
+  nameWithType: Hashes.HMACSHA256(Byte[], Byte[])
+  nameWithType.vb: Hashes.HMACSHA256(Byte(), Byte())
+- uid: NBitcoin.Crypto.Hashes.HMACSHA256*
+  name: HMACSHA256
+  href: api/NBitcoin.Crypto.Hashes.html#NBitcoin_Crypto_Hashes_HMACSHA256_
+  commentId: Overload:NBitcoin.Crypto.Hashes.HMACSHA256
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.Hashes.HMACSHA256
+  nameWithType: Hashes.HMACSHA256
 - uid: NBitcoin.Crypto.Hashes.HMACSHA512(System.Byte[],System.Byte[])
   name: HMACSHA512(Byte[], Byte[])
   href: api/NBitcoin.Crypto.Hashes.html#NBitcoin_Crypto_Hashes_HMACSHA512_System_Byte___System_Byte___
@@ -20121,6 +20137,31 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Crypto.Hashes.SHA256
   nameWithType: Hashes.SHA256
+- uid: NBitcoin.Crypto.Hashes.SHA512(System.Byte[])
+  name: SHA512(Byte[])
+  href: api/NBitcoin.Crypto.Hashes.html#NBitcoin_Crypto_Hashes_SHA512_System_Byte___
+  commentId: M:NBitcoin.Crypto.Hashes.SHA512(System.Byte[])
+  name.vb: SHA512(Byte())
+  fullName: NBitcoin.Crypto.Hashes.SHA512(System.Byte[])
+  fullName.vb: NBitcoin.Crypto.Hashes.SHA512(System.Byte())
+  nameWithType: Hashes.SHA512(Byte[])
+  nameWithType.vb: Hashes.SHA512(Byte())
+- uid: NBitcoin.Crypto.Hashes.SHA512(System.Byte[],System.Int32,System.Int32)
+  name: SHA512(Byte[], Int32, Int32)
+  href: api/NBitcoin.Crypto.Hashes.html#NBitcoin_Crypto_Hashes_SHA512_System_Byte___System_Int32_System_Int32_
+  commentId: M:NBitcoin.Crypto.Hashes.SHA512(System.Byte[],System.Int32,System.Int32)
+  name.vb: SHA512(Byte(), Int32, Int32)
+  fullName: NBitcoin.Crypto.Hashes.SHA512(System.Byte[], System.Int32, System.Int32)
+  fullName.vb: NBitcoin.Crypto.Hashes.SHA512(System.Byte(), System.Int32, System.Int32)
+  nameWithType: Hashes.SHA512(Byte[], Int32, Int32)
+  nameWithType.vb: Hashes.SHA512(Byte(), Int32, Int32)
+- uid: NBitcoin.Crypto.Hashes.SHA512*
+  name: SHA512
+  href: api/NBitcoin.Crypto.Hashes.html#NBitcoin_Crypto_Hashes_SHA512_
+  commentId: Overload:NBitcoin.Crypto.Hashes.SHA512
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.Hashes.SHA512
+  nameWithType: Hashes.SHA512
 - uid: NBitcoin.Crypto.Hashes.SipHash(System.UInt64,System.UInt64,NBitcoin.uint256)
   name: SipHash(UInt64, UInt64, uint256)
   href: api/NBitcoin.Crypto.Hashes.html#NBitcoin_Crypto_Hashes_SipHash_System_UInt64_System_UInt64_NBitcoin_uint256_
@@ -25814,6 +25855,28 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Key.Key
   nameWithType: Key.Key
+- uid: NBitcoin.Key.Decrypt(System.Byte[])
+  name: Decrypt(Byte[])
+  href: api/NBitcoin.Key.html#NBitcoin_Key_Decrypt_System_Byte___
+  commentId: M:NBitcoin.Key.Decrypt(System.Byte[])
+  name.vb: Decrypt(Byte())
+  fullName: NBitcoin.Key.Decrypt(System.Byte[])
+  fullName.vb: NBitcoin.Key.Decrypt(System.Byte())
+  nameWithType: Key.Decrypt(Byte[])
+  nameWithType.vb: Key.Decrypt(Byte())
+- uid: NBitcoin.Key.Decrypt(System.String)
+  name: Decrypt(String)
+  href: api/NBitcoin.Key.html#NBitcoin_Key_Decrypt_System_String_
+  commentId: M:NBitcoin.Key.Decrypt(System.String)
+  fullName: NBitcoin.Key.Decrypt(System.String)
+  nameWithType: Key.Decrypt(String)
+- uid: NBitcoin.Key.Decrypt*
+  name: Decrypt
+  href: api/NBitcoin.Key.html#NBitcoin_Key_Decrypt_
+  commentId: Overload:NBitcoin.Key.Decrypt
+  isSpec: "True"
+  fullName: NBitcoin.Key.Decrypt
+  nameWithType: Key.Decrypt
 - uid: NBitcoin.Key.Derivate(System.Byte[],System.UInt32,System.Byte[]@)
   name: Derivate(Byte[], UInt32, out Byte[])
   href: api/NBitcoin.Key.html#NBitcoin_Key_Derivate_System_Byte___System_UInt32_System_Byte____
@@ -43717,6 +43780,28 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PubKey.Derivate
   nameWithType: PubKey.Derivate
+- uid: NBitcoin.PubKey.Encrypt(System.Byte[])
+  name: Encrypt(Byte[])
+  href: api/NBitcoin.PubKey.html#NBitcoin_PubKey_Encrypt_System_Byte___
+  commentId: M:NBitcoin.PubKey.Encrypt(System.Byte[])
+  name.vb: Encrypt(Byte())
+  fullName: NBitcoin.PubKey.Encrypt(System.Byte[])
+  fullName.vb: NBitcoin.PubKey.Encrypt(System.Byte())
+  nameWithType: PubKey.Encrypt(Byte[])
+  nameWithType.vb: PubKey.Encrypt(Byte())
+- uid: NBitcoin.PubKey.Encrypt(System.String)
+  name: Encrypt(String)
+  href: api/NBitcoin.PubKey.html#NBitcoin_PubKey_Encrypt_System_String_
+  commentId: M:NBitcoin.PubKey.Encrypt(System.String)
+  fullName: NBitcoin.PubKey.Encrypt(System.String)
+  nameWithType: PubKey.Encrypt(String)
+- uid: NBitcoin.PubKey.Encrypt*
+  name: Encrypt
+  href: api/NBitcoin.PubKey.html#NBitcoin_PubKey_Encrypt_
+  commentId: Overload:NBitcoin.PubKey.Encrypt
+  isSpec: "True"
+  fullName: NBitcoin.PubKey.Encrypt
+  nameWithType: PubKey.Encrypt
 - uid: NBitcoin.PubKey.Equals(NBitcoin.PubKey)
   name: Equals(PubKey)
   href: api/NBitcoin.PubKey.html#NBitcoin_PubKey_Equals_NBitcoin_PubKey_
