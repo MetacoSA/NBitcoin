@@ -465,6 +465,33 @@ namespace NBitcoin
 			return new ECKey(pubkey.GetEncoded(true), false).GetPubKey(true);
 		}
 
+		public string Encrypt(string message)
+		{
+			if(string.IsNullOrEmpty(message))
+				throw new ArgumentNullException(nameof(message));
+
+			var bytes = Encoding.UTF8.GetBytes(message);
+			return Encoders.Base64.EncodeData(Encrypt(bytes));
+		}
+
+		public byte[] Encrypt(byte[] message)
+		{
+			if(message is null)
+				throw new ArgumentNullException(nameof(message));
+			var ephemeral = new Key();
+			var sharedKey = Hashes.SHA512(GetSharedPubkey(ephemeral).ToBytes());
+			var iv = sharedKey.SafeSubarray(0, 16);
+			var encryptionKey = sharedKey.SafeSubarray(16, 16);
+			var hashingKey = sharedKey.SafeSubarray(32);
+
+			var aes = new AesBuilder().SetKey(encryptionKey).SetIv(iv).IsUsedForEncryption(true).Build();
+			var cipherText = aes.Process(message, 0, message.Length);
+			var ephemeralPubkeyBytes = ephemeral.PubKey.ToBytes();
+			var encrypted = Encoders.ASCII.DecodeData("BIE1").Concat(ephemeralPubkeyBytes, cipherText);
+			var hashMAC = Hashes.HMACSHA256(hashingKey, encrypted);
+			return encrypted.Concat(hashMAC);
+		}
+
 		public BitcoinWitPubKeyAddress GetSegwitAddress(Network network)
 		{
 			return new BitcoinWitPubKeyAddress(WitHash, network);
