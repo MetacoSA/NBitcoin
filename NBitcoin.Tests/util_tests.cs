@@ -703,6 +703,11 @@ namespace NBitcoin.Tests
 				Assert.True(Utils.ArrayEqual(text2, plainText));
 				Assert.True(!Utils.ArrayEqual(cipherText1, cipherText2));
 			}
+
+			// Electrum compatibility
+			key = Key.Parse("cQnjfHeuxMBz9gVo7utDmhjFqppGAUTejtjVhgmULTgf5saZLX8Q", Network.TestNet);
+			var text = key.Decrypt("QklFMQORN+6df13s/J7dSUIIK2Y9i9/MmHXwP3jA1daFwWjR+fRWP6qnW3+MZF+d6J8wOWDzrftx4O52fs4yplCyFL3gi+pSGE7YsngXHz/bLiulpQ==");
+			Assert.Equal("Hello world", text);
 		}
 
 		private Key GetKeyFromPassword(string password)
