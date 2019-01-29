@@ -161,7 +161,8 @@ namespace NBitcoin
 			if(string.IsNullOrEmpty(encryptedText))
 				throw new ArgumentNullException(nameof(encryptedText));
 			var bytes = Encoders.Base64.DecodeData(encryptedText);
-			return Encoding.UTF8.GetString(Decrypt(bytes));
+			var decrypted = Decrypt(bytes);
+			return Encoding.UTF8.GetString(decrypted, 0, decrypted.Length);
 		}
 
 		public byte[] Decrypt(byte[] encrypted)

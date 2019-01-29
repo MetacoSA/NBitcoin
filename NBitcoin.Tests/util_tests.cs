@@ -708,11 +708,14 @@ namespace NBitcoin.Tests
 		private Key GetKeyFromPassword(string password)
 		{
 			var bytes = Encoding.UTF8.GetBytes(password);
+#pragma warning disable CS0618 // Type or member is obsolete
+#if USEBC || WINDOWS_UWP || NETCORE || NETSTANDARD1X
 			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest());
 			mac.Init(new NBitcoin.BouncyCastle.Crypto.Parameters.KeyParameter(bytes));
-
-#pragma warning disable CS0618 // Type or member is obsolete
 			var secret = Pbkdf2.ComputeDerivedKey(mac, new byte[0], 1024, 32);
+#else
+			var secret = Pbkdf2.ComputeDerivedKey(new HMACSHA512(bytes), new byte[0], 1024, 32);
+#endif
 #pragma warning restore CS0618 
 			return new Key(secret);
 		}
