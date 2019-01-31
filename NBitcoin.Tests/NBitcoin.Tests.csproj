@@ -10,6 +10,7 @@
 	  <TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netcoreapp2.1</TargetFrameworks>
 	  <!--<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true' And '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp2.1</TargetFrameworks>-->
 	  <!--<NoWarn>CS0618</NoWarn>-->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
 		<DefineConstants>$(DefineConstants);WIN;NOCONSENSUSLIB</DefineConstants>
@@ -17,13 +18,6 @@
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
 		<DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOHTTPSERVER;HAS_SPAN;$(BuildConstants)</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.1|AnyCPU'">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.1|AnyCPU'">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<PackageReference Include="FsCheck" Version="2.13.0" />
 		<PackageReference Include="FsCheck.Xunit" Version="2.13.0" />
