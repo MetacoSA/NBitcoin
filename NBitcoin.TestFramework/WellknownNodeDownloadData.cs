@@ -843,6 +843,34 @@
 				}
 			};
 		}
+		public class SparksNodeDownloadData
+		{
+			public NodeDownloadData v0_12_3_2 = new NodeDownloadData()
+			{
+				Version = "0.12.3.2",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/SparksReborn/sparkspay/releases/download/v{0}/sparkscore-{0}-win64.zip",
+					Archive = "sparkscore-{0}-win64.zip",
+					Executable = "sparkscore-0.12.3/bin/sparksd.exe",
+					Hash = "8902576F184CA77FDD2E8B08DEE45DC6E86FA5CAAA1CC2405D4C8E3CF143CAE7"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/SparksReborn/sparkspay/releases/download/v{0}/sparkscore-{0}-linux64.tar.gz",
+					Archive = "sparkscore-{0}-linux64.tar.gz",
+					Executable = "sparkscore-0.12.3/bin/sparksd",
+					Hash = "977E7DE95B6FA6A822D686B936A6E9F49F3A95B3215A36FCEB3908F43F74E614"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/SparksReborn/sparkspay/releases/download/v{0}/sparkscore-{0}-osx64.tar.gz",
+					Archive = "sparkscore-{0}-osx64.tar.gz",
+					Executable = "sparkscore-0.12.3/bin/sparksd",
+					Hash = "86C51B2D71F1652FBC1DCEAFE74063D5B8CE8731653C76F8B25117B554105140"
+				}
+			};
+		}
 
 		public static GoByteNodeDownloadData GoByte
 		{
@@ -962,6 +990,11 @@
 		{
 			get; set;
 		} = new ChaincoinNodeDownloadData();
+
+		public static SparksNodeDownloadData Sparks
+		{
+			get; set;
+		} = new SparksNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }

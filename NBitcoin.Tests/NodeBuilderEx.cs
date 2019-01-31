@@ -55,6 +55,7 @@ namespace NBitcoin.Tests
 			//var builder = NodeBuilder.Create(NodeDownloadData.Gincoin.v1_1_0_0, Altcoins.Gincoin.Instance.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Koto.v2_0_0, Altcoins.Koto.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Chaincoin.v0_16_4 , Altcoins.AltNetworkSets.Chaincoin.Regtest, caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.Sparks.v0_12_3_2 , Altcoins.AltNetworkSets.Sparks.Regtest, caller);
 
 			return builder;
 		}
