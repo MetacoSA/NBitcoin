@@ -98,7 +98,7 @@ namespace NBitcoin.Crypto
 
 		#endregion
 
-		internal class SipHasher
+		internal struct SipHasher
 		{
 			ulong v_0;
 			ulong v_1;
