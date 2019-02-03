@@ -272,6 +272,11 @@ namespace NBitcoin
 		/// included in a filter.
 		/// </summary>
 		class ByteArrayComparer : IEqualityComparer<byte[]> {
+			public static readonly ByteArrayComparer Instance = new ByteArrayComparer();
+			private ByteArrayComparer()
+			{
+
+			}
 			public bool Equals(byte[] a, byte[] b)
 			{
 				if (a.Length != b.Length) return false;
@@ -331,7 +336,7 @@ namespace NBitcoin
 		/// </summary>
 		public GolombRiceFilterBuilder()
 		{
-			_values = new HashSet<byte[]>(new ByteArrayComparer());
+			_values = new HashSet<byte[]>(ByteArrayComparer.Instance);
 		}
 
 		/// <summary>
