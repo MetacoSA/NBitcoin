@@ -108,13 +108,11 @@ namespace NBitcoin
 		/// <param name="key">Key used for hashing the datalements.</param>
 		/// <param name="data">Data elements to be computed in the list.</param>
 		/// <returns></returns>
-		internal static ulong[] ConstructHashedSet(byte P, int n, uint m, byte[] key, IEnumerable<byte[]> data)
+		internal static ulong[] ConstructHashedSet(byte P, int n, uint m, byte[] key, IEnumerable<byte[]> data, int dataCount)
 		{
 			// N the number of items to be inserted into the set.
-			var dataArrayBytes = data as byte[][] ?? data.ToArray();
-
 			// The list of data item hashes.
-			var values = new ulong[dataArrayBytes.Length];
+			var values = new ulong[dataCount];
 			var valuesIndex = 0;
 			var modP = 1UL << P;
 			var modNP = ((ulong)n) * m;
@@ -125,7 +123,7 @@ namespace NBitcoin
 			var k1 = BitConverter.ToUInt64(key, 8);
 
 			// Process the data items and calculate the 64 bits hash for each of them.			
-			foreach(var item in dataArrayBytes )
+			foreach(var item in data)
 			{
 				var hash = SipHash(k0, k1, item);
 				var value = FastReduction(hash, nphi, nplo);
@@ -156,7 +154,18 @@ namespace NBitcoin
 		/// <returns>true if the element is in the filter, otherwise false.</returns>
 		public bool Match(byte[] data, byte[] key)
 		{
-			return MatchAny(new []{data}, key);
+			return MatchAny(new[] {data}, 1, key);
+		}
+
+		/// <summary>
+		/// Checks if any of the provided elements is in the filter.
+		/// </summary>
+		/// <param name="data">Data elements to check in the filter.</param>
+		/// <param name="key">Key used for hashing the data elements.</param>
+		/// <returns>true if at least one of the elements is in the filter, otherwise false.</returns>
+		public bool MatchAny(byte[][] data, byte[] key)
+		{
+			return MatchAny(data, data.Length, key);
 		}
 
 		/// <summary>
@@ -167,10 +176,32 @@ namespace NBitcoin
 		/// <returns>true if at least one of the elements is in the filter, otherwise false.</returns>
 		public bool MatchAny(IEnumerable<byte[]> data, byte[] key)
 		{
-			if (data == null || !data.Any())
+			if (data is byte[][] dataArray)
+			{
+				return MatchAny(dataArray, dataArray.Length, key);
+			}
+			else if (data is ICollection<byte[]> dataCollection)
+			{
+				return MatchAny(dataCollection, dataCollection.Count, key);
+			}
+			else
+			{
+				return MatchAny(data, data.Count(), key);
+			}
+		}
+
+		/// <summary>
+		/// Checks if any of the provided elements is in the filter.
+		/// </summary>
+		/// <param name="data">Data elements to check in the filter.</param>
+		/// <param name="key">Key used for hashing the data elements.</param>
+		/// <returns>true if at least one of the elements is in the filter, otherwise false.</returns>
+		internal bool MatchAny(IEnumerable<byte[]> data, int dataCount, byte[] key)
+		{
+			if (data == null || dataCount == 0)
 				throw new ArgumentException("data can not be null or empty array.", nameof(data));
 
-			var hs = ConstructHashedSet(P, N, M, key, data);
+			var hs = ConstructHashedSet(P, N, M, key, data, dataCount);
 
 			var lastValue1 = 0UL;
 			var lastValue2 = hs[0];
@@ -482,7 +513,7 @@ namespace NBitcoin
 		public GolombRiceFilter Build()
 		{
 			var n = _values.Count;
-			var hs = GolombRiceFilter.ConstructHashedSet(_p, n, _m, _key, _values);
+			var hs = GolombRiceFilter.ConstructHashedSet(_p, n, _m, _key, _values, _values.Count);
 			var filterData = Compress(hs, _p);
 
 			return new GolombRiceFilter(filterData, n, _p, _m);
