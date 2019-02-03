@@ -12,10 +12,27 @@ namespace NBitcoin.Tests
 		private static string[] VALID_CHECKSUM =
 		{
 			"A12UEL5L",
+			"a12uel5l",
 			"an83characterlonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1tt5tgs",
 			"abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw",
 			"11qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc8247j",
-			"split1checkupstagehandshakeupstreamerranterredcaperred2y9e3w"
+			"split1checkupstagehandshakeupstreamerranterredcaperred2y9e3w",
+			"?1ezyfcl"
+		};
+
+		private static string[] INVALID_CHECKSUM = {
+			//" 1nwldj5", // HRP character out of range
+            //new string(new char[] { (char)0x7f }) + "1axkwrx", // HRP character out of range
+            //new string(new char[] { (char)0x80 }) + "1eym55h", // HRP character out of range
+            //"an84characterslonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1569pvx", // overall max length exceeded
+            "pzry9x0s0muk", // No separator character
+            //"1pzry9x0s0muk", // Empty HRP
+            //"x1b4n0q5v", // Invalid data character
+            //"li1dgmt3", // Too short checksum
+            //"de1lg7wt" + new string(new char[] { (char)0xff }), // Invalid character in checksum
+            //"A1G7SGD8", // checksum calculated with uppercase form of HRP
+            //"10a06t8", // empty HRP
+            //"1qzzfhee", // empty HRP
 		};
 
 		private static string[][] VALID_ADDRESS = {
@@ -57,7 +74,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void ValidateValidChecksum()
 		{
-			foreach(var test in VALID_CHECKSUM)
+			foreach (var test in VALID_CHECKSUM)
 			{
 				var bech = Bech32Encoder.ExtractEncoderFromString(test);
 				var pos = test.LastIndexOf('1');
@@ -66,12 +83,22 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		Bech32Encoder bech32 = Encoders.Bech32("bc");
-		Bech32Encoder tbech32 = Encoders.Bech32("tb");
+		[Fact]
+		public void ValidateInvalidChecksum()
+		{
+			foreach (var test in INVALID_CHECKSUM)
+			{
+				Assert.Throws<FormatException>(() => Bech32Encoder.ExtractEncoderFromString(test));
+			}
+		}
+
+		private Bech32Encoder bech32 = Encoders.Bech32("bc");
+		private Bech32Encoder tbech32 = Encoders.Bech32("tb");
+
 		[Fact]
 		public void ValidAddress()
 		{
-			foreach(var address in VALID_ADDRESS)
+			foreach (var address in VALID_ADDRESS)
 			{
 				byte witVer;
 				byte[] witProg;
@@ -99,19 +126,19 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void InvalidAddress()
 		{
-			foreach(var test in INVALID_ADDRESS)
+			foreach (var test in INVALID_ADDRESS)
 			{
 				byte witver;
 				try
 				{
 					bech32.Decode(test, out witver);
 				}
-				catch(FormatException) { }
+				catch (FormatException) { }
 				try
 				{
 					tbech32.Decode(test, out witver);
 				}
-				catch(FormatException) { }
+				catch (FormatException) { }
 			}
 		}
 
