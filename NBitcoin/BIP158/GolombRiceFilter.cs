@@ -108,13 +108,14 @@ namespace NBitcoin
 		/// <param name="key">Key used for hashing the datalements.</param>
 		/// <param name="data">Data elements to be computed in the list.</param>
 		/// <returns></returns>
-		internal static List<ulong> ConstructHashedSet(byte P, int n, uint m, byte[] key, IEnumerable<byte[]> data)
+		internal static ulong[] ConstructHashedSet(byte P, int n, uint m, byte[] key, IEnumerable<byte[]> data)
 		{
 			// N the number of items to be inserted into the set.
 			var dataArrayBytes = data as byte[][] ?? data.ToArray();
 
 			// The list of data item hashes.
-			var values = new List<ulong>();
+			var values = new ulong[dataArrayBytes.Length];
+			var valuesIndex = 0;
 			var modP = 1UL << P;
 			var modNP = ((ulong)n) * m;
 			var nphi = modNP >> 32;
@@ -128,10 +129,10 @@ namespace NBitcoin
 			{
 				var hash = SipHash(k0, k1, item);
 				var value = FastReduction(hash, nphi, nplo);
-				values.Add(value);
+				values[valuesIndex++] = value;
 			}
 
-			values.Sort();
+			Array.Sort(values);
 			return values;
 		}
 
@@ -182,7 +183,7 @@ namespace NBitcoin
 			{
 				if (lastValue1 > lastValue2)
 				{
-					if (i < hs.Count)
+					if (i < hs.Length)
 					{
 						lastValue2 = hs[i];
 						i++;
@@ -398,7 +399,8 @@ namespace NBitcoin
 			if (scriptPubkey == null)
 				throw new ArgumentNullException(nameof(scriptPubkey));
 
-			_values.Add(scriptPubkey.ToBytes());
+			// Unsafe is OK because Script is readonly and we do not modify the arrays inside values
+			_values.Add(scriptPubkey.ToBytes(true));
 			return this;
 		}
 
@@ -418,12 +420,12 @@ namespace NBitcoin
 				if(op.PushData != null)
 					data.Add(op.PushData);
 				else if(op.Code == OpcodeType.OP_0)
-					data.Add(new byte[0]);
+					data.Add(EmptyBytes);
 			}
 			AddEntries(data);
 			return this;
 		}
-
+		static readonly byte[] EmptyBytes = new byte[0];
 		/// <summary>
 		/// Adds a witness stack to the list of elements that will be used for building the filter.
 		/// </summary>
@@ -481,7 +483,7 @@ namespace NBitcoin
 			return new GolombRiceFilter(filterData, n, _p, _m);
 		}
 
-		private static byte[] Compress(List<ulong> values, byte P)
+		private static byte[] Compress(ulong[] values, byte P)
 		{
 			var bitStream = new BitStream();
 			var sw = new GRCodedStreamWriter(bitStream, P);
