@@ -154,6 +154,8 @@ namespace NBitcoin
 		/// <returns>true if the element is in the filter, otherwise false.</returns>
 		public bool Match(byte[] data, byte[] key)
 		{
+			if (data == null)
+				throw new ArgumentNullException(nameof(data));
 			return MatchAny(new[] {data}, 1, key);
 		}
 
@@ -176,6 +178,8 @@ namespace NBitcoin
 		/// <returns>true if at least one of the elements is in the filter, otherwise false.</returns>
 		public bool MatchAny(IEnumerable<byte[]> data, byte[] key)
 		{
+			if (data == null)
+				throw new ArgumentNullException(nameof(data));
 			if (data is byte[][] dataArray)
 			{
 				return MatchAny(dataArray, dataArray.Length, key);
@@ -200,7 +204,8 @@ namespace NBitcoin
 		{
 			if (data == null || dataCount == 0)
 				throw new ArgumentException("data can not be null or empty array.", nameof(data));
-
+			if (key == null)
+				throw new ArgumentNullException(nameof(key));
 			var hs = ConstructHashedSet(P, N, M, key, data, dataCount);
 
 			var lastValue1 = 0UL;
