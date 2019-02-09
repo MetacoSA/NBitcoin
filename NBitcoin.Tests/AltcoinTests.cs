@@ -3,7 +3,6 @@ using NBitcoin.DataEncoders;
 using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

@@ -11,6 +11,9 @@ using System.Threading;
 
 namespace NBitcoin.Altcoins
 {
+	/// <summary>
+	/// <see cref="http://www.stratisplatform.com">Stratis</see> Altcoin definition 
+	/// </summary>
 	public class Stratis : NetworkSetBase
 	{
 		public static Stratis Instance { get; } = new Stratis();
@@ -19,7 +22,6 @@ namespace NBitcoin.Altcoins
 
 		private Stratis()
 		{
-
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -280,8 +282,6 @@ namespace NBitcoin.Altcoins
 			{
 				base.ReadWrite(stream);
 				stream.ReadWrite(ref this.blockSignature);
-
-				//this.BlockSize = stream.Serializing ? stream.Counter.WrittenBytes : stream.Counter.ReadBytes;
 			}
 		}
 		
@@ -345,7 +345,7 @@ namespace NBitcoin.Altcoins
 				if (stream.Serializing)
 					SerializeTxn(stream, witSupported);
 				else
-					DeserializeTxn(stream, witSupported);				
+					DeserializeTxn(stream, witSupported);
 			}
 
 			private void DeserializeTxn(BitcoinStream stream, bool witSupported)
@@ -413,7 +413,7 @@ namespace NBitcoin.Altcoins
 				this.Time = nTimeTemp; // POS Timestamp
 				vinTemp.ForEach(i => this.AddInput(i));
 				voutTemp.ForEach(i => this.AddOutput(i));
-				this.LockTime = lockTimeTemp;				
+				this.LockTime = lockTimeTemp;
 			}
 
 			private void SerializeTxn(BitcoinStream stream, bool witSupported)
@@ -441,7 +441,7 @@ namespace NBitcoin.Altcoins
 					stream.ReadWrite<TxInList, TxIn>(ref vinDummy);
 					stream.ReadWrite(ref flags);
 				}
-				TxInList vin = this.Inputs;				
+				TxInList vin = this.Inputs;
 				stream.ReadWrite<TxInList, TxIn>(ref vin);
 				vin.Transaction = this;
 				TxOutList vout = this.Outputs;
@@ -591,7 +591,7 @@ namespace NBitcoin.Altcoins
 				MinerConfirmationWindow = 2016,
 				CoinType = 105,
 				CoinbaseMaturity = 10,
-				ConsensusFactory = StratisConsensusFactory.Instance						
+				ConsensusFactory = StratisConsensusFactory.Instance
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 65 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
@@ -654,7 +654,7 @@ namespace NBitcoin.Altcoins
 			.SetName("StratisRegTest")
 			.SetGenesis("01000000000000000000000000000000000000000000000000000000000000000000000018157f44917c2514c1f339346200f8b27d8ffaae9d8205bfae51030bc26ba2651b811a59ffff7f20df2225000101000000b88ba557010000000000000000000000000000000000000000000000000000000000000000ffffffff5d00012a4c58687474703a2f2f7777772e7468656f6e696f6e2e636f6d2f61727469636c652f6f6c796d706963732d686561642d7072696573746573732d736c6974732d7468726f61742d6f6666696369616c2d72696f2d2d3533343636ffffffff010000000000000000000000000000");
 
-			return builder;			
+			return builder;
 		}
 	}
 }

@@ -606,41 +606,6 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		/// <summary>
-		/// Using Stratis C# full node.
-		/// Should be updated to use official release once it is deployed.
-		/// </summary>
-		public class StratisNodeDownloadData
-		{
-			public NodeDownloadData v3_0_0 = new NodeDownloadData()
-			{
-				Version = "3.0",
-				Windows = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/mikedennis/StratisBitcoinFullNode/releases/download/{0}/stratis-{0}-win64.zip",
-					Archive = "stratis-{0}-win64.zip",
-					Executable = "stratis-{0}-win64/Stratis.StratisD.exe",
-					Hash = "7B0ABEA75B032D8FAF3BEE071A892E2864A31A8ECC42F7AA4300CC51B1CA1D5A"
-				},
-				Linux = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/mikedennis/StratisBitcoinFullNode/releases/download/{0}/stratis-{0}-linux64.tgz",
-					Archive = "stratis-{0}-linux64.tgz",
-					Executable = "stratis-{0}-linux64/Stratis.StratisD",
-					Hash = "57965AA4034468ED4C9FDD6CDBAD8A1F722DDE6A6BCAE6291D79BF76C5FC644B"
-				},
-				Mac = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/mikedennis/StratisBitcoinFullNode/releases/download/{0}/stratis-{0}-osx64.tgz",
-					Archive = "stratis-{0}-osx64.tgz",
-					Executable = "stratis-{0}-osx64/Stratis.StratisD",
-					Hash = "04C4F4EBCA494ABD6C29D834D86AFEA559BB8893A1E74BE849D050FEFC164C72"
-				},
-				SupportCookieFile = false,
-				AdditionalRegtestConfig = "defaultwalletname=default" +Environment.NewLine + "maxtipage=2147483647" + Environment.NewLine + "unlockdefaultwallet=1"
-			};
-		}
-
 		public class ElementsNodeDownloadData
 		{
 			public NodeDownloadData v0_14_1 = new NodeDownloadData()
@@ -881,6 +846,41 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		/// <summary>
+		/// Using Stratis C# full node.
+		/// Should be updated to use official release once it is deployed.
+		/// </summary>
+		public class StratisNodeDownloadData
+		{
+			public NodeDownloadData v3_0_0 = new NodeDownloadData()
+			{
+				Version = "3.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/mikedennis/StratisBitcoinFullNode/releases/download/{0}/stratis-{0}-win64.zip",
+					Archive = "stratis-{0}-win64.zip",
+					Executable = "stratis-{0}-win64/Stratis.StratisD.exe",
+					Hash = "7B0ABEA75B032D8FAF3BEE071A892E2864A31A8ECC42F7AA4300CC51B1CA1D5A"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/mikedennis/StratisBitcoinFullNode/releases/download/{0}/stratis-{0}-linux64.tgz",
+					Archive = "stratis-{0}-linux64.tgz",
+					Executable = "stratis-{0}-linux64/Stratis.StratisD",
+					Hash = "57965AA4034468ED4C9FDD6CDBAD8A1F722DDE6A6BCAE6291D79BF76C5FC644B"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/mikedennis/StratisBitcoinFullNode/releases/download/{0}/stratis-{0}-osx64.tgz",
+					Archive = "stratis-{0}-osx64.tgz",
+					Executable = "stratis-{0}-osx64/Stratis.StratisD",
+					Hash = "04C4F4EBCA494ABD6C29D834D86AFEA559BB8893A1E74BE849D050FEFC164C72"
+				},
+				SupportCookieFile = false,
+				AdditionalRegtestConfig = "defaultwalletname=default" + Environment.NewLine + "maxtipage=2147483647" + Environment.NewLine + "unlockdefaultwallet=1"
+			};
+		}
+
 		public static GoByteNodeDownloadData GoByte
 		{
 			get; set;
@@ -950,11 +950,6 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new PolisNodeDownloadData();
 
-		public static StratisNodeDownloadData Stratis
-		{
-			get; set;
-		} = new StratisNodeDownloadData();
-
 		public static MonacoinNodeDownloadData Monacoin
 		{
 			get; set;
@@ -1004,6 +999,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new ChaincoinNodeDownloadData();
+
+		public static StratisNodeDownloadData Stratis
+		{
+			get; set;
+		} = new StratisNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
