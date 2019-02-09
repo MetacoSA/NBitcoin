@@ -12,10 +12,28 @@ namespace NBitcoin.Tests
 		private static string[] VALID_CHECKSUM =
 		{
 			"A12UEL5L",
+			"a12uel5l",
 			"an83characterlonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1tt5tgs",
 			"abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw",
 			"11qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc8247j",
-			"split1checkupstagehandshakeupstreamerranterredcaperred2y9e3w"
+			"split1checkupstagehandshakeupstreamerranterredcaperred2y9e3w",
+			"?1ezyfcl"
+		};
+
+		private static string[] INVALID_CHECKSUM =
+		{
+			(char)0x20 + "1nwldj5", // HRP character out of range
+			(char)0x7F + "1axkwrx", // HRP character out of range
+			(char)0x80 + "1eym55h", // HRP character out of range
+			"an84characterslonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1569pvx", // overall max length exceeded
+			"pzry9x0s0muk", // No separator character
+			"1pzry9x0s0muk", // Empty HRP
+			"x1b4n0q5v", // Invalid data character
+			"li1dgmt3", // Too short checksum
+			"de1lg7wt" + (char)0xFF, // Invalid character in checksum
+			"A1G7SGD8", // checksum calculated with uppercase form of HRP
+			"10a06t8", // empty HRP
+			"1qzzfhee", // empty HRP
 		};
 
 		private static string[][] VALID_ADDRESS = {
@@ -63,6 +81,24 @@ namespace NBitcoin.Tests
 				var pos = test.LastIndexOf('1');
 				var test2 = test.Substring(0, pos + 1) + ((test[pos + 1]) ^ 1) + test.Substring(pos + 2);
 				Assert.Throws<FormatException>(() => bech.Decode(test2, out var wit));
+			}
+		}
+
+		[Fact]
+		public void DetectInvalidChecksum()
+		{
+			foreach(var test in INVALID_CHECKSUM)
+			{
+				try
+				{
+					var bech = Bech32Encoder.ExtractEncoderFromString(test);
+					var pos = test.LastIndexOf('1');
+					var test2 = test.Substring(0, pos + 1) + ((test[pos + 1]) ^ 1) + test.Substring(pos + 2);
+					bech.Decode(test2, out var wit);
+					throw new Exception($"The \"{test}\" string was recognized as a valid bech32 encoded string. FormatException was expected.");
+				}
+				catch(FormatException)
+				{}
 			}
 		}
 
