@@ -276,6 +276,32 @@ namespace NBitcoin.Tests
 			var keyB = new ExtPubKey(keyA.ToBytes());
 			AssertEx.CollectionEquals(keyA.ToBytes(), keyB.ToBytes());
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanWorkWithSLIP32()
+		{
+			var mnemonic = new Mnemonic("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about");
+			var extKey = mnemonic.DeriveExtKey();
+			var derivedKey = extKey.Derive(KeyPath.Parse("m/44'/0'/0'")).GetWif(Network.Main);
+			Assert.Equal("xprv9xpXFhFpqdQK3TmytPBqXtGSwS3DLjojFhTGht8gwAAii8py5X6pxeBnQ6ehJiyJ6nDjWGJfZ95WxByFXVkDxHXrqu53WCRGypk2ttuqncb", derivedKey.ToString() );
+			Assert.Equal("xpub6BosfCnifzxcFwrSzQiqu2DBVTshkCXacvNsWGYJVVhhawA7d4R5WSWGFNbi8Aw6ZRc1brxMyWMzG3DSSSSoekkudhUd9yLb6qx39T9nMdj", derivedKey.Neuter().ToString() );
+			derivedKey = extKey.Derive(KeyPath.Parse("m/44'/0'/0'/0/0")).GetWif(Network.Main);
+			Assert.Equal("1LqBGSKuX5yYUonjxT5qGfpUsXKYYWeabA", derivedKey.ScriptPubKey.GetDestinationAddress(Network.Main).ToString());
+
+			derivedKey = extKey.Derive(KeyPath.Parse("m/49'/0'/0'")).GetWif(Network.Main);
+			Assert.Equal("yprvAHwhK6RbpuS3dgCYHM5jc2ZvEKd7Bi61u9FVhYMpgMSuZS613T1xxQeKTffhrHY79hZ5PsskBjcc6C2V7DrnsMsNaGDaWev3GLRQRgV7hxF", derivedKey.ToString() );
+			Assert.Equal("ypub6Ww3ibxVfGzLrAH1PNcjyAWenMTbbAosGNB6VvmSEgytSER9azLDWCxoJwW7Ke7icmizBMXrzBx9979FfaHxHcrArf3zbeJJJUZPf663zsP", derivedKey.Neuter().ToString() );
+			derivedKey = extKey.Derive(KeyPath.Parse("m/49'/0'/0'/0/0")).GetWif(Network.Main);
+			Assert.Equal("37VucYSaXLCAsxYyAPfbSi9eh4iEcbShgf", derivedKey.ScriptPubKey.GetDestinationAddress(Network.Main).ToString());
+
+			derivedKey = extKey.Derive(KeyPath.Parse("m/84'/0'/0'")).GetWif(Network.Main);
+			Assert.Equal("zprvAdG4iTXWBoARxkkzNpNh8r6Qag3irQB8PzEMkAFeTRXxHpbF9z4QgEvBRmfvqWvGp42t42nvgGpNgYSJA9iefm1yYNZKEm7z6qUWCroSQnE", derivedKey.ToString() );
+			Assert.Equal("zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs", derivedKey.Neuter().ToString() );
+			derivedKey = extKey.Derive(KeyPath.Parse("m/84'/0'/0'/0/0")).GetWif(Network.Main);
+			Assert.Equal("bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu", derivedKey.ScriptPubKey.GetDestinationAddress(Network.Main).ToString());
+		}
+
 		private void RunTest(TestVector test)
 		{
 			var seed = TestUtils.ParseHex(test.strHexMaster);

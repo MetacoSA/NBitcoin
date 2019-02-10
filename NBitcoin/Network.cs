@@ -65,6 +65,10 @@ namespace NBitcoin
 		SECRET_KEY,
 		EXT_PUBLIC_KEY,
 		EXT_SECRET_KEY,
+		EXT_P2WPKH_PUBLIC_KEY,
+		EXT_P2WPKH_SECRET_KEY,
+		EXT_P2WPKH_IN_P2SH_PUBLIC_KEY,
+		EXT_P2WPKH_IN_P2SH_SECRET_KEY,
 		ENCRYPTED_SECRET_KEY_EC,
 		ENCRYPTED_SECRET_KEY_NO_EC,
 		PASSPHRASE_CODE,
@@ -84,7 +88,7 @@ namespace NBitcoin
 
 	public partial class Network
 	{
-		internal byte[][] base58Prefixes = new byte[13][];
+		internal byte[][] base58Prefixes = new byte[(int)Base58Type.MAX_BASE58_TYPES][];
 		internal Bech32Encoder[] bech32Encoders = new Bech32Encoder[2];
 
 		public uint MaxP2PVersion
@@ -851,6 +855,10 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.ENCRYPTED_SECRET_KEY_EC] = new byte[] { 0x01, 0x43 };
 			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x88), (0xB2), (0x1E) };
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x88), (0xAD), (0xE4) };
+			base58Prefixes[(int)Base58Type.EXT_P2WPKH_PUBLIC_KEY] = new byte[] { (0x04), (0xB2), (0x47), (0x46) }; 
+			base58Prefixes[(int)Base58Type.EXT_P2WPKH_SECRET_KEY] = new byte[] { (0x04), (0xB2), (0x43), (0x0C) };
+			base58Prefixes[(int)Base58Type.EXT_P2WPKH_IN_P2SH_PUBLIC_KEY] = new byte[] { (0x04), (0x9D), (0x7C), (0xB2) }; 
+			base58Prefixes[(int)Base58Type.EXT_P2WPKH_IN_P2SH_SECRET_KEY] = new byte[] { (0x04), (0x9D), (0x78), (0x78) };
 			base58Prefixes[(int)Base58Type.PASSPHRASE_CODE] = new byte[] { 0x2C, 0xE9, 0xB3, 0xE1, 0xFF, 0x39, 0xE2 };
 			base58Prefixes[(int)Base58Type.CONFIRMATION_CODE] = new byte[] { 0x64, 0x3B, 0xF6, 0xA8, 0x9A };
 			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2a };
@@ -933,6 +941,11 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (239) };
 			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x35), (0x87), (0xCF) };
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x35), (0x83), (0x94) };
+			base58Prefixes[(int)Base58Type.EXT_P2WPKH_PUBLIC_KEY] = new byte[] { (0x04), (0x5F), (0x1C), (0xF6) }; 
+			base58Prefixes[(int)Base58Type.EXT_P2WPKH_SECRET_KEY] = new byte[] { (0x04), (0x5F), (0x18), (0xBC) };
+			base58Prefixes[(int)Base58Type.EXT_P2WPKH_IN_P2SH_PUBLIC_KEY] = new byte[] { (0x04), (0x4A), (0x52), (0x62) }; 
+			base58Prefixes[(int)Base58Type.EXT_P2WPKH_IN_P2SH_SECRET_KEY] = new byte[] { (0x04), (0x4A), (0x4E), (0x28) };
+
 			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2b };
 			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 115 };
 			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
