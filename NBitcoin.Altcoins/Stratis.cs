@@ -134,7 +134,7 @@ namespace NBitcoin.Altcoins
 
 			public override int GetHashCode()
 			{
-				return (signature?.GetHashCode() ?? 0);
+				return (this.signature?.GetHashCode() ?? 0);
 			}
 
 			public StratisBlockSignature()
@@ -163,7 +163,7 @@ namespace NBitcoin.Altcoins
 
 			public bool IsEmpty()
 			{
-				return !this.signature.Any();
+				return !this.signature?.Any() ?? true;
 			}
 
 			public static bool operator ==(StratisBlockSignature a, StratisBlockSignature b)
@@ -171,10 +171,7 @@ namespace NBitcoin.Altcoins
 				if (System.Object.ReferenceEquals(a, b))
 					return true;
 
-				if (((object)a == null) || ((object)b == null))
-					return false;
-
-				return a.signature.SequenceEqual(b.signature);
+				return Utils.ArrayEqual(a.signature, b.signature);
 			}
 
 			public static bool operator !=(StratisBlockSignature a, StratisBlockSignature b)
@@ -193,7 +190,7 @@ namespace NBitcoin.Altcoins
 
 			public override string ToString()
 			{
-				return Encoders.Hex.EncodeData(this.signature);
+				return this.signature != null ? Encoders.Hex.EncodeData(this.signature) : null;
 			}
 		}
 
@@ -223,7 +220,7 @@ namespace NBitcoin.Altcoins
 
 			private byte[] CalculateHash(byte[] data, int offset, int count)
 			{
-				byte[] hashData = data.Skip(offset).Take(count).ToArray();
+				byte[] hashData = data.SafeSubarray(offset, count);
 				uint256 hash = null;
 				if (this.nVersion > 6)
 					hash = Hashes.Hash256(hashData);
@@ -339,8 +336,7 @@ namespace NBitcoin.Altcoins
 
 			public override void ReadWrite(BitcoinStream stream)
 			{		
-				var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
-										stream.ProtocolCapabilities.SupportWitness;
+				var witSupported = stream.TransactionOptions.HasFlag(TransactionOptions.Witness) && stream.ProtocolCapabilities.SupportWitness;
 
 				if (stream.Serializing)
 					SerializeTxn(stream, witSupported);
@@ -362,7 +358,7 @@ namespace NBitcoin.Altcoins
 				TxInList vinTemp = new TxInList();
 				TxOutList voutTemp = new TxOutList();
 
-				/* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
+				// Try to read the vin. In case the dummy is there, this will be read as an empty vector.
 				stream.ReadWrite<TxInList, TxIn>(ref vinTemp);
 
 				var hasNoDummy = (nVersionTemp & NoDummyInput) != 0 && vinTemp.Count == 0;
@@ -371,11 +367,11 @@ namespace NBitcoin.Altcoins
 
 				if (vinTemp.Count == 0 && witSupported && !hasNoDummy)
 				{
-					/* We read a dummy or an empty vin. */
+					// We read a dummy or an empty vin.
 					stream.ReadWrite(ref flags);
 					if (flags != 0)
 					{
-						/* Assume we read a dummy and a flag. */
+						// Assume we read a dummy and a flag.
 						stream.ReadWrite<TxInList, TxIn>(ref vinTemp);
 						vinTemp.Transaction = this;
 						stream.ReadWrite<TxOutList, TxOut>(ref voutTemp);
@@ -383,27 +379,27 @@ namespace NBitcoin.Altcoins
 					}
 					else
 					{
-						/* Assume read a transaction without output. */
+						// Assume read a transaction without output.
 						voutTemp = new TxOutList();
 						voutTemp.Transaction = this;
 					}
 				}
 				else
 				{
-					/* We read a non-empty vin. Assume a normal vout follows. */
+					// We read a non-empty vin. Assume a normal vout follows.
 					stream.ReadWrite<TxOutList, TxOut>(ref voutTemp);
 					voutTemp.Transaction = this;
 				}
 				if (((flags & 1) != 0) && witSupported)
 				{
-					/* The witness flag is present, and we support witnesses. */
+					// The witness flag is present, and we support witnesses.
 					flags ^= 1;
 					StratisWitness wit = new StratisWitness(vinTemp);
 					wit.ReadWrite(stream);
 				}
 				if (flags != 0)
 				{
-					/* Unknown flag in the serialization */
+					// Unknown flag in the serialization
 					throw new FormatException("Unknown transaction optional data");
 				}
 				LockTime lockTimeTemp = LockTime.Zero;
@@ -428,7 +424,7 @@ namespace NBitcoin.Altcoins
 
 				if (witSupported)
 				{
-					/* Check whether witnesses need to be serialized. */
+					// Check whether witnesses need to be serialized.
 					if (HasWitness)
 					{
 						flags |= 1;
@@ -436,7 +432,7 @@ namespace NBitcoin.Altcoins
 				}
 				if (flags != 0)
 				{
-					/* Use extended format in case witnesses are to be serialized. */
+					// Use extended format in case witnesses are to be serialized.
 					TxInList vinDummy = new TxInList();
 					stream.ReadWrite<TxInList, TxIn>(ref vinDummy);
 					stream.ReadWrite(ref flags);
@@ -467,47 +463,43 @@ namespace NBitcoin.Altcoins
 
 			private static void DeserializeFromJson(JObject json, ref StratisTransaction tx)
 			{
-				tx.Version = (uint)json.GetValue("version");
-				tx.Time = (uint)json.GetValue("time");
-				tx.LockTime = (uint)json.GetValue("locktime");
+				tx.Version = json.Value<uint>("version");
+				tx.Time = json.Value<uint>("time");
+				tx.LockTime = json.Value<uint>("locktime");
 
-				var vin = (JArray)json.GetValue("vin");
+				var vin = json.Value<JArray>("vin");
 				for (int i = 0; i < vin.Count; i++)
 				{
 					var jsonIn = (JObject)vin[i];
 					var txin = new TxIn();
-					tx.Inputs.Add(txin);
-
-					var script = (JObject)jsonIn.GetValue("scriptSig");
+					var script = jsonIn.Value<JObject>("scriptSig");
 					if (script != null)
 					{
-						txin.ScriptSig = new Script(Encoders.Hex.DecodeData((string)script.GetValue("hex")));
-						txin.PrevOut.Hash = uint256.Parse((string)jsonIn.GetValue("txid"));
-						txin.PrevOut.N = (uint)jsonIn.GetValue("vout");
+						txin.ScriptSig = new Script(Encoders.Hex.DecodeData(script.Value<string>("hex")));
+						txin.PrevOut.Hash = uint256.Parse(jsonIn.Value<string>("txid"));
+						txin.PrevOut.N = jsonIn.Value<uint>("vout");
 					}
 					else
 					{
-						var coinbase = (string)jsonIn.GetValue("coinbase");
-						txin.ScriptSig = new Script(Encoders.Hex.DecodeData(coinbase));
+						txin.ScriptSig = new Script(Encoders.Hex.DecodeData(jsonIn.Value<string>("coinbase")));
 					}
+					txin.Sequence = jsonIn.Value<uint>("sequence");
 
-					txin.Sequence = (uint)jsonIn.GetValue("sequence");
-
+					tx.Inputs.Add(txin);
 				}
 
-				var vout = (JArray)json.GetValue("vout");
+				var vout = json.Value<JArray>("vout");
 				for (int i = 0; i < vout.Count; i++)
 				{
 					var jsonOut = (JObject)vout[i];
-					var txout = new TxOut();
+					var txout = new TxOut()
+					{
+						Value = Money.Coins(jsonOut.Value<decimal>("value"))
+					};
 					tx.Outputs.Add(txout);
 
-					var btc = (decimal)jsonOut.GetValue("value");
-					var satoshis = btc * Money.COIN;
-					txout.Value = new Money((long)(satoshis));
-
-					var script = (JObject)jsonOut.GetValue("scriptPubKey");
-					txout.ScriptPubKey = new Script(Encoders.Hex.DecodeData((string)script.GetValue("hex")));
+					var script = jsonOut.Value<JObject>("scriptPubKey");
+					txout.ScriptPubKey = new Script(Encoders.Hex.DecodeData(script.Value<string>("hex")));
 				}
 			}
 		}
@@ -515,13 +507,7 @@ namespace NBitcoin.Altcoins
 		protected override NetworkBuilder CreateMainnet()
 		{
 			NetworkBuilder builder = new NetworkBuilder();
-			// a large 4-byte int at any alignment.
-			var messageStart = new byte[4];
-			messageStart[0] = 0x70;
-			messageStart[1] = 0x35;
-			messageStart[2] = 0x22;
-			messageStart[3] = 0x05;
-			var magic = BitConverter.ToUInt32(messageStart, 0); //0x5223570;
+			var magic = BitConverter.ToUInt32(new byte[] { 0x70, 0x35, 0x22, 0x05 }, 0); //0x5223570;
 
 			builder.SetConsensus(new Consensus()
 			{
@@ -567,14 +553,7 @@ namespace NBitcoin.Altcoins
 		protected override NetworkBuilder CreateTestnet()
 		{
 			NetworkBuilder builder = new NetworkBuilder();
-			// a large 4-byte int at any alignment.
-			var messageStart = new byte[4];
-			messageStart = new byte[4];
-			messageStart[0] = 0x71;
-			messageStart[1] = 0x31;
-			messageStart[2] = 0x21;
-			messageStart[3] = 0x11;
-			var magic = BitConverter.ToUInt32(messageStart, 0); //0x5223570; 
+			var magic = BitConverter.ToUInt32(new byte[] { 0x71, 0x31, 0x21, 0x11 }, 0); //0x5223570; 
 			builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
 			{
@@ -617,14 +596,7 @@ namespace NBitcoin.Altcoins
 		protected override NetworkBuilder CreateRegtest()
 		{
 			NetworkBuilder builder = new NetworkBuilder();
-			// a large 4-byte int at any alignment.
-			var messageStart = new byte[4];
-			messageStart = new byte[4];
-			messageStart[0] = 0xcd;
-			messageStart[1] = 0xf2;
-			messageStart[2] = 0xc0;
-			messageStart[3] = 0xef;
-			var magic = BitConverter.ToUInt32(messageStart, 0);
+			var magic = BitConverter.ToUInt32(new byte[] { 0xcd, 0xf2, 0xc0, 0xef }, 0);
 			builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
 			{
