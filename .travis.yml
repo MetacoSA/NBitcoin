@@ -13,6 +13,10 @@ matrix:
     - os: linux 
       dist: trusty # Ubuntu 14.04
       dotnet: 2.1
+    - os: linux
+      dist: trusty # Ubuntu 14.04
+      dotnet: 2.1
+      env: TargetFrameworkOverride=netstandard2.0
     - os: osx
       dotnet: 2.1.300
       osx_image: xcode8.3 # dotnet requires at least this version
@@ -22,5 +26,5 @@ before_install:
   - if [ $TRAVIS_OS_NAME = osx ]; then ulimit -S -n 4096; EXTRA_CONSTANT=-p:BuildConstants=NOCONSENSUSLIB; fi
 
 script:
-  - dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj -c Release -f netcoreapp2.1  $EXTRA_CONSTANT
+  - dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj /p:TargetFrameworkOverride=$TargetFrameworkOverride -c Release -f netcoreapp2.1  $EXTRA_CONSTANT
   - dotnet test --no-build -c Release -f netcoreapp2.1 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false
