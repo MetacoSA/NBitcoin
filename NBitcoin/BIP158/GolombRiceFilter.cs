@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NBitcoin.Crypto;
 using NBitcoin.Protocol;
@@ -490,7 +491,9 @@ namespace NBitcoin
 			if (outpoint == null)
 				throw new ArgumentNullException(nameof(outpoint));
 
-			_values.Add(outpoint.ToBytes());
+			MemoryStream ms = new MemoryStream(32 + 4);
+			outpoint.ReadWrite(new BitcoinStream(ms, true));
+			_values.Add(ms.ToArrayEfficient());
 			return this;
 		}
 
