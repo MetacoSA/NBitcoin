@@ -11,39 +11,28 @@ namespace NBitcoin
 {
 	public class ConsensusFactory
 	{
-		ConcurrentDictionary<Type, bool> _IsAssignableFromBlockHeader = new ConcurrentDictionary<Type, bool>();
-		TypeInfo BlockHeaderType = typeof(BlockHeader).GetTypeInfo();
-
-		ConcurrentDictionary<Type, bool> _IsAssignableFromBlock = new ConcurrentDictionary<Type, bool>();
-		TypeInfo BlockType = typeof(Block).GetTypeInfo();
-
-		ConcurrentDictionary<Type, bool> _IsAssignableFromTransaction = new ConcurrentDictionary<Type, bool>();
-		TypeInfo TransactionType = typeof(Transaction).GetTypeInfo();
+		static readonly TypeInfo BlockHeaderType = typeof(BlockHeader).GetTypeInfo();
+		static readonly TypeInfo BlockType = typeof(Block).GetTypeInfo();
+		static readonly TypeInfo TransactionType = typeof(Transaction).GetTypeInfo();
 
 		protected bool IsBlockHeader(Type type)
 		{
-			return IsAssignable(type, BlockHeaderType, _IsAssignableFromBlockHeader);
+			return IsAssignable(type, BlockHeaderType);
 		}
 
 		protected bool IsBlock(Type type)
 		{
-			return IsAssignable(type, BlockType, _IsAssignableFromBlock);
+			return IsAssignable(type, BlockType);
 		}
 
 		protected bool IsTransaction(Type type)
 		{
-			return IsAssignable(type, TransactionType, _IsAssignableFromTransaction);
+			return IsAssignable(type, TransactionType);
 		}
 
-		private bool IsAssignable(Type type, TypeInfo baseType, ConcurrentDictionary<Type, bool> cache)
+		private bool IsAssignable(Type type, Type baseType)
 		{
-			bool isAssignable = false;
-			if (!cache.TryGetValue(type, out isAssignable))
-			{
-				isAssignable = baseType.IsAssignableFrom(type.GetTypeInfo());
-				cache.TryAdd(type, isAssignable);
-			}
-			return isAssignable;
+			return baseType.IsAssignableFrom(type.GetTypeInfo());
 		}
 
 		public virtual bool TryCreateNew(Type type, out IBitcoinSerializable result)
