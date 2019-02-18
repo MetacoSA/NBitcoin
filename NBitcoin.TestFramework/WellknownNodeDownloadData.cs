@@ -844,6 +844,37 @@
 			};
 		}
 
+		public class ParticlNodeDownloadData
+        {
+            public NodeDownloadData v0_17_1_2 = new NodeDownloadData()
+            {
+                Version = "0.17.1.2",
+                Windows = new NodeOSDownloadData()
+                {
+                    DownloadLink = "https://github.com/particl/particl-core/releases/download/v{0}/particl-{0}-win64.zip",
+                    Archive = "particl-{0}-win64.zip",
+                    Executable = "particl-0.16.4/bin/particld.exe",
+                    Hash = "7000e88e993bb7aee94e853fd166c9546a904fc9081acf30036d8242b892a8d1"
+                },
+                Linux = new NodeOSDownloadData()
+                {
+                    DownloadLink = "https://github.com/particl/particl-core/releases/download/v{0}/particl-{0}-x86_64-linux-gnu.tar.gz",
+                    Archive = "particl-{0}-x86_64-linux-gnu.tar.gz",
+                    Executable = "particl-{0}/bin/particld",
+                    Hash = "74be693726d50f1682a40e7491192c20990b721c7beb8993af1312cb8344e89c"
+                },
+                Mac = new NodeOSDownloadData()
+                {
+                    DownloadLink = "https://github.com/particl/particl-core/releases/download/v{0}/particl-{0}-osx64.tar.gz",
+                    Archive = "particl-{0}-osx64.tar.gz",
+                    Executable = "particl-{0}/bin/particld",
+                    Hash = "6465e4ad63c87faf6bf241d1ea83ec2481d5a76108850408e78a33216d4e35f1"
+                },
+                UseSectionInConfigFile = true,
+                CreateDefaultMasterKey = true,
+            };
+        }
+
 		public static GoByteNodeDownloadData GoByte
 		{
 			get; set;
@@ -962,6 +993,11 @@
 		{
 			get; set;
 		} = new ChaincoinNodeDownloadData();
+
+		public static ParticlNodeDownloadData Particl
+		{
+			get; set;
+		} = new ParticlNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
