@@ -871,7 +871,6 @@
                     Hash = "6465e4ad63c87faf6bf241d1ea83ec2481d5a76108850408e78a33216d4e35f1"
                 },
                 UseSectionInConfigFile = true,
-                CreateDefaultMasterKey = true,
             };
         }
 
