@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 
 namespace NBitcoin.Altcoins
 {
@@ -108,27 +109,194 @@ namespace NBitcoin.Altcoins
             {
                 return new ParticlBlock(new ParticlBlockHeader());
             }
+
+            public override Transaction CreateTransaction()
+            {
+                return new ParticlTransaction(this);
+            }
+
+            public override bool TryCreateNew(Type type, out IBitcoinSerializable result)
+            {
+                if (typeof(TxIn).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
+                {
+                    result = new ParticlTxIn();
+                    return true;
+                }
+                if (typeof(TxOut).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
+                {
+                    result = new ParticlTxOut();
+                    return true;
+                }
+                if (typeof(OutPoint).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
+                {
+                    result = new ParticlOutPoint();
+                    return true;
+                }
+                return base.TryCreateNew(type, out result);
+            }
         }
 
         public class ParticlBlockHeader : BlockHeader
         {
+            protected uint256 hashWitnessMerkleRoot;
+
+            public uint256 HashWitnessMerkleRoot
+            {
+                get
+                {
+                    return hashWitnessMerkleRoot;
+                }
+                set
+                {
+                    hashWitnessMerkleRoot = value;
+                }
+            }
             public override uint256 GetPoWHash()
             {
                 var headerBytes = this.ToBytes();
                 var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
                 return new uint256(h);
             }
+
+            public override void ReadWrite(BitcoinStream stream)
+			{
+				stream.ReadWrite(ref nVersion);
+                stream.ReadWrite(ref hashPrevBlock);
+                stream.ReadWrite(ref hashMerkleRoot);
+                stream.ReadWrite(ref hashWitnessMerkleRoot);
+                stream.ReadWrite(ref nTime);
+                stream.ReadWrite(ref nBits);
+                stream.ReadWrite(ref nNonce);
+			}
         }
 
         public class ParticlBlock : Block
         {
+            // private BlockHeader header;
+
+            // List<ParticlTransaction> vtx = new List<ParticlTransaction>();
+
             public ParticlBlock(ParticlBlockHeader header) : base(header)
             {
 
             }
+
             public override ConsensusFactory GetConsensusFactory()
             {
                 return ParticlConsensusFactory.Instance;
+            }
+        }
+
+        public class ParticlTransaction : Transaction
+        {
+            public ParticlTransaction(ConsensusFactory consensusFactory)
+            {
+                _Factory = consensusFactory;
+            }
+
+            ConsensusFactory _Factory;
+            public override ConsensusFactory GetConsensusFactory()
+            {
+                return _Factory;
+            }
+            
+            protected new ushort nVersion = 1;
+
+            public new ushort Version
+            {
+                get
+                {
+                    return nVersion;
+                }
+                set
+                {
+                    nVersion = value;
+                }
+            }
+            public override void ReadWrite(BitcoinStream stream)
+            {                    
+                stream.ReadWrite(ref nVersion);                    
+                stream.ReadWriteStruct(ref nLockTime);
+
+                stream.ReadWrite<TxInList, TxIn>(ref vin);
+                vin.Transaction = this;
+
+                stream.ReadWrite<TxOutList, TxOut>(ref vout);
+                vout.Transaction = this;
+
+                Witness wit = new Witness(Inputs);
+                try
+                {
+                    wit.ReadWrite(stream);
+                } catch (FormatException e) {
+                    Console.Out.WriteLine(e.Message);
+                }
+            }
+        }
+
+        public class ParticlTxIn : TxIn
+        {
+            protected uint outputIndex = 1;
+
+            public uint OutputIndex
+            {
+                get
+                {
+                    return outputIndex;
+                }
+                set
+                {
+                    outputIndex = value;
+                }
+            }
+
+            public override void ReadWrite(BitcoinStream stream)
+            {
+                prevout = null;
+                stream.ReadWrite(ref prevout);
+                stream.ReadWrite(ref outputIndex);
+                stream.ReadWrite(ref scriptSig);
+                stream.ReadWrite(ref nSequence);
+            }
+        }
+
+        public class ParticlTxOut : TxOut
+        {
+            enum Type { OUTPUT_NULL, OUTPUT_STANDARD, OUTPUT_CT, OUTPUT_RINGCT, OUTPUT_DATA };
+
+            byte type = 0;
+            public override void ReadWrite(BitcoinStream stream)
+            {
+                stream.ReadWrite(ref type);
+                
+                switch(type) {
+                    case (byte)Type.OUTPUT_STANDARD:
+                        long value = Value.Satoshi;
+                        stream.ReadWrite(ref value);
+                        if (!stream.Serializing)
+				            _Value = new Money(value);
+                        stream.ReadWrite(ref publicKey);
+                        break;
+                    case (byte)Type.OUTPUT_CT:
+                        
+                        break;
+                    case (byte)Type.OUTPUT_RINGCT:
+                        
+                        break;
+                    case (byte)Type.OUTPUT_DATA:
+                        
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        public class ParticlOutPoint : OutPoint
+	    {
+            public override void ReadWrite(BitcoinStream stream)
+            {
+                stream.ReadWrite(ref hash);
             }
         }
 
