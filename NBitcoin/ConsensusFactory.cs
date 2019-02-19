@@ -18,12 +18,12 @@ namespace NBitcoin
 
 		protected bool IsBlockHeader(Type type)
 		{
-			return BlockHeaderType.IsAssignableFrom(type);
+			return BlockHeaderType.IsAssignableFrom(type.GetTypeInfo());
 		}
 
 		protected bool IsTxOut(Type type)
 		{
-			return TxOutType.IsAssignableFrom(type);
+			return TxOutType.IsAssignableFrom(type.GetTypeInfo());
 		}
 
 		protected bool IsBlock(Type type)
