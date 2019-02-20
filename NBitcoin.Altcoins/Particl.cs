@@ -374,9 +374,10 @@ namespace NBitcoin.Altcoins
             .SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x8f, 0x1d, 0xae, 0xb8 }) // XPAR
             .SetBase58Bytes(Base58Type.STEALTH_ADDRESS, new byte[] { 0x14 })
             .SetNetworkStringParser(new ParticlMainnetAddressStringParser())
-            .SetMagic(0xfbf2efb4)
+            .SetMagic(0xb4eff2fb) 
             .SetPort(51738)
             .SetRPCPort(51735)
+            .SetMaxP2PVersion(90007)
             .SetName("part-main")
             .AddAlias("part-mainnet")
             .AddAlias("particl-mainnet")
@@ -417,9 +418,10 @@ namespace NBitcoin.Altcoins
             .SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0xe1, 0x42, 0x78, 0x00 }) // ppar
             .SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0x94, 0x78 }) // xpar
             .SetBase58Bytes(Base58Type.STEALTH_ADDRESS, new byte[] { 0x15 })
-            .SetMagic(0x0811050b)
+            .SetMagic(0x0b051108) 
             .SetPort(51938)
             .SetRPCPort(51935)
+            .SetMaxP2PVersion(90007)
             .SetName("part-test")
             .AddAlias("part-testnet")
             .AddAlias("particl-testnet")
@@ -459,9 +461,10 @@ namespace NBitcoin.Altcoins
             .SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0xe1, 0x42, 0x78, 0x00 }) // ppar
             .SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0x94, 0x78 }) // xpar
             .SetBase58Bytes(Base58Type.STEALTH_ADDRESS, new byte[] { 0x15 }) // T
-            .SetMagic(0x0912060c)
+            .SetMagic(0x0c061209)
             .SetPort(11938)
             .SetRPCPort(51936)
+            .SetMaxP2PVersion(90007)
             .SetName("part-reg")
             .AddAlias("part-regnet")
             .AddAlias("particl-regnet")
