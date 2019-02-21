@@ -224,13 +224,27 @@ namespace NBitcoin.Altcoins
                 stream.ReadWrite<TxOutList, TxOut>(ref vout);
                 vout.Transaction = this;
 
-                Witness wit = new Witness(Inputs);
-                try
+                for (int i = 0; i < vin.Count; i++)
                 {
-                    wit.ReadWrite(stream);
-                } catch (FormatException e) {
-                    Console.Out.WriteLine(e.Message);
+                    uint witness_count = 0;
+                    stream.ReadWriteAsVarInt(ref witness_count);
+
+                    for (int w = 0; w < witness_count; w++)
+                    {
+                        uint witness_size = 0;
+                        stream.ReadWriteAsVarInt(ref witness_size);
+                        byte[] witness = new byte[witness_size];
+                        stream.ReadWrite(ref witness);
+                    }
                 }
+
+                // Witness wit = new Witness(Inputs);
+                // try
+                // {
+                //     wit.ReadWrite(stream);
+                // } catch (FormatException e) {
+                //     Console.Out.WriteLine(e.Message);
+                // }
             }
         }
 
@@ -265,10 +279,14 @@ namespace NBitcoin.Altcoins
             enum Type { OUTPUT_NULL, OUTPUT_STANDARD, OUTPUT_CT, OUTPUT_RINGCT, OUTPUT_DATA };
 
             byte type = 0;
+            byte[] data = null;
+
             public override void ReadWrite(BitcoinStream stream)
             {
                 stream.ReadWrite(ref type);
-                
+
+                uint data_size = 0;
+
                 switch(type) {
                     case (byte)Type.OUTPUT_STANDARD:
                         long value = Value.Satoshi;
@@ -278,13 +296,53 @@ namespace NBitcoin.Altcoins
                         stream.ReadWrite(ref publicKey);
                         break;
                     case (byte)Type.OUTPUT_CT:
-                        
+                        byte[] valueCommitment = new byte[33];
+                        stream.ReadWrite(ref valueCommitment);
+
+                        stream.ReadWriteAsVarInt(ref data_size);
+                        if (data_size != 0) {
+                            byte[] data = new byte[data_size];
+					        stream.ReadWrite(ref data);
+                        }
+
+                        stream.ReadWriteAsVarInt(ref data_size);
+                        if (data_size != 0) {
+                            byte[] script = new byte[data_size];
+					        stream.ReadWrite(ref script);
+                        }
+
+                        stream.ReadWriteAsVarInt(ref data_size);
+                        if (data_size != 0) {
+                            byte[] rangeProof = new byte[data_size];
+					        stream.ReadWrite(ref rangeProof);
+                        }
+
                         break;
                     case (byte)Type.OUTPUT_RINGCT:
-                        
+                        byte[] pubkey = new byte[33];
+                        stream.ReadWrite(ref pubkey);
+
+                        byte[] valueCommitment2 = new byte[33];
+                        stream.ReadWrite(ref valueCommitment2);
+
+                        stream.ReadWriteAsVarInt(ref data_size);
+                        if (data_size != 0) {
+                            byte[] data = new byte[data_size];
+					        stream.ReadWrite(ref data);
+                        }
+
+                        stream.ReadWriteAsVarInt(ref data_size);
+                        if (data_size != 0) {
+                            byte[] rangeProof = new byte[data_size];
+					        stream.ReadWrite(ref rangeProof);
+                        }
                         break;
                     case (byte)Type.OUTPUT_DATA:
-                        
+                        stream.ReadWriteAsVarInt(ref data_size);
+                        if (data_size != 0) {
+                            byte[] data = new byte[data_size];
+					        stream.ReadWrite(ref data);
+                        }
                         break;
                     default:
                         break;
