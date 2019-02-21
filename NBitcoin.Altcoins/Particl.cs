@@ -1,4 +1,4 @@
-﻿using NBitcoin;
+using NBitcoin;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
@@ -172,10 +172,6 @@ namespace NBitcoin.Altcoins
 
         public class ParticlBlock : Block
         {
-            // private BlockHeader header;
-
-            // List<ParticlTransaction> vtx = new List<ParticlTransaction>();
-
             public ParticlBlock(ParticlBlockHeader header) : base(header)
             {
 
@@ -214,7 +210,7 @@ namespace NBitcoin.Altcoins
                 }
             }
             public override void ReadWrite(BitcoinStream stream)
-            {                    
+            {        
                 stream.ReadWrite(ref nVersion);                    
                 stream.ReadWriteStruct(ref nLockTime);
 
@@ -224,27 +220,17 @@ namespace NBitcoin.Altcoins
                 stream.ReadWrite<TxOutList, TxOut>(ref vout);
                 vout.Transaction = this;
 
-                for (int i = 0; i < vin.Count; i++)
-                {
-                    uint witness_count = 0;
-                    stream.ReadWriteAsVarInt(ref witness_count);
-
-                    for (int w = 0; w < witness_count; w++)
+                if (stream.Type != SerializationType.Hash) {
+                    Witness wit = new Witness(Inputs);
+                    try
                     {
-                        uint witness_size = 0;
-                        stream.ReadWriteAsVarInt(ref witness_size);
-                        byte[] witness = new byte[witness_size];
-                        stream.ReadWrite(ref witness);
+                        wit.ReadWrite(stream);
+                    } catch (FormatException e) {
+                        Console.Out.WriteLine(e.Message);
                     }
                 }
-
-                // Witness wit = new Witness(Inputs);
-                // try
-                // {
-                //     wit.ReadWrite(stream);
-                // } catch (FormatException e) {
-                //     Console.Out.WriteLine(e.Message);
-                // }
+                
+        
             }
         }
 
@@ -266,7 +252,8 @@ namespace NBitcoin.Altcoins
 
             public override void ReadWrite(BitcoinStream stream)
             {
-                prevout = null;
+                if (!stream.Serializing)
+                    prevout = null;
                 stream.ReadWrite(ref prevout);
                 stream.ReadWrite(ref outputIndex);
                 stream.ReadWrite(ref scriptSig);
