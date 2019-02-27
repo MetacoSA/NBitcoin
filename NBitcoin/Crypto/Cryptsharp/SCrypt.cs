@@ -228,7 +228,8 @@ namespace NBitcoin.Crypto
 			Thread[] threads = new Thread[threadCount - 1];
 			for(int i = 0; i < threads.Length; i++)
 			{
-				(threads[i] = new Thread(workerThread, 8192 * 4)).Start();
+				var maxStackSize = 8192 * 4 * (Debugger.IsAttached ? 4 : 1);
+				(threads[i] = new Thread(workerThread, maxStackSize)).Start();
 			}
 			workerThread();
 			for(int i = 0; i < threads.Length; i++)
