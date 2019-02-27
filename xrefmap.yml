@@ -48719,6 +48719,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.RPC.RPCClient.GetTxOutAsync
   nameWithType: RPCClient.GetTxOutAsync
+- uid: NBitcoin.RPC.RPCClient.HttpClient
+  name: HttpClient
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_HttpClient
+  commentId: P:NBitcoin.RPC.RPCClient.HttpClient
+  fullName: NBitcoin.RPC.RPCClient.HttpClient
+  nameWithType: RPCClient.HttpClient
+- uid: NBitcoin.RPC.RPCClient.HttpClient*
+  name: HttpClient
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_HttpClient_
+  commentId: Overload:NBitcoin.RPC.RPCClient.HttpClient
+  isSpec: "True"
+  fullName: NBitcoin.RPC.RPCClient.HttpClient
+  nameWithType: RPCClient.HttpClient
 - uid: NBitcoin.RPC.RPCClient.ImportAddress(NBitcoin.IDestination)
   name: ImportAddress(IDestination)
   href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_ImportAddress_NBitcoin_IDestination_
