@@ -12,7 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<Version Condition=" '$(Version)' == '' ">4.1.1.85</Version>
+		<Version Condition=" '$(Version)' == '' ">4.1.1.86</Version>
 		<LangVersion>7.2</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -35,7 +35,7 @@
 		<DefineConstants>$(DefineConstants);CLASSICDOTNET</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
-		<DefineConstants>$(DefineConstants);CLASSICDOTNET;LEGACY_X509</DefineConstants>
+		<DefineConstants>$(DefineConstants);NO_RCA;CLASSICDOTNET;LEGACY_X509</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netstandard2.0' ">
 		<DefineConstants>$(DefineConstants);NOCUSTOMSSLVALIDATION</DefineConstants>
@@ -50,7 +50,7 @@
 		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH</DefineConstants>
+		<DefineConstants>$(DefineConstants);NO_RCA;NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.0.2" />

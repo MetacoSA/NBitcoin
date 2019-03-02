@@ -107,8 +107,11 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			if(transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
-
+#if NO_RCA
 			TaskCompletionSource<RejectPayload> completion = new TaskCompletionSource<RejectPayload>();
+#else
+			TaskCompletionSource<RejectPayload> completion = new TaskCompletionSource<RejectPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+#endif
 			var hash = transaction.GetHash();
 			if(BroadcastedTransaction.TryAdd(hash, transaction))
 			{

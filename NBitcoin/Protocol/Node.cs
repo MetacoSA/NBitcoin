@@ -893,8 +893,13 @@ namespace NBitcoin.Protocol
 		{
 			if(payload == null)
 				throw new ArgumentNullException(nameof(payload));
+
+#if NO_RCA
 			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>();
-			if(!IsConnected)
+#else
+			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+#endif
+			if (!IsConnected)
 			{
 				completion.SetException(new OperationCanceledException("The peer has been disconnected"));
 				return completion.Task;
