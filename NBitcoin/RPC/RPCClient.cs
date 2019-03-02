@@ -847,6 +847,8 @@ namespace NBitcoin.RPC
 				TaskCompletionSource<RPCResponse> source = new TaskCompletionSource<RPCResponse>();
 				batches.Enqueue(Tuple.Create(request, source));
 				response = await source.Task.ConfigureAwait(false);
+				if (throwIfRPCError)
+					response?.ThrowIfError();
 			}
 
 			if (response == null)
