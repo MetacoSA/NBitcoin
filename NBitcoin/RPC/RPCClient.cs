@@ -617,6 +617,16 @@ namespace NBitcoin.RPC
 			}
 		}
 
+		public async Task StopAsync()
+		{
+			await SendCommandAsync(RPCOperations.stop).ConfigureAwait(false);
+		}
+
+		public void Stop()
+		{
+			SendCommand(RPCOperations.stop);
+		}
+
 		/// <summary>
 		/// Scans the unspent transaction output set for entries that match certain output descriptors.
 		/// </summary>

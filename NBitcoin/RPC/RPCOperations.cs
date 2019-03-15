@@ -113,6 +113,7 @@ namespace NBitcoin.RPC
 		abandontransaction,
 		signrawtransactionwithkey,
 		scantxoutset,
-		getmempoolentry
+		getmempoolentry,
+		stop
 	}
 }
