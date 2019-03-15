@@ -239,6 +239,7 @@ namespace NBitcoin.Altcoins
 
         public class ParticlTxIn : TxIn
         {
+            byte[][] data = null;
             protected uint outputIndex = 1;
 
             public uint OutputIndex
@@ -261,20 +262,28 @@ namespace NBitcoin.Altcoins
                 stream.ReadWrite(ref outputIndex);
                 stream.ReadWrite(ref scriptSig);
                 stream.ReadWrite(ref nSequence);
-
+                
                 if (outputIndex == ANON_MARKER) {
-                    if (!stream.Serializing) {
-                        uint stack_size = 0;
-                        stream.ReadWriteAsVarInt(ref stack_size);
+                    uint stack_size = stream.Serializing ? (uint) data.Length : 0;
+                    stream.ReadWriteAsVarInt(ref stack_size);
 
-                        for (int k = 0; k < stack_size; k++)
-                        {
-                            uint data_size = 0;
-                            stream.ReadWriteAsVarInt(ref data_size);
-                            if (data_size != 0) {
-                                byte[] data = new byte[data_size];
-                                stream.ReadWrite(ref data);
-                            }
+                    if (!stream.Serializing) {
+                        data = new byte[stack_size][];
+                    }
+
+                    for (int k = 0; k < stack_size; k++)
+                    {
+                        uint data_size = stream.Serializing ? (uint) data[k].Length : 0;
+                        stream.ReadWriteAsVarInt(ref data_size);
+
+                        byte[] data_stack = stream.Serializing ? data[k] : new byte[data_size];
+                        
+                        if (data_size != 0) {
+                            stream.ReadWrite(ref data_stack);
+                        }
+
+                        if (!stream.Serializing) {
+                            data[k] = data_stack;
                         }
                     }
                 }
