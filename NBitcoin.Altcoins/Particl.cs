@@ -21,6 +21,9 @@ namespace NBitcoin.Altcoins
         {
 
         }
+
+        static uint ANON_MARKER = 0xffffffa0;
+
         //Format visual studio
         //{({.*?}), (.*?)}
         //Tuple.Create(new byte[]$1, $2)
@@ -258,6 +261,23 @@ namespace NBitcoin.Altcoins
                 stream.ReadWrite(ref outputIndex);
                 stream.ReadWrite(ref scriptSig);
                 stream.ReadWrite(ref nSequence);
+
+                if (outputIndex == ANON_MARKER) {
+                    if (!stream.Serializing) {
+                        uint stack_size = 0;
+                        stream.ReadWriteAsVarInt(ref stack_size);
+
+                        for (int k = 0; k < stack_size; k++)
+                        {
+                            uint data_size = 0;
+                            stream.ReadWriteAsVarInt(ref data_size);
+                            if (data_size != 0) {
+                                byte[] data = new byte[data_size];
+                                stream.ReadWrite(ref data);
+                            }
+                        }
+                    }
+                }
             }
         }
 
