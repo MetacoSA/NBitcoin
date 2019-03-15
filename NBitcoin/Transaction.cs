@@ -1870,12 +1870,15 @@ namespace NBitcoin
 			if (IsCoinBase)
 				return Money.Zero;
 			spentCoins = spentCoins ?? new ICoin[0];
-
+			Dictionary<OutPoint, ICoin> coinsByOutpoint = new Dictionary<OutPoint, ICoin>();
+			foreach(var c in spentCoins)
+			{
+				coinsByOutpoint.TryAdd(c.Outpoint, c);
+			}
 			Money fees = -TotalOut;
 			foreach (var input in this.Inputs)
 			{
-				var coin = spentCoins.FirstOrDefault(s => s.Outpoint == input.PrevOut);
-				if (coin == null)
+				if (!coinsByOutpoint.TryGetValue(input.PrevOut, out var coin))
 					return null;
 				fees += coin.TxOut.Value;
 			}
