@@ -307,7 +307,7 @@ namespace NBitcoin.Tests
 				try
 				{
 
-					this.CreateRPCClient().SendCommand("stop");
+					this.CreateRPCClient().Stop();
 				}
 				catch
 				{
