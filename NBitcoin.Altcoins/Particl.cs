@@ -130,11 +130,6 @@ namespace NBitcoin.Altcoins
                     result = new ParticlTxOut();
                     return true;
                 }
-                // if (typeof(OutPoint).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
-                // {
-                //     result = new ParticlOutPoint();
-                //     return true;
-                // }
                 return base.TryCreateNew(type, out result);
             }
         }
@@ -162,15 +157,15 @@ namespace NBitcoin.Altcoins
             }
 
             public override void ReadWrite(BitcoinStream stream)
-			{
-				stream.ReadWrite(ref nVersion);
+            {
+                stream.ReadWrite(ref nVersion);
                 stream.ReadWrite(ref hashPrevBlock);
                 stream.ReadWrite(ref hashMerkleRoot);
                 stream.ReadWrite(ref hashWitnessMerkleRoot);
                 stream.ReadWrite(ref nTime);
                 stream.ReadWrite(ref nBits);
                 stream.ReadWrite(ref nNonce);
-			}
+            }
         }
 
         public class ParticlBlock : Block
@@ -294,7 +289,7 @@ namespace NBitcoin.Altcoins
                         long value = Value.Satoshi;
                         stream.ReadWrite(ref value);
                         if (!stream.Serializing)
-				            _Value = new Money(value);
+                            _Value = new Money(value);
                         stream.ReadWrite(ref publicKey);
                         break;
                     case (byte)Type.OUTPUT_CT:
@@ -304,19 +299,19 @@ namespace NBitcoin.Altcoins
                         stream.ReadWriteAsVarInt(ref data_size);
                         if (data_size != 0) {
                             byte[] data = new byte[data_size];
-					        stream.ReadWrite(ref data);
+                            stream.ReadWrite(ref data);
                         }
 
                         stream.ReadWriteAsVarInt(ref data_size);
                         if (data_size != 0) {
                             byte[] script = new byte[data_size];
-					        stream.ReadWrite(ref script);
+                            stream.ReadWrite(ref script);
                         }
 
                         stream.ReadWriteAsVarInt(ref data_size);
                         if (data_size != 0) {
                             byte[] rangeProof = new byte[data_size];
-					        stream.ReadWrite(ref rangeProof);
+                            stream.ReadWrite(ref rangeProof);
                         }
 
                         break;
@@ -330,20 +325,20 @@ namespace NBitcoin.Altcoins
                         stream.ReadWriteAsVarInt(ref data_size);
                         if (data_size != 0) {
                             byte[] data = new byte[data_size];
-					        stream.ReadWrite(ref data);
+                            stream.ReadWrite(ref data);
                         }
 
                         stream.ReadWriteAsVarInt(ref data_size);
                         if (data_size != 0) {
                             byte[] rangeProof = new byte[data_size];
-					        stream.ReadWrite(ref rangeProof);
+                            stream.ReadWrite(ref rangeProof);
                         }
                         break;
                     case (byte)Type.OUTPUT_DATA:
                         stream.ReadWriteAsVarInt(ref data_size);
                         if (data_size != 0) {
                             byte[] data = new byte[data_size];
-					        stream.ReadWrite(ref data);
+                            stream.ReadWrite(ref data);
                         }
                         break;
                     default:
