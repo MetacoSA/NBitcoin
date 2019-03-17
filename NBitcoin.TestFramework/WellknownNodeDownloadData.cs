@@ -1,4 +1,4 @@
-﻿namespace NBitcoin.Tests
+namespace NBitcoin.Tests
 {
 	public partial class NodeDownloadData
 	{
@@ -845,34 +845,34 @@
 		}
 
 		public class ParticlNodeDownloadData
-        {
-            public NodeDownloadData v0_17_1_4 = new NodeDownloadData()
-            {
-                Version = "0.17.1.4",
-                Windows = new NodeOSDownloadData()
-                {
-                    DownloadLink = "https://github.com/particl/particl-core/releases/download/v{0}/particl-{0}-win64.zip",
-                    Archive = "particl-{0}-win64.zip",
-                    Executable = "particl-0.16.4/bin/particld.exe",
-                    Hash = "ed69ff8be8f4ce76d16f56b7643cd7b8f2b6c9590e15a164f99bc9f4b5d50e75"
-                },
-                Linux = new NodeOSDownloadData()
-                {
-                    DownloadLink = "https://github.com/particl/particl-core/releases/download/v{0}/particl-{0}-x86_64-linux-gnu.tar.gz",
-                    Archive = "particl-{0}-x86_64-linux-gnu.tar.gz",
-                    Executable = "particl-{0}/bin/particld",
-                    Hash = "ad198188c9350520d9408ccfc0eaa3c5f8c1f99574d78aac2dff0fce0b9bdadd"
-                },
-                Mac = new NodeOSDownloadData()
-                {
-                    DownloadLink = "https://github.com/particl/particl-core/releases/download/v{0}/particl-{0}-osx64.tar.gz",
-                    Archive = "particl-{0}-osx64.tar.gz",
-                    Executable = "particl-{0}/bin/particld",
-                    Hash = "c16385df1698e241b518d03511a65f1567b7edf337265c38ad598c097bd3f2f4"
-                },
-                UseSectionInConfigFile = true,
-            };
-        }
+		{
+			public NodeDownloadData v0_17_1_4 = new NodeDownloadData()
+			{
+				Version = "0.17.1.4",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/particl/particl-core/releases/download/v{0}/particl-{0}-win64.zip",
+					Archive = "particl-{0}-win64.zip",
+					Executable = "particl-0.16.4/bin/particld.exe",
+					Hash = "ed69ff8be8f4ce76d16f56b7643cd7b8f2b6c9590e15a164f99bc9f4b5d50e75"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/particl/particl-core/releases/download/v{0}/particl-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "particl-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "particl-{0}/bin/particld",
+					Hash = "ad198188c9350520d9408ccfc0eaa3c5f8c1f99574d78aac2dff0fce0b9bdadd"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/particl/particl-core/releases/download/v{0}/particl-{0}-osx64.tar.gz",
+					Archive = "particl-{0}-osx64.tar.gz",
+					Executable = "particl-{0}/bin/particld",
+					Hash = "c16385df1698e241b518d03511a65f1567b7edf337265c38ad598c097bd3f2f4"
+				},
+				UseSectionInConfigFile = true,
+			};
+		}
 
 		public static GoByteNodeDownloadData GoByte
 		{
