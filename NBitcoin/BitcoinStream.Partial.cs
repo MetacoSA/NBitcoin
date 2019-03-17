@@ -283,7 +283,7 @@ namespace NBitcoin
 		{
 			value = value ?? uint256.Zero;
 			_MutableUint256.Value = value;
-			this.ReadWrite(ref _MutableUint256);
+			_MutableUint256.ReadWrite(this);
 			value = _MutableUint256.Value;			
 		}
 
@@ -291,7 +291,7 @@ namespace NBitcoin
 		{
 			value = value ?? uint256.Zero;
 			_MutableUint256.Value = value;
-			this.ReadWrite(ref _MutableUint256);
+			_MutableUint256.ReadWrite(this);
 			value = _MutableUint256.Value;			
 		}
 

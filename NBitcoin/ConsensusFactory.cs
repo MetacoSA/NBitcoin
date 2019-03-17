@@ -11,47 +11,42 @@ namespace NBitcoin
 {
 	public class ConsensusFactory
 	{
-		ConcurrentDictionary<Type, bool> _IsAssignableFromBlockHeader = new ConcurrentDictionary<Type, bool>();
-		TypeInfo BlockHeaderType = typeof(BlockHeader).GetTypeInfo();
-
-		ConcurrentDictionary<Type, bool> _IsAssignableFromBlock = new ConcurrentDictionary<Type, bool>();
-		TypeInfo BlockType = typeof(Block).GetTypeInfo();
-
-		ConcurrentDictionary<Type, bool> _IsAssignableFromTransaction = new ConcurrentDictionary<Type, bool>();
-		TypeInfo TransactionType = typeof(Transaction).GetTypeInfo();
+		static readonly TypeInfo BlockHeaderType = typeof(BlockHeader).GetTypeInfo();
+		static readonly TypeInfo BlockType = typeof(Block).GetTypeInfo();
+		static readonly TypeInfo TransactionType = typeof(Transaction).GetTypeInfo();
+		static readonly TypeInfo TxOutType = typeof(TxOut).GetTypeInfo();
 
 		protected bool IsBlockHeader(Type type)
 		{
-			return IsAssignable(type, BlockHeaderType, _IsAssignableFromBlockHeader);
+			return BlockHeaderType.IsAssignableFrom(type.GetTypeInfo());
+		}
+
+		protected bool IsTxOut(Type type)
+		{
+			return TxOutType.IsAssignableFrom(type.GetTypeInfo());
 		}
 
 		protected bool IsBlock(Type type)
 		{
-			return IsAssignable(type, BlockType, _IsAssignableFromBlock);
+			return BlockType.IsAssignableFrom(type.GetTypeInfo());
 		}
 
 		protected bool IsTransaction(Type type)
 		{
-			return IsAssignable(type, TransactionType, _IsAssignableFromTransaction);
-		}
-
-		private bool IsAssignable(Type type, TypeInfo baseType, ConcurrentDictionary<Type, bool> cache)
-		{
-			bool isAssignable = false;
-			if (!cache.TryGetValue(type, out isAssignable))
-			{
-				isAssignable = baseType.IsAssignableFrom(type.GetTypeInfo());
-				cache.TryAdd(type, isAssignable);
-			}
-			return isAssignable;
+			return TransactionType.IsAssignableFrom(type.GetTypeInfo());
 		}
 
 		public virtual bool TryCreateNew(Type type, out IBitcoinSerializable result)
 		{
 			result = null;
-			if (IsBlock(type))
+			if (IsTxOut(type))
 			{
-				result = CreateBlock();
+				result = CreateTxOut();
+				return true;
+			}
+			if (IsTransaction(type))
+			{
+				result = CreateTransaction();
 				return true;
 			}
 			if (IsBlockHeader(type))
@@ -59,9 +54,9 @@ namespace NBitcoin
 				result = CreateBlockHeader();
 				return true;
 			}
-			if (IsTransaction(type))
+			if (IsBlock(type))
 			{
-				result = CreateTransaction();
+				result = CreateBlock();
 				return true;
 			}
 			return false;
@@ -114,6 +109,13 @@ namespace NBitcoin
 		{
 #pragma warning disable CS0618 // Type or member is obsolete
 			return new Transaction();
+#pragma warning restore CS0618 // Type or member is obsolete
+		}
+
+		public virtual TxOut CreateTxOut()
+		{
+#pragma warning disable CS0618 // Type or member is obsolete
+			return new TxOut();
 #pragma warning restore CS0618 // Type or member is obsolete
 		}
 

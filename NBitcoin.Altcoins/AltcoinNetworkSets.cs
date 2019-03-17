@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Altcoins
 {
-    public class AltNetworkSets
-    {
+	public class AltNetworkSets
+	{
 		public static BCash BCash { get; } = BCash.Instance;
 		public static BGold BGold { get; } = BGold.Instance;
 		public static Dash Dash { get; } = Dash.Instance;
@@ -30,6 +30,7 @@ namespace NBitcoin.Altcoins
 		public static Koto Koto { get; } = Koto.Instance;
 		public static Bitcoinplus Bitcoinplus { get; } = Bitcoinplus.Instance;
 		public static Chaincoin Chaincoin { get; } = Chaincoin.Instance;
+		public static Stratis Stratis { get; } = Stratis.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
@@ -51,6 +52,7 @@ namespace NBitcoin.Altcoins
 			yield return Zclassic;
 			yield return Colossus;
 			yield return GoByte;
+			yield return Stratis;
 			yield return Liquid;
 			yield return Koto;
 			yield return Bitcoinplus;

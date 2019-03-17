@@ -111,7 +111,7 @@ namespace NBitcoin.Tests
 				var rpc = node.CreateRPCClient();
 
 				var alice = new Key().GetBitcoinSecret(builder.Network);
-				var aliceAddress = alice.GetAddress();
+				BitcoinAddress aliceAddress = alice.GetAddress();
 				var txid = rpc.SendToAddress(aliceAddress, Money.Coins(1.0m));
 				var tx = rpc.GetRawTransaction(txid);
 				var coin = tx.Outputs.AsCoins().First(c => c.ScriptPubKey == aliceAddress.ScriptPubKey);
@@ -127,6 +127,30 @@ namespace NBitcoin.Tests
 				var signed = txbuilder.BuildTransaction(false);
 				txbuilder.SignTransactionInPlace(signed);
 				txbuilder.Verify(signed, out var err);
+				Assert.True(txbuilder.Verify(signed));
+				rpc.SendRawTransaction(signed);
+
+				// Let's try P2SH with 2 coins
+				aliceAddress = alice.PubKey.ScriptPubKey.GetScriptAddress(builder.Network);
+				txid = rpc.SendToAddress(aliceAddress, Money.Coins(1.0m));
+				tx = rpc.GetRawTransaction(txid);
+				coin = tx.Outputs.AsCoins().First(c => c.ScriptPubKey == aliceAddress.ScriptPubKey);
+
+				txid = rpc.SendToAddress(aliceAddress, Money.Coins(1.0m));
+				tx = rpc.GetRawTransaction(txid);
+				var coin2 = tx.Outputs.AsCoins().First(c => c.ScriptPubKey == aliceAddress.ScriptPubKey);
+
+				txbuilder = builder.Network.CreateTransactionBuilder()
+								.AddCoins(new[] { coin.ToScriptCoin(alice.PubKey.ScriptPubKey), coin2.ToScriptCoin(alice.PubKey.ScriptPubKey) })
+								.AddKeys(alice)
+								.SendAll(new Key().ScriptPubKey)
+								.SendFees(Money.Coins(0.00001m))
+								.SubtractFees()
+								.SetChange(aliceAddress);
+
+				signed = txbuilder.BuildTransaction(false);
+				txbuilder.SignTransactionInPlace(signed);
+				txbuilder.Verify(signed, out err);
 				Assert.True(txbuilder.Verify(signed));
 				rpc.SendRawTransaction(signed);
 			}
