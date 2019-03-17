@@ -20,7 +20,7 @@ namespace NBitcoin
 				return (hash == uint256.Zero && n == uint.MaxValue);
 			}
 		}
-		protected uint256 hash = uint256.Zero;
+		private uint256 hash = uint256.Zero;
 		private uint n;
 
 
@@ -106,7 +106,7 @@ namespace NBitcoin
 		}
 		//IMPLEMENT_SERIALIZE( READWRITE(FLATDATA(*this)); )
 
-		public virtual void ReadWrite(BitcoinStream stream)
+		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref hash);
 			stream.ReadWrite(ref n);
