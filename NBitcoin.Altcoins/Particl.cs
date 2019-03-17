@@ -130,11 +130,11 @@ namespace NBitcoin.Altcoins
                     result = new ParticlTxOut();
                     return true;
                 }
-                if (typeof(OutPoint).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
-                {
-                    result = new ParticlOutPoint();
-                    return true;
-                }
+                // if (typeof(OutPoint).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
+                // {
+                //     result = new ParticlOutPoint();
+                //     return true;
+                // }
                 return base.TryCreateNew(type, out result);
             }
         }
@@ -240,30 +240,17 @@ namespace NBitcoin.Altcoins
         public class ParticlTxIn : TxIn
         {
             byte[][] data = null;
-            protected uint outputIndex = 1;
-
-            public uint OutputIndex
-            {
-                get
-                {
-                    return outputIndex;
-                }
-                set
-                {
-                    outputIndex = value;
-                }
-            }
 
             public override void ReadWrite(BitcoinStream stream)
             {
                 if (!stream.Serializing)
                     prevout = null;
                 stream.ReadWrite(ref prevout);
-                stream.ReadWrite(ref outputIndex);
                 stream.ReadWrite(ref scriptSig);
                 stream.ReadWrite(ref nSequence);
                 
-                if (outputIndex == ANON_MARKER) {
+
+                if (prevout.N == ANON_MARKER) {
                     uint stack_size = stream.Serializing ? (uint) data.Length : 0;
                     stream.ReadWriteAsVarInt(ref stack_size);
 
@@ -295,7 +282,6 @@ namespace NBitcoin.Altcoins
             enum Type { OUTPUT_NULL, OUTPUT_STANDARD, OUTPUT_CT, OUTPUT_RINGCT, OUTPUT_DATA };
 
             byte type = 0;
-            byte[] data = null;
 
             public override void ReadWrite(BitcoinStream stream)
             {
@@ -363,14 +349,6 @@ namespace NBitcoin.Altcoins
                     default:
                         break;
                 }
-            }
-        }
-
-        public class ParticlOutPoint : OutPoint
-	    {
-            public override void ReadWrite(BitcoinStream stream)
-            {
-                stream.ReadWrite(ref hash);
             }
         }
 
