@@ -18,7 +18,7 @@ namespace NBitcoin.Altcoins.Elements
 				result = new ElementsTxIn<TNetwork>();
 				return true;
 			}
-			if (typeof(TxOut).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
+			if (IsTxOut(type))
 			{
 				result = new ElementsTxOut<TNetwork>();
 				return true;
