@@ -503,6 +503,16 @@ namespace NBitcoin.RPC
 				_HttpClient = _HttpClient
 			};
 		}
+		public RPCClient Clone()
+		{
+			return new RPCClient(CredentialString, Address, Network)
+			{
+				_BatchedRequests = _BatchedRequests,
+				Capabilities = Capabilities,
+				RequestTimeout = RequestTimeout,
+				_HttpClient = _HttpClient
+			};
+		}
 
 		public RPCResponse SendCommand(RPCOperations commandName, params object[] parameters)
 		{
