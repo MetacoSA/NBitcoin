@@ -826,6 +826,9 @@ namespace NBitcoin.RPC
 					item.Item2.TrySetException(ex);
 				}
 			}
+			// Because TaskCompletionSources are executing on the threadpool adding a delay make sure they are all treated
+			// when the function returns. Not quite useful, but make that when SendBatch, all tasks are finished running
+			await Task.Delay(1); 
 		}
 
 
