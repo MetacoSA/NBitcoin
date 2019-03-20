@@ -158,7 +158,7 @@ namespace NBitcoin.Protocol
 							{
 								var groupSelector = CustomGroupSelector != null ? CustomGroupSelector :
 									AllowSameGroup ? WellKnownGroupSelectors.ByRandom : null;
-								node = Node.Connect(_Network, parameters, _ConnectedNodes.Select(n => n.RemoteSocketEndpoint).ToArray(), groupSelector);
+								node = Node.Connect(_Network, parameters, _ConnectedNodes.Select(n => n.RemoteSocketEndpoint as IPEndPoint).Where(e => e != null).ToArray(), groupSelector);
 								using (var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token))
 								{
 									timeout.CancelAfter(5000);

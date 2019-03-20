@@ -795,6 +795,51 @@ namespace NBitcoin
 
 
 #if !NOSOCKET
+
+		public static bool TryParseEndpoint(string hostPort, int defaultPort, out EndPoint endpoint)
+		{
+			if (hostPort == null)
+				throw new ArgumentNullException(nameof(hostPort));
+			if (defaultPort < 0 || defaultPort > ushort.MaxValue)
+				throw new ArgumentOutOfRangeException(nameof(defaultPort));
+			hostPort = hostPort.Trim();
+			endpoint = null;
+			ushort port = (ushort)defaultPort;
+			string host = hostPort;
+			var index = hostPort.LastIndexOf(':');
+			if (index != -1)
+			{
+				var portStr = hostPort.Substring(index + 1);
+				if (ushort.TryParse(portStr, out port))
+				{
+					host = hostPort.Substring(0, index);
+				}
+				else
+				{
+					port = (ushort)defaultPort;
+				}
+			}
+			if (IPAddress.TryParse(host, out var address))
+			{
+				endpoint = new IPEndPoint(address, port);
+			}
+			else
+			{
+				if (Uri.CheckHostName(host) != UriHostNameType.Dns)
+					return false;
+				endpoint = new DnsEndPoint(host, port);
+			}
+			return true;
+		}
+
+		public static EndPoint ParseEndpoint(string hostPort, int defaultPort)
+		{
+			if (!TryParseEndpoint(hostPort, defaultPort, out var endpoint))
+				throw new FormatException("Invalid IP or DNS endpoint");
+			return endpoint;
+		}
+
+		[Obsolete("Use TryParseEndpoint or ParseEndpoint instead")]
 		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort)
 		{
 			return ParseIpEndpoint(endpoint, defaultPort, true);

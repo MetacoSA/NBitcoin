@@ -1090,37 +1090,32 @@ namespace NBitcoin.Tests
 #if !NOSOCKET
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanParseIpEndpoint()
+		public void CanParseEndpoint()
 		{
-			var endpoint = Utils.ParseIpEndpoint("google.com:94", 90);
-			Assert.Equal(94, endpoint.Port);
-			endpoint = Utils.ParseIpEndpoint("google.com", 90);
-			Assert.Equal(90, endpoint.Port);
-			endpoint = Utils.ParseIpEndpoint("10.10.1.3", 90);
-			Assert.Equal("10.10.1.3", endpoint.Address.ToString());
-			Assert.Equal(90, endpoint.Port);
-			endpoint = Utils.ParseIpEndpoint("10.10.1.3:94", 90);
-			Assert.Equal("10.10.1.3", endpoint.Address.ToString());
-			Assert.Equal(94, endpoint.Port);
+			var endpoint = Utils.ParseEndpoint("google.com:94", 90);
+			Assert.Equal(94, Assert.IsType<DnsEndPoint>(endpoint).Port);
+			endpoint = Utils.ParseEndpoint("google.com", 90);
+			Assert.Equal(90, Assert.IsType<DnsEndPoint>(endpoint).Port);
+			endpoint = Utils.ParseEndpoint("10.10.1.3", 90);
+			Assert.Equal("10.10.1.3", Assert.IsType<IPEndPoint>(endpoint).Address.ToString());
+			Assert.Equal(90, Assert.IsType<IPEndPoint>(endpoint).Port);
+			endpoint = Utils.ParseEndpoint("10.10.1.3:94", 90);
+			Assert.Equal("10.10.1.3", Assert.IsType<IPEndPoint>(endpoint).Address.ToString());
+			Assert.Equal(94, Assert.IsType<IPEndPoint>(endpoint).Port);
 
-			Exception exception = null;
-			try
-			{
-				Utils.ParseIpEndpoint("2001:db8:1f70::999:de8:7648:6e8:100", 90);
-			}
-			catch (Exception ex)
-			{
-				exception = ex;
-			}
-			Assert.NotNull(exception);
-			Assert.Contains("SocketException", exception.GetType().FullName);
+			endpoint = Utils.ParseEndpoint("2001:db8:1f70::999:de8:7648:6e8:100", 90);
+			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", Assert.IsType<IPEndPoint>(endpoint).Address.ToString());
+			Assert.Equal(100, Assert.IsType<IPEndPoint>(endpoint).Port);
 
-			endpoint = Utils.ParseIpEndpoint("2001:db8:1f70::999:de8:7648:6e8", 90);
-			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
-			Assert.Equal(90, endpoint.Port);
-			endpoint = Utils.ParseIpEndpoint("[2001:db8:1f70::999:de8:7648:6e8]:94", 90);
-			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
-			Assert.Equal(94, endpoint.Port);
+			endpoint = Utils.ParseEndpoint("2001:db8:1f70::999:de8:7648:6e8", 90);
+			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", Assert.IsType<IPEndPoint>(endpoint).Address.ToString());
+			Assert.Equal(90, Assert.IsType<IPEndPoint>(endpoint).Port);
+			endpoint = Utils.ParseEndpoint("[2001:db8:1f70::999:de8:7648:6e8]:94", 90);
+			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", Assert.IsType<IPEndPoint>(endpoint).Address.ToString());
+			Assert.Equal(94, Assert.IsType<IPEndPoint>(endpoint).Port);
+			Assert.Throws<FormatException>(() => Utils.ParseEndpoint("inv LiewoN(#)9 hostname:94", 90));
+			Assert.Throws<FormatException>(() => Utils.ParseEndpoint("inv LiewoN(#)9 hostname", 90));
+			Assert.Throws<FormatException>(() => Utils.ParseEndpoint("", 90));
 		}
 
 		[Fact]

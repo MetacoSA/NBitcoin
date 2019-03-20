@@ -634,7 +634,7 @@ namespace NBitcoin.Protocol
 		public static Node ConnectToLocal(Network network,
 								NodeConnectionParameters parameters)
 		{
-			return Connect(network, Utils.ParseIpEndpoint("localhost", network.DefaultPort), parameters);
+			return Connect(network, Utils.ParseEndpoint("localhost", network.DefaultPort), parameters);
 		}
 
 		public static Node ConnectToLocal(Network network,
@@ -653,7 +653,7 @@ namespace NBitcoin.Protocol
 		public static Node Connect(Network network,
 								 string endpoint, NodeConnectionParameters parameters)
 		{
-			return Connect(network, Utils.ParseIpEndpoint(endpoint, network.DefaultPort), parameters);
+			return Connect(network, Utils.ParseEndpoint(endpoint, network.DefaultPort), parameters);
 		}
 
 		public static Node Connect(Network network,
@@ -662,31 +662,75 @@ namespace NBitcoin.Protocol
 								bool isRelay = true,
 								CancellationToken cancellation = default(CancellationToken))
 		{
-			return Connect(network, Utils.ParseIpEndpoint(endpoint, network.DefaultPort), myVersion, isRelay, cancellation);
+			return Connect(network, Utils.ParseEndpoint(endpoint, network.DefaultPort), myVersion, isRelay, cancellation);
 		}
 
 		public static Node Connect(Network network,
 							 NetworkAddress endpoint,
 							 NodeConnectionParameters parameters)
 		{
-			return new Node(endpoint, network, parameters);
+			return ConnectAsync(network, endpoint?.Endpoint, endpoint, parameters).GetAwaiter().GetResult();
 		}
 
 		public static Node Connect(Network network,
-							 IPEndPoint endpoint,
+							 EndPoint endpoint,
 							 NodeConnectionParameters parameters)
 		{
-			var peer = new NetworkAddress()
-			{
-				Time = DateTimeOffset.UtcNow,
-				Endpoint = endpoint
-			};
+			return ConnectAsync(network, endpoint, parameters).GetAwaiter().GetResult();
+		}
 
-			return new Node(peer, network, parameters);
+		public static Task<Node> ConnectAsync(Network network, EndPoint endpoint, NodeConnectionParameters parameters)
+		{
+			return ConnectAsync(network, endpoint, null, parameters);
+		}
+
+		public static async Task<Node> ConnectAsync(Network network, EndPoint endpoint, NetworkAddress peer, NodeConnectionParameters parameters)
+		{
+			if (endpoint == null)
+				throw new ArgumentNullException(nameof(endpoint));
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			if (peer == null)
+			{
+				peer = new NetworkAddress()
+				{
+					Time = DateTimeOffset.UtcNow,
+					Endpoint = endpoint as IPEndPoint
+				};
+			}
+			parameters = parameters ?? new NodeConnectionParameters();
+			var addrman = AddressManagerBehavior.GetAddrman(parameters);
+
+			var socket = parameters.EndpointConnector.CreateSocket(endpoint);
+			socket.ReceiveBufferSize = parameters.ReceiveBufferSize;
+			socket.SendBufferSize = parameters.SendBufferSize;
+			try
+			{
+				await parameters.EndpointConnector.ConnectSocket(socket, endpoint, parameters.ConnectCancellation).ConfigureAwait(false);
+				peer.Endpoint = (endpoint as IPEndPoint) ?? (socket.RemoteEndPoint as IPEndPoint);
+			}
+			catch (OperationCanceledException)
+			{
+				Utils.SafeCloseSocket(socket);
+				Logs.NodeServer.LogInformation("Connection to node cancelled");
+				if (addrman != null && peer.Endpoint != null)
+					addrman.Attempt(peer);
+				throw;
+			}
+			catch (Exception ex)
+			{
+				Utils.SafeCloseSocket(socket);
+				Logs.NodeServer.LogError(default, ex, "Error connecting to the remote endpoint");
+				if (addrman != null && peer.Endpoint != null)
+					addrman.Attempt(peer);
+				throw;
+			}
+			Node node = new Node(peer, network, parameters, socket, null);
+			return node;
 		}
 
 		public static Node Connect(Network network,
-								 IPEndPoint endpoint,
+								 EndPoint endpoint,
 								 uint? myVersion = null,
 								bool isRelay = true,
 								CancellationToken cancellation = default(CancellationToken))
@@ -700,81 +744,6 @@ namespace NBitcoin.Protocol
 			});
 		}
 
-		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters)
-		{
-			parameters = parameters ?? new NodeConnectionParameters();
-			var addrman = AddressManagerBehavior.GetAddrman(parameters);
-			Inbound = false;
-			_Behaviors = new NodeBehaviorsCollection(this);
-			_MyVersion = parameters.CreateVersion(peer.Endpoint, network);
-			Network = network;
-			SetVersion(_MyVersion.Version);
-			_Peer = peer;
-			LastSeen = peer.Time;
-
-			var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-			socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
-
-			_Connection = new NodeConnection(this, socket);
-			socket.ReceiveBufferSize = parameters.ReceiveBufferSize;
-			socket.SendBufferSize = parameters.SendBufferSize;
-			
-			using (Logs.NodeServer.BeginScope("Node"))
-
-			{
-				try
-				{
-					var completed = new ManualResetEvent(false);
-					var args = new SocketAsyncEventArgs();
-					args.RemoteEndPoint = peer.Endpoint;
-					args.Completed += (s, a) =>
-					{
-						Utils.SafeSet(completed);
-					};
-					if(!socket.ConnectAsync(args))
-						completed.Set();
-					WaitHandle.WaitAny(new WaitHandle[] { completed, parameters.ConnectCancellation.WaitHandle });
-					parameters.ConnectCancellation.ThrowIfCancellationRequested();
-					if(args.SocketError != SocketError.Success)
-						throw new SocketException((int)args.SocketError);
-					var remoteEndpoint = (IPEndPoint)(socket.RemoteEndPoint ?? args.RemoteEndPoint);
-					_RemoteSocketAddress = remoteEndpoint.Address;
-					_RemoteSocketEndpoint = remoteEndpoint;
-					_RemoteSocketPort = remoteEndpoint.Port;
-					State = NodeState.Connected;
-					ConnectedAt = DateTimeOffset.UtcNow;
-					Logs.NodeServer.LogInformation("Outbound connection successful");
-					if(addrman != null)
-						addrman.Attempt(Peer);
-				}
-				catch(OperationCanceledException)
-				{
-					Utils.SafeCloseSocket(socket);
-					Logs.NodeServer.LogInformation("Connection to node cancelled");
-					State = NodeState.Offline;
-					if(addrman != null)
-						addrman.Attempt(Peer);
-					throw;
-				}
-				catch(Exception ex)
-				{
-					Utils.SafeCloseSocket(socket);
-					Logs.NodeServer.LogError(default, ex,"Error connecting to the remote endpoint");
-					DisconnectReason = new NodeDisconnectReason()
-					{
-						Reason = "Unexpected exception while connecting to socket",
-						Exception = ex
-					};
-					State = NodeState.Failed;
-					if(addrman != null)
-						addrman.Attempt(Peer);
-					throw;
-				}
-				InitDefaultBehaviors(parameters);
-				_Connection.BeginListen();
-			}
-		}
-
 		private void SetVersion(uint version)
 		{
 			Version = version;
@@ -786,7 +755,7 @@ namespace NBitcoin.Protocol
 			_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
 			_RemoteSocketEndpoint = ((IPEndPoint)socket.RemoteEndPoint);
 			_RemoteSocketPort = ((IPEndPoint)socket.RemoteEndPoint).Port;
-			Inbound = true;
+			Inbound = peerVersion != null;
 			_Behaviors = new NodeBehaviorsCollection(this);
 			_MyVersion = parameters.CreateVersion(peer.Endpoint, network);
 			if(peerVersion == null)
@@ -818,8 +787,8 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		IPEndPoint _RemoteSocketEndpoint;
-		public IPEndPoint RemoteSocketEndpoint
+		EndPoint _RemoteSocketEndpoint;
+		public EndPoint RemoteSocketEndpoint
 		{
 			get
 			{

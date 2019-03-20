@@ -8,6 +8,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NBitcoin.Protocol.Connectors;
 
 namespace NBitcoin.Protocol
 {
@@ -101,6 +102,8 @@ namespace NBitcoin.Protocol
 			get;
 			set;
 		}
+
+		public IEnpointConnector EndpointConnector { get; set; } = new DefaultEndpointConnector();
 
 		/// <summary>
 		/// Whether we reuse a 1MB buffer for deserializing messages, for limiting GC activity (Default : true)

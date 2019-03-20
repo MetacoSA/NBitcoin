@@ -1058,11 +1058,11 @@ namespace NBitcoin.RPC
 			var obj = result.Result;
 			return obj.Select(entry => new AddedNodeInfo
 			{
-				AddedNode = Utils.ParseIpEndpoint((string)entry["addednode"], 8333),
+				AddedNode = Utils.ParseEndpoint((string)entry["addednode"], 8333),
 				Connected = (bool)entry["connected"],
 				Addresses = entry["addresses"].Select(x => new NodeAddressInfo
 				{
-					Address = Utils.ParseIpEndpoint((string)x["address"], 8333),
+					Address = Utils.ParseEndpoint((string)x["address"], 8333) as IPEndPoint,
 					Connected = (bool)x["connected"]
 				})
 			}).ToArray();
@@ -1096,11 +1096,11 @@ namespace NBitcoin.RPC
 				var e = result.Result;
 				return e.Select(entry => new AddedNodeInfo
 				{
-					AddedNode = Utils.ParseIpEndpoint((string)entry["addednode"], 8333),
+					AddedNode = Utils.ParseEndpoint((string)entry["addednode"], 8333),
 					Connected = (bool)entry["connected"],
 					Addresses = entry["addresses"].Select(x => new NodeAddressInfo
 					{
-						Address = Utils.ParseIpEndpoint((string)x["address"], 8333),
+						Address = Utils.ParseEndpoint((string)x["address"], 8333) as IPEndPoint,
 						Connected = (bool)x["connected"]
 					})
 				}).FirstOrDefault();

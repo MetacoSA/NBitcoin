@@ -873,7 +873,7 @@ namespace NBitcoin
 				// Seed nodes are given a random 'last seen time' of between one and two
 				// weeks ago.
 				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
-				addr.Endpoint = Utils.ParseIpEndpoint(pnSeed[i], DefaultPort);
+				addr.Endpoint = (IPEndPoint)Utils.ParseEndpoint(pnSeed[i], DefaultPort);
 				vFixedSeeds.Add(addr);
 			}
 #endif
