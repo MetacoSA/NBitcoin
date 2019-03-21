@@ -16,6 +16,7 @@ namespace NBitcoin
 		interface ICompatibility
 		{
 			IPAddress MapToIPv6(IPAddress address);
+			IPAddress MapToIPv4(IPAddress address);
 			bool IsIPv4MappedToIPv6(IPAddress address);
 		}
 		class MonoCompatibility : ICompatibility
@@ -29,6 +30,11 @@ namespace NBitcoin
 			{
 				return Utils.MapToIPv6(address);
 			}
+
+			public IPAddress MapToIPv4(IPAddress address)
+			{
+				return Utils.MapToIPv4(address);
+			}
 		}
 		class WinCompatibility : ICompatibility
 		{
@@ -40,6 +46,10 @@ namespace NBitcoin
 			public IPAddress MapToIPv6(IPAddress address)
 			{
 				return address.MapToIPv6();
+			}
+			public IPAddress MapToIPv4(IPAddress address)
+			{
+				return address.MapToIPv4();
 			}
 		}
 		static ICompatibility _Compatibility;
@@ -217,6 +227,56 @@ namespace NBitcoin
 			else
 				return false;
 		}
+
+		/// <summary>
+		/// Return {host}:{port} of this endpoint.
+		/// </summary>
+		/// <param name="endpoint"></param>
+		/// <returns>{host}:{port} representation of this endpoint</returns>
+		public static string ToEndpointString(this EndPoint endpoint)
+		{
+			if (endpoint == null)
+				throw new ArgumentNullException(nameof(endpoint));
+			if (endpoint is DnsEndPoint dns)
+			{
+				return $"{dns.Host}:{dns.Port}";
+			}
+			return endpoint.ToString();
+		}
+
+		/// <summary>
+		/// Convert an onion cat IPEndpoint to an onion DnsEndpoint
+		/// If endpoint is already an onion DnsEndpoint, return it.
+		/// Else returns null.
+		/// </summary>
+		/// <param name="endpoint"></param>
+		/// <returns>An onion DNS endpoint or null</returns>
+		public static DnsEndPoint AsOnionDNSEndpoint(this EndPoint endpoint)
+		{
+			if (endpoint == null)
+				throw new ArgumentNullException(nameof(endpoint));
+			if (endpoint is IPEndPoint ip)
+			{
+				if (!IsTor(ip.Address))
+					return null;
+				var onionHost = Encoders.Base32.EncodeData(ip.Address.GetAddressBytes(), pchOnionCat.Length, 16 - pchOnionCat.Length);
+				return new DnsEndPoint($"{onionHost}.onion", ip.Port);
+			}
+			else if (endpoint is DnsEndPoint dns)
+			{
+				if (AsOnionCatIPEndpoint(dns) != null)
+					return dns;
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Convert an onion DNS endpoint to an onioncat IpEndpoint
+		/// If endpoint is already an onioncat IPEndpoint, return it.
+		/// Else returns null.
+		/// </summary>
+		/// <param name="endpoint"></param>
+		/// <returns></returns>
 		public static IPEndPoint AsOnionCatIPEndpoint(this EndPoint endpoint)
 		{
 			if (endpoint == null)
@@ -261,7 +321,15 @@ namespace NBitcoin
 #if CLASSICDOTNET
 			return Compatibility.MapToIPv6(address);
 #else
-			return Utils.MapToIPv6(address);
+			return address.MapToIPv6();
+#endif
+		}
+		public static IPAddress MapToIPv4Ex(this IPAddress address)
+		{
+#if CLASSICDOTNET
+			return Compatibility.MapToIPv4(address);
+#else
+			return address.MapToIPv4();
 #endif
 		}
 		public static IPEndPoint MapToIPv6Ex(this IPEndPoint endpoint)
@@ -278,7 +346,7 @@ namespace NBitcoin
 #if CLASSICDOTNET
 			return Compatibility.IsIPv4MappedToIPv6(address);
 #else
-			return Utils.IsIPv4MappedToIPv6(address);
+			return address.IsIPv4MappedToIPv6;
 #endif
 
 		}

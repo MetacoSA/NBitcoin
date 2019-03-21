@@ -449,6 +449,18 @@ namespace NBitcoin
 			return new IPAddress(ipv6Bytes);
 
 		}
+		internal static IPAddress MapToIPv4(IPAddress address)
+		{
+			if (address.AddressFamily == AddressFamily.InterNetwork)
+				return address;
+			if (address.AddressFamily != AddressFamily.InterNetworkV6)
+				throw new Exception("Only AddressFamily.InterNetworkV6 can be converted to IPv4");
+			if (!address.IsIPv4MappedToIPv6Ex())
+				throw new Exception("This is not a mapped IPv4");
+			byte[] ipv6Bytes = address.GetAddressBytes();
+			return new IPAddress(new[] { ipv6Bytes[12], ipv6Bytes[13], ipv6Bytes[14], ipv6Bytes[15] });
+
+		}
 
 		internal static bool IsIPv4MappedToIPv6(IPAddress address)
 		{

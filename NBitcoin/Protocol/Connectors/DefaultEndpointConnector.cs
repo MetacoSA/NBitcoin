@@ -1,6 +1,9 @@
 ﻿#if !NOSOCKET
+using NBitcoin.Protocol.Behaviors;
+using NBitcoin.Socks;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -11,67 +14,32 @@ namespace NBitcoin.Protocol.Connectors
 {
 	public class DefaultEndpointConnector : IEnpointConnector
 	{
-		public AddressFamily AddressFamily { get; set; } = AddressFamily.InterNetworkV6;
 		public SocketType SocketType { get; set; } = SocketType.Stream;
 		public ProtocolType ProtocolType { get; set; } = ProtocolType.Tcp;
-		Action<Socket> _configure = NotIPv6Only;
-		public static void NotIPv6Only(Socket socket)
-		{
-			socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
-		}
 
-		public DefaultEndpointConnector ConfigureSocket(Action<Socket> configure)
-		{
-			_configure = configure;
-			return this;
-		}
 		public DefaultEndpointConnector()
 		{
 
 		}
 
-		public Socket CreateSocket(EndPoint endpoint)
+		public async Task ConnectSocket(Socket socket, EndPoint endpoint, NodeConnectionParameters nodeConnectionParameters, CancellationToken cancellationToken)
 		{
-			var socket = new Socket(AddressFamily, SocketType, ProtocolType);
-			if (_configure != null)
-				_configure(socket);
-			return socket;
-		}
-
-		public async Task ConnectSocket(Socket socket, EndPoint endpoint, CancellationToken cancellationToken)
-		{
-#if NO_RCA
-			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>();
+			var socksSettings = nodeConnectionParameters.TemplateBehaviors.Find<SocksSettingsBehavior>();
+			bool socks = endpoint.IsTor() || socksSettings?.OnlyForOnionHosts is false;
+			if (socks && socksSettings?.SocksEndpoint == null)
+				throw new InvalidOperationException("SocksSettingsBehavior.SocksEndpoint is not set but the connection is expecting using socks proxy");
+			var socketEndpoint = socks ? socksSettings.SocksEndpoint : endpoint;
+			if (socketEndpoint is IPEndPoint mappedv4 && mappedv4.Address.IsIPv4MappedToIPv6Ex())
+				socketEndpoint = new IPEndPoint(mappedv4.Address.MapToIPv4Ex(), mappedv4.Port);
+#if NETCORE
+			await socket.ConnectAsync(socketEndpoint).WithCancellation(cancellationToken).ConfigureAwait(false);
 #else
-			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+			await socket.ConnectAsync(socketEndpoint, cancellationToken).ConfigureAwait(false);
 #endif
-			var args = new SocketAsyncEventArgs();
-			using (cancellationToken.Register(() =>
-			{
-				completion.TrySetCanceled();
-			}, false))
-			{
-				args.RemoteEndPoint = endpoint;
-				args.Completed += (s, a) =>
-				{
-					completion.TrySetResult(true);
-				};
-				if (!socket.ConnectAsync(args))
-				{
-					completion.TrySetResult(true);
-				}
-				try
-				{
-					await completion.Task;
-				}
-				catch
-				{
-					cancellationToken.ThrowIfCancellationRequested();
-					throw;
-				}
-			}
-				if (args.SocketError != SocketError.Success)
-					throw new SocketException((int)args.SocketError);
+			if (!socks)
+				return;
+
+			await SocksHelper.Handshake(socket, endpoint, cancellationToken);
 		}
 	}
 }

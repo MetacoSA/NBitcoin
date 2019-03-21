@@ -809,11 +809,65 @@ namespace NBitcoin.Tests
 			}
 		}
 
+
+		//[Fact]
+		// This test is disabled because it relies on hosts that might
+		// be up and down. Please, if you want to test it, adapt the links
+		// You need to run Tor Browser (the test use socks port 9150, not 9050)
+
+#pragma warning disable xUnit1013 // Public method should be marked as test
+		public async Task TestDifferentConnectionMethods()
+#pragma warning restore xUnit1013 // Public method should be marked as test
+		{
+			var hosts = new[]
+				{
+				// Should works with IPv6
+				"[2406:da18:f7c:4351:94e0:5b27:78c2:5111]:8333",
+
+				// Should works for onion
+				"7xnmrhmkvptbcvpl.onion:8333",
+
+				// Should works for onioncat
+				Utils.ParseEndpoint("7xnmrhmkvptbcvpl.onion:8333", 8333).AsOnionCatIPEndpoint().ToEndpointString(),
+
+				// Should works for ipv4
+				"38.140.62.62",
+
+				// Should works for ipv4 mapped
+				"[::ffff:38.140.62.62]",
+
+				// Should works for DNS names
+				"ec2-52-14-64-82.us-east-2.compute.amazonaws.com"
+				};
+			foreach (var onlyForOnionHosts in new[] { true, false })
+			{
+				foreach (var endpoint in hosts.Select(h => Utils.ParseEndpoint(h, Network.Main.DefaultPort)))
+				{
+					if (endpoint is IPEndPoint ipv6 && !ipv6.IsTor() && onlyForOnionHosts)
+						continue; // My network does not support ipv6 without TOR so I disable this test
+					using (var cancellationToken = new CancellationTokenSource(20000))
+					{
+						var node = await Node.ConnectAsync(Network.Main, endpoint, new NodeConnectionParameters()
+						{
+							TemplateBehaviors =
+							{
+								new SocksSettingsBehavior(Utils.ParseEndpoint("localhost", 9150), onlyForOnionHosts)
+							},
+							ConnectCancellation = cancellationToken.Token
+						});
+
+						node.VersionHandshake();
+						node.DisconnectAsync();
+					}
+				}
+			}
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanExchangeFastPingPong()
 		{
-			using(var tester = new NodeServerTester())
+			using (var tester = new NodeServerTester())
 			{
 				var n1 = tester.Node1;
 				n1.Behaviors.Add(new PingPongBehavior()

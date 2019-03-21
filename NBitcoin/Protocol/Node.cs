@@ -683,6 +683,12 @@ namespace NBitcoin.Protocol
 		{
 			return ConnectAsync(network, endpoint, null, parameters);
 		}
+		public static Task<Node> ConnectAsync(Network network, string endpoint, NodeConnectionParameters parameters)
+		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			return ConnectAsync(network, Utils.ParseEndpoint(endpoint, network.DefaultPort), null, parameters);
+		}
 
 		public static async Task<Node> ConnectAsync(Network network, EndPoint endpoint, NetworkAddress peer, NodeConnectionParameters parameters)
 		{
@@ -690,37 +696,43 @@ namespace NBitcoin.Protocol
 				throw new ArgumentNullException(nameof(endpoint));
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
-			if (peer == null)
-			{
-				peer = new NetworkAddress()
-				{
-					Time = DateTimeOffset.UtcNow,
-					Endpoint = endpoint as IPEndPoint
-				};
-			}
-			else if (endpoint == null)
+			if (endpoint == null)
 			{
 				endpoint = peer.Endpoint;
 			}
 
+			if (endpoint == null)
+				throw new ArgumentNullException(nameof(endpoint));
+
 			parameters = parameters ?? new NodeConnectionParameters();
 			var addrman = AddressManagerBehavior.GetAddrman(parameters);
 
-			var socket = parameters.EndpointConnector.CreateSocket(endpoint);
+			var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
 			socket.ReceiveBufferSize = parameters.ReceiveBufferSize;
 			socket.SendBufferSize = parameters.SendBufferSize;
 			try
 			{
-				await parameters.EndpointConnector.ConnectSocket(socket, endpoint, parameters.ConnectCancellation).ConfigureAwait(false);
-				var peerEndpoint = (endpoint as IPEndPoint) ?? endpoint.AsOnionCatIPEndpoint() ?? (socket.RemoteEndPoint as IPEndPoint);
-				if (!peerEndpoint.MapToIPv6Ex().Equals(peer.Endpoint))
+				await parameters.EndpointConnector.ConnectSocket(socket, endpoint, parameters, parameters.ConnectCancellation).ConfigureAwait(false);
+				var expectedPeerEndpoint = (endpoint as IPEndPoint) ?? endpoint.AsOnionCatIPEndpoint() ?? (socket.RemoteEndPoint as IPEndPoint);
+				if (peer == null)
+				{
+					peer = new NetworkAddress()
+					{
+						Time = DateTimeOffset.UtcNow,
+						Endpoint = expectedPeerEndpoint
+					};
+					peer.Endpoint = expectedPeerEndpoint;
+				}
+				else if (!expectedPeerEndpoint.MapToIPv6Ex().Equals(peer.Endpoint))
+				{
 					throw new ArgumentException("The peer's endpoint that you provided is different from the endpoint eventually connected to");
+				}
 			}
 			catch (OperationCanceledException)
 			{
 				Utils.SafeCloseSocket(socket);
 				Logs.NodeServer.LogInformation("Connection to node cancelled");
-				if (addrman != null && peer.Endpoint != null)
+				if (addrman != null && peer != null && peer.Endpoint != null)
 					addrman.Attempt(peer);
 				throw;
 			}
@@ -728,7 +740,7 @@ namespace NBitcoin.Protocol
 			{
 				Utils.SafeCloseSocket(socket);
 				Logs.NodeServer.LogError(default, ex, "Error connecting to the remote endpoint");
-				if (addrman != null && peer.Endpoint != null)
+				if (addrman != null && peer != null && peer.Endpoint != null)
 					addrman.Attempt(peer);
 				throw;
 			}

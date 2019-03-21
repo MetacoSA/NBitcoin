@@ -28,7 +28,7 @@ namespace NBitcoin.DataEncoders
 			var str = new char[((count + 4) / 5) * 8];
 			var stri = 0;
 			ConvertBits(c => str[stri++] = pbase32[c], data, offset, count, 8, 5, true);
-			while ((stri - 1) % 8 != 0) str[stri++] = '=';
+			while (stri % 8 != 0) str[stri++] = '=';
 			return new string(str);
 		}
 
@@ -38,7 +38,7 @@ namespace NBitcoin.DataEncoders
 			int bits = 0;
 			int maxv = (1 << tobits) - 1;
 			int max_acc = (1 << (frombits + tobits - 1)) - 1;
-			for (int i = valOffset; i < valCount; i++)
+			for (int i = valOffset; i < valOffset + valCount; i++)
 			{
 				acc = ((acc << frombits) | val[i]) & max_acc;
 				bits += frombits;
@@ -61,7 +61,6 @@ namespace NBitcoin.DataEncoders
 
 		public override byte[] DecodeData(string encoded)
 		{
-			int i = 0;
 			int p = 0;
 			var val = new byte[encoded.Length];
 			var vali = 0;

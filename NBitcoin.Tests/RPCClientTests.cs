@@ -1103,7 +1103,16 @@ namespace NBitcoin.Tests
 			ip2 = ip2.AsOnionCatIPEndpoint();
 			Assert.True(ip2.IsTor());
 			Assert.Equal(ip1, ip2);
+			ip1 = ip1.AsOnionCatIPEndpoint();
+			Assert.Equal(ip1, ip2);
 			Assert.True(((IPEndPoint)ip1).Address.IsRoutable(false));
+
+			ip2 = Utils.ParseEndpoint("5wyqrzbvrdsumnok.onion", 10);
+			ip1 = ip1.AsOnionDNSEndpoint();
+			Assert.Equal(ip1, ip2);
+			ip2 = ip2.AsOnionDNSEndpoint();
+			Assert.Equal(ip1, ip2);
+			Assert.Equal("5wyqrzbvrdsumnok.onion:10", ip2.ToEndpointString());
 		}
 
 		[Fact]

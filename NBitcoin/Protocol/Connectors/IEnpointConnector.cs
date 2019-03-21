@@ -11,8 +11,7 @@ namespace NBitcoin.Protocol.Connectors
 {
 	public interface IEnpointConnector
 	{
-		Socket CreateSocket(EndPoint endPoint);
-		Task ConnectSocket(Socket socket, EndPoint endPoint, CancellationToken cancellationToken);
+		Task ConnectSocket(Socket socket, EndPoint endPoint, NodeConnectionParameters nodeConnectionParameters, CancellationToken cancellationToken);
 	}
 }
 #endif
