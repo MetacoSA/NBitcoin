@@ -21606,6 +21606,41 @@ references:
   isSpec: "True"
   fullName: NBitcoin.DataEncoders.ASCIIEncoder.EncodeData
   nameWithType: ASCIIEncoder.EncodeData
+- uid: NBitcoin.DataEncoders.Base32Encoder
+  name: Base32Encoder
+  href: api/NBitcoin.DataEncoders.Base32Encoder.html
+  commentId: T:NBitcoin.DataEncoders.Base32Encoder
+  fullName: NBitcoin.DataEncoders.Base32Encoder
+  nameWithType: Base32Encoder
+- uid: NBitcoin.DataEncoders.Base32Encoder.DecodeData(System.String)
+  name: DecodeData(String)
+  href: api/NBitcoin.DataEncoders.Base32Encoder.html#NBitcoin_DataEncoders_Base32Encoder_DecodeData_System_String_
+  commentId: M:NBitcoin.DataEncoders.Base32Encoder.DecodeData(System.String)
+  fullName: NBitcoin.DataEncoders.Base32Encoder.DecodeData(System.String)
+  nameWithType: Base32Encoder.DecodeData(String)
+- uid: NBitcoin.DataEncoders.Base32Encoder.DecodeData*
+  name: DecodeData
+  href: api/NBitcoin.DataEncoders.Base32Encoder.html#NBitcoin_DataEncoders_Base32Encoder_DecodeData_
+  commentId: Overload:NBitcoin.DataEncoders.Base32Encoder.DecodeData
+  isSpec: "True"
+  fullName: NBitcoin.DataEncoders.Base32Encoder.DecodeData
+  nameWithType: Base32Encoder.DecodeData
+- uid: NBitcoin.DataEncoders.Base32Encoder.EncodeData(System.Byte[],System.Int32,System.Int32)
+  name: EncodeData(Byte[], Int32, Int32)
+  href: api/NBitcoin.DataEncoders.Base32Encoder.html#NBitcoin_DataEncoders_Base32Encoder_EncodeData_System_Byte___System_Int32_System_Int32_
+  commentId: M:NBitcoin.DataEncoders.Base32Encoder.EncodeData(System.Byte[],System.Int32,System.Int32)
+  name.vb: EncodeData(Byte(), Int32, Int32)
+  fullName: NBitcoin.DataEncoders.Base32Encoder.EncodeData(System.Byte[], System.Int32, System.Int32)
+  fullName.vb: NBitcoin.DataEncoders.Base32Encoder.EncodeData(System.Byte(), System.Int32, System.Int32)
+  nameWithType: Base32Encoder.EncodeData(Byte[], Int32, Int32)
+  nameWithType.vb: Base32Encoder.EncodeData(Byte(), Int32, Int32)
+- uid: NBitcoin.DataEncoders.Base32Encoder.EncodeData*
+  name: EncodeData
+  href: api/NBitcoin.DataEncoders.Base32Encoder.html#NBitcoin_DataEncoders_Base32Encoder_EncodeData_
+  commentId: Overload:NBitcoin.DataEncoders.Base32Encoder.EncodeData
+  isSpec: "True"
+  fullName: NBitcoin.DataEncoders.Base32Encoder.EncodeData
+  nameWithType: Base32Encoder.EncodeData
 - uid: NBitcoin.DataEncoders.Base58CheckEncoder
   name: Base58CheckEncoder
   href: api/NBitcoin.DataEncoders.Base58CheckEncoder.html
@@ -21973,6 +22008,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.DataEncoders.Encoders.ASCII
   nameWithType: Encoders.ASCII
+- uid: NBitcoin.DataEncoders.Encoders.Base32
+  name: Base32
+  href: api/NBitcoin.DataEncoders.Encoders.html#NBitcoin_DataEncoders_Encoders_Base32
+  commentId: P:NBitcoin.DataEncoders.Encoders.Base32
+  fullName: NBitcoin.DataEncoders.Encoders.Base32
+  nameWithType: Encoders.Base32
+- uid: NBitcoin.DataEncoders.Encoders.Base32*
+  name: Base32
+  href: api/NBitcoin.DataEncoders.Encoders.html#NBitcoin_DataEncoders_Encoders_Base32_
+  commentId: Overload:NBitcoin.DataEncoders.Encoders.Base32
+  isSpec: "True"
+  fullName: NBitcoin.DataEncoders.Encoders.Base32
+  nameWithType: Encoders.Base32
 - uid: NBitcoin.DataEncoders.Encoders.Base58
   name: Base58
   href: api/NBitcoin.DataEncoders.Encoders.html#NBitcoin_DataEncoders_Encoders_Base58
@@ -24600,6 +24648,32 @@ references:
   commentId: T:NBitcoin.IpExtensions
   fullName: NBitcoin.IpExtensions
   nameWithType: IpExtensions
+- uid: NBitcoin.IpExtensions.AsOnionCatIPEndpoint(System.Net.EndPoint)
+  name: AsOnionCatIPEndpoint(EndPoint)
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_AsOnionCatIPEndpoint_System_Net_EndPoint_
+  commentId: M:NBitcoin.IpExtensions.AsOnionCatIPEndpoint(System.Net.EndPoint)
+  fullName: NBitcoin.IpExtensions.AsOnionCatIPEndpoint(System.Net.EndPoint)
+  nameWithType: IpExtensions.AsOnionCatIPEndpoint(EndPoint)
+- uid: NBitcoin.IpExtensions.AsOnionCatIPEndpoint*
+  name: AsOnionCatIPEndpoint
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_AsOnionCatIPEndpoint_
+  commentId: Overload:NBitcoin.IpExtensions.AsOnionCatIPEndpoint
+  isSpec: "True"
+  fullName: NBitcoin.IpExtensions.AsOnionCatIPEndpoint
+  nameWithType: IpExtensions.AsOnionCatIPEndpoint
+- uid: NBitcoin.IpExtensions.AsOnionDNSEndpoint(System.Net.EndPoint)
+  name: AsOnionDNSEndpoint(EndPoint)
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_AsOnionDNSEndpoint_System_Net_EndPoint_
+  commentId: M:NBitcoin.IpExtensions.AsOnionDNSEndpoint(System.Net.EndPoint)
+  fullName: NBitcoin.IpExtensions.AsOnionDNSEndpoint(System.Net.EndPoint)
+  nameWithType: IpExtensions.AsOnionDNSEndpoint(EndPoint)
+- uid: NBitcoin.IpExtensions.AsOnionDNSEndpoint*
+  name: AsOnionDNSEndpoint
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_AsOnionDNSEndpoint_
+  commentId: Overload:NBitcoin.IpExtensions.AsOnionDNSEndpoint
+  isSpec: "True"
+  fullName: NBitcoin.IpExtensions.AsOnionDNSEndpoint
+  nameWithType: IpExtensions.AsOnionDNSEndpoint
 - uid: NBitcoin.IpExtensions.EnsureIPv6(System.Net.IPAddress)
   name: EnsureIPv6(IPAddress)
   href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_EnsureIPv6_System_Net_IPAddress_
@@ -24834,6 +24908,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.IpExtensions.IsRunningOnMono
   nameWithType: IpExtensions.IsRunningOnMono
+- uid: NBitcoin.IpExtensions.IsTor(System.Net.EndPoint)
+  name: IsTor(EndPoint)
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_IsTor_System_Net_EndPoint_
+  commentId: M:NBitcoin.IpExtensions.IsTor(System.Net.EndPoint)
+  fullName: NBitcoin.IpExtensions.IsTor(System.Net.EndPoint)
+  nameWithType: IpExtensions.IsTor(EndPoint)
 - uid: NBitcoin.IpExtensions.IsTor(System.Net.IPAddress)
   name: IsTor(IPAddress)
   href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_IsTor_System_Net_IPAddress_
@@ -24860,12 +24940,31 @@ references:
   isSpec: "True"
   fullName: NBitcoin.IpExtensions.IsValid
   nameWithType: IpExtensions.IsValid
+- uid: NBitcoin.IpExtensions.MapToIPv4Ex(System.Net.IPAddress)
+  name: MapToIPv4Ex(IPAddress)
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_MapToIPv4Ex_System_Net_IPAddress_
+  commentId: M:NBitcoin.IpExtensions.MapToIPv4Ex(System.Net.IPAddress)
+  fullName: NBitcoin.IpExtensions.MapToIPv4Ex(System.Net.IPAddress)
+  nameWithType: IpExtensions.MapToIPv4Ex(IPAddress)
+- uid: NBitcoin.IpExtensions.MapToIPv4Ex*
+  name: MapToIPv4Ex
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_MapToIPv4Ex_
+  commentId: Overload:NBitcoin.IpExtensions.MapToIPv4Ex
+  isSpec: "True"
+  fullName: NBitcoin.IpExtensions.MapToIPv4Ex
+  nameWithType: IpExtensions.MapToIPv4Ex
 - uid: NBitcoin.IpExtensions.MapToIPv6Ex(System.Net.IPAddress)
   name: MapToIPv6Ex(IPAddress)
   href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_MapToIPv6Ex_System_Net_IPAddress_
   commentId: M:NBitcoin.IpExtensions.MapToIPv6Ex(System.Net.IPAddress)
   fullName: NBitcoin.IpExtensions.MapToIPv6Ex(System.Net.IPAddress)
   nameWithType: IpExtensions.MapToIPv6Ex(IPAddress)
+- uid: NBitcoin.IpExtensions.MapToIPv6Ex(System.Net.IPEndPoint)
+  name: MapToIPv6Ex(IPEndPoint)
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_MapToIPv6Ex_System_Net_IPEndPoint_
+  commentId: M:NBitcoin.IpExtensions.MapToIPv6Ex(System.Net.IPEndPoint)
+  fullName: NBitcoin.IpExtensions.MapToIPv6Ex(System.Net.IPEndPoint)
+  nameWithType: IpExtensions.MapToIPv6Ex(IPEndPoint)
 - uid: NBitcoin.IpExtensions.MapToIPv6Ex*
   name: MapToIPv6Ex
   href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_MapToIPv6Ex_
@@ -24873,6 +24972,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.IpExtensions.MapToIPv6Ex
   nameWithType: IpExtensions.MapToIPv6Ex
+- uid: NBitcoin.IpExtensions.ToEndpointString(System.Net.EndPoint)
+  name: ToEndpointString(EndPoint)
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_ToEndpointString_System_Net_EndPoint_
+  commentId: M:NBitcoin.IpExtensions.ToEndpointString(System.Net.EndPoint)
+  fullName: NBitcoin.IpExtensions.ToEndpointString(System.Net.EndPoint)
+  nameWithType: IpExtensions.ToEndpointString(EndPoint)
+- uid: NBitcoin.IpExtensions.ToEndpointString*
+  name: ToEndpointString
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_ToEndpointString_
+  commentId: Overload:NBitcoin.IpExtensions.ToEndpointString
+  isSpec: "True"
+  fullName: NBitcoin.IpExtensions.ToEndpointString
+  nameWithType: IpExtensions.ToEndpointString
 - uid: NBitcoin.IPubkeyHashUsable
   name: IPubkeyHashUsable
   href: api/NBitcoin.IPubkeyHashUsable.html
@@ -38720,6 +38832,102 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Protocol.Behaviors.SlimChainBehavior.DetachCore
   nameWithType: SlimChainBehavior.DetachCore
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior
+  name: SocksSettingsBehavior
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html
+  commentId: T:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior
+  nameWithType: SocksSettingsBehavior
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.#ctor
+  name: SocksSettingsBehavior()
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior__ctor
+  commentId: M:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.#ctor
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksSettingsBehavior()
+  nameWithType: SocksSettingsBehavior.SocksSettingsBehavior()
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.#ctor(System.Net.EndPoint)
+  name: SocksSettingsBehavior(EndPoint)
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior__ctor_System_Net_EndPoint_
+  commentId: M:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.#ctor(System.Net.EndPoint)
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksSettingsBehavior(System.Net.EndPoint)
+  nameWithType: SocksSettingsBehavior.SocksSettingsBehavior(EndPoint)
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.#ctor(System.Net.EndPoint,System.Boolean)
+  name: SocksSettingsBehavior(EndPoint, Boolean)
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior__ctor_System_Net_EndPoint_System_Boolean_
+  commentId: M:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.#ctor(System.Net.EndPoint,System.Boolean)
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksSettingsBehavior(System.Net.EndPoint, System.Boolean)
+  nameWithType: SocksSettingsBehavior.SocksSettingsBehavior(EndPoint, Boolean)
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.#ctor*
+  name: SocksSettingsBehavior
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior__ctor_
+  commentId: Overload:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksSettingsBehavior
+  nameWithType: SocksSettingsBehavior.SocksSettingsBehavior
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.AttachCore
+  name: AttachCore()
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_AttachCore
+  commentId: M:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.AttachCore
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.AttachCore()
+  nameWithType: SocksSettingsBehavior.AttachCore()
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.AttachCore*
+  name: AttachCore
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_AttachCore_
+  commentId: Overload:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.AttachCore
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.AttachCore
+  nameWithType: SocksSettingsBehavior.AttachCore
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.Clone
+  name: Clone()
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_Clone
+  commentId: M:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.Clone
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.Clone()
+  nameWithType: SocksSettingsBehavior.Clone()
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.Clone*
+  name: Clone
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_Clone_
+  commentId: Overload:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.Clone
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.Clone
+  nameWithType: SocksSettingsBehavior.Clone
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.DetachCore
+  name: DetachCore()
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_DetachCore
+  commentId: M:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.DetachCore
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.DetachCore()
+  nameWithType: SocksSettingsBehavior.DetachCore()
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.DetachCore*
+  name: DetachCore
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_DetachCore_
+  commentId: Overload:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.DetachCore
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.DetachCore
+  nameWithType: SocksSettingsBehavior.DetachCore
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.OnlyForOnionHosts
+  name: OnlyForOnionHosts
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_OnlyForOnionHosts
+  commentId: P:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.OnlyForOnionHosts
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.OnlyForOnionHosts
+  nameWithType: SocksSettingsBehavior.OnlyForOnionHosts
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.OnlyForOnionHosts*
+  name: OnlyForOnionHosts
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_OnlyForOnionHosts_
+  commentId: Overload:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.OnlyForOnionHosts
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.OnlyForOnionHosts
+  nameWithType: SocksSettingsBehavior.OnlyForOnionHosts
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksEndpoint
+  name: SocksEndpoint
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_SocksEndpoint
+  commentId: P:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksEndpoint
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksEndpoint
+  nameWithType: SocksSettingsBehavior.SocksEndpoint
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksEndpoint*
+  name: SocksEndpoint
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_SocksEndpoint_
+  commentId: Overload:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksEndpoint
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksEndpoint
+  nameWithType: SocksSettingsBehavior.SocksEndpoint
 - uid: NBitcoin.Protocol.Behaviors.TransactionBroadcast
   name: TransactionBroadcast
   href: api/NBitcoin.Protocol.Behaviors.TransactionBroadcast.html
@@ -39088,6 +39296,89 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Protocol.CompactVarInt.ToLong
   nameWithType: CompactVarInt.ToLong
+- uid: NBitcoin.Protocol.Connectors
+  name: NBitcoin.Protocol.Connectors
+  href: api/NBitcoin.Protocol.Connectors.html
+  commentId: N:NBitcoin.Protocol.Connectors
+  fullName: NBitcoin.Protocol.Connectors
+  nameWithType: NBitcoin.Protocol.Connectors
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector
+  name: DefaultEndpointConnector
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html
+  commentId: T:NBitcoin.Protocol.Connectors.DefaultEndpointConnector
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector
+  nameWithType: DefaultEndpointConnector
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.#ctor
+  name: DefaultEndpointConnector()
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector__ctor
+  commentId: M:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.#ctor
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.DefaultEndpointConnector()
+  nameWithType: DefaultEndpointConnector.DefaultEndpointConnector()
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.#ctor*
+  name: DefaultEndpointConnector
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector__ctor_
+  commentId: Overload:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.DefaultEndpointConnector
+  nameWithType: DefaultEndpointConnector.DefaultEndpointConnector
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ConnectSocket(System.Net.Sockets.Socket,System.Net.EndPoint,NBitcoin.Protocol.NodeConnectionParameters,System.Threading.CancellationToken)
+  name: ConnectSocket(Socket, EndPoint, NodeConnectionParameters, CancellationToken)
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_ConnectSocket_System_Net_Sockets_Socket_System_Net_EndPoint_NBitcoin_Protocol_NodeConnectionParameters_System_Threading_CancellationToken_
+  commentId: M:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ConnectSocket(System.Net.Sockets.Socket,System.Net.EndPoint,NBitcoin.Protocol.NodeConnectionParameters,System.Threading.CancellationToken)
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ConnectSocket(System.Net.Sockets.Socket, System.Net.EndPoint, NBitcoin.Protocol.NodeConnectionParameters, System.Threading.CancellationToken)
+  nameWithType: DefaultEndpointConnector.ConnectSocket(Socket, EndPoint, NodeConnectionParameters, CancellationToken)
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ConnectSocket*
+  name: ConnectSocket
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_ConnectSocket_
+  commentId: Overload:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ConnectSocket
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ConnectSocket
+  nameWithType: DefaultEndpointConnector.ConnectSocket
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ProtocolType
+  name: ProtocolType
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_ProtocolType
+  commentId: P:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ProtocolType
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ProtocolType
+  nameWithType: DefaultEndpointConnector.ProtocolType
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ProtocolType*
+  name: ProtocolType
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_ProtocolType_
+  commentId: Overload:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ProtocolType
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ProtocolType
+  nameWithType: DefaultEndpointConnector.ProtocolType
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.SocketType
+  name: SocketType
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_SocketType
+  commentId: P:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.SocketType
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.SocketType
+  nameWithType: DefaultEndpointConnector.SocketType
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.SocketType*
+  name: SocketType
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_SocketType_
+  commentId: Overload:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.SocketType
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.SocketType
+  nameWithType: DefaultEndpointConnector.SocketType
+- uid: NBitcoin.Protocol.Connectors.IEnpointConnector
+  name: IEnpointConnector
+  href: api/NBitcoin.Protocol.Connectors.IEnpointConnector.html
+  commentId: T:NBitcoin.Protocol.Connectors.IEnpointConnector
+  fullName: NBitcoin.Protocol.Connectors.IEnpointConnector
+  nameWithType: IEnpointConnector
+- uid: NBitcoin.Protocol.Connectors.IEnpointConnector.ConnectSocket(System.Net.Sockets.Socket,System.Net.EndPoint,NBitcoin.Protocol.NodeConnectionParameters,System.Threading.CancellationToken)
+  name: ConnectSocket(Socket, EndPoint, NodeConnectionParameters, CancellationToken)
+  href: api/NBitcoin.Protocol.Connectors.IEnpointConnector.html#NBitcoin_Protocol_Connectors_IEnpointConnector_ConnectSocket_System_Net_Sockets_Socket_System_Net_EndPoint_NBitcoin_Protocol_NodeConnectionParameters_System_Threading_CancellationToken_
+  commentId: M:NBitcoin.Protocol.Connectors.IEnpointConnector.ConnectSocket(System.Net.Sockets.Socket,System.Net.EndPoint,NBitcoin.Protocol.NodeConnectionParameters,System.Threading.CancellationToken)
+  fullName: NBitcoin.Protocol.Connectors.IEnpointConnector.ConnectSocket(System.Net.Sockets.Socket, System.Net.EndPoint, NBitcoin.Protocol.NodeConnectionParameters, System.Threading.CancellationToken)
+  nameWithType: IEnpointConnector.ConnectSocket(Socket, EndPoint, NodeConnectionParameters, CancellationToken)
+- uid: NBitcoin.Protocol.Connectors.IEnpointConnector.ConnectSocket*
+  name: ConnectSocket
+  href: api/NBitcoin.Protocol.Connectors.IEnpointConnector.html#NBitcoin_Protocol_Connectors_IEnpointConnector_ConnectSocket_
+  commentId: Overload:NBitcoin.Protocol.Connectors.IEnpointConnector.ConnectSocket
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Connectors.IEnpointConnector.ConnectSocket
+  nameWithType: IEnpointConnector.ConnectSocket
 - uid: NBitcoin.Protocol.EventLoopMessageListener`1
   name: EventLoopMessageListener<T>
   href: api/NBitcoin.Protocol.EventLoopMessageListener-1.html
@@ -40606,21 +40897,21 @@ references:
   fullName.vb: NBitcoin.Protocol.Node.Connect(NBitcoin.Network, NBitcoin.Protocol.NodeConnectionParameters, System.Net.IPEndPoint(), System.Func(Of System.Net.IPEndPoint, System.Byte()))
   nameWithType: Node.Connect(Network, NodeConnectionParameters, IPEndPoint[], Func<IPEndPoint, Byte[]>)
   nameWithType.vb: Node.Connect(Network, NodeConnectionParameters, IPEndPoint(), Func(Of IPEndPoint, Byte()))
-- uid: NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.Net.IPEndPoint,NBitcoin.Protocol.NodeConnectionParameters)
-  name: Connect(Network, IPEndPoint, NodeConnectionParameters)
-  href: api/NBitcoin.Protocol.Node.html#NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_Net_IPEndPoint_NBitcoin_Protocol_NodeConnectionParameters_
-  commentId: M:NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.Net.IPEndPoint,NBitcoin.Protocol.NodeConnectionParameters)
-  fullName: NBitcoin.Protocol.Node.Connect(NBitcoin.Network, System.Net.IPEndPoint, NBitcoin.Protocol.NodeConnectionParameters)
-  nameWithType: Node.Connect(Network, IPEndPoint, NodeConnectionParameters)
-- uid: NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.Net.IPEndPoint,System.Nullable{System.UInt32},System.Boolean,System.Threading.CancellationToken)
-  name: Connect(Network, IPEndPoint, Nullable<UInt32>, Boolean, CancellationToken)
-  href: api/NBitcoin.Protocol.Node.html#NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_Net_IPEndPoint_System_Nullable_System_UInt32__System_Boolean_System_Threading_CancellationToken_
-  commentId: M:NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.Net.IPEndPoint,System.Nullable{System.UInt32},System.Boolean,System.Threading.CancellationToken)
-  name.vb: Connect(Network, IPEndPoint, Nullable(Of UInt32), Boolean, CancellationToken)
-  fullName: NBitcoin.Protocol.Node.Connect(NBitcoin.Network, System.Net.IPEndPoint, System.Nullable<System.UInt32>, System.Boolean, System.Threading.CancellationToken)
-  fullName.vb: NBitcoin.Protocol.Node.Connect(NBitcoin.Network, System.Net.IPEndPoint, System.Nullable(Of System.UInt32), System.Boolean, System.Threading.CancellationToken)
-  nameWithType: Node.Connect(Network, IPEndPoint, Nullable<UInt32>, Boolean, CancellationToken)
-  nameWithType.vb: Node.Connect(Network, IPEndPoint, Nullable(Of UInt32), Boolean, CancellationToken)
+- uid: NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.Net.EndPoint,NBitcoin.Protocol.NodeConnectionParameters)
+  name: Connect(Network, EndPoint, NodeConnectionParameters)
+  href: api/NBitcoin.Protocol.Node.html#NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_Net_EndPoint_NBitcoin_Protocol_NodeConnectionParameters_
+  commentId: M:NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.Net.EndPoint,NBitcoin.Protocol.NodeConnectionParameters)
+  fullName: NBitcoin.Protocol.Node.Connect(NBitcoin.Network, System.Net.EndPoint, NBitcoin.Protocol.NodeConnectionParameters)
+  nameWithType: Node.Connect(Network, EndPoint, NodeConnectionParameters)
+- uid: NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.Net.EndPoint,System.Nullable{System.UInt32},System.Boolean,System.Threading.CancellationToken)
+  name: Connect(Network, EndPoint, Nullable<UInt32>, Boolean, CancellationToken)
+  href: api/NBitcoin.Protocol.Node.html#NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_Net_EndPoint_System_Nullable_System_UInt32__System_Boolean_System_Threading_CancellationToken_
+  commentId: M:NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.Net.EndPoint,System.Nullable{System.UInt32},System.Boolean,System.Threading.CancellationToken)
+  name.vb: Connect(Network, EndPoint, Nullable(Of UInt32), Boolean, CancellationToken)
+  fullName: NBitcoin.Protocol.Node.Connect(NBitcoin.Network, System.Net.EndPoint, System.Nullable<System.UInt32>, System.Boolean, System.Threading.CancellationToken)
+  fullName.vb: NBitcoin.Protocol.Node.Connect(NBitcoin.Network, System.Net.EndPoint, System.Nullable(Of System.UInt32), System.Boolean, System.Threading.CancellationToken)
+  nameWithType: Node.Connect(Network, EndPoint, Nullable<UInt32>, Boolean, CancellationToken)
+  nameWithType.vb: Node.Connect(Network, EndPoint, Nullable(Of UInt32), Boolean, CancellationToken)
 - uid: NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.String,NBitcoin.Protocol.NodeConnectionParameters)
   name: Connect(Network, String, NodeConnectionParameters)
   href: api/NBitcoin.Protocol.Node.html#NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_String_NBitcoin_Protocol_NodeConnectionParameters_
@@ -40643,6 +40934,31 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Protocol.Node.Connect
   nameWithType: Node.Connect
+- uid: NBitcoin.Protocol.Node.ConnectAsync(NBitcoin.Network,System.Net.EndPoint,NBitcoin.Protocol.NetworkAddress,NBitcoin.Protocol.NodeConnectionParameters)
+  name: ConnectAsync(Network, EndPoint, NetworkAddress, NodeConnectionParameters)
+  href: api/NBitcoin.Protocol.Node.html#NBitcoin_Protocol_Node_ConnectAsync_NBitcoin_Network_System_Net_EndPoint_NBitcoin_Protocol_NetworkAddress_NBitcoin_Protocol_NodeConnectionParameters_
+  commentId: M:NBitcoin.Protocol.Node.ConnectAsync(NBitcoin.Network,System.Net.EndPoint,NBitcoin.Protocol.NetworkAddress,NBitcoin.Protocol.NodeConnectionParameters)
+  fullName: NBitcoin.Protocol.Node.ConnectAsync(NBitcoin.Network, System.Net.EndPoint, NBitcoin.Protocol.NetworkAddress, NBitcoin.Protocol.NodeConnectionParameters)
+  nameWithType: Node.ConnectAsync(Network, EndPoint, NetworkAddress, NodeConnectionParameters)
+- uid: NBitcoin.Protocol.Node.ConnectAsync(NBitcoin.Network,System.Net.EndPoint,NBitcoin.Protocol.NodeConnectionParameters)
+  name: ConnectAsync(Network, EndPoint, NodeConnectionParameters)
+  href: api/NBitcoin.Protocol.Node.html#NBitcoin_Protocol_Node_ConnectAsync_NBitcoin_Network_System_Net_EndPoint_NBitcoin_Protocol_NodeConnectionParameters_
+  commentId: M:NBitcoin.Protocol.Node.ConnectAsync(NBitcoin.Network,System.Net.EndPoint,NBitcoin.Protocol.NodeConnectionParameters)
+  fullName: NBitcoin.Protocol.Node.ConnectAsync(NBitcoin.Network, System.Net.EndPoint, NBitcoin.Protocol.NodeConnectionParameters)
+  nameWithType: Node.ConnectAsync(Network, EndPoint, NodeConnectionParameters)
+- uid: NBitcoin.Protocol.Node.ConnectAsync(NBitcoin.Network,System.String,NBitcoin.Protocol.NodeConnectionParameters)
+  name: ConnectAsync(Network, String, NodeConnectionParameters)
+  href: api/NBitcoin.Protocol.Node.html#NBitcoin_Protocol_Node_ConnectAsync_NBitcoin_Network_System_String_NBitcoin_Protocol_NodeConnectionParameters_
+  commentId: M:NBitcoin.Protocol.Node.ConnectAsync(NBitcoin.Network,System.String,NBitcoin.Protocol.NodeConnectionParameters)
+  fullName: NBitcoin.Protocol.Node.ConnectAsync(NBitcoin.Network, System.String, NBitcoin.Protocol.NodeConnectionParameters)
+  nameWithType: Node.ConnectAsync(Network, String, NodeConnectionParameters)
+- uid: NBitcoin.Protocol.Node.ConnectAsync*
+  name: ConnectAsync
+  href: api/NBitcoin.Protocol.Node.html#NBitcoin_Protocol_Node_ConnectAsync_
+  commentId: Overload:NBitcoin.Protocol.Node.ConnectAsync
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Node.ConnectAsync
+  nameWithType: Node.ConnectAsync
 - uid: NBitcoin.Protocol.Node.ConnectedAt
   name: ConnectedAt
   href: api/NBitcoin.Protocol.Node.html#NBitcoin_Protocol_Node_ConnectedAt
@@ -41508,6 +41824,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Protocol.NodeConnectionParameters.CreateVersion
   nameWithType: NodeConnectionParameters.CreateVersion
+- uid: NBitcoin.Protocol.NodeConnectionParameters.EndpointConnector
+  name: EndpointConnector
+  href: api/NBitcoin.Protocol.NodeConnectionParameters.html#NBitcoin_Protocol_NodeConnectionParameters_EndpointConnector
+  commentId: P:NBitcoin.Protocol.NodeConnectionParameters.EndpointConnector
+  fullName: NBitcoin.Protocol.NodeConnectionParameters.EndpointConnector
+  nameWithType: NodeConnectionParameters.EndpointConnector
+- uid: NBitcoin.Protocol.NodeConnectionParameters.EndpointConnector*
+  name: EndpointConnector
+  href: api/NBitcoin.Protocol.NodeConnectionParameters.html#NBitcoin_Protocol_NodeConnectionParameters_EndpointConnector_
+  commentId: Overload:NBitcoin.Protocol.NodeConnectionParameters.EndpointConnector
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.NodeConnectionParameters.EndpointConnector
+  nameWithType: NodeConnectionParameters.EndpointConnector
 - uid: NBitcoin.Protocol.NodeConnectionParameters.IsRelay
   name: IsRelay
   href: api/NBitcoin.Protocol.NodeConnectionParameters.html#NBitcoin_Protocol_NodeConnectionParameters_IsRelay
@@ -47902,6 +48231,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.RPC.RPCClient.Capabilities
   nameWithType: RPCClient.Capabilities
+- uid: NBitcoin.RPC.RPCClient.Clone
+  name: Clone()
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_Clone
+  commentId: M:NBitcoin.RPC.RPCClient.Clone
+  fullName: NBitcoin.RPC.RPCClient.Clone()
+  nameWithType: RPCClient.Clone()
+- uid: NBitcoin.RPC.RPCClient.Clone*
+  name: Clone
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_Clone_
+  commentId: Overload:NBitcoin.RPC.RPCClient.Clone
+  isSpec: "True"
+  fullName: NBitcoin.RPC.RPCClient.Clone
+  nameWithType: RPCClient.Clone
 - uid: NBitcoin.RPC.RPCClient.CredentialString
   name: CredentialString
   href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_CredentialString
@@ -49494,6 +49836,32 @@ references:
   isSpec: "True"
   fullName: NBitcoin.RPC.RPCClient.StartScanTxoutSetAsync
   nameWithType: RPCClient.StartScanTxoutSetAsync
+- uid: NBitcoin.RPC.RPCClient.Stop
+  name: Stop()
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_Stop
+  commentId: M:NBitcoin.RPC.RPCClient.Stop
+  fullName: NBitcoin.RPC.RPCClient.Stop()
+  nameWithType: RPCClient.Stop()
+- uid: NBitcoin.RPC.RPCClient.Stop*
+  name: Stop
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_Stop_
+  commentId: Overload:NBitcoin.RPC.RPCClient.Stop
+  isSpec: "True"
+  fullName: NBitcoin.RPC.RPCClient.Stop
+  nameWithType: RPCClient.Stop
+- uid: NBitcoin.RPC.RPCClient.StopAsync
+  name: StopAsync()
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_StopAsync
+  commentId: M:NBitcoin.RPC.RPCClient.StopAsync
+  fullName: NBitcoin.RPC.RPCClient.StopAsync()
+  nameWithType: RPCClient.StopAsync()
+- uid: NBitcoin.RPC.RPCClient.StopAsync*
+  name: StopAsync
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_StopAsync_
+  commentId: Overload:NBitcoin.RPC.RPCClient.StopAsync
+  isSpec: "True"
+  fullName: NBitcoin.RPC.RPCClient.StopAsync
+  nameWithType: RPCClient.StopAsync
 - uid: NBitcoin.RPC.RPCClient.TestMempoolAccept(NBitcoin.Transaction,System.Boolean)
   name: TestMempoolAccept(Transaction, Boolean)
   href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_TestMempoolAccept_NBitcoin_Transaction_System_Boolean_
@@ -50664,6 +51032,12 @@ references:
   commentId: F:NBitcoin.RPC.RPCOperations.signrawtransactionwithkey
   fullName: NBitcoin.RPC.RPCOperations.signrawtransactionwithkey
   nameWithType: RPCOperations.signrawtransactionwithkey
+- uid: NBitcoin.RPC.RPCOperations.stop
+  name: stop
+  href: api/NBitcoin.RPC.RPCOperations.html#NBitcoin_RPC_RPCOperations_stop
+  commentId: F:NBitcoin.RPC.RPCOperations.stop
+  fullName: NBitcoin.RPC.RPCOperations.stop
+  nameWithType: RPCOperations.stop
 - uid: NBitcoin.RPC.RPCOperations.submitblock
   name: submitblock
   href: api/NBitcoin.RPC.RPCOperations.html#NBitcoin_RPC_RPCOperations_submitblock
@@ -54649,6 +55023,142 @@ references:
   isSpec: "True"
   fullName: NBitcoin.SlimChainedBlock.ToString
   nameWithType: SlimChainedBlock.ToString
+- uid: NBitcoin.Socks
+  name: NBitcoin.Socks
+  href: api/NBitcoin.Socks.html
+  commentId: N:NBitcoin.Socks
+  fullName: NBitcoin.Socks
+  nameWithType: NBitcoin.Socks
+- uid: NBitcoin.Socks.SocksErrorCode
+  name: SocksErrorCode
+  href: api/NBitcoin.Socks.SocksErrorCode.html
+  commentId: T:NBitcoin.Socks.SocksErrorCode
+  fullName: NBitcoin.Socks.SocksErrorCode
+  nameWithType: SocksErrorCode
+- uid: NBitcoin.Socks.SocksErrorCode.AddressTypeNotSupported
+  name: AddressTypeNotSupported
+  href: api/NBitcoin.Socks.SocksErrorCode.html#NBitcoin_Socks_SocksErrorCode_AddressTypeNotSupported
+  commentId: F:NBitcoin.Socks.SocksErrorCode.AddressTypeNotSupported
+  fullName: NBitcoin.Socks.SocksErrorCode.AddressTypeNotSupported
+  nameWithType: SocksErrorCode.AddressTypeNotSupported
+- uid: NBitcoin.Socks.SocksErrorCode.CommandNotSupported
+  name: CommandNotSupported
+  href: api/NBitcoin.Socks.SocksErrorCode.html#NBitcoin_Socks_SocksErrorCode_CommandNotSupported
+  commentId: F:NBitcoin.Socks.SocksErrorCode.CommandNotSupported
+  fullName: NBitcoin.Socks.SocksErrorCode.CommandNotSupported
+  nameWithType: SocksErrorCode.CommandNotSupported
+- uid: NBitcoin.Socks.SocksErrorCode.ConnectionNotAllowed
+  name: ConnectionNotAllowed
+  href: api/NBitcoin.Socks.SocksErrorCode.html#NBitcoin_Socks_SocksErrorCode_ConnectionNotAllowed
+  commentId: F:NBitcoin.Socks.SocksErrorCode.ConnectionNotAllowed
+  fullName: NBitcoin.Socks.SocksErrorCode.ConnectionNotAllowed
+  nameWithType: SocksErrorCode.ConnectionNotAllowed
+- uid: NBitcoin.Socks.SocksErrorCode.ConnectionRefused
+  name: ConnectionRefused
+  href: api/NBitcoin.Socks.SocksErrorCode.html#NBitcoin_Socks_SocksErrorCode_ConnectionRefused
+  commentId: F:NBitcoin.Socks.SocksErrorCode.ConnectionRefused
+  fullName: NBitcoin.Socks.SocksErrorCode.ConnectionRefused
+  nameWithType: SocksErrorCode.ConnectionRefused
+- uid: NBitcoin.Socks.SocksErrorCode.GeneralServerFailure
+  name: GeneralServerFailure
+  href: api/NBitcoin.Socks.SocksErrorCode.html#NBitcoin_Socks_SocksErrorCode_GeneralServerFailure
+  commentId: F:NBitcoin.Socks.SocksErrorCode.GeneralServerFailure
+  fullName: NBitcoin.Socks.SocksErrorCode.GeneralServerFailure
+  nameWithType: SocksErrorCode.GeneralServerFailure
+- uid: NBitcoin.Socks.SocksErrorCode.HostUnreachable
+  name: HostUnreachable
+  href: api/NBitcoin.Socks.SocksErrorCode.html#NBitcoin_Socks_SocksErrorCode_HostUnreachable
+  commentId: F:NBitcoin.Socks.SocksErrorCode.HostUnreachable
+  fullName: NBitcoin.Socks.SocksErrorCode.HostUnreachable
+  nameWithType: SocksErrorCode.HostUnreachable
+- uid: NBitcoin.Socks.SocksErrorCode.NetworkUnreachable
+  name: NetworkUnreachable
+  href: api/NBitcoin.Socks.SocksErrorCode.html#NBitcoin_Socks_SocksErrorCode_NetworkUnreachable
+  commentId: F:NBitcoin.Socks.SocksErrorCode.NetworkUnreachable
+  fullName: NBitcoin.Socks.SocksErrorCode.NetworkUnreachable
+  nameWithType: SocksErrorCode.NetworkUnreachable
+- uid: NBitcoin.Socks.SocksErrorCode.Success
+  name: Success
+  href: api/NBitcoin.Socks.SocksErrorCode.html#NBitcoin_Socks_SocksErrorCode_Success
+  commentId: F:NBitcoin.Socks.SocksErrorCode.Success
+  fullName: NBitcoin.Socks.SocksErrorCode.Success
+  nameWithType: SocksErrorCode.Success
+- uid: NBitcoin.Socks.SocksErrorCode.TTLExpired
+  name: TTLExpired
+  href: api/NBitcoin.Socks.SocksErrorCode.html#NBitcoin_Socks_SocksErrorCode_TTLExpired
+  commentId: F:NBitcoin.Socks.SocksErrorCode.TTLExpired
+  fullName: NBitcoin.Socks.SocksErrorCode.TTLExpired
+  nameWithType: SocksErrorCode.TTLExpired
+- uid: NBitcoin.Socks.SocksException
+  name: SocksException
+  href: api/NBitcoin.Socks.SocksException.html
+  commentId: T:NBitcoin.Socks.SocksException
+  fullName: NBitcoin.Socks.SocksException
+  nameWithType: SocksException
+- uid: NBitcoin.Socks.SocksException.#ctor(NBitcoin.Socks.SocksErrorCode)
+  name: SocksException(SocksErrorCode)
+  href: api/NBitcoin.Socks.SocksException.html#NBitcoin_Socks_SocksException__ctor_NBitcoin_Socks_SocksErrorCode_
+  commentId: M:NBitcoin.Socks.SocksException.#ctor(NBitcoin.Socks.SocksErrorCode)
+  fullName: NBitcoin.Socks.SocksException.SocksException(NBitcoin.Socks.SocksErrorCode)
+  nameWithType: SocksException.SocksException(SocksErrorCode)
+- uid: NBitcoin.Socks.SocksException.#ctor(System.String)
+  name: SocksException(String)
+  href: api/NBitcoin.Socks.SocksException.html#NBitcoin_Socks_SocksException__ctor_System_String_
+  commentId: M:NBitcoin.Socks.SocksException.#ctor(System.String)
+  fullName: NBitcoin.Socks.SocksException.SocksException(System.String)
+  nameWithType: SocksException.SocksException(String)
+- uid: NBitcoin.Socks.SocksException.#ctor*
+  name: SocksException
+  href: api/NBitcoin.Socks.SocksException.html#NBitcoin_Socks_SocksException__ctor_
+  commentId: Overload:NBitcoin.Socks.SocksException.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.Socks.SocksException.SocksException
+  nameWithType: SocksException.SocksException
+- uid: NBitcoin.Socks.SocksException.IsTransient
+  name: IsTransient
+  href: api/NBitcoin.Socks.SocksException.html#NBitcoin_Socks_SocksException_IsTransient
+  commentId: P:NBitcoin.Socks.SocksException.IsTransient
+  fullName: NBitcoin.Socks.SocksException.IsTransient
+  nameWithType: SocksException.IsTransient
+- uid: NBitcoin.Socks.SocksException.IsTransient*
+  name: IsTransient
+  href: api/NBitcoin.Socks.SocksException.html#NBitcoin_Socks_SocksException_IsTransient_
+  commentId: Overload:NBitcoin.Socks.SocksException.IsTransient
+  isSpec: "True"
+  fullName: NBitcoin.Socks.SocksException.IsTransient
+  nameWithType: SocksException.IsTransient
+- uid: NBitcoin.Socks.SocksException.SocksErrorCode
+  name: SocksErrorCode
+  href: api/NBitcoin.Socks.SocksException.html#NBitcoin_Socks_SocksException_SocksErrorCode
+  commentId: P:NBitcoin.Socks.SocksException.SocksErrorCode
+  fullName: NBitcoin.Socks.SocksException.SocksErrorCode
+  nameWithType: SocksException.SocksErrorCode
+- uid: NBitcoin.Socks.SocksException.SocksErrorCode*
+  name: SocksErrorCode
+  href: api/NBitcoin.Socks.SocksException.html#NBitcoin_Socks_SocksException_SocksErrorCode_
+  commentId: Overload:NBitcoin.Socks.SocksException.SocksErrorCode
+  isSpec: "True"
+  fullName: NBitcoin.Socks.SocksException.SocksErrorCode
+  nameWithType: SocksException.SocksErrorCode
+- uid: NBitcoin.Socks.SocksHelper
+  name: SocksHelper
+  href: api/NBitcoin.Socks.SocksHelper.html
+  commentId: T:NBitcoin.Socks.SocksHelper
+  fullName: NBitcoin.Socks.SocksHelper
+  nameWithType: SocksHelper
+- uid: NBitcoin.Socks.SocksHelper.Handshake(System.Net.Sockets.Socket,System.Net.EndPoint,System.Threading.CancellationToken)
+  name: Handshake(Socket, EndPoint, CancellationToken)
+  href: api/NBitcoin.Socks.SocksHelper.html#NBitcoin_Socks_SocksHelper_Handshake_System_Net_Sockets_Socket_System_Net_EndPoint_System_Threading_CancellationToken_
+  commentId: M:NBitcoin.Socks.SocksHelper.Handshake(System.Net.Sockets.Socket,System.Net.EndPoint,System.Threading.CancellationToken)
+  fullName: NBitcoin.Socks.SocksHelper.Handshake(System.Net.Sockets.Socket, System.Net.EndPoint, System.Threading.CancellationToken)
+  nameWithType: SocksHelper.Handshake(Socket, EndPoint, CancellationToken)
+- uid: NBitcoin.Socks.SocksHelper.Handshake*
+  name: Handshake
+  href: api/NBitcoin.Socks.SocksHelper.html#NBitcoin_Socks_SocksHelper_Handshake_
+  commentId: Overload:NBitcoin.Socks.SocksHelper.Handshake
+  isSpec: "True"
+  fullName: NBitcoin.Socks.SocksHelper.Handshake
+  nameWithType: SocksHelper.Handshake
 - uid: NBitcoin.SPV
   name: NBitcoin.SPV
   href: api/NBitcoin.SPV.html
@@ -61541,6 +62051,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Utils.GetHashCode
   nameWithType: Utils.GetHashCode
+- uid: NBitcoin.Utils.ParseEndpoint(System.String,System.Int32)
+  name: ParseEndpoint(String, Int32)
+  href: api/NBitcoin.Utils.html#NBitcoin_Utils_ParseEndpoint_System_String_System_Int32_
+  commentId: M:NBitcoin.Utils.ParseEndpoint(System.String,System.Int32)
+  fullName: NBitcoin.Utils.ParseEndpoint(System.String, System.Int32)
+  nameWithType: Utils.ParseEndpoint(String, Int32)
+- uid: NBitcoin.Utils.ParseEndpoint*
+  name: ParseEndpoint
+  href: api/NBitcoin.Utils.html#NBitcoin_Utils_ParseEndpoint_
+  commentId: Overload:NBitcoin.Utils.ParseEndpoint
+  isSpec: "True"
+  fullName: NBitcoin.Utils.ParseEndpoint
+  nameWithType: Utils.ParseEndpoint
 - uid: NBitcoin.Utils.ParseIpEndpoint(System.String,System.Int32)
   name: ParseIpEndpoint(String, Int32)
   href: api/NBitcoin.Utils.html#NBitcoin_Utils_ParseIpEndpoint_System_String_System_Int32_
@@ -61679,6 +62202,22 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Utils.ToUInt64
   nameWithType: Utils.ToUInt64
+- uid: NBitcoin.Utils.TryParseEndpoint(System.String,System.Int32,System.Net.EndPoint@)
+  name: TryParseEndpoint(String, Int32, out EndPoint)
+  href: api/NBitcoin.Utils.html#NBitcoin_Utils_TryParseEndpoint_System_String_System_Int32_System_Net_EndPoint__
+  commentId: M:NBitcoin.Utils.TryParseEndpoint(System.String,System.Int32,System.Net.EndPoint@)
+  name.vb: TryParseEndpoint(String, Int32, ByRef EndPoint)
+  fullName: NBitcoin.Utils.TryParseEndpoint(System.String, System.Int32, out System.Net.EndPoint)
+  fullName.vb: NBitcoin.Utils.TryParseEndpoint(System.String, System.Int32, ByRef System.Net.EndPoint)
+  nameWithType: Utils.TryParseEndpoint(String, Int32, out EndPoint)
+  nameWithType.vb: Utils.TryParseEndpoint(String, Int32, ByRef EndPoint)
+- uid: NBitcoin.Utils.TryParseEndpoint*
+  name: TryParseEndpoint
+  href: api/NBitcoin.Utils.html#NBitcoin_Utils_TryParseEndpoint_
+  commentId: Overload:NBitcoin.Utils.TryParseEndpoint
+  isSpec: "True"
+  fullName: NBitcoin.Utils.TryParseEndpoint
+  nameWithType: Utils.TryParseEndpoint
 - uid: NBitcoin.Utils.UnixTimeToDateTime(System.Int64)
   name: UnixTimeToDateTime(Int64)
   href: api/NBitcoin.Utils.html#NBitcoin_Utils_UnixTimeToDateTime_System_Int64_
