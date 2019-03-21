@@ -264,6 +264,15 @@ namespace NBitcoin
 			return Utils.MapToIPv6(address);
 #endif
 		}
+		public static IPEndPoint MapToIPv6Ex(this IPEndPoint endpoint)
+		{
+			if (endpoint == null)
+				throw new ArgumentNullException(nameof(endpoint));
+			if (endpoint.AddressFamily == AddressFamily.InterNetworkV6)
+				return endpoint;
+			var ipv6 = endpoint.Address.MapToIPv6Ex();
+			return new IPEndPoint(ipv6, endpoint.Port);
+		}
 		public static bool IsIPv4MappedToIPv6Ex(this IPAddress address)
 		{
 #if CLASSICDOTNET

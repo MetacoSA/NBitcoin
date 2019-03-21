@@ -713,7 +713,7 @@ namespace NBitcoin.Protocol
 			{
 				await parameters.EndpointConnector.ConnectSocket(socket, endpoint, parameters.ConnectCancellation).ConfigureAwait(false);
 				var peerEndpoint = (endpoint as IPEndPoint) ?? endpoint.AsOnionCatIPEndpoint() ?? (socket.RemoteEndPoint as IPEndPoint);
-				if (!peerEndpoint.Equals(peer.Endpoint))
+				if (!peerEndpoint.MapToIPv6Ex().Equals(peer.Endpoint))
 					throw new ArgumentException("The peer's endpoint that you provided is different from the endpoint eventually connected to");
 			}
 			catch (OperationCanceledException)
