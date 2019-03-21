@@ -48,7 +48,7 @@ namespace NBitcoin.Protocol.Connectors
 			var args = new SocketAsyncEventArgs();
 			using (cancellationToken.Register(() =>
 			{
-				completion.TrySetCanceled(cancellationToken);
+				completion.TrySetCanceled();
 			}, false))
 			{
 				args.RemoteEndPoint = endpoint;
@@ -60,7 +60,15 @@ namespace NBitcoin.Protocol.Connectors
 				{
 					completion.TrySetResult(true);
 				}
-				await completion.Task;
+				try
+				{
+					await completion.Task;
+				}
+				catch
+				{
+					cancellationToken.ThrowIfCancellationRequested();
+					throw;
+				}
 			}
 				if (args.SocketError != SocketError.Success)
 					throw new SocketException((int)args.SocketError);
