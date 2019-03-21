@@ -686,7 +686,7 @@ namespace NBitcoin.Protocol
 
 		public static async Task<Node> ConnectAsync(Network network, EndPoint endpoint, NetworkAddress peer, NodeConnectionParameters parameters)
 		{
-			if (endpoint == null)
+			if (endpoint == null && peer == null)
 				throw new ArgumentNullException(nameof(endpoint));
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
@@ -698,6 +698,11 @@ namespace NBitcoin.Protocol
 					Endpoint = endpoint as IPEndPoint
 				};
 			}
+			else if (endpoint == null)
+			{
+				endpoint = peer.Endpoint;
+			}
+
 			parameters = parameters ?? new NodeConnectionParameters();
 			var addrman = AddressManagerBehavior.GetAddrman(parameters);
 
@@ -707,7 +712,9 @@ namespace NBitcoin.Protocol
 			try
 			{
 				await parameters.EndpointConnector.ConnectSocket(socket, endpoint, parameters.ConnectCancellation).ConfigureAwait(false);
-				peer.Endpoint = (endpoint as IPEndPoint) ?? (socket.RemoteEndPoint as IPEndPoint);
+				var peerEndpoint = (endpoint as IPEndPoint) ?? endpoint.AsOnionCatIPEndpoint() ?? (socket.RemoteEndPoint as IPEndPoint);
+				if (!peerEndpoint.Equals(peer.Endpoint))
+					throw new ArgumentException("The peer's endpoint that you provided is different from the endpoint eventually connected to");
 			}
 			catch (OperationCanceledException)
 			{
@@ -725,6 +732,8 @@ namespace NBitcoin.Protocol
 					addrman.Attempt(peer);
 				throw;
 			}
+
+			var destinationEndpoint = endpoint.AsOnionCatIPEndpoint() ?? ((IPEndPoint)socket.RemoteEndPoint);
 			Node node = new Node(peer, network, parameters, socket, null);
 			return node;
 		}
@@ -752,9 +761,9 @@ namespace NBitcoin.Protocol
 
 		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters, Socket socket, VersionPayload peerVersion)
 		{
-			_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
-			_RemoteSocketEndpoint = ((IPEndPoint)socket.RemoteEndPoint);
-			_RemoteSocketPort = ((IPEndPoint)socket.RemoteEndPoint).Port;
+			_RemoteSocketAddress = peer.Endpoint.Address;
+			_RemoteSocketEndpoint = peer.Endpoint;
+			_RemoteSocketPort = peer.Endpoint.Port;
 			_Peer = peer;
 			Inbound = peerVersion != null;
 			Network = network;

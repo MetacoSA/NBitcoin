@@ -1088,6 +1088,24 @@ namespace NBitcoin.Tests
 		}
 
 #if !NOSOCKET
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void onioncat_test()
+		{
+			var ip1 = Utils.ParseEndpoint("FD87:D87E:EB43:edb1:8e4:3588:e546:35ca", 10);
+			var ip2 = Utils.ParseEndpoint("5wyqrzbvrdsumnok.onion", 10);
+			Assert.True(ip1.IsTor());
+			Assert.True(ip2.IsTor());
+			Assert.IsType<IPEndPoint>(ip1);
+			Assert.IsType<DnsEndPoint>(ip2);
+
+			ip2 = ip2.AsOnionCatIPEndpoint();
+			Assert.True(ip2.IsTor());
+			Assert.Equal(ip1, ip2);
+			Assert.True(((IPEndPoint)ip1).Address.IsRoutable(false));
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseEndpoint()

@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using NBitcoin.DataEncoders;
 
 namespace NBitcoin
 {
@@ -204,6 +205,41 @@ namespace NBitcoin
 		{
 			var bytes = address.GetAddressBytes();
 			return ((Utils.ArrayEqual(bytes, 0, pchOnionCat, 0, pchOnionCat.Length) ? 0 : 1) == 0);
+		}
+		public static bool IsTor(this EndPoint endpoint)
+		{
+			if (endpoint == null)
+				throw new ArgumentNullException(nameof(endpoint));
+			if (endpoint is IPEndPoint ip)
+				return IsTor(ip.Address);
+			else if (endpoint is DnsEndPoint dns)
+				return AsOnionCatIPEndpoint(dns) != null;
+			else
+				return false;
+		}
+		public static IPEndPoint AsOnionCatIPEndpoint(this EndPoint endpoint)
+		{
+			if (endpoint == null)
+				throw new ArgumentNullException(nameof(endpoint));
+			if (endpoint is IPEndPoint ip)
+			{
+				if (!IsTor(ip.Address))
+					return null;
+				return ip;
+			}
+			if (endpoint is DnsEndPoint dns)
+			{
+				if (!dns.Host.EndsWith(".onion", StringComparison.OrdinalIgnoreCase))
+					return null;
+				var ipArray = new byte[16];
+				var vchAddr = Encoders.Base32.DecodeData(dns.Host.Substring(0, dns.Host.Length - 6));
+				if (vchAddr.Length != 16 - pchOnionCat.Length)
+					return null;
+				Array.Copy(pchOnionCat, ipArray, pchOnionCat.Length);
+				Array.Copy(vchAddr, 0, ipArray, pchOnionCat.Length, vchAddr.Length);
+				return new IPEndPoint(new IPAddress(ipArray), dns.Port);
+			}
+			return null;
 		}
 		public static IPAddress EnsureIPv6(this IPAddress address)
 		{

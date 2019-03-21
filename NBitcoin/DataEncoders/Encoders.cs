@@ -64,6 +64,15 @@ namespace NBitcoin.DataEncoders
 			}
 		}
 
+		static readonly Base32Encoder _Base32 = new Base32Encoder();
+		public static DataEncoder Base32
+		{
+			get
+			{
+				return _Base32;
+			}
+		}
+
 		private static readonly Base58CheckEncoder _Base58Check = new Base58CheckEncoder();
 		public static DataEncoder Base58Check
 		{
