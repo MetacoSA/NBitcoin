@@ -679,11 +679,11 @@ namespace NBitcoin.Protocol
 			return ConnectAsync(network, endpoint, parameters).GetAwaiter().GetResult();
 		}
 
-		public static Task<Node> ConnectAsync(Network network, EndPoint endpoint, NodeConnectionParameters parameters)
+		public static Task<Node> ConnectAsync(Network network, EndPoint endpoint, NodeConnectionParameters parameters = null)
 		{
 			return ConnectAsync(network, endpoint, null, parameters);
 		}
-		public static Task<Node> ConnectAsync(Network network, string endpoint, NodeConnectionParameters parameters)
+		public static Task<Node> ConnectAsync(Network network, string endpoint, NodeConnectionParameters parameters = null)
 		{
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));

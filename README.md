@@ -139,12 +139,23 @@ NBitcoin notably includes:
 * Mnemonic code for generating deterministic keys ([BIP 39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)), credits to [Thasshiznets](https://github.com/Thashiznets/BIP39.NET)
 * Hierarchical Deterministic Wallets ([BIP 32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki))
 * Payment URLs ([BIP 21](https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki))
+* Full Bitcoin P2P implementation with SOCKS5 support for connecting through TOR
 
 Please read our [ebook](https://programmingblockchain.gitbooks.io/programmingblockchain/content/) to understand the capabilities.
 
 NBitcoin is inspired by Bitcoin Core code but provides a simpler object oriented API (e.g., new Key().PubKey.Address.ToString() to generate a key and get the associated address). It relies on the BouncyCastle cryptography library instead of OpenSSL, yet replicates OpenSSL bugs to guarantee compatibility. NBitcoin also ports the integrality of Bitcoin Core unit tests with their original data in order to validate the compatibility of the two implementations.
 
 NBitcoin is licensed under the [MIT License](https://opensource.org/licenses/MIT) and we encourage you to use it to explore, learn, debug, play, share and create software for Bitcoin and with other Metaco services.
+
+## How to connect use a SOCKS5 proxy to connect to a Bitcoin node?
+
+Here an example which assume you run TOR with SOCKS5 proxy on port 9050.
+```csharp
+var connectionParameters = new NodeConnectionParameters();
+connectionParameters.TemplateBehaviors.Add(new SocksSettingsBehavior(Utils.ParseEndpoint("localhost", 9050)));
+Node node = await Node.ConnectAsync(Network.Main, "7xnmrhmkvptbcvpl.onion:8333", connectionParameters);
+node.VersionHandshake();
+```
 
 ## Some OSS projects using NBitcoin
 
