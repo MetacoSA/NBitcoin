@@ -821,12 +821,20 @@ namespace NBitcoin
 			var index = hostPort.LastIndexOf(':');
 			if (index != -1)
 			{
-				var portStr = hostPort.Substring(index + 1);
-				if (ushort.TryParse(portStr, out port))
+				var index2 = hostPort.IndexOf(':');
+				if (index2 == index || hostPort.IndexOf(']') != -1)
 				{
-					host = hostPort.Substring(0, index);
+					var portStr = hostPort.Substring(index + 1);
+					if (ushort.TryParse(portStr, out port))
+					{
+						host = hostPort.Substring(0, index);
+					}
+					else
+					{
+						port = (ushort)defaultPort;
+					}
 				}
-				else
+				else // At least two ':', this should be considered IPv6 without port
 				{
 					port = (ushort)defaultPort;
 				}

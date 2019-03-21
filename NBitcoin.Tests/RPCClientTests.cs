@@ -1130,7 +1130,11 @@ namespace NBitcoin.Tests
 			Assert.Equal("10.10.1.3", Assert.IsType<IPEndPoint>(endpoint).Address.ToString());
 			Assert.Equal(94, Assert.IsType<IPEndPoint>(endpoint).Port);
 
-			endpoint = Utils.ParseEndpoint("2001:db8:1f70::999:de8:7648:6e8:100", 90);
+			endpoint = Utils.ParseEndpoint("::1", 90);
+			Assert.Equal("[::1]:90", Assert.IsType<IPEndPoint>(endpoint).ToString());
+			Assert.Equal(90, Assert.IsType<IPEndPoint>(endpoint).Port);
+
+			endpoint = Utils.ParseEndpoint("[2001:db8:1f70::999:de8:7648:6e8]:100", 90);
 			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", Assert.IsType<IPEndPoint>(endpoint).Address.ToString());
 			Assert.Equal(100, Assert.IsType<IPEndPoint>(endpoint).Port);
 
