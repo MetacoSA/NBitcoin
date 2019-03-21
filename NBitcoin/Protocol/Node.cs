@@ -755,13 +755,13 @@ namespace NBitcoin.Protocol
 			_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
 			_RemoteSocketEndpoint = ((IPEndPoint)socket.RemoteEndPoint);
 			_RemoteSocketPort = ((IPEndPoint)socket.RemoteEndPoint).Port;
+			_Peer = peer;
 			Inbound = peerVersion != null;
+			Network = network;
 			_Behaviors = new NodeBehaviorsCollection(this);
 			_MyVersion = parameters.CreateVersion(peer.Endpoint, network);
-			if(peerVersion == null)
-				SetVersion((uint)_MyVersion.Version);
-			Network = network;
-			_Peer = peer;
+			if (peerVersion == null)
+				SetVersion((uint)_MyVersion.Version);			
 			_Connection = new NodeConnection(this, socket);
 			_PeerVersion = peerVersion;
 			if(peerVersion != null)
@@ -771,7 +771,7 @@ namespace NBitcoin.Protocol
 
 			LastSeen = peer.Time;
 			ConnectedAt = DateTimeOffset.UtcNow;
-			Logs.NodeServer.LogInformation("Connected to advertised node {endpoint}", _Peer.Endpoint);
+			Logs.NodeServer.LogInformation("Connected to node {endpoint} (inbound: {inbound})", _Peer.Endpoint, Inbound);
 			State = NodeState.Connected;
 
 			InitDefaultBehaviors(parameters);
