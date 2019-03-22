@@ -7,7 +7,7 @@ using NBitcoin.Protocol;
 
 namespace NBitcoin
 {
-	public class uint256
+	public class uint256 : IEquatable<uint256>
 	{
 		public class MutableUint256 : IBitcoinSerializable
 		{
@@ -283,6 +283,8 @@ namespace NBitcoin
 			return equals;
 		}
 
+		public bool Equals(uint256 other) => this == other;
+
 		public static bool operator ==(uint256 a, uint256 b)
 		{
 			if(System.Object.ReferenceEquals(a, b))
@@ -473,7 +475,7 @@ namespace NBitcoin
 			return hash;
 		}
 	}
-	public class uint160
+	public class uint160 : IEquatable<uint160>
 	{
 		public class MutableUint160 : IBitcoinSerializable
 		{
@@ -672,6 +674,8 @@ namespace NBitcoin
 			equals &= pn4 == item.pn4;
 			return equals;
 		}
+
+		public bool Equals(uint160 other) => this == other;
 
 		public static bool operator ==(uint160 a, uint160 b)
 		{
