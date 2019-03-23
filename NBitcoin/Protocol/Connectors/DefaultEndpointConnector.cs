@@ -14,12 +14,15 @@ namespace NBitcoin.Protocol.Connectors
 {
 	public class DefaultEndpointConnector : IEnpointConnector
 	{
-		public SocketType SocketType { get; set; } = SocketType.Stream;
-		public ProtocolType ProtocolType { get; set; } = ProtocolType.Tcp;
 
 		public DefaultEndpointConnector()
 		{
 
+		}
+
+		public IEnpointConnector Clone()
+		{
+			return new DefaultEndpointConnector();
 		}
 
 		public async Task ConnectSocket(Socket socket, EndPoint endpoint, NodeConnectionParameters nodeConnectionParameters, CancellationToken cancellationToken)
