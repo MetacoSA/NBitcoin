@@ -271,7 +271,7 @@ namespace NBitcoin
 
 		public bool Equals(uint256 other)
 		{
-			if (other == null)
+			if (other is null)
 			{
 				return false;
 			}
@@ -672,7 +672,7 @@ namespace NBitcoin
 
 		public bool Equals(uint160 other)
 		{
-			if (other == null)
+			if (other is null)
 				return false;
 			bool equals = true;
 			equals &= pn0 == other.pn0;
