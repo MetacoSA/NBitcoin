@@ -39321,6 +39321,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.DefaultEndpointConnector
   nameWithType: DefaultEndpointConnector.DefaultEndpointConnector
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.Clone
+  name: Clone()
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_Clone
+  commentId: M:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.Clone
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.Clone()
+  nameWithType: DefaultEndpointConnector.Clone()
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.Clone*
+  name: Clone
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_Clone_
+  commentId: Overload:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.Clone
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.Clone
+  nameWithType: DefaultEndpointConnector.Clone
 - uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ConnectSocket(System.Net.Sockets.Socket,System.Net.EndPoint,NBitcoin.Protocol.NodeConnectionParameters,System.Threading.CancellationToken)
   name: ConnectSocket(Socket, EndPoint, NodeConnectionParameters, CancellationToken)
   href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_ConnectSocket_System_Net_Sockets_Socket_System_Net_EndPoint_NBitcoin_Protocol_NodeConnectionParameters_System_Threading_CancellationToken_
@@ -39334,38 +39347,25 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ConnectSocket
   nameWithType: DefaultEndpointConnector.ConnectSocket
-- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ProtocolType
-  name: ProtocolType
-  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_ProtocolType
-  commentId: P:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ProtocolType
-  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ProtocolType
-  nameWithType: DefaultEndpointConnector.ProtocolType
-- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ProtocolType*
-  name: ProtocolType
-  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_ProtocolType_
-  commentId: Overload:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ProtocolType
-  isSpec: "True"
-  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.ProtocolType
-  nameWithType: DefaultEndpointConnector.ProtocolType
-- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.SocketType
-  name: SocketType
-  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_SocketType
-  commentId: P:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.SocketType
-  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.SocketType
-  nameWithType: DefaultEndpointConnector.SocketType
-- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.SocketType*
-  name: SocketType
-  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_SocketType_
-  commentId: Overload:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.SocketType
-  isSpec: "True"
-  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.SocketType
-  nameWithType: DefaultEndpointConnector.SocketType
 - uid: NBitcoin.Protocol.Connectors.IEnpointConnector
   name: IEnpointConnector
   href: api/NBitcoin.Protocol.Connectors.IEnpointConnector.html
   commentId: T:NBitcoin.Protocol.Connectors.IEnpointConnector
   fullName: NBitcoin.Protocol.Connectors.IEnpointConnector
   nameWithType: IEnpointConnector
+- uid: NBitcoin.Protocol.Connectors.IEnpointConnector.Clone
+  name: Clone()
+  href: api/NBitcoin.Protocol.Connectors.IEnpointConnector.html#NBitcoin_Protocol_Connectors_IEnpointConnector_Clone
+  commentId: M:NBitcoin.Protocol.Connectors.IEnpointConnector.Clone
+  fullName: NBitcoin.Protocol.Connectors.IEnpointConnector.Clone()
+  nameWithType: IEnpointConnector.Clone()
+- uid: NBitcoin.Protocol.Connectors.IEnpointConnector.Clone*
+  name: Clone
+  href: api/NBitcoin.Protocol.Connectors.IEnpointConnector.html#NBitcoin_Protocol_Connectors_IEnpointConnector_Clone_
+  commentId: Overload:NBitcoin.Protocol.Connectors.IEnpointConnector.Clone
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Connectors.IEnpointConnector.Clone
+  nameWithType: IEnpointConnector.Clone
 - uid: NBitcoin.Protocol.Connectors.IEnpointConnector.ConnectSocket(System.Net.Sockets.Socket,System.Net.EndPoint,NBitcoin.Protocol.NodeConnectionParameters,System.Threading.CancellationToken)
   name: ConnectSocket(Socket, EndPoint, NodeConnectionParameters, CancellationToken)
   href: api/NBitcoin.Protocol.Connectors.IEnpointConnector.html#NBitcoin_Protocol_Connectors_IEnpointConnector_ConnectSocket_System_Net_Sockets_Socket_System_Net_EndPoint_NBitcoin_Protocol_NodeConnectionParameters_System_Threading_CancellationToken_
