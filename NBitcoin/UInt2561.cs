@@ -7,7 +7,7 @@ using NBitcoin.Protocol;
 
 namespace NBitcoin
 {
-	public class uint256
+	public class uint256 : IEquatable<uint256>
 	{
 		public class MutableUint256 : IBitcoinSerializable
 		{
@@ -266,20 +266,25 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			var item = obj as uint256;
-			if(item == null)
+			return Equals(item);
+		}
+
+		public bool Equals(uint256 other)
+		{
+			if (other is null)
 			{
 				return false;
 			}
 
 			bool equals = true;
-			equals &= pn0 == item.pn0;
-			equals &= pn1 == item.pn1;
-			equals &= pn2 == item.pn2;
-			equals &= pn3 == item.pn3;
-			equals &= pn4 == item.pn4;
-			equals &= pn5 == item.pn5;
-			equals &= pn6 == item.pn6;
-			equals &= pn7 == item.pn7;
+			equals &= pn0 == other.pn0;
+			equals &= pn1 == other.pn1;
+			equals &= pn2 == other.pn2;
+			equals &= pn3 == other.pn3;
+			equals &= pn4 == other.pn4;
+			equals &= pn5 == other.pn5;
+			equals &= pn6 == other.pn6;
+			equals &= pn7 == other.pn7;
 			return equals;
 		}
 
@@ -473,7 +478,7 @@ namespace NBitcoin
 			return hash;
 		}
 	}
-	public class uint160
+	public class uint160 : IEquatable<uint160>
 	{
 		public class MutableUint160 : IBitcoinSerializable
 		{
@@ -662,14 +667,19 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			var item = obj as uint160;
-			if(item == null)
+			return Equals(item);
+		}
+
+		public bool Equals(uint160 other)
+		{
+			if (other is null)
 				return false;
 			bool equals = true;
-			equals &= pn0 == item.pn0;
-			equals &= pn1 == item.pn1;
-			equals &= pn2 == item.pn2;
-			equals &= pn3 == item.pn3;
-			equals &= pn4 == item.pn4;
+			equals &= pn0 == other.pn0;
+			equals &= pn1 == other.pn1;
+			equals &= pn2 == other.pn2;
+			equals &= pn3 == other.pn3;
+			equals &= pn4 == other.pn4;
 			return equals;
 		}
 
