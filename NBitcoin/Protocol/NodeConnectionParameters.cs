@@ -45,6 +45,7 @@ namespace NBitcoin.Protocol
 			Nonce = other.Nonce;
 			Advertize = other.Advertize;
 			PreferredTransactionOptions = other.PreferredTransactionOptions;
+			EndpointConnector = other.EndpointConnector;
 			foreach(var behavior in other.TemplateBehaviors)
 			{
 				TemplateBehaviors.Add(behavior.Clone());
