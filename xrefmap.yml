@@ -39314,6 +39314,12 @@ references:
   commentId: M:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.#ctor
   fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.DefaultEndpointConnector()
   nameWithType: DefaultEndpointConnector.DefaultEndpointConnector()
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.#ctor(System.Boolean)
+  name: DefaultEndpointConnector(Boolean)
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector__ctor_System_Boolean_
+  commentId: M:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.#ctor(System.Boolean)
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.DefaultEndpointConnector(System.Boolean)
+  nameWithType: DefaultEndpointConnector.DefaultEndpointConnector(Boolean)
 - uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.#ctor*
   name: DefaultEndpointConnector
   href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector__ctor_
@@ -39321,6 +39327,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.DefaultEndpointConnector
   nameWithType: DefaultEndpointConnector.DefaultEndpointConnector
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.AllowOnlyTorEndpoints
+  name: AllowOnlyTorEndpoints
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_AllowOnlyTorEndpoints
+  commentId: P:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.AllowOnlyTorEndpoints
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.AllowOnlyTorEndpoints
+  nameWithType: DefaultEndpointConnector.AllowOnlyTorEndpoints
+- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.AllowOnlyTorEndpoints*
+  name: AllowOnlyTorEndpoints
+  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_AllowOnlyTorEndpoints_
+  commentId: Overload:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.AllowOnlyTorEndpoints
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.AllowOnlyTorEndpoints
+  nameWithType: DefaultEndpointConnector.AllowOnlyTorEndpoints
 - uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.Clone
   name: Clone()
   href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_Clone
@@ -61072,6 +61091,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.uint160.AsBitcoinSerializable
   nameWithType: uint160.AsBitcoinSerializable
+- uid: NBitcoin.uint160.Equals(NBitcoin.uint160)
+  name: Equals(uint160)
+  href: api/NBitcoin.uint160.html#NBitcoin_uint160_Equals_NBitcoin_uint160_
+  commentId: M:NBitcoin.uint160.Equals(NBitcoin.uint160)
+  fullName: NBitcoin.uint160.Equals(NBitcoin.uint160)
+  nameWithType: uint160.Equals(uint160)
 - uid: NBitcoin.uint160.Equals(System.Object)
   name: Equals(Object)
   href: api/NBitcoin.uint160.html#NBitcoin_uint160_Equals_System_Object_
@@ -61484,6 +61509,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.uint256.AsBitcoinSerializable
   nameWithType: uint256.AsBitcoinSerializable
+- uid: NBitcoin.uint256.Equals(NBitcoin.uint256)
+  name: Equals(uint256)
+  href: api/NBitcoin.uint256.html#NBitcoin_uint256_Equals_NBitcoin_uint256_
+  commentId: M:NBitcoin.uint256.Equals(NBitcoin.uint256)
+  fullName: NBitcoin.uint256.Equals(NBitcoin.uint256)
+  nameWithType: uint256.Equals(uint256)
 - uid: NBitcoin.uint256.Equals(System.Object)
   name: Equals(Object)
   href: api/NBitcoin.uint256.html#NBitcoin_uint256_Equals_System_Object_
