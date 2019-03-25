@@ -253,28 +253,51 @@ namespace NBitcoin
 		/// <returns>An onion DNS endpoint or null</returns>
 		public static DnsEndPoint AsOnionDNSEndpoint(this EndPoint endpoint)
 		{
+			TryConvertToOnionDNSEndpoint(endpoint, out var dns);
+			return dns;
+		}
+
+		/// <summary>
+		/// Convert an onion cat IPEndpoint to an onion DnsEndpoint
+		/// If endpoint is already an onion DnsEndpoint, return it.
+		/// </summary>
+		/// <param name="endpoint">The tor endpoint</param>
+		/// <param name="dnsEndpoint">The onion dns enpoint</param>
+		/// <returns>True if the onioncat address has been successfully parsed as a dns onion address</returns>
+		public static bool TryConvertToOnionDNSEndpoint(this EndPoint endpoint, out DnsEndPoint dnsEndpoint)
+		{
 			if (endpoint == null)
 				throw new ArgumentNullException(nameof(endpoint));
 			if (endpoint is IPEndPoint ip)
 			{
-				if (!IsTor(ip.Address))
-					return null;
+				var bytes = ip.Address.GetAddressBytes();
+				if (((Utils.ArrayEqual(bytes, 0, pchOnionCat, 0, pchOnionCat.Length) ? 0 : 1) != 0))
+				{
+					dnsEndpoint = null;
+					return false;
+				}
 				try
 				{
-					var onionHost = Encoders.Base32.EncodeData(ip.Address.GetAddressBytes(), pchOnionCat.Length, 16 - pchOnionCat.Length);
-					return new DnsEndPoint($"{onionHost}.onion", ip.Port);
+					var onionHost = Encoders.Base32.EncodeData(bytes, pchOnionCat.Length, 16 - pchOnionCat.Length);
+					dnsEndpoint = new DnsEndPoint($"{onionHost}.onion", ip.Port);
+					return true;
 				}
 				catch
 				{
-					return null;
+					dnsEndpoint = null;
+					return false;
 				}
 			}
 			else if (endpoint is DnsEndPoint dns)
 			{
 				if (AsOnionCatIPEndpoint(dns) != null)
-					return dns;
+				{
+					dnsEndpoint = dns;
+					return true;
+				}
 			}
-			return null;
+			dnsEndpoint = null;
+			return false;
 		}
 
 		/// <summary>
@@ -299,12 +322,19 @@ namespace NBitcoin
 				if (!dns.Host.EndsWith(".onion", StringComparison.OrdinalIgnoreCase))
 					return null;
 				var ipArray = new byte[16];
-				var vchAddr = Encoders.Base32.DecodeData(dns.Host.Substring(0, dns.Host.Length - 6));
-				if (vchAddr.Length != 16 - pchOnionCat.Length)
+				try
+				{
+					var vchAddr = Encoders.Base32.DecodeData(dns.Host.Substring(0, dns.Host.Length - 6));
+					if (vchAddr.Length != 16 - pchOnionCat.Length)
+						return null;
+					Array.Copy(pchOnionCat, ipArray, pchOnionCat.Length);
+					Array.Copy(vchAddr, 0, ipArray, pchOnionCat.Length, vchAddr.Length);
+					return new IPEndPoint(new IPAddress(ipArray), dns.Port);
+				}
+				catch
+				{
 					return null;
-				Array.Copy(pchOnionCat, ipArray, pchOnionCat.Length);
-				Array.Copy(vchAddr, 0, ipArray, pchOnionCat.Length, vchAddr.Length);
-				return new IPEndPoint(new IPAddress(ipArray), dns.Port);
+				}
 			}
 			return null;
 		}

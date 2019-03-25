@@ -14,11 +14,13 @@ namespace NBitcoin.Socks
 		static readonly byte[] SelectionMessage = new byte[] { 5, 1, 0 };
 		internal static byte[] CreateConnectMessage(EndPoint endpoint)
 		{
+			if (endpoint == null)
+				throw new ArgumentNullException(nameof(endpoint));
 			byte[] sendBuffer = null;
 			ushort port = 0;
 
-			if (endpoint is IPEndPoint onionIP && onionIP.Address.IsTor())
-				endpoint = onionIP.AsOnionDNSEndpoint();
+			if (endpoint.TryConvertToOnionDNSEndpoint(out var onionEndpoint))
+				endpoint = onionEndpoint;
 			else if (endpoint is IPEndPoint ip6mapped && ip6mapped.Address.IsIPv4MappedToIPv6Ex())
 				endpoint = new IPEndPoint(ip6mapped.Address.MapToIPv4Ex(), ip6mapped.Port);
 
