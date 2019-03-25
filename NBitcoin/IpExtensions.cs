@@ -259,8 +259,15 @@ namespace NBitcoin
 			{
 				if (!IsTor(ip.Address))
 					return null;
-				var onionHost = Encoders.Base32.EncodeData(ip.Address.GetAddressBytes(), pchOnionCat.Length, 16 - pchOnionCat.Length);
-				return new DnsEndPoint($"{onionHost}.onion", ip.Port);
+				try
+				{
+					var onionHost = Encoders.Base32.EncodeData(ip.Address.GetAddressBytes(), pchOnionCat.Length, 16 - pchOnionCat.Length);
+					return new DnsEndPoint($"{onionHost}.onion", ip.Port);
+				}
+				catch (FormatException)
+				{
+					return null;
+				}
 			}
 			else if (endpoint is DnsEndPoint dns)
 			{

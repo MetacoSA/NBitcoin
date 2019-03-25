@@ -31,8 +31,11 @@ namespace NBitcoin.DataEncoders
 			while (stri % 8 != 0) str[stri++] = '=';
 			return new string(str);
 		}
-
+#if HAS_SPAN
+		static bool ConvertBits(Action<byte> outfn, Span<byte> val, int valOffset, int valCount, int frombits, int tobits, bool pad)
+#else
 		static bool ConvertBits(Action<byte> outfn, byte[] val, int valOffset, int valCount, int frombits, int tobits, bool pad)
+#endif
 		{
 			int acc = 0;
 			int bits = 0;
@@ -61,8 +64,14 @@ namespace NBitcoin.DataEncoders
 
 		public override byte[] DecodeData(string encoded)
 		{
+			if (encoded.Length == 0)
+				return new byte[0];
 			int p = 0;
+#if HAS_SPAN
+			Span<byte> val = encoded.Length < 100 ? stackalloc byte[encoded.Length] : new byte[encoded.Length];
+#else
 			var val = new byte[encoded.Length];
+#endif
 			var vali = 0;
 			foreach (var c in encoded)
 			{
@@ -72,7 +81,8 @@ namespace NBitcoin.DataEncoders
 				++p;
 			}
 
-			var ret = new byte[(val.Length * 5) / 8];
+			var ret = new byte[(encoded.Length * 5) / 8];
+
 			int reti = 0;
 			bool valid = ConvertBits((c) => ret[reti++] = c, val, 0, val.Length, 5, 8, false);
 			int q = p;
