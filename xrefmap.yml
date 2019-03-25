@@ -24985,6 +24985,22 @@ references:
   isSpec: "True"
   fullName: NBitcoin.IpExtensions.ToEndpointString
   nameWithType: IpExtensions.ToEndpointString
+- uid: NBitcoin.IpExtensions.TryConvertToOnionDNSEndpoint(System.Net.EndPoint,System.Net.DnsEndPoint@)
+  name: TryConvertToOnionDNSEndpoint(EndPoint, out DnsEndPoint)
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_TryConvertToOnionDNSEndpoint_System_Net_EndPoint_System_Net_DnsEndPoint__
+  commentId: M:NBitcoin.IpExtensions.TryConvertToOnionDNSEndpoint(System.Net.EndPoint,System.Net.DnsEndPoint@)
+  name.vb: TryConvertToOnionDNSEndpoint(EndPoint, ByRef DnsEndPoint)
+  fullName: NBitcoin.IpExtensions.TryConvertToOnionDNSEndpoint(System.Net.EndPoint, out System.Net.DnsEndPoint)
+  fullName.vb: NBitcoin.IpExtensions.TryConvertToOnionDNSEndpoint(System.Net.EndPoint, ByRef System.Net.DnsEndPoint)
+  nameWithType: IpExtensions.TryConvertToOnionDNSEndpoint(EndPoint, out DnsEndPoint)
+  nameWithType.vb: IpExtensions.TryConvertToOnionDNSEndpoint(EndPoint, ByRef DnsEndPoint)
+- uid: NBitcoin.IpExtensions.TryConvertToOnionDNSEndpoint*
+  name: TryConvertToOnionDNSEndpoint
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_TryConvertToOnionDNSEndpoint_
+  commentId: Overload:NBitcoin.IpExtensions.TryConvertToOnionDNSEndpoint
+  isSpec: "True"
+  fullName: NBitcoin.IpExtensions.TryConvertToOnionDNSEndpoint
+  nameWithType: IpExtensions.TryConvertToOnionDNSEndpoint
 - uid: NBitcoin.IPubkeyHashUsable
   name: IPubkeyHashUsable
   href: api/NBitcoin.IPubkeyHashUsable.html
