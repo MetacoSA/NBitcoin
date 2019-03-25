@@ -264,7 +264,7 @@ namespace NBitcoin
 					var onionHost = Encoders.Base32.EncodeData(ip.Address.GetAddressBytes(), pchOnionCat.Length, 16 - pchOnionCat.Length);
 					return new DnsEndPoint($"{onionHost}.onion", ip.Port);
 				}
-				catch (FormatException)
+				catch
 				{
 					return null;
 				}
