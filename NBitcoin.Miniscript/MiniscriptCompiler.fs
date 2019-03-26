@@ -35,13 +35,13 @@ module Compiler =
     module Cost =
         /// Casts F -> E
         let likely (fcost : Cost) : Cost =
-            { ast = ETree(E.Likely(fcost.ast.castFUnsafe()))
+            { ast = ETree(E.Likely(fcost.ast.CastFUnsafe()))
               pkCost = fcost.pkCost + 4u
               satCost = fcost.satCost * 1.0
               dissatCost = 2.0 }
         
         let unlikely (fcost : Cost) : Cost =
-            { ast = ETree(E.Unlikely(fcost.ast.castFUnsafe()))
+            { ast = ETree(E.Unlikely(fcost.ast.CastFUnsafe()))
               pkCost = fcost.pkCost + 4u
               satCost = fcost.satCost * 2.0
               dissatCost = 1.0 }
@@ -234,29 +234,28 @@ module Compiler =
             | VTree v -> 
                 fromPairToVCost triple.left triple.right v lweight rweight 
                 |> Array.singleton
-        
-        let min_cost (a : Cost, b : Cost, p_sat : float, p_dissat : float) =
-            let weight_one =
+            | _ -> failwith "unreachable"
+        let minCost (a : Cost, b : Cost, p_sat : float, p_dissat : float) =
+            let weightOne =
                 (float a.pkCost) + p_sat * a.satCost + p_dissat * a.dissatCost
-            let weight_two =
+            let weightTwo =
                 (float b.pkCost) + p_sat * b.satCost + p_dissat * a.dissatCost
-            if weight_one < weight_two then a
-            else if weight_one > weight_two then b
+            if weightOne < weightTwo then a
+            else if weightOne > weightTwo then b
             else if a.satCost < b.satCost then a
             else b
         
-        let fold_costs (p_sat : float) (p_dissat : float) (cs : Cost []) =
+        let foldCosts (p_sat : float) (p_dissat : float) (cs : Cost []) =
             cs
             |> Array.toList
-            |> List.reduce (fun a b -> min_cost (a, b, p_sat, p_dissat))
+            |> List.reduce (fun a b -> minCost (a, b, p_sat, p_dissat))
         
         // equivalent to rules! macro in rust-miniscript
-        let getMinimumCost (triples : CostTriple []) (p_sat) (p_dissat) 
+        let getMinimumCost (triples : CostTriple []) (pSat) (pDissat) 
             (lweight : float) (rweight : float) : Cost =
             triples
-            |> Array.map (fun p -> fromTriple p 0.0 0.0)
-            |> Array.concat
-            |> fold_costs p_sat p_dissat
+            |> Array.collect (fun p -> fromTriple p 0.0 0.0)
+            |> foldCosts pSat pDissat
 
     module CompiledNode =
         /// bytes length when a number is encoded as bitcoin CScriptNum
@@ -268,12 +267,12 @@ module Compiler =
             else 5u
         
         let private minCost (one : Cost, two : Cost, p_sat : float, p_dissat) =
-            let weight_one =
+            let weightOne =
                 (float one.pkCost) + p_sat * one.satCost + p_dissat * one.dissatCost
-            let weight_two =
+            let weightTwo =
                 (float two.pkCost) + p_sat * two.satCost + p_dissat * two.dissatCost
-            if weight_one < weight_two then one
-            else if weight_two < weight_one then one
+            if weightOne < weightTwo then one
+            else if weightTwo < weightOne then one
             else if one.satCost < two.satCost then one
             else two
         
@@ -299,11 +298,11 @@ module Compiler =
                 Or(fromPolicy e1, fromPolicy e2, 127.0 / 128.0, 1.0 / 128.0)
         
         // TODO: cache
-        let rec best_t (node : CompiledNode, p_sat : float, p_dissat : float) : Cost =
+        let rec bestT (node : CompiledNode, p_sat : float, p_dissat : float) : Cost =
             match node with
             | Pk _ | Multi _ | Threshold _ -> 
-                let e = best_e (node, p_sat, p_dissat)
-                { ast = TTree(T.CastE(e.ast.castEUnsafe()))
+                let e = bestE (node, p_sat, p_dissat)
+                { ast = TTree(T.CastE(e.ast.CastEUnsafe()))
                   pkCost = e.pkCost
                   satCost = e.satCost
                   dissatCost = 0.0 }
@@ -319,105 +318,105 @@ module Compiler =
                   satCost = 33.0
                   dissatCost = 0.0 }
             | And(l, r) -> 
-                let vl = best_v (l, p_sat, 0.0)
-                let vr = best_v (r, p_sat, 0.0)
-                let tl = best_t (l, p_sat, 0.0)
-                let tr = best_t (r, p_sat, 0.0)
+                let vl = bestV (l, p_sat, 0.0)
+                let vr = bestV (r, p_sat, 0.0)
+                let tl = bestT (l, p_sat, 0.0)
+                let tr = bestT (r, p_sat, 0.0)
                 
                 let possibleCases =
                     [| { parent =
                              TTree
-                                 (T.And(vl.ast.castVUnsafe(), tr.ast.castTUnsafe()))
+                                 (T.And(vl.ast.CastVUnsafe(), tr.ast.CastTUnsafe()))
                          left = vl
                          right = tr
                          condCombine = false }
                        { parent =
                              TTree
-                                 (T.And(vr.ast.castVUnsafe(), tl.ast.castTUnsafe()))
+                                 (T.And(vr.ast.CastVUnsafe(), tl.ast.CastTUnsafe()))
                          left = vl
                          right = tr
                          condCombine = false } |]
                 Cost.getMinimumCost possibleCases p_sat p_dissat 0.0 0.0
             | Or(l, r, lweight, rweight) -> 
-                let le = best_e (l, (p_sat * lweight), (p_sat * rweight))
-                let re = best_e (r, (p_sat * rweight), (p_sat * lweight))
-                let lw = best_w (l, (p_sat * lweight), (p_sat * rweight))
-                let rw = best_w (r, (p_sat * rweight), (p_sat * lweight))
-                let lt = best_t (l, (p_sat * lweight), 0.0)
-                let rt = best_t (r, (p_sat * lweight), 0.0)
-                let lv = best_v (l, (p_sat * lweight), 0.0)
-                let rv = best_v (r, (p_sat * lweight), 0.0)
-                let maybelq = best_q (l, (p_sat * lweight), 0.0)
-                let mayberq = best_q (r, (p_sat * lweight), 0.0)
-                
+                let le = bestE (l, (p_sat * lweight), (p_sat * rweight))
+                let re = bestE (r, (p_sat * rweight), (p_sat * lweight))
+                let lw = bestW (l, (p_sat * lweight), (p_sat * rweight))
+                let rw = bestW (r, (p_sat * rweight), (p_sat * lweight))
+                let lt = bestT (l, (p_sat * lweight), 0.0)
+                let rt = bestT (r, (p_sat * lweight), 0.0)
+                let lv = bestV (l, (p_sat * lweight), 0.0)
+                let rv = bestV (r, (p_sat * lweight), 0.0)
+                let maybelq = bestQ (l, (p_sat * lweight), 0.0)
+                let mayberq = bestQ (r, (p_sat * lweight), 0.0)
+
                 let possibleCases =
                     [| { parent =
                              TTree
                                  (T.ParallelOr
-                                      (le.ast.castEUnsafe(), rw.ast.castWUnsafe()))
+                                      (le.ast.CastEUnsafe(), rw.ast.CastWUnsafe()))
                          left = le
                          right = rw
                          condCombine = false }
                        { parent =
                              TTree
                                  (T.ParallelOr
-                                      (re.ast.castEUnsafe(), lw.ast.castWUnsafe()))
+                                      (re.ast.CastEUnsafe(), lw.ast.CastWUnsafe()))
                          left = re
                          right = lw
                          condCombine = false }
                        { parent =
                              TTree
                                  (T.CascadeOr
-                                      (le.ast.castEUnsafe(), rt.ast.castTUnsafe()))
+                                      (le.ast.CastEUnsafe(), rt.ast.CastTUnsafe()))
                          left = le
                          right = rt
                          condCombine = false }
                        { parent =
                              TTree
                                  (T.CascadeOr
-                                      (re.ast.castEUnsafe(), lt.ast.castTUnsafe()))
+                                      (re.ast.CastEUnsafe(), lt.ast.CastTUnsafe()))
                          left = re
                          right = lt
                          condCombine = false }
                        { parent =
                              TTree
                                  (T.CascadeOrV
-                                      (le.ast.castEUnsafe(), rv.ast.castVUnsafe()))
+                                      (le.ast.CastEUnsafe(), rv.ast.CastVUnsafe()))
                          left = le
                          right = rv
                          condCombine = false }
                        { parent =
                              TTree
                                  (T.CascadeOrV
-                                      (re.ast.castEUnsafe(), lv.ast.castVUnsafe()))
+                                      (re.ast.CastEUnsafe(), lv.ast.CastVUnsafe()))
                          left = re
                          right = lv
                          condCombine = false }
                        { parent =
                              TTree
                                  (T.SwitchOr
-                                      (lt.ast.castTUnsafe(), rt.ast.castTUnsafe()))
+                                      (lt.ast.CastTUnsafe(), rt.ast.CastTUnsafe()))
                          left = lt
                          right = rt
                          condCombine = false }
                        { parent =
                              TTree
                                  (T.SwitchOr
-                                      (rt.ast.castTUnsafe(), lt.ast.castTUnsafe()))
+                                      (rt.ast.CastTUnsafe(), lt.ast.CastTUnsafe()))
                          left = rt
                          right = lt
                          condCombine = false }
                        { parent =
                              TTree
                                  (T.SwitchOrV
-                                      (lv.ast.castVUnsafe(), rv.ast.castVUnsafe()))
+                                      (lv.ast.CastVUnsafe(), rv.ast.CastVUnsafe()))
                          left = lv
                          right = rv
                          condCombine = false }
                        { parent =
                              TTree
                                  (T.SwitchOrV
-                                      (rv.ast.castVUnsafe(), lv.ast.castVUnsafe()))
+                                      (rv.ast.CastVUnsafe(), lv.ast.CastVUnsafe()))
                          left = rv
                          right = lv
                          condCombine = false } |]
@@ -428,9 +427,9 @@ module Compiler =
                         Array.append possibleCases [| { parent =
                                                             TTree
                                                                 (T.DelayedOr
-                                                                     (lq.ast.castQUnsafe
+                                                                     (lq.ast.CastQUnsafe
                                                                           (), 
-                                                                      rq.ast.castQUnsafe
+                                                                      rq.ast.CastQUnsafe
                                                                           ()))
                                                         left = lq
                                                         right = rq
@@ -439,7 +438,7 @@ module Compiler =
                 
                 Cost.getMinimumCost casesWithQ p_sat 0.0 lweight rweight
         
-        and best_e (node : CompiledNode, p_sat : float, p_dissat : float) : Cost =
+        and bestE (node : CompiledNode, p_sat : float, p_dissat : float) : Cost =
             match node with
             | Pk k -> 
                 { ast = ETree(E.CheckSig k)
@@ -456,14 +455,14 @@ module Compiler =
                         dissatCost = 1.0 } ]
                 if not (p_dissat > 0.0) then options.[0]
                 else 
-                    let bestf = best_f (node, p_sat, 0.0)
+                    let bestf = bestF (node, p_sat, 0.0)
                     
                     let options2 =
                         [ Cost.likely (bestf)
                           Cost.unlikely (bestf) ]
                     List.concat [ options; options2 ]
                     |> List.toArray
-                    |> Cost.fold_costs p_sat p_dissat
+                    |> Cost.foldCosts p_sat p_dissat
             | Time n -> 
                 let num_cost = scriptNumCost (!> n)
                 { ast = ETree(E.Time n)
@@ -471,186 +470,186 @@ module Compiler =
                   satCost = 2.0
                   dissatCost = 1.0 }
             | Hash h -> 
-                let fcost = best_f (node, p_sat, p_dissat)
+                let fcost = bestF (node, p_sat, p_dissat)
                 minCost (Cost.likely fcost, Cost.unlikely fcost, p_sat, p_dissat)
             | And(l, r) -> 
-                let le = best_e (l, p_sat, p_dissat)
-                let re = best_e (r, p_sat, p_dissat)
-                let lw = best_w (l, p_sat, p_dissat)
-                let rw = best_w (r, p_sat, p_dissat)
-                let lf = best_f (l, p_sat, 0.0)
-                let rf = best_f (r, p_sat, 0.0)
-                let lv = best_v (l, p_sat, 0.0)
-                let rv = best_v (r, p_sat, 0.0)
+                let le = bestE (l, p_sat, p_dissat)
+                let re = bestE (r, p_sat, p_dissat)
+                let lw = bestW (l, p_sat, p_dissat)
+                let rw = bestW (r, p_sat, p_dissat)
+                let lf = bestF (l, p_sat, 0.0)
+                let rf = bestF (r, p_sat, 0.0)
+                let lv = bestV (l, p_sat, 0.0)
+                let rv = bestV (r, p_sat, 0.0)
                 
                 let possibleCases =
                     [| { parent =
                              ETree
                                  (E.ParallelAnd
-                                      (le.ast.castEUnsafe(), rw.ast.castWUnsafe()))
+                                      (le.ast.CastEUnsafe(), rw.ast.CastWUnsafe()))
                          left = le
                          right = rw
                          condCombine = false }
                        { parent =
                              ETree
                                  (E.ParallelAnd
-                                      (re.ast.castEUnsafe(), lw.ast.castWUnsafe()))
+                                      (re.ast.CastEUnsafe(), lw.ast.CastWUnsafe()))
                          left = re
                          right = lw
                          condCombine = false }
                        { parent =
                              ETree
                                  (E.CascadeAnd
-                                      (le.ast.castEUnsafe(), rf.ast.castFUnsafe()))
+                                      (le.ast.CastEUnsafe(), rf.ast.CastFUnsafe()))
                          left = le
                          right = rf
                          condCombine = false }
                        { parent =
                              ETree
                                  (E.CascadeAnd
-                                      (re.ast.castEUnsafe(), lf.ast.castFUnsafe()))
+                                      (re.ast.CastEUnsafe(), lf.ast.CastFUnsafe()))
                          left = re
                          right = lf
                          condCombine = false }
                        { parent =
                              FTree
-                                 (F.And(lv.ast.castVUnsafe(), rf.ast.castFUnsafe()))
+                                 (F.And(lv.ast.CastVUnsafe(), rf.ast.CastFUnsafe()))
                          left = lv
                          right = rf
                          condCombine = true }
                        { parent =
                              FTree
-                                 (F.And(rv.ast.castVUnsafe(), lf.ast.castFUnsafe()))
+                                 (F.And(rv.ast.CastVUnsafe(), lf.ast.CastFUnsafe()))
                          left = rv
                          right = lf
                          condCombine = true } |]
                 Cost.getMinimumCost possibleCases p_sat p_dissat 0.5 0.5
             | Or(l, r, lweight, rweight) -> 
                 let le_par =
-                    best_e (l, (p_sat * lweight), (p_dissat + p_sat * rweight))
+                    bestE (l, (p_sat * lweight), (p_dissat + p_sat * rweight))
                 let re_par =
-                    best_e (r, (p_sat * lweight), (p_dissat + p_sat * rweight))
+                    bestE (r, (p_sat * lweight), (p_dissat + p_sat * rweight))
                 let lw_par =
-                    best_w (l, (p_sat * lweight), (p_dissat + p_sat * rweight))
+                    bestW (l, (p_sat * lweight), (p_dissat + p_sat * rweight))
                 let rw_par =
-                    best_w (r, (p_sat * lweight), (p_dissat + p_sat * rweight))
-                let le_cas = best_e (l, (p_sat * lweight), (p_dissat))
-                let re_cas = best_e (r, (p_sat * lweight), (p_dissat))
-                let le_cond_par = best_e (l, (p_sat * lweight), (p_sat * rweight))
-                let re_cond_par = best_e (r, (p_sat * lweight), (p_sat * lweight))
-                let lv = best_v (l, (p_sat * lweight), 0.0)
-                let rv = best_v (r, (p_sat * rweight), 0.0)
-                let lf = best_f (l, (p_sat * lweight), 0.0)
-                let rf = best_f (r, (p_sat * rweight), 0.0)
-                let maybelq = best_q (l, (p_sat * lweight), 0.0)
-                let mayberq = best_q (r, (p_sat * rweight), 0.0)
+                    bestW (r, (p_sat * lweight), (p_dissat + p_sat * rweight))
+                let le_cas = bestE (l, (p_sat * lweight), (p_dissat))
+                let re_cas = bestE (r, (p_sat * lweight), (p_dissat))
+                let le_cond_par = bestE (l, (p_sat * lweight), (p_sat * rweight))
+                let re_cond_par = bestE (r, (p_sat * lweight), (p_sat * lweight))
+                let lv = bestV (l, (p_sat * lweight), 0.0)
+                let rv = bestV (r, (p_sat * rweight), 0.0)
+                let lf = bestV (l, (p_sat * lweight), 0.0)
+                let rf = bestF (r, (p_sat * rweight), 0.0)
+                let maybelq = bestQ (l, (p_sat * lweight), 0.0)
+                let mayberq = bestQ (r, (p_sat * rweight), 0.0)
                 
                 let possibleCases =
                     [| { parent =
                              ETree
                                  (E.ParallelOr
-                                      (le_par.ast.castEUnsafe(), 
-                                       rw_par.ast.castWUnsafe()))
+                                      (le_par.ast.CastEUnsafe(), 
+                                       rw_par.ast.CastWUnsafe()))
                          left = le_par
                          right = rw_par
                          condCombine = false }
                        { parent =
                              ETree
                                  (E.ParallelOr
-                                      (re_par.ast.castEUnsafe(), 
-                                       lw_par.ast.castWUnsafe()))
+                                      (re_par.ast.CastEUnsafe(), 
+                                       lw_par.ast.CastWUnsafe()))
                          left = re_par
                          right = lw_par
                          condCombine = false }
                        { parent =
                              ETree
                                  (E.CascadeOr
-                                      (le_par.ast.castEUnsafe(), 
-                                       re_cas.ast.castEUnsafe()))
+                                      (le_par.ast.CastEUnsafe(), 
+                                       re_cas.ast.CastEUnsafe()))
                          left = le_par
                          right = re_cas
                          condCombine = false }
                        { parent =
                              ETree
                                  (E.CascadeOr
-                                      (re_par.ast.castEUnsafe(), 
-                                       le_cas.ast.castEUnsafe()))
+                                      (re_par.ast.CastEUnsafe(), 
+                                       le_cas.ast.CastEUnsafe()))
                          left = re_par
                          right = le_cas
                          condCombine = false }
                        { parent =
                              ETree
                                  (E.SwitchOrLeft
-                                      (le_cas.ast.castEUnsafe(), 
-                                       rf.ast.castFUnsafe()))
+                                      (le_cas.ast.CastEUnsafe(), 
+                                       rf.ast.CastFUnsafe()))
                          left = le_cas
                          right = rf
                          condCombine = false }
                        { parent =
                              ETree
                                  (E.SwitchOrLeft
-                                      (re_cas.ast.castEUnsafe(), 
-                                       lf.ast.castFUnsafe()))
+                                      (re_cas.ast.CastEUnsafe(), 
+                                       lf.ast.CastFUnsafe()))
                          left = re_cas
                          right = lf
                          condCombine = false }
                        { parent =
                              ETree
                                  (E.SwitchOrRight
-                                      (le_cas.ast.castEUnsafe(), 
-                                       rf.ast.castFUnsafe()))
+                                      (le_cas.ast.CastEUnsafe(), 
+                                       rf.ast.CastFUnsafe()))
                          left = le_cas
                          right = rf
                          condCombine = false }
                        { parent =
                              ETree
                                  (E.SwitchOrRight
-                                      (re_cas.ast.castEUnsafe(), 
-                                       lf.ast.castFUnsafe()))
+                                      (re_cas.ast.CastEUnsafe(), 
+                                       lf.ast.CastFUnsafe()))
                          left = re_cas
                          right = lf
                          condCombine = false }
                        { parent =
                              FTree
                                  (F.CascadeOr
-                                      (le_cas.ast.castEUnsafe(), 
-                                       rv.ast.castVUnsafe()))
+                                      (le_cas.ast.CastEUnsafe(), 
+                                       rv.ast.CastVUnsafe()))
                          left = le_cas
                          right = rv
                          condCombine = true }
                        { parent =
                              FTree
                                  (F.CascadeOr
-                                      (re_cas.ast.castEUnsafe(), 
-                                       lv.ast.castVUnsafe()))
+                                      (re_cas.ast.CastEUnsafe(), 
+                                       lv.ast.CastVUnsafe()))
                          left = re_cas
                          right = lv
                          condCombine = true }
                        { parent =
                              FTree
                                  (F.SwitchOr
-                                      (lf.ast.castFUnsafe(), rf.ast.castFUnsafe()))
+                                      (lf.ast.CastFUnsafe(), rf.ast.CastFUnsafe()))
                          left = lf
                          right = rf
                          condCombine = true }
                        { parent =
                              FTree
                                  (F.SwitchOr
-                                      (rf.ast.castFUnsafe(), lf.ast.castFUnsafe()))
+                                      (rf.ast.CastFUnsafe(), lf.ast.CastFUnsafe()))
                          left = rf
                          right = lf
                          condCombine = true }
                        { parent =
                              FTree
                                  (F.SwitchOrV
-                                      (lv.ast.castVUnsafe(), rv.ast.castVUnsafe()))
+                                      (lv.ast.CastVUnsafe(), rv.ast.CastVUnsafe()))
                          left = lv
                          right = rv
                          condCombine = true }
                        { parent =
                              FTree
                                  (F.SwitchOrV
-                                      (rv.ast.castVUnsafe(), lv.ast.castVUnsafe()))
+                                      (rv.ast.CastVUnsafe(), lv.ast.CastVUnsafe()))
                          left = rv
                          right = lv
                          condCombine = true } |]
@@ -661,9 +660,9 @@ module Compiler =
                         Array.append possibleCases [| { parent =
                                                             FTree
                                                                 (F.DelayedOr
-                                                                     (lq.ast.castQUnsafe
+                                                                     (lq.ast.CastQUnsafe
                                                                           (), 
-                                                                      rq.ast.castQUnsafe
+                                                                      rq.ast.CastQUnsafe
                                                                           ()))
                                                         left = lq
                                                         right = rq
@@ -671,9 +670,9 @@ module Compiler =
                                                       { parent =
                                                             FTree
                                                                 (F.DelayedOr
-                                                                     (rq.ast.castQUnsafe
+                                                                     (rq.ast.CastQUnsafe
                                                                           (), 
-                                                                      lq.ast.castQUnsafe
+                                                                      lq.ast.CastQUnsafe
                                                                           ()))
                                                         left = rq
                                                         right = lq
@@ -685,14 +684,14 @@ module Compiler =
                 let num_cost = scriptNumCost n
                 let avgCost = float n / float subs.Length
                 let e =
-                    best_e 
+                    bestE 
                         (subs.[0], (p_sat * avgCost), 
                          (p_dissat + p_sat * (1.0 - avgCost)))
                 let ws =
                     subs 
                     |> Array.map 
                            (fun s -> 
-                           best_w 
+                           bestW 
                                (s, (p_sat * avgCost), 
                                 (p_dissat + p_sat * (1.0 - avgCost))))
                 let pk_cost =
@@ -703,21 +702,21 @@ module Compiler =
                     ws |> Array.fold (fun acc w -> acc + w.satCost) e.satCost
                 let dissat_cost =
                     ws |> Array.fold (fun acc w -> acc + w.dissatCost) e.dissatCost
-                let wsast = ws |> Array.map (fun w -> w.ast.castWUnsafe())
+                let wsast = ws |> Array.map (fun w -> w.ast.CastWUnsafe())
                 
                 let cond =
-                    { ast = ETree(E.Threshold(n, e.ast.castEUnsafe(), wsast))
+                    { ast = ETree(E.Threshold(n, e.ast.CastEUnsafe(), wsast))
                       pkCost = pk_cost
                       satCost = sat_cost
                       dissatCost = dissat_cost }
                 
-                let f = best_f (node, p_sat, 0.0)
+                let f = bestF (node, p_sat, 0.0)
                 let cond1 = Cost.likely (f)
                 let cond2 = Cost.unlikely (f)
-                let nonCond = Cost.min_cost (cond1, cond2, p_sat, p_dissat)
-                Cost.min_cost (cond, nonCond, p_sat, p_dissat)
+                let nonCond = Cost.minCost (cond1, cond2, p_sat, p_dissat)
+                Cost.minCost (cond, nonCond, p_sat, p_dissat)
         
-        and best_q (node : CompiledNode, p_sat : float, p_dissat : float) : Cost option =
+        and bestQ (node : CompiledNode, p_sat : float, p_dissat : float) : Cost option =
             match node with
             | Pk pk -> 
                 { ast = QTree(Q.Pubkey(pk))
@@ -726,11 +725,11 @@ module Compiler =
                   dissatCost = 0.0 }
                 |> Some
             | And(l, r) -> 
-                let maybelq = best_q (l, p_sat, p_dissat)
-                let mayberq = best_q (r, p_sat, p_dissat)
+                let maybelq = bestQ (l, p_sat, p_dissat)
+                let mayberq = bestQ (r, p_sat, p_dissat)
                 
                 let cost v q =
-                    { ast = QTree(Q.And(v.ast.castVUnsafe(), q.ast.castQUnsafe()))
+                    { ast = QTree(Q.And(v.ast.CastVUnsafe(), q.ast.CastQUnsafe()))
                       pkCost = v.pkCost + q.pkCost
                       satCost = v.satCost + q.satCost
                       dissatCost = 0.0 }
@@ -738,14 +737,14 @@ module Compiler =
                 let op =
                     match maybelq, mayberq with
                     | None, Some rq -> 
-                        let lv = best_v (l, p_sat, p_dissat)
+                        let lv = bestV (l, p_sat, p_dissat)
                         [| cost lv rq |]
                     | Some lq, None -> 
-                        let rv = best_v (r, p_sat, p_dissat)
+                        let rv = bestV (r, p_sat, p_dissat)
                         [| cost rv lq |]
                     | Some lq, Some rq -> 
-                        let lv = best_v (l, p_sat, p_dissat)
-                        let rv = best_v (r, p_sat, p_dissat)
+                        let lv = bestV (l, p_sat, p_dissat)
+                        let rv = bestV (r, p_sat, p_dissat)
                         [| cost lv rq
                            cost rv lq |]
                     | None, None -> [||]
@@ -753,33 +752,33 @@ module Compiler =
                 if op.Length = 0 then None
                 else 
                     op
-                    |> Cost.fold_costs p_sat p_dissat
+                    |> Cost.foldCosts p_sat p_dissat
                     |> Some
             | Or(l, r, lweight, rweight) -> 
-                let maybelq = best_q (l, (p_sat * lweight), 0.0)
-                let mayberq = best_q (r, (p_sat + rweight), 0.0)
+                let maybelq = bestQ (l, (p_sat * lweight), 0.0)
+                let mayberq = bestQ (r, (p_sat + rweight), 0.0)
                 match maybelq, mayberq with
                 | Some lq, Some rq -> 
                     [| { ast =
-                             QTree(Q.Or(lq.ast.castQUnsafe(), rq.ast.castQUnsafe()))
+                             QTree(Q.Or(lq.ast.CastQUnsafe(), rq.ast.CastQUnsafe()))
                          pkCost = lq.pkCost + rq.pkCost + 3u
                          satCost =
                              lweight * (2.0 + lq.satCost) 
                              + rweight * (1.0 + rq.satCost)
                          dissatCost = 0.0 }
                        { ast =
-                             QTree(Q.Or(rq.ast.castQUnsafe(), lq.ast.castQUnsafe()))
+                             QTree(Q.Or(rq.ast.CastQUnsafe(), lq.ast.CastQUnsafe()))
                          pkCost = rq.pkCost + lq.pkCost + 3u
                          satCost =
                              lweight * (1.0 + lq.satCost) 
                              + rweight * (2.0 + rq.satCost)
                          dissatCost = 0.0 } |]
-                    |> Cost.fold_costs p_sat p_dissat
+                    |> Cost.foldCosts p_sat p_dissat
                     |> Some
                 | _ -> None
             | _ -> None
         
-        and best_w (node : CompiledNode, p_sat : float, p_dissat : float) : Cost =
+        and bestW (node : CompiledNode, p_sat : float, p_dissat : float) : Cost =
             match node with
             | Pk k -> 
                 { ast = WTree(W.CheckSig(k))
@@ -798,11 +797,11 @@ module Compiler =
                   satCost = 33.0
                   dissatCost = 1.0 }
             | _ -> 
-                let c = best_e (node, p_sat, p_dissat)
-                { c with ast = WTree(W.CastE(c.ast.castEUnsafe()))
+                let c = bestE (node, p_sat, p_dissat)
+                { c with ast = WTree(W.CastE(c.ast.CastEUnsafe()))
                          pkCost = c.pkCost + 2u }
         
-        and best_f (node : CompiledNode, p_sat : float, p_dissat : float) : Cost =
+        and bestF (node : CompiledNode, p_sat : float, p_dissat : float) : Cost =
             match node with
             | Pk k -> 
                 { ast = FTree(F.CheckSig(k))
@@ -827,77 +826,77 @@ module Compiler =
                   satCost = 33.0
                   dissatCost = 0.0 }
             | And(l, r) -> 
-                let vl = best_v (l, p_sat, 0.0)
-                let vr = best_v (r, p_sat, 0.0)
-                let fl = best_f (l, p_sat, 0.0)
-                let fr = best_f (r, p_sat, 0.0)
+                let vl = bestV (l, p_sat, 0.0)
+                let vr = bestV (r, p_sat, 0.0)
+                let fl = bestF (l, p_sat, 0.0)
+                let fr = bestF (r, p_sat, 0.0)
                 
                 let possibleCases =
                     [| { parent =
                              FTree
-                                 (F.And(vl.ast.castVUnsafe(), fr.ast.castFUnsafe()))
+                                 (F.And(vl.ast.CastVUnsafe(), fr.ast.CastFUnsafe()))
                          left = vl
                          right = fr
                          condCombine = false }
                        { parent =
                              FTree
-                                 (F.And(vr.ast.castVUnsafe(), fl.ast.castFUnsafe()))
+                                 (F.And(vr.ast.CastVUnsafe(), fl.ast.CastFUnsafe()))
                          left = vr
                          right = fl
                          condCombine = false } |]
                 Cost.getMinimumCost possibleCases p_sat 0.0 0.5 0.5
             | Or(l, r, lweight, rweight) -> 
-                let le_par = best_e (l, (p_sat * lweight), (p_sat + rweight))
-                let re_par = best_e (r, (p_sat * rweight), (p_sat * lweight))
-                let lf = best_f (l, (p_sat * lweight), 0.0)
-                let rf = best_f (r, (p_sat * rweight), 0.0)
-                let lv = best_v (l, (p_sat * lweight), 0.0)
-                let rv = best_v (r, (p_sat * rweight), 0.0)
-                let maybelq = best_q (l, (p_sat * lweight), 0.0)
-                let mayberq = best_q (r, (p_sat * rweight), 0.0)
+                let le_par = bestE (l, (p_sat * lweight), (p_sat + rweight))
+                let re_par = bestE (r, (p_sat * rweight), (p_sat * lweight))
+                let lf = bestF (l, (p_sat * lweight), 0.0)
+                let rf = bestF (r, (p_sat * rweight), 0.0)
+                let lv = bestV (l, (p_sat * lweight), 0.0)
+                let rv = bestV (r, (p_sat * rweight), 0.0)
+                let maybelq = bestQ (l, (p_sat * lweight), 0.0)
+                let mayberq = bestQ (r, (p_sat * rweight), 0.0)
                 
                 let possibleCases =
                     [| { parent =
                              FTree
                                  (F.CascadeOr
-                                      (le_par.ast.castEUnsafe(), 
-                                       rv.ast.castVUnsafe()))
+                                      (le_par.ast.CastEUnsafe(), 
+                                       rv.ast.CastVUnsafe()))
                          left = le_par
                          right = rv
                          condCombine = false }
                        { parent =
                              FTree
                                  (F.CascadeOr
-                                      (re_par.ast.castEUnsafe(), 
-                                       lv.ast.castVUnsafe()))
+                                      (re_par.ast.CastEUnsafe(), 
+                                       lv.ast.CastVUnsafe()))
                          left = re_par
                          right = lv
                          condCombine = false }
                        { parent =
                              FTree
                                  (F.SwitchOr
-                                      (lf.ast.castFUnsafe(), rf.ast.castFUnsafe()))
+                                      (lf.ast.CastFUnsafe(), rf.ast.CastFUnsafe()))
                          left = lf
                          right = rf
                          condCombine = false }
                        { parent =
                              FTree
                                  (F.SwitchOr
-                                      (rf.ast.castFUnsafe(), lf.ast.castFUnsafe()))
+                                      (rf.ast.CastFUnsafe(), lf.ast.CastFUnsafe()))
                          left = rf
                          right = lf
                          condCombine = false }
                        { parent =
                              FTree
                                  (F.SwitchOrV
-                                      (lv.ast.castVUnsafe(), rv.ast.castVUnsafe()))
+                                      (lv.ast.CastVUnsafe(), rv.ast.CastVUnsafe()))
                          left = lv
                          right = rv
                          condCombine = false }
                        { parent =
                              FTree
                                  (F.SwitchOrV
-                                      (rv.ast.castVUnsafe(), lv.ast.castVUnsafe()))
+                                      (rv.ast.CastVUnsafe(), lv.ast.CastVUnsafe()))
                          left = rv
                          right = lv
                          condCombine = false } |]
@@ -908,9 +907,9 @@ module Compiler =
                         Array.append possibleCases [| { parent =
                                                             FTree
                                                                 (F.DelayedOr
-                                                                     (lq.ast.castQUnsafe
+                                                                     (lq.ast.CastQUnsafe
                                                                           (), 
-                                                                      rq.ast.castQUnsafe
+                                                                      rq.ast.CastQUnsafe
                                                                           ()))
                                                         left = lq
                                                         right = rq
@@ -922,14 +921,14 @@ module Compiler =
                 let num_cost = scriptNumCost n
                 let avg_cost = float n / float subs.Length
                 let e =
-                    best_e 
+                    bestE 
                         (subs.[0], (p_sat * avg_cost), 
                          (p_dissat + p_sat * (1.0 - avg_cost)))
                 let ws =
                     subs 
                     |> Array.map 
                            (fun s -> 
-                           best_w 
+                           bestW 
                                (s, (p_sat * avg_cost), 
                                 (p_dissat + p_sat * (1.0 - avg_cost))))
                 let pk_cost =
@@ -940,13 +939,13 @@ module Compiler =
                     ws |> Array.fold (fun acc w -> acc + w.satCost) e.satCost
                 let dissat_cost =
                     ws |> Array.fold (fun acc w -> acc + w.dissatCost) e.dissatCost
-                let wsast = ws |> Array.map (fun w -> w.ast.castWUnsafe())
-                { ast = FTree(F.Threshold(n, e.ast.castEUnsafe(), wsast))
+                let wsast = ws |> Array.map (fun w -> w.ast.CastWUnsafe())
+                { ast = FTree(F.Threshold(n, e.ast.CastEUnsafe(), wsast))
                   pkCost = pk_cost
                   satCost = sat_cost * avg_cost + dissat_cost * (1.0 - avg_cost)
                   dissatCost = 0.0 }
         
-        and best_v (node : CompiledNode, p_sat : float, p_dissat : float) : Cost =
+        and bestV (node : CompiledNode, p_sat : float, p_dissat : float) : Cost =
             match node with
             | Pk k -> 
                 { ast = VTree(V.CheckSig(k))
@@ -971,64 +970,64 @@ module Compiler =
                   satCost = 33.0
                   dissatCost = 0.0 }
             | And(l, r) -> 
-                let lv = best_v (l, p_sat, 0.0)
-                let rv = best_v (r, p_sat, 0.0)
-                { ast = VTree(V.And(lv.ast.castVUnsafe(), rv.ast.castVUnsafe()))
+                let lv = bestV (l, p_sat, 0.0)
+                let rv = bestV (r, p_sat, 0.0)
+                { ast = VTree(V.And(lv.ast.CastVUnsafe(), rv.ast.CastVUnsafe()))
                   pkCost = lv.pkCost + rv.pkCost
                   satCost = lv.satCost + rv.satCost
                   dissatCost = 0.0 }
             | Or(l, r, lweight, rweight) -> 
-                let le_par = best_e (l, (p_sat * lweight), (p_sat * rweight))
-                let re_par = best_e (r, (p_sat * rweight), (p_sat * lweight))
-                let lt = best_t (l, (p_sat * lweight), 0.0)
-                let rt = best_t (r, (p_sat * rweight), 0.0)
-                let lv = best_v (l, (p_sat * lweight), 0.0)
-                let rv = best_v (r, (p_sat * rweight), 0.0)
-                let maybelq = best_q (l, (p_sat * lweight), 0.0)
-                let mayberq = best_q (r, (p_sat * rweight), 0.0)
+                let le_par = bestE (l, (p_sat * lweight), (p_sat * rweight))
+                let re_par = bestE (r, (p_sat * rweight), (p_sat * lweight))
+                let lt = bestT (l, (p_sat * lweight), 0.0)
+                let rt = bestT (r, (p_sat * rweight), 0.0)
+                let lv = bestV (l, (p_sat * lweight), 0.0)
+                let rv = bestV (r, (p_sat * rweight), 0.0)
+                let maybelq = bestQ (l, (p_sat * lweight), 0.0)
+                let mayberq = bestQ (r, (p_sat * rweight), 0.0)
                 
                 let possibleCases =
                     [| { parent =
                              VTree
                                  (V.CascadeOr
-                                      (le_par.ast.castEUnsafe(), 
-                                       rv.ast.castVUnsafe()))
+                                      (le_par.ast.CastEUnsafe(), 
+                                       rv.ast.CastVUnsafe()))
                          left = le_par
                          right = rv
                          condCombine = false }
                        { parent =
                              VTree
                                  (V.CascadeOr
-                                      (re_par.ast.castEUnsafe(), 
-                                       lv.ast.castVUnsafe()))
+                                      (re_par.ast.CastEUnsafe(), 
+                                       lv.ast.CastVUnsafe()))
                          left = re_par
                          right = lv
                          condCombine = false }
                        { parent =
                              VTree
                                  (V.SwitchOr
-                                      (lv.ast.castVUnsafe(), rv.ast.castVUnsafe()))
+                                      (lv.ast.CastVUnsafe(), rv.ast.CastVUnsafe()))
                          left = lv
                          right = rv
                          condCombine = false }
                        { parent =
                              VTree
                                  (V.SwitchOr
-                                      (rv.ast.castVUnsafe(), lv.ast.castVUnsafe()))
+                                      (rv.ast.CastVUnsafe(), lv.ast.CastVUnsafe()))
                          left = rv
                          right = lv
                          condCombine = false }
                        { parent =
                              VTree
                                  (V.SwitchOrT
-                                      (lt.ast.castTUnsafe(), rt.ast.castTUnsafe()))
+                                      (lt.ast.CastTUnsafe(), rt.ast.CastTUnsafe()))
                          left = lt
                          right = rt
                          condCombine = false }
                        { parent =
                              VTree
                                  (V.SwitchOrT
-                                      (rt.ast.castTUnsafe(), lt.ast.castTUnsafe()))
+                                      (rt.ast.CastTUnsafe(), lt.ast.CastTUnsafe()))
                          left = rt
                          right = lt
                          condCombine = false } |]
@@ -1039,9 +1038,9 @@ module Compiler =
                         Array.append possibleCases [| { parent =
                                                             VTree
                                                                 (V.DelayedOr
-                                                                     (lq.ast.castQUnsafe
+                                                                     (lq.ast.CastQUnsafe
                                                                           (), 
-                                                                      rq.ast.castQUnsafe
+                                                                      rq.ast.CastQUnsafe
                                                                           ()))
                                                         left = lq
                                                         right = rq
@@ -1053,13 +1052,13 @@ module Compiler =
                 let num_cost = scriptNumCost n
                 let avg_cost = float n / float subs.Length
                 let e =
-                    best_e 
+                    bestE
                         (subs.[0], (p_sat * avg_cost), (p_sat * (1.0 - avg_cost)))
                 let ws =
                     subs 
                     |> Array.map 
                            (fun s -> 
-                           best_w 
+                           bestW
                                (s, (p_sat * avg_cost), (p_sat * (1.0 - avg_cost))))
                 let pk_cost =
                     ws 
@@ -1069,20 +1068,20 @@ module Compiler =
                     ws |> Array.fold (fun acc w -> acc + w.satCost) e.satCost
                 let dissat_cost =
                     ws |> Array.fold (fun acc w -> acc + w.dissatCost) e.dissatCost
-                let wsast = ws |> Array.map (fun w -> w.ast.castWUnsafe())
-                { ast = VTree(V.Threshold(n, e.ast.castEUnsafe(), wsast))
+                let wsast = ws |> Array.map (fun w -> w.ast.CastWUnsafe())
+                { ast = VTree(V.Threshold(n, e.ast.CastEUnsafe(), wsast))
                   pkCost = pk_cost
                   satCost = sat_cost * avg_cost + dissat_cost * (1.0 - avg_cost)
                   dissatCost = 0.0 }
 
     type CompiledNode with
-        static member fromPolicy (p : Policy) = CompiledNode.fromPolicy p
-        member this.compile() =
-            let node = CompiledNode.best_t (this, 1.0, 0.0)
+        static member FromPolicy (p : Policy) = CompiledNode.fromPolicy p
+        member this.Compile() =
+            let node = CompiledNode.bestT (this, 1.0, 0.0)
             MiniScript.fromAST (node.ast)
 
-        member this.compileUnsafe() =
-            match this.compile() with
+        member this.CompileUnsafe() =
+            match this.Compile() with
             | Ok miniscript -> miniscript
             | Error e -> failwith e
         

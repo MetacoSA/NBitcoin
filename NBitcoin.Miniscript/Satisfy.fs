@@ -113,17 +113,17 @@ module Satisfy =
 
     and satisfyAST (keyFn, hashFn, age) (ast: AST) =
         match ast.GetASTType() with
-        | EExpr -> satisfyE (keyFn, hashFn, age) (ast.castEUnsafe())
-        | FExpr -> satisfyF (keyFn, hashFn, age) (ast.castFUnsafe())
-        | WExpr -> satisfyW (keyFn, hashFn, age) (ast.castWUnsafe())
-        | QExpr -> satisfyQ (keyFn, hashFn, age) (ast.castQUnsafe())
-        | TExpr -> satisfyT (keyFn, hashFn, age) (ast.castTUnsafe())
-        | VExpr -> satisfyV (keyFn, hashFn, age) (ast.castVUnsafe())
+        | EExpr -> satisfyE (keyFn, hashFn, age) (ast.CastEUnsafe())
+        | FExpr -> satisfyF (keyFn, hashFn, age) (ast.CastFUnsafe())
+        | WExpr -> satisfyW (keyFn, hashFn, age) (ast.CastWUnsafe())
+        | QExpr -> satisfyQ (keyFn, hashFn, age) (ast.CastQUnsafe())
+        | TExpr -> satisfyT (keyFn, hashFn, age) (ast.CastTUnsafe())
+        | VExpr -> satisfyV (keyFn, hashFn, age) (ast.CastVUnsafe())
 
     and dissatisfyAST (ast: AST) =
         match ast.GetASTType() with
-        | EExpr -> dissatisfyE (ast.castEUnsafe())
-        | WExpr -> dissatisfyW (ast.castWUnsafe())
+        | EExpr -> dissatisfyE (ast.CastEUnsafe())
+        | WExpr -> dissatisfyW (ast.CastWUnsafe())
         | _ -> failwith "unreachable"
 
     and satisfyParallelOr providers (l: AST, r: AST) =

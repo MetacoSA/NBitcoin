@@ -232,7 +232,6 @@ module TokenParser =
                     let actualCat = actualToken.GetCategory()
                     if cat = Any || cat = actualCat then
                         let newState = { state with position=state.position - 1 }
-                        let item = actualToken.GetItem()
                         Ok (actualToken.GetItem(), newState) 
                     else
                         let msg = sprintf "token is not the one expected \nactual: %A\nexpected: %A" actualCat cat
@@ -304,14 +303,14 @@ module TokenParser =
     let pWCastE = (pToken FromAltStack)
                   >>. (pE) .>> (pToken ToAltStack)
                   |>> fun expr ->
-                      WTree(W.CastE(expr.castEUnsafe()))
+                      WTree(W.CastE(expr.CastEUnsafe()))
 
     let pWHashEqual = (pToken EndIf >>. pF .>> pToken If .>> pToken ZeroNotEqual .>> pToken Size .>> pToken Swap)
                       >>=(
                           fun ast ->
                               let name = "pWHashEqualValidator"
                               let innerFn state =
-                                  match ast.castF() with
+                                  match ast.CastF() with
                                   | Ok fexpr ->
                                       match fexpr with
                                       | F.HashEqual hash ->
@@ -327,13 +326,13 @@ module TokenParser =
     let pEParallelAnd = ((pToken BoolAnd)
                         >>. pW .>>. pE
                         |>> fun (astW, astE) ->
-                            ETree(E.ParallelAnd(astE.castEUnsafe(), astW.castWUnsafe())))
+                            ETree(E.ParallelAnd(astE.CastEUnsafe(), astW.CastWUnsafe())))
                          <?> "Parser E.ParallelAnd"
 
     let pEParallelOr = ((pToken BoolOr)
                         >>. pW .>>. pE
                         |>> fun (astW, astE) ->
-                            ETree(E.ParallelOr(astE.castEUnsafe(), astW.castWUnsafe())))
+                            ETree(E.ParallelOr(astE.CastEUnsafe(), astW.CastWUnsafe())))
                          <?> "Parser E.ParallelAnd"
 
     let pEThreshold = (((pToken Equal) >>. (pToken Number))
@@ -341,11 +340,11 @@ module TokenParser =
                       .>>. (pENoPostProcess)
                       |>> fun (kws, east) ->
                         let k = (fst kws).Value :?> uint32
-                        let e = east.castEUnsafe()
+                        let e = east.CastEUnsafe()
                         let ws = (snd kws)
                                  |> List.toArray
                                  |> Array.rev
-                                 |> Array.map(fun ast -> ast.castWUnsafe())
+                                 |> Array.map(fun ast -> ast.CastWUnsafe())
                         ETree(E.Threshold(k, e, ws))
                       ) <?> "Parser E.Threshold"
 
@@ -367,32 +366,32 @@ module TokenParser =
 
     let pEUnlikely = pLikelyPrefix
                     .>> pToken If
-                    |>> fun (fexpr) -> ETree(E.Unlikely(fexpr.castFUnsafe()))
+                    |>> fun (fexpr) -> ETree(E.Unlikely(fexpr.CastFUnsafe()))
 
     let pELikely = pLikelyPrefix
                    .>> pToken NotIf
-                   |>> fun (fexpr) -> ETree(E.Likely(fexpr.castFUnsafe()))
+                   |>> fun (fexpr) -> ETree(E.Likely(fexpr.CastFUnsafe()))
 
     let pECascadeAnd = (pToken EndIf) >>. pF .>> pToken Else
                        .>>. ((pNumberN 0u) >>. (pToken NotIf) >>. pE)
                        |>> fun (rightF, leftE) ->
-                           ETree(E.CascadeAnd(leftE.castEUnsafe(), rightF.castFUnsafe()))
+                           ETree(E.CascadeAnd(leftE.CastEUnsafe(), rightF.CastFUnsafe()))
 
     let pESwitchOrLeft = ((pToken EndIf) >>. pF .>> pToken Else)
                          .>>. ((pE) .>> pToken If)
                          |>> fun (rightF, leftE) ->
-                             ETree(E.SwitchOrLeft(leftE.castEUnsafe(), rightF.castFUnsafe()))
+                             ETree(E.SwitchOrLeft(leftE.CastEUnsafe(), rightF.CastFUnsafe()))
 
     let pESwitchOrRight = (pToken EndIf >>. pF .>> pToken Else)
                           .>>. (pE .>> pToken NotIf)
                           |>> fun (rightF, leftE) ->
-                              ETree(E.SwitchOrRight(leftE.castEUnsafe(), rightF.castFUnsafe()))
+                              ETree(E.SwitchOrRight(leftE.CastEUnsafe(), rightF.CastFUnsafe()))
 
     // ---- V -------
     let pVDelayedOr = (((pToken CheckSigVerify)
                       >>. (pToken EndIf) >>. pQ) .>>. (pToken Else >>. pQ .>> pToken If)
                       |>> fun (q1, q2) -> 
-                          VTree(V.DelayedOr(q2.castQUnsafe(), q1.castQUnsafe()))
+                          VTree(V.DelayedOr(q2.CastQUnsafe(), q1.CastQUnsafe()))
                       ) <?> "P.VDelayedOr"
 
     let pVHashEqual = ((pToken EqualVerify) >>. ((pToken Sha256Hash)
@@ -408,11 +407,11 @@ module TokenParser =
                       .>>. (pE)
                       |>> fun (kws, east) ->
                         let k = (fst kws).Value :?> uint32
-                        let e = east.castEUnsafe()
+                        let e = east.CastEUnsafe()
                         let ws = (snd kws)
                                  |> List.toArray
                                  |> Array.rev
-                                 |> Array.map(fun ast -> ast.castWUnsafe())
+                                 |> Array.map(fun ast -> ast.CastWUnsafe())
                         VTree(V.Threshold(k, e, ws))
 
     let pVCheckSig = ((pToken CheckSigVerify)
@@ -434,17 +433,17 @@ module TokenParser =
     let pVSwitchOr = (pToken EndIf >>. pV .>> pToken Else)
                      .>>. (pV .>> pToken If)
                      |>> fun (rightV, leftV) ->
-                         VTree(V.SwitchOr(leftV.castVUnsafe(), rightV.castVUnsafe()))
+                         VTree(V.SwitchOr(leftV.CastVUnsafe(), rightV.CastVUnsafe()))
 
     let pVCascadeOr = (pToken EndIf >>. pV .>> pToken NotIf)
                       .>>. pE
                       |>> fun (rightV, leftE) ->
-                          VTree(V.CascadeOr(leftE.castEUnsafe(), rightV.castVUnsafe()))
+                          VTree(V.CascadeOr(leftE.CastEUnsafe(), rightV.CastVUnsafe()))
 
     let pVSwitchOrT = (pToken Verify >>. pToken EndIf >>. pT .>> pToken Else)
                       .>>. (pT .>> pToken If)
                       |>> fun (rightT, leftT) ->
-                          VTree(V.SwitchOrT(leftT.castTUnsafe(), rightT.castTUnsafe()))
+                          VTree(V.SwitchOrT(leftT.CastTUnsafe(), rightT.CastTUnsafe()))
 
     // ---- Q -------
     let pQPubKey = ((pToken Pk)
@@ -454,7 +453,7 @@ module TokenParser =
 
     let pQOr = ((pToken EndIf) >>. pQ)
                .>>. ((pToken Else) >>. pQ .>> pToken(If))
-               |>> fun (l, r) -> QTree(Q.Or(r.castQUnsafe(), l.castQUnsafe()))
+               |>> fun (l, r) -> QTree(Q.Or(r.CastQUnsafe(), l.CastQUnsafe()))
     // ---- T -------
 
     let pTHashEqual = ((pToken Equal
@@ -468,7 +467,7 @@ module TokenParser =
 
     let pTDelayedOr = ((pToken CheckSig) >>. (pToken EndIf)
                       >>. pQ .>>. (pToken Else >>. pQ .>> pToken If)
-                      |>> fun (q1, q2) -> TTree(T.DelayedOr(q2.castQUnsafe(), q2.castQUnsafe()))
+                      |>> fun (q1, q2) -> TTree(T.DelayedOr(q2.CastQUnsafe(), q2.CastQUnsafe()))
                       ) <?> "Parser T.DelayedOr"
 
     let pTTime = ((pToken CheckSequenceVerify) >>. (pToken Number)
@@ -480,13 +479,13 @@ module TokenParser =
     let pTSwitchOr = ((pToken EndIf >>. pT .>> pToken Else)
                      .>>. (pT .>> pToken If)
                      |>> fun (rightT, leftT) ->
-                         TTree(T.SwitchOr(leftT.castTUnsafe(), rightT.castTUnsafe()))
+                         TTree(T.SwitchOr(leftT.CastTUnsafe(), rightT.CastTUnsafe()))
                       ) <?> "Parser T.SwitchOr"
 
     let pTCascadeOr = (pToken EndIf >>. pT .>> pToken NotIf .>> pToken IfDup)
                       .>>. pE
                       |>> fun (rightT, leftE) ->
-                         TTree(T.CascadeOr(leftE.castEUnsafe(), rightT.castTUnsafe()))
+                         TTree(T.CascadeOr(leftE.CastEUnsafe(), rightT.CastTUnsafe()))
     // ---- F -------
     let pFTime = (pToken ZeroNotEqual)
                  >>. (pToken CheckSequenceVerify)
@@ -498,14 +497,14 @@ module TokenParser =
     let pFSwitchOr = ((pToken EndIf) >>. pF .>> pToken Else)
                      .>>. (pF .>> pToken If) 
                      |>> fun (rightF, leftF) ->
-                         FTree(F.SwitchOr(leftF.castFUnsafe(), rightF.castFUnsafe()))
+                         FTree(F.SwitchOr(leftF.CastFUnsafe(), rightF.CastFUnsafe()))
 
     let pFFromV = (pNumberN 1u >>. pV)
                   >>=(
                       fun ast ->
                           let name = "pFFromV"
                           let innerFn state =
-                              match ast.castVUnsafe() with
+                              match ast.CastVUnsafe() with
                               | V.CheckSig pk ->
                                   Ok(FTree(F.CheckSig(pk)), state)
                               | V.CheckMultiSig (m, pks) ->
@@ -573,17 +572,17 @@ module TokenParser =
                     Error e
                 | Ok result ->
                     let leftAST, state = result
-                    let leftV = leftAST.castVUnsafe()
+                    let leftV = leftAST.CastVUnsafe()
                     match (rightAST.GetASTType()) with
-                    | TExpr -> Ok(TTree(T.And(leftV, rightAST.castTUnsafe())), state)
+                    | TExpr -> Ok(TTree(T.And(leftV, rightAST.CastTUnsafe())), state)
                     | EExpr ->
-                        Ok(TTree(T.And(leftV, rightAST.castTUnsafe())), state)
-                    | QExpr -> Ok(QTree(Q.And(leftV, rightAST.castQUnsafe())), state)
+                        Ok(TTree(T.And(leftV, rightAST.CastTUnsafe())), state)
+                    | QExpr -> Ok(QTree(Q.And(leftV, rightAST.CastQUnsafe())), state)
                     | FExpr ->
-                        match rightAST.castT() with
+                        match rightAST.CastT() with
                         | Ok t -> Ok(TTree(t), state)
-                        | Error _ -> Ok(FTree(F.And(leftV, rightAST.castFUnsafe())), state)
-                    | VExpr -> Ok(VTree(V.And(leftV, rightAST.castVUnsafe())), state)
+                        | Error _ -> Ok(FTree(F.And(leftV, rightAST.CastFUnsafe())), state)
+                    | VExpr -> Ok(VTree(V.And(leftV, rightAST.CastVUnsafe())), state)
                     | _ -> failwith "unreachable"
 
         {parseFn=innerFn; name = name}
@@ -595,7 +594,7 @@ module TokenParser =
             if ast.GetASTType() = expected then
                 Ok(ast, state)
             else if expected = TExpr && ast.IsT() then
-                Ok(TTree(ast.castTUnsafe()), state)
+                Ok(TTree(ast.CastTUnsafe()), state)
             else
                 let msg = sprintf "AST is not the expected type\nexpected: %A\nactual: %A" expected ast
                 Error(name, msg, state.position)

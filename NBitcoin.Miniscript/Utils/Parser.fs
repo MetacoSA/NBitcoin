@@ -49,7 +49,7 @@ module Parser =
     // 3: Applicatives 
     let applyP fP xP =
         fP >>= (fun f ->
-        xP >>= (fun x -> returnP (f x)))
+        xP >>= (f >> returnP))
 
     let (<*>) = applyP
     let lift2 f xP yP =
@@ -118,7 +118,7 @@ module Parser =
     let rec star p input =
         let firstResult = p.parseFn input
         match firstResult with
-        | Error (_, _, _) -> ([], input)
+        | Error _ -> ([], input)
         | Ok (firstValue, inputAfterFirstPlace) ->
             let (subsequenceValues, remainingInput) =
                 star p inputAfterFirstPlace

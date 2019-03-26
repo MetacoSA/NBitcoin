@@ -95,15 +95,15 @@ module AST =
         | VExpr
         | TExpr
 
-    let private EncodeUint (n: uint32) =
+    let private encodeUint (n: uint32) =
         Op.GetPushOp(int64 n).ToString()
 
-    let private EncodeInt (n: int32) =
+    let private encodeInt (n: int32) =
         Op.GetPushOp(int64 n).ToString()
 
     type E with
         
-        member this.print() =
+        member this.Print() =
             match this with
             | CheckSig pk -> sprintf "E.pk(%s)" (pk.ToHex())
             | CheckMultiSig(m, pks) -> 
@@ -113,35 +113,35 @@ module AST =
                             "")
             | Time t -> sprintf "E.time(%s)" (t.ToString())
             | Threshold(num, e, ws) -> 
-                sprintf "E.thres(%d,%s,%s)" num (e.print()) 
+                sprintf "E.thres(%d,%s,%s)" num (e.Print()) 
                     (ws 
-                     |> Array.fold (fun acc w -> sprintf "%s,%s" acc (w.print())) "")
-            | ParallelAnd(e, w) -> sprintf "E.and_p(%s,%s)" (e.print()) (w.print())
-            | CascadeAnd(e, f) -> sprintf "E.and_c(%s,%s)" (e.print()) (f.print())
-            | ParallelOr(e, w) -> sprintf "E.or_p(%s,%s)" (e.print()) (w.print())
-            | CascadeOr(e, e2) -> sprintf "E.or_c(%s,%s)" (e.print()) (e2.print())
-            | SwitchOrLeft(e, f) -> sprintf "E.or_s(%s,%s)" (e.print()) (f.print())
-            | SwitchOrRight(e, f) -> sprintf "E.or_r(%s,%s)" (e.print()) (f.print())
-            | Likely f -> sprintf "E.lift_l(%s)" (f.print())
-            | Unlikely f -> sprintf "E.lift_u(%s)" (f.print())
+                     |> Array.fold (fun acc w -> sprintf "%s,%s" acc (w.Print())) "")
+            | ParallelAnd(e, w) -> sprintf "E.and_p(%s,%s)" (e.Print()) (w.Print())
+            | CascadeAnd(e, f) -> sprintf "E.and_c(%s,%s)" (e.Print()) (f.Print())
+            | ParallelOr(e, w) -> sprintf "E.or_p(%s,%s)" (e.Print()) (w.Print())
+            | CascadeOr(e, e2) -> sprintf "E.or_c(%s,%s)" (e.Print()) (e2.Print())
+            | SwitchOrLeft(e, f) -> sprintf "E.or_s(%s,%s)" (e.Print()) (f.Print())
+            | SwitchOrRight(e, f) -> sprintf "E.or_r(%s,%s)" (e.Print()) (f.Print())
+            | Likely f -> sprintf "E.lift_l(%s)" (f.Print())
+            | Unlikely f -> sprintf "E.lift_u(%s)" (f.Print())
         
         member this.Serialize(sb : StringBuilder) : StringBuilder =
             match this with
             | CheckSig pk -> sb.AppendFormat(" {0} OP_CHECKSIG", pk)
             | CheckMultiSig(m, pks) -> 
-                sb.AppendFormat(" {0}", (EncodeUint m)) |> ignore
+                sb.AppendFormat(" {0}", (encodeUint m)) |> ignore
                 for pk in pks do
                     do sb.AppendFormat(" {0}", (pk.ToHex())) |> ignore
-                sb.AppendFormat(" {0} OP_CHECKMULTISIG", EncodeInt(pks.Length)) |> ignore
+                sb.AppendFormat(" {0} OP_CHECKMULTISIG", encodeInt(pks.Length)) |> ignore
                 sb
             | Time t -> 
-                sb.AppendFormat(" OP_DUP OP_IF {0} OP_CSV OP_DROP OP_ENDIF", EncodeUint(!> t))
+                sb.AppendFormat(" OP_DUP OP_IF {0} OP_CSV OP_DROP OP_ENDIF", encodeUint(!> t))
             | Threshold(k, e, ws) -> 
                 e.Serialize(sb) |> ignore
                 for w in ws do
                     w.Serialize(sb) |> ignore
                     sb.Append(" OP_ADD") |> ignore
-                sb.AppendFormat(" {0} OP_EQUAL", (EncodeUint k))
+                sb.AppendFormat(" {0} OP_EQUAL", (encodeUint k))
             | ParallelAnd(l, r) -> 
                 l.Serialize(sb) |> ignore
                 r.Serialize(sb) |> ignore
@@ -181,19 +181,19 @@ module AST =
                 f.Serialize(sb) |> ignore
                 sb.Append(" OP_ELSE 0 OP_ENDIF")
         
-        member this.toE() = this
-        member this.toT() =
+        member this.ToE() = this
+        member this.ToT() =
             match this with
             | ParallelOr(l, r) -> T.ParallelOr(l, r)
             | x -> T.CastE(x)
 
     and Q with
         
-        member this.print() =
+        member this.Print() =
             match this with
             | Pubkey p -> sprintf "Q.pk(%s)" (p.ToString())
-            | And(v, q) -> sprintf "Q.and(%s,%s)" (v.print()) (q.print())
-            | Or(q1, q2) -> sprintf "Q.or(%s,%s)" (q1.print()) (q2.print())
+            | And(v, q) -> sprintf "Q.and(%s,%s)" (v.Print()) (q.Print())
+            | Or(q1, q2) -> sprintf "Q.or(%s,%s)" (q1.Print()) (q2.Print())
         
         member this.Serialize(sb : StringBuilder) : StringBuilder =
             match this with
@@ -210,12 +210,12 @@ module AST =
 
     and W with
         
-        member this.print() =
+        member this.Print() =
             match this with
             | CheckSig pk -> sprintf "W.pk(%s)" (pk.ToString())
             | HashEqual u -> sprintf "W.hash(%s)" (u.ToString())
             | Time t -> sprintf "W.time(%s)" (t.ToString())
-            | CastE e -> e.print()
+            | CastE e -> e.Print()
         
         member this.Serialize(sb : StringBuilder) : StringBuilder =
             match this with
@@ -226,13 +226,13 @@ module AST =
             | HashEqual h -> 
                 sb.Append
                     (sprintf " OP_SWAP OP_SIZE OP_0NOTEQUAL OP_IF OP_SIZE %s OP_EQUALVERIFY OP_SHA256"
-                        (EncodeInt 32)) 
+                        (encodeInt 32)) 
                 |> ignore
                 sb.AppendFormat(" {0}", h.ToString()) |> ignore
                 sb.Append(" OP_EQUALVERIFY 1 OP_ENDIF")
             | Time t -> 
                 sb.AppendFormat
-                    (" OP_SWAP OP_DUP OP_IF {0} OP_CSV OP_DROP OP_ENDIF", (EncodeUint (!> t)))
+                    (" OP_SWAP OP_DUP OP_IF {0} OP_CSV OP_DROP OP_ENDIF", (encodeUint (!> t)))
             | CastE e -> 
                 sb.Append(" OP_TOALTSTACK") |> ignore
                 e.Serialize(sb) |> ignore
@@ -240,7 +240,7 @@ module AST =
 
     and F with
         
-        member this.print() =
+        member this.Print() =
             match this with
             | CheckSig pk -> sprintf "F.pk(%s)" (pk.ToString())
             | CheckMultiSig(m, pks) -> 
@@ -251,33 +251,33 @@ module AST =
             | Time t -> sprintf "F.time(%s)" (t.ToString())
             | HashEqual h -> sprintf "F.hash(%s)" (h.ToString())
             | Threshold(num, e, ws) -> 
-                sprintf "F.thres(%d,%s,%s)" num (e.print()) 
+                sprintf "F.thres(%d,%s,%s)" num (e.Print()) 
                     (ws 
-                     |> Array.fold (fun acc w -> sprintf "%s,%s" acc (w.print())) "")
-            | And(l, r) -> sprintf "F.and(%s,%s)" (l.print()) (r.print())
-            | CascadeOr(l, r) -> sprintf "F.or_v(%s,%s)" (l.print()) (r.print())
-            | SwitchOr(l, r) -> sprintf "F.or_s(%s,%s)" (l.print()) (r.print())
-            | SwitchOrV(l, r) -> sprintf "F.or_a(%s,%s)" (l.print()) (r.print())
-            | DelayedOr(l, r) -> sprintf "F.or_d(%s,%s)" (l.print()) (r.print())
+                     |> Array.fold (fun acc w -> sprintf "%s,%s" acc (w.Print())) "")
+            | And(l, r) -> sprintf "F.and(%s,%s)" (l.Print()) (r.Print())
+            | CascadeOr(l, r) -> sprintf "F.or_v(%s,%s)" (l.Print()) (r.Print())
+            | SwitchOr(l, r) -> sprintf "F.or_s(%s,%s)" (l.Print()) (r.Print())
+            | SwitchOrV(l, r) -> sprintf "F.or_a(%s,%s)" (l.Print()) (r.Print())
+            | DelayedOr(l, r) -> sprintf "F.or_d(%s,%s)" (l.Print()) (r.Print())
         
-        member this.toE() = this
+        member this.ToE() = this
         
-        member this.toT() =
+        member this.ToT() =
             match this with
             | CascadeOr(l, r) -> T.CascadeOrV(l, r)
             | SwitchOrV(l, r) -> T.SwitchOrV(l, r)
-            | x -> failwith (sprintf "%s is not a T" (x.print()))
+            | x -> failwith (sprintf "%s is not a T" (x.Print()))
         
         member this.Serialize(sb : StringBuilder) : StringBuilder =
             match this with
             | CheckSig pk -> 
                 sb.AppendFormat(" {0} OP_CHECKSIGVERIFY 1", (pk.ToHex()))
             | CheckMultiSig(m, pks) -> 
-                sb.AppendFormat(" {0}", (EncodeUint m)) |> ignore
+                sb.AppendFormat(" {0}", (encodeUint m)) |> ignore
                 for pk in pks do
                     sb.AppendFormat(" {0}", (pk.ToHex())) |> ignore
-                sb.AppendFormat(" {0} OP_CHECKMULTISIGVERIFY 1", (EncodeInt pks.Length))
-            | Time t -> sb.AppendFormat(" {0} OP_CSV OP_0NOTEQUAL", (EncodeUint (!> t)))
+                sb.AppendFormat(" {0} OP_CHECKMULTISIGVERIFY 1", (encodeInt pks.Length))
+            | Time t -> sb.AppendFormat(" {0} OP_CSV OP_0NOTEQUAL", (encodeUint (!> t)))
             | HashEqual h -> 
                 sb.AppendFormat
                     (" OP_SIZE 20 OP_EQUALVERIFY OP_SHA256 {0} OP_EQUALVERIFY 1", h)
@@ -286,7 +286,7 @@ module AST =
                 for w in ws do
                     w.Serialize(sb) |> ignore
                     sb.Append(" OP_ADD") |> ignore
-                sb.AppendFormat(" {0} OP_EQUALVERIFY 1", (EncodeUint k))
+                sb.AppendFormat(" {0} OP_EQUALVERIFY 1", (encodeUint k))
             | And(l, r) -> 
                 l.Serialize(sb) |> ignore
                 r.Serialize(sb)
@@ -316,7 +316,7 @@ module AST =
 
     and V with
         
-        member this.print() =
+        member this.Print() =
             match this with
             | CheckSig pk -> sprintf "V.pk(%s)" (pk.ToString())
             | CheckMultiSig(m, pks) -> 
@@ -327,25 +327,25 @@ module AST =
             | Time t -> sprintf "V.time(%s)" (t.ToString())
             | HashEqual h -> sprintf "V.hash(%s)" (h.ToString())
             | Threshold(num, e, ws) -> 
-                sprintf "V.thres(%d,%s,%s)" num (e.print()) 
+                sprintf "V.thres(%d,%s,%s)" num (e.Print()) 
                     (ws 
-                     |> Array.fold (fun acc w -> sprintf "%s,%s" acc (w.print())) "")
-            | And(l, r) -> sprintf "V.and(%s,%s)" (l.print()) (r.print())
-            | CascadeOr(l, r) -> sprintf "V.or_v(%s,%s)" (l.print()) (r.print())
-            | SwitchOr(l, r) -> sprintf "V.or_s(%s,%s)" (l.print()) (r.print())
-            | SwitchOrT(l, r) -> sprintf "V.or_a(%s,%s)" (l.print()) (r.print())
-            | DelayedOr(l, r) -> sprintf "V.or_d(%s,%s)" (l.print()) (r.print())
+                     |> Array.fold (fun acc w -> sprintf "%s,%s" acc (w.Print())) "")
+            | And(l, r) -> sprintf "V.and(%s,%s)" (l.Print()) (r.Print())
+            | CascadeOr(l, r) -> sprintf "V.or_v(%s,%s)" (l.Print()) (r.Print())
+            | SwitchOr(l, r) -> sprintf "V.or_s(%s,%s)" (l.Print()) (r.Print())
+            | SwitchOrT(l, r) -> sprintf "V.or_a(%s,%s)" (l.Print()) (r.Print())
+            | DelayedOr(l, r) -> sprintf "V.or_d(%s,%s)" (l.Print()) (r.Print())
         
         member this.Serialize(sb : StringBuilder) : StringBuilder =
             match this with
             | CheckSig pk -> 
                 sb.AppendFormat(" {0} OP_CHECKSIGVERIFY ", (pk.ToHex()))
             | CheckMultiSig(m, pks) -> 
-                sb.AppendFormat(" {0}", (EncodeUint m)) |> ignore
+                sb.AppendFormat(" {0}", (encodeUint m)) |> ignore
                 for pk in pks do
                     sb.AppendFormat(" {0}", (pk.ToHex())) |> ignore
-                sb.AppendFormat(" {0} OP_CHECKMULTISIGVERIFY", (EncodeInt pks.Length))
-            | Time t -> sb.AppendFormat(" {0} OP_CSV OP_DROP", (EncodeUint (!> t)))
+                sb.AppendFormat(" {0} OP_CHECKMULTISIGVERIFY", (encodeInt pks.Length))
+            | Time t -> sb.AppendFormat(" {0} OP_CSV OP_DROP", (encodeUint (!> t)))
             | HashEqual h -> 
                 sb.AppendFormat
                     (" OP_SIZE 20 OP_EQUALVERIFY OP_SHA256 {0} OP_EQUALVERIFY", h)
@@ -354,7 +354,7 @@ module AST =
                 for w in ws do
                     w.Serialize(sb) |> ignore
                     sb.Append(" OP_ADD") |> ignore
-                sb.AppendFormat(" {0} OP_EQUALVERIFY", (EncodeUint k))
+                sb.AppendFormat(" {0} OP_EQUALVERIFY", (encodeUint k))
             | And(l, r) -> 
                 l.Serialize(sb) |> ignore
                 r.Serialize(sb)
@@ -384,22 +384,22 @@ module AST =
 
     and T with
         
-        member this.print() =
+        member this.Print() =
             match this with
             | Time t -> sprintf "T.time(%s)" (t.ToString())
             | HashEqual h -> sprintf "T.hash(%s)" (h.ToString())
-            | And(l, r) -> sprintf "T.and_p(%s,%s)" (l.print()) (r.print())
-            | ParallelOr(l, r) -> sprintf "T.or_vp(%s,%s)" (l.print()) (r.print())
-            | CascadeOr(l, r) -> sprintf "T.or_c(%s,%s)" (l.print()) (r.print())
-            | CascadeOrV(l, r) -> sprintf "T.or_v(%s,%s)" (l.print()) (r.print())
-            | SwitchOr(l, r) -> sprintf "T.or_s(%s,%s)" (l.print()) (r.print())
-            | SwitchOrV(l, r) -> sprintf "T.or_a(%s,%s)" (l.print()) (r.print())
-            | DelayedOr(l, r) -> sprintf "T.or_d(%s,%s)" (l.print()) (r.print())
-            | CastE e -> sprintf "T.%s" (e.print())
+            | And(l, r) -> sprintf "T.and_p(%s,%s)" (l.Print()) (r.Print())
+            | ParallelOr(l, r) -> sprintf "T.or_vp(%s,%s)" (l.Print()) (r.Print())
+            | CascadeOr(l, r) -> sprintf "T.or_c(%s,%s)" (l.Print()) (r.Print())
+            | CascadeOrV(l, r) -> sprintf "T.or_v(%s,%s)" (l.Print()) (r.Print())
+            | SwitchOr(l, r) -> sprintf "T.or_s(%s,%s)" (l.Print()) (r.Print())
+            | SwitchOrV(l, r) -> sprintf "T.or_a(%s,%s)" (l.Print()) (r.Print())
+            | DelayedOr(l, r) -> sprintf "T.or_d(%s,%s)" (l.Print()) (r.Print())
+            | CastE e -> sprintf "T.%s" (e.Print())
         
         member this.Serialize(sb : StringBuilder) : StringBuilder =
             match this with
-            | Time t -> sb.AppendFormat(" {0} OP_CSV", (EncodeUint (!> t)))
+            | Time t -> sb.AppendFormat(" {0} OP_CSV", (encodeUint (!> t)))
             | HashEqual h -> 
                 sb.AppendFormat
                     (" OP_SIZE 20 OP_EQUALVERIFY OP_SHA256 {0} OP_EQUAL", h)
@@ -444,12 +444,12 @@ module AST =
         
         member this.Print() =
             match this with
-            | ETree e -> e.print()
-            | QTree q -> q.print()
-            | WTree w -> w.print()
-            | FTree f -> f.print()
-            | VTree v -> v.print()
-            | TTree t -> t.print()
+            | ETree e -> e.Print()
+            | QTree q -> q.Print()
+            | WTree w -> w.Print()
+            | FTree f -> f.Print()
+            | VTree v -> v.Print()
+            | TTree t -> t.Print()
         
         member this.ToScript() =
             let sb = StringBuilder()
@@ -493,7 +493,7 @@ module AST =
                 | _ -> false
             | _ -> false
 
-        member this.castT() : Result<T, string> =
+        member this.CastT() : Result<T, string> =
             match this with
             | TTree t -> Ok t
             | FTree f ->
@@ -507,57 +507,57 @@ module AST =
                 | otherE -> Ok(T.CastE(otherE))
             | _ -> Error(sprintf "failed to cast %s" (this.Print()))
         
-        member this.castE() : Result<E, string> =
+        member this.CastE() : Result<E, string> =
             match this with
             | ETree e -> Ok e
             | _ -> Error(sprintf "failed to cast %s" (this.Print()))
         
-        member this.castQ() : Result<Q, string> =
+        member this.CastQ() : Result<Q, string> =
             match this with
             | QTree q -> Ok q
             | _ -> Error(sprintf "failed to cast %s" (this.Print()))
         
-        member this.castW() : Result<W, string> =
+        member this.CastW() : Result<W, string> =
             match this with
             | WTree w -> Ok w
             | _ -> Error(sprintf "failed to cast %s" (this.Print()))
         
-        member this.castF() : Result<F, string> =
+        member this.CastF() : Result<F, string> =
             match this with
             | FTree f -> Ok f
             | _ -> Error(sprintf "failed to cast %s" (this.Print()))
         
-        member this.castV() : Result<V, string> =
+        member this.CastV() : Result<V, string> =
             match this with
             | VTree v -> Ok v
             | _ -> Error(sprintf "failed to cast %s" (this.Print()))
         
-        member this.castTUnsafe() : T =
-            match this.castT() with
+        member this.CastTUnsafe() : T =
+            match this.CastT() with
             | Ok t -> t
             | Error s -> failwith s
         
-        member this.castEUnsafe() : E =
-            match this.castE() with
+        member this.CastEUnsafe() : E =
+            match this.CastE() with
             | Ok e -> e
             | Error s -> failwith s
         
-        member this.castQUnsafe() : Q =
-            match this.castQ() with
+        member this.CastQUnsafe() : Q =
+            match this.CastQ() with
             | Ok q -> q
             | Error s -> failwith s
         
-        member this.castWUnsafe() : W =
-            match this.castW() with
+        member this.CastWUnsafe() : W =
+            match this.CastW() with
             | Ok w -> w
             | Error s -> failwith s
         
-        member this.castFUnsafe() : F =
-            match this.castF() with
+        member this.CastFUnsafe() : F =
+            match this.CastF() with
             | Ok f -> f
             | Error s -> failwith s
         
-        member this.castVUnsafe() : V =
-            match this.castV() with
+        member this.CastVUnsafe() : V =
+            match this.CastV() with
             | Ok v -> v
             | Error s -> failwith s
