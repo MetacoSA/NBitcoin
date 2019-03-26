@@ -1,7 +1,7 @@
-namespace FNBitcoin.MiniScript
+namespace NBitcoin.Miniscript
 
-open FNBitcoin.MiniScriptAST
-open FNBitcoin.MiniScriptDecompiler
+open NBitcoin.Miniscript.AST
+open NBitcoin.Miniscript.Decompiler
 open NBitcoin
 
 /// wrapper for top-level AST

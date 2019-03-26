@@ -1,4 +1,4 @@
-namespace FNBitcoin.Utils
+namespace NBitcoin.Miniscript.Utils
 
 module Parser =
     type ErrorMessage = string

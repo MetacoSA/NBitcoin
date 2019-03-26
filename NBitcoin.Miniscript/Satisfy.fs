@@ -1,8 +1,8 @@
-namespace FNBitcoin.Satisfy
+namespace NBitcoin.Miniscript.Satisfy
 
 module Satisfy =
-    open FNBitcoin.MiniScriptAST
-    open FNBitcoin.Utils
+    open NBitcoin.Miniscript.AST
+    open NBitcoin.Miniscript.Utils
     open NBitcoin
     open System
 

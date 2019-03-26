@@ -1,9 +1,9 @@
-module FNBitcoin.MiniScriptDecompiler
+module NBitcoin.Miniscript.Decompiler
 
 open NBitcoin
 open System
-open FNBitcoin.Utils.Parser
-open MiniScriptAST
+open NBitcoin.Miniscript.Utils.Parser
+open Miniscript.AST
 
 /// Subset of Bitcoin Script which is used in Miniscript
 type Token =

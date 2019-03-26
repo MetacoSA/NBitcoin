@@ -1,4 +1,4 @@
-module FNBitcoin.Contract
+namespace NBitcoin.Miniscript.Contract
 
 
 type ScriptBuilder() =

@@ -1,4 +1,4 @@
-namespace FNBitcoin
+namespace NBitcoin.Miniscript
 
 module Say =
     let nothing name = name |> ignore
