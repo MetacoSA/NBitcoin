@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+		<TargetFrameworks>netcoreapp2.1;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Utils/Parser.fs" />
+    <Compile Include="Utils/Lib.fs" />
+    <Compile Include="MiniscriptParser.fs" />
+    <Compile Include="MiniscriptAST.fs" />
+    <Compile Include="MiniscriptDecompiler.fs" />
+    <Compile Include="Miniscript.fs" />
+    <Compile Include="MiniscriptCompiler.fs" />
+    <Compile Include="Satisfy.fs" />
+    <Compile Include="Contract.fs" />
+    <Compile Include="Library.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NBitcoin.csproj" />
+  </ItemGroup>
+</Project>

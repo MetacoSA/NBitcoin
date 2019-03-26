@@ -93,4 +93,13 @@
 	<PropertyGroup>
 		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\NBitcoin.xml</DocumentationFile>
 	</PropertyGroup>
+
+	<PropertyGroup>
+		<NuspecFile>.\NBitcoin.nuspec</NuspecFile>
+		<NuspecProperties>$(NuspecProperties);id=$(AssemblyName)</NuspecProperties>
+		<NuspecProperties>$(NuspecProperties);config=$(Configuration)</NuspecProperties>
+		<NuspecProperties>$(NuspecProperties);version=$(Version)</NuspecProperties>
+		<NuspecProperties>$(NuspecProperties);description=$(Description)</NuspecProperties>
+		<NuspecProperties>$(NuspecProperties);authors=$(Company)</NuspecProperties>
+	</PropertyGroup>
 </Project>
