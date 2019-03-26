@@ -20,6 +20,9 @@
     <Compile Include="Library.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NBitcoin.csproj" />
+    <PackageReference Update="FSharp.Core" Version="4.5.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
   </ItemGroup>
 </Project>
