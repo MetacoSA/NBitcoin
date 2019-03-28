@@ -22638,6 +22638,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Extensions.UnixTimestamp
   nameWithType: Extensions.UnixTimestamp
+- uid: NBitcoin.Extensions.WithCancellation(System.Threading.Tasks.Task,System.Threading.CancellationToken)
+  name: WithCancellation(Task, CancellationToken)
+  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_WithCancellation_System_Threading_Tasks_Task_System_Threading_CancellationToken_
+  commentId: M:NBitcoin.Extensions.WithCancellation(System.Threading.Tasks.Task,System.Threading.CancellationToken)
+  fullName: NBitcoin.Extensions.WithCancellation(System.Threading.Tasks.Task, System.Threading.CancellationToken)
+  nameWithType: Extensions.WithCancellation(Task, CancellationToken)
+- uid: NBitcoin.Extensions.WithCancellation*
+  name: WithCancellation
+  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_WithCancellation_
+  commentId: Overload:NBitcoin.Extensions.WithCancellation
+  isSpec: "True"
+  fullName: NBitcoin.Extensions.WithCancellation
+  nameWithType: Extensions.WithCancellation
 - uid: NBitcoin.ExtKey
   name: ExtKey
   href: api/NBitcoin.ExtKey.html
@@ -24972,6 +24985,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.IpExtensions.MapToIPv6Ex
   nameWithType: IpExtensions.MapToIPv6Ex
+- uid: NBitcoin.IpExtensions.ResolveToIPEndpointsAsync(System.Net.EndPoint)
+  name: ResolveToIPEndpointsAsync(EndPoint)
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_ResolveToIPEndpointsAsync_System_Net_EndPoint_
+  commentId: M:NBitcoin.IpExtensions.ResolveToIPEndpointsAsync(System.Net.EndPoint)
+  fullName: NBitcoin.IpExtensions.ResolveToIPEndpointsAsync(System.Net.EndPoint)
+  nameWithType: IpExtensions.ResolveToIPEndpointsAsync(EndPoint)
+- uid: NBitcoin.IpExtensions.ResolveToIPEndpointsAsync*
+  name: ResolveToIPEndpointsAsync
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_ResolveToIPEndpointsAsync_
+  commentId: Overload:NBitcoin.IpExtensions.ResolveToIPEndpointsAsync
+  isSpec: "True"
+  fullName: NBitcoin.IpExtensions.ResolveToIPEndpointsAsync
+  nameWithType: IpExtensions.ResolveToIPEndpointsAsync
 - uid: NBitcoin.IpExtensions.ToEndpointString(System.Net.EndPoint)
   name: ToEndpointString(EndPoint)
   href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_ToEndpointString_System_Net_EndPoint_
@@ -37529,6 +37555,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Protocol.AddressManager.Add
   nameWithType: AddressManager.Add
+- uid: NBitcoin.Protocol.AddressManager.AddAsync(System.Net.EndPoint,System.Net.IPAddress)
+  name: AddAsync(EndPoint, IPAddress)
+  href: api/NBitcoin.Protocol.AddressManager.html#NBitcoin_Protocol_AddressManager_AddAsync_System_Net_EndPoint_System_Net_IPAddress_
+  commentId: M:NBitcoin.Protocol.AddressManager.AddAsync(System.Net.EndPoint,System.Net.IPAddress)
+  fullName: NBitcoin.Protocol.AddressManager.AddAsync(System.Net.EndPoint, System.Net.IPAddress)
+  nameWithType: AddressManager.AddAsync(EndPoint, IPAddress)
+- uid: NBitcoin.Protocol.AddressManager.AddAsync*
+  name: AddAsync
+  href: api/NBitcoin.Protocol.AddressManager.html#NBitcoin_Protocol_AddressManager_AddAsync_
+  commentId: Overload:NBitcoin.Protocol.AddressManager.AddAsync
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.AddressManager.AddAsync
+  nameWithType: AddressManager.AddAsync
 - uid: NBitcoin.Protocol.AddressManager.Attempt(NBitcoin.Protocol.NetworkAddress)
   name: Attempt(NetworkAddress)
   href: api/NBitcoin.Protocol.AddressManager.html#NBitcoin_Protocol_AddressManager_Attempt_NBitcoin_Protocol_NetworkAddress_
