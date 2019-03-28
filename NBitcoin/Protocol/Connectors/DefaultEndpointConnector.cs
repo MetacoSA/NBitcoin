@@ -45,15 +45,13 @@ namespace NBitcoin.Protocol.Connectors
 			var socketEndpoint = socks ? socksSettings.SocksEndpoint : endpoint;
 			if (socketEndpoint is IPEndPoint mappedv4 && mappedv4.Address.IsIPv4MappedToIPv6Ex())
 				socketEndpoint = new IPEndPoint(mappedv4.Address.MapToIPv4Ex(), mappedv4.Port);
-#if NETCORE
-			await socket.ConnectAsync(socketEndpoint).WithCancellation(cancellationToken).ConfigureAwait(false);
-#else
+
 			await socket.ConnectAsync(socketEndpoint, cancellationToken).ConfigureAwait(false);
-#endif
+
 			if (!socks)
 				return;
 
-			await SocksHelper.Handshake(socket, endpoint, cancellationToken);
+			await SocksHelper.Handshake(socket, endpoint, cancellationToken).ConfigureAwait(false);
 		}
 	}
 }

@@ -11,6 +11,7 @@ namespace NBitcoin.Protocol.Connectors
 {
 	static class SocketExtensions
 	{
+#if NO_SOCKET_EXTENSIONS
 		public static async Task ConnectAsync(this Socket socket, EndPoint socketEndpoint, CancellationToken cancellationToken)
 		{
 #if NO_RCA
@@ -46,6 +47,12 @@ namespace NBitcoin.Protocol.Connectors
 			if (args.SocketError != SocketError.Success)
 				throw new SocketException((int)args.SocketError);
 		}
+#else
+		public static Task ConnectAsync(this Socket socket, EndPoint socketEndpoint, CancellationToken cancellationToken)
+		{
+			return System.Net.Sockets.SocketTaskExtensions.ConnectAsync(socket, socketEndpoint).WithCancellation(cancellationToken);
+		}
+#endif
 	}
 }
 #endif

@@ -23,6 +23,17 @@ namespace NBitcoin
 {
 	public static class Extensions
 	{
+		public static async Task WithCancellation(this Task task, CancellationToken cancellationToken)
+		{
+			using (var delayCTS = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+			{
+				var waiting = Task.Delay(-1, delayCTS.Token);
+				var doing = task;
+				await Task.WhenAny(waiting, doing).ConfigureAwait(false);
+				delayCTS.Cancel();
+				cancellationToken.ThrowIfCancellationRequested();
+			}
+		}
 		public static Block GetBlock(this IBlockRepository repository, uint256 blockId)
 		{
 			return repository.GetBlockAsync(blockId).GetAwaiter().GetResult();

@@ -73,7 +73,7 @@ namespace NBitcoin.Socks
 			await stream.FlushAsync().WithCancellation(cancellationToken).ConfigureAwait(false);
 
 			var selectionResponse = new byte[2];
-			await stream.ReadAsync(selectionResponse, 0, 2).WithCancellation(cancellationToken);
+			await stream.ReadAsync(selectionResponse, 0, 2).WithCancellation(cancellationToken).ConfigureAwait(false);
 			if (selectionResponse[0] != 5)
 				throw new SocksException("Invalid version in selection reply");
 			if (selectionResponse[1] != 0)
@@ -84,7 +84,7 @@ namespace NBitcoin.Socks
 			await stream.FlushAsync().WithCancellation(cancellationToken).ConfigureAwait(false);
 
 			var connectResponse = new byte[10];
-			await stream.ReadAsync(connectResponse, 0, 10).WithCancellation(cancellationToken);
+			await stream.ReadAsync(connectResponse, 0, 10).WithCancellation(cancellationToken).ConfigureAwait(false);
 			if (connectResponse[0] != 5)
 				throw new SocksException("Invalid version in connect reply");
 			if (connectResponse[1] != 0)
