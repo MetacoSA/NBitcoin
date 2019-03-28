@@ -544,13 +544,13 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public async Task CanConvertEndpointToIPEndpoint()
 		{
-			var googleAddress = (await Dns.GetHostAddressesAsync("google.com")).First();
+			var localIp = (await Dns.GetHostAddressesAsync("localhost")).First();
 			var data = new (string Input, string ExpectedOutput)[]
 			{
 				( "FD87:D87E:EB43:edb1:8e4:3588:e546:35ca", "[fd87:d87e:eb43:edb1:8e4:3588:e546:35ca]" ),
 				( "5wyqrzbvrdsumnok.onion", "[fd87:d87e:eb43:edb1:8e4:3588:e546:35ca]" ),
 				( "10.10.1.3", "10.10.1.3"),
-				( "google.com", googleAddress.ToString())
+				( "google.com", localIp.ToString())
 			};
 
 			foreach(var test in data)
