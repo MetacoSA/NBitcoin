@@ -547,8 +547,8 @@ namespace NBitcoin.Tests
 			var localIp = (await Dns.GetHostAddressesAsync("localhost")).First();
 			var data = new (string Input, string ExpectedOutput)[]
 			{
-				( "FD87:D87E:EB43:edb1:8e4:3588:e546:35ca", "[fd87:d87e:eb43:edb1:8e4:3588:e546:35ca]" ),
-				( "5wyqrzbvrdsumnok.onion", "[fd87:d87e:eb43:edb1:8e4:3588:e546:35ca]" ),
+				( "FD87:D87E:EB43:edb1:8e4:3588:e546:35ca", "fd87:d87e:eb43:edb1:8e4:3588:e546:35ca" ),
+				( "5wyqrzbvrdsumnok.onion", "fd87:d87e:eb43:edb1:8e4:3588:e546:35ca" ),
 				( "10.10.1.3", "10.10.1.3"),
 				( "localhost", localIp.ToString())
 			};
@@ -557,7 +557,7 @@ namespace NBitcoin.Tests
 			{
 				var endpoint = Utils.ParseEndpoint(test.Input, 10);
 				var result = (await endpoint.ResolveToIPEndpointsAsync()).First();
-				Assert.Equal(test.ExpectedOutput + ":10", result.ToEndpointString());
+				Assert.Equal(test.ExpectedOutput + ":10", result.ToEndpointString().Replace("[", "").Replace("]", ""));
 			}
 		}
 #endif
