@@ -338,6 +338,39 @@ namespace NBitcoin
 			}
 			return null;
 		}
+
+		/// <summary>
+		/// <para>Will properly convert <paramref name="endpoint"/> to IPEndpoint
+		/// If <paramref name="endpoint"/> is a DNSEndpoint is an onion host, it will be converted into onioncat address
+		/// else, a DNS resolution will be made and all resolved addresses will be returned</para>
+		/// <para>If <paramref name="endpoint"/> is a IPEndpoint, it will be returned as-is.</para>
+		/// You can pass any endpoint parsed by <see cref="NBitcoin.Utils.ParseEndpoint(string, int)"/>
+		/// </summary>
+		/// <param name="endpoint">The endpoint to convert to IPEndpoint</param>
+		/// <exception cref="System.ArgumentNullException">The endpoint is null</exception>
+		/// <exception cref="System.Net.Sockets.SocketException">An error is encountered when resolving the dns name.</exception>
+		/// <exception cref="System.NotSupportedException">The endpoint passed is neither a DNSEndpoint or an IPEndpoint</exception>
+		public static async Task<IPEndPoint[]> ResolveToIPEndpointsAsync(this EndPoint endpoint)
+		{
+			if (endpoint == null)
+				throw new ArgumentNullException(nameof(endpoint));
+			if (endpoint is IPEndPoint ip)
+			{
+				return new[] { ip };
+			}
+			else if (endpoint.AsOnionCatIPEndpoint() is IPEndPoint ip2)
+			{
+				return new[] { ip2 };
+			}
+			else if (endpoint is DnsEndPoint dns)
+			{
+				var ips = await Dns.GetHostAddressesAsync(dns.Host);
+				return ips.Select(i => new IPEndPoint(i, dns.Port)).ToArray();
+			}
+			else
+				throw new NotSupportedException(endpoint.ToString());
+		}
+
 		public static IPAddress EnsureIPv6(this IPAddress address)
 		{
 			if(address.AddressFamily == AddressFamily.InterNetworkV6)

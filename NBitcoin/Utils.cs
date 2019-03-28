@@ -845,7 +845,9 @@ namespace NBitcoin
 			}
 			else
 			{
-				if (Uri.CheckHostName(host) != UriHostNameType.Dns)
+				if (Uri.CheckHostName(host) != UriHostNameType.Dns ||
+					// An host name with a length higher than 255 can't be resolved by DNS
+					host.Length > 255)
 					return false;
 				endpoint = new DnsEndPoint(host, port);
 			}
