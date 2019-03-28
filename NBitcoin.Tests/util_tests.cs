@@ -550,7 +550,7 @@ namespace NBitcoin.Tests
 				( "FD87:D87E:EB43:edb1:8e4:3588:e546:35ca", "[fd87:d87e:eb43:edb1:8e4:3588:e546:35ca]" ),
 				( "5wyqrzbvrdsumnok.onion", "[fd87:d87e:eb43:edb1:8e4:3588:e546:35ca]" ),
 				( "10.10.1.3", "10.10.1.3"),
-				( "google.com", localIp.ToString())
+				( "localhost", localIp.ToString())
 			};
 
 			foreach(var test in data)
