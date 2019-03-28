@@ -21,6 +21,40 @@ namespace NBitcoin.Protocol
 	/// </summary>
 	public class AddressManager : IBitcoinSerializable
 	{
+		/// <summary>
+		/// Will properly convert a endpoint to IPEndpoint
+		/// If endpoint is a DNSEndpoint, a DNS resolution will be made and all addresses added
+		/// If endpoint is a DNSEndpoint for onion, it will be converted into onioncat address
+		/// If endpoint is an IPEndpoint it is added to AddressManager
+		/// </summary>
+		/// <param name="endpoint">The endpoint to add to the address manager</param>
+		/// <param name="source">The source which advertized this endpoint (default: IPAddress.Loopback)</param>
+		/// <returns></returns>
+		public async Task AddAsync(EndPoint endpoint, IPAddress source = null)
+		{
+			if (endpoint == null)
+				throw new ArgumentNullException(nameof(endpoint));
+			if (source == null)
+				source = IPAddress.Loopback;
+			if (endpoint is IPEndPoint ip)
+			{
+				Add(new NetworkAddress(ip), IPAddress.Loopback);
+			}
+			else if (endpoint.AsOnionCatIPEndpoint() is IPEndPoint ip2)
+			{
+				Add(new NetworkAddress(ip2), IPAddress.Loopback);
+			}
+			else if (endpoint.AsOnionDNSEndpoint() is DnsEndPoint dns)
+			{
+				var ips = await Dns.GetHostAddressesAsync(dns.Host);
+				foreach (var ip3 in ips)
+				{
+					Add(new NetworkAddress(new IPEndPoint(ip3, dns.Port)), IPAddress.Loopback);
+				}
+			}
+			else
+				throw new NotSupportedException(endpoint.ToString());
+		}
 		internal class AddressInfo : IBitcoinSerializable
 		{
 			#region IBitcoinSerializable Members
