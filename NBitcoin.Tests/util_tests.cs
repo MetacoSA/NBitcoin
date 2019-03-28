@@ -9,8 +9,10 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -537,7 +539,28 @@ namespace NBitcoin.Tests
 			fee = new FeeRate(0.521748274m);
 			Assert.Equal("0.521 Sat/B", fee.ToString());
 		}
+#if !NO_SOCKET
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public async Task CanConvertEndpointToIPEndpoint()
+		{
+			var googleAddress = (await Dns.GetHostAddressesAsync("google.com")).First();
+			var data = new (string Input, string ExpectedOutput)[]
+			{
+				( "FD87:D87E:EB43:edb1:8e4:3588:e546:35ca", "[fd87:d87e:eb43:edb1:8e4:3588:e546:35ca]" ),
+				( "5wyqrzbvrdsumnok.onion", "[fd87:d87e:eb43:edb1:8e4:3588:e546:35ca]" ),
+				( "10.10.1.3", "10.10.1.3"),
+				( "google.com", googleAddress.ToString())
+			};
 
+			foreach(var test in data)
+			{
+				var endpoint = Utils.ParseEndpoint(test.Input, 10);
+				var result = (await endpoint.ResolveToIPEndpointsAsync()).First();
+				Assert.Equal(test.ExpectedOutput + ":10", result.ToEndpointString());
+			}
+		}
+#endif
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void FeeRateComparison()
@@ -721,7 +744,7 @@ namespace NBitcoin.Tests
 #else
 			var secret = Pbkdf2.ComputeDerivedKey(new HMACSHA512(bytes), new byte[0], 1024, 32);
 #endif
-#pragma warning restore CS0618 
+#pragma warning restore CS0618
 			return new Key(secret);
 		}
 
