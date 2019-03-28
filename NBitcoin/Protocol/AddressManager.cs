@@ -44,7 +44,7 @@ namespace NBitcoin.Protocol
 			{
 				Add(new NetworkAddress(ip2), IPAddress.Loopback);
 			}
-			else if (endpoint.AsOnionDNSEndpoint() is DnsEndPoint dns)
+			else if (endpoint is DnsEndPoint dns)
 			{
 				var ips = await Dns.GetHostAddressesAsync(dns.Host);
 				foreach (var ip3 in ips)
