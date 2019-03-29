@@ -22651,6 +22651,15 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Extensions.WithCancellation
   nameWithType: Extensions.WithCancellation
+- uid: NBitcoin.Extensions.WithCancellation``1(System.Threading.Tasks.Task{``0},System.Threading.CancellationToken)
+  name: WithCancellation<T>(Task<T>, CancellationToken)
+  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_WithCancellation__1_System_Threading_Tasks_Task___0__System_Threading_CancellationToken_
+  commentId: M:NBitcoin.Extensions.WithCancellation``1(System.Threading.Tasks.Task{``0},System.Threading.CancellationToken)
+  name.vb: WithCancellation(Of T)(Task(Of T), CancellationToken)
+  fullName: NBitcoin.Extensions.WithCancellation<T>(System.Threading.Tasks.Task<T>, System.Threading.CancellationToken)
+  fullName.vb: NBitcoin.Extensions.WithCancellation(Of T)(System.Threading.Tasks.Task(Of T), System.Threading.CancellationToken)
+  nameWithType: Extensions.WithCancellation<T>(Task<T>, CancellationToken)
+  nameWithType.vb: Extensions.WithCancellation(Of T)(Task(Of T), CancellationToken)
 - uid: NBitcoin.ExtKey
   name: ExtKey
   href: api/NBitcoin.ExtKey.html
