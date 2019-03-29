@@ -29,7 +29,13 @@ namespace NBitcoin
 			{
 				var waiting = Task.Delay(-1, delayCTS.Token);
 				var doing = task;
-				await Task.WhenAny(waiting, doing).ConfigureAwait(false);
+				if (await Task.WhenAny(waiting, doing).ConfigureAwait(false) == waiting)
+				{
+#pragma warning disable CS4014
+					// Need to handle potential exception unhandled later, the original exception is not yet finished
+					doing.ContinueWith(_ => _?.Exception?.Handle((e) => true));
+#pragma warning restore CS4014
+				}
 				delayCTS.Cancel();
 				cancellationToken.ThrowIfCancellationRequested();
 			}

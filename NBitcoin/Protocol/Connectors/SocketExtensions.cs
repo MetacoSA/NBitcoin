@@ -11,48 +11,21 @@ namespace NBitcoin.Protocol.Connectors
 {
 	static class SocketExtensions
 	{
-#if NO_SOCKET_EXTENSIONS
-		public static async Task ConnectAsync(this Socket socket, EndPoint socketEndpoint, CancellationToken cancellationToken)
+		public static Task ConnectAsync(this Socket socket, EndPoint remoteEP, CancellationToken cancellationToken)
 		{
-#if NO_RCA
-			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>();
-#else
-			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-#endif
-			var args = new SocketAsyncEventArgs();
-			using (cancellationToken.Register(() =>
+			var tcs = new TaskCompletionSource<bool>(socket);
+			socket.BeginConnect(remoteEP, iar =>
 			{
-				completion.TrySetCanceled();
-			}, false))
-			{
-				args.RemoteEndPoint = socketEndpoint;
-				args.Completed += (s, a) =>
-				{
-					completion.TrySetResult(true);
-				};
-				if (!socket.ConnectAsync(args))
-				{
-					completion.TrySetResult(true);
-				}
+				var innerTcs = (TaskCompletionSource<bool>)iar.AsyncState;
 				try
 				{
-					await completion.Task.ConfigureAwait(false);
+					((Socket)innerTcs.Task.AsyncState).EndConnect(iar);
+					innerTcs.TrySetResult(true);
 				}
-				catch
-				{
-					cancellationToken.ThrowIfCancellationRequested();
-					throw;
-				}
-			}
-			if (args.SocketError != SocketError.Success)
-				throw new SocketException((int)args.SocketError);
+				catch (Exception e) { innerTcs.TrySetException(e); }
+			}, tcs);
+			return tcs.Task.WithCancellation(cancellationToken);
 		}
-#else
-		public static Task ConnectAsync(this Socket socket, EndPoint socketEndpoint, CancellationToken cancellationToken)
-		{
-			return System.Net.Sockets.SocketTaskExtensions.ConnectAsync(socket, socketEndpoint).WithCancellation(cancellationToken);
-		}
-#endif
 	}
 }
 #endif
