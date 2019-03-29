@@ -38,7 +38,7 @@ namespace NBitcoin
 				}
 				delayCTS.Cancel();
 				cancellationToken.ThrowIfCancellationRequested();
-				await doing;
+				await doing.ConfigureAwait(false);
 			}
 		}
 
@@ -57,7 +57,7 @@ namespace NBitcoin
 				}
 				delayCTS.Cancel();
 				cancellationToken.ThrowIfCancellationRequested();
-				return (await doing.ConfigureAwait(false));
+				return await doing.ConfigureAwait(false);
 			}
 		}
 
