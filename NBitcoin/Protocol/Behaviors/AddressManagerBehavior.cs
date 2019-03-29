@@ -69,11 +69,11 @@ namespace NBitcoin.Protocol.Behaviors
 			SetAddrman(parameters.TemplateBehaviors, addrman);
 		}
 
+
+		int _PeersToDiscover = 1000;
 		/// <summary>
 		/// The minimum number of peers to discover before trying to connect to a node using the AddressManager (Default: 1000)
 		/// </summary>
-
-		int _PeersToDiscover = 1000;
 		public int PeersToDiscover
 		{
 			get
