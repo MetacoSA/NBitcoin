@@ -74,7 +74,7 @@ namespace NBitcoin.Protocol
 				return false;
 			if(capabilities.PeerTooOld)
 				return false;
-			if(MinProtocolCapabilities == null)
+			if(MinProtocolCapabilities is null)
 				return true;
 
 			if(SupportSPV)
@@ -585,7 +585,7 @@ namespace NBitcoin.Protocol
 						break;
 					}
 					addr = addrman.Select();
-					if(addr == null)
+					if(addr is null)
 					{
 						parameters.ConnectCancellation.WaitHandle.WaitOne(1000);
 						break;
@@ -600,7 +600,7 @@ namespace NBitcoin.Protocol
 					}
 					break;
 				}
-				if(addr == null)
+				if(addr is null)
 					continue;
 				try
 				{
@@ -685,23 +685,23 @@ namespace NBitcoin.Protocol
 		}
 		public static Task<Node> ConnectAsync(Network network, string endpoint, NodeConnectionParameters parameters = null)
 		{
-			if (network == null)
+			if (network is null)
 				throw new ArgumentNullException(nameof(network));
 			return ConnectAsync(network, Utils.ParseEndpoint(endpoint, network.DefaultPort), null, parameters);
 		}
 
 		public static async Task<Node> ConnectAsync(Network network, EndPoint endpoint, NetworkAddress peer, NodeConnectionParameters parameters)
 		{
-			if (endpoint == null && peer == null)
+			if (endpoint is null && peer is null)
 				throw new ArgumentNullException(nameof(endpoint));
-			if (network == null)
+			if (network is null)
 				throw new ArgumentNullException(nameof(network));
-			if (endpoint == null)
+			if (endpoint is null)
 			{
 				endpoint = peer.Endpoint;
 			}
 
-			if (endpoint == null)
+			if (endpoint is null)
 				throw new ArgumentNullException(nameof(endpoint));
 
 			parameters = parameters ?? new NodeConnectionParameters();
@@ -714,7 +714,7 @@ namespace NBitcoin.Protocol
 			{
 				await parameters.EndpointConnector.ConnectSocket(socket, endpoint, parameters, parameters.ConnectCancellation).ConfigureAwait(false);
 				var expectedPeerEndpoint = (endpoint as IPEndPoint) ?? endpoint.AsOnionCatIPEndpoint() ?? (socket.RemoteEndPoint as IPEndPoint);
-				if (peer == null)
+				if (peer is null)
 				{
 					peer = new NetworkAddress()
 					{
@@ -781,7 +781,7 @@ namespace NBitcoin.Protocol
 			Network = network;
 			_Behaviors = new NodeBehaviorsCollection(this);
 			_MyVersion = parameters.CreateVersion(peer.Endpoint, network);
-			if (peerVersion == null)
+			if (peerVersion is null)
 				SetVersion((uint)_MyVersion.Version);			
 			_Connection = new NodeConnection(this, socket);
 			_PeerVersion = peerVersion;
@@ -881,7 +881,7 @@ namespace NBitcoin.Protocol
 		/// <param name="System.OperationCanceledException">The node has been disconnected</param>
 		public Task SendMessageAsync(Payload payload)
 		{
-			if(payload == null)
+			if(payload is null)
 				throw new ArgumentNullException(nameof(payload));
 
 #if NO_RCA
@@ -934,7 +934,7 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				if(_Counter == null)
+				if(_Counter is null)
 					_Counter = new PerformanceCounter();
 				return _Counter;
 			}
@@ -1125,7 +1125,7 @@ namespace NBitcoin.Protocol
 
 			State = NodeState.Disconnecting;
 			_Connection.Cancel.Cancel();
-			if(DisconnectReason == null)
+			if(DisconnectReason is null)
 				DisconnectReason = new NodeDisconnectReason()
 				{
 					Reason = reason,
@@ -1248,7 +1248,7 @@ namespace NBitcoin.Protocol
 				while(true)
 				{
 					//Get before last so, at the end, we should only receive 1 header equals to this one (so we will not have race problems with concurrent GetChains)
-					var awaited = currentTip.Previous == null ? currentTip.GetLocator() : currentTip.Previous.GetLocator();
+					var awaited = currentTip.Previous is null ? currentTip.GetLocator() : currentTip.Previous.GetLocator();
 					SendMessageAsync(new GetHeadersPayload()
 					{
 						BlockLocators = awaited,
@@ -1373,7 +1373,7 @@ namespace NBitcoin.Protocol
 		/// <returns>Task which finish when complete</returns>
 		public void SynchronizeSlimChain(SlimChain chain, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			if(chain == null)
+			if(chain is null)
 				throw new ArgumentNullException(nameof(chain));
 			AssertState(NodeState.HandShaked, cancellationToken);
 
@@ -1386,8 +1386,8 @@ namespace NBitcoin.Protocol
 					var currentTip = chain.TipBlock;
 
 					//Get before last so, at the end, we should only receive 1 header equals to this one (so we will not have race problems with concurrent GetChains)
-					var awaited = currentTip.Previous == null ? chain.GetLocator(currentTip.Height) : chain.GetLocator(currentTip.Height - 1);
-					if(awaited == null)
+					var awaited = currentTip.Previous is null ? chain.GetLocator(currentTip.Height) : chain.GetLocator(currentTip.Height - 1);
+					if(awaited is null)
 						continue;
 					SendMessageAsync(new GetHeadersPayload()
 					{
