@@ -12,7 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<Version Condition=" '$(Version)' == '' ">4.1.1.94</Version>
+		<Version Condition=" '$(Version)' == '' ">4.1.1.95</Version>
 		<LangVersion>7.2</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -47,7 +47,7 @@
 		<DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH;NO_BEGINCONNECT</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
 		<DefineConstants>$(DefineConstants);NO_RCA;NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH</DefineConstants>
