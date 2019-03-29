@@ -38,8 +38,29 @@ namespace NBitcoin
 				}
 				delayCTS.Cancel();
 				cancellationToken.ThrowIfCancellationRequested();
+				await doing;
 			}
 		}
+
+		public static async Task<T> WithCancellation<T>(this Task<T> task, CancellationToken cancellationToken)
+		{
+			using (var delayCTS = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+			{
+				var waiting = Task.Delay(-1, delayCTS.Token);
+				var doing = task;
+				if (await Task.WhenAny(waiting, doing).ConfigureAwait(false) == waiting)
+				{
+#pragma warning disable CS4014
+					// Need to handle potential exception unhandled later, the original exception is not yet finished
+					doing.ContinueWith(_ => _?.Exception?.Handle((e) => true));
+#pragma warning restore CS4014
+				}
+				delayCTS.Cancel();
+				cancellationToken.ThrowIfCancellationRequested();
+				return (await doing.ConfigureAwait(false));
+			}
+		}
+
 		public static Block GetBlock(this IBlockRepository repository, uint256 blockId)
 		{
 			return repository.GetBlockAsync(blockId).GetAwaiter().GetResult();
