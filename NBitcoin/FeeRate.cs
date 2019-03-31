@@ -42,7 +42,7 @@ namespace NBitcoin
 
 		public FeeRate(Money feePerK)
 		{
-			if(feePerK == null)
+			if(feePerK is null)
 				throw new ArgumentNullException(nameof(feePerK));
 			if(feePerK.Satoshi < 0)
 				throw new ArgumentOutOfRangeException(nameof(feePerK));
@@ -51,7 +51,7 @@ namespace NBitcoin
 
 		public FeeRate(Money feePaid, int size)
 		{
-			if(feePaid == null)
+			if(feePaid is null)
 				throw new ArgumentNullException(nameof(feePaid));
 			if(feePaid.Satoshi < 0)
 				throw new ArgumentOutOfRangeException(nameof(feePaid));
@@ -89,11 +89,11 @@ namespace NBitcoin
 		{
 			if(Object.ReferenceEquals(this, obj))
 				return true;
-			if(((object)this == null) || (obj == null))
+			if(((object)this is null) || (obj is null))
 				return false;
 			var left = this;
 			var right = obj as FeeRate;
-			if(right == null)
+			if(right is null)
 				return false;
 			return left._FeePerK == right._FeePerK;
 		}
@@ -124,7 +124,7 @@ namespace NBitcoin
 
 		public int CompareTo(FeeRate other)
 		{
-			return other == null 
+			return other is null 
 				? 1 
 				: _FeePerK.CompareTo(other._FeePerK);
 		}
@@ -135,7 +135,7 @@ namespace NBitcoin
 
 		public int CompareTo(object obj)
 		{
-			if (obj == null)
+			if (obj is null)
 				return 1;
 			var m = obj as FeeRate;
 			if (m != null)
@@ -151,33 +151,33 @@ namespace NBitcoin
 
 		public static bool operator <(FeeRate left, FeeRate right)
 		{
-			if (left == null)
+			if (left is null)
 				throw new ArgumentNullException(nameof(left));
-			if (right == null)
+			if (right is null)
 				throw new ArgumentNullException(nameof(right));
 			return left._FeePerK < right._FeePerK;
 		}
 		public static bool operator >(FeeRate left, FeeRate right)
 		{
-			if (left == null)
+			if (left is null)
 				throw new ArgumentNullException(nameof(left));
-			if (right == null)
+			if (right is null)
 				throw new ArgumentNullException(nameof(right));
 			return left._FeePerK > right._FeePerK;
 		}
 		public static bool operator <=(FeeRate left, FeeRate right)
 		{
-			if (left == null)
+			if (left is null)
 				throw new ArgumentNullException(nameof(left));
-			if (right == null)
+			if (right is null)
 				throw new ArgumentNullException(nameof(right));
 			return left._FeePerK <= right._FeePerK;
 		}
 		public static bool operator >=(FeeRate left, FeeRate right)
 		{
-			if (left == null)
+			if (left is null)
 				throw new ArgumentNullException(nameof(left));
-			if (right == null)
+			if (right is null)
 				throw new ArgumentNullException(nameof(right));
 			return left._FeePerK >= right._FeePerK;
 		}
@@ -186,7 +186,7 @@ namespace NBitcoin
 		{
 			if (Object.ReferenceEquals(left, right))
 				return true;
-			if (((object)left == null) || ((object)right == null))
+			if (((object)left is null) || ((object)right is null))
 				return false;
 			return left._FeePerK == right._FeePerK;
 		}
@@ -203,9 +203,9 @@ namespace NBitcoin
 
 		public static FeeRate Min(FeeRate left, FeeRate right)
 		{
-			if (left == null)
+			if (left is null)
 				throw new ArgumentNullException(nameof(left));
-			if (right == null)
+			if (right is null)
 				throw new ArgumentNullException(nameof(right));
 			return left <= right 
 				? left 
@@ -214,9 +214,9 @@ namespace NBitcoin
 
 		public static FeeRate Max(FeeRate left, FeeRate right)
 		{
-			if (left == null)
+			if (left is null)
 				throw new ArgumentNullException(nameof(left));
-			if (right == null)
+			if (right is null)
 				throw new ArgumentNullException(nameof(right));
 			return left >= right
 				? left
