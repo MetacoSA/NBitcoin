@@ -89,7 +89,7 @@ namespace NBitcoin
 		{
 			if(Object.ReferenceEquals(this, obj))
 				return true;
-			if(((object)this is null) || (obj is null))
+			if(this is null || obj is null)
 				return false;
 			var left = this;
 			var right = obj as FeeRate;
@@ -186,7 +186,7 @@ namespace NBitcoin
 		{
 			if (Object.ReferenceEquals(left, right))
 				return true;
-			if (((object)left is null) || ((object)right is null))
+			if (left is null || right is null)
 				return false;
 			return left._FeePerK == right._FeePerK;
 		}
