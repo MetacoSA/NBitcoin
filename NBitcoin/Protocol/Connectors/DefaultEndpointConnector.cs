@@ -15,7 +15,7 @@ namespace NBitcoin.Protocol.Connectors
 	public class DefaultEndpointConnector : IEnpointConnector
 	{
 		/// <summary>
-		/// If it must connect to TOR only (default: false)
+		/// If it must connect to Tor only (default: false)
 		/// </summary>
 		public bool AllowOnlyTorEndpoints { get; set; } = false;
 

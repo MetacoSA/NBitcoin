@@ -26,7 +26,7 @@ namespace NBitcoin.Protocol.Behaviors
 		/// </summary>
 		public EndPoint SocksEndpoint { get; set; }
 		/// <summary>
-		/// If the socks proxy is only used for TOR traffic (default: true)
+		/// If the socks proxy is only used for Tor traffic (default: true)
 		/// </summary>
 		public bool OnlyForOnionHosts { get; set; } = true;
 		public override object Clone()
