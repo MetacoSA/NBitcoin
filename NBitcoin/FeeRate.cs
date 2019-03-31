@@ -56,7 +56,7 @@ namespace NBitcoin
 			if(feePaid.Satoshi < 0)
 				throw new ArgumentOutOfRangeException(nameof(feePaid));
 			if (size > 0)
-				this._FeePerK = (long)((decimal)feePaid.Satoshi / (decimal)size * 1000m);
+				_FeePerK = (long)((decimal)feePaid.Satoshi / (decimal)size * 1000m);
 			else
 				_FeePerK = Money.Zero;
 		}
