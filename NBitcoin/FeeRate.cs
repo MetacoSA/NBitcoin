@@ -45,7 +45,7 @@ namespace NBitcoin
 			if(feePerK is null)
 				throw new ArgumentNullException(nameof(feePerK));
 			if(feePerK.Satoshi < 0)
-				throw new ArgumentOutOfRangeException(nameof(feePerK));
+				throw new ArgumentOutOfRangeException(nameof(feePerK), "Cannot be less than 0.");
 			_FeePerK = feePerK;
 		}
 
@@ -54,7 +54,7 @@ namespace NBitcoin
 			if(feePaid is null)
 				throw new ArgumentNullException(nameof(feePaid));
 			if(feePaid.Satoshi < 0)
-				throw new ArgumentOutOfRangeException(nameof(feePaid));
+				throw new ArgumentOutOfRangeException(nameof(feePaid), "Cannot be less than 0.");
 			if (size > 0)
 				_FeePerK = (long)((decimal)feePaid.Satoshi / (decimal)size * 1000m);
 			else
@@ -64,7 +64,7 @@ namespace NBitcoin
 		public FeeRate(decimal satoshiPerByte)
 		{
 			if(satoshiPerByte < 0)
-				throw new ArgumentOutOfRangeException(nameof(satoshiPerByte));
+				throw new ArgumentOutOfRangeException(nameof(satoshiPerByte), "Cannot be less than 0.");
 			_FeePerK = Money.Satoshis(satoshiPerByte * 1000);
 		}
 
