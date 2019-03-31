@@ -844,7 +844,7 @@ namespace NBitcoin.Tests
 				foreach (var endpoint in hosts.Select(h => Utils.ParseEndpoint(h, Network.Main.DefaultPort)))
 				{
 					if (endpoint is IPEndPoint ipv6 && !ipv6.IsTor() && onlyForOnionHosts)
-						continue; // My network does not support ipv6 without TOR so I disable this test
+						continue; // My network does not support ipv6 without Tor so I disable this test
 					using (var cancellationToken = new CancellationTokenSource(20000))
 					{
 						var node = await Node.ConnectAsync(Network.Main, endpoint, new NodeConnectionParameters()
