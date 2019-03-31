@@ -260,6 +260,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Convert an onion cat IPEndpoint to an onion DnsEndpoint
 		/// If endpoint is already an onion DnsEndpoint, return it.
+		/// If the endpoint is not an onion endpoint v2, return false.
 		/// </summary>
 		/// <param name="endpoint">The tor endpoint</param>
 		/// <param name="dnsEndpoint">The onion dns enpoint</param>
