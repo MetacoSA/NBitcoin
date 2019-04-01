@@ -1,6 +1,7 @@
 ﻿#if !NOSOCKET
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -11,7 +12,16 @@ namespace NBitcoin.Socks
 {
 	public class SocksHelper
 	{
-		static readonly byte[] SelectionMessage = new byte[] { 5, 1, 0 };
+		// https://gitweb.torproject.org/torspec.git/tree/socks-extensions.txt
+		// The "NO AUTHENTICATION REQUIRED" (SOCKS5) authentication method[00] is
+		// supported; and as of Tor 0.2.3.2-alpha, the "USERNAME/PASSWORD" (SOCKS5)
+		// authentication method[02] is supported too, and used as a method to
+		// implement stream isolation.As an extension to support some broken clients,
+		// we allow clients to pass "USERNAME/PASSWORD" authentication to us even if
+		// no authentication was selected.
+		static readonly byte[] SelectionMessageNoAuthenticationRequired = new byte[] { 5, 1, 0 };
+		static readonly byte[] SelectionMessageUsernamePassword = new byte[] { 5, 1, 2 };
+
 		internal static byte[] CreateConnectMessage(EndPoint endpoint)
 		{
 			if (endpoint == null)
@@ -66,17 +76,57 @@ namespace NBitcoin.Socks
 			return sendBuffer;
 		}
 
-		public static async Task Handshake(Socket socket, EndPoint endpoint, CancellationToken cancellationToken)
+		public static async Task Handshake(Socket socket, EndPoint endpoint, bool changeTorIdentities, CancellationToken cancellationToken)
 		{
 			NetworkStream stream = new NetworkStream(socket, false);
-			await stream.WriteAsync(SelectionMessage, 0, SelectionMessage.Length).WithCancellation(cancellationToken).ConfigureAwait(false);
+			var selectionMessage = changeTorIdentities ? SelectionMessageUsernamePassword : SelectionMessageNoAuthenticationRequired;
+			await stream.WriteAsync(selectionMessage, 0, selectionMessage.Length).WithCancellation(cancellationToken).ConfigureAwait(false);
 			await stream.FlushAsync().WithCancellation(cancellationToken).ConfigureAwait(false);
 
 			var selectionResponse = new byte[2];
 			await stream.ReadAsync(selectionResponse, 0, 2).WithCancellation(cancellationToken).ConfigureAwait(false);
 			if (selectionResponse[0] != 5)
 				throw new SocksException("Invalid version in selection reply");
-			if (selectionResponse[1] != 0)
+			if (selectionResponse[1] == 2)
+			{
+				// https://tools.ietf.org/html/rfc1929#section-2
+				// Once the SOCKS V5 server has started, and the client has selected the
+				// Username / Password Authentication protocol, the Username / Password
+				// subnegotiation begins.  This begins with the client producing a
+				// Username / Password request:
+
+				// Create a random string 21 char string.
+				const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+				var identity = new string(Enumerable.Repeat(chars, 21)
+				  .Select(s => s[new Random().Next(s.Length)]).ToArray());
+
+				var username = identity;
+				var password = identity;
+				var uName = Encoding.UTF8.GetBytes(username);
+				var passwd = Encoding.UTF8.GetBytes(password);				
+				var usernamePasswordRequest = ByteArrayExtensions.Concat(new byte[] { 1, (byte)uName.Length }, uName, new byte[] { (byte)passwd.Length }, passwd);
+
+				await stream.WriteAsync(usernamePasswordRequest, 0, usernamePasswordRequest.Length).WithCancellation(cancellationToken).ConfigureAwait(false);
+				await stream.FlushAsync().WithCancellation(cancellationToken).ConfigureAwait(false);
+
+				var userNamePasswordResponse = new byte[2];
+				await stream.ReadAsync(userNamePasswordResponse, 0, 2).WithCancellation(cancellationToken).ConfigureAwait(false);
+
+				if (userNamePasswordResponse[0] != 1)
+				{
+					throw new NotSupportedException($"Authentication version {userNamePasswordResponse[0]} is not supported. Only version {1} is supported.");
+				}
+
+				if (userNamePasswordResponse[1] != 0) // Tor authentication is different, this will never happen;
+				{
+					// https://tools.ietf.org/html/rfc1929#section-2
+					// A STATUS field of X'00' indicates success. If the server returns a
+					// `failure' (STATUS value other than X'00') status, it MUST close the
+					// connection.
+					throw new SocksException("Wrong username and/or password.");
+				}
+			}
+			else if (selectionResponse[1] != 0)
 				throw new SocksException("Unsupported authentication method in selection reply");
 
 			var connectBytes = CreateConnectMessage(endpoint);
