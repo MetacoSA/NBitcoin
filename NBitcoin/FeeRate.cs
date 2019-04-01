@@ -42,21 +42,21 @@ namespace NBitcoin
 
 		public FeeRate(Money feePerK)
 		{
-			if(feePerK == null)
+			if(feePerK is null)
 				throw new ArgumentNullException(nameof(feePerK));
 			if(feePerK.Satoshi < 0)
-				throw new ArgumentOutOfRangeException("feePerK");
+				throw new ArgumentOutOfRangeException(nameof(feePerK), "Cannot be less than 0.");
 			_FeePerK = feePerK;
 		}
 
 		public FeeRate(Money feePaid, int size)
 		{
-			if(feePaid == null)
+			if(feePaid is null)
 				throw new ArgumentNullException(nameof(feePaid));
 			if(feePaid.Satoshi < 0)
-				throw new ArgumentOutOfRangeException("feePaid");
+				throw new ArgumentOutOfRangeException(nameof(feePaid), "Cannot be less than 0.");
 			if (size > 0)
-				this._FeePerK = (long)((decimal)feePaid.Satoshi / (decimal)size * 1000m);
+				_FeePerK = (long)((decimal)feePaid.Satoshi / (decimal)size * 1000m);
 			else
 				_FeePerK = Money.Zero;
 		}
@@ -64,7 +64,7 @@ namespace NBitcoin
 		public FeeRate(decimal satoshiPerByte)
 		{
 			if(satoshiPerByte < 0)
-				throw new ArgumentOutOfRangeException("satoshiPerByte");
+				throw new ArgumentOutOfRangeException(nameof(satoshiPerByte), "Cannot be less than 0.");
 			_FeePerK = Money.Satoshis(satoshiPerByte * 1000);
 		}
 
@@ -89,11 +89,11 @@ namespace NBitcoin
 		{
 			if(Object.ReferenceEquals(this, obj))
 				return true;
-			if(((object)this == null) || (obj == null))
+			if(this is null || obj is null)
 				return false;
 			var left = this;
 			var right = obj as FeeRate;
-			if(right == null)
+			if(right is null)
 				return false;
 			return left._FeePerK == right._FeePerK;
 		}
@@ -124,7 +124,7 @@ namespace NBitcoin
 
 		public int CompareTo(FeeRate other)
 		{
-			return other == null 
+			return other is null 
 				? 1 
 				: _FeePerK.CompareTo(other._FeePerK);
 		}
@@ -135,7 +135,7 @@ namespace NBitcoin
 
 		public int CompareTo(object obj)
 		{
-			if (obj == null)
+			if (obj is null)
 				return 1;
 			var m = obj as FeeRate;
 			if (m != null)
@@ -151,33 +151,33 @@ namespace NBitcoin
 
 		public static bool operator <(FeeRate left, FeeRate right)
 		{
-			if (left == null)
+			if (left is null)
 				throw new ArgumentNullException(nameof(left));
-			if (right == null)
+			if (right is null)
 				throw new ArgumentNullException(nameof(right));
 			return left._FeePerK < right._FeePerK;
 		}
 		public static bool operator >(FeeRate left, FeeRate right)
 		{
-			if (left == null)
+			if (left is null)
 				throw new ArgumentNullException(nameof(left));
-			if (right == null)
+			if (right is null)
 				throw new ArgumentNullException(nameof(right));
 			return left._FeePerK > right._FeePerK;
 		}
 		public static bool operator <=(FeeRate left, FeeRate right)
 		{
-			if (left == null)
+			if (left is null)
 				throw new ArgumentNullException(nameof(left));
-			if (right == null)
+			if (right is null)
 				throw new ArgumentNullException(nameof(right));
 			return left._FeePerK <= right._FeePerK;
 		}
 		public static bool operator >=(FeeRate left, FeeRate right)
 		{
-			if (left == null)
+			if (left is null)
 				throw new ArgumentNullException(nameof(left));
-			if (right == null)
+			if (right is null)
 				throw new ArgumentNullException(nameof(right));
 			return left._FeePerK >= right._FeePerK;
 		}
@@ -186,7 +186,7 @@ namespace NBitcoin
 		{
 			if (Object.ReferenceEquals(left, right))
 				return true;
-			if (((object)left == null) || ((object)right == null))
+			if (left is null || right is null)
 				return false;
 			return left._FeePerK == right._FeePerK;
 		}
@@ -203,9 +203,9 @@ namespace NBitcoin
 
 		public static FeeRate Min(FeeRate left, FeeRate right)
 		{
-			if (left == null)
+			if (left is null)
 				throw new ArgumentNullException(nameof(left));
-			if (right == null)
+			if (right is null)
 				throw new ArgumentNullException(nameof(right));
 			return left <= right 
 				? left 
@@ -214,9 +214,9 @@ namespace NBitcoin
 
 		public static FeeRate Max(FeeRate left, FeeRate right)
 		{
-			if (left == null)
+			if (left is null)
 				throw new ArgumentNullException(nameof(left));
-			if (right == null)
+			if (right is null)
 				throw new ArgumentNullException(nameof(right));
 			return left >= right
 				? left
