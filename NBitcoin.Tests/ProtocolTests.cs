@@ -18,6 +18,7 @@ using NBitcoin.Logging;
 using NBitcoin.Tests.Helpers;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using NBitcoin.Protocol.Connectors;
 
 namespace NBitcoin.Tests
 {
@@ -816,6 +817,7 @@ namespace NBitcoin.Tests
 		// You need to run Tor Browser (the test use socks port 9150, not 9050)
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
+		// [Fact]
 		public async Task TestDifferentConnectionMethods()
 #pragma warning restore xUnit1013 // Public method should be marked as test
 		{
@@ -839,7 +841,7 @@ namespace NBitcoin.Tests
 				// Should works for DNS names
 				"ec2-52-14-64-82.us-east-2.compute.amazonaws.com"
 				};
-			foreach (var onlyForOnionHosts in new[] { true, false })
+			foreach (var (onlyForOnionHosts, changeIpIdentities) in new[] { (true, true), (true, false), (false, true), (false, false) })
 			{
 				foreach (var endpoint in hosts.Select(h => Utils.ParseEndpoint(h, Network.Main.DefaultPort)))
 				{
@@ -849,6 +851,7 @@ namespace NBitcoin.Tests
 					{
 						var node = await Node.ConnectAsync(Network.Main, endpoint, new NodeConnectionParameters()
 						{
+							EndpointConnector = new DefaultEndpointConnector{ ChangeTorIdentities = changeIpIdentities },
 							TemplateBehaviors =
 							{
 								new SocksSettingsBehavior(Utils.ParseEndpoint("localhost", 9150), onlyForOnionHosts)
