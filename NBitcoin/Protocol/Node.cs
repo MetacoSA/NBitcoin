@@ -708,8 +708,7 @@ namespace NBitcoin.Protocol
 			var addrman = AddressManagerBehavior.GetAddrman(parameters);
 
 			var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-			socket.ReceiveBufferSize = parameters.ReceiveBufferSize;
-			socket.SendBufferSize = parameters.SendBufferSize;
+			parameters.SocketSettings.SetSocketProperties(socket);
 			try
 			{
 				await parameters.EndpointConnector.ConnectSocket(socket, endpoint, parameters, parameters.ConnectCancellation).ConfigureAwait(false);

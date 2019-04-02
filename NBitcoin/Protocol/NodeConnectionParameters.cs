@@ -22,12 +22,10 @@ namespace NBitcoin.Protocol
 			IsRelay = true;
 			Services = NodeServices.Nothing;
 			ConnectCancellation = default(CancellationToken);
-
 			// Use max supported by MAC OSX Yosemite/Mavericks/Sierra (https://fasterdata.es.net/host-tuning/osx/)
-			ReceiveBufferSize = 1048576; 
-			SendBufferSize = 1048576;
+			this.SocketSettings.ReceiveBufferSize = 1048576;
+			this.SocketSettings.SendBufferSize = 1048576;
 			////////////////////////
-
 			UserAgent = VersionPayload.GetNBitcoinUserAgent();
 			PreferredTransactionOptions = TransactionOptions.All;
 		}
@@ -37,8 +35,6 @@ namespace NBitcoin.Protocol
 			Version = other.Version;
 			IsRelay = other.IsRelay;
 			Services = other.Services;
-			ReceiveBufferSize = other.ReceiveBufferSize;
-			SendBufferSize = other.SendBufferSize;
 			ConnectCancellation = other.ConnectCancellation;
 			UserAgent = other.UserAgent;
 			AddressFrom = other.AddressFrom;
@@ -46,6 +42,7 @@ namespace NBitcoin.Protocol
 			Advertize = other.Advertize;
 			PreferredTransactionOptions = other.PreferredTransactionOptions;
 			EndpointConnector = other.EndpointConnector.Clone();
+			SocketSettings = other.SocketSettings.Clone();
 			foreach(var behavior in other.TemplateBehaviors)
 			{
 				TemplateBehaviors.Add(behavior.Clone());
@@ -93,16 +90,33 @@ namespace NBitcoin.Protocol
 			get;
 			set;
 		}
+		[Obsolete("Use SocketSettings.ReceiveBufferSize instead")]
 		public int ReceiveBufferSize
 		{
-			get;
-			set;
+			get
+			{
+				return SocketSettings.ReceiveBufferSize is int v ? v : 1048576;
+			}
+			set
+			{
+				SocketSettings.ReceiveBufferSize = value;
+			}
 		}
+
+		[Obsolete("Use SocketSettings.SendBufferSize instead")]
 		public int SendBufferSize
 		{
-			get;
-			set;
+			get
+			{
+				return SocketSettings.SendBufferSize is int v ? v : 1048576;
+			}
+			set
+			{
+				SocketSettings.SendBufferSize = value;
+			}
 		}
+
+		public SocketSettings SocketSettings { get; set; } = new SocketSettings();
 
 		public IEnpointConnector EndpointConnector { get; set; } = new DefaultEndpointConnector();
 

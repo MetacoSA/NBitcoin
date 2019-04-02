@@ -765,8 +765,8 @@ namespace NBitcoin.SPV
 			parameters = parameters ?? new NodeConnectionParameters();
 
 			//Optimize for small device
-			parameters.SendBufferSize = 1024 * 100;
-			parameters.ReceiveBufferSize = 1024 * 100;
+			parameters.SocketSettings.SendBufferSize = 1024 * 100;
+			parameters.SocketSettings.ReceiveBufferSize = 1024 * 100;
 			parameters.IsRelay = false;
 
 			parameters.TemplateBehaviors.FindOrCreate<PingPongBehavior>();  //Ping Pong
