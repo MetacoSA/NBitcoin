@@ -38920,6 +38920,12 @@ references:
   commentId: M:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.#ctor(System.Net.EndPoint,System.Boolean)
   fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksSettingsBehavior(System.Net.EndPoint, System.Boolean)
   nameWithType: SocksSettingsBehavior.SocksSettingsBehavior(EndPoint, Boolean)
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.#ctor(System.Net.EndPoint,System.Boolean,System.Net.NetworkCredential,System.Boolean)
+  name: SocksSettingsBehavior(EndPoint, Boolean, NetworkCredential, Boolean)
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior__ctor_System_Net_EndPoint_System_Boolean_System_Net_NetworkCredential_System_Boolean_
+  commentId: M:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.#ctor(System.Net.EndPoint,System.Boolean,System.Net.NetworkCredential,System.Boolean)
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksSettingsBehavior(System.Net.EndPoint, System.Boolean, System.Net.NetworkCredential, System.Boolean)
+  nameWithType: SocksSettingsBehavior.SocksSettingsBehavior(EndPoint, Boolean, NetworkCredential, Boolean)
 - uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.#ctor*
   name: SocksSettingsBehavior
   href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior__ctor_
@@ -38966,6 +38972,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.DetachCore
   nameWithType: SocksSettingsBehavior.DetachCore
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.NetworkCredential
+  name: NetworkCredential
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_NetworkCredential
+  commentId: P:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.NetworkCredential
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.NetworkCredential
+  nameWithType: SocksSettingsBehavior.NetworkCredential
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.NetworkCredential*
+  name: NetworkCredential
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_NetworkCredential_
+  commentId: Overload:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.NetworkCredential
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.NetworkCredential
+  nameWithType: SocksSettingsBehavior.NetworkCredential
 - uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.OnlyForOnionHosts
   name: OnlyForOnionHosts
   href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_OnlyForOnionHosts
@@ -38992,6 +39011,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.SocksEndpoint
   nameWithType: SocksSettingsBehavior.SocksEndpoint
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.StreamIsolation
+  name: StreamIsolation
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_StreamIsolation
+  commentId: P:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.StreamIsolation
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.StreamIsolation
+  nameWithType: SocksSettingsBehavior.StreamIsolation
+- uid: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.StreamIsolation*
+  name: StreamIsolation
+  href: api/NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.html#NBitcoin_Protocol_Behaviors_SocksSettingsBehavior_StreamIsolation_
+  commentId: Overload:NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.StreamIsolation
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.Behaviors.SocksSettingsBehavior.StreamIsolation
+  nameWithType: SocksSettingsBehavior.StreamIsolation
 - uid: NBitcoin.Protocol.Behaviors.TransactionBroadcast
   name: TransactionBroadcast
   href: api/NBitcoin.Protocol.Behaviors.TransactionBroadcast.html
@@ -55229,6 +55261,12 @@ references:
   commentId: T:NBitcoin.Socks.SocksHelper
   fullName: NBitcoin.Socks.SocksHelper
   nameWithType: SocksHelper
+- uid: NBitcoin.Socks.SocksHelper.Handshake(System.Net.Sockets.Socket,System.Net.EndPoint,System.Net.NetworkCredential,System.Threading.CancellationToken)
+  name: Handshake(Socket, EndPoint, NetworkCredential, CancellationToken)
+  href: api/NBitcoin.Socks.SocksHelper.html#NBitcoin_Socks_SocksHelper_Handshake_System_Net_Sockets_Socket_System_Net_EndPoint_System_Net_NetworkCredential_System_Threading_CancellationToken_
+  commentId: M:NBitcoin.Socks.SocksHelper.Handshake(System.Net.Sockets.Socket,System.Net.EndPoint,System.Net.NetworkCredential,System.Threading.CancellationToken)
+  fullName: NBitcoin.Socks.SocksHelper.Handshake(System.Net.Sockets.Socket, System.Net.EndPoint, System.Net.NetworkCredential, System.Threading.CancellationToken)
+  nameWithType: SocksHelper.Handshake(Socket, EndPoint, NetworkCredential, CancellationToken)
 - uid: NBitcoin.Socks.SocksHelper.Handshake(System.Net.Sockets.Socket,System.Net.EndPoint,System.Threading.CancellationToken)
   name: Handshake(Socket, EndPoint, CancellationToken)
   href: api/NBitcoin.Socks.SocksHelper.html#NBitcoin_Socks_SocksHelper_Handshake_System_Net_Sockets_Socket_System_Net_EndPoint_System_Threading_CancellationToken_
