@@ -75,36 +75,51 @@ namespace NBitcoin.Socks
 			sendBuffer[sendBuffer.Length - 1] = (byte)((port & 0x00ff));
 			return sendBuffer;
 		}
+		static Encoding NoBOMUTF8 = new UTF8Encoding(false);
+		public static Task Handshake(Socket socket, EndPoint endpoint, CancellationToken cancellationToken)
+		{
+			return Handshake(socket, endpoint, null, cancellationToken);
+		}
 
-		public static async Task Handshake(Socket socket, EndPoint endpoint, bool changeTorIdentities, CancellationToken cancellationToken)
+		public static async Task Handshake(Socket socket, EndPoint endpoint, NetworkCredential credentials, CancellationToken cancellationToken)
 		{
 			NetworkStream stream = new NetworkStream(socket, false);
-			var selectionMessage = changeTorIdentities ? SelectionMessageUsernamePassword : SelectionMessageNoAuthenticationRequired;
+			var selectionMessage = credentials is null ? SelectionMessageNoAuthenticationRequired : SelectionMessageUsernamePassword;
 			await stream.WriteAsync(selectionMessage, 0, selectionMessage.Length).WithCancellation(cancellationToken).ConfigureAwait(false);
 			await stream.FlushAsync().WithCancellation(cancellationToken).ConfigureAwait(false);
 
 			var selectionResponse = new byte[2];
+			// Note that we use WithCancellation because underlying socket operations does not support true cancellation.
+			// This mainly just abandon the operation.
 			await stream.ReadAsync(selectionResponse, 0, 2).WithCancellation(cancellationToken).ConfigureAwait(false);
 			if (selectionResponse[0] != 5)
 				throw new SocksException("Invalid version in selection reply");
 			if (selectionResponse[1] == 2)
 			{
+				if (credentials == null)
+					throw new SocksException("Authentication to socks proxy required, but the credentials are not specified");
+
 				// https://tools.ietf.org/html/rfc1929#section-2
 				// Once the SOCKS V5 server has started, and the client has selected the
 				// Username / Password Authentication protocol, the Username / Password
 				// subnegotiation begins.  This begins with the client producing a
 				// Username / Password request:
 
-				// Create a random string 21 char string.
-				const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-				var identity = new string(Enumerable.Repeat(chars, 21)
-				  .Select(s => s[new Random().Next(s.Length)]).ToArray());
+				var uName = NoBOMUTF8.GetBytes(credentials.UserName);
+				var passwd = NoBOMUTF8.GetBytes(credentials.Password);
 
-				var username = identity;
-				var password = identity;
-				var uName = Encoding.UTF8.GetBytes(username);
-				var passwd = Encoding.UTF8.GetBytes(password);				
-				var usernamePasswordRequest = ByteArrayExtensions.Concat(new byte[] { 1, (byte)uName.Length }, uName, new byte[] { (byte)passwd.Length }, passwd);
+				int index = 0;
+				var usernamePasswordRequest = new byte[1 + 1 + uName.Length + 1 + passwd.Length];
+				usernamePasswordRequest[index++] = 1;
+				if (uName.Length > 255)
+					throw new ArgumentException("The username should be less than 255 bytes", nameof(uName));
+				usernamePasswordRequest[index++] = (byte)uName.Length;
+				Array.Copy(uName, 0, usernamePasswordRequest, index, uName.Length);
+				index += uName.Length;
+				if (passwd.Length > 255)
+					throw new ArgumentException("The password should be less than 255 bytes", nameof(passwd));
+				usernamePasswordRequest[index++] = (byte)passwd.Length;
+				Array.Copy(passwd, 0, usernamePasswordRequest, index, passwd.Length);
 
 				await stream.WriteAsync(usernamePasswordRequest, 0, usernamePasswordRequest.Length).WithCancellation(cancellationToken).ConfigureAwait(false);
 				await stream.FlushAsync().WithCancellation(cancellationToken).ConfigureAwait(false);
@@ -114,7 +129,7 @@ namespace NBitcoin.Socks
 
 				if (userNamePasswordResponse[0] != 1)
 				{
-					throw new NotSupportedException($"Authentication version {userNamePasswordResponse[0]} is not supported. Only version {1} is supported.");
+					throw new SocksException($"Authentication version {userNamePasswordResponse[0]} is not supported. Only version {1} is supported.");
 				}
 
 				if (userNamePasswordResponse[1] != 0) // Tor authentication is different, this will never happen;

@@ -20,24 +20,18 @@ namespace NBitcoin.Protocol.Connectors
 		public bool AllowOnlyTorEndpoints { get; set; } = false;
 
 
-		/// <summary>
-		/// Use a new Tor stream for every connection.
-		/// </summary>
-		public bool ChangeTorIdentities { get; set; } = false;
-
 		public DefaultEndpointConnector()
 		{
 		}
 
-		public DefaultEndpointConnector(bool allowOnlyTorEndpoints, bool changeTorIdentities)
+		public DefaultEndpointConnector(bool allowOnlyTorEndpoints)
 		{
 			AllowOnlyTorEndpoints = allowOnlyTorEndpoints;
-			ChangeTorIdentities = changeTorIdentities;
 		}
 
 		public IEnpointConnector Clone()
 		{
-			return new DefaultEndpointConnector(AllowOnlyTorEndpoints, ChangeTorIdentities);
+			return new DefaultEndpointConnector(AllowOnlyTorEndpoints);
 		}
 
 		public async Task ConnectSocket(Socket socket, EndPoint endpoint, NodeConnectionParameters nodeConnectionParameters, CancellationToken cancellationToken)
@@ -58,7 +52,7 @@ namespace NBitcoin.Protocol.Connectors
 			if (!socks)
 				return;
 
-			await SocksHelper.Handshake(socket, endpoint, ChangeTorIdentities, cancellationToken).ConfigureAwait(false);
+			await SocksHelper.Handshake(socket, endpoint, socksSettings.GetCredentials(), cancellationToken).ConfigureAwait(false);
 		}
 	}
 }

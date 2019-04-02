@@ -817,7 +817,7 @@ namespace NBitcoin.Tests
 		// You need to run Tor Browser (the test use socks port 9150, not 9050)
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
-		// [Fact]
+		//[Fact]
 		public async Task TestDifferentConnectionMethods()
 #pragma warning restore xUnit1013 // Public method should be marked as test
 		{
@@ -851,10 +851,9 @@ namespace NBitcoin.Tests
 					{
 						var node = await Node.ConnectAsync(Network.Main, endpoint, new NodeConnectionParameters()
 						{
-							EndpointConnector = new DefaultEndpointConnector{ ChangeTorIdentities = changeIpIdentities },
 							TemplateBehaviors =
 							{
-								new SocksSettingsBehavior(Utils.ParseEndpoint("localhost", 9150), onlyForOnionHosts)
+								new SocksSettingsBehavior(Utils.ParseEndpoint("localhost", 9150), onlyForOnionHosts, null, changeIpIdentities)
 							},
 							ConnectCancellation = cancellationToken.Token
 						});
