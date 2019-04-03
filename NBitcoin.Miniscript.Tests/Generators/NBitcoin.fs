@@ -8,4 +8,4 @@ module internal NBitcoin =
         let k = NBitcoin.Key() // prioritize speed for randomness
         Gen.constant (k) |> Gen.map (fun k -> k.PubKey)
     
-    let uint256Gen = bytesOfNGen 32 |> Gen.map uint256
+    let uint256Gen = bytesOfNGen 32 |> Gen.map NBitcoin.uint256

@@ -27,12 +27,12 @@ let tests =
     testList "miniscript compiler" [ testPropertyWithConfig config 
                                          "should compile arbitrary input" <| fun (p : Policy) -> 
                                              let node = CompiledNode.fromPolicy (p)
-                                             let t = node.compile()
+                                             let t = node.Compile()
                                              Expect.isOk t
 
                                      testPropertyWithConfig config
                                         "Should compile arbitrary input to actual bitcoin script" <| fun (p: Policy) ->
-                                             let m = match CompiledNode.fromPolicy(p).compile() with
+                                             let m = match CompiledNode.fromPolicy(p).Compile() with
                                                      | Ok miniscript -> miniscript
                                                      | Result.Error e -> failwith e
                                              Expect.isNotNull (m.ToScript()) "script was empty"

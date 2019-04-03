@@ -17,7 +17,7 @@ module internal Policy =
                          Gen.map (fun (num, pks) -> Multi(num, pks)) 
                              multiContentsGen)
                         (2, Gen.map Hash uint256Gen)
-                        (2, Gen.map Time Arb.generate<uint32>) ]
+                        (2, Arb.generate<uint32> |> Gen.map NBitcoin.LockTime |> Gen.map(Time)) ]
     
     let policy =
         let rec policy' s =

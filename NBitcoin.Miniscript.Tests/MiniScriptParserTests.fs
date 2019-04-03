@@ -5,6 +5,7 @@ open Expecto
 open Expecto.Logging
 open Expecto.Logging.Message
 open NBitcoin.Miniscript.Tests.Generators
+open NBitcoin.Miniscript.Utils
 
 let logger = Log.create "MiniscriptParser"
 let pk1Str =
@@ -45,7 +46,7 @@ let tests =
                       (Key(pk1), 
                        Or
                            (Multi(1u, [| pk2; pk3 |]), 
-                            AsymmetricOr(Key(pk1), Time(1000u))))
+                            AsymmetricOr(Key(pk1), Time(!> 1000u))))
               let actual = testdata1.ToString()
               let expected =
                   sprintf 

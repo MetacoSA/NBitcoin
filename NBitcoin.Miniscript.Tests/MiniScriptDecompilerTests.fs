@@ -44,7 +44,7 @@ let tests =
                                         E.CheckSig(pk), W.Time(!> 1u))
                                     )
                                 let sc = boolAndWE.ToScript()
-                                let res = FNBitcoin.MiniScriptDecompiler.parseScript sc
+                                let res = Miniscript.Decompiler.parseScript sc
                                 checkParseResult res boolAndWE
 
                             testCase "case2" <| fun _ ->
@@ -53,7 +53,7 @@ let tests =
                                 let pk2 = PubKey(keys.[1])
                                 let delayedOrV = VTree(V.DelayedOr(Q.Pubkey(pk), Q.Pubkey(pk2)))
                                 let sc = delayedOrV.ToScript()
-                                let res = FNBitcoin.MiniScriptDecompiler.parseScript sc
+                                let res = Miniscript.Decompiler.parseScript sc
                                 checkParseResult res delayedOrV
 
                             testCase "Should pass the testcase in rust-miniscript" <| fun _ -> 
@@ -174,7 +174,7 @@ let roundTripFromMiniScript (m: MiniScript) =
     Expect.equal m2 m "failed"
 
 let roundtrip p =
-    let m = CompiledNode.fromPolicy(p).compileUnsafe()
+    let m = CompiledNode.fromPolicy(p).CompileUnsafe()
     roundTripFromMiniScript m
 
 let hash = uint256.Parse("59141e52303a755307114c2a5e6823010b3f1d586216742f396d4b06106e222c")
@@ -187,12 +187,12 @@ let tests2 =
         /// specifically, the case is when there is a nested `and`.
         /// `and(and(1, 2), 3)` is semantically equal to `and(1, and(2, 3))`
         /// But the assertion will fail, so leave it untested.
-        // TODO: (Ideally, we should have `CustomComparison` for AST and Policy)
+        // TODO: (Ideally, we should have stomComparison` for AST and Policy)
         ptestPropertyWithConfig config "Every possible MiniScript"  <| fun (p: Policy) ->
             roundtrip p
         testCase "Case found by property tests: 1" <| fun _ ->
             let input = Policy.Or(Key(keysList.[0]), Policy.And(Policy.Time(!> 2u), Policy.Time(!> 1u)))
-            let m = CompiledNode.fromPolicy(input).compileUnsafe()
+            let m = CompiledNode.fromPolicy(input).CompileUnsafe()
             let sc = m.ToScript()
             let customParser = TokenParser.pT
             let ops = sc.ToOps() |> Seq.toArray
@@ -206,7 +206,7 @@ let tests2 =
 
         testCase "Case found by property tests: 3" <| fun _ ->
             let input = MiniScript.fromASTUnsafe(
-                TTree(T.And(V.Time(1u), T.Time(1u))))
+                TTree(T.And(V.Time(LockTime(1u)), T.Time(LockTime(1u)))))
             roundTripFromMiniScript input
 
         testCase "Case found by property tests: 4" <| fun _ ->

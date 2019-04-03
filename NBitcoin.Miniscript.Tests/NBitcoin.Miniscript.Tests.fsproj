@@ -20,10 +20,11 @@
   <Import Project=".\netfx.props" />
   <ItemGroup>
     <ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
-    <ProjectReference Include="..\NBitcoin.Miniscript\Miniscript.fsproj" />
+    <ProjectReference Include="..\NBitcoin.Miniscript\NBitcoin.Miniscript.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Expecto" Version="8.9.1" />
+    <PackageReference Include="Expecto.FsCheck" Version="8.10.0" />
     <PackageReference Include="FsCheck" Version="2.13.0" />
   </ItemGroup>
 </Project>
