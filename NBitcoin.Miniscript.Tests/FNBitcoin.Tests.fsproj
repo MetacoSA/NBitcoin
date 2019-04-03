@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>netcoreapp2.1;netcoreapp2.2;net461</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Generators/Primitives.fs" />
+    <Compile Include="Generators/NBitcoin.fs" />
+    <Compile Include="Generators/Policy.fs" />
+    <Compile Include="Generators/Lib.fs" />
+    <Compile Include="Contract.fs" />
+    <Compile Include="MiniScriptParserTests.fs" />
+    <Compile Include="MiniScriptCompilerTests.fs" />
+    <Compile Include="MiniScriptDecompilerTests.fs" />
+    <Compile Include="Tests.fs" />
+    <Compile Include="Main.fs" />
+  </ItemGroup>
+  <Import Project=".\fsc.props" />
+  <Import Project=".\netfx.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
+    <ProjectReference Include="..\NBitcoin.Miniscript\Miniscript.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Expecto" Version="8.9.1" />
+    <PackageReference Include="FsCheck" Version="2.13.0" />
+  </ItemGroup>
+</Project>
