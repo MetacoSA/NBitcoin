@@ -94,31 +94,27 @@
 		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\NBitcoin.xml</DocumentationFile>
 	</PropertyGroup>
 
-	<!-- 1: Compile Miniscript -->
-	<!-- This does not work since MSBuild will complain about circular deps -->
-	<!-- So we must compile NBitcoin.Miniscript manually beforehands -->
-	<!--
-	<Target Name="BuildMiniscript" BeforeTargets="Compile">
-		<Message Text="Building Miniscript dll ..." />
-		<MSBuild
-			Projects="../NBitcoin.Miniscript/Miniscript.fsproj"
-			Properties="Configuration=$(Configuration)"
-			>
-		</MSBuild>
-	</Target>
-	-->
-
-	<!-- 2: Include compiled Miniscript dll to nupkg. -->
-	<Target
-		Name="CopyMiniscriptDll"
-		BeforeTargets="AfterBuild"
-		Condition="'$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netstandard2.0'">
-		<Copy
-			SourceFiles="..\NBitcoin.Miniscript\bin\$(Configuration)\$(TargetFramework)\Miniscript.dll"
-			DestinationFolder=".\bin\$(Configuration)\$(TargetFramework)"
-			ContinueOnError="WarnAndContinue"
-			>
-			</Copy>
-	</Target>
+	<!-- Include Miniscript dll only if it is ready. -->
+	<PropertyGroup>
+		<IncludeMiniscript Condition="Exists('..\NBitcoin.Miniscript\bin\$(Configuration)\netstandard2.0\Miniscript.dll')">true</IncludeMiniscript>
+	</PropertyGroup>
+	<ItemGroup Condition="'$(IncludeMiniscript)' == 'true'">
+		<Content Include="..\NBitcoin.Miniscript\bin\$(Configuration)\netstandard2.0\Miniscript.dll">
+			<Pack>true</Pack>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<PackagePath>lib\netstandard2.0</PackagePath>
+		</Content>
+		<Content
+			Include="..\NBitcoin.Miniscript\bin\$(Configuration)\netcoreapp2.1\Miniscript.dll">
+			<Pack>true</Pack>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<PackagePath>lib\netcoreapp2.1</PackagePath>
+		</Content>
+		<Content Include="..\NBitcoin.Miniscript\bin\$(Configuration)\net461\Miniscript.dll">
+			<Pack>true</Pack>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<PackagePath>lib\net461</PackagePath>
+		</Content>
+	</ItemGroup>
 
 </Project>
