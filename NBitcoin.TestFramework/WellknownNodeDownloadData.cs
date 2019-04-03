@@ -883,7 +883,7 @@ namespace NBitcoin.Tests
 
 		public class SmartCashNodeDownloadData
 		{
-			public NodeDownloadData v1_1_0_0 = new NodeDownloadData()
+			public NodeDownloadData v1_2_8 = new NodeDownloadData()
 			{
 				Version = "1.2.8",
 				Windows = new NodeOSDownloadData()
