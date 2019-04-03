@@ -20,7 +20,7 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 	</PropertyGroup>
 	<PropertyGroup>
-		<TargetFrameworks>netcoreapp2.1;netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1;netcoreapp2.1;netstandard2.0</TargetFrameworks>
 		<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetFrameworkOverride)' != ''">$(TargetFrameworkOverride)</TargetFrameworks>
 		<NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
@@ -96,7 +96,7 @@
 
 	<!-- Include Miniscript dll only if it is ready. -->
 	<PropertyGroup>
-		<IncludeMiniscript Condition="Exists('..\NBitcoin.Miniscript\bin\$(Configuration)\netstandard2.0\Miniscript.dll')">true</IncludeMiniscript>
+		<IncludeMiniscript Condition="Exists('..\NBitcoin.Miniscript\bin\$(Configuration)\netstandard2.0\Miniscript.dll') And Exists('..\NBitcoin.Miniscript\bin\$(Configuration)\netcoreapp2.1\Miniscript.dll') And Exists('..\NBitcoin.Miniscript\bin\$(Configuration)\netstandard2.0\Miniscript.dll')">true</IncludeMiniscript>
 	</PropertyGroup>
 	<ItemGroup Condition="'$(IncludeMiniscript)' == 'true'">
 		<Content Include="..\NBitcoin.Miniscript\bin\$(Configuration)\netstandard2.0\Miniscript.dll">
