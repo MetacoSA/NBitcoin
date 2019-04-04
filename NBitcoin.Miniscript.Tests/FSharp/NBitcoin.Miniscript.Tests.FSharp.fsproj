@@ -19,8 +19,8 @@
   <Import Project=".\fsc.props" />
   <Import Project=".\netfx.props" />
   <ItemGroup>
-    <ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
-    <ProjectReference Include="..\NBitcoin.Miniscript\NBitcoin.Miniscript.fsproj" />
+    <ProjectReference Include="..\..\NBitcoin\NBitcoin.csproj" />
+    <ProjectReference Include="..\..\NBitcoin.Miniscript\NBitcoin.Miniscript.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Expecto" Version="8.10.0" />

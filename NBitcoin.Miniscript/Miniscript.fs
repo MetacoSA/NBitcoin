@@ -1,5 +1,8 @@
 namespace NBitcoin.Miniscript
 
+open System
+open System.Runtime.InteropServices
+
 open NBitcoin.Miniscript.AST
 open NBitcoin.Miniscript.Decompiler
 open NBitcoin.Miniscript.Compiler
@@ -51,4 +54,8 @@ module Miniscript =
 type Miniscript with
     member this.ToScript() = Miniscript.toScript this
     member this.ToAST() = Miniscript.toAST this
-    member this.SatisFy(providers) = Miniscript.satisfy this providers
+    member this.Satisfy(nullableKeyFn: SignatureProvider option,
+                        hashFn: PreImageProvider option,
+                        age: LockTime option) =
+                            let keyFn  = if box nullableKeyFn = null then None else nullableKeyFn
+                            Miniscript.satisfy this (keyFn, hashFn, age)

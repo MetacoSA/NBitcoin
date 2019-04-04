@@ -5,7 +5,6 @@ module Satisfy =
     open NBitcoin.Miniscript.Utils
     open NBitcoin
     open System
-    open System.Runtime.InteropServices
 
     type SignatureProvider = PubKey -> TransactionSignature option
     type PreImageHash = PreImagehash of uint256
@@ -306,44 +305,3 @@ module Satisfy =
         | W.Time _ -> [RawPush[||]]
         | W.CastE e -> dissatisfyE e
 
-    // ---------- types -------
-    type E with
-        member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
-                            [<Optional>]?hashFn: PreImageProvider,
-                            [<Optional>]?age: LockTime): SatisfactionResult = 
-                                let providers = (keyFn, hashFn, age) 
-                                satisfyE providers this
-
-        member this.Disatisfy(): SatisfiedItem list = dissatisfyE this
-
-    type T with
-        member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
-                            [<Optional>]?hashFn: PreImageProvider,
-                            [<Optional>]?age: LockTime): SatisfactionResult =
-                                let providers = (keyFn, hashFn, age) 
-                                satisfyT providers this
-    type W with
-        member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
-                            [<Optional>]?hashFn: PreImageProvider,
-                            [<Optional>]?age: LockTime): SatisfactionResult =
-                                let providers = (keyFn, hashFn, age)
-                                satisfyW providers this
-        member this.Disatisfy(): SatisfiedItem list = dissatisfyW this
-    type Q with
-        member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
-                            [<Optional>]?hashFn: PreImageProvider,
-                            [<Optional>]?age: LockTime): SatisfactionResult =
-                                let providers = (keyFn, hashFn, age) 
-                                satisfyQ providers this
-    type F with
-        member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
-                            [<Optional>]?hashFn: PreImageProvider,
-                            [<Optional>]?age: LockTime): SatisfactionResult =
-                                let providers = (keyFn, hashFn, age) 
-                                satisfyF providers this
-    type V with
-        member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
-                            [<Optional>]?hashFn: PreImageProvider,
-                            [<Optional>]?age: LockTime): SatisfactionResult =
-                                let providers = (keyFn, hashFn, age) 
-                                satisfyV providers this
