@@ -11,6 +11,7 @@ open System.Reflection
 [<assembly:AssemblyFileVersionAttribute("0.1.0")>]
 [<assembly:AssemblyInformationalVersionAttribute("0.1.0")>]
 [<assembly:AssemblyMetadataAttribute("ReleaseChannel", "release")>]
+[<assembly:AssemblyDescriptionAttribute("(De)Compiler for Bitcoin Miniscript")>]
 [<assembly:AssemblyMetadataAttribute("GitHash", 
                                      "bb8964b54bee133e9af64d316dc2cfee16df7f72")>]
 do ()

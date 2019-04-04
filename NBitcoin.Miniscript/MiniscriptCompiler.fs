@@ -283,18 +283,18 @@ module Compiler =
             | (false, true) -> 3
             | (false, false) -> 2
         
-        let rec fromPolicy (p : Policy) : CompiledNode =
+        let rec fromPolicy (p : AbstractPolicy) : CompiledNode =
             match p with
             | Key k -> Pk k
-            | Policy.Multi(m, pks) -> Multi(m, pks)
-            | Policy.Hash h -> Hash h
-            | Policy.Time t -> Time t
-            | Policy.Threshold(n, subexprs) -> 
+            | AbstractPolicy.Multi(m, pks) -> Multi(m, pks)
+            | AbstractPolicy.Hash h -> Hash h
+            | AbstractPolicy.Time t -> Time t
+            | AbstractPolicy.Threshold(n, subexprs) -> 
                 let ps = subexprs |> Array.map fromPolicy
                 Threshold(n, ps)
-            | Policy.And(e1, e2) -> And(fromPolicy e1, fromPolicy e2)
-            | Policy.Or(e1, e2) -> Or(fromPolicy e1, fromPolicy e2, 0.5, 0.5)
-            | Policy.AsymmetricOr(e1, e2) -> 
+            | AbstractPolicy.And(e1, e2) -> And(fromPolicy e1, fromPolicy e2)
+            | AbstractPolicy.Or(e1, e2) -> Or(fromPolicy e1, fromPolicy e2, 0.5, 0.5)
+            | AbstractPolicy.AsymmetricOr(e1, e2) -> 
                 Or(fromPolicy e1, fromPolicy e2, 127.0 / 128.0, 1.0 / 128.0)
         
         // TODO: cache
@@ -1075,13 +1075,8 @@ module Compiler =
                   dissatCost = 0.0 }
 
     type CompiledNode with
-        static member FromPolicy (p : Policy) = CompiledNode.fromPolicy p
+        static member FromPolicy (p : AbstractPolicy) = CompiledNode.fromPolicy p
         member this.Compile() =
             let node = CompiledNode.bestT (this, 1.0, 0.0)
-            MiniScript.fromAST (node.ast)
-
-        member this.CompileUnsafe() =
-            match this.Compile() with
-            | Ok miniscript -> miniscript
-            | Error e -> failwith e
+            node.ast
         

@@ -9,8 +9,8 @@ module internal Policy =
                                  let! subN = Gen.choose ((int n), 20)
                                  let! subs = Gen.arrayOfLength subN pubKeyGen
                                  return (n, subs) }
-    
-    let nonRecursivePolicyGen : Gen<Policy> =
+
+    let nonRecursivePolicyGen : Gen<AbstractPolicy> =
         Gen.frequency [ (2, Gen.map Key pubKeyGen)
                         
                         (1, 
@@ -29,7 +29,7 @@ module internal Policy =
                                 (3, recursivePolicyGen subPolicyGen) ]
             | _ -> invalidArg "s" "Only positive arguments are allowed!"
         
-        and recursivePolicyGen (subPolicyGen : Gen<Policy>) =
+        and recursivePolicyGen (subPolicyGen : Gen<AbstractPolicy>) =
             Gen.oneof 
                 [ Gen.map (fun (t, ps) -> Threshold(t, ps)) 
                       (thresholdContentsGen subPolicyGen)

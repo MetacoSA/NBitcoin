@@ -13,7 +13,7 @@
     <Compile Include="MiniScriptParserTests.fs" />
     <Compile Include="MiniScriptCompilerTests.fs" />
     <Compile Include="MiniScriptDecompilerTests.fs" />
-    <Compile Include="Tests.fs" />
+    <Compile Include="SatisfyTests.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <Import Project=".\fsc.props" />

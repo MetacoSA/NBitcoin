@@ -4,16 +4,17 @@ open NBitcoin
 open System.Text.RegularExpressions
 open System
 
+[<AutoOpen>]
 module MiniscriptParser =
-    type Policy =
+    type AbstractPolicy =
         | Key of PubKey
         | Multi of uint32 * PubKey []
         | Hash of uint256
         | Time of NBitcoin.LockTime
-        | Threshold of uint32 * Policy []
-        | And of Policy * Policy
-        | Or of Policy * Policy
-        | AsymmetricOr of Policy * Policy
+        | Threshold of uint32 * AbstractPolicy []
+        | And of AbstractPolicy * AbstractPolicy
+        | Or of AbstractPolicy * AbstractPolicy
+        | AsymmetricOr of AbstractPolicy * AbstractPolicy
         override this.ToString() =
             match this with
             | Key k1 -> sprintf "pk(%s)" (string (k1.ToHex()))
@@ -98,7 +99,7 @@ module MiniscriptParser =
                 let newChunk = Array.append currentChunk [| c |]
                 safeSplit s acc (index + 1) (openNum) newChunk
 
-    let rec (|Policy|_|) s =
+    let rec (|AbstractPolicy|_|) s =
         let s = Regex.Replace(s, @"[|\s|\n|\r\n]+", "")
         match s with
         | Expression "pk" (SurroundedByBrackets(PubKeyPattern pk)) -> Some(Key pk)
@@ -122,7 +123,7 @@ module MiniscriptParser =
         let thresholdStr = s.[0]
         match UInt32.TryParse(thresholdStr) with
         | (true, threshold) -> 
-            let subPolicy = s.[1..s.Length - 1] |> Array.choose ((|Policy|_|))
+            let subPolicy = s.[1..s.Length - 1] |> Array.choose ((|AbstractPolicy|_|))
             if subPolicy.Length <> s.Length - 1 then None
             else Some(threshold, subPolicy)
         | (false, _) -> None
@@ -137,6 +138,6 @@ module MiniscriptParser =
         let s = safeSplit s [] 0 0 [||]
         if s.Length <> 2 then None
         else 
-            let subPolicies = s |> Array.choose ((|Policy|_|))
+            let subPolicies = s |> Array.choose ((|AbstractPolicy|_|))
             if subPolicies.Length <> s.Length then None
             else Some(subPolicies.[0], subPolicies.[1])

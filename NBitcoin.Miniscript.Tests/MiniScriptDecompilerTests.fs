@@ -177,8 +177,8 @@ let roundTripFromMiniScript (m: MiniScript) =
     Expect.equal m2 m "failed"
 
 let roundtrip p =
-    let m = CompiledNode.fromPolicy(p).CompileUnsafe()
-    roundTripFromMiniScript m
+    let m = CompiledNode.fromPolicy(p).Compile()
+    roundTripFromMiniScript (MiniScript.fromASTUnsafe(m))
 
 let hash = uint256.Parse("59141e52303a755307114c2a5e6823010b3f1d586216742f396d4b06106e222c")
 
@@ -193,8 +193,14 @@ let tests2 =
         // TODO: (Ideally, we should have stomComparison` for AST and Policy)
         ptestPropertyWithConfig config "Every possible MiniScript"  <| roundtrip
         testCase "Case found by property tests: 1" <| fun _ ->
-            let input = Policy.Or(Key(keysList.[0]), Policy.And(Policy.Time(!> 2u), Policy.Time(!> 1u)))
-            let m = CompiledNode.fromPolicy(input).CompileUnsafe()
+            let input = AbstractPolicy.Or(
+                            Key(keysList.[0]),
+                            AbstractPolicy.And(
+                                AbstractPolicy.Time(!> 2u),
+                                AbstractPolicy.Time(!> 1u)
+                            )
+                        )
+            let m = CompiledNode.fromPolicy(input).Compile()
             let sc = m.ToScript()
             let customParser = TokenParser.pT
             let ops = sc.ToOps() |> Seq.toArray

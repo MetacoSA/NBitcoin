@@ -2,6 +2,7 @@ namespace NBitcoin.Miniscript
 
 open NBitcoin.Miniscript.AST
 open NBitcoin.Miniscript.Decompiler
+open NBitcoin.Miniscript.Compiler
 open NBitcoin
 
 /// wrapper for top-level AST
@@ -16,6 +17,16 @@ module MiniScript =
     let fromASTUnsafe(t: AST) =
         match fromAST t with
         | Ok t -> t
+        | Error e -> failwith e
+
+    let parse (s: string) =
+        match s with
+        | AbstractPolicy p -> (CompiledNode.FromPolicy p).Compile() |> fromAST
+        | _ -> Error("failed to parse String policy")
+
+    let parseUnsafe (s: string) =
+        match parse s with
+        | Ok m -> m
         | Error e -> failwith e
     
     let toAST (m : MiniScript) =

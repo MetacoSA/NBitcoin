@@ -5,13 +5,14 @@ module Satisfy =
     open NBitcoin.Miniscript.Utils
     open NBitcoin
     open System
+    open System.Runtime.InteropServices
 
     type SignatureProvider = PubKey -> TransactionSignature option
     type PreImageHash = PreImagehash of uint256
     type PreImage = PreImage of uint256
     type PreImageProvider = PreImageHash -> PreImage
 
-    type ProviderSet = (SignatureProvider * PreImageProvider * TimeSpan)
+    type ProviderSet = (SignatureProvider option * PreImageProvider option * LockTime option)
 
     type CSVOffset = BlockHeight of uint32 | UnixTime of DateTimeOffset
     type FailureCase =
@@ -19,6 +20,7 @@ module Satisfy =
         | NotMatured of CSVOffset
         | LockTimeTypeMismatch 
         | Nested of FailureCase list
+        | CurrentTimeNotSpecified
 
     type SatisfiedItem =
         | PreImage of byte[]
@@ -32,31 +34,37 @@ module Satisfy =
     let (>>=) xR f = Result.bind f xR
 
     // ------- helpers --------
-    let satisfyCheckSig (keyFn: SignatureProvider) k =
-        match keyFn k with
-        | None -> Error (MissingSig [k])
-        | Some(txSig) -> Ok([Signature(txSig)])
+    let satisfyCheckSig (maybeKeyFn: SignatureProvider option) k =
+        match maybeKeyFn with
+        | None -> Error(MissingSig([k]))
+        | Some keyFn ->
+            match keyFn k with
+            | None -> Error (MissingSig [k])
+            | Some(txSig) -> Ok([Signature(txSig)])
 
-    let satisfyCheckMultisig (keyFn: SignatureProvider) (m, pks) =
-        let maybeSigList = pks
-                           |> Array.map(keyFn)
-                           |> Array.toList
+    let satisfyCheckMultisig (maybeKeyFn: SignatureProvider option) (m, pks) =
+        match maybeKeyFn with
+        | None -> Error(MissingSig(pks |> List.ofArray))
+        | Some keyFn ->
+            let maybeSigList = pks
+                               |> Array.map(keyFn)
+                               |> Array.toList
 
-        let sigList = maybeSigList |> List.choose(id) |> List.map(Signature)
+            let sigList = maybeSigList |> List.choose(id) |> List.map(Signature)
 
-        if sigList.Length >= (int32 m) then
-            Ok(sigList)
-        else
-            let sigNotFoundPks = maybeSigList
-                                 |> List.zip (pks |> Array.toList)
-                                 |> List.choose(fun (pk, maybeSig) ->
-                                                    if maybeSig.IsNone then Some(pk) else None)
-            Error(MissingSig(sigNotFoundPks))
+            if sigList.Length >= (int32 m) then
+                Ok(sigList)
+            else
+                let sigNotFoundPks = maybeSigList
+                                     |> List.zip (pks |> Array.toList)
+                                     |> List.choose(fun (pk, maybeSig) ->
+                                                        if maybeSig.IsNone then Some(pk) else None)
+                Error(MissingSig(sigNotFoundPks))
 
-    let satisfyHashEqual (hashFn: PreImageProvider) h =
+    let satisfyHashEqual (maybeHashFn: PreImageProvider option) h =
         failwith ""
 
-    let satisfyCSV (age: LockTime) (t: LockTime) =
+    let satisfyCSVCore (age: LockTime) (t: LockTime) =
         let offset = t.Value - age.Value
         if
             (age.IsHeightLock && t.IsHeightLock)
@@ -75,13 +83,19 @@ module Satisfy =
         else
             Error(LockTimeTypeMismatch)
 
-    let rec satisfyThreshold (keyFn, hashFn, age) (k, e, ws): SatisfactionResult =
+    let satisfyCSV (age: LockTime option) (t: LockTime) =
+        match age with
+        | None -> Error(CurrentTimeNotSpecified)
+        | Some a -> satisfyCSVCore a t
+
+    let rec satisfyThreshold (providers) (k, e, ws): SatisfactionResult =
+        let keyFn, hashFn, age = providers
         let flatten l = List.collect id l
         let wsList = ws |> Array.toList
 
         let wResult = wsList
                       |> List.rev
-                      |> List.map(satisfyW(keyFn, hashFn, age))
+                      |> List.map(satisfyW providers)
         let wOkList = wResult
                       |> List.filter(fun wr -> match wr with | Ok w -> true;| _ -> false)
                       |> List.map(fun wr -> match wr with | Ok w -> w; | _ -> failwith "unreachable")
@@ -111,14 +125,14 @@ module Satisfy =
         else
             Error(Nested(wErrorList @ eErrorList))
 
-    and satisfyAST (keyFn, hashFn, age) (ast: AST) =
+    and satisfyAST providers (ast: AST) =
         match ast.GetASTType() with
-        | EExpr -> satisfyE (keyFn, hashFn, age) (ast.CastEUnsafe())
-        | FExpr -> satisfyF (keyFn, hashFn, age) (ast.CastFUnsafe())
-        | WExpr -> satisfyW (keyFn, hashFn, age) (ast.CastWUnsafe())
-        | QExpr -> satisfyQ (keyFn, hashFn, age) (ast.CastQUnsafe())
-        | TExpr -> satisfyT (keyFn, hashFn, age) (ast.CastTUnsafe())
-        | VExpr -> satisfyV (keyFn, hashFn, age) (ast.CastVUnsafe())
+        | EExpr -> satisfyE providers (ast.CastEUnsafe())
+        | FExpr -> satisfyF providers (ast.CastFUnsafe())
+        | WExpr -> satisfyW providers (ast.CastWUnsafe())
+        | QExpr -> satisfyQ providers (ast.CastQUnsafe())
+        | TExpr -> satisfyT providers (ast.CastTUnsafe())
+        | VExpr -> satisfyV providers (ast.CastVUnsafe())
 
     and dissatisfyAST (ast: AST) =
         match ast.GetASTType() with
@@ -168,8 +182,8 @@ module Satisfy =
             else
                 Ok(rItems @ [RawPush([|byte 0|])])
 
-    and satisfyE providers (e: E) =
-        let (keyFn, hashFn, age) = providers
+    and satisfyE (providers: ProviderSet) (e: E) =
+        let keyFn, hashFn, age = providers
         match e with
         | E.CheckSig k -> satisfyCheckSig keyFn k
         | E.CheckMultiSig(m, pks) -> satisfyCheckMultisig keyFn (m, pks)
@@ -177,29 +191,31 @@ module Satisfy =
         | E.Threshold i ->
             satisfyThreshold providers i
         | E.ParallelAnd(e, w) ->
-            satisfyE (keyFn, hashFn, age) e
-                >>= (fun eitem -> satisfyW(keyFn, hashFn, age) w >>= (fun witem -> Ok(eitem @ witem)))
+            satisfyE providers e
+                >>= (fun eitem -> satisfyW providers w >>= (fun witem -> Ok(eitem @ witem)))
         | E.CascadeAnd(e, f) ->
-            satisfyE (keyFn, hashFn, age) e
-                >>= (fun eitem -> satisfyF(keyFn, hashFn, age) f >>= (fun fitem -> Ok(eitem @ fitem)))
-        | E.ParallelOr(e, w) -> satisfyParallelOr (keyFn, hashFn, age) (ETree(e), WTree(w))
-        | E.CascadeOr(e1, e2) -> satisfyCascadeOr (keyFn, hashFn, age) (ETree(e1), ETree(e2))
-        | E.SwitchOrLeft(e, f) -> satisfySwitchOr (keyFn, hashFn, age) (ETree(e), FTree(f))
-        | E.SwitchOrRight(e, f) -> satisfySwitchOr (keyFn, hashFn, age) (ETree(e), FTree(f))
+            satisfyE providers e
+                >>= (fun eitem -> satisfyF providers f >>= (fun fitem -> Ok(eitem @ fitem)))
+        | E.ParallelOr(e, w) -> satisfyParallelOr providers (ETree(e), WTree(w))
+        | E.CascadeOr(e1, e2) -> satisfyCascadeOr providers (ETree(e1), ETree(e2))
+        | E.SwitchOrLeft(e, f) -> satisfySwitchOr providers (ETree(e), FTree(f))
+        | E.SwitchOrRight(e, f) -> satisfySwitchOr providers (ETree(e), FTree(f))
         | E.Likely f ->
-            satisfyF (keyFn, hashFn, age) f |> Result.map(fun items -> items @ [RawPush([||])])
+            satisfyF providers f |> Result.map(fun items -> items @ [RawPush([||])])
         | E.Unlikely f ->
-            satisfyF (keyFn, hashFn, age) f |> Result.map(fun items -> items @ [RawPush([|byte 1|])])
+            satisfyF providers f |> Result.map(fun items -> items @ [RawPush([|byte 1|])])
 
-    and satisfyW providers w: SatisfactionResult =
+    and satisfyW (providers: ProviderSet) w: SatisfactionResult =
         let keyFn, hashFn, age = providers
         match w with
         | W.CheckSig pk -> satisfyCheckSig keyFn pk
         | W.HashEqual h -> satisfyHashEqual hashFn h
-        | W.Time t -> satisfyCSV age t |> Result.map(fun items -> items @ [RawPush([| byte 1 |])])
+        | W.Time t ->
+            satisfyCSV age t |> Result.map(fun items -> items @ [RawPush([| byte 1 |])])
         | W.CastE e  -> satisfyE providers e
+        | _ -> Ok []
 
-    and satisfyT providers t =
+    and satisfyT (providers) t =
         let (keyFn, hashFn, age) = providers
         match t with
         | T.Time t -> Ok([RawPush([||])])
@@ -216,8 +232,8 @@ module Satisfy =
         | T.DelayedOr(q1, q2) -> satisfySwitchOr providers (QTree(q1), QTree(q2))
         | T.CastE e -> satisfyE providers e
 
-    and satisfyQ providers q =
-        let keyFn, hashFn, age = providers
+    and satisfyQ (providers) q =
+        let (keyFn, hashFn, age) = providers
         match q with
         | Q.Pubkey pk -> satisfyCheckSig (keyFn) pk
         | Q.And(l, r) ->
@@ -226,7 +242,7 @@ module Satisfy =
             rRes >>= (fun rItems -> lRes >>= fun(lItems) -> Ok(rItems @ lItems))
         | Q.Or(l, r) -> satisfySwitchOr providers (QTree(l), QTree(r))
 
-    and satisfyF providers f =
+    and satisfyF (providers) f =
         let (keyFn, hashFn, age) = providers
         match f with
         | F.CheckSig pk -> satisfyCheckSig keyFn pk
@@ -293,30 +309,42 @@ module Satisfy =
 
     // ---------- types -------
     type E with
-        member this.Satisfy(keyFn: SignatureProvider,
-                            hashFn: PreImageProvider,
-                            age: LockTime): SatisfactionResult = satisfyE(keyFn, hashFn, age) this
+        member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
+                            [<Optional>]?hashFn: PreImageProvider,
+                            [<Optional>]?age: LockTime): SatisfactionResult = 
+                                let providers = ProviderSet(keyFn, hashFn, age) 
+                                satisfyE providers this
 
         member this.Disatisfy(): SatisfiedItem list = dissatisfyE this
 
     type T with
-        member this.Satisfy(keyFn: SignatureProvider,
-                            hashFn: PreImageProvider,
-                            age: LockTime): SatisfactionResult = satisfyT(keyFn, hashFn, age) this
+        member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
+                            [<Optional>]?hashFn: PreImageProvider,
+                            [<Optional>]?age: LockTime): SatisfactionResult =
+                                let providers = ProviderSet(keyFn, hashFn, age) 
+                                satisfyT providers this
     type W with
-        member this.Satisfy(keyFn: SignatureProvider,
-                            hashFn: PreImageProvider,
-                            age: LockTime): SatisfactionResult = satisfyW(keyFn, hashFn, age) this
+        member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
+                            [<Optional>]?hashFn: PreImageProvider,
+                            [<Optional>]?age: LockTime): SatisfactionResult =
+                                let providers = ProviderSet(keyFn, hashFn, age) 
+                                satisfyW providers this
         member this.Disatisfy(): SatisfiedItem list = dissatisfyW this
     type Q with
-        member this.Satisfy(keyFn: SignatureProvider,
-                            hashFn: PreImageProvider,
-                            age: LockTime): SatisfactionResult = satisfyQ(keyFn, hashFn, age) this
+        member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
+                            [<Optional>]?hashFn: PreImageProvider,
+                            [<Optional>]?age: LockTime): SatisfactionResult =
+                                let providers = ProviderSet(keyFn, hashFn, age) 
+                                satisfyQ providers this
     type F with
-        member this.Satisfy(keyFn: SignatureProvider,
-                            hashFn: PreImageProvider,
-                            age: LockTime): SatisfactionResult = satisfyF(keyFn, hashFn, age) this
+        member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
+                            [<Optional>]?hashFn: PreImageProvider,
+                            [<Optional>]?age: LockTime): SatisfactionResult =
+                                let providers = ProviderSet(keyFn, hashFn, age) 
+                                satisfyF providers this
     type V with
-        member this.Satisfy(keyFn: SignatureProvider,
-                            hashFn: PreImageProvider,
-                            age: LockTime): SatisfactionResult = satisfyV(keyFn, hashFn, age) this
+        member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
+                            [<Optional>]?hashFn: PreImageProvider,
+                            [<Optional>]?age: LockTime): SatisfactionResult =
+                                let providers = ProviderSet(keyFn, hashFn, age) 
+                                satisfyV providers this

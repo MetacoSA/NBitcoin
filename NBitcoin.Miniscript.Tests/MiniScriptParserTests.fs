@@ -17,7 +17,7 @@ let pk3Str =
 
 let check =
     function 
-    | Policy p -> ()
+    | AbstractPolicy p -> ()
     | _ -> failwith "Failed to parse policy"
 
 let config =
@@ -41,7 +41,7 @@ let tests =
               let pk1, pk2, pk3 =
                   NBitcoin.PubKey(pk1Str), NBitcoin.PubKey(pk2Str), 
                   NBitcoin.PubKey(pk3Str)
-              let testdata1 : Policy =
+              let testdata1 : AbstractPolicy =
                   And
                       (Key(pk1), 
                        Or
@@ -90,11 +90,11 @@ let tests =
               
               let data2 =
                   match data with
-                  | Policy p -> p.ToString()
+                  | AbstractPolicy p -> p.ToString()
                   | _ -> failwith "Failed to parse policy"
               Expect.equal data data2 "Could not parse symmetrically"
 
-          testPropertyWithConfig config "Should convert <Input string> <-> <Policy>" <| fun (p : Policy) -> 
+          testPropertyWithConfig config "Should convert <Input string> <-> <Policy>" <| fun (p : AbstractPolicy) -> 
               match p.ToString() with
-              | Policy p2 -> Expect.equal p p2
+              | AbstractPolicy p2 -> Expect.equal p p2
               | _ -> failwith "Failed to convert bidirectionally" ]
