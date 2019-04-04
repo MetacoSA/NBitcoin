@@ -1,4 +1,5 @@
 ﻿using NBitcoin;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
@@ -52,7 +53,17 @@ namespace NBitcoin.Altcoins
 		}
 		public class SmartCashBlockHeader : BlockHeader
 		{
-			public override uint256 GetPoWHash()
+      private static byte[] CalculateHash(byte[] data, int offset, int count)
+      {
+        return new HashX11.Crypto.SHA3.Keccak256().ComputeBytes(data).GetBytes();
+      }
+
+      protected override HashStreamBase CreateHashStream()
+      {
+        return BufferedHashStream.CreateFrom(CalculateHash);
+      }
+
+      public override uint256 GetPoWHash()
 			{
 				var headerBytes = this.ToBytes();
 				var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
