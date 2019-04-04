@@ -12,11 +12,11 @@ module Utils =
                    yield! x
                    yield y
                })
-        | Error x, Ok y -> Error x
         | Ok x, Error y -> Error y
-        | Error x, Error y -> Error (x)
+        | Error x, _ -> Error x
 
 
+    [<RequireQualifiedAccess>]
     module List =
         let rec traverseResult f list =
             let (>>=) x f = Result.bind f x

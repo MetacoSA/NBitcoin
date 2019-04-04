@@ -32,8 +32,6 @@ let tests =
 
                                      testPropertyWithConfig config
                                         "Should compile arbitrary input to actual bitcoin script" <| fun (p: Policy) ->
-                                             let m = match CompiledNode.fromPolicy(p).Compile() with
-                                                     | Ok miniscript -> miniscript
-                                                     | Result.Error e -> failwith e
+                                             let m = CompiledNode.fromPolicy(p).CompileUnsafe()
                                              Expect.isNotNull (m.ToScript()) "script was empty"
                                          ]
