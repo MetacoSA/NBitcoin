@@ -1,4 +1,4 @@
-namespace NBitcoin.Miniscript.Satisfy
+namespace NBitcoin.Miniscript
 
 module Satisfy =
     open NBitcoin.Miniscript.AST
@@ -213,7 +213,6 @@ module Satisfy =
         | W.Time t ->
             satisfyCSV age t |> Result.map(fun items -> items @ [RawPush([| byte 1 |])])
         | W.CastE e  -> satisfyE providers e
-        | _ -> Ok []
 
     and satisfyT (providers) t =
         let (keyFn, hashFn, age) = providers
@@ -312,7 +311,7 @@ module Satisfy =
         member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
                             [<Optional>]?hashFn: PreImageProvider,
                             [<Optional>]?age: LockTime): SatisfactionResult = 
-                                let providers = ProviderSet(keyFn, hashFn, age) 
+                                let providers = (keyFn, hashFn, age) 
                                 satisfyE providers this
 
         member this.Disatisfy(): SatisfiedItem list = dissatisfyE this
@@ -321,30 +320,30 @@ module Satisfy =
         member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
                             [<Optional>]?hashFn: PreImageProvider,
                             [<Optional>]?age: LockTime): SatisfactionResult =
-                                let providers = ProviderSet(keyFn, hashFn, age) 
+                                let providers = (keyFn, hashFn, age) 
                                 satisfyT providers this
     type W with
         member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
                             [<Optional>]?hashFn: PreImageProvider,
                             [<Optional>]?age: LockTime): SatisfactionResult =
-                                let providers = ProviderSet(keyFn, hashFn, age) 
+                                let providers = (keyFn, hashFn, age)
                                 satisfyW providers this
         member this.Disatisfy(): SatisfiedItem list = dissatisfyW this
     type Q with
         member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
                             [<Optional>]?hashFn: PreImageProvider,
                             [<Optional>]?age: LockTime): SatisfactionResult =
-                                let providers = ProviderSet(keyFn, hashFn, age) 
+                                let providers = (keyFn, hashFn, age) 
                                 satisfyQ providers this
     type F with
         member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
                             [<Optional>]?hashFn: PreImageProvider,
                             [<Optional>]?age: LockTime): SatisfactionResult =
-                                let providers = ProviderSet(keyFn, hashFn, age) 
+                                let providers = (keyFn, hashFn, age) 
                                 satisfyF providers this
     type V with
         member this.Satisfy([<Optional>]?keyFn: SignatureProvider,
                             [<Optional>]?hashFn: PreImageProvider,
                             [<Optional>]?age: LockTime): SatisfactionResult =
-                                let providers = ProviderSet(keyFn, hashFn, age) 
+                                let providers = (keyFn, hashFn, age) 
                                 satisfyV providers this

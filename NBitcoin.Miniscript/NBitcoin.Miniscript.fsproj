@@ -14,8 +14,8 @@
     <Compile Include="MiniscriptAST.fs" />
     <Compile Include="MiniscriptDecompiler.fs" />
     <Compile Include="MiniscriptCompiler.fs" />
-    <Compile Include="Miniscript.fs" />
     <Compile Include="Satisfy.fs" />
+    <Compile Include="Miniscript.fs" />
     <Compile Include="Contract.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
