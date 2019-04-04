@@ -55,7 +55,17 @@ namespace NBitcoin.Altcoins
 		{
       private static byte[] CalculateHash(byte[] data, int offset, int count)
       {
-        return new HashX11.Crypto.SHA3.Keccak256().ComputeBytes(data).GetBytes();
+        byte[] bytes = null;
+        byte[] r = null;
+
+        HashX11.Crypto.SHA3.Keccak256 hash = null;
+        System.Text.ASCIIEncoding encoding = new System.Text.ASCIIEncoding();
+
+        hash = new HashX11.Crypto.SHA3.Keccak256();
+        bytes = data.SafeSubarray(offset, count);
+        r = hash.ComputeBytes(bytes).GetBytes();
+
+        return new uint256(r).ToBytes();
       }
 
       protected override HashStreamBase CreateHashStream()
