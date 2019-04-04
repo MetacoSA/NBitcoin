@@ -23,7 +23,7 @@ module MiniscriptParser =
                 |> Seq.reduce (fun a b -> sprintf "%s,%s" a b)
                 |> sprintf "multi(%d,%s)" m
             | Hash h -> sprintf "hash(%s)" (string (h.ToString()))
-            | Time t -> sprintf "time(%s)" (string (t.ToString()))
+            | Time t -> sprintf "time(%d)" (t.Value)
             | Threshold(m, plist) -> 
                 plist
                 |> Array.map (fun p -> p.ToString())

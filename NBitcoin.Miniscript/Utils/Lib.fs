@@ -4,7 +4,7 @@ namespace NBitcoin.Miniscript.Utils
 module Utils =
     let inline (!>) (x:^a) : ^b = ((^a or ^b) : (static member op_Implicit : ^a -> ^b )x )
 
-    let resultFolder (acc : Result<'a seq, 'b>) 
+    let resultFolder (acc : Result<'a seq, 'c>) 
         (item : Result<'a, 'c>) =
         match acc, item with
         | Ok x, Ok y -> 
@@ -14,7 +14,7 @@ module Utils =
                })
         | Error x, Ok y -> Error x
         | Ok x, Error y -> Error y
-        | Error x, Error y -> Error(y.ToString() + x.ToString())
+        | Error x, Error y -> Error (x)
 
 
     module List =
