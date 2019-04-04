@@ -194,9 +194,9 @@ let private castOpToToken (op : Op) : Result<Token, ParseException> =
     | otherOp when (byte 0x01) <= (byte otherOp) && (byte otherOp) < (byte 0x4B) -> 
         tryGetItemFromOp op
     | otherOp when (byte 0x4B) <= (byte otherOp) -> 
-        Error(ParseException(sprintf "MiniScript does not support pushdata bigger than 33. Got %s" (otherOp.ToString())))
+        Error(ParseException(sprintf "Miniscript does not support pushdata bigger than 33. Got %s" (otherOp.ToString())))
     | unknown ->
-        Error(ParseException(sprintf "Unknown Opcode to MiniScript %s" (unknown.ToString())))
+        Error(ParseException(sprintf "Unknown Opcode to Miniscript %s" (unknown.ToString())))
 
 type State = {
     ops: Op[]
@@ -226,7 +226,7 @@ module TokenParser =
                 let r = castOpToToken ops
                 match r with
                 | Error pex ->
-                    let msg = sprintf "opcode %s is not supported by MiniScript %s" ops.Name pex.Message
+                    let msg = sprintf "opcode %s is not supported by Miniscript %s" ops.Name pex.Message
                     Error(name, msg, pos)
                 | Ok actualToken ->
                     let actualCat = actualToken.GetCategory()

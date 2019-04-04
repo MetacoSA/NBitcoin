@@ -6,12 +6,13 @@ open NBitcoin.Miniscript.Compiler
 open NBitcoin
 
 /// wrapper for top-level AST
-type MiniScript = MiniScript of AST
+type Miniscript = Miniscript of AST
 
-module MiniScript =
-    let fromAST (t : AST) : Result<MiniScript, string> =
+[<AutoOpen>]
+module Miniscript =
+    let fromAST (t : AST) : Result<Miniscript, string> =
         match t.CastT() with
-        | Ok t -> Ok(MiniScript(TTree t))
+        | Ok t -> Ok(Miniscript(TTree t))
         | o -> Error (sprintf "AST was not top-level (T) representation\n%A" o)
 
     let fromASTUnsafe(t: AST) =
@@ -28,10 +29,10 @@ module MiniScript =
         match parse s with
         | Ok m -> m
         | Error e -> failwith e
-    
-    let toAST (m : MiniScript) =
+
+    let toAST (m : Miniscript) =
         match m with
-        | MiniScript a -> a
+        | Miniscript a -> a
 
     let fromScriptUnsafe (s : NBitcoin.Script) =
         let res = parseScriptUnsafe s
@@ -39,10 +40,10 @@ module MiniScript =
         | Ok r -> r
         | Error e -> failwith e
 
-    let toScript (m : MiniScript) : Script =
+    let toScript (m : Miniscript) : Script =
         let ast = toAST m
         ast.ToScript()
 
-type MiniScript with
-    member this.ToScript() = MiniScript.toScript this
-    member this.ToAST() = MiniScript.toAST this
+type Miniscript with
+    member this.ToScript() = Miniscript.toScript this
+    member this.ToAST() = Miniscript.toAST this

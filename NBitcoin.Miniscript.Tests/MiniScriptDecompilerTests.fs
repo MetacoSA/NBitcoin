@@ -55,7 +55,7 @@ let tests =
 
                             testCase "Should pass the testcase in rust-miniscript" <| fun _ -> 
 
-                               let roundtrip (miniscriptResult : Result<MiniScript, string>) 
+                               let roundtrip (miniscriptResult : Result<Miniscript, string>) 
                                    (s : Script) =
                                    match miniscriptResult with
                                    | Ok tree -> 
@@ -63,13 +63,13 @@ let tests =
                                        Expect.equal ser s 
                                            "Serialized Miniscript does not match expected script"
                                        let deser =
-                                           MiniScript.fromScriptUnsafe s
+                                           Miniscript.fromScriptUnsafe s
                                        Expect.equal deser tree 
                                            "deserialized script does not match expected MiniScript"
                                    | Result.Error e -> failwith e
 
                                let r1 =
-                                   MiniScript.fromAST 
+                                   Miniscript.fromAST 
                                        (AST.TTree
                                             (T.CastE
                                                  (E.CheckSig
@@ -82,7 +82,7 @@ let tests =
                                             "OP_CHECKSIG")
                                roundtrip r1 s1
                                let r2 =
-                                   MiniScript.fromAST 
+                                   Miniscript.fromAST 
                                        (AST.TTree
                                             (T.CastE
                                                  (E.CheckMultiSig
@@ -97,7 +97,7 @@ let tests =
                                roundtrip r2 s2
 
                                let r3Partial =
-                                   MiniScript.fromAST(
+                                   Miniscript.fromAST(
                                        TTree(
                                            T.And(
                                                V.CheckMultiSig(
@@ -118,7 +118,7 @@ let tests =
 
                                // Liquid policy
                                let r3 =
-                                   MiniScript.fromAST 
+                                   Miniscript.fromAST 
                                        (AST.TTree
                                             (T.CascadeOr
                                                  (E.CheckMultiSig
@@ -141,12 +141,12 @@ let tests =
                                roundtrip r3 s3
 
                                let r4 =
-                                   MiniScript.fromAST 
+                                   Miniscript.fromAST 
                                        (TTree(T.Time(!> 921u)))
                                let s4 = Script("9903 OP_CSV")
                                roundtrip r4 s4
 
-                               let r5 = MiniScript.fromAST (TTree(
+                               let r5 = Miniscript.fromAST (TTree(
                                                                 T.SwitchOrV(
                                                                     V.CheckSig(keysList.[0]),
                                                                     V.And(
@@ -171,14 +171,14 @@ let config =
                                        maxTest = 30
                                        endSize = 32 }
 
-let roundTripFromMiniScript (m: MiniScript) =
+let roundTripFromMiniScript (m: Miniscript) =
     let sc = m.ToScript()
-    let m2 = MiniScript.fromScriptUnsafe sc
+    let m2 = Miniscript.fromScriptUnsafe sc
     Expect.equal m2 m "failed"
 
 let roundtrip p =
     let m = CompiledNode.fromPolicy(p).Compile()
-    roundTripFromMiniScript (MiniScript.fromASTUnsafe(m))
+    roundTripFromMiniScript (Miniscript.fromASTUnsafe(m))
 
 let hash = uint256.Parse("59141e52303a755307114c2a5e6823010b3f1d586216742f396d4b06106e222c")
 
@@ -209,15 +209,15 @@ let tests2 =
             Expect.isOk m2 "failed"
 
         testCase "Case found by property tests: 2" <| fun _ ->
-            let input = MiniScript.fromASTUnsafe(TTree(T.HashEqual(hash)))
+            let input = Miniscript.fromASTUnsafe(TTree(T.HashEqual(hash)))
             roundTripFromMiniScript input
 
         testCase "Case found by property tests: 3" <| fun _ ->
-            let input = MiniScript.fromASTUnsafe(TTree(T.And(V.Time(LockTime(1u)), T.Time(LockTime(1u)))))
+            let input = Miniscript.fromASTUnsafe(TTree(T.And(V.Time(LockTime(1u)), T.Time(LockTime(1u)))))
             roundTripFromMiniScript input
 
         testCase "Case found by property tests: 4" <| fun _ ->
-            let input = MiniScript.fromASTUnsafe(TTree(
+            let input = Miniscript.fromASTUnsafe(TTree(
                                                      T.CastE(
                                                         E.Threshold(
                                                             1u,
@@ -229,7 +229,7 @@ let tests2 =
                                                 )
             roundTripFromMiniScript input
         testCase "Case found by property tests: 5" <| fun _ ->
-            let input = MiniScript.fromASTUnsafe(TTree(
+            let input = Miniscript.fromASTUnsafe(TTree(
                                                     T.CastE(
                                                         E.Likely(
                                                             F.Threshold(
@@ -243,13 +243,13 @@ let tests2 =
                                                 )
             roundTripFromMiniScript input
         testCase "Case found by property tests: 6" <| fun _ ->
-            let input = MiniScript.fromASTUnsafe(TTree(T.And(
+            let input = Miniscript.fromASTUnsafe(TTree(T.And(
                                                         V.CheckMultiSig(1u, longKeysList),
                                                         T.Time(!> 1u)
                                                         )))
             roundTripFromMiniScript input
         testCase "Case found by property tests: 7" <| fun _ ->
-            let input = MiniScript.fromASTUnsafe(TTree(
+            let input = Miniscript.fromASTUnsafe(TTree(
                                                     T.CastE(
                                                         E.SwitchOrRight(E.Time(!> 1u), F.Time(!> 1u))
                                                         )
@@ -257,7 +257,7 @@ let tests2 =
                                                 )
             roundTripFromMiniScript input
         testCase "Case found by property tests: 8" <| fun _ ->
-            let input = MiniScript.fromASTUnsafe(TTree(
+            let input = Miniscript.fromASTUnsafe(TTree(
                                                      T.And(
                                                         V.Time(!> 2u),
                                                         T.CastE(
@@ -271,7 +271,7 @@ let tests2 =
 
             roundTripFromMiniScript input
         testCase "Case found by property tests: 9" <| fun _ ->
-            let input = MiniScript.fromASTUnsafe(TTree(
+            let input = Miniscript.fromASTUnsafe(TTree(
                                                      T.CastE(
                                                        E.Likely(F.And(V.Time(!> 2u), F.Time(!> 2u)))
                                                      )
@@ -279,7 +279,7 @@ let tests2 =
 
             roundTripFromMiniScript input
         ptestCase "Can NOT handle nested And" <| fun _ ->
-            let input = MiniScript.fromASTUnsafe(TTree(
+            let input = Miniscript.fromASTUnsafe(TTree(
                                                     T.And(
                                                         V.Time(!> 3u),
                                                         T.And(
