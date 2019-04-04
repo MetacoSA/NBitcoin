@@ -33,7 +33,6 @@ namespace NBitcoin.Altcoins
 		public static Stratis Stratis { get; } = Stratis.Instance;
 		public static SmartCash SmartCash { get; } = SmartCash.Instance;
 
-
 		public static IEnumerable<INetworkSet> GetAll()
 		{
 			yield return Bitcoin;

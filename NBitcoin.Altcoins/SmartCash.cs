@@ -1,4 +1,5 @@
-﻿using NBitcoin;
+using NBitcoin;
+using NBitcoin.Altcoins.SmartCashInternals;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
@@ -13,6 +14,30 @@ namespace NBitcoin.Altcoins
 {
 	public class SmartCash : NetworkSetBase
 	{
+		public class SmartCashEncoder : Base58CheckEncoder
+		{
+
+			private static readonly SmartCashEncoder _Instance = new SmartCashEncoder();
+		
+			public static SmartCashEncoder Instance
+			{
+				get
+				{
+					return _Instance;
+				}
+			}
+			private SmartCashEncoder()
+			{
+
+			}
+
+			protected override byte[] CalculateHash(byte[] bytes, int offset, int length)
+			{
+				var smartCashKeccak = new SmartCashKeccak();
+				return smartCashKeccak.ComputeHash(bytes.Skip(offset).Take(length).ToArray());
+			}
+		}
+
 		public static SmartCash Instance { get; } = new SmartCash();
 		public override string CryptoCode => "SMART";
 
@@ -85,6 +110,28 @@ namespace NBitcoin.Altcoins
 		//Format visual studio
 		//{({.*?}), (.*?)}
 		//Tuple.Create(new byte[]$1, $2)
+
+		class SmartCashStringParser : NetworkStringParser
+		{
+			private static readonly SmartCashStringParser _Instance = new SmartCashStringParser();
+			public static SmartCashStringParser Instance
+			{
+				get
+				{
+					return _Instance;
+				}
+			}
+			private SmartCashStringParser()
+			{
+
+			}
+
+			public override Base58CheckEncoder GetBase58CheckEncoder()
+			{
+				return SmartCashEncoder.Instance;
+			}
+		}
+
 		static Tuple<byte[], int>[] pnSeed6_main = {
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0x01,0xca,0x80,0xda}, 10333),
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0x18,0x92,0x06,0x11}, 9333),
@@ -188,19 +235,20 @@ namespace NBitcoin.Altcoins
 				//GetPoWHash = GetPoWHash,
 				LitecoinWorkCalculation = true,
 			})
+			.SetNetworkStringParser(SmartCashStringParser.Instance)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 63 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 18 })
 			//.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 128 })
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 191 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("smrt"))
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("smrt"))
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("smart"))
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("smart"))
 			.SetMagic(0xdbb6c0fb)
 			.SetPort(9678)
-			.SetRPCPort(9678)
-			.SetName("smrt-main")
-			.AddAlias("smrt-mainnet")
+			.SetRPCPort(9679)
+			.SetName("smart-main")
+			.AddAlias("smart-mainnet")
 			.AddAlias("smartcash-mainnet")
 			.AddAlias("smartcash-main")
 			.AddDNSSeeds(new[]
@@ -242,19 +290,19 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("smrt"))
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("smrt"))
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("smart"))
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("smart"))
 			.SetMagic(0xf1c8d2fd)
-			.SetPort(19335)
-			.SetRPCPort(19332)
-			.SetName("smrt-test")
-			.AddAlias("smrt-testnet")
+			.SetPort(19678)
+			.SetRPCPort(19679)
+			.SetName("smart-test")
+			.AddAlias("smart-testnet")
 			.AddAlias("smartcash-test")
 			.AddAlias("smartcash-testnet")
 			.AddDNSSeeds(new[]
 			{
 								new DNSSeedData("testnet.smartcash.cc", "testnet.smartcash.cc"),
-								new DNSSeedData("testnet.smrt.cash", "testnet.smrt.cash"),
+								new DNSSeedData("testnet.smart.cash", "testnet.smart.cash"),
 			})
 			.AddSeeds(ToSeed(pnSeed6_test))
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000d9ced4ed1130f7b7faad9be25323ffafa33232a17c3edf6cfd97bee6bafbdd97f6028c4ef0ff0f1e38c3f6160101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4804ffff001d0104404e592054696d65732030352f4f63742f32303131205374657665204a6f62732c204170706c65e280997320566973696f6e6172792c2044696573206174203536ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
@@ -271,35 +319,36 @@ namespace NBitcoin.Altcoins
 				MajorityEnforceBlockUpgrade = 750,
 				MajorityRejectBlockOutdated = 950,
 				MajorityWindow = 1000,
+				BIP34Hash = new uint256("0x000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8"),
 				PowLimit = new Target(new uint256("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				PowTargetTimespan = TimeSpan.FromSeconds(3.5 * 24 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2.5 * 60),
-				PowAllowMinDifficultyBlocks = true,
+				PowAllowMinDifficultyBlocks = false,
 				PowNoRetargeting = false,
-				RuleChangeActivationThreshold = 1512,
-				MinerConfirmationWindow = 2016,
+				RuleChangeActivationThreshold = 6048,
+				MinerConfirmationWindow = 8064,
 				CoinbaseMaturity = 100,
-				//HashGenesisBlock = new uint256("f5ae71e26c74beacc88382716aced69cddf3dffff24f384e1808905e0188f68f"),
+				//HashGenesisBlock = new uint256("0x000007acc6970b812948d14ea5a0a13db0fdd07d5047c7e69101fa8b361e05a4"),
 				//GetPoWHash = GetPoWHash,
-				LitecoinWorkCalculation = true
+				LitecoinWorkCalculation = true,
 			})
-			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
-			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 58 })
-			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
-			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
-			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("smrt"))
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("smrt"))
-			.SetMagic(0xf1c8d2fd)
-			.SetPort(19335)
-			.SetRPCPort(19332)
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 63 })
+			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 18 })
+			//.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
+			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
+			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("smart"))
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("smart"))
+			.SetMagic(0xdbb6c0fb)
+			.SetPort(9678)
+			.SetRPCPort(9679)
 			.SetName("smart-reg")
 			.AddAlias("smart-regtest")
 			.AddAlias("smartcash-regtest")
 			.AddAlias("smartcash-reg")
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000d9ced4ed1130f7b7faad9be25323ffafa33232a17c3edf6cfd97bee6bafbdd97f6028c4ef0ff0f1e38c3f6160101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4804ffff001d0104404e592054696d65732030352f4f63742f32303131205374657665204a6f62732c204170706c65e280997320566973696f6e6172792c2044696573206174203536ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			.SetGenesis("02000000000000000000000000000000000000000000000000000000000000000000000062d421ff675e5e9e829ba28cd9097b1e8f247642d30d7398c35e4dced88791b70a4a3259f0ff0f1e7fc003000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff2e04ffff0f1e010421536d617274436173682c20436f6d6d756e696e74792044726976656e204361736804833e0000ffffffff0100000000000000000000000000");
 
 			return builder;
 		}
