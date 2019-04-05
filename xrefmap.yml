@@ -42043,6 +42043,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Protocol.NodeConnectionParameters.Services
   nameWithType: NodeConnectionParameters.Services
+- uid: NBitcoin.Protocol.NodeConnectionParameters.SocketSettings
+  name: SocketSettings
+  href: api/NBitcoin.Protocol.NodeConnectionParameters.html#NBitcoin_Protocol_NodeConnectionParameters_SocketSettings
+  commentId: P:NBitcoin.Protocol.NodeConnectionParameters.SocketSettings
+  fullName: NBitcoin.Protocol.NodeConnectionParameters.SocketSettings
+  nameWithType: NodeConnectionParameters.SocketSettings
+- uid: NBitcoin.Protocol.NodeConnectionParameters.SocketSettings*
+  name: SocketSettings
+  href: api/NBitcoin.Protocol.NodeConnectionParameters.html#NBitcoin_Protocol_NodeConnectionParameters_SocketSettings_
+  commentId: Overload:NBitcoin.Protocol.NodeConnectionParameters.SocketSettings
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.NodeConnectionParameters.SocketSettings
+  nameWithType: NodeConnectionParameters.SocketSettings
 - uid: NBitcoin.Protocol.NodeConnectionParameters.TemplateBehaviors
   name: TemplateBehaviors
   href: api/NBitcoin.Protocol.NodeConnectionParameters.html#NBitcoin_Protocol_NodeConnectionParameters_TemplateBehaviors
@@ -44119,6 +44132,90 @@ references:
   commentId: T:NBitcoin.Protocol.SendHeadersPayload
   fullName: NBitcoin.Protocol.SendHeadersPayload
   nameWithType: SendHeadersPayload
+- uid: NBitcoin.Protocol.SocketSettings
+  name: SocketSettings
+  href: api/NBitcoin.Protocol.SocketSettings.html
+  commentId: T:NBitcoin.Protocol.SocketSettings
+  fullName: NBitcoin.Protocol.SocketSettings
+  nameWithType: SocketSettings
+- uid: NBitcoin.Protocol.SocketSettings.Clone
+  name: Clone()
+  href: api/NBitcoin.Protocol.SocketSettings.html#NBitcoin_Protocol_SocketSettings_Clone
+  commentId: M:NBitcoin.Protocol.SocketSettings.Clone
+  fullName: NBitcoin.Protocol.SocketSettings.Clone()
+  nameWithType: SocketSettings.Clone()
+- uid: NBitcoin.Protocol.SocketSettings.Clone*
+  name: Clone
+  href: api/NBitcoin.Protocol.SocketSettings.html#NBitcoin_Protocol_SocketSettings_Clone_
+  commentId: Overload:NBitcoin.Protocol.SocketSettings.Clone
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.SocketSettings.Clone
+  nameWithType: SocketSettings.Clone
+- uid: NBitcoin.Protocol.SocketSettings.ReceiveBufferSize
+  name: ReceiveBufferSize
+  href: api/NBitcoin.Protocol.SocketSettings.html#NBitcoin_Protocol_SocketSettings_ReceiveBufferSize
+  commentId: P:NBitcoin.Protocol.SocketSettings.ReceiveBufferSize
+  fullName: NBitcoin.Protocol.SocketSettings.ReceiveBufferSize
+  nameWithType: SocketSettings.ReceiveBufferSize
+- uid: NBitcoin.Protocol.SocketSettings.ReceiveBufferSize*
+  name: ReceiveBufferSize
+  href: api/NBitcoin.Protocol.SocketSettings.html#NBitcoin_Protocol_SocketSettings_ReceiveBufferSize_
+  commentId: Overload:NBitcoin.Protocol.SocketSettings.ReceiveBufferSize
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.SocketSettings.ReceiveBufferSize
+  nameWithType: SocketSettings.ReceiveBufferSize
+- uid: NBitcoin.Protocol.SocketSettings.ReceiveTimeout
+  name: ReceiveTimeout
+  href: api/NBitcoin.Protocol.SocketSettings.html#NBitcoin_Protocol_SocketSettings_ReceiveTimeout
+  commentId: P:NBitcoin.Protocol.SocketSettings.ReceiveTimeout
+  fullName: NBitcoin.Protocol.SocketSettings.ReceiveTimeout
+  nameWithType: SocketSettings.ReceiveTimeout
+- uid: NBitcoin.Protocol.SocketSettings.ReceiveTimeout*
+  name: ReceiveTimeout
+  href: api/NBitcoin.Protocol.SocketSettings.html#NBitcoin_Protocol_SocketSettings_ReceiveTimeout_
+  commentId: Overload:NBitcoin.Protocol.SocketSettings.ReceiveTimeout
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.SocketSettings.ReceiveTimeout
+  nameWithType: SocketSettings.ReceiveTimeout
+- uid: NBitcoin.Protocol.SocketSettings.SendBufferSize
+  name: SendBufferSize
+  href: api/NBitcoin.Protocol.SocketSettings.html#NBitcoin_Protocol_SocketSettings_SendBufferSize
+  commentId: P:NBitcoin.Protocol.SocketSettings.SendBufferSize
+  fullName: NBitcoin.Protocol.SocketSettings.SendBufferSize
+  nameWithType: SocketSettings.SendBufferSize
+- uid: NBitcoin.Protocol.SocketSettings.SendBufferSize*
+  name: SendBufferSize
+  href: api/NBitcoin.Protocol.SocketSettings.html#NBitcoin_Protocol_SocketSettings_SendBufferSize_
+  commentId: Overload:NBitcoin.Protocol.SocketSettings.SendBufferSize
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.SocketSettings.SendBufferSize
+  nameWithType: SocketSettings.SendBufferSize
+- uid: NBitcoin.Protocol.SocketSettings.SendTimeout
+  name: SendTimeout
+  href: api/NBitcoin.Protocol.SocketSettings.html#NBitcoin_Protocol_SocketSettings_SendTimeout
+  commentId: P:NBitcoin.Protocol.SocketSettings.SendTimeout
+  fullName: NBitcoin.Protocol.SocketSettings.SendTimeout
+  nameWithType: SocketSettings.SendTimeout
+- uid: NBitcoin.Protocol.SocketSettings.SendTimeout*
+  name: SendTimeout
+  href: api/NBitcoin.Protocol.SocketSettings.html#NBitcoin_Protocol_SocketSettings_SendTimeout_
+  commentId: Overload:NBitcoin.Protocol.SocketSettings.SendTimeout
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.SocketSettings.SendTimeout
+  nameWithType: SocketSettings.SendTimeout
+- uid: NBitcoin.Protocol.SocketSettings.SetSocketProperties(System.Net.Sockets.Socket)
+  name: SetSocketProperties(Socket)
+  href: api/NBitcoin.Protocol.SocketSettings.html#NBitcoin_Protocol_SocketSettings_SetSocketProperties_System_Net_Sockets_Socket_
+  commentId: M:NBitcoin.Protocol.SocketSettings.SetSocketProperties(System.Net.Sockets.Socket)
+  fullName: NBitcoin.Protocol.SocketSettings.SetSocketProperties(System.Net.Sockets.Socket)
+  nameWithType: SocketSettings.SetSocketProperties(Socket)
+- uid: NBitcoin.Protocol.SocketSettings.SetSocketProperties*
+  name: SetSocketProperties
+  href: api/NBitcoin.Protocol.SocketSettings.html#NBitcoin_Protocol_SocketSettings_SetSocketProperties_
+  commentId: Overload:NBitcoin.Protocol.SocketSettings.SetSocketProperties
+  isSpec: "True"
+  fullName: NBitcoin.Protocol.SocketSettings.SetSocketProperties
+  nameWithType: SocketSettings.SetSocketProperties
 - uid: NBitcoin.Protocol.SynchronizeChainOptions
   name: SynchronizeChainOptions
   href: api/NBitcoin.Protocol.SynchronizeChainOptions.html
