@@ -3,8 +3,8 @@ namespace System
 
 open System.Reflection
 
-[<assembly:AssemblyTitleAttribute("Miniscript")>]
-[<assembly:AssemblyProductAttribute("Miniscript")>]
+[<assembly:AssemblyTitleAttribute("NBitcoin.Miniscript")>]
+[<assembly:AssemblyProductAttribute("NBitcoin.Miniscript")>]
 [<assembly:AssemblyVersionAttribute("0.1.0")>]
 [<assembly:AssemblyMetadataAttribute("ReleaseDate", 
                                      "2017-03-17T00:00:00.0000000")>]
@@ -18,10 +18,10 @@ do ()
 
 module internal AssemblyVersionInformation =
     [<Literal>]
-    let AssemblyTitle = "Miniscript"
+    let AssemblyTitle = "NBitcoin.Miniscript"
     
     [<Literal>]
-    let AssemblyProduct = "Miniscript"
+    let AssemblyProduct = "NBitcoin.Miniscript"
     
     [<Literal>]
     let AssemblyVersion = "0.1.0"

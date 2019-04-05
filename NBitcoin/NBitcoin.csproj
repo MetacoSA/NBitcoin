@@ -96,21 +96,21 @@
 
 	<!-- Include Miniscript dll only if it is ready. -->
 	<PropertyGroup>
-		<IncludeMiniscript Condition="Exists('..\NBitcoin.Miniscript\bin\$(Configuration)\netstandard2.0\Miniscript.dll') And Exists('..\NBitcoin.Miniscript\bin\$(Configuration)\netcoreapp2.1\Miniscript.dll') And Exists('..\NBitcoin.Miniscript\bin\$(Configuration)\netstandard2.0\Miniscript.dll')">true</IncludeMiniscript>
+		<IncludeMiniscript Condition="Exists('..\NBitcoin.Miniscript\bin\$(Configuration)\netstandard2.0\NBitcoin.Miniscript.dll') And Exists('..\NBitcoin.Miniscript\bin\$(Configuration)\netcoreapp2.1\NBitcoin.Miniscript.dll') And Exists('..\NBitcoin.Miniscript\bin\$(Configuration)\net461\NBitcoin.Miniscript.dll')">true</IncludeMiniscript>
 	</PropertyGroup>
 	<ItemGroup Condition="'$(IncludeMiniscript)' == 'true'">
-		<Content Include="..\NBitcoin.Miniscript\bin\$(Configuration)\netstandard2.0\Miniscript.dll">
+		<Content Include="..\NBitcoin.Miniscript\bin\$(Configuration)\netstandard2.0\NBitcoin.Miniscript.dll">
 			<Pack>true</Pack>
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<PackagePath>lib\netstandard2.0</PackagePath>
 		</Content>
 		<Content
-			Include="..\NBitcoin.Miniscript\bin\$(Configuration)\netcoreapp2.1\Miniscript.dll">
+			Include="..\NBitcoin.Miniscript\bin\$(Configuration)\netcoreapp2.1\NBitcoin.Miniscript.dll">
 			<Pack>true</Pack>
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<PackagePath>lib\netcoreapp2.1</PackagePath>
 		</Content>
-		<Content Include="..\NBitcoin.Miniscript\bin\$(Configuration)\net461\Miniscript.dll">
+		<Content Include="..\NBitcoin.Miniscript\bin\$(Configuration)\net461\NBitcoin.Miniscript.dll">
 			<Pack>true</Pack>
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<PackagePath>lib\net461</PackagePath>

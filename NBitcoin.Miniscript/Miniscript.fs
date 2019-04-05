@@ -12,7 +12,6 @@ open NBitcoin
 /// wrapper for top-level AST
 type Miniscript = Miniscript of T
 
-[<AutoOpen>]
 module Miniscript =
     let fromAST (t : AST) : Result<Miniscript, string> =
         match t.CastT() with
