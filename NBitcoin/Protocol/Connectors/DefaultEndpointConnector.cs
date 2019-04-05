@@ -40,15 +40,19 @@ namespace NBitcoin.Protocol.Connectors
 			if (AllowOnlyTorEndpoints && !isTor)
 				throw new InvalidOperationException($"The Endpoint connector is configured to allow only Tor endpoints and the '{endpoint}' enpoint is not one");
 			var socksSettings = nodeConnectionParameters.TemplateBehaviors.Find<SocksSettingsBehavior>();
-			bool socks = isTor || socksSettings?.OnlyForOnionHosts is false;
-			if (socks && socksSettings?.SocksEndpoint == null)
-				throw new InvalidOperationException("SocksSettingsBehavior.SocksEndpoint is not set but the connection is expecting using socks proxy");
-			var socketEndpoint = socks ? socksSettings.SocksEndpoint : endpoint;
+			var socketEndpoint = endpoint;
+			var useSocks = isTor || socksSettings?.OnlyForOnionHosts is false;
+			if (useSocks)
+			{
+				if (socksSettings?.SocksEndpoint == null)
+					throw new InvalidOperationException("SocksSettingsBehavior.SocksEndpoint is not set but the connection is expecting using socks proxy");
+				socketEndpoint = socksSettings.SocksEndpoint;
+			}
 			if (socketEndpoint is IPEndPoint mappedv4 && mappedv4.Address.IsIPv4MappedToIPv6Ex())
 				socketEndpoint = new IPEndPoint(mappedv4.Address.MapToIPv4Ex(), mappedv4.Port);
 			await socket.ConnectAsync(socketEndpoint, cancellationToken).ConfigureAwait(false);
 
-			if (!socks)
+			if (!useSocks)
 				return;
 
 			await SocksHelper.Handshake(socket, endpoint, socksSettings.GetCredentials(), cancellationToken).ConfigureAwait(false);

@@ -1099,7 +1099,9 @@ namespace NBitcoin.Tests
 			Assert.True(ip2.IsTor());
 			Assert.IsType<IPEndPoint>(ip1);
 			Assert.IsType<DnsEndPoint>(ip2);
-
+			var torv3 = Utils.ParseEndpoint("explorerzydxu5ecjrkwceayqybizmpjjznk5izmitf2modhcusuqlid.onion", 10);
+			Assert.True(torv3.IsTor());
+			Assert.Null(torv3.AsOnionCatIPEndpoint());
 			ip2 = ip2.AsOnionCatIPEndpoint();
 			Assert.True(ip2.IsTor());
 			Assert.Equal(ip1, ip2);

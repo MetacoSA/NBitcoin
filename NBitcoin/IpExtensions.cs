@@ -223,7 +223,7 @@ namespace NBitcoin
 			if (endpoint is IPEndPoint ip)
 				return IsTor(ip.Address);
 			else if (endpoint is DnsEndPoint dns)
-				return AsOnionCatIPEndpoint(dns) != null;
+				return dns.Host.EndsWith(".onion", StringComparison.OrdinalIgnoreCase);
 			else
 				return false;
 		}
@@ -320,7 +320,7 @@ namespace NBitcoin
 			}
 			if (endpoint is DnsEndPoint dns)
 			{
-				if (!dns.Host.EndsWith(".onion", StringComparison.OrdinalIgnoreCase))
+				if (!dns.Host.EndsWith(".onion", StringComparison.OrdinalIgnoreCase) || dns.Host.Length != 16 + 6)
 					return null;
 				var ipArray = new byte[16];
 				try
