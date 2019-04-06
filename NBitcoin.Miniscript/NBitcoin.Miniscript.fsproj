@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Utils/Parser.fs" />
+    <Compile Include="Utils/FuncConversion.fs" />
     <Compile Include="Utils/Lib.fs" />
     <Compile Include="MiniscriptParser.fs" />
     <Compile Include="MiniscriptAST.fs" />

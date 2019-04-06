@@ -1,5 +1,6 @@
 namespace NBitcoin.Miniscript
 
+open System
 open System.Collections.Generic
 open System.Runtime.InteropServices
 
@@ -59,6 +60,10 @@ module public Miniscript =
         | (true, v) -> Some v
         | (false, _) -> None
 
+    let private toFSharpFunc<'TIn, 'TOut> (f: Func<'TIn, 'TOut>) =
+        fun input ->
+            let v = f.Invoke(input)
+            if isNull (box v) then None else Some v
     type Miniscript with
         member this.ToScript() = toScript this
         member internal this.ToAST() = toAST this
@@ -69,10 +74,18 @@ module public Miniscript =
                                 Satisfy this (keyFn, hashFn, age)
 
         /// Facade for C#
+        member this.Satisfy([<Optional; DefaultParameterValue(null: Func<PubKey, TransactionSignature>)>] keyFn: Func<PubKey, TransactionSignature>,
+                            [<Optional; DefaultParameterValue(null: Func<PreImageHash, PreImage>)>] hashFn: Func<PreImageHash, PreImage>,
+                            [<Optional; DefaultParameterValue(0u)>] age: uint32) =
+                                let maybeFsharpKeyFn = if isNull keyFn then None else Some(toFSharpFunc(keyFn))
+                                let maybeFsharpHashFn = if isNull hashFn then None else Some(toFSharpFunc(hashFn))
+                                let maybeAge = if age = 0u then None else Some(LockTime(age))
+                                this.Satisfy(?keyFn=maybeFsharpKeyFn, ?hashFn=maybeFsharpHashFn, ?age=maybeAge)
+
         member this.Satisfy([<Optional; DefaultParameterValue(null: IDictionary<PubKey, TransactionSignature>)>] sigDict: IDictionary<PubKey, TransactionSignature>,
                             [<Optional; DefaultParameterValue(null: IDictionary<uint256, uint256>)>] hashDict: IDictionary<uint256, uint256>,
                             [<Optional; DefaultParameterValue(0u)>] age: uint32) =
-                                let keyFn = if sigDict = null then None else Some(dictToFn sigDict)
-                                let hashFn = if hashDict = null then None else Some(dictToFn hashDict)
+                                let keyFn = if isNull sigDict then None else Some(dictToFn sigDict)
+                                let hashFn = if isNull hashDict then None else Some(dictToFn hashDict)
                                 let age2 = if age = 0u then None else Some(LockTime(age))
                                 this.Satisfy(?keyFn=keyFn, ?hashFn=hashFn, ?age=age2)
