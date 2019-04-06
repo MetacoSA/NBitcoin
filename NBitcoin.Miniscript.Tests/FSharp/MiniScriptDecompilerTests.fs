@@ -6,8 +6,9 @@ open NBitcoin
 open NBitcoin.Miniscript.Utils
 open NBitcoin.Miniscript.MiniscriptParser
 open NBitcoin.Miniscript.Tests.Generators
-open NBitcoin.Miniscript.AST
 open NBitcoin.Miniscript
+open NBitcoin.Miniscript.AST
+open NBitcoin.Miniscript.Miniscript
 open NBitcoin.Miniscript.Utils.Parser
 open NBitcoin.Miniscript.Compiler
 open NBitcoin.Miniscript.Decompiler
@@ -292,7 +293,7 @@ let tests2 =
             roundTripFromMiniScript input
     ]
 
-let roundtripParserAndAST (parser: Parser<_, _>) (ast: AST) =
+let private roundtripParserAndAST (parser: Parser<_, _>) (ast: AST) =
     let sc = ast.ToScript()
     let ops = sc.ToOps() |> Seq.toArray
     let initialState = {ops=ops;position=ops.Length - 1}

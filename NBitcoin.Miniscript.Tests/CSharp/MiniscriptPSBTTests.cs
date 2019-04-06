@@ -1,24 +1,29 @@
 ﻿using System;
-using NBitcoin.Miniscript;
-using NBitcoin;
+using System.Collections.Generic;
 using Xunit;
-namespace NBitcoin.Tests
+
+namespace NBitcoin.Miniscript.Tests.CSharp
 {
 	public class MiniscriptPSBTTests
 	{
+		private Key privKey { get; set; }
 		public MiniscriptPSBTTests()
 		{
+			privkey = new NBitcoin.Key();
 		}
 
-        private TransactionSignature DummyKeyFn(PubKey key) => null;
+		[Fact]
         public void ShouldSatisfyMiniscript()
 		{
-            var key = new NBitcoin.Key();
-            var scriptStr = $"and(pk({key.PubKey}), time({new LockTime(10000)}))";
-            var ms = NBitcoin.Miniscript.Miniscript.parseUnsafe(scriptStr);
-            Assert.NotNull(ms);
+            var scriptStr = $"and(pk({privKey.PubKey}), time({10000}))";
+			var ms = Miniscript.parseUnsafe(scriptStr);
+			Assert.NotNull(ms);
 
-            var r1 = ms.Satisfy(DummyKeyFn, null, null);
-        }
+			var sigDict = new Dictionary<PubKey, TransactionSignature>();
+			var r1 = ms.Satisfy(sigDict);
+
+
+			Assert.
+		}
 	}
 }

@@ -5,7 +5,7 @@ open NBitcoin.Miniscript.Utils
 open NBitcoin.Miniscript.MiniscriptParser
 open Miniscript.AST
 
-module Compiler =
+module internal Compiler =
     type CompiledNode =
         | Pk of NBitcoin.PubKey
         | Multi of uint32 * PubKey []

@@ -4,7 +4,7 @@ open NBitcoin
 open NBitcoin.Miniscript.Utils
 open System.Text
 
-module AST =
+module internal AST =
     // TODO: Use unativeint instead of uint?
 
     /// "E"xpression. takes more than one inputs from the stack, if it satisfies the condition,

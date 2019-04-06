@@ -2,6 +2,7 @@
 namespace System
 
 open System.Reflection
+open System.Runtime.CompilerServices
 
 [<assembly:AssemblyTitleAttribute("NBitcoin.Miniscript")>]
 [<assembly:AssemblyProductAttribute("NBitcoin.Miniscript")>]
@@ -14,6 +15,9 @@ open System.Reflection
 [<assembly:AssemblyDescriptionAttribute("(De)Compiler for Bitcoin Miniscript")>]
 [<assembly:AssemblyMetadataAttribute("GitHash", 
                                      "bb8964b54bee133e9af64d316dc2cfee16df7f72")>]
+[<assembly: InternalsVisibleTo("NBitcoin.Miniscript.Tests.CSharp")>]
+[<assembly: InternalsVisibleTo("NBitcoin.Miniscript.Tests.FSharp")>]
+
 do ()
 
 module internal AssemblyVersionInformation =

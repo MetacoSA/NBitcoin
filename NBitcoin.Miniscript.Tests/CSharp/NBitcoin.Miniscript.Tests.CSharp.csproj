@@ -1,20 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFrameworks>netcoreapp2.1;</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FSharp.Core" Version="4.6.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\NBitcoin.Miniscript\NBitcoin.Miniscript.fsproj" />
     <ProjectReference Include="..\..\NBitcoin\NBitcoin.csproj" />
+    <!-- <ProjectReference Include="..\..\NBitcoin.Miniscript\NBitcoin.Miniscript.fsproj" /> -->
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="NBitcoin.Miniscript">
+      <!-- Seems this is necessary for intellisense to work -->
+      <HintPath>..\..\NBitcoin.Miniscript\bin\Debug\netcoreapp2.1\NBitcoin.Miniscript.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

@@ -20,10 +20,10 @@
     <Compile Include="Library.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.5.0" />
+    <ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
+    <PackageReference Update="FSharp.Core" Version="4.5.0" />
   </ItemGroup>
   <Import Project=".\fsc.props" />
   <Import Project=".\netfx.props" />

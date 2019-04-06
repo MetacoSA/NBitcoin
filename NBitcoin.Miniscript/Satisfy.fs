@@ -1,32 +1,36 @@
 namespace NBitcoin.Miniscript
 
-module Satisfy =
+open NBitcoin
+open System
+
+type SignatureProvider = PubKey -> TransactionSignature option
+type PreImageHash = uint256
+type PreImage = uint256
+type PreImageProvider = PreImageHash -> PreImage option
+
+type ProviderSet = (SignatureProvider option * PreImageProvider option * LockTime option)
+
+type CSVOffset = BlockHeight of uint32 | UnixTime of DateTimeOffset
+type FailureCase =
+    | MissingSig of PubKey list
+    | NotMatured of CSVOffset
+    | LockTimeTypeMismatch 
+    | Nested of FailureCase list
+    | CurrentTimeNotSpecified
+
+type SatisfiedItem =
+    | PreImage of byte[]
+    | Signature of TransactionSignature
+    | RawPush of byte[]
+
+type SatisfactionResult = Result<SatisfiedItem list, FailureCase>
+
+
+module internal Satisfy =
     open NBitcoin.Miniscript.AST
     open NBitcoin.Miniscript.Utils
     open NBitcoin
     open System
-
-    type SignatureProvider = PubKey -> TransactionSignature option
-    type PreImageHash = PreImagehash of uint256
-    type PreImage = PreImage of uint256
-    type PreImageProvider = PreImageHash -> PreImage
-
-    type ProviderSet = (SignatureProvider option * PreImageProvider option * LockTime option)
-
-    type CSVOffset = BlockHeight of uint32 | UnixTime of DateTimeOffset
-    type FailureCase =
-        | MissingSig of PubKey list
-        | NotMatured of CSVOffset
-        | LockTimeTypeMismatch 
-        | Nested of FailureCase list
-        | CurrentTimeNotSpecified
-
-    type SatisfiedItem =
-        | PreImage of byte[]
-        | Signature of TransactionSignature
-        | RawPush of byte[]
-
-    type SatisfactionResult = Result<SatisfiedItem list, FailureCase>
 
     let satisfyCost (res: SatisfiedItem list): int = failwith ""
 

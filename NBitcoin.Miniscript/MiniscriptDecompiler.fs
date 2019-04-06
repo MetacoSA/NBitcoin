@@ -7,6 +7,7 @@ open Miniscript.AST
 
 /// Subset of Bitcoin Script which is used in Miniscript
 type Token =
+    private
     | BoolAnd
     | BoolOr
     | Add
@@ -40,6 +41,7 @@ type Token =
     | Any
 
 type TokenCategory =
+    private
     | BoolAnd
     | BoolOr
     | Add
@@ -203,7 +205,7 @@ type State = {
     position: int
 }
 
-type TokenParser = Parser<AST> 
+type private TokenParser = Parser<AST> 
 
 let nextToken state =
     if state.ops.Length - 1 < state.position then
@@ -214,7 +216,7 @@ let nextToken state =
         newState, Some(tk)
 
 
-module TokenParser =
+module internal TokenParser =
     let pToken (cat: TokenCategory) =
         let name = sprintf "pToken %A" cat
         let innerFn state =
@@ -640,12 +642,12 @@ module TokenParser =
     do pTImpl := SubExpressionParser >>= pTryCastToType TExpr
     do pFImpl := SubExpressionParser >>= pTryCastToType FExpr
 
-let parseScript (sc: Script) =
+let internal parseScript (sc: Script) =
     let ops = (sc.ToOps() |> Seq.toArray)
     let initialState = {ops=ops; position=ops.Length - 1}
     run TokenParser.SubExpressionParser initialState |> Result.map(fst)
 
-let parseScriptUnsafe sc =
+let internal parseScriptUnsafe sc =
     match parseScript sc with
     | Ok r -> r
     | Error e -> failwith (printParserError e)
