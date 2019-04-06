@@ -13,13 +13,14 @@ type ProviderSet = (SignatureProvider option * PreImageProvider option * LockTim
 type CSVOffset = BlockHeight of uint32 | UnixTime of DateTimeOffset
 type FailureCase =
     | MissingSig of PubKey list
+    | MissingHash of uint256
     | NotMatured of CSVOffset
     | LockTimeTypeMismatch 
     | Nested of FailureCase list
     | CurrentTimeNotSpecified
 
 type SatisfiedItem =
-    | PreImage of byte[]
+    | PreImage of uint256
     | Signature of TransactionSignature
     | RawPush of byte[]
 
@@ -65,21 +66,22 @@ module internal Satisfy =
                 Error(MissingSig(sigNotFoundPks))
 
     let satisfyHashEqual (maybeHashFn: PreImageProvider option) h =
-        failwith ""
+        match maybeHashFn with
+        | None -> Error(MissingHash(h))
+        | Some fn ->
+            match fn h with
+            | None -> Error(MissingHash h)
+            | Some v -> Ok([PreImage(v)])
 
     let satisfyCSVCore (age: LockTime) (t: LockTime) =
-        let offset = t.Value - age.Value
-        if
-            (age.IsHeightLock && t.IsHeightLock)
-        then
-            if (offset > 0u) then
-                Error(NotMatured(BlockHeight offset))
+        let offset = (int32 t.Value) - (int32 age.Value)
+        if (age.IsHeightLock && t.IsHeightLock) then
+            if (offset > 0) then
+                Error(NotMatured(BlockHeight (uint32 offset)))
             else
                 Ok([])
-        else if
-            (age.IsTimeLock && t.IsTimeLock)
-        then
-            if (offset > 0u) then
+        else if (age.IsTimeLock && t.IsTimeLock) then
+            if (offset > 0) then
                 Error(NotMatured(UnixTime(DateTimeOffset.FromUnixTimeSeconds(int64 (offset)))))
             else
                 Ok([])

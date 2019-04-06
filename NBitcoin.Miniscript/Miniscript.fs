@@ -82,6 +82,7 @@ module public Miniscript =
                                 let maybeAge = if age = 0u then None else Some(LockTime(age))
                                 this.Satisfy(?keyFn=maybeFsharpKeyFn, ?hashFn=maybeFsharpHashFn, ?age=maybeAge)
 
+        /// Facade for C# (Might be unnecessary)
         member this.Satisfy([<Optional; DefaultParameterValue(null: IDictionary<PubKey, TransactionSignature>)>] sigDict: IDictionary<PubKey, TransactionSignature>,
                             [<Optional; DefaultParameterValue(null: IDictionary<uint256, uint256>)>] hashDict: IDictionary<uint256, uint256>,
                             [<Optional; DefaultParameterValue(0u)>] age: uint32) =

@@ -38,10 +38,13 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 			Console.WriteLine(r1);
 
 			// Giving lambda
-			var someSig = FSharpOption<TransactionSignature>.Some(GetDummySig());
-			var r2 = ms.Satisfy(pk => pk == privKeys[0].PubKey ? someSig : null);
-			// Assert.NotNull(r2);
-			Console.WriteLine(r2);
+			Func<PubKey, TransactionSignature> dummyKeyFn = pk => pk == privKeys[0].PubKey ? GetDummySig() : null;
+			var r2 = ms.Satisfy(dummyKeyFn);
+			Assert.True(r2.IsError);
+
+			var r3 = ms.Satisfy(dummyKeyFn, null, 10001u);
+
+			Assert.True(r3.IsOk);
 		}
 
 		[Fact]
