@@ -612,7 +612,7 @@ module internal Compiler =
                        { parent =
                              FTree
                                  (F.CascadeOr
-                                      (le_cas.ast.CastEUnsafe(), 
+                                      (le_cond_par.ast.CastEUnsafe(), 
                                        rv.ast.CastVUnsafe()))
                          left = le_cas
                          right = rv
@@ -620,7 +620,7 @@ module internal Compiler =
                        { parent =
                              FTree
                                  (F.CascadeOr
-                                      (re_cas.ast.CastEUnsafe(), 
+                                      (re_cond_par.ast.CastEUnsafe(), 
                                        lv.ast.CastVUnsafe()))
                          left = re_cas
                          right = lv
