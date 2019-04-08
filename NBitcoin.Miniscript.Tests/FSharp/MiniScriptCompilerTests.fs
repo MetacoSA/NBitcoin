@@ -4,6 +4,7 @@ open Expecto
 open Expecto.Logging
 open Expecto.Logging.Message
 open NBitcoin.Miniscript.Tests.Generators
+open NBitcoin.Miniscript
 open NBitcoin.Miniscript.Compiler
 open NBitcoin.Miniscript.MiniscriptParser
 

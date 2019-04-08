@@ -3,6 +3,7 @@ module SatisfyTests
 open Expecto
 open NBitcoin
 open NBitcoin.Miniscript
+open NBitcoin.Miniscript
 
 [<Tests>]
 let tests =
@@ -10,7 +11,7 @@ let tests =
         testCase "case 1" <| fun _ ->
             let key = NBitcoin.Key()
             let scriptStr = sprintf "and(pk(%s), time(%d))" (key.PubKey.ToString()) 10000u
-            let ms = Miniscript.parseUnsafe scriptStr
+            let ms = Miniscript.fromStringUnsafe scriptStr
             let t = ms.ToAST().CastTUnsafe()
 
             let dummyKeyFn pk = None
@@ -31,7 +32,7 @@ let tests =
         ftestCase "case 1 using facade" <| fun _ ->
             let key = NBitcoin.Key()
             let scriptStr = sprintf "and(pk(%s), time(%d))" (key.PubKey.ToString()) 10000u
-            let ms = Miniscript.parseUnsafe scriptStr
+            let ms = Miniscript.fromStringUnsafe scriptStr
             let dummyKeyFn pk = None
             let r1 = ms.Satisfy(?keyFn=Some(dummyKeyFn))
             let dummySig = TransactionSignature.Empty

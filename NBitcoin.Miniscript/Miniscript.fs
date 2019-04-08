@@ -8,10 +8,22 @@ open NBitcoin.Miniscript.AST
 open NBitcoin.Miniscript.Decompiler
 open NBitcoin.Miniscript.Compiler
 open NBitcoin.Miniscript.Satisfy
+open NBitcoin.Miniscript.MiniscriptParser
 open NBitcoin
 
-/// wrapper for top-level AST
+/// Exception types to enable consumer to use try-catch style handling instead of `Result<T>`
+/// Why we define it here instead of putting it into `Utis` ?
+/// Because a code for core logics should never throw `Exception` and instead use Result,
+/// And we must basically restrict public-facing interfaces to this file.
+type MiniscriptException(msg: string, ex: exn) =
+    inherit Exception(msg, ex)
+    new (msg) = MiniscriptException(msg, null)
 
+type MiniscriptSatisfyException(reason: FailureCase, ex: exn) =
+    inherit MiniscriptException(sprintf "Failed to satisfy, got: %A" reason, ex)
+    new (reason) = MiniscriptSatisfyException(reason, null)
+
+/// wrapper for top-level AST
 module public Miniscript =
     type Miniscript = private Miniscript of T
 
@@ -25,17 +37,28 @@ module public Miniscript =
         | Ok t -> t
         | Error e -> failwith e
 
-    [<CompiledName("Parse")>]
-    let public parse (s: string) =
+    [<CompiledName("FromPolicy")>]
+    let public fromPolicy(p: AbstractPolicy) =
+            (CompiledNode.FromPolicy p).Compile() |> fromAST
+
+    [<CompiledName("FromPolicyUnsafe")>]
+    let public fromPolicyUnsafe(p: AbstractPolicy) =
+        match fromPolicy p with
+        | Ok p -> p
+        | Error e -> failwith e
+
+    [<CompiledName("FromString")>]
+    let public fromString (s: string) =
         match s with
-        | AbstractPolicy p -> (CompiledNode.FromPolicy p).Compile() |> fromAST
+        | AbstractPolicy p -> fromPolicy p
         | _ -> Error("failed to parse String policy")
 
-    [<CompiledName("ParseUnsafe")>]
-    let public parseUnsafe (s: string) =
-        match parse s with
+    [<CompiledName("FromStringUnsafe")>]
+    let public fromStringUnsafe (s: string) =
+        match fromString s with
         | Ok m -> m
         | Error e -> failwith e
+
 
     let internal toAST (m : Miniscript) =
         match m with
@@ -48,11 +71,12 @@ module public Miniscript =
         | Ok r -> r
         | Error e -> failwith e
 
-    let public toScript (m : Miniscript) : Script =
+    let private toScript (m : Miniscript) : Script =
         let ast = toAST m
         ast.ToScript()
 
-    let public Satisfy (Miniscript t) (providers: ProviderSet) =
+    [<CompiledName("Satisfy")>]
+    let public satisfy (Miniscript t) (providers: ProviderSet) =
         satisfyT (providers) t
 
     let private dictToFn (d: IDictionary<_ ,_>) k =
@@ -71,9 +95,23 @@ module public Miniscript =
         member this.Satisfy(?keyFn: SignatureProvider,
                             ?hashFn: PreImageProvider,
                             ?age: LockTime) =
-                                Satisfy this (keyFn, hashFn, age)
+                                satisfy this (keyFn, hashFn, age)
+        member this.SatisfyUnsafe(?keyFn: SignatureProvider,
+                                  ?hashFn: PreImageProvider,
+                                  ?age: LockTime) =
+                                match satisfy this (keyFn, hashFn, age) with
+                                | Ok item -> item
+                                | Error e -> raise (MiniscriptSatisfyException(e))
 
         /// Facade for C#
+        member this.SatisfyUnsafe([<Optional; DefaultParameterValue(null: Func<PubKey, TransactionSignature>)>] keyFn: Func<PubKey, TransactionSignature>,
+                                  [<Optional; DefaultParameterValue(null: Func<PreImageHash, PreImage>)>] hashFn: Func<PreImageHash, PreImage>,
+                                  [<Optional; DefaultParameterValue(0u)>] age: uint32) =
+                                let maybeFsharpKeyFn = if isNull keyFn then None else Some(toFSharpFunc(keyFn))
+                                let maybeFsharpHashFn = if isNull hashFn then None else Some(toFSharpFunc(hashFn))
+                                let maybeAge = if age = 0u then None else Some(LockTime(age))
+                                this.SatisfyUnsafe(?keyFn=maybeFsharpKeyFn, ?hashFn=maybeFsharpHashFn, ?age=maybeAge)
+
         member this.Satisfy([<Optional; DefaultParameterValue(null: Func<PubKey, TransactionSignature>)>] keyFn: Func<PubKey, TransactionSignature>,
                             [<Optional; DefaultParameterValue(null: Func<PreImageHash, PreImage>)>] hashFn: Func<PreImageHash, PreImage>,
                             [<Optional; DefaultParameterValue(0u)>] age: uint32) =
@@ -81,12 +119,3 @@ module public Miniscript =
                                 let maybeFsharpHashFn = if isNull hashFn then None else Some(toFSharpFunc(hashFn))
                                 let maybeAge = if age = 0u then None else Some(LockTime(age))
                                 this.Satisfy(?keyFn=maybeFsharpKeyFn, ?hashFn=maybeFsharpHashFn, ?age=maybeAge)
-
-        /// Facade for C# (Might be unnecessary)
-        member this.Satisfy([<Optional; DefaultParameterValue(null: IDictionary<PubKey, TransactionSignature>)>] sigDict: IDictionary<PubKey, TransactionSignature>,
-                            [<Optional; DefaultParameterValue(null: IDictionary<uint256, uint256>)>] hashDict: IDictionary<uint256, uint256>,
-                            [<Optional; DefaultParameterValue(0u)>] age: uint32) =
-                                let keyFn = if isNull sigDict then None else Some(dictToFn sigDict)
-                                let hashFn = if isNull hashDict then None else Some(dictToFn hashDict)
-                                let age2 = if age = 0u then None else Some(LockTime(age))
-                                this.Satisfy(?keyFn=keyFn, ?hashFn=hashFn, ?age=age2)

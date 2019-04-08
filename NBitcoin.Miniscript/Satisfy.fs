@@ -23,9 +23,13 @@ type SatisfiedItem =
     | PreImage of uint256
     | Signature of TransactionSignature
     | RawPush of byte[]
+    with member this.ToBytes(): byte array =
+            match this with
+            | RawPush i -> i
+            | PreImage i -> i.ToBytes()
+            | Signature i -> i.ToBytes()
 
 type SatisfactionResult = Result<SatisfiedItem list, FailureCase>
-
 
 module internal Satisfy =
     open NBitcoin.Miniscript.AST
@@ -33,7 +37,8 @@ module internal Satisfy =
     open NBitcoin
     open System
 
-    let satisfyCost (res: SatisfiedItem list): int = failwith ""
+    let satisfyCost (res: SatisfiedItem list): int =
+        res |> List.fold(fun a b -> 1 + b.ToBytes().Length + a) 0
 
     let (>>=) xR f = Result.bind f xR
 

@@ -4,37 +4,36 @@ open NBitcoin
 open System.Text.RegularExpressions
 open System
 
-[<AutoOpen>]
-module MiniscriptParser =
-    type AbstractPolicy =
-        | Key of PubKey
-        | Multi of uint32 * PubKey []
-        | Hash of uint256
-        | Time of NBitcoin.LockTime
-        | Threshold of uint32 * AbstractPolicy []
-        | And of AbstractPolicy * AbstractPolicy
-        | Or of AbstractPolicy * AbstractPolicy
-        | AsymmetricOr of AbstractPolicy * AbstractPolicy
-        override this.ToString() =
-            match this with
-            | Key k1 -> sprintf "pk(%s)" (string (k1.ToHex()))
-            | Multi(m, klist) -> 
-                klist
-                |> Seq.map (fun k -> string (k.ToHex()))
-                |> Seq.reduce (fun a b -> sprintf "%s,%s" a b)
-                |> sprintf "multi(%d,%s)" m
-            | Hash h -> sprintf "hash(%s)" (string (h.ToString()))
-            | Time t -> sprintf "time(%d)" (t.Value)
-            | Threshold(m, plist) -> 
-                plist
-                |> Array.map (fun p -> p.ToString())
-                |> Array.reduce (fun a b -> sprintf "%s,%s" a b)
-                |> sprintf "thres(%d,%s)" m
-            | And(p1, p2) -> sprintf "and(%s,%s)" (p1.ToString()) (p2.ToString())
-            | Or(p1, p2) -> sprintf "or(%s,%s)" (p1.ToString()) (p2.ToString())
-            | AsymmetricOr(p1, p2) -> 
-                sprintf "aor(%s,%s)" (p1.ToString()) (p2.ToString())
+type AbstractPolicy =
+    | Key of PubKey
+    | Multi of uint32 * PubKey []
+    | Hash of uint256
+    | Time of NBitcoin.LockTime
+    | Threshold of uint32 * AbstractPolicy []
+    | And of AbstractPolicy * AbstractPolicy
+    | Or of AbstractPolicy * AbstractPolicy
+    | AsymmetricOr of AbstractPolicy * AbstractPolicy
+    override this.ToString() =
+        match this with
+        | Key k1 -> sprintf "pk(%s)" (string (k1.ToHex()))
+        | Multi(m, klist) -> 
+            klist
+            |> Seq.map (fun k -> string (k.ToHex()))
+            |> Seq.reduce (fun a b -> sprintf "%s,%s" a b)
+            |> sprintf "multi(%d,%s)" m
+        | Hash h -> sprintf "hash(%s)" (string (h.ToString()))
+        | Time t -> sprintf "time(%d)" (t.Value)
+        | Threshold(m, plist) -> 
+            plist
+            |> Array.map (fun p -> p.ToString())
+            |> Array.reduce (fun a b -> sprintf "%s,%s" a b)
+            |> sprintf "thres(%d,%s)" m
+        | And(p1, p2) -> sprintf "and(%s,%s)" (p1.ToString()) (p2.ToString())
+        | Or(p1, p2) -> sprintf "or(%s,%s)" (p1.ToString()) (p2.ToString())
+        | AsymmetricOr(p1, p2) -> 
+            sprintf "aor(%s,%s)" (p1.ToString()) (p2.ToString())
 
+module MiniscriptParser =
 
     // parser
     let quoted = Regex(@"\((.*)\)")

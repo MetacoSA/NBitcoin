@@ -1,5 +1,6 @@
 module MiniScriptParserTests
 
+open NBitcoin.Miniscript
 open NBitcoin.Miniscript.MiniscriptParser
 open Expecto
 open Expecto.Logging

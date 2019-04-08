@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using Xunit;
 using NBitcoin.BIP174;
-using Microsoft.FSharp.Core;
+using NBitcoin.Miniscript;
+using static NBitcoin.Miniscript.AbstractPolicy;
+using System.Linq;
 
 namespace NBitcoin.Miniscript.Tests.CSharp
 {
@@ -28,30 +30,41 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 		public void ShouldSatisfyMiniscript()
 		{
 			var policyStr = $"aor(and(pk({privKeys[0].PubKey}), time({10000})), multi(2, {privKeys[0].PubKey}, {privKeys[1].PubKey})";
-			var ms = Miniscript.ParseUnsafe(policyStr);
+			var ms = Miniscript.FromStringUnsafe(policyStr);
 			Assert.NotNull(ms);
 
-			// Giving empty dict.
-			var sigDict = new Dictionary<PubKey, TransactionSignature>();
-			var r1 = ms.Satisfy(sigDict);
-			// Assert.NotNull(r1);
-			Console.WriteLine(r1);
+			// We can write AbstractPolicy directly instead of using string representation.
+			var pubKeys = privKeys.Select(p => p.PubKey).Take(2).ToArray();
+			var policy = new AsymmetricOr(
+				new And(
+					new AbstractPolicy.Key(privKeys[0].PubKey),
+					new Time(new LockTime(10000))
+					),
+				new Multi(2, pubKeys)
+			);
+			// And it is EqualityComparable by default. :)
+			var msFromPolicy = Miniscript.FromPolicyUnsafe(policy);
+			Assert.Equal(ms, msFromPolicy);
 
-			// Giving lambda
-			Func<PubKey, TransactionSignature> dummyKeyFn = pk => pk == privKeys[0].PubKey ? GetDummySig() : null;
-			var r2 = ms.Satisfy(dummyKeyFn);
-			Assert.True(r2.IsError);
+			Func<PubKey, TransactionSignature> dummySignatureProvider =
+				pk => pk == privKeys[0].PubKey ? GetDummySig() : null;
+			Assert.Throws<MiniscriptSatisfyException>(() => ms.SatisfyUnsafe(dummySignatureProvider));
 
-			var r3 = ms.Satisfy(dummyKeyFn, null, 10001u);
-
+			Assert.Throws<MiniscriptSatisfyException>(() => ms.SatisfyUnsafe(dummySignatureProvider, null, 9999u));
+			var r3 = ms.Satisfy(dummySignatureProvider, null, 10000u);
 			Assert.True(r3.IsOk);
+
+			Func<PubKey, TransactionSignature> dummySignatureProvider2 =
+				pk => (pk == privKeys[0].PubKey || pk == privKeys[1].PubKey) ? GetDummySig() : null;
+			var r5 = ms.Satisfy(dummySignatureProvider2);
+			Assert.True(r5.IsOk);
 		}
 
 		[Fact]
 		public void ShouldSatisfyPSBT()
 		{
-			var policyStr = $"aor(and(pk({privKeys[0].PubKey}), time({10000})), multi(2, {privKeys[0].PubKey}, {privKeys[1].PubKey})";
-			var ms = Miniscript.ParseUnsafe(policyStr);
+			var policyStr = $"aor(and(pk({privKeys[0].PubKey}), time({10000})), multi(2, {privKeys[0].PubKey}, {privKeys[1].PubKey}))";
+			var ms = Miniscript.FromStringUnsafe(policyStr);
 			var script = ms.ToScript();
 			var funds = Utils.CreateDummyFunds(Network, privKeys, script);
 			var tx = Utils.CreateTxToSpendFunds(funds, privKeys, script, false, false);

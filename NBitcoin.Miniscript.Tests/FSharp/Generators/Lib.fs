@@ -1,7 +1,7 @@
 namespace NBitcoin.Miniscript.Tests.Generators
 
 open FsCheck
-open NBitcoin.Miniscript.MiniscriptParser
+open NBitcoin.Miniscript
 open NBitcoin.Miniscript.Tests.Generators.Policy
 
 type Generators =

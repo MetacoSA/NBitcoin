@@ -2,7 +2,7 @@ namespace NBitcoin.Miniscript.Tests.Generators
 
 module internal Policy =
     open FsCheck
-    open NBitcoin.Miniscript.MiniscriptParser
+    open NBitcoin.Miniscript
     open NBitcoin.Miniscript.Tests.Generators.NBitcoin
     
     let multiContentsGen = gen { let! n = Gen.choose (1, 20) |> Gen.map uint32
