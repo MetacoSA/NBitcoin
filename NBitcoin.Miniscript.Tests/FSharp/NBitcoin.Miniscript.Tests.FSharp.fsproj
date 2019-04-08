@@ -9,7 +9,6 @@
     <Compile Include="Generators/NBitcoin.fs" />
     <Compile Include="Generators/Policy.fs" />
     <Compile Include="Generators/Lib.fs" />
-    <Compile Include="Contract.fs" />
     <Compile Include="MiniScriptParserTests.fs" />
     <Compile Include="MiniScriptCompilerTests.fs" />
     <Compile Include="MiniScriptDecompilerTests.fs" />
