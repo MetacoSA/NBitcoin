@@ -2,10 +2,10 @@ namespace NBitcoin.Miniscript.Utils
 
 [<AutoOpen>]
 module Utils =
+    open System
     let inline (!>) (x:^a) : ^b = ((^a or ^b) : (static member op_Implicit : ^a -> ^b )x )
 
-    let resultFolder (acc : Result<'a seq, 'c>) 
-        (item : Result<'a, 'c>) =
+    let resultFolder (acc : Result<'a seq, _>) (item : Result<'a, _>) =
         match acc, item with
         | Ok x, Ok y -> 
             Ok(seq { 
@@ -13,7 +13,8 @@ module Utils =
                    yield y
                })
         | Ok x, Error y -> Error y
-        | Error x, _ -> Error x
+        | Error x, Ok y -> Error x
+        | Error x, Error y -> Error((AggregateException([|x; y|]) :> exn))
 
 
     [<RequireQualifiedAccess>]

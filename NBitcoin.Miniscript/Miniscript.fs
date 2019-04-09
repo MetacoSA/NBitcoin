@@ -64,11 +64,14 @@ module public Miniscript =
         match m with
         | Miniscript a -> TTree(a)
 
+    [<CompiledName("FromScript")>]
+    let public fromScript (s : NBitcoin.Script) =
+        parseScript s |> Result.mapError(fun e -> e.ToString()) >>= fromAST
+
     [<CompiledName("FromScriptUnsafe")>]
     let public fromScriptUnsafe (s : NBitcoin.Script) =
-        let res = parseScriptUnsafe s
-        match fromAST res with
-        | Ok r -> r
+        match fromScript s with
+        | Ok res -> res
         | Error e -> failwith e
 
     let private toScript (m : Miniscript) : Script =

@@ -4,11 +4,12 @@ open Expecto
 open NBitcoin
 open NBitcoin.Miniscript
 open NBitcoin.Miniscript
+open System.Linq
 
 [<Tests>]
 let tests =
-    testList "SatisfyTests" [
-        testCase "case 1" <| fun _ ->
+    testList "Miniscript.Satisfy" [
+        testCase "Should Satisfy simple script" <| fun _ ->
             let key = NBitcoin.Key()
             let scriptStr = sprintf "and(pk(%s), time(%d))" (key.PubKey.ToString()) 10000u
             let ms = Miniscript.fromStringUnsafe scriptStr
@@ -29,7 +30,7 @@ let tests =
 
             Expect.isOk r3 "could not satisfy"
 
-        ftestCase "case 1 using facade" <| fun _ ->
+        testCase "Should Satisfy simple script from facade" <| fun _ ->
             let key = NBitcoin.Key()
             let scriptStr = sprintf "and(pk(%s), time(%d))" (key.PubKey.ToString()) 10000u
             let ms = Miniscript.fromStringUnsafe scriptStr
@@ -45,4 +46,17 @@ let tests =
             let r3 = ms.Satisfy(?keyFn=Some keyFn, ?age=Some dummyAge)
 
             Expect.isOk r3 "could not satisfy"
+
+        testCase "Should satisfy script generated from templates" <| fun _ ->
+            let roundtrip sc (ks: Key list) =
+                let ms = Miniscript.fromScriptUnsafe(sc)
+                let dummySig = TransactionSignature.Empty
+                let keyFn pk = if ((ks |> List.map(fun k -> k.PubKey)) |> List.contains(pk)) then Some dummySig else None
+                ms.SatisfyUnsafe(?keyFn=Some keyFn) |> ignore
+                ()
+
+            let k1, k2 = NBitcoin.Key(), NBitcoin.Key()
+            let pk1, pk2 = (k1.PubKey), (k2.PubKey)
+            let p2pkh = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(pk1)
+            roundtrip p2pkh [k1]
     ]

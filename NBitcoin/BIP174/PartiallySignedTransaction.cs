@@ -6,6 +6,7 @@ using System.Text;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("NBitcoin.Miniscript")]
 namespace NBitcoin.BIP174
 {
 	using HDKeyPathKVMap = SortedDictionary<PubKey, Tuple<uint, KeyPath>>;
@@ -560,7 +561,7 @@ namespace NBitcoin.BIP174
 			if (prevout == null)
 				throw new InvalidOperationException("Can not finalize PSBTInput without utxo");
 
-			var dummyTx = tx.Clone(); // Since to run VerifyScript for witness input, we must modify tx.
+			var dummyTx = tx.Clone(); // Because we must modify tx to run VerifyScript for witness input.
 			var context = new ScriptEvaluationContext() { SigHash = sighash_type == 0 ? SigHash.All : sighash_type};
 			var nextScript = prevout.ScriptPubKey;
 
@@ -1392,7 +1393,7 @@ namespace NBitcoin.BIP174
 		/// <param name="preserveInputProp">
 		///	It tries to preserve signatures and scripts from ScriptSig (or Witness Script) iff preserveInputProp is true. 
 		///	Due to policy in sanity checking, input with witness script and without witness_utxo can not be serialized.
-		/// So if you specify true, make sure you will run `TryAddTransaction` or `AddCoins` right after this and give witness_utxo to the input.
+		/// So if you specify true, make sure you will run `AddTransactions` or `AddCoins` right after this and give witness_utxo to the input.
 		/// </param>
 		/// <returns>PSBT</returns>
 		public static PSBT FromTransaction(Transaction tx, bool preserveInputProp = false) => new PSBT(tx, preserveInputProp);

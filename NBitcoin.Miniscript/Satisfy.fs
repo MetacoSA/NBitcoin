@@ -28,6 +28,8 @@ type SatisfiedItem =
             | RawPush i -> i
             | PreImage i -> i.ToBytes()
             | Signature i -> i.ToBytes()
+         member this.ToPushOps(): Op =
+            Op.GetPushOp(this.ToBytes())
 
 type SatisfactionResult = Result<SatisfiedItem list, FailureCase>
 

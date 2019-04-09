@@ -8,7 +8,6 @@ using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static NBitcoin.Tests.Comparer;
 
 namespace NBitcoin.Tests.PropertyTest
 {

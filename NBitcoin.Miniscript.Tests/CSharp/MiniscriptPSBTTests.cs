@@ -42,7 +42,7 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 					),
 				new Multi(2, pubKeys)
 			);
-			// And it is EqualityComparable by default. :)
+			// And it is EqualityComparable by default. 🎉
 			var msFromPolicy = Miniscript.FromPolicyUnsafe(policy);
 			Assert.Equal(ms, msFromPolicy);
 

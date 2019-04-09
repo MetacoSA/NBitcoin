@@ -1,5 +1,7 @@
+using static NBitcoin.Utils;
 using NBitcoin.BIP174;
 using Xunit;
+using NBitcoin.Tests;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
@@ -7,11 +9,11 @@ using System;
 using NBitcoin.DataEncoders;
 using System.Collections.Generic;
 using System.Linq;
-using static NBitcoin.Tests.Comparer;
 using Xunit.Abstractions;
 
-namespace NBitcoin.Tests
+namespace NBitcoin.Miniscript.Tests.CSharp
 {
+
 	public class PSBTTests
 	{
 		private readonly ITestOutputHelper Output;
