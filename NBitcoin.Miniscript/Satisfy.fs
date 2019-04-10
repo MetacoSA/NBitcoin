@@ -64,7 +64,7 @@ module internal Satisfy =
             let sigList = maybeSigList |> List.choose(id) |> List.map(Signature)
 
             if sigList.Length >= (int32 m) then
-                Ok(sigList)
+                Ok([RawPush [||]] @ sigList)
             else
                 let sigNotFoundPks = maybeSigList
                                      |> List.zip (pks |> Array.toList)
@@ -187,12 +187,12 @@ module internal Satisfy =
         match (satisfyAST providers l), (satisfyAST providers r) with
         | Error e, Error _ -> Error e
         | Ok lItems, Error _ -> Ok(lItems @ [RawPush([|byte 1|])])
-        | Error e, Ok rItems -> Ok(rItems @ [RawPush([|byte 0|])])
+        | Error e, Ok rItems -> Ok(rItems @ [RawPush([||])])
         | Ok lItems, Ok rItems -> // return the one has less cost
             if satisfyCost(lItems) + 2 <= satisfyCost rItems + 1 then
                 Ok(lItems @ [RawPush([|byte 1|])])
             else
-                Ok(rItems @ [RawPush([|byte 0|])])
+                Ok(rItems @ [RawPush([||])])
 
     and satisfyE (providers: ProviderSet) (e: E) =
         let keyFn, hashFn, age = providers
@@ -289,9 +289,9 @@ module internal Satisfy =
 
     and dissatisfyE (e: E): SatisfiedItem list =
         match e with
-        | E.CheckSig pk -> [RawPush([| byte 0 |])]
+        | E.CheckSig pk -> [RawPush([||])]
         | E.CheckMultiSig (m, pks) -> [RawPush[| byte 0 |]; RawPush[| byte(m + 1u)|]]
-        | E.Time t -> [RawPush([| byte 0 |])]
+        | E.Time t -> [RawPush([||])]
         | E.Threshold (_, e, ws) ->
             let wDissat = ws |> Array.toList |> List.rev |> List.map(dissatisfyW) |> List.collect id
             let eDissat = dissatisfyE e
