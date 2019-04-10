@@ -1,6 +1,7 @@
 namespace NBitcoin
 open System
 open System.Linq
+open System.Collections.Generic
 open System.Runtime.CompilerServices
 open System.Runtime.InteropServices
 open NBitcoin.Miniscript
@@ -19,6 +20,13 @@ type PSBTExtension =
         | (true, sigPair) -> TransactionSignature(snd sigPair, sigHash)
         | (false, _) -> null
 
+    static member private getSig (partialSigs: IDictionary<_, _>) =
+         try
+            partialSigs.First() |> Some
+         with
+         | :? InvalidOperationException as e ->
+            None
+
     static member private tryCheckWitness
         (hashFn: Func<PreImageHash, PreImage>)
         (age: uint32)
@@ -32,18 +40,20 @@ type PSBTExtension =
         (spk: Script): Result<PSBT, PSBTFinalizationException> =
         let psbtin = psbt.Inputs.[index]
         if PayToWitPubKeyHashTemplate.Instance.CheckScriptPubKey(spk) then
-            let sigPair = psbtin.PartialSigs.First()
-            let txSig = TransactionSignature(snd sigPair.Value, sigHash)
-            dummyTX.Inputs.[index].WitScript <- PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(txSig, fst sigPair.Value)
-            let ss = if isP2SH then Script(Op.GetPushOp(spk.ToBytes())) else Script.Empty
-            if not (ctx.VerifyScript(ss, dummyTX, index, prevOut)) then
-                let errorMsg = sprintf "Script verification failed for p2wpkh %s" (ctx.Error.ToString())
-                Error(PSBTFinalizationException(errorMsg))
-            else
-                psbt.Inputs.[index].FinalScriptSig <- ss
-                psbt.Inputs.[index].FinalScriptWitness <- dummyTX.Inputs.[index].WitScript
-                psbt.Inputs.[index].ClearForFinalize()
-                Ok(psbt)
+            match PSBTExtension.getSig psbtin.PartialSigs with
+            | None -> Error(PSBTFinalizationException("No signature for p2pkh"))
+            | Some sigPair ->
+                let txSig = TransactionSignature(snd sigPair.Value, sigHash)
+                dummyTX.Inputs.[index].WitScript <- PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(txSig, fst sigPair.Value)
+                let ss = if isP2SH then Script(Op.GetPushOp(spk.ToBytes())) else Script.Empty
+                if not (ctx.VerifyScript(ss, dummyTX, index, prevOut)) then
+                    let errorMsg = sprintf "Script verification failed for p2wpkh %s" (ctx.Error.ToString())
+                    Error(PSBTFinalizationException(errorMsg))
+                else
+                    psbt.Inputs.[index].FinalScriptSig <- ss
+                    psbt.Inputs.[index].FinalScriptWitness <- dummyTX.Inputs.[index].WitScript
+                    psbt.Inputs.[index].ClearForFinalize()
+                    Ok(psbt)
         // p2wsh
         else if PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(spk) then
             match Miniscript.fromScript psbtin.WitnessScript with
@@ -101,15 +111,18 @@ type PSBTExtension =
             // p2pkh
             if (PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(spk)) then
                 let sigPair = psbtin.PartialSigs.First()
-                let txSig = TransactionSignature(snd sigPair.Value, sigHash)
-                let ss = PayToPubkeyHashTemplate.Instance.GenerateScriptSig(txSig, fst sigPair.Value)
-                if not (context.VerifyScript(ss, dummyTX, index, prevOut)) then
-                    let errorMsg = sprintf "Script verification failed for p2pkh %s" (context.Error.ToString())
-                    Error(PSBTFinalizationException(errorMsg))
-                else
-                    psbtin.FinalScriptSig <- ss
-                    psbt.Inputs.[index].ClearForFinalize()
-                    Ok(psbt)
+                match PSBTExtension.getSig psbtin.PartialSigs with
+                | None -> Error(PSBTFinalizationException("No signature for p2pkh"))
+                | Some sigPair ->
+                    let txSig = TransactionSignature(snd sigPair.Value, sigHash)
+                    let ss = PayToPubkeyHashTemplate.Instance.GenerateScriptSig(txSig, fst sigPair.Value)
+                    if not (context.VerifyScript(ss, dummyTX, index, prevOut)) then
+                        let errorMsg = sprintf "Script verification failed for p2pkh %s" (context.Error.ToString())
+                        Error(PSBTFinalizationException(errorMsg))
+                    else
+                        psbtin.FinalScriptSig <- ss
+                        psbt.Inputs.[index].ClearForFinalize()
+                        Ok(psbt)
             // p2sh
             else if spk.IsPayToScriptHash then
                 if PSBTExtension.isBareP2SH psbtin then
@@ -160,16 +173,16 @@ type PSBTExtension =
                            [<Optional; DefaultParameterValue(0u)>] age: uint32) =
         let inline resultFolder (acc) (r): Result<PSBT, _> =
             match acc, r with
-            | Error e1 , Error e2 -> Error((AggregateException(seq [(e1 :> exn); (e2 :> exn)])) :> exn)
+            | Error e1 , Error e2 -> Error(e1 @ e2)
             | Error e, Ok _ -> Error e
             | Ok _, Error e -> Error e
             | Ok _, Ok psbt2 -> Ok psbt2
 
         let r = seq { 0 .. psbt.Inputs.Count - 1 }
                 |> Seq.map(fun i -> psbt.FinalizeIndex(i, hashFn, age))
-                |> Seq.map(Result.mapError(fun e -> e :> exn))
+                |> Seq.map(Result.mapError(fun e -> [e]))
                 |> Seq.reduce resultFolder
-                |> Result.mapError(fun e -> PSBTFinalizationException("Failed to finalize PSBTInput", e))
+                |> Result.mapError(fun es -> AggregateException(es |> List.map(fun e -> e :> exn)))
         r
     [<Extension>]
     static member FinalizeUnsafe(psbt: PSBT,

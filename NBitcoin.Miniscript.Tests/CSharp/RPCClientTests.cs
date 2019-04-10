@@ -298,7 +298,7 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 				var psbt2 = alice.WalletProcessPSBT(psbt).PSBT;
 
 				// not enough signatures
-				Assert.Throws<AggregateException>(() => psbt.FinalizeUnsafe());
+				Assert.Throws<PSBTFinalizationException>(() => psbt.FinalizeIndexUnsafe(0));
 
 				// So let's combine.
 				var psbtCombined = psbt1.Combine(psbt2);
