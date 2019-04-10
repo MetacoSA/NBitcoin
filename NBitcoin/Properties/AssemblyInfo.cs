@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("NBitcoin.Altcoins")]
 [assembly: InternalsVisibleTo("NBitcoin.Miniscript")]
 [assembly: InternalsVisibleTo("NBitcoin.Miniscript.Tests.CSharp")]
+[assembly: InternalsVisibleTo("NBitcoin.Miniscript.Tests.FSharp")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

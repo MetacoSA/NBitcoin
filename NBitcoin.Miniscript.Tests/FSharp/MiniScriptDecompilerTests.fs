@@ -54,6 +54,11 @@ let tests =
                                 let res = Miniscript.Decompiler.parseScript sc
                                 checkParseResult res delayedOrV
 
+                            testCase "Should decompile Multisig from template"  <| fun _ ->
+                                let sc = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, keysList)
+                                let ms = Miniscript.Decompiler.parseScriptUnsafe sc
+                                ()
+
                             testCase "Should pass the testcase in rust-miniscript" <| fun _ -> 
 
                                let roundtrip (miniscriptResult : Result<Miniscript, string>) 

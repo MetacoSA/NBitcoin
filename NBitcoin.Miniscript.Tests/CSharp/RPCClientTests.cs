@@ -95,7 +95,7 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 				tmp = psbtWithTXs.Clone().SignAll(dummyKey); // Try signing with unrelated key should not change anything
 				Assert.Equal(psbtWithTXs, tmp, PSBTComparerInstance);
 				// And finalization?
-				psbtWithTXs.Finalize();
+				psbtWithTXs.FinalizeUnsafe();
 				CheckPSBTIsAcceptableByRealRPC(psbtWithTXs.ToBase64(), client);
 			}
 			return;
@@ -167,7 +167,7 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 				Assert.False(result.Complete);
 				Assert.False(result.PSBT.CanExtractTX());
 				var ex2 = Assert.Throws<AggregateException>(
-					() => result.PSBT.Finalize()
+					() => result.PSBT.FinalizeUnsafe()
 				);
 				var errors2 = ex2.InnerExceptions;
 				Assert.NotEmpty(errors2);
@@ -180,7 +180,7 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 				// signed
 				result = client.WalletProcessPSBT(psbtUnFinalized, true, type);
 				// does not throw
-				result.PSBT.Finalize();
+				result.PSBT.FinalizeUnsafe();
 
 				var txResult = result.PSBT.ExtractTX();
 				var acceptResult = client.TestMempoolAccept(txResult, true);
@@ -298,13 +298,13 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 				var psbt2 = alice.WalletProcessPSBT(psbt).PSBT;
 
 				// not enough signatures
-				Assert.Throws<AggregateException>(() => psbt.Finalize());
+				Assert.Throws<AggregateException>(() => psbt.FinalizeUnsafe());
 
 				// So let's combine.
 				var psbtCombined = psbt1.Combine(psbt2);
 
 				// Finally, anyone can finalize and broadcast the psbt.
-				var tx = psbtCombined.Finalize().ExtractTX();
+				var tx = psbtCombined.FinalizeUnsafe().ExtractTX();
 				var result = alice.TestMempoolAccept(tx);
 				Assert.True(result.IsAllowed, result.RejectReason);
 			}

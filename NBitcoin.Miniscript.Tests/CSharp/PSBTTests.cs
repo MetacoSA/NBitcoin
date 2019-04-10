@@ -148,7 +148,7 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 			Assert.Single(signedPSBTWithCoins.Inputs[4].PartialSigs);
 			Assert.Single(signedPSBTWithCoins.Inputs[5].PartialSigs);
 			var ex = Assert.Throws<AggregateException>(() =>
-				signedPSBTWithCoins.Finalize()
+				signedPSBTWithCoins.FinalizeUnsafe()
 			);
 			var finalizationErrors = ex.InnerExceptions;
 			// Only p2wpkh and p2sh-p2wpkh will succeed.
@@ -193,7 +193,7 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 
 			Assert.False(whollySignedPSBT.CanExtractTX());
 
-			var finalizedPSBT = whollySignedPSBT.Finalize();
+			var finalizedPSBT = whollySignedPSBT.FinalizeUnsafe();
 			Assert.True(finalizedPSBT.CanExtractTX());
 
 			var finalTX = finalizedPSBT.ExtractTX();
@@ -230,7 +230,7 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 			var tx = CreateTxToSpendFunds(funds, keys, redeem, false, false);
 			var psbt = PSBT.FromTransaction(tx);
 
-			var ex = Assert.Throws<AggregateException>(() => psbt.Finalize());
+			var ex = Assert.Throws<AggregateException>(() => psbt.FinalizeUnsafe());
 			var errors = ex.InnerExceptions;
 			Assert.Equal(6, errors.Count);
 		}
@@ -379,7 +379,7 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 			expected = PSBT.Parse((string)testcase["psbtcombined"]);
 			Assert.Equal(expected, combined);
 
-			var finalized = psbt.Finalize();
+			var finalized = psbt.FinalizeUnsafe();
 			expected = PSBT.Parse((string)testcase["psbtfinalized"]);
 			Assert.Equal(expected, finalized);
 

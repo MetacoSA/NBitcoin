@@ -6,7 +6,6 @@ using System.Text;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("NBitcoin.Miniscript")]
 namespace NBitcoin.BIP174
 {
 	using HDKeyPathKVMap = SortedDictionary<PubKey, Tuple<uint, KeyPath>>;
@@ -549,115 +548,11 @@ namespace NBitcoin.BIP174
 
 		public bool IsFinalized() => final_script_sig != null || final_script_witness != null;
 
-		internal void Finalize(Transaction tx, int index)
-		{
-			if (tx == null)
-				throw new ArgumentNullException(nameof(tx));
-
-			if (IsFinalized())
-				return;
-
-			var prevout = GetOutput(tx.Inputs[index].PrevOut);
-			if (prevout == null)
-				throw new InvalidOperationException("Can not finalize PSBTInput without utxo");
-
-			var dummyTx = tx.Clone(); // Because we must modify tx to run VerifyScript for witness input.
-			var context = new ScriptEvaluationContext() { SigHash = sighash_type == 0 ? SigHash.All : sighash_type};
-			var nextScript = prevout.ScriptPubKey;
-
-			// 1. p2pkh
-			if (PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(nextScript))
-			{
-				var sigPair = partial_sigs.First();
-				var txSig = new TransactionSignature(sigPair.Value.Item2, sighash_type == 0 ? SigHash.All : (SigHash)sighash_type);
-				var ss = PayToPubkeyHashTemplate.Instance.GenerateScriptSig(txSig, sigPair.Value.Item1);
-				if (!context.VerifyScript(ss, dummyTx, index, prevout))
-					throw new InvalidOperationException($"Failed to verify script in p2pkh! {context.Error}");
-				final_script_sig = ss;
-			}
-
-			// 2. p2sh
-			else if (nextScript.IsPayToScriptHash)
-			{
-				// bare p2sh
-				if (witness_script == null && !PayToWitTemplate.Instance.CheckScriptPubKey(redeem_script))
-				{
-					var pushes = GetPushItems(redeem_script);
-					var ss = PayToScriptHashTemplate.Instance.GenerateScriptSig(pushes, redeem_script);
-					if (!context.VerifyScript(ss, dummyTx, index, prevout))
-						throw new InvalidOperationException($"Failed to verify script in p2sh! {context.Error}");
-					final_script_sig = ss;
-				}
-				// Why not create `final_script_sig` here? because if the following code throws an error, it will be left out dirty.
-				nextScript = redeem_script;
-			}
-
-			// 3. p2wpkh
-			if (PayToWitPubKeyHashTemplate.Instance.CheckScriptPubKey(nextScript))
-			{
-				var sigPair = partial_sigs.First();
-				var txSig = new TransactionSignature(sigPair.Value.Item2, sighash_type == 0 ? SigHash.All : (SigHash)sighash_type);
-				dummyTx.Inputs[index].WitScript = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(txSig, sigPair.Value.Item1);
-				Script ss = null;
-				if (prevout.ScriptPubKey.IsPayToScriptHash)
-					ss = new Script(Op.GetPushOp(redeem_script.ToBytes()));
-				if (!context.VerifyScript(ss ?? Script.Empty, dummyTx, index, prevout))
-					throw new InvalidOperationException($"Failed to verify script in p2wpkh! {context.Error}");
-
-				final_script_witness = dummyTx.Inputs[index].WitScript;
-				final_script_sig = ss;
-			}
-
-			// 4. p2wsh
-			else if (PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(nextScript))
-			{
-				var pushes = GetPushItems(witness_script);
-				dummyTx.Inputs[index].WitScript = PayToWitScriptHashTemplate.Instance.GenerateWitScript(pushes, witness_script);
-				Script ss = null;
-				if (prevout.ScriptPubKey.IsPayToScriptHash)
-					ss = new Script(Op.GetPushOp(redeem_script.ToBytes()));
-				if (!context.VerifyScript(ss ?? Script.Empty, dummyTx, index, prevout))
-					throw new InvalidOperationException($"Failed to verify script in p2wsh! {context.Error}");
-
-				final_script_witness = dummyTx.Inputs[index].WitScript;
-				final_script_sig = ss;
-			}
-			if (IsFinalized())
-				ClearForFinalize();
-		}
-
-		/// <summary>
-		/// conovert partial sigs to suitable form for ScriptSig (or Witness).
-		/// This will preserve the ordering of redeem script even if it did not follow bip67.
-		/// </summary>
-		/// <param name="redeem"></param>
-		/// <returns></returns>
-		private Op[] GetPushItems(Script redeem)
-		{
-			if (PayToMultiSigTemplate.Instance.CheckScriptPubKey(redeem))
-			{
-				var sigPushes = new List<Op> { OpcodeType.OP_0 };
-				foreach (var pk in redeem.GetAllPubKeys())
-				{
-					if (!partial_sigs.TryGetValue(pk.Hash, out var sigPair))
-						continue;
-					var txSig = new TransactionSignature(sigPair.Item2, sighash_type == 0 ? SigHash.All : (SigHash)sighash_type);
-					sigPushes.Add(Op.GetPushOp(txSig.ToBytes()));
-				}
-				// check sig is more than m in case of p2multisig.
-				var multiSigParam = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(redeem);
-				var numSigs = sigPushes.Count - 1;
-				if (multiSigParam != null && numSigs < multiSigParam.SignatureCount)
-					throw new InvalidOperationException("Not enough signatures to finalize.");
-				return sigPushes.ToArray();
-			}
-			throw new InvalidOperationException("PSBT does not know how to finalize this type of script!");
-		}
 
 		/// <summary>
 		/// This will not clear utxos since tx extractor might want to check the validity
 		/// </summary>
-		private void ClearForFinalize()
+		internal void ClearForFinalize()
 		{
 			this.redeem_script = null;
 			this.witness_script = null;
@@ -1500,39 +1395,6 @@ namespace NBitcoin.BIP174
 				result.Outputs.Add(other.Outputs[i]);
 			}
 			return result;
-		}
-
-		/// <summary>
-		/// If this method throws an error, that is a bug.
-		/// </summary>
-		/// <param name="errors"></param>
-		/// <returns></returns>
-		private PSBT Finalize(out InvalidOperationException[] errors)
-		{
-			var elist = new List<InvalidOperationException> ();
-			for (var i = 0; i < Inputs.Count; i++)
-			{
-				var psbtin = Inputs[i];
-				try
-				{
-					psbtin.Finalize(tx, i);
-				}
-				catch (InvalidOperationException e)
-				{
-					var exception = new InvalidOperationException($"Failed to finalize in input {i}", e);
-					elist.Add(exception);
-				}
-			}
-			errors = elist.ToArray();
-			return this;
-		}
-
-		public PSBT Finalize()
-		{
-			Finalize(out var errors);
-			if (errors.Length != 0)
-				throw new AggregateException(errors);
-			return this;
 		}
 
 		/// <summary>
