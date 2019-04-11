@@ -47,16 +47,4 @@ let tests =
 
             Expect.isOk r3 "could not satisfy"
 
-        testCase "Should satisfy script generated from templates" <| fun _ ->
-            let roundtrip sc (ks: Key list) =
-                let ms = Miniscript.fromScriptUnsafe(sc)
-                let dummySig = TransactionSignature.Empty
-                let keyFn pk = if ((ks |> List.map(fun k -> k.PubKey)) |> List.contains(pk)) then Some dummySig else None
-                ms.SatisfyUnsafe(?keyFn=Some keyFn) |> ignore
-                ()
-
-            let k1, k2 = NBitcoin.Key(), NBitcoin.Key()
-            let pk1, pk2 = (k1.PubKey), (k2.PubKey)
-            let p2pkh = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(pk1)
-            roundtrip p2pkh [k1]
     ]
