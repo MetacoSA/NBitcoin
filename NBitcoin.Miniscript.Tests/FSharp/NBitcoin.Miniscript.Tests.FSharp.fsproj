@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\NBitcoin.Miniscript\NBitcoin.Miniscript.fsproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FSharp.Core" Version="4.6.2" />
     <PackageReference Include="Expecto" Version="8.10.0" />
     <PackageReference Include="Expecto.FsCheck" Version="8.10.0" />
     <PackageReference Include="FsCheck" Version="2.13.0" />
