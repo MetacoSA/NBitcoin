@@ -28,3 +28,7 @@ before_install:
 script:
   - dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj /p:TargetFrameworkOverride=$TargetFrameworkOverride -c Release -f netcoreapp2.1  $EXTRA_CONSTANT
   - dotnet test --no-build -c Release -f netcoreapp2.1 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false
+  - dotnet build ./NBitcoin.Miniscript.Tests/FSharp/NBitcoin.Miniscript.Tests.FSharp.fsproj /p:TargetFrameworkOverride=$TargetFrameworkOverride -c Release -f netcoreapp2.1  $EXTRA_CONSTANT
+  - dotnet run --no-build -c Release --project ./NBitcoin.Miniscript.Tests/FSharp/NBitcoin.Miniscript.Tests.FSharp.fsproj -f netcoreapp2.1
+  - dotnet build ./NBitcoin.Miniscript.Tests/CSharp/NBitcoin.Miniscript.Tests.CSharp.csproj /p:TargetFrameworkOverride=$TargetFrameworkOverride -c Release -f netcoreapp2.1  $EXTRA_CONSTANT
+  - dotnet test --no-build -c Release -f netcoreapp2.1 ./NBitcoin.Miniscript.Tests/CSharp/NBitcoin.Miniscript.Tests.CSharp.csproj -p:ParallelizeTestCollections=false
