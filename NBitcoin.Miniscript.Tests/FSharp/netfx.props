@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
+  <!-- See following URLs to understand what this file is for -->
+  <!-- https://stackoverflow.com/questions/49718434/f-on-linux-targeting-net4xx -->
   <PropertyGroup>
     <!-- When compiling .NET SDK 2.0 projects targeting .NET 4.x on Mono using 'dotnet build' you -->
     <!-- have to teach MSBuild where the Mono copy of the reference asssemblies is -->
