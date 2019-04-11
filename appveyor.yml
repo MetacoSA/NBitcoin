@@ -66,6 +66,8 @@ test_script:
       Write-Host "[$env:configuration] STARTED dotnet test" -foregroundcolor "magenta"
       cd $env:APPVEYOR_BUILD_FOLDER
       dotnet test -c Release ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false -f net461
+      dotnet run -c Release --project ./NBitcoin.Miniscript.Tests/FSharp/NBitcoin.Miniscript.Tests.FSharp.fsproj
+      dotnet test -c Release ./NBitcoin.Miniscript.Tests/CSharp/NBitcoin.Miniscript.Tests.CSharp.csproj -p:ParallelizeTestCollections=false
       Write-Host "[$env:configuration] FINISHED dotnet test" -foregroundcolor "magenta"
       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
 
