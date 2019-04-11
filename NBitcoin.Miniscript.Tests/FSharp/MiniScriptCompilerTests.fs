@@ -12,8 +12,8 @@ let logger = Log.create "MiniscriptCompiler"
 
 let config =
     { FsCheckConfig.defaultConfig with arbitrary = [ typeof<Generators> ]
-                                       maxTest = 500
-                                       endSize = 32
+                                       maxTest = 300
+                                       endSize = 16
                                        receivedArgs =
                                            fun _ name no args -> 
                                                logger.debugWithBP 

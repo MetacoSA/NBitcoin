@@ -24,7 +24,7 @@ let check =
 let config =
     { FsCheckConfig.defaultConfig with arbitrary = [ typeof<Generators> ]
                                        maxTest = 30
-                                       endSize = 128
+                                       endSize = 32
                                        receivedArgs =
                                            fun _ name no args -> 
                                                logger.debugWithBP 
