@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netcoreapp2.2;</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0;netcoreapp2.1;</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -17,13 +17,11 @@
     <ProjectReference Include="..\..\NBitcoin\NBitcoin.csproj" />
     <ProjectReference Include="..\..\NBitcoin.TestFramework\NBitcoin.TestFramework.csproj" />
     <ProjectReference Include="..\..\NBitcoin.Tests\NBitcoin.Tests.csproj" />
-    <!-- <ProjectReference Include="..\..\NBitcoin.Miniscript\NBitcoin.Miniscript.fsproj" /> -->
+    <ProjectReference Include="..\..\NBitcoin.Miniscript\NBitcoin.Miniscript.fsproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <Reference Include="NBitcoin.Miniscript">
-      <!-- Seems this is necessary for intellisense to work -->
-      <HintPath>..\..\NBitcoin.Miniscript\bin\Debug\netcoreapp2.1\NBitcoin.Miniscript.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\NBitcoin.Miniscript\NBitcoin.Miniscript.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
