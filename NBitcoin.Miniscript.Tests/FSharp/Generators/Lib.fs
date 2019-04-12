@@ -8,7 +8,7 @@ type Generators =
     static member Policy() : Arbitrary<AbstractPolicy> =  // policy |> Arb.fromGen
         { new Arbitrary<AbstractPolicy>() with
             override this.Generator = policy
-            // TODO: This shrinker is far from ideal
+            // This shrinker does its job. But it is far from ideal.
             // 1. nested shrinking does not work well
             // 2. Must use Seq instead of List
             override this.Shrinker(p: AbstractPolicy) =

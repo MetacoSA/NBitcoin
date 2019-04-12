@@ -133,7 +133,9 @@ let private tryGetItemFromOp (op: Op) =
     let size = op.PushData.Length
     match size with
     | 20 -> Ok(Token.Hash160Hash(uint160 (op.PushData, false)))
-    | 32 -> Ok(Token.Sha256Hash(uint256 (op.PushData, false)))
+    | 32 ->
+        let i = uint256 (op.PushData, false)
+        Ok(Token.Sha256Hash(i))
     | 33 -> 
         try 
             Ok(Token.Pk(NBitcoin.PubKey(op.PushData)))

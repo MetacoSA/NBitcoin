@@ -186,11 +186,11 @@ module internal Satisfy =
     and satisfySwitchOr providers (l, r) =
         match (satisfyAST providers l), (satisfyAST providers r) with
         | Error e, Error _ -> Error e
-        | Ok lItems, Error _ -> Ok(lItems @ [RawPush([|byte 1|])])
+        | Ok lItems, Error _ -> Ok(lItems @ [RawPush([|byte 1uy|])])
         | Error e, Ok rItems -> Ok(rItems @ [RawPush([||])])
         | Ok lItems, Ok rItems -> // return the one has less cost
             if satisfyCost(lItems) + 2 <= satisfyCost rItems + 1 then
-                Ok(lItems @ [RawPush([|byte 1|])])
+                Ok(lItems @ [RawPush([|byte 1uy|])])
             else
                 Ok(rItems @ [RawPush([||])])
 
@@ -215,7 +215,7 @@ module internal Satisfy =
         | E.Likely f ->
             satisfyF providers f |> Result.map(fun items -> items @ [RawPush([||])])
         | E.Unlikely f ->
-            satisfyF providers f |> Result.map(fun items -> items @ [RawPush([|byte 1|])])
+            satisfyF providers f |> Result.map(fun items -> items @ [RawPush([|byte 1uy|])])
 
     and satisfyW (providers: ProviderSet) w: SatisfactionResult =
         let keyFn, hashFn, age = providers
@@ -223,7 +223,7 @@ module internal Satisfy =
         | W.CheckSig pk -> satisfyCheckSig keyFn pk
         | W.HashEqual h -> satisfyHashEqual hashFn h
         | W.Time t ->
-            satisfyCSV age t |> Result.map(fun items -> items @ [RawPush([| byte 1 |])])
+            satisfyCSV age t |> Result.map(fun items -> items @ [RawPush([| byte 1uy |])])
         | W.CastE e  -> satisfyE providers e
 
     and satisfyT (providers) t =
@@ -290,7 +290,7 @@ module internal Satisfy =
     and dissatisfyE (e: E): SatisfiedItem list =
         match e with
         | E.CheckSig pk -> [RawPush([||])]
-        | E.CheckMultiSig (m, pks) -> [RawPush[| byte 0 |]; RawPush[| byte(m + 1u)|]]
+        | E.CheckMultiSig (m, pks) -> [RawPush[||]; RawPush[| byte(m + 1u)|]]
         | E.Time t -> [RawPush([||])]
         | E.Threshold (_, e, ws) ->
             let wDissat = ws |> Array.toList |> List.rev |> List.map(dissatisfyW) |> List.collect id

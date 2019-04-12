@@ -4,6 +4,7 @@ open NBitcoin
 open System.Text.RegularExpressions
 open System
 
+/// High level representation of Miniscript
 type AbstractPolicy =
     | Key of PubKey
     | Multi of uint32 * PubKey []

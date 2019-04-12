@@ -72,7 +72,7 @@ type PSBTExtension =
                     if not (ctx.VerifyScript(ss, dummyTX, index, prevOut)) then
                         let msg = sprintf "Script verification failed for following p2wsh;\nErrorCode: %s\nScript:%s\nPushItems: %A"
                                             (ctx.Error.ToString())
-                                            (psbtin.RedeemScript.ToString())
+                                            (psbtin.WitnessScript.ToString())
                                             items
                         Error (PSBTFinalizationException(msg))
                     else
@@ -110,7 +110,6 @@ type PSBTExtension =
 
             // p2pkh
             if (PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(spk)) then
-                let sigPair = psbtin.PartialSigs.First()
                 match PSBTExtension.getSig psbtin.PartialSigs with
                 | None -> Error(PSBTFinalizationException("No signature for p2pkh"))
                 | Some sigPair ->
@@ -125,7 +124,9 @@ type PSBTExtension =
                         Ok(psbt)
             // p2sh
             else if spk.IsPayToScriptHash then
-                if PSBTExtension.isBareP2SH psbtin then
+                if isNull psbtin.RedeemScript then
+                    Error(PSBTFinalizationException("no redeem scirpt for p2sh"))
+                else if PSBTExtension.isBareP2SH psbtin then
                     match Miniscript.fromScript psbtin.RedeemScript with
                     | Error msg ->
                         let msg = "Failed to parse p2sh as a Miniscript: " + msg
@@ -137,10 +138,12 @@ type PSBTExtension =
                             Error(PSBTFinalizationException(msg))
                         | Ok items ->
                             let pushes = items |> List.toArray |> Array.map(fun i -> i.ToPushOps())
+                            printfn "going to push item %A" (pushes)
                             let ss = PayToScriptHashTemplate.Instance.GenerateScriptSig(pushes, psbtin.RedeemScript)
                             if not (context.VerifyScript(ss, dummyTX, index, prevOut)) then
-                                let msg = sprintf "Script verification failed for following p2sh;\nErrorCode: %s\nScript:%s\nPushItems: %A"
+                                let msg = sprintf "Script verification failed for following p2sh;\nErrorCode: %s\nScriptWithPushItems: %s\nScript:%s\nPushItems: %A"
                                                   (context.Error.ToString())
+                                                  (ss.ToString())
                                                   (psbtin.RedeemScript.ToString())
                                                   items
                                 Error (PSBTFinalizationException(msg))

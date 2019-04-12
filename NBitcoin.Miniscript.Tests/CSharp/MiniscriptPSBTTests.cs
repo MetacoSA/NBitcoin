@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xunit;
+using NBitcoin.Crypto;
 using NBitcoin.BIP174;
 using NBitcoin.Miniscript;
 using static NBitcoin.Miniscript.AbstractPolicy;
@@ -61,9 +62,15 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 		}
 
 		[Fact]
-		public void ShouldSatisfyPSBT()
+		public void ShouldSatisfyPSBTWithComplexScript()
 		{
-			var policyStr = $"aor(and(pk({privKeys[0].PubKey}), time({10000})), multi(2, {privKeys[0].PubKey}, {privKeys[1].PubKey}))";
+			// case 1: bip199 HTLC
+			var alice = privKeys[0];
+			var bob = privKeys[1];
+			var bobSecret = new uint256(0xdeadbeef);
+			var bobHash = new uint256(Hashes.SHA256(bobSecret.ToBytes()), false);
+			Console.WriteLine($"bobSecret and bobHash is {bobSecret} {bobHash}");
+			var policyStr = $"aor(and(hash({bobHash}), pk({bob.PubKey})), and(pk({alice.PubKey}), time({10000})))";
 			var ms = Miniscript.FromStringUnsafe(policyStr);
 			var script = ms.ToScript();
 			var funds = Utils.CreateDummyFunds(Network, privKeys, script);
@@ -71,7 +78,23 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 			var psbt = PSBT.FromTransaction(tx)
 				.AddTransactions(funds)
 				.AddScript(script);
-			// psbt.Satisfy();
+
+			// Can not finalize without signatures.
+			Assert.Throws<AggregateException>(() => psbt.FinalizeUnsafe(h => h == bobHash ? bobSecret : null, age: 10001u));
+			// It has signature but it is not matured.
+			psbt.SignAll(alice);
+			Assert.Throws<AggregateException>(() => psbt.FinalizeUnsafe(h => h == bobHash ? bobSecret : null, age: 9999u));
+
+			// it has both signature and a secret.
+			psbt.SignAll(bob);
+			psbt.FinalizeUnsafe(h => h == bobHash ? bobSecret : null);
+			Assert.True(psbt.CanExtractTX());
+
+			var txExtracted = psbt.ExtractTX();
+			var builder = Network.CreateTransactionBuilder();
+			builder.AddCoins(Utils.DummyFundsToCoins(funds, script, privKeys[0])).AddKeys(privKeys);
+			if (!builder.Verify(txExtracted, (Money)null, out var errors))
+				throw new InvalidOperationException(errors.Aggregate(string.Empty, (a, b) => a + ";\n" + b));
 		}
 	}
 }
