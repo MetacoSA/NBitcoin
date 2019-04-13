@@ -138,7 +138,6 @@ type PSBTExtension =
                             Error(PSBTFinalizationException(msg))
                         | Ok items ->
                             let pushes = items |> List.toArray |> Array.map(fun i -> i.ToPushOps())
-                            printfn "going to push item %A" (pushes)
                             let ss = PayToScriptHashTemplate.Instance.GenerateScriptSig(pushes, psbtin.RedeemScript)
                             if not (context.VerifyScript(ss, dummyTX, index, prevOut)) then
                                 let msg = sprintf "Script verification failed for following p2sh;\nErrorCode: %s\nScriptWithPushItems: %s\nScript:%s\nPushItems: %A"

@@ -69,7 +69,6 @@ namespace NBitcoin.Miniscript.Tests.CSharp
 			var bob = privKeys[1];
 			var bobSecret = new uint256(0xdeadbeef);
 			var bobHash = new uint256(Hashes.SHA256(bobSecret.ToBytes()), false);
-			Console.WriteLine($"bobSecret and bobHash is {bobSecret} {bobHash}");
 			var policyStr = $"aor(and(hash({bobHash}), pk({bob.PubKey})), and(pk({alice.PubKey}), time({10000})))";
 			var ms = Miniscript.FromStringUnsafe(policyStr);
 			var script = ms.ToScript();
