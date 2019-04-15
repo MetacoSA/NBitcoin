@@ -22293,19 +22293,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.DNSSeedData.DNSSeedData
   nameWithType: DNSSeedData.DNSSeedData
-- uid: NBitcoin.DNSSeedData.GetAddressNodes
-  name: GetAddressNodes()
-  href: api/NBitcoin.DNSSeedData.html#NBitcoin_DNSSeedData_GetAddressNodes
-  commentId: M:NBitcoin.DNSSeedData.GetAddressNodes
-  fullName: NBitcoin.DNSSeedData.GetAddressNodes()
-  nameWithType: DNSSeedData.GetAddressNodes()
-- uid: NBitcoin.DNSSeedData.GetAddressNodes*
-  name: GetAddressNodes
-  href: api/NBitcoin.DNSSeedData.html#NBitcoin_DNSSeedData_GetAddressNodes_
-  commentId: Overload:NBitcoin.DNSSeedData.GetAddressNodes
+- uid: NBitcoin.DNSSeedData.GetAddressNodesAsync(System.Int32)
+  name: GetAddressNodesAsync(Int32)
+  href: api/NBitcoin.DNSSeedData.html#NBitcoin_DNSSeedData_GetAddressNodesAsync_System_Int32_
+  commentId: M:NBitcoin.DNSSeedData.GetAddressNodesAsync(System.Int32)
+  fullName: NBitcoin.DNSSeedData.GetAddressNodesAsync(System.Int32)
+  nameWithType: DNSSeedData.GetAddressNodesAsync(Int32)
+- uid: NBitcoin.DNSSeedData.GetAddressNodesAsync*
+  name: GetAddressNodesAsync
+  href: api/NBitcoin.DNSSeedData.html#NBitcoin_DNSSeedData_GetAddressNodesAsync_
+  commentId: Overload:NBitcoin.DNSSeedData.GetAddressNodesAsync
   isSpec: "True"
-  fullName: NBitcoin.DNSSeedData.GetAddressNodes
-  nameWithType: DNSSeedData.GetAddressNodes
+  fullName: NBitcoin.DNSSeedData.GetAddressNodesAsync
+  nameWithType: DNSSeedData.GetAddressNodesAsync
 - uid: NBitcoin.DNSSeedData.Host
   name: Host
   href: api/NBitcoin.DNSSeedData.html#NBitcoin_DNSSeedData_Host
@@ -24930,6 +24930,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.IpExtensions.IsRunningOnMono
   nameWithType: IpExtensions.IsRunningOnMono
+- uid: NBitcoin.IpExtensions.IsTor(System.Net.DnsEndPoint)
+  name: IsTor(DnsEndPoint)
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_IsTor_System_Net_DnsEndPoint_
+  commentId: M:NBitcoin.IpExtensions.IsTor(System.Net.DnsEndPoint)
+  fullName: NBitcoin.IpExtensions.IsTor(System.Net.DnsEndPoint)
+  nameWithType: IpExtensions.IsTor(DnsEndPoint)
 - uid: NBitcoin.IpExtensions.IsTor(System.Net.EndPoint)
   name: IsTor(EndPoint)
   href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_IsTor_System_Net_EndPoint_
@@ -24942,6 +24948,12 @@ references:
   commentId: M:NBitcoin.IpExtensions.IsTor(System.Net.IPAddress)
   fullName: NBitcoin.IpExtensions.IsTor(System.Net.IPAddress)
   nameWithType: IpExtensions.IsTor(IPAddress)
+- uid: NBitcoin.IpExtensions.IsTor(System.Net.IPEndPoint)
+  name: IsTor(IPEndPoint)
+  href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_IsTor_System_Net_IPEndPoint_
+  commentId: M:NBitcoin.IpExtensions.IsTor(System.Net.IPEndPoint)
+  fullName: NBitcoin.IpExtensions.IsTor(System.Net.IPEndPoint)
+  nameWithType: IpExtensions.IsTor(IPEndPoint)
 - uid: NBitcoin.IpExtensions.IsTor*
   name: IsTor
   href: api/NBitcoin.IpExtensions.html#NBitcoin_IpExtensions_IsTor_
@@ -39410,12 +39422,6 @@ references:
   commentId: M:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.#ctor
   fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.DefaultEndpointConnector()
   nameWithType: DefaultEndpointConnector.DefaultEndpointConnector()
-- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.#ctor(System.Boolean)
-  name: DefaultEndpointConnector(Boolean)
-  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector__ctor_System_Boolean_
-  commentId: M:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.#ctor(System.Boolean)
-  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.DefaultEndpointConnector(System.Boolean)
-  nameWithType: DefaultEndpointConnector.DefaultEndpointConnector(Boolean)
 - uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.#ctor*
   name: DefaultEndpointConnector
   href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector__ctor_
@@ -39423,19 +39429,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.DefaultEndpointConnector
   nameWithType: DefaultEndpointConnector.DefaultEndpointConnector
-- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.AllowOnlyTorEndpoints
-  name: AllowOnlyTorEndpoints
-  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_AllowOnlyTorEndpoints
-  commentId: P:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.AllowOnlyTorEndpoints
-  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.AllowOnlyTorEndpoints
-  nameWithType: DefaultEndpointConnector.AllowOnlyTorEndpoints
-- uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.AllowOnlyTorEndpoints*
-  name: AllowOnlyTorEndpoints
-  href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_AllowOnlyTorEndpoints_
-  commentId: Overload:NBitcoin.Protocol.Connectors.DefaultEndpointConnector.AllowOnlyTorEndpoints
-  isSpec: "True"
-  fullName: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.AllowOnlyTorEndpoints
-  nameWithType: DefaultEndpointConnector.AllowOnlyTorEndpoints
 - uid: NBitcoin.Protocol.Connectors.DefaultEndpointConnector.Clone
   name: Clone()
   href: api/NBitcoin.Protocol.Connectors.DefaultEndpointConnector.html#NBitcoin_Protocol_Connectors_DefaultEndpointConnector_Clone
