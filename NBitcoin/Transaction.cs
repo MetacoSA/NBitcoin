@@ -791,17 +791,6 @@ namespace NBitcoin
 		{
 
 		}
-		public TxIn this[OutPoint outpoint]
-		{
-			get
-			{
-				return this[outpoint.N];
-			}
-			set
-			{
-				this[outpoint.N] = value;
-			}
-		}
 
 		/// <summary>
 		/// Returns the IndexedTxIn whose PrevOut is equal to <paramref name="outpoint"/> or null.

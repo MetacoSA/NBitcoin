@@ -441,9 +441,9 @@ namespace NBitcoin.BIP174
 		/// 2. Future HW Wallet may not support non segwit tx and thus won't recognize non_witness_utxo
 		/// 3. To pass test in BIP174
 		/// </summary>
-		internal void TrySlimOutput(TxIn txin)
+		internal void TrySlimOutput(OutPoint prevOut)
 		{
-			var txout = GetOutput(txin.PrevOut);
+			var txout = GetOutput(prevOut);
 			if (txout == null)
 				return;
 			if (IsDefinitelyWitness(txout))
@@ -464,85 +464,26 @@ namespace NBitcoin.BIP174
 				(redeem_script != null && redeem_script.GetAllPubKeys().Any(p => p.Equals(pk))) || // more paranoia check (Probably unnecessary)
 				(witness_script != null && witness_script.GetAllPubKeys().Any(p => p.Equals(pk)));
 
-
-		private TransactionSignature SignTx(ref Transaction tx, Key key, ICoin coin, int index, bool useLowR)
+		internal bool Sign(IndexedTxIn txin, Key[] keys, bool UseLowR = true)
 		{
-			var hashType = sighash_type != 0 ? (SigHash)sighash_type : SigHash.All;
-			var txIn = tx.Inputs.AsIndexedInputs().ToArray()[index];
-			return txIn.Sign(key, coin, hashType, useLowR);
-		}
-		internal bool Sign(int index, Transaction tx, Key[] keys, bool UseLowR = true)
-		{
-			var txin = tx.Inputs[index];
-			CheckSanityForSigner(txin);
-			var outpoint = txin.PrevOut;
-			var prevout = this.GetOutput(outpoint);
-			if (prevout == null) // no way we can sign without utxo.
+			CheckSanityForSigner(txin.TxIn);
+			var coin = this.GetSignableCoin(txin.PrevOut);
+			if (coin == null) // no way we can sign without utxo.
 				return false;
-			var coin = new Coin(outpoint, prevout);
-
+			var hashType = sighash_type != 0 ? (SigHash)sighash_type : SigHash.All; ;
 			bool result = false;
-			var dummyTx = tx.Clone();
 			foreach (var key in keys)
 			{
-				TransactionSignature generatedSig = null;
-				var nextScript = prevout.ScriptPubKey;
-				if (!IsRelatedKey(key.PubKey, nextScript))
+				if (!IsRelatedKey(key.PubKey, coin.ScriptPubKey))
 					continue;
 
 				if (partial_sigs.ContainsKey(key.PubKey.Hash))
 					continue; // already holds signature.
 
-				var Signed = false;
-
-				// 1. p2pkh
-				if (PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(nextScript))
-				{
-					generatedSig = SignTx(ref dummyTx, key, coin, index, UseLowR);
-					Signed = true;
-				}
-
-				// 2. p2sh
-				else if (nextScript.IsPayToScriptHash)
-				{
-					// bare p2sh
-					if (witness_script == null && redeem_script != null && !PayToWitTemplate.Instance.CheckScriptPubKey(redeem_script))
-					{
-						var scriptCoin = new ScriptCoin(coin, redeem_script);
-						generatedSig = SignTx(ref dummyTx, key, scriptCoin, index, UseLowR);
-						Signed = true;
-					}
-					if (redeem_script == null && key.PubKey.WitHash.ScriptPubKey.Hash.ScriptPubKey == nextScript)
-						redeem_script = key.PubKey.WitHash.ScriptPubKey;
-					nextScript = redeem_script;
-				}
-
-				// 3. p2wsh
-				if (!Signed && PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(nextScript))
-				{
-					var scriptCoin = new ScriptCoin(coin, witness_script);
-					generatedSig = SignTx(ref dummyTx, key, scriptCoin, index, UseLowR);
-				}
-				// 4. p2wpkh
-				else if (!Signed && PayToWitPubKeyHashTemplate.Instance.CheckScriptPubKey(nextScript))
-				{
-					if (prevout.ScriptPubKey.IsPayToScriptHash)
-					{
-						redeem_script = key.PubKey.WitHash.ScriptPubKey;
-						coin = new ScriptCoin(coin, redeem_script);
-						// If this is p2sh-p2wpkh, here will be the first place that we can notice that this was actually
-						// a witness input. And for witness input, we must never hold non_witness_utxo, so purge it.
-						TrySlimOutput(txin);
-					}
-					generatedSig = SignTx(ref dummyTx, key, coin, index, UseLowR);
-				}
-
-				if (generatedSig != null)
-				{
-					result = true;
-					partial_sigs.Add(key.PubKey.Hash, Tuple.Create(key.PubKey, generatedSig.Signature));
-				}
+				var generatedSig = txin.Sign(key, coin, hashType, UseLowR);
+				partial_sigs.Add(key.PubKey.Hash, Tuple.Create(key.PubKey, generatedSig.Signature));
 			}
+			TrySlimOutput(txin.PrevOut);
 			return result;
 		}
 
@@ -749,6 +690,57 @@ namespace NBitcoin.BIP174
 			if (non_witness_utxo != null && prevout != null)
 				return non_witness_utxo.Outputs[prevout.N];
 			return null;
+		}
+
+		internal Coin GetSignableCoin(OutPoint prevout)
+		{
+			var output = GetOutput(prevout);
+			if (output == null)
+				return null;
+			try
+			{
+				var coin = new Coin(prevout, output);
+				if (coin.ScriptPubKey.IsPayToScriptHash)
+				{
+					if (witness_script != null)
+					{
+						var scriptCoin = coin.ToScriptCoin(witness_script);
+						coin = scriptCoin;
+						if (redeem_script != scriptCoin.GetP2SHRedeem()) // redeem_script does not match the witness_script
+							return null;
+						return scriptCoin;
+					}
+					else
+					{
+						if (redeem_script == null)
+							return null;
+						var scriptCoin = coin.ToScriptCoin(redeem_script);
+						if (PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(redeem_script)?.NeedWitnessRedeemScript() is true)
+						{
+							return null; // We don't have the witness_script
+						}
+						return scriptCoin;
+					}
+				}
+				else
+				{
+					var needWitnessScript = PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(coin.ScriptPubKey)?.NeedWitnessRedeemScript() is true;
+					if (needWitnessScript)
+					{
+						if (witness_script == null)
+							return null;
+						return coin.ToScriptCoin(witness_script);
+					}
+					else
+					{
+						return coin;
+					}
+				}
+			}
+			catch // Probably, witness_script or redeem_script do not match
+			{
+				return null;
+			}
 		}
 
 		internal void AddKeyPath(PubKey key, Tuple<uint, KeyPath> path, TxIn txin)
@@ -1055,7 +1047,6 @@ namespace NBitcoin.BIP174
 
 	public class PSBTInputList : UnsignedList<PSBTInput>
 	{
-		public PSBTInputList(IEnumerable<PSBTInput> items) : base(items) { }
 		public PSBTInputList(Transaction globalTx) : base(globalTx) { }
 
 		public PSBTInput CreateNewPSBTInput()
@@ -1427,7 +1418,7 @@ namespace NBitcoin.BIP174
 				if (coin != null)
 				{
 					this.Inputs[i].AddCoin(coin, txin);
-					this.Inputs[i].TrySlimOutput(txin);
+					this.Inputs[i].TrySlimOutput(txin.PrevOut);
 					this.Inputs[i].CheckSanityForSigner(txin);
 					this.Inputs[i].MoveOrphansToPartialSigs(tx, i);
 				}
@@ -1454,7 +1445,7 @@ namespace NBitcoin.BIP174
 					if (coin != null)
 					{
 						psbtin.AddCoin(coin, txin);
-						psbtin.TrySlimOutput(txin);
+						psbtin.TrySlimOutput(txin.PrevOut);
 						psbtin.MoveOrphansToPartialSigs(tx, i);
 					}
 				}
@@ -1571,15 +1562,29 @@ namespace NBitcoin.BIP174
 
 			return this;
 		}
-		public PSBT Sign(int index, Key[] keys) => Sign(index, keys, out bool _);
 
+		public PSBT Sign(OutPoint prevOutput, Key[] keys) => Sign(prevOutput, keys, out _);
+		public PSBT Sign(int index, Key[] keys) => Sign(index, keys, out _);
+
+		public PSBT Sign(OutPoint prevOutput, Key[] keys, out bool success)
+		{
+			if (keys == null)
+				throw new ArgumentNullException(nameof(keys));
+			if (prevOutput == null)
+				throw new ArgumentNullException(nameof(prevOutput));
+			var input = tx.Inputs.FindIndexedInput(prevOutput);
+			var psbtin = this.Inputs[input.Index];
+			success = psbtin.Sign(input, keys, UseLowR);
+			return this;
+		}
 		public PSBT Sign(int index, Key[] keys, out bool success)
 		{
 			if (keys == null)
 				throw new ArgumentNullException(nameof(keys));
 
 			var psbtin = this.Inputs[index];
-			success = psbtin.Sign(index, tx, keys, UseLowR);
+			var input = tx.Inputs.FindIndexedInput(tx.Inputs[index].PrevOut);
+			success = psbtin.Sign(input, keys, UseLowR);
 			return this;
 		}
 
@@ -1660,7 +1665,7 @@ namespace NBitcoin.BIP174
 					var psbtin = this.Inputs[i];
 					var txin = tx.Inputs[i];
 					psbtin.AddScript(script, txin);
-					psbtin.TrySlimOutput(txin);
+					psbtin.TrySlimOutput(txin.PrevOut);
 				}
 				for (int i = 0; i < Outputs.Count; i++)
 				{

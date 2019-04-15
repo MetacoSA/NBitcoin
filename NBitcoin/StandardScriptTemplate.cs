@@ -970,6 +970,11 @@ namespace NBitcoin
 			get;
 			set;
 		}
+
+		public bool NeedWitnessRedeemScript()
+		{
+			return Version == OpcodeType.OP_0 && Program?.Length is 32;
+		}
 	}
 
 	public class PayToWitTemplate : ScriptTemplate
