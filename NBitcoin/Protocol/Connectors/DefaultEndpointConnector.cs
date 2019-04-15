@@ -26,6 +26,7 @@ namespace NBitcoin.Protocol.Connectors
 
 		public DefaultEndpointConnector(bool allowOnlyTorEndpoints)
 		{
+			AllowOnlyTorEndpoints = allowOnlyTorEndpoints;
 		}
 
 		public IEnpointConnector Clone()
