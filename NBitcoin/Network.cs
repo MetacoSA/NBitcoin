@@ -9,6 +9,7 @@ using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.Stealth;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -35,14 +36,10 @@ namespace NBitcoin
 			this.host = host;
 		}
 #if !NOSOCKET
-		IPAddress[] _Addresses = null;
-		public IPAddress[] GetAddressNodes()
+		public Task<IPEndPoint[]> GetAddressNodesAsync(int port)
 		{
-			if(_Addresses != null)
-				return _Addresses;
-
-			_Addresses = Dns.GetHostAddressesAsync(host).GetAwaiter().GetResult();
-			return _Addresses;
+			var dns = new DnsEndPoint(Host, port);
+			return dns.ResolveToIPEndpointsAsync();
 		}
 #endif
 		public override string ToString()

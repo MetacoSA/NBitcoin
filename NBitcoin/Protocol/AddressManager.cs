@@ -1177,7 +1177,7 @@ namespace NBitcoin.Protocol
 					peers.AddRange(this.GetAddr());
 					if(peers.Count == 0)
 					{
-						PopulateTableWithDNSNodes(network, peers);
+						PopulateTableWithDNSNodes(network, peers).GetAwaiter().GetResult();
 						PopulateTableWithHardNodes(network, peers);
 						peers = new List<NetworkAddress>(peers.OrderBy(a => RandomUtils.GetInt32()));
 						if(peers.Count == 0)
@@ -1244,21 +1244,20 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		private static void PopulateTableWithDNSNodes(Network network, List<NetworkAddress> peers)
+		private static Task PopulateTableWithDNSNodes(Network network, List<NetworkAddress> peers)
 		{
-			peers.AddRange(network.DNSSeeds
-				.SelectMany(d =>
+			return Task.WhenAll(network.DNSSeeds
+				.Select(async dns =>
 				{
 					try
 					{
-						return d.GetAddressNodes();
+						return (await dns.GetAddressNodesAsync(network.DefaultPort).ConfigureAwait(false)).Select(o => new NetworkAddress(o)).ToArray();
 					}
-					catch(Exception)
+					catch
 					{
-						return new IPAddress[0];
+						return new NetworkAddress[0];
 					}
 				})
-				.Select(d => new NetworkAddress(d, network.DefaultPort))
 				.ToArray());
 		}
 

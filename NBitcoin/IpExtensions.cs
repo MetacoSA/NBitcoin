@@ -379,7 +379,7 @@ namespace NBitcoin
 			{
 				if (dns.IsTor())
 					throw new NotSupportedException($"{endpoint} is not a Tor v2 address, and can't be converted into an IPEndpoint");
-				var ips = await Dns.GetHostAddressesAsync(dns.Host);
+				var ips = await Dns.GetHostAddressesAsync(dns.Host).ConfigureAwait(false);
 				return ips.Select(i => new IPEndPoint(i, dns.Port)).ToArray();
 			}
 			else
