@@ -36,7 +36,7 @@ namespace NBitcoin.Tests
 			JArray invalidTestCases = (JArray)testdata["invalid"];
 			foreach (string i in invalidTestCases)
 			{
-				Assert.Throws<FormatException>(() => PSBT.Parse(i));
+				Assert.Throws<FormatException>(() => PSBT.Parse(i, Network.Main));
 			}
 		}
 
@@ -47,9 +47,9 @@ namespace NBitcoin.Tests
 			JArray validTestCases = (JArray)testdata["valid"];
 			foreach (string i in validTestCases)
 			{
-				var psbt = PSBT.Parse(i);
+				var psbt = PSBT.Parse(i, Network.Main);
 				var psbtBase64 = Encoders.Base64.EncodeData(psbt.ToBytes());
-				var psbt2 = PSBT.Parse(psbtBase64);
+				var psbt2 = PSBT.Parse(psbtBase64, Network.Main);
 				Assert.Equal(psbt, psbt2, ComparerInstance);
 			}
 		}
@@ -211,7 +211,7 @@ namespace NBitcoin.Tests
 			JArray testcases = (JArray)testdata["invalidForSigners"];
 			foreach (string i in testcases)
 			{
-				var psbt = PSBT.Parse(i);
+				var psbt = PSBT.Parse(i, Network.Main);
 				Assert.Throws<FormatException>(() => psbt.SignAll(new Key()));
 			}
 		}
@@ -319,7 +319,7 @@ namespace NBitcoin.Tests
 			tx.Inputs.Add(new OutPoint(uint256.Parse((string)testcase["in1"]["txid"]), (uint)testcase["in1"]["index"]));
 			tx.Inputs.Add(new OutPoint(uint256.Parse((string)testcase["in2"]["txid"]), (uint)testcase["in2"]["index"]));
 
-			var expected = PSBT.Parse((string)testcase["psbt1"]);
+			var expected = PSBT.Parse((string)testcase["psbt1"], Network.Main);
 
 			var psbt = PSBT.FromTransaction(tx);
 			Assert.Equal(expected, psbt, ComparerInstance);
@@ -341,12 +341,12 @@ namespace NBitcoin.Tests
 				psbt.AddKeyPath(pubkey, Tuple.Create(masterFP, path));
 			}
 
-			expected = PSBT.Parse((string)testcase["psbt2"]);
+			expected = PSBT.Parse((string)testcase["psbt2"], Network.Main);
 			Assert.Equal(expected, psbt, ComparerInstance);
 
 			foreach(var psbtin in psbt.Inputs)
 				psbtin.SighashType = SigHash.All;
-			expected = PSBT.Parse((string)testcase["psbt3"]);
+			expected = PSBT.Parse((string)testcase["psbt3"], Network.Main);
 			Assert.Equal(expected, psbt, ComparerInstance);
 
 			psbt.CheckSanity();
@@ -357,7 +357,7 @@ namespace NBitcoin.Tests
 			var aliceKey1 = master.Derive(new KeyPath((string)testcase["key7"]["path"])).PrivateKey;
 			var aliceKey2 = master.Derive(new KeyPath((string)testcase["key8"]["path"])).PrivateKey;
 			psbt.SignAll(aliceKey1, aliceKey2);
-			expected = PSBT.Parse((string)testcase["psbt4"]);
+			expected = PSBT.Parse((string)testcase["psbt4"], Network.Main);
 			Assert.Equal(expected, psbt);
 
 			// path 2 ... bob.
@@ -369,16 +369,16 @@ namespace NBitcoin.Tests
 			Assert.Equal(bobKey2, new BitcoinSecret(bobKeyhex2, network).PrivateKey);
 			psbtForBob.UseLowR = false;
 			psbtForBob.SignAll(bobKey1, bobKey2);
-			expected = PSBT.Parse((string)testcase["psbt5"]);
+			expected = PSBT.Parse((string)testcase["psbt5"], Network.Main);
 			Assert.Equal(expected, psbtForBob);
 
 			// merge above 2
 			var combined = psbt.Combine(psbtForBob);
-			expected = PSBT.Parse((string)testcase["psbtcombined"]);
+			expected = PSBT.Parse((string)testcase["psbtcombined"], Network.Main);
 			Assert.Equal(expected, combined);
 
 			var finalized = psbt.Finalize();
-			expected = PSBT.Parse((string)testcase["psbtfinalized"]);
+			expected = PSBT.Parse((string)testcase["psbtfinalized"], Network.Main);
 			Assert.Equal(expected, finalized);
 
 			var finalTX = psbt.ExtractTX();
@@ -390,10 +390,10 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanHandleUnKnown()
 		{
-			var data1 = PSBT.Parse((string)testdata["psbtUnknown0"]);
-			var data2 = PSBT.Parse((string)testdata["psbtUnknown1"]);
+			var data1 = PSBT.Parse((string)testdata["psbtUnknown0"], Network.Main);
+			var data2 = PSBT.Parse((string)testdata["psbtUnknown1"], Network.Main);
 			data1.Combine(data2);
-			var expected = PSBT.Parse((string)testdata["psbtUnknown2"]);
+			var expected = PSBT.Parse((string)testdata["psbtUnknown2"], Network.Main);
 			Assert.Equal(data1, expected, ComparerInstance);
 		}
 

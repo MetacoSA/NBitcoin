@@ -561,7 +561,7 @@ namespace NBitcoin.BIP174
 				throw new InvalidOperationException("Can not finalize PSBTInput without utxo");
 
 			var dummyTx = tx.Clone(); // Since to run VerifyScript for witness input, we must modify tx.
-			var context = new ScriptEvaluationContext() { SigHash = sighash_type == 0 ? SigHash.All : sighash_type};
+			var context = new ScriptEvaluationContext() { SigHash = sighash_type == 0 ? SigHash.All : sighash_type };
 			var nextScript = prevout.ScriptPubKey;
 
 			// 1. p2pkh
@@ -684,9 +684,9 @@ namespace NBitcoin.BIP174
 				return Tuple.Create(false, "It has both witness_utxo and non_witness_utxo");
 
 			if (witness_script != null && witness_utxo == null)
-					return Tuple.Create(false, "It has witness_script but no witness_utxo");
+				return Tuple.Create(false, "It has witness_script but no witness_utxo");
 			if (final_script_witness != null && witness_utxo == null)
-					return Tuple.Create(false, "It has final_script_witness but no witness_utxo");
+				return Tuple.Create(false, "It has final_script_witness but no witness_utxo");
 
 			return Tuple.Create(true, "");
 		}
@@ -1325,21 +1325,32 @@ namespace NBitcoin.BIP174
 		// Magic bytes
 		static byte[] PSBT_MAGIC_BYTES = Encoders.ASCII.DecodeData("psbt\xff");
 
-		internal Transaction tx;
+		internal readonly Transaction tx;
 		public PSBTInputList Inputs { get; private set; }
 		public PSBTOutputList Outputs { get; private set; }
 
 		internal UnKnownKVMap unknown;
-
-		public static PSBT Parse(string base64, bool hex = false)
+		public static PSBT Parse(string hexOrBase64, Network network)
 		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			return Parse(hexOrBase64, network.Consensus.ConsensusFactory);
+		}
+
+		public static PSBT Parse(string hexOrBase64, ConsensusFactory consensusFactory)
+		{
+			if (hexOrBase64 == null)
+				throw new ArgumentNullException(nameof(hexOrBase64));
+			if (consensusFactory == null)
+				throw new ArgumentNullException(nameof(consensusFactory));
 			byte[] raw;
-			if (hex)
-				raw = Encoders.Hex.DecodeData(base64);
+			if (HexEncoder.IsWellFormed(hexOrBase64))
+				raw = Encoders.Hex.DecodeData(hexOrBase64);
 			else
-				raw = Encoders.Base64.DecodeData(base64);
+				raw = Encoders.Base64.DecodeData(hexOrBase64);
+
 			var stream = new BitcoinStream(raw);
-			var ret = new PSBT();
+			var ret = new PSBT(consensusFactory);
 			ret.Deserialize(stream);
 			return ret;
 		}
@@ -1348,11 +1359,15 @@ namespace NBitcoin.BIP174
 		/// NOTE: This won't preserve signatures in case of multisig.
 		/// If you want to, give coins or previous TXs by `Add[Coins|Transactions]` right after instantiation
 		/// </summary>
-		/// <param name="globalTx"></param>
-		public PSBT(Transaction globalTx, bool preserveInputProp = false)
+		/// <param name="transaction"></param>
+		public PSBT(Transaction transaction, bool preserveInputProp = false)
 		{
-			tx = globalTx.Clone() ?? throw new ArgumentNullException(nameof(globalTx));
-			Initialize();
+			if (transaction == null)
+				throw new ArgumentNullException(nameof(transaction));
+			tx = transaction.Clone();
+			Inputs = new PSBTInputList(tx);
+			Outputs = new PSBTOutputList(tx);
+			unknown = new UnKnownKVMap(BytesComparer.Instance);
 			SetUpInput(preserveInputProp);
 			SetUpOutput();
 		}
@@ -1370,19 +1385,23 @@ namespace NBitcoin.BIP174
 		}
 
 
-		public PSBT()
+		public PSBT(Network network) : this(network?.Consensus?.ConsensusFactory ?? throw new ArgumentNullException(nameof(network)))
 		{
-			Initialize();
 		}
-		private void Initialize()
+
+		public PSBT(ConsensusFactory consensusFactory)
 		{
-			if (tx == null)
-			{
-				tx = GetConsensusFactory().CreateTransaction();
-			}
+			if (consensusFactory == null)
+				throw new ArgumentNullException(nameof(consensusFactory));
+			tx = consensusFactory.CreateTransaction();
 			Inputs = new PSBTInputList(tx);
 			Outputs = new PSBTOutputList(tx);
 			unknown = new UnKnownKVMap(BytesComparer.Instance);
+		}
+
+		public virtual ConsensusFactory GetConsensusFactory()
+		{
+			return tx.GetConsensusFactory();
 		}
 
 		/// <summary>
@@ -1508,7 +1527,7 @@ namespace NBitcoin.BIP174
 		/// <returns></returns>
 		private PSBT Finalize(out InvalidOperationException[] errors)
 		{
-			var elist = new List<InvalidOperationException> ();
+			var elist = new List<InvalidOperationException>();
 			for (var i = 0; i < Inputs.Count; i++)
 			{
 				var psbtin = Inputs[i];
@@ -1670,7 +1689,7 @@ namespace NBitcoin.BIP174
 				var psbtin = this.Inputs[i];
 				var txin = tx.Inputs[i];
 
- 				// non contextual PSBTInput sanity check
+				// non contextual PSBTInput sanity check
 				var res = psbtin.IsSane();
 				if (!res.Item1)
 					return Tuple.Create(res.Item1, $"Invalid PSBTInput in index {i}! " + res.Item2);
@@ -1813,9 +1832,21 @@ namespace NBitcoin.BIP174
 			return ToBase64();
 		}
 
-		public string ToBase64() => Encoders.Base64.EncodeData(this.ToBytes());
+		public PSBT Clone()
+		{
+			var psbt = new PSBT(tx.GetConsensusFactory());
+			MemoryStream ms = new MemoryStream();
+			var bs = new BitcoinStream(ms, true);
+			bs.ConsensusFactory = tx.GetConsensusFactory();
+			this.ReadWrite(bs);
+			ms.Position = 0;
+			bs = new BitcoinStream(ms, false);
+			bs.ConsensusFactory = tx.GetConsensusFactory();
+			psbt.ReadWrite(bs);
+			return psbt;
+		}
 
-		public virtual ConsensusFactory GetConsensusFactory() => Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
+		public string ToBase64() => Encoders.Base64.EncodeData(this.ToBytes());
 
 		public bool HasEqualTx(PSBT other) =>
 			Object.ReferenceEquals(this.tx, other.tx) || this.tx.ToBytes().SequenceEqual(other.tx.ToBytes());
