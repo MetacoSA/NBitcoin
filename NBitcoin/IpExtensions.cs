@@ -221,11 +221,23 @@ namespace NBitcoin
 			if (endpoint == null)
 				throw new ArgumentNullException(nameof(endpoint));
 			if (endpoint is IPEndPoint ip)
-				return IsTor(ip.Address);
+				return ip.IsTor();
 			else if (endpoint is DnsEndPoint dns)
-				return dns.Host.EndsWith(".onion", StringComparison.OrdinalIgnoreCase);
+				return dns.IsTor();
 			else
 				return false;
+		}
+		public static bool IsTor(this DnsEndPoint dnsEndPoint)
+		{
+			if (dnsEndPoint == null)
+				throw new ArgumentNullException(nameof(dnsEndPoint));
+			return dnsEndPoint.Host.EndsWith(".onion", StringComparison.OrdinalIgnoreCase);
+		}
+		public static bool IsTor(this IPEndPoint iPEndPoint)
+		{
+			if (iPEndPoint == null)
+				throw new ArgumentNullException(nameof(iPEndPoint));
+			return iPEndPoint.Address.IsTor();
 		}
 
 		/// <summary>
@@ -342,7 +354,7 @@ namespace NBitcoin
 
 		/// <summary>
 		/// <para>Will properly convert <paramref name="endpoint"/> to IPEndpoint
-		/// If <paramref name="endpoint"/> is a DNSEndpoint is an onion host, it will be converted into onioncat address
+		/// If <paramref name="endpoint"/> is a DNSEndpoint is an onion host (Tor v2), it will be converted into onioncat address
 		/// else, a DNS resolution will be made and all resolved addresses will be returned</para>
 		/// <para>If <paramref name="endpoint"/> is a IPEndpoint, it will be returned as-is.</para>
 		/// You can pass any endpoint parsed by <see cref="NBitcoin.Utils.ParseEndpoint(string, int)"/>
@@ -350,7 +362,7 @@ namespace NBitcoin
 		/// <param name="endpoint">The endpoint to convert to IPEndpoint</param>
 		/// <exception cref="System.ArgumentNullException">The endpoint is null</exception>
 		/// <exception cref="System.Net.Sockets.SocketException">An error is encountered when resolving the dns name.</exception>
-		/// <exception cref="System.NotSupportedException">The endpoint passed is neither a DNSEndpoint or an IPEndpoint</exception>
+		/// <exception cref="System.NotSupportedException">The endpoint passed can't be converted into an Ip (eg. An onion host which is not TorV2)</exception>
 		public static async Task<IPEndPoint[]> ResolveToIPEndpointsAsync(this EndPoint endpoint)
 		{
 			if (endpoint == null)
@@ -365,6 +377,8 @@ namespace NBitcoin
 			}
 			else if (endpoint is DnsEndPoint dns)
 			{
+				if (dns.IsTor())
+					throw new NotSupportedException($"{endpoint} is not a Tor v2 address, and can't be converted into an IPEndpoint");
 				var ips = await Dns.GetHostAddressesAsync(dns.Host);
 				return ips.Select(i => new IPEndPoint(i, dns.Port)).ToArray();
 			}
