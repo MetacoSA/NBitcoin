@@ -1,4 +1,5 @@
-﻿using NBitcoin.Protocol;
+﻿using NBitcoin.BIP174;
+using NBitcoin.Protocol;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace NBitcoin
 		static readonly TypeInfo BlockType = typeof(Block).GetTypeInfo();
 		static readonly TypeInfo TransactionType = typeof(Transaction).GetTypeInfo();
 		static readonly TypeInfo TxOutType = typeof(TxOut).GetTypeInfo();
+		static readonly TypeInfo PSBTType = typeof(PSBT).GetTypeInfo();
 
 		protected bool IsBlockHeader(Type type)
 		{
@@ -29,6 +31,11 @@ namespace NBitcoin
 		protected bool IsBlock(Type type)
 		{
 			return BlockType.IsAssignableFrom(type.GetTypeInfo());
+		}
+
+		protected bool IsPSBT(Type type)
+		{
+			return PSBTType.IsAssignableFrom(type.GetTypeInfo());
 		}
 
 		protected bool IsTransaction(Type type)
@@ -57,6 +64,11 @@ namespace NBitcoin
 			if (IsBlock(type))
 			{
 				result = CreateBlock();
+				return true;
+			}
+			if (IsPSBT(type))
+			{
+				result = CreatePSBT();
 				return true;
 			}
 			return false;
@@ -109,6 +121,13 @@ namespace NBitcoin
 		{
 #pragma warning disable CS0618 // Type or member is obsolete
 			return new Transaction();
+#pragma warning restore CS0618 // Type or member is obsolete
+		}
+
+		public virtual PSBT CreatePSBT()
+		{
+#pragma warning disable CS0618 // Type or member is obsolete
+			return new PSBT(this);
 #pragma warning restore CS0618 // Type or member is obsolete
 		}
 

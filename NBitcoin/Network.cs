@@ -10,6 +10,7 @@ using NBitcoin.Protocol;
 using NBitcoin.Stealth;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using NBitcoin.BIP174;
 
 namespace NBitcoin
 {
@@ -1218,6 +1219,11 @@ namespace NBitcoin
 		public TransactionBuilder CreateTransactionBuilder()
 		{
 			return consensus.ConsensusFactory.CreateTransactionBuilder();
+		}
+
+		public PSBT CreatePSBT()
+		{
+			return consensus.ConsensusFactory.CreatePSBT();
 		}
 
 		public TransactionBuilder CreateTransactionBuilder(int seed)
