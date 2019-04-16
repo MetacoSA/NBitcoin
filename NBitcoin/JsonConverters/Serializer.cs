@@ -26,6 +26,7 @@ namespace NBitcoin.JsonConverters
 			settings.Converters.Add(new UInt160JsonConverter());
 			settings.Converters.Add(new UInt256JsonConverter());
 			settings.Converters.Add(new LockTimeJsonConverter());
+			settings.Converters.Add(new HDFingerprintJsonConverter());
 			settings.Converters.Add(new BitcoinSerializableJsonConverter(network));
 			settings.Converters.Add(new NetworkJsonConverter());
 			settings.Converters.Add(new KeyPathJsonConverter());

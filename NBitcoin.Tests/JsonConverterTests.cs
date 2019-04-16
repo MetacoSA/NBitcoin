@@ -47,6 +47,11 @@ namespace NBitcoin.Tests
 			CanSerializeInJsonCore(new FeeRate(Money.Satoshis(1), 1000));
 			CanSerializeInJsonCore(new FeeRate(Money.Satoshis(1000), 1000));
 			CanSerializeInJsonCore(new FeeRate(0.5m));
+			CanSerializeInJsonCore(new HDFingerprint(0x0a), out str);
+			Assert.Equal("\"0a000000\"", str);
+			var print = Serializer.ToObject<HDFingerprint>("\"0a000000\"");
+			var print2 = Serializer.ToObject<HDFingerprint>("10");
+			Assert.Equal(print, print2);
 		}
 
 		private T CanSerializeInJsonCore<T>(T value)

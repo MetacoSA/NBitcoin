@@ -271,7 +271,14 @@ namespace NBitcoin
 			ReadWriteArray(ref data);
 		}
 
-		
+		public void ReadWrite(ref HDFingerprint fingerPrint)
+		{
+			var v = fingerPrint.ToUInt32();
+			ReadWrite(ref v);
+			if (!this.Serializing)
+				fingerPrint = new HDFingerprint(v);
+		}
+
 		public void ReadWrite(ref int[] data)
 		{
 			ReadWriteArray(ref data);

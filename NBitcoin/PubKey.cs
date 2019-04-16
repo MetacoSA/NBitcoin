@@ -166,6 +166,10 @@ namespace NBitcoin
 			return new BitcoinScriptAddress(redeem.Hash, network);
 		}
 
+		public HDFingerprint GetHDFingerPrint()
+		{
+			return new HDFingerprint(this.Hash.ToBytes().SafeSubarray(0, 4));
+		}
 
 		public bool Verify(uint256 hash, ECDSASignature sig)
 		{
