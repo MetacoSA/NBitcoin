@@ -433,10 +433,43 @@ namespace NBitcoin.BIP174
 			if (NonWitnessUtxo != null)
 			{
 				var prevOutTxId = NonWitnessUtxo.GetHash();
+				bool validOutpoint = true;
 				if (TxIn.PrevOut.Hash != prevOutTxId)
+				{
 					errors.Add(new PSBTError(Index, "non_witness_utxo does not match the transaction id referenced by the global transaction sign"));
+					validOutpoint = false;
+				}
 				if (TxIn.PrevOut.N >= NonWitnessUtxo.Outputs.Count)
+				{
 					errors.Add(new PSBTError(Index, "Global transaction referencing an out of bound output in non_witness_utxo"));
+					validOutpoint = false;
+				}
+				if (redeem_script != null && validOutpoint)
+				{
+					if (redeem_script.Hash.ScriptPubKey != NonWitnessUtxo.Outputs[TxIn.PrevOut.N].ScriptPubKey)
+						errors.Add(new PSBTError(Index, "The redeem_script is not coherent with the scriptPubKey of the non_witness_utxo"));
+				}
+			}
+
+			if (witness_utxo != null)
+			{
+				if (redeem_script != null)
+				{
+					if (redeem_script.Hash.ScriptPubKey != witness_utxo.ScriptPubKey)
+						errors.Add(new PSBTError(Index, "The redeem_script is not coherent with the scriptPubKey of the witness_utxo"));
+					if (witness_script != null && 
+						redeem_script != null &&
+						PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(redeem_script) != witness_script.WitHash)
+						errors.Add(new PSBTError(Index, "witnessScript with witness UTXO does not match the redeemScript"));
+				}
+			}
+
+			if (witness_utxo?.ScriptPubKey is Script s)
+			{
+				if (!s.IsPayToScriptHash && !s.IsWitness)
+					errors.Add(new PSBTError(Index, "A Witness UTXO is provided for a non-witness input"));
+				if (s.IsPayToScriptHash && redeem_script is Script r && !r.IsWitness)
+					errors.Add(new PSBTError(Index, "A Witness UTXO is provided for a non-witness input"));
 			}
 			return errors;
 		}

@@ -210,8 +210,7 @@ namespace NBitcoin.Tests
 			JArray testcases = (JArray)testdata["invalidForSigners"];
 			foreach (string i in testcases)
 			{
-				var psbt = PSBT.Parse(i, Network.Main);
-				Assert.Throws<FormatException>(() => psbt.SignAll(new Key()));
+				Assert.Throws<PSBTException>(() => PSBT.Parse(i, Network.Main));
 			}
 		}
 
