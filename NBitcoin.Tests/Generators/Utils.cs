@@ -23,5 +23,8 @@ namespace NBitcoin.Tests.Generators
 				from keys in Gen.ListOf(itemNum, PrimitiveGenerator.RandomBytes())
 				from values in Gen.ListOf(itemNum, PrimitiveGenerator.RandomBytes())
 				select Utils.DictionaryFromList<byte[], byte[]>(keys.ToList(), values.ToList());
+		public static Gen<HDFingerprint> HDFingerprint() =>
+				from bytes in PrimitiveGenerator.RandomBytes(4)
+				select new HDFingerprint(bytes);
 	}
 }

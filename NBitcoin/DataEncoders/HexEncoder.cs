@@ -107,15 +107,7 @@ namespace NBitcoin.DataEncoders
 
 		public static bool IsWellFormed(string str)
 		{
-			try
-			{
-				Encoders.Hex.DecodeData(str);
-				return true;
-			}
-			catch(FormatException)
-			{
-				return false;
-			}
+			return ((HexEncoder)Encoders.Hex).IsValid(str);
 		}
 	}
 }

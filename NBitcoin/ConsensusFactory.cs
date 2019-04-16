@@ -33,11 +33,6 @@ namespace NBitcoin
 			return BlockType.IsAssignableFrom(type.GetTypeInfo());
 		}
 
-		protected bool IsPSBT(Type type)
-		{
-			return PSBTType.IsAssignableFrom(type.GetTypeInfo());
-		}
-
 		protected bool IsTransaction(Type type)
 		{
 			return TransactionType.IsAssignableFrom(type.GetTypeInfo());
@@ -64,11 +59,6 @@ namespace NBitcoin
 			if (IsBlock(type))
 			{
 				result = CreateBlock();
-				return true;
-			}
-			if (IsPSBT(type))
-			{
-				result = CreatePSBT();
 				return true;
 			}
 			return false;
@@ -121,13 +111,6 @@ namespace NBitcoin
 		{
 #pragma warning disable CS0618 // Type or member is obsolete
 			return new Transaction();
-#pragma warning restore CS0618 // Type or member is obsolete
-		}
-
-		public virtual PSBT CreatePSBT()
-		{
-#pragma warning disable CS0618 // Type or member is obsolete
-			return new PSBT(this);
 #pragma warning restore CS0618 // Type or member is obsolete
 		}
 

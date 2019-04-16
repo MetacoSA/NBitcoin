@@ -1,4 +1,5 @@
-﻿using NBitcoin.BuilderExtensions;
+﻿using NBitcoin.BIP174;
+using NBitcoin.BuilderExtensions;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
@@ -1121,6 +1122,47 @@ namespace NBitcoin
 			CoinSelector = selector;
 			return this;
 		}
+
+		/// <summary>
+		/// Build a PSBT (Partially signed bitcoin transaction)
+		/// </summary>
+		/// <param name="sign">True if signs all inputs with the available keys</param>
+		/// <returns>A PSBT</returns>
+		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
+		public PSBT BuildPSBT(bool sign)
+		{
+			return BuildPSBT(sign, SigHash.All);
+		}
+
+		/// <summary>
+		/// Build a PSBT (Partially signed bitcoin transaction)
+		/// </summary>
+		/// <param name="sign">True if signs all inputs with the available keys</param>
+		/// <returns>A PSBT</returns>
+		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
+		public PSBT BuildPSBT(bool sign, SigHash sigHash)
+		{
+			var tx = BuildTransaction(sign, sigHash);
+			var psbt = tx.CreatePSBT();
+			foreach(var i in tx.Inputs.AsIndexedInputs())
+			{
+				var coin = this.FindSignableCoin(i) ?? this.FindCoin(i.PrevOut);
+				psbt.AddCoins(coin);
+			}
+			foreach (var o in tx.Outputs.AsCoins())
+			{
+				if (_ScriptPubKeyToRedeem.TryGetValue(o.ScriptPubKey, out var redeem))
+				{
+					psbt.AddCoins(o.ToScriptCoin(redeem));
+				}
+				else
+				{
+					psbt.AddCoins(o);
+				}
+			}
+			return psbt;
+		}
+
 		/// <summary>
 		/// Build the transaction
 		/// </summary>
@@ -1129,9 +1171,7 @@ namespace NBitcoin
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public Transaction BuildTransaction(bool sign)
 		{
-			var tx = BuildTransaction(sign, SigHash.All);
-			_built = true;
-			return tx;
+			return BuildTransaction(sign, SigHash.All);
 		}
 
 		/// <summary>
@@ -1185,6 +1225,7 @@ namespace NBitcoin
 			{
 				SignTransactionInPlace(ctx.Transaction, sigHash);
 			}
+			_built = true;
 			return ctx.Transaction;
 		}
 
@@ -1337,8 +1378,12 @@ namespace NBitcoin
 			}
 			return transaction;
 		}
-
 		public ICoin FindSignableCoin(IndexedTxIn txIn)
+		{
+			return FindSignableCoin(txIn.TxIn);
+		}
+
+		public ICoin FindSignableCoin(TxIn txIn)
 		{
 			var coin = FindCoin(txIn.PrevOut);
 			if(coin is IColoredCoin)
@@ -1359,8 +1404,15 @@ namespace NBitcoin
 					if(hash is ScriptId)
 					{
 						var parameters = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(txIn.ScriptSig, (ScriptId)hash);
-						if(parameters != null)
+						if (parameters != null)
+						{
 							redeem = parameters.RedeemScript;
+							var witHash = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(redeem);
+							if (witHash != null)
+							{
+								redeem = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(txIn.WitScript, witHash) ?? redeem;
+							}
+						}
 					}
 				}
 				if(redeem != null)

@@ -8,12 +8,11 @@ using Xunit;
 
 namespace NBitcoin.Tests.Generators
 {
-	using HDKeyPathKVMap = Dictionary<PubKey, Tuple<uint, KeyPath>>;
+	using HDKeyPathKVMap = Dictionary<PubKey, Tuple<HDFingerprint, KeyPath>>;
 	using PartialSigKVMap = Dictionary<KeyId, Tuple<PubKey, ECDSASignature>>;
 	using UnknownKVMap = Dictionary<byte[], byte[]>;
 	public class PSBTGenerator
 	{
-		public static Arbitrary<PSBTOutput> PSBTOutputArb() => Arb.From(PSBTOutput());
 		public static Arbitrary<PSBT> PSBTArb() => Arb.From(SanePSBT());
 
 		#region PSBTInput
@@ -27,30 +26,6 @@ namespace NBitcoin.Tests.Generators
 
 		#endregion
 
-		#region PSBTOutput
-		public static Gen<PSBTOutput> PSBTOutput() =>
-				from redeem in ScriptGenerator.RandomScriptSig()
-				from witnessS in ScriptGenerator.RandomScriptSig()
-				from keyPaths in HDKeyPaths()
-				from unknown in UnknownKVMap()
-				select ComposePSBTOutput(new PSBTOutput() { RedeemScript = redeem, WitnessScript = witnessS }, keyPaths, unknown);
-
-		private static PSBTOutput ComposePSBTOutput(PSBTOutput output, HDKeyPathKVMap keyPaths, UnknownKVMap unknown)
-		{
-			foreach (var item in keyPaths)
-			{
-				output.HDKeyPaths.TryAdd(item.Key, item.Value);
-			}
-			foreach (var item in unknown)
-			{
-				output.Unknown.TryAdd(item.Key, item.Value);
-			}
-
-			return output;
-		}
-
-
-		#endregion
 		#region PSBT
 
 		public static Gen<PSBT> SanePSBT() =>
@@ -75,11 +50,10 @@ namespace NBitcoin.Tests.Generators
 			from TxsToAdd in Gen.SubListOf(prevTxs)
 			from CoinsToAdd in Gen.SubListOf(prevTxs.SelectMany(tx => tx.Outputs.AsCoins()))
 			from scriptsToAdd in Gen.SubListOf<Script>(scripts)
-			let psbt = PSBT
-				.FromTransaction(tx, true)
+			let psbt = tx.CreatePSBT()
 				.AddTransactions(prevTxs.ToArray())
 				.AddCoins(CoinsToAdd.ToArray())
-				.AddScript(scriptsToAdd.ToArray())
+				.AddScripts(scriptsToAdd.ToArray())
 			select psbt;
 
 		private static Gen<TxOut> OutputFromRedeemOrKey(Script sc, PubKey key) =>
@@ -128,9 +102,9 @@ namespace NBitcoin.Tests.Generators
 				select map;
 
 		public static Gen<HDKeyPathKVMap> HDKeyPaths(IEnumerable<PubKey> pks, int itemNum) =>
-				from MasterKeyFingerPrints in Gen.ListOf(itemNum, PrimitiveGenerator.UInt32())
+				from MasterKeyFingerPrints in Gen.ListOf(itemNum, Utils.HDFingerprint())
 				from paths in Gen.ListOf(itemNum, CryptoGenerator.KeyPath())
 				let fingerPrintAndPath = MasterKeyFingerPrints.ToArray().Zip(paths.ToArray(), (m, p) => Tuple.Create(m, p)).ToList()
-				select Utils.DictionaryFromList<PubKey, Tuple<uint, KeyPath>>(pks.ToList(), fingerPrintAndPath);
+				select Utils.DictionaryFromList<PubKey, Tuple<HDFingerprint, KeyPath>>(pks.ToList(), fingerPrintAndPath);
 	}
 }

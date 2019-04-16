@@ -1701,6 +1701,12 @@ namespace NBitcoin
 			Sign(new[] { secret }, new[] { coin });
 		}
 
+		public virtual BIP174.PSBT CreatePSBT()
+		{
+			var psbt = BIP174.PSBT.FromTransaction(this);
+			return psbt;
+		}
+
 		/// <summary>
 		/// Sign a specific coin with the given secret
 		/// </summary>

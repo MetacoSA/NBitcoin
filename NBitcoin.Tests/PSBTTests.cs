@@ -67,7 +67,7 @@ namespace NBitcoin.Tests
 
 			// 2. with (unsigned) scriptSig and witness.
 			tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
-			var psbt = new PSBT(tx, true);
+			var psbt = PSBT.FromTransaction(tx).AddCoins(funds);
 			Assert.Null(psbt.Inputs[0].FinalScriptSig); // it is not finalized since it is not signed
 			Assert.Null(psbt.Inputs[1].FinalScriptWitness); // This too
 			Assert.NotNull(psbt.Inputs[2].RedeemScript); // But it holds redeem script.
@@ -77,25 +77,24 @@ namespace NBitcoin.Tests
 
 			// 3. with finalized scriptSig and witness
 			tx = CreateTxToSpendFunds(funds, keys, redeem, true, true);
-			psbt = new PSBT(tx, true);
+			psbt = PSBT.FromTransaction(tx)
+				.AddTransactions(funds)
+				.Finalize();
 			Assert.NotNull(psbt.Inputs[0].FinalScriptSig); // it should be finalized
+			Assert.NotNull(psbt.Inputs[0].NonWitnessUtxo);
 			Assert.NotNull(psbt.Inputs[1].FinalScriptWitness); // p2wpkh too
-			Assert.NotNull(psbt.Inputs[2].RedeemScript); // But it holds redeem script.
-			Assert.NotNull(psbt.Inputs[3].WitnessScript); // And witness script.
+			Assert.NotNull(psbt.Inputs[1].WitnessUtxo);
+			Assert.Null(psbt.Inputs[2].RedeemScript);
+			Assert.Null(psbt.Inputs[3].WitnessScript);
 
 			Assert.NotNull(psbt.Inputs[4].FinalScriptSig); // Same principle holds for p2sh-nested version.
 			Assert.NotNull(psbt.Inputs[4].FinalScriptWitness);
-			Assert.NotNull(psbt.Inputs[5].WitnessScript);
-			Assert.NotNull(psbt.Inputs[5].RedeemScript);
+			Assert.Null(psbt.Inputs[5].WitnessScript);
+			Assert.Null(psbt.Inputs[5].RedeemScript);
 
-			Assert.Empty(psbt.Inputs[2].PartialSigs); // But it still can not hold partial_sigs
+			Assert.Empty(psbt.Inputs[2].PartialSigs); // It can not hold partial_sigs
 			Assert.Empty(psbt.Inputs[3].PartialSigs); // Even in p2wsh
 			Assert.Empty(psbt.Inputs[5].PartialSigs); // And p2sh-p2wsh
-
-			psbt.AddTransactions(funds); // when we add previous outputs, it will be able to resurrect signatures.
-			Assert.NotEmpty(psbt.Inputs[2].PartialSigs);
-			Assert.NotEmpty(psbt.Inputs[3].PartialSigs);
-			Assert.NotEmpty(psbt.Inputs[5].PartialSigs);
 		}
 
 		[Fact]
@@ -112,7 +111,7 @@ namespace NBitcoin.Tests
 
 			var tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
 			var coins = DummyFundsToCoins(funds, redeem, alice);
-			var psbtWithCoins = PSBT.FromTransaction(tx, true)
+			var psbtWithCoins = PSBT.FromTransaction(tx)
 				.AddCoins(coins);
 
 			Assert.Null(psbtWithCoins.Inputs[0].WitnessUtxo);
@@ -145,14 +144,14 @@ namespace NBitcoin.Tests
 			Assert.Single(signedPSBTWithCoins.Inputs[3].PartialSigs);
 			Assert.Single(signedPSBTWithCoins.Inputs[4].PartialSigs);
 			Assert.Single(signedPSBTWithCoins.Inputs[5].PartialSigs);
-			var ex = Assert.Throws<AggregateException>(() =>
+			var ex = Assert.Throws<PSBTException>(() =>
 				signedPSBTWithCoins.Finalize()
 			);
-			var finalizationErrors = ex.InnerExceptions;
 			// Only p2wpkh and p2sh-p2wpkh will succeed.
-			Assert.Equal(4, finalizationErrors.Count);
+			Assert.Equal(4, ex.Errors.GroupBy(e => e.InputIndex).Count());
 
-			var psbtWithTXs = PSBT.FromTransaction(tx, true)
+			var psbtWithTXs = PSBT.FromTransaction(tx)
+				.AddCoins(coins)
 				.AddTransactions(funds);
 			Assert.Null(psbtWithTXs.Inputs[0].WitnessUtxo);
 			Assert.NotNull(psbtWithTXs.Inputs[0].NonWitnessUtxo);
@@ -189,12 +188,12 @@ namespace NBitcoin.Tests
 			Assert.Equal(3, whollySignedPSBT.Inputs[5].PartialSigs.Count);
 			Assert.Equal(3, whollySignedPSBT.Inputs[5].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
 
-			Assert.False(whollySignedPSBT.CanExtractTX());
+			Assert.False(whollySignedPSBT.CanExtractTransaction());
 
 			var finalizedPSBT = whollySignedPSBT.Finalize();
-			Assert.True(finalizedPSBT.CanExtractTX());
+			Assert.True(finalizedPSBT.CanExtractTransaction());
 
-			var finalTX = finalizedPSBT.ExtractTX();
+			var finalTX = finalizedPSBT.ExtractTransaction();
 			var result = finalTX.Check();
 			Assert.Equal(TransactionCheckResult.Success, result);
 
@@ -228,9 +227,8 @@ namespace NBitcoin.Tests
 			var tx = CreateTxToSpendFunds(funds, keys, redeem, false, false);
 			var psbt = PSBT.FromTransaction(tx);
 
-			var ex = Assert.Throws<AggregateException>(() => psbt.Finalize());
-			var errors = ex.InnerExceptions;
-			Assert.Equal(6, errors.Count);
+			var ex = Assert.Throws<PSBTException>(() => psbt.Finalize());
+			Assert.Equal(6, ex.Errors.GroupBy(e => e.InputIndex).Count());
 		}
 
 		[Fact]
@@ -248,8 +246,8 @@ namespace NBitcoin.Tests
 			// case 1: Check that it will result to more info by adding ScriptCoin in case of p2sh-p2wpkh
 			var coins1 = DummyFundsToCoins(funds, null, null); // without script
 			var scriptCoins2 = DummyFundsToCoins(funds, null, keys[0]); // only with p2sh-p2wpkh redeem.
-			var psbt1 = psbt.Clone().AddCoins(coins1).AddScript(redeem);
-			var psbt2 = psbt.Clone().AddCoins(scriptCoins2).AddScript(redeem);
+			var psbt1 = psbt.Clone().AddCoins(coins1);
+			var psbt2 = psbt.Clone().AddCoins(scriptCoins2);
 			for (int i = 0; i < 6; i++)
 			{
 				Output.WriteLine($"Testing {i}");
@@ -268,7 +266,7 @@ namespace NBitcoin.Tests
 				// but otherwise, it will be the same.
 				else
 				{
-					AssertEx.CollectionEquals(a.ToBytes(), e.ToBytes());
+					Assert.Equal(a, e);
 				}
 			}
 
@@ -280,7 +278,7 @@ namespace NBitcoin.Tests
 				Output.WriteLine($"Testing {i}");
 				var a = psbt2.Inputs[i];
 				var e = psbt3.Inputs[i];
-				if (i == 2 || i == 5) // p2sh or p2sh-p2wsh
+				if (i == 2 || i == 5) // p2sh, p2sh-p2wsh
 				{
 					Assert.NotEqual<byte[]>(a.ToBytes(), e.ToBytes());
 					Assert.Null(a.WitnessUtxo);
@@ -292,9 +290,18 @@ namespace NBitcoin.Tests
 						Assert.NotNull(e.WitnessScript);
 					}
 				}
+				else if (i == 3) // p2wsh
+				{
+					Assert.NotNull(a.WitnessUtxo);
+					Assert.NotNull(e.WitnessUtxo);
+					Assert.Null(a.RedeemScript);
+					Assert.Null(e.RedeemScript);
+					Assert.Null(a.WitnessScript);
+					Assert.NotNull(e.WitnessScript);
+				}
 				else
 				{
-					AssertEx.CollectionEquals(a.ToBytes(), e.ToBytes());
+					Assert.Equal(a, e);
 				}
 			}
 		}
@@ -306,7 +313,7 @@ namespace NBitcoin.Tests
 			JObject testcase = (JObject)testdata["final"];
 			var network = Network.TestNet;
 			var master = ExtKey.Parse((string)testcase["master"], network);
-			var masterFP = BitConverter.ToUInt32(master.PrivateKey.PubKey.Hash.ToBytes().SafeSubarray(0, 4), 0);
+			var masterFP = master.PrivateKey.PubKey.GetHDFingerPrint();
 			var tx = network.CreateTransaction();
 			tx.Version = 2;
 
@@ -330,15 +337,14 @@ namespace NBitcoin.Tests
 			var redeem1 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["redeem1"]));
 			var redeem2 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["redeem2"]));
 			var witness_script1 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["witness1"]));
-			foreach (var sc in new Script[] {redeem1, redeem2, witness_script1})
-				psbt.AddScript(sc);
+			psbt.AddScripts(new[] { redeem1, redeem2, witness_script1 });
 
 			for (int i = 0; i < 6; i++)
 			{
 				var pk = testcase[$"pubkey{i}"];
 				var pubkey = new PubKey((string)pk["hex"]);
 				var path = KeyPath.Parse((string)pk["path"]);
-				psbt.AddKeyPath(pubkey, Tuple.Create(masterFP, path));
+				psbt.AddKeyPath(masterFP, pubkey, path);
 			}
 
 			expected = PSBT.Parse((string)testcase["psbt2"], Network.Main);
@@ -349,7 +355,7 @@ namespace NBitcoin.Tests
 			expected = PSBT.Parse((string)testcase["psbt3"], Network.Main);
 			Assert.Equal(expected, psbt, ComparerInstance);
 
-			psbt.CheckSanity();
+			psbt.AssertSanity();
 			var psbtForBob = psbt.Clone();
 
 			// path 1 ... alice
@@ -381,7 +387,7 @@ namespace NBitcoin.Tests
 			expected = PSBT.Parse((string)testcase["psbtfinalized"], Network.Main);
 			Assert.Equal(expected, finalized);
 
-			var finalTX = psbt.ExtractTX();
+			var finalTX = psbt.ExtractTransaction();
 			var expectedTX = Transaction.Parse((string)testcase["txextracted"], network);
 			AssertEx.CollectionEquals(expectedTX.ToBytes(), finalTX.ToBytes());
 		}

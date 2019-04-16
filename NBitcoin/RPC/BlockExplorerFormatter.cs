@@ -117,7 +117,10 @@ namespace NBitcoin.RPC
 			writer.WriteEndArray();
 		}
 
-
+		internal void WriteTransaction2(JsonTextWriter jsonWriter, Transaction transaction)
+		{
+			WriteTransaction(jsonWriter, transaction);
+		}
 	}
 }
 #endif

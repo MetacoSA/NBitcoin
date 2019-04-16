@@ -1304,12 +1304,8 @@ namespace NBitcoin.Tests
 
 				// case1: PSBT from already fully signed tx
 				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, true);
-				// PSBT without previous outputs but with finalized_script_witness will throw an error.
-				var psbt = PSBT.FromTransaction(tx.Clone(), true);
-				Assert.Throws<FormatException>(() => psbt.ToBase64());
-
-				// after adding coins, will not throw an error.
-				psbt.AddCoins(funds.SelectMany(f => f.Outputs.AsCoins()).ToArray());
+				var psbt = PSBT.FromTransaction(tx);
+				psbt.AddCoins(funds);
 				CheckPSBTIsAcceptableByRealRPC(psbt.ToBase64(), client);
 
 				// but if we use rpc to convert tx to psbt, it will discard input scriptSig and ScriptWitness.
@@ -1319,16 +1315,13 @@ namespace NBitcoin.Tests
 
 				// case2: PSBT from tx with script (but without signatures)
 				tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, false);
-				psbt = PSBT.FromTransaction(tx, true);
-				// it has witness_script but has no prevout so it will throw an error.
-				Assert.Throws<FormatException>(() => psbt.ToBase64());
-				// after adding coins, will not throw error.
+				psbt = PSBT.FromTransaction(tx);
 				psbt.AddCoins(funds.SelectMany(f => f.Outputs.AsCoins()).ToArray());
 				CheckPSBTIsAcceptableByRealRPC(psbt.ToBase64(), client);
 
 				// case3: PSBT from tx without script nor signatures.
 				tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, false, false);
-				psbt = PSBT.FromTransaction(tx, true);
+				psbt = PSBT.FromTransaction(tx);
 				// This time, it will not throw an error at the first place.
 				// Since sanity check for witness input will not complain about witness-script-without-witnessUtxo
 				CheckPSBTIsAcceptableByRealRPC(psbt.ToBase64(), client);
@@ -1339,22 +1332,22 @@ namespace NBitcoin.Tests
 				// even after adding coins and scripts ...
 				var psbtWithCoins = psbt.Clone().AddCoins(funds.SelectMany(f => f.Outputs.AsCoins()).ToArray());
 				CheckPSBTIsAcceptableByRealRPC(psbtWithCoins.ToBase64(), client);
-				psbtWithCoins.AddScript(redeem);
+				psbtWithCoins.AddScripts(redeem);
 				CheckPSBTIsAcceptableByRealRPC(psbtWithCoins.ToBase64(), client);
-				var tmp = psbtWithCoins.Clone().AddScript(dummyScript); // should not change with dummyScript
+				var tmp = psbtWithCoins.Clone().AddScripts(dummyScript); // should not change with dummyScript
 				Assert.Equal(psbtWithCoins, tmp, PSBTComparerInstance);
 				// or txs and scripts.
 				var psbtWithTXs = psbt.Clone().AddTransactions(funds);
 				CheckPSBTIsAcceptableByRealRPC(psbtWithTXs.ToBase64(), client);
-				psbtWithTXs.AddScript(redeem);
+				psbtWithTXs.AddScripts(redeem);
 				CheckPSBTIsAcceptableByRealRPC(psbtWithTXs.ToBase64(), client);
-				tmp = psbtWithTXs.Clone().AddScript(dummyScript);
+				tmp = psbtWithTXs.Clone().AddScripts(dummyScript);
 				Assert.Equal(psbtWithTXs, tmp, PSBTComparerInstance);
 
 				// Let's don't forget about hd KeyPath
-				psbtWithTXs.AddKeyPath(keys[0].PubKey, Tuple.Create((uint)1234, KeyPath.Parse("m/1'/2/3")));
-				psbtWithTXs.AddPathTo(3, keys[1].PubKey, 4321, KeyPath.Parse("m/3'/2/1"));
-				psbtWithTXs.AddPathTo(0, keys[1].PubKey, 4321, KeyPath.Parse("m/3'/2/1"), false);
+				psbtWithTXs.AddKeyPath(keys[0].PubKey, KeyPath.Parse("m/1'/2/3"));
+				psbtWithTXs.AddKeyPath(keys[1].PubKey, KeyPath.Parse("m/3'/2/1"));
+				psbtWithTXs.AddKeyPath(keys[1].PubKey, KeyPath.Parse("m/3'/2/1"));
 				CheckPSBTIsAcceptableByRealRPC(psbtWithTXs.ToBase64(), client);
 
 				// What about after adding some signatures?
@@ -1402,9 +1395,9 @@ namespace NBitcoin.Tests
 				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(ki => ki.PubKey).ToArray());
 				var funds = PSBTTests.CreateDummyFunds(Network.TestNet, keys, redeem);
 				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, true);
-				var psbt = PSBT.FromTransaction(tx, true)
+				var psbt = PSBT.FromTransaction(tx)
 					.AddTransactions(funds)
-					.AddScript(redeem);
+					.AddScripts(redeem);
 				var case1Result = client.WalletProcessPSBT(psbt);
 				// nothing must change for the psbt unrelated to the wallet.
 				Assert.Equal(psbt, case1Result.PSBT, PSBTComparerInstance);
@@ -1415,11 +1408,11 @@ namespace NBitcoin.Tests
 				tx.Outputs.Add(new TxOut(Money.Coins(45), kOut)); // This has to be big enough since the wallet must use whole kinds of address.
 				var fundTxResult = client.FundRawTransaction(tx);
 				Assert.Equal(3, fundTxResult.Transaction.Inputs.Count);
-				var psbtFinalized = PSBT.FromTransaction(fundTxResult.Transaction, true);
+				var psbtFinalized = PSBT.FromTransaction(fundTxResult.Transaction);
 				var result = client.WalletProcessPSBT(psbtFinalized, false);
-				Assert.False(result.PSBT.CanExtractTX());
+				Assert.False(result.PSBT.CanExtractTransaction());
 				result = client.WalletProcessPSBT(psbtFinalized, true);
-				Assert.True(result.PSBT.CanExtractTX());
+				Assert.True(result.PSBT.CanExtractTransaction());
 
 				// case 3a: psbt relevant to the wallet (and not finalized)
 				var spendableCoins = client.ListUnspent().Where(c => c.IsSpendable).Select(c => c.AsCoin());
@@ -1427,13 +1420,13 @@ namespace NBitcoin.Tests
 				foreach (var coin in spendableCoins)
 					tx.Inputs.Add(coin.Outpoint);
 				tx.Outputs.Add(new TxOut(Money.Coins(45), kOut));
-				var psbtUnFinalized = PSBT.FromTransaction(tx, true);
+				var psbtUnFinalized = PSBT.FromTransaction(tx);
 
 				var type = SigHash.All;
 				// unsigned
 				result = client.WalletProcessPSBT(psbtUnFinalized, false, type, bip32derivs: true);
 				Assert.False(result.Complete);
-				Assert.False(result.PSBT.CanExtractTX());
+				Assert.False(result.PSBT.CanExtractTransaction());
 				var ex2 = Assert.Throws<AggregateException>(
 					() => result.PSBT.Finalize()
 				);
@@ -1441,7 +1434,7 @@ namespace NBitcoin.Tests
 				Assert.NotEmpty(errors2);
 				foreach (var psbtin in result.PSBT.Inputs)
 				{
-					Assert.Equal(SigHash.Undefined, psbtin.SighashType);
+					Assert.Null(psbtin.SighashType);
 					Assert.NotEmpty(psbtin.HDKeyPaths);
 				}
 
@@ -1450,7 +1443,7 @@ namespace NBitcoin.Tests
 				// does not throw
 				result.PSBT.Finalize();
 
-				var txResult = result.PSBT.ExtractTX();
+				var txResult = result.PSBT.ExtractTransaction();
 				var acceptResult = client.TestMempoolAccept(txResult, true);
 				Assert.True(acceptResult.IsAllowed, acceptResult.RejectReason);
 			}
@@ -1572,7 +1565,7 @@ namespace NBitcoin.Tests
 				var psbtCombined = psbt1.Combine(psbt2);
 
 				// Finally, anyone can finalize and broadcast the psbt.
-				var tx = psbtCombined.Finalize().ExtractTX();
+				var tx = psbtCombined.Finalize().ExtractTransaction();
 				var result = alice.TestMempoolAccept(tx);
 				Assert.True(result.IsAllowed, result.RejectReason);
 			}

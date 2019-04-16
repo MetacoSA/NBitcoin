@@ -1221,11 +1221,6 @@ namespace NBitcoin
 			return consensus.ConsensusFactory.CreateTransactionBuilder();
 		}
 
-		public PSBT CreatePSBT()
-		{
-			return consensus.ConsensusFactory.CreatePSBT();
-		}
-
 		public TransactionBuilder CreateTransactionBuilder(int seed)
 		{
 			return consensus.ConsensusFactory.CreateTransactionBuilder(seed);
