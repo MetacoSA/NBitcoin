@@ -1316,7 +1316,7 @@ namespace NBitcoin.Tests
 				// case2: PSBT from tx with script (but without signatures)
 				tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, false);
 				psbt = PSBT.FromTransaction(tx);
-				psbt.AddCoins(funds.SelectMany(f => f.Outputs.AsCoins()).ToArray());
+				psbt.AddCoins(funds);
 				CheckPSBTIsAcceptableByRealRPC(psbt.ToBase64(), client);
 
 				// case3: PSBT from tx without script nor signatures.
@@ -1330,7 +1330,7 @@ namespace NBitcoin.Tests
 				var dummyScript = new Script("OP_DUP " + "OP_HASH160 " + Op.GetPushOp(dummyKey.PubKey.Hash.ToBytes()) + " OP_EQUALVERIFY");
 
 				// even after adding coins and scripts ...
-				var psbtWithCoins = psbt.Clone().AddCoins(funds.SelectMany(f => f.Outputs.AsCoins()).ToArray());
+				var psbtWithCoins = psbt.Clone().AddCoins(funds);
 				CheckPSBTIsAcceptableByRealRPC(psbtWithCoins.ToBase64(), client);
 				psbtWithCoins.AddScripts(redeem);
 				CheckPSBTIsAcceptableByRealRPC(psbtWithCoins.ToBase64(), client);
@@ -1427,11 +1427,10 @@ namespace NBitcoin.Tests
 				result = client.WalletProcessPSBT(psbtUnFinalized, false, type, bip32derivs: true);
 				Assert.False(result.Complete);
 				Assert.False(result.PSBT.CanExtractTransaction());
-				var ex2 = Assert.Throws<AggregateException>(
+				var ex2 = Assert.Throws<PSBTException>(
 					() => result.PSBT.Finalize()
 				);
-				var errors2 = ex2.InnerExceptions;
-				Assert.NotEmpty(errors2);
+				Assert.NotEmpty(ex2.Errors);
 				foreach (var psbtin in result.PSBT.Inputs)
 				{
 					Assert.Null(psbtin.SighashType);
@@ -1559,7 +1558,7 @@ namespace NBitcoin.Tests
 				var psbt2 = alice.WalletProcessPSBT(psbt).PSBT;
 
 				// not enough signatures
-				Assert.Throws<AggregateException>(() => psbt.Finalize());
+				Assert.Throws<PSBTException>(() => psbt.Finalize());
 
 				// So let's combine.
 				var psbtCombined = psbt1.Combine(psbt2);

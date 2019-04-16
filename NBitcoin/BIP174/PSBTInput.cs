@@ -272,23 +272,12 @@ namespace NBitcoin.BIP174
 				if (scriptCoin.RedeemType == RedeemType.P2SH)
 				{
 					redeem_script = scriptCoin.Redeem;
-					if (scriptCoin.Redeem.IsWitness)
-					{
-						witness_utxo = coin.TxOut;
-						non_witness_utxo = null;
-					}
-					else
-					{
-						witness_utxo = null;
-					}
 				}
-				else
+				else if (scriptCoin.RedeemType == RedeemType.WitnessV0)
 				{
 					witness_script = scriptCoin.Redeem;
 					if (scriptCoin.IsP2SH)
 						redeem_script = witness_script.WitHash.ScriptPubKey;
-					witness_utxo = coin.TxOut;
-					non_witness_utxo = null;
 				}
 			}
 			else
@@ -318,16 +307,16 @@ namespace NBitcoin.BIP174
 						}
 					}
 				}
+			}
 
-				if (coin.TxOut.ScriptPubKey.IsWitness || redeem_script?.IsWitness is true || witness_script != null)
-				{
-					witness_utxo = coin.TxOut;
-					non_witness_utxo = null;
-				}
-				else
-				{
-					witness_utxo = null;
-				}
+			if (coin.GetHashVersion() == HashVersion.Witness || witness_script != null)
+			{
+				witness_utxo = coin.TxOut;
+				non_witness_utxo = null;
+			}
+			else
+			{
+				witness_utxo = null;
 			}
 		}
 
@@ -472,6 +461,17 @@ namespace NBitcoin.BIP174
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
 			hd_keypaths.AddOrReplace(key, new Tuple<HDFingerprint, KeyPath>(fingerprint, path));
+
+			// Let's try to be smart, if the added key match the scriptPubKey then we are in p2psh p2wpkh
+			var output = GetTxOut();
+			if (output != null)
+			{
+				if (key.WitHash.ScriptPubKey.Hash.ScriptPubKey == output.ScriptPubKey)
+				{
+					redeem_script = key.WitHash.ScriptPubKey;
+					TrySlimOutput();
+				}
+			}
 		}
 
 		#region IBitcoinSerializable Members
@@ -619,6 +619,7 @@ namespace NBitcoin.BIP174
 		internal void Write(JsonTextWriter jsonWriter)
 		{
 			jsonWriter.WriteStartObject();
+			jsonWriter.WritePropertyValue("index", Index);
 			jsonWriter.WritePropertyName("partial_signatures");
 			jsonWriter.WriteStartObject();
 			foreach (var sig in partial_sigs)
@@ -696,6 +697,7 @@ namespace NBitcoin.BIP174
 			return HDKeyPaths.ContainsKey(pubkey) || // in HDKeyPathMap or
 			pubkey.Hash.ScriptPubKey.Equals(scriptPubKey) || // matches as p2pkh or
 			pubkey.WitHash.ScriptPubKey.Equals(scriptPubKey) || // as p2wpkh or
+			pubkey.WitHash.ScriptPubKey.Hash.ScriptPubKey.Equals(scriptPubKey) || // as p2sh-p2wpkh
 			(RedeemScript != null && pubkey.WitHash.ScriptPubKey.Equals(RedeemScript)) || // as p2sh-p2wpkh or
 			(RedeemScript != null && RedeemScript.GetAllPubKeys().Any(p => p.Equals(pubkey))) || // more paranoia check (Probably unnecessary)
 			(WitnessScript != null && WitnessScript.GetAllPubKeys().Any(p => p.Equals(pubkey)));
@@ -817,8 +819,7 @@ namespace NBitcoin.BIP174
 			if (coin == null)
 				return false;
 
-			if (coin.ScriptPubKey.IsWitness ||
-				(coin is ScriptCoin scriptCoin && scriptCoin.RedeemType == RedeemType.WitnessV0))
+			if (coin.GetHashVersion() == HashVersion.Witness)
 			{
 				if (NonWitnessUtxo == null)
 					return false;
