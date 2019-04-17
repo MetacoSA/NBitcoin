@@ -256,7 +256,7 @@ namespace NBitcoin
 		{
 			if (transactions == null)
 				throw new ArgumentNullException(nameof(transactions));
-			return AddCoins(transactions.SelectMany(t => t.Outputs.AsCoins()).ToArray()).AddTransactions(transactions);
+			return AddTransactions(transactions).AddCoins(transactions.SelectMany(t => t.Outputs.AsCoins()).ToArray());
 		}
 
 		/// <summary>
