@@ -184,11 +184,11 @@ namespace NBitcoin.Tests
 
 			// for multisig
 			Assert.Equal(3, whollySignedPSBT.Inputs[2].PartialSigs.Count);
-			Assert.Equal(3, whollySignedPSBT.Inputs[2].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
+			Assert.Equal(3, whollySignedPSBT.Inputs[2].PartialSigs.Values.Distinct().Count());
 			Assert.Equal(3, whollySignedPSBT.Inputs[3].PartialSigs.Count);
-			Assert.Equal(3, whollySignedPSBT.Inputs[3].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
+			Assert.Equal(3, whollySignedPSBT.Inputs[3].PartialSigs.Values.Distinct().Count());
 			Assert.Equal(3, whollySignedPSBT.Inputs[5].PartialSigs.Count);
-			Assert.Equal(3, whollySignedPSBT.Inputs[5].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
+			Assert.Equal(3, whollySignedPSBT.Inputs[5].PartialSigs.Values.Distinct().Count());
 
 			Assert.False(whollySignedPSBT.CanExtractTransaction());
 
