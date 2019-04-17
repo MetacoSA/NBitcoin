@@ -10,7 +10,7 @@ namespace NBitcoin
 	{
 		public PSBTException(IEnumerable<PSBTError> errors): base(GetMessage(errors))
 		{
-			Errors = errors.ToList().AsReadOnly();
+			Errors = errors.ToList();
 		}
 
 		public IReadOnlyList<PSBTError> Errors { get; }
