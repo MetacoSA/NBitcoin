@@ -9,7 +9,7 @@ using NBitcoin.Crypto;
 using NBitcoin;
 using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
 using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>;
-using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.KeyId, System.Tuple<NBitcoin.PubKey, NBitcoin.TransactionSignature>>;
+using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.TransactionSignature>;
 using System.Collections;
 
 namespace NBitcoin
@@ -84,9 +84,9 @@ namespace NBitcoin
 						break;
 					case PSBTConstants.PSBT_IN_PARTIAL_SIG:
 						var pubkey = new PubKey(k.Skip(1).ToArray());
-						if (partial_sigs.ContainsKey(pubkey.Hash))
+						if (partial_sigs.ContainsKey(pubkey))
 							throw new FormatException("Invalid PSBTInput. Duplicate key for partial_sigs");
-						partial_sigs.Add(pubkey.Hash, Tuple.Create(pubkey, new TransactionSignature(v)));
+						partial_sigs.Add(pubkey, new TransactionSignature(v));
 						break;
 					case PSBTConstants.PSBT_IN_SIGHASH:
 						if (k.Length != 1)
@@ -163,7 +163,7 @@ namespace NBitcoin
 		private WitScript final_script_witness;
 
 		private HDKeyPathKVMap hd_keypaths = new HDKeyPathKVMap(new PubKeyComparer());
-		private PartialSigKVMap partial_sigs = new PartialSigKVMap(new KeyIdComparer());
+		private PartialSigKVMap partial_sigs = new PartialSigKVMap(new PubKeyComparer());
 		private UnKnownKVMap unknown = new SortedDictionary<byte[], byte[]>(BytesComparer.Instance);
 		SigHash? sighash_type;
 
@@ -400,9 +400,9 @@ namespace NBitcoin
 				var sigPushes = new List<Op> { OpcodeType.OP_0 };
 				foreach (var pk in redeem.GetAllPubKeys())
 				{
-					if (!partial_sigs.TryGetValue(pk.Hash, out var sigPair))
+					if (!partial_sigs.TryGetValue(pk, out var sigPair))
 						continue;
-					sigPushes.Add(Op.GetPushOp(sigPair.Item2.ToBytes()));
+					sigPushes.Add(Op.GetPushOp(sigPair.ToBytes()));
 				}
 				// check sig is more than m in case of p2multisig.
 				var multiSigParam = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(redeem);
@@ -599,9 +599,9 @@ namespace NBitcoin
 			// Write any partial signatures
 			foreach (var sig_pair in partial_sigs)
 			{
-				var key = new byte[] { PSBTConstants.PSBT_IN_PARTIAL_SIG }.Concat(sig_pair.Value.Item1.ToBytes());
+				var key = new byte[] { PSBTConstants.PSBT_IN_PARTIAL_SIG }.Concat(sig_pair.Value.ToBytes());
 				stream.ReadWriteAsVarString(ref key);
-				var sig = sig_pair.Value.Item2.ToBytes();
+				var sig = sig_pair.Value.ToBytes();
 				stream.ReadWriteAsVarString(ref sig);
 			}
 
@@ -682,7 +682,7 @@ namespace NBitcoin
 			jsonWriter.WriteStartObject();
 			foreach (var sig in partial_sigs)
 			{
-				jsonWriter.WritePropertyValue(sig.Key.ToString(), Encoders.Hex.EncodeData(sig.Value.Item2.ToBytes()));
+				jsonWriter.WritePropertyValue(sig.Key.ToString(), Encoders.Hex.EncodeData(sig.Value.ToBytes()));
 			}
 			jsonWriter.WriteEndObject();
 			if (SighashType is SigHash s)
@@ -791,7 +791,7 @@ namespace NBitcoin
 			transactionBuilder.AddCoins(coin);
 			foreach (var sig in PartialSigs)
 			{
-				transactionBuilder.AddKnownSignature(sig.Value.Item1, sig.Value.Item2);
+				transactionBuilder.AddKnownSignature(sig.Key, sig.Value);
 			}
 			Transaction signed = null;
 			try
@@ -837,9 +837,9 @@ namespace NBitcoin
 		public bool TrySign(Key key, SigHash sigHash, out TransactionSignature signature)
 		{
 			CheckCompatibleSigHash(sigHash);
-			if (PartialSigs.ContainsKey(key.PubKey.Hash))
+			if (PartialSigs.ContainsKey(key.PubKey))
 			{
-				signature = PartialSigs[key.PubKey.Hash].Item2;
+				signature = PartialSigs[key.PubKey];
 				if (sigHash != signature.SigHash)
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
 				return true;
@@ -856,7 +856,7 @@ namespace NBitcoin
 
 			var hash = Transaction.GetSignatureHash(coin, sigHash);
 			signature = key.Sign(hash, sigHash, Parent.Settings.UseLowR);
-			this.PartialSigs.Add(key.PubKey.Hash, new Tuple<PubKey, TransactionSignature>(key.PubKey, signature));
+			this.PartialSigs.TryAdd(key.PubKey, signature);
 			return true;
 		}
 

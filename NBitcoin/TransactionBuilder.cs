@@ -1167,7 +1167,7 @@ namespace NBitcoin
 			foreach (var signature in signingContext.Signatures)
 			{
 				var psbtInput = psbt.Inputs.FindIndexedInput(signature.Input.PrevOut);
-				psbtInput.PartialSigs.TryAdd(signature.PubKey.Hash, Tuple.Create(signature.PubKey, signature.Signature));
+				psbtInput.PartialSigs.TryAdd(signature.PubKey, signature.Signature);
 			}
 			psbt.AddCoins(tx.Inputs.AsIndexedInputs()
 				.Select(i => this.FindSignableCoin(i) ?? this.FindCoin(i.PrevOut))
