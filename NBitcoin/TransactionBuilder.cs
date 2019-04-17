@@ -1143,22 +1143,12 @@ namespace NBitcoin
 		{
 			var tx = BuildTransaction(sign, sigHash);
 			var psbt = tx.CreatePSBT();
-			foreach(var i in tx.Inputs.AsIndexedInputs())
-			{
-				var coin = this.FindSignableCoin(i) ?? this.FindCoin(i.PrevOut);
-				psbt.AddCoins(coin);
-			}
-			foreach (var o in tx.Outputs.AsCoins())
-			{
-				if (_ScriptPubKeyToRedeem.TryGetValue(o.ScriptPubKey, out var redeem))
-				{
-					psbt.AddCoins(o.ToScriptCoin(redeem));
-				}
-				else
-				{
-					psbt.AddCoins(o);
-				}
-			}
+			psbt.AddCoins(tx.Inputs.AsIndexedInputs()
+				.Select(i => this.FindSignableCoin(i) ?? this.FindCoin(i.PrevOut))
+				.Where(c => c != null)
+				.ToArray());
+
+			psbt.AddScripts(_ScriptPubKeyToRedeem.Values.ToArray());
 			return psbt;
 		}
 

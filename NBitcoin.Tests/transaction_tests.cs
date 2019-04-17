@@ -1661,6 +1661,22 @@ namespace NBitcoin.Tests
 				)).ToList();
 			var a = witCoins.Select(c => c.Amount).Sum();
 			var allCoins = coins.Concat(scriptCoins).Concat(witCoins).ToArray();
+
+			// Let's create a fake funding Tx with all those coins
+			Transaction fundingTx = Transaction.Create(Network.Main);
+			fundingTx.Inputs.Add(new OutPoint(Rand(), 0), Script.Empty);
+			foreach (var c in allCoins)
+			{
+				fundingTx.Outputs.Add(c.TxOut);
+			}
+			// Let's fix the outpoints of thecoins
+			var fundingTxHash = fundingTx.GetHash();
+			for (int i = 0; i < allCoins.Length; i++)
+			{
+				allCoins[i].Outpoint = new OutPoint(fundingTxHash, i);
+			}
+			///////////
+			///
 			var destinations = keys.Select(k => k.PubKey.GetAddress(Network.Main)).ToArray();
 
 			var txBuilder = Network.CreateTransactionBuilder(0);
@@ -1676,6 +1692,18 @@ namespace NBitcoin.Tests
 				.SetChange(destinations[3])
 				.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx, "0.0001"));
+
+			// Let's check if PSBT can be finalized
+			var psbt = txBuilder.BuildPSBT(true);
+			Assert.False(psbt.IsAllFinalized());
+			psbt.TryFinalize(out _);
+			Assert.False(psbt.IsAllFinalized()); // Non segwit transactions need the previous tx
+			psbt.AddTransactions(fundingTx);
+			psbt.TryFinalize(out _);
+			Assert.True(psbt.IsAllFinalized()); // All signed!
+			Assert.True(psbt.CanExtractTransaction());
+			Assert.True(txBuilder.Verify(psbt.ExtractTransaction(), "0.0001"));
+			// OK PSBT is finalized
 
 			//Verify that we can detect malleability
 			txBuilder.StandardTransactionPolicy = EasyPolicy.Clone();
