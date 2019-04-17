@@ -294,7 +294,7 @@ namespace NBitcoin
 				if (coin.TxOut.ScriptPubKey.IsPayToScriptHash && redeem_script == null)
 				{
 					// Let's try to be smart by finding the redeemScript in the global tx
-					if (Parent.Settings.IsSmart)
+					if (Parent.Settings.IsSmart && redeem_script == null)
 					{
 						var redeemScript = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(originalScriptSig, coin.TxOut.ScriptPubKey)?.RedeemScript;
 						if (redeemScript != null)
@@ -307,7 +307,7 @@ namespace NBitcoin
 				if (witness_script == null)
 				{
 					// Let's try to be smart by finding the witness script in the global tx
-					if (Parent.Settings.IsSmart)
+					if (Parent.Settings.IsSmart && witness_script == null)
 					{
 						var witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey);
 						if (witScriptId == null && redeem_script != null)
@@ -511,7 +511,7 @@ namespace NBitcoin
 			hd_keypaths.AddOrReplace(key, new Tuple<HDFingerprint, KeyPath>(fingerprint, path));
 
 			// Let's try to be smart, if the added key match the scriptPubKey then we are in p2psh p2wpkh
-			if (Parent.Settings.IsSmart)
+			if (Parent.Settings.IsSmart && redeem_script == null)
 			{
 				var output = GetTxOut();
 				if (output != null)
