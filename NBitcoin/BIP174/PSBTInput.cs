@@ -599,7 +599,7 @@ namespace NBitcoin
 			// Write any partial signatures
 			foreach (var sig_pair in partial_sigs)
 			{
-				var key = new byte[] { PSBTConstants.PSBT_IN_PARTIAL_SIG }.Concat(sig_pair.Value.ToBytes());
+				var key = new byte[] { PSBTConstants.PSBT_IN_PARTIAL_SIG }.Concat(sig_pair.Key.ToBytes());
 				stream.ReadWriteAsVarString(ref key);
 				var sig = sig_pair.Value.ToBytes();
 				stream.ReadWriteAsVarString(ref sig);
