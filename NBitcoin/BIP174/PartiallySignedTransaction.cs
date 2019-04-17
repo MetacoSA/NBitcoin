@@ -583,6 +583,7 @@ namespace NBitcoin
 				{
 					psbt.Inputs[i].originalScriptSig = this.Inputs[i].originalScriptSig;
 					psbt.Inputs[i].originalWitScript = this.Inputs[i].originalWitScript;
+					psbt.Inputs[i].orphanTxOut = this.Inputs[i].orphanTxOut;
 				}
 			}
 			psbt.Settings = Settings.Clone();
@@ -707,7 +708,7 @@ namespace NBitcoin
 			{
 				if (scriptPubKey != null)
 				{
-					if(scriptPubKey == input.GetTxOut()?.ScriptPubKey)
+					if(scriptPubKey == input.GetProbableScriptPubKey())
 						input.AddKeyPath(fingerprint, pubkey, path);
 				}
 				else if (input.IsRelatedKey(pubkey))

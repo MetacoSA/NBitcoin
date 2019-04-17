@@ -19,6 +19,7 @@ namespace NBitcoin
 		// Those fields are not saved, but can be used as hint to solve more info for the PSBT
 		internal Script originalScriptSig = Script.Empty;
 		internal WitScript originalWitScript = Script.Empty;
+		internal TxOut orphanTxOut = null; // When this input is not segwit, but we don't have the previous tx
 		//
 
 		internal PSBTInput(PSBT parent, uint index, TxIn input)
@@ -338,6 +339,7 @@ namespace NBitcoin
 			}
 			else
 			{
+				orphanTxOut = coin.TxOut;
 				witness_utxo = null;
 			}
 		}
@@ -751,7 +753,7 @@ namespace NBitcoin
 
 		public bool IsRelatedKey(PubKey pubkey)
 		{
-			var scriptPubKey = GetTxOut()?.ScriptPubKey;
+			var scriptPubKey = GetProbableScriptPubKey();
 			return HDKeyPaths.ContainsKey(pubkey) || // in HDKeyPathMap or
 			pubkey.Hash.ScriptPubKey.Equals(scriptPubKey) || // matches as p2pkh or
 			pubkey.WitHash.ScriptPubKey.Equals(scriptPubKey) || // as p2wpkh or
@@ -760,13 +762,15 @@ namespace NBitcoin
 			(RedeemScript != null && RedeemScript.GetAllPubKeys().Any(p => p.Equals(pubkey))) || // more paranoia check (Probably unnecessary)
 			(WitnessScript != null && WitnessScript.GetAllPubKeys().Any(p => p.Equals(pubkey)));
 		}
-
+		internal Script GetProbableScriptPubKey() => GetTxOut()?.ScriptPubKey ?? RedeemScript?.Hash.ScriptPubKey ?? orphanTxOut?.ScriptPubKey;
 		public TxOut GetTxOut()
 		{
 			if (WitnessUtxo != null)
 				return WitnessUtxo;
 			if (NonWitnessUtxo != null)
 				return NonWitnessUtxo.Outputs[TxIn.PrevOut.N];
+			if (orphanTxOut != null)
+				return orphanTxOut;
 			return null;
 		}
 		public bool TryFinalizeInput(out IList<PSBTError> errors)
