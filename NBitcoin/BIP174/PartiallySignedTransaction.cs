@@ -383,6 +383,10 @@ namespace NBitcoin
 		{
 			return SignAll(SigHash.All, keys);
 		}
+		public PSBT SignAll(params ISecret[] keys)
+		{
+			return SignAll(SigHash.All, keys.Select(k => k.PrivateKey).ToArray());
+		}
 
 		public PSBT SignAll(SigHash sigHash, params Key[] keys)
 		{
@@ -395,6 +399,42 @@ namespace NBitcoin
 				}
 			}
 			return this;
+		}
+		public PSBT SignAll(SigHash sigHash, params BitcoinSecret[] keys)
+		{
+			if (keys == null)
+				throw new ArgumentNullException(nameof(keys));
+			return SignAll(sigHash, keys.Select(k => k.PrivateKey).ToArray());
+		}
+		public PSBT Sign(ExtKey extkey, KeyPath keyPath)
+		{
+			return Sign(extkey, keyPath, SigHash.All);
+		}
+		public PSBT Sign(BitcoinExtKey extkey, KeyPath keyPath)
+		{
+			return Sign(extkey?.ExtKey, keyPath, SigHash.All);
+		}
+		public PSBT Sign(ExtKey extkey, KeyPath keyPath, SigHash sigHash)
+		{
+			if (extkey == null)
+				throw new ArgumentNullException(nameof(extkey));
+			if (keyPath == null)
+				throw new ArgumentNullException(nameof(keyPath));
+			var privKey = extkey.Derive(keyPath).PrivateKey;
+			foreach (var input in this.Inputs)
+			{
+				if (input.HDKeyPaths.TryGetValue(privKey.PubKey, out var v) && 
+					v.Item1 != default && 
+					v.Item1 == extkey.PrivateKey.PubKey.GetHDFingerPrint())
+				{
+					input.TrySign(privKey, out _);
+				}
+			}
+			return this;
+		}
+		public PSBT Sign(BitcoinExtKey extkey, KeyPath keyPath, SigHash sigHash)
+		{
+			return Sign(extkey?.ExtKey, keyPath, sigHash);
 		}
 
 		public Transaction ExtractTransaction()
@@ -519,14 +559,31 @@ namespace NBitcoin
 			return ms.ToArrayEfficient();
 		}
 
+		/// <summary>
+		/// Clone this PSBT
+		/// </summary>
+		/// <returns>A cloned PSBT</returns>
 		public PSBT Clone()
+		{
+			return Clone(true);
+		}
+
+		/// <summary>
+		/// Clone this PSBT
+		/// </summary>
+		/// <param name="keepOriginalTransactionInformation">Whether the original scriptSig and witScript or inputs is saved</param>
+		/// <returns>A cloned PSBT</returns>
+		public PSBT Clone(bool keepOriginalTransactionInformation)
 		{
 			var bytes = ToBytes();
 			var psbt = PSBT.Load(bytes, tx.GetConsensusFactory());
-			for (int i = 0; i < Inputs.Count; i++)
+			if (keepOriginalTransactionInformation)
 			{
-				psbt.Inputs[i].originalScriptSig = this.Inputs[i].originalScriptSig;
-				psbt.Inputs[i].originalWitScript = this.Inputs[i].originalWitScript;
+				for (int i = 0; i < Inputs.Count; i++)
+				{
+					psbt.Inputs[i].originalScriptSig = this.Inputs[i].originalScriptSig;
+					psbt.Inputs[i].originalWitScript = this.Inputs[i].originalWitScript;
+				}
 			}
 			psbt.Settings = Settings.Clone();
 			return psbt;
@@ -610,12 +667,36 @@ namespace NBitcoin
 			return this;
 		}
 
+		/// <summary>
+		/// Add keypath information to this PSBT for each input or output involving it
+		/// </summary>
+		/// <param name="pubkey">A public key to add</param>
+		/// <param name="path">The key path</param>
+		/// <returns>This PSBT</returns>
 		public PSBT AddKeyPath(PubKey pubkey, KeyPath path)
 		{
 			return AddKeyPath(default(HDFingerprint), pubkey, path);
 		}
-
+		/// <summary>
+		/// Add keypath information to this PSBT for each input or output involving it
+		/// </summary>
+		/// <param name="fingerprint">The fingerprint of the master's key</param>
+		/// <param name="pubkey">A public key to add</param>
+		/// <param name="path">The key path</param>
+		/// <returns>This PSBT</returns>
 		public PSBT AddKeyPath(HDFingerprint fingerprint, PubKey pubkey, KeyPath path)
+		{
+			return AddKeyPath(fingerprint, pubkey, path, null);
+		}
+		/// <summary>
+		/// Add keypath information to this PSBT
+		/// </summary>
+		/// <param name="fingerprint">The fingerprint of the master's key</param>
+		/// <param name="pubkey">A public key to add</param>
+		/// <param name="path">The key path</param>
+		/// <param name="scriptPubKey">A specific scriptPubKey this pubkey is involved with</param>
+		/// <returns>This PSBT</returns>
+		public PSBT AddKeyPath(HDFingerprint fingerprint, PubKey pubkey, KeyPath path, Script scriptPubKey)
 		{
 			if (pubkey == null)
 				throw new ArgumentNullException(nameof(pubkey));
@@ -624,12 +705,22 @@ namespace NBitcoin
 
 			foreach(var input in this.Inputs)
 			{
-				if (input.IsRelatedKey(pubkey))
+				if (scriptPubKey != null)
+				{
+					if(scriptPubKey == input.GetTxOut()?.ScriptPubKey)
+						input.AddKeyPath(fingerprint, pubkey, path);
+				}
+				else if (input.IsRelatedKey(pubkey))
 					input.AddKeyPath(fingerprint, pubkey, path);
 			}
 			foreach (var ouptut in this.Outputs)
 			{
-				if (ouptut.IsRelatedKey(pubkey))
+				if (scriptPubKey != null)
+				{
+					if (scriptPubKey == ouptut.ScriptPubKey)
+						ouptut.AddKeyPath(fingerprint, pubkey, path);
+				}
+				else if (ouptut.IsRelatedKey(pubkey))
 					ouptut.AddKeyPath(fingerprint, pubkey, path);
 			}
 			return this;
