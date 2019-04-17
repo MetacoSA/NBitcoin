@@ -16,11 +16,18 @@ namespace NBitcoin
 {
 	public class PSBTInput
 	{
+		// Those fields are not saved, but can be used as hint to solve more info for the PSBT
+		internal Script originalScriptSig = Script.Empty;
+		internal WitScript originalWitScript = Script.Empty;
+		//
+
 		internal PSBTInput(PSBT parent, uint index, TxIn input)
 		{
 			Parent = parent;
 			TxIn = input;
 			Index = index;
+			originalScriptSig = TxIn.ScriptSig ?? Script.Empty;
+			originalWitScript = TxIn.WitScript ?? WitScript.Empty;
 		}
 
 		internal PSBTInput(BitcoinStream stream, PSBT parent, uint index, TxIn input)
@@ -28,6 +35,8 @@ namespace NBitcoin
 			Parent = parent;
 			TxIn = input;
 			Index = index;
+			originalScriptSig = TxIn.ScriptSig ?? Script.Empty;
+			originalWitScript = TxIn.WitScript ?? WitScript.Empty;
 			byte[] k = new byte[0];
 			byte[] v = new byte[0];
 			try
@@ -285,7 +294,7 @@ namespace NBitcoin
 				if (coin.TxOut.ScriptPubKey.IsPayToScriptHash && redeem_script == null)
 				{
 					// Let's try to be smart by finding the redeemScript in the global tx
-					var redeemScript = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(TxIn.ScriptSig, coin.TxOut.ScriptPubKey)?.RedeemScript;
+					var redeemScript = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(originalScriptSig, coin.TxOut.ScriptPubKey)?.RedeemScript;
 					if (redeemScript != null)
 					{
 						redeem_script = redeemScript;
@@ -300,7 +309,7 @@ namespace NBitcoin
 						witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(redeem_script);
 					if (witScriptId != null)
 					{
-						var redeemScript = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(TxIn.WitScript, witScriptId);
+						var redeemScript = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(originalWitScript, witScriptId);
 						if (redeemScript != null)
 						{
 							witness_script = redeemScript;
@@ -766,7 +775,7 @@ namespace NBitcoin
 			Transaction signed = null;
 			try
 			{
-				signed = transactionBuilder.SignTransaction(Transaction, SigHash.All);
+				signed = transactionBuilder.SignTransaction(Parent.GetOriginalTransaction(), SigHash.All);
 			}
 			catch (Exception ex)
 			{

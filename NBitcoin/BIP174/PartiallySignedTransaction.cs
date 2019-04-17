@@ -70,9 +70,10 @@ namespace NBitcoin
 	public class PSBT : IEquatable<PSBT>
 	{
 		// Magic bytes
-		static byte[] PSBT_MAGIC_BYTES = Encoders.ASCII.DecodeData("psbt\xff");
+		readonly static byte[] PSBT_MAGIC_BYTES = Encoders.ASCII.DecodeData("psbt\xff");
 
 		internal Transaction tx;
+
 		public PSBTInputList Inputs { get; }
 		public PSBTOutputList Outputs { get; } 
 
@@ -120,6 +121,11 @@ namespace NBitcoin
 				this.Inputs.Add(new PSBTInput(this, (uint)i, tx.Inputs[i]));
 			for (var i = 0; i < tx.Outputs.Count; i++)
 				this.Outputs.Add(new PSBTOutput(this, (uint)i, tx.Outputs[i]));
+			foreach(var input in tx.Inputs)
+			{
+				input.ScriptSig = Script.Empty;
+				input.WitScript = WitScript.Empty;
+			}
 		}
 
 		internal PSBT(BitcoinStream stream)
@@ -271,7 +277,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(other));
 			}
 
-			if (other.StrippedTransaction().GetHash() != this.StrippedTransaction().GetHash())
+			if (other.tx.GetHash() != this.tx.GetHash())
 				throw new ArgumentException(paramName: nameof(other), message: "Can not Combine PSBT with different global tx.");
 
 			for (int i = 0; i < Inputs.Count; i++)
@@ -398,7 +404,7 @@ namespace NBitcoin
 		{
 			AssertSanity();
 			// magic bytes
-			stream.ReadWrite(ref PSBT_MAGIC_BYTES);
+			stream.Inner.Write(PSBT_MAGIC_BYTES, 0 , PSBT_MAGIC_BYTES.Length);
 
 			// unsigned tx flag
 			stream.ReadWriteAsVarInt(ref defaultKeyLen);
@@ -406,10 +412,9 @@ namespace NBitcoin
 
 			// Write serialized tx to a stream
 			stream.TransactionOptions &= TransactionOptions.None;
-			Transaction clone = StrippedTransaction();
-			uint txLength = (uint)clone.GetSerializedSize(TransactionOptions.None);
+			uint txLength = (uint)tx.GetSerializedSize(TransactionOptions.None);
 			stream.ReadWriteAsVarInt(ref txLength);
-			stream.ReadWrite(clone);
+			stream.ReadWrite(tx);
 
 			// Write the unknown things
 			foreach (var kv in unknown)
@@ -435,18 +440,6 @@ namespace NBitcoin
 			}
 		}
 
-		private Transaction StrippedTransaction()
-		{
-			var clone = tx.Clone();
-			for (int i = 0; i < clone.Inputs.Count; i++)
-			{
-				clone.Inputs[i].ScriptSig = Script.Empty;
-				clone.Inputs[i].WitScript = WitScript.Empty;
-			}
-
-			return clone;
-		}
-
 		#endregion
 
 		public override string ToString()
@@ -458,7 +451,7 @@ namespace NBitcoin
 			jsonWriter.WritePropertyName("tx");
 			jsonWriter.WriteStartObject();
 			var formatter = new RPC.BlockExplorerFormatter();
-			formatter.WriteTransaction2(jsonWriter, StrippedTransaction());
+			formatter.WriteTransaction2(jsonWriter, tx);
 			jsonWriter.WriteEndObject();
 
 			jsonWriter.WritePropertyName("inputs");
@@ -494,7 +487,13 @@ namespace NBitcoin
 		public PSBT Clone()
 		{
 			var bytes = ToBytes();
-			return PSBT.Load(bytes, tx.GetConsensusFactory());
+			var psbt = PSBT.Load(bytes, tx.GetConsensusFactory());
+			for (int i = 0; i < Inputs.Count; i++)
+			{
+				psbt.Inputs[i].originalScriptSig = this.Inputs[i].originalScriptSig;
+				psbt.Inputs[i].originalWitScript = this.Inputs[i].originalWitScript;
+			}
+			return psbt;
 		}
 
 		public string ToBase64() => Encoders.Base64.EncodeData(this.ToBytes());
@@ -599,6 +598,17 @@ namespace NBitcoin
 					ouptut.AddKeyPath(fingerprint, pubkey, path);
 			}
 			return this;
+		}
+
+		public Transaction GetOriginalTransaction()
+		{
+			var clone = tx.Clone();
+			for (int i = 0; i < Inputs.Count; i++)
+			{
+				clone.Inputs[i].ScriptSig = Inputs[i].originalScriptSig;
+				clone.Inputs[i].WitScript = Inputs[i].originalWitScript;
+			}
+			return clone;
 		}
 	}
 }
