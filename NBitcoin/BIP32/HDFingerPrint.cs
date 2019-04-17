@@ -15,6 +15,24 @@ namespace NBitcoin
 				throw new ArgumentException(paramName: nameof(bytes), message: "Bytes should be of length 4");
 			_Value = Utils.ToUInt32(bytes, true);
 		}
+#if HAS_SPAN
+		public HDFingerprint(ReadOnlySpan<byte> bytes)
+		{
+			if (bytes == null)
+				throw new ArgumentNullException(nameof(bytes));
+			if (bytes.Length != 4)
+				throw new ArgumentException(paramName: nameof(bytes), message: "Bytes should be of length 4");
+			_Value = Utils.ToUInt32(bytes, true);
+		}
+#endif
+
+		public HDFingerprint(byte[] bytes, int index)
+		{
+			if (bytes == null)
+				throw new ArgumentNullException(nameof(bytes));
+			_Value = Utils.ToUInt32(bytes, index, true);
+		}
+
 		public HDFingerprint(uint value)
 		{
 			_Value = value;
@@ -24,11 +42,12 @@ namespace NBitcoin
 		{
 			return Utils.ToBytes(_Value, true);
 		}
-
-		public uint ToUInt32()
+#if HAS_SPAN
+		public void ToBytes(Span<byte> output)
 		{
-			return _Value;
+			Utils.ToBytes(_Value, true, output);
 		}
+#endif
 
 		public override bool Equals(Object obj)
 		{

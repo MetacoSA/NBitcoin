@@ -273,10 +273,15 @@ namespace NBitcoin
 
 		public void ReadWrite(ref HDFingerprint fingerPrint)
 		{
-			var v = fingerPrint.ToUInt32();
-			ReadWrite(ref v);
+#if HAS_SPAN
+			Span<byte> bytes = stackalloc byte[4];
+			fingerPrint.ToBytes(bytes);
+#else
+			var bytes = fingerPrint.ToBytes();
+#endif
+			ReadWrite(ref bytes);
 			if (!this.Serializing)
-				fingerPrint = new HDFingerprint(v);
+				fingerPrint = new HDFingerprint(bytes);
 		}
 
 		public void ReadWrite(ref int[] data)

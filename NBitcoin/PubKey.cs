@@ -168,7 +168,7 @@ namespace NBitcoin
 
 		public HDFingerprint GetHDFingerPrint()
 		{
-			return new HDFingerprint(this.Hash.ToBytes().SafeSubarray(0, 4));
+			return new HDFingerprint(this.Hash.ToBytes(true), 0);
 		}
 
 		public bool Verify(uint256 hash, ECDSASignature sig)

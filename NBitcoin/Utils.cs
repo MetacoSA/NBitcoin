@@ -788,21 +788,21 @@ namespace NBitcoin
 			}
 		}
 #if HAS_SPAN
-		public static uint ToUInt32(ReadOnlySpan<byte> value, int index, bool littleEndian)
+		public static uint ToUInt32(ReadOnlySpan<byte> value, bool littleEndian)
 		{
 			if(littleEndian)
 			{
-				return value[index]
-					   + ((uint)value[index + 1] << 8)
-					   + ((uint)value[index + 2] << 16)
-					   + ((uint)value[index + 3] << 24);
+				return value[0]
+					   + ((uint)value[1] << 8)
+					   + ((uint)value[2] << 16)
+					   + ((uint)value[3] << 24);
 			}
 			else
 			{
-				return value[index + 3]
-					   + ((uint)value[index + 2] << 8)
-					   + ((uint)value[index + 1] << 16)
-					   + ((uint)value[index + 0] << 24);
+				return value[3]
+					   + ((uint)value[2] << 8)
+					   + ((uint)value[1] << 16)
+					   + ((uint)value[0] << 24);
 			}
 		}
 #endif

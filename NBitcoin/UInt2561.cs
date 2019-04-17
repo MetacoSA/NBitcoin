@@ -217,14 +217,14 @@ namespace NBitcoin
 				throw new FormatException("the byte array should be 32 bytes long");
 			}
 
-			pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
-			pn1 = Utils.ToUInt32(bytes, 4 * 1, true);
-			pn2 = Utils.ToUInt32(bytes, 4 * 2, true);
-			pn3 = Utils.ToUInt32(bytes, 4 * 3, true);
-			pn4 = Utils.ToUInt32(bytes, 4 * 4, true);
-			pn5 = Utils.ToUInt32(bytes, 4 * 5, true);
-			pn6 = Utils.ToUInt32(bytes, 4 * 6, true);
-			pn7 = Utils.ToUInt32(bytes, 4 * 7, true);
+			pn0 = Utils.ToUInt32(bytes.Slice(0), true);
+			pn1 = Utils.ToUInt32(bytes.Slice(4 * 1), true);
+			pn2 = Utils.ToUInt32(bytes.Slice(4 * 2), true);
+			pn3 = Utils.ToUInt32(bytes.Slice(4 * 3), true);
+			pn4 = Utils.ToUInt32(bytes.Slice(4 * 4), true);
+			pn5 = Utils.ToUInt32(bytes.Slice(4 * 5), true);
+			pn6 = Utils.ToUInt32(bytes.Slice(4 * 6), true);
+			pn7 = Utils.ToUInt32(bytes.Slice(4 * 7), true);
 		}
 #endif
 
