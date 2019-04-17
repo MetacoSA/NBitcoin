@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FsCheck;
-using NBitcoin.BIP174;
 using NBitcoin.Crypto;
 using Xunit;
 

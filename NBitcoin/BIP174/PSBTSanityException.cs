@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 
-namespace NBitcoin.BIP174
+namespace NBitcoin
 {
 	public class PSBTException : InvalidOperationException
 	{

@@ -10,7 +10,6 @@ using NBitcoin.Protocol;
 using NBitcoin.Stealth;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using NBitcoin.BIP174;
 
 namespace NBitcoin
 {

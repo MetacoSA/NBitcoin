@@ -16,7 +16,6 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using FsCheck.Xunit;
-using NBitcoin.BIP174;
 using FsCheck;
 using NBitcoin.Tests.Generators;
 using static NBitcoin.Tests.Comparer;

@@ -1,5 +1,4 @@
-﻿using NBitcoin.BIP174;
-using NBitcoin.BuilderExtensions;
+﻿using NBitcoin.BuilderExtensions;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;

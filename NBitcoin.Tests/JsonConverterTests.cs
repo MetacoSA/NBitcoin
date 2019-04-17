@@ -1,5 +1,4 @@
-﻿using NBitcoin.BIP174;
-using NBitcoin.JsonConverters;
+﻿using NBitcoin.JsonConverters;
 using NBitcoin.OpenAsset;
 using System;
 using System.Collections.Generic;

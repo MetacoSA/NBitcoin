@@ -1,5 +1,4 @@
 ﻿#if !NOJSONNET
-using NBitcoin.BIP174;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using Newtonsoft.Json;

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using NBitcoin.BIP174;
 
 namespace NBitcoin.Tests
 {

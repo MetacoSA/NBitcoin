@@ -1,7 +1,6 @@
 using System.IO;
 using FsCheck;
 using FsCheck.Xunit;
-using NBitcoin.BIP174;
 using NBitcoin.Tests.Generators;
 using NBitcoin;
 using Xunit;

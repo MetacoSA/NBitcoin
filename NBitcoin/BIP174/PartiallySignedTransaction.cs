@@ -11,7 +11,7 @@ using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>
 using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>;
 using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.KeyId, System.Tuple<NBitcoin.PubKey, NBitcoin.Crypto.ECDSASignature>>;
 
-namespace NBitcoin.BIP174
+namespace NBitcoin
 {
 	static class PSBTConstants
 	{

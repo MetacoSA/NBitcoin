@@ -1,5 +1,4 @@
-﻿using NBitcoin.BIP174;
-using NBitcoin.Protocol;
+﻿using NBitcoin.Protocol;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

@@ -12,7 +12,7 @@ using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubK
 using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.KeyId, System.Tuple<NBitcoin.PubKey, NBitcoin.TransactionSignature>>;
 using System.Collections;
 
-namespace NBitcoin.BIP174
+namespace NBitcoin
 {
 	public class PSBTInput
 	{

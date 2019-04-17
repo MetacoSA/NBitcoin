@@ -1,4 +1,3 @@
-using NBitcoin.BIP174;
 using Xunit;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

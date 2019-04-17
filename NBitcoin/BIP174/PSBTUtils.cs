@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>;
 
-namespace NBitcoin.BIP174
+namespace NBitcoin
 {
 	internal static class PSBTUtils
 	{

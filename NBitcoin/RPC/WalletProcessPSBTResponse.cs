@@ -1,4 +1,4 @@
-using NBitcoin.BIP174;
+
 
 namespace NBitcoin.RPC
 {
