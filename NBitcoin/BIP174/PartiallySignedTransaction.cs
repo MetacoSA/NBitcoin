@@ -645,5 +645,10 @@ namespace NBitcoin
 			}
 			return clone;
 		}
+
+		public Transaction GetGlobalTransaction()
+		{
+			return tx.Clone();
+		}
 	}
 }

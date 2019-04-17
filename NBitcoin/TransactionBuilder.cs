@@ -699,6 +699,13 @@ namespace NBitcoin
 			return this;
 		}
 
+		public TransactionBuilder AddCoins(PSBT psbt)
+		{
+			if (psbt == null)
+				throw new ArgumentNullException(nameof(psbt));
+			return AddCoins(psbt.Inputs.Select(p => p.GetSignableCoin()).Where(p => p != null).ToArray());
+		}
+
 		/// <summary>
 		/// Set the name of this group (group are separated by call to Then())
 		/// </summary>
@@ -1162,22 +1169,55 @@ namespace NBitcoin
 		public PSBT BuildPSBT(bool sign, SigHash sigHash)
 		{
 			var tx = BuildTransaction(false, sigHash);
-			SignTransactionInPlace(tx, sigHash, out var signingContext);
+			TransactionSigningContext signingContext = null;
+			if (sign)
+				SignTransactionInPlace(tx, sigHash, out signingContext);
 			var psbt = tx.CreatePSBT();
+			UpdatePSBT(psbt);
+			if (sign)
+				UpdatePSBTSignatures(psbt, signingContext);
+			return psbt;
+		}
+
+		private static void UpdatePSBTSignatures(PSBT psbt, TransactionSigningContext signingContext)
+		{
 			foreach (var signature in signingContext.Signatures)
 			{
 				var psbtInput = psbt.Inputs.FindIndexedInput(signature.Input.PrevOut);
 				psbtInput.PartialSigs.TryAdd(signature.PubKey, signature.Signature);
 			}
+		}
+
+		public void SignPSBT(PSBT psbt)
+		{
+			SignPSBT(psbt, SigHash.All);
+		}
+		public void SignPSBT(PSBT psbt, SigHash sigHash)
+		{
+			if (psbt == null)
+				throw new ArgumentNullException(nameof(psbt));
+			AddCoins(psbt);
+			var tx = psbt.GetOriginalTransaction();
+			SignTransactionInPlace(tx, sigHash, out var signingContext);
+			UpdatePSBTSignatures(psbt, signingContext);
+		}
+
+		/// <summary>
+		/// Update information in the PSBT with informations that the transaction builder is holding
+		/// </summary>
+		/// <param name="psbt">A PSBT</param>
+		public void UpdatePSBT(PSBT psbt)
+		{
+			if (psbt == null)
+				throw new ArgumentNullException(nameof(psbt));
+			var tx = psbt.GetOriginalTransaction();
 			psbt.AddCoins(tx.Inputs.AsIndexedInputs()
 				.Select(i => this.FindSignableCoin(i) ?? this.FindCoin(i.PrevOut))
 				.Where(c => c != null)
 				.ToArray());
 
 			psbt.AddScripts(_ScriptPubKeyToRedeem.Values.ToArray());
-			return psbt;
 		}
-
 		/// <summary>
 		/// Build the transaction
 		/// </summary>
