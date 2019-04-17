@@ -15,15 +15,17 @@ namespace NBitcoin
 {
 	public class PSBTOutput
 	{
-		public TxOut TxOut { get; set; }
+		internal TxOut TxOut { get; }
+		public Script ScriptPubKey => TxOut.ScriptPubKey;
+		public Money Value => TxOut.Value;
 		public uint Index { get; set; }
 		internal Transaction Transaction => Parent.tx;
 
 		public bool IsRelatedKey(PubKey pk) =>
 		HDKeyPaths.ContainsKey(pk) || // in HDKeyPathMap or
-		pk.Hash.ScriptPubKey.Equals(TxOut.ScriptPubKey) || // matches as p2pkh or
-		pk.WitHash.ScriptPubKey.Equals(TxOut.ScriptPubKey) || // as p2wpkh or
-		pk.WitHash.ScriptPubKey.Hash.ScriptPubKey.Equals(TxOut.ScriptPubKey) || // as p2sh-p2wpkh
+		pk.Hash.ScriptPubKey.Equals(ScriptPubKey) || // matches as p2pkh or
+		pk.WitHash.ScriptPubKey.Equals(ScriptPubKey) || // as p2wpkh or
+		pk.WitHash.ScriptPubKey.Hash.ScriptPubKey.Equals(ScriptPubKey) || // as p2sh-p2wpkh
 		(RedeemScript != null && pk.WitHash.ScriptPubKey.Equals(RedeemScript)) || // as p2sh-p2wpkh or
 		(RedeemScript != null && RedeemScript.GetAllPubKeys().Any(p => p.Equals(pk))) || // more paranoia check (Probably unnecessary)
 		(WitnessScript != null && WitnessScript.GetAllPubKeys().Any(p => p.Equals(pk)));
@@ -256,8 +258,12 @@ namespace NBitcoin
 			return ms.ToArrayEfficient();
 		}
 
-		internal void SetCoin(ICoin coin)
+		public void UpdateFromCoin(ICoin coin)
 		{
+			if (coin == null)
+				throw new ArgumentNullException(nameof(coin));
+			if (coin.TxOut.ScriptPubKey != ScriptPubKey)
+				throw new ArgumentException("This coin does not match the scriptPubKey of this output");
 			if (coin is ScriptCoin scriptCoin)
 			{
 				if (scriptCoin.RedeemType == RedeemType.P2SH)

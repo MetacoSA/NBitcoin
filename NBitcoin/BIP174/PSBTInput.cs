@@ -148,7 +148,10 @@ namespace NBitcoin
 		}
 
 		public PSBT Parent { get; }
-		public TxIn TxIn { get; }
+		internal TxIn TxIn { get; }
+
+		public OutPoint PrevOut => TxIn.PrevOut;
+
 		public uint Index { get; }
 		internal Transaction Transaction => Parent.tx;
 
@@ -272,10 +275,14 @@ namespace NBitcoin
 			}
 		}
 
-		internal void SetCoin(ICoin coin)
+		public void UpdateFromCoin(ICoin coin)
 		{
+			if (coin == null)
+				throw new ArgumentNullException(nameof(coin));
 			if (IsFinalized())
 				throw new InvalidOperationException("Impossible to modify the PSBTInput if it has been finalized");
+			if (coin.Outpoint != PrevOut)
+				throw new ArgumentException("This coin does not match the input", nameof(coin));
 			if (coin is ScriptCoin scriptCoin)
 			{
 				if (scriptCoin.RedeemType == RedeemType.P2SH)

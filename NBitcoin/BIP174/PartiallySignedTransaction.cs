@@ -237,15 +237,15 @@ namespace NBitcoin
 				var indexedInput = this.Inputs.FindIndexedInput(coin.Outpoint);
 				if (indexedInput == null)
 					continue;
-				indexedInput.SetCoin(coin);
+				indexedInput.UpdateFromCoin(coin);
 			}
 			foreach (var coin in coins)
 			{
 				foreach(var output in this.Outputs)
 				{
-					if (output.TxOut.ScriptPubKey == coin.TxOut.ScriptPubKey)
+					if (output.ScriptPubKey == coin.TxOut.ScriptPubKey)
 					{
-						output.SetCoin(coin);
+						output.UpdateFromCoin(coin);
 					}
 				}
 			}
@@ -592,16 +592,15 @@ namespace NBitcoin
 
 				foreach (var output in this.Outputs)
 				{
-					var txout = output.TxOut;
-					if(txout.ScriptPubKey == p2sh)
+					if(output.ScriptPubKey == p2sh)
 					{
 						output.RedeemScript = redeem;
 					}
-					else if (txout.ScriptPubKey == p2wsh)
+					else if (output.ScriptPubKey == p2wsh)
 					{
 						output.WitnessScript = redeem;
 					}
-					else if (txout.ScriptPubKey == p2shp2wsh)
+					else if (output.ScriptPubKey == p2shp2wsh)
 					{
 						output.WitnessScript = redeem;
 						output.RedeemScript = redeem.WitHash.ScriptPubKey;
