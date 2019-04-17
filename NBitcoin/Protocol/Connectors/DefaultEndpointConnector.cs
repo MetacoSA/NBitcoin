@@ -14,31 +14,35 @@ namespace NBitcoin.Protocol.Connectors
 {
 	public class DefaultEndpointConnector : IEnpointConnector
 	{
-		[Obsolete("Ignored, don't use, will be removed")]
-		[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+		/// <summary>
+		/// Connect to only hidden service nodes over Tor.
+		/// Prevents connecting to clearnet nodes over Tor.
+		/// </summary>
 		public bool AllowOnlyTorEndpoints { get; set; } = false;
-
 
 		public DefaultEndpointConnector()
 		{
 		}
 
-		[Obsolete("Ignored, don't use, will be removed")]
-		[System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 		public DefaultEndpointConnector(bool allowOnlyTorEndpoints)
 		{
+			AllowOnlyTorEndpoints = allowOnlyTorEndpoints;
 		}
 
 		public IEnpointConnector Clone()
 		{
-			return new DefaultEndpointConnector();
+			return new DefaultEndpointConnector(AllowOnlyTorEndpoints);
 		}
 
 		public async Task ConnectSocket(Socket socket, EndPoint endpoint, NodeConnectionParameters nodeConnectionParameters, CancellationToken cancellationToken)
 		{
+			var isTor = endpoint.IsTor();
+			if (AllowOnlyTorEndpoints && !isTor)
+				throw new InvalidOperationException($"The Endpoint connector is configured to allow only Tor endpoints and the '{endpoint}' enpoint is not one");
+
 			var socksSettings = nodeConnectionParameters.TemplateBehaviors.Find<SocksSettingsBehavior>();
 			var socketEndpoint = endpoint;
-			var useSocks = endpoint.IsTor() || socksSettings?.OnlyForOnionHosts is false;
+			var useSocks = isTor || socksSettings?.OnlyForOnionHosts is false;
 			if (useSocks)
 			{
 				if (socksSettings?.SocksEndpoint == null)
