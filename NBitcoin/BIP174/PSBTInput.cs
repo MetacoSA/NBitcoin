@@ -294,25 +294,31 @@ namespace NBitcoin
 				if (coin.TxOut.ScriptPubKey.IsPayToScriptHash && redeem_script == null)
 				{
 					// Let's try to be smart by finding the redeemScript in the global tx
-					var redeemScript = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(originalScriptSig, coin.TxOut.ScriptPubKey)?.RedeemScript;
-					if (redeemScript != null)
+					if (Parent.Settings.IsSmart)
 					{
-						redeem_script = redeemScript;
+						var redeemScript = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(originalScriptSig, coin.TxOut.ScriptPubKey)?.RedeemScript;
+						if (redeemScript != null)
+						{
+							redeem_script = redeemScript;
+						}
 					}
 				}
 
 				if (witness_script == null)
 				{
 					// Let's try to be smart by finding the witness script in the global tx
-					var witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey);
-					if (witScriptId == null && redeem_script != null)
-						witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(redeem_script);
-					if (witScriptId != null)
+					if (Parent.Settings.IsSmart)
 					{
-						var redeemScript = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(originalWitScript, witScriptId);
-						if (redeemScript != null)
+						var witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey);
+						if (witScriptId == null && redeem_script != null)
+							witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(redeem_script);
+						if (witScriptId != null)
 						{
-							witness_script = redeemScript;
+							var redeemScript = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(originalWitScript, witScriptId);
+							if (redeemScript != null)
+							{
+								witness_script = redeemScript;
+							}
 						}
 					}
 				}
@@ -505,13 +511,16 @@ namespace NBitcoin
 			hd_keypaths.AddOrReplace(key, new Tuple<HDFingerprint, KeyPath>(fingerprint, path));
 
 			// Let's try to be smart, if the added key match the scriptPubKey then we are in p2psh p2wpkh
-			var output = GetTxOut();
-			if (output != null)
+			if (Parent.Settings.IsSmart)
 			{
-				if (key.WitHash.ScriptPubKey.Hash.ScriptPubKey == output.ScriptPubKey)
+				var output = GetTxOut();
+				if (output != null)
 				{
-					redeem_script = key.WitHash.ScriptPubKey;
-					TrySlimOutput();
+					if (key.WitHash.ScriptPubKey.Hash.ScriptPubKey == output.ScriptPubKey)
+					{
+						redeem_script = key.WitHash.ScriptPubKey;
+						TrySlimOutput();
+					}
 				}
 			}
 		}
@@ -753,12 +762,17 @@ namespace NBitcoin
 				return NonWitnessUtxo.Outputs[TxIn.PrevOut.N];
 			return null;
 		}
-		public bool TryFinalize(TransactionBuilder transactionBuilder, out IList<PSBTError> errors)
+		public bool TryFinalizeInput(out IList<PSBTError> errors)
 		{
 			errors = null;
 			if (IsFinalized())
 				return true;
-			transactionBuilder = transactionBuilder ?? Transaction.GetConsensusFactory().CreateTransactionBuilder();
+			var transactionBuilder = Transaction.GetConsensusFactory().CreateTransactionBuilder();
+			if (Parent.Settings.CustomBuilderExtensions != null)
+			{
+				transactionBuilder.Extensions.Clear();
+				transactionBuilder.Extensions.AddRange(Parent.Settings.CustomBuilderExtensions);
+			}
 			var txout = GetTxOut();
 			if (txout == null)
 			{
@@ -775,7 +789,8 @@ namespace NBitcoin
 			Transaction signed = null;
 			try
 			{
-				signed = transactionBuilder.SignTransaction(Parent.GetOriginalTransaction(), SigHash.All);
+				var signedTx = Parent.Settings.IsSmart ? Parent.GetOriginalTransaction() : Transaction.Clone();
+				signed = transactionBuilder.SignTransaction(signedTx, SigHash.All);
 			}
 			catch (Exception ex)
 			{
@@ -802,9 +817,9 @@ namespace NBitcoin
 			errors = null;
 			return true;
 		}
-		public void Finalize(TransactionBuilder transactionBuilder = null)
+		public void FinalizeInput()
 		{
-			if (!TryFinalize(transactionBuilder, out var errors))
+			if (!TryFinalizeInput(out var errors))
 				throw new PSBTException(errors);
 		}
 
@@ -813,10 +828,6 @@ namespace NBitcoin
 			return TrySign(key, SigHash.All, out signature);
 		}
 		public bool TrySign(Key key, SigHash sigHash, out TransactionSignature signature)
-		{
-			return TrySign(key, sigHash, true, out signature);
-		}
-		public bool TrySign(Key key, SigHash sigHash, bool useLowR, out TransactionSignature signature)
 		{
 			CheckCompatibleSigHash(sigHash);
 			if (PartialSigs.ContainsKey(key.PubKey.Hash))
@@ -837,7 +848,7 @@ namespace NBitcoin
 				return false;
 
 			var hash = Transaction.GetSignatureHash(coin, sigHash);
-			signature = key.Sign(hash, sigHash, useLowR);
+			signature = key.Sign(hash, sigHash, Parent.Settings.UseLowR);
 			this.PartialSigs.Add(key.PubKey.Hash, new Tuple<PubKey, TransactionSignature>(key.PubKey, signature));
 			return true;
 		}

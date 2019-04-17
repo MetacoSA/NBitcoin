@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
 using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>;
 using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.KeyId, System.Tuple<NBitcoin.PubKey, NBitcoin.Crypto.ECDSASignature>>;
+using NBitcoin.BuilderExtensions;
 
 namespace NBitcoin
 {
@@ -65,7 +66,36 @@ namespace NBitcoin
 	}
 
 	
-	
+	public class PSBTSettings
+	{
+		/// <summary>
+		/// Test vector in the bip174 specify to use a signer which follows RFC 6979.
+		/// So we must sign without [LowR value assured way](https://github.com/MetacoSA/NBitcoin/pull/510)
+		/// This should be turned false only in the test.
+		/// ref: https://github.com/bitcoin/bitcoin/pull/13666
+		/// </summary>
+		public bool UseLowR { get; set; } = true;
+
+		/// <summary>
+		/// Use custom builder extensions to customize finalization
+		/// </summary>
+		public IEnumerable<BuilderExtension> CustomBuilderExtensions { get; set; }
+
+		/// <summary>
+		/// Try to do anything that is possible to deduce PSBT information from input information
+		/// </summary>
+		public bool IsSmart { get; set; } = true;
+
+		public PSBTSettings Clone()
+		{
+			return new PSBTSettings()
+			{
+				UseLowR = UseLowR,
+				CustomBuilderExtensions = CustomBuilderExtensions?.ToArray(),
+				IsSmart = IsSmart
+			};
+		}
+	}
 
 	public class PSBT : IEquatable<PSBT>
 	{
@@ -321,28 +351,33 @@ namespace NBitcoin
 			return result;
 		}
 
-		public PSBT Finalize(TransactionBuilder transactionBuilder = null)
+		public PSBT Finalize()
 		{
-			List<PSBTError> errors = new List<PSBTError>();
-			foreach (var input in Inputs)
-			{
-				if(!input.TryFinalize(transactionBuilder, out var e))
-				{
-					errors.AddRange(e);
-				}
-			}
-			if (errors.Count != 0)
+			if (!TryFinalize(out var errors))
 				throw new PSBTException(errors);
 			return this;
 		}
 
-		/// <summary>
-		/// Test vector in the bip174 specify to use a signer which follows RFC 6979.
-		/// So we must sign without [LowR value assured way](https://github.com/MetacoSA/NBitcoin/pull/510)
-		/// This should be turned false only in the test.
-		/// ref: https://github.com/bitcoin/bitcoin/pull/13666
-		/// </summary>
-		internal bool UseLowR { get; set; } = true;
+		public bool TryFinalize(out IList<PSBTError> errors)
+		{
+			var localErrors = new List<PSBTError>();
+			foreach (var input in Inputs)
+			{
+				if (!input.TryFinalizeInput(out var e))
+				{
+					localErrors.AddRange(e);
+				}
+			}
+			if (localErrors.Count != 0)
+			{
+				errors = localErrors;
+				return false;
+			}
+			errors = null;
+			return true;
+		}
+
+		public PSBTSettings Settings { get; set; } = new PSBTSettings();
 
 		public PSBT SignAll(params Key[] keys)
 		{
@@ -356,7 +391,7 @@ namespace NBitcoin
 			{
 				foreach (var input in this.Inputs)
 				{
-					input.TrySign(key, sigHash, UseLowR, out _);
+					input.TrySign(key, sigHash, out _);
 				}
 			}
 			return this;
@@ -493,6 +528,7 @@ namespace NBitcoin
 				psbt.Inputs[i].originalScriptSig = this.Inputs[i].originalScriptSig;
 				psbt.Inputs[i].originalWitScript = this.Inputs[i].originalWitScript;
 			}
+			psbt.Settings = Settings.Clone();
 			return psbt;
 		}
 

@@ -79,6 +79,9 @@ namespace NBitcoin.Tests
 			psbt = PSBT.FromTransaction(tx)
 				.AddTransactions(funds)
 				.Finalize();
+
+			Assert.Equal(tx.ToHex(), psbt.GetOriginalTransaction().ToHex()); // Check that we can still get the original tx
+
 			Assert.NotNull(psbt.Inputs[0].FinalScriptSig); // it should be finalized
 			Assert.NotNull(psbt.Inputs[0].NonWitnessUtxo);
 			Assert.NotNull(psbt.Inputs[1].FinalScriptWitness); // p2wpkh too
@@ -371,7 +374,7 @@ namespace NBitcoin.Tests
 			var bobKeyhex2 = (string)testcase["key10"]["wif"];
 			Assert.Equal(bobKey1, new BitcoinSecret(bobKeyhex1, network).PrivateKey);
 			Assert.Equal(bobKey2, new BitcoinSecret(bobKeyhex2, network).PrivateKey);
-			psbtForBob.UseLowR = false;
+			psbtForBob.Settings.UseLowR = false;
 			psbtForBob.SignAll(bobKey1, bobKey2);
 			expected = PSBT.Parse((string)testcase["psbt5"], Network.Main);
 			Assert.Equal(expected, psbtForBob);
