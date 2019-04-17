@@ -1188,11 +1188,12 @@ namespace NBitcoin
 			}
 		}
 
-		public void SignPSBT(PSBT psbt)
+		public TransactionBuilder SignPSBT(PSBT psbt)
 		{
 			SignPSBT(psbt, SigHash.All);
+			return this;
 		}
-		public void SignPSBT(PSBT psbt, SigHash sigHash)
+		public TransactionBuilder SignPSBT(PSBT psbt, SigHash sigHash)
 		{
 			if (psbt == null)
 				throw new ArgumentNullException(nameof(psbt));
@@ -1200,13 +1201,14 @@ namespace NBitcoin
 			var tx = psbt.GetOriginalTransaction();
 			SignTransactionInPlace(tx, sigHash, out var signingContext);
 			UpdatePSBTSignatures(psbt, signingContext);
+			return this;
 		}
 
 		/// <summary>
 		/// Update information in the PSBT with informations that the transaction builder is holding
 		/// </summary>
 		/// <param name="psbt">A PSBT</param>
-		public void UpdatePSBT(PSBT psbt)
+		public TransactionBuilder UpdatePSBT(PSBT psbt)
 		{
 			if (psbt == null)
 				throw new ArgumentNullException(nameof(psbt));
@@ -1217,6 +1219,7 @@ namespace NBitcoin
 				.ToArray());
 
 			psbt.AddScripts(_ScriptPubKeyToRedeem.Values.ToArray());
+			return this;
 		}
 		/// <summary>
 		/// Build the transaction
