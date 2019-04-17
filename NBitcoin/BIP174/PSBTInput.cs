@@ -904,12 +904,12 @@ namespace NBitcoin
 		}
 		public Coin GetSignableCoin(out string error)
 		{
-			var output = GetTxOut();
-			if (output == null)
+			if (witness_utxo == null && non_witness_utxo == null)
 			{
 				error = "witness_utxo or non_witness_output not set";
 				return null;
 			}
+			var output = GetTxOut();
 			var coin = new Coin(TxIn.PrevOut, output);
 			if (PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey) is ScriptId scriptId)
 			{
