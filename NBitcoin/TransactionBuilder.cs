@@ -191,6 +191,18 @@ namespace NBitcoin
 	/// </summary>
 	public class TransactionBuilder
 	{
+		internal class SignatureEvent
+		{
+			public SignatureEvent(PubKey pubKey, TransactionSignature sig, IndexedTxIn input)
+			{
+				Input = input;
+				PubKey = pubKey;
+				Signature = sig;
+			}
+			public PubKey PubKey;
+			public TransactionSignature Signature;
+			public IndexedTxIn Input;
+		}
 		internal class TransactionBuilderSigner : ISigner
 		{
 			ICoin coin;
@@ -204,9 +216,13 @@ namespace NBitcoin
 			}
 			#region ISigner Members
 
+			public List<SignatureEvent> EmittedSignatures { get; } = new List<SignatureEvent>();
+
 			public TransactionSignature Sign(Key key)
 			{
-				return txIn.Sign(key, coin, sigHash);
+				var sig = txIn.Sign(key, coin, sigHash);
+				EmittedSignatures.Add(new SignatureEvent(key.PubKey, sig, txIn));
+				return sig;
 			}
 
 			#endregion
@@ -239,6 +255,7 @@ namespace NBitcoin
 			private Dictionary<KeyId, ECDSASignature> _VerifiedSignatures = new Dictionary<KeyId, ECDSASignature>();
 			private Dictionary<uint256, PubKey> _DummyToRealKey = new Dictionary<uint256, PubKey>();
 
+			public List<SignatureEvent> EmittedSignatures { get; } = new List<SignatureEvent>();
 
 			public KnownSignatureSigner(List<Tuple<PubKey, ECDSASignature>> _KnownSignatures, ICoin coin, SigHash sigHash, IndexedTxIn txIn)
 			{
@@ -255,6 +272,7 @@ namespace NBitcoin
 					var hash = txIn.GetSignatureHash(coin, sigHash);
 					if(tv.Item1.Verify(hash, tv.Item2))
 					{
+						EmittedSignatures.Add(new SignatureEvent(tv.Item1, new TransactionSignature(tv.Item2, sigHash), txIn));
 						var key = new Key();
 						_DummyToRealKey.Add(Hashes.Hash256(key.PubKey.ToBytes()), tv.Item1);
 						_VerifiedSignatures.AddOrReplace(key.PubKey.Hash, tv.Item2);
@@ -319,6 +337,8 @@ namespace NBitcoin
 				get;
 				set;
 			}
+
+			public List<SignatureEvent> Signatures { get; set; } = new List<SignatureEvent>();
 		}
 		internal class TransactionBuildingContext
 		{
@@ -1141,8 +1161,14 @@ namespace NBitcoin
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public PSBT BuildPSBT(bool sign, SigHash sigHash)
 		{
-			var tx = BuildTransaction(sign, sigHash);
+			var tx = BuildTransaction(false, sigHash);
+			SignTransactionInPlace(tx, sigHash, out var signingContext);
 			var psbt = tx.CreatePSBT();
+			foreach (var signature in signingContext.Signatures)
+			{
+				var psbtInput = psbt.Inputs.FindIndexedInput(signature.Input.PrevOut);
+				psbtInput.PartialSigs.TryAdd(signature.PubKey.Hash, Tuple.Create(signature.PubKey, signature.Signature));
+			}
 			psbt.AddCoins(tx.Inputs.AsIndexedInputs()
 				.Select(i => this.FindSignableCoin(i) ?? this.FindCoin(i.PrevOut))
 				.Where(c => c != null)
@@ -1351,6 +1377,10 @@ namespace NBitcoin
 		}
 		public Transaction SignTransactionInPlace(Transaction transaction, SigHash sigHash)
 		{
+			return SignTransactionInPlace(transaction, sigHash, out _);
+		}
+		Transaction SignTransactionInPlace(Transaction transaction, SigHash sigHash, out TransactionSigningContext signingContext)
+		{
 			TransactionSigningContext ctx = new TransactionSigningContext(this, transaction);
 			if(transaction is IHasForkId hasForkId)
 			{
@@ -1365,6 +1395,7 @@ namespace NBitcoin
 					Sign(ctx, coin, input);
 				}
 			}
+			signingContext = ctx;
 			return transaction;
 		}
 		public ICoin FindSignableCoin(IndexedTxIn txIn)
@@ -1851,7 +1882,20 @@ namespace NBitcoin
 					if(scriptSig1 != null && scriptSig2 != null && extension.CanCombineScriptSig(scriptPubKey, scriptSig1, scriptSig2))
 					{
 						var combined = extension.CombineScriptSig(scriptPubKey, scriptSig1, scriptSig2);
+						if (combined != null)
+						{
+							ctx.Signatures.AddRange(signer.EmittedSignatures);
+							ctx.Signatures.AddRange(signer2.EmittedSignatures);
+						}
 						return combined;
+					}
+					if (scriptSig1 != null)
+					{
+						ctx.Signatures.AddRange(signer.EmittedSignatures);
+					}
+					if (scriptSig2 != null)
+					{
+						ctx.Signatures.AddRange(signer2.EmittedSignatures);
 					}
 					return scriptSig1 ?? scriptSig2;
 				}

@@ -1695,6 +1695,7 @@ namespace NBitcoin.Tests
 
 			// Let's check if PSBT can be finalized
 			var psbt = txBuilder.BuildPSBT(true);
+			Assert.All(psbt.Inputs, input => input.PartialSigs.Any()); // All inputs should have partial sigs
 			Assert.False(psbt.IsAllFinalized());
 			psbt.TryFinalize(out _);
 			Assert.False(psbt.IsAllFinalized()); // Non segwit transactions need the previous tx
