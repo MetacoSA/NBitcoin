@@ -282,6 +282,18 @@ namespace NBitcoin
 		internal void Write(JsonTextWriter jsonWriter)
 		{
 			jsonWriter.WriteStartObject();
+
+			if (unknown.Count != 0)
+			{
+				jsonWriter.WritePropertyName("unknown");
+				jsonWriter.WriteStartObject();
+				foreach (var el in unknown)
+				{
+					jsonWriter.WritePropertyValue(Encoders.Hex.EncodeData(el.Key), Encoders.Hex.EncodeData(el.Value));
+				}
+				jsonWriter.WriteEndObject();
+			}
+
 			if (this.redeem_script != null)
 			{
 				jsonWriter.WritePropertyValue("redeem_script", redeem_script.ToString());

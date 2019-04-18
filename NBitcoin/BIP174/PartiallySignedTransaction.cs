@@ -533,6 +533,17 @@ namespace NBitcoin
 			formatter.WriteTransaction2(jsonWriter, tx);
 			jsonWriter.WriteEndObject();
 
+			if (unknown.Count != 0)
+			{
+				jsonWriter.WritePropertyName("unknown");
+				jsonWriter.WriteStartObject();
+				foreach (var el in unknown)
+				{
+					jsonWriter.WritePropertyValue(Encoders.Hex.EncodeData(el.Key), Encoders.Hex.EncodeData(el.Value));
+				}
+				jsonWriter.WriteEndObject();
+			}
+
 			jsonWriter.WritePropertyName("inputs");
 			jsonWriter.WriteStartArray();
 			foreach(var input in this.Inputs)

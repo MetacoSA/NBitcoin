@@ -680,6 +680,16 @@ namespace NBitcoin
 		{
 			jsonWriter.WriteStartObject();
 			jsonWriter.WritePropertyValue("index", Index);
+			if (unknown.Count != 0)
+			{
+				jsonWriter.WritePropertyName("unknown");
+				jsonWriter.WriteStartObject();
+				foreach (var el in unknown)
+				{
+					jsonWriter.WritePropertyValue(Encoders.Hex.EncodeData(el.Key), Encoders.Hex.EncodeData(el.Value));
+				}
+				jsonWriter.WriteEndObject();
+			}
 			jsonWriter.WritePropertyName("partial_signatures");
 			jsonWriter.WriteStartObject();
 			foreach (var sig in partial_sigs)
