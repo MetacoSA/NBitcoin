@@ -9,7 +9,7 @@ namespace NBitcoin
 	/// <summary>
 	/// A private Hierarchical Deterministic key
 	/// </summary>
-	public class ExtKey : IBitcoinSerializable, IDestination, ISecret, IEquatable<ExtKey>
+	public class ExtKey : IBitcoinSerializable, IDestination, ISecret, IEquatable<ExtKey>, IHDKey
 	{
 		/// <summary>
 		/// Parses the Base58 data (checking the network if specified), checks it represents the
@@ -390,6 +390,16 @@ namespace NBitcoin
 				vchChainCode.SequenceEqual(other.vchChainCode) &&
 				vchFingerprint == other.vchFingerprint &&
 				key.Equals(other.key);
+		}
+
+		IHDKey IHDKey.Derive(uint index)
+		{
+			return this.Derive(index);
+		}
+
+		public PubKey GetPublicKey()
+		{
+			return PrivateKey.PubKey;
 		}
 	}
 }

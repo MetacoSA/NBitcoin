@@ -686,6 +686,52 @@ namespace NBitcoin
 		/// <summary>
 		/// Add keypath information to this PSBT for each input or output involving it
 		/// </summary>
+		/// <param name="masterKey">The master key of the keypaths</param>
+		/// <param name="paths">The path of the public keys</param>
+		/// <returns>This PSBT</returns>
+		public PSBT AddKeyPath(IHDKey masterKey, params KeyPath[] paths)
+		{
+			return AddKeyPath(masterKey, paths.Select(p => Tuple.Create(p, null as Script)).ToArray());
+		}
+
+		/// <summary>
+		/// Add keypath information to this PSBT for each input or output involving it
+		/// </summary>
+		/// <param name="masterKey">The master key of the keypaths</param>
+		/// <param name="paths">The path of the public keys with their expected scriptPubKey</param>
+		/// <returns>This PSBT</returns>
+		public PSBT AddKeyPath(IHDKey masterKey, params Tuple<KeyPath, Script>[] paths)
+		{
+			if (masterKey == null)
+				throw new ArgumentNullException(nameof(masterKey));
+			if (paths == null)
+				throw new ArgumentNullException(nameof(paths));
+
+			Dictionary<KeyPath, IHDKey> derivationCache = new Dictionary<KeyPath, IHDKey>();
+			foreach (var path in paths)
+			{
+				var key = masterKey;
+				var keyPath = new KeyPath();
+				foreach (var index in path.Item1.Indexes)
+				{
+					keyPath = keyPath.Derive(index);
+					if (derivationCache.TryGetValue(keyPath, out var cachedKey))
+					{
+						key = cachedKey;
+						continue;
+					}
+					key = key.Derive(index);
+					if (derivationCache.Count < 200)
+						derivationCache.Add(keyPath, key);
+				}
+				AddKeyPath(masterKey.GetPublicKey().GetHDFingerPrint(), key.GetPublicKey(), path.Item1, path.Item2);
+			}
+			return this;
+		}
+
+		/// <summary>
+		/// Add keypath information to this PSBT for each input or output involving it
+		/// </summary>
 		/// <param name="pubkey">A public key to add</param>
 		/// <param name="path">The key path</param>
 		/// <returns>This PSBT</returns>
@@ -704,6 +750,7 @@ namespace NBitcoin
 		{
 			return AddKeyPath(fingerprint, pubkey, path, null);
 		}
+
 		/// <summary>
 		/// Add keypath information to this PSBT
 		/// </summary>

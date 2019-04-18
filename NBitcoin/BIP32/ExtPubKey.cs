@@ -8,7 +8,7 @@ namespace NBitcoin
 	/// <summary>
 	/// A public HD key
 	/// </summary>
-	public class ExtPubKey : IBitcoinSerializable, IDestination
+	public class ExtPubKey : IBitcoinSerializable, IDestination, IHDKey
 	{
 		public static ExtPubKey Parse(string wif, Network expectedNetwork = null)
 		{
@@ -240,6 +240,16 @@ namespace NBitcoin
 		public string ToString(Network network)
 		{
 			return new BitcoinExtPubKey(this, network).ToString();
+		}
+
+		IHDKey IHDKey.Derive(uint index)
+		{
+			return this.Derive(index);
+		}
+
+		public PubKey GetPublicKey()
+		{
+			return this.pubkey;
 		}
 
 		#region IDestination Members

@@ -25,7 +25,7 @@
 	/// <summary>
 	/// Base58 representation of an ExtKey, within a particular network.
 	/// </summary>
-	public class BitcoinExtKey : BitcoinExtKeyBase, ISecret
+	public class BitcoinExtKey : BitcoinExtKeyBase, ISecret, IHDKey
 	{
 		/// <summary>
 		/// Constructor. Creates an extended key from the Base58 representation, checking the expected network.
@@ -103,6 +103,16 @@
 			return ExtKey.Neuter().GetWif(Network);
 		}
 
+		public IHDKey Derive(uint index)
+		{
+			return new BitcoinExtKey(ExtKey.Derive(index), Network);
+		}
+
+		public PubKey GetPublicKey()
+		{
+			return ExtKey.PrivateKey.PubKey;
+		}
+
 		#region ISecret Members
 
 		/// <summary>
@@ -132,7 +142,7 @@
 	/// <summary>
 	/// Base58 representation of an ExtPubKey, within a particular network.
 	/// </summary>
-	public class BitcoinExtPubKey : BitcoinExtKeyBase
+	public class BitcoinExtPubKey : BitcoinExtKeyBase, IHDKey
 	{
 		/// <summary>
 		/// Constructor. Creates an extended public key from the Base58 representation, checking the expected network.
@@ -215,6 +225,16 @@
 			if(key == null)
 				return null;
 			return key.ExtPubKey;
+		}
+
+		public IHDKey Derive(uint index)
+		{
+			return new BitcoinExtPubKey(ExtPubKey.Derive(index), Network);
+		}
+
+		public PubKey GetPublicKey()
+		{
+			return ExtPubKey.pubkey;
 		}
 	}
 }

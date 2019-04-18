@@ -772,7 +772,7 @@ namespace NBitcoin
 			(RedeemScript != null && RedeemScript.GetAllPubKeys().Any(p => p.Equals(pubkey))) || // more paranoia check (Probably unnecessary)
 			(WitnessScript != null && WitnessScript.GetAllPubKeys().Any(p => p.Equals(pubkey)));
 		}
-		internal Script GetProbableScriptPubKey() => GetTxOut()?.ScriptPubKey ?? RedeemScript?.Hash.ScriptPubKey ?? orphanTxOut?.ScriptPubKey;
+		internal Script GetProbableScriptPubKey() => GetTxOut()?.ScriptPubKey ?? RedeemScript?.Hash.ScriptPubKey;
 		public TxOut GetTxOut()
 		{
 			if (WitnessUtxo != null)
