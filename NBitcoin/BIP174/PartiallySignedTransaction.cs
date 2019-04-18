@@ -114,7 +114,6 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(network));
 			return Parse(hexOrBase64, network.Consensus.ConsensusFactory);
 		}
-
 		public static PSBT Parse(string hexOrBase64, ConsensusFactory consensusFactory)
 		{
 			if (hexOrBase64 == null)
@@ -129,7 +128,12 @@ namespace NBitcoin
 
 			return Load(raw, consensusFactory);
 		}
-
+		public static PSBT Load(byte[] rawBytes, Network network)
+		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			return Load(rawBytes, network.Consensus.ConsensusFactory);
+		}
 		public static PSBT Load(byte[] rawBytes, ConsensusFactory consensusFactory)
 		{
 			if (rawBytes == null)
