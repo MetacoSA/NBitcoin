@@ -794,6 +794,11 @@ namespace NBitcoin
 				transactionBuilder.Extensions.Clear();
 				transactionBuilder.Extensions.AddRange(Parent.Settings.CustomBuilderExtensions);
 			}
+			if (witness_utxo == null && non_witness_utxo == null)
+			{
+				errors = new List<PSBTError>() { new PSBTError(Index, "Neither witness_utxo nor non_witness_output is set") };
+				return false;
+			}
 			var txout = GetTxOut();
 			if (txout == null)
 			{
@@ -915,7 +920,7 @@ namespace NBitcoin
 		{
 			if (witness_utxo == null && non_witness_utxo == null)
 			{
-				error = "witness_utxo or non_witness_output not set";
+				error = "Neither witness_utxo nor non_witness_output is set";
 				return null;
 			}
 			var output = GetTxOut();

@@ -1669,7 +1669,7 @@ namespace NBitcoin.Tests
 			{
 				fundingTx.Outputs.Add(c.TxOut);
 			}
-			// Let's fix the outpoints of thecoins
+			// Let's fix the outpoints of the coins
 			var fundingTxHash = fundingTx.GetHash();
 			for (int i = 0; i < allCoins.Length; i++)
 			{
