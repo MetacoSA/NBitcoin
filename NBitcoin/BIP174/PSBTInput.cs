@@ -788,16 +788,22 @@ namespace NBitcoin
 			errors = null;
 			if (IsFinalized())
 				return true;
-			var transactionBuilder = Transaction.GetConsensusFactory().CreateTransactionBuilder();
-			if (Parent.Settings.CustomBuilderExtensions != null)
+			var isSane = this.CheckSanity();
+			if (isSane.Count != 0)
 			{
-				transactionBuilder.Extensions.Clear();
-				transactionBuilder.Extensions.AddRange(Parent.Settings.CustomBuilderExtensions);
+				errors = isSane;
+				return false;
 			}
 			if (witness_utxo == null && non_witness_utxo == null)
 			{
 				errors = new List<PSBTError>() { new PSBTError(Index, "Neither witness_utxo nor non_witness_output is set") };
 				return false;
+			}
+			var transactionBuilder = Transaction.GetConsensusFactory().CreateTransactionBuilder();
+			if (Parent.Settings.CustomBuilderExtensions != null)
+			{
+				transactionBuilder.Extensions.Clear();
+				transactionBuilder.Extensions.AddRange(Parent.Settings.CustomBuilderExtensions);
 			}
 			var txout = GetTxOut();
 			if (txout == null)
@@ -856,6 +862,7 @@ namespace NBitcoin
 		public TransactionSignature Sign(Key key, SigHash sigHash)
 		{
 			CheckCompatibleSigHash(sigHash);
+
 			if (PartialSigs.ContainsKey(key.PubKey))
 			{
 				var signature = PartialSigs[key.PubKey];
