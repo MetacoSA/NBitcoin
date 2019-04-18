@@ -395,7 +395,7 @@ namespace NBitcoin
 			{
 				foreach (var input in this.Inputs)
 				{
-					input.TrySign(key, sigHash, out _);
+					input.Sign(key, sigHash);
 				}
 			}
 			return this;
@@ -406,15 +406,15 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(keys));
 			return SignAll(sigHash, keys.Select(k => k.PrivateKey).ToArray());
 		}
-		public PSBT Sign(ExtKey extkey, KeyPath keyPath)
+		public PSBT SignAll(ExtKey extkey, KeyPath keyPath)
 		{
-			return Sign(extkey, keyPath, SigHash.All);
+			return SignAll(extkey, keyPath, SigHash.All);
 		}
-		public PSBT Sign(BitcoinExtKey extkey, KeyPath keyPath)
+		public PSBT SignAll(BitcoinExtKey extkey, KeyPath keyPath)
 		{
-			return Sign(extkey?.ExtKey, keyPath, SigHash.All);
+			return SignAll(extkey?.ExtKey, keyPath, SigHash.All);
 		}
-		public PSBT Sign(ExtKey extkey, KeyPath keyPath, SigHash sigHash)
+		public PSBT SignAll(ExtKey extkey, KeyPath keyPath, SigHash sigHash)
 		{
 			if (extkey == null)
 				throw new ArgumentNullException(nameof(extkey));
@@ -427,14 +427,14 @@ namespace NBitcoin
 					v.Item1 != default && 
 					v.Item1 == extkey.PrivateKey.PubKey.GetHDFingerPrint())
 				{
-					input.TrySign(privKey, out _);
+					input.Sign(privKey);
 				}
 			}
 			return this;
 		}
-		public PSBT Sign(BitcoinExtKey extkey, KeyPath keyPath, SigHash sigHash)
+		public PSBT SignAll(BitcoinExtKey extkey, KeyPath keyPath, SigHash sigHash)
 		{
-			return Sign(extkey?.ExtKey, keyPath, sigHash);
+			return SignAll(extkey?.ExtKey, keyPath, sigHash);
 		}
 
 		public Transaction ExtractTransaction()

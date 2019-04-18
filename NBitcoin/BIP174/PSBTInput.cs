@@ -834,34 +834,33 @@ namespace NBitcoin
 				throw new PSBTException(errors);
 		}
 
-		public bool TrySign(Key key, out TransactionSignature signature)
+		public TransactionSignature Sign(Key key)
 		{
-			return TrySign(key, SigHash.All, out signature);
+			return Sign(key, SigHash.All);
 		}
-		public bool TrySign(Key key, SigHash sigHash, out TransactionSignature signature)
+		public TransactionSignature Sign(Key key, SigHash sigHash)
 		{
 			CheckCompatibleSigHash(sigHash);
 			if (PartialSigs.ContainsKey(key.PubKey))
 			{
-				signature = PartialSigs[key.PubKey];
+				var signature = PartialSigs[key.PubKey];
 				if (sigHash != signature.SigHash)
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
-				return true;
+				return signature;
 			}
 			if (!IsRelatedKey(key.PubKey))
 			{
-				signature = null;
-				return false;
+				return null;
 			}
-			signature = null;
+
 			var coin = GetSignableCoin();
 			if (coin == null)
-				return false;
+				return null;
 
 			var hash = Transaction.GetSignatureHash(coin, sigHash);
-			signature = key.Sign(hash, sigHash, Parent.Settings.UseLowR);
-			this.PartialSigs.TryAdd(key.PubKey, signature);
-			return true;
+			var signature2 = key.Sign(hash, sigHash, Parent.Settings.UseLowR);
+			this.PartialSigs.TryAdd(key.PubKey, signature2);
+			return signature2;
 		}
 
 		private void CheckCompatibleSigHash(SigHash sigHash)
