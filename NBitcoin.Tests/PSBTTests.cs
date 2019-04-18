@@ -403,6 +403,40 @@ namespace NBitcoin.Tests
 			var expected = PSBT.Parse((string)testdata["psbtUnknown2"], Network.Main);
 			Assert.Equal(data1, expected, ComparerInstance);
 		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanRebaseKeypathInPSBT()
+		{
+			var masterExtkey = new BitcoinExtKey("tprv8ZgxMBicQKsPd9TeAdPADNnSyH9SSUUbTVeFszDE23Ki6TBB5nCefAdHkK8Fm3qMQR6sHwA56zqRmKmxnHk37JkiFzvncDqoKmPWubu7hDF", Network.TestNet);
+			var accountExtKey = masterExtkey.Derive(new KeyPath("0'/0'/0'"));
+
+			Transaction funding = masterExtkey.Network.CreateTransaction();
+			funding.Outputs.Add(Money.Coins(2.0m), accountExtKey.Derive(0).ScriptPubKey);
+			funding.Outputs.Add(Money.Coins(2.0m), accountExtKey.Derive(1).ScriptPubKey);
+
+			Transaction tx = masterExtkey.Network.CreateTransaction();
+			tx.Version = 2;
+			tx.Outputs.Add(Money.Coins(1.49990000m), new Script(Encoders.Hex.DecodeData("0014d85c2b71d0060b09c9886aeb815e50991dda124d")));
+			tx.Outputs.Add(Money.Coins(1.00000000m), new Script(Encoders.Hex.DecodeData("001400aea9a2e5f0f876a588df5546e8742d1d87008f")));
+			tx.Inputs.Add(funding, 0);
+			tx.Inputs.Add(funding, 1);
+
+			var psbt = PSBT.FromTransaction(tx);
+			psbt.AddTransactions(funding);
+			psbt.AddKeyPath(accountExtKey, Tuple.Create(new KeyPath("0"), funding.Outputs[0].ScriptPubKey), 
+										   Tuple.Create(new KeyPath("1"), funding.Outputs[1].ScriptPubKey));
+			Assert.Equal(new KeyPath("0"), psbt.Inputs[0].HDKeyPaths[accountExtKey.Derive(0).GetPublicKey()].Item2);
+			Assert.Equal(new KeyPath("1"), psbt.Inputs[1].HDKeyPaths[accountExtKey.Derive(1).GetPublicKey()].Item2);
+			Assert.Equal(accountExtKey.GetPublicKey().GetHDFingerPrint(), psbt.Inputs[0].HDKeyPaths[accountExtKey.Derive(0).GetPublicKey()].Item1);
+			Assert.Equal(accountExtKey.GetPublicKey().GetHDFingerPrint(), psbt.Inputs[1].HDKeyPaths[accountExtKey.Derive(1).GetPublicKey()].Item1);
+
+			psbt.RebaseKeyPaths(accountExtKey.GetPublicKey().GetHDFingerPrint(), masterExtkey.GetPublicKey().GetHDFingerPrint(), new KeyPath("0'/0'/0'"));
+
+			Assert.Equal(new KeyPath("0'/0'/0'/0"), psbt.Inputs[0].HDKeyPaths[accountExtKey.Derive(0).GetPublicKey()].Item2);
+			Assert.Equal(new KeyPath("0'/0'/0'/1"), psbt.Inputs[1].HDKeyPaths[accountExtKey.Derive(1).GetPublicKey()].Item2);
+			Assert.Equal(masterExtkey.GetPublicKey().GetHDFingerPrint(), psbt.Inputs[0].HDKeyPaths[accountExtKey.Derive(0).GetPublicKey()].Item1);
+			Assert.Equal(masterExtkey.GetPublicKey().GetHDFingerPrint(), psbt.Inputs[1].HDKeyPaths[accountExtKey.Derive(1).GetPublicKey()].Item1);
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

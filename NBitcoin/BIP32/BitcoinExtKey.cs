@@ -1,4 +1,6 @@
-﻿namespace NBitcoin
+﻿using System;
+
+namespace NBitcoin
 {
 	public abstract class BitcoinExtKeyBase : Base58Data, IDestination
 	{
@@ -103,9 +105,21 @@
 			return ExtKey.Neuter().GetWif(Network);
 		}
 
-		public IHDKey Derive(uint index)
+		public BitcoinExtKey Derive(uint index)
 		{
 			return new BitcoinExtKey(ExtKey.Derive(index), Network);
+		}
+
+		IHDKey IHDKey.Derive(uint index)
+		{
+			return Derive(index);
+		}
+
+		public BitcoinExtKey Derive(KeyPath keyPath)
+		{
+			if (keyPath == null)
+				throw new ArgumentNullException(nameof(keyPath));
+			return new BitcoinExtKey(ExtKey.Derive(keyPath), Network);
 		}
 
 		public PubKey GetPublicKey()
@@ -227,9 +241,21 @@
 			return key.ExtPubKey;
 		}
 
-		public IHDKey Derive(uint index)
+		IHDKey IHDKey.Derive(uint index)
 		{
-			return new BitcoinExtPubKey(ExtPubKey.Derive(index), Network);
+			return Derive(index);
+		}
+
+		public BitcoinExtPubKey Derive(uint index)
+		{
+			return Derive(index);
+		}
+
+		public BitcoinExtPubKey Derive(KeyPath keyPath)
+		{
+			if (keyPath == null)
+				throw new ArgumentNullException(nameof(keyPath));
+			return new BitcoinExtPubKey(ExtPubKey.Derive(keyPath), Network);
 		}
 
 		public PubKey GetPublicKey()

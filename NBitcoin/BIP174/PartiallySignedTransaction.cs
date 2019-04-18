@@ -789,6 +789,46 @@ namespace NBitcoin
 			return this;
 		}
 
+		/// <summary>
+		/// Rebase the keypaths.
+		/// If a PSBT updater only know the child HD public key but not the root one, another updater knowing the parent master key it is based on
+		/// can rebase the paths.
+		/// </summary>
+		/// <param name="oldFingerprint">The old fingerprint</param>
+		/// <param name="newFingerprint">The new fingerprint of the master key</param>
+		/// <param name="newRoot">The root of the KeyPath who had the old fingerprint</param>
+		/// <returns></returns>
+		public PSBT RebaseKeyPaths(HDFingerprint oldFingerprint, HDFingerprint newFingerprint, KeyPath newRoot)
+		{
+			if (newRoot == null)
+				throw new ArgumentNullException(nameof(newRoot));
+			foreach (var input in Inputs)
+			{
+				foreach (var keypath in input.HDKeyPaths.ToList())
+				{
+					if (keypath.Value.Item1 == oldFingerprint)
+					{
+						var newKeyPath = newRoot.Derive(keypath.Value.Item2);
+						input.HDKeyPaths.Remove(keypath.Key);
+						input.HDKeyPaths.Add(keypath.Key, Tuple.Create(newFingerprint, newKeyPath));
+					}
+				}
+			}
+			foreach (var output in Outputs)
+			{
+				foreach (var keypath in output.HDKeyPaths.ToList())
+				{
+					if (keypath.Value.Item1 == oldFingerprint)
+					{
+						var newKeyPath = newRoot.Derive(keypath.Value.Item2);
+						output.HDKeyPaths.Remove(keypath.Key);
+						output.HDKeyPaths.Add(keypath.Key, Tuple.Create(newFingerprint, newKeyPath));
+					}
+				}
+			}
+			return this;
+		}
+
 		public Transaction GetOriginalTransaction()
 		{
 			var clone = tx.Clone();
