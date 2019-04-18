@@ -228,8 +228,6 @@ namespace NBitcoin
 			}
 			if (i != tx.Outputs.Count)
 				throw new FormatException("Invalid PSBT. Number of outputs does not match to the global tx");
-
-			AssertSanity();
 		}
 
 		public PSBT AddCoins(params ICoin[] coins)
@@ -481,7 +479,6 @@ namespace NBitcoin
 		private static uint defaultKeyLen = 1;
 		public void Serialize(BitcoinStream stream)
 		{
-			AssertSanity();
 			// magic bytes
 			stream.Inner.Write(PSBT_MAGIC_BYTES, 0 , PSBT_MAGIC_BYTES.Length);
 

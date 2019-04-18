@@ -145,7 +145,6 @@ namespace NBitcoin
 				}
 				stream.ReadWriteAsVarString(ref k);
 			}
-			AssertSanity();
 		}
 
 		public PSBT Parent { get; }
@@ -542,7 +541,6 @@ namespace NBitcoin
 		{
 			if (stream == null)
 				throw new ArgumentNullException(nameof(stream));
-			AssertSanity();
 			// Write the utxo
 			// If there is a non-witness utxo, then don't serialize the witness one.
 			if (witness_utxo != null)
@@ -862,7 +860,6 @@ namespace NBitcoin
 		public TransactionSignature Sign(Key key, SigHash sigHash)
 		{
 			CheckCompatibleSigHash(sigHash);
-
 			if (PartialSigs.ContainsKey(key.PubKey))
 			{
 				var signature = PartialSigs[key.PubKey];
@@ -870,6 +867,7 @@ namespace NBitcoin
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
 				return signature;
 			}
+			AssertSanity();
 			if (!IsRelatedKey(key.PubKey))
 			{
 				return null;
