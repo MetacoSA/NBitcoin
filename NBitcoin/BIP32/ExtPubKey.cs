@@ -19,7 +19,7 @@ namespace NBitcoin
 
 		static readonly byte[] validPubKey = Encoders.Hex.DecodeData("0374ef3990e387b5a2992797f14c031a64efd80e5cb843d7c1d4a0274a9bc75e55");
 		internal byte nDepth;
-		internal HDFingerprint vchFingerprint;
+		internal HDFingerprint parentFingerprint;
 		internal uint nChild;
 
 		internal PubKey pubkey = new PubKey(validPubKey);
@@ -99,7 +99,7 @@ namespace NBitcoin
 			this.pubkey = pubkey;
 			this.nDepth = depth;
 			this.nChild = child;
-			vchFingerprint = fingerprint;
+			parentFingerprint = fingerprint;
 			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, ChainCodeLength);
 		}
 
@@ -119,7 +119,7 @@ namespace NBitcoin
 			this.pubkey = pubkey;
 			this.nDepth = depth;
 			this.nChild = child;
-			vchFingerprint = new HDFingerprint(fingerprint);
+			parentFingerprint = new HDFingerprint(fingerprint);
 			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, ChainCodeLength);
 		}
 
@@ -147,11 +147,20 @@ namespace NBitcoin
 			return childKey.IsChildOf(this);
 		}
 
+		public HDFingerprint ParentFingerprint
+		{
+			get
+			{
+				return parentFingerprint;
+			}
+		}
+
+		[Obsolete("Use ParentFingerprint instead. The Fingerprint of the HD key is actually the fingerprint of the parent public key, this field was not well named.")]
 		public HDFingerprint Fingerprint
 		{
 			get
 			{
-				return vchFingerprint;
+				return parentFingerprint;
 			}
 		}
 
@@ -160,7 +169,7 @@ namespace NBitcoin
 			var result = new ExtPubKey
 			{
 				nDepth = (byte)(nDepth + 1),
-				vchFingerprint = PubKey.GetHDFingerPrint(),
+				parentFingerprint = PubKey.GetHDFingerPrint(),
 				nChild = index
 			};
 			result.pubkey = pubkey.Derivate(this.vchChainCode, index, out result.vchChainCode);
@@ -194,7 +203,7 @@ namespace NBitcoin
 			using(stream.BigEndianScope())
 			{
 				stream.ReadWrite(ref nDepth);
-				stream.ReadWrite(ref vchFingerprint);
+				stream.ReadWrite(ref parentFingerprint);
 				stream.ReadWrite(ref nChild);
 				stream.ReadWrite(ref vchChainCode);
 				stream.ReadWrite(ref pubkey);

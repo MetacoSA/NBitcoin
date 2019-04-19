@@ -26,7 +26,7 @@ namespace NBitcoin
 		byte[] vchChainCode = new byte[ChainCodeLength];
 		uint nChild;
 		byte nDepth;
-		HDFingerprint vchFingerprint = default;
+		HDFingerprint parentFingerprint = default;
 
 		static readonly byte[] hashkey = Encoders.ASCII.DecodeData("Bitcoin seed");
 
@@ -89,7 +89,7 @@ namespace NBitcoin
 			this.nChild = extPubKey.nChild;
 			this.nDepth = extPubKey.nDepth;
 			this.vchChainCode = extPubKey.vchChainCode;
-			this.vchFingerprint = extPubKey.vchFingerprint;
+			this.parentFingerprint = extPubKey.parentFingerprint;
 			this.key = privateKey;
 		}
 
@@ -110,7 +110,7 @@ namespace NBitcoin
 			this.key = key;
 			this.nDepth = depth;
 			this.nChild = child;
-			vchFingerprint = fingerprint;
+			parentFingerprint = fingerprint;
 			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, ChainCodeLength);
 		}
 
@@ -134,7 +134,7 @@ namespace NBitcoin
 			this.key = key;
 			this.nDepth = depth;
 			this.nChild = child;
-			vchFingerprint = new HDFingerprint(fingerprint);
+			parentFingerprint = new HDFingerprint(fingerprint);
 			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, ChainCodeLength);
 		}
 
@@ -206,7 +206,7 @@ namespace NBitcoin
 			ExtPubKey ret = new ExtPubKey
 			{
 				nDepth = nDepth,
-				vchFingerprint = vchFingerprint,
+				parentFingerprint = parentFingerprint,
 				nChild = nChild,
 				pubkey = key.PubKey,
 				vchChainCode = vchChainCode.ToArray()
@@ -218,18 +218,27 @@ namespace NBitcoin
 		{
 			if(Depth != parentKey.Depth + 1)
 				return false;
-			return parentKey.PrivateKey.PubKey.GetHDFingerPrint() == Fingerprint;
+			return parentKey.PrivateKey.PubKey.GetHDFingerPrint() == ParentFingerprint;
 		}
 		public bool IsParentOf(ExtKey childKey)
 		{
 			return childKey.IsChildOf(this);
 		}
 
+		public HDFingerprint ParentFingerprint
+		{
+			get
+			{
+				return parentFingerprint;
+			}
+		}
+
+		[Obsolete("Use ParentFingerprint instead. The Fingerprint of the HD key is actually the fingerprint of the parent public key, this field was not well named.")]
 		public HDFingerprint Fingerprint
 		{
 			get
 			{
-				return vchFingerprint;
+				return parentFingerprint;
 			}
 		}
 
@@ -241,7 +250,7 @@ namespace NBitcoin
 			var result = new ExtKey
 			{
 				nDepth = (byte)(nDepth + 1),
-				vchFingerprint = this.key.PubKey.GetHDFingerPrint(),
+				parentFingerprint = this.key.PubKey.GetHDFingerPrint(),
 				nChild = index
 			};
 			result.key = key.Derivate(this.vchChainCode, index, out result.vchChainCode);
@@ -286,7 +295,7 @@ namespace NBitcoin
 			using(stream.BigEndianScope())
 			{
 				stream.ReadWrite(ref nDepth);
-				stream.ReadWrite(ref vchFingerprint);
+				stream.ReadWrite(ref parentFingerprint);
 				stream.ReadWrite(ref nChild);
 				stream.ReadWrite(ref vchChainCode);
 				byte b = 0;
@@ -345,7 +354,7 @@ namespace NBitcoin
 			if(IsHardened)
 				throw new InvalidOperationException("This private key is hardened, so you can't get its parent");
 			var expectedFingerPrint = parent.PubKey.GetHDFingerPrint();
-			if(parent.Depth != this.Depth - 1 || expectedFingerPrint != vchFingerprint)
+			if(parent.Depth != this.Depth - 1 || expectedFingerPrint != parentFingerprint)
 				throw new ArgumentException("The parent ExtPubKey is not the immediate parent of this ExtKey", "parent");
 
 			byte[] l = null;
@@ -376,7 +385,7 @@ namespace NBitcoin
 			{
 				vchChainCode = parent.vchChainCode,
 				nDepth = parent.Depth,
-				vchFingerprint = parent.Fingerprint,
+				parentFingerprint = parent.Fingerprint,
 				nChild = parent.nChild,
 				key = new Key(keyParentBytes)
 			};
@@ -388,7 +397,7 @@ namespace NBitcoin
 			return nChild == other.nChild &&
 				nDepth == other.nDepth &&
 				vchChainCode.SequenceEqual(other.vchChainCode) &&
-				vchFingerprint == other.vchFingerprint &&
+				parentFingerprint == other.parentFingerprint &&
 				key.Equals(other.key);
 		}
 
