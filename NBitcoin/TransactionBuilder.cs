@@ -241,7 +241,7 @@ namespace NBitcoin
 
 			public PubKey FindKey(Script scriptPubkey)
 			{
-				return _Ctx.FindKey(scriptPubkey).PubKey;
+				return _Ctx.FindKey(scriptPubkey)?.PubKey;
 			}
 
 			#endregion
@@ -288,10 +288,15 @@ namespace NBitcoin
 
 		internal class TransactionSigningContext
 		{
-			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction)
+			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, SigHash sigHash)
 			{
 				Builder = builder;
 				Transaction = transaction;
+				if (transaction is IHasForkId hasForkId)
+				{
+					sigHash = (SigHash)((uint)sigHash | 0x40u);
+				}
+				SigHash = sigHash;
 			}
 
 			public Transaction Transaction
@@ -339,7 +344,8 @@ namespace NBitcoin
 				set;
 			}
 
-			public List<SignatureEvent> Signatures { get; set; } = new List<SignatureEvent>();
+			public List<SignatureEvent> SignatureEvents { get; set; } = new List<SignatureEvent>();
+			public uint? InputIndex { get; internal set; }
 		}
 		internal class TransactionBuildingContext
 		{
@@ -1026,6 +1032,17 @@ namespace NBitcoin
 			return this;
 		}
 
+		public bool TrySignInput(Transaction transaction, uint index, SigHash sigHash, out TransactionSignature signature)
+		{
+			if (transaction == null)
+				throw new ArgumentNullException(nameof(transaction));
+			var ctx = new TransactionSigningContext(this, transaction.Clone(), sigHash);
+			ctx.InputIndex = index;
+			this.SignTransactionInPlace(ctx);
+			signature = ctx.SignatureEvents.FirstOrDefault()?.Signature;
+			return signature != null;
+		}
+
 		public TransactionBuilder SendFees(Money fees)
 		{
 			if(fees == null)
@@ -1170,9 +1187,9 @@ namespace NBitcoin
 		public PSBT BuildPSBT(bool sign, SigHash sigHash)
 		{
 			var tx = BuildTransaction(false, sigHash);
-			TransactionSigningContext signingContext = null;
+			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, sigHash);
 			if (sign)
-				SignTransactionInPlace(tx, sigHash, out signingContext);
+				SignTransactionInPlace(signingContext);
 			var psbt = tx.CreatePSBT();
 			UpdatePSBT(psbt);
 			if (sign)
@@ -1182,7 +1199,7 @@ namespace NBitcoin
 
 		private static void UpdatePSBTSignatures(PSBT psbt, TransactionSigningContext signingContext)
 		{
-			foreach (var signature in signingContext.Signatures)
+			foreach (var signature in signingContext.SignatureEvents)
 			{
 				var psbtInput = psbt.Inputs.FindIndexedInput(signature.Input.PrevOut);
 				psbtInput.PartialSigs.TryAdd(signature.PubKey, signature.Signature);
@@ -1200,7 +1217,8 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(psbt));
 			AddCoins(psbt);
 			var tx = psbt.GetOriginalTransaction();
-			SignTransactionInPlace(tx, sigHash, out var signingContext);
+			var signingContext = new TransactionSigningContext(this, tx, sigHash);
+			SignTransactionInPlace(signingContext);
 			UpdatePSBTSignatures(psbt, signingContext);
 			return this;
 		}
@@ -1421,26 +1439,21 @@ namespace NBitcoin
 		}
 		public Transaction SignTransactionInPlace(Transaction transaction, SigHash sigHash)
 		{
-			return SignTransactionInPlace(transaction, sigHash, out _);
+			return SignTransactionInPlace(new TransactionSigningContext(this, transaction, sigHash));
 		}
-		Transaction SignTransactionInPlace(Transaction transaction, SigHash sigHash, out TransactionSigningContext signingContext)
+		Transaction SignTransactionInPlace(TransactionSigningContext ctx)
 		{
-			TransactionSigningContext ctx = new TransactionSigningContext(this, transaction);
-			if(transaction is IHasForkId hasForkId)
+			foreach(var input in ctx.Transaction.Inputs.AsIndexedInputs())
 			{
-				sigHash = (SigHash)((uint)sigHash | 0x40u);
-			}
-			ctx.SigHash = sigHash;
-			foreach(var input in transaction.Inputs.AsIndexedInputs())
-			{
+				if (ctx.InputIndex is uint i && i != ctx.InputIndex)
+					continue;
 				var coin = FindSignableCoin(input);
 				if(coin != null)
 				{
 					Sign(ctx, coin, input);
 				}
 			}
-			signingContext = ctx;
-			return transaction;
+			return ctx.Transaction;
 		}
 		public ICoin FindSignableCoin(IndexedTxIn txIn)
 		{
@@ -1924,18 +1937,18 @@ namespace NBitcoin
 						var combined = extension.CombineScriptSig(scriptPubKey, scriptSig1, scriptSig2);
 						if (combined != null)
 						{
-							ctx.Signatures.AddRange(signer.EmittedSignatures);
-							ctx.Signatures.AddRange(signer2.EmittedSignatures);
+							ctx.SignatureEvents.AddRange(signer.EmittedSignatures);
+							ctx.SignatureEvents.AddRange(signer2.EmittedSignatures);
 						}
 						return combined;
 					}
 					if (scriptSig1 != null)
 					{
-						ctx.Signatures.AddRange(signer.EmittedSignatures);
+						ctx.SignatureEvents.AddRange(signer.EmittedSignatures);
 					}
 					if (scriptSig2 != null)
 					{
-						ctx.Signatures.AddRange(signer2.EmittedSignatures);
+						ctx.SignatureEvents.AddRange(signer2.EmittedSignatures);
 					}
 					return scriptSig1 ?? scriptSig2;
 				}
