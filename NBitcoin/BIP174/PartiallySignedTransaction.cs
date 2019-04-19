@@ -452,6 +452,24 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(keys));
 			return SignAll(sigHash, keys.Select(k => k.PrivateKey).ToArray());
 		}
+
+		public PSBT SignAll(ExtKey masterKey, SigHash sigHash = SigHash.All)
+		{
+			if (masterKey == null)
+				throw new ArgumentNullException(nameof(masterKey));
+			DerivationCache derivation = new DerivationCache(masterKey);
+			foreach (var o in Inputs)
+			{
+				o.TrySign(masterKey, sigHash, derivation);
+			}
+			return this;
+		}
+
+		public PSBT SignAll(BitcoinExtKey masterKey, SigHash sigHash = SigHash.All)
+		{
+			return SignAll(masterKey?.ExtKey, sigHash);
+		}
+
 		public PSBT SignAll(ExtKey extkey, KeyPath keyPath)
 		{
 			return SignAll(extkey, keyPath, SigHash.All);
@@ -734,6 +752,40 @@ namespace NBitcoin
 		}
 
 		/// <summary>
+		/// Get the balance change if you were signing this transaction.
+		/// </summary>
+		/// <returns>The balance change</returns>
+		public Money GetBalance(IHDKey masterKey)
+		{
+			if (masterKey == null)
+				throw new ArgumentNullException(nameof(masterKey));
+			var masterFP = masterKey.GetPublicKey().GetHDFingerPrint();
+			Money total = Money.Zero;
+			DerivationCache derivationCache = new DerivationCache(masterKey);
+			foreach (var o in Inputs.OfType<PSBTCoin>().Concat(Outputs))
+			{
+				var amount = o.GetCoin()?.Amount;
+				if (amount == null)
+					continue;
+				if (o is PSBTInput)
+					amount = -amount;
+				foreach (var hdk in o.HDKeyPaths)
+				{
+					var pubkey = hdk.Key;
+					var keyPath = hdk.Value.Item2;
+					var fp = hdk.Value.Item1;
+
+					if ((fp == masterKey.GetPublicKey().GetHDFingerPrint() || fp == default) && 
+						(derivationCache.Derive(keyPath).GetPublicKey() == pubkey))
+					{
+						total += amount;
+					}
+				}
+			}
+			return total;
+		}
+
+		/// <summary>
 		/// Add keypath information to this PSBT for each input or output involving it
 		/// </summary>
 		/// <param name="masterKey">The master key of the keypaths</param>
@@ -757,23 +809,10 @@ namespace NBitcoin
 			if (paths == null)
 				throw new ArgumentNullException(nameof(paths));
 
-			Dictionary<KeyPath, IHDKey> derivationCache = new Dictionary<KeyPath, IHDKey>();
+			DerivationCache derivationCache = new DerivationCache(masterKey);
 			foreach (var path in paths)
 			{
-				var key = masterKey;
-				var keyPath = new KeyPath();
-				foreach (var index in path.Item1.Indexes)
-				{
-					keyPath = keyPath.Derive(index);
-					if (derivationCache.TryGetValue(keyPath, out var cachedKey))
-					{
-						key = cachedKey;
-						continue;
-					}
-					key = key.Derive(index);
-					if (derivationCache.Count < 200)
-						derivationCache.Add(keyPath, key);
-				}
+				var key = derivationCache.Derive(path.Item1);
 				AddKeyPath(masterKey.GetPublicKey().GetHDFingerPrint(), key.GetPublicKey(), path.Item1, path.Item2);
 			}
 			return this;
@@ -823,7 +862,8 @@ namespace NBitcoin
 				if (coin == null)
 					continue;
 				if ((scriptPubKey != null && coin.ScriptPubKey == scriptPubKey) ||
-					((o.GetSignableCoin() ?? coin.TryToScriptCoin(pubkey)) is Coin c && txBuilder.IsCompatibleKeyFromScriptCode(pubkey, c.GetScriptCode())))
+					((o.GetSignableCoin() ?? coin.TryToScriptCoin(pubkey)) is Coin c && txBuilder.IsCompatibleKeyFromScriptCode(pubkey, c.GetScriptCode())) ||
+					  txBuilder.IsCompatibleKeyFromScriptCode(pubkey, coin.ScriptPubKey))
 				{
 					o.AddKeyPath(fingerprint, pubkey, path);
 				}

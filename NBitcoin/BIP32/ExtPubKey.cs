@@ -140,7 +140,7 @@ namespace NBitcoin
 		{
 			if(Depth != parentKey.Depth + 1)
 				return false;
-			return parentKey.PubKey.GetHDFingerPrint() == Fingerprint;
+			return parentKey.PubKey.GetHDFingerPrint() == ParentFingerprint;
 		}
 		public bool IsParentOf(ExtPubKey childKey)
 		{

@@ -385,7 +385,7 @@ namespace NBitcoin
 			{
 				vchChainCode = parent.vchChainCode,
 				nDepth = parent.Depth,
-				parentFingerprint = parent.Fingerprint,
+				parentFingerprint = parent.ParentFingerprint,
 				nChild = parent.nChild,
 				key = new Key(keyParentBytes)
 			};

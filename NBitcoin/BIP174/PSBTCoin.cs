@@ -66,7 +66,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(extPubKey));
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
-			AddKeyPath(extPubKey.Fingerprint, extPubKey.PubKey, path);
+			AddKeyPath(extPubKey.ParentFingerprint, extPubKey.PubKey, path);
 		}
 		public virtual void AddKeyPath(HDFingerprint fingerprint, PubKey key, KeyPath path)
 		{
