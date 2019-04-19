@@ -9,11 +9,11 @@ namespace NBitcoin.BuilderExtensions
 {
 	public interface ISigner
 	{
-		TransactionSignature Sign(Key key);
+		TransactionSignature Sign(PubKey key);
 	}
 	public interface IKeyRepository
 	{
-		Key FindKey(Script scriptPubKey);
+		PubKey FindKey(Script scriptPubKey);
 	}
 
 	/// <summary>
