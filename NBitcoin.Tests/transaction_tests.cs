@@ -1613,7 +1613,7 @@ namespace NBitcoin.Tests
 			txBuilder.AddCoins(coin, unsignableCoin);
 			Assert.False(txBuilder.TrySignInput(tx, 1, SigHash.All, out _));
 
-			txBuilder.AddKnownSignature(k2.PubKey, TransactionSignature.Empty, coin.Outpoint);
+			txBuilder.AddKnownSignature(k2.PubKey, TransactionSignature.Empty, unsignableCoin.Outpoint);
 			Assert.True(txBuilder.TrySignInput(tx, 1, SigHash.All, out sig));
 			Assert.Equal(TransactionSignature.Empty, sig);
 

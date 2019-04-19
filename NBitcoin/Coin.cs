@@ -469,7 +469,28 @@ namespace NBitcoin
 			var scriptCoin = this as ScriptCoin;
 			if(scriptCoin != null)
 				return scriptCoin;
+			if (!ScriptCoin.IsCoherent(TxOut.ScriptPubKey, redeemScript, out var error))
+				throw new ArgumentException(paramName: nameof(redeemScript), message: error);
 			return new ScriptCoin(this, redeemScript);
+		}
+
+		public ScriptCoin TryToScriptCoin(Script redeemScript)
+		{
+			if (redeemScript == null)
+				throw new ArgumentNullException(nameof(redeemScript));
+			var scriptCoin = this as ScriptCoin;
+			if (scriptCoin != null)
+				return scriptCoin;
+			if (!ScriptCoin.IsCoherent(TxOut.ScriptPubKey, redeemScript, out var error))
+				return null;
+			return new ScriptCoin(this, redeemScript);
+		}
+
+		public ScriptCoin TryToScriptCoin(PubKey pubKey)
+		{
+			if (pubKey == null)
+				throw new ArgumentNullException(nameof(pubKey));
+			return TryToScriptCoin(pubKey.WitHash.ScriptPubKey) ?? TryToScriptCoin(pubKey.ScriptPubKey);
 		}
 
 		public ColoredCoin ToColoredCoin(AssetId asset, ulong quantity)
@@ -617,6 +638,12 @@ namespace NBitcoin
 			AssertCoherent();
 		}
 
+		private void AssertCoherent(string paramName = null)
+		{
+			if (!IsCoherent(TxOut.ScriptPubKey, Redeem, out var error))
+				throw new ArgumentException(paramName: paramName ?? "redeem", message: error);
+		}
+
 		public bool IsP2SH
 		{
 			get
@@ -649,36 +676,50 @@ namespace NBitcoin
 			}
 		}
 
-		private void AssertCoherent()
+		public static bool IsCoherent(Script scriptPubKey, Script redeem, out string error)
 		{
-			if(Redeem == null)
-				throw new ArgumentException("redeem cannot be null", "redeem");
+			if (redeem == null)
+				throw new ArgumentNullException(nameof(redeem));
+			if (scriptPubKey == null)
+				throw new ArgumentNullException(nameof(scriptPubKey));
 
-			var expectedDestination = GetRedeemHash(TxOut.ScriptPubKey);
-			if(expectedDestination == null)
+			var expectedDestination = GetRedeemHash(scriptPubKey);
+			if (expectedDestination == null)
 			{
-				throw new ArgumentException("the provided scriptPubKey is not P2SH or P2WSH");
+				error = "the provided scriptPubKey is not P2SH or P2WSH";
+				return false;
 			}
-			if(expectedDestination is ScriptId)
+			if (expectedDestination is ScriptId)
 			{
-				if(PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(Redeem))
+				if (PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(redeem))
 				{
-					throw new ArgumentException("The redeem script provided must be the witness one, not the P2SH one");
+					error = "The redeem script provided must be the witness one, not the P2SH one";
+					return false;
 				}
 
-				if(expectedDestination.ScriptPubKey != Redeem.Hash.ScriptPubKey)
+				if (expectedDestination.ScriptPubKey != redeem.Hash.ScriptPubKey)
 				{
-					if(Redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey != expectedDestination.ScriptPubKey)
-						throw new ArgumentException("The redeem provided does not match the scriptPubKey of the coin");
+					if (redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey != expectedDestination.ScriptPubKey)
+					{
+						error = "The redeem provided does not match the scriptPubKey of the coin";
+						return false;
+					}
 				}
 			}
-			else if(expectedDestination is WitScriptId)
+			else if (expectedDestination is WitScriptId)
 			{
-				if(expectedDestination.ScriptPubKey != Redeem.WitHash.ScriptPubKey)
-					throw new ArgumentException("The redeem provided does not match the scriptPubKey of the coin");
+				if (expectedDestination.ScriptPubKey != redeem.WitHash.ScriptPubKey)
+				{
+					error = "The redeem provided does not match the scriptPubKey of the coin";
+				}
 			}
 			else
-				throw new NotSupportedException("Not supported redeemed scriptPubkey");
+			{
+				error = "Not supported redeemed scriptPubkey";
+				return false;
+			}
+			error = null;
+			return true;
 		}
 
 		public ScriptCoin(IndexedTxOut txOut, Script redeem)

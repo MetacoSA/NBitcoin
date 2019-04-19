@@ -819,18 +819,18 @@ namespace NBitcoin
 			var txBuilder = CreateTransactionBuilder();
 			foreach(var o in this.Inputs.OfType<PSBTCoin>().Concat(this.Outputs))
 			{
-				var coinScriptPubKey = o.GetCoin()?.ScriptPubKey;
-				if (coinScriptPubKey == null)
+				var coin = o.GetCoin();
+				if (coin == null)
 					continue;
-				if ((scriptPubKey != null && coinScriptPubKey == scriptPubKey) ||
-					(o.GetSignableCoin() is Coin c && txBuilder.IsCompatibleKeyFromScriptCode(pubkey, c.GetScriptCode())))
+				if ((scriptPubKey != null && coin.ScriptPubKey == scriptPubKey) ||
+					((o.GetSignableCoin() ?? coin.TryToScriptCoin(pubkey)) is Coin c && txBuilder.IsCompatibleKeyFromScriptCode(pubkey, c.GetScriptCode())))
 				{
 					o.AddKeyPath(fingerprint, pubkey, path);
 				}
 			}
 			return this;
 		}
-
+		
 		/// <summary>
 		/// Rebase the keypaths.
 		/// If a PSBT updater only know the child HD public key but not the root one, another updater knowing the parent master key it is based on
