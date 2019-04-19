@@ -706,42 +706,27 @@ namespace NBitcoin
 				var p2sh = redeem.Hash.ScriptPubKey;
 				var p2wsh = redeem.WitHash.ScriptPubKey;
 				var p2shp2wsh = redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey;
-				foreach (var input in this.Inputs)
+				foreach (var o in this.Inputs.OfType<PSBTCoin>().Concat(this.Outputs))
 				{
-					var txout = input.GetTxOut();
+					var txout = o.GetCoin()?.TxOut;
 					if (txout == null)
 						continue;
 					if (txout.ScriptPubKey == p2sh)
 					{
-						input.RedeemScript = redeem;
+						o.RedeemScript = redeem;
 					}
 					else if (txout.ScriptPubKey == p2wsh)
 					{
-						input.WitnessScript = redeem;
-						input.TrySlimOutput();
+						o.WitnessScript = redeem;
+						if (o is PSBTInput i)
+							i.TrySlimOutput();
 					}
 					else if (txout.ScriptPubKey == p2shp2wsh)
 					{
-						input.WitnessScript = redeem;
-						input.RedeemScript = redeem.WitHash.ScriptPubKey;
-						input.TrySlimOutput();
-					}
-				}
-
-				foreach (var output in this.Outputs)
-				{
-					if(output.ScriptPubKey == p2sh)
-					{
-						output.RedeemScript = redeem;
-					}
-					else if (output.ScriptPubKey == p2wsh)
-					{
-						output.WitnessScript = redeem;
-					}
-					else if (output.ScriptPubKey == p2shp2wsh)
-					{
-						output.WitnessScript = redeem;
-						output.RedeemScript = redeem.WitHash.ScriptPubKey;
+						o.WitnessScript = redeem;
+						o.RedeemScript = redeem.WitHash.ScriptPubKey;
+						if (o is PSBTInput i)
+							i.TrySlimOutput();
 					}
 				}
 			}
@@ -831,25 +816,17 @@ namespace NBitcoin
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
 
-			foreach(var input in this.Inputs)
+			var txBuilder = CreateTransactionBuilder();
+			foreach(var o in this.Inputs.OfType<PSBTCoin>().Concat(this.Outputs))
 			{
-				if (scriptPubKey != null)
+				var coinScriptPubKey = o.GetCoin()?.ScriptPubKey;
+				if (coinScriptPubKey == null)
+					continue;
+				if ((scriptPubKey != null && coinScriptPubKey == scriptPubKey) ||
+					(o.GetSignableCoin() is Coin c && txBuilder.IsCompatibleKeyFromScriptCode(pubkey, c.GetScriptCode())))
 				{
-					if(scriptPubKey == input.GetProbableScriptPubKey())
-						input.AddKeyPath(fingerprint, pubkey, path);
+					o.AddKeyPath(fingerprint, pubkey, path);
 				}
-				else if (input.IsRelatedKey(pubkey))
-					input.AddKeyPath(fingerprint, pubkey, path);
-			}
-			foreach (var ouptut in this.Outputs)
-			{
-				if (scriptPubKey != null)
-				{
-					if (scriptPubKey == ouptut.ScriptPubKey)
-						ouptut.AddKeyPath(fingerprint, pubkey, path);
-				}
-				else if (ouptut.IsRelatedKey(pubkey))
-					ouptut.AddKeyPath(fingerprint, pubkey, path);
 			}
 			return this;
 		}
@@ -867,27 +844,15 @@ namespace NBitcoin
 		{
 			if (newRoot == null)
 				throw new ArgumentNullException(nameof(newRoot));
-			foreach (var input in Inputs)
+			foreach (var o in Inputs.OfType<PSBTCoin>().Concat(Outputs))
 			{
-				foreach (var keypath in input.HDKeyPaths.ToList())
+				foreach (var keypath in o.HDKeyPaths.ToList())
 				{
 					if (keypath.Value.Item1 == oldFingerprint)
 					{
 						var newKeyPath = newRoot.Derive(keypath.Value.Item2);
-						input.HDKeyPaths.Remove(keypath.Key);
-						input.HDKeyPaths.Add(keypath.Key, Tuple.Create(newFingerprint, newKeyPath));
-					}
-				}
-			}
-			foreach (var output in Outputs)
-			{
-				foreach (var keypath in output.HDKeyPaths.ToList())
-				{
-					if (keypath.Value.Item1 == oldFingerprint)
-					{
-						var newKeyPath = newRoot.Derive(keypath.Value.Item2);
-						output.HDKeyPaths.Remove(keypath.Key);
-						output.HDKeyPaths.Add(keypath.Key, Tuple.Create(newFingerprint, newKeyPath));
+						o.HDKeyPaths.Remove(keypath.Key);
+						o.HDKeyPaths.Add(keypath.Key, Tuple.Create(newFingerprint, newKeyPath));
 					}
 				}
 			}

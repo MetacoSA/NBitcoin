@@ -14,7 +14,7 @@ using System.Collections;
 
 namespace NBitcoin
 {
-	public class PSBTInput
+	public class PSBTInput : PSBTCoin
 	{
 		// Those fields are not saved, but can be used as hint to solve more info for the PSBT
 		internal Script originalScriptSig = Script.Empty;
@@ -22,18 +22,16 @@ namespace NBitcoin
 		internal TxOut orphanTxOut = null; // When this input is not segwit, but we don't have the previous tx
 		//
 
-		internal PSBTInput(PSBT parent, uint index, TxIn input)
+		internal PSBTInput(PSBT parent, uint index, TxIn input) : base(parent)
 		{
-			Parent = parent;
 			TxIn = input;
 			Index = index;
 			originalScriptSig = TxIn.ScriptSig ?? Script.Empty;
 			originalWitScript = TxIn.WitScript ?? WitScript.Empty;
 		}
 
-		internal PSBTInput(BitcoinStream stream, PSBT parent, uint index, TxIn input)
+		internal PSBTInput(BitcoinStream stream, PSBT parent, uint index, TxIn input) : base(parent)
 		{
-			Parent = parent;
 			TxIn = input;
 			Index = index;
 			originalScriptSig = TxIn.ScriptSig ?? Script.Empty;
@@ -147,7 +145,6 @@ namespace NBitcoin
 			}
 		}
 
-		public PSBT Parent { get; }
 		internal TxIn TxIn { get; }
 
 		public OutPoint PrevOut => TxIn.PrevOut;
@@ -157,14 +154,10 @@ namespace NBitcoin
 
 		private Transaction non_witness_utxo;
 		private TxOut witness_utxo;
-		private Script redeem_script;
-		private Script witness_script;
 		private Script final_script_sig;
 		private WitScript final_script_witness;
-
-		private HDKeyPathKVMap hd_keypaths = new HDKeyPathKVMap(new PubKeyComparer());
 		private PartialSigKVMap partial_sigs = new PartialSigKVMap(new PubKeyComparer());
-		private UnKnownKVMap unknown = new SortedDictionary<byte[], byte[]>(BytesComparer.Instance);
+
 		SigHash? sighash_type;
 
 		public Transaction NonWitnessUtxo
@@ -188,30 +181,6 @@ namespace NBitcoin
 			set
 			{
 				witness_utxo = value;
-			}
-		}
-
-		public Script RedeemScript
-		{
-			get
-			{
-				return redeem_script;
-			}
-			set
-			{
-				redeem_script = value;
-			}
-		}
-
-		public Script WitnessScript
-		{
-			get
-			{
-				return witness_script;
-			}
-			set
-			{
-				witness_script = value;
 			}
 		}
 
@@ -251,13 +220,7 @@ namespace NBitcoin
 			}
 		}
 
-		public HDKeyPathKVMap HDKeyPaths
-		{
-			get
-			{
-				return hd_keypaths;
-			}
-		}
+		
 
 		public PartialSigKVMap PartialSigs
 		{
@@ -267,13 +230,12 @@ namespace NBitcoin
 			}
 		}
 
-		public SortedDictionary<byte[], byte[]> Unknown
+		public override void AddKeyPath(HDFingerprint fingerprint, PubKey key, KeyPath path)
 		{
-			get
-			{
-				return unknown;
-			}
+			base.AddKeyPath(fingerprint, key, path);
+			TrySlimOutput();
 		}
+
 
 		public void UpdateFromCoin(ICoin coin)
 		{
@@ -427,6 +389,16 @@ namespace NBitcoin
 			this.sighash_type = null;
 		}
 
+		public override Coin GetSignableCoin(out string error)
+		{
+			if (witness_utxo == null && non_witness_utxo == null)
+			{
+				error = "Neither witness_utxo nor non_witness_output is set";
+				return null;
+			}
+			return base.GetSignableCoin(out error);
+		}
+
 		public IList<PSBTError> CheckSanity()
 		{
 			List<PSBTError> errors = new List<PSBTError>();
@@ -502,35 +474,6 @@ namespace NBitcoin
 			var errors = CheckSanity();
 			if (errors.Count != 0)
 				throw new PSBTException(errors);
-		}
-
-		public void AddKeyPath(ExtPubKey extPubKey, KeyPath path)
-		{
-			if (extPubKey == null)
-				throw new ArgumentNullException(nameof(extPubKey));
-			if (path == null)
-				throw new ArgumentNullException(nameof(path));
-			AddKeyPath(extPubKey.Fingerprint, extPubKey.PubKey, path);
-		}
-		public void AddKeyPath(HDFingerprint fingerprint, PubKey key, KeyPath path)
-		{
-			if (path == null)
-				throw new ArgumentNullException(nameof(path));
-			hd_keypaths.AddOrReplace(key, new Tuple<HDFingerprint, KeyPath>(fingerprint, path));
-
-			// Let's try to be smart, if the added key match the scriptPubKey then we are in p2psh p2wpkh
-			if (Parent.Settings.IsSmart && redeem_script == null)
-			{
-				var output = GetTxOut();
-				if (output != null)
-				{
-					if (key.WitHash.ScriptPubKey.Hash.ScriptPubKey == output.ScriptPubKey)
-					{
-						redeem_script = key.WitHash.ScriptPubKey;
-						TrySlimOutput();
-					}
-				}
-			}
 		}
 
 		#region IBitcoinSerializable Members
@@ -758,18 +701,6 @@ namespace NBitcoin
 					return sighashType.ToString();
 			}
 		}
-
-		public bool IsRelatedKey(PubKey pubkey)
-		{
-			var scriptPubKey = GetProbableScriptPubKey();
-			return HDKeyPaths.ContainsKey(pubkey) || // in HDKeyPathMap or
-			pubkey.Hash.ScriptPubKey.Equals(scriptPubKey) || // matches as p2pkh or
-			pubkey.WitHash.ScriptPubKey.Equals(scriptPubKey) || // as p2wpkh or
-			pubkey.WitHash.ScriptPubKey.Hash.ScriptPubKey.Equals(scriptPubKey) || // as p2sh-p2wpkh
-			(RedeemScript != null && pubkey.WitHash.ScriptPubKey.Equals(RedeemScript)) || // as p2sh-p2wpkh or
-			(RedeemScript != null && RedeemScript.GetAllPubKeys().Any(p => p.Equals(pubkey))) || // more paranoia check (Probably unnecessary)
-			(WitnessScript != null && WitnessScript.GetAllPubKeys().Any(p => p.Equals(pubkey)));
-		}
 		internal Script GetProbableScriptPubKey() => GetTxOut()?.ScriptPubKey ?? RedeemScript?.Hash.ScriptPubKey;
 		public TxOut GetTxOut()
 		{
@@ -797,7 +728,7 @@ namespace NBitcoin
 				errors = new List<PSBTError>() { new PSBTError(Index, "Neither witness_utxo nor non_witness_output is set") };
 				return false;
 			}
-			var coin = this.GetSignableCoin(out var getSignableCoinError) ?? this.GetCoin();
+			var coin = this.GetSignableCoin(out var getSignableCoinError) ?? this.GetCoin(); // GetCoin can't be null at this stage.
 			TransactionBuilder transactionBuilder = Parent.CreateTransactionBuilder();
 			transactionBuilder.AddCoins(coin);
 			foreach (var sig in PartialSigs)
@@ -886,14 +817,14 @@ namespace NBitcoin
 		/// </summary>
 		internal bool TrySlimOutput()
 		{
+			if (NonWitnessUtxo == null)
+				return false;
 			var coin = GetSignableCoin();
 			if (coin == null)
 				return false;
 
 			if (coin.GetHashVersion() == HashVersion.Witness)
 			{
-				if (NonWitnessUtxo == null)
-					return false;
 				if (WitnessUtxo == null)
 				{
 					if (TxIn.PrevOut.N < NonWitnessUtxo.Outputs.Count)
@@ -905,94 +836,12 @@ namespace NBitcoin
 			return false;
 		}
 
-		public Coin GetCoin()
+		public override Coin GetCoin()
 		{
 			var txout = GetTxOut();
 			if (txout == null)
 				return null;
 			return new Coin(TxIn.PrevOut, txout);
-		}
-		public Coin GetSignableCoin()
-		{
-			return GetSignableCoin(out _);
-		}
-		public Coin GetSignableCoin(out string error)
-		{
-			if (witness_utxo == null && non_witness_utxo == null)
-			{
-				error = "Neither witness_utxo nor non_witness_output is set";
-				return null;
-			}
-			var output = GetTxOut();
-			var coin = new Coin(TxIn.PrevOut, output);
-			if (PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey) is ScriptId scriptId)
-			{
-				if (RedeemScript == null)
-				{
-					error = "Spending p2sh output but redeem_script is not set";
-					return null;
-				}
-
-				if (RedeemScript.Hash != scriptId)
-				{
-					error = "Spending p2sh output but redeem_script is not matching the utxo scriptPubKey";
-					return null;
-				}
-
-				if (PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(RedeemScript) is WitProgramParameters prog
-					&& prog.NeedWitnessRedeemScript())
-				{
-					if (WitnessScript == null)
-					{
-						error = "Spending p2sh-p2wsh output but witness_script is not set";
-						return null;
-					}
-					if (!prog.VerifyWitnessRedeemScript(WitnessScript))
-					{
-						error = "Spending p2sh-p2wsh output but witness_script does not match redeem_script";
-						return null;
-					}
-					coin = coin.ToScriptCoin(WitnessScript);
-					error = null;
-					return coin;
-				}
-				else
-				{
-					coin = coin.ToScriptCoin(RedeemScript);
-					error = null;
-					return coin;
-				}
-			}
-			else
-			{
-				if (RedeemScript != null)
-				{
-					error = "Spending non p2sh output but redeem_script is set";
-					return null;
-				}
-				if (PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(coin.ScriptPubKey) is WitProgramParameters prog
-					&& prog.NeedWitnessRedeemScript())
-				{
-					if (WitnessScript == null)
-					{
-						error = "Spending p2wsh output but witness_script is not set";
-						return null;
-					}
-					if (!prog.VerifyWitnessRedeemScript(WitnessScript))
-					{
-						error = "Spending p2wsh output but witness_script does not match the scriptPubKey";
-						return null;
-					}
-					coin = coin.ToScriptCoin(WitnessScript);
-					error = null;
-					return coin;
-				}
-				else
-				{
-					error = null;
-					return coin;
-				}
-			}
 		}
 
 		public override string ToString()

@@ -13,7 +13,7 @@ using System.Collections;
 
 namespace NBitcoin
 {
-	public class PSBTOutput
+	public class PSBTOutput : PSBTCoin
 	{
 		internal TxOut TxOut { get; }
 		public Script ScriptPubKey => TxOut.ScriptPubKey;
@@ -21,93 +21,24 @@ namespace NBitcoin
 		public uint Index { get; set; }
 		internal Transaction Transaction => Parent.tx;
 
-		public bool IsRelatedKey(PubKey pk) =>
-		HDKeyPaths.ContainsKey(pk) || // in HDKeyPathMap or
-		pk.Hash.ScriptPubKey.Equals(ScriptPubKey) || // matches as p2pkh or
-		pk.WitHash.ScriptPubKey.Equals(ScriptPubKey) || // as p2wpkh or
-		pk.WitHash.ScriptPubKey.Hash.ScriptPubKey.Equals(ScriptPubKey) || // as p2sh-p2wpkh
-		(RedeemScript != null && pk.WitHash.ScriptPubKey.Equals(RedeemScript)) || // as p2sh-p2wpkh or
-		(RedeemScript != null && RedeemScript.GetAllPubKeys().Any(p => p.Equals(pk))) || // more paranoia check (Probably unnecessary)
-		(WitnessScript != null && WitnessScript.GetAllPubKeys().Any(p => p.Equals(pk)));
-
-		private Script redeem_script;
-		private Script witness_script;
-		private HDKeyPathKVMap hd_keypaths;
-		private UnKnownKVMap unknown;
-
 		private static uint defaultKeyLen = 1;
 
-		private class PubKeyComparer : IComparer<PubKey>
-		{
-			public int Compare(PubKey x, PubKey y)
-			{
-				return BytesComparer.Instance.Compare(x.ToBytes(), y.ToBytes());
-			}
-		}
-
-
-		public Script RedeemScript
-		{
-			get
-			{
-				return redeem_script;
-			}
-			set
-			{
-				redeem_script = value;
-			}
-		}
-
-		public Script WitnessScript
-		{
-			get
-			{
-				return witness_script;
-			}
-			set
-			{
-				witness_script = value;
-			}
-		}
-
-		public HDKeyPathKVMap HDKeyPaths
-		{
-			get
-			{
-				return hd_keypaths;
-			}
-		}
-
-		public UnKnownKVMap Unknown
-		{
-			get
-			{
-				return unknown;
-			}
-		}
-
-		public PSBT Parent { get; set; }
-		internal PSBTOutput(PSBT parent, uint index, TxOut txOut)
+		internal PSBTOutput(PSBT parent, uint index, TxOut txOut): base(parent)
 		{
 			if (txOut == null)
 				throw new ArgumentNullException(nameof(txOut));
 			if (parent == null)
 				throw new ArgumentNullException(nameof(parent));
-			hd_keypaths = new HDKeyPathKVMap(new PubKeyComparer());
-			unknown = new UnKnownKVMap(BytesComparer.Instance);
-			Parent = parent;
 			TxOut = txOut;
 			Index = index;
 		}
-		internal PSBTOutput(BitcoinStream stream, PSBT parent, uint index, TxOut txOut)
+		internal PSBTOutput(BitcoinStream stream, PSBT parent, uint index, TxOut txOut): base(parent)
 		{
 			if (txOut == null)
 				throw new ArgumentNullException(nameof(txOut));
 			if (parent == null)
 				throw new ArgumentNullException(nameof(parent));
-			hd_keypaths = new HDKeyPathKVMap(new PubKeyComparer());
-			unknown = new UnKnownKVMap(BytesComparer.Instance);
-			Parent = parent;
+
 			TxOut = txOut;
 			Index = index;
 
@@ -176,22 +107,6 @@ namespace NBitcoin
 
 			foreach (var uk in other.Unknown)
 				unknown.TryAdd(uk.Key, uk.Value);
-		}
-
-		public void AddKeyPath(ExtPubKey extPubKey, KeyPath keyPath)
-		{
-			if (extPubKey == null)
-				throw new ArgumentNullException(nameof(extPubKey));
-			AddKeyPath(extPubKey.Fingerprint, extPubKey.PubKey, keyPath);
-		}
-
-		public void AddKeyPath(HDFingerprint fingerprint, PubKey key, KeyPath keyPath)
-		{
-			if (keyPath == null)
-				throw new ArgumentNullException(nameof(keyPath));
-			if (key == null)
-				throw new ArgumentNullException(nameof(key));
-			hd_keypaths.Add(key, new Tuple<HDFingerprint, KeyPath>(fingerprint, keyPath));
 		}
 
 		#region IBitcoinSerializable Members
@@ -314,6 +229,11 @@ namespace NBitcoin
 			Write(jsonWriter);
 			jsonWriter.Flush();
 			return strWriter.ToString();
+		}
+
+		public override Coin GetCoin()
+		{
+			return new Coin(OutPoint.Zero, TxOut);
 		}
 	}
 	

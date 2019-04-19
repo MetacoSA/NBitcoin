@@ -267,7 +267,7 @@ namespace NBitcoin
 
 			public PubKey FindKey(Script scriptPubKey)
 			{
-				foreach(var tv in _KnownSignatures.Where(tv => signingContext.Builder.IsCompatibleKey(tv.Item1, scriptPubKey)))
+				foreach(var tv in _KnownSignatures.Where(tv => signingContext.Builder.IsCompatibleKeyFromScriptCode(tv.Item1, scriptPubKey)))
 				{
 					if (tv.Item3 != null && coin.Outpoint != tv.Item3)
 						continue;
@@ -316,7 +316,7 @@ namespace NBitcoin
 			{
 				var key = Builder._Keys
 					.Concat(AdditionalKeys)
-					.FirstOrDefault(k => Builder.IsCompatibleKey(k.PubKey, scriptPubKey));
+					.FirstOrDefault(k => Builder.IsCompatibleKeyFromScriptCode(k.PubKey, scriptPubKey));
 				if (key == null && Builder.KeyFinder != null)
 				{
 					key = Builder.KeyFinder(scriptPubKey);
@@ -1975,8 +1975,7 @@ namespace NBitcoin
 		}
 
 		List<Tuple<PubKey, ECDSASignature, OutPoint>> _KnownSignatures = new List<Tuple<PubKey, ECDSASignature, OutPoint>>();
-
-		bool IsCompatibleKey(PubKey pubKey, Script scriptPubKey)
+		internal bool IsCompatibleKeyFromScriptCode(PubKey pubKey, Script scriptPubKey)
 		{
 			return _Extensions.Any(e => e.IsCompatibleKey(pubKey, scriptPubKey));
 		}

@@ -47,6 +47,8 @@ namespace NBitcoin
 			}
 		}
 
+		public readonly static OutPoint Zero = new OutPoint(uint256.Zero, 0);
+
 		public static bool TryParse(string str, out OutPoint result)
 		{
 			result = null;
