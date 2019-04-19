@@ -321,6 +321,45 @@ namespace NBitcoin.Tests
 			Assert.True(builder.Verify(signedTx));
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanOptInRBF()
+		{
+			var k = new Key();
+			var address = k.PubKey.WitHash.GetAddress(Network.Main);
+			var coins = new []{ RandomCoin(Money.Coins(10), k.ScriptPubKey, false) };
+
+			TransactionBuilder builder = Network.CreateTransactionBuilder();
+			builder.AddCoins(coins);
+			builder.AddKeys(k);
+			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.SendFees(Money.Coins(0.001m));
+			builder.SetChange(address);
+			builder.OptInRBF = true;
+			var tx = builder.BuildTransaction(false);
+			Assert.True(tx.RBF);
+			foreach(var inp in tx.Inputs)
+			{
+				Assert.True(inp.Sequence.IsRBF);
+			}
+
+			builder = Network.CreateTransactionBuilder();
+			builder.AddCoins(coins);
+			builder.AddKeys(k);
+			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.SendFees(Money.Coins(0.001m));
+			builder.SetChange(address);
+			builder.OptInRBF = true;
+			builder.SetLockTime(1230944461);
+			tx = builder.BuildTransaction(false);
+			Assert.True(tx.RBF);
+			foreach(var inp in tx.Inputs)
+			{
+				Assert.True(inp.Sequence.IsRBF);
+			}
+			Assert.True(tx.LockTime.IsTimeLock);
+		}
+
 		private Coin[] GetCoins(BitcoinScriptAddress p2sh)
 		{
 			return new Coin[] { new Coin(new uint256(Enumerable.Range(0, 32).Select(i => (byte)0xaa).ToArray()), 0, Money.Coins(2.0m), p2sh.ScriptPubKey) };

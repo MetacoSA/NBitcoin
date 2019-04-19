@@ -18,6 +18,14 @@ namespace NBitcoin
 			}
 		}
 
+		public static Sequence OptInRBF
+		{
+			get
+			{
+				return new Sequence(MAX_BIP125_RBF_SEQUENCE);
+			}
+		}
+
 		/// <summary>
 		/// If this flag set, CTxIn::nSequence is NOT interpreted as a
 		/// relative lock-time. 
@@ -47,6 +55,12 @@ namespace NBitcoin
 		/// sequence number disabled relative lock-time.
 		/// </remarks>
 		public const uint SEQUENCE_FINAL = 0xffffffff;
+
+		/// <summary>
+		/// Setting nSequence to this value on any input in a transaction
+		/// to signal the transaction is replaceable. */
+		/// </summary>
+		public const uint MAX_BIP125_RBF_SEQUENCE = SEQUENCE_FINAL -2;
 
 		/// <summary>
 		/// In order to use the same number of bits to encode roughly the
@@ -100,7 +114,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return Value < 0xffffffff - 1;
+				return Value <= MAX_BIP125_RBF_SEQUENCE;
 			}
 		}
 

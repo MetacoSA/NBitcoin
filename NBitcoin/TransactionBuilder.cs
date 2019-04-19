@@ -562,6 +562,7 @@ namespace NBitcoin
 			CoinSelector = new DefaultCoinSelector(ShuffleRandom);
 			StandardTransactionPolicy = new StandardTransactionPolicy();
 			DustPrevention = true;
+			OptInRBF = false;
 			InitExtensions();
 		}
 
@@ -598,6 +599,15 @@ namespace NBitcoin
 		/// If true, it will remove any TxOut below Dust, so the transaction get correctly relayed by the network. (Default: true)
 		/// </summary>
 		public bool DustPrevention
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// If true, it will signal the transaction replaceability in every input. (Default: false)
+		/// </summary>
+		public bool OptInRBF
 		{
 			get;
 			set;
@@ -1413,6 +1423,11 @@ namespace NBitcoin
 				var input = ctx.Transaction.Inputs.FirstOrDefault(i => i.PrevOut == coin.Outpoint);
 				if(input == null)
 					input = ctx.Transaction.Inputs.Add(coin.Outpoint);
+
+				if(OptInRBF)
+				{
+					input.Sequence = Sequence.OptInRBF;
+				}
 				if(_LockTime != null && !ctx.NonFinalSequenceSet)
 				{
 					input.Sequence = 0;
