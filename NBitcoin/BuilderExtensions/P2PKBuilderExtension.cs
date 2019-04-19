@@ -51,5 +51,10 @@ namespace NBitcoin.BuilderExtensions
 			var sig = signer.Sign(key);
 			return PayToPubkeyTemplate.Instance.GenerateScriptSig(sig);
 		}
+
+		public override bool IsCompatibleKey(PubKey publicKey, Script scriptPubKey)
+		{
+			return publicKey.ScriptPubKey == scriptPubKey;
+		}
 	}
 }

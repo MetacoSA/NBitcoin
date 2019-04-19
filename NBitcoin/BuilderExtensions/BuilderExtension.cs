@@ -36,5 +36,7 @@ namespace NBitcoin.BuilderExtensions
 		public abstract bool CanCombineScriptSig(Script scriptPubKey, Script a, Script b);
 
 		public abstract Script CombineScriptSig(Script scriptPubKey, Script a, Script b);
+
+		public abstract bool IsCompatibleKey(PubKey publicKey, Script scriptPubKey);
 	}
 }

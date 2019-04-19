@@ -1594,15 +1594,29 @@ namespace NBitcoin.Tests
 		public void CanBuildWithKnownSignatures()
 		{
 			var k = new Key();
+			var k2 = new Key();
 			var tx = Network.CreateTransaction();
 
 			var coin = new Coin(new OutPoint(Rand(), 0), new TxOut(Money.Coins(1.0m), k.PubKey.Hash));
+			var unsignableCoin = new Coin(new OutPoint(Rand(), 0), new TxOut(Money.Coins(1.0m), k2.PubKey.Hash));
 			tx.Inputs.Add(new TxIn(coin.Outpoint));
+			tx.Inputs.Add(new TxIn(unsignableCoin.Outpoint));
 			var signature = tx.SignInput(k, coin);
 
 			var txBuilder = Network.CreateTransactionBuilder();
 			txBuilder.AddCoins(coin);
-			txBuilder.AddKnownSignature(k.PubKey, signature);
+			txBuilder.AddKnownSignature(k.PubKey, signature, coin.Outpoint);
+			Assert.True(txBuilder.TrySignInput(tx, 0, SigHash.All, out var sig));
+			Assert.Equal(signature, sig);
+
+			Assert.False(txBuilder.TrySignInput(tx, 1, SigHash.All, out _));
+			txBuilder.AddCoins(coin, unsignableCoin);
+			Assert.False(txBuilder.TrySignInput(tx, 1, SigHash.All, out _));
+
+			txBuilder.AddKnownSignature(k2.PubKey, TransactionSignature.Empty, coin.Outpoint);
+			Assert.True(txBuilder.TrySignInput(tx, 1, SigHash.All, out sig));
+			Assert.Equal(TransactionSignature.Empty, sig);
+
 			txBuilder.SignTransactionInPlace(tx);
 
 			Assert.True(tx.Inputs.AsIndexedInputs().First().VerifyScript(coin));
@@ -1751,25 +1765,25 @@ namespace NBitcoin.Tests
 			Assert.False(txBuilder.Verify(tx, "0.0001"));
 
 			var partiallySigned = tx.Clone();
-
 			txBuilder = Network.CreateTransactionBuilder(0);
-			tx = txBuilder
+			partiallySigned = txBuilder
 					.AddKeys(keys[0])
 					.AddCoins(allCoins)
 					.SignTransaction(tx);
-			Assert.True(txBuilder.Verify(tx));
+			Assert.True(txBuilder.Verify(partiallySigned));
 
+			//Trying with known signature
+			partiallySigned = tx.Clone();
 			txBuilder = Network.CreateTransactionBuilder(0)
 						.AddCoins(allCoins);
-			//Trying with known signature
 			foreach(var coin in allCoins)
 			{
 				var sig = partiallySigned.SignInput(keys[0], coin);
-				txBuilder.AddKnownSignature(keys[0].PubKey, sig);
+				txBuilder.AddKnownSignature(keys[0].PubKey, sig, coin.Outpoint);
 			}
-			tx = txBuilder
+			partiallySigned = txBuilder
 				.SignTransaction(partiallySigned);
-			Assert.True(txBuilder.Verify(tx));
+			Assert.True(txBuilder.Verify(partiallySigned));
 
 			//Test if signing separately
 			txBuilder = Network.CreateTransactionBuilder(0);

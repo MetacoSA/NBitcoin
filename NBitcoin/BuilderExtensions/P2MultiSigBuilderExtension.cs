@@ -99,5 +99,13 @@ namespace NBitcoin.BuilderExtensions
 			}
 			return PayToMultiSigTemplate.Instance.GenerateScriptSig(sigs);
 		}
+
+		public override bool IsCompatibleKey(PubKey publicKey, Script scriptPubKey)
+		{
+			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			if (multiSigParams == null)
+				return false;
+			return multiSigParams.PubKeys.Any(p => p == publicKey);
+		}
 	}
 }

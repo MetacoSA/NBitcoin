@@ -802,7 +802,7 @@ namespace NBitcoin
 			transactionBuilder.AddCoins(coin);
 			foreach (var sig in PartialSigs)
 			{
-				transactionBuilder.AddKnownSignature(sig.Key, sig.Value);
+				transactionBuilder.AddKnownSignature(sig.Key, sig.Value, coin.Outpoint);
 			}
 			Transaction signed = null;
 			try
@@ -857,18 +857,17 @@ namespace NBitcoin
 				return signature;
 			}
 			AssertSanity();
-			if (!IsRelatedKey(key.PubKey))
-			{
-				return null;
-			}
-
 			var coin = GetSignableCoin();
 			if (coin == null)
 				return null;
 
-			var hash = Transaction.GetSignatureHash(coin, sigHash);
-			var signature2 = key.Sign(hash, sigHash, Parent.Settings.UseLowR);
-			this.PartialSigs.TryAdd(key.PubKey, signature2);
+			var builder = Parent.CreateTransactionBuilder();
+			builder.AddCoins(coin);
+			builder.AddKeys(key);
+			if (builder.TrySignInput(Transaction, Index, sigHash, out var signature2))
+			{
+				this.PartialSigs.TryAdd(key.PubKey, signature2);
+			}
 			return signature2;
 		}
 

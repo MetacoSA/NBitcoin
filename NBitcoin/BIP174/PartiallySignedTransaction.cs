@@ -490,6 +490,7 @@ namespace NBitcoin
 				transactionBuilder.Extensions.Clear();
 				transactionBuilder.Extensions.AddRange(Settings.CustomBuilderExtensions);
 			}
+			transactionBuilder.UseLowR = Settings.UseLowR;
 			return transactionBuilder;
 		}
 
