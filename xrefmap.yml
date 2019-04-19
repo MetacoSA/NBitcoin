@@ -15891,6 +15891,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BuilderExtensions.BuilderExtension.GenerateScriptSig
   nameWithType: BuilderExtension.GenerateScriptSig
+- uid: NBitcoin.BuilderExtensions.BuilderExtension.IsCompatibleKey(NBitcoin.PubKey,NBitcoin.Script)
+  name: IsCompatibleKey(PubKey, Script)
+  href: api/NBitcoin.BuilderExtensions.BuilderExtension.html#NBitcoin_BuilderExtensions_BuilderExtension_IsCompatibleKey_NBitcoin_PubKey_NBitcoin_Script_
+  commentId: M:NBitcoin.BuilderExtensions.BuilderExtension.IsCompatibleKey(NBitcoin.PubKey,NBitcoin.Script)
+  fullName: NBitcoin.BuilderExtensions.BuilderExtension.IsCompatibleKey(NBitcoin.PubKey, NBitcoin.Script)
+  nameWithType: BuilderExtension.IsCompatibleKey(PubKey, Script)
+- uid: NBitcoin.BuilderExtensions.BuilderExtension.IsCompatibleKey*
+  name: IsCompatibleKey
+  href: api/NBitcoin.BuilderExtensions.BuilderExtension.html#NBitcoin_BuilderExtensions_BuilderExtension_IsCompatibleKey_
+  commentId: Overload:NBitcoin.BuilderExtensions.BuilderExtension.IsCompatibleKey
+  isSpec: "True"
+  fullName: NBitcoin.BuilderExtensions.BuilderExtension.IsCompatibleKey
+  nameWithType: BuilderExtension.IsCompatibleKey
 - uid: NBitcoin.BuilderExtensions.IKeyRepository
   name: IKeyRepository
   href: api/NBitcoin.BuilderExtensions.IKeyRepository.html
@@ -15916,12 +15929,12 @@ references:
   commentId: T:NBitcoin.BuilderExtensions.ISigner
   fullName: NBitcoin.BuilderExtensions.ISigner
   nameWithType: ISigner
-- uid: NBitcoin.BuilderExtensions.ISigner.Sign(NBitcoin.Key)
-  name: Sign(Key)
-  href: api/NBitcoin.BuilderExtensions.ISigner.html#NBitcoin_BuilderExtensions_ISigner_Sign_NBitcoin_Key_
-  commentId: M:NBitcoin.BuilderExtensions.ISigner.Sign(NBitcoin.Key)
-  fullName: NBitcoin.BuilderExtensions.ISigner.Sign(NBitcoin.Key)
-  nameWithType: ISigner.Sign(Key)
+- uid: NBitcoin.BuilderExtensions.ISigner.Sign(NBitcoin.PubKey)
+  name: Sign(PubKey)
+  href: api/NBitcoin.BuilderExtensions.ISigner.html#NBitcoin_BuilderExtensions_ISigner_Sign_NBitcoin_PubKey_
+  commentId: M:NBitcoin.BuilderExtensions.ISigner.Sign(NBitcoin.PubKey)
+  fullName: NBitcoin.BuilderExtensions.ISigner.Sign(NBitcoin.PubKey)
+  nameWithType: ISigner.Sign(PubKey)
 - uid: NBitcoin.BuilderExtensions.ISigner.Sign*
   name: Sign
   href: api/NBitcoin.BuilderExtensions.ISigner.html#NBitcoin_BuilderExtensions_ISigner_Sign_
@@ -16039,6 +16052,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BuilderExtensions.OPTrueExtension.GenerateScriptSig
   nameWithType: OPTrueExtension.GenerateScriptSig
+- uid: NBitcoin.BuilderExtensions.OPTrueExtension.IsCompatibleKey(NBitcoin.PubKey,NBitcoin.Script)
+  name: IsCompatibleKey(PubKey, Script)
+  href: api/NBitcoin.BuilderExtensions.OPTrueExtension.html#NBitcoin_BuilderExtensions_OPTrueExtension_IsCompatibleKey_NBitcoin_PubKey_NBitcoin_Script_
+  commentId: M:NBitcoin.BuilderExtensions.OPTrueExtension.IsCompatibleKey(NBitcoin.PubKey,NBitcoin.Script)
+  fullName: NBitcoin.BuilderExtensions.OPTrueExtension.IsCompatibleKey(NBitcoin.PubKey, NBitcoin.Script)
+  nameWithType: OPTrueExtension.IsCompatibleKey(PubKey, Script)
+- uid: NBitcoin.BuilderExtensions.OPTrueExtension.IsCompatibleKey*
+  name: IsCompatibleKey
+  href: api/NBitcoin.BuilderExtensions.OPTrueExtension.html#NBitcoin_BuilderExtensions_OPTrueExtension_IsCompatibleKey_
+  commentId: Overload:NBitcoin.BuilderExtensions.OPTrueExtension.IsCompatibleKey
+  isSpec: "True"
+  fullName: NBitcoin.BuilderExtensions.OPTrueExtension.IsCompatibleKey
+  nameWithType: OPTrueExtension.IsCompatibleKey
 - uid: NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension
   name: P2MultiSigBuilderExtension
   href: api/NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.html
@@ -16149,6 +16175,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.GenerateScriptSig
   nameWithType: P2MultiSigBuilderExtension.GenerateScriptSig
+- uid: NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.IsCompatibleKey(NBitcoin.PubKey,NBitcoin.Script)
+  name: IsCompatibleKey(PubKey, Script)
+  href: api/NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.html#NBitcoin_BuilderExtensions_P2MultiSigBuilderExtension_IsCompatibleKey_NBitcoin_PubKey_NBitcoin_Script_
+  commentId: M:NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.IsCompatibleKey(NBitcoin.PubKey,NBitcoin.Script)
+  fullName: NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.IsCompatibleKey(NBitcoin.PubKey, NBitcoin.Script)
+  nameWithType: P2MultiSigBuilderExtension.IsCompatibleKey(PubKey, Script)
+- uid: NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.IsCompatibleKey*
+  name: IsCompatibleKey
+  href: api/NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.html#NBitcoin_BuilderExtensions_P2MultiSigBuilderExtension_IsCompatibleKey_
+  commentId: Overload:NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.IsCompatibleKey
+  isSpec: "True"
+  fullName: NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.IsCompatibleKey
+  nameWithType: P2MultiSigBuilderExtension.IsCompatibleKey
 - uid: NBitcoin.BuilderExtensions.P2PKBuilderExtension
   name: P2PKBuilderExtension
   href: api/NBitcoin.BuilderExtensions.P2PKBuilderExtension.html
@@ -16259,6 +16298,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BuilderExtensions.P2PKBuilderExtension.GenerateScriptSig
   nameWithType: P2PKBuilderExtension.GenerateScriptSig
+- uid: NBitcoin.BuilderExtensions.P2PKBuilderExtension.IsCompatibleKey(NBitcoin.PubKey,NBitcoin.Script)
+  name: IsCompatibleKey(PubKey, Script)
+  href: api/NBitcoin.BuilderExtensions.P2PKBuilderExtension.html#NBitcoin_BuilderExtensions_P2PKBuilderExtension_IsCompatibleKey_NBitcoin_PubKey_NBitcoin_Script_
+  commentId: M:NBitcoin.BuilderExtensions.P2PKBuilderExtension.IsCompatibleKey(NBitcoin.PubKey,NBitcoin.Script)
+  fullName: NBitcoin.BuilderExtensions.P2PKBuilderExtension.IsCompatibleKey(NBitcoin.PubKey, NBitcoin.Script)
+  nameWithType: P2PKBuilderExtension.IsCompatibleKey(PubKey, Script)
+- uid: NBitcoin.BuilderExtensions.P2PKBuilderExtension.IsCompatibleKey*
+  name: IsCompatibleKey
+  href: api/NBitcoin.BuilderExtensions.P2PKBuilderExtension.html#NBitcoin_BuilderExtensions_P2PKBuilderExtension_IsCompatibleKey_
+  commentId: Overload:NBitcoin.BuilderExtensions.P2PKBuilderExtension.IsCompatibleKey
+  isSpec: "True"
+  fullName: NBitcoin.BuilderExtensions.P2PKBuilderExtension.IsCompatibleKey
+  nameWithType: P2PKBuilderExtension.IsCompatibleKey
 - uid: NBitcoin.BuilderExtensions.P2PKHBuilderExtension
   name: P2PKHBuilderExtension
   href: api/NBitcoin.BuilderExtensions.P2PKHBuilderExtension.html
@@ -16369,6 +16421,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BuilderExtensions.P2PKHBuilderExtension.GenerateScriptSig
   nameWithType: P2PKHBuilderExtension.GenerateScriptSig
+- uid: NBitcoin.BuilderExtensions.P2PKHBuilderExtension.IsCompatibleKey(NBitcoin.PubKey,NBitcoin.Script)
+  name: IsCompatibleKey(PubKey, Script)
+  href: api/NBitcoin.BuilderExtensions.P2PKHBuilderExtension.html#NBitcoin_BuilderExtensions_P2PKHBuilderExtension_IsCompatibleKey_NBitcoin_PubKey_NBitcoin_Script_
+  commentId: M:NBitcoin.BuilderExtensions.P2PKHBuilderExtension.IsCompatibleKey(NBitcoin.PubKey,NBitcoin.Script)
+  fullName: NBitcoin.BuilderExtensions.P2PKHBuilderExtension.IsCompatibleKey(NBitcoin.PubKey, NBitcoin.Script)
+  nameWithType: P2PKHBuilderExtension.IsCompatibleKey(PubKey, Script)
+- uid: NBitcoin.BuilderExtensions.P2PKHBuilderExtension.IsCompatibleKey*
+  name: IsCompatibleKey
+  href: api/NBitcoin.BuilderExtensions.P2PKHBuilderExtension.html#NBitcoin_BuilderExtensions_P2PKHBuilderExtension_IsCompatibleKey_
+  commentId: Overload:NBitcoin.BuilderExtensions.P2PKHBuilderExtension.IsCompatibleKey
+  isSpec: "True"
+  fullName: NBitcoin.BuilderExtensions.P2PKHBuilderExtension.IsCompatibleKey
+  nameWithType: P2PKHBuilderExtension.IsCompatibleKey
 - uid: NBitcoin.BuriedDeployments
   name: BuriedDeployments
   href: api/NBitcoin.BuriedDeployments.html
@@ -17524,6 +17589,25 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Coin.ToScriptCoin
   nameWithType: Coin.ToScriptCoin
+- uid: NBitcoin.Coin.TryToScriptCoin(NBitcoin.PubKey)
+  name: TryToScriptCoin(PubKey)
+  href: api/NBitcoin.Coin.html#NBitcoin_Coin_TryToScriptCoin_NBitcoin_PubKey_
+  commentId: M:NBitcoin.Coin.TryToScriptCoin(NBitcoin.PubKey)
+  fullName: NBitcoin.Coin.TryToScriptCoin(NBitcoin.PubKey)
+  nameWithType: Coin.TryToScriptCoin(PubKey)
+- uid: NBitcoin.Coin.TryToScriptCoin(NBitcoin.Script)
+  name: TryToScriptCoin(Script)
+  href: api/NBitcoin.Coin.html#NBitcoin_Coin_TryToScriptCoin_NBitcoin_Script_
+  commentId: M:NBitcoin.Coin.TryToScriptCoin(NBitcoin.Script)
+  fullName: NBitcoin.Coin.TryToScriptCoin(NBitcoin.Script)
+  nameWithType: Coin.TryToScriptCoin(Script)
+- uid: NBitcoin.Coin.TryToScriptCoin*
+  name: TryToScriptCoin
+  href: api/NBitcoin.Coin.html#NBitcoin_Coin_TryToScriptCoin_
+  commentId: Overload:NBitcoin.Coin.TryToScriptCoin
+  isSpec: "True"
+  fullName: NBitcoin.Coin.TryToScriptCoin
+  nameWithType: Coin.TryToScriptCoin
 - uid: NBitcoin.Coin.TxOut
   name: TxOut
   href: api/NBitcoin.Coin.html#NBitcoin_Coin_TxOut
@@ -22121,6 +22205,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.ExtKey.Neuter
   nameWithType: ExtKey.Neuter
+- uid: NBitcoin.ExtKey.ParentFingerprint
+  name: ParentFingerprint
+  href: api/NBitcoin.ExtKey.html#NBitcoin_ExtKey_ParentFingerprint
+  commentId: P:NBitcoin.ExtKey.ParentFingerprint
+  fullName: NBitcoin.ExtKey.ParentFingerprint
+  nameWithType: ExtKey.ParentFingerprint
+- uid: NBitcoin.ExtKey.ParentFingerprint*
+  name: ParentFingerprint
+  href: api/NBitcoin.ExtKey.html#NBitcoin_ExtKey_ParentFingerprint_
+  commentId: Overload:NBitcoin.ExtKey.ParentFingerprint
+  isSpec: "True"
+  fullName: NBitcoin.ExtKey.ParentFingerprint
+  nameWithType: ExtKey.ParentFingerprint
 - uid: NBitcoin.ExtKey.Parse(System.String,NBitcoin.Network)
   name: Parse(String, Network)
   href: api/NBitcoin.ExtKey.html#NBitcoin_ExtKey_Parse_System_String_NBitcoin_Network_
@@ -22452,6 +22549,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.ExtPubKey.Inequality
   nameWithType: ExtPubKey.Inequality
+- uid: NBitcoin.ExtPubKey.ParentFingerprint
+  name: ParentFingerprint
+  href: api/NBitcoin.ExtPubKey.html#NBitcoin_ExtPubKey_ParentFingerprint
+  commentId: P:NBitcoin.ExtPubKey.ParentFingerprint
+  fullName: NBitcoin.ExtPubKey.ParentFingerprint
+  nameWithType: ExtPubKey.ParentFingerprint
+- uid: NBitcoin.ExtPubKey.ParentFingerprint*
+  name: ParentFingerprint
+  href: api/NBitcoin.ExtPubKey.html#NBitcoin_ExtPubKey_ParentFingerprint_
+  commentId: Overload:NBitcoin.ExtPubKey.ParentFingerprint
+  isSpec: "True"
+  fullName: NBitcoin.ExtPubKey.ParentFingerprint
+  nameWithType: ExtPubKey.ParentFingerprint
 - uid: NBitcoin.ExtPubKey.Parse(System.String,NBitcoin.Network)
   name: Parse(String, Network)
   href: api/NBitcoin.ExtPubKey.html#NBitcoin_ExtPubKey_Parse_System_String_NBitcoin_Network_
@@ -33153,6 +33263,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.OutPoint.TryParse
   nameWithType: OutPoint.TryParse
+- uid: NBitcoin.OutPoint.Zero
+  name: Zero
+  href: api/NBitcoin.OutPoint.html#NBitcoin_OutPoint_Zero
+  commentId: F:NBitcoin.OutPoint.Zero
+  fullName: NBitcoin.OutPoint.Zero
+  nameWithType: OutPoint.Zero
 - uid: NBitcoin.PartialMerkleTree
   name: PartialMerkleTree
   href: api/NBitcoin.PartialMerkleTree.html
@@ -44446,6 +44562,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBT.FromTransaction
   nameWithType: PSBT.FromTransaction
+- uid: NBitcoin.PSBT.GetBalance(NBitcoin.IHDKey)
+  name: GetBalance(IHDKey)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_GetBalance_NBitcoin_IHDKey_
+  commentId: M:NBitcoin.PSBT.GetBalance(NBitcoin.IHDKey)
+  fullName: NBitcoin.PSBT.GetBalance(NBitcoin.IHDKey)
+  nameWithType: PSBT.GetBalance(IHDKey)
+- uid: NBitcoin.PSBT.GetBalance*
+  name: GetBalance
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_GetBalance_
+  commentId: Overload:NBitcoin.PSBT.GetBalance
+  isSpec: "True"
+  fullName: NBitcoin.PSBT.GetBalance
+  nameWithType: PSBT.GetBalance
 - uid: NBitcoin.PSBT.GetGlobalTransaction
   name: GetGlobalTransaction()
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_GetGlobalTransaction
@@ -44511,6 +44640,28 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBT.IsAllFinalized
   nameWithType: PSBT.IsAllFinalized
+- uid: NBitcoin.PSBT.IsReadyToSign
+  name: IsReadyToSign()
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_IsReadyToSign
+  commentId: M:NBitcoin.PSBT.IsReadyToSign
+  fullName: NBitcoin.PSBT.IsReadyToSign()
+  nameWithType: PSBT.IsReadyToSign()
+- uid: NBitcoin.PSBT.IsReadyToSign(NBitcoin.PSBTError[]@)
+  name: IsReadyToSign(out PSBTError[])
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_IsReadyToSign_NBitcoin_PSBTError____
+  commentId: M:NBitcoin.PSBT.IsReadyToSign(NBitcoin.PSBTError[]@)
+  name.vb: IsReadyToSign(ByRef PSBTError())
+  fullName: NBitcoin.PSBT.IsReadyToSign(out NBitcoin.PSBTError[])
+  fullName.vb: NBitcoin.PSBT.IsReadyToSign(ByRef NBitcoin.PSBTError())
+  nameWithType: PSBT.IsReadyToSign(out PSBTError[])
+  nameWithType.vb: PSBT.IsReadyToSign(ByRef PSBTError())
+- uid: NBitcoin.PSBT.IsReadyToSign*
+  name: IsReadyToSign
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_IsReadyToSign_
+  commentId: Overload:NBitcoin.PSBT.IsReadyToSign
+  isSpec: "True"
+  fullName: NBitcoin.PSBT.IsReadyToSign
+  nameWithType: PSBT.IsReadyToSign
 - uid: NBitcoin.PSBT.Load(System.Byte[],NBitcoin.ConsensusFactory)
   name: Load(Byte[], ConsensusFactory)
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_Load_System_Byte___NBitcoin_ConsensusFactory_
@@ -44619,6 +44770,12 @@ references:
   commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey,NBitcoin.KeyPath,NBitcoin.SigHash)
   fullName: NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey, NBitcoin.KeyPath, NBitcoin.SigHash)
   nameWithType: PSBT.SignAll(BitcoinExtKey, KeyPath, SigHash)
+- uid: NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey,NBitcoin.SigHash)
+  name: SignAll(BitcoinExtKey, SigHash)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_BitcoinExtKey_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey, NBitcoin.SigHash)
+  nameWithType: PSBT.SignAll(BitcoinExtKey, SigHash)
 - uid: NBitcoin.PSBT.SignAll(NBitcoin.ExtKey,NBitcoin.KeyPath)
   name: SignAll(ExtKey, KeyPath)
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_ExtKey_NBitcoin_KeyPath_
@@ -44631,6 +44788,12 @@ references:
   commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.ExtKey,NBitcoin.KeyPath,NBitcoin.SigHash)
   fullName: NBitcoin.PSBT.SignAll(NBitcoin.ExtKey, NBitcoin.KeyPath, NBitcoin.SigHash)
   nameWithType: PSBT.SignAll(ExtKey, KeyPath, SigHash)
+- uid: NBitcoin.PSBT.SignAll(NBitcoin.ExtKey,NBitcoin.SigHash)
+  name: SignAll(ExtKey, SigHash)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_ExtKey_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.ExtKey,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBT.SignAll(NBitcoin.ExtKey, NBitcoin.SigHash)
+  nameWithType: PSBT.SignAll(ExtKey, SigHash)
 - uid: NBitcoin.PSBT.SignAll(NBitcoin.ISecret[])
   name: SignAll(ISecret[])
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_ISecret___
@@ -44742,6 +44905,193 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBT.TryFinalize
   nameWithType: PSBT.TryFinalize
+- uid: NBitcoin.PSBT.TryGetEstimatedFeeRate(NBitcoin.FeeRate@)
+  name: TryGetEstimatedFeeRate(out FeeRate)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_TryGetEstimatedFeeRate_NBitcoin_FeeRate__
+  commentId: M:NBitcoin.PSBT.TryGetEstimatedFeeRate(NBitcoin.FeeRate@)
+  name.vb: TryGetEstimatedFeeRate(ByRef FeeRate)
+  fullName: NBitcoin.PSBT.TryGetEstimatedFeeRate(out NBitcoin.FeeRate)
+  fullName.vb: NBitcoin.PSBT.TryGetEstimatedFeeRate(ByRef NBitcoin.FeeRate)
+  nameWithType: PSBT.TryGetEstimatedFeeRate(out FeeRate)
+  nameWithType.vb: PSBT.TryGetEstimatedFeeRate(ByRef FeeRate)
+- uid: NBitcoin.PSBT.TryGetEstimatedFeeRate*
+  name: TryGetEstimatedFeeRate
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_TryGetEstimatedFeeRate_
+  commentId: Overload:NBitcoin.PSBT.TryGetEstimatedFeeRate
+  isSpec: "True"
+  fullName: NBitcoin.PSBT.TryGetEstimatedFeeRate
+  nameWithType: PSBT.TryGetEstimatedFeeRate
+- uid: NBitcoin.PSBT.TryGetFee(NBitcoin.Money@)
+  name: TryGetFee(out Money)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_TryGetFee_NBitcoin_Money__
+  commentId: M:NBitcoin.PSBT.TryGetFee(NBitcoin.Money@)
+  name.vb: TryGetFee(ByRef Money)
+  fullName: NBitcoin.PSBT.TryGetFee(out NBitcoin.Money)
+  fullName.vb: NBitcoin.PSBT.TryGetFee(ByRef NBitcoin.Money)
+  nameWithType: PSBT.TryGetFee(out Money)
+  nameWithType.vb: PSBT.TryGetFee(ByRef Money)
+- uid: NBitcoin.PSBT.TryGetFee*
+  name: TryGetFee
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_TryGetFee_
+  commentId: Overload:NBitcoin.PSBT.TryGetFee
+  isSpec: "True"
+  fullName: NBitcoin.PSBT.TryGetFee
+  nameWithType: PSBT.TryGetFee
+- uid: NBitcoin.PSBTCoin
+  name: PSBTCoin
+  href: api/NBitcoin.PSBTCoin.html
+  commentId: T:NBitcoin.PSBTCoin
+  fullName: NBitcoin.PSBTCoin
+  nameWithType: PSBTCoin
+- uid: NBitcoin.PSBTCoin.#ctor(NBitcoin.PSBT)
+  name: PSBTCoin(PSBT)
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin__ctor_NBitcoin_PSBT_
+  commentId: M:NBitcoin.PSBTCoin.#ctor(NBitcoin.PSBT)
+  fullName: NBitcoin.PSBTCoin.PSBTCoin(NBitcoin.PSBT)
+  nameWithType: PSBTCoin.PSBTCoin(PSBT)
+- uid: NBitcoin.PSBTCoin.#ctor*
+  name: PSBTCoin
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin__ctor_
+  commentId: Overload:NBitcoin.PSBTCoin.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoin.PSBTCoin
+  nameWithType: PSBTCoin.PSBTCoin
+- uid: NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.ExtPubKey,NBitcoin.KeyPath)
+  name: AddKeyPath(ExtPubKey, KeyPath)
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_AddKeyPath_NBitcoin_ExtPubKey_NBitcoin_KeyPath_
+  commentId: M:NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.ExtPubKey,NBitcoin.KeyPath)
+  fullName: NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.ExtPubKey, NBitcoin.KeyPath)
+  nameWithType: PSBTCoin.AddKeyPath(ExtPubKey, KeyPath)
+- uid: NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.HDFingerprint,NBitcoin.PubKey,NBitcoin.KeyPath)
+  name: AddKeyPath(HDFingerprint, PubKey, KeyPath)
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_AddKeyPath_NBitcoin_HDFingerprint_NBitcoin_PubKey_NBitcoin_KeyPath_
+  commentId: M:NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.HDFingerprint,NBitcoin.PubKey,NBitcoin.KeyPath)
+  fullName: NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.HDFingerprint, NBitcoin.PubKey, NBitcoin.KeyPath)
+  nameWithType: PSBTCoin.AddKeyPath(HDFingerprint, PubKey, KeyPath)
+- uid: NBitcoin.PSBTCoin.AddKeyPath*
+  name: AddKeyPath
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_AddKeyPath_
+  commentId: Overload:NBitcoin.PSBTCoin.AddKeyPath
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoin.AddKeyPath
+  nameWithType: PSBTCoin.AddKeyPath
+- uid: NBitcoin.PSBTCoin.GetCoin
+  name: GetCoin()
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_GetCoin
+  commentId: M:NBitcoin.PSBTCoin.GetCoin
+  fullName: NBitcoin.PSBTCoin.GetCoin()
+  nameWithType: PSBTCoin.GetCoin()
+- uid: NBitcoin.PSBTCoin.GetCoin*
+  name: GetCoin
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_GetCoin_
+  commentId: Overload:NBitcoin.PSBTCoin.GetCoin
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoin.GetCoin
+  nameWithType: PSBTCoin.GetCoin
+- uid: NBitcoin.PSBTCoin.GetSignableCoin
+  name: GetSignableCoin()
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_GetSignableCoin
+  commentId: M:NBitcoin.PSBTCoin.GetSignableCoin
+  fullName: NBitcoin.PSBTCoin.GetSignableCoin()
+  nameWithType: PSBTCoin.GetSignableCoin()
+- uid: NBitcoin.PSBTCoin.GetSignableCoin(System.String@)
+  name: GetSignableCoin(out String)
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_GetSignableCoin_System_String__
+  commentId: M:NBitcoin.PSBTCoin.GetSignableCoin(System.String@)
+  name.vb: GetSignableCoin(ByRef String)
+  fullName: NBitcoin.PSBTCoin.GetSignableCoin(out System.String)
+  fullName.vb: NBitcoin.PSBTCoin.GetSignableCoin(ByRef System.String)
+  nameWithType: PSBTCoin.GetSignableCoin(out String)
+  nameWithType.vb: PSBTCoin.GetSignableCoin(ByRef String)
+- uid: NBitcoin.PSBTCoin.GetSignableCoin*
+  name: GetSignableCoin
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_GetSignableCoin_
+  commentId: Overload:NBitcoin.PSBTCoin.GetSignableCoin
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoin.GetSignableCoin
+  nameWithType: PSBTCoin.GetSignableCoin
+- uid: NBitcoin.PSBTCoin.hd_keypaths
+  name: hd_keypaths
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_hd_keypaths
+  commentId: F:NBitcoin.PSBTCoin.hd_keypaths
+  fullName: NBitcoin.PSBTCoin.hd_keypaths
+  nameWithType: PSBTCoin.hd_keypaths
+- uid: NBitcoin.PSBTCoin.HDKeyPaths
+  name: HDKeyPaths
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_HDKeyPaths
+  commentId: P:NBitcoin.PSBTCoin.HDKeyPaths
+  fullName: NBitcoin.PSBTCoin.HDKeyPaths
+  nameWithType: PSBTCoin.HDKeyPaths
+- uid: NBitcoin.PSBTCoin.HDKeyPaths*
+  name: HDKeyPaths
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_HDKeyPaths_
+  commentId: Overload:NBitcoin.PSBTCoin.HDKeyPaths
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoin.HDKeyPaths
+  nameWithType: PSBTCoin.HDKeyPaths
+- uid: NBitcoin.PSBTCoin.Parent
+  name: Parent
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_Parent
+  commentId: F:NBitcoin.PSBTCoin.Parent
+  fullName: NBitcoin.PSBTCoin.Parent
+  nameWithType: PSBTCoin.Parent
+- uid: NBitcoin.PSBTCoin.redeem_script
+  name: redeem_script
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_redeem_script
+  commentId: F:NBitcoin.PSBTCoin.redeem_script
+  fullName: NBitcoin.PSBTCoin.redeem_script
+  nameWithType: PSBTCoin.redeem_script
+- uid: NBitcoin.PSBTCoin.RedeemScript
+  name: RedeemScript
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_RedeemScript
+  commentId: P:NBitcoin.PSBTCoin.RedeemScript
+  fullName: NBitcoin.PSBTCoin.RedeemScript
+  nameWithType: PSBTCoin.RedeemScript
+- uid: NBitcoin.PSBTCoin.RedeemScript*
+  name: RedeemScript
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_RedeemScript_
+  commentId: Overload:NBitcoin.PSBTCoin.RedeemScript
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoin.RedeemScript
+  nameWithType: PSBTCoin.RedeemScript
+- uid: NBitcoin.PSBTCoin.unknown
+  name: unknown
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_unknown
+  commentId: F:NBitcoin.PSBTCoin.unknown
+  fullName: NBitcoin.PSBTCoin.unknown
+  nameWithType: PSBTCoin.unknown
+- uid: NBitcoin.PSBTCoin.Unknown
+  name: Unknown
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_Unknown
+  commentId: P:NBitcoin.PSBTCoin.Unknown
+  fullName: NBitcoin.PSBTCoin.Unknown
+  nameWithType: PSBTCoin.Unknown
+- uid: NBitcoin.PSBTCoin.Unknown*
+  name: Unknown
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_Unknown_
+  commentId: Overload:NBitcoin.PSBTCoin.Unknown
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoin.Unknown
+  nameWithType: PSBTCoin.Unknown
+- uid: NBitcoin.PSBTCoin.witness_script
+  name: witness_script
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_witness_script
+  commentId: F:NBitcoin.PSBTCoin.witness_script
+  fullName: NBitcoin.PSBTCoin.witness_script
+  nameWithType: PSBTCoin.witness_script
+- uid: NBitcoin.PSBTCoin.WitnessScript
+  name: WitnessScript
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_WitnessScript
+  commentId: P:NBitcoin.PSBTCoin.WitnessScript
+  fullName: NBitcoin.PSBTCoin.WitnessScript
+  nameWithType: PSBTCoin.WitnessScript
+- uid: NBitcoin.PSBTCoin.WitnessScript*
+  name: WitnessScript
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_WitnessScript_
+  commentId: Overload:NBitcoin.PSBTCoin.WitnessScript
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoin.WitnessScript
+  nameWithType: PSBTCoin.WitnessScript
 - uid: NBitcoin.PSBTError
   name: PSBTError
   href: api/NBitcoin.PSBTError.html
@@ -44841,12 +45191,6 @@ references:
   commentId: T:NBitcoin.PSBTInput
   fullName: NBitcoin.PSBTInput
   nameWithType: PSBTInput
-- uid: NBitcoin.PSBTInput.AddKeyPath(NBitcoin.ExtPubKey,NBitcoin.KeyPath)
-  name: AddKeyPath(ExtPubKey, KeyPath)
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_AddKeyPath_NBitcoin_ExtPubKey_NBitcoin_KeyPath_
-  commentId: M:NBitcoin.PSBTInput.AddKeyPath(NBitcoin.ExtPubKey,NBitcoin.KeyPath)
-  fullName: NBitcoin.PSBTInput.AddKeyPath(NBitcoin.ExtPubKey, NBitcoin.KeyPath)
-  nameWithType: PSBTInput.AddKeyPath(ExtPubKey, KeyPath)
 - uid: NBitcoin.PSBTInput.AddKeyPath(NBitcoin.HDFingerprint,NBitcoin.PubKey,NBitcoin.KeyPath)
   name: AddKeyPath(HDFingerprint, PubKey, KeyPath)
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_AddKeyPath_NBitcoin_HDFingerprint_NBitcoin_PubKey_NBitcoin_KeyPath_
@@ -44944,6 +45288,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.FinalScriptWitness
   nameWithType: PSBTInput.FinalScriptWitness
+- uid: NBitcoin.PSBTInput.GetCoin
+  name: GetCoin()
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_GetCoin
+  commentId: M:NBitcoin.PSBTInput.GetCoin
+  fullName: NBitcoin.PSBTInput.GetCoin()
+  nameWithType: PSBTInput.GetCoin()
+- uid: NBitcoin.PSBTInput.GetCoin*
+  name: GetCoin
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_GetCoin_
+  commentId: Overload:NBitcoin.PSBTInput.GetCoin
+  isSpec: "True"
+  fullName: NBitcoin.PSBTInput.GetCoin
+  nameWithType: PSBTInput.GetCoin
 - uid: NBitcoin.PSBTInput.GetConsensusFactory
   name: GetConsensusFactory()
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_GetConsensusFactory
@@ -44970,12 +45327,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.GetHashCode
   nameWithType: PSBTInput.GetHashCode
-- uid: NBitcoin.PSBTInput.GetSignableCoin
-  name: GetSignableCoin()
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_GetSignableCoin
-  commentId: M:NBitcoin.PSBTInput.GetSignableCoin
-  fullName: NBitcoin.PSBTInput.GetSignableCoin()
-  nameWithType: PSBTInput.GetSignableCoin()
 - uid: NBitcoin.PSBTInput.GetSignableCoin(System.String@)
   name: GetSignableCoin(out String)
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_GetSignableCoin_System_String__
@@ -45005,19 +45356,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.GetTxOut
   nameWithType: PSBTInput.GetTxOut
-- uid: NBitcoin.PSBTInput.HDKeyPaths
-  name: HDKeyPaths
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_HDKeyPaths
-  commentId: P:NBitcoin.PSBTInput.HDKeyPaths
-  fullName: NBitcoin.PSBTInput.HDKeyPaths
-  nameWithType: PSBTInput.HDKeyPaths
-- uid: NBitcoin.PSBTInput.HDKeyPaths*
-  name: HDKeyPaths
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_HDKeyPaths_
-  commentId: Overload:NBitcoin.PSBTInput.HDKeyPaths
-  isSpec: "True"
-  fullName: NBitcoin.PSBTInput.HDKeyPaths
-  nameWithType: PSBTInput.HDKeyPaths
 - uid: NBitcoin.PSBTInput.Index
   name: Index
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_Index
@@ -45044,19 +45382,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.IsFinalized
   nameWithType: PSBTInput.IsFinalized
-- uid: NBitcoin.PSBTInput.IsRelatedKey(NBitcoin.PubKey)
-  name: IsRelatedKey(PubKey)
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_IsRelatedKey_NBitcoin_PubKey_
-  commentId: M:NBitcoin.PSBTInput.IsRelatedKey(NBitcoin.PubKey)
-  fullName: NBitcoin.PSBTInput.IsRelatedKey(NBitcoin.PubKey)
-  nameWithType: PSBTInput.IsRelatedKey(PubKey)
-- uid: NBitcoin.PSBTInput.IsRelatedKey*
-  name: IsRelatedKey
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_IsRelatedKey_
-  commentId: Overload:NBitcoin.PSBTInput.IsRelatedKey
-  isSpec: "True"
-  fullName: NBitcoin.PSBTInput.IsRelatedKey
-  nameWithType: PSBTInput.IsRelatedKey
 - uid: NBitcoin.PSBTInput.NonWitnessUtxo
   name: NonWitnessUtxo
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_NonWitnessUtxo
@@ -45070,19 +45395,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.NonWitnessUtxo
   nameWithType: PSBTInput.NonWitnessUtxo
-- uid: NBitcoin.PSBTInput.Parent
-  name: Parent
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_Parent
-  commentId: P:NBitcoin.PSBTInput.Parent
-  fullName: NBitcoin.PSBTInput.Parent
-  nameWithType: PSBTInput.Parent
-- uid: NBitcoin.PSBTInput.Parent*
-  name: Parent
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_Parent_
-  commentId: Overload:NBitcoin.PSBTInput.Parent
-  isSpec: "True"
-  fullName: NBitcoin.PSBTInput.Parent
-  nameWithType: PSBTInput.Parent
 - uid: NBitcoin.PSBTInput.PartialSigs
   name: PartialSigs
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_PartialSigs
@@ -45109,19 +45421,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.PrevOut
   nameWithType: PSBTInput.PrevOut
-- uid: NBitcoin.PSBTInput.RedeemScript
-  name: RedeemScript
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_RedeemScript
-  commentId: P:NBitcoin.PSBTInput.RedeemScript
-  fullName: NBitcoin.PSBTInput.RedeemScript
-  nameWithType: PSBTInput.RedeemScript
-- uid: NBitcoin.PSBTInput.RedeemScript*
-  name: RedeemScript
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_RedeemScript_
-  commentId: Overload:NBitcoin.PSBTInput.RedeemScript
-  isSpec: "True"
-  fullName: NBitcoin.PSBTInput.RedeemScript
-  nameWithType: PSBTInput.RedeemScript
 - uid: NBitcoin.PSBTInput.Serialize(NBitcoin.BitcoinStream)
   name: Serialize(BitcoinStream)
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_Serialize_NBitcoin_BitcoinStream_
@@ -45209,19 +45508,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.TryFinalizeInput
   nameWithType: PSBTInput.TryFinalizeInput
-- uid: NBitcoin.PSBTInput.Unknown
-  name: Unknown
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_Unknown
-  commentId: P:NBitcoin.PSBTInput.Unknown
-  fullName: NBitcoin.PSBTInput.Unknown
-  nameWithType: PSBTInput.Unknown
-- uid: NBitcoin.PSBTInput.Unknown*
-  name: Unknown
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_Unknown_
-  commentId: Overload:NBitcoin.PSBTInput.Unknown
+- uid: NBitcoin.PSBTInput.TrySign(NBitcoin.ExtKey,NBitcoin.SigHash)
+  name: TrySign(ExtKey, SigHash)
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySign_NBitcoin_ExtKey_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBTInput.TrySign(NBitcoin.ExtKey,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBTInput.TrySign(NBitcoin.ExtKey, NBitcoin.SigHash)
+  nameWithType: PSBTInput.TrySign(ExtKey, SigHash)
+- uid: NBitcoin.PSBTInput.TrySign*
+  name: TrySign
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySign_
+  commentId: Overload:NBitcoin.PSBTInput.TrySign
   isSpec: "True"
-  fullName: NBitcoin.PSBTInput.Unknown
-  nameWithType: PSBTInput.Unknown
+  fullName: NBitcoin.PSBTInput.TrySign
+  nameWithType: PSBTInput.TrySign
 - uid: NBitcoin.PSBTInput.UpdateFromCoin(NBitcoin.ICoin)
   name: UpdateFromCoin(ICoin)
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_UpdateFromCoin_NBitcoin_ICoin_
@@ -45235,19 +45534,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.UpdateFromCoin
   nameWithType: PSBTInput.UpdateFromCoin
-- uid: NBitcoin.PSBTInput.WitnessScript
-  name: WitnessScript
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_WitnessScript
-  commentId: P:NBitcoin.PSBTInput.WitnessScript
-  fullName: NBitcoin.PSBTInput.WitnessScript
-  nameWithType: PSBTInput.WitnessScript
-- uid: NBitcoin.PSBTInput.WitnessScript*
-  name: WitnessScript
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_WitnessScript_
-  commentId: Overload:NBitcoin.PSBTInput.WitnessScript
-  isSpec: "True"
-  fullName: NBitcoin.PSBTInput.WitnessScript
-  nameWithType: PSBTInput.WitnessScript
 - uid: NBitcoin.PSBTInput.WitnessUtxo
   name: WitnessUtxo
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_WitnessUtxo
@@ -45345,25 +45631,6 @@ references:
   commentId: T:NBitcoin.PSBTOutput
   fullName: NBitcoin.PSBTOutput
   nameWithType: PSBTOutput
-- uid: NBitcoin.PSBTOutput.AddKeyPath(NBitcoin.ExtPubKey,NBitcoin.KeyPath)
-  name: AddKeyPath(ExtPubKey, KeyPath)
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_AddKeyPath_NBitcoin_ExtPubKey_NBitcoin_KeyPath_
-  commentId: M:NBitcoin.PSBTOutput.AddKeyPath(NBitcoin.ExtPubKey,NBitcoin.KeyPath)
-  fullName: NBitcoin.PSBTOutput.AddKeyPath(NBitcoin.ExtPubKey, NBitcoin.KeyPath)
-  nameWithType: PSBTOutput.AddKeyPath(ExtPubKey, KeyPath)
-- uid: NBitcoin.PSBTOutput.AddKeyPath(NBitcoin.HDFingerprint,NBitcoin.PubKey,NBitcoin.KeyPath)
-  name: AddKeyPath(HDFingerprint, PubKey, KeyPath)
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_AddKeyPath_NBitcoin_HDFingerprint_NBitcoin_PubKey_NBitcoin_KeyPath_
-  commentId: M:NBitcoin.PSBTOutput.AddKeyPath(NBitcoin.HDFingerprint,NBitcoin.PubKey,NBitcoin.KeyPath)
-  fullName: NBitcoin.PSBTOutput.AddKeyPath(NBitcoin.HDFingerprint, NBitcoin.PubKey, NBitcoin.KeyPath)
-  nameWithType: PSBTOutput.AddKeyPath(HDFingerprint, PubKey, KeyPath)
-- uid: NBitcoin.PSBTOutput.AddKeyPath*
-  name: AddKeyPath
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_AddKeyPath_
-  commentId: Overload:NBitcoin.PSBTOutput.AddKeyPath
-  isSpec: "True"
-  fullName: NBitcoin.PSBTOutput.AddKeyPath
-  nameWithType: PSBTOutput.AddKeyPath
 - uid: NBitcoin.PSBTOutput.Equals(NBitcoin.PSBTOutput)
   name: Equals(PSBTOutput)
   href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_Equals_NBitcoin_PSBTOutput_
@@ -45383,6 +45650,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTOutput.Equals
   nameWithType: PSBTOutput.Equals
+- uid: NBitcoin.PSBTOutput.GetCoin
+  name: GetCoin()
+  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_GetCoin
+  commentId: M:NBitcoin.PSBTOutput.GetCoin
+  fullName: NBitcoin.PSBTOutput.GetCoin()
+  nameWithType: PSBTOutput.GetCoin()
+- uid: NBitcoin.PSBTOutput.GetCoin*
+  name: GetCoin
+  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_GetCoin_
+  commentId: Overload:NBitcoin.PSBTOutput.GetCoin
+  isSpec: "True"
+  fullName: NBitcoin.PSBTOutput.GetCoin
+  nameWithType: PSBTOutput.GetCoin
 - uid: NBitcoin.PSBTOutput.GetHashCode
   name: GetHashCode()
   href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_GetHashCode
@@ -45396,19 +45676,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTOutput.GetHashCode
   nameWithType: PSBTOutput.GetHashCode
-- uid: NBitcoin.PSBTOutput.HDKeyPaths
-  name: HDKeyPaths
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_HDKeyPaths
-  commentId: P:NBitcoin.PSBTOutput.HDKeyPaths
-  fullName: NBitcoin.PSBTOutput.HDKeyPaths
-  nameWithType: PSBTOutput.HDKeyPaths
-- uid: NBitcoin.PSBTOutput.HDKeyPaths*
-  name: HDKeyPaths
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_HDKeyPaths_
-  commentId: Overload:NBitcoin.PSBTOutput.HDKeyPaths
-  isSpec: "True"
-  fullName: NBitcoin.PSBTOutput.HDKeyPaths
-  nameWithType: PSBTOutput.HDKeyPaths
 - uid: NBitcoin.PSBTOutput.Index
   name: Index
   href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_Index
@@ -45422,45 +45689,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTOutput.Index
   nameWithType: PSBTOutput.Index
-- uid: NBitcoin.PSBTOutput.IsRelatedKey(NBitcoin.PubKey)
-  name: IsRelatedKey(PubKey)
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_IsRelatedKey_NBitcoin_PubKey_
-  commentId: M:NBitcoin.PSBTOutput.IsRelatedKey(NBitcoin.PubKey)
-  fullName: NBitcoin.PSBTOutput.IsRelatedKey(NBitcoin.PubKey)
-  nameWithType: PSBTOutput.IsRelatedKey(PubKey)
-- uid: NBitcoin.PSBTOutput.IsRelatedKey*
-  name: IsRelatedKey
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_IsRelatedKey_
-  commentId: Overload:NBitcoin.PSBTOutput.IsRelatedKey
-  isSpec: "True"
-  fullName: NBitcoin.PSBTOutput.IsRelatedKey
-  nameWithType: PSBTOutput.IsRelatedKey
-- uid: NBitcoin.PSBTOutput.Parent
-  name: Parent
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_Parent
-  commentId: P:NBitcoin.PSBTOutput.Parent
-  fullName: NBitcoin.PSBTOutput.Parent
-  nameWithType: PSBTOutput.Parent
-- uid: NBitcoin.PSBTOutput.Parent*
-  name: Parent
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_Parent_
-  commentId: Overload:NBitcoin.PSBTOutput.Parent
-  isSpec: "True"
-  fullName: NBitcoin.PSBTOutput.Parent
-  nameWithType: PSBTOutput.Parent
-- uid: NBitcoin.PSBTOutput.RedeemScript
-  name: RedeemScript
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_RedeemScript
-  commentId: P:NBitcoin.PSBTOutput.RedeemScript
-  fullName: NBitcoin.PSBTOutput.RedeemScript
-  nameWithType: PSBTOutput.RedeemScript
-- uid: NBitcoin.PSBTOutput.RedeemScript*
-  name: RedeemScript
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_RedeemScript_
-  commentId: Overload:NBitcoin.PSBTOutput.RedeemScript
-  isSpec: "True"
-  fullName: NBitcoin.PSBTOutput.RedeemScript
-  nameWithType: PSBTOutput.RedeemScript
 - uid: NBitcoin.PSBTOutput.ScriptPubKey
   name: ScriptPubKey
   href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_ScriptPubKey
@@ -45513,19 +45741,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTOutput.ToString
   nameWithType: PSBTOutput.ToString
-- uid: NBitcoin.PSBTOutput.Unknown
-  name: Unknown
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_Unknown
-  commentId: P:NBitcoin.PSBTOutput.Unknown
-  fullName: NBitcoin.PSBTOutput.Unknown
-  nameWithType: PSBTOutput.Unknown
-- uid: NBitcoin.PSBTOutput.Unknown*
-  name: Unknown
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_Unknown_
-  commentId: Overload:NBitcoin.PSBTOutput.Unknown
-  isSpec: "True"
-  fullName: NBitcoin.PSBTOutput.Unknown
-  nameWithType: PSBTOutput.Unknown
 - uid: NBitcoin.PSBTOutput.UpdateFromCoin(NBitcoin.ICoin)
   name: UpdateFromCoin(ICoin)
   href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_UpdateFromCoin_NBitcoin_ICoin_
@@ -45552,19 +45767,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTOutput.Value
   nameWithType: PSBTOutput.Value
-- uid: NBitcoin.PSBTOutput.WitnessScript
-  name: WitnessScript
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_WitnessScript
-  commentId: P:NBitcoin.PSBTOutput.WitnessScript
-  fullName: NBitcoin.PSBTOutput.WitnessScript
-  nameWithType: PSBTOutput.WitnessScript
-- uid: NBitcoin.PSBTOutput.WitnessScript*
-  name: WitnessScript
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_WitnessScript_
-  commentId: Overload:NBitcoin.PSBTOutput.WitnessScript
-  isSpec: "True"
-  fullName: NBitcoin.PSBTOutput.WitnessScript
-  nameWithType: PSBTOutput.WitnessScript
 - uid: NBitcoin.PSBTOutputList
   name: PSBTOutputList
   href: api/NBitcoin.PSBTOutputList.html
@@ -54462,6 +54664,22 @@ references:
   isSpec: "True"
   fullName: NBitcoin.ScriptCoin.GetScriptCode
   nameWithType: ScriptCoin.GetScriptCode
+- uid: NBitcoin.ScriptCoin.IsCoherent(NBitcoin.Script,NBitcoin.Script,System.String@)
+  name: IsCoherent(Script, Script, out String)
+  href: api/NBitcoin.ScriptCoin.html#NBitcoin_ScriptCoin_IsCoherent_NBitcoin_Script_NBitcoin_Script_System_String__
+  commentId: M:NBitcoin.ScriptCoin.IsCoherent(NBitcoin.Script,NBitcoin.Script,System.String@)
+  name.vb: IsCoherent(Script, Script, ByRef String)
+  fullName: NBitcoin.ScriptCoin.IsCoherent(NBitcoin.Script, NBitcoin.Script, out System.String)
+  fullName.vb: NBitcoin.ScriptCoin.IsCoherent(NBitcoin.Script, NBitcoin.Script, ByRef System.String)
+  nameWithType: ScriptCoin.IsCoherent(Script, Script, out String)
+  nameWithType.vb: ScriptCoin.IsCoherent(Script, Script, ByRef String)
+- uid: NBitcoin.ScriptCoin.IsCoherent*
+  name: IsCoherent
+  href: api/NBitcoin.ScriptCoin.html#NBitcoin_ScriptCoin_IsCoherent_
+  commentId: Overload:NBitcoin.ScriptCoin.IsCoherent
+  isSpec: "True"
+  fullName: NBitcoin.ScriptCoin.IsCoherent
+  nameWithType: ScriptCoin.IsCoherent
 - uid: NBitcoin.ScriptCoin.IsP2SH
   name: IsP2SH
   href: api/NBitcoin.ScriptCoin.html#NBitcoin_ScriptCoin_IsP2SH
@@ -55603,6 +55821,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Sequence.LockType
   nameWithType: Sequence.LockType
+- uid: NBitcoin.Sequence.MAX_BIP125_RBF_SEQUENCE
+  name: MAX_BIP125_RBF_SEQUENCE
+  href: api/NBitcoin.Sequence.html#NBitcoin_Sequence_MAX_BIP125_RBF_SEQUENCE
+  commentId: F:NBitcoin.Sequence.MAX_BIP125_RBF_SEQUENCE
+  fullName: NBitcoin.Sequence.MAX_BIP125_RBF_SEQUENCE
+  nameWithType: Sequence.MAX_BIP125_RBF_SEQUENCE
 - uid: NBitcoin.Sequence.op_Implicit(NBitcoin.Sequence)~System.UInt32
   name: Implicit(Sequence to UInt32)
   href: api/NBitcoin.Sequence.html#NBitcoin_Sequence_op_Implicit_NBitcoin_Sequence__System_UInt32
@@ -55631,6 +55855,19 @@ references:
   fullName.vb: NBitcoin.Sequence.Widening
   nameWithType: Sequence.Implicit
   nameWithType.vb: Sequence.Widening
+- uid: NBitcoin.Sequence.OptInRBF
+  name: OptInRBF
+  href: api/NBitcoin.Sequence.html#NBitcoin_Sequence_OptInRBF
+  commentId: P:NBitcoin.Sequence.OptInRBF
+  fullName: NBitcoin.Sequence.OptInRBF
+  nameWithType: Sequence.OptInRBF
+- uid: NBitcoin.Sequence.OptInRBF*
+  name: OptInRBF
+  href: api/NBitcoin.Sequence.html#NBitcoin_Sequence_OptInRBF_
+  commentId: Overload:NBitcoin.Sequence.OptInRBF
+  isSpec: "True"
+  fullName: NBitcoin.Sequence.OptInRBF
+  nameWithType: Sequence.OptInRBF
 - uid: NBitcoin.Sequence.SEQUENCE_FINAL
   name: SEQUENCE_FINAL
   href: api/NBitcoin.Sequence.html#NBitcoin_Sequence_SEQUENCE_FINAL
@@ -59936,12 +60173,24 @@ references:
   commentId: M:NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey,NBitcoin.Crypto.ECDSASignature)
   fullName: NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey, NBitcoin.Crypto.ECDSASignature)
   nameWithType: TransactionBuilder.AddKnownSignature(PubKey, ECDSASignature)
+- uid: NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey,NBitcoin.Crypto.ECDSASignature,NBitcoin.OutPoint)
+  name: AddKnownSignature(PubKey, ECDSASignature, OutPoint)
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_AddKnownSignature_NBitcoin_PubKey_NBitcoin_Crypto_ECDSASignature_NBitcoin_OutPoint_
+  commentId: M:NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey,NBitcoin.Crypto.ECDSASignature,NBitcoin.OutPoint)
+  fullName: NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey, NBitcoin.Crypto.ECDSASignature, NBitcoin.OutPoint)
+  nameWithType: TransactionBuilder.AddKnownSignature(PubKey, ECDSASignature, OutPoint)
 - uid: NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey,NBitcoin.TransactionSignature)
   name: AddKnownSignature(PubKey, TransactionSignature)
   href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_AddKnownSignature_NBitcoin_PubKey_NBitcoin_TransactionSignature_
   commentId: M:NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey,NBitcoin.TransactionSignature)
   fullName: NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey, NBitcoin.TransactionSignature)
   nameWithType: TransactionBuilder.AddKnownSignature(PubKey, TransactionSignature)
+- uid: NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey,NBitcoin.TransactionSignature,NBitcoin.OutPoint)
+  name: AddKnownSignature(PubKey, TransactionSignature, OutPoint)
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_AddKnownSignature_NBitcoin_PubKey_NBitcoin_TransactionSignature_NBitcoin_OutPoint_
+  commentId: M:NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey,NBitcoin.TransactionSignature,NBitcoin.OutPoint)
+  fullName: NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey, NBitcoin.TransactionSignature, NBitcoin.OutPoint)
+  nameWithType: TransactionBuilder.AddKnownSignature(PubKey, TransactionSignature, OutPoint)
 - uid: NBitcoin.TransactionBuilder.AddKnownSignature*
   name: AddKnownSignature
   href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_AddKnownSignature_
@@ -60315,6 +60564,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.TransactionBuilder.MergeOutputs
   nameWithType: TransactionBuilder.MergeOutputs
+- uid: NBitcoin.TransactionBuilder.OptInRBF
+  name: OptInRBF
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_OptInRBF
+  commentId: P:NBitcoin.TransactionBuilder.OptInRBF
+  fullName: NBitcoin.TransactionBuilder.OptInRBF
+  nameWithType: TransactionBuilder.OptInRBF
+- uid: NBitcoin.TransactionBuilder.OptInRBF*
+  name: OptInRBF
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_OptInRBF_
+  commentId: Overload:NBitcoin.TransactionBuilder.OptInRBF
+  isSpec: "True"
+  fullName: NBitcoin.TransactionBuilder.OptInRBF
+  nameWithType: TransactionBuilder.OptInRBF
 - uid: NBitcoin.TransactionBuilder.Send(NBitcoin.IDestination,NBitcoin.IMoney)
   name: Send(IDestination, IMoney)
   href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_Send_NBitcoin_IDestination_NBitcoin_IMoney_
@@ -60685,6 +60947,22 @@ references:
   isSpec: "True"
   fullName: NBitcoin.TransactionBuilder.Then
   nameWithType: TransactionBuilder.Then
+- uid: NBitcoin.TransactionBuilder.TrySignInput(NBitcoin.Transaction,System.UInt32,NBitcoin.SigHash,NBitcoin.TransactionSignature@)
+  name: TrySignInput(Transaction, UInt32, SigHash, out TransactionSignature)
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_TrySignInput_NBitcoin_Transaction_System_UInt32_NBitcoin_SigHash_NBitcoin_TransactionSignature__
+  commentId: M:NBitcoin.TransactionBuilder.TrySignInput(NBitcoin.Transaction,System.UInt32,NBitcoin.SigHash,NBitcoin.TransactionSignature@)
+  name.vb: TrySignInput(Transaction, UInt32, SigHash, ByRef TransactionSignature)
+  fullName: NBitcoin.TransactionBuilder.TrySignInput(NBitcoin.Transaction, System.UInt32, NBitcoin.SigHash, out NBitcoin.TransactionSignature)
+  fullName.vb: NBitcoin.TransactionBuilder.TrySignInput(NBitcoin.Transaction, System.UInt32, NBitcoin.SigHash, ByRef NBitcoin.TransactionSignature)
+  nameWithType: TransactionBuilder.TrySignInput(Transaction, UInt32, SigHash, out TransactionSignature)
+  nameWithType.vb: TransactionBuilder.TrySignInput(Transaction, UInt32, SigHash, ByRef TransactionSignature)
+- uid: NBitcoin.TransactionBuilder.TrySignInput*
+  name: TrySignInput
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_TrySignInput_
+  commentId: Overload:NBitcoin.TransactionBuilder.TrySignInput
+  isSpec: "True"
+  fullName: NBitcoin.TransactionBuilder.TrySignInput
+  nameWithType: TransactionBuilder.TrySignInput
 - uid: NBitcoin.TransactionBuilder.UpdatePSBT(NBitcoin.PSBT)
   name: UpdatePSBT(PSBT)
   href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_UpdatePSBT_NBitcoin_PSBT_
@@ -60698,6 +60976,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.TransactionBuilder.UpdatePSBT
   nameWithType: TransactionBuilder.UpdatePSBT
+- uid: NBitcoin.TransactionBuilder.UseLowR
+  name: UseLowR
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_UseLowR
+  commentId: P:NBitcoin.TransactionBuilder.UseLowR
+  fullName: NBitcoin.TransactionBuilder.UseLowR
+  nameWithType: TransactionBuilder.UseLowR
+- uid: NBitcoin.TransactionBuilder.UseLowR*
+  name: UseLowR
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_UseLowR_
+  commentId: Overload:NBitcoin.TransactionBuilder.UseLowR
+  isSpec: "True"
+  fullName: NBitcoin.TransactionBuilder.UseLowR
+  nameWithType: TransactionBuilder.UseLowR
 - uid: NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction)
   name: Verify(Transaction)
   href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_

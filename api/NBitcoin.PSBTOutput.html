@@ -78,10 +78,50 @@
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
-    <div class="level1"><span class="xref">PSBTOutput</span></div>
+    <div class="level1"><a class="xref" href="NBitcoin.PSBTCoin.html">PSBTCoin</a></div>
+    <div class="level2"><span class="xref">PSBTOutput</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_hd_keypaths">PSBTCoin.hd_keypaths</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_unknown">PSBTCoin.unknown</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_redeem_script">PSBTCoin.redeem_script</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_witness_script">PSBTCoin.witness_script</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_Parent">PSBTCoin.Parent</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_Unknown">PSBTCoin.Unknown</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_HDKeyPaths">PSBTCoin.HDKeyPaths</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_RedeemScript">PSBTCoin.RedeemScript</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_WitnessScript">PSBTCoin.WitnessScript</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_AddKeyPath_NBitcoin_ExtPubKey_NBitcoin_KeyPath_">PSBTCoin.AddKeyPath(ExtPubKey, KeyPath)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_AddKeyPath_NBitcoin_HDFingerprint_NBitcoin_PubKey_NBitcoin_KeyPath_">PSBTCoin.AddKeyPath(HDFingerprint, PubKey, KeyPath)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_GetSignableCoin">PSBTCoin.GetSignableCoin()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_GetSignableCoin_System_String__">PSBTCoin.GetSignableCoin(String)</a>
+    </div>
     <div>
       <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
     </div>
@@ -99,46 +139,16 @@
   <h6><strong>Assembly</strong>: NBitcoin.dll</h6>
   <h5 id="NBitcoin_PSBTOutput_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class PSBTOutput</code></pre>
+    <pre><code class="lang-csharp hljs">public class PSBTOutput : PSBTCoin</code></pre>
   </div>
   <h3 id="properties">Properties
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_HDKeyPaths.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.HDKeyPaths%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.7/apiSpec/new?filename=NBitcoin_PSBTOutput_Index.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.Index%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L73">View Source</a>
-  </span>
-  <a id="NBitcoin_PSBTOutput_HDKeyPaths_" data-uid="NBitcoin.PSBTOutput.HDKeyPaths*"></a>
-  <h4 id="NBitcoin_PSBTOutput_HDKeyPaths" data-uid="NBitcoin.PSBTOutput.HDKeyPaths">HDKeyPaths</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SortedDictionary&lt;PubKey, Tuple&lt;HDFingerprint, KeyPath&gt;&gt; HDKeyPaths { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Collections.Generic.SortedDictionary</span>&lt;<a class="xref" href="NBitcoin.PubKey.html">PubKey</a>, <span class="xref">System.Tuple</span>&lt;<a class="xref" href="NBitcoin.HDFingerprint.html">HDFingerprint</a>, <a class="xref" href="NBitcoin.KeyPath.html">KeyPath</a>&gt;&gt;</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_Index.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.Index%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L21">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.7/NBitcoin/BIP174/PSBTOutput.cs/#L21">View Source</a>
   </span>
   <a id="NBitcoin_PSBTOutput_Index_" data-uid="NBitcoin.PSBTOutput.Index*"></a>
   <h4 id="NBitcoin_PSBTOutput_Index" data-uid="NBitcoin.PSBTOutput.Index">Index</h4>
@@ -165,70 +175,10 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_Parent.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.Parent%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.7/apiSpec/new?filename=NBitcoin_PSBTOutput_ScriptPubKey.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.ScriptPubKey%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L89">View Source</a>
-  </span>
-  <a id="NBitcoin_PSBTOutput_Parent_" data-uid="NBitcoin.PSBTOutput.Parent*"></a>
-  <h4 id="NBitcoin_PSBTOutput_Parent" data-uid="NBitcoin.PSBTOutput.Parent">Parent</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public PSBT Parent { get; set; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="NBitcoin.PSBT.html">PSBT</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_RedeemScript.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.RedeemScript%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L49">View Source</a>
-  </span>
-  <a id="NBitcoin_PSBTOutput_RedeemScript_" data-uid="NBitcoin.PSBTOutput.RedeemScript*"></a>
-  <h4 id="NBitcoin_PSBTOutput_RedeemScript" data-uid="NBitcoin.PSBTOutput.RedeemScript">RedeemScript</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Script RedeemScript { get; set; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_ScriptPubKey.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.ScriptPubKey%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L19">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.7/NBitcoin/BIP174/PSBTOutput.cs/#L19">View Source</a>
   </span>
   <a id="NBitcoin_PSBTOutput_ScriptPubKey_" data-uid="NBitcoin.PSBTOutput.ScriptPubKey*"></a>
   <h4 id="NBitcoin_PSBTOutput_ScriptPubKey" data-uid="NBitcoin.PSBTOutput.ScriptPubKey">ScriptPubKey</h4>
@@ -255,40 +205,10 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_Unknown.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.Unknown%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.7/apiSpec/new?filename=NBitcoin_PSBTOutput_Value.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.Value%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L81">View Source</a>
-  </span>
-  <a id="NBitcoin_PSBTOutput_Unknown_" data-uid="NBitcoin.PSBTOutput.Unknown*"></a>
-  <h4 id="NBitcoin_PSBTOutput_Unknown" data-uid="NBitcoin.PSBTOutput.Unknown">Unknown</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public SortedDictionary&lt;byte[], byte[]&gt; Unknown { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Collections.Generic.SortedDictionary</span>&lt;<span class="xref">System.Byte</span>[], <span class="xref">System.Byte</span>[]&gt;</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_Value.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.Value%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L20">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.7/NBitcoin/BIP174/PSBTOutput.cs/#L20">View Source</a>
   </span>
   <a id="NBitcoin_PSBTOutput_Value_" data-uid="NBitcoin.PSBTOutput.Value*"></a>
   <h4 id="NBitcoin_PSBTOutput_Value" data-uid="NBitcoin.PSBTOutput.Value">Value</h4>
@@ -313,123 +233,14 @@
       </tr>
     </tbody>
   </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_WitnessScript.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.WitnessScript%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L61">View Source</a>
-  </span>
-  <a id="NBitcoin_PSBTOutput_WitnessScript_" data-uid="NBitcoin.PSBTOutput.WitnessScript*"></a>
-  <h4 id="NBitcoin_PSBTOutput_WitnessScript" data-uid="NBitcoin.PSBTOutput.WitnessScript">WitnessScript</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Script WitnessScript { get; set; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
   <h3 id="methods">Methods
   </h3>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_AddKeyPath_NBitcoin_ExtPubKey_NBitcoin_KeyPath_.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.AddKeyPath(NBitcoin.ExtPubKey%2CNBitcoin.KeyPath)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.7/apiSpec/new?filename=NBitcoin_PSBTOutput_Equals_NBitcoin_PSBTOutput_.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.Equals(NBitcoin.PSBTOutput)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L181">View Source</a>
-  </span>
-  <a id="NBitcoin_PSBTOutput_AddKeyPath_" data-uid="NBitcoin.PSBTOutput.AddKeyPath*"></a>
-  <h4 id="NBitcoin_PSBTOutput_AddKeyPath_NBitcoin_ExtPubKey_NBitcoin_KeyPath_" data-uid="NBitcoin.PSBTOutput.AddKeyPath(NBitcoin.ExtPubKey,NBitcoin.KeyPath)">AddKeyPath(ExtPubKey, KeyPath)</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void AddKeyPath(ExtPubKey extPubKey, KeyPath keyPath)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="NBitcoin.ExtPubKey.html">ExtPubKey</a></td>
-        <td><span class="parametername">extPubKey</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="NBitcoin.KeyPath.html">KeyPath</a></td>
-        <td><span class="parametername">keyPath</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_AddKeyPath_NBitcoin_HDFingerprint_NBitcoin_PubKey_NBitcoin_KeyPath_.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.AddKeyPath(NBitcoin.HDFingerprint%2CNBitcoin.PubKey%2CNBitcoin.KeyPath)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L188">View Source</a>
-  </span>
-  <a id="NBitcoin_PSBTOutput_AddKeyPath_" data-uid="NBitcoin.PSBTOutput.AddKeyPath*"></a>
-  <h4 id="NBitcoin_PSBTOutput_AddKeyPath_NBitcoin_HDFingerprint_NBitcoin_PubKey_NBitcoin_KeyPath_" data-uid="NBitcoin.PSBTOutput.AddKeyPath(NBitcoin.HDFingerprint,NBitcoin.PubKey,NBitcoin.KeyPath)">AddKeyPath(HDFingerprint, PubKey, KeyPath)</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void AddKeyPath(HDFingerprint fingerprint, PubKey key, KeyPath keyPath)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="NBitcoin.HDFingerprint.html">HDFingerprint</a></td>
-        <td><span class="parametername">fingerprint</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="NBitcoin.PubKey.html">PubKey</a></td>
-        <td><span class="parametername">key</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="NBitcoin.KeyPath.html">KeyPath</a></td>
-        <td><span class="parametername">keyPath</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_Equals_NBitcoin_PSBTOutput_.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.Equals(NBitcoin.PSBTOutput)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L247">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.7/NBitcoin/BIP174/PSBTOutput.cs/#L162">View Source</a>
   </span>
   <a id="NBitcoin_PSBTOutput_Equals_" data-uid="NBitcoin.PSBTOutput.Equals*"></a>
   <h4 id="NBitcoin_PSBTOutput_Equals_NBitcoin_PSBTOutput_" data-uid="NBitcoin.PSBTOutput.Equals(NBitcoin.PSBTOutput)">Equals(PSBTOutput)</h4>
@@ -473,10 +284,10 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_Equals_System_Object_.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.Equals(System.Object)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.7/apiSpec/new?filename=NBitcoin_PSBTOutput_Equals_System_Object_.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.Equals(System.Object)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L240">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.7/NBitcoin/BIP174/PSBTOutput.cs/#L155">View Source</a>
   </span>
   <a id="NBitcoin_PSBTOutput_Equals_" data-uid="NBitcoin.PSBTOutput.Equals*"></a>
   <h4 id="NBitcoin_PSBTOutput_Equals_System_Object_" data-uid="NBitcoin.PSBTOutput.Equals(System.Object)">Equals(Object)</h4>
@@ -522,10 +333,42 @@
   <div><span class="xref">System.Object.Equals(System.Object)</span></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_GetHashCode.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.GetHashCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.7/apiSpec/new?filename=NBitcoin_PSBTOutput_GetCoin.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.GetCoin%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L250">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.7/NBitcoin/BIP174/PSBTOutput.cs/#L234">View Source</a>
+  </span>
+  <a id="NBitcoin_PSBTOutput_GetCoin_" data-uid="NBitcoin.PSBTOutput.GetCoin*"></a>
+  <h4 id="NBitcoin_PSBTOutput_GetCoin" data-uid="NBitcoin.PSBTOutput.GetCoin">GetCoin()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Coin GetCoin()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Coin.html">Coin</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_GetCoin">PSBTCoin.GetCoin()</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.7/apiSpec/new?filename=NBitcoin_PSBTOutput_GetHashCode.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.GetHashCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.7/NBitcoin/BIP174/PSBTOutput.cs/#L165">View Source</a>
   </span>
   <a id="NBitcoin_PSBTOutput_GetHashCode_" data-uid="NBitcoin.PSBTOutput.GetHashCode*"></a>
   <h4 id="NBitcoin_PSBTOutput_GetHashCode" data-uid="NBitcoin.PSBTOutput.GetHashCode">GetHashCode()</h4>
@@ -554,57 +397,10 @@
   <div><span class="xref">System.Object.GetHashCode()</span></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_IsRelatedKey_NBitcoin_PubKey_.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.IsRelatedKey(NBitcoin.PubKey)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.7/apiSpec/new?filename=NBitcoin_PSBTOutput_Serialize_NBitcoin_BitcoinStream_.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.Serialize(NBitcoin.BitcoinStream)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L24">View Source</a>
-  </span>
-  <a id="NBitcoin_PSBTOutput_IsRelatedKey_" data-uid="NBitcoin.PSBTOutput.IsRelatedKey*"></a>
-  <h4 id="NBitcoin_PSBTOutput_IsRelatedKey_NBitcoin_PubKey_" data-uid="NBitcoin.PSBTOutput.IsRelatedKey(NBitcoin.PubKey)">IsRelatedKey(PubKey)</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool IsRelatedKey(PubKey pk)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a class="xref" href="NBitcoin.PubKey.html">PubKey</a></td>
-        <td><span class="parametername">pk</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Boolean</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <span class="small pull-right mobile-hide">
-    <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_Serialize_NBitcoin_BitcoinStream_.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.Serialize(NBitcoin.BitcoinStream)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
-  </span>
-  <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L199">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.7/NBitcoin/BIP174/PSBTOutput.cs/#L114">View Source</a>
   </span>
   <a id="NBitcoin_PSBTOutput_Serialize_" data-uid="NBitcoin.PSBTOutput.Serialize*"></a>
   <h4 id="NBitcoin_PSBTOutput_Serialize_NBitcoin_BitcoinStream_" data-uid="NBitcoin.PSBTOutput.Serialize(NBitcoin.BitcoinStream)">Serialize(BitcoinStream)</h4>
@@ -633,10 +429,10 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_ToBytes.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.ToBytes%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.7/apiSpec/new?filename=NBitcoin_PSBTOutput_ToBytes.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.ToBytes%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L252">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.7/NBitcoin/BIP174/PSBTOutput.cs/#L167">View Source</a>
   </span>
   <a id="NBitcoin_PSBTOutput_ToBytes_" data-uid="NBitcoin.PSBTOutput.ToBytes*"></a>
   <h4 id="NBitcoin_PSBTOutput_ToBytes" data-uid="NBitcoin.PSBTOutput.ToBytes">ToBytes()</h4>
@@ -663,10 +459,10 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_ToString.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.ToString%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.7/apiSpec/new?filename=NBitcoin_PSBTOutput_ToString.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.ToString%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L309">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.7/NBitcoin/BIP174/PSBTOutput.cs/#L224">View Source</a>
   </span>
   <a id="NBitcoin_PSBTOutput_ToString_" data-uid="NBitcoin.PSBTOutput.ToString*"></a>
   <h4 id="NBitcoin_PSBTOutput_ToString" data-uid="NBitcoin.PSBTOutput.ToString">ToString()</h4>
@@ -695,10 +491,10 @@
   <div><span class="xref">System.Object.ToString()</span></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput_UpdateFromCoin_NBitcoin_ICoin_.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.UpdateFromCoin(NBitcoin.ICoin)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.7/apiSpec/new?filename=NBitcoin_PSBTOutput_UpdateFromCoin_NBitcoin_ICoin_.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput.UpdateFromCoin(NBitcoin.ICoin)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L261">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.7/NBitcoin/BIP174/PSBTOutput.cs/#L176">View Source</a>
   </span>
   <a id="NBitcoin_PSBTOutput_UpdateFromCoin_" data-uid="NBitcoin.PSBTOutput.UpdateFromCoin*"></a>
   <h4 id="NBitcoin_PSBTOutput_UpdateFromCoin_NBitcoin_ICoin_" data-uid="NBitcoin.PSBTOutput.UpdateFromCoin(NBitcoin.ICoin)">UpdateFromCoin(ICoin)</h4>
@@ -733,10 +529,10 @@
               <div class="contribution">
                 <ul class="nav">
                   <li>
-                    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.6/apiSpec/new?filename=NBitcoin_PSBTOutput.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                    <a href="https://github.com/MetacoSA/NBitcoin/new/v4.1.2.7/apiSpec/new?filename=NBitcoin_PSBTOutput.md&amp;value=---%0Auid%3A%20NBitcoin.PSBTOutput%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
                   </li>
                   <li>
-                    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.6/NBitcoin/BIP174/PSBTOutput.cs/#L16" class="contribution-link">View Source</a>
+                    <a href="https://github.com/MetacoSA/NBitcoin/blob/v4.1.2.7/NBitcoin/BIP174/PSBTOutput.cs/#L16" class="contribution-link">View Source</a>
                   </li>
                 </ul>
               </div>
