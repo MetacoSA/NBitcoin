@@ -94,7 +94,9 @@ namespace NBitcoin.Tests
 
 			Assert.True(psbt.TryGetEstimatedFeeRate(out var estimated));
 
+			Assert.False(psbt.IsReadyToSign());
 			psbt.AddTransactions(funding);
+			Assert.True(psbt.IsReadyToSign());
 			psbt.SignAll(bobMaster);
 			psbt.SignAll(aliceMaster);
 

@@ -65,7 +65,7 @@ namespace NBitcoin
 		public const byte PSBT_SEPARATOR = 0x00;
 	}
 
-	
+
 	public class PSBTSettings
 	{
 		/// <summary>
@@ -105,7 +105,7 @@ namespace NBitcoin
 		internal Transaction tx;
 
 		public PSBTInputList Inputs { get; }
-		public PSBTOutputList Outputs { get; } 
+		public PSBTOutputList Outputs { get; }
 
 		internal UnKnownKVMap unknown = new UnKnownKVMap(BytesComparer.Instance);
 		public static PSBT Parse(string hexOrBase64, Network network)
@@ -155,7 +155,7 @@ namespace NBitcoin
 				this.Inputs.Add(new PSBTInput(this, (uint)i, tx.Inputs[i]));
 			for (var i = 0; i < tx.Outputs.Count; i++)
 				this.Outputs.Add(new PSBTOutput(this, (uint)i, tx.Outputs[i]));
-			foreach(var input in tx.Inputs)
+			foreach (var input in tx.Inputs)
 			{
 				input.ScriptSig = Script.Empty;
 				input.WitScript = WitScript.Empty;
@@ -243,7 +243,7 @@ namespace NBitcoin
 			}
 			foreach (var coin in coins)
 			{
-				foreach(var output in this.Outputs)
+				foreach (var output in this.Outputs)
 				{
 					if (output.ScriptPubKey == coin.TxOut.ScriptPubKey)
 					{
@@ -379,6 +379,35 @@ namespace NBitcoin
 			return true;
 		}
 
+		public bool IsReadyToSign()
+		{
+			return IsReadyToSign(out _);
+		}
+		public bool IsReadyToSign(out PSBTError[] errors)
+		{
+			var errorList = new List<PSBTError>();
+			foreach (var input in Inputs)
+			{
+				var localErrors = input.CheckSanity();
+				if (localErrors.Count != 0)
+				{
+					errorList.AddRange(localErrors);
+				}
+				else
+				{
+					if (input.GetSignableCoin(out var err) == null)
+						errorList.Add(new PSBTError(input.Index, err));
+				}
+			}
+			if (errorList.Count != 0)
+			{
+				errors = errorList.ToArray();
+				return false;
+			}
+			errors = null;
+			return true;
+		}
+
 		public PSBTSettings Settings { get; set; } = new PSBTSettings();
 
 		public PSBT SignAll(params Key[] keys)
@@ -487,8 +516,8 @@ namespace NBitcoin
 			var privKey = extkey.Derive(keyPath).PrivateKey;
 			foreach (var input in this.Inputs)
 			{
-				if (input.HDKeyPaths.TryGetValue(privKey.PubKey, out var v) && 
-					v.Item1 != default && 
+				if (input.HDKeyPaths.TryGetValue(privKey.PubKey, out var v) &&
+					v.Item1 != default &&
 					v.Item1 == extkey.PrivateKey.PubKey.GetHDFingerPrint())
 				{
 					input.Sign(privKey);
@@ -558,7 +587,7 @@ namespace NBitcoin
 		public void Serialize(BitcoinStream stream)
 		{
 			// magic bytes
-			stream.Inner.Write(PSBT_MAGIC_BYTES, 0 , PSBT_MAGIC_BYTES.Length);
+			stream.Inner.Write(PSBT_MAGIC_BYTES, 0, PSBT_MAGIC_BYTES.Length);
 
 			// unsigned tx flag
 			stream.ReadWriteAsVarInt(ref defaultKeyLen);
@@ -629,7 +658,7 @@ namespace NBitcoin
 
 			jsonWriter.WritePropertyName("inputs");
 			jsonWriter.WriteStartArray();
-			foreach(var input in this.Inputs)
+			foreach (var input in this.Inputs)
 			{
 				input.Write(jsonWriter);
 			}
@@ -775,7 +804,7 @@ namespace NBitcoin
 					var keyPath = hdk.Value.Item2;
 					var fp = hdk.Value.Item1;
 
-					if ((fp == masterKey.GetPublicKey().GetHDFingerPrint() || fp == default) && 
+					if ((fp == masterKey.GetPublicKey().GetHDFingerPrint() || fp == default) &&
 						(derivationCache.Derive(keyPath).GetPublicKey() == pubkey))
 					{
 						total += amount;
@@ -856,7 +885,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(path));
 
 			var txBuilder = CreateTransactionBuilder();
-			foreach(var o in this.Inputs.OfType<PSBTCoin>().Concat(this.Outputs))
+			foreach (var o in this.Inputs.OfType<PSBTCoin>().Concat(this.Outputs))
 			{
 				var coin = o.GetCoin();
 				if (coin == null)
@@ -870,7 +899,7 @@ namespace NBitcoin
 			}
 			return this;
 		}
-		
+
 		/// <summary>
 		/// Rebase the keypaths.
 		/// If a PSBT updater only know the child HD public key but not the root one, another updater knowing the parent master key it is based on
