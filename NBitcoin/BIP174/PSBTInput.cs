@@ -797,20 +797,8 @@ namespace NBitcoin
 				errors = new List<PSBTError>() { new PSBTError(Index, "Neither witness_utxo nor non_witness_output is set") };
 				return false;
 			}
-			var transactionBuilder = Transaction.GetConsensusFactory().CreateTransactionBuilder();
-			if (Parent.Settings.CustomBuilderExtensions != null)
-			{
-				transactionBuilder.Extensions.Clear();
-				transactionBuilder.Extensions.AddRange(Parent.Settings.CustomBuilderExtensions);
-			}
-			var txout = GetTxOut();
-			if (txout == null)
-			{
-				errors = new List<PSBTError>() { new PSBTError(Index, "Can not finalize PSBTInput without utxo") };
-				return false;
-			}
-			var coin = this.GetSignableCoin(out var getSignableCoinError) ?? new Coin(TxIn.PrevOut, txout);
-
+			var coin = this.GetSignableCoin(out var getSignableCoinError) ?? this.GetCoin();
+			TransactionBuilder transactionBuilder = Parent.CreateTransactionBuilder();
 			transactionBuilder.AddCoins(coin);
 			foreach (var sig in PartialSigs)
 			{
@@ -833,7 +821,7 @@ namespace NBitcoin
 				errors = new List<PSBTError>() { new PSBTError(Index, $"The finalized input script does not properly validate \"{error}\"") };
 				return false;
 			}
-				
+
 			FinalScriptSig = indexedInput.ScriptSig is Script oo && oo != Script.Empty ? oo : null;
 			FinalScriptWitness = indexedInput.WitScript is WitScript o && o != WitScript.Empty ? o : null;
 			if (transactionBuilder.FindSignableCoin(indexedInput) is ScriptCoin scriptCoin)
@@ -847,6 +835,7 @@ namespace NBitcoin
 			errors = null;
 			return true;
 		}
+
 		public void FinalizeInput()
 		{
 			if (!TryFinalizeInput(out var errors))
@@ -917,6 +906,13 @@ namespace NBitcoin
 			return false;
 		}
 
+		public Coin GetCoin()
+		{
+			var txout = GetTxOut();
+			if (txout == null)
+				return null;
+			return new Coin(TxIn.PrevOut, txout);
+		}
 		public Coin GetSignableCoin()
 		{
 			return GetSignableCoin(out _);

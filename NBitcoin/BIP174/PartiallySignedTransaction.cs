@@ -402,6 +402,50 @@ namespace NBitcoin
 			}
 			return this;
 		}
+
+		/// <summary>
+		/// Returns the fee of the transaction being signed
+		/// </summary>
+		/// <param name="fee"></param>
+		/// <returns></returns>
+		public bool TryGetFee(out Money fee)
+		{
+			fee = tx.GetFee(GetAllCoins().ToArray());
+			return fee != null;
+		}
+
+		/// <summary>
+		/// Returns the fee rate of the transaction. If the PSBT is finalized, then the exact rate is returned, else an estimation is made.
+		/// </summary>
+		/// <param name="estimatedFeeRate"></param>
+		/// <returns>True if could get the estimated fee rate</returns>
+		public bool TryGetEstimatedFeeRate(out FeeRate estimatedFeeRate)
+		{
+			if (IsAllFinalized())
+			{
+				estimatedFeeRate = ExtractTransaction().GetFeeRate(GetAllCoins().ToArray());
+				return estimatedFeeRate != null;
+			}
+			if (!TryGetFee(out var fee))
+			{
+				estimatedFeeRate = null;
+				return false;
+			}
+			var transactionBuilder = CreateTransactionBuilder();
+			transactionBuilder.AddCoins(GetAllCoins());
+			try
+			{
+				var vsize = transactionBuilder.EstimateSize(this.tx, true);
+				estimatedFeeRate = new FeeRate(fee, vsize);
+				return true;
+			}
+			catch
+			{
+				estimatedFeeRate = null;
+				return false;
+			}
+		}
+
 		public PSBT SignAll(SigHash sigHash, params BitcoinSecret[] keys)
 		{
 			if (keys == null)
@@ -437,6 +481,21 @@ namespace NBitcoin
 		public PSBT SignAll(BitcoinExtKey extkey, KeyPath keyPath, SigHash sigHash)
 		{
 			return SignAll(extkey?.ExtKey, keyPath, sigHash);
+		}
+		internal TransactionBuilder CreateTransactionBuilder()
+		{
+			var transactionBuilder = tx.GetConsensusFactory().CreateTransactionBuilder();
+			if (Settings.CustomBuilderExtensions != null)
+			{
+				transactionBuilder.Extensions.Clear();
+				transactionBuilder.Extensions.AddRange(Settings.CustomBuilderExtensions);
+			}
+			return transactionBuilder;
+		}
+
+		private IEnumerable<ICoin> GetAllCoins()
+		{
+			return this.Inputs.Select(i => i.GetSignableCoin() ?? i.GetCoin()).Where(c => c != null).ToArray();
 		}
 
 		public Transaction ExtractTransaction()
@@ -530,6 +589,14 @@ namespace NBitcoin
 			formatter.WriteTransaction2(jsonWriter, tx);
 			jsonWriter.WriteEndObject();
 
+			if (TryGetFee(out var fee))
+			{
+				jsonWriter.WritePropertyValue("fee", $"{fee} BTC");
+			}
+			if (TryGetEstimatedFeeRate(out var feeRate))
+			{
+				jsonWriter.WritePropertyValue("feeRate", $"{feeRate}");
+			}
 			if (unknown.Count != 0)
 			{
 				jsonWriter.WritePropertyName("unknown");

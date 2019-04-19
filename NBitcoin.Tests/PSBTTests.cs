@@ -385,6 +385,11 @@ namespace NBitcoin.Tests
 			expected = PSBT.Parse((string)testcase["psbtcombined"], Network.Main);
 			Assert.Equal(expected, combined);
 
+			Assert.True(combined.TryGetFee(out var fee));
+			Assert.Equal(Money.Coins(0.00010000m), fee);
+			Assert.True(combined.TryGetEstimatedFeeRate(out var feeRate));
+			Assert.Equal(new FeeRate(21.6m).SatoshiPerByte, feeRate.SatoshiPerByte, 1);
+
 			var finalized = psbt.Finalize();
 			expected = PSBT.Parse((string)testcase["psbtfinalized"], Network.Main);
 			Assert.Equal(expected, finalized);
@@ -392,6 +397,11 @@ namespace NBitcoin.Tests
 			var finalTX = psbt.ExtractTransaction();
 			var expectedTX = Transaction.Parse((string)testcase["txextracted"], network);
 			AssertEx.CollectionEquals(expectedTX.ToBytes(), finalTX.ToBytes());
+
+			Assert.True(psbt.TryGetFee(out fee));
+			Assert.Equal(Money.Coins(0.00010000m), fee);
+			Assert.True(psbt.TryGetEstimatedFeeRate(out feeRate));
+			Assert.Equal(new FeeRate(21.6m).SatoshiPerByte, feeRate.SatoshiPerByte, 2);
 		}
 
 		[Fact]
