@@ -1,7 +1,7 @@
 using System.Linq;
 using System;
 
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Miniscript.Parser
 {
 	internal abstract class Parsers<TIn>
 	{

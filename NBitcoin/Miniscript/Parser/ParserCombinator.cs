@@ -1,32 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Miniscript.Parser
 {
-	public class EndOfSourceException : InvalidOperationException
-	{
-		public EndOfSourceException(Source s) : base($"Unexpected end of source") { }
-	}
-	public struct Source
-	{
-		private readonly string _source;
-		private readonly int _pos;
-
-		private Source(string source, int pos)
-		{
-			_source = source;
-			_pos = pos;
-		}
-
-		public static Source Create(string source)
-		=> new Source(source, 0);
-
-		public Tuple<char, Source> Read()
-		{
-			if (_source.Length <= _pos)
-				throw new EndOfSourceException(this);
-			return Tuple.Create(_source[_pos], new Source(_source, _pos + 1));
-		}
-	}
 	internal static class ParserCombinatorExtensions
 	{
 		public static Parser<TIn, TValue> Or<TIn, TValue>(this Parser<TIn, TValue> parser1, Parser<TIn, TValue> parser2) =>

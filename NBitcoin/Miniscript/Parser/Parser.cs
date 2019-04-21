@@ -1,4 +1,4 @@
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Miniscript.Parser
 {
 	internal class ParserResult<TIn, TValue>
 	{
