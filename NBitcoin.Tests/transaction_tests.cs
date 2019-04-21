@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using static NBitcoin.Tests.Helpers.PrimitiveUtils;
 
 namespace NBitcoin.Tests
 {
@@ -1034,10 +1035,6 @@ namespace NBitcoin.Tests
 			Assert.True(builder.Verify(tx)); //Fully signed !
 		}
 
-		private OutPoint RandOutpoint()
-		{
-			return new OutPoint(Rand(), 0);
-		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -1247,22 +1244,6 @@ namespace NBitcoin.Tests
 			Assert.True(builder.Verify(signed, estimatedFees));
 		}
 
-		private Coin RandomCoin(Money amount, Script scriptPubKey, bool p2sh)
-		{
-			var outpoint = RandOutpoint();
-			if(!p2sh)
-				return new Coin(outpoint, new TxOut(amount, scriptPubKey));
-			return new ScriptCoin(outpoint, new TxOut(amount, scriptPubKey.Hash), scriptPubKey);
-		}
-		private Coin RandomCoin(Money amount, Key receiver)
-		{
-			return RandomCoin(amount, receiver.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main));
-		}
-		private Coin RandomCoin(Money amount, IDestination receiver)
-		{
-			var outpoint = RandOutpoint();
-			return new Coin(outpoint, new TxOut(amount, receiver));
-		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -1924,10 +1905,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		private uint256 Rand()
-		{
-			return new uint256(RandomUtils.GetBytes(32));
-		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -3515,6 +3492,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void ShouldSendAll()
 		{
 			var builder = Network
@@ -3540,5 +3518,6 @@ namespace NBitcoin.Tests
 			Assert.Single(tx.Outputs);
 			Assert.Equal(Money.Coins(1.0m), fee + tx.Outputs[0].Value);
 		}
+
 	}
 }

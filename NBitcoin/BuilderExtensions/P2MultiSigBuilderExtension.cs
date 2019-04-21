@@ -69,7 +69,13 @@ namespace NBitcoin.BuilderExtensions
 			return PayToMultiSigTemplate.Instance.GenerateScriptSig(Enumerable.Range(0, p2mk.SignatureCount).Select(o => DummySignature).ToArray()).Length;
 		}
 
-		public override Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer)
+		public override Script GenerateScriptSig(
+			Script scriptPubKey,
+			IKeyRepository keyRepo,
+			ISigner signer,
+			ISha256PreimageRepository preimageRepo, // unused
+			Sequence? sequence // unused
+			)
 		{
 			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 			TransactionSignature[] signatures = new TransactionSignature[multiSigParams.PubKeys.Length];

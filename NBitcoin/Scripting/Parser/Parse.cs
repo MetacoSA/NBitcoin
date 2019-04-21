@@ -596,21 +596,6 @@ namespace NBitcoin.Scripting.Parser
 				};
 		}
 
-		internal static Parser<char, T> TryConvert<T>(string str, Func<string, T> converter)
-		{
-			return i =>
-			{
-				try
-				{
-					return ParserResult<char, T>.Success(i, converter(str));
-				}
-				catch (FormatException)
-				{
-					return ParserResult<char, T>.Failure(i, $"Failed to parse {str}");
-				}
-			};
-		}
-
 		#endregion
 	}
 

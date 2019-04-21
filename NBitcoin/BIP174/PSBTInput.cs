@@ -351,33 +351,6 @@ namespace NBitcoin
 		public bool IsFinalized() => final_script_sig != null || final_script_witness != null;
 
 		/// <summary>
-		/// conovert partial sigs to suitable form for ScriptSig (or Witness).
-		/// This will preserve the ordering of redeem script even if it did not follow bip67.
-		/// </summary>
-		/// <param name="redeem"></param>
-		/// <returns></returns>
-		private Op[] GetPushItems(Script redeem)
-		{
-			if (PayToMultiSigTemplate.Instance.CheckScriptPubKey(redeem))
-			{
-				var sigPushes = new List<Op> { OpcodeType.OP_0 };
-				foreach (var pk in redeem.GetAllPubKeys())
-				{
-					if (!partial_sigs.TryGetValue(pk, out var sigPair))
-						continue;
-					sigPushes.Add(Op.GetPushOp(sigPair.ToBytes()));
-				}
-				// check sig is more than m in case of p2multisig.
-				var multiSigParam = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(redeem);
-				var numSigs = sigPushes.Count - 1;
-				if (multiSigParam != null && numSigs < multiSigParam.SignatureCount)
-					throw new InvalidOperationException("Not enough signatures to finalize.");
-				return sigPushes.ToArray();
-			}
-			throw new InvalidOperationException("PSBT does not know how to finalize this type of script!");
-		}
-
-		/// <summary>
 		/// This will not clear utxos since tx extractor might want to check the validity
 		/// </summary>
 		internal void ClearForFinalize()

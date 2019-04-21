@@ -9,6 +9,9 @@ namespace NBitcoin.Tests.Generators
 	public class ScriptGenerator
 	{
 
+		public static Arbitrary<Script> RandomScriptArb()
+			=> Arb.From(RandomScriptSig());
+
 		#region script sig
 		// -------- legacy -------
 		// 1. p2pkh scriptSig

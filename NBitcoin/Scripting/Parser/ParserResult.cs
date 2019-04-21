@@ -37,7 +37,7 @@ namespace NBitcoin.Scripting.Parser
 				return next(this);
 
 			return ParserResult<TToken, U>.Failure(this.Rest, this.Expected, this.Description);
-		}
+		}	
 
 		public ParserResult<TToken, TValue> IfFailure<U>(Func<ParserResult<TToken, TValue>, ParserResult<TToken, TValue>> next)
 		{

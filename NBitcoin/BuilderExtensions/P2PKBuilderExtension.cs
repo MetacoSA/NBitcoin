@@ -43,7 +43,13 @@ namespace NBitcoin.BuilderExtensions
 			return PayToPubkeyTemplate.Instance.GenerateScriptSig(DummySignature).Length;
 		}
 
-		public override Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer)
+		public override Script GenerateScriptSig(
+			Script scriptPubKey,
+			IKeyRepository keyRepo,
+			ISigner signer,
+			ISha256PreimageRepository preimageRepo, // unused
+			Sequence? sequence // unused
+			)
 		{
 			var key = keyRepo.FindKey(scriptPubKey);
 			if(key == null)
