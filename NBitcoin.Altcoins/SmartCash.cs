@@ -61,6 +61,31 @@ namespace NBitcoin.Altcoins
 			{
 				return new SmartCashBlock(new SmartCashBlockHeader());
 			}
+
+			public override Transaction CreateTransaction()
+			{
+				return new SmartCashTransaction();
+			}
+
+
+#pragma warning disable CS0618 // Type or member is obsolete
+			public class SmartCashTransaction : Transaction
+			{
+				protected override HashStreamBase CreateHashStream()
+				{
+					return BufferedHashStream.CreateFrom(Hashes.SHA256, 300);
+				}
+
+				public override ConsensusFactory GetConsensusFactory()
+				{
+					return SmartCashFactory.Instance;
+				}
+
+				protected override HashStreamBase CreateSignatureHashStream()
+				{
+					return BufferedHashStream.CreateFrom(Hashes.SHA256, 150);
+				}
+			}
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -78,7 +103,7 @@ namespace NBitcoin.Altcoins
 		}
 		public class SmartCashBlockHeader : BlockHeader
 		{
-      public override uint256 GetPoWHash()
+			public override uint256 GetPoWHash()
 			{
 				var headerBytes = this.ToBytes();
 				var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
@@ -211,9 +236,10 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 6048,
 				MinerConfirmationWindow = 8064,
 				CoinbaseMaturity = 100,
+				ConsensusFactory = SmartCashFactory.Instance,
 				//HashGenesisBlock = new uint256("0x000007acc6970b812948d14ea5a0a13db0fdd07d5047c7e69101fa8b361e05a4"),
 				//GetPoWHash = GetPoWHash,
-				LitecoinWorkCalculation = true,
+				LitecoinWorkCalculation = true
 			})
 			.SetNetworkStringParser(SmartCashStringParser.Instance)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 63 })

@@ -888,10 +888,10 @@ namespace NBitcoin.Tests
 				Version = "1.2.8",
 				Windows = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/SmartCash/Core-Smart/releases/download/v{0}/smartcash-{0}-win64-setup.exe",
-					Archive = "smartcash-{0}-win64-setup.exe",
-					Executable = "smartcash-{0}-win64-setup.exe",
-					Hash = "D0B1CFE053E2CC9D8B622AB308AB3A04E4A825821BC0D153F0DF060133042D4C"
+					DownloadLink = "https://www.dropbox.com/s/rulwm5bigm3xmfx/smartcashd-v{0}.zip?dl=1",
+					Archive = "smartcashd-v{0}.zip",
+					Executable = "smartcashd.exe",
+					Hash = "d78968049874617b9703323bf9ca03a8d140ebf605fff415437693abe3ccc5a0"
 				},
 				Linux = new NodeOSDownloadData()
 				{
