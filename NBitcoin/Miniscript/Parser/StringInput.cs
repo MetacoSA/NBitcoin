@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace NBitcoin.Miniscript.Parser
 {
@@ -14,6 +15,7 @@ namespace NBitcoin.Miniscript.Parser
 				throw new System.ArgumentNullException(nameof(source));
 			Source = source;
 			Position = position;
+			Memos = new Dictionary<object, object>();
 		}
 
 		public bool AtEnd { get { return Position == Source.Length; } }
@@ -25,5 +27,7 @@ namespace NBitcoin.Miniscript.Parser
 				throw new InvalidOperationException("The input is already at the end of the source");
 			return new StringInput(Source, Position + 1);
 		}
+
+		public IDictionary<object, object> Memos { get; }
 	}
 }

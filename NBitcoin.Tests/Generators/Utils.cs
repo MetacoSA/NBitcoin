@@ -26,5 +26,9 @@ namespace NBitcoin.Tests.Generators
 		public static Gen<HDFingerprint> HDFingerprint() =>
 				from bytes in PrimitiveGenerator.RandomBytes(4)
 				select new HDFingerprint(bytes);
+
+		public static Gen<T> Resize<T>(Gen<T> gen)
+			=> Gen.Sized(s => gen.Resize(Convert.ToInt32(Math.Sqrt(s))));
+
 	}
 }

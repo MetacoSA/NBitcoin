@@ -8,7 +8,6 @@ namespace NBitcoin.Miniscript
 	/// <summary>
 	/// High level representation of Miniscript
 	/// </summary>
-	/// <typeparam name="AbstractPolicy"></typeparam>
 	public abstract class AbstractPolicy : IEquatable<AbstractPolicy>
 	{
 		public static class Tags
@@ -188,17 +187,17 @@ namespace NBitcoin.Miniscript
 						}
 					case 5:
 						{
-							And and = (And)this;
+							Or or = (Or)this;
 							num = 5;
-							num = -1640531527 + (and.Item2.GetHashCode() + ((num << 6) + (num >> 2)));
-							return -1640531527 + (and.Item1.GetHashCode() + ((num << 6) + (num >> 2)));
+							num = -1640531527 + (or.Item2.GetHashCode() + ((num << 6) + (num >> 2)));
+							return -1640531527 + (or.Item1.GetHashCode() + ((num << 6) + (num >> 2)));
 						}
 					case 6:
 						{
-							Or or = (Or)this;
+							And and = (And)this;
 							num = 6;
-							num = -1640531527 + (or.Item2.GetHashCode() + ((num << 6) + (num >> 2)));
-							return -1640531527 + (or.Item1.GetHashCode() + ((num << 6) + (num >> 2)));
+							num = -1640531527 + (and.Item2.GetHashCode() + ((num << 6) + (num >> 2)));
+							return -1640531527 + (and.Item1.GetHashCode() + ((num << 6) + (num >> 2)));
 						}
 					case 7:
 						{
@@ -246,7 +245,7 @@ namespace NBitcoin.Miniscript
 									Multi multi2 = (Multi)obj;
 									if (multi.Item1 == multi2.Item1)
 									{
-										multi.Item2.SequenceEqual(multi.Item2);
+										return multi.Item2.SequenceEqual(multi2.Item2);
 									}
 									return false;
 								}
@@ -274,15 +273,15 @@ namespace NBitcoin.Miniscript
 								}
 							case 5:
 								{
-									And and = (And)this;
-									And and2 = (And)obj;
-									return and.Item1.Equals(and2.Item1) && and.Item2.Equals(and2.Item2);
-								}
-							case 6:
-								{
 									Or or = (Or)this;
 									Or or2 = (Or)obj;
 									return or.Item1.Equals(or.Item1) && or.Item2.Equals(or.Item2);
+								}
+							case 6:
+								{
+									And and = (And)this;
+									And and2 = (And)obj;
+									return and.Item1.Equals(and2.Item1) && and.Item2.Equals(and2.Item2);
 								}
 							case 7:
 								{

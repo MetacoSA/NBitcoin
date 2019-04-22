@@ -1,16 +1,49 @@
+using System;
+using System.Collections.Generic;
+
 namespace NBitcoin.Miniscript.Parser
 {
-	internal class ParserResult<TIn, TValue>
+	internal delegate ParserResult<TValue> Parser<TValue>(IInput input);
+
+	public static class ParserExtension
 	{
-		public readonly TValue Value;
-		public readonly TIn Rest;
-
-		public ParserResult(TValue value, TIn rest)
+		/// <summary>
+		/// Tries to parse the input without throwing an exception.
+		/// </summary>
+		/// <typeparam name="T">The type of the result.</typeparam>
+		/// <param name="parser">The parser.</param>
+		/// <param name="input">The input.</param>
+		/// <returns>The result of the parser</returns>
+		internal static ParserResult<T> TryParse<T>(this Parser<T> parser, string input)
 		{
-			Value = value;
-			Rest = rest;
-		}
-	}
+			if (parser == null)
+				throw new System.ArgumentNullException(nameof(parser));
 
-	internal delegate ParserResult<TIn, TValue> Parser<TIn, TValue>(TIn input);
+			if (input == null)
+				throw new System.ArgumentNullException(nameof(input));
+
+			return parser(new StringInput(input));
+		}
+
+		/// <summary>
+		/// Parses the specified input string.
+		/// </summary>
+		/// <typeparam name="T">The type of the result.</typeparam>
+		/// <param name="parser">The parser.</param>
+		/// <param name="input">The input.</param>
+		/// <returns>The result of the parser.</returns>
+		/// <exception cref="ParseException">It contains the details of the parsing error.</exception>
+		internal static T Parse<T>(this Parser<T> parser, string input)
+		{
+			if (parser == null) throw new ArgumentNullException(nameof(parser));
+			if (input == null) throw new ArgumentNullException(nameof(input));
+
+			var result = parser.TryParse(input);
+
+			if (!result.IsSuccess)
+				throw new ParseException(result.ToString(), result.Rest.Position);
+			return result.Value;
+		}
+
+	}
 }

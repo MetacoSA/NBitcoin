@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace NBitcoin.Miniscript.Parser
 {
@@ -12,5 +13,6 @@ namespace NBitcoin.Miniscript.Parser
 
 		bool AtEnd { get; }
 		int Position { get; }
+		IDictionary<object, object> Memos { get; }
 	}
 }
