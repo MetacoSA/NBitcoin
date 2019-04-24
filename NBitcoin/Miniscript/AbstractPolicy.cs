@@ -324,5 +324,6 @@ namespace NBitcoin.Miniscript
 			}
 			throw new Exception("unreachable");
 		}
+
 	}
 }

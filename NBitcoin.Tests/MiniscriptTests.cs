@@ -81,5 +81,20 @@ namespace NBitcoin.Tests
 		[Trait("PropertyTest", "BidrectionalConversion")]
 		public void PolicyShouldConvertToDSLBidirectionally(AbstractPolicy policy)
 			=> Assert.Equal(policy, MiniscriptDSLParser.ParseDSL(policy.ToString()));
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void PolicyToAstConversionTest()
+		{
+			var p = AbstractPolicy.NewHash(new uint256(0xdeadbeef));
+			var p2 = CompiledNode.FromPolicy(p).BestT(0.0, 0.0).Ast.ToPolicy();
+			Assert.Equal(p, p2);
+		}
+
+		[Property]
+		[Trait("PropertyTest", "Verification")]
+		public void PolicyShouldCompileToAST(AbstractPolicy policy)
+			=> CompiledNode.FromPolicy(policy).BestT(0.0, 0.0).Ast.ToPolicy();
+
 	}
 }

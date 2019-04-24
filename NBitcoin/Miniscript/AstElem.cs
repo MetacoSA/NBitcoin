@@ -785,9 +785,9 @@ namespace NBitcoin.Miniscript
 				case Tags.PkQ:
 					return true;
 				case Tags.AndCat:
-					return ((AndCat)this).Item1.IsV() && ((AndCat)this).Item1.IsQ();
+					return ((AndCat)this).Item1.IsV() && ((AndCat)this).Item2.IsQ();
 				case Tags.OrIf:
-					return ((OrIf)this).Item1.IsQ() && ((OrIf)this).Item1.IsQ();
+					return ((OrIf)this).Item1.IsQ() && ((OrIf)this).Item2.IsQ();
 			}
 			return false;
 		}
@@ -836,7 +836,7 @@ namespace NBitcoin.Miniscript
 					return ((AndCat)this).Item1.IsV() &&
 						((AndCat)this).Item2.IsV();
 				case Tags.OrCont:
-					return ((OrCont)this).Item1.IsV() &&
+					return ((OrCont)this).Item1.IsE() &&
 						((OrCont)this).Item2.IsV();
 				case Tags.OrKeyV:
 					return ((OrKeyV)this).Item1.IsQ() &&
@@ -869,7 +869,7 @@ namespace NBitcoin.Miniscript
 					return ((True)this).Item1.IsV();
 				case Tags.AndCat:
 					return ((AndCat)this).Item1.IsV() &&
-						((AndCasc)this).Item2.IsT();
+						((AndCat)this).Item2.IsT();
 				case Tags.OrBool:
 					return ((OrBool)this).Item1.IsE() &&
 						((OrBool)this).Item2.IsW();
@@ -897,44 +897,106 @@ namespace NBitcoin.Miniscript
 			switch(this.Tag)
 			{
 				case Tags.Pk:
-				case Tags.PkV:
-				case Tags.PkQ:
-				case Tags.PkW:
 					return AbstractPolicy.NewCheckSig(((Pk)this).Item1);
+				case Tags.PkV:
+					return AbstractPolicy.NewCheckSig(((PkV)this).Item1);
+				case Tags.PkQ:
+					return AbstractPolicy.NewCheckSig(((PkQ)this).Item1);
+				case Tags.PkW:
+					return AbstractPolicy.NewCheckSig(((PkW)this).Item1);
 				case Tags.Multi:
-				case Tags.MultiV:
 					return AbstractPolicy.NewMulti(((Multi)this).Item1, ((Multi)this).Item2);
+				case Tags.MultiV:
+					return AbstractPolicy.NewMulti(((MultiV)this).Item1, ((MultiV)this).Item2);
 				case Tags.TimeT:
+					return AbstractPolicy.NewTime(((TimeT)this).Item1);
 				case Tags.TimeV:
+					return AbstractPolicy.NewTime(((TimeV)this).Item1);
 				case Tags.TimeF:
+					return AbstractPolicy.NewTime(((TimeF)this).Item1);
 				case Tags.Time:
-				case Tags.TimeW:
 					return AbstractPolicy.NewTime(((Time)this).Item1);
+				case Tags.TimeW:
+					return AbstractPolicy.NewTime(((TimeW)this).Item1);
 				case Tags.HashT:
-				case Tags.HashV:
-				case Tags.HashW:
 					return AbstractPolicy.NewHash(((HashT)this).Item1);
+				case Tags.HashV:
+					return AbstractPolicy.NewHash(((HashV)this).Item1);
+				case Tags.HashW:
+					return AbstractPolicy.NewHash(((HashW)this).Item1);
 				case Tags.True:
-				case Tags.Wrap:
-				case Tags.Likely:
-				case Tags.Unlikely:
 					return ((True)this).Item1.ToPolicy();
+				case Tags.Wrap:
+					return ((Wrap)this).Item1.ToPolicy();
+				case Tags.Likely:
+					return ((Likely)this).Item1.ToPolicy();
+				case Tags.Unlikely:
+					return ((Unlikely)this).Item1.ToPolicy();
 				case Tags.AndCat:
-				case Tags.AndBool:
-				case Tags.AndCasc:
 					return AbstractPolicy.NewAnd(
 						((AndCat)this).Item1.ToPolicy(),
 						((AndCat)this).Item2.ToPolicy()
 					);
+				case Tags.AndBool:
+					return AbstractPolicy.NewAnd(
+						((AndBool)this).Item1.ToPolicy(),
+						((AndBool)this).Item2.ToPolicy()
+					);
+				case Tags.AndCasc:
+					return AbstractPolicy.NewAnd(
+						((AndCasc)this).Item1.ToPolicy(),
+						((AndCasc)this).Item2.ToPolicy()
+					);
 				case Tags.OrBool:
+					return AbstractPolicy.NewOr(
+							((OrBool)this).Item1.ToPolicy(),
+							((OrBool)this).Item2.ToPolicy()
+						);
 				case Tags.OrCasc:
+					return AbstractPolicy.NewOr(
+							((OrCasc)this).Item1.ToPolicy(),
+							((OrCasc)this).Item2.ToPolicy()
+						);
 				case Tags.OrCont:
+					return AbstractPolicy.NewOr(
+							((OrCont)this).Item1.ToPolicy(),
+							((OrCont)this).Item2.ToPolicy()
+						);
 				case Tags.OrKey:
+					return AbstractPolicy.NewOr(
+							((OrKey)this).Item1.ToPolicy(),
+							((OrKey)this).Item2.ToPolicy()
+						);
 				case Tags.OrKeyV:
+					return AbstractPolicy.NewOr(
+							((OrKeyV)this).Item1.ToPolicy(),
+							((OrKeyV)this).Item2.ToPolicy()
+						);
 				case Tags.OrIf:
+					return AbstractPolicy.NewOr(
+							((OrIf)this).Item1.ToPolicy(),
+							((OrIf)this).Item2.ToPolicy()
+						);
 				case Tags.OrIfV:
+					return AbstractPolicy.NewOr(
+							((OrIfV)this).Item1.ToPolicy(),
+							((OrIfV)this).Item2.ToPolicy()
+						);
 				case Tags.OrNotIf:
-					return AbstractPolicy.NewOr(((OrBool)this).Item1.ToPolicy(), ((OrBool)this).Item2.ToPolicy());
+					return AbstractPolicy.NewOr(
+							((OrNotIf)this).Item1.ToPolicy(),
+							((OrNotIf)this).Item2.ToPolicy()
+						);
+				case Tags.Thresh:
+					return AbstractPolicy.NewThreshold(
+						((Thresh)this).Item1,
+						((Thresh)this).Item2.Select(i => i.ToPolicy()).ToArray()
+					);
+				case Tags.ThreshV:
+					return AbstractPolicy.NewThreshold(
+						((ThreshV)this).Item1,
+						((ThreshV)this).Item2.Select(i => i.ToPolicy()).ToArray()
+					);
 			};
 
 			throw new Exception("Unreachable");
@@ -942,6 +1004,150 @@ namespace NBitcoin.Miniscript
 
 		public Script ToScript()
 			=> new Script(Serialize(new StringBuilder()).ToString());
+
+		public override string ToString()
+			=> DebugPrint(new StringBuilder()).ToString();
+
+		private StringBuilder DebugPrint(StringBuilder sb)
+		{
+			switch (this)
+			{
+				case Pk self:
+					return sb.AppendFormat("pk({0})", self.Item1);
+				case PkV self:
+					return sb.AppendFormat("pk_v({0})", self.Item1);
+				case PkQ self:
+					return sb.AppendFormat("pk_q({0})", self.Item1);
+				case PkW self:
+					return sb.AppendFormat("pk_w({0})", self.Item1);
+				case Multi self:
+					sb.AppendFormat("multi({0}", self.Item1);
+					foreach (var pk in self.Item2)
+						sb.AppendFormat(",{0}", pk);
+					return sb.Append(")");
+				case MultiV self:
+					sb.AppendFormat("multi_v({0}", self.Item1);
+					foreach (var pk in self.Item2)
+						sb.AppendFormat(",{0}", pk);
+					return sb.Append(")");
+				case TimeT self:
+					return sb.AppendFormat("time_t({0})", self.Item1);
+				case TimeV self:
+					return sb.AppendFormat("time_v({0})", self.Item1);
+				case TimeF self:
+					return sb.AppendFormat("time_f({0})", self.Item1);
+				case Time self:
+					return sb.AppendFormat("time({0})", self.Item1);
+				case TimeW self:
+					return sb.AppendFormat("time_w({0})", self.Item1);
+				case HashT self:
+					return sb.AppendFormat("hash_t({0})", self.Item1);
+				case HashV self:
+					return sb.AppendFormat("hash_v({0})", self.Item1);
+				case HashW self:
+					return sb.AppendFormat("hash_w({0})", self.Item1);
+				case True self:
+					sb.Append("true(");
+					self.Item1.DebugPrint(sb);
+					return sb.Append(")");
+				case Wrap self:
+					sb.Append("wrap(");
+					self.Item1.DebugPrint(sb);
+					return sb.Append(")");
+				case Likely self:
+					sb.Append("likely(");
+					self.Item1.DebugPrint(sb);
+					return sb.Append(")");
+				case Unlikely self:
+					sb.Append("unlikely(");
+					self.Item1.DebugPrint(sb);
+					return sb.Append(")");
+				case AndCat self:
+					sb.Append("and_cat(");
+					self.Item1.DebugPrint(sb);
+					sb.Append(",");
+					self.Item2.DebugPrint(sb);
+					return sb.Append(")");
+				case AndBool self:
+					sb.Append("and_bool(");
+					self.Item1.DebugPrint(sb);
+					sb.Append(",");
+					self.Item2.DebugPrint(sb);
+					return sb.Append(")");
+				case AndCasc self:
+					sb.Append("and_casc(");
+					self.Item1.DebugPrint(sb);
+					sb.Append(",");
+					self.Item2.DebugPrint(sb);
+					return sb.Append(")");
+				case OrBool self:
+					sb.Append("or_bool(");
+					self.Item1.DebugPrint(sb);
+					sb.Append(",");
+					self.Item2.DebugPrint(sb);
+					return sb.Append(")");
+				case OrCasc self:
+					sb.Append("or_casc(");
+					self.Item1.DebugPrint(sb);
+					sb.Append(",");
+					self.Item2.DebugPrint(sb);
+					return sb.Append(")");
+				case OrCont self:
+					sb.Append("or_cont(");
+					self.Item1.DebugPrint(sb);
+					sb.Append(",");
+					self.Item2.DebugPrint(sb);
+					return sb.Append(")");
+				case OrKey self:
+					sb.Append("or_key(");
+					self.Item1.DebugPrint(sb);
+					sb.Append(",");
+					self.Item2.DebugPrint(sb);
+					return sb.Append(")");
+				case OrKeyV self:
+					sb.Append("or_key_v(");
+					self.Item1.DebugPrint(sb);
+					sb.Append(",");
+					self.Item2.DebugPrint(sb);
+					return sb.Append(")");
+				case OrIf self:
+					sb.Append("or_if(");
+					self.Item1.DebugPrint(sb);
+					sb.Append(",");
+					self.Item2.DebugPrint(sb);
+					return sb.Append(")");
+				case OrIfV self:
+					sb.Append("or_if_v(");
+					self.Item1.DebugPrint(sb);
+					sb.Append(",");
+					self.Item2.DebugPrint(sb);
+					return sb.Append(")");
+				case OrNotIf self:
+					sb.Append("or_notif(");
+					self.Item1.DebugPrint(sb);
+					sb.Append(",");
+					self.Item2.DebugPrint(sb);
+					return sb.Append(")");
+				case Thresh self:
+					sb.AppendFormat("thresh({0}", self.Item1);
+					foreach (var sub in self.Item2)
+					{
+						sb.Append(",");
+						sub.DebugPrint(sb);
+					}
+					return sb.Append(")");
+				case ThreshV self:
+					sb.AppendFormat("thresh_v({0}", self.Item1);
+					foreach (var sub in self.Item2)
+					{
+						sb.Append(",");
+						sub.DebugPrint(sb);
+					}
+					return sb.Append(")");
+			}
+
+			throw new Exception("Unreachable");
+		}
 		private StringBuilder Serialize(StringBuilder sb)
 		{
 			switch (this)
