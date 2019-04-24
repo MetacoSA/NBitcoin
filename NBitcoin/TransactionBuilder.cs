@@ -1427,6 +1427,7 @@ namespace NBitcoin
 				if(OptInRBF)
 				{
 					input.Sequence = Sequence.OptInRBF;
+					ctx.NonFinalSequenceSet = true;
 				}
 				if(_LockTime != null && !ctx.NonFinalSequenceSet)
 				{

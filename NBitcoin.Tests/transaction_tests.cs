@@ -1744,6 +1744,7 @@ namespace NBitcoin.Tests
 				.SendFees(Money.Parse("0.0001"))
 				.SetChange(destinations[3])
 				.BuildTransaction(true);
+			Assert.False(tx.RBF);
 			Assert.True(txBuilder.Verify(tx, "0.0001"));
 
 			// Let's check if PSBT can be finalized
