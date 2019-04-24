@@ -93,8 +93,13 @@ namespace NBitcoin.Tests
 
 		[Property]
 		[Trait("PropertyTest", "Verification")]
-		public void PolicyShouldCompileToAST(AbstractPolicy policy)
+		public void PolicyShouldCompileToASTAndGetsBack(AbstractPolicy policy)
 			=> CompiledNode.FromPolicy(policy).BestT(0.0, 0.0).Ast.ToPolicy();
+
+		[Property]
+		[Trait("PropertyTest", "Verification")]
+		public void PolicyShouldCompileToScript(AbstractPolicy policy)
+			=> CompiledNode.FromPolicy(policy).BestT(0.0, 0.0).Ast.ToScript();
 
 	}
 }
