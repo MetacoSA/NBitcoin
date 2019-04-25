@@ -94,6 +94,7 @@ namespace NBitcoin.Tests
 		[Property]
 		[Trait("PropertyTest", "Verification")]
 		public void PolicyShouldCompileToASTAndGetsBack(AbstractPolicy policy)
+			// Bidirectional conversion is impossible since there are no way to distinguish `or` and `aor`
 			=> CompiledNode.FromPolicy(policy).BestT(0.0, 0.0).Ast.ToPolicy();
 
 		[Property]

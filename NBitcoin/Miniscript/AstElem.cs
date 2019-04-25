@@ -892,6 +892,11 @@ namespace NBitcoin.Miniscript
 		}
 		#endregion
 
+		/// <summary>
+		/// Note that this does not assure exact equality against original DSL
+		/// Since we have no way to distinguish `or` and `aor`
+		/// </summary>
+		/// <returns></returns>
 		public AbstractPolicy ToPolicy()
 		{
 			switch(this.Tag)
