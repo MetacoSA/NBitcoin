@@ -4,31 +4,31 @@ using System.Linq;
 
 namespace NBitcoin.Miniscript.Parser
 {
-	internal class ParserResult<TValue>
+	internal class ParserResult<TToken, TValue>
 	{
 		public readonly TValue Value;
-		public readonly IInput Rest;
+		public readonly IInput<TToken> Rest;
 
-		private ParserResult(IInput rest, TValue value)
+		private ParserResult(IInput<TToken> rest, TValue value)
 		{
 			Rest = rest;
 			Value = value;
 		}
 
-		public static ParserResult<TValue> Success(IInput rest, TValue v)
-			=> new ParserResult<TValue>(rest, v) { IsSuccess = true };
+		public static ParserResult<TToken, TValue> Success(IInput<TToken> rest, TValue v)
+			=> new ParserResult<TToken, TValue>(rest, v) { IsSuccess = true };
 
-		public static ParserResult<TValue> Failure(IInput rest, string description) =>
+		public static ParserResult<TToken, TValue> Failure(IInput<TToken> rest, string description) =>
 			Failure(rest, null, description);
-		public static ParserResult<TValue> Failure(IInput rest, IEnumerable<string> expected, string description) =>
-			new ParserResult<TValue>(rest, default(TValue))
+		public static ParserResult<TToken, TValue> Failure(IInput<TToken> rest, IEnumerable<string> expected, string description) =>
+			new ParserResult<TToken, TValue>(rest, default(TValue))
 			{
 				IsSuccess = false,
 				Description = description,
 				Expected = expected
 			};
 
-		public ParserResult<U> IfSuccess<U>(Func<ParserResult<TValue>, ParserResult<U>> next)
+		public ParserResult<TToken, U> IfSuccess<U>(Func<ParserResult<TToken, TValue>, ParserResult<TToken, U>> next)
 		{
 			if (next == null)
 				throw new ArgumentNullException(nameof(next));
@@ -36,10 +36,10 @@ namespace NBitcoin.Miniscript.Parser
 			if (this.IsSuccess)
 				return next(this);
 
-			return ParserResult<U>.Failure(this.Rest, this.Expected, this.Description);
+			return ParserResult<TToken, U>.Failure(this.Rest, this.Expected, this.Description);
 		}
 
-		public ParserResult<TValue> IfFailure<U>(Func<ParserResult<TValue>, ParserResult<TValue>> next)
+		public ParserResult<TToken, TValue> IfFailure<U>(Func<ParserResult<TToken, TValue>, ParserResult<TToken, TValue>> next)
 		{
 			if (next == null)
 				throw new ArgumentNullException(nameof(next));
@@ -61,22 +61,7 @@ namespace NBitcoin.Miniscript.Parser
 			if (Expected.Any())
 				expMsg = " expected " + Expected.Aggregate((e1, e2) => e1 + " or " + e2);
 
-			var recentlyConsumed = CalculateRecentlyConsumed();
-
-			return string.Format("Parsing failure: {0};{1} ({2}); recently consumed: {3}", Description, expMsg, Rest, recentlyConsumed);
-		}
-
-		private string CalculateRecentlyConsumed()
-		{
-			const int windowSize = 10;
-
-			var totalConsumedChars = Rest.Position;
-			var windowStart = totalConsumedChars - windowSize;
-			windowStart = windowStart < 0 ? 0 : windowStart;
-
-			var numberOfRecentlyConsumedChars = totalConsumedChars - windowStart;
-
-			return Rest.Source.Substring(windowStart, numberOfRecentlyConsumedChars);
+			return string.Format("Parsing failure: {0};{1} ({2});", Description, expMsg, Rest);
 		}
 	}
 }

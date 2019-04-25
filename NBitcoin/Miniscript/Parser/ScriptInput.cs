@@ -1,15 +1,18 @@
-using System;
 using System.Collections.Generic;
+using System;
 
 namespace NBitcoin.Miniscript.Parser
 {
-	public class StringInput : IInput<char>
+ 	internal class ScriptInput : IInput<ScriptToken>
 	{
-		public StringInput(string source) : this(source, 0) { }
-		public string Source { get; }
+		public ScriptInput(Script source) : this(source.ToToken(), 0) { }
+
+		public ScriptInput(ScriptToken[] source) : this(source, 0) { }
+
+		public ScriptToken[] Source { get; }
 		public int Position { get; }
 
-		internal StringInput(string source, int position)
+		internal ScriptInput(ScriptToken[] source, int position)
 		{
 			if (source == null)
 				throw new System.ArgumentNullException(nameof(source));
@@ -19,13 +22,13 @@ namespace NBitcoin.Miniscript.Parser
 		}
 
 		public bool AtEnd { get { return Position == Source.Length; } }
-		public char GetCurrent() => Source[Position];
+		public ScriptToken GetCurrent() => Source[Position];
 
-		public IInput<char> Advance()
+		public IInput<ScriptToken> Advance()
 		{
 			if (AtEnd)
 				throw new InvalidOperationException("The input is already at the end of the source");
-			return new StringInput(Source, Position + 1);
+			return new ScriptInput(Source, Position + 1);
 		}
 
 		public IDictionary<object, object> Memos { get; }

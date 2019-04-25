@@ -3,13 +3,11 @@ using System.Collections.Generic;
 
 namespace NBitcoin.Miniscript.Parser
 {
-    public interface IInput
+    public interface IInput<out T>
     {
-		IInput Advance();
+		IInput<T> Advance();
 
-		string Source { get; }
-
-		char Current { get; }
+		T GetCurrent();
 
 		bool AtEnd { get; }
 		int Position { get; }

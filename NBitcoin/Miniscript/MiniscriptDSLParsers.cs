@@ -10,7 +10,7 @@ namespace NBitcoin.Miniscript
 {
 	internal static class MiniscriptDSLParser
 	{
-		private static Parser<string> SurroundedByBrackets()
+		private static Parser<char, string> SurroundedByBrackets()
 		{
 			var res =
 				from leftB in Parse.Char('(').Token()
@@ -66,38 +66,38 @@ namespace NBitcoin.Miniscript
 			return items.ToArray();
 		}
 
-		private static Parser<T> TryConvert<T>(string str, Func<string, T> converter)
+		private static Parser<char, T> TryConvert<T>(string str, Func<string, T> converter)
 		{
 			return i =>
 			{
 				try
 				{
-					return ParserResult<T>.Success(i, converter(str));
+					return ParserResult<char, T>.Success(i, converter(str));
 				}
 				catch (FormatException)
 				{
-					return ParserResult<T>.Failure(i, $"Failed to parse {str}");
+					return ParserResult<char, T>.Failure(i, $"Failed to parse {str}");
 				}
 			};
 		}
 
-		private static Parser<string> ExprP(string name)
+		private static Parser<char, string> ExprP(string name)
 			=>
 				from identifier in Parse.String(name)
 				from x in SurroundedByBrackets()
 				select x;
 
-		private static Parser<string[]> ExprPMany(string name)
+		private static Parser<char, string[]> ExprPMany(string name)
 			=>
 				from x in ExprP(name)
 				select SafeSplit(x);
 
-		private static Parser<AbstractPolicy> PubKeyExpr()
+		private static Parser<char, AbstractPolicy> PubKeyExpr()
 			=>
 				from pk in ExprP("pk").Then(s => TryConvert(s, c => new PubKey(c)))
 				select AbstractPolicy.NewCheckSig(pk);
 
-		private static Parser<AbstractPolicy> MultisigExpr()
+		private static Parser<char, AbstractPolicy> MultisigExpr()
 			=>
 				from contents in ExprPMany("multi")
 				from m in TryConvert(contents.First(), UInt32.Parse)
@@ -106,17 +106,17 @@ namespace NBitcoin.Miniscript
 					.Sequence()
 				select AbstractPolicy.NewMulti(m, pks.ToArray());
 
-		private static Parser<AbstractPolicy> HashExpr()
+		private static Parser<char, AbstractPolicy> HashExpr()
 			=>
 				from hash in ExprP("hash").Then(s => TryConvert(s, uint256.Parse))
 				select AbstractPolicy.NewHash(hash);
 
-		private static Parser<AbstractPolicy> TimeExpr()
+		private static Parser<char, AbstractPolicy> TimeExpr()
 			=>
 				from t in ExprP("time").Then(s => TryConvert(s, UInt32.Parse))
 				select AbstractPolicy.NewTime(t);
 
-		private static Parser<IEnumerable<AbstractPolicy>> SubExprs(string name) =>
+		private static Parser<char, IEnumerable<AbstractPolicy>> SubExprs(string name) =>
 				from _n in Parse.String(name)
 				from _left in Parse.Char('(')
 				from x in Parse
@@ -124,21 +124,21 @@ namespace NBitcoin.Miniscript
 					.DelimitedBy(Parse.Char(',')).Token()
 				from _right in Parse.Char(')')
 				select x;
-		private static Parser<AbstractPolicy> AndExpr()
+		private static Parser<char, AbstractPolicy> AndExpr()
 			=>
 				from x in SubExprs("and")
 				select AbstractPolicy.NewAnd(x.ElementAt(0), x.ElementAt(1));
 
-		private static Parser<AbstractPolicy> OrExpr()
+		private static Parser<char, AbstractPolicy> OrExpr()
 			=>
 				from x in SubExprs("or")
 				select AbstractPolicy.NewOr(x.ElementAt(0), x.ElementAt(1));
-		private static Parser<AbstractPolicy> AOrExpr()
+		private static Parser<char, AbstractPolicy> AOrExpr()
 			=>
 				from x in SubExprs("aor")
 				select AbstractPolicy.NewAsymmetricOr(x.ElementAt(0), x.ElementAt(1));
 
-		internal static Parser<AbstractPolicy> ThresholdExpr()
+		internal static Parser<char, AbstractPolicy> ThresholdExpr()
 			=>
 				from _n in Parse.String("thres")
 				from _left in Parse.Char('(')
@@ -151,7 +151,7 @@ namespace NBitcoin.Miniscript
 				from _right in Parse.Char(')')
 				where num <= x.Count()
 				select AbstractPolicy.NewThreshold(num, x.ToArray());
-		private static Parser<AbstractPolicy> GetDSLParser()
+		private static Parser<char, AbstractPolicy> GetDSLParser()
 			=>
 				(PubKeyExpr()
 					.Or(MultisigExpr())
