@@ -5,79 +5,9 @@ using System.Globalization;
 
 namespace NBitcoin.Miniscript.Parser
 {
-	internal static class Parse
+	internal static partial class Parse
 	{
 
-
-		# region char parsers
-		public static Parser<char, char> Char(Func<char, bool> predicate, string expected)
-		{
-			if (predicate == null)
-				throw new ArgumentNullException(nameof(predicate));
-
-			return i =>
-			{
-				if (i.AtEnd)
-				{
-					return ParserResult<char, char>.Failure(i, new [] {expected}, "Unexpected end of input");
-				}
-
-				if (predicate(i.GetCurrent()))
-					return ParserResult<char, char>.Success(i.Advance(), i.GetCurrent());
-
-				return ParserResult<char, char>.Failure(i, new [] {expected}, $"Unexpected '{i.GetCurrent()}'");
-			};
-		}
-		public static Parser<char, char> CharExcept(Func<char, bool> predicate, string description)
-			=> Char(c => !predicate(c), $"any character except {description}");
-
-		public static Parser<char, char> Char(char c)
-			=> Char(ch => c == ch, char.ToString(c));
-
-		public static Parser<char, char> Chars(params char[] c)
-			=> Char(c.Contains, string.Join("|", c));
-
-		public static Parser<char, char> Chars(string c)
-			=> Char(c.AsEnumerable().Contains, string.Join("|", c));
-
-		public static Parser<char, char> CharExcept(char c)
-			=> CharExcept(ch => c == ch, c.ToString());
-
-		public static readonly Parser<char, char> AnyChar = Char(c => true, "any charactor");
-		public static readonly Parser<char, char> WhiteSpace = Char(char.IsWhiteSpace, "whitespace");
-		public static readonly Parser<char, char> Digit = Char(char.IsDigit, "digit");
-		public static readonly Parser<char, char> Letter = Char(char.IsLetter, "letter");
-		public static readonly Parser<char, char> LetterOrDigit = Char(char.IsLetterOrDigit, "letter or digit");
-
-		public static readonly Parser<char, char> Numeric = Char(char.IsNumber, "numeric character");
-
-		/// <summary>
-		/// Parse a string of characters.
-		/// </summary>
-		/// <param name="s"></param>
-		/// <returns></returns>
-		public static Parser<char, IEnumerable<char>> String(string s)
-		{
-			if (s == null) throw new ArgumentNullException(nameof(s));
-
-			return s
-				.AsEnumerable()
-				.Select(Char)
-				.Sequence();
-		}
-
-		public static Parser<TToken, IEnumerable<T>> Sequence<TToken, T>(this IEnumerable<Parser<TToken, T>> parserList)
-		{
-			return
-				parserList
-					.Aggregate(Return<TToken, IEnumerable<T>>(Enumerable.Empty<T>()), (a, p) => a.Concat(p.Once()));
-		}
-
-
-		#endregion
-
-
-		#region generic utilities
 
 		public static Parser<TToken, U> Then<TToken, T, U>(this Parser<TToken, T> first, Func<T, Parser<TToken, U>> second)
 		{
@@ -206,14 +136,11 @@ namespace NBitcoin.Miniscript.Parser
 			return parser.Then(t => Return<TToken, U>(convert(t)));
 		}
 
-		public static Parser<char, T> Token<T>(this Parser<char, T> parser)
+		public static Parser<TToken, IEnumerable<T>> Sequence<TToken, T>(this IEnumerable<Parser<TToken, T>> parserList)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
-
-			return from leading in WhiteSpace.Many()
-				   from item in parser
-				   from trailing in WhiteSpace.Many()
-				   select item;
+			return
+				parserList
+					.Aggregate(Return<TToken, IEnumerable<T>>(Enumerable.Empty<T>()), (a, p) => a.Concat(p.Once()));
 		}
 
 		/// <summary>
@@ -247,15 +174,6 @@ namespace NBitcoin.Miniscript.Parser
 				};
 		}
 
-		/// <summary>
-		/// Convert a stream of characters to a string.
-		/// </summary>
-		/// <param name="characters"></param>
-		/// <returns></returns>
-		public static Parser<char, string> Text(this Parser<char, IEnumerable<char>> characters)
-		{
-			return characters.Select(chs => new string(chs.ToArray()));
-		}
 
 		public static Parser<TToken, T> Or<TToken, T>(this Parser<TToken, T> first, Parser<TToken, T> second) 
 		{
@@ -565,37 +483,6 @@ namespace NBitcoin.Miniscript.Parser
 					  Return<TToken, T>(lastOperand));
 		}
 
-		/// <summary>
-		/// Parse a number.
-		/// </summary>
-		public static readonly Parser<char, string> Number = Numeric.AtLeastOnce().Text();
-
-		static Parser<char, string> DecimalWithoutLeadingDigits(CultureInfo ci = null)
-		{
-			return from nothing in Return<char, string>("")
-					   // dummy so that CultureInfo.CurrentCulture is evaluated later
-				   from dot in String((ci ?? CultureInfo.CurrentCulture).NumberFormat.NumberDecimalSeparator).Text()
-				   from fraction in Number
-				   select dot + fraction;
-		}
-
-		static Parser<char, string> DecimalWithLeadingDigits(CultureInfo ci = null)
-		{
-			return Number.Then(n => DecimalWithoutLeadingDigits(ci).XOr(Return<char, string>("")).Select(f => n + f));
-		}
-
-		/// <summary>
-		/// Parse a decimal number using the current culture's separator character.
-		/// </summary>
-		public static readonly Parser<char, string> Decimal = DecimalWithLeadingDigits().XOr(DecimalWithoutLeadingDigits());
-
-		/// <summary>
-		/// Parse a decimal number with separator '.'.
-		/// </summary>
-		public static readonly Parser<char, string> DecimalInvariant = DecimalWithLeadingDigits(CultureInfo.InvariantCulture)
-																	 .XOr(DecimalWithoutLeadingDigits(CultureInfo.InvariantCulture));
-
-		#endregion
 
 		# region sequence
 		public static Parser<TToken, IEnumerable<T>> DelimitedBy<TToken, T, U> (

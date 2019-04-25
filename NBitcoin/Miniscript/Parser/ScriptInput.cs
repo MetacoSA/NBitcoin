@@ -5,7 +5,7 @@ namespace NBitcoin.Miniscript.Parser
 {
  	internal class ScriptInput : IInput<ScriptToken>
 	{
-		public ScriptInput(Script source) : this(source.ToToken(), 0) { }
+		public ScriptInput(Script source) : this(source.ToTokens(), 0) { }
 
 		public ScriptInput(ScriptToken[] source) : this(source, 0) { }
 

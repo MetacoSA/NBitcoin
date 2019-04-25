@@ -163,6 +163,8 @@ namespace NBitcoin.Miniscript
 			internal Pk(PubKey item) : base(29) => Item = item;
 		}
 
+		public override string ToString() => this.GetType().Name;
+
 		public sealed override int GetHashCode()
 		{
 			if (this != null)

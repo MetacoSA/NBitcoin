@@ -1,6 +1,9 @@
+using NBitcoin.Miniscript.Parser;
 namespace NBitcoin.Miniscript
 {
-	public class MiniscriptScriptParser
+	internal static class MiniscriptScriptParser
 	{
+		private readonly Parser<ScriptToken, AstElem> AndBoolP =
+			from b in Parse.
 	}
 }
