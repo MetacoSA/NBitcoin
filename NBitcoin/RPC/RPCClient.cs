@@ -1143,9 +1143,9 @@ namespace NBitcoin.RPC
 				Difficulty = result.Value<ulong>("difficulty"),
 				MedianTime = result.Value<ulong>("mediantime"),
 				VerificationProgress = result.Value<float>("verificationprogress"),
-				InitialBlockDownload = (bool?)result["initialblockdownload"],
+				InitialBlockDownload = result.Value<bool?>("initialblockdownload") ?? false,
 				ChainWork = new uint256(result.Value<string>("chainwork")),
-				SizeOnDisk = (ulong?)result["size_on_disk"],
+				SizeOnDisk = result.Value<ulong?>("size_on_disk") ?? 0,
 				Pruned = result.Value<bool>("pruned"),
 				SoftForks = result["softforks"]?.Select(x =>
 					new BlockchainInfo.SoftFork
@@ -1163,7 +1163,7 @@ namespace NBitcoin.RPC
 						Status = (string)o["status"],
 						StartTime = epochToDtateTimeOffset((long)o["startTime"]),
 						Timeout = epochToDtateTimeOffset((long)o["timeout"]),
-						SinceHeight = (ulong?)o["since"],
+						SinceHeight = o.Value<ulong?>("since") ?? 0,
 					};
 				}).ToList()
 			};
@@ -2020,7 +2020,7 @@ namespace NBitcoin.RPC
 			public string Status { get; set; }
 			public DateTimeOffset StartTime { get; set; }
 			public DateTimeOffset Timeout { get; set; }
-			public ulong? SinceHeight { get; set; }
+			public ulong SinceHeight { get; set; }
 
 		}
 
@@ -2032,9 +2032,9 @@ namespace NBitcoin.RPC
 		public ulong MedianTime { get; set; }
 
 		public float VerificationProgress { get; set; }
-		public bool? InitialBlockDownload { get; set; }
+		public bool InitialBlockDownload { get; set; }
 		public uint256 ChainWork { get; set; }
-		public ulong? SizeOnDisk { get; set; }
+		public ulong SizeOnDisk { get; set; }
 		public bool Pruned { get; set; }
 
 		public List<SoftFork> SoftForks { get; set; }
