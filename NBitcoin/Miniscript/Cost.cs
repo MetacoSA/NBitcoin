@@ -20,7 +20,7 @@ namespace NBitcoin.Miniscript
 
 		internal static Cost Dummy()
 			=> new Cost(
-					new AstElem.Time(0),
+					AstElem.NewTime(0),
 					1024 * 1024,
 					1024.0 * 1024.0,
 					1024.0 * 1024.0
@@ -31,7 +31,7 @@ namespace NBitcoin.Miniscript
 			if (!ecost.Ast.IsE())
 				throw new Exception("unreachable");
 			return new Cost(
-				new AstElem.Wrap(ecost.Ast),
+				AstElem.NewWrap(ecost.Ast),
 				ecost.PkCost + 2,
 				ecost.SatCost,
 				ecost.DissatCost
@@ -59,7 +59,7 @@ namespace NBitcoin.Miniscript
 				throw new Exception($"unreachable {fcost.Ast}");
 
 			return new Cost(
-				new AstElem.Likely(fcost.Ast),
+				AstElem.NewLikely(fcost.Ast),
 				fcost.PkCost + 4,
 				fcost.SatCost + 1.0,
 				2.0
@@ -73,7 +73,7 @@ namespace NBitcoin.Miniscript
 				throw new Exception("unreachable");
 
 			return new Cost(
-				ast: new AstElem.Unlikely(fcost.Ast),
+				ast: AstElem.NewUnlikely(fcost.Ast),
 				pkCost: fcost.PkCost + 4,
 				satCost: fcost.SatCost + 2.0,
 				dissatCost: 1.0

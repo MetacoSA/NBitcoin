@@ -93,32 +93,32 @@ namespace NBitcoin.Miniscript
 		public int Tag { get; }
 
 		# region SubClasses
-		public class Pk : AstElem
+		internal class Pk : AstElem
 		{
 			public PubKey Item1 { get; }
 			internal Pk(PubKey item1) : base(0) => Item1 = item1;
 
 		}
-		public class PkV : AstElem
+		internal class PkV : AstElem
 		{
 			public PubKey Item1 { get; }
 			internal PkV(PubKey item1) : base(1) => Item1 = item1;
 
 		}
-		public class PkQ : AstElem
+		internal class PkQ : AstElem
 		{
 			public PubKey Item1 { get; }
 			internal PkQ(PubKey item1) : base(2) => Item1 = item1;
 
 		}
 
-		public class PkW : AstElem
+		internal class PkW : AstElem
 		{
 			public PubKey Item1 { get; }
 			internal PkW(PubKey item1) : base(3) => Item1 = item1;
 
 		}
-		public class Multi : AstElem
+		internal class Multi : AstElem
 		{
 			public UInt32 Item1 { get; }
 			public PubKey[] Item2 { get; }
@@ -128,7 +128,7 @@ namespace NBitcoin.Miniscript
 				Item2 = item2;
 			}
 		}
-		public class MultiV : AstElem
+		internal class MultiV : AstElem
 		{
 			public UInt32 Item1 { get; }
 			public PubKey[] Item2 { get; }
@@ -139,73 +139,73 @@ namespace NBitcoin.Miniscript
 			}
 		}
 
-		public class TimeT : AstElem
+		internal class TimeT : AstElem
 		{
 			public UInt32 Item1 { get; }
 			internal TimeT(UInt32 item1) : base(6) => Item1 = item1;
 		}
 
-		public class TimeV : AstElem
+		internal class TimeV : AstElem
 		{
 			public UInt32 Item1 { get; }
 			internal TimeV(UInt32 item1) : base(7) => Item1 = item1;
 		}
-		public class TimeF : AstElem
+		internal class TimeF : AstElem
 		{
 			public UInt32 Item1 { get; }
 			internal TimeF(UInt32 item1) : base(8) => Item1 = item1;
 		}
-		public class Time : AstElem
+		internal class Time : AstElem
 		{
 			public UInt32 Item1 { get; }
 			internal Time(UInt32 item1) : base(9) => Item1 = item1;
 		}
-		public class TimeW : AstElem
+		internal class TimeW : AstElem
 		{
 			public UInt32 Item1 { get; }
 			internal TimeW(UInt32 item1) : base(10) => Item1 = item1;
 		}
 
-		public class HashT : AstElem
+		internal class HashT : AstElem
 		{
 			public uint256 Item1 { get; }
 			internal HashT(uint256 item1) : base(11) => Item1 = item1;
 		}
 
-		public class HashV : AstElem
+		internal class HashV : AstElem
 		{
 			public uint256 Item1 { get; }
 			internal HashV(uint256 item1) : base(12) => Item1 = item1;
 		}
 
-		public class HashW : AstElem
+		internal class HashW : AstElem
 		{
 			public uint256 Item1 { get; }
 			internal HashW(uint256 item1) : base(13) => Item1 = item1;
 		}
 
-		public class True : AstElem
+		internal class True : AstElem
 		{
 			public AstElem Item1 { get; }
 			internal True(AstElem item1) : base(14) => Item1 = item1;
 		}
-		public class Wrap : AstElem
+		internal class Wrap : AstElem
 		{
 			public AstElem Item1 { get; }
 			internal Wrap(AstElem item1) : base(15) => Item1 = item1;
 		}
-		public class Likely : AstElem
+		internal class Likely : AstElem
 		{
 			public AstElem Item1 { get; }
 			internal Likely(AstElem item1) : base(16) => Item1 = item1;
 		}
-		public class Unlikely : AstElem
+		internal class Unlikely : AstElem
 		{
 			public AstElem Item1 { get; }
 			internal Unlikely(AstElem item1) : base(17) => Item1 = item1;
 		}
 
-		public class AndCat : AstElem
+		internal class AndCat : AstElem
 		{
 			public AstElem Item1 { get; }
 			public AstElem Item2 { get; }
@@ -215,7 +215,7 @@ namespace NBitcoin.Miniscript
 				Item2 = item2;
 			}
 		}
-		public class AndBool : AstElem
+		internal class AndBool : AstElem
 		{
 			public AstElem Item1 { get; }
 			public AstElem Item2 { get; }
@@ -226,7 +226,7 @@ namespace NBitcoin.Miniscript
 			}
 		}
 
-		public class AndCasc : AstElem
+		internal class AndCasc : AstElem
 		{
 			public AstElem Item1 { get; }
 			public AstElem Item2 { get; }
@@ -237,7 +237,7 @@ namespace NBitcoin.Miniscript
 			}
 		}
 
-		public class OrBool : AstElem
+		internal class OrBool : AstElem
 		{
 			public AstElem Item1 { get; }
 			public AstElem Item2 { get; }
@@ -248,7 +248,7 @@ namespace NBitcoin.Miniscript
 			}
 		}
 
-		public class OrCasc : AstElem
+		internal class OrCasc : AstElem
 		{
 			public AstElem Item1 { get; }
 			public AstElem Item2 { get; }
@@ -258,7 +258,7 @@ namespace NBitcoin.Miniscript
 				Item2 = item2;
 			}
 		}
-		public class OrCont : AstElem
+		internal class OrCont : AstElem
 		{
 			public AstElem Item1 { get; }
 			public AstElem Item2 { get; }
@@ -268,7 +268,7 @@ namespace NBitcoin.Miniscript
 				Item2 = item2;
 			}
 		}
-		public class OrKey : AstElem
+		internal class OrKey : AstElem
 		{
 			public AstElem Item1 { get; }
 			public AstElem Item2 { get; }
@@ -279,7 +279,7 @@ namespace NBitcoin.Miniscript
 			}
 		}
 
-		public class OrKeyV : AstElem
+		internal class OrKeyV : AstElem
 		{
 			public AstElem Item1 { get; }
 			public AstElem Item2 { get; }
@@ -290,7 +290,7 @@ namespace NBitcoin.Miniscript
 			}
 		}
 
-		public class OrIf : AstElem
+		internal class OrIf : AstElem
 		{
 			public AstElem Item1 { get; }
 			public AstElem Item2 { get; }
@@ -301,7 +301,7 @@ namespace NBitcoin.Miniscript
 			}
 		}
 
-		public class OrIfV : AstElem
+		internal class OrIfV : AstElem
 		{
 			public AstElem Item1 { get; }
 			public AstElem Item2 { get; }
@@ -312,7 +312,7 @@ namespace NBitcoin.Miniscript
 			}
 		}
 
-		public class OrNotIf : AstElem
+		internal class OrNotIf : AstElem
 		{
 			public AstElem Item1 { get; }
 			public AstElem Item2 { get; }
@@ -323,7 +323,7 @@ namespace NBitcoin.Miniscript
 			}
 		}
 
-		public class Thresh : AstElem
+		internal class Thresh : AstElem
 		{
 			public UInt32 Item1 { get; }
 			public AstElem[] Item2 { get; }
@@ -334,7 +334,44 @@ namespace NBitcoin.Miniscript
 			}
 		}
 
-		# region Equatable members
+		#region constructor
+
+		public static AstElem NewPk(PubKey item) => new Pk(item);
+		public static AstElem NewPkV(PubKey item) => new PkV(item);
+		public static AstElem NewPkQ(PubKey item) => new PkQ(item);
+		public static AstElem NewPkW(PubKey item) => new PkW(item);
+		public static AstElem NewMulti(uint m, PubKey[] item) => new Multi(m, item);
+		public static AstElem NewMultiV(uint m, PubKey[] item) => new MultiV(m, item);
+		public static AstElem NewTimeT(uint item) => new TimeT(item);
+		public static AstElem NewTimeV(uint item) => new TimeV(item);
+		public static AstElem NewTimeF(uint item) => new TimeF(item);
+		public static AstElem NewTime(uint item) => new Time(item);
+		public static AstElem NewTimeW(uint item) => new TimeW(item);
+		public static AstElem NewHashT(uint256 item) => new HashT(item);
+		public static AstElem NewHashV(uint256 item) => new HashV(item);
+		public static AstElem NewHashW(uint256 item) => new HashW(item);
+		public static AstElem NewTrue(AstElem item) => new True(item);
+		public static AstElem NewWrap(AstElem item) => new Wrap(item);
+		public static AstElem NewLikely(AstElem item) => new Likely(item);
+		public static AstElem NewUnlikely(AstElem item) => new Unlikely(item);
+		public static AstElem NewAndCat(AstElem item1, AstElem item2) => new AndCat(item1, item2);
+		public static AstElem NewAndBool(AstElem left, AstElem right) => new AndBool(left, right);
+		public static AstElem NewAndCasc(AstElem left, AstElem right) => new AndCasc(left, right);
+		public static AstElem NewOrBool(AstElem left, AstElem right) => new OrBool(left, right);
+		public static AstElem NewOrCasc(AstElem left, AstElem right) => new OrCasc(left, right);
+		public static AstElem NewOrCont(AstElem left, AstElem right) => new OrCont(left, right);
+
+		public static AstElem NewOrKey(AstElem left, AstElem right) => new OrKey(left, right);
+		public static AstElem NewOrKeyV(AstElem left, AstElem right) => new OrKeyV(left, right);
+		public static AstElem NewOrIf(AstElem left, AstElem right) => new OrIf(left, right);
+		public static AstElem NewOrIfV(AstElem left, AstElem right) => new OrIfV(left, right);
+		public static AstElem NewOrNotIf(AstElem left, AstElem right) => new OrNotIf(left, right);
+		public static AstElem NewThresh(uint item1, AstElem[] item2) => new Thresh(item1, item2);
+		public static AstElem NewThreshV(uint item1, AstElem[] item2) => new ThreshV(item1, item2);
+
+		#endregion
+
+		#region Equatable members
 		public sealed override int GetHashCode()
 		{
 			if (this != null)

@@ -423,9 +423,9 @@ namespace NBitcoin.Miniscript
 					ret.DissatCost = 0.0;
 					return ret;
 				case CompiledNodeContent.Time c:
-					return Cost.FromTerminal(new AstElem.TimeT(c.Item1));
+					return Cost.FromTerminal(AstElem.NewTimeT(c.Item1));
 				case CompiledNodeContent.Hash c:
-					return Cost.FromTerminal(new AstElem.HashT(c.Item1));
+					return Cost.FromTerminal(AstElem.NewHashT(c.Item1));
 				case CompiledNodeContent.And c:
 					var lv = c.Item1.BestV(pSat, 0.0);
 					var rv = c.Item2.BestV(pSat, 0.0);
