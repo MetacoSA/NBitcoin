@@ -20,9 +20,9 @@ using System.Threading.Tasks;
 namespace NBitcoin.RPC
 {
 	/*
-		Category			Name						Implemented 
+		Category			Name						Implemented
 		------------------ --------------------------- -----------------------
-		------------------ Overall control/query calls 
+		------------------ Overall control/query calls
 		control			getinfo
 		control			help
 		control			stop
@@ -827,7 +827,7 @@ namespace NBitcoin.RPC
 			}
 			// Because TaskCompletionSources are executing on the threadpool adding a delay make sure they are all treated
 			// when the function returns. Not quite useful, but make that when SendBatch, all tasks are finished running
-			await Task.Delay(1); 
+			await Task.Delay(1);
 		}
 
 
@@ -1143,9 +1143,9 @@ namespace NBitcoin.RPC
 				Difficulty = result.Value<ulong>("difficulty"),
 				MedianTime = result.Value<ulong>("mediantime"),
 				VerificationProgress = result.Value<float>("verificationprogress"),
-				InitialBlockDownload = result.Value<bool>("initialblockdownload"),
+				InitialBlockDownload = result.Value<bool?>("initialblockdownload") ?? false,
 				ChainWork = new uint256(result.Value<string>("chainwork")),
-				SizeOnDisk = result.Value<ulong>("size_on_disk"),
+				SizeOnDisk = result.Value<ulong?>("size_on_disk") ?? 0,
 				Pruned = result.Value<bool>("pruned"),
 				SoftForks = result["softforks"]?.Select(x =>
 					new BlockchainInfo.SoftFork
@@ -1163,7 +1163,7 @@ namespace NBitcoin.RPC
 						Status = (string)o["status"],
 						StartTime = epochToDtateTimeOffset((long)o["startTime"]),
 						Timeout = epochToDtateTimeOffset((long)o["timeout"]),
-						SinceHeight = (ulong)o["since"],
+						SinceHeight = o.Value<ulong?>("since") ?? 0,
 					};
 				}).ToList()
 			};
