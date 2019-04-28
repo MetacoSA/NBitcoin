@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NBitcoin.Miniscript.Parser;
 
 namespace NBitcoin.Miniscript
@@ -152,6 +153,7 @@ namespace NBitcoin.Miniscript
 						break;
 				}
 			}
+			result.Reverse();
 			return result.ToArray();
 		}
 		private static ScriptToken GetItem(Op op)

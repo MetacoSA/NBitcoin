@@ -23,6 +23,7 @@ namespace NBitcoin.Miniscript.Parser
 
 		public bool AtEnd { get { return Position == Source.Length; } }
 		public ScriptToken GetCurrent() => Source[Position];
+		public ScriptToken GetNext() => Source[Position + 1];
 
 		public IInput<ScriptToken> Advance()
 		{

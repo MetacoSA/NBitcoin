@@ -11,205 +11,180 @@ namespace NBitcoin.Miniscript
 			from t in Parse.ScriptToken(ScriptToken.Tags.Number)
 			select ((ScriptToken.Number)t).Item;
 
+		private static readonly Parser<ScriptToken, uint256> PHash =
+			from t in Parse.ScriptToken(ScriptToken.Tags.Sha256Hash)
+			select ((ScriptToken.Sha256Hash)t).Item;
 		private static readonly Parser<ScriptToken, PubKey> PPubKey =
 			from t in Parse.ScriptToken(ScriptToken.Tags.Pk)
 			select ((ScriptToken.Pk)t).Item;
-		private static P PAndBool()
-			=>
+		
+		private static readonly P PAndBool =
 				from _ in Parse.ScriptToken(ScriptToken.BoolAnd)
-				from w in Parse.Ref(() => PW())
-				from e in Parse.Ref(() => PE())
+				from w in Parse.Ref(() => PW)
+				from e in ParseShortestE
 				select AstElem.NewAndBool(e, w);
 
-		private static P PBoolOr()
-			=>
+		private static readonly P POrBool =
 				from _ in Parse.ScriptToken(ScriptToken.BoolOr)
-				from w in Parse.Ref(() => PW())
-				from e in Parse.Ref(() => PE())
+				from w in Parse.Ref(() => PW)
+				from e in ParseShortestE
 				select AstElem.NewOrBool(e, w);
 
-		private static P PHashT()
-			=>
+		internal static readonly P PHashT =
 				from _1 in Parse.ScriptToken(ScriptToken.Equal)
-				from hash in Parse.ScriptToken(ScriptToken.Tags.Sha256Hash)
+				from hash in PHash
 				from _2 in Parse.ScriptToken(ScriptToken.Sha256)
 				from _3 in Parse.ScriptToken(ScriptToken.EqualVerify)
 				from num in PNumber
 				where num == 32
 				from _4 in Parse.ScriptToken(ScriptToken.Size)
-				select AstElem.NewHashT(((ScriptToken.Sha256Hash)hash).Item);
+				select AstElem.NewHashT(hash);
 
-		private static Parser<ScriptToken, AstElem[]> ThreshSubExpr()
-			=>
+		private static readonly Parser<ScriptToken, AstElem[]> ThreshSubExpr =
 				from ws in
-					(Parse.ScriptToken(ScriptToken.Add).Then(_ => PW()).Many())
-				from e in Parse.Ref(() => PE()).Once()
+					(Parse.ScriptToken(ScriptToken.Add).Then(_ => Parse.Ref(() => PW))).AtLeastOnce()
+				from e in Parse.Ref(() => PE).Once()
 				select e.Concat(ws).ToArray();
-		private static P PThresh()
-			=>
+		internal static readonly P PThresh =
 				from _ in Parse.ScriptToken(ScriptToken.Equal)
 				from num in PNumber
-				from subExprs in ThreshSubExpr()
+				from subExprs in Parse.Ref(() => ThreshSubExpr)
 				select (AstElem.NewThresh(num, subExprs));
 
-		private static P PHashV()
-			=>
+		private static readonly P PHashV =
 				from _1 in Parse.ScriptToken(ScriptToken.EqualVerify)
-				from hash in Parse.ScriptToken(ScriptToken.Tags.Sha256Hash)
+				from hash in PHash
 				from _2 in Parse.ScriptToken(ScriptToken.Sha256)
 				from _3 in Parse.ScriptToken(ScriptToken.EqualVerify)
 				from num in PNumber
 				where num == 32
 				from _4 in Parse.ScriptToken(ScriptToken.Size)
-				select AstElem.NewHashV(((ScriptToken.Sha256Hash)hash).Item);
+				select AstElem.NewHashV(hash);
 
-		private static Parser<ScriptToken, AstElem[]> ThreshVSubExpr()
-			=>
-				from ws in Parse.Ref(() => PW()).Many()
-				from e in Parse.Ref(() => PE()).Once()
-				select e.Concat(ws.Reverse()).ToArray();
-
-		private static P PThreshV()
-			=>
+		private static readonly P PThreshV =
 				from _1 in Parse.ScriptToken(ScriptToken.EqualVerify)
 				from num in PNumber
-				from subExprs in ThreshVSubExpr()
+				from subExprs in Parse.Ref(() => ThreshSubExpr)
 				select AstElem.NewThreshV(num, subExprs);
 
-		private static P PPkHelper()
-			=>
+		private static readonly P PPkHelper =
 				from _1 in Parse.ScriptToken(ScriptToken.CheckSig)
-				from pk in Parse.ScriptToken(ScriptToken.Tags.Pk)
-				select AstElem.NewPk(((ScriptToken.Pk)(pk)).Item);
-		private static P PPkW()
-			=>
+				from pk in PPubKey
+				select AstElem.NewPk(pk);
+		private static readonly P PPkW =
 				from _1 in Parse.ScriptToken(ScriptToken.CheckSig)
-				from pk in Parse.ScriptToken(ScriptToken.Tags.Pk)
+				from pk in PPubKey
 				from _2 in Parse.ScriptToken(ScriptToken.Swap)
-				select AstElem.NewPkV(((ScriptToken.Pk)(pk)).Item);
+				select AstElem.NewPkW(pk);
 
-		private static P PPk()
-			=>
-				from ppk in PPkHelper().Except(PPkV())
+		internal static readonly P PPk =
+				from ppk in PPkHelper.Except(Parse.Ref(() => PPkV))
 				select ppk;
 
-		private static P POrKey()
-			=>
+		private static readonly P POrKey =
 				from _1 in Parse.ScriptToken(ScriptToken.CheckSig)
-				from qR in Parse.Ref(() => PQ())
-				from _2 in Parse.ScriptToken(ScriptToken.Else)
-				from qL in Parse.Ref(() => PQ())
-				from _3 in Parse.ScriptToken(ScriptToken.If)
+				from _2 in Parse.ScriptToken(ScriptToken.EndIf)
+				from qR in Parse.Ref(() => PQ)
+				from _3 in Parse.ScriptToken(ScriptToken.Else)
+				from qL in Parse.Ref(() => PQ)
+				from _4 in Parse.ScriptToken(ScriptToken.If)
 				select AstElem.NewOrKey(qL, qR);
-		private static P PPkV()
-			=>
+		private static readonly P PPkV =
 				from _1 in Parse.ScriptToken(ScriptToken.CheckSigVerify)
-				from pk in Parse.ScriptToken(ScriptToken.Tags.Pk)
-				select AstElem.NewPkV(((ScriptToken.Pk)pk).Item);
+				from pk in PPubKey
+				select AstElem.NewPkV(pk);
 
-		private static P POrKeyV()
-			=>
+		private static readonly P POrKeyV =
 				from _1 in Parse.ScriptToken(ScriptToken.CheckSigVerify)
 				from _2 in Parse.ScriptToken(ScriptToken.EndIf)
-				from qR in Parse.Ref(() => PQ())
+				from qR in Parse.Ref(() => PQ)
 				from _3 in Parse.ScriptToken(ScriptToken.Else)
-				from qL in Parse.Ref(() => PQ())
+				from qL in Parse.Ref(() => PQ)
 				from _4 in Parse.ScriptToken(ScriptToken.If)
 				select AstElem.NewOrKeyV(qL, qR);
 
-		private static Parser<ScriptToken, Tuple<uint, PubKey[]>> PMultiHelper()
-			=>
+		private static readonly Parser<ScriptToken, Tuple<uint, PubKey[]>> PMultiHelper =
 				from n in PNumber
 				from pksStk in Parse.ScriptToken(ScriptToken.Tags.Pk).Repeat((int)n)
 				from m in PNumber
 				let pks = pksStk.Select(pkStk => ((ScriptToken.Pk)pkStk).Item).Reverse().ToArray()
 				select Tuple.Create(m, pks);
-		private static P PMulti()
-			=>
+		internal static readonly P PMulti =
 				from _1 in Parse.ScriptToken(ScriptToken.CheckMultiSig)
-				from t in PMultiHelper()
+				from t in PMultiHelper
 				select AstElem.NewMulti(t.Item1, t.Item2);
 
-		private static P PMultiV()
-			=>
+		private static readonly P PMultiV =
 				from _1 in Parse.ScriptToken(ScriptToken.CheckMultiSigVerify)
-				from t in PMultiHelper()
+				from t in PMultiHelper
 				select AstElem.NewMultiV(t.Item1, t.Item2);
 
-		private static P PTimeF()
-			=>
+		private static readonly P PTimeF =
 				from _1 in Parse.ScriptToken(ScriptToken.ZeroNotEqual)
 				from _2 in Parse.ScriptToken(ScriptToken.CheckSequenceVerify)
 				from n in PNumber
 				select AstElem.NewTimeF(n);
 
-		private static P PTimeT()
-			=>
+		internal static readonly P PTimeT =
 				from _1 in Parse.ScriptToken(ScriptToken.CheckSequenceVerify)
 				from n in PNumber
 				select AstElem.NewTimeT(n);
 
-		private static P PWrap()
-			=>
+		internal static readonly P PWrap =
 				from _1 in Parse.ScriptToken(ScriptToken.FromAltStack)
-				from e in Parse.Ref(() => PE())
+				from e in ParseShortestE
 				from _2 in Parse.ScriptToken(ScriptToken.ToAltStack)
 				select AstElem.NewWrap(e);
 
-		private static Parser<ScriptToken, uint> PTimeWHelper()
-			=>
+		private static readonly P PTimeV =
+			from _1 in Parse.ScriptToken(ScriptToken.Drop)
+			from _2 in Parse.ScriptToken(ScriptToken.CheckSequenceVerify)
+			from num in PNumber
+			select AstElem.NewTimeV(num);
+		private static readonly Parser<ScriptToken, uint> PTimeHelper =
+				from _0 in Parse.ScriptToken(ScriptToken.EndIf)
 				from _1 in Parse.ScriptToken(ScriptToken.Drop)
 				from _2 in Parse.ScriptToken(ScriptToken.CheckSequenceVerify)
 				from n in PNumber
 				from _3 in Parse.ScriptToken(ScriptToken.If)
 				from _4 in Parse.ScriptToken(ScriptToken.Dup)
 				select n;
-		private static P PTimeW()
-			=>
-				from n in PTimeWHelper()
+		private static readonly P PTimeW =
+				from n in PTimeHelper
 				from _1 in Parse.ScriptToken(ScriptToken.Swap)
 				select AstElem.NewTimeW(n);
 
-		private static P PTimeTHelper()
-			=>
-				from n in PTimeWHelper()
-				select AstElem.NewTimeT(n);
+		private static readonly P PTime =
+			from n in PTimeHelper.Except(PTimeW)
+			select AstElem.NewTime(n);
 
-		private static P PTime()
-			=> PTimeTHelper().Except(PTimeW());
-
-		private static P PLikelyHelper()
-			=>
+		private static readonly P PLikelyHelper =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
 				from n in PNumber
 				where n == 0
 				from _2 in Parse.ScriptToken(ScriptToken.Else)
-				from f in Parse.Ref(() => PF())
+				from f in Parse.Ref(() => PF)
 				select f;
-		private static P PUnlikely()
-			=>
-				from f in PLikelyHelper()
+		private static readonly P PUnlikely =
+				from f in PLikelyHelper
 				from _ in Parse.ScriptToken(ScriptToken.If)
 				select AstElem.NewUnlikely(f);
-		private static P PLikely()
-			=>
-				from f in PLikelyHelper()
+		private static readonly P PLikely =
+				from f in PLikelyHelper
 				from _ in Parse.ScriptToken(ScriptToken.NotIf)
 				select AstElem.NewLikely(f);
 
-		private static P POrIf1()
-			=>
+		private static readonly P POrIf1 =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
-				from qr in Parse.Ref(() => PQ())
+				from qr in Parse.Ref(() => PQ)
 				from _2 in Parse.ScriptToken(ScriptToken.Else)
-				from ql in Parse.Ref(() => PQ())
+				from ql in Parse.Ref(() => PQ)
 				from _3 in Parse.ScriptToken(ScriptToken.If)
 				select AstElem.NewOrIf(ql, qr);
 
-		private static P PHashW()
-			=>
+		private static readonly P PHashW =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
-				from f in Parse.Ref(() => PF())
+				from f in Parse.Ref(() => PF)
 				from _2 in Parse.ScriptToken(ScriptToken.If)
 				from _3 in Parse.ScriptToken(ScriptToken.ZeroNotEqual)
 				from _4 in Parse.ScriptToken(ScriptToken.Size)
@@ -220,131 +195,185 @@ namespace NBitcoin.Miniscript
 				let hash = ((AstElem.HashV)inner).Item1
 				select AstElem.NewHashW(hash);
 
-		private static P PAndCascSub()
-			=>
+		private static readonly P PAndCascSub =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
-				from f in Parse.Ref(() => PF())
+				from f in Parse.Ref(() => PF)
 				from _3 in Parse.ScriptToken(ScriptToken.Else)
 				select f;
-		private static P PAndCasc()
-			=>
-				from f in PAndCascSub()
+		internal static readonly P PAndCasc =
+				from f in PAndCascSub
 				from n in PNumber
 				where n == 0
 				from _4 in Parse.ScriptToken(ScriptToken.NotIf)
-				from e in Parse.Ref(() => PE())
-				select AstElem.NewAndCasc(f, e);
+				from e in ParseShortestE
+				select AstElem.NewAndCasc(e, f);
 
-		private static P POrIf2()
-			=>
-				from fr in PAndCascSub()
-				from fl in Parse.Ref(() => PF())
-				from _1 in Parse.ScriptToken(ScriptToken.If)
-				select AstElem.NewOrIf(fl, fr);
-		private static P POrNotIf()
-			=>
-				from fr in PAndCascSub()
-				from el in Parse.Ref(() => PE())
-				from _1 in Parse.ScriptToken(ScriptToken.NotIf)
-				select AstElem.NewOrIf(el, fr);
-
-		private static P POrIf3()
-			=>
+		private static readonly P POrIf2 =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
-				from vr in Parse.Ref(() => PV())
+				from r in Parse.Ref(() => PF).Or(ParseShortestE)
 				from _2 in Parse.ScriptToken(ScriptToken.Else)
-				from vl in Parse.Ref(() => PV())
+				from l in ParseShortestE
+				from _3 in Parse.ScriptToken(ScriptToken.If)
+				select AstElem.NewOrIf(l, r);
+		internal static readonly P POrNotIf =
+				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
+				from er in ParseShortestE
+				from _2 in Parse.ScriptToken(ScriptToken.Else)
+				from fl in Parse.Ref(() => PF)
+				from _3 in Parse.ScriptToken(ScriptToken.NotIf)
+				select AstElem.NewOrNotIf(fl, er);
+
+		private static readonly P POrIf3 =
+				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
+				from vr in Parse.Ref(() => PV)
+				from _2 in Parse.ScriptToken(ScriptToken.Else)
+				from vl in Parse.Ref(() => PV)
 				from _3 in Parse.ScriptToken(ScriptToken.If)
 				select AstElem.NewOrIf(vl, vr);
 
-		private static P POrCont()
-			=>
+		internal static readonly P POrCont =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
-				from vr in Parse.Ref(() => PV())
+				from vr in Parse.Ref(() => PV)
 				from _2 in Parse.ScriptToken(ScriptToken.NotIf)
-				from el in Parse.Ref(() => PE())
+				from el in ParseShortestE
 				select AstElem.NewOrCont(el, vr);
 
-		private static P POrIf4()
-			=>
+		internal static readonly P POrIf4 =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
-				from tr in Parse.Ref(() => PT())
+				from tr in Parse.Ref(() => PT)
 				from _2 in Parse.ScriptToken(ScriptToken.Else)
-				from tl in Parse.Ref(() => PT())
+				from tl in Parse.Ref(() => PT)
 				from _3 in Parse.ScriptToken(ScriptToken.If)
 				select AstElem.NewOrIf(tl, tr);
-
-		private static P POrIf()
-			=> POrIf1().Or(POrIf2()).Or(POrIf3()).Or(POrIf4());
-		private static P POrCasc()
-			=>
+		private static readonly P POrCasc =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
-				from tr in Parse.Ref(() => PT())
+				from tr in Parse.Ref(() => PT)
 				from _2 in Parse.ScriptToken(ScriptToken.NotIf)
 				from _3 in Parse.ScriptToken(ScriptToken.IfDup)
-				from el in Parse.Ref(() => PE())
+				from el in ParseShortestE
 				select AstElem.NewOrCasc(el, tr);
 
-		private static P POrIfV()
-			=>
+		private static readonly P POrIfV =
 				from _1 in Parse.ScriptToken(ScriptToken.Verify)
 				from _2 in Parse.ScriptToken(ScriptToken.EndIf)
-				from tr in Parse.Ref(() => PT())
+				from tr in Parse.Ref(() => PT)
 				from _3 in Parse.ScriptToken(ScriptToken.Else)
-				from tl in Parse.Ref(() => PT())
+				from tl in Parse.Ref(() => PT)
 				from _4 in Parse.ScriptToken(ScriptToken.If)
 				select AstElem.NewOrIfV(tl, tr);
 
-		private static P PTrue()
-			=>
+		internal static readonly P PTrue =
 				from n in PNumber
 				where n == 1
-				from v in Parse.Ref(() => PV())
+				from v in Parse.Ref(() => PV)
 				select AstElem.NewTrue(v);
 
-		private static P PPkQ()
-			=>
+		private static readonly P PPkQ =
 				from pk in PPubKey
-				select AstElem.NewTruee);
+				select AstElem.NewPkQ(pk);
 
-		private static P PW()
-			=>
-				from expr in PAstElem()
+		private static readonly P PW =
+				from expr in Parse.Ref(() => PAstElem)
 				where expr.IsW()
 				select expr;
 
-		private static P PF()
-			=>
-				from expr in PAstElem()
+		private static readonly P PF =
+				from expr in Parse.Ref(() => PAstElem)
 				where expr.IsF()
 				select expr;
 
-		private static P PQ()
-			=>
-				from expr in PAstElem()
+		private static readonly P PQ =
+				from expr in Parse.Ref(() => PAstElem)
 				where expr.IsQ()
 				select expr;
 
-		private static P PE()
-			=>
-				from expr in PAstElem()
+		private static readonly P PE =
+				from expr in Parse.Ref(() => PAstElem)
 				where expr.IsE()
 				select expr;
 
-		private static P PV()
-			=>
-				from expr in PAstElem()
+		private static readonly P PV =
+				from expr in Parse.Ref(() => PAstElem)
 				where expr.IsV()
 				select expr;
 
-		private static P PT()
-			=>
-				from expr in PAstElem()
+		private static readonly P PT =
+				from expr in Parse.Ref(() => PAstElem)
 				where expr.IsT()
 				select expr;
 
-		private static P PAstElem()
-			=> PW();
+		private static readonly P PENoPostProcess =
+			from expr in Parse.Ref(() => PAstElemCore)
+			where expr.IsE()
+			select expr;
+		private static readonly P ParseShortestE =
+			from e in Parse.Ref(() => PENoPostProcess).Or(Parse.Ref(() => PE))
+			select e;
+		internal static readonly P PAstElemCore =
+				PAndBool
+					.Or(POrBool)
+					.Or(PHashT)
+					.Or(PThresh)
+					.Or(PThreshV)
+					.Or(PPkW)
+					.Or(PPk)
+					.Or(POrKey)
+					.Or(PPkV)
+					.Or(POrKeyV)
+					.Or(PMulti)
+					.Or(PMultiV)
+					.Or(PTimeF)
+					.Or(PTimeT)
+					.Or(PWrap)
+					.Or(PTimeV)
+					.Or(PTimeW)
+					.Or(PTime)
+					.Or(PUnlikely)
+					.Or(PLikely)
+					.Or(PHashW)
+					.Or(PAndCasc)
+					.Or(POrIf1.Or(POrIf3).Or(POrIf4))
+					.Or(POrCont)
+					.Or(POrCasc)
+					.Or(POrNotIf)
+					.Or(POrIf2)
+					.Or(POrIfV)
+					.Or(PTrue)
+					.Or(PHashV)
+					.Or(PPkQ);
 
+		private static P PostProcess(AstElem ast)
+			=> (IInput<ScriptToken> i) =>
+			{
+				if (i.AtEnd)
+					return ParserResult<ScriptToken, AstElem>.Success(i, ast);
+				if (ast.IsT() || ast.IsF() || ast.IsV() || ast.IsQ())
+				{
+					var next = i.GetCurrent();
+					if (next.Equals(ScriptToken.If) || next.Equals(ScriptToken.NotIf) || next.Equals(ScriptToken.Else) || next.Equals(ScriptToken.ToAltStack))
+						return ParserResult<ScriptToken, AstElem>.Success(i, ast);
+					else
+					{
+						var leftResult = PAstElem(i);
+						if (leftResult.IsSuccess)
+						{
+							var left = leftResult.Value;
+							if (!left.IsV())
+							{
+								return ParserResult<ScriptToken, AstElem>.Failure(leftResult.Rest, "SubExpression was not V");
+							}
+							return ParserResult<ScriptToken, AstElem>.Success(leftResult.Rest, AstElem.NewAndCat(left, ast));
+						}
+						return leftResult;
+					}
+				}
+				else
+					return ParserResult<ScriptToken, AstElem>.Success(i, ast);
+			};
+		internal static readonly P PAstElem =
+			PAstElemCore.Bind(ast => Parse.Ref(() => PostProcess(ast)));
+
+		public static AstElem ParseScript(Script sc)
+			=> PAstElem.Parse(sc);
 	}
 }

@@ -51,7 +51,7 @@ namespace NBitcoin.Miniscript.Parser
 		/// <returns>A <see cref="Parser{T}"/> that matches the sequence.</returns>
 		/// <remarks>
 		/// <para>
-		/// Using <seealso cref="XMany{T}(Parser{T})"/> may be preferable to <seealso cref="Many{T}(Parser{T})"/>
+		/// Using <seealso cref="XMany{TToken, T}(Parser{TToken, T})"/> may be preferable to <seealso cref="Many{TToken, T}(Parser{TToken, T})"/>
 		/// where the first character of each match identified by <paramref name="parser"/>
 		/// is sufficient to determine whether the entire match should succeed. The X*
 		/// methods typically give more helpful errors and are easier to debug than their
@@ -185,7 +185,7 @@ namespace NBitcoin.Miniscript.Parser
 			return i =>
 			{
 				var fr = first(i);
-				if (fr.IsSuccess)
+				if (!fr.IsSuccess)
 					return second(i).IfFailure<T>(sf => DetermineBestError(fr, sf));
 
 				if (fr.Rest.Equals(i))
@@ -305,6 +305,18 @@ namespace NBitcoin.Miniscript.Parser
 				};
 		}
 
+		public static Parser<TToken, T> End<TToken, T>(this Parser<TToken, T> parser)
+		{
+			if (parser == null) throw new ArgumentNullException(nameof(parser));
+
+			return i => parser(i).IfSuccess(s =>
+				s.Rest.AtEnd ? s : ParserResult<TToken, T>.Failure(
+					s.Rest,
+					new[] {"end of input"},
+					string.Format("unexpected '{0}'", s.Rest.GetCurrent())
+				)
+			);
+		}
 		/// <summary>
 		/// Parse a sequence of items until a terminator is reached.
 		/// Returns the sequence, discarding the terminator.
@@ -365,6 +377,12 @@ namespace NBitcoin.Miniscript.Parser
 
 			return parser.Then(t => selector(t).Select(u => projector(t, u)));
 		}
+
+		public static Parser<TToken, U> Bind<TToken, T, U>(
+			this Parser<TToken, T> parser,
+			Func<T, Parser<TToken, U>> selector
+		)
+			=> parser.SelectMany(selector, (t, u) => u);
 
 		/// <summary>
 		/// Chain a left-associative operator.

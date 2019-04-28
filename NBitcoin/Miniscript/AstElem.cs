@@ -296,8 +296,22 @@ namespace NBitcoin.Miniscript
 			public AstElem Item2 { get; }
 			internal OrIf(AstElem item1, AstElem item2) : base(26)
 			{
-				Item1 = item1;
-				Item2 = item2;
+				// Since this is most generic ast, assert in here for easy debugging.
+				if (
+					(item1.IsT() && item2.IsT()) ||
+					(item1.IsF() && item2.IsF()) ||
+					(item1.IsV() && item2.IsV()) ||
+					(item1.IsQ() && item2.IsQ()) ||
+					(item1.IsE() && item2.IsF())
+					)
+				{
+					Item1 = item1;
+					Item2 = item2;
+				}
+				else
+				{
+					throw new Exception($"Invalid type for AstElem.OrIf \n: item1: {item1},\n: item2: {item2}");
+				}
 			}
 		}
 
@@ -318,8 +332,15 @@ namespace NBitcoin.Miniscript
 			public AstElem Item2 { get; }
 			internal OrNotIf(AstElem item1, AstElem item2) : base(28)
 			{
-				Item1 = item1;
-				Item2 = item2;
+				if (item1.IsF() && item2.IsE())
+				{
+					Item1 = item1;
+					Item2 = item2;
+				}
+				else
+				{
+					throw new Exception($"Invalid type for AstElem.OrNotIf \n: item1: {item1},\n: item2: {item2}");
+				}
 			}
 		}
 
@@ -801,8 +822,8 @@ namespace NBitcoin.Miniscript
 					return ((OrKey)this).Item1.IsQ() &&
 						((OrKey)this).Item2.IsQ();
 				case Tags.OrIf:
-					return ((OrIf)this).Item1.IsF() &&
-						((OrIf)this).Item2.IsE();
+					return ((OrIf)this).Item1.IsE() &&
+						((OrIf)this).Item2.IsF();
 				case Tags.OrNotIf:
 					return ((OrNotIf)this).Item1.IsF() &&
 						((OrNotIf)this).Item2.IsE();
@@ -1203,15 +1224,15 @@ namespace NBitcoin.Miniscript
 				case PkW self:
 					return sb.AppendFormat(" OP_SWAP {0} OP_CHECKSIG", self.Item1);
 				case Multi self:
-					sb.AppendFormat(" {0} OP_CHECKSIG", EncodeUInt( self.Item1));
+					sb.AppendFormat(" {0}", EncodeUInt( self.Item1));
 					foreach (var pk in self.Item2)
 						sb.AppendFormat(" {0}", pk.ToHex());
-					return sb.AppendFormat(" {0} OP_CHECKMULTISIG 1", EncodeUInt((uint)self.Item2.Length));
+					return sb.AppendFormat(" {0} OP_CHECKMULTISIG", EncodeUInt((uint)self.Item2.Length));
 				case MultiV self:
-					sb.AppendFormat(" {0} OP_CHECKSIG", EncodeUInt(self.Item1));
+					sb.AppendFormat(" {0}", EncodeUInt(self.Item1));
 					foreach (var pk in self.Item2)
 						sb.AppendFormat(" {0}", pk.ToHex());
-					return sb.AppendFormat(" {0} OP_CHECKMULTISIGVERIFY 1", EncodeUInt((uint)self.Item2.Length));
+					return sb.AppendFormat(" {0} OP_CHECKMULTISIGVERIFY", EncodeUInt((uint)self.Item2.Length));
 				case TimeT self:
 					return sb.AppendFormat(" {0} OP_CSV", EncodeUInt(self.Item1));
 				case TimeV self:
@@ -1221,13 +1242,13 @@ namespace NBitcoin.Miniscript
 				case Time self:
 					return sb.AppendFormat(" OP_DUP OP_IF {0} OP_CSV OP_DROP OP_ENDIF", EncodeUInt(self.Item1));
 				case TimeW self:
-					return sb.AppendFormat(" OP_DUP OP_IF {0} OP_CSV OP_DROP OP_ENDIF", EncodeUInt(self.Item1));
+					return sb.AppendFormat(" OP_SWAP OP_DUP OP_IF {0} OP_CSV OP_DROP OP_ENDIF", EncodeUInt(self.Item1));
 				case HashT self:
-					return sb.AppendFormat(" OP_SIZE 32 OP_EQUALVERIFY OP_SHA256 {0} OP_EQUAL", self.Item1);
+					return sb.AppendFormat(" OP_SIZE {0} OP_EQUALVERIFY OP_SHA256 {1} OP_EQUAL", EncodeUInt(32), self.Item1);
 				case HashV self:
-					return sb.AppendFormat(" OP_SIZE 32 OP_EQUALVERIFY OP_SHA256 {0} OP_EQUALVERIFY", self.Item1);
+					return sb.AppendFormat(" OP_SIZE {0} OP_EQUALVERIFY OP_SHA256 {1} OP_EQUALVERIFY", EncodeUInt(32), self.Item1);
 				case HashW self:
-					return sb.AppendFormat(" OP_SWAP OP_SIZE OP_0NOTEQUAL OP_IF OP_SIZE 32 OP_EQUALVERIFY OP_SHA256 {0} OP_EQUALVERIFY 1 OP_ENDIF", self.Item1);
+					return sb.AppendFormat(" OP_SWAP OP_SIZE OP_0NOTEQUAL OP_IF OP_SIZE {0} OP_EQUALVERIFY OP_SHA256 {1} OP_EQUALVERIFY 1 OP_ENDIF", EncodeUInt(32),self.Item1);
 				case True self:
 					self.Item1.Serialize(sb);
 					return sb.Append(" 1");
@@ -1304,7 +1325,7 @@ namespace NBitcoin.Miniscript
 					{
 						self.Item2[i].Serialize(sb);
 						if (i > 0)
-							sb.Append(" OP_EQUALVERIFY");
+							sb.Append(" OP_ADD");
 					}
 					return sb.AppendFormat(" {0} OP_EQUAL", EncodeUInt(self.Item1));
 				case ThreshV self:
@@ -1312,7 +1333,7 @@ namespace NBitcoin.Miniscript
 					{
 						self.Item2[i].Serialize(sb);
 						if (i > 0)
-							sb.Append(" OP_EQUALVERIFY");
+							sb.Append(" OP_ADD");
 					}
 					return sb.AppendFormat(" {0} OP_EQUALVERIFY", EncodeUInt(self.Item1));
 			}

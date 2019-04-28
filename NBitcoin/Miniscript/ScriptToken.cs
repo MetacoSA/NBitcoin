@@ -163,7 +163,77 @@ namespace NBitcoin.Miniscript
 			internal Pk(PubKey item) : base(29) => Item = item;
 		}
 
-		public override string ToString() => this.GetType().Name;
+		public override string ToString()
+		{
+			switch (this.Tag)
+			{
+				case Tags.BoolAnd:
+					return "BoolAnd";
+				case Tags.BoolOr:
+					return "BoolAnd";
+				case Tags.Add:
+					return "Add";
+				case Tags.Equal:
+					return "Equal";
+				case Tags.EqualVerify:
+					return "EqualVerify";
+				case Tags.CheckSig:
+					return "CheckSig";
+				case Tags.CheckSigVerify:
+					return "CheckSigVerify";
+				case Tags.CheckMultiSig:
+					return "CheckMultiSig";
+				case Tags.CheckMultiSigVerify:
+					return "CheckMultiSigVerify";
+				case Tags.CheckSequenceVerify:
+					return "CheckSequenceVerify";
+				case Tags.FromAltStack:
+					return "FromAltStack";
+				case Tags.ToAltStack:
+					return "ToAltStack";
+				case Tags.Drop:
+					return "Drop";
+				case Tags.Dup:
+					return "Dup";
+				case Tags.If:
+					return "If";
+				case Tags.IfDup:
+					return "IfDup";
+				case Tags.NotIf:
+					return "NotIf";
+				case Tags.Else:
+					return "Else";
+				case Tags.EndIf:
+					return "EndIf";
+				case Tags.ZeroNotEqual:
+					return "ZeroNotEqual";
+				case Tags.Size:
+					return "Size";
+				case Tags.Swap:
+					return "Swap";
+				case Tags.Tuck:
+					return "Tuck";
+				case Tags.Verify:
+					return "Verify";
+				case Tags.Hash160:
+					return "Hash160";
+				case Tags.Sha256:
+					return "Sha256";
+				case Tags.Number:
+					var n = ((Number)this).Item;
+					return $"Number({n})";
+				case Tags.Hash160Hash:
+					var hash160 = ((Hash160Hash)this).Item;
+					return $"Hash160Hash({160})";
+				case Tags.Sha256Hash:
+					var sha256 = ((Sha256Hash)this).Item;
+					return $"Sha256Hash({sha256})";
+				case Tags.Pk:
+					var pk = ((Pk)this).Item;
+					return $"Pk({pk})";
+			}
+			throw new Exception("Unreachable");
+		}
 
 		public sealed override int GetHashCode()
 		{

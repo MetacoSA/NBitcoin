@@ -19,7 +19,7 @@ namespace NBitcoin.Miniscript.Parser
 			=> new ParserResult<TToken, TValue>(rest, v) { IsSuccess = true };
 
 		public static ParserResult<TToken, TValue> Failure(IInput<TToken> rest, string description) =>
-			Failure(rest, null, description);
+			Failure(rest, new string[]{}, description);
 		public static ParserResult<TToken, TValue> Failure(IInput<TToken> rest, IEnumerable<string> expected, string description) =>
 			new ParserResult<TToken, TValue>(rest, default(TValue))
 			{
@@ -37,7 +37,7 @@ namespace NBitcoin.Miniscript.Parser
 				return next(this);
 
 			return ParserResult<TToken, U>.Failure(this.Rest, this.Expected, this.Description);
-		}
+		}	
 
 		public ParserResult<TToken, TValue> IfFailure<U>(Func<ParserResult<TToken, TValue>, ParserResult<TToken, TValue>> next)
 		{

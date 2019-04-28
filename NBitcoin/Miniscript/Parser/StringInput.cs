@@ -20,6 +20,7 @@ namespace NBitcoin.Miniscript.Parser
 
 		public bool AtEnd { get { return Position == Source.Length; } }
 		public char GetCurrent() => Source[Position];
+		public char GetNext() => Source[Position + 1];
 
 		public IInput<char> Advance()
 		{
