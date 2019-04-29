@@ -636,7 +636,7 @@ namespace NBitcoin.Miniscript
 								var multi2 = (Multi)obj;
 								if (multi.Item1 == multi2.Item1)
 								{
-									return multi.Item2.Equals(multi2.Item2);
+									return multi.Item2.SequenceEqual(multi2.Item2);
 								}
 								return false;
 							case Tags.MultiV:
@@ -644,7 +644,7 @@ namespace NBitcoin.Miniscript
 								var multiv2 = (MultiV)obj;
 								if (multiv.Item1 == multiv2.Item1)
 								{
-									return multiv.Item2.Equals(multiv2.Item2);
+									return multiv.Item2.SequenceEqual(multiv2.Item2);
 								}
 								return false;
 							case Tags.TimeT:
@@ -730,12 +730,12 @@ namespace NBitcoin.Miniscript
 								var thresh = (Thresh)this;
 								var thresh2 = (Thresh)obj;
 								return thresh.Item1 == thresh2.Item1 &&
-									thresh.Item2.Equals(thresh2.Item2);
+									thresh.Item2.SequenceEqual(thresh2.Item2);
 							case Tags.ThreshV:
 								var threshv = (ThreshV)this;
 								var threshv2 = (ThreshV)obj;
 								return threshv.Item1 == threshv2.Item1 &&
-									threshv.Item2.Equals(threshv2.Item2);
+									threshv.Item2.SequenceEqual(threshv2.Item2);
 						}
 					}
 					return false;
@@ -1257,11 +1257,11 @@ namespace NBitcoin.Miniscript
 					self.Item1.Serialize(sb);
 					return sb.Append(" OP_FROMALTSTACK");
 				case Likely self:
-					sb.Append(" OP_IF");
+					sb.Append(" OP_NOTIF");
 					self.Item1.Serialize(sb);
 					return sb.Append(" OP_ELSE 0 OP_ENDIF");
 				case Unlikely self:
-					sb.Append(" OP_NOTIF");
+					sb.Append(" OP_IF");
 					self.Item1.Serialize(sb);
 					return sb.Append(" OP_ELSE 0 OP_ENDIF");
 				case AndCat self:
