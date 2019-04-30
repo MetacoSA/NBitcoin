@@ -12,8 +12,8 @@ namespace NBitcoin.Miniscript
 		/// compute witness item so that the script can pass the verifycation.
 		/// Or throw `SatisfyException` if it is impossible.
 		/// </summary>
-		/// <param name="signatureProvider">Should return null if it can not find according signature</param>
-		/// <param name="preimageProvider">Should return null if it can not find according preimage</param>
+		/// <param name="signatureProvider">Should return null if it can not find proper signature</param>
+		/// <param name="preimageProvider">Should return null if it can not find proper preimage</param>
 		/// <param name="age"></param>
 		/// <returns></returns>
 		public byte[][] Satisfy(
@@ -22,12 +22,23 @@ namespace NBitcoin.Miniscript
 			uint? age = null
 			)
 			{
-				var result = new List<byte[]>();
-				var errors = new List<SatisfyError>();
-				if(!TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
+				if(!TrySatisfy(signatureProvider, preimageProvider, age, out var result, out var errors))
 					throw new SatisfyException(errors.ToArray());
 				return result.ToArray();
 			}
+
+		public bool TrySatisfy(
+			SignatureProvider signatureProvider,
+			PreimageProvider preimageProvider ,
+			uint? age,
+			out List<byte[]> result,
+			out List<SatisfyError> errors
+			)
+		{
+			result = new List<byte[]>();
+			errors = new List<SatisfyError>();
+			return TrySatisfy(signatureProvider, preimageProvider, age, result, errors);
+		}
 
 		private bool TrySatisfy(
 			SignatureProvider signatureProvider,
