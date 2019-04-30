@@ -21,7 +21,7 @@ namespace NBitcoin.Miniscript
 			var parenthCount = 0;
 			var items = new List<string>();
 			var charSoFar = new List<char>();
-			var length = s.Count();
+			var length = s.Length;
 			for (int i = 0; i < length; i++)
 			{
 				var c = s[i];

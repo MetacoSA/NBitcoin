@@ -35,7 +35,7 @@ namespace NBitcoin.Miniscript.Parser
 			=> Char(c.Contains, string.Join("|", c));
 
 		public static Parser<char, char> Chars(string c)
-			=> Char(c.AsEnumerable().Contains, string.Join("|", c));
+			=> Char(c.ToCharArray().Contains, string.Join("|", c));
 
 		public static Parser<char, char> CharExcept(char c)
 			=> CharExcept(ch => c == ch, c.ToString());
@@ -58,7 +58,7 @@ namespace NBitcoin.Miniscript.Parser
 			if (s == null) throw new ArgumentNullException(nameof(s));
 
 			return s
-				.AsEnumerable()
+				.ToCharArray()
 				.Select(Char)
 				.Sequence();
 		}
