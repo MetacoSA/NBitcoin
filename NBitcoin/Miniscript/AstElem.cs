@@ -1342,5 +1342,6 @@ namespace NBitcoin.Miniscript
 
 		private string EncodeUInt(UInt32 n)
 			=> Op.GetPushOp(n).ToString();
+
 	}
 }
