@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace NBitcoin.Miniscript
 {
-	public static class AstElemSatisfyExtension
+	public partial class AstElem
 	{
 		/// <summary>
 		/// compute witness item so that the script can pass the verifycation.
@@ -16,97 +16,117 @@ namespace NBitcoin.Miniscript
 		/// <param name="preimageProvider">Should return null if it can not find according preimage</param>
 		/// <param name="age"></param>
 		/// <returns></returns>
-		public static byte[][] Satisfy(
-			this AstElem ast,
+		public byte[][] Satisfy(
 			SignatureProvider signatureProvider = null,
 			PreimageProvider preimageProvider = null,
 			uint? age = null
 			)
-			=> SatisfyCore(ast, signatureProvider, preimageProvider, age).ToArray();
+			{
+				var result = new List<byte[]>();
+				var errors = new List<SatisfyError>();
+				if(!TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
+					throw new SatisfyException(errors.ToArray());
+				return result.ToArray();
+			}
 
-		private static List<byte[]>  SatisfyCore(
-			AstElem ast,
-			SignatureProvider signatureProvider = null,
-			PreimageProvider preimageProvider = null,
-			uint? age = null
+		private bool TrySatisfy(
+			SignatureProvider signatureProvider,
+			PreimageProvider preimageProvider ,
+			uint? age,
+			List<byte[]> result,
+			List<SatisfyError> errors
 			)
 		{
-			switch (ast)
+			switch (this)
 			{
 				case AstElem.Pk self:
-					return new List<byte[]> { SatisfyCheckSig(self.Item1, signatureProvider) };
+					return SatisfyCheckSig(self.Item1, signatureProvider, result, errors);
 				case AstElem.PkV self:
-					return new List<byte[]> { SatisfyCheckSig(self.Item1, signatureProvider) };
+					return SatisfyCheckSig(self.Item1, signatureProvider, result, errors);
 				case AstElem.PkQ self:
-					return new List<byte[]> { SatisfyCheckSig(self.Item1, signatureProvider) };
+					return SatisfyCheckSig(self.Item1, signatureProvider, result, errors);
 				case AstElem.PkW self:
-					return new List<byte[]> { SatisfyCheckSig(self.Item1, signatureProvider) };
+					return SatisfyCheckSig(self.Item1, signatureProvider, result, errors);
 				case AstElem.Multi self:
-					return SatisfyCheckMultiSig(self.Item1, self.Item2, signatureProvider);
+					return SatisfyCheckMultiSig(self.Item1, self.Item2, signatureProvider, result, errors);
 				case AstElem.MultiV self:
-					return SatisfyCheckMultiSig(self.Item1, self.Item2, signatureProvider);
+					return SatisfyCheckMultiSig(self.Item1, self.Item2, signatureProvider, result, errors);
 				case AstElem.TimeT self:
-					return SatisfyCSV(self.Item1, age);
+					return SatisfyCSV(self.Item1, age, errors);
 				case AstElem.TimeV self:
-					return SatisfyCSV(self.Item1, age);
+					return SatisfyCSV(self.Item1, age, errors);
 				case AstElem.TimeF self:
-					return SatisfyCSV(self.Item1, age);
+					return SatisfyCSV(self.Item1, age, errors);
 				case AstElem.Time self:
-					SatisfyCSV(self.Item1, age);
-					return new List<byte[]> { new[] { (byte)1u } };
+					if (SatisfyCSV(self.Item1, age, errors))
+					{
+						result.Add(new[] { (byte)1u });
+						return true;
+					}
+					return false;
 				case AstElem.TimeW self:
-					SatisfyCSV(self.Item1, age);
-					return new List<byte[]> { new [] { (byte)1u } };
+					if (SatisfyCSV(self.Item1, age, errors))
+					{
+						result.Add(new[] { (byte)1u });
+						return true;
+					}
+					return false;
 				case AstElem.HashT self:
-					return SatisfyHashEqual(self.Item1, preimageProvider);
+					return SatisfyHashEqual(self.Item1, preimageProvider, result, errors);
 				case AstElem.HashV self:
-					return SatisfyHashEqual(self.Item1, preimageProvider);
+					return SatisfyHashEqual(self.Item1, preimageProvider, result, errors);
 				case AstElem.HashW self:
-					return SatisfyHashEqual(self.Item1, preimageProvider);
+					return SatisfyHashEqual(self.Item1, preimageProvider, result, errors);
 				case AstElem.True self:
-					return SatisfyCore(self.Item1, signatureProvider, preimageProvider, age);
+					return self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors);
 				case AstElem.Wrap self:
-					return SatisfyCore(self.Item1, signatureProvider, preimageProvider, age);
+					return self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors);
 				case AstElem.Likely self:
-					var retLikely = SatisfyCore(self.Item1, signatureProvider, preimageProvider, age);
-					retLikely.Add(new byte[] {(byte)1u }) ;
-					return retLikely;
+					if (self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
+					{
+						result.Add(new byte[] { (byte)0u });
+						return true;
+					}
+					return false;
 				case AstElem.Unlikely self:
-					var retUnlikely = SatisfyCore(self.Item1, signatureProvider, preimageProvider, age);
-					retUnlikely.Add(new byte[] {(byte)1u }) ;
-					return retUnlikely;
+					if (self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
+					{
+						result.Add(new byte[] { (byte)1u });
+						return true;
+					}
+					return false;
 				case AstElem.AndCat self:
-					var retAndCat = SatisfyCore(self.Item1, signatureProvider, preimageProvider, age);
-					retAndCat.AddRange(SatisfyCore(self.Item2, signatureProvider, preimageProvider, age));
-					return retAndCat;
+					if (self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
+						return self.Item2.TrySatisfy(signatureProvider, preimageProvider, age, result, errors);
+					return false;
 				case AstElem.AndBool self:
-					var retAndBool = SatisfyCore(self.Item1, signatureProvider, preimageProvider, age);
-					retAndBool.ToList().AddRange(SatisfyCore(self.Item2, signatureProvider, preimageProvider, age));
-					return retAndBool;
+					if (self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
+						return self.Item2.TrySatisfy(signatureProvider, preimageProvider, age, result, errors);
+					return false;
 				case AstElem.AndCasc self:
-					var retAndCasc = SatisfyCore(self.Item1, signatureProvider, preimageProvider, age);
-					retAndCasc.ToList().AddRange(Satisfy(self.Item2, signatureProvider, preimageProvider, age));
-					return retAndCasc;
+					if (self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
+						return self.Item2.TrySatisfy(signatureProvider, preimageProvider, age, result, errors);
+					return false;
 				case AstElem.OrBool self:
-					return SatisfyParallelOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age);
+					return SatisfyParallelOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age, result, errors);
 				case AstElem.OrCasc self:
-					return SatisfyCascadeOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age);
+					return SatisfyCascadeOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age, result, errors);
 				case AstElem.OrCont self:
-					return SatisfyCascadeOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age);
+					return SatisfyCascadeOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age, result, errors);
 				case AstElem.OrKey self:
-					return SatisfySwitchOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age);
+					return SatisfySwitchOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age, result, errors);
 				case AstElem.OrKeyV self:
-					return SatisfySwitchOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age);
+					return SatisfySwitchOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age, result, errors);
 				case AstElem.OrIf self:
-					return SatisfySwitchOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age);
+					return SatisfySwitchOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age, result, errors);
 				case AstElem.OrIfV self:
-					return SatisfySwitchOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age);
+					return SatisfySwitchOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age, result, errors);
 				case AstElem.OrNotIf self:
-					return SatisfySwitchOr(self.Item2, self.Item1, signatureProvider, preimageProvider, age);
+					return SatisfySwitchOr(self.Item2, self.Item1, signatureProvider, preimageProvider, age, result, errors);
 				case AstElem.Thresh self:
-					return SatisfyThreshold(self.Item1, self.Item2, signatureProvider, preimageProvider, age);
+					return SatisfyThreshold(self.Item1, self.Item2, signatureProvider, preimageProvider, age, result, errors);
 				case AstElem.ThreshV self:
-					return SatisfyThreshold(self.Item1, self.Item2, signatureProvider, preimageProvider, age);
+					return SatisfyThreshold(self.Item1, self.Item2, signatureProvider, preimageProvider, age, result, errors);
 			}
 
 			throw new Exception("Unreachable!");
@@ -164,85 +184,109 @@ namespace NBitcoin.Miniscript
 			throw new Exception($"Unreachable! There is no way to dissatisfy {ast}");
 		}
 
-		private static byte[] SatisfyCheckSig(PubKey pk, SignatureProvider signatureProvider)
+		private bool SatisfyCheckSig(
+			PubKey pk,
+			SignatureProvider signatureProvider,
+			List<byte[]> result,
+			List<SatisfyError> errors
+			)
 		{
 			if (signatureProvider == null)
-				throw new SatisfyException("Can not satisfy This AST without SignatureProvider! It contains pk()");
+			{
+				errors.Add(new SatisfyError(SatisfyErrorCode.NoSignatureProvider, this));
+				return false;
+			}
 			var ret = signatureProvider(pk);
 			if (ret == null)
-				throw new SatisfyException($"Unable to provide signature for pubkey {pk}");
-			return ret.ToBytes();
+			{
+				errors.Add(new SatisfyError(SatisfyErrorCode.CanNotProvideSignature, this));
+				return false;
+			}
+			else
+			{
+				result.Add(ret.ToBytes());
+				return true;
+			}
 		}
 
-		private static List<byte[]> SatisfyCheckMultiSig(uint m, PubKey[] pks, SignatureProvider signatureProvider)
+		private bool SatisfyCheckMultiSig(
+			uint m, PubKey[] pks,
+			SignatureProvider signatureProvider,
+			List<byte[]> result,
+			List<SatisfyError> errors
+			)
 		{
 			if (signatureProvider == null)
-				throw new SatisfyException("Can not satisfy This AST without SignatureProvider! It contains multi()");
+			{
+				errors.Add(new SatisfyError(SatisfyErrorCode.NoSignatureProvider, this));
+				return false;
+			}
 			var sigs = new List<byte[]> { };
-			var errors = new List<Exception> { };
+			var localError = new List<SatisfyError>();
 			foreach (var pk in pks)
 			{
-				byte[] sig;
-				try
+				var sig = new List<byte[]>();
+				if (SatisfyCheckSig(pk, signatureProvider, sig, localError))
 				{
-					sig = SatisfyCheckSig(pk, signatureProvider);
+					sigs.AddRange(sig);
 				}
-				catch (SatisfyException e)
-				{
-					errors.Add(e);
-					continue;
-				}
-				sigs.Add(sig);
 			}
 			if (sigs.Count < m)
-				throw new SatisfyException("Failed to satisfy multisig", new AggregateException(errors));
+			{
+				errors.AddRange(localError);
+				return false;
+			}
 			sigs = sigs.Count > m ? sigs.Skip(sigs.Count - (int)m).ToList() : sigs;
-			var ret = new List<byte[]> { new byte[0] };
-			ret.AddRange(sigs);
-			return ret;
+			result.Add(new byte[0]);
+			result.AddRange(sigs);
+			return true;
 		}
 
-		private static uint SatisfyCost(List<byte[]> ss)
+		private uint SatisfyCost(List<byte[]> ss)
 			=> (uint)ss.Select(s => s.Length + 1).Sum();
 
-		private static List<byte[]> Flatten(List<List<byte[]>> v)
+		private List<byte[]> Flatten(List<List<byte[]>> v)
 			=> v.Aggregate((lAcc, l) => { lAcc.AddRange(l); return lAcc; });
-		private static List<byte[]> SatisfyThreshold(
+		private bool SatisfyThreshold(
 			uint k, AstElem[] subAsts,
 			SignatureProvider signatureProvider,
 			PreimageProvider preimageProvider,
-			uint? age
+			uint? age,
+			List<byte[]> result,
+			List<SatisfyError> errors
 			)
 		{
 			if (k == 0)
-				return new List<byte[]> { };
+				return true;
 			var ret = new List<List<byte[]>> { };
+			var localErrors = new List<SatisfyError>();
 			var retDissatisfied = new List<List<byte[]>> { };
-			var errors = new List<Exception> { };
 			int satisfiedN = 0;
 			foreach (var sub in subAsts.Reverse())
 			{
 				var dissat = Dissatisfy(sub);
-				try
+				var satisfiedItem = new List<byte[]>();
+				if (sub.TrySatisfy(signatureProvider, preimageProvider, age, satisfiedItem, localErrors))
 				{
-					var satisfiedItem = SatisfyCore(sub, signatureProvider, preimageProvider, age);
 					ret.Add(satisfiedItem);
 					satisfiedN++;
 				}
-				catch(SatisfyException ex)
+				else
 				{
 					ret.Add(dissat);
-					errors.Add(ex);
 				}
 				retDissatisfied.Add(dissat);
 			}
 			if (satisfiedN < k)
-				throw new SatisfyException(
-					$"Failed to satisfy {k} sub expression. Only {satisfiedN} are satisfied",
-					new AggregateException(errors)
-				);
+			{
+				errors.Add(new SatisfyError(SatisfyErrorCode.ThresholdNotMet, this, localErrors.ToArray()));
+				return false;
+			}
 			if (satisfiedN == k)
-				return Flatten(ret);
+			{
+				result.AddRange(Flatten(ret));
+				return true;
+			}
 
 			// if we have more satisfactions than needed, throw away the extras, choosing
 			// the ones that would yield the biggest savings.
@@ -252,198 +296,195 @@ namespace NBitcoin.Miniscript
 			var sortedIndices = indices.OrderBy(i => SatisfyCost(retDissatisfied[i]) - SatisfyCost(retDissatisfied[i]));
 			foreach (int i in sortedIndices.Take(satisfiedN - (int)k))
 				ret[i] = retDissatisfied[i];
-			return Flatten(ret);
+			result.AddRange(Flatten(ret));
+			return true;
 		}
 
-		private static List<byte[]> SatisfySwitchOr(
+		private bool SatisfySwitchOr(
 			AstElem l, AstElem r,
 			SignatureProvider signatureProvider,
 			PreimageProvider preimageProvider,
-			uint? age
+			uint? age,
+			List<byte[]> result,
+			List<SatisfyError> errors
 			)
 		{
-			List<byte[]> lSat = null;
-			List<byte[]> rSat = null;
-			SatisfyException leftEx = null;
-			SatisfyException rightEx = null;
-			try
+			List<byte[]> lSat = new List<byte[]>();
+			List<byte[]> rSat = new List<byte[]>();
+			List<SatisfyError> leftE = new List<SatisfyError>();
+			List<SatisfyError> rightE = new List<SatisfyError>();
+			var isLOk = l.TrySatisfy(signatureProvider, preimageProvider, age, lSat, leftE);
+			var isROk = r.TrySatisfy(signatureProvider, preimageProvider, age, rSat, rightE);
+			if (!isLOk && !isROk)
 			{
-				lSat = SatisfyCore(l, signatureProvider, preimageProvider, age);
-			}
-			catch (SatisfyException ex)
-			{
-				leftEx = ex;
-			}
-			try
-			{
-				rSat = SatisfyCore(r, signatureProvider, preimageProvider, age);
-			}
-			catch (SatisfyException ex)
-			{
-				rightEx = ex;
+				leftE.AddRange(rightE);
+				errors.Add(new SatisfyError(SatisfyErrorCode.OrExpressionBothNotMet, this, leftE));
+				return false;
 			}
 
-			if (leftEx != null && rightEx != null)
-			{
-				throw new SatisfyException($"Failed to satisfy neither {l} nor {r}", new AggregateException(new[] { leftEx, rightEx }));
-			}
-			if (leftEx == null && rightEx != null)
+			else if (isLOk && !isROk)
 			{
 				lSat.Add(new byte[] { 1 });
-				return lSat;
+				result.AddRange(lSat);
 			}
-			if (leftEx != null && rightEx == null)
+			else if (!isLOk && isROk)
 			{
-				rSat.Add(new byte[0] );
-				return rSat;
+				rSat.Add(new byte[0]);
+				result.AddRange(rSat);
 			}
 			else
 			{
 				if (SatisfyCost(lSat) + 2 <= SatisfyCost(rSat) + 1)
 				{
-					lSat.Add(new byte[] {1});
-					return lSat;
+					lSat.Add(new byte[] { 1 });
+					result.AddRange(lSat);
 				}
 				else
 				{
 					rSat.Add(new byte[0]);
-					return rSat;
+					result.AddRange(rSat);
 				}
 			}
+			return true;
 		}
 
-		private static List<byte[]> SatisfyCascadeOr(
+		private bool SatisfyCascadeOr(
 			AstElem l, AstElem r,
 			SignatureProvider signatureProvider,
 			PreimageProvider preimageProvider,
-			uint? age 
+			uint? age,
+			List<byte[]> result,
+			List<SatisfyError> errors
 			)
 		{
-			List<byte[]> lSat = null;
-			List<byte[]> rSat = null;
-			SatisfyException leftEx = null;
-			SatisfyException rightEx = null;
-			try
+			List<byte[]> lSat = new List<byte[]>();
+			List<byte[]> rSat = new List<byte[]>();
+			List<SatisfyError> leftE = new List<SatisfyError>();
+			List<SatisfyError> rightE = new List<SatisfyError>();
+			var isLOk = l.TrySatisfy(signatureProvider, preimageProvider, age, lSat, leftE);
+			var isROk = r.TrySatisfy(signatureProvider, preimageProvider, age, rSat, rightE);
+			if (!isLOk && !isROk)
 			{
-				lSat = SatisfyCore(l, signatureProvider, preimageProvider, age);
-			}
-			catch (SatisfyException ex)
-			{
-				leftEx = ex;
-			}
-			try
-			{
-				rSat = SatisfyCore(r, signatureProvider, preimageProvider, age);
-			}
-			catch (SatisfyException ex)
-			{
-				rightEx = ex;
+				leftE.AddRange(rightE);
+				errors.Add(new SatisfyError(SatisfyErrorCode.OrExpressionBothNotMet, this, leftE));
+				return false;
 			}
 
-			if (leftEx != null && rightEx != null)
+			else if (isLOk && !isROk)
 			{
-				throw new SatisfyException($"Failed to satisfy neither {l} nor {r}", new AggregateException(new[] { leftEx, rightEx }));
+				result.AddRange(lSat);
 			}
-			if (leftEx == null && rightEx != null)
-			{
-				return lSat;
-			}
-			if (leftEx != null && rightEx == null)
+			else if (!isLOk && isROk)
 			{
 				var lDissat = Dissatisfy(l);
 				rSat.AddRange(lDissat);
-				return rSat;
+				result.AddRange(rSat);
 			}
 			else
 			{
 				var lDissat = Dissatisfy(l);
-
 				if (SatisfyCost(lSat) <= SatisfyCost(rSat) + SatisfyCost(lDissat))
 				{
-					return lSat;
+					result.AddRange(lSat);
 				}
 				else
 				{
 					rSat.AddRange(lDissat);
-					return rSat;
+					result.AddRange(rSat);
 				}
 			}
+			return true;
 		}
 
-		private static List<byte[]> SatisfyParallelOr(
+		private bool SatisfyParallelOr(
 			AstElem l, AstElem r,
 			SignatureProvider signatureProvider,
 			PreimageProvider preimageProvider,
-			uint? age
+			uint? age,
+			List<byte[]> result,
+			List<SatisfyError> errors
 			)
 		{
-			List<byte[]> lSat = null;
-			List<byte[]> rSat = null;
-			SatisfyException leftEx = null;
-			SatisfyException rightEx = null;
-			try
+			List<byte[]> lSat = new List<byte[]>();
+			List<byte[]> rSat = new List<byte[]>();
+			List<SatisfyError> leftE = new List<SatisfyError>();
+			List<SatisfyError> rightE = new List<SatisfyError>();
+			var isLOk = l.TrySatisfy(signatureProvider, preimageProvider, age, lSat, leftE);
+			var isROk = r.TrySatisfy(signatureProvider, preimageProvider, age, rSat, rightE);
+			if (!isLOk && !isROk)
 			{
-				lSat = SatisfyCore(l, signatureProvider, preimageProvider, age);
-			}
-			catch (SatisfyException ex)
-			{
-				leftEx = ex;
-			}
-			try
-			{
-				rSat = SatisfyCore(r, signatureProvider, preimageProvider, age);
-			}
-			catch (SatisfyException ex)
-			{
-				rightEx = ex;
+				leftE.AddRange(rightE);
+				errors.Add(new SatisfyError(SatisfyErrorCode.OrExpressionBothNotMet, this, leftE));
+				return false;
 			}
 
-			if (leftEx == null && rightEx == null)
-			{
-				var lDissat = Dissatisfy(l);
-				var rDissat = Dissatisfy(r);
-				if (SatisfyCost(lSat) + SatisfyCost(rSat) <= SatisfyCost(rSat) + SatisfyCost(lDissat))
-				{
-					rDissat.AddRange(lSat);
-					return rDissat;
-				}
-				else
-				{
-					rSat.AddRange(lDissat);
-					return rSat;
-				}
-			}
-			else if (leftEx != null && rightEx == null)
+			else if (isLOk && !isROk)
 			{
 				var rDissat = Dissatisfy(r);
 				rDissat.AddRange(lSat);
-				return rDissat;
+				result.AddRange(rDissat);
 			}
-			else if (leftEx == null && rightEx != null)
+			else if (!isLOk && isROk)
 			{
 				var lDissat = Dissatisfy(l);
 				rSat.AddRange(lDissat);
-				return rSat;
+				result.AddRange(rSat);
 			}
 			else
 			{
-				throw new SatisfyException($"Failed to satisfy neither {l} nor {r}", new AggregateException(new[] { leftEx, rightEx }));
+				var lDissat = Dissatisfy(l);
+				var rDissat = Dissatisfy(r);
+				if (SatisfyCost(lSat) + SatisfyCost(rDissat) <= SatisfyCost(rSat) + SatisfyCost(lDissat))
+				{
+					rDissat.AddRange(lSat);
+					result.AddRange(rDissat);
+				}
+				else
+				{
+					rSat.AddRange(lDissat);
+					result.AddRange(rSat);
+				}
 			}
+
+			return true;
 		}
 
-		private static List<byte[]> SatisfyHashEqual(uint256 hash, PreimageProvider preimageProvider)
+		private bool SatisfyHashEqual(
+			uint256 hash, PreimageProvider preimageProvider,
+			List<byte[]> result,
+			List<SatisfyError> errors
+			)
 		{
 			if (preimageProvider == null)
-				throw new SatisfyException("Can not satisfy this AST without PreimageProvider!");
+			{
+				errors.Add(new SatisfyError(SatisfyErrorCode.NoPreimageProvider, this));
+				return false;
+			}
+			var preImage = preimageProvider(hash);
+			if (preImage == null)
+			{
+				errors.Add(new SatisfyError(SatisfyErrorCode.CanNotProvidePreimage, this));
+				return false;
+			}
+
+			result.Add(preImage.ToBytes());
+			return true;
 		}
-		private static List<byte[]> SatisfyCSV(uint timelock, uint? age)
+		private bool SatisfyCSV(
+			uint timelock, uint? age,
+			List<SatisfyError> errors
+			)
 		{
 			if (age == null)
-				throw new SatisfyException("Please provide current time");
+			{
+				errors.Add(new SatisfyError(SatisfyErrorCode.NoAgeProvided, this));
+				return false;
+			}
 			if (age >= timelock)
-				return new List<byte[]> { };
+				return true;
 			else
-				throw new SatisfyException("Locktime not met. ");
+				errors.Add(new SatisfyError(SatisfyErrorCode.LockTimeNotMet, this));
+			return false;
 		}
 	}
 }

@@ -7,7 +7,15 @@ namespace NBitcoin.Miniscript
 {
 	public enum SatisfyErrorCode
 	{
-		LockTimeNotMet
+
+		NoSignatureProvider,
+		NoPreimageProvider,
+		NoAgeProvided,
+		CanNotProvideSignature,
+		CanNotProvidePreimage,
+		LockTimeNotMet,
+		ThresholdNotMet,
+		OrExpressionBothNotMet
 	}
 	/// <summary>
 	/// Represents the error that occurs during satisfying Miniscript AST.
@@ -30,14 +38,19 @@ namespace NBitcoin.Miniscript
 
 	public class SatisfyError
 	{
-		public SatisfyError(SatisfyErrorCode code, AstElem ast)
+		public SatisfyError(SatisfyErrorCode code, AstElem ast, IEnumerable<SatisfyError> inner = null)
 		{
 			Code = code;
 			Ast = ast ?? throw new ArgumentNullException(nameof(ast));
+			Inner = inner;
 		}
 
-		public override string ToString() => $"Failed to satisfy AST: {Ast}. Code: {Code}";
+		public override string ToString() =>
+			Inner == null ?
+				$"Failed to satisfy AST: {Ast}. Code: {Code}" :
+				$"Failed to satisfy AST: {Ast}. Code: {Code} \n InnerErrors: " + String.Join(Environment.NewLine, Inner.Select(i => i.ToString()));
 
+		public IEnumerable<SatisfyError> Inner { get; }
 		public AstElem Ast { get; }
 
 		public SatisfyErrorCode Code { get; }

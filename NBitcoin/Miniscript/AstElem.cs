@@ -4,7 +4,7 @@ using System.Text;
 
 namespace NBitcoin.Miniscript
 {
-	public abstract class AstElem : IEquatable<AstElem>
+	public abstract partial class AstElem : IEquatable<AstElem>
 	{
 		# region tags
  		internal static class Tags
