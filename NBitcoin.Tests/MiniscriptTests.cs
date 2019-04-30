@@ -59,7 +59,7 @@ namespace NBitcoin.Tests
 			var pk = new Key().PubKey;
 			var pk2 = new Key().PubKey;
 			var pk3 = new Key().PubKey;
-			var res = MiniscriptDSLParser.ThresholdExpr().Parse($"thres(2,time(100),multi(2,{pk2},{pk3}))");
+			var res = MiniscriptDSLParser.PThresholdExpr.Parse($"thres(2,time(100),multi(2,{pk2},{pk3}))");
 			Assert.Equal(
 				res,
 				AbstractPolicy.NewThreshold(
