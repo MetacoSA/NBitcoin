@@ -50,7 +50,7 @@ namespace NBitcoin.Miniscript
 					{
 						var charsCopy = new List<char>(charSoFar);
 						charSoFar = new List<char>();
-						var item = new String(charsCopy.ToArray());
+						var item = new String(charsCopy.ToArray()).Trim();
 						items.Add(item);
 					}
 					else
@@ -113,7 +113,7 @@ namespace NBitcoin.Miniscript
 				from _left in Parse.Char('(')
 				from x in Parse
 					.Ref(() => DSLParser)
-					.DelimitedBy(Parse.Char(',')).Token()
+					.DelimitedBy(Parse.Char(',').Token()).Token()
 				from _right in Parse.Char(')')
 				select x;
 		private static readonly Parser<char, AbstractPolicy> PAndExpr =
@@ -135,7 +135,7 @@ namespace NBitcoin.Miniscript
 				from num in TryConvert(numStr, UInt32.Parse)
 				from x in Parse
 					.Ref(() => DSLParser)
-					.DelimitedBy(Parse.Char(',')).Token()
+					.DelimitedBy(Parse.Char(',').Token()).Token()
 				from _right in Parse.Char(')')
 				where num <= x.Count()
 				select AbstractPolicy.NewThreshold(num, x.ToArray());

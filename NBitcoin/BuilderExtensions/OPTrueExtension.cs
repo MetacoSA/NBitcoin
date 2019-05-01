@@ -43,7 +43,7 @@ namespace NBitcoin.BuilderExtensions
 			return 1;
 		}
 
-		public override Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer)
+		public override Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer, ISha256PreimageRepository preimageRepo)
 		{
 			return Script.Empty;
 		}

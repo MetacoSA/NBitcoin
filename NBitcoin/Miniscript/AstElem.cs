@@ -1294,13 +1294,13 @@ namespace NBitcoin.Miniscript
 					sb.Append(" OP_IF");
 					self.Item1.Serialize(sb);
 					sb.Append(" OP_ELSE");
-					self.Item1.Serialize(sb);
+					self.Item2.Serialize(sb);
 					return sb.Append(" OP_ENDIF OP_CHECKSIG");
 				case OrKeyV self:
 					sb.Append(" OP_IF");
 					self.Item1.Serialize(sb);
 					sb.Append(" OP_ELSE");
-					self.Item1.Serialize(sb);
+					self.Item2.Serialize(sb);
 					return sb.Append(" OP_ENDIF OP_CHECKSIGVERIFY");
 				case OrIf self:
 					sb.Append(" OP_IF");

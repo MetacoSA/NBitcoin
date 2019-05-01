@@ -247,6 +247,20 @@ namespace NBitcoin
 			#endregion
 		}
 
+		internal class TransactionBuilderPreimageRepository : ISha256PreimageRepository
+		{
+
+			public TransactionSigningContext _Ctx;
+			public TransactionBuilderPreimageRepository(TransactionSigningContext ctx)
+			{
+				_Ctx = ctx;
+			}
+			public uint256 FindPreimage(uint256 hash)
+			{
+				return _Ctx.FindPreimage(hash);
+			}
+		}
+
 		class KnownSignatureSigner : ISigner, IKeyRepository
 		{
 			private ICoin coin;
@@ -329,6 +343,13 @@ namespace NBitcoin
 					.Concat(AdditionalKeys)
 					.FirstOrDefault(k => k.PubKey == pubKey);
 				return key;
+			}
+
+			internal uint256 FindPreimage(uint256 hash)
+			{
+				if (Builder._HashPreimages.TryGetValue(hash, out var value))
+					return value;
+				return null;
 			}
 
 			private readonly List<Key> _AdditionalKeys = new List<Key>();
@@ -511,6 +532,7 @@ namespace NBitcoin
 			internal Dictionary<AssetId, List<Builder>> BuildersByAsset = new Dictionary<AssetId, List<Builder>>();
 			internal Script[] ChangeScript = new Script[3];
 
+
 			internal void Shuffle()
 			{
 				Shuffle(Builders);
@@ -573,6 +595,7 @@ namespace NBitcoin
 			Extensions.Add(new P2MultiSigBuilderExtension());
 			Extensions.Add(new P2PKBuilderExtension());
 			Extensions.Add(new OPTrueExtension());
+			Extensions.Add(new MiniscriptBuilderExtension());
 		}
 
 		/// <summary>
@@ -666,6 +689,7 @@ namespace NBitcoin
 		}
 
 		internal List<Key> _Keys = new List<Key>();
+		internal Dictionary<uint256, uint256> _HashPreimages = new Dictionary<uint256, uint256>();
 
 		public TransactionBuilder AddKeys(params ISecret[] keys)
 		{
@@ -734,6 +758,19 @@ namespace NBitcoin
 			if (psbt == null)
 				throw new ArgumentNullException(nameof(psbt));
 			return AddCoins(psbt.Inputs.Select(p => p.GetSignableCoin()).Where(p => p != null).ToArray());
+		}
+
+		public TransactionBuilder AddPreimages(params uint256[] preimages)
+			=> AddPreimages((IEnumerable<uint256>)preimages);
+
+		public TransactionBuilder AddPreimages(IEnumerable<uint256> preimages)
+		{
+			foreach (var preimage in preimages)
+			{
+				var hash = new uint256(Hashes.SHA256(preimage.ToBytes()));
+				_HashPreimages.Add(hash, preimage);
+			}
+			return this;
 		}
 
 		/// <summary>
@@ -1990,6 +2027,7 @@ namespace NBitcoin
 		{
 			var scriptPubKey = coin.GetScriptCode();
 			var keyRepo = new TransactionBuilderKeyRepository(ctx);
+			var preimageRepo = new TransactionBuilderPreimageRepository(ctx);
 			var signer = new TransactionBuilderSigner(ctx, coin, ctx.SigHash, txIn);
 
 			var signer2 = new KnownSignatureSigner(ctx, _KnownSignatures, coin, txIn);
@@ -1998,8 +2036,8 @@ namespace NBitcoin
 			{
 				if(extension.CanGenerateScriptSig(scriptPubKey))
 				{
-					var scriptSig1 = extension.GenerateScriptSig(scriptPubKey, keyRepo, signer);
-					var scriptSig2 = extension.GenerateScriptSig(scriptPubKey, signer2, signer2);
+					var scriptSig1 = extension.GenerateScriptSig(scriptPubKey, keyRepo, signer, preimageRepo);
+					var scriptSig2 = extension.GenerateScriptSig(scriptPubKey, signer2, signer2, preimageRepo);
 					if(scriptSig1 != null && scriptSig2 != null && extension.CanCombineScriptSig(scriptPubKey, scriptSig1, scriptSig2))
 					{
 						var combined = extension.CombineScriptSig(scriptPubKey, scriptSig1, scriptSig2);

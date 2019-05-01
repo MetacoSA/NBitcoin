@@ -23,7 +23,7 @@ namespace NBitcoin.Miniscript
 			)
 			{
 				if(!TrySatisfy(signatureProvider, preimageProvider, age, out var result, out var errors))
-					throw new SatisfyException(errors.ToArray());
+					throw new SatisfyException(errors);
 				return result.ToArray();
 			}
 
@@ -498,5 +498,165 @@ namespace NBitcoin.Miniscript
 				errors.Add(new SatisfyError(SatisfyErrorCode.LockTimeNotMet, this));
 			return false;
 		}
+
+		# region size estimation by heuristics
+
+		/// <summary>
+		/// Maximum size, in bytes. of a satisfying witness. For segwit outputs `one_cost`
+		/// Should be set to 2, since the number `1` requires two bytes to encode.
+		/// For non-segwit outputs `one_cost` should be set to 1, since `OP_1` is available in scriptSigs.
+		/// </summary>
+		/// <param name="costForOne"></param>
+		/// <returns></returns>
+		internal uint MaxSatisfactionSize(uint costForOne)
+		{
+			switch (this)
+			{
+				case AstElem.Pk self:
+					return PubKeySize(self.Item1);
+				case AstElem.PkV self:
+					return PubKeySize(self.Item1);
+				case AstElem.PkQ self:
+					return PubKeySize(self.Item1);
+				case AstElem.PkW self:
+					return PubKeySize(self.Item1);
+				case AstElem.Multi self:
+					return 1 + 73 * self.Item1;
+				case AstElem.MultiV self:
+					return 1 + 73 * self.Item1;
+				case AstElem.TimeT self:
+					return 0;
+				case AstElem.TimeV self:
+					return 0;
+				case AstElem.TimeF self:
+					return 0;
+				case AstElem.Time self:
+					return 0;
+				case AstElem.TimeW self:
+					return costForOne;
+				case AstElem.HashT self:
+					return 33;
+				case AstElem.HashV self:
+					return 33;
+				case AstElem.HashW self:
+					return 33;
+				case AstElem.True self:
+					return self.Item1.MaxSatisfactionSize(costForOne);
+				case AstElem.Wrap self:
+					return self.Item1.MaxSatisfactionSize(costForOne);
+				case AstElem.Likely self:
+					return self.Item1.MaxSatisfactionSize(costForOne) + 1u;
+				case AstElem.Unlikely self:
+					return self.Item1.MaxSatisfactionSize(costForOne) + costForOne;
+				case AstElem.AndCat self:
+					return self.Item1.MaxSatisfactionSize(costForOne) + self.Item2.MaxSatisfactionSize(costForOne);
+				case AstElem.AndBool self:
+					return self.Item1.MaxSatisfactionSize(costForOne) + self.Item2.MaxSatisfactionSize(costForOne);
+				case AstElem.AndCasc self:
+					return self.Item1.MaxSatisfactionSize(costForOne) + self.Item2.MaxSatisfactionSize(costForOne);
+				case AstElem.OrBool self:
+					return GetMax(
+						self.Item1.MaxDissatisfactionSize(costForOne) + self.Item2.MaxSatisfactionSize(costForOne),
+						self.Item1.MaxSatisfactionSize(costForOne) + self.Item2.MaxDissatisfactionSize(costForOne)
+						);
+				case AstElem.OrCasc self:
+					return GetMax(
+						self.Item1.MaxSatisfactionSize(costForOne),
+						self.Item1.MaxDissatisfactionSize(costForOne) + self.Item2.MaxSatisfactionSize(costForOne)
+					);
+				case AstElem.OrCont self:
+					return GetMax(
+						self.Item1.MaxSatisfactionSize(costForOne),
+						self.Item1.MaxDissatisfactionSize(costForOne) + self.Item2.MaxSatisfactionSize(costForOne)
+					);
+				case AstElem.OrKey self:
+					return GetMax(
+						73u + costForOne + self.Item1.MaxSatisfactionSize(costForOne),
+						73u + 1 + self.Item2.MaxSatisfactionSize(costForOne)
+						);
+				case AstElem.OrKeyV self:
+					return GetMax(
+						73u + costForOne + self.Item1.MaxSatisfactionSize(costForOne),
+						73u + 1 + self.Item2.MaxSatisfactionSize(costForOne)
+						);
+				case AstElem.OrIf self:
+					return GetMax(
+						costForOne + self.Item1.MaxSatisfactionSize(costForOne),
+						1 + self.Item2.MaxSatisfactionSize(costForOne)
+						);
+				case AstElem.OrIfV self:
+					return GetMax(
+						costForOne + self.Item1.MaxSatisfactionSize(costForOne),
+						1 + self.Item2.MaxSatisfactionSize(costForOne)
+						);
+				case AstElem.OrNotIf self:
+					return GetMax(
+						1 + self.Item1.MaxSatisfactionSize(costForOne),
+						costForOne + self.Item2.MaxSatisfactionSize(costForOne)
+						);
+				case AstElem.Thresh self:
+					return GetMaxThresh(self.Item1, self.Item2, costForOne);
+				case AstElem.ThreshV self:
+					return GetMaxThresh(self.Item1, self.Item2, costForOne);
+			}
+			throw new Exception("Unreachable");
+		}
+
+		private uint GetMaxThresh(uint k, AstElem[] subs, uint costForOne)
+		{
+			var subN = subs.Select(s => Tuple.Create(s.MaxSatisfactionSize(costForOne), s.MaxDissatisfactionSize(costForOne)));
+			var result = subN
+				.OrderBy(t => t.Item1 - t.Item2)
+				.Reverse()
+				.Select((t, i) => i < k ? t.Item1 : t.Item2)
+				.Sum(r => r);
+			return (uint)result;
+		}
+
+		private uint GetMax(uint l, uint r) => l > r ? l : r;
+		private uint MaxDissatisfactionSize(uint costForOne)
+		{
+			switch(this)
+			{
+				case AstElem.Pk self:
+					return 1u;
+				case AstElem.PkW self:
+					return 1u;
+				case AstElem.Multi self:
+					return 1u + self.Item1;
+				case AstElem.Time self:
+					return 1u;
+				case AstElem.TimeW self:
+					return 1u;
+				case AstElem.HashW self:
+					return 1u;
+				case AstElem.Wrap self:
+					return self.Item1.MaxDissatisfactionSize(costForOne);
+				case AstElem.Likely self:
+					return costForOne;
+				case AstElem.Unlikely self:
+					return 1u;
+				case AstElem.AndBool self:
+					return self.Item1.MaxDissatisfactionSize(costForOne) + self.Item2.MaxDissatisfactionSize(costForOne);
+				case AstElem.AndCasc self:
+					return self.Item1.MaxDissatisfactionSize(costForOne);
+				case AstElem.OrBool self:
+					return self.Item1.MaxDissatisfactionSize(costForOne) + self.Item2.MaxDissatisfactionSize(costForOne);
+				case AstElem.OrCasc self:
+					return self.Item1.MaxDissatisfactionSize(costForOne) + self.Item2.MaxDissatisfactionSize(costForOne);
+				case AstElem.OrIf self:
+					return 1u + self.Item2.MaxDissatisfactionSize(costForOne);
+				case AstElem.OrNotIf self:
+					return 1u + self.Item1.MaxDissatisfactionSize(costForOne);
+				case AstElem.Thresh self:
+					return self.Item2.Aggregate(0u, (acc, sub) => acc + sub.MaxDissatisfactionSize(costForOne));
+			}
+
+			throw new Exception($"Unreachable! cannot dissatisfy {this}");
+		}
+
+		private uint PubKeySize(PubKey pk)
+			=> pk.IsCompressed ? 34u : 66u;
+		# endregion
 	}
 }

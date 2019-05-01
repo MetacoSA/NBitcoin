@@ -24,7 +24,7 @@ namespace NBitcoin.Miniscript
 	{
 		public SatisfyException(IEnumerable<SatisfyError> errors) : base(ToMessage(errors))
 		{
-			ErrorCodes = ErrorCodes.ToList();
+			ErrorCodes = errors.ToList();
 		}
 
 		public IReadOnlyList<SatisfyError> ErrorCodes { get; }

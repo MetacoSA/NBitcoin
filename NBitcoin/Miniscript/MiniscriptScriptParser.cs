@@ -174,7 +174,7 @@ namespace NBitcoin.Miniscript
 				from _ in Parse.ScriptToken(ScriptToken.NotIf)
 				select AstElem.NewLikely(f);
 
-		private static readonly P POrIf1 =
+		private static readonly P POrIfOfQ =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
 				from qr in Parse.Ref(() => PQ)
 				from _2 in Parse.ScriptToken(ScriptToken.Else)
@@ -208,7 +208,7 @@ namespace NBitcoin.Miniscript
 				from e in ParseShortestE
 				select AstElem.NewAndCasc(e, f);
 
-		private static readonly P POrIf2 =
+		internal static readonly P POrIfOfFE =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
 				from r in Parse.Ref(() => PF).Or(ParseShortestE)
 				from _2 in Parse.ScriptToken(ScriptToken.Else)
@@ -223,7 +223,7 @@ namespace NBitcoin.Miniscript
 				from _3 in Parse.ScriptToken(ScriptToken.NotIf)
 				select AstElem.NewOrNotIf(fl, er);
 
-		private static readonly P POrIf3 =
+		private static readonly P POrIfOfV =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
 				from vr in Parse.Ref(() => PV)
 				from _2 in Parse.ScriptToken(ScriptToken.Else)
@@ -238,7 +238,7 @@ namespace NBitcoin.Miniscript
 				from el in ParseShortestE
 				select AstElem.NewOrCont(el, vr);
 
-		internal static readonly P POrIf4 =
+		internal static readonly P POrIfOfT =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
 				from tr in Parse.Ref(() => PT)
 				from _2 in Parse.ScriptToken(ScriptToken.Else)
@@ -332,11 +332,11 @@ namespace NBitcoin.Miniscript
 					.Or(PLikely)
 					.Or(PHashW)
 					.Or(PAndCasc)
-					.Or(POrIf1.Or(POrIf3).Or(POrIf4))
+					.Or(POrIfOfQ.Or(POrIfOfV).Or(POrIfOfT))
 					.Or(POrCont)
 					.Or(POrCasc)
+					.Or(POrIfOfFE)
 					.Or(POrNotIf)
-					.Or(POrIf2)
 					.Or(POrIfV)
 					.Or(PTrue)
 					.Or(PHashV)
@@ -360,7 +360,7 @@ namespace NBitcoin.Miniscript
 							var left = leftResult.Value;
 							if (!left.IsV())
 							{
-								return ParserResult<ScriptToken, AstElem>.Failure(leftResult.Rest, "SubExpression was not V");
+								return ParserResult<ScriptToken, AstElem>.Failure(i, "SubExpression was not V");
 							}
 							return ParserResult<ScriptToken, AstElem>.Success(leftResult.Rest, AstElem.NewAndCat(left, ast));
 						}

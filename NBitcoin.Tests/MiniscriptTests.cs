@@ -5,27 +5,34 @@ using FsCheck.Xunit;
 using FsCheck;
 using NBitcoin.Tests.Generators;
 using System;
+using static NBitcoin.Tests.Helpers.PrimitiveUtils;
+using NBitcoin.Crypto;
 
 namespace NBitcoin.Tests
 {
-    public class MiniscriptTests
-    {
+	public class MiniscriptTests
+	{
+		public Network Network { get; }
+		public Key[] Keys { get; }
+
 		public MiniscriptTests()
 		{
 			Arb.Register<AbstractPolicyGenerator>();
 			Arb.Register<CryptoGenerator>();
+			Network = Network.Main;
+			Keys = new Key[] { new Key(), new Key(), new Key() };
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void DSLParserTests()
 		{
-			var pk = new Key().PubKey;
-			var pk2 = new Key().PubKey;
-			var pk3 = new Key().PubKey;
+			var pk = Keys[0].PubKey;
+			var pk2 = Keys[1].PubKey;
+			var pk3 = Keys[2].PubKey;
 			DSLParserTestCore("time(100)", AbstractPolicy.NewTime(100));
 			DSLParserTestCore($"pk({pk})", AbstractPolicy.NewCheckSig(pk));
-			DSLParserTestCore($"multi(2,{pk2},{pk3})", AbstractPolicy.NewMulti(2, new PubKey[]{pk2, pk3}));
+			DSLParserTestCore($"multi(2,{pk2},{pk3})", AbstractPolicy.NewMulti(2, new PubKey[] { pk2, pk3 }));
 			DSLParserTestCore(
 				$"and(time(10),pk({pk}))",
 				AbstractPolicy.NewAnd(
@@ -39,7 +46,7 @@ namespace NBitcoin.Tests
 					AbstractPolicy.NewTime(10),
 					AbstractPolicy.NewAnd(
 						AbstractPolicy.NewCheckSig(pk),
-						AbstractPolicy.NewMulti(2, new PubKey[]{pk2, pk3})
+						AbstractPolicy.NewMulti(2, new PubKey[] { pk2, pk3 })
 					)
 				)
 			);
@@ -122,6 +129,12 @@ namespace NBitcoin.Tests
 			var case1 = $"thres(1,aor(pk({pk1}),hash({hash1})),multi(1,{pk2},{pk3}))";
 			DeserializationTestCore(MiniscriptDSLParser.ParseDSL(case1));
 			DeserializationTestCore(MiniscriptDSLParser.ParseDSL($"and({case1},pk({pk1}))"));
+
+			var htlcDSL = $"aor(and(hash({hash1}),pk({Keys[0].PubKey})),and(pk({Keys[1].PubKey}),time(10000)))";
+			DeserializationTestCore(htlcDSL);
+
+			var dsl = "thres(1, pk(02130c1c9a68369f14e4ce5c58acaa9d592ef8c5dcaf0a9d0fe92321c4bbc64eb3), aor(hash(bcf07a5893c7512fb9f4280690cbffdd6745d6b43e1c578b15f32e62ecca5439), time(0)))";
+			DeserializationTestCore(dsl);
 		}
 
 		[Fact]
@@ -154,19 +167,19 @@ namespace NBitcoin.Tests
 
 			// multi(2, 2)
 			var sc5 = new Script("2 02e38a30edddfb98c5973427a84f8e04376bd26f9ffaf60924e983f6056e2f020d 02d5b294505603232507635867f07bb498d8021db5b46a8276b6dc2823460b6684 2 OP_CHECKMULTISIG");
-		  Assert.True(MiniscriptScriptParser.PMulti.Parse(sc5).IsE());
-			var ast5 = AstElem.NewMulti(2, new [] { new PubKey("02e38a30edddfb98c5973427a84f8e04376bd26f9ffaf60924e983f6056e2f020d"), new PubKey("02d5b294505603232507635867f07bb498d8021db5b46a8276b6dc2823460b6684")});
+			Assert.True(MiniscriptScriptParser.PMulti.Parse(sc5).IsE());
+			var ast5 = AstElem.NewMulti(2, new[] { new PubKey("02e38a30edddfb98c5973427a84f8e04376bd26f9ffaf60924e983f6056e2f020d"), new PubKey("02d5b294505603232507635867f07bb498d8021db5b46a8276b6dc2823460b6684") });
 			DeserializationTestCore(sc5, ast5);
 
 			// wrap(multi(2, 2))
 			var sc6 = new Script("OP_TOALTSTACK 2 02e38a30edddfb98c5973427a84f8e04376bd26f9ffaf60924e983f6056e2f020d 02d5b294505603232507635867f07bb498d8021db5b46a8276b6dc2823460b6684 2 OP_CHECKMULTISIG OP_FROMALTSTACK");
-		  MiniscriptScriptParser.PWrap.Parse(sc6);
+			MiniscriptScriptParser.PWrap.Parse(sc6);
 			var ast6 = AstElem.NewWrap(ast5);
 			DeserializationTestCore(sc6, ast6);
 
 			// thresh(1, time(0), wrap(multi(2, 2)))
 			var sc7 = new Script("OP_DUP OP_IF 0 OP_CSV OP_DROP OP_ENDIF OP_TOALTSTACK 2 02e38a30edddfb98c5973427a84f8e04376bd26f9ffaf60924e983f6056e2f020d 02d5b294505603232507635867f07bb498d8021db5b46a8276b6dc2823460b6684 2 OP_CHECKMULTISIG OP_FROMALTSTACK OP_ADD 1 OP_EQUAL");
-		  MiniscriptScriptParser.PThresh.Parse(sc7);
+			MiniscriptScriptParser.PThresh.Parse(sc7);
 			var ast7 = AstElem.NewThresh(
 				1,
 				new[]
@@ -236,6 +249,16 @@ namespace NBitcoin.Tests
 				);
 			DeserializationTestCore(sc13, ast13);
 		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ScriptDeserializationTest3()
+		{
+			var item = uint256.Parse("0xbcf07a5893c7512fb9f4280690cbffdd6745d6b43e1c578b15f32e62ecca5439");
+			var sc14 = new Script($"OP_IF OP_DUP OP_IF 0 OP_CSV OP_DROP OP_ENDIF OP_ELSE OP_SIZE 20 OP_EQUALVERIFY OP_SHA256 {item} OP_EQUALVERIFY 1 OP_ENDIF");
+			var ast14 = AstElem.NewOrIf(AstElem.NewTime(0), AstElem.NewTrue(AstElem.NewHashV(item)));
+			MiniscriptScriptParser.POrIfOfFE.Parse(sc14);
+			DeserializationTestCore(sc14, ast14);
+		}
 
 		private void DeserializationTestCore(Script sc, AstElem ast)
 		{
@@ -245,11 +268,18 @@ namespace NBitcoin.Tests
 			Assert.Equal(ast, ast2);
 		}
 
-		private void DeserializationTestCore(AbstractPolicy policy)
+		private void DeserializationTestCore(string policyStr, bool assert = true)
+			=> DeserializationTestCore(MiniscriptDSLParser.DSLParser.Parse(policyStr), assert);
+		private void DeserializationTestCore(AbstractPolicy policy, bool assert = true)
 		{
 			var ast = CompiledNode.FromPolicy(policy).BestT(0.0, 0.0).Ast;
-			var ast2 = MiniscriptScriptParser.ParseScript(ast.ToScript());
-			Assert.Equal(ast, ast2);
+			var sc = ast.ToScript();
+
+			var ast2 = MiniscriptScriptParser.ParseScript(sc);
+			if (assert)
+			{
+				Assert.Equal(ast, ast2);
+			}
 		}
 
 		// This is useful for finding failure case. But passing every single case is unnecessary.
@@ -299,6 +329,43 @@ namespace NBitcoin.Tests
 			var dummySig = TransactionSignature.Empty;
 			var dummyPreImage = new uint256();
 			ast.Satisfy(pk => dummySig, _ => dummyPreImage, 65535);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+
+		public void ShouldPlayWellWithTransactionBuilder_1()
+		{
+			// case1: simple timelocked multisig
+			var dsl = $"and(time(100),multi(2, {Keys[0].PubKey}, {Keys[1].PubKey}))";
+			var ms = Miniscript.Miniscript.Parse(dsl);
+			var builder = Network.CreateTransactionBuilder();
+			var coins = GetRandomCoinsForAllScriptType(Money.Coins(0.5m), ms.Script);
+			builder.AddKeys(Keys);
+			var tx = builder.BuildTransaction(true);
+			builder.Verify(tx);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+
+		public void ShouldPlayWellWithTransactionBuilder_2()
+		{
+			// case2: BIP199 HTLC
+			var secret1 = new uint256(0xdeadbeef);
+			var hash1 = new uint256(Hashes.SHA256(secret1.ToBytes()), false);
+			var dsl = $"aor(and(hash({hash1}),pk({Keys[0].PubKey})),and(pk({Keys[1].PubKey}),time(10000)))";
+			var ms = Miniscript.Miniscript.Parse(dsl);
+			var dummy = Keys[2];
+
+			var builder = Network.CreateTransactionBuilder();
+			var coins = GetRandomCoinsForAllScriptType(Money.Coins(0.5m), ms.Script);
+			builder.AddCoins(coins);
+			builder.AddKeys(Keys[0], Keys[1]);
+			builder.AddPreimages(secret1);
+			builder.SendAll(dummy);
+			var tx = builder.BuildTransaction(true);
+			builder.Verify(tx);
 		}
 	}
 }

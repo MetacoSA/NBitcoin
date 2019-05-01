@@ -15,7 +15,7 @@ namespace NBitcoin.Miniscript.Parser
 
 				if (predicate(i.GetCurrent().Tag))
 					return ParserResult<ScriptToken, ScriptToken>.Success(i.Advance(), i.GetCurrent());
-				return ParserResult<ScriptToken, ScriptToken>.Failure(i.Advance(), $"Unexpected {i.GetCurrent()}");
+				return ParserResult<ScriptToken, ScriptToken>.Failure(i, $"Unexpected {i.GetCurrent()}");
 			};
 		}
 
