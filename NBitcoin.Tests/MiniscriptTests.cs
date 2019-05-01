@@ -111,10 +111,17 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void ScriptDeserializationTest1()
 		{
+			var pk1 = new Key().PubKey;
+			var pk2 = new Key().PubKey;
+			var pk3 = new Key().PubKey;
+			var hash1 = new uint256(0xdeadbeef);
 			var sc = new Script("027be8d8ffe2f50ab5afcebf29ec2c9c75b50334905c9d15046e051c81a4ddbc68 OP_CHECKSIG");
 			MiniscriptScriptParser.PPk.Parse(sc);
 			MiniscriptScriptParser.PAstElemCore.Parse(sc);
-			DeserializationTestCore(MiniscriptDSLParser.ParseDSL("pk(027be8d8ffe2f50ab5afcebf29ec2c9c75b50334905c9d15046e051c81a4ddbc68)"));
+			DeserializationTestCore(MiniscriptDSLParser.ParseDSL($"pk({pk1})"));
+			var case1 = $"thres(1,aor(pk({pk1}),hash({hash1})),multi(1,{pk2},{pk3}))";
+			DeserializationTestCore(MiniscriptDSLParser.ParseDSL(case1));
+			DeserializationTestCore(MiniscriptDSLParser.ParseDSL($"and({case1},pk({pk1}))"));
 		}
 
 		[Fact]
@@ -247,9 +254,10 @@ namespace NBitcoin.Tests
 
 		// This is useful for finding failure case. But passing every single case is unnecessary.
 		// (And probably impossible). so disable it for now.
-		[Property(Skip="see comment above")]
-		[Trait("PropertyTest", "Verification")]
-		public void ShouldDeserializeScriptOriginatesFromMiniscript(AbstractPolicy policy)
+		// e.g. How we distinguish `and_cat(and_cat(a, b), c)` and `and_cat(a, and_cat(b, c))` ?
+		[Property(Skip="DoesNotHaveToPass")]
+		[Trait("PropertyTest", "BidirectionalConversion")]
+		public void ShouldDeserializeScriptOriginatesFromMiniscriptToOrigin(AbstractPolicy policy)
 			=> DeserializationTestCore(policy);
 
 
