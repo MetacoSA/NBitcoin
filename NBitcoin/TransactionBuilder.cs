@@ -1209,11 +1209,31 @@ namespace NBitcoin
 		/// Build a PSBT (Partially signed bitcoin transaction)
 		/// </summary>
 		/// <param name="sign">True if signs all inputs with the available keys</param>
+		/// <param name="sigHash">The sighash for signing (ignored if sign is false)</param>
 		/// <returns>A PSBT</returns>
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public PSBT BuildPSBT(bool sign, SigHash sigHash)
 		{
 			var tx = BuildTransaction(false, sigHash);
+			return CreatePSBTFromCore(tx, sign, sigHash);
+		}
+
+		/// <summary>
+		/// Create a PSBT from a transaction
+		/// </summary>
+		/// <param name="tx">The transaction</param>
+		/// <param name="sign">If true, the transaction builder will sign this transaction</param>
+		/// <param name="sigHash">The sighash for signing (ignored if sign is false)</param>
+		/// <returns></returns>
+		public PSBT CreatePSBTFrom(Transaction tx, bool sign, SigHash sigHash)
+		{
+			if (tx == null)
+				throw new ArgumentNullException(nameof(tx));
+			return CreatePSBTFromCore(tx.Clone(), sign, sigHash);
+		}
+
+		PSBT CreatePSBTFromCore(Transaction tx, bool sign, SigHash sigHash)
+		{
 			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, sigHash);
 			if (sign)
 				SignTransactionInPlace(signingContext);
