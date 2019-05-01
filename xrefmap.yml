@@ -60445,6 +60445,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.TransactionBuilder.CoverTheRest
   nameWithType: TransactionBuilder.CoverTheRest
+- uid: NBitcoin.TransactionBuilder.CreatePSBTFrom(NBitcoin.Transaction,System.Boolean,NBitcoin.SigHash)
+  name: CreatePSBTFrom(Transaction, Boolean, SigHash)
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_CreatePSBTFrom_NBitcoin_Transaction_System_Boolean_NBitcoin_SigHash_
+  commentId: M:NBitcoin.TransactionBuilder.CreatePSBTFrom(NBitcoin.Transaction,System.Boolean,NBitcoin.SigHash)
+  fullName: NBitcoin.TransactionBuilder.CreatePSBTFrom(NBitcoin.Transaction, System.Boolean, NBitcoin.SigHash)
+  nameWithType: TransactionBuilder.CreatePSBTFrom(Transaction, Boolean, SigHash)
+- uid: NBitcoin.TransactionBuilder.CreatePSBTFrom*
+  name: CreatePSBTFrom
+  href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_CreatePSBTFrom_
+  commentId: Overload:NBitcoin.TransactionBuilder.CreatePSBTFrom
+  isSpec: "True"
+  fullName: NBitcoin.TransactionBuilder.CreatePSBTFrom
+  nameWithType: TransactionBuilder.CreatePSBTFrom
 - uid: NBitcoin.TransactionBuilder.DustPrevention
   name: DustPrevention
   href: api/NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_DustPrevention
