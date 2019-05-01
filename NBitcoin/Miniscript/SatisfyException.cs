@@ -12,6 +12,7 @@ namespace NBitcoin.Miniscript
 		NoPreimageProvider,
 		NoAgeProvided,
 		CanNotProvideSignature,
+		CanNotProvideEnoughSignatureForMulti,
 		CanNotProvidePreimage,
 		LockTimeNotMet,
 		ThresholdNotMet,

@@ -40,8 +40,9 @@ namespace NBitcoin.BuilderExtensions
 		{
 			var ms = Miniscript.Miniscript.ParseScript(scriptPubKey);
 			Func<PubKey, TransactionSignature > signatureProvider =
-				(pk) => keyRepo.FindKey(scriptPubKey) == null ? null : signer.Sign(pk);
-			var items = ms.Ast.Satisfy(signatureProvider, preimageRepo.FindPreimage, 65535);
+				(pk) => keyRepo.FindKey(pk.ScriptPubKey) == null ? null : signer.Sign(pk);
+			if(!ms.Ast.TrySatisfy(signatureProvider, preimageRepo.FindPreimage, 65535, out var items, out var _))
+				return null;
 			var ops = new List<Op>();
 			foreach (var i in items)
 			{

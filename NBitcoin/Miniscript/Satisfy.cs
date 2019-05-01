@@ -245,7 +245,7 @@ namespace NBitcoin.Miniscript
 			}
 			if (sigs.Count < m)
 			{
-				errors.AddRange(localError);
+				errors.Add(new SatisfyError(SatisfyErrorCode.CanNotProvideEnoughSignatureForMulti, this));
 				return false;
 			}
 			sigs = sigs.Count > m ? sigs.Skip(sigs.Count - (int)m).ToList() : sigs;

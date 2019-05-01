@@ -767,7 +767,7 @@ namespace NBitcoin
 		{
 			foreach (var preimage in preimages)
 			{
-				var hash = new uint256(Hashes.SHA256(preimage.ToBytes()));
+				var hash = new uint256(Hashes.SHA256(preimage.ToBytes()), false);
 				_HashPreimages.Add(hash, preimage);
 			}
 			return this;

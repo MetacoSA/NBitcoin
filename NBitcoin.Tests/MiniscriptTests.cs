@@ -341,6 +341,8 @@ namespace NBitcoin.Tests
 			var ms = Miniscript.Miniscript.Parse(dsl);
 			var builder = Network.CreateTransactionBuilder();
 			var coins = GetRandomCoinsForAllScriptType(Money.Coins(0.5m), ms.Script);
+			builder.AddCoins(coins);
+			builder.SendAll(Keys[2]);
 			builder.AddKeys(Keys);
 			var tx = builder.BuildTransaction(true);
 			builder.Verify(tx);
@@ -361,9 +363,9 @@ namespace NBitcoin.Tests
 			var builder = Network.CreateTransactionBuilder();
 			var coins = GetRandomCoinsForAllScriptType(Money.Coins(0.5m), ms.Script);
 			builder.AddCoins(coins);
-			builder.AddKeys(Keys[0], Keys[1]);
-			builder.AddPreimages(secret1);
+			builder.AddKeys(Keys);
 			builder.SendAll(dummy);
+			builder.AddPreimages(secret1);
 			var tx = builder.BuildTransaction(true);
 			builder.Verify(tx);
 		}
