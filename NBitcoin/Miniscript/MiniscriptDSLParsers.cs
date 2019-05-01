@@ -10,7 +10,7 @@ namespace NBitcoin.Miniscript
 {
 	internal static class MiniscriptDSLParser
 	{
-		private static readonly Parser<char, string> SurroundedByBrackets  =
+		internal static readonly Parser<char, string> SurroundedByBrackets  =
 				from leftB in Parse.Char('(').Token()
 				from x in Parse.CharExcept(')').Many().Text()
 				from rightB in Parse.Char(')').Token()
@@ -62,7 +62,7 @@ namespace NBitcoin.Miniscript
 			return items.ToArray();
 		}
 
-		private static Parser<char, T> TryConvert<T>(string str, Func<string, T> converter)
+		internal static Parser<char, T> TryConvert<T>(string str, Func<string, T> converter)
 		{
 			return i =>
 			{
@@ -77,7 +77,7 @@ namespace NBitcoin.Miniscript
 			};
 		}
 
-		private static Parser<char, string> ExprP(string name)
+		internal static Parser<char, string> ExprP(string name)
 			=>
 				from identifier in Parse.String(name)
 				from x in SurroundedByBrackets
@@ -139,7 +139,7 @@ namespace NBitcoin.Miniscript
 				from _right in Parse.Char(')')
 				where num <= x.Count()
 				select AbstractPolicy.NewThreshold(num, x.ToArray());
-		private static readonly Parser<char, AbstractPolicy> DSLParser =
+		internal static readonly Parser<char, AbstractPolicy> DSLParser =
 				(PPubKeyExpr
 					.Or(PMultisigExpr)
 					.Or(PTimeExpr)
@@ -148,6 +148,7 @@ namespace NBitcoin.Miniscript
 					.Or(POrExpr)
 					.Or(PAOrExpr)
 					.Or(PThresholdExpr)).Token();
+
 
 		public static AbstractPolicy ParseDSL(string input)
 			=> DSLParser.Parse(input);

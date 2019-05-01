@@ -10,7 +10,11 @@ namespace NBitcoin.Tests
 {
     public class MiniscriptTests
     {
-		public MiniscriptTests() => Arb.Register<AbstractPolicyGenerator>();
+		public MiniscriptTests()
+		{
+			Arb.Register<AbstractPolicyGenerator>();
+			Arb.Register<CryptoGenerator>();
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -247,5 +251,36 @@ namespace NBitcoin.Tests
 		[Trait("PropertyTest", "Verification")]
 		public void ShouldDeserializeScriptOriginatesFromMiniscript(AbstractPolicy policy)
 			=> DeserializationTestCore(policy);
+
+
+		[Property]
+		[Trait("PropertyTest", "BidirectionalConversion")]
+		public void ScriptOutputDescriptorShouldConvertToStringBidirectionally(AbstractPolicy policy, OutputDescriptorType type)
+		{
+			if (type != OutputDescriptorType.P2ShWpkh && type != OutputDescriptorType.Pkh && type != OutputDescriptorType.Wpkh)
+			{
+				var od = new OutputDescriptor(Miniscript.Miniscript.FromPolicy(policy), type);
+				var od2 = OutputDescriptorParser.ParseDescriptor(od.ToString());
+				Assert.Equal(
+					od,
+					od2
+				);
+			}
+		}
+
+		[Property]
+		[Trait("PropertyTest", "BidirectionalConversion")]
+		public void PubKeyOutputDescriptorShouldConvertToStringBidirectionally(PubKey pk, OutputDescriptorType type)
+		{
+			if (type == OutputDescriptorType.P2ShWpkh || type == OutputDescriptorType.Pkh || type == OutputDescriptorType.Wpkh)
+			{
+				var od = new OutputDescriptor(pk, type);
+				var od2 = OutputDescriptorParser.ParseDescriptor(od.ToString());
+				Assert.Equal(
+					od,
+					od2
+				);
+			}
+		}
 	}
 }
