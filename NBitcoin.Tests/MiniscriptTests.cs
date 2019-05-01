@@ -282,5 +282,15 @@ namespace NBitcoin.Tests
 				);
 			}
 		}
+
+		[Property]
+		[Trait("PropertyTest", "Verification")]
+		public void ShouldSatisfyAstWithDummyProviders(AbstractPolicy policy)
+		{
+			var ast = CompiledNode.FromPolicy(policy).BestT(0.0, 0.0).Ast;
+			var dummySig = TransactionSignature.Empty;
+			var dummyPreImage = new uint256();
+			ast.Satisfy(pk => dummySig, _ => dummyPreImage, 65535);
+		}
 	}
 }

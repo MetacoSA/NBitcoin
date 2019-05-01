@@ -151,6 +151,7 @@ namespace NBitcoin.Miniscript
 				case AstElem.PkW _:
 				case AstElem.TimeW _:
 				case AstElem.HashW _:
+				case AstElem.Time _:
 					return new List<byte[]> { new byte[0] };
 				case AstElem.Multi self:
 					var retmulti = new List<byte[]> { new byte[0] };
