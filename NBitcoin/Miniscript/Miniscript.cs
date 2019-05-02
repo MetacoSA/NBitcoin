@@ -1,3 +1,4 @@
+using System;
 using NBitcoin.Miniscript.Parser;
 
 namespace NBitcoin.Miniscript
@@ -5,7 +6,7 @@ namespace NBitcoin.Miniscript
 	/// <summary>
 	/// Facade for handling Miniscript related things.
 	/// </summary>
-	public class Miniscript
+	public class Miniscript : IEquatable<Miniscript>
 	{
 
 		public AbstractPolicy Policy { get; }
@@ -85,5 +86,21 @@ namespace NBitcoin.Miniscript
 			result = Miniscript.FromAstElem(res.Value);
 			return true;
 		}
+
+		public sealed override bool Equals(object obj)
+		{
+			Miniscript other = obj as Miniscript;
+			if (other != null)
+			{
+				return Equals(other);
+			}
+			return false;
+		}
+
+		public bool Equals(Miniscript other)
+			=> this.Policy.Equals(other.Policy);
+
+		public override int GetHashCode()
+			=> this.Policy.GetHashCode();
 	}
 }

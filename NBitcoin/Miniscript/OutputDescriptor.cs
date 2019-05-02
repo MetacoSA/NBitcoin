@@ -5,7 +5,7 @@ namespace NBitcoin.Miniscript
 {
 	public enum OutputDescriptorType
 	{
-		Bare,
+		Bare = 0,
 		Pkh,
 		Wpkh,
 		P2ShWpkh,
@@ -102,8 +102,28 @@ namespace NBitcoin.Miniscript
 		}
 
 		public bool Equals(OutputDescriptor other)
-			=> this.ToString() == other.ToString();
+		{
+			if (this.Type != other.Type)
+				return false;
+			if (PubKey != null && other.PubKey != null && PubKey.Equals(other.PubKey))
+				return true;
+			if (InnerScript != null && other.InnerScript != null && InnerScript.Equals(other.InnerScript))
+				return true;
+			return false;
+		}
 
-		public override int GetHashCode() => this.ToString().GetHashCode();
+		public override int GetHashCode()
+		{
+			if (this != null)
+			{
+				int num = (int)Type;
+				if (PubKey != null)
+					num = -1640531527 + PubKey.GetHashCode() + ((num << 6) + (num >> 2));
+				if (InnerScript != null)
+					num =  -1640531527 + (InnerScript.GetHashCode() + ((num << 6) + (num >> 2)));
+				return num;
+			}
+			return 0;
+		}
 	}
 }
