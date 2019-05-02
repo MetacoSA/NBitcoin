@@ -56,6 +56,16 @@ namespace NBitcoin.Tests
 			var psbtJson = Serializer.ToString(psbt, Network.Main);
 			var psbt2 = Serializer.ToObject<PSBT>(psbtJson, Network.Main);
 			Assert.Equal(psbt, psbt2);
+
+
+			var expectedOutpoint = OutPoint.Parse("44f69ca74088d6d88e30156da85aae54543a87f67cdfdabbe9b53a92d6d7027c01000000");
+			var actualOutpoint = Serializer.ToObject<OutPoint>("\"44f69ca74088d6d88e30156da85aae54543a87f67cdfdabbe9b53a92d6d7027c01000000\"", Network.Main);
+			Assert.Equal(expectedOutpoint, actualOutpoint);
+			actualOutpoint = Serializer.ToObject<OutPoint>("\"7c02d7d6923ab5e9bbdadf7cf6873a5454ae5aa86d15308ed8d68840a79cf644-1\"", Network.Main);
+			Assert.Equal(expectedOutpoint, actualOutpoint);
+
+			CanSerializeInJsonCore(expectedOutpoint, out str);
+			Assert.Equal("\"44f69ca74088d6d88e30156da85aae54543a87f67cdfdabbe9b53a92d6d7027c01000000\"", str);
 		}
 
 		private T CanSerializeInJsonCore<T>(T value)

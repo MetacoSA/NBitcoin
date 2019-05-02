@@ -28,6 +28,7 @@ namespace NBitcoin.JsonConverters
 			settings.Converters.Add(new LockTimeJsonConverter());
 			settings.Converters.Add(new PSBTJsonConverter(network));
 			settings.Converters.Add(new HDFingerprintJsonConverter());
+			settings.Converters.Add(new OutpointJsonConverter());
 			settings.Converters.Add(new BitcoinSerializableJsonConverter(network));
 			settings.Converters.Add(new NetworkJsonConverter());
 			settings.Converters.Add(new KeyPathJsonConverter());
