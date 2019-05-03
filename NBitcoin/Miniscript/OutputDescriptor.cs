@@ -50,7 +50,7 @@ namespace NBitcoin.Miniscript
 		{
 			if (!IsPubkeyType(type))
 				throw new ArgumentException($"You can not specify {type} for PubKey based OutputDescriptor!");
-			PubKey = pk;
+			PubKey = pk ?? throw new ArgumentNullException(nameof(pk));
 			Type = type;
 		}
 		private bool IsPubkeyType(OutputDescriptorType t)
@@ -59,7 +59,7 @@ namespace NBitcoin.Miniscript
 		{
 			if (IsPubkeyType(type))
 				throw new ArgumentException($"You can not specify {type} for script based OutputDescriptor!");
-			InnerScript = inner;
+			InnerScript = inner ?? throw new ArgumentNullException(nameof(inner));
 			Type = type;
 		}
 

@@ -106,6 +106,7 @@ namespace NBitcoin.Miniscript
 
 		private static readonly Parser<char, AbstractPolicy> PTimeExpr =
 				from t in ExprP("time").Then(s => TryConvert(s, UInt32.Parse))
+				where t <= 65535
 				select AbstractPolicy.NewTime(t);
 
 		private static Parser<char, IEnumerable<AbstractPolicy>> PSubExprs(string name) =>

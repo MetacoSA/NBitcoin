@@ -15,6 +15,8 @@ namespace NBitcoin.Miniscript
 		CanNotProvideEnoughSignatureForMulti,
 		CanNotProvidePreimage,
 		LockTimeNotMet,
+		RelativeLockTimeDisabled,
+		UnSupportedRelativeLockTimeType,
 		ThresholdNotMet,
 		OrExpressionBothNotMet
 	}

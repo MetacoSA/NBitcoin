@@ -492,6 +492,18 @@ namespace NBitcoin.Miniscript
 				errors.Add(new SatisfyError(SatisfyErrorCode.NoAgeProvided, this));
 				return false;
 			}
+			Sequence timelockS = timelock;
+			Sequence ageS = age.Value;
+			if (!ageS.IsRelativeLock)
+			{
+				errors.Add(new SatisfyError(SatisfyErrorCode.RelativeLockTimeDisabled, this));
+				return false;
+			}
+			if (ageS.LockType == SequenceLockType.Time)
+			{
+				errors.Add(new SatisfyError(SatisfyErrorCode.UnSupportedRelativeLockTimeType, this));
+				return false;
+			}
 			if (age >= timelock)
 				return true;
 			else

@@ -57,7 +57,7 @@ namespace NBitcoin.Miniscript
 		public class Time : AbstractPolicy
 		{
 			public UInt32 Item { get; }
-			internal Time(UInt32 item) : base(3) => Item = Item;
+			internal Time(UInt32 item) : base(3) => Item = item;
 		}
 
 		public class Threshold : AbstractPolicy

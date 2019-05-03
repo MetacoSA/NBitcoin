@@ -61,6 +61,9 @@ namespace NBitcoin.Tests
 					}
 				)
 			);
+
+			// Bigger than max possible blocknumber of OP_CSV
+			Assert.Throws<ParseException>(() => MiniscriptDSLParser.DSLParser.Parse($"time(65536)"));
 		}
 
 		[Fact]
@@ -329,6 +332,44 @@ namespace NBitcoin.Tests
 			var dummySig = TransactionSignature.Empty;
 			var dummyPreImage = new uint256();
 			ast.Satisfy(pk => dummySig, _ => dummyPreImage, 65535);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ShouldThrowCorrectErrorWhenSatisfyCSV()
+		{
+			var pk = Keys[0].PubKey;
+			Func<PubKey, TransactionSignature> dummySigProvider =
+				actualPk => actualPk.Equals(pk) ? TransactionSignature.Empty : null;
+			var ms = Miniscript.Miniscript.Parse($"and(time(1000),pk({pk}))");
+
+			// case 1: No Age Provided
+			Assert.False(ms.Ast.TrySatisfy(dummySigProvider, null, null, out var res, out var errors));
+			Assert.Single(errors);
+			Assert.Equal(SatisfyErrorCode.NoAgeProvided, errors[0].Code);
+
+			// case 2: Disabled
+			var seq2 = new Sequence(1000u | Sequence.SEQUENCE_LOCKTIME_DISABLE_FLAG);
+			Assert.False(ms.Ast.TrySatisfy(dummySigProvider, null, seq2, out var res2, out var errors2));
+			Assert.Single(errors2);
+			Assert.Equal(SatisfyErrorCode.RelativeLockTimeDisabled, errors2[0].Code);
+
+			// case 3: Relative locktime by time (Instead of blockheight).
+			var seq3 = new Sequence(Sequence.SEQUENCE_LOCKTIME_TYPE_FLAG | (1500u >> Sequence.SEQUENCE_LOCKTIME_GRANULARITY));
+			Assert.False(ms.Ast.TrySatisfy(dummySigProvider, null, seq3, out var res3, out var errors3));
+			Assert.Single(errors3);
+			Assert.Equal(SatisfyErrorCode.UnSupportedRelativeLockTimeType, errors3[0].Code);
+
+			// case 4: Not satisfied.
+			var seq4 = new Sequence(lockHeight: 999);
+			Assert.False(ms.Ast.TrySatisfy(dummySigProvider, null, seq4, out var res4, out var errors4));
+			Assert.Single(errors4);
+			Assert.Equal(SatisfyErrorCode.LockTimeNotMet, errors4[0].Code);
+
+			// case 5: Successful case.
+			var seq5 = new Sequence(lockHeight: 1000);
+			Assert.True(ms.Ast.TrySatisfy(dummySigProvider, null, seq5, out var res5, out var errors5));
+			Assert.Empty(errors5);
 		}
 
 		[Fact]
