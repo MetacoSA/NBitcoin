@@ -36,12 +36,18 @@ namespace NBitcoin.BuilderExtensions
 			return (int)ms.MaxSatisfactionSize(2);
 		}
 
-		public override Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer, ISha256PreimageRepository preimageRepo)
+		public override Script GenerateScriptSig(
+			Script scriptPubKey,
+			IKeyRepository keyRepo,
+			ISigner signer,
+			ISha256PreimageRepository preimageRepo,
+			Sequence? sequence
+			)
 		{
 			var ms = Miniscript.Miniscript.ParseScript(scriptPubKey);
 			Func<PubKey, TransactionSignature > signatureProvider =
 				(pk) => keyRepo.FindKey(pk.ScriptPubKey) == null ? null : signer.Sign(pk);
-			if(!ms.Ast.TrySatisfy(signatureProvider, preimageRepo.FindPreimage, 65535, out var items, out var _))
+			if(!ms.Ast.TrySatisfy(signatureProvider, preimageRepo.FindPreimage, sequence, out var items, out var _))
 				return null;
 			var ops = new List<Op>();
 			foreach (var i in items)

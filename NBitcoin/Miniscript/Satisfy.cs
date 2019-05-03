@@ -107,16 +107,16 @@ namespace NBitcoin.Miniscript
 					}
 					return false;
 				case AstElem.AndCat self:
-					if (self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
-						return self.Item2.TrySatisfy(signatureProvider, preimageProvider, age, result, errors);
+					if (self.Item2.TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
+						return self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors);
 					return false;
 				case AstElem.AndBool self:
-					if (self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
-						return self.Item2.TrySatisfy(signatureProvider, preimageProvider, age, result, errors);
+					if (self.Item2.TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
+						return self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors);
 					return false;
 				case AstElem.AndCasc self:
-					if (self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
-						return self.Item2.TrySatisfy(signatureProvider, preimageProvider, age, result, errors);
+					if (self.Item2.TrySatisfy(signatureProvider, preimageProvider, age, result, errors))
+						return self.Item1.TrySatisfy(signatureProvider, preimageProvider, age, result, errors);
 					return false;
 				case AstElem.OrBool self:
 					return SatisfyParallelOr(self.Item1, self.Item2, signatureProvider, preimageProvider, age, result, errors);

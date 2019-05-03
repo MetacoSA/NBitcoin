@@ -26,7 +26,7 @@ namespace NBitcoin.Tests.Helpers
 		{
 			yield return RandomCoin(Money.Coins(0.5m), scriptPubKey, true) as ScriptCoin;
 			yield return new ScriptCoin(RandomCoin(Money.Coins(0.5m), scriptPubKey.WitHash), scriptPubKey);
-			yield return new ScriptCoin(RandomCoin(Money.Coins(0.5m), scriptPubKey.Hash.ScriptPubKey.WitHash), scriptPubKey);
+			yield return new ScriptCoin(RandomCoin(Money.Coins(0.5m), scriptPubKey.WitHash.ScriptPubKey.Hash), scriptPubKey);
 		}
 
 		internal static OutPoint RandOutpoint()

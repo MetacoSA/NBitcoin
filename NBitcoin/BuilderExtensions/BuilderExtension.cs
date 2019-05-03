@@ -30,7 +30,7 @@ namespace NBitcoin.BuilderExtensions
 		public static TransactionSignature DummySignature = new TransactionSignature(Encoders.Hex.DecodeData("3045022100b9d685584f46554977343009c04b3091e768c23884fa8d2ce2fb59e5290aa45302203b2d49201c7f695f434a597342eb32dfd81137014fcfb3bb5edc7a19c77774d201"));
 
 		public abstract bool CanGenerateScriptSig(Script scriptPubKey);
-		public abstract Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer, ISha256PreimageRepository preimageRepo);
+		public abstract Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer, ISha256PreimageRepository preimageRepo, Sequence? seq = null);
 
 		public abstract Script DeduceScriptPubKey(Script scriptSig);
 		public abstract bool CanDeduceScriptPubKey(Script scriptSig);

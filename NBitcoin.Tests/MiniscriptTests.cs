@@ -383,10 +383,26 @@ namespace NBitcoin.Tests
 			var builder = Network.CreateTransactionBuilder();
 			var coins = GetRandomCoinsForAllScriptType(Money.Coins(0.5m), ms.Script);
 			builder.AddCoins(coins);
+			builder.SendFees(Money.Coins(0.001m));
 			builder.SendAll(Keys[2]);
-			builder.AddKeys(Keys);
+			builder.AddKeys(Keys[0], Keys[1]);
+			Assert.False(builder.Verify(builder.BuildTransaction(true)));
+			builder.OptInRBF = true;
+			Assert.False(builder.Verify(builder.BuildTransaction(true)));
+			builder.SetRelativeLockTime(99);
+			Assert.False(builder.Verify(builder.BuildTransaction(true)));
+			builder.SetRelativeLockTime(100);
 			var tx = builder.BuildTransaction(true);
-			builder.Verify(tx);
+			Assert.Empty(builder.Check(tx));
+		}
+
+		private TransactionBuilder PrepareBuilder(Script sc)
+		{
+			var builder = Network.CreateTransactionBuilder();
+			var coins = GetRandomCoinsForAllScriptType(Money.Coins(0.5m), sc);
+			return builder.AddCoins(coins)
+				.SendFees(Money.Coins(0.001m))
+				.SendAll(new Key()); // dummy output
 		}
 
 		[Fact]
@@ -401,14 +417,27 @@ namespace NBitcoin.Tests
 			var ms = Miniscript.Miniscript.Parse(dsl);
 			var dummy = Keys[2];
 
-			var builder = Network.CreateTransactionBuilder();
-			var coins = GetRandomCoinsForAllScriptType(Money.Coins(0.5m), ms.Script);
-			builder.AddCoins(coins);
-			builder.AddKeys(Keys);
-			builder.SendAll(dummy);
-			builder.AddPreimages(secret1);
-			var tx = builder.BuildTransaction(true);
-			builder.Verify(tx);
+			// ------ 1: left side of redeem condition. revoking using hash preimage.
+			var builder = PrepareBuilder(ms.Script);
+			builder.AddKeys(Keys[0]);
+			// we have key for left side redeem condition. but no secret.
+			Assert.False(builder.Verify(builder.BuildTransaction(true)));
+			builder.AddPreimages(new uint256(0xdeadbeef111)); // wrong secret.
+			Assert.False(builder.Verify(builder.BuildTransaction(true)));
+			builder.AddPreimages(secret1); // now we have correct secret.
+			Assert.True(builder.Verify(builder.BuildTransaction(true)));
+
+			// --------- 2: right side. revoking after time.
+			var b2 = PrepareBuilder(ms.Script);
+			b2.AddKeys(Keys[1]);
+			// key itself is not enough
+			Assert.False(b2.Verify(b2.BuildTransaction(true)));
+			// Preimage does not help this time.
+			b2.AddPreimages(secret1);
+			Assert.False(b2.Verify(b2.BuildTransaction(true)));
+			// but locktime does.
+			b2.SetRelativeLockTime(10000);
+			Assert.True(b2.Verify(b2.BuildTransaction(true)));
 		}
 	}
 }

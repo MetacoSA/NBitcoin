@@ -688,6 +688,19 @@ namespace NBitcoin
 			return this;
 		}
 
+		Sequence? _Sequence;
+		public TransactionBuilder SetRelativeLockTime(int lockHeight)
+		{
+			_Sequence = new Sequence(lockHeight);
+			return this;
+		}
+
+		public TransactionBuilder SetRelativeLockTime(TimeSpan period)
+		{
+			_Sequence = new Sequence(period);
+			return this;
+		}
+
 		internal List<Key> _Keys = new List<Key>();
 		internal Dictionary<uint256, uint256> _HashPreimages = new Dictionary<uint256, uint256>();
 
@@ -1506,6 +1519,11 @@ namespace NBitcoin
 					input.Sequence = 0;
 					ctx.NonFinalSequenceSet = true;
 				}
+				if (_Sequence != null)
+				{
+					input.Sequence = _Sequence.Value;
+					ctx.Transaction.Version = ctx.Transaction.Version == 1 ? 2 : ctx.Transaction.Version;
+				}
 			}
 			if(MergeOutputs && !hasColoredCoins)
 			{
@@ -2036,8 +2054,8 @@ namespace NBitcoin
 			{
 				if(extension.CanGenerateScriptSig(scriptPubKey))
 				{
-					var scriptSig1 = extension.GenerateScriptSig(scriptPubKey, keyRepo, signer, preimageRepo);
-					var scriptSig2 = extension.GenerateScriptSig(scriptPubKey, signer2, signer2, preimageRepo);
+					var scriptSig1 = extension.GenerateScriptSig(scriptPubKey, keyRepo, signer, preimageRepo, txIn.TxIn.Sequence);
+					var scriptSig2 = extension.GenerateScriptSig(scriptPubKey, signer2, signer2, preimageRepo, txIn.TxIn.Sequence);
 					if(scriptSig1 != null && scriptSig2 != null && extension.CanCombineScriptSig(scriptPubKey, scriptSig1, scriptSig2))
 					{
 						var combined = extension.CombineScriptSig(scriptPubKey, scriptSig1, scriptSig2);
