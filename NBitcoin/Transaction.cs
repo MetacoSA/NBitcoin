@@ -200,7 +200,7 @@ namespace NBitcoin
 
 		public override string ToString()
 		{
-			return $"{Hash}:{N}";
+			return $"{Hash}-{N}";
 		}
 	}
 
