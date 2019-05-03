@@ -25813,6 +25813,51 @@ references:
   isSpec: "True"
   fullName: NBitcoin.JsonConverters.NetworkJsonConverter.WriteJson
   nameWithType: NetworkJsonConverter.WriteJson
+- uid: NBitcoin.JsonConverters.OutpointJsonConverter
+  name: OutpointJsonConverter
+  href: api/NBitcoin.JsonConverters.OutpointJsonConverter.html
+  commentId: T:NBitcoin.JsonConverters.OutpointJsonConverter
+  fullName: NBitcoin.JsonConverters.OutpointJsonConverter
+  nameWithType: OutpointJsonConverter
+- uid: NBitcoin.JsonConverters.OutpointJsonConverter.CanConvert(System.Type)
+  name: CanConvert(Type)
+  href: api/NBitcoin.JsonConverters.OutpointJsonConverter.html#NBitcoin_JsonConverters_OutpointJsonConverter_CanConvert_System_Type_
+  commentId: M:NBitcoin.JsonConverters.OutpointJsonConverter.CanConvert(System.Type)
+  fullName: NBitcoin.JsonConverters.OutpointJsonConverter.CanConvert(System.Type)
+  nameWithType: OutpointJsonConverter.CanConvert(Type)
+- uid: NBitcoin.JsonConverters.OutpointJsonConverter.CanConvert*
+  name: CanConvert
+  href: api/NBitcoin.JsonConverters.OutpointJsonConverter.html#NBitcoin_JsonConverters_OutpointJsonConverter_CanConvert_
+  commentId: Overload:NBitcoin.JsonConverters.OutpointJsonConverter.CanConvert
+  isSpec: "True"
+  fullName: NBitcoin.JsonConverters.OutpointJsonConverter.CanConvert
+  nameWithType: OutpointJsonConverter.CanConvert
+- uid: NBitcoin.JsonConverters.OutpointJsonConverter.ReadJson(Newtonsoft.Json.JsonReader,System.Type,System.Object,Newtonsoft.Json.JsonSerializer)
+  name: ReadJson(JsonReader, Type, Object, JsonSerializer)
+  href: api/NBitcoin.JsonConverters.OutpointJsonConverter.html#NBitcoin_JsonConverters_OutpointJsonConverter_ReadJson_Newtonsoft_Json_JsonReader_System_Type_System_Object_Newtonsoft_Json_JsonSerializer_
+  commentId: M:NBitcoin.JsonConverters.OutpointJsonConverter.ReadJson(Newtonsoft.Json.JsonReader,System.Type,System.Object,Newtonsoft.Json.JsonSerializer)
+  fullName: NBitcoin.JsonConverters.OutpointJsonConverter.ReadJson(Newtonsoft.Json.JsonReader, System.Type, System.Object, Newtonsoft.Json.JsonSerializer)
+  nameWithType: OutpointJsonConverter.ReadJson(JsonReader, Type, Object, JsonSerializer)
+- uid: NBitcoin.JsonConverters.OutpointJsonConverter.ReadJson*
+  name: ReadJson
+  href: api/NBitcoin.JsonConverters.OutpointJsonConverter.html#NBitcoin_JsonConverters_OutpointJsonConverter_ReadJson_
+  commentId: Overload:NBitcoin.JsonConverters.OutpointJsonConverter.ReadJson
+  isSpec: "True"
+  fullName: NBitcoin.JsonConverters.OutpointJsonConverter.ReadJson
+  nameWithType: OutpointJsonConverter.ReadJson
+- uid: NBitcoin.JsonConverters.OutpointJsonConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Object,Newtonsoft.Json.JsonSerializer)
+  name: WriteJson(JsonWriter, Object, JsonSerializer)
+  href: api/NBitcoin.JsonConverters.OutpointJsonConverter.html#NBitcoin_JsonConverters_OutpointJsonConverter_WriteJson_Newtonsoft_Json_JsonWriter_System_Object_Newtonsoft_Json_JsonSerializer_
+  commentId: M:NBitcoin.JsonConverters.OutpointJsonConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Object,Newtonsoft.Json.JsonSerializer)
+  fullName: NBitcoin.JsonConverters.OutpointJsonConverter.WriteJson(Newtonsoft.Json.JsonWriter, System.Object, Newtonsoft.Json.JsonSerializer)
+  nameWithType: OutpointJsonConverter.WriteJson(JsonWriter, Object, JsonSerializer)
+- uid: NBitcoin.JsonConverters.OutpointJsonConverter.WriteJson*
+  name: WriteJson
+  href: api/NBitcoin.JsonConverters.OutpointJsonConverter.html#NBitcoin_JsonConverters_OutpointJsonConverter_WriteJson_
+  commentId: Overload:NBitcoin.JsonConverters.OutpointJsonConverter.WriteJson
+  isSpec: "True"
+  fullName: NBitcoin.JsonConverters.OutpointJsonConverter.WriteJson
+  nameWithType: OutpointJsonConverter.WriteJson
 - uid: NBitcoin.JsonConverters.PSBTJsonConverter
   name: PSBTJsonConverter
   href: api/NBitcoin.JsonConverters.PSBTJsonConverter.html
