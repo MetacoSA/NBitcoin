@@ -326,8 +326,8 @@ namespace NBitcoin.RPC
 			CheckCapabilities(rpc, "estimatesmartfee", v => capabilities.SupportEstimateSmartFee = v),
 			CheckCapabilities(rpc, "generatetoaddress", v => capabilities.SupportGenerateToAddress = v),
 			CheckSegwitCapabilities(rpc, v => capabilities.SupportSegwit = v));
-			await rpc.SendBatchAsync();
-			await waiting;
+			await rpc.SendBatchAsync().ConfigureAwait(false);
+			await waiting.ConfigureAwait(false);
 #if !NETSTANDARD1X
 			Thread.MemoryBarrier();
 #endif
@@ -376,7 +376,7 @@ namespace NBitcoin.RPC
 			}
 			try
 			{
-				var result = await rpc.SendCommandAsync("validateaddress", new[] { address.ToString() });
+				var result = await rpc.SendCommandAsync("validateaddress", new[] { address.ToString() }).ConfigureAwait(false);
 				result.ThrowIfError();
 				setResult(result.Result["isvalid"].Value<bool>());
 			}
@@ -390,7 +390,7 @@ namespace NBitcoin.RPC
 		{
 			try
 			{
-				await command();
+				await command().ConfigureAwait(false);
 				setResult(true);
 			}
 			catch (RPCException ex) when (ex.RPCCode == RPCErrorCode.RPC_METHOD_NOT_FOUND || ex.RPCCode == RPCErrorCode.RPC_METHOD_DEPRECATED)
