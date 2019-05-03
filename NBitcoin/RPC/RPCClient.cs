@@ -1811,8 +1811,19 @@ namespace NBitcoin.RPC
 			}
 			else
 			{
-				var result = (JArray)(await SendCommandAsync(RPCOperations.generate, nBlocks).ConfigureAwait(false)).Result;
-				return result.Select(r => new uint256(r.Value<string>())).ToArray();
+				try
+				{
+					var result = (JArray)(await SendCommandAsync(RPCOperations.generate, nBlocks).ConfigureAwait(false)).Result;
+					return result.Select(r => new uint256(r.Value<string>())).ToArray();
+				}
+				catch (RPCException rpc) when (rpc.RPCCode == RPCErrorCode.RPC_METHOD_DEPRECATED || rpc.RPCCode == RPCErrorCode.RPC_METHOD_NOT_FOUND)
+				{
+					var capabilities = Capabilities ?? new RPCCapabilities();
+					capabilities.SupportGenerateToAddress = true;
+					Capabilities = capabilities;
+					var address = await GetNewAddressAsync();
+					return await GenerateToAddressAsync(nBlocks, address);
+				}
 			}
 		}
 
