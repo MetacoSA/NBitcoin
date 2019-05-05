@@ -31,7 +31,7 @@ namespace NBitcoin.Tests.Generators
 								yield return AbstractPolicy.NewAnd(t.Item1, t.Item2);
 							foreach (var subShrinked in Shrinker(p.Item1).Select(shrinkedItem1 => AbstractPolicy.NewAnd(shrinkedItem1, p.Item2)))
 								yield return subShrinked;
-							foreach (var subShrinked in Shrinker(p.Item2).Select(shrinkedItem2 => AbstractPolicy.NewAnd(shrinkedItem2, p.Item2)))
+							foreach (var subShrinked in Shrinker(p.Item2).Select(shrinkedItem2 => AbstractPolicy.NewAnd(p.Item1, shrinkedItem2)))
 								yield return subShrinked;
 							break;
 						}
@@ -43,7 +43,7 @@ namespace NBitcoin.Tests.Generators
 								yield return AbstractPolicy.NewOr(t.Item1, t.Item2);
 							foreach (var subShrinked in Shrinker(p.Item1).Select(shrinkedItem1 => AbstractPolicy.NewOr(shrinkedItem1, p.Item2)))
 								yield return subShrinked;
-							foreach (var subShrinked in Shrinker(p.Item2).Select(shrinkedItem2 => AbstractPolicy.NewOr(shrinkedItem2, p.Item2)))
+							foreach (var subShrinked in Shrinker(p.Item2).Select(shrinkedItem2 => AbstractPolicy.NewOr(p.Item1, shrinkedItem2)))
 								yield return subShrinked;
 							break;
 						}
@@ -55,7 +55,7 @@ namespace NBitcoin.Tests.Generators
 								yield return AbstractPolicy.NewAsymmetricOr(t.Item1, t.Item2);
 							foreach (var subShrinked in Shrinker(p.Item1).Select(shrinkedItem1 => AbstractPolicy.NewAsymmetricOr(shrinkedItem1, p.Item2)))
 								yield return subShrinked;
-							foreach (var subShrinked in Shrinker(p.Item2).Select(shrinkedItem2 => AbstractPolicy.NewAsymmetricOr(shrinkedItem2, p.Item2)))
+							foreach (var subShrinked in Shrinker(p.Item2).Select(shrinkedItem2 => AbstractPolicy.NewAsymmetricOr(p.Item1, shrinkedItem2)))
 								yield return subShrinked;
 							break;
 						}
@@ -65,13 +65,22 @@ namespace NBitcoin.Tests.Generators
 							{
 								yield return subP;
 							}
+							foreach (var i in Arb.Shrink(p.Item2).Select(subs => subs.Select(sub => Shrinker(sub))))
+							{
+								foreach (var i2 in i)
+								{
+									if (1 < i2.Count())
+										yield return AbstractPolicy.NewThreshold(1, i2.ToArray());
+								}
+							}
+
 							if (p.Item2.Length == 2)
 								yield break;
+
 							foreach (var i in Arb.Shrink(p.Item2))
 							{
-								var i2 = i.Where(sub => !sub.IsThreshold() && !sub.IsAnd() && !sub.IsOr() && !sub.IsAnd()).ToArray();
-								if (1 < i2.Length)
-									yield return AbstractPolicy.NewThreshold(1, i2);
+								if (1 < i.Length)
+									yield return AbstractPolicy.NewThreshold(1, i);
 							}
 							yield break;
 						}
@@ -80,6 +89,11 @@ namespace NBitcoin.Tests.Generators
 							yield return AbstractPolicy.NewCheckSig(p.Item2[0]);
 							if (p.Item2.Length > 2)
 								yield return AbstractPolicy.NewMulti(2, p.Item2.Take(2).ToArray());
+							foreach (var i in Arb.Shrink(p.Item2))
+							{
+								if (i.Length > 2)
+									yield return AbstractPolicy.NewMulti(2, i.ToArray());
+							}
 							break;
 						}
 					default:
