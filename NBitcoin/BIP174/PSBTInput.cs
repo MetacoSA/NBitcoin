@@ -468,16 +468,15 @@ namespace NBitcoin
 			}
 			return errors;
 		}
-
 		public void TrySign(ExtKey masterKey, SigHash sigHash = SigHash.All)
+		{
+			TrySign(masterKey as IHDKey, sigHash);
+		}
+		internal void TrySign(IHDKey masterKey, SigHash sigHash = SigHash.All)
 		{
 			if (masterKey == null)
 				throw new ArgumentNullException(nameof(masterKey));
-			TrySign(masterKey, sigHash, new DerivationCache(masterKey));
-		}
-
-		internal void TrySign(ExtKey masterKey, SigHash sigHash, DerivationCache derivation)
-		{
+			var cache = masterKey.AsHDKeyCache();
 			foreach (var hdk in HDKeyPaths)
 			{
 				var pubkey = hdk.Key;
@@ -485,7 +484,7 @@ namespace NBitcoin
 				var fp = hdk.Value.Item1;
 
 				if ((fp == masterKey.GetPublicKey().GetHDFingerPrint() || fp == default) &&
-					(derivation.Derive(keyPath) is ExtKey k && k.GetPublicKey() == pubkey))
+					(((HDKeyCache)cache.Derive(keyPath)).Inner is ExtKey k && k.GetPublicKey() == pubkey))
 				{
 					Sign(k.PrivateKey, sigHash);
 				}

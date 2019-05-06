@@ -486,10 +486,10 @@ namespace NBitcoin
 		{
 			if (masterKey == null)
 				throw new ArgumentNullException(nameof(masterKey));
-			DerivationCache derivation = new DerivationCache(masterKey);
+			var cache = masterKey.AsHDKeyCache();
 			foreach (var o in Inputs)
 			{
-				o.TrySign(masterKey, sigHash, derivation);
+				o.TrySign(cache, sigHash);
 			}
 			return this;
 		}
@@ -790,7 +790,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(masterKey));
 			var masterFP = masterKey.GetPublicKey().GetHDFingerPrint();
 			Money total = Money.Zero;
-			DerivationCache derivationCache = new DerivationCache(masterKey);
+			masterKey = masterKey.AsHDKeyCache();
 			foreach (var o in Inputs.OfType<PSBTCoin>().Concat(Outputs))
 			{
 				var amount = o.GetCoin()?.Amount;
@@ -805,7 +805,7 @@ namespace NBitcoin
 					var fp = hdk.Value.Item1;
 
 					if ((fp == masterKey.GetPublicKey().GetHDFingerPrint() || fp == default) &&
-						(derivationCache.Derive(keyPath).GetPublicKey() == pubkey))
+						(masterKey.Derive(keyPath).GetPublicKey() == pubkey))
 					{
 						total += amount;
 					}
@@ -838,10 +838,10 @@ namespace NBitcoin
 			if (paths == null)
 				throw new ArgumentNullException(nameof(paths));
 
-			DerivationCache derivationCache = new DerivationCache(masterKey);
+			masterKey = masterKey.AsHDKeyCache();
 			foreach (var path in paths)
 			{
-				var key = derivationCache.Derive(path.Item1);
+				var key = masterKey.Derive(path.Item1);
 				AddKeyPath(masterKey.GetPublicKey().GetHDFingerPrint(), key.GetPublicKey(), path.Item1, path.Item2);
 			}
 			return this;

@@ -23,6 +23,35 @@ namespace NBitcoin
 {
 	public static class Extensions
 	{
+		/// <summary>
+		/// Deriving an HDKey is normally time consuming, this wrap the IHDKey in a new HD object which can cache derivations
+		/// </summary>
+		/// <param name="hdkey">The hdKey to wrap</param>
+		/// <returns>An hdkey which cache derivations, of the parameter if it is already itself a cache</returns>
+		public static IHDKey AsHDKeyCache(this IHDKey hdkey)
+		{
+			if (hdkey == null)
+				throw new ArgumentNullException(nameof(hdkey));
+			if (hdkey is HDKeyCache c)
+				return c;
+			return new HDKeyCache(hdkey);
+		}
+
+		public static IHDKey Derive(this IHDKey hdkey, KeyPath keyPath)
+		{
+			if (hdkey == null)
+				throw new ArgumentNullException(nameof(hdkey));
+			if (keyPath == null)
+				throw new ArgumentNullException(nameof(keyPath));
+			if (keyPath.Indexes.Length == 0)
+				return hdkey;
+			var key = hdkey;
+			foreach (var index in keyPath.Indexes)
+			{
+				key = key.Derive(index);
+			}
+			return key;
+		}
 		public static async Task WithCancellation(this Task task, CancellationToken cancellationToken)
 		{
 			using (var delayCTS = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))

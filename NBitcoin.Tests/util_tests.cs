@@ -642,6 +642,31 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanUseHDCache()
+		{
+			var k = new ExtKey();
+			var cache = k.AsHDKeyCache();
+			var actual = cache.Derive(0);
+			var expected = k.Derive(0);
+			Assert.Equal(expected.GetPublicKey(), actual.GetPublicKey());
+			actual = cache.Derive(0);
+			Assert.Equal(expected.GetPublicKey(), actual.GetPublicKey());
+
+			actual = actual.Derive(0);
+			expected = k.Derive(new KeyPath("0/0"));
+			Assert.Equal(expected.GetPublicKey(), actual.GetPublicKey());
+
+			actual = k.AsHDKeyCache().Derive(new KeyPath("0/0"));
+			expected = k.Derive(new KeyPath("0/0"));
+			Assert.Equal(expected.GetPublicKey(), actual.GetPublicKey());
+
+			actual = actual.Derive(new KeyPath("0/0"));
+			expected = k.Derive(new KeyPath("0/0/0/0"));
+			Assert.Equal(expected.GetPublicKey(), actual.GetPublicKey());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertBigIntegerToBytes()
 		{
 			CanConvertBigIntegerToBytesCore(BigInteger.Zero, new byte[0]);
