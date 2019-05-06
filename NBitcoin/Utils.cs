@@ -52,6 +52,13 @@ namespace NBitcoin
 			}
 			return key;
 		}
+
+		/// <summary>
+		/// Derive keyPaths as fast as possible using caching and parallelism
+		/// </summary>
+		/// <param name="hdkey">The hdKey to derive</param>
+		/// <param name="keyPaths">keyPaths to derive</param>
+		/// <returns>An array of keyPaths.Length size with the derived keys</returns>
 		public static IHDKey[] Derive(this IHDKey hdkey, KeyPath[] keyPaths)
 		{
 			if (hdkey == null)
@@ -60,10 +67,17 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(keyPaths));
 			var result = new IHDKey[keyPaths.Length];
 			var cache = (HDKeyCache)hdkey.AsHDKeyCache();
+#if !NOPARALLEL
 			Parallel.For(0, keyPaths.Length, i =>
 			{
 				result[i] = hdkey.Derive(keyPaths[i]);
 			});
+#else
+			for (int i = 0; i < keyPaths.Length; i++)
+			{
+				result[i] = hdkey.Derive(keyPaths[i]);
+			}
+#endif
 			return result;
 		}
 		public static async Task WithCancellation(this Task task, CancellationToken cancellationToken)
