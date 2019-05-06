@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,7 +9,7 @@ namespace NBitcoin
 	{
 		private readonly IHDKey hdKey;
 		private readonly KeyPath _PathFromRoot;
-		readonly Dictionary<KeyPath, IHDKey> derivationCache;
+		private readonly ConcurrentDictionary<KeyPath, IHDKey> derivationCache;
 		public IHDKey Inner
 		{
 			get
@@ -20,9 +21,9 @@ namespace NBitcoin
 		{
 			this.hdKey = masterKey;
 			_PathFromRoot = new KeyPath();
-			derivationCache = new Dictionary<KeyPath, IHDKey>();
+			derivationCache = new ConcurrentDictionary<KeyPath, IHDKey>();
 		}
-		HDKeyCache(IHDKey hdKey, KeyPath childPath, Dictionary<KeyPath, IHDKey> cache)
+		HDKeyCache(IHDKey hdKey, KeyPath childPath, ConcurrentDictionary<KeyPath, IHDKey> cache)
 		{
 			this.derivationCache = cache;
 			_PathFromRoot = childPath;
@@ -31,26 +32,12 @@ namespace NBitcoin
 
 		public IHDKey Derive(uint index)
 		{
-			var key = hdKey;
 			var childPath = _PathFromRoot.Derive(index);
-			System.Threading.Monitor.Enter(derivationCache);
-			if (derivationCache.TryGetValue(childPath, out var cachedKey))
-			{
-				System.Threading.Monitor.Exit(derivationCache);
-				key = cachedKey;
-			}
-			else
-			{
-				System.Threading.Monitor.Exit(derivationCache);
-				key = key.Derive(index);
-				lock (derivationCache)
-				{
-					if (derivationCache.Count < 256)
-						derivationCache.Add(childPath, key);
-				}
-			}
+			var key = derivationCache.GetOrAdd(childPath, _ => hdKey.Derive(index));
 			return new HDKeyCache(key, childPath, derivationCache);
 		}
+
+		internal int Cached => derivationCache.Count;
 
 		public PubKey GetPublicKey()
 		{

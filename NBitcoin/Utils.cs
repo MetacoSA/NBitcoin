@@ -52,6 +52,20 @@ namespace NBitcoin
 			}
 			return key;
 		}
+		public static IHDKey[] Derive(this IHDKey hdkey, KeyPath[] keyPaths)
+		{
+			if (hdkey == null)
+				throw new ArgumentNullException(nameof(hdkey));
+			if (keyPaths == null)
+				throw new ArgumentNullException(nameof(keyPaths));
+			var result = new IHDKey[keyPaths.Length];
+			var cache = (HDKeyCache)hdkey.AsHDKeyCache();
+			Parallel.For(0, keyPaths.Length, i =>
+			{
+				result[i] = hdkey.Derive(keyPaths[i]);
+			});
+			return result;
+		}
 		public static async Task WithCancellation(this Task task, CancellationToken cancellationToken)
 		{
 			using (var delayCTS = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))

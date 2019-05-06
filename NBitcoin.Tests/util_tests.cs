@@ -645,7 +645,7 @@ namespace NBitcoin.Tests
 		public void CanUseHDCache()
 		{
 			var k = new ExtKey();
-			var cache = k.AsHDKeyCache();
+			var cache = (HDKeyCache)k.AsHDKeyCache();
 			var actual = cache.Derive(0);
 			var expected = k.Derive(0);
 			Assert.Equal(expected.GetPublicKey(), actual.GetPublicKey());
@@ -663,6 +663,14 @@ namespace NBitcoin.Tests
 			actual = actual.Derive(new KeyPath("0/0"));
 			expected = k.Derive(new KeyPath("0/0/0/0"));
 			Assert.Equal(expected.GetPublicKey(), actual.GetPublicKey());
+
+
+			var baseKeyPath = new KeyPath("0/0/0/0/1/2/3/4");
+			var keypaths = Enumerable.Range(0, 20).Select(i => baseKeyPath.Derive((uint)i)).ToArray();
+			cache = (HDKeyCache)k.AsHDKeyCache();
+			var result = cache.Derive(keypaths);
+			Assert.Equal(k.Derive(baseKeyPath.Derive(19U)).GetPublicKey(), result[19].GetPublicKey());
+			Assert.Equal(8 + 20, cache.Cached);
 		}
 
 		[Fact]
