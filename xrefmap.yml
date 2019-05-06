@@ -21715,6 +21715,41 @@ references:
   fullName.vb: NBitcoin.Extensions.AddOrReplace(Of TKey, TValue)(System.Collections.Generic.IDictionary(Of TKey, TValue), TKey, TValue)
   nameWithType: Extensions.AddOrReplace<TKey, TValue>(IDictionary<TKey, TValue>, TKey, TValue)
   nameWithType.vb: Extensions.AddOrReplace(Of TKey, TValue)(IDictionary(Of TKey, TValue), TKey, TValue)
+- uid: NBitcoin.Extensions.AsHDKeyCache(NBitcoin.IHDKey)
+  name: AsHDKeyCache(IHDKey)
+  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_AsHDKeyCache_NBitcoin_IHDKey_
+  commentId: M:NBitcoin.Extensions.AsHDKeyCache(NBitcoin.IHDKey)
+  fullName: NBitcoin.Extensions.AsHDKeyCache(NBitcoin.IHDKey)
+  nameWithType: Extensions.AsHDKeyCache(IHDKey)
+- uid: NBitcoin.Extensions.AsHDKeyCache*
+  name: AsHDKeyCache
+  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_AsHDKeyCache_
+  commentId: Overload:NBitcoin.Extensions.AsHDKeyCache
+  isSpec: "True"
+  fullName: NBitcoin.Extensions.AsHDKeyCache
+  nameWithType: Extensions.AsHDKeyCache
+- uid: NBitcoin.Extensions.Derive(NBitcoin.IHDKey,NBitcoin.KeyPath)
+  name: Derive(IHDKey, KeyPath)
+  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_Derive_NBitcoin_IHDKey_NBitcoin_KeyPath_
+  commentId: M:NBitcoin.Extensions.Derive(NBitcoin.IHDKey,NBitcoin.KeyPath)
+  fullName: NBitcoin.Extensions.Derive(NBitcoin.IHDKey, NBitcoin.KeyPath)
+  nameWithType: Extensions.Derive(IHDKey, KeyPath)
+- uid: NBitcoin.Extensions.Derive(NBitcoin.IHDKey,NBitcoin.KeyPath[])
+  name: Derive(IHDKey, KeyPath[])
+  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_Derive_NBitcoin_IHDKey_NBitcoin_KeyPath___
+  commentId: M:NBitcoin.Extensions.Derive(NBitcoin.IHDKey,NBitcoin.KeyPath[])
+  name.vb: Derive(IHDKey, KeyPath())
+  fullName: NBitcoin.Extensions.Derive(NBitcoin.IHDKey, NBitcoin.KeyPath[])
+  fullName.vb: NBitcoin.Extensions.Derive(NBitcoin.IHDKey, NBitcoin.KeyPath())
+  nameWithType: Extensions.Derive(IHDKey, KeyPath[])
+  nameWithType.vb: Extensions.Derive(IHDKey, KeyPath())
+- uid: NBitcoin.Extensions.Derive*
+  name: Derive
+  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_Derive_
+  commentId: Overload:NBitcoin.Extensions.Derive
+  isSpec: "True"
+  fullName: NBitcoin.Extensions.Derive
+  nameWithType: Extensions.Derive
 - uid: NBitcoin.Extensions.GetBlock(NBitcoin.IBlockRepository,NBitcoin.uint256)
   name: GetBlock(IBlockRepository, uint256)
   href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_GetBlock_NBitcoin_IBlockRepository_NBitcoin_uint256_
