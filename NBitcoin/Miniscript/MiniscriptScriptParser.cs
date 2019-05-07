@@ -208,16 +208,24 @@ namespace NBitcoin.Miniscript
 				from e in ParseShortestE
 				select AstElem.NewAndCasc(e, f);
 
-		internal static readonly P POrIfOfFE =
+		internal static readonly P POrIfOfEF =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
-				from r in Parse.Ref(() => PF).Or(ParseShortestE)
+				from r in Parse.Ref(() => PE)
 				from _2 in Parse.ScriptToken(ScriptToken.Else)
-				from l in ParseShortestE
+				from l in Parse.Ref(() => PF)
+				from _3 in Parse.ScriptToken(ScriptToken.If)
+				select AstElem.NewOrIf(l, r);
+
+		internal static readonly P POrIfOfF =
+				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
+				from r in Parse.Ref(() => PF)
+				from _2 in Parse.ScriptToken(ScriptToken.Else)
+				from l in Parse.Ref(() => PF)
 				from _3 in Parse.ScriptToken(ScriptToken.If)
 				select AstElem.NewOrIf(l, r);
 		internal static readonly P POrNotIf =
 				from _1 in Parse.ScriptToken(ScriptToken.EndIf)
-				from er in ParseShortestE
+				from er in Parse.Ref(() => PE)
 				from _2 in Parse.ScriptToken(ScriptToken.Else)
 				from fl in Parse.Ref(() => PF)
 				from _3 in Parse.ScriptToken(ScriptToken.NotIf)
@@ -297,7 +305,7 @@ namespace NBitcoin.Miniscript
 				where expr.IsV()
 				select expr;
 
-		private static readonly P PT =
+		internal static readonly P PT =
 				from expr in Parse.Ref(() => PAstElem)
 				where expr.IsT()
 				select expr;
@@ -314,6 +322,7 @@ namespace NBitcoin.Miniscript
 					.Or(POrBool)
 					.Or(PHashT)
 					.Or(PThresh)
+					.Or(PHashV)
 					.Or(PThreshV)
 					.Or(PPkW)
 					.Or(PPk)
@@ -330,16 +339,18 @@ namespace NBitcoin.Miniscript
 					.Or(PTime)
 					.Or(PUnlikely)
 					.Or(PLikely)
+					.Or(POrIfOfQ)
 					.Or(PHashW)
 					.Or(PAndCasc)
-					.Or(POrIfOfQ.Or(POrIfOfV).Or(POrIfOfT))
-					.Or(POrCont)
-					.Or(POrCasc)
-					.Or(POrIfOfFE)
+					.Or(POrIfOfF)
+					.Or(POrIfOfEF)
 					.Or(POrNotIf)
+					.Or(POrIfOfV)
+					.Or(POrCont)
+					.Or(POrIfOfT)
+					.Or(POrCasc)
 					.Or(POrIfV)
 					.Or(PTrue)
-					.Or(PHashV)
 					.Or(PPkQ);
 
 		private static P PostProcess(AstElem ast)

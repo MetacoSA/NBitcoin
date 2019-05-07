@@ -180,7 +180,7 @@ namespace NBitcoin.Miniscript
 					retOrCasc.AddRange(Dissatisfy(self.Item1));
 					return retOrCasc;
 				case AstElem.OrIf self:
-					var retOrIf = Dissatisfy(self.Item1);
+					var retOrIf = Dissatisfy(self.Item2);
 					retOrIf.Add(new byte[0]);
 					return retOrIf;
 				case AstElem.OrNotIf self:

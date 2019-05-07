@@ -153,10 +153,12 @@ namespace NBitcoin.Tests
 			var sc2 = new Script("0 OP_CSV");
 			var ast2 = AstElem.NewTimeT(0);
 			DeserializationTestCore(sc2, ast2);
+			Assert.True(ast2.IsT());
 
 			// or_if(t.time(0), t.time(0))
 			var sc3 = new Script("OP_IF 0 OP_CSV OP_ELSE 0 OP_CSV OP_ENDIF");
 			var ast3 = AstElem.NewOrIf(AstElem.NewTimeT(0), AstElem.NewTimeT(0));
+			MiniscriptScriptParser.POrIfOfT.Parse(sc3);
 			DeserializationTestCore(sc3, ast3);
 
 			var sc4 = new Script("OP_DUP OP_IF 0 OP_CSV OP_DROP OP_ENDIF OP_SWAP 0209518deb4a2e7e0db86c611e4bbe4f8a6236478e8af5ac0e10cbc543dab2cfaf OP_CHECKSIG OP_ADD 1 OP_EQUAL");
@@ -253,16 +255,6 @@ namespace NBitcoin.Tests
 				);
 			DeserializationTestCore(sc13, ast13);
 		}
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void ScriptDeserializationTest3()
-		{
-			var item = uint256.Parse("0xbcf07a5893c7512fb9f4280690cbffdd6745d6b43e1c578b15f32e62ecca5439");
-			var sc14 = new Script($"OP_IF OP_DUP OP_IF 0 OP_CSV OP_DROP OP_ENDIF OP_ELSE OP_SIZE 20 OP_EQUALVERIFY OP_SHA256 {item} OP_EQUALVERIFY 1 OP_ENDIF");
-			var ast14 = AstElem.NewOrIf(AstElem.NewTime(0), AstElem.NewTrue(AstElem.NewHashV(item)));
-			MiniscriptScriptParser.POrIfOfFE.Parse(sc14);
-			DeserializationTestCore(sc14, ast14);
-		}
 
 		private void DeserializationTestCore(Script sc, AstElem ast)
 		{
@@ -294,6 +286,10 @@ namespace NBitcoin.Tests
 		public void ShouldDeserializeScriptOriginatesFromMiniscriptToOrigin(AbstractPolicy policy)
 			=> DeserializationTestCore(policy);
 
+
+		[Trait("PropertyTest", "BidirectionalConversion")]
+		public void ShouldDeserializeScriptOriginatesFromMiniscript(AbstractPolicy policy)
+			=> DeserializationTestCore(policy, false);
 
 		[Property]
 		[Trait("PropertyTest", "BidirectionalConversion")]

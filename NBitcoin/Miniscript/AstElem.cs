@@ -302,7 +302,7 @@ namespace NBitcoin.Miniscript
 					(item1.IsF() && item2.IsF()) ||
 					(item1.IsV() && item2.IsV()) ||
 					(item1.IsQ() && item2.IsQ()) ||
-					(item1.IsE() && item2.IsF())
+					(item1.IsF() && item2.IsE())
 					)
 				{
 					Item1 = item1;
@@ -822,8 +822,8 @@ namespace NBitcoin.Miniscript
 					return ((OrKey)this).Item1.IsQ() &&
 						((OrKey)this).Item2.IsQ();
 				case Tags.OrIf:
-					return ((OrIf)this).Item1.IsE() &&
-						((OrIf)this).Item2.IsF();
+					return ((OrIf)this).Item1.IsF() &&
+						((OrIf)this).Item2.IsE();
 				case Tags.OrNotIf:
 					return ((OrNotIf)this).Item1.IsF() &&
 						((OrNotIf)this).Item2.IsE();

@@ -79,6 +79,8 @@ namespace NBitcoin.Miniscript
 
 					var lf = c.Item1.BestF(pSat, pDissat);
 					var rf = c.Item2.BestF(pSat, pDissat);
+					var lv = c.Item1.BestV(pSat, 0.0);
+					var rv = c.Item2.BestV(pSat, 0.0);
 					var andRet = MinCostOf(
 						pSat, pDissat, 0.5, 0.5,
 						new CostCalculationInfo[]
@@ -87,6 +89,8 @@ namespace NBitcoin.Miniscript
 								Tuple.Create(CalcType.Base, AstElem.Tags.AndCasc, le, rf),
 								Tuple.Create(CalcType.BaseSwap, AstElem.Tags.AndBool, re, lw),
 								Tuple.Create(CalcType.BaseSwap, AstElem.Tags.AndCasc, re, lf),
+								Tuple.Create(CalcType.Cond, AstElem.Tags.AndCat, lv, rf),
+								Tuple.Create(CalcType.CondSwap, AstElem.Tags.AndCat, rv, lf)
 							}
 						);
 					BestEMap.Add(hashKey, andRet);
@@ -114,11 +118,11 @@ namespace NBitcoin.Miniscript
 					var orRet = MinCostOf(pSat, pDissat, lweight, rweight, new CostCalculationInfo[]{
 							Tuple.Create(CalcType.Base, AstElem.Tags.OrBool, lePar, rwPar),
 							Tuple.Create(CalcType.Base, AstElem.Tags.OrCasc, lePar, reCas),
-							Tuple.Create(CalcType.Base, AstElem.Tags.OrIf, reCas, lf2),
+							Tuple.Create(CalcType.Base, AstElem.Tags.OrIf, lf2, reCas),
 							Tuple.Create(CalcType.Base, AstElem.Tags.OrNotIf, lf2, reCas),
 							Tuple.Create(CalcType.BaseSwap, AstElem.Tags.OrBool, rePar, lwPar),
 							Tuple.Create(CalcType.BaseSwap, AstElem.Tags.OrCasc, rePar, leCas),
-							Tuple.Create(CalcType.BaseSwap, AstElem.Tags.OrIf, leCas, rf2),
+							Tuple.Create(CalcType.BaseSwap, AstElem.Tags.OrIf, rf2, leCas),
 							Tuple.Create(CalcType.BaseSwap, AstElem.Tags.OrNotIf, rf2, leCas),
 							Tuple.Create(CalcType.Cond, AstElem.Tags.OrCont, leCondPar, rv2),
 							Tuple.Create(CalcType.Cond, AstElem.Tags.OrIf, lf2, rf2),
