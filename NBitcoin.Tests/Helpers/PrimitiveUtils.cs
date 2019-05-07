@@ -22,11 +22,13 @@ namespace NBitcoin.Tests.Helpers
 			return new Coin(outpoint, new TxOut(amount, receiver));
 		}
 
-		internal static IEnumerable<ScriptCoin> GetRandomCoinsForAllScriptType(Money amount, Script scriptPubKey)
+		internal static List<ScriptCoin> GetRandomCoinsForAllScriptType(Money amount, Script scriptPubKey)
 		{
-			yield return RandomCoin(Money.Coins(0.5m), scriptPubKey, true) as ScriptCoin;
-			yield return new ScriptCoin(RandomCoin(Money.Coins(0.5m), scriptPubKey.WitHash), scriptPubKey);
-			yield return new ScriptCoin(RandomCoin(Money.Coins(0.5m), scriptPubKey.WitHash.ScriptPubKey.Hash), scriptPubKey);
+			return new List<ScriptCoin> {
+				RandomCoin(Money.Coins(0.5m), scriptPubKey, true) as ScriptCoin,
+				new ScriptCoin(RandomCoin(Money.Coins(0.5m), scriptPubKey.WitHash), scriptPubKey),
+				new ScriptCoin(RandomCoin(Money.Coins(0.5m), scriptPubKey.WitHash.ScriptPubKey.Hash), scriptPubKey)
+			};
 		}
 
 		internal static OutPoint RandOutpoint()

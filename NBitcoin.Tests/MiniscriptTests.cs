@@ -7,6 +7,7 @@ using NBitcoin.Tests.Generators;
 using System;
 using static NBitcoin.Tests.Helpers.PrimitiveUtils;
 using NBitcoin.Crypto;
+using System.Collections.Generic;
 
 namespace NBitcoin.Tests
 {
@@ -389,20 +390,21 @@ namespace NBitcoin.Tests
 			Assert.False(builder.Verify(builder.BuildTransaction(true)));
 			builder.OptInRBF = true;
 			Assert.False(builder.Verify(builder.BuildTransaction(true)));
-			builder.SetRelativeLockTime(99);
+			builder.SetRelativeLockTimeTo(coins, 99);
 			Assert.False(builder.Verify(builder.BuildTransaction(true)));
-			builder.SetRelativeLockTime(100);
+			builder.SetRelativeLockTimeTo(coins, 100);
 			var tx = builder.BuildTransaction(true);
 			Assert.Empty(builder.Check(tx));
 		}
 
-		private TransactionBuilder PrepareBuilder(Script sc)
+		private Tuple<TransactionBuilder, List<ScriptCoin>> PrepareBuilder(Script sc)
 		{
 			var builder = Network.CreateTransactionBuilder();
 			var coins = GetRandomCoinsForAllScriptType(Money.Coins(0.5m), sc);
-			return builder.AddCoins(coins)
+			builder.AddCoins(coins)
 				.SendFees(Money.Coins(0.001m))
 				.SendAll(new Key()); // dummy output
+			return Tuple.Create(builder, coins);
 		}
 
 		[Fact]
@@ -418,7 +420,8 @@ namespace NBitcoin.Tests
 			var dummy = Keys[2];
 
 			// ------ 1: left side of redeem condition. revoking using hash preimage.
-			var builder = PrepareBuilder(ms.Script);
+			var t = PrepareBuilder(ms.Script);
+			var builder = t.Item1;
 			builder.AddKeys(Keys[0]);
 			// we have key for left side redeem condition. but no secret.
 			Assert.False(builder.Verify(builder.BuildTransaction(true)));
@@ -428,7 +431,9 @@ namespace NBitcoin.Tests
 			Assert.True(builder.Verify(builder.BuildTransaction(true)));
 
 			// --------- 2: right side. revoking after time.
-			var b2 = PrepareBuilder(ms.Script);
+			var t2 = PrepareBuilder(ms.Script);
+			var b2 = t2.Item1;
+			var coins = t2.Item2;
 			b2.AddKeys(Keys[1]);
 			// key itself is not enough
 			Assert.False(b2.Verify(b2.BuildTransaction(true)));
@@ -436,7 +441,7 @@ namespace NBitcoin.Tests
 			b2.AddPreimages(secret1);
 			Assert.False(b2.Verify(b2.BuildTransaction(true)));
 			// but locktime does.
-			b2.SetRelativeLockTime(10000);
+			b2.SetRelativeLockTimeTo(coins, 10000);
 			Assert.True(b2.Verify(b2.BuildTransaction(true)));
 		}
 	}

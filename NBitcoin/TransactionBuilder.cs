@@ -688,16 +688,31 @@ namespace NBitcoin
 			return this;
 		}
 
-		Sequence? _Sequence;
-		public TransactionBuilder SetRelativeLockTime(int lockHeight)
+		Dictionary<OutPoint, Sequence> _SequenceDict = new Dictionary<OutPoint, Sequence>();
+
+		public TransactionBuilder SetRelativeLockTimeTo(IEnumerable<ICoin> whichCoins, int lockHeight)
 		{
-			_Sequence = new Sequence(lockHeight);
+			foreach (var coin in whichCoins)
+				SetRelativeLockTimeTo(coin, lockHeight);
 			return this;
 		}
 
-		public TransactionBuilder SetRelativeLockTime(TimeSpan period)
+		public TransactionBuilder SetRelativeLockTimeTo(IEnumerable<ICoin> whichCoins, TimeSpan period)
 		{
-			_Sequence = new Sequence(period);
+			foreach (var coin in whichCoins)
+				SetRelativeLockTimeTo(coin, period);
+			return this;
+		}
+
+		public TransactionBuilder SetRelativeLockTimeTo(ICoin whichCoin, int lockHeight)
+			=> SetSequenceTo(whichCoin, new Sequence(lockHeight));
+
+		public TransactionBuilder SetRelativeLockTimeTo(ICoin whichCoin, TimeSpan period)
+			=> SetSequenceTo(whichCoin, new Sequence(period));
+
+		private TransactionBuilder SetSequenceTo(ICoin whichCoin, Sequence sequence)
+		{
+			_SequenceDict.AddOrReplace(whichCoin.Outpoint, sequence);
 			return this;
 		}
 
@@ -1519,10 +1534,12 @@ namespace NBitcoin
 					input.Sequence = 0;
 					ctx.NonFinalSequenceSet = true;
 				}
-				if (_Sequence != null)
+				if (_SequenceDict.TryGetValue(coin.Outpoint, out var sequence))
 				{
-					input.Sequence = _Sequence.Value;
-					ctx.Transaction.Version = ctx.Transaction.Version == 1 ? 2 : ctx.Transaction.Version;
+					input.Sequence = sequence;
+					if (ctx.Transaction.Version == 1)
+						ctx.Transaction.Version = 2;
+					ctx.NonFinalSequenceSet = true;
 				}
 			}
 			if(MergeOutputs && !hasColoredCoins)
