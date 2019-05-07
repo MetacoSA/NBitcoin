@@ -44,7 +44,7 @@ namespace NBitcoin.Miniscript
 				from ws in
 					(Parse.ScriptToken(ScriptToken.Add).Then(_ => Parse.Ref(() => PW))).AtLeastOnce()
 				from e in Parse.Ref(() => ParseShortestE).Once()
-				select e.Concat(ws).ToArray();
+				select e.Concat(ws.Reverse()).ToArray();
 		internal static readonly P PThresh =
 				from _ in Parse.ScriptToken(ScriptToken.Equal)
 				from num in PNumber
@@ -385,6 +385,6 @@ namespace NBitcoin.Miniscript
 			PAstElemCore.Bind(ast => Parse.Ref(() => PostProcess(ast)));
 
 		public static AstElem ParseScript(Script sc)
-			=> PAstElem.Parse(sc);
+			=> PT.Parse(sc);
 	}
 }

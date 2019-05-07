@@ -48,6 +48,8 @@ namespace NBitcoin.Miniscript
 		{
 			if (astElem == null)
 				throw new System.ArgumentNullException(nameof(astElem));
+			if (!astElem.IsT())
+				throw new ArgumentException($"AstElem is not TopLevel expression! AstElem: {astElem}");
 			Policy = astElem.ToPolicy();
 			ast = astElem;
 		}
