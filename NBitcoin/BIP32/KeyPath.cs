@@ -30,6 +30,26 @@ namespace NBitcoin
 			return new KeyPath(parts);
 		}
 
+		/// <summary>
+		/// Try Parse a KeyPath
+		/// </summary>
+		/// <param name="path">The KeyPath formated like 10/0/2'/3</param>
+		/// <param name="keyPath">The successfully parsed Key path</param>
+		/// <returns>True if the string is parsed ssuccessfully; otherwise false</returns>
+		public static bool TryParse(string path, out KeyPath keyPath)
+		{
+			try
+			{
+				keyPath = Parse(path);
+				return true;
+			}
+			catch(Exception)
+			{
+			}
+			keyPath = null;
+			return false;
+		}
+
 		public KeyPath(string path)
 		{
 			_Indexes =
