@@ -226,8 +226,7 @@ namespace NBitcoin.Altcoins
 
 			public override bool TryParse<T>(string str, Network network, out T result)
 			{
-				if(typeof(BitcoinAddress).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()) || 
-					typeof(IBitcoinString).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()))
+				if(typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BitcoinAddress).GetTypeInfo()))
 				{
 					var prefix = _Prefix;
 					str = str.Trim();

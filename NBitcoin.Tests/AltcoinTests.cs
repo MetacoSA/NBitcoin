@@ -35,8 +35,12 @@ namespace NBitcoin.Tests
 				Assert.Equal(network.Mainnet, Network.GetNetwork(network.CryptoCode.ToLowerInvariant() + "-mainnet"));
 				Assert.Equal(network.Testnet, Network.GetNetwork(network.CryptoCode.ToLowerInvariant() + "-testnet"));
 				Assert.Equal(network.Regtest, Network.GetNetwork(network.CryptoCode.ToLowerInvariant() + "-regtest"));
+
+				foreach (var n in new[] { network.Mainnet, network.Testnet, network.Regtest })
+				{
+					n.Parse(new Key().PubKey.GetAddress(n).ToString());
+				}
 			}
-			Altcoins.BCash.Instance.Regtest.Parse(new Key().PubKey.GetAddress(Altcoins.BCash.Instance.Regtest).ToString());
 		}
 
 
