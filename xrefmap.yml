@@ -26890,6 +26890,22 @@ references:
   isSpec: "True"
   fullName: NBitcoin.KeyPath.ToString
   nameWithType: KeyPath.ToString
+- uid: NBitcoin.KeyPath.TryParse(System.String,NBitcoin.KeyPath@)
+  name: TryParse(String, out KeyPath)
+  href: api/NBitcoin.KeyPath.html#NBitcoin_KeyPath_TryParse_System_String_NBitcoin_KeyPath__
+  commentId: M:NBitcoin.KeyPath.TryParse(System.String,NBitcoin.KeyPath@)
+  name.vb: TryParse(String, ByRef KeyPath)
+  fullName: NBitcoin.KeyPath.TryParse(System.String, out NBitcoin.KeyPath)
+  fullName.vb: NBitcoin.KeyPath.TryParse(System.String, ByRef NBitcoin.KeyPath)
+  nameWithType: KeyPath.TryParse(String, out KeyPath)
+  nameWithType.vb: KeyPath.TryParse(String, ByRef KeyPath)
+- uid: NBitcoin.KeyPath.TryParse*
+  name: TryParse
+  href: api/NBitcoin.KeyPath.html#NBitcoin_KeyPath_TryParse_
+  commentId: Overload:NBitcoin.KeyPath.TryParse
+  isSpec: "True"
+  fullName: NBitcoin.KeyPath.TryParse
+  nameWithType: KeyPath.TryParse
 - uid: NBitcoin.Language
   name: Language
   href: api/NBitcoin.Language.html
