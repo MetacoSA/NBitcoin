@@ -84,6 +84,52 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanParseKeyPath()
+		{
+			var valid = new[] 
+			{
+				"",
+				"m",
+				"m/0h",
+				"m/0'",
+				"m/0'/1",
+				"m/0/1",
+				"m/0h",
+				"m/0h",
+				"m/0h/1",
+				"m/0/1",
+				$"m/{uint.MaxValue}/1",
+				$"m/{0x80000000u - 1}h",
+				$"m/{0x80000000u - 1}"
+			}.ToList();
+			var invalid = new[]
+			{
+				$"m/{((long)uint.MaxValue) + 1}/1",
+				$"k/0/1",
+				$"h/1",
+				$"m/'/1",
+				$"m/'/1",
+				$"m/{0x80000000u}h"
+			}.ToList();
+			var maxKeypath = new KeyPath(new uint[255]);
+			Assert.Throws<ArgumentException>(() => new KeyPath(new uint[256]));
+			valid.Add(maxKeypath.ToString());
+			valid.Add("m/" + maxKeypath.ToString());
+			invalid.Add("m/" + maxKeypath.ToString() + "/0");
+			foreach (var v in valid)
+			{
+				KeyPath.Parse(v);
+				Assert.True(KeyPath.TryParse(v, out _));
+			}
+			foreach (var v in invalid)
+			{
+				Assert.Throws<FormatException>(() => KeyPath.Parse(v));
+				Assert.False(KeyPath.TryParse(v, out _));
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCalculateGoestlcoinTransactionHash()
 		{
 			var bs = new BitcoinStream(Encoders.Hex.DecodeData("020000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03510101ffffffff0200002cd6e21500002321023035994e950a694cd81e0384abc1850cfe3e541a9de9706ca669d21c61548f8bac0000000000000000266a24aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf90120000000000000000000000000000000000000000000000000000000000000000000000000"));

@@ -22,12 +22,7 @@ namespace NBitcoin
 		/// <returns></returns>
 		public static KeyPath Parse(string path)
 		{
-			var parts = path
-				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-				.Where(p => p != "m")
-				.Select(ParseCore)
-				.ToArray();
-			return new KeyPath(parts);
+			return new KeyPath(path);
 		}
 
 		/// <summary>
@@ -35,28 +30,50 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="path">The KeyPath formated like 10/0/2'/3</param>
 		/// <param name="keyPath">The successfully parsed Key path</param>
-		/// <returns>True if the string is parsed ssuccessfully; otherwise false</returns>
+		/// <returns>True if the string is parsed successfully; otherwise false</returns>
 		public static bool TryParse(string path, out KeyPath keyPath)
 		{
-			try
+			bool isValid = true;
+			int count = 0;
+			var indices =
+				path
+				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+				.Where(p => p != "m")
+				.Select(p =>
+				{
+					isValid &= TryParseCore(p, out var i);
+					count++;
+					if (count > 255)
+						isValid = false;
+					return i;
+				})
+				.Where(_ => isValid)
+				.ToArray();
+			if (!isValid)
 			{
-				keyPath = Parse(path);
-				return true;
+				keyPath = null;
+				return false;
 			}
-			catch(Exception)
-			{
-			}
-			keyPath = null;
-			return false;
+			keyPath = new KeyPath(indices);
+			return true;
 		}
 
 		public KeyPath(string path)
 		{
+			int count = 0;
 			_Indexes =
 				path
 				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
 				.Where(p => p != "m")
-				.Select(ParseCore)
+				.Select(p =>
+				{
+					if (!TryParseCore(p, out var i))
+						throw new FormatException("KeyPath uncorrectly formatted");
+					count++;
+					if (count > 255)
+						throw new FormatException("KeyPath uncorrectly formatted");
+					return i;
+				})
 				.ToArray();
 		}
 
@@ -80,16 +97,37 @@ namespace NBitcoin
 		public byte[] ToBytes() =>
 			Indexes.Count() == 0 ? new byte[0] : Indexes.Select(i => Utils.ToBytes(i, true)).Aggregate((a, b) => a.Concat(b)).ToArray();
 
-		private static uint ParseCore(string i)
+		private static bool TryParseCore(string i, out uint index)
 		{
-			bool hardened = i.EndsWith("'");
+			if (i.Length == 0)
+			{
+				index = 0;
+				return false;
+			}
+			bool hardened = i[i.Length -1] == '\'' || i[i.Length - 1] == 'h';
 			var nonhardened = hardened ? i.Substring(0, i.Length - 1) : i;
-			var index = uint.Parse(nonhardened);
-			return hardened ? index | 0x80000000u : index;
+			if (!uint.TryParse(nonhardened, out index))
+				return false;
+			if (hardened)
+			{
+				if (index >= 0x80000000u)
+				{
+					index = 0;
+					return false;
+				}
+				index = index | 0x80000000u;
+				return true;
+			}
+			else
+			{
+				return true;
+			}
 		}
 
 		public KeyPath(params uint[] indexes)
 		{
+			if (indexes.Length > 255)
+				throw new ArgumentException(paramName: nameof(indexes), message: "A KeyPath should have at most 255 indices");
 			_Indexes = indexes;
 		}
 
