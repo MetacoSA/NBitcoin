@@ -226,23 +226,25 @@ namespace NBitcoin.Altcoins
 
 			public override bool TryParse<T>(string str, Network network, out T result)
 			{
-				if(typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BitcoinAddress).GetTypeInfo()))
+				var prefix = _Prefix;
+				str = str.Trim();
+				if(str.StartsWith($"{prefix}:", StringComparison.OrdinalIgnoreCase))
 				{
-					var prefix = _Prefix;
-					str = str.Trim();
-					if(str.StartsWith($"{prefix}:", StringComparison.OrdinalIgnoreCase))
+					try
 					{
-						try
+						var addr = BCashAddr.BchAddr.DecodeAddress(str, prefix, network);
+						if (addr.Type == BCashAddr.BchAddr.CashType.P2PKH && typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BTrashPubKeyAddress).GetTypeInfo()))
 						{
-							var addr = BCashAddr.BchAddr.DecodeAddress(str, prefix, network);
-							if(addr.Type == BCashAddr.BchAddr.CashType.P2PKH)
-								result = (T)(object)new BTrashPubKeyAddress(str, addr);
-							else
-								result = (T)(object)new BTrashScriptAddress(str, addr);
+							result = (T)(object)new BTrashPubKeyAddress(str, addr);
 							return true;
 						}
-						catch { }
+						else if (addr.Type == BCashAddr.BchAddr.CashType.P2SH && typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BTrashScriptAddress).GetTypeInfo()))
+						{
+							result = (T)(object)new BTrashScriptAddress(str, addr);
+							return true;
+						}
 					}
+					catch { }
 				}
 				return base.TryParse(str, network, out result);
 			}
