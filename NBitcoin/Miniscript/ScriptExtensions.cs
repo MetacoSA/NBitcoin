@@ -77,9 +77,6 @@ namespace NBitcoin.Miniscript
 					case OpcodeType.OP_SWAP:
 						result.Add(ScriptToken.Swap);
 						break;
-					case OpcodeType.OP_TUCK:
-						result.Add(ScriptToken.Tuck);
-						break;
 					case OpcodeType.OP_VERIFY:
 						result.Add(ScriptToken.Verify);
 						break;

@@ -50,8 +50,6 @@ namespace NBitcoin.Miniscript
 
 			public const int Swap = 21;
 
-			public const int Tuck = 22;
-
 			public const int Verify = 23;
 
 			public const int Hash160 = 24;
@@ -130,8 +128,6 @@ namespace NBitcoin.Miniscript
 
 		internal static readonly ScriptToken _unique_Swap = new ScriptToken(21);
 		internal static ScriptToken Swap { get { return _unique_Swap; } }
-		internal static readonly ScriptToken _unique_Tuck = new ScriptToken(22);
-		internal static ScriptToken Tuck { get { return _unique_Tuck; } }
 		internal static readonly ScriptToken _unique_Verify = new ScriptToken(23);
 		internal static ScriptToken Verify { get { return _unique_Verify; } }
 		internal static readonly ScriptToken _unique_Hash160 = new ScriptToken(24);
@@ -211,8 +207,6 @@ namespace NBitcoin.Miniscript
 					return "Size";
 				case Tags.Swap:
 					return "Swap";
-				case Tags.Tuck:
-					return "Tuck";
 				case Tags.Verify:
 					return "Verify";
 				case Tags.Hash160:
@@ -224,7 +218,7 @@ namespace NBitcoin.Miniscript
 					return $"Number({n})";
 				case Tags.Hash160Hash:
 					var hash160 = ((Hash160Hash)this).Item;
-					return $"Hash160Hash({160})";
+					return $"Hash160Hash({hash160})";
 				case Tags.Sha256Hash:
 					var sha256 = ((Sha256Hash)this).Item;
 					return $"Sha256Hash({sha256})";
