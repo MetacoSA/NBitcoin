@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -297,21 +298,15 @@ namespace NBitcoin.Miniscript
 			internal OrIf(AstElem item1, AstElem item2) : base(26)
 			{
 				// Since this is most generic ast, assert in here for easy debugging.
-				if (
+				Debug.Assert(
 					(item1.IsT() && item2.IsT()) ||
 					(item1.IsF() && item2.IsF()) ||
 					(item1.IsV() && item2.IsV()) ||
 					(item1.IsQ() && item2.IsQ()) ||
 					(item1.IsF() && item2.IsE())
-					)
-				{
-					Item1 = item1;
-					Item2 = item2;
-				}
-				else
-				{
-					throw new Exception($"Invalid type for AstElem.OrIf \n: item1: {item1},\n: item2: {item2}");
-				}
+					, $"Invalid type for AstElem.OrIf \n: item1: {item1},\n: item2: {item2}");
+				Item1 = item1;
+				Item2 = item2;
 			}
 		}
 
@@ -332,15 +327,12 @@ namespace NBitcoin.Miniscript
 			public AstElem Item2 { get; }
 			internal OrNotIf(AstElem item1, AstElem item2) : base(28)
 			{
-				if (item1.IsF() && item2.IsE())
-				{
-					Item1 = item1;
-					Item2 = item2;
-				}
-				else
-				{
-					throw new Exception($"Invalid type for AstElem.OrNotIf \n: item1: {item1},\n: item2: {item2}");
-				}
+				Debug.Assert(
+					item1.IsF() && item2.IsE(),
+					$"Invalid type for AstElem.OrNotIf \n: item1: {item1},\n: item2: {item2}"
+					);
+				Item1 = item1;
+				Item2 = item2;
 			}
 		}
 
