@@ -20,6 +20,7 @@ namespace NBitcoin.Tests
 		{
 			Arb.Register<AbstractPolicyGenerator>();
 			Arb.Register<CryptoGenerator>();
+			Arb.Register<ScriptGenerator>();
 			Network = Network.Main;
 			Keys = new Key[] { new Key(), new Key(), new Key() };
 		}
@@ -439,6 +440,12 @@ namespace NBitcoin.Tests
 			// but locktime does.
 			b2.SetRelativeLockTimeTo(coins, 10000);
 			Assert.True(b2.Verify(b2.BuildTransaction(true)));
+		}
+		[Property]
+		[Trait("PropertyTest", "Verification")]
+		public void ShouldNotThrowErrorWhenTryParsingScript(Script sc)
+		{
+			Miniscript.Miniscript.TryParseScript(sc, out var res);
 		}
 	}
 }

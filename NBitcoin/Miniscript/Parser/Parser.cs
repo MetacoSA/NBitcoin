@@ -54,7 +54,16 @@ namespace NBitcoin.Miniscript.Parser
 			if (input == null)
 				throw new System.ArgumentNullException(nameof(input));
 
-			return parser(new ScriptInput(input));
+			try
+			{
+				return parser(new ScriptInput(input));
+			}
+			// Catching exception here is bit ugly, but converting `Script` to `ScriptToken` is itself unsafe
+			// so this is good for assuring pureness of this method.
+			catch (ParseException e)
+			{
+				return ParserResult<ScriptToken, T>.Failure(new ScriptInput(new ScriptToken[]{}), e.Message);
+			}
 		}
 
 		internal static T Parse<T>(this Parser<ScriptToken, T> parser, Script input)
