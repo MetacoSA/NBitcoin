@@ -1309,6 +1309,7 @@ namespace NBitcoin
 		public Transaction BuildTransaction(bool sign, SigHash sigHash)
 		{
 			DoShuffle();
+			retry:
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
 			if(_CompletedTransaction != null)
 				ctx.Transaction = _CompletedTransaction.Clone();
@@ -1350,6 +1351,30 @@ namespace NBitcoin
 			{
 				SignTransactionInPlace(ctx.Transaction, sigHash);
 			}
+
+			if (StandardTransactionPolicy.MinFee != null)
+			{
+				var consumed = ctx.ConsumedCoins.ToArray();
+				var fee = ctx.Transaction.GetFee(consumed);
+				if (fee != null && fee < StandardTransactionPolicy.MinFee)
+				{
+					SendFees(StandardTransactionPolicy.MinFee - fee);
+					goto retry;
+				}
+			}
+			if (StandardTransactionPolicy.MinRelayTxFee != null)
+			{
+				var consumed = ctx.ConsumedCoins.ToArray();
+				var vsize = ctx.Transaction.GetVirtualSize();
+				var fee = ctx.Transaction.GetFee(consumed);
+				var expectedMinFee = StandardTransactionPolicy.MinRelayTxFee.GetFee(vsize);
+				if (fee != null && fee < expectedMinFee)
+				{
+					SendFees(expectedMinFee - fee);
+					goto retry;
+				}
+			}
+
 			_built = true;
 			return ctx.Transaction;
 		}
@@ -1469,30 +1494,6 @@ namespace NBitcoin
 				}
 			}
 			AfterBuild(ctx.Transaction);
-			if (StandardTransactionPolicy.MinFee != null && !(zero is ColoredCoin))
-			{
-				var consumed = ctx.ConsumedCoins.ToArray();
-				var fee = ctx.Transaction.GetFee(consumed);
-				if (fee != null && fee < StandardTransactionPolicy.MinFee)
-				{
-					ctx.RestoreMemento(originalCtx);
-					ctx.AdditionalBuilders.Add(_ => StandardTransactionPolicy.MinFee - fee);
-					goto retry;
-				}
-			}
-			if (StandardTransactionPolicy.MinRelayTxFee != null && !(zero is ColoredCoin))
-			{
-				var consumed = ctx.ConsumedCoins.ToArray();
-				var vsize = ctx.Transaction.GetVirtualSize();
-				var fee = ctx.Transaction.GetFee(consumed);
-				var expectedMinFee = StandardTransactionPolicy.MinRelayTxFee.GetFee(vsize);
-				if (fee != null && fee < expectedMinFee)
-				{
-					ctx.RestoreMemento(originalCtx);
-					ctx.AdditionalBuilders.Add(_ => expectedMinFee - fee);
-					goto retry;
-				}
-			}
 			return selection;
 		}
 
