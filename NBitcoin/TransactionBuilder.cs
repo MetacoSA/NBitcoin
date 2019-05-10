@@ -1469,7 +1469,7 @@ namespace NBitcoin
 				}
 			}
 			AfterBuild(ctx.Transaction);
-			if (StandardTransactionPolicy.MinFee != null)
+			if (StandardTransactionPolicy.MinFee != null && !(zero is ColoredCoin))
 			{
 				var consumed = ctx.ConsumedCoins.ToArray();
 				var fee = ctx.Transaction.GetFee(consumed);
@@ -1480,7 +1480,7 @@ namespace NBitcoin
 					goto retry;
 				}
 			}
-			if (StandardTransactionPolicy.MinRelayTxFee != null)
+			if (StandardTransactionPolicy.MinRelayTxFee != null && !(zero is ColoredCoin))
 			{
 				var consumed = ctx.ConsumedCoins.ToArray();
 				var vsize = ctx.Transaction.GetVirtualSize();
