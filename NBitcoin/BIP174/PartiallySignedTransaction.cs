@@ -905,23 +905,26 @@ namespace NBitcoin
 		/// If a PSBT updater only know the child HD public key but not the root one, another updater knowing the parent master key it is based on
 		/// can rebase the paths.
 		/// </summary>
-		/// <param name="oldFingerprint">The old fingerprint</param>
-		/// <param name="newFingerprint">The new fingerprint of the master key</param>
-		/// <param name="newRoot">The root of the KeyPath who had the old fingerprint</param>
+		/// <param name="accountKey">The current account key</param>
+		/// <param name="accountKeyPath">The path from the master key to the accountKey</param>
+		/// <param name="masterFingerprint">The master key fingerprint</param>
 		/// <returns></returns>
-		public PSBT RebaseKeyPaths(HDFingerprint oldFingerprint, HDFingerprint newFingerprint, KeyPath newRoot)
+		public PSBT RebaseKeyPaths(IHDKey accountKey, KeyPath accountKeyPath, HDFingerprint masterFingerprint)
 		{
-			if (newRoot == null)
-				throw new ArgumentNullException(nameof(newRoot));
+			if (accountKey == null)
+				throw new ArgumentNullException(nameof(accountKey));
+			if (accountKeyPath == null)
+				throw new ArgumentNullException(nameof(accountKeyPath));
+			accountKey = accountKey.AsHDKeyCache();
 			foreach (var o in Inputs.OfType<PSBTCoin>().Concat(Outputs))
 			{
 				foreach (var keypath in o.HDKeyPaths.ToList())
 				{
-					if (keypath.Value.Item1 == oldFingerprint)
+					if (keypath.Key == accountKey.Derive(keypath.Value.Item2).GetPublicKey())
 					{
-						var newKeyPath = newRoot.Derive(keypath.Value.Item2);
+						var newKeyPath = accountKeyPath.Derive(keypath.Value.Item2);
 						o.HDKeyPaths.Remove(keypath.Key);
-						o.HDKeyPaths.Add(keypath.Key, Tuple.Create(newFingerprint, newKeyPath));
+						o.HDKeyPaths.Add(keypath.Key, Tuple.Create(masterFingerprint, newKeyPath));
 					}
 				}
 			}
