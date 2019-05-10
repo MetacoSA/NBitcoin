@@ -1352,26 +1352,30 @@ namespace NBitcoin
 				SignTransactionInPlace(ctx.Transaction, sigHash);
 			}
 
-			if (StandardTransactionPolicy.MinFee != null)
+			// Make some adjustments if we need to send more fees
+			if (StandardTransactionPolicy.CheckFee)
 			{
-				var consumed = ctx.ConsumedCoins.ToArray();
-				var fee = ctx.Transaction.GetFee(consumed);
-				if (fee != null && fee < StandardTransactionPolicy.MinFee)
+				if (StandardTransactionPolicy.MinFee != null)
 				{
-					SendFees(StandardTransactionPolicy.MinFee - fee);
-					goto retry;
+					var consumed = ctx.ConsumedCoins.ToArray();
+					var fee = ctx.Transaction.GetFee(consumed);
+					if (fee != null && fee < StandardTransactionPolicy.MinFee)
+					{
+						SendFees(StandardTransactionPolicy.MinFee - fee);
+						goto retry;
+					}
 				}
-			}
-			if (StandardTransactionPolicy.MinRelayTxFee != null)
-			{
-				var consumed = ctx.ConsumedCoins.ToArray();
-				var vsize = ctx.Transaction.GetVirtualSize();
-				var fee = ctx.Transaction.GetFee(consumed);
-				var expectedMinFee = StandardTransactionPolicy.MinRelayTxFee.GetFee(vsize);
-				if (fee != null && fee < expectedMinFee)
+				if (StandardTransactionPolicy.MinRelayTxFee != null)
 				{
-					SendFees(expectedMinFee - fee);
-					goto retry;
+					var consumed = ctx.ConsumedCoins.ToArray();
+					var vsize = ctx.Transaction.GetVirtualSize();
+					var fee = ctx.Transaction.GetFee(consumed);
+					var expectedMinFee = StandardTransactionPolicy.MinRelayTxFee.GetFee(vsize);
+					if (fee != null && fee < expectedMinFee)
+					{
+						SendFees(expectedMinFee - fee);
+						goto retry;
+					}
 				}
 			}
 
