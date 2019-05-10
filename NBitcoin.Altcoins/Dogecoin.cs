@@ -37,6 +37,12 @@ namespace NBitcoin.Altcoins
 			{
 				return new DogecoinBlock(new DogecoinBlockHeader());
 			}
+			protected override TransactionBuilder CreateTransactionBuilderCore()
+			{
+				var txBuilder = base.CreateTransactionBuilderCore();
+				txBuilder.StandardTransactionPolicy.MinFee = Money.Coins(1m);
+				return txBuilder;
+			}
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete

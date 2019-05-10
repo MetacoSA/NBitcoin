@@ -363,7 +363,7 @@ namespace NBitcoin
 				set;
 			}
 
-			private readonly List<ICoin> _ConsumedCoins = new List<ICoin>();
+			private List<ICoin> _ConsumedCoins = new List<ICoin>();
 			public List<ICoin> ConsumedCoins
 			{
 				get
@@ -459,6 +459,7 @@ namespace NBitcoin
 				_Marker = memento._Marker == null ? null : new ColorMarker(memento._Marker.GetScript());
 				Transaction = memento.Transaction.Clone();
 				AdditionalFees = memento.AdditionalFees;
+				_ConsumedCoins = memento.ConsumedCoins.ToList();
 			}
 
 			public bool NonFinalSequenceSet
@@ -1468,6 +1469,29 @@ namespace NBitcoin
 				}
 			}
 			AfterBuild(ctx.Transaction);
+			if (StandardTransactionPolicy.MinFee != null)
+			{
+				var consumed = ctx.ConsumedCoins.ToArray();
+				var fee = ctx.Transaction.GetFee(consumed);
+				if (fee != null && fee < StandardTransactionPolicy.MinFee)
+				{
+					ctx.RestoreMemento(originalCtx);
+					ctx.AdditionalBuilders.Add(_ => StandardTransactionPolicy.MinFee - fee);
+					goto retry;
+				}
+			}
+			if (StandardTransactionPolicy.MinRelayTxFee != null)
+			{
+				var consumed = ctx.ConsumedCoins.ToArray();
+				var feeRate = ctx.Transaction.GetFeeRate(consumed);
+				if (feeRate != null && feeRate < StandardTransactionPolicy.MinRelayTxFee)
+				{
+					ctx.RestoreMemento(originalCtx);
+					var vsize = ctx.Transaction.GetVirtualSize();
+					ctx.AdditionalBuilders.Add(_ => StandardTransactionPolicy.MinRelayTxFee.GetFee(vsize) - feeRate.GetFee(vsize));
+					goto retry;
+				}
+			}
 			return selection;
 		}
 

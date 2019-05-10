@@ -36,6 +36,7 @@ namespace NBitcoin.Policy
 			get;
 			set;
 		}
+		public Money MinFee { get; set; }
 
 		public ScriptVerify? ScriptVerify
 		{
@@ -142,6 +143,12 @@ namespace NBitcoin.Policy
 						var max = MaxTxFee.GetFee(virtualSize);
 						if(fees > max)
 							errors.Add(new FeeTooHighPolicyError(fees, max));
+					}
+
+					if (MinFee != null)
+					{
+						if (fees < MinFee)
+							errors.Add(new FeeTooLowPolicyError(fees, MinFee));
 					}
 
 					if(MinRelayTxFee != null)
