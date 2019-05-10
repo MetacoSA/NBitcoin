@@ -3274,6 +3274,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.CreateBlockHeader
   nameWithType: Dogecoin.DogeConsensusFactory.CreateBlockHeader
+- uid: NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.CreateTransactionBuilderCore
+  name: CreateTransactionBuilderCore()
+  href: api/NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.html#NBitcoin_Altcoins_Dogecoin_DogeConsensusFactory_CreateTransactionBuilderCore
+  commentId: M:NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.CreateTransactionBuilderCore
+  fullName: NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.CreateTransactionBuilderCore()
+  nameWithType: Dogecoin.DogeConsensusFactory.CreateTransactionBuilderCore()
+- uid: NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.CreateTransactionBuilderCore*
+  name: CreateTransactionBuilderCore
+  href: api/NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.html#NBitcoin_Altcoins_Dogecoin_DogeConsensusFactory_CreateTransactionBuilderCore_
+  commentId: Overload:NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.CreateTransactionBuilderCore
+  isSpec: "True"
+  fullName: NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.CreateTransactionBuilderCore
+  nameWithType: Dogecoin.DogeConsensusFactory.CreateTransactionBuilderCore
 - uid: NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.Instance
   name: Instance
   href: api/NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.html#NBitcoin_Altcoins_Dogecoin_DogeConsensusFactory_Instance
@@ -37019,6 +37032,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Policy.StandardTransactionPolicy.MaxTxFee
   nameWithType: StandardTransactionPolicy.MaxTxFee
+- uid: NBitcoin.Policy.StandardTransactionPolicy.MinFee
+  name: MinFee
+  href: api/NBitcoin.Policy.StandardTransactionPolicy.html#NBitcoin_Policy_StandardTransactionPolicy_MinFee
+  commentId: P:NBitcoin.Policy.StandardTransactionPolicy.MinFee
+  fullName: NBitcoin.Policy.StandardTransactionPolicy.MinFee
+  nameWithType: StandardTransactionPolicy.MinFee
+- uid: NBitcoin.Policy.StandardTransactionPolicy.MinFee*
+  name: MinFee
+  href: api/NBitcoin.Policy.StandardTransactionPolicy.html#NBitcoin_Policy_StandardTransactionPolicy_MinFee_
+  commentId: Overload:NBitcoin.Policy.StandardTransactionPolicy.MinFee
+  isSpec: "True"
+  fullName: NBitcoin.Policy.StandardTransactionPolicy.MinFee
+  nameWithType: StandardTransactionPolicy.MinFee
 - uid: NBitcoin.Policy.StandardTransactionPolicy.MinRelayTxFee
   name: MinRelayTxFee
   href: api/NBitcoin.Policy.StandardTransactionPolicy.html#NBitcoin_Policy_StandardTransactionPolicy_MinRelayTxFee
@@ -44892,12 +44918,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBT.Parse
   nameWithType: PSBT.Parse
-- uid: NBitcoin.PSBT.RebaseKeyPaths(NBitcoin.HDFingerprint,NBitcoin.HDFingerprint,NBitcoin.KeyPath)
-  name: RebaseKeyPaths(HDFingerprint, HDFingerprint, KeyPath)
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_RebaseKeyPaths_NBitcoin_HDFingerprint_NBitcoin_HDFingerprint_NBitcoin_KeyPath_
-  commentId: M:NBitcoin.PSBT.RebaseKeyPaths(NBitcoin.HDFingerprint,NBitcoin.HDFingerprint,NBitcoin.KeyPath)
-  fullName: NBitcoin.PSBT.RebaseKeyPaths(NBitcoin.HDFingerprint, NBitcoin.HDFingerprint, NBitcoin.KeyPath)
-  nameWithType: PSBT.RebaseKeyPaths(HDFingerprint, HDFingerprint, KeyPath)
+- uid: NBitcoin.PSBT.RebaseKeyPaths(NBitcoin.IHDKey,NBitcoin.KeyPath,NBitcoin.HDFingerprint)
+  name: RebaseKeyPaths(IHDKey, KeyPath, HDFingerprint)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_RebaseKeyPaths_NBitcoin_IHDKey_NBitcoin_KeyPath_NBitcoin_HDFingerprint_
+  commentId: M:NBitcoin.PSBT.RebaseKeyPaths(NBitcoin.IHDKey,NBitcoin.KeyPath,NBitcoin.HDFingerprint)
+  fullName: NBitcoin.PSBT.RebaseKeyPaths(NBitcoin.IHDKey, NBitcoin.KeyPath, NBitcoin.HDFingerprint)
+  nameWithType: PSBT.RebaseKeyPaths(IHDKey, KeyPath, HDFingerprint)
 - uid: NBitcoin.PSBT.RebaseKeyPaths*
   name: RebaseKeyPaths
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_RebaseKeyPaths_
