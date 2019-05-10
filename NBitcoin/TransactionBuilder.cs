@@ -1353,29 +1353,14 @@ namespace NBitcoin
 			}
 
 			// Make some adjustments if we need to send more fees
-			if (StandardTransactionPolicy.CheckFee)
+			if (StandardTransactionPolicy.MinFee != null)
 			{
-				if (StandardTransactionPolicy.MinFee != null)
+				var consumed = ctx.ConsumedCoins.ToArray();
+				var fee = ctx.Transaction.GetFee(consumed);
+				if (fee != null && fee < StandardTransactionPolicy.MinFee)
 				{
-					var consumed = ctx.ConsumedCoins.ToArray();
-					var fee = ctx.Transaction.GetFee(consumed);
-					if (fee != null && fee < StandardTransactionPolicy.MinFee)
-					{
-						SendFees(StandardTransactionPolicy.MinFee - fee);
-						goto retry;
-					}
-				}
-				if (StandardTransactionPolicy.MinRelayTxFee != null)
-				{
-					var consumed = ctx.ConsumedCoins.ToArray();
-					var vsize = ctx.Transaction.GetVirtualSize();
-					var fee = ctx.Transaction.GetFee(consumed);
-					var expectedMinFee = StandardTransactionPolicy.MinRelayTxFee.GetFee(vsize);
-					if (fee != null && fee < expectedMinFee)
-					{
-						SendFees(expectedMinFee - fee);
-						goto retry;
-					}
+					SendFees(StandardTransactionPolicy.MinFee - fee);
+					goto retry;
 				}
 			}
 
