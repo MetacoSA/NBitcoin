@@ -1483,12 +1483,13 @@ namespace NBitcoin
 			if (StandardTransactionPolicy.MinRelayTxFee != null)
 			{
 				var consumed = ctx.ConsumedCoins.ToArray();
-				var feeRate = ctx.Transaction.GetFeeRate(consumed);
-				if (feeRate != null && feeRate < StandardTransactionPolicy.MinRelayTxFee)
+				var vsize = ctx.Transaction.GetVirtualSize();
+				var fee = ctx.Transaction.GetFee(consumed);
+				var expectedMinFee = StandardTransactionPolicy.MinRelayTxFee.GetFee(vsize);
+				if (fee != null && fee < expectedMinFee)
 				{
 					ctx.RestoreMemento(originalCtx);
-					var vsize = ctx.Transaction.GetVirtualSize();
-					ctx.AdditionalBuilders.Add(_ => StandardTransactionPolicy.MinRelayTxFee.GetFee(vsize) - feeRate.GetFee(vsize));
+					ctx.AdditionalBuilders.Add(_ => expectedMinFee - fee);
 					goto retry;
 				}
 			}
