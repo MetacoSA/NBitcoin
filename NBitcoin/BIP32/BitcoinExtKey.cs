@@ -248,7 +248,7 @@ namespace NBitcoin
 
 		public BitcoinExtPubKey Derive(uint index)
 		{
-			return Derive(index);
+			return ExtPubKey.Derive(index).GetWif(Network);
 		}
 
 		public BitcoinExtPubKey Derive(KeyPath keyPath)

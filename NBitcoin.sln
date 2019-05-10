@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NBitcoin.Altcoins", "NBitco
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NBitcoin.TestFramework", "NBitcoin.TestFramework\NBitcoin.TestFramework.csproj", "{653C0F21-25FE-4B72-95AC-20D070A45415}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBitcoin.Bench", "NBitcoin.Bench\NBitcoin.Bench.csproj", "{153FEA8A-FA98-4ADD-8570-5FD88631C489}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NBitcoin.Bench", "NBitcoin.Bench\NBitcoin.Bench.csproj", "{153FEA8A-FA98-4ADD-8570-5FD88631C489}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
