@@ -59,7 +59,7 @@ namespace NBitcoin.Miniscript.Parser
 				return parser(new ScriptInput(input));
 			}
 			// Catching exception here is bit ugly, but converting `Script` to `ScriptToken` is itself unsafe
-			// so this is good for assuring pureness of this method.
+			// so this is good for assuring purity of this method.
 			catch (ParseException e)
 			{
 				return ParserResult<ScriptToken, T>.Failure(new ScriptInput(new ScriptToken[]{}), e.Message);

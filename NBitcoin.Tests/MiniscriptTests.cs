@@ -271,7 +271,6 @@ namespace NBitcoin.Tests
 		{
 			var ast = CompiledNode.FromPolicy(policy).BestT(0.0, 0.0).Ast;
 			var sc = ast.ToScript();
-
 			var ast2 = MiniscriptScriptParser.ParseScript(sc);
 			if (assert)
 			{
@@ -299,10 +298,9 @@ namespace NBitcoin.Tests
 			if (type != OutputDescriptorType.P2ShWpkh && type != OutputDescriptorType.Pkh && type != OutputDescriptorType.Wpkh)
 			{
 				var od = new OutputDescriptor(Miniscript.Miniscript.FromPolicy(policy), type);
-				var od2 = OutputDescriptorParser.ParseDescriptor(od.ToString());
 				Assert.Equal(
 					od,
-					od2
+					OutputDescriptor.Parse(od.ToString())
 				);
 			}
 		}
@@ -314,10 +312,9 @@ namespace NBitcoin.Tests
 			if (type == OutputDescriptorType.P2ShWpkh || type == OutputDescriptorType.Pkh || type == OutputDescriptorType.Wpkh)
 			{
 				var od = new OutputDescriptor(pk, type);
-				var od2 = OutputDescriptorParser.ParseDescriptor(od.ToString());
 				Assert.Equal(
 					od,
-					od2
+					OutputDescriptor.Parse(od.ToString())
 				);
 			}
 		}
@@ -441,11 +438,19 @@ namespace NBitcoin.Tests
 			b2.SetRelativeLockTimeTo(coins, 10000);
 			Assert.True(b2.Verify(b2.BuildTransaction(true)));
 		}
+
 		[Property]
 		[Trait("PropertyTest", "Verification")]
 		public void ShouldNotThrowErrorWhenTryParsingScript(Script sc)
 		{
 			Miniscript.Miniscript.TryParseScript(sc, out var res);
+		}
+
+		[Property]
+		[Trait("PropertyTest", "Verification")]
+		public void ShouldNotThrowErrorWhenTryParsingDSL(NonNull<string> sc)
+		{
+			Miniscript.Miniscript.TryParse(sc.Get, out var res);
 		}
 	}
 }
