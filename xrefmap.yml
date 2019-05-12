@@ -26838,6 +26838,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.KeyPath.FromBytes
   nameWithType: KeyPath.FromBytes
+- uid: NBitcoin.KeyPath.GetAccountKeyPath
+  name: GetAccountKeyPath()
+  href: api/NBitcoin.KeyPath.html#NBitcoin_KeyPath_GetAccountKeyPath
+  commentId: M:NBitcoin.KeyPath.GetAccountKeyPath
+  fullName: NBitcoin.KeyPath.GetAccountKeyPath()
+  nameWithType: KeyPath.GetAccountKeyPath()
+- uid: NBitcoin.KeyPath.GetAccountKeyPath*
+  name: GetAccountKeyPath
+  href: api/NBitcoin.KeyPath.html#NBitcoin_KeyPath_GetAccountKeyPath_
+  commentId: Overload:NBitcoin.KeyPath.GetAccountKeyPath
+  isSpec: "True"
+  fullName: NBitcoin.KeyPath.GetAccountKeyPath
+  nameWithType: KeyPath.GetAccountKeyPath
 - uid: NBitcoin.KeyPath.GetHashCode
   name: GetHashCode()
   href: api/NBitcoin.KeyPath.html#NBitcoin_KeyPath_GetHashCode
