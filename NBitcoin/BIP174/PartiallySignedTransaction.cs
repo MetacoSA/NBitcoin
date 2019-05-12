@@ -916,11 +916,14 @@ namespace NBitcoin
 			if (accountKeyPath == null)
 				throw new ArgumentNullException(nameof(accountKeyPath));
 			accountKey = accountKey.AsHDKeyCache();
+			var accountKeyFP = accountKey.GetPublicKey().GetHDFingerPrint();
 			foreach (var o in Inputs.OfType<PSBTCoin>().Concat(Outputs))
 			{
 				foreach (var keypath in o.HDKeyPaths.ToList())
 				{
-					if (keypath.Key == accountKey.Derive(keypath.Value.Item2).GetPublicKey())
+					if (keypath.Value.Item1 == accountKeyFP &&
+						accountKey.CanDeriveHardenedPath() || !keypath.Value.Item2.IsHardenedPath &&
+						keypath.Key == accountKey.Derive(keypath.Value.Item2).GetPublicKey())
 					{
 						var newKeyPath = accountKeyPath.Derive(keypath.Value.Item2);
 						o.HDKeyPaths.Remove(keypath.Key);

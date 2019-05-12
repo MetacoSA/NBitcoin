@@ -8,5 +8,6 @@ namespace NBitcoin
 	{
 		IHDKey Derive(uint index);
 		PubKey GetPublicKey();
+		bool CanDeriveHardenedPath();
 	}
 }

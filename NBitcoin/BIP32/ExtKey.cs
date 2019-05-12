@@ -410,5 +410,10 @@ namespace NBitcoin
 		{
 			return PrivateKey.PubKey;
 		}
+
+		bool IHDKey.CanDeriveHardenedPath()
+		{
+			return true;
+		}
 	}
 }

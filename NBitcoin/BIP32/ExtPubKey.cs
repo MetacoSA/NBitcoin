@@ -261,6 +261,11 @@ namespace NBitcoin
 			return this.pubkey;
 		}
 
+		bool IHDKey.CanDeriveHardenedPath()
+		{
+			return false;
+		}
+
 		#region IDestination Members
 
 		/// <summary>

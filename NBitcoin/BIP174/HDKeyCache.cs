@@ -43,5 +43,10 @@ namespace NBitcoin
 		{
 			return this.hdKey.GetPublicKey();
 		}
+
+		public bool CanDeriveHardenedPath()
+		{
+			return Inner.CanDeriveHardenedPath();
+		}
 	}
 }
