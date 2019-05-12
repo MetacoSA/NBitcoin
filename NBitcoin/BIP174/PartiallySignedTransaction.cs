@@ -631,20 +631,29 @@ namespace NBitcoin
 			var jsonWriter = new JsonTextWriter(strWriter);
 			jsonWriter.Formatting = Formatting.Indented;
 			jsonWriter.WriteStartObject();
-			jsonWriter.WritePropertyName("tx");
-			jsonWriter.WriteStartObject();
-			var formatter = new RPC.BlockExplorerFormatter();
-			formatter.WriteTransaction2(jsonWriter, tx);
-			jsonWriter.WriteEndObject();
-
 			if (TryGetFee(out var fee))
 			{
 				jsonWriter.WritePropertyValue("fee", $"{fee} BTC");
+			}
+			else
+			{
+				jsonWriter.WritePropertyName("fee");
+				jsonWriter.WriteToken(JsonToken.Null);
 			}
 			if (TryGetEstimatedFeeRate(out var feeRate))
 			{
 				jsonWriter.WritePropertyValue("feeRate", $"{feeRate}");
 			}
+			else
+			{
+				jsonWriter.WritePropertyName("feeRate");
+				jsonWriter.WriteToken(JsonToken.Null);
+			}
+			jsonWriter.WritePropertyName("tx");
+			jsonWriter.WriteStartObject();
+			var formatter = new RPC.BlockExplorerFormatter();
+			formatter.WriteTransaction2(jsonWriter, tx);
+			jsonWriter.WriteEndObject();
 			if (unknown.Count != 0)
 			{
 				jsonWriter.WritePropertyName("unknown");
