@@ -26851,6 +26851,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.KeyPath.GetAccountKeyPath
   nameWithType: KeyPath.GetAccountKeyPath
+- uid: NBitcoin.KeyPath.GetAddressKeyPath
+  name: GetAddressKeyPath()
+  href: api/NBitcoin.KeyPath.html#NBitcoin_KeyPath_GetAddressKeyPath
+  commentId: M:NBitcoin.KeyPath.GetAddressKeyPath
+  fullName: NBitcoin.KeyPath.GetAddressKeyPath()
+  nameWithType: KeyPath.GetAddressKeyPath()
+- uid: NBitcoin.KeyPath.GetAddressKeyPath*
+  name: GetAddressKeyPath
+  href: api/NBitcoin.KeyPath.html#NBitcoin_KeyPath_GetAddressKeyPath_
+  commentId: Overload:NBitcoin.KeyPath.GetAddressKeyPath
+  isSpec: "True"
+  fullName: NBitcoin.KeyPath.GetAddressKeyPath
+  nameWithType: KeyPath.GetAddressKeyPath
 - uid: NBitcoin.KeyPath.GetHashCode
   name: GetHashCode()
   href: api/NBitcoin.KeyPath.html#NBitcoin_KeyPath_GetHashCode
@@ -44797,6 +44810,28 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBT.CoinJoin
   nameWithType: PSBT.CoinJoin
+- uid: NBitcoin.PSBT.CoinsFor(NBitcoin.IHDKey)
+  name: CoinsFor(IHDKey)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_CoinsFor_NBitcoin_IHDKey_
+  commentId: M:NBitcoin.PSBT.CoinsFor(NBitcoin.IHDKey)
+  fullName: NBitcoin.PSBT.CoinsFor(NBitcoin.IHDKey)
+  nameWithType: PSBT.CoinsFor(IHDKey)
+- uid: NBitcoin.PSBT.CoinsFor(System.Nullable{NBitcoin.HDFingerprint},NBitcoin.IHDKey)
+  name: CoinsFor(Nullable<HDFingerprint>, IHDKey)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_CoinsFor_System_Nullable_NBitcoin_HDFingerprint__NBitcoin_IHDKey_
+  commentId: M:NBitcoin.PSBT.CoinsFor(System.Nullable{NBitcoin.HDFingerprint},NBitcoin.IHDKey)
+  name.vb: CoinsFor(Nullable(Of HDFingerprint), IHDKey)
+  fullName: NBitcoin.PSBT.CoinsFor(System.Nullable<NBitcoin.HDFingerprint>, NBitcoin.IHDKey)
+  fullName.vb: NBitcoin.PSBT.CoinsFor(System.Nullable(Of NBitcoin.HDFingerprint), NBitcoin.IHDKey)
+  nameWithType: PSBT.CoinsFor(Nullable<HDFingerprint>, IHDKey)
+  nameWithType.vb: PSBT.CoinsFor(Nullable(Of HDFingerprint), IHDKey)
+- uid: NBitcoin.PSBT.CoinsFor*
+  name: CoinsFor
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_CoinsFor_
+  commentId: Overload:NBitcoin.PSBT.CoinsFor
+  isSpec: "True"
+  fullName: NBitcoin.PSBT.CoinsFor
+  nameWithType: PSBT.CoinsFor
 - uid: NBitcoin.PSBT.Combine(NBitcoin.PSBT)
   name: Combine(PSBT)
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_Combine_NBitcoin_PSBT_
@@ -44874,6 +44909,15 @@ references:
   commentId: M:NBitcoin.PSBT.GetBalance(NBitcoin.IHDKey)
   fullName: NBitcoin.PSBT.GetBalance(NBitcoin.IHDKey)
   nameWithType: PSBT.GetBalance(IHDKey)
+- uid: NBitcoin.PSBT.GetBalance(System.Nullable{NBitcoin.HDFingerprint},NBitcoin.IHDKey)
+  name: GetBalance(Nullable<HDFingerprint>, IHDKey)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_GetBalance_System_Nullable_NBitcoin_HDFingerprint__NBitcoin_IHDKey_
+  commentId: M:NBitcoin.PSBT.GetBalance(System.Nullable{NBitcoin.HDFingerprint},NBitcoin.IHDKey)
+  name.vb: GetBalance(Nullable(Of HDFingerprint), IHDKey)
+  fullName: NBitcoin.PSBT.GetBalance(System.Nullable<NBitcoin.HDFingerprint>, NBitcoin.IHDKey)
+  fullName.vb: NBitcoin.PSBT.GetBalance(System.Nullable(Of NBitcoin.HDFingerprint), NBitcoin.IHDKey)
+  nameWithType: PSBT.GetBalance(Nullable<HDFingerprint>, IHDKey)
+  nameWithType.vb: PSBT.GetBalance(Nullable(Of HDFingerprint), IHDKey)
 - uid: NBitcoin.PSBT.GetBalance*
   name: GetBalance
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_GetBalance_
@@ -44920,6 +44964,28 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBT.GetOriginalTransaction
   nameWithType: PSBT.GetOriginalTransaction
+- uid: NBitcoin.PSBT.HDKeysFor(NBitcoin.IHDKey)
+  name: HDKeysFor(IHDKey)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_HDKeysFor_NBitcoin_IHDKey_
+  commentId: M:NBitcoin.PSBT.HDKeysFor(NBitcoin.IHDKey)
+  fullName: NBitcoin.PSBT.HDKeysFor(NBitcoin.IHDKey)
+  nameWithType: PSBT.HDKeysFor(IHDKey)
+- uid: NBitcoin.PSBT.HDKeysFor(System.Nullable{NBitcoin.HDFingerprint},NBitcoin.IHDKey)
+  name: HDKeysFor(Nullable<HDFingerprint>, IHDKey)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_HDKeysFor_System_Nullable_NBitcoin_HDFingerprint__NBitcoin_IHDKey_
+  commentId: M:NBitcoin.PSBT.HDKeysFor(System.Nullable{NBitcoin.HDFingerprint},NBitcoin.IHDKey)
+  name.vb: HDKeysFor(Nullable(Of HDFingerprint), IHDKey)
+  fullName: NBitcoin.PSBT.HDKeysFor(System.Nullable<NBitcoin.HDFingerprint>, NBitcoin.IHDKey)
+  fullName.vb: NBitcoin.PSBT.HDKeysFor(System.Nullable(Of NBitcoin.HDFingerprint), NBitcoin.IHDKey)
+  nameWithType: PSBT.HDKeysFor(Nullable<HDFingerprint>, IHDKey)
+  nameWithType.vb: PSBT.HDKeysFor(Nullable(Of HDFingerprint), IHDKey)
+- uid: NBitcoin.PSBT.HDKeysFor*
+  name: HDKeysFor
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_HDKeysFor_
+  commentId: Overload:NBitcoin.PSBT.HDKeysFor
+  isSpec: "True"
+  fullName: NBitcoin.PSBT.HDKeysFor
+  nameWithType: PSBT.HDKeysFor
 - uid: NBitcoin.PSBT.Inputs
   name: Inputs
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_Inputs
@@ -45094,12 +45160,12 @@ references:
   commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.ExtKey,NBitcoin.KeyPath,NBitcoin.SigHash)
   fullName: NBitcoin.PSBT.SignAll(NBitcoin.ExtKey, NBitcoin.KeyPath, NBitcoin.SigHash)
   nameWithType: PSBT.SignAll(ExtKey, KeyPath, SigHash)
-- uid: NBitcoin.PSBT.SignAll(NBitcoin.ExtKey,NBitcoin.SigHash)
-  name: SignAll(ExtKey, SigHash)
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_ExtKey_NBitcoin_SigHash_
-  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.ExtKey,NBitcoin.SigHash)
-  fullName: NBitcoin.PSBT.SignAll(NBitcoin.ExtKey, NBitcoin.SigHash)
-  nameWithType: PSBT.SignAll(ExtKey, SigHash)
+- uid: NBitcoin.PSBT.SignAll(NBitcoin.IHDKey,NBitcoin.SigHash)
+  name: SignAll(IHDKey, SigHash)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_IHDKey_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.IHDKey,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBT.SignAll(NBitcoin.IHDKey, NBitcoin.SigHash)
+  nameWithType: PSBT.SignAll(IHDKey, SigHash)
 - uid: NBitcoin.PSBT.SignAll(NBitcoin.ISecret[])
   name: SignAll(ISecret[])
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_ISecret___
@@ -45281,6 +45347,22 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTCoin.AddKeyPath
   nameWithType: PSBTCoin.AddKeyPath
+- uid: NBitcoin.PSBTCoin.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,System.Tuple{NBitcoin.HDFingerprint,NBitcoin.KeyPath}})
+  name: CreateHDKeyMatch(KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>>)
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_CreateHDKeyMatch_System_Collections_Generic_KeyValuePair_NBitcoin_PubKey_System_Tuple_NBitcoin_HDFingerprint_NBitcoin_KeyPath___
+  commentId: M:NBitcoin.PSBTCoin.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,System.Tuple{NBitcoin.HDFingerprint,NBitcoin.KeyPath}})
+  name.vb: CreateHDKeyMatch(KeyValuePair(Of PubKey, Tuple(Of HDFingerprint, KeyPath)))
+  fullName: NBitcoin.PSBTCoin.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>)
+  fullName.vb: NBitcoin.PSBTCoin.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair(Of NBitcoin.PubKey, System.Tuple(Of NBitcoin.HDFingerprint, NBitcoin.KeyPath)))
+  nameWithType: PSBTCoin.CreateHDKeyMatch(KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>>)
+  nameWithType.vb: PSBTCoin.CreateHDKeyMatch(KeyValuePair(Of PubKey, Tuple(Of HDFingerprint, KeyPath)))
+- uid: NBitcoin.PSBTCoin.CreateHDKeyMatch*
+  name: CreateHDKeyMatch
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_CreateHDKeyMatch_
+  commentId: Overload:NBitcoin.PSBTCoin.CreateHDKeyMatch
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoin.CreateHDKeyMatch
+  nameWithType: PSBTCoin.CreateHDKeyMatch
 - uid: NBitcoin.PSBTCoin.GetCoin
   name: GetCoin()
   href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_GetCoin
@@ -45335,6 +45417,28 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTCoin.HDKeyPaths
   nameWithType: PSBTCoin.HDKeyPaths
+- uid: NBitcoin.PSBTCoin.HDKeysFor(NBitcoin.IHDKey)
+  name: HDKeysFor(IHDKey)
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_HDKeysFor_NBitcoin_IHDKey_
+  commentId: M:NBitcoin.PSBTCoin.HDKeysFor(NBitcoin.IHDKey)
+  fullName: NBitcoin.PSBTCoin.HDKeysFor(NBitcoin.IHDKey)
+  nameWithType: PSBTCoin.HDKeysFor(IHDKey)
+- uid: NBitcoin.PSBTCoin.HDKeysFor(System.Nullable{NBitcoin.HDFingerprint},NBitcoin.IHDKey)
+  name: HDKeysFor(Nullable<HDFingerprint>, IHDKey)
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_HDKeysFor_System_Nullable_NBitcoin_HDFingerprint__NBitcoin_IHDKey_
+  commentId: M:NBitcoin.PSBTCoin.HDKeysFor(System.Nullable{NBitcoin.HDFingerprint},NBitcoin.IHDKey)
+  name.vb: HDKeysFor(Nullable(Of HDFingerprint), IHDKey)
+  fullName: NBitcoin.PSBTCoin.HDKeysFor(System.Nullable<NBitcoin.HDFingerprint>, NBitcoin.IHDKey)
+  fullName.vb: NBitcoin.PSBTCoin.HDKeysFor(System.Nullable(Of NBitcoin.HDFingerprint), NBitcoin.IHDKey)
+  nameWithType: PSBTCoin.HDKeysFor(Nullable<HDFingerprint>, IHDKey)
+  nameWithType.vb: PSBTCoin.HDKeysFor(Nullable(Of HDFingerprint), IHDKey)
+- uid: NBitcoin.PSBTCoin.HDKeysFor*
+  name: HDKeysFor
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_HDKeysFor_
+  commentId: Overload:NBitcoin.PSBTCoin.HDKeysFor
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoin.HDKeysFor
+  nameWithType: PSBTCoin.HDKeysFor
 - uid: NBitcoin.PSBTCoin.Parent
   name: Parent
   href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_Parent
@@ -45398,6 +45502,146 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTCoin.WitnessScript
   nameWithType: PSBTCoin.WitnessScript
+- uid: NBitcoin.PSBTCoinList`1
+  name: PSBTCoinList<T>
+  href: api/NBitcoin.PSBTCoinList-1.html
+  commentId: T:NBitcoin.PSBTCoinList`1
+  name.vb: PSBTCoinList(Of T)
+  fullName: NBitcoin.PSBTCoinList<T>
+  fullName.vb: NBitcoin.PSBTCoinList(Of T)
+  nameWithType: PSBTCoinList<T>
+  nameWithType.vb: PSBTCoinList(Of T)
+- uid: NBitcoin.PSBTCoinList`1._Inner
+  name: _Inner
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1__Inner
+  commentId: F:NBitcoin.PSBTCoinList`1._Inner
+  fullName: NBitcoin.PSBTCoinList<T>._Inner
+  fullName.vb: NBitcoin.PSBTCoinList(Of T)._Inner
+  nameWithType: PSBTCoinList<T>._Inner
+  nameWithType.vb: PSBTCoinList(Of T)._Inner
+- uid: NBitcoin.PSBTCoinList`1.CoinsFor(NBitcoin.IHDKey)
+  name: CoinsFor(IHDKey)
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_CoinsFor_NBitcoin_IHDKey_
+  commentId: M:NBitcoin.PSBTCoinList`1.CoinsFor(NBitcoin.IHDKey)
+  fullName: NBitcoin.PSBTCoinList<T>.CoinsFor(NBitcoin.IHDKey)
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).CoinsFor(NBitcoin.IHDKey)
+  nameWithType: PSBTCoinList<T>.CoinsFor(IHDKey)
+  nameWithType.vb: PSBTCoinList(Of T).CoinsFor(IHDKey)
+- uid: NBitcoin.PSBTCoinList`1.CoinsFor(System.Nullable{NBitcoin.HDFingerprint},NBitcoin.IHDKey)
+  name: CoinsFor(Nullable<HDFingerprint>, IHDKey)
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_CoinsFor_System_Nullable_NBitcoin_HDFingerprint__NBitcoin_IHDKey_
+  commentId: M:NBitcoin.PSBTCoinList`1.CoinsFor(System.Nullable{NBitcoin.HDFingerprint},NBitcoin.IHDKey)
+  name.vb: CoinsFor(Nullable(Of HDFingerprint), IHDKey)
+  fullName: NBitcoin.PSBTCoinList<T>.CoinsFor(System.Nullable<NBitcoin.HDFingerprint>, NBitcoin.IHDKey)
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).CoinsFor(System.Nullable(Of NBitcoin.HDFingerprint), NBitcoin.IHDKey)
+  nameWithType: PSBTCoinList<T>.CoinsFor(Nullable<HDFingerprint>, IHDKey)
+  nameWithType.vb: PSBTCoinList(Of T).CoinsFor(Nullable(Of HDFingerprint), IHDKey)
+- uid: NBitcoin.PSBTCoinList`1.CoinsFor*
+  name: CoinsFor
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_CoinsFor_
+  commentId: Overload:NBitcoin.PSBTCoinList`1.CoinsFor
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoinList<T>.CoinsFor
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).CoinsFor
+  nameWithType: PSBTCoinList<T>.CoinsFor
+  nameWithType.vb: PSBTCoinList(Of T).CoinsFor
+- uid: NBitcoin.PSBTCoinList`1.Count
+  name: Count
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_Count
+  commentId: P:NBitcoin.PSBTCoinList`1.Count
+  fullName: NBitcoin.PSBTCoinList<T>.Count
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).Count
+  nameWithType: PSBTCoinList<T>.Count
+  nameWithType.vb: PSBTCoinList(Of T).Count
+- uid: NBitcoin.PSBTCoinList`1.Count*
+  name: Count
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_Count_
+  commentId: Overload:NBitcoin.PSBTCoinList`1.Count
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoinList<T>.Count
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).Count
+  nameWithType: PSBTCoinList<T>.Count
+  nameWithType.vb: PSBTCoinList(Of T).Count
+- uid: NBitcoin.PSBTCoinList`1.GetEnumerator
+  name: GetEnumerator()
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_GetEnumerator
+  commentId: M:NBitcoin.PSBTCoinList`1.GetEnumerator
+  fullName: NBitcoin.PSBTCoinList<T>.GetEnumerator()
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).GetEnumerator()
+  nameWithType: PSBTCoinList<T>.GetEnumerator()
+  nameWithType.vb: PSBTCoinList(Of T).GetEnumerator()
+- uid: NBitcoin.PSBTCoinList`1.GetEnumerator*
+  name: GetEnumerator
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_GetEnumerator_
+  commentId: Overload:NBitcoin.PSBTCoinList`1.GetEnumerator
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoinList<T>.GetEnumerator
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).GetEnumerator
+  nameWithType: PSBTCoinList<T>.GetEnumerator
+  nameWithType.vb: PSBTCoinList(Of T).GetEnumerator
+- uid: NBitcoin.PSBTCoinList`1.HDKeysFor(NBitcoin.IHDKey)
+  name: HDKeysFor(IHDKey)
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_HDKeysFor_NBitcoin_IHDKey_
+  commentId: M:NBitcoin.PSBTCoinList`1.HDKeysFor(NBitcoin.IHDKey)
+  fullName: NBitcoin.PSBTCoinList<T>.HDKeysFor(NBitcoin.IHDKey)
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).HDKeysFor(NBitcoin.IHDKey)
+  nameWithType: PSBTCoinList<T>.HDKeysFor(IHDKey)
+  nameWithType.vb: PSBTCoinList(Of T).HDKeysFor(IHDKey)
+- uid: NBitcoin.PSBTCoinList`1.HDKeysFor(System.Nullable{NBitcoin.HDFingerprint},NBitcoin.IHDKey)
+  name: HDKeysFor(Nullable<HDFingerprint>, IHDKey)
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_HDKeysFor_System_Nullable_NBitcoin_HDFingerprint__NBitcoin_IHDKey_
+  commentId: M:NBitcoin.PSBTCoinList`1.HDKeysFor(System.Nullable{NBitcoin.HDFingerprint},NBitcoin.IHDKey)
+  name.vb: HDKeysFor(Nullable(Of HDFingerprint), IHDKey)
+  fullName: NBitcoin.PSBTCoinList<T>.HDKeysFor(System.Nullable<NBitcoin.HDFingerprint>, NBitcoin.IHDKey)
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).HDKeysFor(System.Nullable(Of NBitcoin.HDFingerprint), NBitcoin.IHDKey)
+  nameWithType: PSBTCoinList<T>.HDKeysFor(Nullable<HDFingerprint>, IHDKey)
+  nameWithType.vb: PSBTCoinList(Of T).HDKeysFor(Nullable(Of HDFingerprint), IHDKey)
+- uid: NBitcoin.PSBTCoinList`1.HDKeysFor*
+  name: HDKeysFor
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_HDKeysFor_
+  commentId: Overload:NBitcoin.PSBTCoinList`1.HDKeysFor
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoinList<T>.HDKeysFor
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).HDKeysFor
+  nameWithType: PSBTCoinList<T>.HDKeysFor
+  nameWithType.vb: PSBTCoinList(Of T).HDKeysFor
+- uid: NBitcoin.PSBTCoinList`1.Item(System.Int32)
+  name: Item[Int32]
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_Item_System_Int32_
+  commentId: P:NBitcoin.PSBTCoinList`1.Item(System.Int32)
+  name.vb: Item(Int32)
+  fullName: NBitcoin.PSBTCoinList<T>.Item[System.Int32]
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).Item(System.Int32)
+  nameWithType: PSBTCoinList<T>.Item[Int32]
+  nameWithType.vb: PSBTCoinList(Of T).Item(Int32)
+- uid: NBitcoin.PSBTCoinList`1.Item*
+  name: Item
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_Item_
+  commentId: Overload:NBitcoin.PSBTCoinList`1.Item
+  isSpec: "True"
+  fullName: NBitcoin.PSBTCoinList<T>.Item
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).Item
+  nameWithType: PSBTCoinList<T>.Item
+  nameWithType.vb: PSBTCoinList(Of T).Item
+- uid: NBitcoin.PSBTCoinList`1.System#Collections#IEnumerable#GetEnumerator
+  name: IEnumerable.GetEnumerator()
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_System_Collections_IEnumerable_GetEnumerator
+  commentId: M:NBitcoin.PSBTCoinList`1.System#Collections#IEnumerable#GetEnumerator
+  name.vb: System.Collections.IEnumerable.GetEnumerator()
+  fullName: NBitcoin.PSBTCoinList<T>.System.Collections.IEnumerable.GetEnumerator()
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).System.Collections.IEnumerable.GetEnumerator()
+  nameWithType: PSBTCoinList<T>.IEnumerable.GetEnumerator()
+  nameWithType.vb: PSBTCoinList(Of T).System.Collections.IEnumerable.GetEnumerator()
+- uid: NBitcoin.PSBTCoinList`1.System#Collections#IEnumerable#GetEnumerator*
+  name: IEnumerable.GetEnumerator
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_System_Collections_IEnumerable_GetEnumerator_
+  commentId: Overload:NBitcoin.PSBTCoinList`1.System#Collections#IEnumerable#GetEnumerator
+  isSpec: "True"
+  name.vb: System.Collections.IEnumerable.GetEnumerator
+  fullName: NBitcoin.PSBTCoinList<T>.System.Collections.IEnumerable.GetEnumerator
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).System.Collections.IEnumerable.GetEnumerator
+  nameWithType: PSBTCoinList<T>.IEnumerable.GetEnumerator
+  nameWithType.vb: PSBTCoinList(Of T).System.Collections.IEnumerable.GetEnumerator
 - uid: NBitcoin.PSBTError
   name: PSBTError
   href: api/NBitcoin.PSBTError.html
@@ -45491,6 +45735,124 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTException.Errors
   nameWithType: PSBTException.Errors
+- uid: NBitcoin.PSBTHDKeyMatch
+  name: PSBTHDKeyMatch
+  href: api/NBitcoin.PSBTHDKeyMatch.html
+  commentId: T:NBitcoin.PSBTHDKeyMatch
+  fullName: NBitcoin.PSBTHDKeyMatch
+  nameWithType: PSBTHDKeyMatch
+- uid: NBitcoin.PSBTHDKeyMatch.#ctor(NBitcoin.PSBTCoin,System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,System.Tuple{NBitcoin.HDFingerprint,NBitcoin.KeyPath}})
+  name: PSBTHDKeyMatch(PSBTCoin, KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>>)
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch__ctor_NBitcoin_PSBTCoin_System_Collections_Generic_KeyValuePair_NBitcoin_PubKey_System_Tuple_NBitcoin_HDFingerprint_NBitcoin_KeyPath___
+  commentId: M:NBitcoin.PSBTHDKeyMatch.#ctor(NBitcoin.PSBTCoin,System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,System.Tuple{NBitcoin.HDFingerprint,NBitcoin.KeyPath}})
+  name.vb: PSBTHDKeyMatch(PSBTCoin, KeyValuePair(Of PubKey, Tuple(Of HDFingerprint, KeyPath)))
+  fullName: NBitcoin.PSBTHDKeyMatch.PSBTHDKeyMatch(NBitcoin.PSBTCoin, System.Collections.Generic.KeyValuePair<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>)
+  fullName.vb: NBitcoin.PSBTHDKeyMatch.PSBTHDKeyMatch(NBitcoin.PSBTCoin, System.Collections.Generic.KeyValuePair(Of NBitcoin.PubKey, System.Tuple(Of NBitcoin.HDFingerprint, NBitcoin.KeyPath)))
+  nameWithType: PSBTHDKeyMatch.PSBTHDKeyMatch(PSBTCoin, KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>>)
+  nameWithType.vb: PSBTHDKeyMatch.PSBTHDKeyMatch(PSBTCoin, KeyValuePair(Of PubKey, Tuple(Of HDFingerprint, KeyPath)))
+- uid: NBitcoin.PSBTHDKeyMatch.#ctor*
+  name: PSBTHDKeyMatch
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch__ctor_
+  commentId: Overload:NBitcoin.PSBTHDKeyMatch.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.PSBTHDKeyMatch.PSBTHDKeyMatch
+  nameWithType: PSBTHDKeyMatch.PSBTHDKeyMatch
+- uid: NBitcoin.PSBTHDKeyMatch.Coin
+  name: Coin
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_Coin
+  commentId: P:NBitcoin.PSBTHDKeyMatch.Coin
+  fullName: NBitcoin.PSBTHDKeyMatch.Coin
+  nameWithType: PSBTHDKeyMatch.Coin
+- uid: NBitcoin.PSBTHDKeyMatch.Coin*
+  name: Coin
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_Coin_
+  commentId: Overload:NBitcoin.PSBTHDKeyMatch.Coin
+  isSpec: "True"
+  fullName: NBitcoin.PSBTHDKeyMatch.Coin
+  nameWithType: PSBTHDKeyMatch.Coin
+- uid: NBitcoin.PSBTHDKeyMatch.Fingerprint
+  name: Fingerprint
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_Fingerprint
+  commentId: P:NBitcoin.PSBTHDKeyMatch.Fingerprint
+  fullName: NBitcoin.PSBTHDKeyMatch.Fingerprint
+  nameWithType: PSBTHDKeyMatch.Fingerprint
+- uid: NBitcoin.PSBTHDKeyMatch.Fingerprint*
+  name: Fingerprint
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_Fingerprint_
+  commentId: Overload:NBitcoin.PSBTHDKeyMatch.Fingerprint
+  isSpec: "True"
+  fullName: NBitcoin.PSBTHDKeyMatch.Fingerprint
+  nameWithType: PSBTHDKeyMatch.Fingerprint
+- uid: NBitcoin.PSBTHDKeyMatch.KeyPath
+  name: KeyPath
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_KeyPath
+  commentId: P:NBitcoin.PSBTHDKeyMatch.KeyPath
+  fullName: NBitcoin.PSBTHDKeyMatch.KeyPath
+  nameWithType: PSBTHDKeyMatch.KeyPath
+- uid: NBitcoin.PSBTHDKeyMatch.KeyPath*
+  name: KeyPath
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_KeyPath_
+  commentId: Overload:NBitcoin.PSBTHDKeyMatch.KeyPath
+  isSpec: "True"
+  fullName: NBitcoin.PSBTHDKeyMatch.KeyPath
+  nameWithType: PSBTHDKeyMatch.KeyPath
+- uid: NBitcoin.PSBTHDKeyMatch.PubKey
+  name: PubKey
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_PubKey
+  commentId: P:NBitcoin.PSBTHDKeyMatch.PubKey
+  fullName: NBitcoin.PSBTHDKeyMatch.PubKey
+  nameWithType: PSBTHDKeyMatch.PubKey
+- uid: NBitcoin.PSBTHDKeyMatch.PubKey*
+  name: PubKey
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_PubKey_
+  commentId: Overload:NBitcoin.PSBTHDKeyMatch.PubKey
+  isSpec: "True"
+  fullName: NBitcoin.PSBTHDKeyMatch.PubKey
+  nameWithType: PSBTHDKeyMatch.PubKey
+- uid: NBitcoin.PSBTHDKeyMatch`1
+  name: PSBTHDKeyMatch<T>
+  href: api/NBitcoin.PSBTHDKeyMatch-1.html
+  commentId: T:NBitcoin.PSBTHDKeyMatch`1
+  name.vb: PSBTHDKeyMatch(Of T)
+  fullName: NBitcoin.PSBTHDKeyMatch<T>
+  fullName.vb: NBitcoin.PSBTHDKeyMatch(Of T)
+  nameWithType: PSBTHDKeyMatch<T>
+  nameWithType.vb: PSBTHDKeyMatch(Of T)
+- uid: NBitcoin.PSBTHDKeyMatch`1.#ctor(`0,System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,System.Tuple{NBitcoin.HDFingerprint,NBitcoin.KeyPath}})
+  name: PSBTHDKeyMatch(T, KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>>)
+  href: api/NBitcoin.PSBTHDKeyMatch-1.html#NBitcoin_PSBTHDKeyMatch_1__ctor__0_System_Collections_Generic_KeyValuePair_NBitcoin_PubKey_System_Tuple_NBitcoin_HDFingerprint_NBitcoin_KeyPath___
+  commentId: M:NBitcoin.PSBTHDKeyMatch`1.#ctor(`0,System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,System.Tuple{NBitcoin.HDFingerprint,NBitcoin.KeyPath}})
+  name.vb: PSBTHDKeyMatch(T, KeyValuePair(Of PubKey, Tuple(Of HDFingerprint, KeyPath)))
+  fullName: NBitcoin.PSBTHDKeyMatch<T>.PSBTHDKeyMatch(T, System.Collections.Generic.KeyValuePair<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>)
+  fullName.vb: NBitcoin.PSBTHDKeyMatch(Of T).PSBTHDKeyMatch(T, System.Collections.Generic.KeyValuePair(Of NBitcoin.PubKey, System.Tuple(Of NBitcoin.HDFingerprint, NBitcoin.KeyPath)))
+  nameWithType: PSBTHDKeyMatch<T>.PSBTHDKeyMatch(T, KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>>)
+  nameWithType.vb: PSBTHDKeyMatch(Of T).PSBTHDKeyMatch(T, KeyValuePair(Of PubKey, Tuple(Of HDFingerprint, KeyPath)))
+- uid: NBitcoin.PSBTHDKeyMatch`1.#ctor*
+  name: PSBTHDKeyMatch
+  href: api/NBitcoin.PSBTHDKeyMatch-1.html#NBitcoin_PSBTHDKeyMatch_1__ctor_
+  commentId: Overload:NBitcoin.PSBTHDKeyMatch`1.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.PSBTHDKeyMatch<T>.PSBTHDKeyMatch
+  fullName.vb: NBitcoin.PSBTHDKeyMatch(Of T).PSBTHDKeyMatch
+  nameWithType: PSBTHDKeyMatch<T>.PSBTHDKeyMatch
+  nameWithType.vb: PSBTHDKeyMatch(Of T).PSBTHDKeyMatch
+- uid: NBitcoin.PSBTHDKeyMatch`1.Coin
+  name: Coin
+  href: api/NBitcoin.PSBTHDKeyMatch-1.html#NBitcoin_PSBTHDKeyMatch_1_Coin
+  commentId: P:NBitcoin.PSBTHDKeyMatch`1.Coin
+  fullName: NBitcoin.PSBTHDKeyMatch<T>.Coin
+  fullName.vb: NBitcoin.PSBTHDKeyMatch(Of T).Coin
+  nameWithType: PSBTHDKeyMatch<T>.Coin
+  nameWithType.vb: PSBTHDKeyMatch(Of T).Coin
+- uid: NBitcoin.PSBTHDKeyMatch`1.Coin*
+  name: Coin
+  href: api/NBitcoin.PSBTHDKeyMatch-1.html#NBitcoin_PSBTHDKeyMatch_1_Coin_
+  commentId: Overload:NBitcoin.PSBTHDKeyMatch`1.Coin
+  isSpec: "True"
+  fullName: NBitcoin.PSBTHDKeyMatch<T>.Coin
+  fullName.vb: NBitcoin.PSBTHDKeyMatch(Of T).Coin
+  nameWithType: PSBTHDKeyMatch<T>.Coin
+  nameWithType.vb: PSBTHDKeyMatch(Of T).Coin
 - uid: NBitcoin.PSBTInput
   name: PSBTInput
   href: api/NBitcoin.PSBTInput.html
@@ -45536,6 +45898,22 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.CheckSanity
   nameWithType: PSBTInput.CheckSanity
+- uid: NBitcoin.PSBTInput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,System.Tuple{NBitcoin.HDFingerprint,NBitcoin.KeyPath}})
+  name: CreateHDKeyMatch(KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>>)
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_CreateHDKeyMatch_System_Collections_Generic_KeyValuePair_NBitcoin_PubKey_System_Tuple_NBitcoin_HDFingerprint_NBitcoin_KeyPath___
+  commentId: M:NBitcoin.PSBTInput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,System.Tuple{NBitcoin.HDFingerprint,NBitcoin.KeyPath}})
+  name.vb: CreateHDKeyMatch(KeyValuePair(Of PubKey, Tuple(Of HDFingerprint, KeyPath)))
+  fullName: NBitcoin.PSBTInput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>)
+  fullName.vb: NBitcoin.PSBTInput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair(Of NBitcoin.PubKey, System.Tuple(Of NBitcoin.HDFingerprint, NBitcoin.KeyPath)))
+  nameWithType: PSBTInput.CreateHDKeyMatch(KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>>)
+  nameWithType.vb: PSBTInput.CreateHDKeyMatch(KeyValuePair(Of PubKey, Tuple(Of HDFingerprint, KeyPath)))
+- uid: NBitcoin.PSBTInput.CreateHDKeyMatch*
+  name: CreateHDKeyMatch
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_CreateHDKeyMatch_
+  commentId: Overload:NBitcoin.PSBTInput.CreateHDKeyMatch
+  isSpec: "True"
+  fullName: NBitcoin.PSBTInput.CreateHDKeyMatch
+  nameWithType: PSBTInput.CreateHDKeyMatch
 - uid: NBitcoin.PSBTInput.Equals(NBitcoin.PSBTInput)
   name: Equals(PSBTInput)
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_Equals_NBitcoin_PSBTInput_
@@ -45814,12 +46192,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.TryFinalizeInput
   nameWithType: PSBTInput.TryFinalizeInput
-- uid: NBitcoin.PSBTInput.TrySign(NBitcoin.ExtKey,NBitcoin.SigHash)
-  name: TrySign(ExtKey, SigHash)
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySign_NBitcoin_ExtKey_NBitcoin_SigHash_
-  commentId: M:NBitcoin.PSBTInput.TrySign(NBitcoin.ExtKey,NBitcoin.SigHash)
-  fullName: NBitcoin.PSBTInput.TrySign(NBitcoin.ExtKey, NBitcoin.SigHash)
-  nameWithType: PSBTInput.TrySign(ExtKey, SigHash)
+- uid: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey,NBitcoin.SigHash)
+  name: TrySign(IHDKey, SigHash)
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySign_NBitcoin_IHDKey_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey, NBitcoin.SigHash)
+  nameWithType: PSBTInput.TrySign(IHDKey, SigHash)
 - uid: NBitcoin.PSBTInput.TrySign*
   name: TrySign
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySign_
@@ -45859,19 +46237,6 @@ references:
   commentId: T:NBitcoin.PSBTInputList
   fullName: NBitcoin.PSBTInputList
   nameWithType: PSBTInputList
-- uid: NBitcoin.PSBTInputList.Count
-  name: Count
-  href: api/NBitcoin.PSBTInputList.html#NBitcoin_PSBTInputList_Count
-  commentId: P:NBitcoin.PSBTInputList.Count
-  fullName: NBitcoin.PSBTInputList.Count
-  nameWithType: PSBTInputList.Count
-- uid: NBitcoin.PSBTInputList.Count*
-  name: Count
-  href: api/NBitcoin.PSBTInputList.html#NBitcoin_PSBTInputList_Count_
-  commentId: Overload:NBitcoin.PSBTInputList.Count
-  isSpec: "True"
-  fullName: NBitcoin.PSBTInputList.Count
-  nameWithType: PSBTInputList.Count
 - uid: NBitcoin.PSBTInputList.FindIndexedInput(NBitcoin.OutPoint)
   name: FindIndexedInput(OutPoint)
   href: api/NBitcoin.PSBTInputList.html#NBitcoin_PSBTInputList_FindIndexedInput_NBitcoin_OutPoint_
@@ -45885,58 +46250,28 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInputList.FindIndexedInput
   nameWithType: PSBTInputList.FindIndexedInput
-- uid: NBitcoin.PSBTInputList.GetEnumerator
-  name: GetEnumerator()
-  href: api/NBitcoin.PSBTInputList.html#NBitcoin_PSBTInputList_GetEnumerator
-  commentId: M:NBitcoin.PSBTInputList.GetEnumerator
-  fullName: NBitcoin.PSBTInputList.GetEnumerator()
-  nameWithType: PSBTInputList.GetEnumerator()
-- uid: NBitcoin.PSBTInputList.GetEnumerator*
-  name: GetEnumerator
-  href: api/NBitcoin.PSBTInputList.html#NBitcoin_PSBTInputList_GetEnumerator_
-  commentId: Overload:NBitcoin.PSBTInputList.GetEnumerator
-  isSpec: "True"
-  fullName: NBitcoin.PSBTInputList.GetEnumerator
-  nameWithType: PSBTInputList.GetEnumerator
-- uid: NBitcoin.PSBTInputList.Item(System.Int32)
-  name: Item[Int32]
-  href: api/NBitcoin.PSBTInputList.html#NBitcoin_PSBTInputList_Item_System_Int32_
-  commentId: P:NBitcoin.PSBTInputList.Item(System.Int32)
-  name.vb: Item(Int32)
-  fullName: NBitcoin.PSBTInputList.Item[System.Int32]
-  fullName.vb: NBitcoin.PSBTInputList.Item(System.Int32)
-  nameWithType: PSBTInputList.Item[Int32]
-  nameWithType.vb: PSBTInputList.Item(Int32)
-- uid: NBitcoin.PSBTInputList.Item*
-  name: Item
-  href: api/NBitcoin.PSBTInputList.html#NBitcoin_PSBTInputList_Item_
-  commentId: Overload:NBitcoin.PSBTInputList.Item
-  isSpec: "True"
-  fullName: NBitcoin.PSBTInputList.Item
-  nameWithType: PSBTInputList.Item
-- uid: NBitcoin.PSBTInputList.System#Collections#IEnumerable#GetEnumerator
-  name: IEnumerable.GetEnumerator()
-  href: api/NBitcoin.PSBTInputList.html#NBitcoin_PSBTInputList_System_Collections_IEnumerable_GetEnumerator
-  commentId: M:NBitcoin.PSBTInputList.System#Collections#IEnumerable#GetEnumerator
-  name.vb: System.Collections.IEnumerable.GetEnumerator()
-  fullName: NBitcoin.PSBTInputList.System.Collections.IEnumerable.GetEnumerator()
-  nameWithType: PSBTInputList.IEnumerable.GetEnumerator()
-  nameWithType.vb: PSBTInputList.System.Collections.IEnumerable.GetEnumerator()
-- uid: NBitcoin.PSBTInputList.System#Collections#IEnumerable#GetEnumerator*
-  name: IEnumerable.GetEnumerator
-  href: api/NBitcoin.PSBTInputList.html#NBitcoin_PSBTInputList_System_Collections_IEnumerable_GetEnumerator_
-  commentId: Overload:NBitcoin.PSBTInputList.System#Collections#IEnumerable#GetEnumerator
-  isSpec: "True"
-  name.vb: System.Collections.IEnumerable.GetEnumerator
-  fullName: NBitcoin.PSBTInputList.System.Collections.IEnumerable.GetEnumerator
-  nameWithType: PSBTInputList.IEnumerable.GetEnumerator
-  nameWithType.vb: PSBTInputList.System.Collections.IEnumerable.GetEnumerator
 - uid: NBitcoin.PSBTOutput
   name: PSBTOutput
   href: api/NBitcoin.PSBTOutput.html
   commentId: T:NBitcoin.PSBTOutput
   fullName: NBitcoin.PSBTOutput
   nameWithType: PSBTOutput
+- uid: NBitcoin.PSBTOutput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,System.Tuple{NBitcoin.HDFingerprint,NBitcoin.KeyPath}})
+  name: CreateHDKeyMatch(KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>>)
+  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_CreateHDKeyMatch_System_Collections_Generic_KeyValuePair_NBitcoin_PubKey_System_Tuple_NBitcoin_HDFingerprint_NBitcoin_KeyPath___
+  commentId: M:NBitcoin.PSBTOutput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,System.Tuple{NBitcoin.HDFingerprint,NBitcoin.KeyPath}})
+  name.vb: CreateHDKeyMatch(KeyValuePair(Of PubKey, Tuple(Of HDFingerprint, KeyPath)))
+  fullName: NBitcoin.PSBTOutput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>)
+  fullName.vb: NBitcoin.PSBTOutput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair(Of NBitcoin.PubKey, System.Tuple(Of NBitcoin.HDFingerprint, NBitcoin.KeyPath)))
+  nameWithType: PSBTOutput.CreateHDKeyMatch(KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>>)
+  nameWithType.vb: PSBTOutput.CreateHDKeyMatch(KeyValuePair(Of PubKey, Tuple(Of HDFingerprint, KeyPath)))
+- uid: NBitcoin.PSBTOutput.CreateHDKeyMatch*
+  name: CreateHDKeyMatch
+  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_CreateHDKeyMatch_
+  commentId: Overload:NBitcoin.PSBTOutput.CreateHDKeyMatch
+  isSpec: "True"
+  fullName: NBitcoin.PSBTOutput.CreateHDKeyMatch
+  nameWithType: PSBTOutput.CreateHDKeyMatch
 - uid: NBitcoin.PSBTOutput.Equals(NBitcoin.PSBTOutput)
   name: Equals(PSBTOutput)
   href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_Equals_NBitcoin_PSBTOutput_
@@ -46079,65 +46414,6 @@ references:
   commentId: T:NBitcoin.PSBTOutputList
   fullName: NBitcoin.PSBTOutputList
   nameWithType: PSBTOutputList
-- uid: NBitcoin.PSBTOutputList.Count
-  name: Count
-  href: api/NBitcoin.PSBTOutputList.html#NBitcoin_PSBTOutputList_Count
-  commentId: P:NBitcoin.PSBTOutputList.Count
-  fullName: NBitcoin.PSBTOutputList.Count
-  nameWithType: PSBTOutputList.Count
-- uid: NBitcoin.PSBTOutputList.Count*
-  name: Count
-  href: api/NBitcoin.PSBTOutputList.html#NBitcoin_PSBTOutputList_Count_
-  commentId: Overload:NBitcoin.PSBTOutputList.Count
-  isSpec: "True"
-  fullName: NBitcoin.PSBTOutputList.Count
-  nameWithType: PSBTOutputList.Count
-- uid: NBitcoin.PSBTOutputList.GetEnumerator
-  name: GetEnumerator()
-  href: api/NBitcoin.PSBTOutputList.html#NBitcoin_PSBTOutputList_GetEnumerator
-  commentId: M:NBitcoin.PSBTOutputList.GetEnumerator
-  fullName: NBitcoin.PSBTOutputList.GetEnumerator()
-  nameWithType: PSBTOutputList.GetEnumerator()
-- uid: NBitcoin.PSBTOutputList.GetEnumerator*
-  name: GetEnumerator
-  href: api/NBitcoin.PSBTOutputList.html#NBitcoin_PSBTOutputList_GetEnumerator_
-  commentId: Overload:NBitcoin.PSBTOutputList.GetEnumerator
-  isSpec: "True"
-  fullName: NBitcoin.PSBTOutputList.GetEnumerator
-  nameWithType: PSBTOutputList.GetEnumerator
-- uid: NBitcoin.PSBTOutputList.Item(System.Int32)
-  name: Item[Int32]
-  href: api/NBitcoin.PSBTOutputList.html#NBitcoin_PSBTOutputList_Item_System_Int32_
-  commentId: P:NBitcoin.PSBTOutputList.Item(System.Int32)
-  name.vb: Item(Int32)
-  fullName: NBitcoin.PSBTOutputList.Item[System.Int32]
-  fullName.vb: NBitcoin.PSBTOutputList.Item(System.Int32)
-  nameWithType: PSBTOutputList.Item[Int32]
-  nameWithType.vb: PSBTOutputList.Item(Int32)
-- uid: NBitcoin.PSBTOutputList.Item*
-  name: Item
-  href: api/NBitcoin.PSBTOutputList.html#NBitcoin_PSBTOutputList_Item_
-  commentId: Overload:NBitcoin.PSBTOutputList.Item
-  isSpec: "True"
-  fullName: NBitcoin.PSBTOutputList.Item
-  nameWithType: PSBTOutputList.Item
-- uid: NBitcoin.PSBTOutputList.System#Collections#IEnumerable#GetEnumerator
-  name: IEnumerable.GetEnumerator()
-  href: api/NBitcoin.PSBTOutputList.html#NBitcoin_PSBTOutputList_System_Collections_IEnumerable_GetEnumerator
-  commentId: M:NBitcoin.PSBTOutputList.System#Collections#IEnumerable#GetEnumerator
-  name.vb: System.Collections.IEnumerable.GetEnumerator()
-  fullName: NBitcoin.PSBTOutputList.System.Collections.IEnumerable.GetEnumerator()
-  nameWithType: PSBTOutputList.IEnumerable.GetEnumerator()
-  nameWithType.vb: PSBTOutputList.System.Collections.IEnumerable.GetEnumerator()
-- uid: NBitcoin.PSBTOutputList.System#Collections#IEnumerable#GetEnumerator*
-  name: IEnumerable.GetEnumerator
-  href: api/NBitcoin.PSBTOutputList.html#NBitcoin_PSBTOutputList_System_Collections_IEnumerable_GetEnumerator_
-  commentId: Overload:NBitcoin.PSBTOutputList.System#Collections#IEnumerable#GetEnumerator
-  isSpec: "True"
-  name.vb: System.Collections.IEnumerable.GetEnumerator
-  fullName: NBitcoin.PSBTOutputList.System.Collections.IEnumerable.GetEnumerator
-  nameWithType: PSBTOutputList.IEnumerable.GetEnumerator
-  nameWithType.vb: PSBTOutputList.System.Collections.IEnumerable.GetEnumerator
 - uid: NBitcoin.PSBTSettings
   name: PSBTSettings
   href: api/NBitcoin.PSBTSettings.html
