@@ -233,6 +233,9 @@ namespace NBitcoin
 			return hardened ? nonhardened + "'" : nonhardened.ToString(CultureInfo.InvariantCulture);
 		}
 
+		/// <summary>
+		/// True if the last index in the path is hardened
+		/// </summary>
 		public bool IsHardened
 		{
 			get
@@ -240,6 +243,17 @@ namespace NBitcoin
 				if(_Indexes.Length == 0)
 					throw new InvalidOperationException("No index found in this KeyPath");
 				return (_Indexes[_Indexes.Length - 1] & 0x80000000u) != 0;
+			}
+		}
+
+		/// <summary>
+		/// True if at least one index in the path is hardened
+		/// </summary>
+		public bool IsHardenedPath
+		{
+			get
+			{
+				return _Indexes.Any(i => (i & 0x80000000u) != 0);
 			}
 		}
 	}

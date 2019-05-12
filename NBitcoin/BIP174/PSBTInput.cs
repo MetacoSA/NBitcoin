@@ -313,14 +313,14 @@ namespace NBitcoin
 			foreach (var uk in other.unknown)
 				unknown.TryAdd(uk.Key, uk.Value);
 
-			if (other.IsFinalized())
+
+			if (other.final_script_sig != null)
+				final_script_sig = other.final_script_sig;
+
+			if (other.final_script_witness != null)
+				final_script_witness = other.final_script_witness;
+			if (IsFinalized())
 			{
-				if (other.final_script_sig != null)
-					final_script_sig = other.final_script_sig;
-
-				if (other.final_script_witness != null)
-					final_script_witness = other.final_script_witness;
-
 				ClearForFinalize();
 				return;
 			}
