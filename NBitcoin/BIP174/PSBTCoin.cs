@@ -171,5 +171,50 @@ namespace NBitcoin
 				}
 			}
 		}
+		/// <summary>
+		/// Filter the hd keys which contains a HD Key path matching this master root key
+		/// </summary>
+		/// <param name="masterKey">The master root key</param>
+		/// <returns>HD Keys matching master root key</returns>
+		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDKey masterKey)
+		{
+			if (masterKey == null)
+				throw new ArgumentNullException(nameof(masterKey));
+			return HDKeysFor(null, masterKey);
+		}
+		/// <summary>
+		/// Filter the hd keys which contains a HD Key path matching this masterFingerprint/account key
+		/// </summary>
+		/// <param name="masterFingerprint">The master root fingerprint</param>
+		/// <param name="accountKey">The account key (ie. 49'/0'/0')</param>
+		/// <returns>HD Keys matching master root key</returns>
+		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(HDFingerprint? masterFingerprint, IHDKey accountKey)
+		{
+			if (accountKey == null)
+				throw new ArgumentNullException(nameof(accountKey));
+			return HDKeysFor(masterFingerprint, accountKey, accountKey.GetPublicKey().GetHDFingerPrint());
+		}
+		internal IEnumerable<PSBTHDKeyMatch> HDKeysFor(HDFingerprint? masterFingerprint, IHDKey accountKey, HDFingerprint accountFingerprint)
+		{
+			foreach (var hdKey in HDKeyPaths)
+			{
+				if (hdKey.Value.Item1 == accountFingerprint)
+				{
+					if (!hdKey.Value.Item2.IsHardenedPath || accountKey.CanDeriveHardenedPath())
+					{
+						if (accountKey.Derive(hdKey.Value.Item2).GetPublicKey() == hdKey.Key)
+							yield return CreateHDKeyMatch(hdKey);
+					}
+				}
+				else if (masterFingerprint is HDFingerprint mp && hdKey.Value.Item1 == mp)
+				{
+					var addressPath = hdKey.Value.Item2.GetAddressKeyPath();
+					if (accountKey.Derive(addressPath).GetPublicKey() == hdKey.Key)
+						yield return CreateHDKeyMatch(hdKey);
+				}
+			}
+		}
+
+		protected abstract PSBTHDKeyMatch CreateHDKeyMatch(KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>> kv);
 	}
 }

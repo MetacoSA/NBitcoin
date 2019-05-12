@@ -468,26 +468,18 @@ namespace NBitcoin
 			}
 			return errors;
 		}
-		public void TrySign(ExtKey masterKey, SigHash sigHash = SigHash.All)
-		{
-			TrySign(masterKey as IHDKey, sigHash);
-		}
-		internal void TrySign(IHDKey masterKey, SigHash sigHash = SigHash.All)
+
+		public void TrySign(IHDKey masterKey, SigHash sigHash = SigHash.All)
 		{
 			if (masterKey == null)
 				throw new ArgumentNullException(nameof(masterKey));
 			var cache = masterKey.AsHDKeyCache();
-			foreach (var hdk in HDKeyPaths)
+			foreach (var hdk in this.HDKeysFor(masterKey))
 			{
-				var pubkey = hdk.Key;
-				var keyPath = hdk.Value.Item2;
-				var fp = hdk.Value.Item1;
-
-				if ((fp == masterKey.GetPublicKey().GetHDFingerPrint() || fp == default) &&
-					(((HDKeyCache)cache.Derive(keyPath)).Inner is ExtKey k && k.GetPublicKey() == pubkey))
-				{
+				if (((HDKeyCache)cache.Derive(hdk.KeyPath)).Inner is ExtKey k)
 					Sign(k.PrivateKey, sigHash);
-				}
+				else
+					throw new ArgumentException(paramName: nameof(masterKey), message: "This should be a private key");
 			}
 		}
 
@@ -875,15 +867,17 @@ namespace NBitcoin
 			jsonWriter.Flush();
 			return strWriter.ToString();
 		}
+
+		protected override PSBTHDKeyMatch CreateHDKeyMatch(KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>> kv)
+		{
+			return new PSBTHDKeyMatch<PSBTInput>(this, kv);
+		}
 	}
 
-	public class PSBTInputList : IReadOnlyList<PSBTInput>
+	public class PSBTInputList : PSBTCoinList<PSBTInput>
 	{
-		List<PSBTInput> _Inner = new List<PSBTInput>();
 		Dictionary<OutPoint, PSBTInput> _InputsByOutpoint = new Dictionary<OutPoint, PSBTInput>();
-		public PSBTInput this[int index] => _Inner[index];
 
-		public int Count => _Inner.Count;
 
 		internal void Add(PSBTInput input)
 		{
@@ -898,17 +892,6 @@ namespace NBitcoin
 			_InputsByOutpoint.TryGetValue(prevOut, out var result);
 			return result;
 		}
-
-		public IEnumerator<PSBTInput> GetEnumerator()
-		{
-			return _Inner.GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return _Inner.GetEnumerator();
-		}
-
 	}
 
 }

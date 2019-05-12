@@ -235,27 +235,19 @@ namespace NBitcoin
 		{
 			return new Coin(OutPoint.Zero, TxOut);
 		}
+
+		protected override PSBTHDKeyMatch CreateHDKeyMatch(KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>> kv)
+		{
+			return new PSBTHDKeyMatch<PSBTOutput>(this, kv);
+		}
 	}
 	
 
-	public class PSBTOutputList : IReadOnlyCollection<PSBTOutput>
+	public class PSBTOutputList : PSBTCoinList<PSBTOutput>
 	{
-		List<PSBTOutput> _Inner = new List<PSBTOutput>();
-		public int Count => _Inner.Count;
-
 		internal void Add(PSBTOutput item)
 		{
 			_Inner.Add(item);
 		}
-		public IEnumerator<PSBTOutput> GetEnumerator()
-		{
-			return _Inner.GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return _Inner.GetEnumerator();
-		}
-		public PSBTOutput this[int index] => _Inner[index];
 	}
 }

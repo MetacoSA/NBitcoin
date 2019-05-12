@@ -507,12 +507,18 @@ namespace NBitcoin.Tests
 			Assert.Equal(accountExtKey.GetPublicKey().GetHDFingerPrint(), psbt.Inputs[0].HDKeyPaths[accountExtKey.Derive(0).GetPublicKey()].Item1);
 			Assert.Equal(accountExtKey.GetPublicKey().GetHDFingerPrint(), psbt.Inputs[1].HDKeyPaths[accountExtKey.Derive(1).GetPublicKey()].Item1);
 
+			var memento = psbt.Clone();
 			psbt.RebaseKeyPaths(accountExtKey, new KeyPath("0'/0'/0'"), masterExtkey.GetPublicKey().GetHDFingerPrint());
 
 			Assert.Equal(new KeyPath("0'/0'/0'/0"), psbt.Inputs[0].HDKeyPaths[accountExtKey.Derive(0).GetPublicKey()].Item2);
 			Assert.Equal(new KeyPath("0'/0'/0'/1"), psbt.Inputs[1].HDKeyPaths[accountExtKey.Derive(1).GetPublicKey()].Item2);
 			Assert.Equal(masterExtkey.GetPublicKey().GetHDFingerPrint(), psbt.Inputs[0].HDKeyPaths[accountExtKey.Derive(0).GetPublicKey()].Item1);
 			Assert.Equal(masterExtkey.GetPublicKey().GetHDFingerPrint(), psbt.Inputs[1].HDKeyPaths[accountExtKey.Derive(1).GetPublicKey()].Item1);
+
+			Assert.NotEqual(Money.Zero, psbt.GetBalance(masterExtkey));
+			Assert.Equal(psbt.GetBalance(masterExtkey), psbt.GetBalance(masterExtkey.GetPublicKey().GetHDFingerPrint(), accountExtKey));
+			Assert.Equal(psbt.GetBalance(masterExtkey), psbt.GetBalance(masterExtkey.GetPublicKey().GetHDFingerPrint(), accountExtKey.Neuter()));
+			Assert.Equal(Money.Zero, psbt.GetBalance(masterExtkey.Neuter())); // Can't derive!
 		}
 
 		[Fact]

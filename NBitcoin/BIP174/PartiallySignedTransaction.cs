@@ -482,14 +482,17 @@ namespace NBitcoin
 			return SignAll(sigHash, keys.Select(k => k.PrivateKey).ToArray());
 		}
 
-		public PSBT SignAll(ExtKey masterKey, SigHash sigHash = SigHash.All)
+		public PSBT SignAll(IHDKey masterKey, SigHash sigHash = SigHash.All)
 		{
 			if (masterKey == null)
 				throw new ArgumentNullException(nameof(masterKey));
 			var cache = masterKey.AsHDKeyCache();
-			foreach (var o in Inputs)
+			foreach (var o in Inputs.HDKeysFor(masterKey))
 			{
-				o.TrySign(cache, sigHash);
+				if (((HDKeyCache)cache.Derive(o.KeyPath)).Inner is ExtKey k)
+					o.Coin.Sign(k.PrivateKey, sigHash);
+				else
+					throw new ArgumentException(paramName: nameof(masterKey), message: "This should be a private key");
 			}
 			return this;
 		}
@@ -792,35 +795,82 @@ namespace NBitcoin
 		/// <summary>
 		/// Get the balance change if you were signing this transaction.
 		/// </summary>
+		/// <param name="masterKey">The master root key that will be used to sign</param>
 		/// <returns>The balance change</returns>
 		public Money GetBalance(IHDKey masterKey)
 		{
 			if (masterKey == null)
 				throw new ArgumentNullException(nameof(masterKey));
-			var masterFP = masterKey.GetPublicKey().GetHDFingerPrint();
+			return GetBalance(null, masterKey);
+		}
+
+		/// <summary>
+		/// Get the balance change if you were signing this transaction.
+		/// </summary>
+		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
+		/// <param name="masterFingerprint">The fingerprint of the master root key</param>
+		/// <returns>The balance change</returns>
+		public Money GetBalance(HDFingerprint? masterFingerprint, IHDKey accountKey)
+		{
+			if (accountKey == null)
+				throw new ArgumentNullException(nameof(accountKey));
 			Money total = Money.Zero;
-			masterKey = masterKey.AsHDKeyCache();
-			foreach (var o in Inputs.OfType<PSBTCoin>().Concat(Outputs))
+			foreach (var o in CoinsFor(masterFingerprint, accountKey))
 			{
 				var amount = o.GetCoin()?.Amount;
 				if (amount == null)
 					continue;
-				if (o is PSBTInput)
-					amount = -amount;
-				foreach (var hdk in o.HDKeyPaths)
-				{
-					var pubkey = hdk.Key;
-					var keyPath = hdk.Value.Item2;
-					var fp = hdk.Value.Item1;
-
-					if ((fp == masterKey.GetPublicKey().GetHDFingerPrint() || fp == default) &&
-						(masterKey.Derive(keyPath).GetPublicKey() == pubkey))
-					{
-						total += amount;
-					}
-				}
+				total += o is PSBTInput ? -amount : amount;
 			}
 			return total;
+		}
+
+		/// <summary>
+		/// Filter the coins which contains a HD Key path matching this masterFingerprint/account key
+		/// </summary>
+		/// <param name="masterFingerprint">The master root fingerprint</param>
+		/// <param name="accountKey">The account key (ie. 49'/0'/0')</param>
+		/// <returns>Inputs with HD keys matching masterFingerprint and account key</returns>
+		public IEnumerable<PSBTCoin> CoinsFor(HDFingerprint? masterFingerprint, IHDKey accountKey)
+		{
+			if (accountKey == null)
+				throw new ArgumentNullException(nameof(accountKey));
+			return Inputs.CoinsFor(masterFingerprint, accountKey).OfType<PSBTCoin>().Concat(Outputs.CoinsFor(masterFingerprint, accountKey).OfType<PSBTCoin>());
+		}
+		/// <summary>
+		/// Filter the coins which contains a HD Key path matching this master root key
+		/// </summary>
+		/// <param name="masterKey">The master root key</param>
+		/// <returns>Inputs with HD keys matching master root key</returns>
+		public IEnumerable<PSBTCoin> CoinsFor(IHDKey masterKey)
+		{
+			if (masterKey == null)
+				throw new ArgumentNullException(nameof(masterKey));
+			return Inputs.CoinsFor(masterKey).OfType<PSBTCoin>().Concat(Outputs.CoinsFor(masterKey).OfType<PSBTCoin>());
+		}
+
+		/// <summary>
+		/// Filter the hd keys which contains a HD Key path matching this masterFingerprint/account key
+		/// </summary>
+		/// <param name="masterFingerprint">The master root fingerprint</param>
+		/// <param name="accountKey">The account key (ie. 49'/0'/0')</param>
+		/// <returns>HD Keys matching master root key</returns>
+		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(HDFingerprint? masterFingerprint, IHDKey accountKey)
+		{
+			if (accountKey == null)
+				throw new ArgumentNullException(nameof(accountKey));
+			return Inputs.HDKeysFor(masterFingerprint, accountKey).OfType<PSBTHDKeyMatch>().Concat(Outputs.HDKeysFor(masterFingerprint, accountKey));
+		}
+		/// <summary>
+		/// Filter the hd keys which contains a HD Key path matching this master root key
+		/// </summary>
+		/// <param name="masterKey">The master root key</param>
+		/// <returns>HD Keys matching master root key</returns>
+		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDKey masterKey)
+		{
+			if (masterKey == null)
+				throw new ArgumentNullException(nameof(masterKey));
+			return Inputs.HDKeysFor(masterKey).OfType<PSBTHDKeyMatch>().Concat(Outputs.HDKeysFor(masterKey));
 		}
 
 		/// <summary>
@@ -926,18 +976,12 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(accountKeyPath));
 			accountKey = accountKey.AsHDKeyCache();
 			var accountKeyFP = accountKey.GetPublicKey().GetHDFingerPrint();
-			foreach (var o in Inputs.OfType<PSBTCoin>().Concat(Outputs))
+			foreach (var o in HDKeysFor(null, accountKey).GroupBy(c => c.Coin))
 			{
-				foreach (var keypath in o.HDKeyPaths.ToList())
+				foreach (var keyPath in o)
 				{
-					if (keypath.Value.Item1 == accountKeyFP &&
-						accountKey.CanDeriveHardenedPath() || !keypath.Value.Item2.IsHardenedPath &&
-						keypath.Key == accountKey.Derive(keypath.Value.Item2).GetPublicKey())
-					{
-						var newKeyPath = accountKeyPath.Derive(keypath.Value.Item2);
-						o.HDKeyPaths.Remove(keypath.Key);
-						o.HDKeyPaths.Add(keypath.Key, Tuple.Create(masterFingerprint, newKeyPath));
-					}
+					o.Key.HDKeyPaths.Remove(keyPath.PubKey);
+					o.Key.HDKeyPaths.Add(keyPath.PubKey, Tuple.Create(masterFingerprint, accountKeyPath.Derive(keyPath.KeyPath)));
 				}
 			}
 			return this;
