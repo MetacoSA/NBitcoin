@@ -12182,6 +12182,23 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BitcoinExtKey.IsValid
   nameWithType: BitcoinExtKey.IsValid
+- uid: NBitcoin.BitcoinExtKey.NBitcoin#IHDKey#CanDeriveHardenedPath
+  name: IHDKey.CanDeriveHardenedPath()
+  href: api/NBitcoin.BitcoinExtKey.html#NBitcoin_BitcoinExtKey_NBitcoin_IHDKey_CanDeriveHardenedPath
+  commentId: M:NBitcoin.BitcoinExtKey.NBitcoin#IHDKey#CanDeriveHardenedPath
+  name.vb: NBitcoin.IHDKey.CanDeriveHardenedPath()
+  fullName: NBitcoin.BitcoinExtKey.NBitcoin.IHDKey.CanDeriveHardenedPath()
+  nameWithType: BitcoinExtKey.IHDKey.CanDeriveHardenedPath()
+  nameWithType.vb: BitcoinExtKey.NBitcoin.IHDKey.CanDeriveHardenedPath()
+- uid: NBitcoin.BitcoinExtKey.NBitcoin#IHDKey#CanDeriveHardenedPath*
+  name: IHDKey.CanDeriveHardenedPath
+  href: api/NBitcoin.BitcoinExtKey.html#NBitcoin_BitcoinExtKey_NBitcoin_IHDKey_CanDeriveHardenedPath_
+  commentId: Overload:NBitcoin.BitcoinExtKey.NBitcoin#IHDKey#CanDeriveHardenedPath
+  isSpec: "True"
+  name.vb: NBitcoin.IHDKey.CanDeriveHardenedPath
+  fullName: NBitcoin.BitcoinExtKey.NBitcoin.IHDKey.CanDeriveHardenedPath
+  nameWithType: BitcoinExtKey.IHDKey.CanDeriveHardenedPath
+  nameWithType.vb: BitcoinExtKey.NBitcoin.IHDKey.CanDeriveHardenedPath
 - uid: NBitcoin.BitcoinExtKey.NBitcoin#IHDKey#Derive(System.UInt32)
   name: IHDKey.Derive(UInt32)
   href: api/NBitcoin.BitcoinExtKey.html#NBitcoin_BitcoinExtKey_NBitcoin_IHDKey_Derive_System_UInt32_
@@ -12391,6 +12408,23 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BitcoinExtPubKey.IsValid
   nameWithType: BitcoinExtPubKey.IsValid
+- uid: NBitcoin.BitcoinExtPubKey.NBitcoin#IHDKey#CanDeriveHardenedPath
+  name: IHDKey.CanDeriveHardenedPath()
+  href: api/NBitcoin.BitcoinExtPubKey.html#NBitcoin_BitcoinExtPubKey_NBitcoin_IHDKey_CanDeriveHardenedPath
+  commentId: M:NBitcoin.BitcoinExtPubKey.NBitcoin#IHDKey#CanDeriveHardenedPath
+  name.vb: NBitcoin.IHDKey.CanDeriveHardenedPath()
+  fullName: NBitcoin.BitcoinExtPubKey.NBitcoin.IHDKey.CanDeriveHardenedPath()
+  nameWithType: BitcoinExtPubKey.IHDKey.CanDeriveHardenedPath()
+  nameWithType.vb: BitcoinExtPubKey.NBitcoin.IHDKey.CanDeriveHardenedPath()
+- uid: NBitcoin.BitcoinExtPubKey.NBitcoin#IHDKey#CanDeriveHardenedPath*
+  name: IHDKey.CanDeriveHardenedPath
+  href: api/NBitcoin.BitcoinExtPubKey.html#NBitcoin_BitcoinExtPubKey_NBitcoin_IHDKey_CanDeriveHardenedPath_
+  commentId: Overload:NBitcoin.BitcoinExtPubKey.NBitcoin#IHDKey#CanDeriveHardenedPath
+  isSpec: "True"
+  name.vb: NBitcoin.IHDKey.CanDeriveHardenedPath
+  fullName: NBitcoin.BitcoinExtPubKey.NBitcoin.IHDKey.CanDeriveHardenedPath
+  nameWithType: BitcoinExtPubKey.IHDKey.CanDeriveHardenedPath
+  nameWithType.vb: BitcoinExtPubKey.NBitcoin.IHDKey.CanDeriveHardenedPath
 - uid: NBitcoin.BitcoinExtPubKey.NBitcoin#IHDKey#Derive(System.UInt32)
   name: IHDKey.Derive(UInt32)
   href: api/NBitcoin.BitcoinExtPubKey.html#NBitcoin_BitcoinExtPubKey_NBitcoin_IHDKey_Derive_System_UInt32_
@@ -22223,6 +22257,23 @@ references:
   isSpec: "True"
   fullName: NBitcoin.ExtKey.IsParentOf
   nameWithType: ExtKey.IsParentOf
+- uid: NBitcoin.ExtKey.NBitcoin#IHDKey#CanDeriveHardenedPath
+  name: IHDKey.CanDeriveHardenedPath()
+  href: api/NBitcoin.ExtKey.html#NBitcoin_ExtKey_NBitcoin_IHDKey_CanDeriveHardenedPath
+  commentId: M:NBitcoin.ExtKey.NBitcoin#IHDKey#CanDeriveHardenedPath
+  name.vb: NBitcoin.IHDKey.CanDeriveHardenedPath()
+  fullName: NBitcoin.ExtKey.NBitcoin.IHDKey.CanDeriveHardenedPath()
+  nameWithType: ExtKey.IHDKey.CanDeriveHardenedPath()
+  nameWithType.vb: ExtKey.NBitcoin.IHDKey.CanDeriveHardenedPath()
+- uid: NBitcoin.ExtKey.NBitcoin#IHDKey#CanDeriveHardenedPath*
+  name: IHDKey.CanDeriveHardenedPath
+  href: api/NBitcoin.ExtKey.html#NBitcoin_ExtKey_NBitcoin_IHDKey_CanDeriveHardenedPath_
+  commentId: Overload:NBitcoin.ExtKey.NBitcoin#IHDKey#CanDeriveHardenedPath
+  isSpec: "True"
+  name.vb: NBitcoin.IHDKey.CanDeriveHardenedPath
+  fullName: NBitcoin.ExtKey.NBitcoin.IHDKey.CanDeriveHardenedPath
+  nameWithType: ExtKey.IHDKey.CanDeriveHardenedPath
+  nameWithType.vb: ExtKey.NBitcoin.IHDKey.CanDeriveHardenedPath
 - uid: NBitcoin.ExtKey.NBitcoin#IHDKey#Derive(System.UInt32)
   name: IHDKey.Derive(UInt32)
   href: api/NBitcoin.ExtKey.html#NBitcoin_ExtKey_NBitcoin_IHDKey_Derive_System_UInt32_
@@ -22554,6 +22605,23 @@ references:
   isSpec: "True"
   fullName: NBitcoin.ExtPubKey.IsParentOf
   nameWithType: ExtPubKey.IsParentOf
+- uid: NBitcoin.ExtPubKey.NBitcoin#IHDKey#CanDeriveHardenedPath
+  name: IHDKey.CanDeriveHardenedPath()
+  href: api/NBitcoin.ExtPubKey.html#NBitcoin_ExtPubKey_NBitcoin_IHDKey_CanDeriveHardenedPath
+  commentId: M:NBitcoin.ExtPubKey.NBitcoin#IHDKey#CanDeriveHardenedPath
+  name.vb: NBitcoin.IHDKey.CanDeriveHardenedPath()
+  fullName: NBitcoin.ExtPubKey.NBitcoin.IHDKey.CanDeriveHardenedPath()
+  nameWithType: ExtPubKey.IHDKey.CanDeriveHardenedPath()
+  nameWithType.vb: ExtPubKey.NBitcoin.IHDKey.CanDeriveHardenedPath()
+- uid: NBitcoin.ExtPubKey.NBitcoin#IHDKey#CanDeriveHardenedPath*
+  name: IHDKey.CanDeriveHardenedPath
+  href: api/NBitcoin.ExtPubKey.html#NBitcoin_ExtPubKey_NBitcoin_IHDKey_CanDeriveHardenedPath_
+  commentId: Overload:NBitcoin.ExtPubKey.NBitcoin#IHDKey#CanDeriveHardenedPath
+  isSpec: "True"
+  name.vb: NBitcoin.IHDKey.CanDeriveHardenedPath
+  fullName: NBitcoin.ExtPubKey.NBitcoin.IHDKey.CanDeriveHardenedPath
+  nameWithType: ExtPubKey.IHDKey.CanDeriveHardenedPath
+  nameWithType.vb: ExtPubKey.NBitcoin.IHDKey.CanDeriveHardenedPath
 - uid: NBitcoin.ExtPubKey.NBitcoin#IHDKey#Derive(System.UInt32)
   name: IHDKey.Derive(UInt32)
   href: api/NBitcoin.ExtPubKey.html#NBitcoin_ExtPubKey_NBitcoin_IHDKey_Derive_System_UInt32_
@@ -23765,6 +23833,19 @@ references:
   commentId: T:NBitcoin.IHDKey
   fullName: NBitcoin.IHDKey
   nameWithType: IHDKey
+- uid: NBitcoin.IHDKey.CanDeriveHardenedPath
+  name: CanDeriveHardenedPath()
+  href: api/NBitcoin.IHDKey.html#NBitcoin_IHDKey_CanDeriveHardenedPath
+  commentId: M:NBitcoin.IHDKey.CanDeriveHardenedPath
+  fullName: NBitcoin.IHDKey.CanDeriveHardenedPath()
+  nameWithType: IHDKey.CanDeriveHardenedPath()
+- uid: NBitcoin.IHDKey.CanDeriveHardenedPath*
+  name: CanDeriveHardenedPath
+  href: api/NBitcoin.IHDKey.html#NBitcoin_IHDKey_CanDeriveHardenedPath_
+  commentId: Overload:NBitcoin.IHDKey.CanDeriveHardenedPath
+  isSpec: "True"
+  fullName: NBitcoin.IHDKey.CanDeriveHardenedPath
+  nameWithType: IHDKey.CanDeriveHardenedPath
 - uid: NBitcoin.IHDKey.Derive(System.UInt32)
   name: Derive(UInt32)
   href: api/NBitcoin.IHDKey.html#NBitcoin_IHDKey_Derive_System_UInt32_
@@ -26809,6 +26890,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.KeyPath.IsHardened
   nameWithType: KeyPath.IsHardened
+- uid: NBitcoin.KeyPath.IsHardenedPath
+  name: IsHardenedPath
+  href: api/NBitcoin.KeyPath.html#NBitcoin_KeyPath_IsHardenedPath
+  commentId: P:NBitcoin.KeyPath.IsHardenedPath
+  fullName: NBitcoin.KeyPath.IsHardenedPath
+  nameWithType: KeyPath.IsHardenedPath
+- uid: NBitcoin.KeyPath.IsHardenedPath*
+  name: IsHardenedPath
+  href: api/NBitcoin.KeyPath.html#NBitcoin_KeyPath_IsHardenedPath_
+  commentId: Overload:NBitcoin.KeyPath.IsHardenedPath
+  isSpec: "True"
+  fullName: NBitcoin.KeyPath.IsHardenedPath
+  nameWithType: KeyPath.IsHardenedPath
 - uid: NBitcoin.KeyPath.Item(System.Int32)
   name: Item[Int32]
   href: api/NBitcoin.KeyPath.html#NBitcoin_KeyPath_Item_System_Int32_
