@@ -86,10 +86,17 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanGetAccountKeyPath()
 		{
+			Assert.Equal(new KeyPath(), new KeyPath().GetAddressKeyPath());
+			Assert.Equal(new KeyPath("1"), new KeyPath("1").GetAddressKeyPath());
+			Assert.Equal(new KeyPath(), new KeyPath("1'/2'").GetAddressKeyPath());
+			Assert.Equal(new KeyPath("3/4"), new KeyPath("1'/2'/3/4").GetAddressKeyPath());
+			Assert.Equal(new KeyPath("0/1"), new KeyPath("49'/0'/0'/0/1").GetAddressKeyPath());
+
 			Assert.Equal(new KeyPath(), new KeyPath().GetAccountKeyPath());
-			Assert.Equal(new KeyPath("1"), new KeyPath("1").GetAccountKeyPath());
-			Assert.Equal(new KeyPath(), new KeyPath("1'/2'").GetAccountKeyPath());
-			Assert.Equal(new KeyPath("3/4"), new KeyPath("1'/2'/3/4").GetAccountKeyPath());
+			Assert.Equal(new KeyPath(), new KeyPath("1").GetAccountKeyPath());
+			Assert.Equal(new KeyPath("1'/2'"), new KeyPath("1'/2'").GetAccountKeyPath());
+			Assert.Equal(new KeyPath("1'/2'"), new KeyPath("1'/2'/3/4").GetAccountKeyPath());
+			Assert.Equal(new KeyPath("49'/0'/0'"), new KeyPath("49'/0'/0'/0/1").GetAccountKeyPath());
 		}
 
 		[Fact]

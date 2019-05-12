@@ -249,10 +249,10 @@ namespace NBitcoin
 
 		/// <summary>
 		/// Returns the longest non-hardened keypath to the leaf.
-		/// For example, if the keypath is "49'/0'/0'/1/23", then the account key path is "1/23"
+		/// For example, if the keypath is "49'/0'/0'/1/23", then the address key path is "1/23"
 		/// </summary>
-		/// <returns>Return the account key path</returns>
-		public KeyPath GetAccountKeyPath()
+		/// <returns>Return the address key path</returns>
+		public KeyPath GetAddressKeyPath()
 		{
 			List<uint> indexes = new List<uint>();
 			for (int i = Indexes.Length - 1; i >= 0; i--)
@@ -260,6 +260,23 @@ namespace NBitcoin
 				if (Indexes[i] >= 0x80000000U)
 					break;
 				indexes.Insert(0, Indexes[i]);
+			}
+			return new KeyPath(indexes.ToArray());
+		}
+
+		/// <summary>
+		/// Returns the longest hardened keypath from the root.
+		/// For example, if the keypath is "49'/0'/0'/1/23", then the account key path is "49'/0'/0'"
+		/// </summary>
+		/// <returns>Return the account key path</returns>
+		public KeyPath GetAccountKeyPath()
+		{
+			List<uint> indexes = new List<uint>();
+			for (int i = 0; i < Indexes.Length; i++)
+			{
+				if (Indexes[i] < 0x80000000U)
+					break;
+				indexes.Add(Indexes[i]);
 			}
 			return new KeyPath(indexes.ToArray());
 		}
