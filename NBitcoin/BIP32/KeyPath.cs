@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
@@ -244,6 +245,23 @@ namespace NBitcoin
 					throw new InvalidOperationException("No index found in this KeyPath");
 				return (_Indexes[_Indexes.Length - 1] & 0x80000000u) != 0;
 			}
+		}
+
+		/// <summary>
+		/// Returns the longest non-hardened keypath to the leaf.
+		/// For example, if the keypath is "49'/0'/0'/1/23", then the account key path is "1/23"
+		/// </summary>
+		/// <returns>Return the account key path</returns>
+		public KeyPath GetAccountKeyPath()
+		{
+			List<uint> indexes = new List<uint>();
+			for (int i = Indexes.Length - 1; i >= 0; i--)
+			{
+				if (Indexes[i] >= 0x80000000U)
+					break;
+				indexes.Insert(0, Indexes[i]);
+			}
+			return new KeyPath(indexes.ToArray());
 		}
 
 		/// <summary>

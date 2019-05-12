@@ -84,6 +84,16 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanGetAccountKeyPath()
+		{
+			Assert.Equal(new KeyPath(), new KeyPath().GetAccountKeyPath());
+			Assert.Equal(new KeyPath("1"), new KeyPath("1").GetAccountKeyPath());
+			Assert.Equal(new KeyPath(), new KeyPath("1'/2'").GetAccountKeyPath());
+			Assert.Equal(new KeyPath("3/4"), new KeyPath("1'/2'/3/4").GetAccountKeyPath());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanParseKeyPath()
 		{
 			var valid = new[] 
