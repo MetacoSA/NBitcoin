@@ -141,6 +141,16 @@ namespace NBitcoin.RPC
 	*/
 	public partial class RPCClient : IBlockRepository
 	{
+		public static string GetRPCAuth(NetworkCredential credentials)
+		{
+			if (credentials == null)
+				throw new ArgumentNullException(nameof(credentials));
+			var salt = Encoders.Hex.EncodeData(RandomUtils.GetBytes(16));
+			var nobom = new UTF8Encoding(false);
+			var result = Hashes.HMACSHA256(nobom.GetBytes(salt), nobom.GetBytes(credentials.Password));
+			return $"{credentials.UserName}:{salt}${Encoders.Hex.EncodeData(result)}";
+		}
+
 		private static Lazy<HttpClient> _Shared = new Lazy<HttpClient>(() => new HttpClient());
 
 		HttpClient _HttpClient;

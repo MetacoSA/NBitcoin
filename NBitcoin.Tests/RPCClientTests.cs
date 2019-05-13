@@ -163,6 +163,21 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanUseRPCAuth()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var creds = new NetworkCredential("hello", "world");
+				var str = RPCClient.GetRPCAuth(creds);
+				node.ConfigParameters.Add("rpcauth", str);
+				node.Start();
+				var rpc = new RPCClient(creds, node.RPCUri, node.Network);
+				rpc.GetBlockCount();
+			}
+		}
+
+		[Fact]
 		public void CanGetMemPool()
 		{
 			using (var builder = NodeBuilderEx.Create())
