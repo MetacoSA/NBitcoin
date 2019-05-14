@@ -47275,6 +47275,12 @@ references:
   commentId: M:NBitcoin.RootedKeyPath.#ctor(NBitcoin.HDFingerprint,NBitcoin.KeyPath)
   fullName: NBitcoin.RootedKeyPath.RootedKeyPath(NBitcoin.HDFingerprint, NBitcoin.KeyPath)
   nameWithType: RootedKeyPath.RootedKeyPath(HDFingerprint, KeyPath)
+- uid: NBitcoin.RootedKeyPath.#ctor(NBitcoin.IHDKey,NBitcoin.KeyPath)
+  name: RootedKeyPath(IHDKey, KeyPath)
+  href: api/NBitcoin.RootedKeyPath.html#NBitcoin_RootedKeyPath__ctor_NBitcoin_IHDKey_NBitcoin_KeyPath_
+  commentId: M:NBitcoin.RootedKeyPath.#ctor(NBitcoin.IHDKey,NBitcoin.KeyPath)
+  fullName: NBitcoin.RootedKeyPath.RootedKeyPath(NBitcoin.IHDKey, NBitcoin.KeyPath)
+  nameWithType: RootedKeyPath.RootedKeyPath(IHDKey, KeyPath)
 - uid: NBitcoin.RootedKeyPath.#ctor*
   name: RootedKeyPath
   href: api/NBitcoin.RootedKeyPath.html#NBitcoin_RootedKeyPath__ctor_
