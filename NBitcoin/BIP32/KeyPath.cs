@@ -145,7 +145,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return _Indexes;
+				return _Indexes.ToArray();
 			}
 		}
 

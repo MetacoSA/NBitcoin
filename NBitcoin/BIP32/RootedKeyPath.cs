@@ -38,6 +38,15 @@ namespace NBitcoin
 			_KeyPath = keyPath;
 			_MasterFingerprint = masterFingerprint;
 		}
+		public RootedKeyPath(IHDKey masterKey, KeyPath keyPath)
+		{
+			if (masterKey == null)
+				throw new ArgumentNullException(nameof(masterKey));
+			if (keyPath == null)
+				throw new ArgumentNullException(nameof(keyPath));
+			_KeyPath = keyPath;
+			_MasterFingerprint = masterKey.GetPublicKey().GetHDFingerPrint();
+		}
 		private readonly KeyPath _KeyPath;
 		public KeyPath KeyPath
 		{

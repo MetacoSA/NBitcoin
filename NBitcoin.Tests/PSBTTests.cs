@@ -485,6 +485,7 @@ namespace NBitcoin.Tests
 		public void CanRebaseKeypathInPSBT()
 		{
 			var masterExtkey = new BitcoinExtKey("tprv8ZgxMBicQKsPd9TeAdPADNnSyH9SSUUbTVeFszDE23Ki6TBB5nCefAdHkK8Fm3qMQR6sHwA56zqRmKmxnHk37JkiFzvncDqoKmPWubu7hDF", Network.TestNet);
+			var masterFP = masterExtkey.GetPublicKey().GetHDFingerPrint();
 			var accountExtKey = masterExtkey.Derive(new KeyPath("0'/0'/0'"));
 			var accountRootedKeyPath = new KeyPath("0'/0'/0'").ToRootedKeyPath(masterExtkey);
 			uint hardenedFlag = 0x80000000U;
@@ -527,6 +528,7 @@ namespace NBitcoin.Tests
 			{
 				Assert.Equal(psbt.GetBalance(masterExtkey), psbt.GetBalance(accountExtKey.Neuter(), accountRootedKeyPath));
 			}
+			Assert.Equal(Money.Zero, psbt.GetBalance(masterExtkey.Derive(new KeyPath("0'/0'/1'")), new KeyPath("0'/0'/1'").ToRootedKeyPath(masterFP)));
 			Assert.Equal(Money.Zero, psbt.GetBalance(masterExtkey.Neuter())); // Can't derive!
 			if (hardenedFlag != 0)
 			{

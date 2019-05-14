@@ -230,10 +230,11 @@ namespace NBitcoin
 					else if (accountKey.CanDeriveHardenedPath()) // We can only do this if we can derive hardened paths
 					{
 						int addressPathSize = 0;
+						var hdKeyIndexes = hdKey.Value.KeyPath.Indexes;
 						while (addressPathSize <= hdKey.Value.KeyPath.Indexes.Length)
 						{
 							var indexes = new uint[addressPathSize];
-							Array.Copy(hdKey.Value.KeyPath.Indexes, hdKey.Value.KeyPath.Length - addressPathSize, indexes, 0, addressPathSize);
+							Array.Copy(hdKeyIndexes, hdKey.Value.KeyPath.Length - addressPathSize, indexes, 0, addressPathSize);
 							addressPath = new KeyPath(indexes);
 							if (accountKey.Derive(addressPath).GetPublicKey() == hdKey.Key)
 							{
