@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,6 +16,25 @@ namespace NBitcoin
 				throw new ArgumentException(paramName: nameof(bytes), message: "Bytes should be of length 4");
 			_Value = Utils.ToUInt32(bytes, true);
 		}
+
+		public static bool TryParse(string str, out HDFingerprint result)
+		{
+			if (str == null)
+				throw new ArgumentNullException(nameof(str));
+			result = default;
+			if (!HexEncoder.IsWellFormed(str) || str.Length != 4 * 2)
+				return false;
+			result = new HDFingerprint(Encoders.Hex.DecodeData(str));
+			return true;
+		}
+
+		public HDFingerprint Parse(string str)
+		{
+			if (!TryParse(str, out var result))
+				throw new FormatException("Invalid HD Fingerprint");
+			return result;
+		}
+
 #if HAS_SPAN
 		public HDFingerprint(ReadOnlySpan<byte> bytes)
 		{

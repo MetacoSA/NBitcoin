@@ -83,7 +83,7 @@ namespace NBitcoin
 						if (hd_keypaths.ContainsKey(pubkey2))
 							throw new FormatException("Invalid PSBTOutput, duplicate key for hd_keypaths");
 						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
-						hd_keypaths.Add(pubkey2, Tuple.Create(new HDFingerprint(v.Take(4).ToArray()), path));
+						hd_keypaths.Add(pubkey2, new RootedKeyPath(new HDFingerprint(v.Take(4).ToArray()), path));
 						break;
 					default:
 						if (unknown.ContainsKey(k))
@@ -133,8 +133,8 @@ namespace NBitcoin
 			{
 				var key = new byte[] { PSBTConstants.PSBT_OUT_BIP32_DERIVATION }.Concat(pathPair.Key.ToBytes());
 				stream.ReadWriteAsVarString(ref key);
-				var path = pathPair.Value.Item2.ToBytes();
-				var pathInfo = pathPair.Value.Item1.ToBytes().Concat(path);
+				var path = pathPair.Value.KeyPath.ToBytes();
+				var pathInfo = pathPair.Value.MasterFingerprint.ToBytes().Concat(path);
 				stream.ReadWriteAsVarString(ref pathInfo);
 			}
 
@@ -236,7 +236,7 @@ namespace NBitcoin
 			return new Coin(OutPoint.Zero, TxOut);
 		}
 
-		protected override PSBTHDKeyMatch CreateHDKeyMatch(KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>> kv)
+		protected override PSBTHDKeyMatch CreateHDKeyMatch(KeyValuePair<PubKey, RootedKeyPath> kv)
 		{
 			return new PSBTHDKeyMatch<PSBTOutput>(this, kv);
 		}

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
-using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>;
+using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.RootedKeyPath>;
 
 namespace NBitcoin
 {
@@ -68,11 +68,13 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(path));
 			AddKeyPath(extPubKey.ParentFingerprint, extPubKey.PubKey, path);
 		}
-		public virtual void AddKeyPath(HDFingerprint fingerprint, PubKey key, KeyPath path)
-		{
-			if (path == null)
-				throw new ArgumentNullException(nameof(path));
-			hd_keypaths.AddOrReplace(key, new Tuple<HDFingerprint, KeyPath>(fingerprint, path));
+		public virtual void AddKeyPath(PubKey pubKey, RootedKeyPath rootedKeyPath)
+        {
+			if (rootedKeyPath == null)
+				throw new ArgumentNullException(nameof(rootedKeyPath));
+			if (pubKey == null)
+				throw new ArgumentNullException(nameof(pubKey));
+			hd_keypaths.AddOrReplace(pubKey, rootedKeyPath);
 
 			// Let's try to be smart, if the added key match the scriptPubKey then we are in p2psh p2wpkh
 			if (Parent.Settings.IsSmart && redeem_script == null)
@@ -80,12 +82,18 @@ namespace NBitcoin
 				var output = GetCoin();
 				if (output != null)
 				{
-					if (key.WitHash.ScriptPubKey.Hash.ScriptPubKey == output.ScriptPubKey)
+					if (pubKey.WitHash.ScriptPubKey.Hash.ScriptPubKey == output.ScriptPubKey)
 					{
-						redeem_script = key.WitHash.ScriptPubKey;
+						redeem_script = pubKey.WitHash.ScriptPubKey;
 					}
 				}
 			}
+		}
+
+		public void AddKeyPath(HDFingerprint fingerprint, PubKey key, KeyPath path)
+		{
+			if (path == null)
+				throw new ArgumentNullException(nameof(path));
 		}
 
 		public abstract Coin GetCoin();
@@ -172,49 +180,74 @@ namespace NBitcoin
 			}
 		}
 		/// <summary>
-		/// Filter the hd keys which contains a HD Key path matching this master root key
-		/// </summary>
-		/// <param name="masterKey">The master root key</param>
-		/// <returns>HD Keys matching master root key</returns>
-		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDKey masterKey)
-		{
-			if (masterKey == null)
-				throw new ArgumentNullException(nameof(masterKey));
-			return HDKeysFor(null, masterKey);
-		}
-		/// <summary>
 		/// Filter the hd keys which contains a HD Key path matching this masterFingerprint/account key
 		/// </summary>
 		/// <param name="masterFingerprint">The master root fingerprint</param>
 		/// <param name="accountKey">The account key (ie. 49'/0'/0')</param>
 		/// <returns>HD Keys matching master root key</returns>
-		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(HDFingerprint? masterFingerprint, IHDKey accountKey)
+		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDKey accountKey, RootedKeyPath accountKeyPath = null)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
-			return HDKeysFor(masterFingerprint, accountKey, accountKey.GetPublicKey().GetHDFingerPrint());
+			return HDKeysFor(accountKey, accountKeyPath, accountKey.GetPublicKey().GetHDFingerPrint());
 		}
-		internal IEnumerable<PSBTHDKeyMatch> HDKeysFor(HDFingerprint? masterFingerprint, IHDKey accountKey, HDFingerprint accountFingerprint)
+		internal IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDKey accountKey, RootedKeyPath accountKeyPath, HDFingerprint accountFingerprint)
 		{
+			accountKey = accountKey.AsHDKeyCache();
 			foreach (var hdKey in HDKeyPaths)
 			{
-				if (hdKey.Value.Item1 == accountFingerprint)
+				bool matched = false;
+
+				// The case where the fingerprint of the hdkey is exactly equal to the accountKey
+				if (hdKey.Value.MasterFingerprint == accountFingerprint)
 				{
-					if (!hdKey.Value.Item2.IsHardenedPath || accountKey.CanDeriveHardenedPath())
+					// The fingerprint match, but we need to check the public keys, because fingerprint collision is easy to provoke
+					if (!hdKey.Value.KeyPath.IsHardenedPath || accountKey.CanDeriveHardenedPath())
 					{
-						if (accountKey.Derive(hdKey.Value.Item2).GetPublicKey() == hdKey.Key)
+						if (accountKey.Derive(hdKey.Value.KeyPath).GetPublicKey() == hdKey.Key)
+						{
 							yield return CreateHDKeyMatch(hdKey);
+							matched = true;
+						}
 					}
 				}
-				else if (masterFingerprint is HDFingerprint mp && hdKey.Value.Item1 == mp)
+
+				// The typical case where accountkey is based on an hardened derivation (eg. 49'/0'/0')
+				if (!matched && accountKeyPath?.MasterFingerprint is HDFingerprint mp && hdKey.Value.MasterFingerprint == mp)
 				{
-					var addressPath = hdKey.Value.Item2.GetAddressKeyPath();
-					if (accountKey.Derive(addressPath).GetPublicKey() == hdKey.Key)
-						yield return CreateHDKeyMatch(hdKey);
+					var addressPath = hdKey.Value.KeyPath.GetAddressKeyPath();
+					// The cases where addresses are generated on a non-hardened path below it (eg. 49'/0'/0'/0/1)
+					if (addressPath.Indexes.Length != 0)
+					{
+						if (accountKey.Derive(addressPath).GetPublicKey() == hdKey.Key)
+						{
+							yield return CreateHDKeyMatch(hdKey);
+							matched = true;
+						}
+					}
+					// in some cases addresses are generated on a hardened path below the account key (eg. 49'/0'/0'/0'/1') in which case we
+					// need to brute force what the address key path is
+					else if (accountKey.CanDeriveHardenedPath()) // We can only do this if we can derive hardened paths
+					{
+						int addressPathSize = 0;
+						while (addressPathSize <= hdKey.Value.KeyPath.Indexes.Length)
+						{
+							var indexes = new uint[addressPathSize];
+							Array.Copy(hdKey.Value.KeyPath.Indexes, hdKey.Value.KeyPath.Length - addressPathSize, indexes, 0, addressPathSize);
+							addressPath = new KeyPath(indexes);
+							if (accountKey.Derive(addressPath).GetPublicKey() == hdKey.Key)
+							{
+								yield return CreateHDKeyMatch(hdKey);
+								matched = true;
+								break;
+							}
+							addressPathSize++;
+						}
+					}
 				}
 			}
 		}
 
-		protected abstract PSBTHDKeyMatch CreateHDKeyMatch(KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>> kv);
+		protected abstract PSBTHDKeyMatch CreateHDKeyMatch(KeyValuePair<PubKey, RootedKeyPath> kv);
 	}
 }

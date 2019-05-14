@@ -145,7 +145,15 @@ namespace NBitcoin
 		{
 			get
 			{
-				return _Indexes.ToArray();
+				return _Indexes;
+			}
+		}
+
+		public int Length
+		{
+			get
+			{
+				return _Indexes.Length;
 			}
 		}
 
@@ -290,6 +298,18 @@ namespace NBitcoin
 			{
 				return _Indexes.Any(i => (i & 0x80000000u) != 0);
 			}
+		}
+
+		public RootedKeyPath ToRootedKeyPath(IHDKey masterKey)
+		{
+			if (masterKey == null)
+				throw new ArgumentNullException(nameof(masterKey));
+			return ToRootedKeyPath(masterKey.GetPublicKey().GetHDFingerPrint());
+		}
+
+		public RootedKeyPath ToRootedKeyPath(HDFingerprint masterFingerprint)
+		{
+			return new RootedKeyPath(masterFingerprint, this);
 		}
 	}
 }

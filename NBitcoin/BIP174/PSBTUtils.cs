@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>;
+using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.RootedKeyPath>;
 
 namespace NBitcoin
 {
@@ -22,8 +22,8 @@ namespace NBitcoin
 			{
 				jsonWriter.WriteStartObject();
 				jsonWriter.WritePropertyValue("pubkey", keypath.Key.ToHex());
-				jsonWriter.WritePropertyValue("master_fingerprint", Encoders.Hex.EncodeData(keypath.Value.Item1.ToBytes()));
-				jsonWriter.WritePropertyValue("path", keypath.Value.Item2.ToString());
+				jsonWriter.WritePropertyValue("master_fingerprint", Encoders.Hex.EncodeData(keypath.Value.MasterFingerprint.ToBytes()));
+				jsonWriter.WritePropertyValue("path", keypath.Value.KeyPath.ToString());
 				jsonWriter.WriteEndObject();
 			}
 			jsonWriter.WriteEndArray();

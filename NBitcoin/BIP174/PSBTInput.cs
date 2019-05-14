@@ -119,7 +119,7 @@ namespace NBitcoin
 							throw new FormatException("Invalid PSBTInput. Duplicate key for hd_keypaths");
 						var masterFingerPrint = new HDFingerprint(v.Take(4).ToArray());
 						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
-						hd_keypaths.Add(pubkey2, Tuple.Create(masterFingerPrint, path));
+						hd_keypaths.Add(pubkey2, new RootedKeyPath(masterFingerPrint, path));
 						break;
 					case PSBTConstants.PSBT_IN_SCRIPTSIG:
 						if (k.Length != 1)
@@ -230,9 +230,9 @@ namespace NBitcoin
 			}
 		}
 
-		public override void AddKeyPath(HDFingerprint fingerprint, PubKey key, KeyPath path)
-		{
-			base.AddKeyPath(fingerprint, key, path);
+		public override void AddKeyPath(PubKey key, RootedKeyPath rootedKeyPath)
+        {
+			base.AddKeyPath(key, rootedKeyPath);
 			TrySlimOutput();
 		}
 
@@ -476,7 +476,7 @@ namespace NBitcoin
 			var cache = masterKey.AsHDKeyCache();
 			foreach (var hdk in this.HDKeysFor(masterKey))
 			{
-				if (((HDKeyCache)cache.Derive(hdk.KeyPath)).Inner is ExtKey k)
+				if (((HDKeyCache)cache.Derive(hdk.RootedKeyPath.KeyPath)).Inner is ExtKey k)
 					Sign(k.PrivateKey, sigHash);
 				else
 					throw new ArgumentException(paramName: nameof(masterKey), message: "This should be a private key");
@@ -567,8 +567,8 @@ namespace NBitcoin
 			{
 				var key = new byte[] { PSBTConstants.PSBT_IN_BIP32_DERIVATION }.Concat(pathPair.Key.ToBytes());
 				stream.ReadWriteAsVarString(ref key);
-				var masterFingerPrint = pathPair.Value.Item1;
-				var path = pathPair.Value.Item2.ToBytes();
+				var masterFingerPrint = pathPair.Value.MasterFingerprint;
+				var path = pathPair.Value.KeyPath.ToBytes();
 				var pathInfo = masterFingerPrint.ToBytes().Concat(path);
 				stream.ReadWriteAsVarString(ref pathInfo);
 			}
@@ -868,7 +868,7 @@ namespace NBitcoin
 			return strWriter.ToString();
 		}
 
-		protected override PSBTHDKeyMatch CreateHDKeyMatch(KeyValuePair<PubKey, Tuple<HDFingerprint, KeyPath>> kv)
+		protected override PSBTHDKeyMatch CreateHDKeyMatch(KeyValuePair<PubKey, RootedKeyPath> kv)
 		{
 			return new PSBTHDKeyMatch<PSBTInput>(this, kv);
 		}

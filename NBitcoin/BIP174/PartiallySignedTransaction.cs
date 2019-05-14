@@ -489,7 +489,7 @@ namespace NBitcoin
 			var cache = masterKey.AsHDKeyCache();
 			foreach (var o in Inputs.HDKeysFor(masterKey))
 			{
-				if (((HDKeyCache)cache.Derive(o.KeyPath)).Inner is ExtKey k)
+				if (((HDKeyCache)cache.Derive(o.RootedKeyPath.KeyPath)).Inner is ExtKey k)
 					o.Coin.Sign(k.PrivateKey, sigHash);
 				else
 					throw new ArgumentException(paramName: nameof(masterKey), message: "This should be a private key");
@@ -517,14 +517,9 @@ namespace NBitcoin
 			if (keyPath == null)
 				throw new ArgumentNullException(nameof(keyPath));
 			var privKey = extkey.Derive(keyPath).PrivateKey;
-			foreach (var input in this.Inputs)
+			foreach (var input in this.Inputs.GetPSBTCoins(extkey))
 			{
-				if (input.HDKeyPaths.TryGetValue(privKey.PubKey, out var v) &&
-					v.Item1 != default &&
-					v.Item1 == extkey.PrivateKey.PubKey.GetHDFingerPrint())
-				{
-					input.Sign(privKey);
-				}
+				input.Sign(privKey);
 			}
 			return this;
 		}
@@ -795,27 +790,15 @@ namespace NBitcoin
 		/// <summary>
 		/// Get the balance change if you were signing this transaction.
 		/// </summary>
-		/// <param name="masterKey">The master root key that will be used to sign</param>
-		/// <returns>The balance change</returns>
-		public Money GetBalance(IHDKey masterKey)
-		{
-			if (masterKey == null)
-				throw new ArgumentNullException(nameof(masterKey));
-			return GetBalance(null, masterKey);
-		}
-
-		/// <summary>
-		/// Get the balance change if you were signing this transaction.
-		/// </summary>
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
-		/// <param name="masterFingerprint">The fingerprint of the master root key</param>
+		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>The balance change</returns>
-		public Money GetBalance(HDFingerprint? masterFingerprint, IHDKey accountKey)
+		public Money GetBalance(IHDKey accountKey, RootedKeyPath accountKeyPath = null)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
 			Money total = Money.Zero;
-			foreach (var o in CoinsFor(masterFingerprint, accountKey))
+			foreach (var o in CoinsFor(accountKey, accountKeyPath))
 			{
 				var amount = o.GetCoin()?.Amount;
 				if (amount == null)
@@ -828,49 +811,27 @@ namespace NBitcoin
 		/// <summary>
 		/// Filter the coins which contains a HD Key path matching this masterFingerprint/account key
 		/// </summary>
-		/// <param name="masterFingerprint">The master root fingerprint</param>
-		/// <param name="accountKey">The account key (ie. 49'/0'/0')</param>
+		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
+		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>Inputs with HD keys matching masterFingerprint and account key</returns>
-		public IEnumerable<PSBTCoin> CoinsFor(HDFingerprint? masterFingerprint, IHDKey accountKey)
+		public IEnumerable<PSBTCoin> CoinsFor(IHDKey accountKey, RootedKeyPath accountKeyPath = null)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
-			return Inputs.CoinsFor(masterFingerprint, accountKey).OfType<PSBTCoin>().Concat(Outputs.CoinsFor(masterFingerprint, accountKey).OfType<PSBTCoin>());
-		}
-		/// <summary>
-		/// Filter the coins which contains a HD Key path matching this master root key
-		/// </summary>
-		/// <param name="masterKey">The master root key</param>
-		/// <returns>Inputs with HD keys matching master root key</returns>
-		public IEnumerable<PSBTCoin> CoinsFor(IHDKey masterKey)
-		{
-			if (masterKey == null)
-				throw new ArgumentNullException(nameof(masterKey));
-			return Inputs.CoinsFor(masterKey).OfType<PSBTCoin>().Concat(Outputs.CoinsFor(masterKey).OfType<PSBTCoin>());
+			return Inputs.CoinsFor(accountKey, accountKeyPath).OfType<PSBTCoin>().Concat(Outputs.CoinsFor(accountKey, accountKeyPath).OfType<PSBTCoin>());
 		}
 
 		/// <summary>
 		/// Filter the hd keys which contains a HD Key path matching this masterFingerprint/account key
 		/// </summary>
-		/// <param name="masterFingerprint">The master root fingerprint</param>
-		/// <param name="accountKey">The account key (ie. 49'/0'/0')</param>
+		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
+		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>HD Keys matching master root key</returns>
-		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(HDFingerprint? masterFingerprint, IHDKey accountKey)
+		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDKey accountKey, RootedKeyPath accountKeyPath = null)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
-			return Inputs.HDKeysFor(masterFingerprint, accountKey).OfType<PSBTHDKeyMatch>().Concat(Outputs.HDKeysFor(masterFingerprint, accountKey));
-		}
-		/// <summary>
-		/// Filter the hd keys which contains a HD Key path matching this master root key
-		/// </summary>
-		/// <param name="masterKey">The master root key</param>
-		/// <returns>HD Keys matching master root key</returns>
-		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDKey masterKey)
-		{
-			if (masterKey == null)
-				throw new ArgumentNullException(nameof(masterKey));
-			return Inputs.HDKeysFor(masterKey).OfType<PSBTHDKeyMatch>().Concat(Outputs.HDKeysFor(masterKey));
+			return Inputs.HDKeysFor(accountKey, accountKeyPath).OfType<PSBTHDKeyMatch>().Concat(Outputs.HDKeysFor(accountKey, accountKeyPath));
 		}
 
 		/// <summary>
@@ -898,10 +859,11 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(paths));
 
 			masterKey = masterKey.AsHDKeyCache();
+			var masterKeyFP = masterKey.GetPublicKey().GetHDFingerPrint();
 			foreach (var path in paths)
 			{
 				var key = masterKey.Derive(path.Item1);
-				AddKeyPath(masterKey.GetPublicKey().GetHDFingerPrint(), key.GetPublicKey(), path.Item1, path.Item2);
+				AddKeyPath(key.GetPublicKey(), new RootedKeyPath(masterKeyFP, path.Item1), path.Item2);
 			}
 			return this;
 		}
@@ -909,39 +871,27 @@ namespace NBitcoin
 		/// <summary>
 		/// Add keypath information to this PSBT for each input or output involving it
 		/// </summary>
-		/// <param name="pubkey">A public key to add</param>
-		/// <param name="path">The key path</param>
+		/// <param name="pubkey">The public key which need to sign</param>
+		/// <param name="rootedKeyPath">The keypath to this public key</param>
 		/// <returns>This PSBT</returns>
-		public PSBT AddKeyPath(PubKey pubkey, KeyPath path)
+		public PSBT AddKeyPath(PubKey pubkey, RootedKeyPath rootedKeyPath)
 		{
-			return AddKeyPath(default(HDFingerprint), pubkey, path);
-		}
-		/// <summary>
-		/// Add keypath information to this PSBT for each input or output involving it
-		/// </summary>
-		/// <param name="fingerprint">The fingerprint of the master's key</param>
-		/// <param name="pubkey">A public key to add</param>
-		/// <param name="path">The key path</param>
-		/// <returns>This PSBT</returns>
-		public PSBT AddKeyPath(HDFingerprint fingerprint, PubKey pubkey, KeyPath path)
-		{
-			return AddKeyPath(fingerprint, pubkey, path, null);
+			return AddKeyPath(pubkey, rootedKeyPath, null);
 		}
 
 		/// <summary>
 		/// Add keypath information to this PSBT
 		/// </summary>
-		/// <param name="fingerprint">The fingerprint of the master's key</param>
-		/// <param name="pubkey">A public key to add</param>
-		/// <param name="path">The key path</param>
+		/// <param name="pubkey">The public key which need to sign</param>
+		/// <param name="rootedKeyPath">The keypath to this public key</param>
 		/// <param name="scriptPubKey">A specific scriptPubKey this pubkey is involved with</param>
 		/// <returns>This PSBT</returns>
-		public PSBT AddKeyPath(HDFingerprint fingerprint, PubKey pubkey, KeyPath path, Script scriptPubKey)
+		public PSBT AddKeyPath(PubKey pubkey, RootedKeyPath rootedKeyPath, Script scriptPubKey)
 		{
 			if (pubkey == null)
 				throw new ArgumentNullException(nameof(pubkey));
-			if (path == null)
-				throw new ArgumentNullException(nameof(path));
+			if (rootedKeyPath == null)
+				throw new ArgumentNullException(nameof(rootedKeyPath));
 
 			var txBuilder = CreateTransactionBuilder();
 			foreach (var o in this.Inputs.OfType<PSBTCoin>().Concat(this.Outputs))
@@ -953,7 +903,7 @@ namespace NBitcoin
 					((o.GetSignableCoin() ?? coin.TryToScriptCoin(pubkey)) is Coin c && txBuilder.IsCompatibleKeyFromScriptCode(pubkey, c.GetScriptCode())) ||
 					  txBuilder.IsCompatibleKeyFromScriptCode(pubkey, coin.ScriptPubKey))
 				{
-					o.AddKeyPath(fingerprint, pubkey, path);
+					o.AddKeyPath(pubkey, rootedKeyPath);
 				}
 			}
 			return this;
@@ -965,23 +915,22 @@ namespace NBitcoin
 		/// can rebase the paths.
 		/// </summary>
 		/// <param name="accountKey">The current account key</param>
-		/// <param name="accountKeyPath">The path from the master key to the accountKey</param>
-		/// <param name="masterFingerprint">The master key fingerprint</param>
-		/// <returns></returns>
-		public PSBT RebaseKeyPaths(IHDKey accountKey, KeyPath accountKeyPath, HDFingerprint masterFingerprint)
+		/// <param name="newRoot">The KeyPath with the fingerprint of the new root key</param>
+		/// <returns>This PSBT</returns>
+		public PSBT RebaseKeyPaths(IHDKey accountKey, RootedKeyPath newRoot)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
-			if (accountKeyPath == null)
-				throw new ArgumentNullException(nameof(accountKeyPath));
+			if (newRoot == null)
+				throw new ArgumentNullException(nameof(newRoot));
 			accountKey = accountKey.AsHDKeyCache();
 			var accountKeyFP = accountKey.GetPublicKey().GetHDFingerPrint();
-			foreach (var o in HDKeysFor(null, accountKey).GroupBy(c => c.Coin))
+			foreach (var o in HDKeysFor(accountKey).GroupBy(c => c.Coin))
 			{
 				foreach (var keyPath in o)
 				{
 					o.Key.HDKeyPaths.Remove(keyPath.PubKey);
-					o.Key.HDKeyPaths.Add(keyPath.PubKey, Tuple.Create(masterFingerprint, accountKeyPath.Derive(keyPath.KeyPath)));
+					o.Key.HDKeyPaths.Add(keyPath.PubKey, newRoot.Derive(keyPath.RootedKeyPath.KeyPath));
 				}
 			}
 			return this;

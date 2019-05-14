@@ -147,6 +147,23 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanParseRootedKeyPath()
+		{
+			var root = new BitcoinExtKey("tprv8ZgxMBicQKsPdXCKLrSbPbmWWCmwZwU6x9pQKyafAP76SpYnPy9tEMbsTgJ3rPPqvu1ZkM5Xz6w7v9rhvrHYUuPfQu2vu9YNwAxseujuABx", Network.RegTest);
+			Assert.True(RootedKeyPath.TryParse("7b09d780/0'/0'/2'", out var result));
+			Assert.Equal(root.GetPublicKey().GetHDFingerPrint(), result.MasterFingerprint);
+			Assert.Equal("7b09d780/0'/0'/2'", result.ToString());
+			Assert.Equal("7b09d780/0'/0'/2'/0/1", result.Derive(new KeyPath("0/1")).ToString());
+			Assert.Equal("7b09d780/0'/0'/2'/2", result.Derive(2).ToString());
+			Assert.Equal("7b09d780/0'/0'/2'", result.Derive(new KeyPath("0/1")).GetAccountKeyPath().ToString());
+			Assert.Equal("7b09d780", result.MasterFingerprint.ToString());
+
+			Assert.True(RootedKeyPath.TryParse(result.ToString(), out var result2));
+			Assert.Equal(result, result2);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCalculateGoestlcoinTransactionHash()
 		{
 			var bs = new BitcoinStream(Encoders.Hex.DecodeData("020000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03510101ffffffff0200002cd6e21500002321023035994e950a694cd81e0384abc1850cfe3e541a9de9706ca669d21c61548f8bac0000000000000000266a24aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf90120000000000000000000000000000000000000000000000000000000000000000000000000"));

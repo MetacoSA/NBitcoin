@@ -168,7 +168,7 @@ namespace NBitcoin.Tests
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
-				var creds = new NetworkCredential("hello", "world");
+				var creds = new NetworkCredential("lnd", "afixedpasswordbecauselndsuckswithcookiefile");
 				var str = RPCClient.GetRPCAuth(creds);
 				node.ConfigParameters.Add("rpcauth", str);
 				node.Start();
@@ -1345,10 +1345,10 @@ namespace NBitcoin.Tests
 				tmp = psbtWithTXs.Clone().AddScripts(dummyScript);
 				Assert.Equal(psbtWithTXs, tmp, PSBTComparerInstance);
 
-				// Let's don't forget about hd KeyPath
-				psbtWithTXs.AddKeyPath(keys[0].PubKey, KeyPath.Parse("m/1'/2/3"));
-				psbtWithTXs.AddKeyPath(keys[1].PubKey, KeyPath.Parse("m/3'/2/1"));
-				psbtWithTXs.AddKeyPath(keys[1].PubKey, KeyPath.Parse("m/3'/2/1"));
+				// Let's not forget about hd KeyPath
+				psbtWithTXs.AddKeyPath(keys[0].PubKey, new RootedKeyPath(default(HDFingerprint), KeyPath.Parse("m/1'/2/3")));
+				psbtWithTXs.AddKeyPath(keys[1].PubKey, new RootedKeyPath(default(HDFingerprint), KeyPath.Parse("m/3'/2/1")));
+				psbtWithTXs.AddKeyPath(keys[1].PubKey, new RootedKeyPath(default(HDFingerprint), KeyPath.Parse("m/3'/2/1")));
 				CheckPSBTIsAcceptableByRealRPC(psbtWithTXs.ToBase64(), client);
 
 				// What about after adding some signatures?
