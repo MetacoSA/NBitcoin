@@ -206,7 +206,7 @@ namespace NBitcoin
 					{
 						if (accountKey.Derive(hdKey.Value.KeyPath).GetPublicKey() == hdKey.Key)
 						{
-							yield return CreateHDKeyMatch(hdKey);
+							yield return CreateHDKeyMatch(accountKey, hdKey.Value.KeyPath, hdKey);
 							matched = true;
 						}
 					}
@@ -221,7 +221,7 @@ namespace NBitcoin
 					{
 						if (accountKey.Derive(addressPath).GetPublicKey() == hdKey.Key)
 						{
-							yield return CreateHDKeyMatch(hdKey);
+							yield return CreateHDKeyMatch(accountKey, addressPath, hdKey);
 							matched = true;
 						}
 					}
@@ -238,7 +238,7 @@ namespace NBitcoin
 							addressPath = new KeyPath(indexes);
 							if (accountKey.Derive(addressPath).GetPublicKey() == hdKey.Key)
 							{
-								yield return CreateHDKeyMatch(hdKey);
+								yield return CreateHDKeyMatch(accountKey, addressPath, hdKey);
 								matched = true;
 								break;
 							}
@@ -249,6 +249,6 @@ namespace NBitcoin
 			}
 		}
 
-		protected abstract PSBTHDKeyMatch CreateHDKeyMatch(KeyValuePair<PubKey, RootedKeyPath> kv);
+		protected abstract PSBTHDKeyMatch CreateHDKeyMatch(IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<PubKey, RootedKeyPath> kv);
 	}
 }

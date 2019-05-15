@@ -873,9 +873,9 @@ namespace NBitcoin
 			return strWriter.ToString();
 		}
 
-		protected override PSBTHDKeyMatch CreateHDKeyMatch(KeyValuePair<PubKey, RootedKeyPath> kv)
+		protected override PSBTHDKeyMatch CreateHDKeyMatch(IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<PubKey, RootedKeyPath> kv)
 		{
-			return new PSBTHDKeyMatch<PSBTInput>(this, kv);
+			return new PSBTHDKeyMatch<PSBTInput>(this, accountKey, addressKeyPath, kv);
 		}
 	}
 

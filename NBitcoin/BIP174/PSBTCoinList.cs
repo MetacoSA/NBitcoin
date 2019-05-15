@@ -8,8 +8,8 @@ namespace NBitcoin
 {
 	public class PSBTHDKeyMatch<T> : PSBTHDKeyMatch where T: PSBTCoin
 	{
-		internal PSBTHDKeyMatch(T psbtCoin, KeyValuePair<PubKey, RootedKeyPath> kv)
-			: base(psbtCoin, kv)
+		internal PSBTHDKeyMatch(T psbtCoin, IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<PubKey, RootedKeyPath> kv)
+			: base(psbtCoin, accountKey, addressKeyPath, kv)
 		{
 			if (psbtCoin == null)
 				throw new ArgumentNullException(nameof(psbtCoin));
@@ -28,7 +28,7 @@ namespace NBitcoin
 
 	public class PSBTHDKeyMatch
 	{
-		internal PSBTHDKeyMatch(PSBTCoin psbtCoin, KeyValuePair<PubKey, RootedKeyPath> kv)
+		internal PSBTHDKeyMatch(PSBTCoin psbtCoin, IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<PubKey, RootedKeyPath> kv)
 		{
 			if (psbtCoin == null)
 				throw new ArgumentNullException(nameof(psbtCoin));
@@ -53,6 +53,29 @@ namespace NBitcoin
 			get
 			{
 				return _PubKey;
+			}
+		}
+
+
+		private readonly KeyPath _AddressKeyPath;
+		/// <summary>
+		/// KeyPath relative to the accountKey to PubKey
+		/// </summary>
+		public KeyPath AddressKeyPath
+		{
+			get
+			{
+				return _AddressKeyPath;
+			}
+		}
+
+
+		private readonly IHDKey _AccountKey;
+		public IHDKey AccountKey
+		{
+			get
+			{
+				return _AccountKey;
 			}
 		}
 

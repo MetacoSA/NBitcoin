@@ -236,9 +236,9 @@ namespace NBitcoin
 			return new Coin(OutPoint.Zero, TxOut);
 		}
 
-		protected override PSBTHDKeyMatch CreateHDKeyMatch(KeyValuePair<PubKey, RootedKeyPath> kv)
+		protected override PSBTHDKeyMatch CreateHDKeyMatch(IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<PubKey, RootedKeyPath> kv)
 		{
-			return new PSBTHDKeyMatch<PSBTOutput>(this, kv);
+			return new PSBTHDKeyMatch<PSBTOutput>(this, accountKey, addressKeyPath, kv);
 		}
 	}
 	
