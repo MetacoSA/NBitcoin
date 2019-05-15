@@ -32,9 +32,15 @@ namespace NBitcoin
 		{
 			if (psbtCoin == null)
 				throw new ArgumentNullException(nameof(psbtCoin));
+			if (addressKeyPath == null)
+				throw new ArgumentNullException(nameof(addressKeyPath));
+			if (accountKey == null)
+				throw new ArgumentNullException(nameof(accountKey));
 			_Coin = psbtCoin;
 			_KeyPath = kv.Value;
 			_PubKey = kv.Key;
+			_AddressKeyPath = addressKeyPath;
+			_AccountKey = accountKey;
 		}
 
 		private readonly PSBTCoin _Coin;
