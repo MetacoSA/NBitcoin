@@ -45357,15 +45357,15 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTCoin.AddKeyPath
   nameWithType: PSBTCoin.AddKeyPath
-- uid: NBitcoin.PSBTCoin.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,NBitcoin.RootedKeyPath})
-  name: CreateHDKeyMatch(KeyValuePair<PubKey, RootedKeyPath>)
-  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_CreateHDKeyMatch_System_Collections_Generic_KeyValuePair_NBitcoin_PubKey_NBitcoin_RootedKeyPath__
-  commentId: M:NBitcoin.PSBTCoin.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,NBitcoin.RootedKeyPath})
-  name.vb: CreateHDKeyMatch(KeyValuePair(Of PubKey, RootedKeyPath))
-  fullName: NBitcoin.PSBTCoin.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair<NBitcoin.PubKey, NBitcoin.RootedKeyPath>)
-  fullName.vb: NBitcoin.PSBTCoin.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair(Of NBitcoin.PubKey, NBitcoin.RootedKeyPath))
-  nameWithType: PSBTCoin.CreateHDKeyMatch(KeyValuePair<PubKey, RootedKeyPath>)
-  nameWithType.vb: PSBTCoin.CreateHDKeyMatch(KeyValuePair(Of PubKey, RootedKeyPath))
+- uid: NBitcoin.PSBTCoin.CreateHDKeyMatch(NBitcoin.IHDKey,NBitcoin.KeyPath,System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,NBitcoin.RootedKeyPath})
+  name: CreateHDKeyMatch(IHDKey, KeyPath, KeyValuePair<PubKey, RootedKeyPath>)
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_CreateHDKeyMatch_NBitcoin_IHDKey_NBitcoin_KeyPath_System_Collections_Generic_KeyValuePair_NBitcoin_PubKey_NBitcoin_RootedKeyPath__
+  commentId: M:NBitcoin.PSBTCoin.CreateHDKeyMatch(NBitcoin.IHDKey,NBitcoin.KeyPath,System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,NBitcoin.RootedKeyPath})
+  name.vb: CreateHDKeyMatch(IHDKey, KeyPath, KeyValuePair(Of PubKey, RootedKeyPath))
+  fullName: NBitcoin.PSBTCoin.CreateHDKeyMatch(NBitcoin.IHDKey, NBitcoin.KeyPath, System.Collections.Generic.KeyValuePair<NBitcoin.PubKey, NBitcoin.RootedKeyPath>)
+  fullName.vb: NBitcoin.PSBTCoin.CreateHDKeyMatch(NBitcoin.IHDKey, NBitcoin.KeyPath, System.Collections.Generic.KeyValuePair(Of NBitcoin.PubKey, NBitcoin.RootedKeyPath))
+  nameWithType: PSBTCoin.CreateHDKeyMatch(IHDKey, KeyPath, KeyValuePair<PubKey, RootedKeyPath>)
+  nameWithType.vb: PSBTCoin.CreateHDKeyMatch(IHDKey, KeyPath, KeyValuePair(Of PubKey, RootedKeyPath))
 - uid: NBitcoin.PSBTCoin.CreateHDKeyMatch*
   name: CreateHDKeyMatch
   href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_CreateHDKeyMatch_
@@ -45724,6 +45724,32 @@ references:
   commentId: T:NBitcoin.PSBTHDKeyMatch
   fullName: NBitcoin.PSBTHDKeyMatch
   nameWithType: PSBTHDKeyMatch
+- uid: NBitcoin.PSBTHDKeyMatch.AccountKey
+  name: AccountKey
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_AccountKey
+  commentId: P:NBitcoin.PSBTHDKeyMatch.AccountKey
+  fullName: NBitcoin.PSBTHDKeyMatch.AccountKey
+  nameWithType: PSBTHDKeyMatch.AccountKey
+- uid: NBitcoin.PSBTHDKeyMatch.AccountKey*
+  name: AccountKey
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_AccountKey_
+  commentId: Overload:NBitcoin.PSBTHDKeyMatch.AccountKey
+  isSpec: "True"
+  fullName: NBitcoin.PSBTHDKeyMatch.AccountKey
+  nameWithType: PSBTHDKeyMatch.AccountKey
+- uid: NBitcoin.PSBTHDKeyMatch.AddressKeyPath
+  name: AddressKeyPath
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_AddressKeyPath
+  commentId: P:NBitcoin.PSBTHDKeyMatch.AddressKeyPath
+  fullName: NBitcoin.PSBTHDKeyMatch.AddressKeyPath
+  nameWithType: PSBTHDKeyMatch.AddressKeyPath
+- uid: NBitcoin.PSBTHDKeyMatch.AddressKeyPath*
+  name: AddressKeyPath
+  href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_AddressKeyPath_
+  commentId: Overload:NBitcoin.PSBTHDKeyMatch.AddressKeyPath
+  isSpec: "True"
+  fullName: NBitcoin.PSBTHDKeyMatch.AddressKeyPath
+  nameWithType: PSBTHDKeyMatch.AddressKeyPath
 - uid: NBitcoin.PSBTHDKeyMatch.Coin
   name: Coin
   href: api/NBitcoin.PSBTHDKeyMatch.html#NBitcoin_PSBTHDKeyMatch_Coin
@@ -45834,15 +45860,15 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.CheckSanity
   nameWithType: PSBTInput.CheckSanity
-- uid: NBitcoin.PSBTInput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,NBitcoin.RootedKeyPath})
-  name: CreateHDKeyMatch(KeyValuePair<PubKey, RootedKeyPath>)
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_CreateHDKeyMatch_System_Collections_Generic_KeyValuePair_NBitcoin_PubKey_NBitcoin_RootedKeyPath__
-  commentId: M:NBitcoin.PSBTInput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,NBitcoin.RootedKeyPath})
-  name.vb: CreateHDKeyMatch(KeyValuePair(Of PubKey, RootedKeyPath))
-  fullName: NBitcoin.PSBTInput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair<NBitcoin.PubKey, NBitcoin.RootedKeyPath>)
-  fullName.vb: NBitcoin.PSBTInput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair(Of NBitcoin.PubKey, NBitcoin.RootedKeyPath))
-  nameWithType: PSBTInput.CreateHDKeyMatch(KeyValuePair<PubKey, RootedKeyPath>)
-  nameWithType.vb: PSBTInput.CreateHDKeyMatch(KeyValuePair(Of PubKey, RootedKeyPath))
+- uid: NBitcoin.PSBTInput.CreateHDKeyMatch(NBitcoin.IHDKey,NBitcoin.KeyPath,System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,NBitcoin.RootedKeyPath})
+  name: CreateHDKeyMatch(IHDKey, KeyPath, KeyValuePair<PubKey, RootedKeyPath>)
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_CreateHDKeyMatch_NBitcoin_IHDKey_NBitcoin_KeyPath_System_Collections_Generic_KeyValuePair_NBitcoin_PubKey_NBitcoin_RootedKeyPath__
+  commentId: M:NBitcoin.PSBTInput.CreateHDKeyMatch(NBitcoin.IHDKey,NBitcoin.KeyPath,System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,NBitcoin.RootedKeyPath})
+  name.vb: CreateHDKeyMatch(IHDKey, KeyPath, KeyValuePair(Of PubKey, RootedKeyPath))
+  fullName: NBitcoin.PSBTInput.CreateHDKeyMatch(NBitcoin.IHDKey, NBitcoin.KeyPath, System.Collections.Generic.KeyValuePair<NBitcoin.PubKey, NBitcoin.RootedKeyPath>)
+  fullName.vb: NBitcoin.PSBTInput.CreateHDKeyMatch(NBitcoin.IHDKey, NBitcoin.KeyPath, System.Collections.Generic.KeyValuePair(Of NBitcoin.PubKey, NBitcoin.RootedKeyPath))
+  nameWithType: PSBTInput.CreateHDKeyMatch(IHDKey, KeyPath, KeyValuePair<PubKey, RootedKeyPath>)
+  nameWithType.vb: PSBTInput.CreateHDKeyMatch(IHDKey, KeyPath, KeyValuePair(Of PubKey, RootedKeyPath))
 - uid: NBitcoin.PSBTInput.CreateHDKeyMatch*
   name: CreateHDKeyMatch
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_CreateHDKeyMatch_
@@ -46198,15 +46224,15 @@ references:
   commentId: T:NBitcoin.PSBTOutput
   fullName: NBitcoin.PSBTOutput
   nameWithType: PSBTOutput
-- uid: NBitcoin.PSBTOutput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,NBitcoin.RootedKeyPath})
-  name: CreateHDKeyMatch(KeyValuePair<PubKey, RootedKeyPath>)
-  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_CreateHDKeyMatch_System_Collections_Generic_KeyValuePair_NBitcoin_PubKey_NBitcoin_RootedKeyPath__
-  commentId: M:NBitcoin.PSBTOutput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,NBitcoin.RootedKeyPath})
-  name.vb: CreateHDKeyMatch(KeyValuePair(Of PubKey, RootedKeyPath))
-  fullName: NBitcoin.PSBTOutput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair<NBitcoin.PubKey, NBitcoin.RootedKeyPath>)
-  fullName.vb: NBitcoin.PSBTOutput.CreateHDKeyMatch(System.Collections.Generic.KeyValuePair(Of NBitcoin.PubKey, NBitcoin.RootedKeyPath))
-  nameWithType: PSBTOutput.CreateHDKeyMatch(KeyValuePair<PubKey, RootedKeyPath>)
-  nameWithType.vb: PSBTOutput.CreateHDKeyMatch(KeyValuePair(Of PubKey, RootedKeyPath))
+- uid: NBitcoin.PSBTOutput.CreateHDKeyMatch(NBitcoin.IHDKey,NBitcoin.KeyPath,System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,NBitcoin.RootedKeyPath})
+  name: CreateHDKeyMatch(IHDKey, KeyPath, KeyValuePair<PubKey, RootedKeyPath>)
+  href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_CreateHDKeyMatch_NBitcoin_IHDKey_NBitcoin_KeyPath_System_Collections_Generic_KeyValuePair_NBitcoin_PubKey_NBitcoin_RootedKeyPath__
+  commentId: M:NBitcoin.PSBTOutput.CreateHDKeyMatch(NBitcoin.IHDKey,NBitcoin.KeyPath,System.Collections.Generic.KeyValuePair{NBitcoin.PubKey,NBitcoin.RootedKeyPath})
+  name.vb: CreateHDKeyMatch(IHDKey, KeyPath, KeyValuePair(Of PubKey, RootedKeyPath))
+  fullName: NBitcoin.PSBTOutput.CreateHDKeyMatch(NBitcoin.IHDKey, NBitcoin.KeyPath, System.Collections.Generic.KeyValuePair<NBitcoin.PubKey, NBitcoin.RootedKeyPath>)
+  fullName.vb: NBitcoin.PSBTOutput.CreateHDKeyMatch(NBitcoin.IHDKey, NBitcoin.KeyPath, System.Collections.Generic.KeyValuePair(Of NBitcoin.PubKey, NBitcoin.RootedKeyPath))
+  nameWithType: PSBTOutput.CreateHDKeyMatch(IHDKey, KeyPath, KeyValuePair<PubKey, RootedKeyPath>)
+  nameWithType.vb: PSBTOutput.CreateHDKeyMatch(IHDKey, KeyPath, KeyValuePair(Of PubKey, RootedKeyPath))
 - uid: NBitcoin.PSBTOutput.CreateHDKeyMatch*
   name: CreateHDKeyMatch
   href: api/NBitcoin.PSBTOutput.html#NBitcoin_PSBTOutput_CreateHDKeyMatch_
