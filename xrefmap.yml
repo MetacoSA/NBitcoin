@@ -45158,36 +45158,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBT.Settings
   nameWithType: PSBT.Settings
-- uid: NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey,NBitcoin.KeyPath)
-  name: SignAll(BitcoinExtKey, KeyPath)
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_BitcoinExtKey_NBitcoin_KeyPath_
-  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey,NBitcoin.KeyPath)
-  fullName: NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey, NBitcoin.KeyPath)
-  nameWithType: PSBT.SignAll(BitcoinExtKey, KeyPath)
-- uid: NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey,NBitcoin.KeyPath,NBitcoin.SigHash)
-  name: SignAll(BitcoinExtKey, KeyPath, SigHash)
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_BitcoinExtKey_NBitcoin_KeyPath_NBitcoin_SigHash_
-  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey,NBitcoin.KeyPath,NBitcoin.SigHash)
-  fullName: NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey, NBitcoin.KeyPath, NBitcoin.SigHash)
-  nameWithType: PSBT.SignAll(BitcoinExtKey, KeyPath, SigHash)
-- uid: NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey,NBitcoin.SigHash)
-  name: SignAll(BitcoinExtKey, SigHash)
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_BitcoinExtKey_NBitcoin_SigHash_
-  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey,NBitcoin.SigHash)
-  fullName: NBitcoin.PSBT.SignAll(NBitcoin.BitcoinExtKey, NBitcoin.SigHash)
-  nameWithType: PSBT.SignAll(BitcoinExtKey, SigHash)
-- uid: NBitcoin.PSBT.SignAll(NBitcoin.ExtKey,NBitcoin.KeyPath)
-  name: SignAll(ExtKey, KeyPath)
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_ExtKey_NBitcoin_KeyPath_
-  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.ExtKey,NBitcoin.KeyPath)
-  fullName: NBitcoin.PSBT.SignAll(NBitcoin.ExtKey, NBitcoin.KeyPath)
-  nameWithType: PSBT.SignAll(ExtKey, KeyPath)
-- uid: NBitcoin.PSBT.SignAll(NBitcoin.ExtKey,NBitcoin.KeyPath,NBitcoin.SigHash)
-  name: SignAll(ExtKey, KeyPath, SigHash)
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_ExtKey_NBitcoin_KeyPath_NBitcoin_SigHash_
-  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.ExtKey,NBitcoin.KeyPath,NBitcoin.SigHash)
-  fullName: NBitcoin.PSBT.SignAll(NBitcoin.ExtKey, NBitcoin.KeyPath, NBitcoin.SigHash)
-  nameWithType: PSBT.SignAll(ExtKey, KeyPath, SigHash)
+- uid: NBitcoin.PSBT.SignAll(NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
+  name: SignAll(IHDKey, RootedKeyPath, SigHash)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBT.SignAll(NBitcoin.IHDKey, NBitcoin.RootedKeyPath, NBitcoin.SigHash)
+  nameWithType: PSBT.SignAll(IHDKey, RootedKeyPath, SigHash)
 - uid: NBitcoin.PSBT.SignAll(NBitcoin.IHDKey,NBitcoin.SigHash)
   name: SignAll(IHDKey, SigHash)
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_IHDKey_NBitcoin_SigHash_
@@ -46152,6 +46128,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.TryFinalizeInput
   nameWithType: PSBTInput.TryFinalizeInput
+- uid: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
+  name: TrySign(IHDKey, RootedKeyPath, SigHash)
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySign_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey, NBitcoin.RootedKeyPath, NBitcoin.SigHash)
+  nameWithType: PSBTInput.TrySign(IHDKey, RootedKeyPath, SigHash)
 - uid: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey,NBitcoin.SigHash)
   name: TrySign(IHDKey, SigHash)
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySign_NBitcoin_IHDKey_NBitcoin_SigHash_
