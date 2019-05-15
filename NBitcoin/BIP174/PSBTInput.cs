@@ -469,18 +469,23 @@ namespace NBitcoin
 			return errors;
 		}
 
-		public void TrySign(IHDKey masterKey, SigHash sigHash = SigHash.All)
+		public void TrySign(IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
 		{
-			if (masterKey == null)
-				throw new ArgumentNullException(nameof(masterKey));
-			var cache = masterKey.AsHDKeyCache();
-			foreach (var hdk in this.HDKeysFor(masterKey))
+			if (accountKey == null)
+				throw new ArgumentNullException(nameof(accountKey));
+			var cache = accountKey.AsHDKeyCache();
+			foreach (var hdk in this.HDKeysFor(accountKey, accountKeyPath))
 			{
-				if (((HDKeyCache)cache.Derive(hdk.RootedKeyPath.KeyPath)).Inner is ExtKey k)
+				if (((HDKeyCache)cache.Derive(hdk.RootedKeyPath.KeyPath)).Inner is ISecret k)
 					Sign(k.PrivateKey, sigHash);
 				else
-					throw new ArgumentException(paramName: nameof(masterKey), message: "This should be a private key");
+					throw new ArgumentException(paramName: nameof(accountKey), message: "This should be a private key");
 			}
+		}
+
+		public void TrySign(IHDKey accountKey, SigHash sigHash = SigHash.All)
+		{
+			TrySign(accountKey, null, sigHash);
 		}
 
 		public void AssertSanity()

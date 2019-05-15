@@ -432,6 +432,22 @@ namespace NBitcoin
 			return this;
 		}
 
+		public PSBT SignAll(IHDKey accountKey, SigHash sigHash = SigHash.All)
+		{
+			return SignAll(accountKey, null, sigHash);
+		}
+		public PSBT SignAll(IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
+		{
+			if (accountKey == null)
+				throw new ArgumentNullException(nameof(accountKey));
+			Money total = Money.Zero;
+			foreach (var o in Inputs.CoinsFor(accountKey, accountKeyPath))
+			{
+				o.TrySign(accountKey, accountKeyPath, sigHash);
+			}
+			return this;
+		}
+
 		/// <summary>
 		/// Returns the fee of the transaction being signed
 		/// </summary>
@@ -482,51 +498,6 @@ namespace NBitcoin
 			return SignAll(sigHash, keys.Select(k => k.PrivateKey).ToArray());
 		}
 
-		public PSBT SignAll(IHDKey masterKey, SigHash sigHash = SigHash.All)
-		{
-			if (masterKey == null)
-				throw new ArgumentNullException(nameof(masterKey));
-			var cache = masterKey.AsHDKeyCache();
-			foreach (var o in Inputs.HDKeysFor(masterKey))
-			{
-				if (((HDKeyCache)cache.Derive(o.RootedKeyPath.KeyPath)).Inner is ExtKey k)
-					o.Coin.Sign(k.PrivateKey, sigHash);
-				else
-					throw new ArgumentException(paramName: nameof(masterKey), message: "This should be a private key");
-			}
-			return this;
-		}
-
-		public PSBT SignAll(BitcoinExtKey masterKey, SigHash sigHash = SigHash.All)
-		{
-			return SignAll(masterKey?.ExtKey, sigHash);
-		}
-
-		public PSBT SignAll(ExtKey extkey, KeyPath keyPath)
-		{
-			return SignAll(extkey, keyPath, SigHash.All);
-		}
-		public PSBT SignAll(BitcoinExtKey extkey, KeyPath keyPath)
-		{
-			return SignAll(extkey?.ExtKey, keyPath, SigHash.All);
-		}
-		public PSBT SignAll(ExtKey extkey, KeyPath keyPath, SigHash sigHash)
-		{
-			if (extkey == null)
-				throw new ArgumentNullException(nameof(extkey));
-			if (keyPath == null)
-				throw new ArgumentNullException(nameof(keyPath));
-			var privKey = extkey.Derive(keyPath).PrivateKey;
-			foreach (var input in this.Inputs.GetPSBTCoins(extkey))
-			{
-				input.Sign(privKey);
-			}
-			return this;
-		}
-		public PSBT SignAll(BitcoinExtKey extkey, KeyPath keyPath, SigHash sigHash)
-		{
-			return SignAll(extkey?.ExtKey, keyPath, sigHash);
-		}
 		internal TransactionBuilder CreateTransactionBuilder()
 		{
 			var transactionBuilder = tx.GetConsensusFactory().CreateTransactionBuilder();
