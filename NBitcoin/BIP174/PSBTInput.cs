@@ -474,9 +474,9 @@ namespace NBitcoin
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
 			var cache = accountKey.AsHDKeyCache();
-			foreach (var hdk in this.HDKeysFor(accountKey, accountKeyPath))
+			foreach (var hdk in this.HDKeysFor(cache, accountKeyPath))
 			{
-				if (((HDKeyCache)cache.Derive(hdk.RootedKeyPath.KeyPath)).Inner is ISecret k)
+				if (((HDKeyCache)cache.Derive(hdk.AddressKeyPath)).Inner is ISecret k)
 					Sign(k.PrivateKey, sigHash);
 				else
 					throw new ArgumentException(paramName: nameof(accountKey), message: "This should be a private key");
