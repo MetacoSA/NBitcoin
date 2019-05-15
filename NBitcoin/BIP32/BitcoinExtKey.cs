@@ -121,6 +121,14 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(keyPath));
 			return new BitcoinExtKey(ExtKey.Derive(keyPath), Network);
 		}
+		public ExtKey Derive(RootedKeyPath rootedKeyPath)
+		{
+			if (rootedKeyPath == null)
+				throw new ArgumentNullException(nameof(rootedKeyPath));
+			if (rootedKeyPath.MasterFingerprint != GetPublicKey().GetHDFingerPrint())
+				throw new ArgumentException(paramName: nameof(rootedKeyPath), message: "The rootedKeyPath's fingerprint does not match this ExtKey");
+			return Derive(rootedKeyPath.KeyPath);
+		}
 
 		public PubKey GetPublicKey()
 		{

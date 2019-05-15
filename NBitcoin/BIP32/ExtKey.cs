@@ -163,6 +163,15 @@ namespace NBitcoin
 			SetMaster(seed);
 		}
 
+		public ExtKey Derive(RootedKeyPath rootedKeyPath)
+		{
+			if (rootedKeyPath == null)
+				throw new ArgumentNullException(nameof(rootedKeyPath));
+			if (rootedKeyPath.MasterFingerprint != GetPublicKey().GetHDFingerPrint())
+				throw new ArgumentException(paramName: nameof(rootedKeyPath), message: "The rootedKeyPath's fingerprint does not match this ExtKey");
+			return Derive(rootedKeyPath.KeyPath);
+		}
+
 		/// <summary>
 		/// Constructor. Creates a new extended key from the specified seed bytes, from the given hex string.
 		/// </summary>
