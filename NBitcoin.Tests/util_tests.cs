@@ -157,6 +157,10 @@ namespace NBitcoin.Tests
 			Assert.Equal("7b09d780/0'/0'/2'/2", result.Derive(2).ToString());
 			Assert.Equal("7b09d780/0'/0'/2'", result.Derive(new KeyPath("0/1")).GetAccountKeyPath().ToString());
 			Assert.Equal("7b09d780", result.MasterFingerprint.ToString());
+			Assert.True(RootedKeyPath.TryParse("7b09d780/", out result));
+			Assert.Equal("7b09d780", result.MasterFingerprint.ToString());
+			Assert.Equal("7b09d780/", result.ToString());
+			Assert.Equal(new KeyPath(), result.KeyPath);
 
 			Assert.True(RootedKeyPath.TryParse(result.ToString(), out var result2));
 			Assert.Equal(result, result2);
