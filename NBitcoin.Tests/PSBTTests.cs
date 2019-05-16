@@ -79,12 +79,12 @@ namespace NBitcoin.Tests
 			psbt.AddKeyPath(aliceMaster, new KeyPath("1/2/3"));
 			psbt.AddKeyPath(bobMaster, new KeyPath("4/5/6"));
 
-			var actualBalance = psbt.GetBalance(aliceMaster.AsHDScriptPubKey(ScriptPubKeyType.Legacy), aliceMaster);
+			var actualBalance = psbt.GetBalance(ScriptPubKeyType.Legacy, aliceMaster);
 			var expectedChange = aliceCoin.Amount - (Money.Coins(0.2m) + Money.Coins(0.1m) + Money.Coins(0.123m));
 			var expectedBalance = -aliceCoin.Amount + expectedChange;
 			Assert.Equal(expectedBalance, actualBalance);
 
-			actualBalance = psbt.GetBalance(bobMaster.AsHDScriptPubKey(ScriptPubKeyType.Legacy), bobMaster);
+			actualBalance = psbt.GetBalance(ScriptPubKeyType.Legacy, bobMaster);
 			expectedChange = bobCoin.Amount - (Money.Coins(0.25m) + Money.Coins(0.01m) + Money.Coins(0.001m)) + Money.Coins(0.123m);
 			expectedBalance = -bobCoin.Amount + expectedChange;
 			Assert.Equal(expectedBalance, actualBalance);
@@ -97,8 +97,8 @@ namespace NBitcoin.Tests
 			Assert.False(psbt.IsReadyToSign());
 			psbt.AddTransactions(funding);
 			Assert.True(psbt.IsReadyToSign());
-			psbt.SignAll(bobMaster.AsHDScriptPubKey(ScriptPubKeyType.Legacy), bobMaster);
-			psbt.SignAll(aliceMaster.AsHDScriptPubKey(ScriptPubKeyType.Legacy), aliceMaster);
+			psbt.SignAll(ScriptPubKeyType.Legacy, bobMaster);
+			psbt.SignAll(ScriptPubKeyType.Legacy, aliceMaster);
 
 			psbt.Finalize();
 			var result = psbt.ExtractTransaction();
@@ -518,18 +518,18 @@ namespace NBitcoin.Tests
 			Assert.Equal(masterExtkey.GetPublicKey().GetHDFingerPrint(), psbt.Inputs[0].HDKeyPaths[accountExtKey.Derive(0 | hardenedFlag).GetPublicKey()].MasterFingerprint);
 			Assert.Equal(masterExtkey.GetPublicKey().GetHDFingerPrint(), psbt.Inputs[1].HDKeyPaths[accountExtKey.Derive(1 | hardenedFlag).GetPublicKey()].MasterFingerprint);
 
-			Assert.NotEqual(Money.Zero, psbt.GetBalance(masterExtkey.AsHDScriptPubKey(ScriptPubKeyType.Legacy), masterExtkey));
-			Assert.Equal(psbt.GetBalance(masterExtkey.AsHDScriptPubKey(ScriptPubKeyType.Legacy), masterExtkey), psbt.GetBalance(accountExtKey.AsHDScriptPubKey(ScriptPubKeyType.Legacy), accountExtKey, accountRootedKeyPath));
+			Assert.NotEqual(Money.Zero, psbt.GetBalance(ScriptPubKeyType.Legacy, masterExtkey));
+			Assert.Equal(psbt.GetBalance(ScriptPubKeyType.Legacy, masterExtkey), psbt.GetBalance(ScriptPubKeyType.Legacy, accountExtKey, accountRootedKeyPath));
 			if (hardenedFlag != 0) // If hardened, we can't get the balance from the account pubkey
 			{
-				Assert.Equal(Money.Zero, psbt.GetBalance(accountExtKey.AsHDScriptPubKey(ScriptPubKeyType.Legacy), accountExtKey.Neuter(), accountRootedKeyPath));
+				Assert.Equal(Money.Zero, psbt.GetBalance(ScriptPubKeyType.Legacy, accountExtKey.Neuter(), accountRootedKeyPath));
 			}
 			else
 			{
-				Assert.Equal(psbt.GetBalance(masterExtkey.AsHDScriptPubKey(ScriptPubKeyType.Legacy), masterExtkey), psbt.GetBalance(accountExtKey.AsHDScriptPubKey(ScriptPubKeyType.Legacy), accountExtKey.Neuter(), accountRootedKeyPath));
+				Assert.Equal(psbt.GetBalance(ScriptPubKeyType.Legacy, masterExtkey), psbt.GetBalance(ScriptPubKeyType.Legacy, accountExtKey.Neuter(), accountRootedKeyPath));
 			}
-			Assert.Equal(Money.Zero, psbt.GetBalance(masterExtkey.AsHDScriptPubKey(ScriptPubKeyType.Legacy), masterExtkey.Derive(new KeyPath("0'/0'/1'")), new KeyPath("0'/0'/1'").ToRootedKeyPath(masterFP)));
-			Assert.Equal(Money.Zero, psbt.GetBalance(masterExtkey.AsHDScriptPubKey(ScriptPubKeyType.Legacy), masterExtkey.Neuter())); // Can't derive!
+			Assert.Equal(Money.Zero, psbt.GetBalance(ScriptPubKeyType.Legacy, masterExtkey.Derive(new KeyPath("0'/0'/1'")), new KeyPath("0'/0'/1'").ToRootedKeyPath(masterFP)));
+			Assert.Equal(Money.Zero, psbt.GetBalance(ScriptPubKeyType.Legacy, masterExtkey.Neuter())); // Can't derive!
 			if (hardenedFlag != 0)
 			{
 				hardenedFlag = 0;

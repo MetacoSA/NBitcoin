@@ -50,6 +50,13 @@ namespace NBitcoin
 			return new HDScriptPubKeyCache(hdScriptPubKey);
 		}
 
+		public static IHDScriptPubKey AsHDScriptPubKey(this IHDKey hdKey, ScriptPubKeyType type)
+		{
+			if (hdKey == null)
+				throw new ArgumentNullException(nameof(hdKey));
+			return new HDKeyScriptPubKey(hdKey, type);
+		}
+
 		public static IHDKey Derive(this IHDKey hdkey, uint index)
 		{
 			if (hdkey == null)

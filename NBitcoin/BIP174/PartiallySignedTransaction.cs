@@ -410,6 +410,36 @@ namespace NBitcoin
 
 		public PSBTSettings Settings { get; set; } = new PSBTSettings();
 
+
+		/// <summary>
+		/// Sign all inputs which derive <paramref name="accountKey"/> of type <paramref name="scriptPubKeyType"/>.
+		/// </summary>
+		/// <param name="scriptPubKeyType">The way to derive addresses from the accountKey</param>
+		/// <param name="accountKey">The account key with which to sign</param>
+		/// <param name="accountKeyPath">The account key path (eg. [masterFP]/49'/0'/0')</param>
+		/// <param name="sigHash">The SigHash</param>
+		/// <returns>This PSBT</returns>
+		public PSBT SignAll(ScriptPubKeyType scriptPubKeyType, IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
+		{
+			if (accountKey == null)
+				throw new ArgumentNullException(nameof(accountKey));
+			return SignAll(new HDKeyScriptPubKey(accountKey, scriptPubKeyType), accountKey, accountKeyPath, sigHash);
+		}
+
+		/// <summary>
+		/// Sign all inputs which derive <paramref name="accountKey"/> of type <paramref name="scriptPubKeyType"/>.
+		/// </summary>
+		/// <param name="scriptPubKeyType">The way to derive addresses from the accountKey</param>
+		/// <param name="accountKey">The account key with which to sign</param>
+		/// <param name="sigHash">The SigHash</param>
+		/// <returns>This PSBT</returns>
+		public PSBT SignAll(ScriptPubKeyType scriptPubKeyType, IHDKey accountKey, SigHash sigHash = SigHash.All)
+		{
+			if (accountKey == null)
+				throw new ArgumentNullException(nameof(accountKey));
+			return SignAll(new HDKeyScriptPubKey(accountKey, scriptPubKeyType), accountKey, sigHash);
+		}
+
 		/// <summary>
 		/// Sign all inputs which derive addresses from <paramref name="accountHDScriptPubKey"/> and that need to be signed by <paramref name="accountKey"/>.
 		/// </summary>
@@ -421,6 +451,7 @@ namespace NBitcoin
 		{
 			return SignAll(accountHDScriptPubKey, accountKey, null, sigHash);
 		}
+
 		/// <summary>
 		/// Sign all inputs which derive addresses from <paramref name="accountHDScriptPubKey"/> and that need to be signed by <paramref name="accountKey"/>.
 		/// </summary>
@@ -769,6 +800,22 @@ namespace NBitcoin
 			}
 			return this;
 		}
+
+
+		/// <summary>
+		/// Get the balance change if you were signing this transaction.
+		/// </summary>
+		/// <param name="accountHDScriptPubKey">The hdScriptPubKey used to generate addresses</param>
+		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
+		/// <param name="accountKeyPath">The account key path</param>
+		/// <returns>The balance change</returns>
+		public Money GetBalance(ScriptPubKeyType scriptPubKeyType, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		{
+			if (accountKey == null)
+				throw new ArgumentNullException(nameof(accountKey));
+			return GetBalance(new HDKeyScriptPubKey(accountKey, scriptPubKeyType), accountKey, accountKeyPath);
+		}
+
 
 		/// <summary>
 		/// Get the balance change if you were signing this transaction.

@@ -276,11 +276,6 @@ namespace NBitcoin
 			}
 		}
 
-		public IHDScriptPubKey AsHDScriptPubKey(ScriptPubKeyType type)
-		{
-			return new HDKeyScriptPubKey(this, type);
-		}
-
 		[Obsolete("Use ParentFingerprint instead. The Fingerprint of the HD key is actually the fingerprint of the parent public key, this field was not well named.")]
 		public HDFingerprint Fingerprint
 		{

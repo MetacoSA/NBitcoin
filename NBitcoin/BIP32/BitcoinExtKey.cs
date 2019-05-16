@@ -135,11 +135,6 @@ namespace NBitcoin
 			return ExtKey.PrivateKey.PubKey;
 		}
 
-		public IHDScriptPubKey AsHDScriptPubKey(ScriptPubKeyType type)
-		{
-			return new HDKeyScriptPubKey(this, type);
-		}
-
 		bool IHDKey.CanDeriveHardenedPath()
 		{
 			return true;
@@ -257,11 +252,6 @@ namespace NBitcoin
 			if(key == null)
 				return null;
 			return key.ExtPubKey;
-		}
-
-		public IHDScriptPubKey AsHDScriptPubKey(ScriptPubKeyType type)
-		{
-			return new HDKeyScriptPubKey(this, type);
 		}
 
 		IHDKey IHDKey.Derive(KeyPath keyPath)
