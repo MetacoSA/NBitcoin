@@ -283,10 +283,12 @@ namespace NBitcoin
 		/// Derives a new extended key in the hierarchy at the given path below the current key,
 		/// by deriving the specified child at each step.
 		/// </summary>
-		public ExtKey Derive(KeyPath derivation)
+		public ExtKey Derive(KeyPath keyPath)
 		{
+			if (keyPath == null)
+				throw new ArgumentNullException(nameof(keyPath));
 			ExtKey result = this;
-			return derivation.Indexes.Aggregate(result, (current, index) => current.Derive(index));
+			return keyPath.Indexes.Aggregate(result, (current, index) => current.Derive(index));
 		}
 
 		/// <summary>
@@ -410,9 +412,9 @@ namespace NBitcoin
 				key.Equals(other.key);
 		}
 
-		IHDKey IHDKey.Derive(uint index)
+		IHDKey IHDKey.Derive(KeyPath keyPath)
 		{
-			return this.Derive(index);
+			return this.Derive(keyPath);
 		}
 
 		public PubKey GetPublicKey()

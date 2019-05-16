@@ -110,9 +110,9 @@ namespace NBitcoin
 			return new BitcoinExtKey(ExtKey.Derive(index), Network);
 		}
 
-		IHDKey IHDKey.Derive(uint index)
+		IHDKey IHDKey.Derive(KeyPath keyPath)
 		{
-			return Derive(index);
+			return Derive(keyPath);
 		}
 
 		public BitcoinExtKey Derive(KeyPath keyPath)
@@ -254,9 +254,9 @@ namespace NBitcoin
 			return key.ExtPubKey;
 		}
 
-		IHDKey IHDKey.Derive(uint index)
+		IHDKey IHDKey.Derive(KeyPath keyPath)
 		{
-			return Derive(index);
+			return Derive(keyPath);
 		}
 
 		public BitcoinExtPubKey Derive(uint index)

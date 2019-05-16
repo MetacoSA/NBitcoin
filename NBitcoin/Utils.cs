@@ -37,20 +37,11 @@ namespace NBitcoin
 			return new HDKeyCache(hdkey);
 		}
 
-		public static IHDKey Derive(this IHDKey hdkey, KeyPath keyPath)
+		public static IHDKey Derive(this IHDKey hdkey, uint index)
 		{
 			if (hdkey == null)
 				throw new ArgumentNullException(nameof(hdkey));
-			if (keyPath == null)
-				throw new ArgumentNullException(nameof(keyPath));
-			if (keyPath.Indexes.Length == 0)
-				return hdkey;
-			var key = hdkey;
-			foreach (var index in keyPath.Indexes)
-			{
-				key = key.Derive(index);
-			}
-			return key;
+			return hdkey.Derive(new KeyPath(index));
 		}
 
 		/// <summary>

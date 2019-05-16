@@ -30,10 +30,12 @@ namespace NBitcoin
 			this.hdKey = hdKey;
 		}
 
-		public IHDKey Derive(uint index)
+		public IHDKey Derive(KeyPath keyPath)
 		{
-			var childPath = _PathFromRoot.Derive(index);
-			var key = derivationCache.GetOrAdd(childPath, _ => hdKey.Derive(index));
+			if (keyPath == null)
+				throw new ArgumentNullException(nameof(keyPath));
+			var childPath = _PathFromRoot.Derive(keyPath);
+			var key = derivationCache.GetOrAdd(childPath, _ => hdKey.Derive(keyPath));
 			return new HDKeyCache(key, childPath, derivationCache);
 		}
 

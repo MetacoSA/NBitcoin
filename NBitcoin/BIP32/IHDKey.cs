@@ -6,7 +6,7 @@ namespace NBitcoin
 {
 	public interface IHDKey
 	{
-		IHDKey Derive(uint index);
+		IHDKey Derive(KeyPath keyPath);
 		PubKey GetPublicKey();
 		bool CanDeriveHardenedPath();
 	}
