@@ -12130,6 +12130,12 @@ references:
   commentId: M:NBitcoin.BitcoinExtKey.Derive(NBitcoin.KeyPath)
   fullName: NBitcoin.BitcoinExtKey.Derive(NBitcoin.KeyPath)
   nameWithType: BitcoinExtKey.Derive(KeyPath)
+- uid: NBitcoin.BitcoinExtKey.Derive(NBitcoin.RootedKeyPath)
+  name: Derive(RootedKeyPath)
+  href: api/NBitcoin.BitcoinExtKey.html#NBitcoin_BitcoinExtKey_Derive_NBitcoin_RootedKeyPath_
+  commentId: M:NBitcoin.BitcoinExtKey.Derive(NBitcoin.RootedKeyPath)
+  fullName: NBitcoin.BitcoinExtKey.Derive(NBitcoin.RootedKeyPath)
+  nameWithType: BitcoinExtKey.Derive(RootedKeyPath)
 - uid: NBitcoin.BitcoinExtKey.Derive(System.UInt32)
   name: Derive(UInt32)
   href: api/NBitcoin.BitcoinExtKey.html#NBitcoin_BitcoinExtKey_Derive_System_UInt32_
@@ -12199,14 +12205,14 @@ references:
   fullName: NBitcoin.BitcoinExtKey.NBitcoin.IHDKey.CanDeriveHardenedPath
   nameWithType: BitcoinExtKey.IHDKey.CanDeriveHardenedPath
   nameWithType.vb: BitcoinExtKey.NBitcoin.IHDKey.CanDeriveHardenedPath
-- uid: NBitcoin.BitcoinExtKey.NBitcoin#IHDKey#Derive(System.UInt32)
-  name: IHDKey.Derive(UInt32)
-  href: api/NBitcoin.BitcoinExtKey.html#NBitcoin_BitcoinExtKey_NBitcoin_IHDKey_Derive_System_UInt32_
-  commentId: M:NBitcoin.BitcoinExtKey.NBitcoin#IHDKey#Derive(System.UInt32)
-  name.vb: NBitcoin.IHDKey.Derive(UInt32)
-  fullName: NBitcoin.BitcoinExtKey.NBitcoin.IHDKey.Derive(System.UInt32)
-  nameWithType: BitcoinExtKey.IHDKey.Derive(UInt32)
-  nameWithType.vb: BitcoinExtKey.NBitcoin.IHDKey.Derive(UInt32)
+- uid: NBitcoin.BitcoinExtKey.NBitcoin#IHDKey#Derive(NBitcoin.KeyPath)
+  name: IHDKey.Derive(KeyPath)
+  href: api/NBitcoin.BitcoinExtKey.html#NBitcoin_BitcoinExtKey_NBitcoin_IHDKey_Derive_NBitcoin_KeyPath_
+  commentId: M:NBitcoin.BitcoinExtKey.NBitcoin#IHDKey#Derive(NBitcoin.KeyPath)
+  name.vb: NBitcoin.IHDKey.Derive(KeyPath)
+  fullName: NBitcoin.BitcoinExtKey.NBitcoin.IHDKey.Derive(NBitcoin.KeyPath)
+  nameWithType: BitcoinExtKey.IHDKey.Derive(KeyPath)
+  nameWithType.vb: BitcoinExtKey.NBitcoin.IHDKey.Derive(KeyPath)
 - uid: NBitcoin.BitcoinExtKey.NBitcoin#IHDKey#Derive*
   name: IHDKey.Derive
   href: api/NBitcoin.BitcoinExtKey.html#NBitcoin_BitcoinExtKey_NBitcoin_IHDKey_Derive_
@@ -12425,14 +12431,14 @@ references:
   fullName: NBitcoin.BitcoinExtPubKey.NBitcoin.IHDKey.CanDeriveHardenedPath
   nameWithType: BitcoinExtPubKey.IHDKey.CanDeriveHardenedPath
   nameWithType.vb: BitcoinExtPubKey.NBitcoin.IHDKey.CanDeriveHardenedPath
-- uid: NBitcoin.BitcoinExtPubKey.NBitcoin#IHDKey#Derive(System.UInt32)
-  name: IHDKey.Derive(UInt32)
-  href: api/NBitcoin.BitcoinExtPubKey.html#NBitcoin_BitcoinExtPubKey_NBitcoin_IHDKey_Derive_System_UInt32_
-  commentId: M:NBitcoin.BitcoinExtPubKey.NBitcoin#IHDKey#Derive(System.UInt32)
-  name.vb: NBitcoin.IHDKey.Derive(UInt32)
-  fullName: NBitcoin.BitcoinExtPubKey.NBitcoin.IHDKey.Derive(System.UInt32)
-  nameWithType: BitcoinExtPubKey.IHDKey.Derive(UInt32)
-  nameWithType.vb: BitcoinExtPubKey.NBitcoin.IHDKey.Derive(UInt32)
+- uid: NBitcoin.BitcoinExtPubKey.NBitcoin#IHDKey#Derive(NBitcoin.KeyPath)
+  name: IHDKey.Derive(KeyPath)
+  href: api/NBitcoin.BitcoinExtPubKey.html#NBitcoin_BitcoinExtPubKey_NBitcoin_IHDKey_Derive_NBitcoin_KeyPath_
+  commentId: M:NBitcoin.BitcoinExtPubKey.NBitcoin#IHDKey#Derive(NBitcoin.KeyPath)
+  name.vb: NBitcoin.IHDKey.Derive(KeyPath)
+  fullName: NBitcoin.BitcoinExtPubKey.NBitcoin.IHDKey.Derive(NBitcoin.KeyPath)
+  nameWithType: BitcoinExtPubKey.IHDKey.Derive(KeyPath)
+  nameWithType.vb: BitcoinExtPubKey.NBitcoin.IHDKey.Derive(KeyPath)
 - uid: NBitcoin.BitcoinExtPubKey.NBitcoin#IHDKey#Derive*
   name: IHDKey.Derive
   href: api/NBitcoin.BitcoinExtPubKey.html#NBitcoin_BitcoinExtPubKey_NBitcoin_IHDKey_Derive_
@@ -21768,6 +21774,12 @@ references:
   commentId: M:NBitcoin.Extensions.AsHDKeyCache(NBitcoin.IHDKey)
   fullName: NBitcoin.Extensions.AsHDKeyCache(NBitcoin.IHDKey)
   nameWithType: Extensions.AsHDKeyCache(IHDKey)
+- uid: NBitcoin.Extensions.AsHDKeyCache(NBitcoin.IHDScriptPubKey)
+  name: AsHDKeyCache(IHDScriptPubKey)
+  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_AsHDKeyCache_NBitcoin_IHDScriptPubKey_
+  commentId: M:NBitcoin.Extensions.AsHDKeyCache(NBitcoin.IHDScriptPubKey)
+  fullName: NBitcoin.Extensions.AsHDKeyCache(NBitcoin.IHDScriptPubKey)
+  nameWithType: Extensions.AsHDKeyCache(IHDScriptPubKey)
 - uid: NBitcoin.Extensions.AsHDKeyCache*
   name: AsHDKeyCache
   href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_AsHDKeyCache_
@@ -21775,12 +21787,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Extensions.AsHDKeyCache
   nameWithType: Extensions.AsHDKeyCache
-- uid: NBitcoin.Extensions.Derive(NBitcoin.IHDKey,NBitcoin.KeyPath)
-  name: Derive(IHDKey, KeyPath)
-  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_Derive_NBitcoin_IHDKey_NBitcoin_KeyPath_
-  commentId: M:NBitcoin.Extensions.Derive(NBitcoin.IHDKey,NBitcoin.KeyPath)
-  fullName: NBitcoin.Extensions.Derive(NBitcoin.IHDKey, NBitcoin.KeyPath)
-  nameWithType: Extensions.Derive(IHDKey, KeyPath)
+- uid: NBitcoin.Extensions.AsHDScriptPubKey(NBitcoin.IHDKey,NBitcoin.ScriptPubKeyType)
+  name: AsHDScriptPubKey(IHDKey, ScriptPubKeyType)
+  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_AsHDScriptPubKey_NBitcoin_IHDKey_NBitcoin_ScriptPubKeyType_
+  commentId: M:NBitcoin.Extensions.AsHDScriptPubKey(NBitcoin.IHDKey,NBitcoin.ScriptPubKeyType)
+  fullName: NBitcoin.Extensions.AsHDScriptPubKey(NBitcoin.IHDKey, NBitcoin.ScriptPubKeyType)
+  nameWithType: Extensions.AsHDScriptPubKey(IHDKey, ScriptPubKeyType)
+- uid: NBitcoin.Extensions.AsHDScriptPubKey*
+  name: AsHDScriptPubKey
+  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_AsHDScriptPubKey_
+  commentId: Overload:NBitcoin.Extensions.AsHDScriptPubKey
+  isSpec: "True"
+  fullName: NBitcoin.Extensions.AsHDScriptPubKey
+  nameWithType: Extensions.AsHDScriptPubKey
 - uid: NBitcoin.Extensions.Derive(NBitcoin.IHDKey,NBitcoin.KeyPath[])
   name: Derive(IHDKey, KeyPath[])
   href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_Derive_NBitcoin_IHDKey_NBitcoin_KeyPath___
@@ -21790,6 +21809,12 @@ references:
   fullName.vb: NBitcoin.Extensions.Derive(NBitcoin.IHDKey, NBitcoin.KeyPath())
   nameWithType: Extensions.Derive(IHDKey, KeyPath[])
   nameWithType.vb: Extensions.Derive(IHDKey, KeyPath())
+- uid: NBitcoin.Extensions.Derive(NBitcoin.IHDKey,System.UInt32)
+  name: Derive(IHDKey, UInt32)
+  href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_Derive_NBitcoin_IHDKey_System_UInt32_
+  commentId: M:NBitcoin.Extensions.Derive(NBitcoin.IHDKey,System.UInt32)
+  fullName: NBitcoin.Extensions.Derive(NBitcoin.IHDKey, System.UInt32)
+  nameWithType: Extensions.Derive(IHDKey, UInt32)
 - uid: NBitcoin.Extensions.Derive*
   name: Derive
   href: api/NBitcoin.Extensions.html#NBitcoin_Extensions_Derive_
@@ -22134,6 +22159,12 @@ references:
   commentId: M:NBitcoin.ExtKey.Derive(NBitcoin.KeyPath)
   fullName: NBitcoin.ExtKey.Derive(NBitcoin.KeyPath)
   nameWithType: ExtKey.Derive(KeyPath)
+- uid: NBitcoin.ExtKey.Derive(NBitcoin.RootedKeyPath)
+  name: Derive(RootedKeyPath)
+  href: api/NBitcoin.ExtKey.html#NBitcoin_ExtKey_Derive_NBitcoin_RootedKeyPath_
+  commentId: M:NBitcoin.ExtKey.Derive(NBitcoin.RootedKeyPath)
+  fullName: NBitcoin.ExtKey.Derive(NBitcoin.RootedKeyPath)
+  nameWithType: ExtKey.Derive(RootedKeyPath)
 - uid: NBitcoin.ExtKey.Derive(System.Int32,System.Boolean)
   name: Derive(Int32, Boolean)
   href: api/NBitcoin.ExtKey.html#NBitcoin_ExtKey_Derive_System_Int32_System_Boolean_
@@ -22274,14 +22305,14 @@ references:
   fullName: NBitcoin.ExtKey.NBitcoin.IHDKey.CanDeriveHardenedPath
   nameWithType: ExtKey.IHDKey.CanDeriveHardenedPath
   nameWithType.vb: ExtKey.NBitcoin.IHDKey.CanDeriveHardenedPath
-- uid: NBitcoin.ExtKey.NBitcoin#IHDKey#Derive(System.UInt32)
-  name: IHDKey.Derive(UInt32)
-  href: api/NBitcoin.ExtKey.html#NBitcoin_ExtKey_NBitcoin_IHDKey_Derive_System_UInt32_
-  commentId: M:NBitcoin.ExtKey.NBitcoin#IHDKey#Derive(System.UInt32)
-  name.vb: NBitcoin.IHDKey.Derive(UInt32)
-  fullName: NBitcoin.ExtKey.NBitcoin.IHDKey.Derive(System.UInt32)
-  nameWithType: ExtKey.IHDKey.Derive(UInt32)
-  nameWithType.vb: ExtKey.NBitcoin.IHDKey.Derive(UInt32)
+- uid: NBitcoin.ExtKey.NBitcoin#IHDKey#Derive(NBitcoin.KeyPath)
+  name: IHDKey.Derive(KeyPath)
+  href: api/NBitcoin.ExtKey.html#NBitcoin_ExtKey_NBitcoin_IHDKey_Derive_NBitcoin_KeyPath_
+  commentId: M:NBitcoin.ExtKey.NBitcoin#IHDKey#Derive(NBitcoin.KeyPath)
+  name.vb: NBitcoin.IHDKey.Derive(KeyPath)
+  fullName: NBitcoin.ExtKey.NBitcoin.IHDKey.Derive(NBitcoin.KeyPath)
+  nameWithType: ExtKey.IHDKey.Derive(KeyPath)
+  nameWithType.vb: ExtKey.NBitcoin.IHDKey.Derive(KeyPath)
 - uid: NBitcoin.ExtKey.NBitcoin#IHDKey#Derive*
   name: IHDKey.Derive
   href: api/NBitcoin.ExtKey.html#NBitcoin_ExtKey_NBitcoin_IHDKey_Derive_
@@ -22622,14 +22653,14 @@ references:
   fullName: NBitcoin.ExtPubKey.NBitcoin.IHDKey.CanDeriveHardenedPath
   nameWithType: ExtPubKey.IHDKey.CanDeriveHardenedPath
   nameWithType.vb: ExtPubKey.NBitcoin.IHDKey.CanDeriveHardenedPath
-- uid: NBitcoin.ExtPubKey.NBitcoin#IHDKey#Derive(System.UInt32)
-  name: IHDKey.Derive(UInt32)
-  href: api/NBitcoin.ExtPubKey.html#NBitcoin_ExtPubKey_NBitcoin_IHDKey_Derive_System_UInt32_
-  commentId: M:NBitcoin.ExtPubKey.NBitcoin#IHDKey#Derive(System.UInt32)
-  name.vb: NBitcoin.IHDKey.Derive(UInt32)
-  fullName: NBitcoin.ExtPubKey.NBitcoin.IHDKey.Derive(System.UInt32)
-  nameWithType: ExtPubKey.IHDKey.Derive(UInt32)
-  nameWithType.vb: ExtPubKey.NBitcoin.IHDKey.Derive(UInt32)
+- uid: NBitcoin.ExtPubKey.NBitcoin#IHDKey#Derive(NBitcoin.KeyPath)
+  name: IHDKey.Derive(KeyPath)
+  href: api/NBitcoin.ExtPubKey.html#NBitcoin_ExtPubKey_NBitcoin_IHDKey_Derive_NBitcoin_KeyPath_
+  commentId: M:NBitcoin.ExtPubKey.NBitcoin#IHDKey#Derive(NBitcoin.KeyPath)
+  name.vb: NBitcoin.IHDKey.Derive(KeyPath)
+  fullName: NBitcoin.ExtPubKey.NBitcoin.IHDKey.Derive(NBitcoin.KeyPath)
+  nameWithType: ExtPubKey.IHDKey.Derive(KeyPath)
+  nameWithType.vb: ExtPubKey.NBitcoin.IHDKey.Derive(KeyPath)
 - uid: NBitcoin.ExtPubKey.NBitcoin#IHDKey#Derive*
   name: IHDKey.Derive
   href: api/NBitcoin.ExtPubKey.html#NBitcoin_ExtPubKey_NBitcoin_IHDKey_Derive_
@@ -23572,6 +23603,77 @@ references:
   isSpec: "True"
   fullName: NBitcoin.HDFingerprint.TryParse
   nameWithType: HDFingerprint.TryParse
+- uid: NBitcoin.HDKeyScriptPubKey
+  name: HDKeyScriptPubKey
+  href: api/NBitcoin.HDKeyScriptPubKey.html
+  commentId: T:NBitcoin.HDKeyScriptPubKey
+  fullName: NBitcoin.HDKeyScriptPubKey
+  nameWithType: HDKeyScriptPubKey
+- uid: NBitcoin.HDKeyScriptPubKey.#ctor(NBitcoin.IHDKey,NBitcoin.ScriptPubKeyType)
+  name: HDKeyScriptPubKey(IHDKey, ScriptPubKeyType)
+  href: api/NBitcoin.HDKeyScriptPubKey.html#NBitcoin_HDKeyScriptPubKey__ctor_NBitcoin_IHDKey_NBitcoin_ScriptPubKeyType_
+  commentId: M:NBitcoin.HDKeyScriptPubKey.#ctor(NBitcoin.IHDKey,NBitcoin.ScriptPubKeyType)
+  fullName: NBitcoin.HDKeyScriptPubKey.HDKeyScriptPubKey(NBitcoin.IHDKey, NBitcoin.ScriptPubKeyType)
+  nameWithType: HDKeyScriptPubKey.HDKeyScriptPubKey(IHDKey, ScriptPubKeyType)
+- uid: NBitcoin.HDKeyScriptPubKey.#ctor*
+  name: HDKeyScriptPubKey
+  href: api/NBitcoin.HDKeyScriptPubKey.html#NBitcoin_HDKeyScriptPubKey__ctor_
+  commentId: Overload:NBitcoin.HDKeyScriptPubKey.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.HDKeyScriptPubKey.HDKeyScriptPubKey
+  nameWithType: HDKeyScriptPubKey.HDKeyScriptPubKey
+- uid: NBitcoin.HDKeyScriptPubKey.CanDeriveHardenedPath
+  name: CanDeriveHardenedPath()
+  href: api/NBitcoin.HDKeyScriptPubKey.html#NBitcoin_HDKeyScriptPubKey_CanDeriveHardenedPath
+  commentId: M:NBitcoin.HDKeyScriptPubKey.CanDeriveHardenedPath
+  fullName: NBitcoin.HDKeyScriptPubKey.CanDeriveHardenedPath()
+  nameWithType: HDKeyScriptPubKey.CanDeriveHardenedPath()
+- uid: NBitcoin.HDKeyScriptPubKey.CanDeriveHardenedPath*
+  name: CanDeriveHardenedPath
+  href: api/NBitcoin.HDKeyScriptPubKey.html#NBitcoin_HDKeyScriptPubKey_CanDeriveHardenedPath_
+  commentId: Overload:NBitcoin.HDKeyScriptPubKey.CanDeriveHardenedPath
+  isSpec: "True"
+  fullName: NBitcoin.HDKeyScriptPubKey.CanDeriveHardenedPath
+  nameWithType: HDKeyScriptPubKey.CanDeriveHardenedPath
+- uid: NBitcoin.HDKeyScriptPubKey.Derive(NBitcoin.KeyPath)
+  name: Derive(KeyPath)
+  href: api/NBitcoin.HDKeyScriptPubKey.html#NBitcoin_HDKeyScriptPubKey_Derive_NBitcoin_KeyPath_
+  commentId: M:NBitcoin.HDKeyScriptPubKey.Derive(NBitcoin.KeyPath)
+  fullName: NBitcoin.HDKeyScriptPubKey.Derive(NBitcoin.KeyPath)
+  nameWithType: HDKeyScriptPubKey.Derive(KeyPath)
+- uid: NBitcoin.HDKeyScriptPubKey.Derive*
+  name: Derive
+  href: api/NBitcoin.HDKeyScriptPubKey.html#NBitcoin_HDKeyScriptPubKey_Derive_
+  commentId: Overload:NBitcoin.HDKeyScriptPubKey.Derive
+  isSpec: "True"
+  fullName: NBitcoin.HDKeyScriptPubKey.Derive
+  nameWithType: HDKeyScriptPubKey.Derive
+- uid: NBitcoin.HDKeyScriptPubKey.HDKey
+  name: HDKey
+  href: api/NBitcoin.HDKeyScriptPubKey.html#NBitcoin_HDKeyScriptPubKey_HDKey
+  commentId: P:NBitcoin.HDKeyScriptPubKey.HDKey
+  fullName: NBitcoin.HDKeyScriptPubKey.HDKey
+  nameWithType: HDKeyScriptPubKey.HDKey
+- uid: NBitcoin.HDKeyScriptPubKey.HDKey*
+  name: HDKey
+  href: api/NBitcoin.HDKeyScriptPubKey.html#NBitcoin_HDKeyScriptPubKey_HDKey_
+  commentId: Overload:NBitcoin.HDKeyScriptPubKey.HDKey
+  isSpec: "True"
+  fullName: NBitcoin.HDKeyScriptPubKey.HDKey
+  nameWithType: HDKeyScriptPubKey.HDKey
+- uid: NBitcoin.HDKeyScriptPubKey.ScriptPubKey
+  name: ScriptPubKey
+  href: api/NBitcoin.HDKeyScriptPubKey.html#NBitcoin_HDKeyScriptPubKey_ScriptPubKey
+  commentId: P:NBitcoin.HDKeyScriptPubKey.ScriptPubKey
+  fullName: NBitcoin.HDKeyScriptPubKey.ScriptPubKey
+  nameWithType: HDKeyScriptPubKey.ScriptPubKey
+- uid: NBitcoin.HDKeyScriptPubKey.ScriptPubKey*
+  name: ScriptPubKey
+  href: api/NBitcoin.HDKeyScriptPubKey.html#NBitcoin_HDKeyScriptPubKey_ScriptPubKey_
+  commentId: Overload:NBitcoin.HDKeyScriptPubKey.ScriptPubKey
+  isSpec: "True"
+  fullName: NBitcoin.HDKeyScriptPubKey.ScriptPubKey
+  nameWithType: HDKeyScriptPubKey.ScriptPubKey
 - uid: NBitcoin.IBase58Data
   name: IBase58Data
   href: api/NBitcoin.IBase58Data.html
@@ -23875,12 +23977,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.IHDKey.CanDeriveHardenedPath
   nameWithType: IHDKey.CanDeriveHardenedPath
-- uid: NBitcoin.IHDKey.Derive(System.UInt32)
-  name: Derive(UInt32)
-  href: api/NBitcoin.IHDKey.html#NBitcoin_IHDKey_Derive_System_UInt32_
-  commentId: M:NBitcoin.IHDKey.Derive(System.UInt32)
-  fullName: NBitcoin.IHDKey.Derive(System.UInt32)
-  nameWithType: IHDKey.Derive(UInt32)
+- uid: NBitcoin.IHDKey.Derive(NBitcoin.KeyPath)
+  name: Derive(KeyPath)
+  href: api/NBitcoin.IHDKey.html#NBitcoin_IHDKey_Derive_NBitcoin_KeyPath_
+  commentId: M:NBitcoin.IHDKey.Derive(NBitcoin.KeyPath)
+  fullName: NBitcoin.IHDKey.Derive(NBitcoin.KeyPath)
+  nameWithType: IHDKey.Derive(KeyPath)
 - uid: NBitcoin.IHDKey.Derive*
   name: Derive
   href: api/NBitcoin.IHDKey.html#NBitcoin_IHDKey_Derive_
@@ -23901,6 +24003,51 @@ references:
   isSpec: "True"
   fullName: NBitcoin.IHDKey.GetPublicKey
   nameWithType: IHDKey.GetPublicKey
+- uid: NBitcoin.IHDScriptPubKey
+  name: IHDScriptPubKey
+  href: api/NBitcoin.IHDScriptPubKey.html
+  commentId: T:NBitcoin.IHDScriptPubKey
+  fullName: NBitcoin.IHDScriptPubKey
+  nameWithType: IHDScriptPubKey
+- uid: NBitcoin.IHDScriptPubKey.CanDeriveHardenedPath
+  name: CanDeriveHardenedPath()
+  href: api/NBitcoin.IHDScriptPubKey.html#NBitcoin_IHDScriptPubKey_CanDeriveHardenedPath
+  commentId: M:NBitcoin.IHDScriptPubKey.CanDeriveHardenedPath
+  fullName: NBitcoin.IHDScriptPubKey.CanDeriveHardenedPath()
+  nameWithType: IHDScriptPubKey.CanDeriveHardenedPath()
+- uid: NBitcoin.IHDScriptPubKey.CanDeriveHardenedPath*
+  name: CanDeriveHardenedPath
+  href: api/NBitcoin.IHDScriptPubKey.html#NBitcoin_IHDScriptPubKey_CanDeriveHardenedPath_
+  commentId: Overload:NBitcoin.IHDScriptPubKey.CanDeriveHardenedPath
+  isSpec: "True"
+  fullName: NBitcoin.IHDScriptPubKey.CanDeriveHardenedPath
+  nameWithType: IHDScriptPubKey.CanDeriveHardenedPath
+- uid: NBitcoin.IHDScriptPubKey.Derive(NBitcoin.KeyPath)
+  name: Derive(KeyPath)
+  href: api/NBitcoin.IHDScriptPubKey.html#NBitcoin_IHDScriptPubKey_Derive_NBitcoin_KeyPath_
+  commentId: M:NBitcoin.IHDScriptPubKey.Derive(NBitcoin.KeyPath)
+  fullName: NBitcoin.IHDScriptPubKey.Derive(NBitcoin.KeyPath)
+  nameWithType: IHDScriptPubKey.Derive(KeyPath)
+- uid: NBitcoin.IHDScriptPubKey.Derive*
+  name: Derive
+  href: api/NBitcoin.IHDScriptPubKey.html#NBitcoin_IHDScriptPubKey_Derive_
+  commentId: Overload:NBitcoin.IHDScriptPubKey.Derive
+  isSpec: "True"
+  fullName: NBitcoin.IHDScriptPubKey.Derive
+  nameWithType: IHDScriptPubKey.Derive
+- uid: NBitcoin.IHDScriptPubKey.ScriptPubKey
+  name: ScriptPubKey
+  href: api/NBitcoin.IHDScriptPubKey.html#NBitcoin_IHDScriptPubKey_ScriptPubKey
+  commentId: P:NBitcoin.IHDScriptPubKey.ScriptPubKey
+  fullName: NBitcoin.IHDScriptPubKey.ScriptPubKey
+  nameWithType: IHDScriptPubKey.ScriptPubKey
+- uid: NBitcoin.IHDScriptPubKey.ScriptPubKey*
+  name: ScriptPubKey
+  href: api/NBitcoin.IHDScriptPubKey.html#NBitcoin_IHDScriptPubKey_ScriptPubKey_
+  commentId: Overload:NBitcoin.IHDScriptPubKey.ScriptPubKey
+  isSpec: "True"
+  fullName: NBitcoin.IHDScriptPubKey.ScriptPubKey
+  nameWithType: IHDScriptPubKey.ScriptPubKey
 - uid: NBitcoin.IMoney
   name: IMoney
   href: api/NBitcoin.IMoney.html
@@ -44865,12 +45012,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBT.CoinJoin
   nameWithType: PSBT.CoinJoin
-- uid: NBitcoin.PSBT.CoinsFor(NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
-  name: CoinsFor(IHDKey, RootedKeyPath)
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_CoinsFor_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_
-  commentId: M:NBitcoin.PSBT.CoinsFor(NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
-  fullName: NBitcoin.PSBT.CoinsFor(NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
-  nameWithType: PSBT.CoinsFor(IHDKey, RootedKeyPath)
+- uid: NBitcoin.PSBT.CoinsFor(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  name: CoinsFor(IHDScriptPubKey, IHDKey, RootedKeyPath)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_CoinsFor_NBitcoin_IHDScriptPubKey_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_
+  commentId: M:NBitcoin.PSBT.CoinsFor(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  fullName: NBitcoin.PSBT.CoinsFor(NBitcoin.IHDScriptPubKey, NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
+  nameWithType: PSBT.CoinsFor(IHDScriptPubKey, IHDKey, RootedKeyPath)
 - uid: NBitcoin.PSBT.CoinsFor*
   name: CoinsFor
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_CoinsFor_
@@ -44949,12 +45096,18 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBT.FromTransaction
   nameWithType: PSBT.FromTransaction
-- uid: NBitcoin.PSBT.GetBalance(NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
-  name: GetBalance(IHDKey, RootedKeyPath)
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_GetBalance_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_
-  commentId: M:NBitcoin.PSBT.GetBalance(NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
-  fullName: NBitcoin.PSBT.GetBalance(NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
-  nameWithType: PSBT.GetBalance(IHDKey, RootedKeyPath)
+- uid: NBitcoin.PSBT.GetBalance(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  name: GetBalance(IHDScriptPubKey, IHDKey, RootedKeyPath)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_GetBalance_NBitcoin_IHDScriptPubKey_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_
+  commentId: M:NBitcoin.PSBT.GetBalance(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  fullName: NBitcoin.PSBT.GetBalance(NBitcoin.IHDScriptPubKey, NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
+  nameWithType: PSBT.GetBalance(IHDScriptPubKey, IHDKey, RootedKeyPath)
+- uid: NBitcoin.PSBT.GetBalance(NBitcoin.ScriptPubKeyType,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  name: GetBalance(ScriptPubKeyType, IHDKey, RootedKeyPath)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_GetBalance_NBitcoin_ScriptPubKeyType_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_
+  commentId: M:NBitcoin.PSBT.GetBalance(NBitcoin.ScriptPubKeyType,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  fullName: NBitcoin.PSBT.GetBalance(NBitcoin.ScriptPubKeyType, NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
+  nameWithType: PSBT.GetBalance(ScriptPubKeyType, IHDKey, RootedKeyPath)
 - uid: NBitcoin.PSBT.GetBalance*
   name: GetBalance
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_GetBalance_
@@ -45007,6 +45160,12 @@ references:
   commentId: M:NBitcoin.PSBT.HDKeysFor(NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
   fullName: NBitcoin.PSBT.HDKeysFor(NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
   nameWithType: PSBT.HDKeysFor(IHDKey, RootedKeyPath)
+- uid: NBitcoin.PSBT.HDKeysFor(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  name: HDKeysFor(IHDScriptPubKey, IHDKey, RootedKeyPath)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_HDKeysFor_NBitcoin_IHDScriptPubKey_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_
+  commentId: M:NBitcoin.PSBT.HDKeysFor(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  fullName: NBitcoin.PSBT.HDKeysFor(NBitcoin.IHDScriptPubKey, NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
+  nameWithType: PSBT.HDKeysFor(IHDScriptPubKey, IHDKey, RootedKeyPath)
 - uid: NBitcoin.PSBT.HDKeysFor*
   name: HDKeysFor
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_HDKeysFor_
@@ -45158,54 +45317,30 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBT.Settings
   nameWithType: PSBT.Settings
-- uid: NBitcoin.PSBT.SignAll(NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
-  name: SignAll(IHDKey, RootedKeyPath, SigHash)
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_NBitcoin_SigHash_
-  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
-  fullName: NBitcoin.PSBT.SignAll(NBitcoin.IHDKey, NBitcoin.RootedKeyPath, NBitcoin.SigHash)
-  nameWithType: PSBT.SignAll(IHDKey, RootedKeyPath, SigHash)
-- uid: NBitcoin.PSBT.SignAll(NBitcoin.IHDKey,NBitcoin.SigHash)
-  name: SignAll(IHDKey, SigHash)
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_IHDKey_NBitcoin_SigHash_
-  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.IHDKey,NBitcoin.SigHash)
-  fullName: NBitcoin.PSBT.SignAll(NBitcoin.IHDKey, NBitcoin.SigHash)
-  nameWithType: PSBT.SignAll(IHDKey, SigHash)
-- uid: NBitcoin.PSBT.SignAll(NBitcoin.ISecret[])
-  name: SignAll(ISecret[])
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_ISecret___
-  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.ISecret[])
-  name.vb: SignAll(ISecret())
-  fullName: NBitcoin.PSBT.SignAll(NBitcoin.ISecret[])
-  fullName.vb: NBitcoin.PSBT.SignAll(NBitcoin.ISecret())
-  nameWithType: PSBT.SignAll(ISecret[])
-  nameWithType.vb: PSBT.SignAll(ISecret())
-- uid: NBitcoin.PSBT.SignAll(NBitcoin.Key[])
-  name: SignAll(Key[])
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_Key___
-  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.Key[])
-  name.vb: SignAll(Key())
-  fullName: NBitcoin.PSBT.SignAll(NBitcoin.Key[])
-  fullName.vb: NBitcoin.PSBT.SignAll(NBitcoin.Key())
-  nameWithType: PSBT.SignAll(Key[])
-  nameWithType.vb: PSBT.SignAll(Key())
-- uid: NBitcoin.PSBT.SignAll(NBitcoin.SigHash,NBitcoin.BitcoinSecret[])
-  name: SignAll(SigHash, BitcoinSecret[])
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_SigHash_NBitcoin_BitcoinSecret___
-  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.SigHash,NBitcoin.BitcoinSecret[])
-  name.vb: SignAll(SigHash, BitcoinSecret())
-  fullName: NBitcoin.PSBT.SignAll(NBitcoin.SigHash, NBitcoin.BitcoinSecret[])
-  fullName.vb: NBitcoin.PSBT.SignAll(NBitcoin.SigHash, NBitcoin.BitcoinSecret())
-  nameWithType: PSBT.SignAll(SigHash, BitcoinSecret[])
-  nameWithType.vb: PSBT.SignAll(SigHash, BitcoinSecret())
-- uid: NBitcoin.PSBT.SignAll(NBitcoin.SigHash,NBitcoin.Key[])
-  name: SignAll(SigHash, Key[])
-  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_SigHash_NBitcoin_Key___
-  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.SigHash,NBitcoin.Key[])
-  name.vb: SignAll(SigHash, Key())
-  fullName: NBitcoin.PSBT.SignAll(NBitcoin.SigHash, NBitcoin.Key[])
-  fullName.vb: NBitcoin.PSBT.SignAll(NBitcoin.SigHash, NBitcoin.Key())
-  nameWithType: PSBT.SignAll(SigHash, Key[])
-  nameWithType.vb: PSBT.SignAll(SigHash, Key())
+- uid: NBitcoin.PSBT.SignAll(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
+  name: SignAll(IHDScriptPubKey, IHDKey, RootedKeyPath, SigHash)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_IHDScriptPubKey_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBT.SignAll(NBitcoin.IHDScriptPubKey, NBitcoin.IHDKey, NBitcoin.RootedKeyPath, NBitcoin.SigHash)
+  nameWithType: PSBT.SignAll(IHDScriptPubKey, IHDKey, RootedKeyPath, SigHash)
+- uid: NBitcoin.PSBT.SignAll(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.SigHash)
+  name: SignAll(IHDScriptPubKey, IHDKey, SigHash)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_IHDScriptPubKey_NBitcoin_IHDKey_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBT.SignAll(NBitcoin.IHDScriptPubKey, NBitcoin.IHDKey, NBitcoin.SigHash)
+  nameWithType: PSBT.SignAll(IHDScriptPubKey, IHDKey, SigHash)
+- uid: NBitcoin.PSBT.SignAll(NBitcoin.ScriptPubKeyType,NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
+  name: SignAll(ScriptPubKeyType, IHDKey, RootedKeyPath, SigHash)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_ScriptPubKeyType_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.ScriptPubKeyType,NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBT.SignAll(NBitcoin.ScriptPubKeyType, NBitcoin.IHDKey, NBitcoin.RootedKeyPath, NBitcoin.SigHash)
+  nameWithType: PSBT.SignAll(ScriptPubKeyType, IHDKey, RootedKeyPath, SigHash)
+- uid: NBitcoin.PSBT.SignAll(NBitcoin.ScriptPubKeyType,NBitcoin.IHDKey,NBitcoin.SigHash)
+  name: SignAll(ScriptPubKeyType, IHDKey, SigHash)
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_NBitcoin_ScriptPubKeyType_NBitcoin_IHDKey_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBT.SignAll(NBitcoin.ScriptPubKeyType,NBitcoin.IHDKey,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBT.SignAll(NBitcoin.ScriptPubKeyType, NBitcoin.IHDKey, NBitcoin.SigHash)
+  nameWithType: PSBT.SignAll(ScriptPubKeyType, IHDKey, SigHash)
 - uid: NBitcoin.PSBT.SignAll*
   name: SignAll
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignAll_
@@ -45213,6 +45348,40 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBT.SignAll
   nameWithType: PSBT.SignAll
+- uid: NBitcoin.PSBT.SignWithKeys(NBitcoin.ISecret[])
+  name: SignWithKeys(ISecret[])
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignWithKeys_NBitcoin_ISecret___
+  commentId: M:NBitcoin.PSBT.SignWithKeys(NBitcoin.ISecret[])
+  name.vb: SignWithKeys(ISecret())
+  fullName: NBitcoin.PSBT.SignWithKeys(NBitcoin.ISecret[])
+  fullName.vb: NBitcoin.PSBT.SignWithKeys(NBitcoin.ISecret())
+  nameWithType: PSBT.SignWithKeys(ISecret[])
+  nameWithType.vb: PSBT.SignWithKeys(ISecret())
+- uid: NBitcoin.PSBT.SignWithKeys(NBitcoin.Key[])
+  name: SignWithKeys(Key[])
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignWithKeys_NBitcoin_Key___
+  commentId: M:NBitcoin.PSBT.SignWithKeys(NBitcoin.Key[])
+  name.vb: SignWithKeys(Key())
+  fullName: NBitcoin.PSBT.SignWithKeys(NBitcoin.Key[])
+  fullName.vb: NBitcoin.PSBT.SignWithKeys(NBitcoin.Key())
+  nameWithType: PSBT.SignWithKeys(Key[])
+  nameWithType.vb: PSBT.SignWithKeys(Key())
+- uid: NBitcoin.PSBT.SignWithKeys(NBitcoin.SigHash,NBitcoin.Key[])
+  name: SignWithKeys(SigHash, Key[])
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignWithKeys_NBitcoin_SigHash_NBitcoin_Key___
+  commentId: M:NBitcoin.PSBT.SignWithKeys(NBitcoin.SigHash,NBitcoin.Key[])
+  name.vb: SignWithKeys(SigHash, Key())
+  fullName: NBitcoin.PSBT.SignWithKeys(NBitcoin.SigHash, NBitcoin.Key[])
+  fullName.vb: NBitcoin.PSBT.SignWithKeys(NBitcoin.SigHash, NBitcoin.Key())
+  nameWithType: PSBT.SignWithKeys(SigHash, Key[])
+  nameWithType.vb: PSBT.SignWithKeys(SigHash, Key())
+- uid: NBitcoin.PSBT.SignWithKeys*
+  name: SignWithKeys
+  href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_SignWithKeys_
+  commentId: Overload:NBitcoin.PSBT.SignWithKeys
+  isSpec: "True"
+  fullName: NBitcoin.PSBT.SignWithKeys
+  nameWithType: PSBT.SignWithKeys
 - uid: NBitcoin.PSBT.ToBase64
   name: ToBase64()
   href: api/NBitcoin.PSBT.html#NBitcoin_PSBT_ToBase64
@@ -45427,12 +45596,12 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTCoin.HDKeyPaths
   nameWithType: PSBTCoin.HDKeyPaths
-- uid: NBitcoin.PSBTCoin.HDKeysFor(NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
-  name: HDKeysFor(IHDKey, RootedKeyPath)
-  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_HDKeysFor_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_
-  commentId: M:NBitcoin.PSBTCoin.HDKeysFor(NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
-  fullName: NBitcoin.PSBTCoin.HDKeysFor(NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
-  nameWithType: PSBTCoin.HDKeysFor(IHDKey, RootedKeyPath)
+- uid: NBitcoin.PSBTCoin.HDKeysFor(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  name: HDKeysFor(IHDScriptPubKey, IHDKey, RootedKeyPath)
+  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_HDKeysFor_NBitcoin_IHDScriptPubKey_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_
+  commentId: M:NBitcoin.PSBTCoin.HDKeysFor(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  fullName: NBitcoin.PSBTCoin.HDKeysFor(NBitcoin.IHDScriptPubKey, NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
+  nameWithType: PSBTCoin.HDKeysFor(IHDScriptPubKey, IHDKey, RootedKeyPath)
 - uid: NBitcoin.PSBTCoin.HDKeysFor*
   name: HDKeysFor
   href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_HDKeysFor_
@@ -45520,14 +45689,14 @@ references:
   fullName.vb: NBitcoin.PSBTCoinList(Of T)._Inner
   nameWithType: PSBTCoinList<T>._Inner
   nameWithType.vb: PSBTCoinList(Of T)._Inner
-- uid: NBitcoin.PSBTCoinList`1.CoinsFor(NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
-  name: CoinsFor(IHDKey, RootedKeyPath)
-  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_CoinsFor_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_
-  commentId: M:NBitcoin.PSBTCoinList`1.CoinsFor(NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
-  fullName: NBitcoin.PSBTCoinList<T>.CoinsFor(NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
-  fullName.vb: NBitcoin.PSBTCoinList(Of T).CoinsFor(NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
-  nameWithType: PSBTCoinList<T>.CoinsFor(IHDKey, RootedKeyPath)
-  nameWithType.vb: PSBTCoinList(Of T).CoinsFor(IHDKey, RootedKeyPath)
+- uid: NBitcoin.PSBTCoinList`1.CoinsFor(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  name: CoinsFor(IHDScriptPubKey, IHDKey, RootedKeyPath)
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_CoinsFor_NBitcoin_IHDScriptPubKey_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_
+  commentId: M:NBitcoin.PSBTCoinList`1.CoinsFor(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  fullName: NBitcoin.PSBTCoinList<T>.CoinsFor(NBitcoin.IHDScriptPubKey, NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).CoinsFor(NBitcoin.IHDScriptPubKey, NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
+  nameWithType: PSBTCoinList<T>.CoinsFor(IHDScriptPubKey, IHDKey, RootedKeyPath)
+  nameWithType.vb: PSBTCoinList(Of T).CoinsFor(IHDScriptPubKey, IHDKey, RootedKeyPath)
 - uid: NBitcoin.PSBTCoinList`1.CoinsFor*
   name: CoinsFor
   href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_CoinsFor_
@@ -45579,6 +45748,14 @@ references:
   fullName.vb: NBitcoin.PSBTCoinList(Of T).HDKeysFor(NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
   nameWithType: PSBTCoinList<T>.HDKeysFor(IHDKey, RootedKeyPath)
   nameWithType.vb: PSBTCoinList(Of T).HDKeysFor(IHDKey, RootedKeyPath)
+- uid: NBitcoin.PSBTCoinList`1.HDKeysFor(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  name: HDKeysFor(IHDScriptPubKey, IHDKey, RootedKeyPath)
+  href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_HDKeysFor_NBitcoin_IHDScriptPubKey_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_
+  commentId: M:NBitcoin.PSBTCoinList`1.HDKeysFor(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath)
+  fullName: NBitcoin.PSBTCoinList<T>.HDKeysFor(NBitcoin.IHDScriptPubKey, NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
+  fullName.vb: NBitcoin.PSBTCoinList(Of T).HDKeysFor(NBitcoin.IHDScriptPubKey, NBitcoin.IHDKey, NBitcoin.RootedKeyPath)
+  nameWithType: PSBTCoinList<T>.HDKeysFor(IHDScriptPubKey, IHDKey, RootedKeyPath)
+  nameWithType.vb: PSBTCoinList(Of T).HDKeysFor(IHDScriptPubKey, IHDKey, RootedKeyPath)
 - uid: NBitcoin.PSBTCoinList`1.HDKeysFor*
   name: HDKeysFor
   href: api/NBitcoin.PSBTCoinList-1.html#NBitcoin_PSBTCoinList_1_HDKeysFor_
@@ -46154,18 +46331,18 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.TryFinalizeInput
   nameWithType: PSBTInput.TryFinalizeInput
-- uid: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
-  name: TrySign(IHDKey, RootedKeyPath, SigHash)
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySign_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_NBitcoin_SigHash_
-  commentId: M:NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
-  fullName: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey, NBitcoin.RootedKeyPath, NBitcoin.SigHash)
-  nameWithType: PSBTInput.TrySign(IHDKey, RootedKeyPath, SigHash)
-- uid: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey,NBitcoin.SigHash)
-  name: TrySign(IHDKey, SigHash)
-  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySign_NBitcoin_IHDKey_NBitcoin_SigHash_
-  commentId: M:NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey,NBitcoin.SigHash)
-  fullName: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDKey, NBitcoin.SigHash)
-  nameWithType: PSBTInput.TrySign(IHDKey, SigHash)
+- uid: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
+  name: TrySign(IHDScriptPubKey, IHDKey, RootedKeyPath, SigHash)
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySign_NBitcoin_IHDScriptPubKey_NBitcoin_IHDKey_NBitcoin_RootedKeyPath_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBTInput.TrySign(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.RootedKeyPath,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDScriptPubKey, NBitcoin.IHDKey, NBitcoin.RootedKeyPath, NBitcoin.SigHash)
+  nameWithType: PSBTInput.TrySign(IHDScriptPubKey, IHDKey, RootedKeyPath, SigHash)
+- uid: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.SigHash)
+  name: TrySign(IHDScriptPubKey, IHDKey, SigHash)
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySign_NBitcoin_IHDScriptPubKey_NBitcoin_IHDKey_NBitcoin_SigHash_
+  commentId: M:NBitcoin.PSBTInput.TrySign(NBitcoin.IHDScriptPubKey,NBitcoin.IHDKey,NBitcoin.SigHash)
+  fullName: NBitcoin.PSBTInput.TrySign(NBitcoin.IHDScriptPubKey, NBitcoin.IHDKey, NBitcoin.SigHash)
+  nameWithType: PSBTInput.TrySign(IHDScriptPubKey, IHDKey, SigHash)
 - uid: NBitcoin.PSBTInput.TrySign*
   name: TrySign
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySign_
@@ -46669,6 +46846,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PubKey.GetScriptAddress
   nameWithType: PubKey.GetScriptAddress
+- uid: NBitcoin.PubKey.GetScriptPubKey(NBitcoin.ScriptPubKeyType)
+  name: GetScriptPubKey(ScriptPubKeyType)
+  href: api/NBitcoin.PubKey.html#NBitcoin_PubKey_GetScriptPubKey_NBitcoin_ScriptPubKeyType_
+  commentId: M:NBitcoin.PubKey.GetScriptPubKey(NBitcoin.ScriptPubKeyType)
+  fullName: NBitcoin.PubKey.GetScriptPubKey(NBitcoin.ScriptPubKeyType)
+  nameWithType: PubKey.GetScriptPubKey(ScriptPubKeyType)
+- uid: NBitcoin.PubKey.GetScriptPubKey*
+  name: GetScriptPubKey
+  href: api/NBitcoin.PubKey.html#NBitcoin_PubKey_GetScriptPubKey_
+  commentId: Overload:NBitcoin.PubKey.GetScriptPubKey
+  isSpec: "True"
+  fullName: NBitcoin.PubKey.GetScriptPubKey
+  nameWithType: PubKey.GetScriptPubKey
 - uid: NBitcoin.PubKey.GetSegwitAddress(NBitcoin.Network)
   name: GetSegwitAddress(Network)
   href: api/NBitcoin.PubKey.html#NBitcoin_PubKey_GetSegwitAddress_NBitcoin_Network_
@@ -56070,6 +56260,30 @@ references:
   isSpec: "True"
   fullName: NBitcoin.ScriptId.ScriptPubKey
   nameWithType: ScriptId.ScriptPubKey
+- uid: NBitcoin.ScriptPubKeyType
+  name: ScriptPubKeyType
+  href: api/NBitcoin.ScriptPubKeyType.html
+  commentId: T:NBitcoin.ScriptPubKeyType
+  fullName: NBitcoin.ScriptPubKeyType
+  nameWithType: ScriptPubKeyType
+- uid: NBitcoin.ScriptPubKeyType.Legacy
+  name: Legacy
+  href: api/NBitcoin.ScriptPubKeyType.html#NBitcoin_ScriptPubKeyType_Legacy
+  commentId: F:NBitcoin.ScriptPubKeyType.Legacy
+  fullName: NBitcoin.ScriptPubKeyType.Legacy
+  nameWithType: ScriptPubKeyType.Legacy
+- uid: NBitcoin.ScriptPubKeyType.Segwit
+  name: Segwit
+  href: api/NBitcoin.ScriptPubKeyType.html#NBitcoin_ScriptPubKeyType_Segwit
+  commentId: F:NBitcoin.ScriptPubKeyType.Segwit
+  fullName: NBitcoin.ScriptPubKeyType.Segwit
+  nameWithType: ScriptPubKeyType.Segwit
+- uid: NBitcoin.ScriptPubKeyType.SegwitP2SH
+  name: SegwitP2SH
+  href: api/NBitcoin.ScriptPubKeyType.html#NBitcoin_ScriptPubKeyType_SegwitP2SH
+  commentId: F:NBitcoin.ScriptPubKeyType.SegwitP2SH
+  fullName: NBitcoin.ScriptPubKeyType.SegwitP2SH
+  nameWithType: ScriptPubKeyType.SegwitP2SH
 - uid: NBitcoin.ScriptReader
   name: ScriptReader
   href: api/NBitcoin.ScriptReader.html
