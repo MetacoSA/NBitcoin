@@ -12,10 +12,10 @@ matrix:
   include:
     - os: linux 
       dist: xenial # Ubuntu 16.04
-      dotnet: 2.1.507
+      dotnet: 2.1.11
     - os: linux
       dist: xenial # Ubuntu 16.04
-      dotnet: 2.1.507
+      dotnet: 2.1.11
       env: TargetFrameworkOverride=netstandard2.0
     - os: osx
       dotnet: 2.1.507
