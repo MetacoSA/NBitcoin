@@ -180,20 +180,26 @@ namespace NBitcoin
 			}
 		}
 		/// <summary>
-		/// Filter the hd keys which contains a HD Key path matching this masterFingerprint/account key
+		/// Filter the keys which contains the <paramref name="accountKey"/> and <paramref name="accountKeyPath"/> in the HDKeys and whose input/output 
+		/// the same scriptPubKeys as <paramref name="accountHDScriptPubKey"/>.
 		/// </summary>
-		/// <param name="masterFingerprint">The master root fingerprint</param>
-		/// <param name="accountKey">The account key (ie. 49'/0'/0')</param>
+		/// <param name="accountHDScriptPubKey">The accountHDScriptPubKey used to generate addresses</param>
+		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
+		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>HD Keys matching master root key</returns>
-		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
-			return HDKeysFor(accountKey, accountKeyPath, accountKey.GetPublicKey().GetHDFingerPrint());
+			if (accountHDScriptPubKey == null)
+				throw new ArgumentNullException(nameof(accountHDScriptPubKey));
+			return HDKeysFor(accountHDScriptPubKey, accountKey, accountKeyPath, accountKey.GetPublicKey().GetHDFingerPrint());
 		}
-		internal IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDKey accountKey, RootedKeyPath accountKeyPath, HDFingerprint accountFingerprint)
+		internal IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath, HDFingerprint accountFingerprint)
 		{
 			accountKey = accountKey.AsHDKeyCache();
+			accountHDScriptPubKey = accountHDScriptPubKey?.AsHDKeyCache();
+			var coinScriptPubKey = this.GetCoin()?.ScriptPubKey;
 			foreach (var hdKey in HDKeyPaths)
 			{
 				bool matched = false;
@@ -202,11 +208,12 @@ namespace NBitcoin
 				if (hdKey.Value.MasterFingerprint == accountFingerprint)
 				{
 					// The fingerprint match, but we need to check the public keys, because fingerprint collision is easy to provoke
-					if (!hdKey.Value.KeyPath.IsHardenedPath || accountKey.CanDeriveHardenedPath())
+					if (!hdKey.Value.KeyPath.IsHardenedPath || (accountKey.CanDeriveHardenedPath() && (accountHDScriptPubKey == null || accountHDScriptPubKey.CanDeriveHardenedPath())))
 					{
 						if (accountKey.Derive(hdKey.Value.KeyPath).GetPublicKey() == hdKey.Key)
 						{
-							yield return CreateHDKeyMatch(accountKey, hdKey.Value.KeyPath, hdKey);
+							if (accountHDScriptPubKey == null || accountHDScriptPubKey.Derive(hdKey.Value.KeyPath).ScriptPubKey == coinScriptPubKey)
+								yield return CreateHDKeyMatch(accountKey, hdKey.Value.KeyPath, hdKey);
 							matched = true;
 						}
 					}
@@ -221,13 +228,14 @@ namespace NBitcoin
 					{
 						if (accountKey.Derive(addressPath).GetPublicKey() == hdKey.Key)
 						{
-							yield return CreateHDKeyMatch(accountKey, addressPath, hdKey);
+							if (accountHDScriptPubKey == null || accountHDScriptPubKey.Derive(addressPath).ScriptPubKey == coinScriptPubKey)
+								yield return CreateHDKeyMatch(accountKey, addressPath, hdKey);
 							matched = true;
 						}
 					}
 					// in some cases addresses are generated on a hardened path below the account key (eg. 49'/0'/0'/0'/1') in which case we
 					// need to brute force what the address key path is
-					else if (accountKey.CanDeriveHardenedPath()) // We can only do this if we can derive hardened paths
+					else if (accountKey.CanDeriveHardenedPath() && (accountHDScriptPubKey == null || accountHDScriptPubKey.CanDeriveHardenedPath())) // We can only do this if we can derive hardened paths
 					{
 						int addressPathSize = 0;
 						var hdKeyIndexes = hdKey.Value.KeyPath.Indexes;
@@ -238,7 +246,8 @@ namespace NBitcoin
 							addressPath = new KeyPath(indexes);
 							if (accountKey.Derive(addressPath).GetPublicKey() == hdKey.Key)
 							{
-								yield return CreateHDKeyMatch(accountKey, addressPath, hdKey);
+								if (accountHDScriptPubKey == null || accountHDScriptPubKey.Derive(addressPath).ScriptPubKey == coinScriptPubKey)
+									yield return CreateHDKeyMatch(accountKey, addressPath, hdKey);
 								matched = true;
 								break;
 							}

@@ -11,6 +11,24 @@ using NBitcoin.BouncyCastle.Math.EC;
 
 namespace NBitcoin
 {
+	public enum ScriptPubKeyType
+	{
+		/// <summary>
+		/// Derive P2PKH addresses (P2PKH)
+		/// Only use this for legacy code or coins not supporting segwit
+		/// </summary>
+		Legacy,
+		/// <summary>
+		/// Derive Segwit (Bech32) addresses (P2WPKH)
+		/// This will result in the cheapest fees. This is the recommended choice.
+		/// </summary>
+		Segwit,
+		/// <summary>
+		/// Derive P2SH address of a Segwit address (P2WPKH-P2SH)
+		/// Use this when you worry that your users do not support Bech address format.
+		/// </summary>
+		SegwitP2SH
+	}
 	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>
 	{
 		/// <summary>
@@ -178,6 +196,21 @@ namespace NBitcoin
 		public bool Verify(uint256 hash, byte[] sig)
 		{
 			return Verify(hash, ECDSASignature.FromDER(sig));
+		}
+
+		public Script GetScriptPubKey(ScriptPubKeyType type)
+		{
+			switch (type)
+			{
+				case ScriptPubKeyType.Legacy:
+					return Hash.ScriptPubKey;
+				case ScriptPubKeyType.Segwit:
+					return WitHash.ScriptPubKey;
+				case ScriptPubKeyType.SegwitP2SH:
+					return WitHash.ScriptPubKey.Hash.ScriptPubKey;
+				default:
+					throw new NotSupportedException();
+			}
 		}
 
 		public string ToHex()

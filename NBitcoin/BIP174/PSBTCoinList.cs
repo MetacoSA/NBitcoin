@@ -98,42 +98,59 @@ namespace NBitcoin
 	public class PSBTCoinList<T> : IReadOnlyList<T> where T : PSBTCoin
 	{
 		/// <summary>
-		/// Filter the coins which contains a HD Key path matching this masterFingerprint/account key
+		/// Filter the coins which contains the <paramref name="accountKey"/> and <paramref name="accountKeyPath"/> in the HDKeys and derive
+		/// the same scriptPubKeys as <paramref name="accountHDScriptPubKey"/>.
 		/// </summary>
+		/// <param name="accountHDScriptPubKey">The hdScriptPubKey used to generate addresses</param>
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
 		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>Inputs with HD keys matching masterFingerprint and account key</returns>
-		public IEnumerable<T> CoinsFor(IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		public IEnumerable<T> CoinsFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
 		{
-			return GetPSBTCoins(accountKey, accountKeyPath);
+			return GetPSBTCoins(accountHDScriptPubKey, accountKey, accountKeyPath);
 		}
 
 		/// <summary>
-		/// Filter the hd keys which contains a HD Key path matching this masterFingerprint/account key
+		/// Filter the keys which contains the <paramref name="accountKey"/> and <paramref name="accountKeyPath"/> in the HDKeys and whose input/output 
+		/// the same scriptPubKeys as <paramref name="accountHDScriptPubKey"/>.
+		/// </summary>
+		/// <param name="accountHDScriptPubKey">The hdScriptPubKey used to generate addresses</param>
+		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
+		/// <param name="accountKeyPath">The account key path</param>
+		/// <returns>HD Keys matching master root key</returns>
+		public IEnumerable<PSBTHDKeyMatch<T>> HDKeysFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		{
+			return GetHDKeys(accountHDScriptPubKey, accountKey, accountKeyPath);
+		}
+
+		/// <summary>
+		/// Filter the keys which contains the <paramref name="accountKey"/> and <paramref name="accountKeyPath"/>.
 		/// </summary>
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
 		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>HD Keys matching master root key</returns>
 		public IEnumerable<PSBTHDKeyMatch<T>> HDKeysFor(IHDKey accountKey, RootedKeyPath accountKeyPath = null)
 		{
-			return GetHDKeys(accountKey, accountKeyPath);
+			return GetHDKeys(null, accountKey, accountKeyPath);
 		}
 
-		internal IEnumerable<T> GetPSBTCoins(IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		internal IEnumerable<T> GetPSBTCoins(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
 		{
-			return GetHDKeys(accountKey, accountKeyPath)
+			return GetHDKeys(accountHDScriptPubKey, accountKey, accountKeyPath)
 							.Select(c => c.Coin)
 							.Distinct();
 		}
-		internal IEnumerable<PSBTHDKeyMatch<T>> GetHDKeys(IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+
+		internal IEnumerable<PSBTHDKeyMatch<T>> GetHDKeys(IHDScriptPubKey hdScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
 			accountKey = accountKey.AsHDKeyCache();
+			hdScriptPubKey = hdScriptPubKey?.AsHDKeyCache();
 			var accountFingerprint = accountKey.GetPublicKey().GetHDFingerPrint();
 			foreach (var c in this)
 			{
-				foreach (var match in c.HDKeysFor(accountKey, accountKeyPath, accountFingerprint))
+				foreach (var match in c.HDKeysFor(hdScriptPubKey, accountKey, accountKeyPath, accountFingerprint))
 				{
 					yield return (PSBTHDKeyMatch<T>)match;
 				}

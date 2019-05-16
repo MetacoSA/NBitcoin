@@ -194,23 +194,23 @@ namespace NBitcoin.Tests
 					.BuildPSBT(false);
 				partiallySignedTx.AddKeyPath(masterKey, addresses.Concat(new[] { changeAddress }).Select(a => a.FullAddressPath.KeyPath).ToArray());
 				var expectedBalance = -amount - fee;
-				var actualBalance = partiallySignedTx.GetBalance(accountKey, accountKeyPath);
+				var actualBalance = partiallySignedTx.GetBalance(accountKey.AsHDScriptPubKey(ScriptPubKeyType.Segwit), accountKey, accountKeyPath);
 				Assert.Equal(expectedBalance, actualBalance);
 
-				actualBalance = partiallySignedTx.GetBalance(masterKey);
+				actualBalance = partiallySignedTx.GetBalance(masterKey.AsHDScriptPubKey(ScriptPubKeyType.Segwit), masterKey);
 				Assert.Equal(expectedBalance, actualBalance);
 
 				// You can sign with accountKey and keypath
 				var memento = partiallySignedTx.Clone();
 
-				partiallySignedTx.SignAll(accountKey, accountKeyPath);
+				partiallySignedTx.SignAll(accountKey.AsHDScriptPubKey(ScriptPubKeyType.Segwit), accountKey, accountKeyPath);
 				Assert.True(partiallySignedTx.Inputs.All(i => i.PartialSigs.Count == 1));
 				partiallySignedTx.Finalize();
 
 				var partiallySignedTx2 = memento;
 
 				// Or you can sign with the masterKey
-				partiallySignedTx2.SignAll(masterKey);
+				partiallySignedTx2.SignAll(masterKey.AsHDScriptPubKey(ScriptPubKeyType.Segwit), masterKey);
 				Assert.True(partiallySignedTx2.Inputs.All(i => i.PartialSigs.Count == 1));
 				partiallySignedTx2.Finalize();
 

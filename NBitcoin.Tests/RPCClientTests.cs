@@ -1352,9 +1352,9 @@ namespace NBitcoin.Tests
 				CheckPSBTIsAcceptableByRealRPC(psbtWithTXs.ToBase64(), client);
 
 				// What about after adding some signatures?
-				psbtWithTXs.SignAll(keys);
+				psbtWithTXs.SignWithKeys(keys);
 				CheckPSBTIsAcceptableByRealRPC(psbtWithTXs.ToBase64(), client);
-				tmp = psbtWithTXs.Clone().SignAll(dummyKey); // Try signing with unrelated key should not change anything
+				tmp = psbtWithTXs.Clone().SignWithKeys(dummyKey); // Try signing with unrelated key should not change anything
 				Assert.Equal(psbtWithTXs, tmp, PSBTComparerInstance);
 				// And finalization?
 				psbtWithTXs.Finalize();
@@ -1552,7 +1552,7 @@ namespace NBitcoin.Tests
 				var psbt1 = bob.WalletProcessPSBT(psbt.Clone()).PSBT;
 
 				// at the same time, David may do the ;
-				psbt.SignAll(david);
+				psbt.SignWithKeys(david);
 				var alice = clients[0];
 				var psbt2 = alice.WalletProcessPSBT(psbt).PSBT;
 

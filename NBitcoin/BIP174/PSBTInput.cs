@@ -469,12 +469,15 @@ namespace NBitcoin
 			return errors;
 		}
 
-		public void TrySign(IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
+		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
+			if (accountHDScriptPubKey == null)
+				throw new ArgumentNullException(nameof(accountHDScriptPubKey));
 			var cache = accountKey.AsHDKeyCache();
-			foreach (var hdk in this.HDKeysFor(cache, accountKeyPath))
+			accountHDScriptPubKey = accountHDScriptPubKey.AsHDKeyCache();
+			foreach (var hdk in this.HDKeysFor(accountHDScriptPubKey, cache, accountKeyPath))
 			{
 				if (((HDKeyCache)cache.Derive(hdk.AddressKeyPath)).Inner is ISecret k)
 					Sign(k.PrivateKey, sigHash);
@@ -483,9 +486,9 @@ namespace NBitcoin
 			}
 		}
 
-		public void TrySign(IHDKey accountKey, SigHash sigHash = SigHash.All)
+		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, SigHash sigHash = SigHash.All)
 		{
-			TrySign(accountKey, null, sigHash);
+			TrySign(accountHDScriptPubKey, accountKey, null, sigHash);
 		}
 
 		public void AssertSanity()

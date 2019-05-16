@@ -230,6 +230,22 @@ namespace NBitcoin.Tests
 			var addr1 = new BitcoinWitPubKeyAddress("tb1qr5d68t6qm8t2n7ch4nph3ha4prztteuw98ewda", Network.TestNet);
 			var addr2 = new BitcoinWitPubKeyAddress("tb1qr5d68t6qm8t2n7ch4nph3ha4prztteuw98ewda");
 			Assert.Equal(addr1, addr2);
+
+			var extKey = new BitcoinExtKey(new ExtKey(), Network.Main);
+			var segwit = extKey.AsHDScriptPubKey(ScriptPubKeyType.Segwit).ScriptPubKey.GetDestinationAddress(Network.Main);
+			var segwit2 = extKey.ExtKey.AsHDScriptPubKey(ScriptPubKeyType.Segwit).ScriptPubKey.GetDestinationAddress(Network.Main);
+			Assert.Equal(segwit, segwit2);
+			Assert.IsType<NBitcoin.BitcoinWitPubKeyAddress>(segwit);
+			var segwitP2SH = extKey.AsHDScriptPubKey(ScriptPubKeyType.SegwitP2SH).ScriptPubKey.GetDestinationAddress(Network.Main);
+			var segwit2P2SH = extKey.ExtKey.AsHDScriptPubKey(ScriptPubKeyType.SegwitP2SH).ScriptPubKey.GetDestinationAddress(Network.Main);
+			Assert.Equal(segwitP2SH, segwit2P2SH);
+			Assert.IsType<NBitcoin.BitcoinScriptAddress>(segwitP2SH);
+			var legacy = extKey.AsHDScriptPubKey(ScriptPubKeyType.Legacy).ScriptPubKey.GetDestinationAddress(Network.Main);
+			var legacy2 = extKey.ExtKey.AsHDScriptPubKey(ScriptPubKeyType.Legacy).ScriptPubKey.GetDestinationAddress(Network.Main);
+			var legacy3 = extKey.Neuter().AsHDScriptPubKey(ScriptPubKeyType.Legacy).ScriptPubKey.GetDestinationAddress(Network.Main);
+			Assert.Equal(legacy, legacy2);
+			Assert.Equal(legacy, legacy3);
+			Assert.IsType<NBitcoin.BitcoinPubKeyAddress>(legacy);
 		}
 
 		[Fact]

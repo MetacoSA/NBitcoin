@@ -410,40 +410,37 @@ namespace NBitcoin
 
 		public PSBTSettings Settings { get; set; } = new PSBTSettings();
 
-		public PSBT SignAll(params Key[] keys)
+		/// <summary>
+		/// Sign all inputs which derive addresses from <paramref name="accountHDScriptPubKey"/> and that need to be signed by <paramref name="accountKey"/>.
+		/// </summary>
+		/// <param name="accountHDScriptPubKey">The address generator</param>
+		/// <param name="accountKey">The account key with which to sign</param>
+		/// <param name="sigHash">The SigHash</param>
+		/// <returns>This PSBT</returns>
+		public PSBT SignAll(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, SigHash sigHash = SigHash.All)
 		{
-			return SignAll(SigHash.All, keys);
+			return SignAll(accountHDScriptPubKey, accountKey, null, sigHash);
 		}
-		public PSBT SignAll(params ISecret[] keys)
-		{
-			return SignAll(SigHash.All, keys.Select(k => k.PrivateKey).ToArray());
-		}
-
-		public PSBT SignAll(SigHash sigHash, params Key[] keys)
-		{
-			AssertSanity();
-			foreach (var key in keys)
-			{
-				foreach (var input in this.Inputs)
-				{
-					input.Sign(key, sigHash);
-				}
-			}
-			return this;
-		}
-
-		public PSBT SignAll(IHDKey accountKey, SigHash sigHash = SigHash.All)
-		{
-			return SignAll(accountKey, null, sigHash);
-		}
-		public PSBT SignAll(IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
+		/// <summary>
+		/// Sign all inputs which derive addresses from <paramref name="accountHDScriptPubKey"/> and that need to be signed by <paramref name="accountKey"/>.
+		/// </summary>
+		/// <param name="accountHDScriptPubKey">The address generator</param>
+		/// <param name="accountKey">The account key with which to sign</param>
+		/// <param name="accountKeyPath">The account key path (eg. [masterFP]/49'/0'/0')</param>
+		/// <param name="sigHash">The SigHash</param>
+		/// <returns>This PSBT</returns>
+		public PSBT SignAll(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
+			if (accountHDScriptPubKey == null)
+				throw new ArgumentNullException(nameof(accountHDScriptPubKey));
+			accountHDScriptPubKey = accountHDScriptPubKey.AsHDKeyCache();
+			accountKey = accountKey.AsHDKeyCache();
 			Money total = Money.Zero;
-			foreach (var o in Inputs.CoinsFor(accountKey, accountKeyPath))
+			foreach (var o in Inputs.CoinsFor(accountHDScriptPubKey, accountKey, accountKeyPath))
 			{
-				o.TrySign(accountKey, accountKeyPath, sigHash);
+				o.TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, sigHash);
 			}
 			return this;
 		}
@@ -491,11 +488,26 @@ namespace NBitcoin
 			}
 		}
 
-		public PSBT SignAll(SigHash sigHash, params BitcoinSecret[] keys)
+		public PSBT SignWithKeys(params Key[] keys)
 		{
-			if (keys == null)
-				throw new ArgumentNullException(nameof(keys));
-			return SignAll(sigHash, keys.Select(k => k.PrivateKey).ToArray());
+			return SignWithKeys(SigHash.All, keys);
+		}
+		public PSBT SignWithKeys(params ISecret[] keys)
+		{
+			return SignWithKeys(SigHash.All, keys.Select(k => k.PrivateKey).ToArray());
+		}
+
+		public PSBT SignWithKeys(SigHash sigHash, params Key[] keys)
+		{
+			AssertSanity();
+			foreach (var key in keys)
+			{
+				foreach (var input in this.Inputs)
+				{
+					input.Sign(key, sigHash);
+				}
+			}
+			return this;
 		}
 
 		internal TransactionBuilder CreateTransactionBuilder()
@@ -761,15 +773,16 @@ namespace NBitcoin
 		/// <summary>
 		/// Get the balance change if you were signing this transaction.
 		/// </summary>
+		/// <param name="accountHDScriptPubKey">The hdScriptPubKey used to generate addresses</param>
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
 		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>The balance change</returns>
-		public Money GetBalance(IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		public Money GetBalance(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
 		{
-			if (accountKey == null)
-				throw new ArgumentNullException(nameof(accountKey));
+			if (accountHDScriptPubKey == null)
+				throw new ArgumentNullException(nameof(accountHDScriptPubKey));
 			Money total = Money.Zero;
-			foreach (var o in CoinsFor(accountKey, accountKeyPath))
+			foreach (var o in CoinsFor(accountHDScriptPubKey, accountKey, accountKeyPath))
 			{
 				var amount = o.GetCoin()?.Amount;
 				if (amount == null)
@@ -780,20 +793,45 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Filter the coins which contains a HD Key path matching this masterFingerprint/account key
+		/// Filter the coins which contains the <paramref name="accountKey"/> and <paramref name="accountKeyPath"/> in the HDKeys and derive
+		/// the same scriptPubKeys as <paramref name="accountHDScriptPubKey"/>.
 		/// </summary>
+		/// <param name="accountHDScriptPubKey">The hdScriptPubKey used to generate addresses</param>
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
 		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>Inputs with HD keys matching masterFingerprint and account key</returns>
-		public IEnumerable<PSBTCoin> CoinsFor(IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		public IEnumerable<PSBTCoin> CoinsFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
-			return Inputs.CoinsFor(accountKey, accountKeyPath).OfType<PSBTCoin>().Concat(Outputs.CoinsFor(accountKey, accountKeyPath).OfType<PSBTCoin>());
+			if (accountHDScriptPubKey == null)
+				throw new ArgumentNullException(nameof(accountHDScriptPubKey));
+			accountHDScriptPubKey = accountHDScriptPubKey.AsHDKeyCache();
+			accountKey = accountKey.AsHDKeyCache();
+			return Inputs.CoinsFor(accountHDScriptPubKey, accountKey, accountKeyPath).OfType<PSBTCoin>().Concat(Outputs.CoinsFor(accountHDScriptPubKey, accountKey, accountKeyPath).OfType<PSBTCoin>());
 		}
 
 		/// <summary>
-		/// Filter the hd keys which contains a HD Key path matching this masterFingerprint/account key
+		/// Filter the keys which contains the <paramref name="accountKey"/> and <paramref name="accountKeyPath"/> in the HDKeys and whose input/output 
+		/// the same scriptPubKeys as <paramref name="accountHDScriptPubKey"/>.
+		/// </summary>
+		/// <param name="accountHDScriptPubKey">The hdScriptPubKey used to generate addresses</param>
+		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
+		/// <param name="accountKeyPath">The account key path</param>
+		/// <returns>HD Keys matching master root key</returns>
+		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		{
+			if (accountKey == null)
+				throw new ArgumentNullException(nameof(accountKey));
+			if (accountHDScriptPubKey == null)
+				throw new ArgumentNullException(nameof(accountHDScriptPubKey));
+			accountHDScriptPubKey = accountHDScriptPubKey.AsHDKeyCache();
+			accountKey = accountKey.AsHDKeyCache();
+			return Inputs.HDKeysFor(accountHDScriptPubKey, accountKey, accountKeyPath).OfType<PSBTHDKeyMatch>().Concat(Outputs.HDKeysFor(accountHDScriptPubKey, accountKey, accountKeyPath));
+		}
+
+		/// <summary>
+		/// Filter the keys which contains the <paramref name="accountKey"/> and <paramref name="accountKeyPath"/>.
 		/// </summary>
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
 		/// <param name="accountKeyPath">The account key path</param>
@@ -802,6 +840,7 @@ namespace NBitcoin
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
+			accountKey = accountKey.AsHDKeyCache();
 			return Inputs.HDKeysFor(accountKey, accountKeyPath).OfType<PSBTHDKeyMatch>().Concat(Outputs.HDKeysFor(accountKey, accountKeyPath));
 		}
 

@@ -6,6 +6,40 @@ using System.Linq;
 
 namespace NBitcoin
 {
+	public class HDKeyScriptPubKey : IHDScriptPubKey
+	{
+		private readonly IHDKey hdKey;
+		private readonly ScriptPubKeyType type;
+
+		public IHDKey HDKey
+		{
+			get
+			{
+				return hdKey;
+			}
+		}
+
+		public HDKeyScriptPubKey(IHDKey hdKey, ScriptPubKeyType type)
+		{
+			if (hdKey == null)
+				throw new ArgumentNullException(nameof(hdKey));
+			this.hdKey = hdKey;
+			this.type = type;
+		}
+		Script _ScriptPubKey;
+		public Script ScriptPubKey => _ScriptPubKey = _ScriptPubKey ?? hdKey.GetPublicKey().GetScriptPubKey(type);
+		
+		public IHDScriptPubKey Derive(KeyPath keyPath)
+		{
+			return new HDKeyScriptPubKey(this.hdKey.Derive(keyPath) , type);
+		}
+
+		public bool CanDeriveHardenedPath()
+		{
+			return this.hdKey.CanDeriveHardenedPath();
+		}
+	}
+
 	/// <summary>
 	/// A private Hierarchical Deterministic key
 	/// </summary>
@@ -240,6 +274,11 @@ namespace NBitcoin
 			{
 				return parentFingerprint;
 			}
+		}
+
+		public IHDScriptPubKey AsHDScriptPubKey(ScriptPubKeyType type)
+		{
+			return new HDKeyScriptPubKey(this, type);
 		}
 
 		[Obsolete("Use ParentFingerprint instead. The Fingerprint of the HD key is actually the fingerprint of the parent public key, this field was not well named.")]

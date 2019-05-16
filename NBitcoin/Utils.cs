@@ -36,6 +36,19 @@ namespace NBitcoin
 				return c;
 			return new HDKeyCache(hdkey);
 		}
+		/// <summary>
+		/// Deriving an IHDScriptPubKey is normally time consuming, this wrap the IHDScriptPubKey in a new IHDScriptPubKey object which can cache derivations
+		/// </summary>
+		/// <param name="hdScriptPubKey">The hdScriptPubKey to wrap</param>
+		/// <returns>An hdkey which cache derivations, of the parameter if it is already itself a cache</returns>
+		public static IHDScriptPubKey AsHDKeyCache(this IHDScriptPubKey hdScriptPubKey)
+		{
+			if (hdScriptPubKey == null)
+				throw new ArgumentNullException(nameof(hdScriptPubKey));
+			if (hdScriptPubKey is HDScriptPubKeyCache c)
+				return c;
+			return new HDScriptPubKeyCache(hdScriptPubKey);
+		}
 
 		public static IHDKey Derive(this IHDKey hdkey, uint index)
 		{
