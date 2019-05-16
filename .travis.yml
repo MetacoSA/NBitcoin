@@ -11,14 +11,14 @@ branches:
 matrix:
   include:
     - os: linux 
-      dist: trusty # Ubuntu 14.04
-      dotnet: 2.1
+      dist: xenial # Ubuntu 16.04
+      dotnet: 2.1.507
     - os: linux
-      dist: trusty # Ubuntu 14.04
-      dotnet: 2.1
+      dist: xenial # Ubuntu 16.04
+      dotnet: 2.1.507
       env: TargetFrameworkOverride=netstandard2.0
     - os: osx
-      dotnet: 2.1.300
+      dotnet: 2.1.507
       osx_image: xcode8.3 # dotnet requires at least this version
 
 before_install:
