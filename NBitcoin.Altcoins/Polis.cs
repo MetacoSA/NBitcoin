@@ -44,7 +44,7 @@ namespace NBitcoin.Altcoins
 #pragma warning disable CS0618 // Type or member is obsolete
 		public class PolisBlockHeader : BlockHeader
 		{
-			
+
 			static byte[] CalculateHash(byte[] data, int offset, int count)
 			{
 				return new HashX11.X11().ComputeBytes(data.Skip(offset).Take(count).ToArray());
@@ -118,7 +118,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xBD6B0CBF)
 			.SetPort(24126)
 			.SetRPCPort(24127)
-			.SetMaxP2PVersion(70214)
+			.SetMaxP2PVersion(70216)
 			.SetName("polis-main")
 			.AddAlias("polis-mainnet")
 			.AddDNSSeeds(new[]
@@ -166,7 +166,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xFFCAE2CE)
 			.SetPort(24130)
 			.SetRPCPort(24131)
-			.SetMaxP2PVersion(70214)
+			.SetMaxP2PVersion(70216)
 		   	.SetName("polis-test")
 		   	.AddAlias("polis-testnet")
 		   	.AddSeeds(new NetworkAddress[0])
@@ -206,7 +206,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xDCB7C1FC)
 			.SetPort(19994)
 			.SetRPCPort(19993)
-			.SetMaxP2PVersion(70214)
+			.SetMaxP2PVersion(70216)
 			.SetName("polis-reg")
 			.AddAlias("polis-regtest")
 			.AddDNSSeeds(new DNSSeedData[0])
