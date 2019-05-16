@@ -34,8 +34,13 @@ namespace NBitcoin
 		{
 			if (keyPath == null)
 				throw new ArgumentNullException(nameof(keyPath));
-			var childPath = _PathFromRoot.Derive(keyPath);
-			var key = derivationCache.GetOrAdd(childPath, _ => hdKey.Derive(keyPath));
+			var key = Inner;
+			var childPath = _PathFromRoot;
+			foreach (var index in keyPath.Indexes)
+			{
+				childPath = childPath.Derive(index);
+				key = derivationCache.GetOrAdd(childPath, _ => key.Derive(new KeyPath(index)));
+			}
 			return new HDKeyCache(key, childPath, derivationCache);
 		}
 
@@ -80,8 +85,13 @@ namespace NBitcoin
 		{
 			if (keyPath == null)
 				throw new ArgumentNullException(nameof(keyPath));
-			var childPath = _PathFromRoot.Derive(keyPath);
-			var key = derivationCache.GetOrAdd(childPath, _ => hdKey.Derive(keyPath));
+			var key = Inner;
+			var childPath = _PathFromRoot;
+			foreach (var index in keyPath.Indexes)
+			{
+				childPath = childPath.Derive(index);
+				key = derivationCache.GetOrAdd(childPath, _ => key.Derive(new KeyPath(index)));
+			}
 			return new HDScriptPubKeyCache(key, childPath, derivationCache);
 		}
 
