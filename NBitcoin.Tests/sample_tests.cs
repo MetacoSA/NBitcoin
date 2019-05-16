@@ -199,7 +199,7 @@ namespace NBitcoin.Tests
 
 				actualBalance = partiallySignedTx.GetBalance(ScriptPubKeyType.Segwit, masterKey);
 				Assert.Equal(expectedBalance, actualBalance);
-
+				Assert.Equal(Money.Zero, partiallySignedTx.GetBalance(ScriptPubKeyType.Legacy, masterKey));
 				// You can sign with accountKey and keypath
 				var memento = partiallySignedTx.Clone();
 
