@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FsCheck;
-using NBitcoin.Miniscript;
+using NBitcoin.Scripting;
 
 namespace NBitcoin.Tests.Generators
 {

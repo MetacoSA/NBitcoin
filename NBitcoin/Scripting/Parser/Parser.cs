@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace NBitcoin.Miniscript.Parser
+namespace NBitcoin.Scripting.Parser
 {
 	internal delegate ParserResult<TToken, TValue> Parser<TToken, TValue>(IInput<TToken> input);
 

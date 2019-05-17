@@ -1,7 +1,7 @@
 using System;
-using NBitcoin.Miniscript.Parser;
+using NBitcoin.Scripting.Parser;
 
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Scripting
 {
 	public enum OutputDescriptorType
 	{

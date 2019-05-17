@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System;
 
-namespace NBitcoin.Miniscript.Parser
+namespace NBitcoin.Scripting.Parser
 {
  	internal class ScriptInput : IInput<ScriptToken>
 	{

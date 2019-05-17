@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NBitcoin.Miniscript.Parser;
+using NBitcoin.Scripting.Parser;
 
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Scripting
 {
 	public static class ScriptExtensions
 	{

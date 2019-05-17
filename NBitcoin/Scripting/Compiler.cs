@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Scripting
 {
 	using CostCalculationInfo = Tuple<CalcType, int, Cost, Cost>;
 	internal enum CalcType

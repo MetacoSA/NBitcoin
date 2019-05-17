@@ -2,11 +2,11 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Text.RegularExpressions;
-using NBitcoin.Miniscript.Parser;
+using NBitcoin.Scripting.Parser;
 using NBitcoin.DataEncoders;
 using System.Collections.Generic;
 
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Scripting
 {
 	internal static class MiniscriptDSLParser
 	{

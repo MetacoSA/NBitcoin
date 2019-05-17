@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace NBitcoin.Miniscript.Parser
+namespace NBitcoin.Scripting.Parser
 {
 	internal static partial class Parse
 	{

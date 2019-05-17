@@ -1,6 +1,6 @@
 using System;
 
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Scripting
 {
 	internal class ScriptToken : IEquatable<ScriptToken>
 	{

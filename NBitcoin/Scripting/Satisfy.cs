@@ -4,7 +4,7 @@ using PreimageProvider = System.Func<NBitcoin.uint256, NBitcoin.uint256>;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Scripting
 {
 	public partial class AstElem
 	{

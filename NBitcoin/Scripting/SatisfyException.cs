@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Scripting
 {
 	public enum SatisfyErrorCode
 	{

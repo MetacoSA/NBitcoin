@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Scripting
 {
 	public abstract partial class AstElem : IEquatable<AstElem>
 	{

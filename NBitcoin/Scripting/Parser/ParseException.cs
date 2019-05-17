@@ -1,6 +1,6 @@
 using System;
 
-namespace NBitcoin.Miniscript.Parser
+namespace NBitcoin.Scripting.Parser
 {
 	/// <summary>
 	/// Represents an error that occurs during parsing.

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace NBitcoin.Miniscript.Parser
+namespace NBitcoin.Scripting.Parser
 {
     public interface IInput<out T>
     {

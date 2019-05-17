@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
-using NBitcoin.Miniscript.Parser;
-using P = NBitcoin.Miniscript.Parser.Parser<NBitcoin.Miniscript.ScriptToken, NBitcoin.Miniscript.AstElem>;
-namespace NBitcoin.Miniscript
+using NBitcoin.Scripting.Parser;
+using P = NBitcoin.Scripting.Parser.Parser<NBitcoin.Scripting.ScriptToken, NBitcoin.Scripting.AstElem>;
+namespace NBitcoin.Scripting
 {
 	internal static class MiniscriptScriptParser
 	{

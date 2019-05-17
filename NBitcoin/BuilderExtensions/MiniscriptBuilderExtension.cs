@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NBitcoin.Miniscript;
+using NBitcoin.Scripting;
 
 namespace NBitcoin.BuilderExtensions
 {
@@ -15,10 +15,10 @@ namespace NBitcoin.BuilderExtensions
 			=> false;
 
 		public override bool CanEstimateScriptSigSize(Script scriptPubKey)
-			=> Miniscript.Miniscript.TryParseScript(scriptPubKey, out var _);
+			=> Miniscript.TryParseScript(scriptPubKey, out var _);
 
 		public override bool CanGenerateScriptSig(Script scriptPubKey)
-			=> Miniscript.Miniscript.TryParseScript(scriptPubKey, out var _);
+			=> Miniscript.TryParseScript(scriptPubKey, out var _);
 
 		public override Script CombineScriptSig(Script scriptPubKey, Script a, Script b)
 		{
@@ -32,7 +32,7 @@ namespace NBitcoin.BuilderExtensions
 
 		public override int EstimateScriptSigSize(Script scriptPubKey)
 		{
-			var ms = Miniscript.Miniscript.ParseScript(scriptPubKey);
+			var ms = Miniscript.ParseScript(scriptPubKey);
 			return (int)ms.MaxSatisfactionSize(2);
 		}
 
@@ -44,7 +44,7 @@ namespace NBitcoin.BuilderExtensions
 			Sequence? sequence
 			)
 		{
-			var ms = Miniscript.Miniscript.ParseScript(scriptPubKey);
+			var ms = Miniscript.ParseScript(scriptPubKey);
 			Func<PubKey, TransactionSignature > signatureProvider =
 				(pk) => keyRepo.FindKey(pk.ScriptPubKey) == null ? null : signer.Sign(pk);
 			if(!ms.Ast.TrySatisfy(signatureProvider, preimageRepo.FindPreimage, sequence, out var items, out var _))

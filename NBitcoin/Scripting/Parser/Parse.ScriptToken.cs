@@ -1,6 +1,6 @@
 using System;
 
-namespace NBitcoin.Miniscript.Parser
+namespace NBitcoin.Scripting.Parser
 {
 	internal static partial class Parse
 	{

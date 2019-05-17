@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Scripting
 {
 	/// <summary>
 	/// Internal representation of AbstractPolicy.

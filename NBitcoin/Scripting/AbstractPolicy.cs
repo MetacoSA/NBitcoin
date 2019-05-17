@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Linq;
 
-namespace NBitcoin.Miniscript
+namespace NBitcoin.Scripting
 {
 	/// <summary>
 	/// High level representation of Miniscript
