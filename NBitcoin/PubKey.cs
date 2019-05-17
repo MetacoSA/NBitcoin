@@ -173,9 +173,29 @@ namespace NBitcoin
 			}
 		}
 
+		public BitcoinAddress GetAddress(ScriptPubKeyType type, Network network)
+		{
+			switch (type)
+			{
+				case ScriptPubKeyType.Legacy:
+					return this.Hash.GetAddress(network);
+				case ScriptPubKeyType.Segwit:
+					if (!network.Consensus.SupportSegwit)
+						throw new NotSupportedException("This network does not support segwit");
+					return this.WitHash.GetAddress(network);
+				case ScriptPubKeyType.SegwitP2SH:
+					if (!network.Consensus.SupportSegwit)
+						throw new NotSupportedException("This network does not support segwit");
+					return this.WitHash.ScriptPubKey.Hash.GetAddress(network);
+				default:
+					throw new NotSupportedException("Unsupported ScriptPubKeyType");
+			}
+		}
+
+		[Obsolete("Use GetAddress(ScriptPubKeyType.Legacy, network) instead")]
 		public BitcoinPubKeyAddress GetAddress(Network network)
 		{
-			return network.CreateBitcoinAddress(this.Hash);
+			return (BitcoinPubKeyAddress)GetAddress(ScriptPubKeyType.Legacy, network);
 		}
 
 		public BitcoinScriptAddress GetScriptAddress(Network network)

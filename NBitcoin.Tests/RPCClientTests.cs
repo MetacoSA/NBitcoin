@@ -155,7 +155,7 @@ namespace NBitcoin.Tests
 				var rpc = node.CreateRPCClient();
 				builder.StartAll();
 				node.Generate(101);
-				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(rpc.Network), Money.Coins(1.0m), "hello", "world");
+				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), "hello", "world");
 				var ids = rpc.GetRawMempool();
 				Assert.Single(ids);
 				Assert.Equal(txid, ids[0]);
@@ -187,7 +187,7 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				node.Generate(101);
 
-				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(rpc.Network), Money.Coins(1.0m), "hello", "world");
+				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), "hello", "world");
 				var memPoolInfo = rpc.GetMemPool();
 				Assert.NotNull(memPoolInfo);
 				Assert.Equal(1, memPoolInfo.Size);
@@ -339,7 +339,7 @@ namespace NBitcoin.Tests
 				node.Generate(101);
 
 				var key = new Key();
-				var address = key.PubKey.GetAddress(rpc.Network);
+				var address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network);
 
 				var txid = rpc.SendToAddress(address, Money.Coins(2), null, null, false, true);
 				var txbumpid = rpc.BumpFee(txid);
@@ -398,7 +398,7 @@ namespace NBitcoin.Tests
 				Assert.Equal((uint)firstTx.GetVirtualSize(), txInfo.VirtualSize);
 
 				// unconfirmed tx doesn't have blockhash, blocktime nor transactiontime.
-				var mempoolTxId = rpc.SendToAddress(new Key().PubKey.GetAddress(builder.Network), Money.Coins(1));
+				var mempoolTxId = rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, builder.Network), Money.Coins(1));
 				txInfo = rpc.GetRawTransactionInfo(mempoolTxId);
 				Assert.Null(txInfo.TransactionTime);
 				Assert.Null(txInfo.BlockHash);
@@ -444,7 +444,7 @@ namespace NBitcoin.Tests
 				Assert.True(getTxOutResponse.IsCoinBase);
 
 				// 2. Spend the first coin
-				var address = new Key().PubKey.GetAddress(rpc.Network);
+				var address = new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network);
 				Money sendAmount = Money.Parse("49");
 				txId = await rpc.SendToAddressAsync(address, sendAmount);
 
@@ -584,7 +584,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network) },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
 						Timestamp = Utils.UnixTimeToDateTime(0)
 					}
 				};
@@ -626,7 +626,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(key.PubKey.GetAddress(network)),
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network)),
 						PubKeys = new string[] { key.PubKey.ToString() }
 					}
 				};
@@ -669,7 +669,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network) },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
 						Keys = new string[] { key.GetWif(network).ToString() }
 					}
 				};
@@ -680,7 +680,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network) },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
 						Keys = new string[] { key.GetWif(network).ToString() }
 					}
 				};
@@ -697,7 +697,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network) },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
 						Keys = new string[] { key.GetWif(network).ToString() },
 						WatchOnly = true
 					}
@@ -757,7 +757,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network) },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
 						PubKeys = new string[] { new Key().PubKey.ToString() }
 					}
 				};
@@ -786,7 +786,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network) },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
 						Keys = new string[] { new Key().GetWif(network).ToString() }
 					}
 				};

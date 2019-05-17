@@ -212,7 +212,7 @@ namespace NBitcoin.Tests
 
 
 			//Test .ToNetwork()
-			var addr = pubkey.GetAddress(Network.Main);
+			var addr = pubkey.GetAddress(ScriptPubKeyType.Legacy, Network.Main);
 			Assert.Equal("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM", addr.ToString());
 			Assert.Equal("mfcSEPR8EkJrpX91YkTJ9iscdAzppJrG9j", addr.ToNetwork(Network.TestNet).ToString());
 

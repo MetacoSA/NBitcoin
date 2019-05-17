@@ -336,7 +336,7 @@ namespace NBitcoin.Tests
 				var batch = rpc.PrepareBatch();
 				for(int i = 0; i < 20; i++)
 				{
-					var address = new Key().PubKey.GetAddress(rpc.Network);
+					var address = (BitcoinPubKeyAddress)new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network);
 					knownAddresses.Add(address.Hash);
 #pragma warning disable CS4014
 					batch.SendToAddressAsync(address, Money.Coins(0.5m));
@@ -548,7 +548,7 @@ namespace NBitcoin.Tests
 				node.Start();
 				var rpc = node.CreateRPCClient();
 				rpc.Generate(101);
-				rpc.SendToAddress(new Key().PubKey.GetAddress(Network.RegTest), Money.Coins(1.0m));
+				rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.RegTest), Money.Coins(1.0m));
 				var client = node.CreateNodeClient();
 				client.VersionHandshake();
 				var transactions = client.GetMempoolTransactions();
@@ -626,7 +626,7 @@ namespace NBitcoin.Tests
 				node.Start();
 				rpc.Generate(102);
 				for(int i = 0; i < 2; i++)
-					node.CreateRPCClient().SendToAddress(new Key().PubKey.GetAddress(Network.RegTest), Money.Coins(1.0m));
+					node.CreateRPCClient().SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.RegTest), Money.Coins(1.0m));
 				var client = node.CreateNodeClient();
 				var txIds = client.GetMempool();
 				Assert.True(txIds.Length == 2);

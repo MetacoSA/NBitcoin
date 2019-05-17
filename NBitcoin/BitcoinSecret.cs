@@ -27,11 +27,15 @@ namespace NBitcoin
 			Init<BitcoinSecret>(base58, expectedAddress);
 		}
 
-		private BitcoinPubKeyAddress _address;
+		public BitcoinAddress GetAddress(ScriptPubKeyType type)
+		{
+			return PrivateKey.PubKey.GetAddress(type, Network);
+		}
 
+		[Obsolete("Use GetAddress(ScriptPubKeyType.Legacy) instead")]
 		public BitcoinPubKeyAddress GetAddress()
 		{
-			return _address ?? (_address = PrivateKey.PubKey.GetAddress(Network));
+			return (BitcoinPubKeyAddress)GetAddress(ScriptPubKeyType.Legacy);
 		}
 
 		public BitcoinWitPubKeyAddress GetSegwitAddress()
@@ -132,6 +136,7 @@ namespace NBitcoin
 
 		#region IDestination Members
 
+		[Obsolete("Use GetAddress(ScriptPubKeyType.Legacy) instead")]
 		public Script ScriptPubKey
 		{
 			get
