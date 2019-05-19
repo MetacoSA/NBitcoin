@@ -1,4 +1,5 @@
 ﻿using NBitcoin.Protocol;
+using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Reflection;
 
@@ -143,6 +144,11 @@ namespace NBitcoin
 		internal TransactionBuilder CreateTransactionBuilderCore2(Network network)
 		{
 			return CreateTransactionBuilderCore(network);
+		}
+
+		public virtual IEnumerable<NodeBehavior> GetCustomBehaviors()
+		{
+			return null;
 		}
 	}
 }
