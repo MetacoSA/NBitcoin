@@ -13,8 +13,16 @@ The best documentation available is our [eBook](https://programmingblockchain.gi
 You can also browse the API easily through [the API reference](https://metacosa.github.io/NBitcoin/api/index.html).
 
 # How to use ?
-With NuGet :
->**Install-Package NBitcoin** 
+
+In .NET Core:
+```bash
+dotnet add package NBitcoin
+```
+If using legacy .NET Framework in Visual Studio
+```bash
+Install-Package NBitcoin
+```
+You can also just use the `Manage NuGet Package` window on your project in Visual Studio.
 
 Go on the [NuGet website](https://www.nuget.org/packages/NBitcoin/) for more information.
 
@@ -24,7 +32,18 @@ The packages support:
 * With limited features: platforms supported by [.NET Standard 1.1](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) (Windows Phone, Windows 8.0 apps).
 
 To compile it by yourself, you can git clone, open the project and hit the compile button in Visual Studio.
-How to get started ? Check out this article [on CodeProject](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) for some basic Bitcoin operations, or [this Introduction to NBitcoin video](https://www.youtube.com/watch?v=X4ZwRWIF49w).
+
+
+ # How to get started? 
+ 
+ First, you need to understand Bitcoin, for this read:
+ * [Programming The Blockchain in C#](https://programmingblockchain.gitbooks.io/programmingblockchain/content/)
+
+ Once you get familiar with Bitcoin terminology with this book, follow up by reading:
+
+ * [NBitcoin documentation](https://github.com/NicolasDorier/NBitcoin.Docs/blob/master/README.md)
+
+ This will teach you how to use NBitcoin in a practical way.
 
 # How to use with Altcoins ?
 
