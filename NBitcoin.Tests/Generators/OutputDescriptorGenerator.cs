@@ -44,8 +44,9 @@ namespace NBitcoin.Tests.Generators
 			select OutputDescriptor.NewCombo(pkProvider);
 
 		private static Gen<OutputDescriptor> MultisigOutputDescriptorGen() =>
+			from m in Gen.Choose(1, 20).Select(i => (uint)i)
 			from pkProviders in Gen.NonEmptyListOf(PubKeyProviderGen())
-			select OutputDescriptor.NewMulti(pkProviders);
+			select OutputDescriptor.NewMulti(m, pkProviders);
 
 		private static Gen<OutputDescriptor> InnerOutputDescriptorGen() =>
 			Gen.OneOf(

@@ -128,6 +128,16 @@ namespace NBitcoin
 			}
 		}
 
+		static KeyPath _Empty = new KeyPath(new uint[0]);
+
+		public static KeyPath Empty
+		{
+			get
+			{
+				return _Empty;
+			}
+		}
+
 		public KeyPath(params uint[] indexes)
 		{
 			if (indexes.Length > 255)
