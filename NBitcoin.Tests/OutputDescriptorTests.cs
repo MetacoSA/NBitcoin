@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using FsCheck;
 using FsCheck.Xunit;
 using NBitcoin.Scripting;
+using NBitcoin.Scripting.Parser;
 using NBitcoin.Tests.Generators;
 using Xunit;
 
@@ -14,10 +16,14 @@ namespace NBitcoin.Tests
 			Arb.Register<OutputDescriptorGenerator>();
 		}
 
+
 		[Property]
 		[Trait("PropertyTest", "BidirectionalConversion")]
 		public void DescriptorShouldConvertToStringBidirectionally(OutputDescriptor desc)
 		{
+			var afterConversion = OutputDescriptor.Parse(desc.ToString());
+			Assert.Equal(desc, afterConversion);
+			Assert.Equal(desc.ToString(), afterConversion.ToString());
 		}
 
 
@@ -25,8 +31,8 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void OutputDescriptorParserTests()
 		{
-			// https://github.com/bitcoin/bitcoin/blob/9b085f4863eaefde4bec0638f1cbc8509d6ee59a/doc/descriptors.md
 			var testVectors = new string[] {
+				"addr(2N7nD1pG3kK3DYaP34jQKbxB3JnEfMbVea7)",
 				"pk(0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798)",
 				"pkh(02c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5)",
 				"wpkh(02f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9)",
@@ -41,18 +47,77 @@ namespace NBitcoin.Tests
 				"pkh(xpub68Gmy5EdvgibQVfPdqkBBCHxA5htiqg55crXYuXoQRKfDBFA1WEjWgP6LHhwBZeNK1VTsfTFUHCdrfp1bgwQ9xv5ski8PX9rL2dZXvgGDnw/1'/2)",
 				"pkh([d34db33f/44'/0'/0']xpub6ERApfZwUNrhLCkDtcHTcxd75RbzS1ed54G1LkBUHQVHQKqhMkhgbmJbZRkrgZw4koxb5JaHWkY4ALHY2grBGRjaDMzQLcgJvLJuZZvRcEL/1/*)",
 				"wsh(multi(1,xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB/1/0/*,xpub69H7F5d8KSRgmmdJg2KhpAK8SR3DjMwAdkxj3ZuxV27CprR9LgpeyGmXUbC6wb7ERfvrnKZjXoUmmDznezpbZb7ap6r1D3tgFxHmwMkQTPH/0/0/*))",
-				// same with above except hardend derivation
+				// same with above except that is has hardend derivation
 				"wsh(multi(1,xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB/1/0/*,xpub69H7F5d8KSRgmmdJg2KhpAK8SR3DjMwAdkxj3ZuxV27CprR9LgpeyGmXUbC6wb7ERfvrnKZjXoUmmDznezpbZb7ap6r1D3tgFxHmwMkQTPH/0/0/*'))"
 			};
+			foreach (var i in testVectors)
+			{
+				var od = OutputDescriptor.Parse(i);
+				Assert.Equal(od, OutputDescriptor.Parse(od.ToString()));
+			}
 		}
+
 
 		[Fact]
 		[Trait("Core", "Core")]
 		public void DescriptorTests()
 		{
-
+			DescriptorTestCore(
+				"combo(L4rK1yDtCWekvXuE6oXD9jCYfFNV2cWRpVuPLBcCU2z8TrisoyY1)",
+				"combo(03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd)",
+				SIGNABLE,
+				new string []
+					{
+					"2103a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bdac",
+					"76a9149a1c78a507689f6f54b847ad1cef1e614ee23f1e88ac",
+					"00149a1c78a507689f6f54b847ad1cef1e614ee23f1e",
+					"a91484ab21b1b2fd065d4504ff693d832434b6108d7b87"
+					} );
 		}
 
+		const int DEFAULT = 0;
+		const int RANGE = 1; // Expected to be ranged descriptor
+		const int HARDEND = 2; // derivation needs accesses to private keys
+		const int UNSOLVABLE = 4; // This descriptor is not expected to be solvable
+		const int SIGNABLE = 8; // We can sign with this descriptor (this is not true when actual BIP32 derivation is used, as that's not integrated in our signing code)
+		System.Random Seed = new System.Random();
+
+		private void DescriptorTestCore(string pub, string priv, int flag, string[] scripts, KeyPath paths = null)
+		{
+			var keysPriv = new FlatSigningRepository();
+			var keysPub = new FlatSigningRepository();
+			paths = paths ?? KeyPath.Empty;
+
+			Assert.True(OutputDescriptor.TryParse(MaybeUseHInsteadOfApostrophe(pub), out var parsePub));
+			Assert.True(OutputDescriptor.TryParse(MaybeUseHInsteadOfApostrophe(priv), out var parsePriv));
+
+			// 2. Check both will serialize back to the public version.
+			string pub1 = parsePriv.ToString();
+			string pub2 = parsePub.ToString();
+			// Assert.True(EqualDescriptorStr(pub, pub1));
+			// Assert.True(EqualDescriptorStr(pub, pub2));
+
+			// string priv1;
+			// Assert.True(parsePub.TryGetPrivateString(null, out var res));
+		}
+
+		private bool EqualDescriptorStr(string a, string b)
+		{
+			// May be need to ignore checksum specifically.
+			return a == b;
+		}
+
+		private string MaybeUseHInsteadOfApostrophe(string input)
+		{
+			if (Seed.NextDouble() < 0.5)
+			{
+				input = input.Replace('\'', 'h');
+				// changing apostrophe will breaks checksum, so delete it.
+				if (input.Length > 9 && input[input.Length - 9] == '#')
+					input = input.Substring(0, input.Length - 9);
+			}
+			return input;
+		}
 		private void Check(string prv, string pub, int flags, string[] script, HashSet<uint[]> paths = null)
 		{
 			OutputDescriptor.Parse(prv);

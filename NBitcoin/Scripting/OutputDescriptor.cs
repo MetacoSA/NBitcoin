@@ -6,32 +6,6 @@ using NBitcoin.Scripting.Parser;
 
 namespace NBitcoin.Scripting
 {
-	public interface ISigningProvider
-	{
-		IDictionary<KeyId, Tuple<PubKey, RootedKeyPath>> Origins { get; }
-		IDictionary<ScriptId, Script> Scripts { get; }
-		IDictionary<KeyId, PubKey> PubKeys { get; }
-		IDictionary<KeyId, Key> Keys { get; }
-	}
-
-	public class SigningProvider : ISigningProvider
-	{
-		public SigningProvider()
-		{
-			Origins = new ConcurrentDictionary<KeyId, Tuple<PubKey, RootedKeyPath>>();
-			Scripts = new ConcurrentDictionary<ScriptId, Script>();
-			PubKeys = new ConcurrentDictionary<KeyId, PubKey>();
-			Keys = new ConcurrentDictionary<KeyId, Key>();
-		}
-
-		public IDictionary<KeyId, Tuple<PubKey, RootedKeyPath>> Origins { get; }
-
-		public IDictionary<ScriptId, Script> Scripts { get; }
-
-		public IDictionary<KeyId, PubKey> PubKeys { get; }
-
-		public IDictionary<KeyId, Key> Keys{ get; }
-	}
 
 	public abstract class OutputDescriptor : IEquatable<OutputDescriptor>
 	{
@@ -114,14 +88,17 @@ namespace NBitcoin.Scripting
 		public class MultisigDescriptor : OutputDescriptor
 		{
 			public List<PubKeyProvider> PkProviders;
-			internal MultisigDescriptor(IEnumerable<PubKeyProvider> pkProviders) : base(Tags.MultisigDescriptor)
+			internal MultisigDescriptor(uint threshold, IEnumerable<PubKeyProvider> pkProviders) : base(Tags.MultisigDescriptor)
 			{
 				if (pkProviders == null)
 					throw new ArgumentNullException(nameof(pkProviders));
 				PkProviders = pkProviders.ToList();
 				if (PkProviders.Count == 0)
 					throw new ArgumentException("Multisig Descriptor can not have empty pubkey providers");
+				Threshold = threshold;
 			}
+
+			public uint Threshold { get; }
 		}
 
 		public class SHDescriptor : OutputDescriptor
@@ -162,7 +139,7 @@ namespace NBitcoin.Scripting
 		public static OutputDescriptor NewPKH(PubKeyProvider pk) => new PKHDescriptor(pk);
 		public static OutputDescriptor NewWPKH(PubKeyProvider pk) => new WPKHDescriptor(pk);
 		public static OutputDescriptor NewCombo(PubKeyProvider pk) => new ComboDescriptor(pk);
-		public static OutputDescriptor NewMulti(IEnumerable<PubKeyProvider> pks) => new MultisigDescriptor(pks);
+		public static OutputDescriptor NewMulti(uint m, IEnumerable<PubKeyProvider> pks) => new MultisigDescriptor(m, pks);
 
 		public static OutputDescriptor NewSH(OutputDescriptor inner) => new SHDescriptor(inner);
 		public static OutputDescriptor NewWSH(OutputDescriptor inner) => new WSHDescriptor(inner);
@@ -186,7 +163,7 @@ namespace NBitcoin.Scripting
 		public bool TryExpand(
 			uint pos,
 			Func<KeyId, ISecret> secretProvider,
-			ISigningProvider signingProvider,
+			ISigningRepository signingProvider,
 			out List<Script> outputScripts
 			)
 		{
@@ -196,7 +173,7 @@ namespace NBitcoin.Scripting
 		private bool TryExpand(
 			uint pos,
 			Func<KeyId, ISecret> secretProvider,
-			ISigningProvider signingProvider,
+			ISigningRepository signingProvider,
 			List<Script> outputScripts
 			)
 		{
@@ -326,19 +303,19 @@ namespace NBitcoin.Scripting
 		public override string ToString()
 		{
 			var inner = ToStringHelper();
-			return $"{inner}#{GetCheckSum(inner)}";
+			return $"{inner}#{OutputDescriptor.GetCheckSum(inner)}";
 		}
 
-		public bool TryGetPrivateString(Func<KeyId, ISecret> secretProvider, out string result)
+		public bool TryGetPrivateString(ISigningRepository secretProvider, out string result)
 		{
 			result = null;
 			if (!TryGetPrivateStringHelper(secretProvider, out var inner))
 				return false;
-			result = $"{inner}#{GetCheckSum(inner)}";
+			result = $"{inner}#{OutputDescriptor.GetCheckSum(inner)}";
 			return true;
 		}
 
-		private bool TryGetPrivateStringHelper(Func<KeyId, ISecret> secretProvider, out string result)
+		private bool TryGetPrivateStringHelper(ISigningRepository secretProvider, out string result)
 		{
 			result = null;
 			switch (this.Tag)
@@ -369,13 +346,14 @@ namespace NBitcoin.Scripting
 					return true;
 				case Tags.MultisigDescriptor:
 					var subKeyList = new List<string>();
-					foreach (var prov in (((MultisigDescriptor)this).PkProviders))
+					var multi = (MultisigDescriptor)this;
+					foreach (var prov in (multi.PkProviders))
 					{
 						if (!prov.TryGetPrivateString(secretProvider, out var tmp))
 							return false;
 						subKeyList.Add(tmp);
 					}
-					result = $"multi({String.Join(",", subKeyList)})";
+					result = $"multi({multi.Threshold},{String.Join(",", subKeyList)})";
 					return true;
 				case Tags.SHDescriptor:
 					if (!((SHDescriptor)this).Inner.TryGetPrivateStringHelper(secretProvider, out var shInner))
@@ -409,24 +387,21 @@ namespace NBitcoin.Scripting
 					return $"combo({self.PkProvider})";
 				case MultisigDescriptor self:
 					var pksStr = String.Join(",", self.PkProviders);
-					return $"multisig({pksStr})";
+					return $"multi({self.Threshold},{pksStr})";
 				case SHDescriptor self:
-					return $"sh({self.Inner})";
+					return $"sh({self.Inner.ToStringHelper()})";
 				case WSHDescriptor self:
-					return $"wsh({self.Inner})";
+					return $"wsh({self.Inner.ToStringHelper()})";
 			}
 			throw new Exception("unreachable");
 		}
 		public static OutputDescriptor Parse(string desc)
-			=> OutputDescriptorParser.POutputDescriptor.Parse(desc);
+			=> OutputDescriptorParser.ParseOD(desc);
 
-		public static bool TryParse(string desc, out OutputDescriptor result)
+		public static bool TryParse(string desc, out OutputDescriptor result, bool requireCheckSum = false)
 		{
-			result = null;
-			var res = OutputDescriptorParser.POutputDescriptor.TryParse(desc);
-			if (!res.IsSuccess)
+			if (!OutputDescriptorParser.TryParseOD(desc, out result, requireCheckSum))
 				return false;
-			result = res.Value;
 			return true;
 		}
 
@@ -457,7 +432,8 @@ namespace NBitcoin.Scripting
 				case ComboDescriptor self:
 					return self.PkProvider.Equals(((ComboDescriptor)other).PkProvider);
 				case MultisigDescriptor self:
-					return self.PkProviders.SequenceEqual(((MultisigDescriptor)other).PkProviders);
+					var otherM = (MultisigDescriptor)other;
+					return self.Threshold == otherM.Threshold && self.PkProviders.SequenceEqual(otherM.PkProviders);
 				case SHDescriptor self:
 					return self.Inner.Equals(((SHDescriptor)other).Inner);
 				case WSHDescriptor self:
@@ -535,7 +511,7 @@ namespace NBitcoin.Scripting
 
 		static readonly char[] INPUT_CHARSET = INPUT_CHARSET_STRING.ToArray();
 
-		private string GetCheckSum(string desc)
+		internal static string GetCheckSum(string desc)
 		{
 			ulong c = 1;
 			int cls = 0;
@@ -564,7 +540,7 @@ namespace NBitcoin.Scripting
 			}
 			return new String(result);
 		}
-		ulong PolyMod(ulong c, int val)
+		static ulong PolyMod(ulong c, int val)
 		{
 			ulong c0 = c >> 35;
 			c = ((c & 0x7ffffffffUL) << 5) ^ (ulong)val;
