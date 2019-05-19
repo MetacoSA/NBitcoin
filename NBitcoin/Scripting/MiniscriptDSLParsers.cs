@@ -62,21 +62,6 @@ namespace NBitcoin.Scripting
 			return items.ToArray();
 		}
 
-		internal static Parser<char, T> TryConvert<T>(string str, Func<string, T> converter)
-		{
-			return i =>
-			{
-				try
-				{
-					return ParserResult<char, T>.Success(i, converter(str));
-				}
-				catch (FormatException)
-				{
-					return ParserResult<char, T>.Failure(i, $"Failed to parse {str}");
-				}
-			};
-		}
-
 		internal static Parser<char, string> ExprP(string name)
 			=>
 				from identifier in Parse.String(name)
@@ -89,23 +74,23 @@ namespace NBitcoin.Scripting
 				select SafeSplit(x);
 
 		private static readonly Parser<char, AbstractPolicy> PPubKeyExpr =
-				from pk in ExprP("pk").Then(s => TryConvert(s, c => new PubKey(c)))
+				from pk in ExprP("pk").Then(s => Parse.TryConvert(s, c => new PubKey(c)))
 				select AbstractPolicy.NewCheckSig(pk);
 
 		private static readonly Parser<char, AbstractPolicy> PMultisigExpr =
 				from contents in ExprPMany("multi")
-				from m in TryConvert(contents.First(), UInt32.Parse)
+				from m in Parse.TryConvert(contents.First(), UInt32.Parse)
 				from pks in contents.Skip(1)
-					.Select(pk => TryConvert(pk, c => new PubKey(c)))
+					.Select(pk => Parse.TryConvert(pk, c => new PubKey(c)))
 					.Sequence()
 				select AbstractPolicy.NewMulti(m, pks.ToArray());
 
 		private static readonly Parser<char, AbstractPolicy> PHashExpr =
-				from hash in ExprP("hash").Then(s => TryConvert(s, uint256.Parse))
+				from hash in ExprP("hash").Then(s => Parse.TryConvert(s, uint256.Parse))
 				select AbstractPolicy.NewHash(hash);
 
 		private static readonly Parser<char, AbstractPolicy> PTimeExpr =
-				from t in ExprP("time").Then(s => TryConvert(s, UInt32.Parse))
+				from t in ExprP("time").Then(s => Parse.TryConvert(s, UInt32.Parse))
 				where t <= 65535
 				select AbstractPolicy.NewTime(t);
 
@@ -133,7 +118,7 @@ namespace NBitcoin.Scripting
 				from _left in Parse.Char('(')
 				from numStr in Parse.Digit.AtLeastOnce().Text()
 				from _sep in Parse.Char(',')
-				from num in TryConvert(numStr, UInt32.Parse)
+				from num in Parse.TryConvert(numStr, UInt32.Parse)
 				from x in Parse
 					.Ref(() => DSLParser)
 					.DelimitedBy(Parse.Char(',').Token()).Token()

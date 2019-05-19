@@ -7,6 +7,16 @@ namespace NBitcoin.Scripting.Parser
 {
 	internal static partial class Parse
 	{
+		private const string ValidHex = "0123456789abcdef";
+		private const string ValidBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+		private readonly static char[] ValidHexChars;
+		private readonly static char[] ValidBase58Chars;
+
+		static Parse()
+		{
+			ValidHexChars = ValidHex.ToCharArray();
+			ValidBase58Chars = ValidBase58.ToCharArray();
+		}
 		public static Parser<char, char> Char(Func<char, bool> predicate, string expected)
 		{
 			if (predicate == null)
@@ -45,6 +55,10 @@ namespace NBitcoin.Scripting.Parser
 		public static readonly Parser<char, char> Digit = Char(char.IsDigit, "digit");
 		public static readonly Parser<char, char> Letter = Char(char.IsLetter, "letter");
 		public static readonly Parser<char, char> LetterOrDigit = Char(char.IsLetterOrDigit, "letter or digit");
+		public static readonly Parser<char, char> Hex =
+			Char(c => ValidHexChars.Any(ca => c == ca), "hex");
+		public static readonly Parser<char, char> Base58 =
+			Char(c => ValidBase58Chars.Any(ca => c == ca), "hex");
 
 		public static readonly Parser<char, char> Numeric = Char(char.IsNumber, "numeric character");
 
