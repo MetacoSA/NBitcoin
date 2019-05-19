@@ -1,4 +1,5 @@
 ﻿using NBitcoin.Protocol;
+using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -143,6 +144,11 @@ namespace NBitcoin
 			builder.ShuffleRandom = new Random(seed);
 			return builder;
 #pragma warning restore CS0618 // Type or member is obsolete
+		}
+
+		public virtual IEnumerable<NodeBehavior> GetCustomBehaviors()
+		{
+			return null;
 		}
 	}
 }

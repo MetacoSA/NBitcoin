@@ -841,6 +841,15 @@ namespace NBitcoin.Protocol
 			{
 				_Behaviors.Add(behavior.Clone());
 			}
+
+			// Add any custom behaviors from ConsensusFactory
+			if (this.Network?.Consensus?.ConsensusFactory?.GetCustomBehaviors() != null)
+			{
+				foreach (var customBehavior in this.Network?.Consensus?.ConsensusFactory?.GetCustomBehaviors())
+				{
+					_Behaviors.Add(customBehavior);
+				}
+			}
 			_Behaviors.DelayAttach = false;
 		}
 
