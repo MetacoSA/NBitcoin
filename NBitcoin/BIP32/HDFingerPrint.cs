@@ -1,6 +1,7 @@
 ﻿using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace NBitcoin
@@ -45,6 +46,11 @@ namespace NBitcoin
 			_Value = Utils.ToUInt32(bytes, true);
 		}
 #endif
+
+		public static HDFingerprint FromKeyId(KeyId id)
+		{
+			return new HDFingerprint(id.ToBytes().Take(4).ToArray());
+		}
 
 		public HDFingerprint(byte[] bytes, int index)
 		{
