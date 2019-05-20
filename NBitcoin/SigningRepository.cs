@@ -22,10 +22,18 @@ namespace NBitcoin
 	}
 	public class FlatSigningRepository : ISigningRepository
 	{
-		ConcurrentDictionary<KeyId, ISecret> Secrets {get;}
-		ConcurrentDictionary<KeyId, PubKey> Pubkeys { get; }
-		ConcurrentDictionary<KeyId, RootedKeyPath> KeyOrigins { get; }
-		ConcurrentDictionary<ScriptId, Script> Scripts { get; }
+		public ConcurrentDictionary<KeyId, ISecret> Secrets {get;}
+		public ConcurrentDictionary<KeyId, PubKey> Pubkeys { get; }
+		public ConcurrentDictionary<KeyId, RootedKeyPath> KeyOrigins { get; }
+		public ConcurrentDictionary<ScriptId, Script> Scripts { get; }
+
+		public FlatSigningRepository()
+		{
+			Secrets = new ConcurrentDictionary<KeyId, ISecret>();
+			Pubkeys = new ConcurrentDictionary<KeyId, PubKey>();
+			KeyOrigins = new ConcurrentDictionary<KeyId, RootedKeyPath>();
+			Scripts = new ConcurrentDictionary<ScriptId, Script>();
+		}
 
 		public bool TryGetScript(ScriptId scriptId, out Script script)
 			=> Scripts.TryGetValue(scriptId, out script);

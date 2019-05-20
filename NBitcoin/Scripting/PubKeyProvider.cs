@@ -206,7 +206,7 @@ namespace NBitcoin.Scripting
 			switch (this)
 			{
 				case OriginPubKeyProvider self:
-					if (!self.TryGetPrivateString(secretProvider, out ret))
+					if (!self.Inner.TryGetPrivateString(secretProvider, out ret))
 						return false;
 					ret = $"[{self.KeyOriginInfo.ToString()}]{ret}";
 					return true;
