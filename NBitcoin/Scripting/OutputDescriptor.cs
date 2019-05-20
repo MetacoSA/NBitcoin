@@ -395,12 +395,12 @@ namespace NBitcoin.Scripting
 			}
 			throw new Exception("unreachable");
 		}
-		public static OutputDescriptor Parse(string desc)
-			=> OutputDescriptorParser.ParseOD(desc);
+		public static OutputDescriptor Parse(string desc, bool requireCheckSum = false, ISigningRepository repo = null)
+			=> OutputDescriptorParser.ParseOD(desc, requireCheckSum, repo);
 
-		public static bool TryParse(string desc, out OutputDescriptor result, bool requireCheckSum = false)
+		public static bool TryParse(string desc, out OutputDescriptor result, bool requireCheckSum = false, ISigningRepository repo = null)
 		{
-			if (!OutputDescriptorParser.TryParseOD(desc, out result, requireCheckSum))
+			if (!OutputDescriptorParser.TryParseOD(desc, out result, requireCheckSum, repo))
 				return false;
 			return true;
 		}
