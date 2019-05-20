@@ -139,12 +139,12 @@ namespace NBitcoin.Tests
 				"m/0h",
 				"m/0h/1",
 				"m/0/1",
-				$"m/{uint.MaxValue}/1",
 				$"m/{0x80000000u - 1}h",
 				$"m/{0x80000000u - 1}"
 			}.ToList();
 			var invalid = new[]
 			{
+				$"m/{uint.MaxValue}/1",
 				$"m/{((long)uint.MaxValue) + 1}/1",
 				$"k/0/1",
 				$"h/1",
@@ -183,7 +183,7 @@ namespace NBitcoin.Tests
 			Assert.Equal("7b09d780", result.MasterFingerprint.ToString());
 			Assert.True(RootedKeyPath.TryParse("7b09d780/", out result));
 			Assert.Equal("7b09d780", result.MasterFingerprint.ToString());
-			Assert.Equal("7b09d780/", result.ToString());
+			Assert.Equal("7b09d780", result.ToString());
 			Assert.Equal(new KeyPath(), result.KeyPath);
 
 			Assert.True(RootedKeyPath.TryParse(result.ToString(), out var result2));

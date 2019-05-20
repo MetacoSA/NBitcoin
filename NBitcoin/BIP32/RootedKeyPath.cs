@@ -23,12 +23,19 @@ namespace NBitcoin
 			result = null;
 			var separator = str.IndexOf('/');
 			if (separator == -1)
-				return false;
-			if (!HDFingerprint.TryParse(str.Substring(0, separator), out var fp))
-				return false;
-			if (!NBitcoin.KeyPath.TryParse(str.Substring(separator + 1), out var keyPath))
-				return false;
-			result = new RootedKeyPath(fp, keyPath);
+			{
+				if (!HDFingerprint.TryParse(str, out var fp))
+					return false;
+				result = new RootedKeyPath(fp, KeyPath.Empty);
+			}
+			else
+			{
+				if (!HDFingerprint.TryParse(str.Substring(0, separator), out var fp))
+					return false;
+				if (!NBitcoin.KeyPath.TryParse(str.Substring(separator + 1), out var keyPath))
+					return false;
+				result = new RootedKeyPath(fp, keyPath);
+			}
 			return true;
 		}
 		public RootedKeyPath(HDFingerprint masterFingerprint, KeyPath keyPath)
@@ -88,7 +95,7 @@ namespace NBitcoin
 
 		public override string ToString()
 		{
-			return $"{MasterFingerprint}/{KeyPath}";
+			return KeyPath == KeyPath.Empty ? $"{MasterFingerprint}" : $"{MasterFingerprint}/{KeyPath}";
 		}
 
 

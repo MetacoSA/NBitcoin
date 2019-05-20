@@ -321,5 +321,24 @@ namespace NBitcoin.Tests
 				pubkey = pubkeyNew;
 			}
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanHandleEmptyKeyPath()
+		{
+			var rKeyPath = RootedKeyPath.Parse("01234567");
+			Assert.Equal(rKeyPath.KeyPath, KeyPath.Empty);
+			Assert.Equal(KeyPath.Empty.ToString(), "");
+			Assert.Equal(KeyPath.Empty.ToBytes(), new byte[0]);
+			Assert.Equal(rKeyPath.ToString(), "01234567");
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void KeyPathShouldNotParseBIP32Overflow()
+		{
+			Assert.Equal(uint.Parse("2147483648"), 0x80000000U);
+			Assert.Throws<FormatException>(() => KeyPath.Parse("/2147483648"));
+		}
 	}
 }
