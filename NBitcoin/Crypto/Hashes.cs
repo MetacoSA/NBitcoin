@@ -103,7 +103,7 @@ namespace NBitcoin.Crypto
 		#endregion
 
 		#region RIPEMD160
-		private static byte[] RIPEMD160(byte[] data)
+		public static byte[] RIPEMD160(byte[] data)
 		{
 			return RIPEMD160(data, 0, data.Length);
 		}

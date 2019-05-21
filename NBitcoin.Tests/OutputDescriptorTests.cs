@@ -195,14 +195,14 @@ namespace NBitcoin.Tests
 					var keyProvider = isHardend ? keysPriv : keysPub;
 
 					Console.WriteLine($"T: {t}\n parsePriv: {parsePriv}\nparsePub: {parsePub}\n");
-					Assert.True((t != 0 ? parsePriv : parsePub).TryExpand((uint)i, keyProvider.GetPrivateKey, out var repo, out var spks));
+					Assert.True((t != 0 ? parsePriv : parsePub).TryExpand((uint)i, keyProvider.GetPrivateKey, out var scriptProvider, out var spks));
 					Assert.Equal(spks.Count, expectedScript.Length);
 
 					for (int n = 0; n < spks.Count; ++n)
 					{
 						Console.WriteLine($"Checking Expected {expectedScript[n]}\nSpk: {spks[n].ToHex()}\n n:{n}");
 						Assert.Equal(expectedScript[n], spks[n].ToHex());
-						var merged = keysPriv.Merge(repo);
+						var merged = keysPriv.Merge(scriptProvider);
 						if ((flags & UNSOLVABLE) == 0)
 							Assert.True(merged.IsSolvable(spks[n]), $"{spks[n].ToString()}\nMust be solvable");
 						else
@@ -212,6 +212,9 @@ namespace NBitcoin.Tests
 						{
 							// TODO: check signability using TxBuilder
 						}
+						var inferred = OutputDescriptor.InferFromScript(spks[n], scriptProvider);
+						Console.WriteLine($"Inferfed OD is {inferred}");
+						Assert.Equal(((flags & UNSOLVABLE) == 0), inferred.IsSolvable());
 					}
 				}
 			}

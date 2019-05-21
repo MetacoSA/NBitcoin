@@ -213,6 +213,23 @@ namespace NBitcoin
 		{
 		}
 
+		/// <summary>
+		/// When we store internal ScriptId -> Script lookup, having another
+		/// WitScriptId -> WitScript KVMap will complicate implementation. And require
+		/// More space because WitScriptId is bigger than ScriptId. But if we use Hash160 as ID,
+		/// It will cause a problem in case of p2sh-p2wsh because we must hold two scripts
+		/// (witness program and witness script) with one ScriptId. So instead we use single-RIPEMD160
+		/// This is the same way with how bitcoin core handles scripts internally.
+		/// </summary>
+		public ScriptId _HashForLookUp;
+		public ScriptId HashForLookUp 
+		{
+			get{
+				return _HashForLookUp ?? (_HashForLookUp = new ScriptId(new uint160(Hashes.RIPEMD160(this.ToBytes()))));
+			}
+		}
+
+
 		public override Script ScriptPubKey
 		{
 			get

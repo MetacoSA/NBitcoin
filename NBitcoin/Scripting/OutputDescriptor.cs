@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using NBitcoin.Crypto;
 using NBitcoin.Scripting.Parser;
 
 namespace NBitcoin.Scripting
@@ -179,8 +180,6 @@ namespace NBitcoin.Scripting
 			repo = new FlatSigningRepository();
 			if (!TryExpand(pos, privateKeyProvider, repo, outputScripts))
 				return false;
-			foreach (var sc in outputScripts)
-				repo.SetScript(sc.Hash, sc);
 			return true;
 		}
 
@@ -193,9 +192,10 @@ namespace NBitcoin.Scripting
 		{
 			if (!pkP.TryGetPubKey(pos, privateKeyProvider, out var keyOrigin1, out var pubkey1))
 				return false;
-			repo.SetKeyOrigin(pubkey1.Hash, keyOrigin1);
+			if (keyOrigin1 != null)
+				repo.SetKeyOrigin(pubkey1.Hash, keyOrigin1);
 			repo.SetPubKey(pubkey1.Hash, pubkey1);
-			outSc.AddRange(MakeScripts(pubkey1));
+			outSc.AddRange(MakeScripts(pubkey1, repo));
 			return true;
 		}
 		private bool TryExpand(
@@ -229,7 +229,8 @@ namespace NBitcoin.Scripting
 						var pkP = self.PkProviders[i];
 						if (!pkP.TryGetPubKey(pos, privateKeyProvider, out var keyOrigin1, out var pubkey1))
 							return false;
-						tmpRepo.SetKeyOrigin(pubkey1.Hash, keyOrigin1);
+						if (keyOrigin1 != null)
+							tmpRepo.SetKeyOrigin(pubkey1.Hash, keyOrigin1);
 						tmpRepo.SetPubKey(pubkey1.Hash, pubkey1);
 						keys[i] = pubkey1;
 					}
@@ -240,19 +241,28 @@ namespace NBitcoin.Scripting
 					if (!self.Inner.TryExpand(pos, privateKeyProvider, out var subRepo1, out var shInnerResult))
 						return false;
 					repo = repo.Merge(subRepo1);
-					outputScripts.AddRange(shInnerResult.Select(innerSc => innerSc.Hash.ScriptPubKey));
+					foreach (var inner in shInnerResult)
+					{
+						repo.SetScript(inner.Hash, inner);
+						outputScripts.Add(inner.Hash.ScriptPubKey);
+					}
 					return true;
 				case WSHDescriptor self:
 					if (!self.Inner.TryExpand(pos, privateKeyProvider, out var subRepo2, out var wshInnerResult))
 						return false;
 					repo = repo.Merge(subRepo2);
-					outputScripts.AddRange(wshInnerResult.Select(innerSc => innerSc.WitHash.ScriptPubKey));
+					foreach (var inner in wshInnerResult)
+					{
+						repo.SetScript(inner.Hash, inner);
+						repo.SetScript(inner.WitHash.HashForLookUp, inner);
+						outputScripts.Add(inner.WitHash.ScriptPubKey);
+					}
 					return true;
 			}
 			throw new Exception("Unreachable");
 		}
 
-		private List<Script> MakeScripts(PubKey key)
+		private List<Script> MakeScripts(PubKey key, ISigningRepository repo)
 		{
 			switch (this)
 			{
@@ -276,6 +286,7 @@ namespace NBitcoin.Scripting
 					{
 						res.Add(key.WitHash.ScriptPubKey);
 						res.Add(key.WitHash.ScriptPubKey.Hash.ScriptPubKey);
+						repo.SetScript(key.WitHash.ScriptPubKey.Hash, key.WitHash.ScriptPubKey);
 					}
 					return res;
 			}
@@ -356,12 +367,6 @@ namespace NBitcoin.Scripting
 				if (repo.TryGetPubKey(pkHash, out var pk))
 					return OutputDescriptor.NewPKH(InferPubKey(pk, repo, ctx));
 			}
-			if (template is PayToWitPubKeyHashTemplate p2wpkhTemplate && ctx != ScriptContext.P2WSH)
-			{
-				var witKeyId = p2wpkhTemplate.ExtractScriptPubKeyParameters(sc);
-				if (repo.TryGetPubKey(witKeyId.AsKeyId(), out var pk))
-					return OutputDescriptor.NewWPKH(InferPubKey(pk, repo, ctx));
-			}
 			if (template is PayToMultiSigTemplate p2MultiSigTemplate)
 			{
 				var providers = new List<PubKeyProvider>();
@@ -381,13 +386,22 @@ namespace NBitcoin.Scripting
 					return OutputDescriptor.NewSH(sub);
 				}
 			}
-			if (template is PayToWitScriptHashTemplate p2wshTemplate && ctx != ScriptContext.P2WSH)
+			if (template is PayToWitTemplate)
 			{
-				var witScriptId = p2wshTemplate.ExtractScriptPubKeyParameters(sc);
-				if (repo.TryGetScript(witScriptId.ScriptPubKey.Hash, out var nextScript))
+				var witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(sc);
+				if (witScriptId != null && ctx != ScriptContext.P2WSH)
 				{
-					var sub = InferFromScript(sc, repo, ScriptContext.P2WSH);
-					return OutputDescriptor.NewWSH(sub);
+					if (repo.TryGetScript(witScriptId.HashForLookUp, out var nextScript))
+					{
+						var sub = InferFromScript(nextScript, repo, ScriptContext.P2WSH);
+						return OutputDescriptor.NewWSH(sub);
+					}
+				}
+				var witKeyId = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(sc);
+				if (witKeyId != null && ctx != ScriptContext.P2WSH)
+				{
+					if (repo.TryGetPubKey(witKeyId.AsKeyId(), out var pk))
+						return OutputDescriptor.NewWPKH(InferPubKey(pk, repo, ctx));
 				}
 			}
 

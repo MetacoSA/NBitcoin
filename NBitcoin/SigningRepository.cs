@@ -46,20 +46,21 @@ namespace NBitcoin
 
 			if (temp is PayToScriptHashTemplate p2shT)
 			{
-				var sh = p2shT.ExtractScriptPubKeyParameters(scriptPubKey);
+				var scriptId = p2shT.ExtractScriptPubKeyParameters(scriptPubKey);
 				// This will give us witness script directly in case of p2sh-p2wsh
-				if (TryGetScript(sh, out var sc))
+				if (TryGetScript(scriptId, out var sc))
 				{
+					scriptPubKey = sc;
 					pks = sc.GetAllPubKeys();
 				}
 			}
 
 			if (temp is PayToWitTemplate)
 			{
-				var wsh = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
-				if (wsh != null)
+				var witId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+				if (witId != null)
 				{
-					if (TryGetScript(wsh.ScriptPubKey.Hash, out var sc))
+					if (TryGetScript(witId.HashForLookUp, out var sc))
 						pks = sc.GetAllPubKeys();
 				}
 				var wpkh = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
@@ -129,17 +130,64 @@ namespace NBitcoin
 			return res.PrivateKey;
 		}
 		public override void SetScript(ScriptId scriptId, Script script)
-			=> Scripts.AddOrReplace(scriptId, script);
+		{
+			if (scriptId == null)
+			{
+				throw new ArgumentNullException(nameof(scriptId));
+			}
+
+			if (script == null)
+			{
+				throw new ArgumentNullException(nameof(script));
+			}
+
+			Scripts.AddOrReplace(scriptId, script);
+		}
 
 		public override void SetPubKey(KeyId keyId, PubKey pubkey)
-			=> Pubkeys.AddOrReplace(keyId, pubkey);
+		{
+			if (keyId == null)
+			{
+				throw new ArgumentNullException(nameof(keyId));
+			}
+
+			if (pubkey == null)
+			{
+				throw new ArgumentNullException(nameof(pubkey));
+			}
+
+			Pubkeys.AddOrReplace(keyId, pubkey);
+		}
 
 		public override void SetSecret(KeyId keyId, ISecret secret)
-			=> Secrets.AddOrReplace(keyId, secret);
+		{
+			if (keyId == null)
+			{
+				throw new ArgumentNullException(nameof(keyId));
+			}
+
+			if (secret == null)
+			{
+				throw new ArgumentNullException(nameof(secret));
+			}
+
+			Secrets.AddOrReplace(keyId, secret);
+		}
 
 		public override void SetKeyOrigin(KeyId keyId, RootedKeyPath keyOrigin)
-			=> KeyOrigins.AddOrReplace(keyId, keyOrigin);
+		{
+			if (keyId == null)
+			{
+				throw new ArgumentNullException(nameof(keyId));
+			}
 
+			if (keyOrigin == null)
+			{
+				throw new ArgumentNullException(nameof(keyOrigin));
+			}
+
+			KeyOrigins.AddOrReplace(keyId, keyOrigin);
+		}
 
 		public FlatSigningRepository Merge(FlatSigningRepository other)
 		{
