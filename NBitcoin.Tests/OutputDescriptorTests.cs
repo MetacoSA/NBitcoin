@@ -17,7 +17,7 @@ namespace NBitcoin.Tests
 		}
 
 
-		[Property]
+		[Property(Skip="for now")]
 		[Trait("PropertyTest", "BidirectionalConversion")]
 		public void DescriptorShouldConvertToStringBidirectionally(OutputDescriptor desc)
 		{
@@ -97,7 +97,6 @@ namespace NBitcoin.Tests
 			CheckDescriptor("sh(wsh(pk(L4rK1yDtCWekvXuE6oXD9jCYfFNV2cWRpVuPLBcCU2z8TrisoyY1)))", "sh(wsh(pk(03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd)))", SIGNABLE, new string[][] { new string[] { "a91472d0c5a3bfad8c3e7bd5303a72b94240e80b6f1787" } });
 			CheckDescriptor("sh(wsh(pkh(L4rK1yDtCWekvXuE6oXD9jCYfFNV2cWRpVuPLBcCU2z8TrisoyY1)))", "sh(wsh(pkh(03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd)))", SIGNABLE, new string[][] { new string[] { "a914b61b92e2ca21bac1e72a3ab859a742982bea960a87" }});
 
-			/*
 			// Versions with BIP32 derivations
 			CheckDescriptor("combo([01234567]xprvA1RpRA33e1JQ7ifknakTFpgNXPmW2YvmhqLQYMmrj4xJXXWYpDPS3xz7iAxn8L39njGVyuoseXzU6rcxFLJ8HFsTjSyQbLYnMpCqE2VbFWc)", "combo([01234567]xpub6ERApfZwUNrhLCkDtcHTcxd75RbzS1ed54G1LkBUHQVHQKqhMkhgbmJbZRkrgZw4koxb5JaHWkY4ALHY2grBGRjaDMzQLcgJvLJuZZvRcEL)", SIGNABLE, new string[][] { new string[] { "2102d2b36900396c9282fa14628566582f206a5dd0bcc8d5e892611806cafb0301f0ac", "76a91431a507b815593dfc51ffc7245ae7e5aee304246e88ac", "001431a507b815593dfc51ffc7245ae7e5aee304246e", "a9142aafb926eb247cb18240a7f4c07983ad1f37922687" }});
 			CheckDescriptor("pk(xprv9uPDJpEQgRQfDcW7BkF7eTya6RPxXeJCqCJGHuCJ4GiRVLzkTXBAJMu2qaMWPrS7AANYqdq6vcBcBUdJCVVFceUvJFjaPdGZ2y9WACViL4L/0)", "pk(xpub68NZiKmJWnxxS6aaHmn81bvJeTESw724CRDs6HbuccFQN9Ku14VQrADWgqbhhTHBaohPX4CjNLf9fq9MYo6oDaPPLPxSb7gwQN3ih19Zm4Y/0)", DEFAULT, new string[][] { new string[] { "210379e45b3cf75f9c5f9befd8e9506fb962f6a9d185ac87001ec44a8d3df8d4a9e3ac" }}, new uint[][] { new uint[] { 0 } });
@@ -137,7 +136,6 @@ namespace NBitcoin.Tests
 			CheckUnparsable("sh(multi(2,[00000000/111'/222]xprvA1RpRA33e1JQ7ifknakTFpgNXPmW2YvmhqLQYMmrj4xJXXWYpDPS3xz7iAxn8L39njGVyuoseXzU6rcxFLJ8HFsTjSyQbLYnMpCqE2VbFWc,xprv9uPDJpEQgRQfDcW7BkF7eTya6RPxXeJCqCJGHuCJ4GiRVLzkTXBAJMu2qaMWPrS7AANYqdq6vcBcBUdJCVVFceUvJFjaPdGZ2y9WACViL4L/0))#ggrsrxf", "sh(multi(2,[00000000/111'/222]xpub6ERApfZwUNrhLCkDtcHTcxd75RbzS1ed54G1LkBUHQVHQKqhMkhgbmJbZRkrgZw4koxb5JaHWkY4ALHY2grBGRjaDMzQLcgJvLJuZZvRcEL,xpub68NZiKmJWnxxS6aaHmn81bvJeTESw724CRDs6HbuccFQN9Ku14VQrADWgqbhhTHBaohPX4CjNLf9fq9MYo6oDaPPLPxSb7gwQN3ih19Zm4Y/0))#tjg09x5"); // Too short checksum
 			CheckUnparsable("sh(multi(3,[00000000/111'/222]xprvA1RpRA33e1JQ7ifknakTFpgNXPmW2YvmhqLQYMmrj4xJXXWYpDPS3xz7iAxn8L39njGVyuoseXzU6rcxFLJ8HFsTjSyQbLYnMpCqE2VbFWc,xprv9uPDJpEQgRQfDcW7BkF7eTya6RPxXeJCqCJGHuCJ4GiRVLzkTXBAJMu2qaMWPrS7AANYqdq6vcBcBUdJCVVFceUvJFjaPdGZ2y9WACViL4L/0))#ggrsrxfy", "sh(multi(3,[00000000/111'/222]xpub6ERApfZwUNrhLCkDtcHTcxd75RbzS1ed54G1LkBUHQVHQKqhMkhgbmJbZRkrgZw4koxb5JaHWkY4ALHY2grBGRjaDMzQLcgJvLJuZZvRcEL,xpub68NZiKmJWnxxS6aaHmn81bvJeTESw724CRDs6HbuccFQN9Ku14VQrADWgqbhhTHBaohPX4CjNLf9fq9MYo6oDaPPLPxSb7gwQN3ih19Zm4Y/0))#tjg09x5t"); // Error in payload
 			CheckUnparsable("sh(multi(2,[00000000/111'/222]xprvA1RpRA33e1JQ7ifknakTFpgNXPmW2YvmhqLQYMmrj4xJXXWYpDPS3xz7iAxn8L39njGVyuoseXzU6rcxFLJ8HFsTjSyQbLYnMpCqE2VbFWc,xprv9uPDJpEQgRQfDcW7BkF7eTya6RPxXeJCqCJGHuCJ4GiRVLzkTXBAJMu2qaMWPrS7AANYqdq6vcBcBUdJCVVFceUvJFjaPdGZ2y9WACViL4L/0))#ggssrxfy", "sh(multi(2,[00000000/111'/222]xpub6ERApfZwUNrhLCkDtcHTcxd75RbzS1ed54G1LkBUHQVHQKqhMkhgbmJbZRkrgZw4koxb5JaHWkY4ALHY2grBGRjaDMzQLcgJvLJuZZvRcEL,xpub68NZiKmJWnxxS6aaHmn81bvJeTESw724CRDs6HbuccFQN9Ku14VQrADWgqbhhTHBaohPX4CjNLf9fq9MYo6oDaPPLPxSb7gwQN3ih19Zm4Y/0))#tjq09x4t"); // Error in checksum
-			*/
 		}
 
 		const int DEFAULT = 0;
@@ -152,8 +150,8 @@ namespace NBitcoin.Tests
 			var keysPriv = new FlatSigningRepository();
 			var keysPub = new FlatSigningRepository();
 
-			Assert.True(OutputDescriptor.TryParse(MaybeUseHInsteadOfApostrophe(pub), out var parsePub, false, keysPub));
-			Assert.True(OutputDescriptor.TryParse(MaybeUseHInsteadOfApostrophe(priv), out var parsePriv, false, keysPriv));
+			var parsePriv = OutputDescriptor.Parse(MaybeUseHInsteadOfApostrophe(priv), false, keysPriv);
+			var parsePub = OutputDescriptor.Parse(MaybeUseHInsteadOfApostrophe(pub), false, keysPub);
 
 			// 1. Check private keys are extracted from the private version but not the public one.
 			Assert.True(keysPriv.Secrets.Count > 0);
@@ -173,9 +171,50 @@ namespace NBitcoin.Tests
 			Assert.True(EqualDescriptorStr(priv, priv1));
 			Assert.False(parsePub.TryGetPrivateString(keysPub, out priv1));
 
-			/// Check that `IsRange()` on both returns the expected result.
+			// Check that `IsRange()` on both returns the expected result.
 			Assert.Equal(parsePub.IsRange(), (flags & RANGE) != 0);
 			Assert.Equal(parsePriv.IsRange(), (flags & RANGE) != 0);
+
+			// * For ranged descriptors,  the `scripts` parameter is a list of expected result outputs, for subsequent
+			//   positions to evaluate the descriptors on (so the first element of `scripts` is for evaluating the
+			//   descriptor at 0; the second at 1; and so on). To verify this, we evaluate the descriptors once for
+			//   each element in `scripts`.
+			// * For non-ranged descriptors, we evaluate the descriptors at positions 0, 1, and 2, but expect the
+			//   same result in each case, namely the first element of `scripts`. Because of that, the size of
+			//   `scripts` must be one in that case
+			bool isRange = (flags & RANGE) > 0;
+			if (!isRange) Assert.Equal(scripts.Length, 1);
+			var max = isRange ? scripts.Length : 3;
+
+			for (int i = 0; i < max; ++i)
+			{
+				var expectedScript = scripts[isRange ? i : 0];
+				for (int t = 0; t < 2; ++t)
+				{
+					bool isHardend = (flags & HARDENED) != 0;
+					var keyProvider = isHardend ? keysPriv : keysPub;
+
+					Console.WriteLine($"T: {t}\n parsePriv: {parsePriv}\nparsePub: {parsePub}\n");
+					Assert.True((t != 0 ? parsePriv : parsePub).TryExpand((uint)i, keyProvider.GetPrivateKey, out var repo, out var spks));
+					Assert.Equal(spks.Count, expectedScript.Length);
+
+					for (int n = 0; n < spks.Count; ++n)
+					{
+						Console.WriteLine($"Checking Expected {expectedScript[n]}\nSpk: {spks[n].ToHex()}\n n:{n}");
+						Assert.Equal(expectedScript[n], spks[n].ToHex());
+						var merged = keysPriv.Merge(repo);
+						if ((flags & UNSOLVABLE) == 0)
+							Assert.True(merged.IsSolvable(spks[n]), $"{spks[n].ToString()}\nMust be solvable");
+						else
+							Assert.False(merged.IsSolvable(spks[n]), $"{spks[n].ToString()}\nMust be unsolvable");
+
+						if ((flags & SIGNABLE) != 0)
+						{
+							// TODO: check signability using TxBuilder
+						}
+					}
+				}
+			}
 		}
 
 		private void CheckUnparsable(string prv, string pub)
@@ -187,7 +226,7 @@ namespace NBitcoin.Tests
 			Assert.False(isSuccessPriv, prv);
 			Assert.False(isSuccessPub, pub);
 
-			// same will hold even when do not give repository.
+			// same will hold even when we do not give repository.
 			var isSuccessPrivWithoutRepo = OutputDescriptor.TryParse(prv, out var resultPrv2);
 			var isSuccessPubWithoutRepo = OutputDescriptor.TryParse(prv, out var resultPub2);
 			Assert.False(isSuccessPrivWithoutRepo, prv);

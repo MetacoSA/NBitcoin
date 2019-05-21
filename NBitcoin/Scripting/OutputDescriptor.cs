@@ -160,20 +160,48 @@ namespace NBitcoin.Scripting
 		#endregion
 
 		#region Descriptor specific things
+		/// <summary>
+		/// Expand descriptor into actual scriptPubKeys.
+		/// TODO: cache
+		/// </summary>
+		/// <param name="pos">position index to expand</param>
+		/// <param name="privateKeyProvider">provider to inject private keys in case of hardened derivation</param>
+		/// <param name="outputScripts">resulted scriptPubKey</param>
+		/// <returns></returns>
 		public bool TryExpand(
 			uint pos,
-			Func<KeyId, ISecret> secretProvider,
-			ISigningRepository signingProvider,
+			Func<KeyId, Key> privateKeyProvider,
+			out FlatSigningRepository repo,
 			out List<Script> outputScripts
 			)
 		{
 			outputScripts = new List<Script>();
-			return TryExpand(pos, secretProvider, signingProvider, outputScripts);
+			repo = new FlatSigningRepository();
+			if (!TryExpand(pos, privateKeyProvider, repo, outputScripts))
+				return false;
+			foreach (var sc in outputScripts)
+				repo.SetScript(sc.Hash, sc);
+			return true;
+		}
+
+		private bool ExpandPkHelper(
+			PubKeyProvider pkP,
+			Func<KeyId, Key> privateKeyProvider,
+			uint pos,
+			FlatSigningRepository repo,
+			List<Script> outSc)
+		{
+			if (!pkP.TryGetPubKey(pos, privateKeyProvider, out var keyOrigin1, out var pubkey1))
+				return false;
+			repo.SetKeyOrigin(pubkey1.Hash, keyOrigin1);
+			repo.SetPubKey(pubkey1.Hash, pubkey1);
+			outSc.AddRange(MakeScripts(pubkey1));
+			return true;
 		}
 		private bool TryExpand(
 			uint pos,
-			Func<KeyId, ISecret> secretProvider,
-			ISigningRepository signingProvider,
+			Func<KeyId, Key> privateKeyProvider,
+			FlatSigningRepository repo,
 			List<Script> outputScripts
 			)
 		{
@@ -184,44 +212,41 @@ namespace NBitcoin.Scripting
 				case RawDescriptor self:
 					break;
 				case PKDescriptor self:
-					if (!self.PkProvider.TryGetPubKey(pos, out var keyOrigin1, out var pubkey1))
-						return false;
-					outputScripts.AddRange(MakeScripts(pubkey1));
-					return true;
+					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
 				case PKHDescriptor self:
-					if (!self.PkProvider.TryGetPubKey(pos, out var keyOrigin2, out var pubkey2))
-						return false;
-					outputScripts.AddRange(MakeScripts(pubkey2));
-					return true;
+					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
 				case WPKHDescriptor self:
-					if (!self.PkProvider.TryGetPubKey(pos, out var keyOrigin3, out var pubkey3))
-						return false;
-					outputScripts.AddRange(MakeScripts(pubkey3));
-					return true;
+					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
 				case ComboDescriptor self:
-					if (!self.PkProvider.TryGetPubKey(pos, out var keyOrigin4, out var pubkey4))
-						return false;
-					outputScripts.AddRange(MakeScripts(pubkey4));
-					return true;
+					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
 				case MultisigDescriptor self:
-					var multiSigPKs = new List<PubKey>();
-					foreach (var pkProvider in self.PkProviders)
+					// prepare temporary objects so that it won't affect the result in case
+					// it fails in the middle.
+					var tmpRepo = new FlatSigningRepository();
+					var keys = new PubKey[self.PkProviders.Count];
+					for (int i = 0; i < self.PkProviders.Count; ++i)
 					{
-						if (!pkProvider.TryGetPubKey(pos, out var keyOrigin5, out var pubkey5))
+						var pkP = self.PkProviders[i];
+						if (!pkP.TryGetPubKey(pos, privateKeyProvider, out var keyOrigin1, out var pubkey1))
 							return false;
-						multiSigPKs.Add(pubkey5);
+						tmpRepo.SetKeyOrigin(pubkey1.Hash, keyOrigin1);
+						tmpRepo.SetPubKey(pubkey1.Hash, pubkey1);
+						keys[i] = pubkey1;
 					}
-					outputScripts.AddRange(multiSigPKs.SelectMany(pk => MakeScripts(pk)));
+					repo = repo.Merge(tmpRepo);
+					outputScripts.Add(PayToMultiSigTemplate.Instance.GenerateScriptPubKey((int)self.Threshold, keys));
 					return true;
 				case SHDescriptor self:
-					if (!self.Inner.TryExpand(pos, secretProvider, signingProvider, out var shInnerResult))
+					if (!self.Inner.TryExpand(pos, privateKeyProvider, out var subRepo1, out var shInnerResult))
 						return false;
+					repo = repo.Merge(subRepo1);
 					outputScripts.AddRange(shInnerResult.Select(innerSc => innerSc.Hash.ScriptPubKey));
 					return true;
 				case WSHDescriptor self:
-					if (!self.Inner.TryExpand(pos, secretProvider, signingProvider, out var wshInnerResult))
+					if (!self.Inner.TryExpand(pos, privateKeyProvider, out var subRepo2, out var wshInnerResult))
 						return false;
-					outputScripts.AddRange(wshInnerResult.Select(innerSc => innerSc.Hash.ScriptPubKey));
+					repo = repo.Merge(subRepo2);
+					outputScripts.AddRange(wshInnerResult.Select(innerSc => innerSc.WitHash.ScriptPubKey));
 					return true;
 			}
 			throw new Exception("Unreachable");
@@ -242,13 +267,17 @@ namespace NBitcoin.Scripting
 				case WPKHDescriptor self:
 					return new List<Script>() { key.WitHash.ScriptPubKey };
 				case ComboDescriptor self:
-					return new List<Script>()
+					var res = new List<Script>()
 					{
 						key.ScriptPubKey,
 						key.Hash.ScriptPubKey,
-						key.WitHash.ScriptPubKey,
-						key.WitHash.ScriptPubKey.Hash.ScriptPubKey
 					};
+					if (key.IsCompressed)
+					{
+						res.Add(key.WitHash.ScriptPubKey);
+						res.Add(key.WitHash.ScriptPubKey.Hash.ScriptPubKey);
+					}
+					return res;
 			}
 
 			throw new Exception("Unreachable");
@@ -294,6 +323,83 @@ namespace NBitcoin.Scripting
 					return self.Inner.IsRange();
 			}
 			throw new Exception("Unreachable");
+		}
+
+		public enum ScriptContext
+		{
+			TOP,
+			P2SH,
+			P2WSH
+		}
+
+		private static PubKeyProvider InferPubKey(PubKey pk, ISigningRepository repo,ScriptContext ctx)
+		{
+			var keyProvider = PubKeyProvider.NewConst(pk);
+			if (repo.TryGetKeyOrigin(pk.Hash, out var keyOrigin))
+			{
+				return PubKeyProvider.NewOrigin(keyOrigin, keyProvider);
+			}
+			return keyProvider;
+		}
+
+		public static OutputDescriptor InferFromScript(Script sc, ISigningRepository repo, ScriptContext ctx = ScriptContext.TOP)
+		{
+			var template = sc.FindTemplate();
+			if (template is PayToPubkeyTemplate p2pkTemplate)
+			{
+				var pk = p2pkTemplate.ExtractScriptPubKeyParameters(sc);
+				return OutputDescriptor.NewPK(InferPubKey(pk, repo, ctx));
+			}
+			if (template is PayToPubkeyHashTemplate p2pkhTemplate)
+			{
+				var pkHash = p2pkhTemplate.ExtractScriptPubKeyParameters(sc);
+				if (repo.TryGetPubKey(pkHash, out var pk))
+					return OutputDescriptor.NewPKH(InferPubKey(pk, repo, ctx));
+			}
+			if (template is PayToWitPubKeyHashTemplate p2wpkhTemplate && ctx != ScriptContext.P2WSH)
+			{
+				var witKeyId = p2wpkhTemplate.ExtractScriptPubKeyParameters(sc);
+				if (repo.TryGetPubKey(witKeyId.AsKeyId(), out var pk))
+					return OutputDescriptor.NewWPKH(InferPubKey(pk, repo, ctx));
+			}
+			if (template is PayToMultiSigTemplate p2MultiSigTemplate)
+			{
+				var providers = new List<PubKeyProvider>();
+				var data = p2MultiSigTemplate.ExtractScriptPubKeyParameters(sc);
+				foreach (var pk in data.PubKeys)
+				{
+					providers.Add(InferPubKey(pk, repo, ctx));
+				}
+				return OutputDescriptor.NewMulti((uint)data.SignatureCount, providers);
+			}
+			if (template is PayToScriptHashTemplate p2shTemplate && ctx == ScriptContext.TOP)
+			{
+				var scriptId = p2shTemplate.ExtractScriptPubKeyParameters(sc);
+				if (repo.TryGetScript(scriptId, out var nextScript))
+				{
+					var sub = InferFromScript(nextScript, repo, ScriptContext.P2SH);
+					return OutputDescriptor.NewSH(sub);
+				}
+			}
+			if (template is PayToWitScriptHashTemplate p2wshTemplate && ctx != ScriptContext.P2WSH)
+			{
+				var witScriptId = p2wshTemplate.ExtractScriptPubKeyParameters(sc);
+				if (repo.TryGetScript(witScriptId.ScriptPubKey.Hash, out var nextScript))
+				{
+					var sub = InferFromScript(sc, repo, ScriptContext.P2WSH);
+					return OutputDescriptor.NewWSH(sub);
+				}
+			}
+
+			// Incase of unknown witness Output, we recover it to AddressDescriptor, 
+			// Otherwise, RawDescriptor.
+			if (template is PayToWitTemplate unknownWitnessTemplate)
+			{
+				var dest = unknownWitnessTemplate.ExtractScriptPubKeyParameters(sc);
+				return OutputDescriptor.NewAddr(dest);
+			}
+
+			return OutputDescriptor.NewRaw(sc);
 		}
 
 		#endregion

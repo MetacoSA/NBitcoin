@@ -45,6 +45,10 @@ namespace NBitcoin
 		{
 		}
 
+		public BitcoinExtKey(BitcoinExtPubKey bitcoinExtPubKey, Key key)
+			: base(new ExtKey(bitcoinExtPubKey.ExtPubKey, key), bitcoinExtPubKey.Network)
+		{}
+
 		/// <summary>
 		/// Gets whether the data is the correct expected length.
 		/// </summary>

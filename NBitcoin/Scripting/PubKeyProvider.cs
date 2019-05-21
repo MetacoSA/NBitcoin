@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using NBitcoin.BuilderExtensions;
 
@@ -96,6 +97,18 @@ namespace NBitcoin.Scripting
 				if (Derive == DeriveType.HARDENED) return true;
 				return Path.IsHardenedPath;
 			}
+
+			internal bool TryGetExtKey(Func<KeyId, Key> privateKeyProvider, out BitcoinExtKey extKey)
+			{
+				extKey = null;
+				if (privateKeyProvider == null)
+					return false;
+				var privKey = privateKeyProvider(this.Extkey.ExtPubKey.PubKey.Hash);
+				if (privKey == null)
+					return false;
+				extKey = new BitcoinExtKey(Extkey, privKey);
+				return true;
+			}
 		}
 
 		public static PubKeyProvider NewOrigin(RootedKeyPath keyOrigin, PubKeyProvider inner) =>
@@ -112,36 +125,82 @@ namespace NBitcoin.Scripting
 
 		#endregion
 
-		public PubKey GetPubKey(uint pos)
-			=> GetPubKey(pos, out var _);
-		public PubKey GetPubKey(uint pos, out RootedKeyPath keyOriginInfo)
+		public PubKey GetPubKey(uint pos, Func<KeyId, Key> privateKeyProvider)
+			=> GetPubKey(pos, privateKeyProvider, out var _);
+		public PubKey GetPubKey(uint pos, Func<KeyId, Key> privateKeyProvider, out RootedKeyPath keyOriginInfo)
 		{
-			if (!this.TryGetPubKey(pos, out keyOriginInfo, out var result))
+			if (!this.TryGetPubKey(pos, privateKeyProvider, out keyOriginInfo, out var result))
 				throw new InvalidOperationException($"Failed to get pubkey for {this} .Position: {pos}");
 			return result;
 		}
-		public bool TryGetPubKey(uint pos, out RootedKeyPath keyOriginInfo, out PubKey pubkey)
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="pos"></param>
+		/// <param name="privateKeyProvider">In case of the hardend derivation.
+		/// You must give private key by this to derive child</param>
+		/// <param name="keyOriginInfo"></param>
+		/// <param name="pubkey"></param>
+		/// <returns></returns>
+		public bool TryGetPubKey(uint pos, Func<KeyId, Key> privateKeyProvider, out RootedKeyPath keyOriginInfo, out PubKey pubkey)
 		{
 			pubkey = null;
 			keyOriginInfo = null;
 			switch (this)
 			{
 				case OriginPubKeyProvider self:
-					if (!self.Inner.TryGetPubKey(pos, out keyOriginInfo, out pubkey))
+					if (!self.Inner.TryGetPubKey(pos, privateKeyProvider, out var subKeyOriginInfo, out pubkey))
 						return false;
-					keyOriginInfo = self.KeyOriginInfo;
+					if (subKeyOriginInfo != null)
+					{
+						keyOriginInfo = new RootedKeyPath(
+							self.KeyOriginInfo.MasterFingerprint,
+							new KeyPath(self.KeyOriginInfo.KeyPath.Indexes.Concat(subKeyOriginInfo.KeyPath.Indexes).ToArray())
+							);
+					}
+					else
+					{
+						keyOriginInfo = self.KeyOriginInfo;
+					}
 					return true;
 				case ConstPubKeyProvider self:
 					pubkey = self.Pk;
 					return true;
 				case HDPubKeyProvider self:
-					var keyid = self.Extkey.ExtPubKey.PubKey.Hash;
+					// 1. Derive PublicKey
+					if (self.IsHardened())
+					{
+						if (!self.TryGetExtKey(privateKeyProvider, out var extkey))
+							return false;
+						extkey = extkey.Derive(self.Path);
+						if (self.Derive == DeriveType.UNHARDENED)
+							extkey = extkey.Derive(pos);
+						if (self.Derive == DeriveType.HARDENED)
+							extkey = extkey.Derive(pos | 0x80000000);
+						pubkey = extkey.Neuter().ExtPubKey.PubKey;
+					} else
+					{
+						var extkey = new BitcoinExtPubKey(self.Extkey.ToString());
+						extkey = extkey.Derive(self.Path);
+						if (self.Derive == DeriveType.UNHARDENED)
+							extkey = extkey.Derive(pos);
+						Debug.Assert(self.Derive != DeriveType.HARDENED);
+						pubkey = extkey.ExtPubKey.PubKey;
+					}
+					// 2. get a relative keypath. assuming masterFingerPrint is not of real "master key"
+					// but of xpub which this provider holds.
+					var keyId = self.Extkey.ExtPubKey.PubKey.Hash;
+					var index = new uint[self.Path.Indexes.Length + 1];
+					self.Path.Indexes.CopyTo(index, 0);
 					if (self.Derive == DeriveType.HARDENED)
-						pos = pos | 0x80000000;
-					var newPath = new KeyPath(self.Path.Indexes.Concat(new []{pos}).ToArray());
+						index[self.Path.Indexes.Length] = pos | 0x8000000;
+					if (self.Derive == DeriveType.UNHARDENED)
+						index[self.Path.Indexes.Length] = pos;
+
 					keyOriginInfo = new RootedKeyPath(
-						HDFingerprint.FromKeyId(keyid),
-						newPath
+						HDFingerprint.FromKeyId(keyId),
+						new KeyPath(index)
 						);
 					return true;
 
