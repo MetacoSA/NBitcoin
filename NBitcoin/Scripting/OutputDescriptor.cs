@@ -26,8 +26,8 @@ namespace NBitcoin.Scripting
 
 		public class AddressDescriptor : OutputDescriptor
 		{
-			public BitcoinAddress Address { get; }
-			public AddressDescriptor(BitcoinAddress address) : base(Tags.AddressDescriptor)
+			public IDestination Address { get; }
+			public AddressDescriptor(IDestination address) : base(Tags.AddressDescriptor)
 			{
 				if (address == null)
 					throw new ArgumentNullException(nameof(address));
@@ -133,7 +133,7 @@ namespace NBitcoin.Scripting
 			Tag = tag;
 		}
 
-		public static OutputDescriptor NewAddr(BitcoinAddress addr) => new AddressDescriptor(addr);
+		public static OutputDescriptor NewAddr(IDestination dest) => new AddressDescriptor(dest);
 		public static OutputDescriptor NewRaw(Script sc) => new RawDescriptor(sc);
 		public static OutputDescriptor NewPK(PubKeyProvider pk) => new PKDescriptor(pk);
 		public static OutputDescriptor NewPKH(PubKeyProvider pk) => new PKHDescriptor(pk);
@@ -523,7 +523,7 @@ namespace NBitcoin.Scripting
 					return "";
 				c = PolyMod(c, pos & 31);
 				cls = cls * 3 + (pos >> 5);
-				if (clscount++ == 3)
+				if (++clscount == 3)
 				{
 					c = PolyMod(c, cls);
 					cls = 0;
@@ -531,10 +531,10 @@ namespace NBitcoin.Scripting
 				}
 			}
 			if (clscount > 0) c = PolyMod(c, cls);
-			for (int j = 0; j < 8; j++) c = PolyMod(c, 0);
+			for (int j = 0; j < 8; ++j) c = PolyMod(c, 0);
 			c ^= 1;
 			var result = new char[8];
-			for (int j = 0; j < 8; j++)
+			for (int j = 0; j < 8; ++j)
 			{
 				result[j] = CHECKSUM_CHARSET[(c >> (5 * (7 - j))) & 31];
 			}
