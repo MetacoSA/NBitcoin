@@ -48,19 +48,23 @@ namespace NBitcoin.Tests.Generators
 			from pkProviders in Gen.NonEmptyListOf(PubKeyProviderGen())
 			select OutputDescriptor.NewMulti(m, pkProviders);
 
-		private static Gen<OutputDescriptor> InnerOutputDescriptorGen() =>
+		private static Gen<OutputDescriptor> WSHInnerGen() =>
 			Gen.OneOf(
 				PKOutputDescriptorGen(),
 				PKHOutputDescriptorGen(),
-				WPKHOutputDescriptorGen(),
 				MultisigOutputDescriptorGen()
+				);
+		private static Gen<OutputDescriptor> InnerOutputDescriptorGen() =>
+			Gen.OneOf(
+				WPKHOutputDescriptorGen(),
+				WSHInnerGen()
 				);
 		private static Gen<OutputDescriptor> SHOutputDescriptorGen() =>
 			from inner in Gen.OneOf(InnerOutputDescriptorGen(), WSHOutputDescriptorGen())
 			select OutputDescriptor.NewSH(inner);
 
 		private static Gen<OutputDescriptor> WSHOutputDescriptorGen() =>
-			from inner in InnerOutputDescriptorGen()
+			from inner in WSHInnerGen()
 			select OutputDescriptor.NewWSH(inner);
 
 		#region pubkey providers
