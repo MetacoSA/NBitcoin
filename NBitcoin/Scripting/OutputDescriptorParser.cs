@@ -183,18 +183,18 @@ namespace NBitcoin.Scripting
 		}
 
 	private static P PExprHelper<T>(
-			string name,
+			Parser<char, string> PName,
 			Parser<char, T> pInner,
 			Func<T, OutputDescriptor> constructor
 			) =>
-			from _n in Parse.String(name)
+			from _n in PName
 			from _l in Parse.Char('(')
 			from item in pInner
 			from _r in Parse.Char(')')
 			select constructor(item);
 
 		private static P PPKHelper(string name, Func<PubKeyProvider, OutputDescriptor> constructor, ISigningRepository repo, bool onlyCompressed) =>
-			PExprHelper<PubKeyProvider>(name, PPubKeyProvider(repo, onlyCompressed), constructor);
+			PExprHelper<PubKeyProvider>(Parse.String(name).Text(), PPubKeyProvider(repo, onlyCompressed), constructor);
 
 		internal static P PPK(ISigningRepository repo, bool onlyCompressed = false) =>
 			PPKHelper("pk", OutputDescriptor.NewPK, repo, onlyCompressed);
@@ -208,23 +208,29 @@ namespace NBitcoin.Scripting
 		internal static P PCombo(ISigningRepository repo, bool onlyCompressed = false) =>
 			PPKHelper("combo", OutputDescriptor.NewCombo, repo, onlyCompressed);
 
-		internal static P PMulti(ISigningRepository repo, bool onlyCompressed) =>
+		internal static P PMulti(ISigningRepository repo, bool onlyCompressed, uint? maxN = null) =>
 			from _name in Parse.String("multi")
 			from _l in Parse.Char('(')
 			from m in Parse.Digit.XMany().Text().Then(d => Parse.TryConvert(d, UInt32.Parse))
 			from _c in Parse.Char(',')
 			from pkProviders in PPubKeyProvider(repo, false).DelimitedBy(Parse.Char(',').Token())
 			from _r in Parse.Char(')')
+			where !maxN.HasValue || pkProviders.Count() <= maxN
 			select OutputDescriptor.NewMulti(m, pkProviders);
 
 
-		internal static P PInner(ISigningRepository repo, bool onlyCompressed = false) =>
-			PPK(repo, onlyCompressed).Or(PPKH(repo, onlyCompressed)).Or(PWPKH(repo)).Or(PMulti(repo, onlyCompressed));
+		internal static P PWSHInner(ISigningRepository repo, bool onlyCompressed = false, uint? maxMultisigKeyN = null) =>
+			PPK(repo, onlyCompressed)
+				.Or(PPKH(repo, onlyCompressed))
+				.Or(PMulti(repo, onlyCompressed, maxMultisigKeyN));
+		internal static P PInner(ISigningRepository repo, bool onlyCompressed = false, uint? maxMultisigKeyN = null) =>
+			PWSHInner(repo, onlyCompressed, maxMultisigKeyN)
+				.Or(PWPKH(repo));
 
 		internal static P PWSH(ISigningRepository repo) =>
-			PExprHelper("wsh", PInner(repo, true), OutputDescriptor.NewWSH);
+			PExprHelper(Parse.String("wsh").Text(), PWSHInner(repo, true), OutputDescriptor.NewWSH);
 		internal static P PSH(ISigningRepository repo) =>
-			PExprHelper("sh", PInner(repo).Or(PWSH(repo)), OutputDescriptor.NewSH);
+			PExprHelper((Parse.String("sh").Text()).Except(Parse.String("wsh")), PInner(repo, false, 15).Or(PWSH(repo)), OutputDescriptor.NewSH);
 
 		internal static P POutputDescriptor(ISigningRepository repo) =>
 			PAddr
@@ -262,7 +268,7 @@ namespace NBitcoin.Scripting
 				var realCheckSum = OutputDescriptor.GetCheckSum(str);
 				if (realCheckSum != checkSplit[1])
 				{
-					whyFailure = "CheckSum mismatch";
+					whyFailure = $"CheckSum mismatch. Expected: {checkSplit[1]}; Actual: {realCheckSum}";
 					return false;
 				}
 			}

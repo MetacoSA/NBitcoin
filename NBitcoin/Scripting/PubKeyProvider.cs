@@ -83,7 +83,7 @@ namespace NBitcoin.Scripting
 
 			internal string GetPathString()
 			{
-				var path = $"/{Path.ToString()}";
+				var path = Path == KeyPath.Empty ? "" : $"/{Path.ToString()}";
 				if (IsRange())
 					path += "/*";
 				if (Derive == DeriveType.HARDENED)
