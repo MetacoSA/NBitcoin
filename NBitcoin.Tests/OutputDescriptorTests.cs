@@ -17,7 +17,7 @@ namespace NBitcoin.Tests
 		}
 
 
-		[Property(Skip="for now")]
+		[Property(MaxTest=50)]
 		[Trait("PropertyTest", "BidirectionalConversion")]
 		public void DescriptorShouldConvertToStringBidirectionally(OutputDescriptor desc)
 		{
