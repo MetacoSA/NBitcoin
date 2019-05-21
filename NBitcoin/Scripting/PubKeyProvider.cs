@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using NBitcoin.BuilderExtensions;
@@ -191,16 +192,15 @@ namespace NBitcoin.Scripting
 					// 2. get a relative keypath. assuming masterFingerPrint is not of real "master key"
 					// but of xpub which this provider holds.
 					var keyId = self.Extkey.ExtPubKey.PubKey.Hash;
-					var index = new uint[self.Path.Indexes.Length + 1];
-					self.Path.Indexes.CopyTo(index, 0);
+					var index = new List<uint>(self.Path.Indexes);
 					if (self.Derive == DeriveType.HARDENED)
-						index[self.Path.Indexes.Length] = pos | 0x8000000;
+						index.Add(pos | 0x80000000);
 					if (self.Derive == DeriveType.UNHARDENED)
-						index[self.Path.Indexes.Length] = pos;
+						index.Add(pos);
 
 					keyOriginInfo = new RootedKeyPath(
 						HDFingerprint.FromKeyId(keyId),
-						new KeyPath(index)
+						new KeyPath(index.ToArray())
 						);
 					return true;
 

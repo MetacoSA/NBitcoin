@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FsCheck;
 using FsCheck.Xunit;
 using NBitcoin.Scripting;
@@ -194,13 +195,11 @@ namespace NBitcoin.Tests
 					bool isHardend = (flags & HARDENED) != 0;
 					var keyProvider = isHardend ? keysPriv : keysPub;
 
-					Console.WriteLine($"T: {t}\n parsePriv: {parsePriv}\nparsePub: {parsePub}\n");
 					Assert.True((t != 0 ? parsePriv : parsePub).TryExpand((uint)i, keyProvider.GetPrivateKey, out var scriptProvider, out var spks));
 					Assert.Equal(spks.Count, expectedScript.Length);
 
 					for (int n = 0; n < spks.Count; ++n)
 					{
-						Console.WriteLine($"Checking Expected {expectedScript[n]}\nSpk: {spks[n].ToHex()}\n n:{n}");
 						Assert.Equal(expectedScript[n], spks[n].ToHex());
 						var merged = keysPriv.Merge(scriptProvider);
 						if ((flags & UNSOLVABLE) == 0)
@@ -213,8 +212,22 @@ namespace NBitcoin.Tests
 							// TODO: check signability using TxBuilder
 						}
 						var inferred = OutputDescriptor.InferFromScript(spks[n], scriptProvider);
-						Console.WriteLine($"Inferfed OD is {inferred}");
 						Assert.Equal(((flags & UNSOLVABLE) == 0), inferred.IsSolvable());
+						Func<KeyId, Key> dummyKeyProvider = (keyId) => null;
+						Assert.True(inferred.TryExpand(0, dummyKeyProvider, out var providerInferred, out var spksInferred));
+						Assert.Single(spksInferred);
+						Assert.Equal(spksInferred[0], spks[n]);
+						Assert.Equal(((flags & UNSOLVABLE) == 0), providerInferred.IsSolvable(spksInferred[0]));
+						Assert.Equal(providerInferred.KeyOrigins, scriptProvider.KeyOrigins);
+					}
+
+					if (pathIndex != null)
+					{
+						var rootedKPs = scriptProvider.KeyOrigins.Values.ToArray();
+						foreach (var rootedKP in rootedKPs)
+						{
+							Assert.Contains(pathIndex, p => p.SequenceEqual(rootedKP.KeyPath.Indexes));
+						}
 					}
 				}
 			}

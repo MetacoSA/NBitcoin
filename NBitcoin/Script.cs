@@ -680,17 +680,6 @@ namespace NBitcoin
 		}
 
 
-		/// <summary>
-		/// We want to use 
-		/// </summary>
-		public ScriptId _HashForLookUp;
-		public ScriptId HashForLookUp 
-		{
-			get{
-				return _HashForLookUp ?? (_HashForLookUp = new ScriptId(new uint160(Hashes.RIPEMD160(this.ToBytes()))));
-			}
-		}
-
 		public BitcoinScriptAddress GetScriptAddress(Network network)
 		{
 			return (BitcoinScriptAddress)Hash.GetAddress(network);
