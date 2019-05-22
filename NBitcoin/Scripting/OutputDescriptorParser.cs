@@ -1,6 +1,5 @@
 using System;
 using NBitcoin.Scripting.Parser;
-using static NBitcoin.Scripting.MiniscriptDSLParser;
 using static NBitcoin.Scripting.PubKeyProvider;
 using static NBitcoin.Scripting.ParserUtil;
 using System.Linq;
