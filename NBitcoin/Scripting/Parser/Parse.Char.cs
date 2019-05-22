@@ -96,7 +96,7 @@ namespace NBitcoin.Scripting.Parser
 		{
 			return characters.Select(chs => new string(chs.ToArray()));
 		}
-		
+
 		/// <summary>
 		/// Parse a number.
 		/// </summary>
