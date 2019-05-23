@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System;
+using System.Collections;
 
 namespace NBitcoin.Scripting.Parser
 {
@@ -30,6 +31,16 @@ namespace NBitcoin.Scripting.Parser
 			if (AtEnd)
 				throw new InvalidOperationException("The input is already at the end of the source");
 			return new ScriptInput(Source, Position + 1);
+		}
+
+		public IEnumerator<ScriptToken> GetEnumerator()
+		{
+			throw new NotImplementedException();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return this.Source.GetEnumerator();
 		}
 
 		public IDictionary<object, object> Memos { get; }
