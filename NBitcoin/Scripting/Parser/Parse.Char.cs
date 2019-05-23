@@ -106,7 +106,7 @@ namespace NBitcoin.Scripting.Parser
 		{
 			return from nothing in Return<char, string>("")
 					   // dummy so that CultureInfo.CurrentCulture is evaluated later
-				   from dot in String((ci ?? CultureInfo.CurrentCulture).NumberFormat.NumberDecimalSeparator).Text()
+				   from dot in String((ci ?? CultureInfo.InvariantCulture).NumberFormat.NumberDecimalSeparator).Text()
 				   from fraction in Number
 				   select dot + fraction;
 		}
@@ -117,15 +117,9 @@ namespace NBitcoin.Scripting.Parser
 		}
 
 		/// <summary>
-		/// Parse a decimal number using the current culture's separator character.
-		/// </summary>
-		public static readonly Parser<char, string> Decimal = DecimalWithLeadingDigits().XOr(DecimalWithoutLeadingDigits());
-
-		/// <summary>
 		/// Parse a decimal number with separator '.'.
 		/// </summary>
-		public static readonly Parser<char, string> DecimalInvariant = DecimalWithLeadingDigits(CultureInfo.InvariantCulture)
-																	 .XOr(DecimalWithoutLeadingDigits(CultureInfo.InvariantCulture));
-
+		public static readonly Parser<char, string> Decimal = DecimalWithLeadingDigits()
+																	 .XOr(DecimalWithoutLeadingDigits());
 	}
 }
