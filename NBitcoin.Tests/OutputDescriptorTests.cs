@@ -154,14 +154,7 @@ namespace NBitcoin.Tests
 		{
 			var keysPriv = new FlatSigningRepository();
 			var keysPub = new FlatSigningRepository();
-
-			HashSet<uint[]> paths;
-			HashSet<uint[]> leftPaths;
-			if (pathIndex != null)
-			{
-				paths = new HashSet<uint[]>(pathIndex);
-				leftPaths = new HashSet<uint[]>(pathIndex);
-			}
+			var leftPath = pathIndex;
 
 			var parsePriv = OutputDescriptor.Parse(MaybeUseHInsteadOfApostrophe(priv), false, keysPriv);
 			var parsePub = OutputDescriptor.Parse(MaybeUseHInsteadOfApostrophe(pub), false, keysPub);
@@ -245,18 +238,21 @@ namespace NBitcoin.Tests
 
 					if (pathIndex != null)
 					{
-						// Console.WriteLine($"prv: {priv}, pub: {pub}");
 						var rootedKPs = scriptProvider.KeyOrigins.Values.ToArray();
 						foreach (var rootedKP in rootedKPs)
 						{
-							//Console.WriteLine($"Path indexes are");
-							// foreach (var p in pathIndex)
-								// Console.WriteLine($"{new KeyPath(p)}");
 							Assert.Contains(pathIndex, p => p.SequenceEqual(rootedKP.KeyPath.Indexes));
-							// pathIndex = pathIndex.Where(p => !p.SequenceEqual(rootedKP.KeyPath.Indexes)).ToArray();
+							leftPath = leftPath.Where(p => !p.SequenceEqual(rootedKP.KeyPath.Indexes)).ToArray();
 						}
 					}
 				}
+			}
+			if (leftPath != null && leftPath.Length != 0)
+			{
+				Console.WriteLine("Left path is");
+				foreach (var p in pathIndex)
+					Console.WriteLine($"{new KeyPath(p)}");
+				throw new Exception("leftPath should be null");
 			}
 		}
 
