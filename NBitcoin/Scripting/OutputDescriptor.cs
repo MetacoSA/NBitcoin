@@ -178,9 +178,7 @@ namespace NBitcoin.Scripting
 		{
 			outputScripts = new List<Script>();
 			repo = new FlatSigningRepository();
-			if (!TryExpand(pos, privateKeyProvider, repo, outputScripts))
-				return false;
-			return true;
+			return TryExpand(pos, privateKeyProvider, repo, outputScripts);
 		}
 
 		private bool ExpandPkHelper(
@@ -519,11 +517,7 @@ namespace NBitcoin.Scripting
 			=> OutputDescriptorParser.ParseOD(desc, requireCheckSum, repo);
 
 		public static bool TryParse(string desc, out OutputDescriptor result, bool requireCheckSum = false, ISigningRepository repo = null)
-		{
-			if (!OutputDescriptorParser.TryParseOD(desc, out result, requireCheckSum, repo))
-				return false;
-			return true;
-		}
+			=> OutputDescriptorParser.TryParseOD(desc, out result, requireCheckSum, repo);
 
 		#endregion
 
