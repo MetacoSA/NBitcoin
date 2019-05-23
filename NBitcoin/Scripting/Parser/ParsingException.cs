@@ -19,7 +19,7 @@ namespace NBitcoin.Scripting.Parser
 		public ParsingException(string message) : base(message) { }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ParseException" /> class with a specified error message
+		/// Initializes a new instance of the <see cref="ParsingException" /> class with a specified error message
 		/// and the position where the error occured.
 		/// </summary>
 		/// <param name="message">The message that describes the error.</param>
@@ -30,7 +30,7 @@ namespace NBitcoin.Scripting.Parser
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ParseException" /> class with a specified error message 
+		/// Initializes a new instance of the <see cref="ParsingException" /> class with a specified error message 
 		/// and a reference to the inner exception that is the cause of this exception.
 		/// </summary>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
