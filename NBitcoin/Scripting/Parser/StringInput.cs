@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace NBitcoin.Scripting.Parser
 {
-	public class StringInput : IInput<char>
+	internal class StringInput : IInput<char>
 	{
 		public StringInput(string source) : this(source, 0) { }
 		public string Source { get; }

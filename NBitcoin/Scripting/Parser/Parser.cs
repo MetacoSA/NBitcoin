@@ -6,7 +6,7 @@ namespace NBitcoin.Scripting.Parser
 	internal delegate ParserResult<TToken, TValue> Parser<TToken, TValue>(IInput<TToken> input);
 
 	internal delegate ParserResult<char, TValue> Parser<TValue>(IInput<char> input);
-	public static class ParserExtension
+	internal static class ParserExtension
 	{
 		/// <summary>
 		/// Tries to parse the input without throwing an exception.
