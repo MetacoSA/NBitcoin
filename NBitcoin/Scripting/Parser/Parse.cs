@@ -162,7 +162,7 @@ namespace NBitcoin.Scripting.Parser
 						p = reference();
 
 					if (i.Memos.ContainsKey(p))
-						throw new ParseException(i.Memos[p].ToString());
+						throw new ParsingException(i.Memos[p].ToString());
 
 					i.Memos[p] = ParserResult<TToken, T>.Failure(i,
 						new string[0],

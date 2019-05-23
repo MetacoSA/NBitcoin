@@ -144,9 +144,9 @@ namespace NBitcoin.Scripting
 						if ((byte)0x01 <= (byte)op.Code && (byte)op.Code < (byte)0x48)
 							result.Add(GetItem(op));
 						else if ((byte)0x48 <= (byte)op.Code)
-							throw new ParseException($"Miniscript does not support pushdata bigger than 33. Got {op}");
+							throw new ParsingException($"Miniscript does not support pushdata bigger than 33. Got {op}");
 						else 
-							throw new ParseException($"Unknown Opcode to Miniscript {op.Name}");
+							throw new ParsingException($"Unknown Opcode to Miniscript {op.Name}");
 						break;
 				}
 			}
@@ -171,7 +171,7 @@ namespace NBitcoin.Scripting
 				}
 				catch (FormatException ex)
 				{
-					throw new ParseException("Invalid Public Key", ex);
+					throw new ParsingException("Invalid Public Key", ex);
 				}
 			}
 			var i = op.GetInt();
@@ -181,7 +181,7 @@ namespace NBitcoin.Scripting
 			}
 			else
 			{
-				throw new ParseException($"Invalid push with Opcode {op}");
+				throw new ParsingException($"Invalid push with Opcode {op}");
 			}
 		}
 	}
