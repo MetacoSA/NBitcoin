@@ -5,18 +5,18 @@ namespace NBitcoin.Scripting.Parser
 	/// <summary>
 	/// Represents an error that occurs during parsing.
 	/// </summary>
-	public class ParseException : Exception
+	public class ParsingException : FormatException
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ParseException" /> class.
+		/// Initializes a new instance of the <see cref="ParsingException" /> class.
 		/// </summary>
-		public ParseException() { }
+		public ParsingException() { }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ParseException" /> class with a specified error message.
+		/// Initializes a new instance of the <see cref="ParsingException" /> class with a specified error message.
 		/// </summary>
 		/// <param name="message">The message that describes the error.</param>
-		public ParseException(string message) : base(message) { }
+		public ParsingException(string message) : base(message) { }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ParseException" /> class with a specified error message
@@ -24,7 +24,7 @@ namespace NBitcoin.Scripting.Parser
 		/// </summary>
 		/// <param name="message">The message that describes the error.</param>
 		/// <param name="position">The position where the error occured.</param>
-		public ParseException(string message, int position) : base(message)
+		public ParsingException(string message, int position) : base(message)
 		{
 			Position = position;
 		}
@@ -36,7 +36,7 @@ namespace NBitcoin.Scripting.Parser
 		/// <param name="message">The error message that explains the reason for the exception.</param>
 		/// <param name="innerException">The exception that is the cause of the current exception, 
 		/// or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
-		public ParseException(string message, Exception innerException) : base(message, innerException) { }
+		public ParsingException(string message, Exception innerException) : base(message, innerException) { }
 
 		/// <summary>
 		/// Gets the position of the parsing failure if one is available; otherwise, null.
