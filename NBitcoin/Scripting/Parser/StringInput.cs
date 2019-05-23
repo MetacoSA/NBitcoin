@@ -21,7 +21,6 @@ namespace NBitcoin.Scripting.Parser
 
 		public bool AtEnd { get { return Position == Source.Length; } }
 		public char GetCurrent() => Source[Position];
-		public char GetNext() => Source[Position + 1];
 
 		public IInput<char> Advance()
 		{
@@ -32,7 +31,7 @@ namespace NBitcoin.Scripting.Parser
 
 		public IEnumerator<char> GetEnumerator()
 		{
-			throw new NotImplementedException();
+			return this.Source.GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

@@ -9,8 +9,6 @@ namespace NBitcoin.Scripting.Parser
 
 		T GetCurrent();
 
-		T GetNext();
-
 		bool AtEnd { get; }
 		int Position { get; }
 		IDictionary<object, object> Memos { get; }

@@ -31,6 +31,13 @@ namespace NBitcoin.Tests
 			ParserForTest.PToken().Parse("prefix  (foo)");
 			ParserForTest.PToken().Parse("prefix  (foo)   ");
 			ParserForTest.PToken().Parse("prefix  (   foo   )   ");
+
+			// input must be enumerable
+			foreach (var p in new StringInput("123"))
+				Assert.Contains(p, "123".ToCharArray());
+
+			foreach (var p in new ScriptInput(new Script("OP_ADD OP_EQUALVERIFY")))
+				Assert.NotNull(p);
 		}
 	}
 }
