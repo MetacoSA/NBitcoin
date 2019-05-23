@@ -12,7 +12,7 @@ namespace NBitcoin
 	public abstract class ISigningRepository
 	{
 		/// <summary>
-		/// In case of Witness Script, just always use ScriptId for p2sh-nested version as a key.
+		/// In case of Witness Script, use HashForLookup Property as a key.
 		/// </summary>
 		/// <param name="scriptId"></param>
 		/// <param name="script"></param>
@@ -86,7 +86,7 @@ namespace NBitcoin
 
 
 		/// <summary>
-		/// In case of Witness Script, just always use ScriptId for p2sh-nested version as a key.
+		/// In case of Witness Script, use HashForLookup property as a key.
 		/// </summary>
 		/// <param name="scriptId"></param>
 		/// <param name="script"></param>
