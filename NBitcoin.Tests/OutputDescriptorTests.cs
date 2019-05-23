@@ -6,6 +6,7 @@ using FsCheck.Xunit;
 using NBitcoin.Scripting;
 using NBitcoin.Scripting.Parser;
 using NBitcoin.Tests.Generators;
+using static NBitcoin.Tests.Helpers.PrimitiveUtils;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -15,6 +16,7 @@ namespace NBitcoin.Tests
 		public OutputDescriptorTests()
 		{
 			Arb.Register<OutputDescriptorGenerator>();
+			DummyKey = new Key();
 		}
 
 
@@ -146,10 +148,20 @@ namespace NBitcoin.Tests
 		const int SIGNABLE = 8; // We can sign with this descriptor (this is not true when actual BIP32 derivation is used, as that's not integrated in our signing code)
 		System.Random Seed = new System.Random();
 
+		public Key DummyKey { get; }
+
 		private void CheckDescriptor(string priv, string pub, int flags, string[][] scripts, uint[][] pathIndex = null)
 		{
 			var keysPriv = new FlatSigningRepository();
 			var keysPub = new FlatSigningRepository();
+
+			HashSet<uint[]> paths;
+			HashSet<uint[]> leftPaths;
+			if (pathIndex != null)
+			{
+				paths = new HashSet<uint[]>(pathIndex);
+				leftPaths = new HashSet<uint[]>(pathIndex);
+			}
 
 			var parsePriv = OutputDescriptor.Parse(MaybeUseHInsteadOfApostrophe(priv), false, keysPriv);
 			var parsePub = OutputDescriptor.Parse(MaybeUseHInsteadOfApostrophe(pub), false, keysPub);
@@ -207,10 +219,20 @@ namespace NBitcoin.Tests
 						else
 							Assert.False(merged.IsSolvable(spks[n]), $"{spks[n].ToString()}\nMust be unsolvable");
 
+						// Check that the information necessary to sign tx has been set to repository.
 						if ((flags & SIGNABLE) != 0)
 						{
-							// TODO: check signability using TxBuilder
+							var b = Network.Main.CreateTransactionBuilder();
+							var coin = new Coin(RandOutpoint(), new TxOut(Money.Coins(1.0m), spks[n]));
+							b.AddCoins(coin);
+							b.SendFees(Money.Coins(0.0001m));
+							b.SendAll(DummyKey);
+							b.AddKeys(merged.Secrets.Values.Select(s => s.PrivateKey).ToArray());
+							b.AddKnownRedeems(merged.Scripts.Values.ToArray());
+							var tx = b.BuildTransaction(true);
+							Assert.Empty(b.Check(tx));
 						}
+
 						var inferred = OutputDescriptor.InferFromScript(spks[n], scriptProvider);
 						Assert.Equal(((flags & UNSOLVABLE) == 0), inferred.IsSolvable());
 						Func<KeyId, Key> dummyKeyProvider = (keyId) => null;
@@ -223,10 +245,15 @@ namespace NBitcoin.Tests
 
 					if (pathIndex != null)
 					{
+						// Console.WriteLine($"prv: {priv}, pub: {pub}");
 						var rootedKPs = scriptProvider.KeyOrigins.Values.ToArray();
 						foreach (var rootedKP in rootedKPs)
 						{
+							//Console.WriteLine($"Path indexes are");
+							// foreach (var p in pathIndex)
+								// Console.WriteLine($"{new KeyPath(p)}");
 							Assert.Contains(pathIndex, p => p.SequenceEqual(rootedKP.KeyPath.Indexes));
+							// pathIndex = pathIndex.Where(p => !p.SequenceEqual(rootedKP.KeyPath.Indexes)).ToArray();
 						}
 					}
 				}

@@ -1,4 +1,6 @@
 
+using System.Collections.Generic;
+
 namespace NBitcoin.Tests.Helpers
 {
 	internal static class PrimitiveUtils
@@ -18,6 +20,15 @@ namespace NBitcoin.Tests.Helpers
 		{
 			var outpoint = RandOutpoint();
 			return new Coin(outpoint, new TxOut(amount, receiver));
+		}
+
+		internal static List<ScriptCoin> GetRandomCoinsForAllScriptType(Money amount, Script scriptPubKey)
+		{
+			return new List<ScriptCoin> {
+				RandomCoin(Money.Coins(0.5m), scriptPubKey, true) as ScriptCoin,
+				new ScriptCoin(RandomCoin(Money.Coins(0.5m), scriptPubKey.WitHash), scriptPubKey),
+				new ScriptCoin(RandomCoin(Money.Coins(0.5m), scriptPubKey.WitHash.ScriptPubKey.Hash), scriptPubKey)
+			};
 		}
 
 		internal static OutPoint RandOutpoint()
