@@ -21,7 +21,7 @@ namespace NBitcoin.Tests
 			CanSerializeInJsonCore(new byte[] { 1, 2, 3 });
 			CanSerializeInJsonCore(k);
 			CanSerializeInJsonCore(Money.Coins(5.0m));
-			CanSerializeInJsonCore(k.PubKey.GetAddress(Network.Main));
+			CanSerializeInJsonCore(k.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main));
 			CanSerializeInJsonCore(new KeyPath("1/2"));
 			CanSerializeInJsonCore(RootedKeyPath.Parse("7b09d780/0'/0'/2'"));
 			CanSerializeInJsonCore(Network.Main);

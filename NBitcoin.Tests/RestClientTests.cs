@@ -102,10 +102,10 @@ namespace NBitcoin.Tests
 				var k = new Key().GetBitcoinSecret(Network.RegTest);
 				rpc.Generate(102);
 				rpc.ImportPrivKey(k);
-				rpc.SendToAddress(k.GetAddress(), Money.Coins(50m));
+				rpc.SendToAddress(k.GetAddress(ScriptPubKeyType.Legacy), Money.Coins(50m));
 				rpc.Generate(1);
 				var c = rpc.ListUnspent().First();
-				c = rpc.ListUnspent(0, 999999, k.GetAddress()).First();
+				c = rpc.ListUnspent(0, 999999, k.GetAddress(ScriptPubKeyType.Legacy)).First();
 				var outPoint = c.OutPoint;
 				var utxos = client.GetUnspentOutputsAsync(new[] { outPoint }, true).Result;
 				Assert.Single(utxos.Outputs);
