@@ -495,7 +495,7 @@ namespace NBitcoin
 			}
 			return hash;
 		}
-    }
+	}
 	public class uint160 : IEquatable<uint160>
 	{
 		public class MutableUint160 : IBitcoinSerializable
