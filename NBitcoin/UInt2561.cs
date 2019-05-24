@@ -1,13 +1,11 @@
 ﻿
 using System;
 using System.Linq;
-using System.IO;
 using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
 
 namespace NBitcoin
 {
-	public class uint256 : IEquatable<uint256>
+	public class uint256 : IComparable<uint256>, IEquatable<uint256>, IComparable
 	{
 		public class MutableUint256 : IBitcoinSerializable
 		{
@@ -288,6 +286,26 @@ namespace NBitcoin
 			return equals;
 		}
 
+		public int CompareTo(uint256 other)
+		{
+			if (other == null)
+			{
+				return 1;
+			}
+
+			return Comparison(this, other);
+		}
+
+		public int CompareTo(object obj)
+		{
+			if (obj != null && obj.GetType() != GetType())
+			{
+				throw new ArgumentException($"Object with type {obj.GetType()} is not supported", nameof(obj));
+			}
+
+			return CompareTo((uint256)obj);
+		}
+
 		public static bool operator ==(uint256 a, uint256 b)
 		{
 			if(System.Object.ReferenceEquals(a, b))
@@ -477,7 +495,7 @@ namespace NBitcoin
 			}
 			return hash;
 		}
-	}
+    }
 	public class uint160 : IEquatable<uint160>
 	{
 		public class MutableUint160 : IBitcoinSerializable
