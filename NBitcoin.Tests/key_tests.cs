@@ -165,7 +165,7 @@ namespace NBitcoin.Tests
 				var address = (BitcoinPubKeyAddress)Network.Main.CreateBitcoinAddress(test.Address);
 				Assert.Equal(new KeyId(test.Hash160), address.Hash);
 				Assert.Equal(new KeyId(test.Hash160), secret.PrivateKey.PubKey.Hash);
-				Assert.Equal(address.Hash, secret.PrivateKey.PubKey.GetAddress(Network.Main).Hash);
+				Assert.Equal(address, secret.PrivateKey.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main));
 
 				var compressedSec = secret.Copy(true);
 

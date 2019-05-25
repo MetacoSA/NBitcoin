@@ -233,7 +233,7 @@ namespace NBitcoin
 			pubKey = isCompressed ? pubKey.Compress() : pubKey.Decompress();
 
 			//call it generatedaddress.
-			var generatedaddress = pubKey.GetAddress(Network);
+			var generatedaddress = pubKey.GetAddress(ScriptPubKeyType.Legacy, Network);
 
 			//Take the first four bytes of SHA256(SHA256(generatedaddress)) and call it addresshash.
 			var addresshash = BitcoinEncryptedSecretEC.HashAddress(generatedaddress);
