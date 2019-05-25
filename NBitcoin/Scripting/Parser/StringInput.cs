@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NBitcoin.Scripting.Parser
 {
@@ -31,12 +32,13 @@ namespace NBitcoin.Scripting.Parser
 
 		public IEnumerator<char> GetEnumerator()
 		{
-			return this.Source.GetEnumerator();
+			var arr = (IEnumerable<char>)(Source).ToCharArray();
+			return arr.GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return this.Source.GetEnumerator();
+			return (Source).ToCharArray().GetEnumerator();
 		}
 
 		public IDictionary<object, object> Memos { get; }
