@@ -22,11 +22,30 @@ namespace NBitcoin.Tests
 
 		[Property(MaxTest=50)]
 		[Trait("PropertyTest", "BidirectionalConversion")]
-		public void DescriptorShouldConvertToStringBidirectionally(OutputDescriptor desc)
+		public void ShouldConvertToStringBidirectionally(OutputDescriptor desc)
 		{
 			var afterConversion = OutputDescriptor.Parse(desc.ToString());
 			Assert.Equal(desc, afterConversion);
 			Assert.Equal(desc.ToString(), afterConversion.ToString());
+		}
+
+		[Property]
+		[Trait("PropertyTest", "Verification")]
+		public void ShouldNotThrowErrorInBasicOperation(OutputDescriptor od)
+		{
+			od.IsSolvable();
+			od.IsRange();
+			for (uint i = 0; i < 4; i++)
+			{
+				od.TryExpand(i, (keyId) => null, out var repo, out var scripts);
+				foreach (var sc in scripts)
+				{
+					OutputDescriptor.InferFromScript(sc, repo);
+				}
+			}
+			var repo2 = new FlatSigningRepository();
+			OutputDescriptor.Parse(od.ToString(), false, repo2);
+			od.TryGetPrivateString(repo2, out var res);
 		}
 
 

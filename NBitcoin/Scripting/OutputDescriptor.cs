@@ -206,9 +206,9 @@ namespace NBitcoin.Scripting
 			switch (this)
 			{
 				case AddressDescriptor self:
-					break;
+					return false;
 				case RawDescriptor self:
-					break;
+					return false;
 				case PKDescriptor self:
 					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
 				case PKHDescriptor self:
