@@ -617,13 +617,13 @@ namespace NBitcoin.Scripting
 
 		#region checksum
 		/** The character set for the checksum itself (same as bech32). */
-		static readonly char[] CHECKSUM_CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l".ToArray();
+		static readonly char[] CHECKSUM_CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l".ToCharArray();
 		static readonly string INPUT_CHARSET_STRING =
 		"0123456789()[],'/*abcdefgh@:$%{}" +
         "IJKLMNOPQRSTUVWXYZ&+-.;<=>?!^_|~" +
         "ijklmnopqrstuvwxyzABCDEFGH`#\"\\ ";
 
-		static readonly char[] INPUT_CHARSET = INPUT_CHARSET_STRING.ToArray();
+		static readonly char[] INPUT_CHARSET = INPUT_CHARSET_STRING.ToCharArray();
 
 		internal static string GetCheckSum(string desc)
 		{
