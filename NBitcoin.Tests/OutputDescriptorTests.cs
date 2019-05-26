@@ -189,7 +189,7 @@ namespace NBitcoin.Tests
 			//   same result in each case, namely the first element of `scripts`. Because of that, the size of
 			//   `scripts` must be one in that case
 			bool isRange = (flags & RANGE) > 0;
-			if (!isRange) Assert.Equal(scripts.Length, 1);
+			if (!isRange) Assert.Single(scripts);
 			var max = isRange ? scripts.Length : 3;
 
 			for (int i = 0; i < max; ++i)

@@ -328,16 +328,16 @@ namespace NBitcoin.Tests
 		{
 			var rKeyPath = RootedKeyPath.Parse("01234567");
 			Assert.Equal(rKeyPath.KeyPath, KeyPath.Empty);
-			Assert.Equal(KeyPath.Empty.ToString(), "");
-			Assert.Equal(KeyPath.Empty.ToBytes(), new byte[0]);
-			Assert.Equal(rKeyPath.ToString(), "01234567");
+			Assert.Equal("", KeyPath.Empty.ToString());
+			Assert.Equal(new byte[0], KeyPath.Empty.ToBytes());
+			Assert.Equal("01234567", rKeyPath.ToString());
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void KeyPathShouldNotParseBIP32Overflow()
 		{
-			Assert.Equal(uint.Parse("2147483648"), 0x80000000U);
+			Assert.Equal(0x80000000U, uint.Parse("2147483648"));
 			Assert.Throws<FormatException>(() => KeyPath.Parse("/2147483648"));
 		}
 	}

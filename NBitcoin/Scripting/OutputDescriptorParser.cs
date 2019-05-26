@@ -284,7 +284,7 @@ namespace NBitcoin.Scripting
 		internal static OutputDescriptor ParseOD(string str, bool requireCheckSum = false, ISigningRepository repo = null)
 		{
 			if (!TryParseOD(str, out var whyFailure, out var result, requireCheckSum, repo))
-				throw new ParseException(whyFailure);
+				throw new ParsingException(whyFailure);
 			return result;
 		}
 
