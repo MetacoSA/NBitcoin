@@ -65,7 +65,7 @@ namespace NBitcoin.Tests
 			);
 
 			// Bigger than max possible blocknumber of OP_CSV
-			Assert.Throws<ParseException>(() => MiniscriptDSLParser.DSLParser.Parse($"time(65536)"));
+			Assert.Throws<ParsingException>(() => MiniscriptDSLParser.DSLParser.Parse($"time(65536)"));
 		}
 
 		[Fact]
