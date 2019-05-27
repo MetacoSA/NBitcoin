@@ -5,7 +5,7 @@ using NBitcoin.DataEncoders;
 
 namespace NBitcoin
 {
-	public class uint256 : IComparable<uint256>, IEquatable<uint256>, IComparable
+	public sealed class uint256 : IComparable<uint256>, IEquatable<uint256>, IComparable
 	{
 		public class MutableUint256 : IBitcoinSerializable
 		{
@@ -288,22 +288,13 @@ namespace NBitcoin
 
 		public int CompareTo(uint256 other)
 		{
-			if (other == null)
-			{
-				return 1;
-			}
-
-			return Comparison(this, other);
+			return (other == null) ? 1 : Comparison(this, other);
 		}
 
 		public int CompareTo(object obj)
 		{
-			if (obj != null && obj.GetType() != GetType())
-			{
-				throw new ArgumentException($"Object with type {obj.GetType()} is not supported", nameof(obj));
-			}
-
-			return CompareTo((uint256)obj);
+			return obj is uint256 v ? CompareTo(v) :
+				   obj is null ? CompareTo(null as uint256) : throw new ArgumentException($"Object is not an instance of uint256", nameof(obj));
 		}
 
 		public static bool operator ==(uint256 a, uint256 b)
@@ -496,7 +487,7 @@ namespace NBitcoin
 			return hash;
 		}
 	}
-	public class uint160 : IEquatable<uint160>
+	public sealed class uint160 : IComparable<uint160>, IEquatable<uint160>, IComparable
 	{
 		public class MutableUint160 : IBitcoinSerializable
 		{
@@ -699,6 +690,17 @@ namespace NBitcoin
 			equals &= pn3 == other.pn3;
 			equals &= pn4 == other.pn4;
 			return equals;
+		}
+
+		public int CompareTo(uint160 other)
+		{
+			return (other == null) ? 1 : Comparison(this, other);
+		}
+
+		public int CompareTo(object obj)
+		{
+			return obj is uint160 v ? CompareTo(v) :
+				   obj is null ? CompareTo(null as uint160) : throw new ArgumentException($"Object is not an instance of uint160", nameof(obj));
 		}
 
 		public static bool operator ==(uint160 a, uint160 b)
