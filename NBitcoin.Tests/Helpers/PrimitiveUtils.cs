@@ -14,7 +14,7 @@ namespace NBitcoin.Tests.Helpers
 		}
 		internal static Coin RandomCoin(Money amount, Key receiver)
 		{
-			return RandomCoin(amount, receiver.PubKey.GetAddress(Network.Main));
+			return RandomCoin(amount, receiver.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main));
 		}
 		internal static Coin RandomCoin(Money amount, IDestination receiver)
 		{
