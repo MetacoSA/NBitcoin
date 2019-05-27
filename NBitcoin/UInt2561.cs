@@ -288,7 +288,7 @@ namespace NBitcoin
 
 		public int CompareTo(uint256 other)
 		{
-			return (other == null) ? 1 : Comparison(this, other);
+			return Comparison(this, other);
 		}
 
 		public int CompareTo(object obj)
@@ -338,7 +338,13 @@ namespace NBitcoin
 
 		private static int Comparison(uint256 a, uint256 b)
 		{
-			if(a.pn7 < b.pn7)
+			if (a is null && b is null)
+				return 0;
+			if (a is null && !(b is null))
+				return -1;
+			if (!(a is null) && b is null)
+				return 1;
+			if (a.pn7 < b.pn7)
 				return -1;
 			if(a.pn7 > b.pn7)
 				return 1;
@@ -694,7 +700,7 @@ namespace NBitcoin
 
 		public int CompareTo(uint160 other)
 		{
-			return (other == null) ? 1 : Comparison(this, other);
+			return Comparison(this, other);
 		}
 
 		public int CompareTo(object obj)
@@ -741,7 +747,13 @@ namespace NBitcoin
 
 		private static int Comparison(uint160 a, uint160 b)
 		{
-			if(a.pn4 < b.pn4)
+			if (a is null && b is null)
+				return 0;
+			if (a is null && !(b is null))
+				return -1;
+			if (!(a is null) && b is null)
+				return 1;
+			if (a.pn4 < b.pn4)
 				return -1;
 			if(a.pn4 > b.pn4)
 				return 1;

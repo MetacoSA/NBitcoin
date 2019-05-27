@@ -57,6 +57,41 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanSortuin256()
+		{
+			SortedDictionary<uint256, uint256> values = new SortedDictionary<uint256, uint256>();
+			values.Add(uint256.Zero, uint256.Zero);
+			values.Add(uint256.One, uint256.One);
+			Assert.Equal(uint256.Zero, values.First().Key);
+			Assert.Equal(uint256.One, values.Skip(1).First().Key);
+			Assert.Equal(-1, ((IComparable<uint256>)uint256.Zero).CompareTo(uint256.One));
+			Assert.Equal(1, ((IComparable<uint256>)uint256.One).CompareTo(uint256.Zero));
+			Assert.Equal(1, ((IComparable)uint256.One).CompareTo(null as object));
+			Assert.Equal(1, ((IComparable)uint256.Zero).CompareTo(null as object));
+
+			Assert.True((null as uint256) < uint256.Zero);
+			Assert.True(uint256.Zero > (null as uint256));
+			Assert.True((null as uint256) >= (null as uint256));
+			Assert.True((null as uint256) == (null as uint256));
+
+			SortedDictionary<uint160, uint160> values2 = new SortedDictionary<uint160, uint160>();
+			values2.Add(uint160.Zero, uint160.Zero);
+			values2.Add(uint160.One, uint160.One);
+			Assert.Equal(uint160.Zero, values2.First().Key);
+			Assert.Equal(uint160.One, values2.Skip(1).First().Key);
+
+			Assert.Equal(-1, ((IComparable<uint160>)uint160.Zero).CompareTo(uint160.One));
+			Assert.Equal(1, ((IComparable<uint160>)uint160.One).CompareTo(uint160.Zero));
+			Assert.Equal(1, ((IComparable)uint160.One).CompareTo(null as object));
+			Assert.Equal(1, ((IComparable)uint160.Zero).CompareTo(null as object));
+
+			Assert.True((null as uint160) < uint160.Zero);
+			Assert.True(uint160.Zero > (null as uint160));
+			Assert.True((null as uint160) >= (null as uint160));
+			Assert.True((null as uint160) == (null as uint160));
+		}
+
+		[Fact]
 		public void spanUintSerializationTests()
 		{
 			var v = new uint256(RandomUtils.GetBytes(32));
