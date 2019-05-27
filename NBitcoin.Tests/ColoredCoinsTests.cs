@@ -70,7 +70,7 @@ namespace NBitcoin.Tests
 			public AssetKey()
 			{
 				Key = new Key();
-				ScriptPubKey = Key.PubKey.GetAddress(Network.Main).ScriptPubKey;
+				ScriptPubKey = Key.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main).ScriptPubKey;
 				Id = ScriptPubKey.Hash.ToAssetId();
 			}
 			public Key Key
@@ -126,8 +126,8 @@ namespace NBitcoin.Tests
 			var a1 = new AssetKey();
 			var a2 = new AssetKey();
 			var h = new AssetKey();
-			var sender = new Key().PubKey.GetAddress(Network.Main);
-			var receiver = new Key().PubKey.GetAddress(Network.Main);
+			var sender = new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main);
+			var receiver = new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main);
 
 			colored.Marker = new ColorMarker(new ulong[] { 0, 10, 6, 0, 7, 3 });
 			colored.Inputs.Add(new ColoredEntry(0, new AssetMoney(a1.Id, 3UL)));
@@ -445,7 +445,7 @@ namespace NBitcoin.Tests
 			//The issuer first generates a private key: 18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725.
 			var key = new Key(TestUtils.ParseHex("18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725"));
 			//He calculates the corresponding address: 16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM.
-			var address = key.PubKey.Decompress().GetAddress(Network.Main);
+			var address = key.PubKey.Decompress().GetAddress(ScriptPubKeyType.Legacy, Network.Main);
 			Assert.Equal("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM", address.ToString());
 
 			//Next, he builds the Pay-to-PubKey-Hash script associated to that address: OP_DUP OP_HASH160 010966776006953D5567439E5E39F86A0D273BEE OP_EQUALVERIFY OP_CHECKSIG

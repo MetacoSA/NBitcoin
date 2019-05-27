@@ -36,7 +36,7 @@ namespace NBitcoin
 		{
 			var vch = key.ToBytes();
 			//Compute the Bitcoin address (ASCII),
-			var addressBytes = Encoders.ASCII.DecodeData(key.PubKey.GetAddress(network).ToString());
+			var addressBytes = Encoders.ASCII.DecodeData(key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network).ToString());
 			// and take the first four bytes of SHA256(SHA256()) of it. Let's call this "addresshash".
 			var addresshash = Hashes.Hash256(addressBytes).ToBytes().SafeSubarray(0, 4);
 
@@ -91,7 +91,7 @@ namespace NBitcoin
 
 			var key = new Key(bitcoinprivkey, fCompressedIn: IsCompressed);
 
-			var addressBytes = Encoders.ASCII.DecodeData(key.PubKey.GetAddress(Network).ToString());
+			var addressBytes = Encoders.ASCII.DecodeData(key.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network).ToString());
 			var salt = Hashes.Hash256(addressBytes).ToBytes().SafeSubarray(0, 4);
 
 			if(!Utils.ArrayEqual(salt, AddressHash))
@@ -199,7 +199,7 @@ namespace NBitcoin
 
 			var key = new Key(keyBytes, fCompressedIn: IsCompressed);
 
-			var generatedaddress = key.PubKey.GetAddress(Network);
+			var generatedaddress = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network);
 			var addresshash = HashAddress(generatedaddress);
 
 			if(!Utils.ArrayEqual(addresshash, AddressHash))

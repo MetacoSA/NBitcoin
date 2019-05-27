@@ -122,7 +122,7 @@ namespace NBitcoin
 			//and hash it into address using either compressed or uncompressed public key methodology as specifid in flagbyte.
 			pubkey = IsCompressed ? pubkey.Compress() : pubkey.Decompress();
 
-			var actualhash = BitcoinEncryptedSecretEC.HashAddress(pubkey.GetAddress(Network));
+			var actualhash = BitcoinEncryptedSecretEC.HashAddress(pubkey.GetAddress(ScriptPubKeyType.Legacy, Network));
 			var expectedhash = BitcoinEncryptedSecretEC.HashAddress(expectedAddress);
 
 			return Utils.ArrayEqual(actualhash, expectedhash);

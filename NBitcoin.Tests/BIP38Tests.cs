@@ -111,7 +111,7 @@ namespace NBitcoin.Tests
 				Assert.Null(encryptedKey.LotSequence);
 				var actualKey = encryptedKey.GetKey(test.Passphrase);
 				Assert.Equal(test.Unencrypted, actualKey.GetBitcoinSecret(Network.Main).ToString());
-				Assert.Equal(test.Address, actualKey.PubKey.GetAddress(Network.Main).ToString());
+				Assert.Equal(test.Address, actualKey.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main).ToString());
 				Assert.Equal(test.Compressed, actualKey.IsCompressed);
 
 
@@ -163,7 +163,7 @@ namespace NBitcoin.Tests
 				AssertSequenceEquals(test.LotSequence, encryptedKey.LotSequence);
 				var actualKey = encryptedKey.GetKey(test.Passphrase);
 				Assert.Equal(test.Unencrypted, actualKey.GetBitcoinSecret(Network.Main).ToString());
-				Assert.Equal(test.Address, actualKey.PubKey.GetAddress(Network.Main).ToString());
+				Assert.Equal(test.Address, actualKey.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main).ToString());
 				Assert.Equal(test.Compressed, actualKey.IsCompressed);
 
 
@@ -214,10 +214,10 @@ namespace NBitcoin.Tests
 				var result = code.GenerateEncryptedSecret(compressed);
 				Assert.True(result.ConfirmationCode.Check("test", result.GeneratedAddress));
 				Assert.False(result.ConfirmationCode.Check("toto", result.GeneratedAddress));
-				Assert.False(result.ConfirmationCode.Check("test", new Key().PubKey.GetAddress(Network.Main)));
+				Assert.False(result.ConfirmationCode.Check("test", new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main)));
 
 				var decryptedKey = result.EncryptedKey.GetKey("test");
-				Assert.Equal(result.GeneratedAddress.ToString(), decryptedKey.PubKey.GetAddress(Network.Main).ToString());
+				Assert.Equal(result.GeneratedAddress.ToString(), decryptedKey.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main).ToString());
 
 				Assert.Throws<SecurityException>(() => result.EncryptedKey.GetKey("wrong"));
 

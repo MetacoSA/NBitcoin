@@ -33,7 +33,7 @@ namespace NBitcoin.Tests.Generators
 
 		public static Gen<BitcoinAddress> P2PKHAddress(Network network) =>
 			from pk in PublicKey()
-			select (BitcoinAddress) pk.GetAddress(network);
+			select (BitcoinAddress) pk.GetAddress(ScriptPubKeyType.Legacy, network);
 
 		public static Gen<BitcoinAddress> P2SHAddress() =>
 			from network in NetworkGen()

@@ -38,7 +38,7 @@ namespace NBitcoin.Tests
 
 				foreach (var n in new[] { network.Mainnet, network.Testnet, network.Regtest })
 				{
-					n.Parse(new Key().PubKey.GetAddress(n).ToString());
+					n.Parse(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, n).ToString());
 				}
 			}
 		}
@@ -116,7 +116,7 @@ namespace NBitcoin.Tests
 				var rpc = node.CreateRPCClient();
 
 				var alice = new Key().GetBitcoinSecret(builder.Network);
-				BitcoinAddress aliceAddress = alice.GetAddress();
+				BitcoinAddress aliceAddress = alice.GetAddress(ScriptPubKeyType.Legacy);
 				var txid = rpc.SendToAddress(aliceAddress, Money.Coins(1.0m));
 				var tx = rpc.GetRawTransaction(txid);
 				var coin = tx.Outputs.AsCoins().First(c => c.ScriptPubKey == aliceAddress.ScriptPubKey);
@@ -172,7 +172,7 @@ namespace NBitcoin.Tests
 				var addr2 = BitcoinAddress.Create(addr, builder.Network).ToString();
 				Assert.Equal(addr, addr2);
 
-				var address = (BitcoinAddress)new Key().PubKey.GetAddress(builder.Network);
+				var address = (BitcoinAddress)new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, builder.Network);
 
 				// Test normal address
 				var isValid = ((JObject)node.CreateRPCClient().SendCommand("validateaddress", address.ToString()).Result)["isvalid"].Value<bool>();
