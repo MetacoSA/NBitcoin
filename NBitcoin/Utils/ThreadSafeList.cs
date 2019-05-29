@@ -92,7 +92,12 @@ namespace NBitcoin
 
 		public IEnumerator<T> GetEnumerator()
 		{
-			return _Behaviors.ToList().GetEnumerator();
+			List<T> list = null;
+			lock (_lock)
+			{
+				list = _Behaviors.ToList();
+			}
+			return list?.GetEnumerator();
 		}
 
 		#endregion
