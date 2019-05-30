@@ -723,13 +723,16 @@ namespace NBitcoin
 					return sighashType.ToString();
 			}
 		}
-		internal Script GetProbableScriptPubKey() => GetTxOut()?.ScriptPubKey ?? RedeemScript?.Hash.ScriptPubKey;
 		public TxOut GetTxOut()
 		{
 			if (WitnessUtxo != null)
 				return WitnessUtxo;
 			if (NonWitnessUtxo != null)
+			{
+				if (TxIn.PrevOut.N >= NonWitnessUtxo.Outputs.Count)
+					return null;
 				return NonWitnessUtxo.Outputs[TxIn.PrevOut.N];
+			}
 			if (orphanTxOut != null)
 				return orphanTxOut;
 			return null;
