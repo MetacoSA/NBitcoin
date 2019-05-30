@@ -12824,6 +12824,12 @@ references:
   commentId: M:NBitcoin.BitcoinSecret.GetAddress
   fullName: NBitcoin.BitcoinSecret.GetAddress()
   nameWithType: BitcoinSecret.GetAddress()
+- uid: NBitcoin.BitcoinSecret.GetAddress(NBitcoin.ScriptPubKeyType)
+  name: GetAddress(ScriptPubKeyType)
+  href: api/NBitcoin.BitcoinSecret.html#NBitcoin_BitcoinSecret_GetAddress_NBitcoin_ScriptPubKeyType_
+  commentId: M:NBitcoin.BitcoinSecret.GetAddress(NBitcoin.ScriptPubKeyType)
+  fullName: NBitcoin.BitcoinSecret.GetAddress(NBitcoin.ScriptPubKeyType)
+  nameWithType: BitcoinSecret.GetAddress(ScriptPubKeyType)
 - uid: NBitcoin.BitcoinSecret.GetAddress*
   name: GetAddress
   href: api/NBitcoin.BitcoinSecret.html#NBitcoin_BitcoinSecret_GetAddress_
@@ -46350,6 +46356,19 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTInput.TrySign
   nameWithType: PSBTInput.TrySign
+- uid: NBitcoin.PSBTInput.TrySlimUTXO
+  name: TrySlimUTXO()
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySlimUTXO
+  commentId: M:NBitcoin.PSBTInput.TrySlimUTXO
+  fullName: NBitcoin.PSBTInput.TrySlimUTXO()
+  nameWithType: PSBTInput.TrySlimUTXO()
+- uid: NBitcoin.PSBTInput.TrySlimUTXO*
+  name: TrySlimUTXO
+  href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_TrySlimUTXO_
+  commentId: Overload:NBitcoin.PSBTInput.TrySlimUTXO
+  isSpec: "True"
+  fullName: NBitcoin.PSBTInput.TrySlimUTXO
+  nameWithType: PSBTInput.TrySlimUTXO
 - uid: NBitcoin.PSBTInput.UpdateFromCoin(NBitcoin.ICoin)
   name: UpdateFromCoin(ICoin)
   href: api/NBitcoin.PSBTInput.html#NBitcoin_PSBTInput_UpdateFromCoin_NBitcoin_ICoin_
@@ -46800,6 +46819,12 @@ references:
   commentId: M:NBitcoin.PubKey.GetAddress(NBitcoin.Network)
   fullName: NBitcoin.PubKey.GetAddress(NBitcoin.Network)
   nameWithType: PubKey.GetAddress(Network)
+- uid: NBitcoin.PubKey.GetAddress(NBitcoin.ScriptPubKeyType,NBitcoin.Network)
+  name: GetAddress(ScriptPubKeyType, Network)
+  href: api/NBitcoin.PubKey.html#NBitcoin_PubKey_GetAddress_NBitcoin_ScriptPubKeyType_NBitcoin_Network_
+  commentId: M:NBitcoin.PubKey.GetAddress(NBitcoin.ScriptPubKeyType,NBitcoin.Network)
+  fullName: NBitcoin.PubKey.GetAddress(NBitcoin.ScriptPubKeyType, NBitcoin.Network)
+  nameWithType: PubKey.GetAddress(ScriptPubKeyType, Network)
 - uid: NBitcoin.PubKey.GetAddress*
   name: GetAddress
   href: api/NBitcoin.PubKey.html#NBitcoin_PubKey_GetAddress_
@@ -56260,6 +56285,74 @@ references:
   isSpec: "True"
   fullName: NBitcoin.ScriptId.ScriptPubKey
   nameWithType: ScriptId.ScriptPubKey
+- uid: NBitcoin.Scripting
+  name: NBitcoin.Scripting
+  href: api/NBitcoin.Scripting.html
+  commentId: N:NBitcoin.Scripting
+  fullName: NBitcoin.Scripting
+  nameWithType: NBitcoin.Scripting
+- uid: NBitcoin.Scripting.Parser
+  name: NBitcoin.Scripting.Parser
+  href: api/NBitcoin.Scripting.Parser.html
+  commentId: N:NBitcoin.Scripting.Parser
+  fullName: NBitcoin.Scripting.Parser
+  nameWithType: NBitcoin.Scripting.Parser
+- uid: NBitcoin.Scripting.Parser.ParsingException
+  name: ParsingException
+  href: api/NBitcoin.Scripting.Parser.ParsingException.html
+  commentId: T:NBitcoin.Scripting.Parser.ParsingException
+  fullName: NBitcoin.Scripting.Parser.ParsingException
+  nameWithType: ParsingException
+- uid: NBitcoin.Scripting.Parser.ParsingException.#ctor
+  name: ParsingException()
+  href: api/NBitcoin.Scripting.Parser.ParsingException.html#NBitcoin_Scripting_Parser_ParsingException__ctor
+  commentId: M:NBitcoin.Scripting.Parser.ParsingException.#ctor
+  fullName: NBitcoin.Scripting.Parser.ParsingException.ParsingException()
+  nameWithType: ParsingException.ParsingException()
+- uid: NBitcoin.Scripting.Parser.ParsingException.#ctor(System.String)
+  name: ParsingException(String)
+  href: api/NBitcoin.Scripting.Parser.ParsingException.html#NBitcoin_Scripting_Parser_ParsingException__ctor_System_String_
+  commentId: M:NBitcoin.Scripting.Parser.ParsingException.#ctor(System.String)
+  fullName: NBitcoin.Scripting.Parser.ParsingException.ParsingException(System.String)
+  nameWithType: ParsingException.ParsingException(String)
+- uid: NBitcoin.Scripting.Parser.ParsingException.#ctor(System.String,System.Exception)
+  name: ParsingException(String, Exception)
+  href: api/NBitcoin.Scripting.Parser.ParsingException.html#NBitcoin_Scripting_Parser_ParsingException__ctor_System_String_System_Exception_
+  commentId: M:NBitcoin.Scripting.Parser.ParsingException.#ctor(System.String,System.Exception)
+  fullName: NBitcoin.Scripting.Parser.ParsingException.ParsingException(System.String, System.Exception)
+  nameWithType: ParsingException.ParsingException(String, Exception)
+- uid: NBitcoin.Scripting.Parser.ParsingException.#ctor(System.String,System.Int32)
+  name: ParsingException(String, Int32)
+  href: api/NBitcoin.Scripting.Parser.ParsingException.html#NBitcoin_Scripting_Parser_ParsingException__ctor_System_String_System_Int32_
+  commentId: M:NBitcoin.Scripting.Parser.ParsingException.#ctor(System.String,System.Int32)
+  fullName: NBitcoin.Scripting.Parser.ParsingException.ParsingException(System.String, System.Int32)
+  nameWithType: ParsingException.ParsingException(String, Int32)
+- uid: NBitcoin.Scripting.Parser.ParsingException.#ctor*
+  name: ParsingException
+  href: api/NBitcoin.Scripting.Parser.ParsingException.html#NBitcoin_Scripting_Parser_ParsingException__ctor_
+  commentId: Overload:NBitcoin.Scripting.Parser.ParsingException.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.Scripting.Parser.ParsingException.ParsingException
+  nameWithType: ParsingException.ParsingException
+- uid: NBitcoin.Scripting.Parser.ParsingException.Position
+  name: Position
+  href: api/NBitcoin.Scripting.Parser.ParsingException.html#NBitcoin_Scripting_Parser_ParsingException_Position
+  commentId: P:NBitcoin.Scripting.Parser.ParsingException.Position
+  fullName: NBitcoin.Scripting.Parser.ParsingException.Position
+  nameWithType: ParsingException.Position
+- uid: NBitcoin.Scripting.Parser.ParsingException.Position*
+  name: Position
+  href: api/NBitcoin.Scripting.Parser.ParsingException.html#NBitcoin_Scripting_Parser_ParsingException_Position_
+  commentId: Overload:NBitcoin.Scripting.Parser.ParsingException.Position
+  isSpec: "True"
+  fullName: NBitcoin.Scripting.Parser.ParsingException.Position
+  nameWithType: ParsingException.Position
+- uid: NBitcoin.Scripting.ScriptExtensions
+  name: ScriptExtensions
+  href: api/NBitcoin.Scripting.ScriptExtensions.html
+  commentId: T:NBitcoin.Scripting.ScriptExtensions
+  fullName: NBitcoin.Scripting.ScriptExtensions
+  nameWithType: ScriptExtensions
 - uid: NBitcoin.ScriptPubKeyType
   name: ScriptPubKeyType
   href: api/NBitcoin.ScriptPubKeyType.html
@@ -63570,6 +63663,25 @@ references:
   isSpec: "True"
   fullName: NBitcoin.uint160.AsBitcoinSerializable
   nameWithType: uint160.AsBitcoinSerializable
+- uid: NBitcoin.uint160.CompareTo(NBitcoin.uint160)
+  name: CompareTo(uint160)
+  href: api/NBitcoin.uint160.html#NBitcoin_uint160_CompareTo_NBitcoin_uint160_
+  commentId: M:NBitcoin.uint160.CompareTo(NBitcoin.uint160)
+  fullName: NBitcoin.uint160.CompareTo(NBitcoin.uint160)
+  nameWithType: uint160.CompareTo(uint160)
+- uid: NBitcoin.uint160.CompareTo(System.Object)
+  name: CompareTo(Object)
+  href: api/NBitcoin.uint160.html#NBitcoin_uint160_CompareTo_System_Object_
+  commentId: M:NBitcoin.uint160.CompareTo(System.Object)
+  fullName: NBitcoin.uint160.CompareTo(System.Object)
+  nameWithType: uint160.CompareTo(Object)
+- uid: NBitcoin.uint160.CompareTo*
+  name: CompareTo
+  href: api/NBitcoin.uint160.html#NBitcoin_uint160_CompareTo_
+  commentId: Overload:NBitcoin.uint160.CompareTo
+  isSpec: "True"
+  fullName: NBitcoin.uint160.CompareTo
+  nameWithType: uint160.CompareTo
 - uid: NBitcoin.uint160.Equals(NBitcoin.uint160)
   name: Equals(uint160)
   href: api/NBitcoin.uint160.html#NBitcoin_uint160_Equals_NBitcoin_uint160_
@@ -63988,6 +64100,25 @@ references:
   isSpec: "True"
   fullName: NBitcoin.uint256.AsBitcoinSerializable
   nameWithType: uint256.AsBitcoinSerializable
+- uid: NBitcoin.uint256.CompareTo(NBitcoin.uint256)
+  name: CompareTo(uint256)
+  href: api/NBitcoin.uint256.html#NBitcoin_uint256_CompareTo_NBitcoin_uint256_
+  commentId: M:NBitcoin.uint256.CompareTo(NBitcoin.uint256)
+  fullName: NBitcoin.uint256.CompareTo(NBitcoin.uint256)
+  nameWithType: uint256.CompareTo(uint256)
+- uid: NBitcoin.uint256.CompareTo(System.Object)
+  name: CompareTo(Object)
+  href: api/NBitcoin.uint256.html#NBitcoin_uint256_CompareTo_System_Object_
+  commentId: M:NBitcoin.uint256.CompareTo(System.Object)
+  fullName: NBitcoin.uint256.CompareTo(System.Object)
+  nameWithType: uint256.CompareTo(Object)
+- uid: NBitcoin.uint256.CompareTo*
+  name: CompareTo
+  href: api/NBitcoin.uint256.html#NBitcoin_uint256_CompareTo_
+  commentId: Overload:NBitcoin.uint256.CompareTo
+  isSpec: "True"
+  fullName: NBitcoin.uint256.CompareTo
+  nameWithType: uint256.CompareTo
 - uid: NBitcoin.uint256.Equals(NBitcoin.uint256)
   name: Equals(uint256)
   href: api/NBitcoin.uint256.html#NBitcoin_uint256_Equals_NBitcoin_uint256_
