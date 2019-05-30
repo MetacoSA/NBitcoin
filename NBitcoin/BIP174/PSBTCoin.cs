@@ -60,14 +60,6 @@ namespace NBitcoin
 			}
 		}
 
-		public void AddKeyPath(ExtPubKey extPubKey, KeyPath path)
-		{
-			if (extPubKey == null)
-				throw new ArgumentNullException(nameof(extPubKey));
-			if (path == null)
-				throw new ArgumentNullException(nameof(path));
-			AddKeyPath(extPubKey.ParentFingerprint, extPubKey.PubKey, path);
-		}
 		public virtual void AddKeyPath(PubKey pubKey, RootedKeyPath rootedKeyPath)
         {
 			if (rootedKeyPath == null)
@@ -88,12 +80,6 @@ namespace NBitcoin
 					}
 				}
 			}
-		}
-
-		public void AddKeyPath(HDFingerprint fingerprint, PubKey key, KeyPath path)
-		{
-			if (path == null)
-				throw new ArgumentNullException(nameof(path));
 		}
 
 		public abstract Coin GetCoin();
