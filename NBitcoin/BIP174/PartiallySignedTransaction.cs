@@ -787,14 +787,14 @@ namespace NBitcoin
 					{
 						o.WitnessScript = redeem;
 						if (o is PSBTInput i)
-							i.TrySlimOutput();
+							i.TrySlimUTXO();
 					}
 					else if (txout.ScriptPubKey == p2shp2wsh)
 					{
 						o.WitnessScript = redeem;
 						o.RedeemScript = redeem.WitHash.ScriptPubKey;
 						if (o is PSBTInput i)
-							i.TrySlimOutput();
+							i.TrySlimUTXO();
 					}
 				}
 			}

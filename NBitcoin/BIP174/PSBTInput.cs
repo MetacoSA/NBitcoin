@@ -233,7 +233,7 @@ namespace NBitcoin
 		public override void AddKeyPath(PubKey key, RootedKeyPath rootedKeyPath)
         {
 			base.AddKeyPath(key, rootedKeyPath);
-			TrySlimOutput();
+			TrySlimUTXO();
 		}
 
 
@@ -837,7 +837,7 @@ namespace NBitcoin
 		/// 2. Future HW Wallet may not support non segwit tx and thus won't recognize non_witness_utxo
 		/// 3. To pass test in BIP174
 		/// </summary>
-		internal bool TrySlimOutput()
+		public bool TrySlimUTXO()
 		{
 			if (NonWitnessUtxo == null)
 				return false;
