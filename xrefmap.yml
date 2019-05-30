@@ -45507,18 +45507,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.PSBTCoin.PSBTCoin
   nameWithType: PSBTCoin.PSBTCoin
-- uid: NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.ExtPubKey,NBitcoin.KeyPath)
-  name: AddKeyPath(ExtPubKey, KeyPath)
-  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_AddKeyPath_NBitcoin_ExtPubKey_NBitcoin_KeyPath_
-  commentId: M:NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.ExtPubKey,NBitcoin.KeyPath)
-  fullName: NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.ExtPubKey, NBitcoin.KeyPath)
-  nameWithType: PSBTCoin.AddKeyPath(ExtPubKey, KeyPath)
-- uid: NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.HDFingerprint,NBitcoin.PubKey,NBitcoin.KeyPath)
-  name: AddKeyPath(HDFingerprint, PubKey, KeyPath)
-  href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_AddKeyPath_NBitcoin_HDFingerprint_NBitcoin_PubKey_NBitcoin_KeyPath_
-  commentId: M:NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.HDFingerprint,NBitcoin.PubKey,NBitcoin.KeyPath)
-  fullName: NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.HDFingerprint, NBitcoin.PubKey, NBitcoin.KeyPath)
-  nameWithType: PSBTCoin.AddKeyPath(HDFingerprint, PubKey, KeyPath)
 - uid: NBitcoin.PSBTCoin.AddKeyPath(NBitcoin.PubKey,NBitcoin.RootedKeyPath)
   name: AddKeyPath(PubKey, RootedKeyPath)
   href: api/NBitcoin.PSBTCoin.html#NBitcoin_PSBTCoin_AddKeyPath_NBitcoin_PubKey_NBitcoin_RootedKeyPath_
