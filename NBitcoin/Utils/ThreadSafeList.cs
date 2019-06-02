@@ -10,6 +10,8 @@ namespace NBitcoin
 		private List<T> _Behaviors;
 		private object _lock = new object();
 
+		private List<T> _EnumeratorList = null;
+
 		public ThreadSafeList()
 		{
 			lock (_lock)
@@ -29,6 +31,7 @@ namespace NBitcoin
 			lock (_lock)
 			{
 				_Behaviors.Add(item);
+				_EnumeratorList = null;
 			}
 			return new ActionDisposable(() =>
 			{
@@ -48,6 +51,7 @@ namespace NBitcoin
 			lock (_lock)
 			{
 				removed = _Behaviors.Remove(item);
+				_EnumeratorList = null;
 			}
 
 			if (removed)
@@ -92,12 +96,14 @@ namespace NBitcoin
 
 		public IEnumerator<T> GetEnumerator()
 		{
-			List<T> list = null;
-			lock (_lock)
+			if (_EnumeratorList == null)
 			{
-				list = _Behaviors.ToList();
+				lock (_lock)
+				{
+					_EnumeratorList = _Behaviors.ToList();
+				}
 			}
-			return list?.GetEnumerator();
+			return _EnumeratorList?.GetEnumerator();
 		}
 
 		#endregion
