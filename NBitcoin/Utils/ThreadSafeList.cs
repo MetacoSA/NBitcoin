@@ -96,16 +96,16 @@ namespace NBitcoin
 
 		public IEnumerator<T> GetEnumerator()
 		{
-			IEnumerator<T> enumerator = null;
-
-			lock (_lock)
+			IEnumerator<T> enumerator = _EnumeratorList?.GetEnumerator();
+			if (enumerator == null)
 			{
-				if (_EnumeratorList == null)
-					_EnumeratorList = _Behaviors.ToList();
-
-				enumerator = _EnumeratorList?.GetEnumerator();
+				lock (_lock)
+				{
+					var behaviorsList = _Behaviors.ToList();
+					_EnumeratorList = behaviorsList;
+					enumerator = behaviorsList.GetEnumerator();
+				}
 			}
-
 			return enumerator;
 		}
 
