@@ -1181,6 +1181,11 @@ namespace NBitcoin.RPC
 			return blockchainInfo;
 		}
 
+		public BlockchainInfo GetBlockchainInfo()
+		{
+			return GetBlockchainInfoAsync().Result;
+		}
+
 		public uint256 GetBestBlockHash()
 		{
 			return uint256.Parse((string)SendCommand(RPCOperations.getbestblockhash).Result);
