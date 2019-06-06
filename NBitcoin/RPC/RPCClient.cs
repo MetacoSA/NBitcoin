@@ -53,7 +53,7 @@ namespace NBitcoin.RPC
 		blockchain		 gettxout					Yes
 		blockchain		 gettxoutproof
 		blockchain		 verifytxoutproof
-		blockchain		 gettxoutsetinfo
+		blockchain		 gettxoutsetinfo			Yes
 		blockchain		 verifychain
 
 		------------------ Mining
@@ -1417,6 +1417,33 @@ namespace NBitcoin.RPC
 				IsCoinBase = result.Value<bool>("coinbase"), // Coinbase or not
 				ScriptPubKeyType = result["scriptPubKey"].Value<string>("type"),  // The type, eg pubkeyhash
 				TxOut = txOut
+			};
+		}
+
+		/// <summary>
+		/// Returns statistics about the unspent transaction output (UTXO) set
+		/// </summary>
+		/// <returns>Parsed object containing all info</returns>
+		public GetTxOutSetInfoResponse GetTxoutSetInfo()
+		{
+			return GetTxoutSetInfoAsync().Result;
+		}
+
+		public async Task<GetTxOutSetInfoResponse> GetTxoutSetInfoAsync()
+		{
+			var response = await SendCommandAsync(RPCOperations.gettxoutsetinfo);
+
+			var result = response.Result;
+			return new GetTxOutSetInfoResponse
+			{
+				Height = result.Value<int>("height"),
+				Bestblock = result.Value<string>("bestblock"),
+				Transactions = result.Value<int>("transactions"),
+				Txouts = result.Value<long>("txouts"),
+				Bogosize = result.Value<long>("bogosize"),
+				HashSerialized2 = result.Value<string>("hash_serialized_2"),
+				DiskSize = result.Value<long>("disk_size"),
+				TotalAmount = result.Value<decimal>("total_amount")
 			};
 		}
 
