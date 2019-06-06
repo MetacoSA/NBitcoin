@@ -29,32 +29,32 @@ namespace NBitcoin.RPC
 
 		------------------ P2P networking
 		network			getnetworkinfo
-		network			addnode					  Yes
+		network			addnode						Yes
 		network			disconnectnode
-		network			getaddednodeinfo			 Yes
+		network			getaddednodeinfo			Yes
 		network			getconnectioncount
 		network			getnettotals
-		network			getpeerinfo				  Yes
+		network			getpeerinfo					Yes
 		network			ping
 		network			setban
 		network			listbanned
 		network			clearbanned
 
 		------------------ Block chain and UTXO
-		blockchain		 getblockchaininfo			Yes
-		blockchain		 getbestblockhash			 Yes
-		blockchain		 getblockcount				Yes
-		blockchain		 getblock					 Yes
-		blockchain		 getblockhash				 Yes
-		blockchain		 getchaintips
-		blockchain		 getdifficulty
-		blockchain		 getmempoolinfo
-		blockchain		 getrawmempool				Yes
-		blockchain		 gettxout					Yes
-		blockchain		 gettxoutproof
-		blockchain		 verifytxoutproof
-		blockchain		 gettxoutsetinfo			Yes
-		blockchain		 verifychain
+		blockchain		getblockchaininfo			Yes
+		blockchain		getbestblockhash			Yes
+		blockchain		getblockcount				Yes
+		blockchain		getblock					Yes
+		blockchain		getblockhash				Yes
+		blockchain		getchaintips
+		blockchain		getdifficulty
+		blockchain		getmempoolinfo
+		blockchain		getrawmempool				Yes
+		blockchain		gettxout					Yes
+		blockchain		gettxoutproof
+		blockchain		verifytxoutproof
+		blockchain		gettxoutsetinfo				Yes
+		blockchain		verifychain
 
 		------------------ Mining
 		mining			 getblocktemplate
@@ -88,8 +88,8 @@ namespace NBitcoin.RPC
 		util			createmultisig
 		util			validateaddress
 		util			verifymessage
-		util			estimatefee				  Yes
-		util			estimatesmartfee			  Yes
+		util			estimatefee					Yes
+		util			estimatesmartfee			Yes
 		------------------ Not shown in help
 		hidden			invalidateblock				Yes
 		hidden			reconsiderblock
@@ -98,8 +98,8 @@ namespace NBitcoin.RPC
 
 		------------------ Wallet
 		wallet			 addmultisigaddress
-		wallet			 backupwallet				 Yes
-		wallet			 dumpprivkey				  Yes
+		wallet			 backupwallet				Yes
+		wallet			 dumpprivkey				Yes
 		wallet			 dumpwallet
 		wallet			 encryptwallet
 		wallet			 getaccountaddress			Yes
@@ -117,15 +117,15 @@ namespace NBitcoin.RPC
 		wallet			 importwallet
 		wallet			 importaddress				Yes
 		wallet			 keypoolrefill
-		wallet			 listaccounts				 Yes
-		wallet			 listaddressgroupings		 Yes
+		wallet			 listaccounts				Yes
+		wallet			 listaddressgroupings		Yes
 		wallet			 listlockunspent
 		wallet			 listreceivedbyaccount
 		wallet			 listreceivedbyaddress
 		wallet			 listsinceblock
 		wallet			 listtransactions
-		wallet			 listunspent				  Yes
-		wallet			 lockunspent				  Yes
+		wallet			 listunspent				Yes
+		wallet			 lockunspent				Yes
 		wallet			 move
 		wallet			 sendfrom
 		wallet			 sendmany
@@ -135,7 +135,7 @@ namespace NBitcoin.RPC
 		wallet			 signmessage
 		wallet			 walletlock
 		wallet			 walletpassphrasechange
-		wallet			 walletpassphrase			yes
+		wallet			 walletpassphrase			Yes
 		wallet			 walletprocesspsbt
 		wallet			 walletcreatefundedpsbt
 	*/
