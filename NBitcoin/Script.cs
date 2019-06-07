@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
@@ -128,7 +127,7 @@ namespace NBitcoin
 		/// them to be valid. (but old blocks may not comply with) Currently just P2SH,
 		/// but in the future other flags may be added, such as a soft-fork to enforce
 		/// strict DER encoding.
-		/// 
+		///
 		/// Failing one of these tests may trigger a DoS ban - see CheckInputs() for
 		/// details.
 		/// </summary>
@@ -754,7 +753,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Extract P2SH/P2PH/P2WSH/P2WPKH id from scriptPubKey
+		/// Extract P2PK/P2SH/P2PH/P2WSH/P2WPKH id from scriptPubKey
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
@@ -767,7 +766,12 @@ namespace NBitcoin
 			if(scriptHashParams != null)
 				return scriptHashParams;
 			var wit = PayToWitTemplate.Instance.ExtractScriptPubKeyParameters(this);
-			return wit;
+			if(wit != null)
+				return wit;
+			var pubKeyParams = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(this);
+			if(pubKeyParams != null)
+				return pubKeyParams.Hash;
+			return null;
 		}
 
 		/// <summary>
