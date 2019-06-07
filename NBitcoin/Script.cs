@@ -408,6 +408,11 @@ namespace NBitcoin
 			return new Script(data, true, true);
 		}
 
+		public static Script FromHex(string hex)
+		{
+			return FromBytesUnsafe(Encoders.Hex.DecodeData(hex));
+		}
+
 		public Script(byte[] data)
 			: this((IEnumerable<byte>)data)
 		{
