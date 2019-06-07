@@ -20,7 +20,8 @@ namespace NBitcoin
 
 		private void Modified()
 		{
-			_EnumeratorList = new Lazy<List<T>>(() => { lock (_lock) { return _Behaviors.ToList(); } });
+			if (_EnumeratorList?.IsValueCreated is true)
+				_EnumeratorList = new Lazy<List<T>>(() => { lock (_lock) { return _Behaviors.ToList(); } });
 		}
 
 		/// <summary>
