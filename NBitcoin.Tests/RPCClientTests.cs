@@ -423,6 +423,29 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public async Task CanGetTxoutSetInfoAsync()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				var response = rpc.GetTxoutSetInfo();
+
+				Assert.Equal("0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206", response.Bestblock.ToString());
+				Assert.Equal("b32ec1dda5a53cd025b95387aad344a801825fe46a60ff952ce26528f01d3be8", response.HashSerialized2);
+
+				const int BLOCKS_TO_GENERATE = 10;
+				uint256[] blockHashes = await rpc.GenerateAsync(BLOCKS_TO_GENERATE);
+
+				response = rpc.GetTxoutSetInfo();
+				Assert.Equal(BLOCKS_TO_GENERATE, response.Height);
+				Assert.Equal(BLOCKS_TO_GENERATE, response.Transactions);
+				Assert.Equal(BLOCKS_TO_GENERATE, response.Txouts);
+				Assert.Equal(BLOCKS_TO_GENERATE * 50M, response.TotalAmount.ToDecimal(MoneyUnit.BTC));
+			}
+		}
+
+		[Fact]
 		public async Task CanGetTxOutFromRPCAsync()
 		{
 			using (var builder = NodeBuilderEx.Create())
