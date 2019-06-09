@@ -1426,24 +1426,24 @@ namespace NBitcoin.RPC
 		/// <returns>Parsed object containing all info</returns>
 		public GetTxOutSetInfoResponse GetTxoutSetInfo()
 		{
-			return GetTxoutSetInfoAsync().Result;
+			return GetTxoutSetInfoAsync().GetAwaiter().GetResult();
 		}
 
 		public async Task<GetTxOutSetInfoResponse> GetTxoutSetInfoAsync()
 		{
-			var response = await SendCommandAsync(RPCOperations.gettxoutsetinfo);
+			var response = await SendCommandAsync(RPCOperations.gettxoutsetinfo).ConfigureAwait(false);
 
 			var result = response.Result;
 			return new GetTxOutSetInfoResponse
 			{
 				Height = result.Value<int>("height"),
-				Bestblock = result.Value<string>("bestblock"),
+				Bestblock = uint256.Parse(result.Value<string>("bestblock")),
 				Transactions = result.Value<int>("transactions"),
 				Txouts = result.Value<long>("txouts"),
 				Bogosize = result.Value<long>("bogosize"),
 				HashSerialized2 = result.Value<string>("hash_serialized_2"),
 				DiskSize = result.Value<long>("disk_size"),
-				TotalAmount = result.Value<decimal>("total_amount")
+				TotalAmount = Money.FromUnit(result.Value<decimal>("total_amount"), MoneyUnit.BTC)
 			};
 		}
 
