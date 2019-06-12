@@ -2,14 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
-using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>;
-using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.KeyId, System.Tuple<NBitcoin.PubKey, NBitcoin.Crypto.ECDSASignature>>;
 using NBitcoin.BuilderExtensions;
 
 namespace NBitcoin
@@ -281,7 +276,7 @@ namespace NBitcoin
 					if (input.TxIn.PrevOut.N >= tx.Outputs.Count)
 						continue;
 					var output = tx.Outputs[input.TxIn.PrevOut.N];
-					if (output.ScriptPubKey.IsWitness || input.RedeemScript?.IsWitness is true)
+					if (output.ScriptPubKey.IsScriptType(ScriptType.Witness) || input.RedeemScript?.IsScriptType(ScriptType.Witness) is true)
 					{
 						input.WitnessUtxo = output;
 						input.NonWitnessUtxo = null;
@@ -859,7 +854,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Filter the keys which contains the <paramref name="accountKey"/> and <paramref name="accountKeyPath"/> in the HDKeys and whose input/output 
+		/// Filter the keys which contains the <paramref name="accountKey"/> and <paramref name="accountKeyPath"/> in the HDKeys and whose input/output
 		/// the same scriptPubKeys as <paramref name="accountHDScriptPubKey"/>.
 		/// </summary>
 		/// <param name="accountHDScriptPubKey">The hdScriptPubKey used to generate addresses</param>

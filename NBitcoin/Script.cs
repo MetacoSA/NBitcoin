@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
@@ -128,7 +127,7 @@ namespace NBitcoin
 		/// them to be valid. (but old blocks may not comply with) Currently just P2SH,
 		/// but in the future other flags may be added, such as a soft-fork to enforce
 		/// strict DER encoding.
-		/// 
+		///
 		/// Failing one of these tests may trigger a DoS ban - see CheckInputs() for
 		/// details.
 		/// </summary>
@@ -339,6 +338,17 @@ namespace NBitcoin
 		Witness = 1
 	}
 
+	public enum ScriptType
+	{
+		Witness,
+		P2PKH,
+		P2SH,
+		P2PK,
+		P2WPKH,
+		P2WSH,
+		MultiSig
+	}
+
 	public class ScriptSigs
 	{
 		public ScriptSigs()
@@ -407,6 +417,11 @@ namespace NBitcoin
 		public static Script FromBytesUnsafe(byte[] data)
 		{
 			return new Script(data, true, true);
+		}
+
+		public static Script FromHex(string hex)
+		{
+			return FromBytesUnsafe(Encoders.Hex.DecodeData(hex));
 		}
 
 		public Script(byte[] data)
@@ -539,6 +554,7 @@ namespace NBitcoin
 		/// <summary>
 		/// True if the scriptPubKey is witness
 		/// </summary>
+		[Obsolete("Use IsScriptType instead")]
 		public bool IsWitness
 		{
 			get
@@ -686,6 +702,7 @@ namespace NBitcoin
 			return (BitcoinScriptAddress)Hash.GetAddress(network);
 		}
 
+		[Obsolete("Use IsScriptType instead")]
 		public bool IsPayToScriptHash
 		{
 			get
@@ -701,7 +718,7 @@ namespace NBitcoin
 
 		public uint GetSigOpCount(Script scriptSig)
 		{
-			if(!IsPayToScriptHash)
+			if(!IsScriptType(ScriptType.P2SH))
 				return GetSigOpCount(true);
 			// This is a pay-to-script-hash scriptPubKey;
 			// get the last item that the scriptSig
@@ -714,6 +731,29 @@ namespace NBitcoin
 		public ScriptTemplate FindTemplate()
 		{
 			return StandardScripts.GetTemplateFromScriptPubKey(this);
+		}
+
+		public bool IsScriptType(ScriptType type)
+		{
+			switch (type)
+			{
+				case ScriptType.Witness:
+					return PayToWitTemplate.Instance.CheckScriptPubKey(this);
+				case ScriptType.P2PKH:
+					return PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(this);
+				case ScriptType.P2SH:
+					return PayToScriptHashTemplate.Instance.CheckScriptPubKey(this);
+				case ScriptType.P2PK:
+					return PayToPubkeyTemplate.Instance.CheckScriptPubKey(this);
+				case ScriptType.P2WPKH:
+					return PayToWitPubKeyHashTemplate.Instance.CheckScriptPubKey(this);
+				case ScriptType.P2WSH:
+					return PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(this);
+				case ScriptType.MultiSig:
+					return PayToMultiSigTemplate.Instance.CheckScriptPubKey(this);
+				default:
+					throw new ArgumentOutOfRangeException(nameof(type), type, "The value is not a valid script type");
+			}
 		}
 
 		/// <summary>

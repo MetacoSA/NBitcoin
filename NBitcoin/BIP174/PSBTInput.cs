@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using Newtonsoft.Json;
 using System.IO;
 using NBitcoin.DataEncoders;
-using NBitcoin.Crypto;
-using NBitcoin;
-using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
-using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>;
 using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.TransactionSignature>;
-using System.Collections;
 
 namespace NBitcoin
 {
@@ -220,7 +214,7 @@ namespace NBitcoin
 			}
 		}
 
-		
+
 
 		public PartialSigKVMap PartialSigs
 		{
@@ -260,7 +254,7 @@ namespace NBitcoin
 			}
 			else
 			{
-				if (coin.TxOut.ScriptPubKey.IsPayToScriptHash && redeem_script == null)
+				if (coin.TxOut.ScriptPubKey.IsScriptType(ScriptType.P2SH) && redeem_script == null)
 				{
 					// Let's try to be smart by finding the redeemScript in the global tx
 					if (Parent.Settings.IsSmart && redeem_script == null)
@@ -415,10 +409,10 @@ namespace NBitcoin
 				if (witness_script != null)
 					errors.Add(new PSBTError(Index, "Input finalized, but witness script is not null"));
 			}
-			
+
 			if (witness_utxo != null && non_witness_utxo != null)
 				errors.Add(new PSBTError(Index, "witness utxo and non witness utxo simultaneously present"));
-			
+
 			if (witness_script != null && witness_utxo == null)
 				errors.Add(new PSBTError(Index, "witness script present but no witness utxo"));
 
@@ -452,7 +446,7 @@ namespace NBitcoin
 				{
 					if (redeem_script.Hash.ScriptPubKey != witness_utxo.ScriptPubKey)
 						errors.Add(new PSBTError(Index, "The redeem_script is not coherent with the scriptPubKey of the witness_utxo"));
-					if (witness_script != null && 
+					if (witness_script != null &&
 						redeem_script != null &&
 						PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(redeem_script) != witness_script.WitHash)
 						errors.Add(new PSBTError(Index, "witnessScript with witness UTXO does not match the redeemScript"));
@@ -461,9 +455,9 @@ namespace NBitcoin
 
 			if (witness_utxo?.ScriptPubKey is Script s)
 			{
-				if (!s.IsPayToScriptHash && !s.IsWitness)
+				if (!s.IsScriptType(ScriptType.P2SH) && !s.IsScriptType(ScriptType.Witness))
 					errors.Add(new PSBTError(Index, "A Witness UTXO is provided for a non-witness input"));
-				if (s.IsPayToScriptHash && redeem_script is Script r && !r.IsWitness)
+				if (s.IsScriptType(ScriptType.P2SH) && redeem_script is Script r && !r.IsScriptType(ScriptType.Witness))
 					errors.Add(new PSBTError(Index, "A Witness UTXO is provided for a non-witness input"));
 			}
 			return errors;
