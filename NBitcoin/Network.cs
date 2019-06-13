@@ -2203,7 +2203,6 @@ namespace NBitcoin
 			vSeeds.Clear();
 			vSeeds.Add(new DNSSeedData("bitcoin.petertodd.org", "testnet-seed.bitcoin.petertodd.org"));
 			vSeeds.Add(new DNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
-			vSeeds.Add(new DNSSeedData("bitcoin.schildbach.de", "testnet-seed.bitcoin.schildbach.de"));
 #endif
 
 			base58Prefixes = Network.Main.base58Prefixes.ToArray();
