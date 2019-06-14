@@ -1,12 +1,9 @@
 ﻿using NBitcoin.Altcoins.Elements;
-using NBitcoin.DataEncoders;
 using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -212,7 +209,7 @@ namespace NBitcoin.Tests
 						AddressType = AddressType.Bech32
 					});
 					// If this fail, rpc support segwit bug you said it does not
-					Assert.Equal(rpc.Capabilities.SupportSegwit, address.ScriptPubKey.IsWitness);
+					Assert.Equal(rpc.Capabilities.SupportSegwit, address.ScriptPubKey.IsScriptType(ScriptType.Witness));
 					if (rpc.Capabilities.SupportSegwit)
 					{
 						Assert.True(builder.Network.Consensus.SupportSegwit, "The node RPC support segwit, but Network.Consensus.SupportSegwit is set to false");

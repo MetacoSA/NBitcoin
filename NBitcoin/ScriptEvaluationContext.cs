@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -484,7 +483,7 @@ namespace NBitcoin
 			}
 
 			// Additional validation for spend-to-script-hash transactions:
-			if(((ScriptVerify & ScriptVerify.P2SH) != 0) && scriptPubKey.IsPayToScriptHash)
+			if(((ScriptVerify & ScriptVerify.P2SH) != 0) && scriptPubKey.IsScriptType(ScriptType.P2SH))
 			{
 				Load(evaluationCopy);
 				evaluationCopy = this;
@@ -2067,8 +2066,8 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ContextStack{T}"/> 
-		/// base on another stack. This is for copy/clone. 
+		/// Initializes a new instance of the <see cref="ContextStack{T}"/>
+		/// base on another stack. This is for copy/clone.
 		/// </summary>
 		/// <param name="stack">The stack.</param>
 		public ContextStack(ContextStack<T> stack)

@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Xunit;
-using NBitcoin.DataEncoders;
 using NBitcoin.Crypto;
 
 namespace NBitcoin.Tests
@@ -21,7 +19,7 @@ namespace NBitcoin.Tests
 			foreach(var test in tests.Skip(1))
 			{
 				var i= 0;
-				var testBlockHeight = test[i++]; 
+				var testBlockHeight = test[i++];
 				var testBlockHash = uint256.Parse((string)test[i++]);
 				var testBlock = Block.Parse((string)test[i++], Network.Main);
 				var testPreviousBasicHeader = uint256.Parse((string)test[i++]);
@@ -65,7 +63,7 @@ namespace NBitcoin.Tests
 
 			var key = Hashes.Hash256(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
 			var filter = new GolombRiceFilterBuilder()
-				.SetKey( key ) 
+				.SetKey( key )
 				.AddEntries(names)
 				.SetP(0x10)
 				.Build();
@@ -108,11 +106,11 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void FalsePositivesTest()
 		{
-			// Given this library can be used for building and query filters for each block of 
+			// Given this library can be used for building and query filters for each block of
 			// the bitcoin's blockchain, we must be sure it performs well, specially in the queries.
 
 			// Considering a 4MB block (overestimated) with an average transaction size of 250 bytes (underestimated)
-			// gives us 16000 transactions (this is about 27 tx/sec). Assuming 2.5 txouts per tx we have 83885 txouts 
+			// gives us 16000 transactions (this is about 27 tx/sec). Assuming 2.5 txouts per tx we have 83885 txouts
 			// per block.
 			const byte P = 20;
 			const int blockCount = 100;
@@ -127,7 +125,7 @@ namespace NBitcoin.Tests
 
 			// Generation of data to be added into the filter
 			var random = new Random();
-				
+
 			var blocks = new List<BlockFilter>(blockCount);
 			for (var i = 0; i < blockCount; i++)
 			{
@@ -264,7 +262,7 @@ namespace NBitcoin.Tests
 				for (int i = 0; i < tx.Outputs.Count; i++)
 				{
 					var output = tx.Outputs[i];
-					if (!output.ScriptPubKey.IsPayToScriptHash && output.ScriptPubKey.IsWitness)
+					if (!output.ScriptPubKey.IsScriptType(ScriptType.P2SH) && output.ScriptPubKey.IsScriptType(ScriptType.Witness))
 					{
 						var outpoint = new OutPoint(tx.GetHash(), i);
 						scripts.Add(output.ScriptPubKey);
@@ -287,7 +285,7 @@ namespace NBitcoin.Tests
 				for (int i = 0; i < tx.Outputs.Count; i++)
 				{
 					var output = tx.Outputs[i];
-					if (!output.ScriptPubKey.IsPayToScriptHash && output.ScriptPubKey.IsWitness)
+					if (!output.ScriptPubKey.IsScriptType(ScriptType.P2SH) && output.ScriptPubKey.IsScriptType(ScriptType.Witness))
 					{
 						Assert.True(filter.Match(output.ScriptPubKey.ToCompressedBytes(), testkey));
 					}
@@ -394,7 +392,7 @@ namespace NBitcoin.Tests
 
 			var key = Hashes.Hash256(Encoding.ASCII.GetBytes("A key for testing"));
 			var builder = new GolombRiceFilterBuilder()
-				.SetKey( key ) 
+				.SetKey( key )
 				.SetP(0x20);
 
 			foreach(var script in scripts)
