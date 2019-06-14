@@ -1301,5 +1301,35 @@ namespace NBitcoin.Tests
 			Assert.False(script.IsScriptType(ScriptType.P2WSH));
 			Assert.True(script.IsScriptType(ScriptType.MultiSig));
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanIdentifyP2WPKHScript()
+		{
+			var script = Script.FromHex("0014c4e2db37553d3e55c23da2ef5f2f41eb79935849");
+
+			Assert.True(script.IsScriptType(ScriptType.Witness));
+			Assert.False(script.IsScriptType(ScriptType.P2PKH));
+			Assert.False(script.IsScriptType(ScriptType.P2SH));
+			Assert.False(script.IsScriptType(ScriptType.P2PK));
+			Assert.True(script.IsScriptType(ScriptType.P2WPKH));
+			Assert.False(script.IsScriptType(ScriptType.P2WSH));
+			Assert.False(script.IsScriptType(ScriptType.MultiSig));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanIdentifyP2WSHScript()
+		{
+			var script = Script.FromHex("00201965d4c2e7e7b1973b00931ed042d0bacd03c12b7dc5e06b550c31d15fec7cc1");
+
+			Assert.True(script.IsScriptType(ScriptType.Witness));
+			Assert.False(script.IsScriptType(ScriptType.P2PKH));
+			Assert.False(script.IsScriptType(ScriptType.P2SH));
+			Assert.False(script.IsScriptType(ScriptType.P2PK));
+			Assert.False(script.IsScriptType(ScriptType.P2WPKH));
+			Assert.True(script.IsScriptType(ScriptType.P2WSH));
+			Assert.False(script.IsScriptType(ScriptType.MultiSig));
+		}
 	}
 }
