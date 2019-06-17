@@ -757,7 +757,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Extract P2SH or P2PH address from scriptSig
+		/// Extract P2SH or P2PKH address from scriptSig
 		/// </summary>
 		/// <param name="network">The network</param>
 		/// <returns></returns>
@@ -768,7 +768,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Extract P2SH or P2PH id from scriptSig
+		/// Extract P2SH or P2PKH id from scriptSig
 		/// </summary>
 		/// <returns>The network</returns>
 		public TxDestination GetSigner()
@@ -783,7 +783,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Extract P2SH/P2PH/P2WSH/P2WPKH address from scriptPubKey
+		/// Extract P2SH/P2PKH/P2WSH/P2WPKH address from scriptPubKey
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
@@ -794,7 +794,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Extract P2SH/P2PH/P2WSH/P2WPKH id from scriptPubKey
+		/// Extract P2SH/P2PKH/P2WSH/P2WPKH id from scriptPubKey
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
