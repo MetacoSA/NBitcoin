@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Extensions.Logging;
-using NBitcoin.Logging;
 
 namespace NBitcoin
 {
@@ -86,7 +84,7 @@ namespace NBitcoin
 				return true;
 			}
 
-			
+
 			if (!uint256.TryParse(splitted[0], out hash))
 				return false;
 
@@ -315,7 +313,7 @@ namespace NBitcoin
 				return (nSequence == uint.MaxValue);
 			}
 		}
-		
+
 		public virtual ConsensusFactory GetConsensusFactory()
 		{
 			return Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
@@ -1618,7 +1616,7 @@ namespace NBitcoin
 			return Inputs.FindIndexedInput(coin.Outpoint) ?? throw new ArgumentException("The coin is not being spent by this transaction", nameof(coin));
 		}
 
-		public bool IsCoinBase
+		public virtual bool IsCoinBase
 		{
 			get
 			{
@@ -1972,7 +1970,7 @@ namespace NBitcoin
 		/// in order to be considered final in the context of BIP 68.  It also removes
 		/// from the vector of input heights any entries which did not correspond to sequence
 		/// locked inputs as they do not affect the calculation.
-		/// </summary>		
+		/// </summary>
 		/// <param name="prevHeights">Previous Height</param>
 		/// <param name="block">The block being evaluated</param>
 		/// <param name="flags">If VerifySequence is not set, returns always true SequenceLock</param>
@@ -1987,7 +1985,7 @@ namespace NBitcoin
 		/// in order to be considered final in the context of BIP 68.  It also removes
 		/// from the vector of input heights any entries which did not correspond to sequence
 		/// locked inputs as they do not affect the calculation.
-		/// </summary>		
+		/// </summary>
 		/// <param name="prevHeights">Previous Height</param>
 		/// <param name="block">The block being evaluated</param>
 		/// <param name="flags">If VerifySequence is not set, returns always true SequenceLock</param>
