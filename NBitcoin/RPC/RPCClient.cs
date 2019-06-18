@@ -151,7 +151,7 @@ namespace NBitcoin.RPC
 			return $"{credentials.UserName}:{salt}${Encoders.Hex.EncodeData(result)}";
 		}
 
-		private static Lazy<HttpClient> _Shared = new Lazy<HttpClient>(() => new HttpClient());
+		private static Lazy<HttpClient> _Shared = new Lazy<HttpClient>(() => new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan });
 
 		HttpClient _HttpClient;
 		public HttpClient HttpClient
