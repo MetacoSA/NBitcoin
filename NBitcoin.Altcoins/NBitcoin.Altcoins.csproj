@@ -11,7 +11,7 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<Version Condition=" '$(Version)' == '' ">1.0.2.6</Version>
+		<Version Condition=" '$(Version)' == '' ">1.0.2.7</Version>
 		<TargetFrameworks>net461;net452;netstandard1.3;netcoreapp2.1;netstandard2.0</TargetFrameworks>
 		<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetFrameworkOverride)' != ''">$(TargetFrameworkOverride)</TargetFrameworks>
