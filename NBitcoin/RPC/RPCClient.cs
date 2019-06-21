@@ -1566,7 +1566,7 @@ namespace NBitcoin.RPC
 				Transaction = ParseTxHex(json.Value<string>("hex")),
 				TransactionId = uint256.Parse(json.Value<string>("txid")),
 				TransactionTime = json["time"] != null ? NBitcoin.Utils.UnixTimeToDateTime(json.Value<long>("time")) : (DateTimeOffset?)null,
-				Hash = uint256.Parse(json.Value<string>("hash")),
+				Hash = json["hash"] != null ? uint256.Parse(json.Value<string>("hash")) : null,
 				Size = json.Value<uint>("size"),
 				VirtualSize = json.Value<uint>("vsize"),
 				Version = json.Value<uint>("version"),
