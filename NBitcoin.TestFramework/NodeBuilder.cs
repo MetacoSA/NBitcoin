@@ -110,14 +110,14 @@ namespace NBitcoin.Tests
 	}
 	public class NodeBuilder : IDisposable
 	{
-		public static NodeBuilder Create(NodeDownloadData downloadData, Network network = null, [CallerMemberNameAttribute]string caller = null)
+		public static NodeBuilder Create(NodeDownloadData downloadData, Network network = null, [CallerMemberNameAttribute]string caller = null, bool showNodeConsole = false)
 		{
 			network = network ?? Network.RegTest;
 			var isFilePath = downloadData.Version.Length >= 2 && downloadData.Version[1] == ':';
 			var path = isFilePath ? downloadData.Version : EnsureDownloaded(downloadData);
 			if(!Directory.Exists(caller))
 				Directory.CreateDirectory(caller);
-			return new NodeBuilder(caller, path) { Network = network, NodeImplementation = downloadData };
+			return new NodeBuilder(caller, path) { Network = network, NodeImplementation = downloadData, ShowNodeConsole = showNodeConsole };
 		}
 
 		public static string EnsureDownloaded(NodeDownloadData downloadData)
@@ -169,46 +169,26 @@ namespace NBitcoin.Tests
 
 		int last = 0;
 		private string _Root;
-		private string _Bitcoind;
+
+		public bool ShowNodeConsole { private set; get; }
+
+		public string BitcoinD { get; }
+
+		public List<CoreNode> Nodes { get; } = new List<CoreNode>();
+
+		public NodeConfigParameters ConfigParameters { get; } = new NodeConfigParameters();
+
 		public NodeBuilder(string root, string bitcoindPath)
 		{
 			this._Root = root;
-			this._Bitcoind = bitcoindPath;
+			this.BitcoinD = bitcoindPath;
 		}
 
-		public string BitcoinD
-		{
-			get
-			{
-				return _Bitcoind;
-			}
-		}
-
-		public bool CleanBeforeStartingNode
+        public bool CleanBeforeStartingNode
 		{
 			get; set;
 		} = true;
-
-
-		private readonly List<CoreNode> _Nodes = new List<CoreNode>();
-		public List<CoreNode> Nodes
-		{
-			get
-			{
-				return _Nodes;
-			}
-		}
-
-
-		private readonly NodeConfigParameters _ConfigParameters = new NodeConfigParameters();
-		public NodeConfigParameters ConfigParameters
-		{
-			get
-			{
-				return _ConfigParameters;
-			}
-		}
-
+       
 		public Network Network
 		{
 			get;
@@ -495,7 +475,7 @@ namespace NBitcoin.Tests
 			else
 				config.Add("whitebind", "127.0.0.1:" + ports[0].ToString());
 			config.Add("rpcport", ports[1].ToString());
-			config.Add("printtoconsole", "0");
+			config.Add("printtoconsole", _Builder.ShowNodeConsole ? "1" : "0");
 			config.Add("keypool", "10");
 			config.Import(ConfigParameters, true);
 			configStr.AppendLine(config.ToString());
@@ -509,7 +489,20 @@ namespace NBitcoin.Tests
 		{
 			lock(l)
 			{
-				_Process = Process.Start(new FileInfo(this._Builder.BitcoinD).FullName, "-conf=bitcoin.conf" + " -datadir=" + dataDir + " -debug=net");
+				string appPath = new FileInfo(this._Builder.BitcoinD).FullName;
+				string args = "-conf=bitcoin.conf" + " -datadir=" + dataDir + " -debug=net";
+
+				if (_Builder.ShowNodeConsole == true)
+				{
+					ProcessStartInfo info = new ProcessStartInfo(appPath, args);
+					info.UseShellExecute = true;
+					_Process = Process.Start(info);
+				}
+				else
+				{
+					_Process = Process.Start(appPath, args);
+				}
+
 				_State = CoreNodeState.Starting;
 			}
 			while(true)
