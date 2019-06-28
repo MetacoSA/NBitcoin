@@ -277,7 +277,7 @@ namespace NBitcoin.RPC
 		public async Task<Money> GetReceivedByAddressAsync(BitcoinAddress address)
 		{
 			var response = await SendCommandAsync(RPCOperations.getreceivedbyaddress, address.ToString()).ConfigureAwait(false);
-			return Money.Coins(response.Result.Value<decimal>());
+			return GetMoney(response);
 		}
 
 		/// <summary>
@@ -295,7 +295,7 @@ namespace NBitcoin.RPC
 		public Money GetReceivedByAddress(BitcoinAddress address, int confirmations)
 		{
 			var response = SendCommand(RPCOperations.getreceivedbyaddress, address.ToString(), confirmations);
-			return Money.Coins(response.Result.Value<decimal>());
+			return GetMoney(response);
 		}
 
 		/// <summary>
@@ -313,7 +313,7 @@ namespace NBitcoin.RPC
 		public async Task<Money> GetReceivedByAddressAsync(BitcoinAddress address, int confirmations)
 		{
 			var response = await SendCommandAsync(RPCOperations.getreceivedbyaddress, address.ToString(), confirmations).ConfigureAwait(false);
-			return Money.Coins(response.Result.Value<decimal>());
+			return GetMoney(response);
 		}
 
 
@@ -1007,6 +1007,13 @@ namespace NBitcoin.RPC
 			}
 		}
 
+		private Money GetMoney(RPCResponse response)
+		{
+			decimal coins = response.Result is JValue jVal
+				            ? Convert.ToDecimal(jVal.Value)
+				            : response.Result.Value<decimal>();
+			return Money.Coins(coins);
+		}
 	}
 }
 #endif
