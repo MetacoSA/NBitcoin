@@ -193,6 +193,33 @@ namespace NBitcoin.Tests
 					Hash = "fe1a593ffb10fec817157903a49d8965c49594dda4021fb76cf7d341e5300e17"
 				}
 			};
+
+			public NodeDownloadData v0_17_1 = new NodeDownloadData()
+			{
+				Version = "0.17.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://download.litecoin.org/litecoin-{0}/win/litecoin-{0}-win64.zip",
+					Archive = "litecoin-{0}-win64.zip",
+					Executable = "litecoin-{0}/bin/litecoind.exe",
+					Hash = "8060e9bface9bbdc22c74a2687b211c8b4e32fe03c0e6c537c12de0ff6f0813b"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://download.litecoin.org/litecoin-{0}/linux/litecoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "litecoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "litecoin-{0}/bin/litecoind",
+					Hash = "9cab11ba75ea4fb64474d4fea5c5b6851f9a25fe9b1d4f7fc9c12b9f190fed07"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://download.litecoin.org/litecoin-{0}/osx/litecoin-{0}-osx64.tar.gz",
+					Archive = "litecoin-{0}-osx64.tar.gz",
+					Executable = "litecoin-{0}/bin/litecoind",
+					Hash = "b93fa415c84bea1676d0b0ea819dd6e8e4f7b136167d89b18b63240b50757d4f"
+				},
+				UseSectionInConfigFile = true
+			};
 		}
 
 		public class ViacoinNodeDownloadData
@@ -250,6 +277,33 @@ namespace NBitcoin.Tests
 					Executable = "bitcoin-abc-{0}/bin/bitcoind",
 					Hash = "5a655ddd8eb6b869b902780efe4ec12de24bbede3f6bf2edc3922048928053e5"
 				},
+			};
+
+			public NodeDownloadData v0_19_8 = new NodeDownloadData()
+			{
+				Version = "0.19.8",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://download.bitcoinabc.org/{0}/win/bitcoin-abc-{0}-win64.zip",
+					Archive = "bitcoin-abc-{0}-win64.zip",
+					Executable = "bitcoin-abc-{0}/bin/bitcoind.exe",
+					Hash = "2080955c7cc2af0a84efa4375ea44a581b0e86b8c7cea735edd9ed5e23866069"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://download.bitcoinabc.org/{0}/linux/bitcoin-abc-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "bitcoin-abc-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-abc-{0}/bin/bitcoind",
+					Hash = "cc40101ffe44340dcc82c6de2bc92040368a857548da133d7f1eb7a45a4c63f5"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://download.bitcoinabc.org/{0}/osx/bitcoin-abc-{0}-osx64.tar.gz",
+					Archive = "bitcoin-abc-{0}-osx64.tar.gz",
+					Executable = "bitcoin-abc-{0}/bin/bitcoind",
+					Hash = "7ecb69387fdea63ad87cda726b56da72fc2cf5d2af94393634b776bcda70a906"
+				},
+				UseSectionInConfigFile = true
 			};
 		}
 
@@ -339,6 +393,35 @@ namespace NBitcoin.Tests
 					Hash = "6f97f502732e5b63a431d0edb5a9d14e95ff8afb8e7eb94463566a75e7589a70"
 				}
 			};
+
+			// Note that Dash have DISABLED mining in their offical Windows and Mac binaries as per
+			// https://github.com/dashpay/dash/pull/2778 and https://github.com/dashpay/dash/issues/2998.
+			// Without generate or generatetoaddress RPC calls the ability to run automated tests is very limited.
+			//public NodeDownloadData v0_14_0_1 = new NodeDownloadData()
+			//{
+			//	Version = "0.14.0.1",
+			//	Windows = new NodeOSDownloadData()
+			//	{
+			//		DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-win64.zip",
+			//		Archive = "dashcore-{0}-win64.zip",
+			//		Executable = "dashcore-0.14.0/bin/dashd.exe",
+			//		Hash = "8d9a0d25cafb166dd49b75b63e059d2896d0162b3e32168c5dddb40c8ac3853b"
+			//	},
+			//	Linux = new NodeOSDownloadData()
+			//	{
+			//		DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-x86_64-linux-gnu.tar.gz",
+			//		Archive = "dashcore-{0}-x86_64-linux-gnu.tar.gz",
+			//		Executable = "dashcore-0.14.0/bin/dashd",
+			//		Hash = "c28881104ef7b3bdede7eb2b231b076a6e69213948695b4ec79ccb5621c04d97"
+			//	},
+			//	Mac = new NodeOSDownloadData()
+			//	{
+			//		DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-osx-unsigned.dmg",
+			//		Archive = "dashcore-{0}-osx-unsigned.dmg",
+			//		Executable = "dashcore-0.14.0/bin/dashd",
+			//		Hash = "51faffb422fbd3c659ef4b34e7e708174389d8493f2368db4d6c909b52db9115"
+			//	}
+			//};
 		}
 
 		public class DystemNodeDownloadData
@@ -667,6 +750,34 @@ namespace NBitcoin.Tests
 					Archive = "liquid-{0}-x86_64-linux-gnu.tar.gz",
 					Executable = "liquid-{0}/bin/liquidd",
 					Hash = "ea2836aa267b32b29e890acdd5e724b4be225c34891fd26426ce741c12c1e166"
+				},
+				RegtestFolderName = "liquidregtest",
+				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0"
+			};
+
+			public NodeDownloadData v3_14_1_23 = new NodeDownloadData()
+			{
+				Version = "3.14.1.23",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Blockstream/liquid/releases/download/liquid.{0}/liquid-{0}-win64.zip",
+					Archive = "liquid-{0}-win64.zip",
+					Executable = "liquid-{0}/bin/liquidd.exe",
+					Hash = "8b18aebbbf8092b052db648e34adf52342a02923d758181cfb8bc0894c90dfb5"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Blockstream/liquid/releases/download/liquid.{0}/liquid-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "liquid-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "liquid-{0}/bin/liquidd",
+					Hash = "cb135d60407fd4fcd04d1f021cd314e9f8f50a8f0a660551f5ea251b0fea3ffc"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Blockstream/liquid/releases/download/liquid.{0}/liquid-{0}-osx64.tar.gz",
+					Archive = "liquid-{0}-x86_64-osx64.tar.gz",
+					Executable = "liquid-{0}/bin/liquidd",
+					Hash = "91f5859414d6bce99695c2de01317ec1454d3d99615f81f301b85f767b5e2cf2  "
 				},
 				RegtestFolderName = "liquidregtest",
 				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0"
