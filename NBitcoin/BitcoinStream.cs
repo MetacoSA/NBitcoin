@@ -113,6 +113,10 @@ namespace NBitcoin
 			: this(new MemoryStream(bytes), false)
 		{
 		}
+		public BitcoinStream(byte[] bytes, int offset, int length)
+			: this(new MemoryStream(bytes, offset, length), false)
+		{
+		}
 
 		public Script ReadWrite(Script data)
 		{

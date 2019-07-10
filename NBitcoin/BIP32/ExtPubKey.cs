@@ -79,7 +79,17 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(bytes));
 			this.ReadWrite(new BitcoinStream(bytes));
 		}
-        
+
+		/// <summary>
+		/// Constructor. Creates a new extended public key from the specified extended public key bytes.
+		/// </summary>
+		public ExtPubKey(byte[] bytes, int offset, int length)
+		{
+			if (bytes == null)
+				throw new ArgumentNullException(nameof(bytes));
+			this.ReadWrite(new BitcoinStream(bytes, offset, length));
+		}
+
 		/// <summary>
 		/// Constructor. Creates a new extended public key from the specified extended public key bytes, from the given hex string.
 		/// </summary>

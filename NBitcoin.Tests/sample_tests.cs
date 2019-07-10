@@ -122,7 +122,7 @@ namespace NBitcoin.Tests
 
 				Assert.True(partiallySignedTx.Inputs.All(i => i.PartialSigs.Count == 1));
 
-				partiallySignedTx = PSBT.Load(partiallySignedTx.ToBytes(), Network.Main.Consensus.ConsensusFactory);
+				partiallySignedTx = PSBT.Load(partiallySignedTx.ToBytes(), Network.Main);
 
 				Network.Main.CreateTransactionBuilder()
 						  .AddKeys(privateKeys[1], privateKeys[2])

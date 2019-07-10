@@ -38,6 +38,7 @@ namespace NBitcoin
 		// Note: These constants are in reverse byte order because serialization uses LSB
 		// Global types
 		public const byte PSBT_GLOBAL_UNSIGNED_TX = 0x00;
+		public const byte PSBT_GLOBAL_XPUB = 0x01;
 
 		// Input types
 		public const byte PSBT_IN_NON_WITNESS_UTXO = 0x00;
@@ -107,8 +108,19 @@ namespace NBitcoin
 		{
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
-			return Parse(hexOrBase64, network.Consensus.ConsensusFactory);
+			if (hexOrBase64 == null)
+				throw new ArgumentNullException(nameof(hexOrBase64));
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			byte[] raw;
+			if (HexEncoder.IsWellFormed(hexOrBase64))
+				raw = Encoders.Hex.DecodeData(hexOrBase64);
+			else
+				raw = Encoders.Base64.DecodeData(hexOrBase64);
+
+			return Load(raw, network);
 		}
+		[Obsolete("Use Load(byte[] rawBytes, Network network)")]
 		public static PSBT Parse(string hexOrBase64, ConsensusFactory consensusFactory)
 		{
 			if (hexOrBase64 == null)
@@ -127,22 +139,29 @@ namespace NBitcoin
 		{
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
-			return Load(rawBytes, network.Consensus.ConsensusFactory);
+			var stream = new BitcoinStream(rawBytes);
+			stream.ConsensusFactory = network.Consensus.ConsensusFactory;
+			var ret = new PSBT(stream, network);
+			return ret;
 		}
+		[Obsolete("Use Load(byte[] rawBytes, Network network)")]
 		public static PSBT Load(byte[] rawBytes, ConsensusFactory consensusFactory)
 		{
 			if (rawBytes == null)
 				throw new ArgumentNullException(nameof(rawBytes));
 			var stream = new BitcoinStream(rawBytes);
 			stream.ConsensusFactory = consensusFactory;
-			var ret = new PSBT(stream);
+			var ret = new PSBT(stream, null);
 			return ret;
 		}
 
-		private PSBT(Transaction transaction)
+		public Network Network { get; }
+
+		private PSBT(Transaction transaction, Network network)
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
+			Network = network;
 			tx = transaction.Clone();
 			Inputs = new PSBTInputList();
 			Outputs = new PSBTOutputList();
@@ -157,8 +176,9 @@ namespace NBitcoin
 			}
 		}
 
-		internal PSBT(BitcoinStream stream)
+		internal PSBT(BitcoinStream stream, Network network)
 		{
+			Network = network;
 			Inputs = new PSBTInputList();
 			Outputs = new PSBTOutputList();
 			var magicBytes = stream.Inner.ReadBytes(PSBT_MAGIC_BYTES.Length);
@@ -174,7 +194,7 @@ namespace NBitcoin
 			stream.ReadWriteAsVarString(ref k);
 			while (k.Length != 0)
 			{
-				switch (k.First())
+				switch (k[0])
 				{
 					case PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX:
 						if (k.Length != 1)
@@ -719,7 +739,10 @@ namespace NBitcoin
 		public PSBT Clone(bool keepOriginalTransactionInformation)
 		{
 			var bytes = ToBytes();
-			var psbt = PSBT.Load(bytes, tx.GetConsensusFactory());
+#pragma warning disable CS0618 // Type or member is obsolete
+			var psbt = Network == null ? PSBT.Load(bytes, tx.GetConsensusFactory())
+									   : PSBT.Load(bytes, Network);
+#pragma warning restore CS0618 // Type or member is obsolete
 			if (keepOriginalTransactionInformation)
 			{
 				for (int i = 0; i < Inputs.Count; i++)
@@ -752,11 +775,21 @@ namespace NBitcoin
 		}
 		public override int GetHashCode() => Utils.GetHashCode(this.ToBytes());
 
+		public static PSBT FromTransaction(Transaction transaction, Network network)
+		{
+			if (transaction == null)
+				throw new ArgumentNullException(nameof(transaction));
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			return new PSBT(transaction, network);
+		}
+
+		[Obsolete("Use FromTransaction(Transaction transaction, Network network) instead")]
 		public static PSBT FromTransaction(Transaction transaction)
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
-			return new PSBT(transaction);
+			return new PSBT(transaction, null);
 		}
 
 		public PSBT AddScripts(params Script[] redeems)

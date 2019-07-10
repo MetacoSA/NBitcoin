@@ -2521,7 +2521,6 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void Play()
         {
-
 		}
 
 		protected virtual BigInteger CalculateE(BigInteger n, byte[] message)

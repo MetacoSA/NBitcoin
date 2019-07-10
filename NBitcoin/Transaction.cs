@@ -1736,6 +1736,16 @@ namespace NBitcoin
 			Sign(new[] { secret }, new[] { coin });
 		}
 
+
+		public virtual PSBT CreatePSBT(Network network)
+		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			var psbt = PSBT.FromTransaction(this, network);
+			return psbt;
+		}
+
+		[Obsolete("Use CreatePSBT(Network network) instead")]
 		public virtual PSBT CreatePSBT()
 		{
 			var psbt = PSBT.FromTransaction(this);

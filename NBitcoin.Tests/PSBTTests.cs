@@ -132,7 +132,7 @@ namespace NBitcoin.Tests
 
 			// 2. with (unsigned) scriptSig and witness.
 			tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
-			var psbt = PSBT.FromTransaction(tx).AddCoins(funds);
+			var psbt = PSBT.FromTransaction(tx, Network.Main).AddCoins(funds);
 			Assert.Null(psbt.Inputs[0].FinalScriptSig); // it is not finalized since it is not signed
 			Assert.Null(psbt.Inputs[1].FinalScriptWitness); // This too
 			Assert.NotNull(psbt.Inputs[2].RedeemScript); // But it holds redeem script.
@@ -142,7 +142,7 @@ namespace NBitcoin.Tests
 
 			// 3. with finalized scriptSig and witness
 			tx = CreateTxToSpendFunds(funds, keys, redeem, true, true);
-			psbt = PSBT.FromTransaction(tx)
+			psbt = PSBT.FromTransaction(tx, Network.Main)
 				.AddTransactions(funds)
 				.Finalize();
 
@@ -179,7 +179,7 @@ namespace NBitcoin.Tests
 
 			var tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
 			var coins = DummyFundsToCoins(funds, redeem, alice);
-			var psbtWithCoins = PSBT.FromTransaction(tx)
+			var psbtWithCoins = PSBT.FromTransaction(tx, Network.Main)
 				.AddCoins(coins);
 
 			Assert.Null(psbtWithCoins.Inputs[0].WitnessUtxo);
@@ -218,7 +218,7 @@ namespace NBitcoin.Tests
 			// Only p2wpkh and p2sh-p2wpkh will succeed.
 			Assert.Equal(4, ex.Errors.GroupBy(e => e.InputIndex).Count());
 
-			var psbtWithTXs = PSBT.FromTransaction(tx)
+			var psbtWithTXs = PSBT.FromTransaction(tx, Network.Main)
 				.AddCoins(coins)
 				.AddTransactions(funds);
 			Assert.Null(psbtWithTXs.Inputs[0].WitnessUtxo);
@@ -293,7 +293,7 @@ namespace NBitcoin.Tests
 			var funds = CreateDummyFunds(network, keys, redeem);
 
 			var tx = CreateTxToSpendFunds(funds, keys, redeem, false, false);
-			var psbt = PSBT.FromTransaction(tx);
+			var psbt = PSBT.FromTransaction(tx, Network.Main);
 
 			var ex = Assert.Throws<PSBTException>(() => psbt.Finalize());
 			Assert.Equal(6, ex.Errors.GroupBy(e => e.InputIndex).Count());
@@ -309,7 +309,7 @@ namespace NBitcoin.Tests
 			var funds = CreateDummyFunds(network, keys, redeem);
 
 			var tx = CreateTxToSpendFunds(funds, keys, redeem, false, false);
-			var psbt = PSBT.FromTransaction(tx);
+			var psbt = PSBT.FromTransaction(tx, Network.Main);
 
 			// case 1: Check that it will result to more info by adding ScriptCoin in case of p2sh-p2wpkh
 			var coins1 = DummyFundsToCoins(funds, null, null); // without script
@@ -396,7 +396,7 @@ namespace NBitcoin.Tests
 
 			var expected = PSBT.Parse((string)testcase["psbt1"], Network.Main);
 
-			var psbt = PSBT.FromTransaction(tx);
+			var psbt = PSBT.FromTransaction(tx, Network.Main);
 			Assert.Equal(expected, psbt, ComparerInstance);
 
 			var prevtx1 = Transaction.Parse((string)testcase["prevtx1"], network);
@@ -501,7 +501,7 @@ namespace NBitcoin.Tests
 			tx.Inputs.Add(funding, 0);
 			tx.Inputs.Add(funding, 1);
 
-			var psbt = PSBT.FromTransaction(tx);
+			var psbt = PSBT.FromTransaction(tx, Network.Main);
 			psbt.AddTransactions(funding);
 			psbt.AddKeyPath(accountExtKey, Tuple.Create(new KeyPath(0 | hardenedFlag), funding.Outputs[0].ScriptPubKey), 
 										   Tuple.Create(new KeyPath(1 | hardenedFlag), funding.Outputs[1].ScriptPubKey));
@@ -550,7 +550,7 @@ namespace NBitcoin.Tests
 			// and spends the following inputs:
 			tx.Inputs.Add(OutPoint.Parse("75ddabb27b8845f5247975c8a5ba7c6f336c4570708ebe230caf6db5217ae858-0"));
 			tx.Inputs.Add(OutPoint.Parse("1dea7cd05979072a3578cab271c02244ea8a090bbb46aa680a65ecd027048d83-1"));
-			var actualPsbt = PSBT.FromTransaction(tx);
+			var actualPsbt = PSBT.FromTransaction(tx, Network.Main);
 			// must create this PSBT:
 			var expectedPsbt = PSBT.Parse("70736274ff01009a020000000258e87a21b56daf0c23be8e7070456c336f7cbaa5c8757924f545887bb2abdd750000000000ffffffff838d0427d0ec650a68aa46bb0b098aea4422c071b2ca78352a077959d07cea1d0100000000ffffffff0270aaf00800000000160014d85c2b71d0060b09c9886aeb815e50991dda124d00e1f5050000000016001400aea9a2e5f0f876a588df5546e8742d1d87008f000000000000000000", extkey.Network);
 			Assert.Equal(expectedPsbt, actualPsbt);
