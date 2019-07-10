@@ -150,7 +150,7 @@ namespace NBitcoin
 		private TxOut witness_utxo;
 		private Script final_script_sig;
 		private WitScript final_script_witness;
-		private PartialSigKVMap partial_sigs = new PartialSigKVMap(new PubKeyComparer());
+		private PartialSigKVMap partial_sigs = new PartialSigKVMap(PubKeyComparer.Instance);
 
 		SigHash? sighash_type;
 

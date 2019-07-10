@@ -8,14 +8,14 @@ namespace NBitcoin
 {
 	public abstract class PSBTCoin
 	{
-		protected HDKeyPathKVMap hd_keypaths = new HDKeyPathKVMap(new PubKeyComparer());
+		protected HDKeyPathKVMap hd_keypaths = new HDKeyPathKVMap(PubKeyComparer.Instance);
 		protected UnKnownKVMap unknown = new SortedDictionary<byte[], byte[]>(BytesComparer.Instance);
 		protected Script redeem_script;
 		protected Script witness_script;
 		protected readonly PSBT Parent;
 		public PSBTCoin(PSBT parent)
 		{
-			hd_keypaths = new HDKeyPathKVMap(new PubKeyComparer());
+			hd_keypaths = new HDKeyPathKVMap(PubKeyComparer.Instance);
 			unknown = new UnKnownKVMap(BytesComparer.Instance);
 			Parent = parent;
 		}
