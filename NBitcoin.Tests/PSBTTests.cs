@@ -501,7 +501,7 @@ namespace NBitcoin.Tests
 			tx.Inputs.Add(funding, 0);
 			tx.Inputs.Add(funding, 1);
 
-			var psbt = PSBT.FromTransaction(tx, Network.Main);
+			var psbt = PSBT.FromTransaction(tx, Network.TestNet);
 			psbt.AddTransactions(funding);
 			psbt.AddKeyPath(accountExtKey, Tuple.Create(new KeyPath(0 | hardenedFlag), funding.Outputs[0].ScriptPubKey), 
 										   Tuple.Create(new KeyPath(1 | hardenedFlag), funding.Outputs[1].ScriptPubKey));
@@ -511,8 +511,13 @@ namespace NBitcoin.Tests
 			Assert.Equal(accountExtKey.GetPublicKey().GetHDFingerPrint(), psbt.Inputs[1].HDKeyPaths[accountExtKey.Derive(1 | hardenedFlag).GetPublicKey()].MasterFingerprint);
 
 			var memento = psbt.Clone();
-			psbt.RebaseKeyPaths(accountExtKey, new RootedKeyPath(masterExtkey.GetPublicKey().GetHDFingerPrint(), new KeyPath("0'/0'/0'")));
-
+			psbt.GlobalXPubs.Add(accountExtKey.Neuter(), new RootedKeyPath(accountExtKey, new KeyPath()));
+			var rebasingKeyPath = new RootedKeyPath(masterExtkey.GetPublicKey().GetHDFingerPrint(), new KeyPath("0'/0'/0'"));
+			psbt.RebaseKeyPaths(accountExtKey, rebasingKeyPath);
+			Assert.Equal(psbt.GlobalXPubs.Single().Value, rebasingKeyPath);
+			psbt.ToString();
+			psbt = PSBT.Parse(psbt.ToHex(), psbt.Network);
+			Assert.Equal(psbt.GlobalXPubs.Single().Value, rebasingKeyPath);
 			Assert.Equal(new KeyPath("0'/0'/0'").Derive(0 | hardenedFlag), psbt.Inputs[0].HDKeyPaths[accountExtKey.Derive(0 | hardenedFlag).GetPublicKey()].KeyPath);
 			Assert.Equal(new KeyPath("0'/0'/0'").Derive(1 | hardenedFlag), psbt.Inputs[1].HDKeyPaths[accountExtKey.Derive(1 | hardenedFlag).GetPublicKey()].KeyPath);
 			Assert.Equal(masterExtkey.GetPublicKey().GetHDFingerPrint(), psbt.Inputs[0].HDKeyPaths[accountExtKey.Derive(0 | hardenedFlag).GetPublicKey()].MasterFingerprint);

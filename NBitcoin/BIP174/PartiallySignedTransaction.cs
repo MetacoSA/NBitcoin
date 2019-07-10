@@ -235,6 +235,7 @@ namespace NBitcoin
 							if (k[1 + ii] != XPubVersionBytes[ii])
 								throw new FormatException("Malformed global xpub.");
 						}
+						stream.ReadWriteAsVarString(ref v);
 						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
 						var rootedKeyPath = new RootedKeyPath(new HDFingerprint(v.Take(4).ToArray()), path);
 						GlobalXPubs.Add(new ExtPubKey(k, 1 + XPubVersionBytes.Length, 74).GetWif(Network), rootedKeyPath);
@@ -729,8 +730,10 @@ namespace NBitcoin
 				jsonWriter.WriteStartArray();
 				foreach (var xpub in GlobalXPubs)
 				{
+					jsonWriter.WriteStartObject();
 					jsonWriter.WritePropertyValue("key", xpub.Key.ToString());
 					jsonWriter.WritePropertyValue("value", xpub.Value.ToString());
+					jsonWriter.WriteEndObject();
 				}
 				jsonWriter.WriteEndArray();
 			}
