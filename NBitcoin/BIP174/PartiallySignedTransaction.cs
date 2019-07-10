@@ -16,7 +16,7 @@ namespace NBitcoin
 		public static byte[] PSBT_OUT_ALL { get; }
 		static PSBTConstants()
 		{
-			PSBT_GLOBAL_ALL = new byte[] { PSBT_GLOBAL_UNSIGNED_TX };
+			PSBT_GLOBAL_ALL = new byte[] { PSBT_GLOBAL_UNSIGNED_TX, PSBT_GLOBAL_XPUB };
 			PSBT_IN_ALL = new byte[]
 				{
 					PSBT_IN_NON_WITNESS_UTXO,
@@ -97,8 +97,23 @@ namespace NBitcoin
 	{
 		// Magic bytes
 		readonly static byte[] PSBT_MAGIC_BYTES = Encoders.ASCII.DecodeData("psbt\xff");
-
+		internal byte[] _XPubVersionBytes;
+		byte[] XPubVersionBytes => _XPubVersionBytes = _XPubVersionBytes ?? Network.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, false);
 		internal Transaction tx;
+
+		public SortedDictionary<BitcoinExtPubKey, RootedKeyPath> GlobalXPubs { get; } = new SortedDictionary<BitcoinExtPubKey, RootedKeyPath>(BitcoinExtPubKeyComparer.Instance);
+		internal class BitcoinExtPubKeyComparer : IComparer<BitcoinExtPubKey>
+		{
+			BitcoinExtPubKeyComparer()
+			{
+
+			}
+			public static BitcoinExtPubKeyComparer Instance { get; } = new BitcoinExtPubKeyComparer();
+			public int Compare(BitcoinExtPubKey x, BitcoinExtPubKey y)
+			{
+				return BytesComparer.Instance.Compare(x.ExtPubKey.ToBytes(), y.ExtPubKey.ToBytes());
+			}
+		}
 
 		public PSBTInputList Inputs { get; }
 		public PSBTOutputList Outputs { get; }
@@ -211,6 +226,18 @@ namespace NBitcoin
 						if (tx.Inputs.Any(txin => txin.ScriptSig != Script.Empty || txin.WitScript != WitScript.Empty))
 							throw new FormatException("Malformed global tx. It should not contain any scriptsig or witness by itself");
 						txFound = true;
+						break;
+					case PSBTConstants.PSBT_GLOBAL_XPUB when XPubVersionBytes != null:
+						if (k.Length != 1 + XPubVersionBytes.Length + 74)
+							throw new FormatException("Malformed global xpub.");
+						for (int ii = 0; ii < XPubVersionBytes.Length; ii++)
+						{
+							if (k[1 + ii] != XPubVersionBytes[ii])
+								throw new FormatException("Malformed global xpub.");
+						}
+						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
+						var rootedKeyPath = new RootedKeyPath(new HDFingerprint(v.Take(4).ToArray()), path);
+						GlobalXPubs.Add(new ExtPubKey(k, 1 + XPubVersionBytes.Length, 74).GetWif(Network), rootedKeyPath);
 						break;
 					default:
 						if (unknown.ContainsKey(k))
@@ -626,6 +653,21 @@ namespace NBitcoin
 			stream.ReadWriteAsVarInt(ref txLength);
 			stream.ReadWrite(tx);
 
+			foreach (var xpub in GlobalXPubs)
+			{
+				if (xpub.Key.Network != Network)
+					throw new InvalidOperationException("Invalid key inside the global xpub collection");
+				var len = (uint)(1 + XPubVersionBytes.Length + 74);
+				stream.ReadWriteAsVarInt(ref len);
+				stream.ReadWrite(PSBTConstants.PSBT_GLOBAL_XPUB);
+				var vb = XPubVersionBytes;
+				stream.ReadWrite(ref vb);
+				xpub.Key.ExtPubKey.ReadWrite(stream);
+				var path = xpub.Value.KeyPath.ToBytes();
+				var pathInfo = xpub.Value.MasterFingerprint.ToBytes().Concat(path);
+				stream.ReadWriteAsVarString(ref pathInfo);
+			}
+
 			// Write the unknown things
 			foreach (var kv in unknown)
 			{
@@ -681,6 +723,17 @@ namespace NBitcoin
 			var formatter = new RPC.BlockExplorerFormatter();
 			formatter.WriteTransaction2(jsonWriter, tx);
 			jsonWriter.WriteEndObject();
+			if (GlobalXPubs.Count != 0)
+			{
+				jsonWriter.WritePropertyName("xpubs");
+				jsonWriter.WriteStartArray();
+				foreach (var xpub in GlobalXPubs)
+				{
+					jsonWriter.WritePropertyValue("key", xpub.Key.ToString());
+					jsonWriter.WritePropertyValue("value", xpub.Value.ToString());
+				}
+				jsonWriter.WriteEndArray();
+			}
 			if (unknown.Count != 0)
 			{
 				jsonWriter.WritePropertyName("unknown");
@@ -1016,6 +1069,14 @@ namespace NBitcoin
 				{
 					o.Key.HDKeyPaths.Remove(keyPath.PubKey);
 					o.Key.HDKeyPaths.Add(keyPath.PubKey, newRoot.Derive(keyPath.RootedKeyPath.KeyPath));
+				}
+			}
+			foreach (var xpub in GlobalXPubs.ToList())
+			{
+				if (xpub.Key.ExtPubKey.PubKey == accountKey.GetPublicKey())
+				{
+					GlobalXPubs.Remove(xpub.Key);
+					GlobalXPubs.Add(xpub.Key, newRoot.Derive(xpub.Value.KeyPath));
 				}
 			}
 			return this;
