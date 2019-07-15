@@ -127,6 +127,12 @@ namespace NBitcoin
 #pragma warning restore CS0618 // Type or member is obsolete
 		}
 
+		internal TransactionBuilder CreateTransactionBuilderCore2()
+		{
+			return CreateTransactionBuilderCore();
+		}
+
+		[Obsolete("Use Network.CreateTransactionBuilder instead")]
 		public TransactionBuilder CreateTransactionBuilder()
 		{
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -136,6 +142,7 @@ namespace NBitcoin
 #pragma warning restore CS0618 // Type or member is obsolete
 		}
 
+		[Obsolete("Use Network.CreateTransactionBuilder instead")]
 		public TransactionBuilder CreateTransactionBuilder(int seed)
 		{
 #pragma warning disable CS0618 // Type or member is obsolete

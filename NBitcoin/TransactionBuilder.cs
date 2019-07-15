@@ -1164,13 +1164,21 @@ namespace NBitcoin
 			return this;
 		}
 
-		ConsensusFactory _ConsensusFactory = Network.Main.Consensus.ConsensusFactory;
-
+		ConsensusFactory _ConsensusFactory;
 		public ConsensusFactory ConsensusFactory
 		{
 			get
 			{
-				return _ConsensusFactory;
+				return _ConsensusFactory ?? Network.Main.Consensus.ConsensusFactory;
+			}
+		}
+		Network _Network;
+
+		public Network Network
+		{
+			get
+			{
+				return _Network ?? Network.Main;
 			}
 		}
 
@@ -1184,7 +1192,9 @@ namespace NBitcoin
 		[Obsolete("Use Network.CreateTransactionBuilder() instead, so you don't have to use this method anymore")]
 		public TransactionBuilder SetConsensusFactory(Network network)
 		{
-			return SetConsensusFactory(network?.Consensus?.ConsensusFactory);
+			_ConsensusFactory = network?.Consensus?.ConsensusFactory;
+			_Network = network;
+			return this;
 		}
 
 		public TransactionBuilder SetCoinSelector(ICoinSelector selector)
@@ -1238,7 +1248,9 @@ namespace NBitcoin
 			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, sigHash);
 			if (sign)
 				SignTransactionInPlace(signingContext);
-			var psbt = tx.CreatePSBT();
+#pragma warning disable CS0618 // Type or member is obsolete
+			var psbt = _Network == null ? tx.CreatePSBT() : tx.CreatePSBT(_Network);
+#pragma warning restore CS0618 // Type or member is obsolete
 			UpdatePSBT(psbt);
 			if (sign)
 				UpdatePSBTSignatures(psbt, signingContext);
@@ -1785,7 +1797,7 @@ namespace NBitcoin
 
 		private TxOut CreateTxOut(Money amount = null, Script script = null)
 		{
-			if (!this._ConsensusFactory.TryCreateNew<TxOut>(out var txOut))
+			if (!this.ConsensusFactory.TryCreateNew<TxOut>(out var txOut))
 				txOut = new TxOut();
 			if (amount != null)
 				txOut.Value = amount;

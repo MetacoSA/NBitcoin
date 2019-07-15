@@ -874,7 +874,7 @@ namespace NBitcoin.Tests
 
 			var bobGold = ColoredCoin.Find(funding, repo).ToArray();
 
-			builder = builder.ConsensusFactory.CreateTransactionBuilder();
+			builder = builder.Network.CreateTransactionBuilder();
 			builder.StandardTransactionPolicy = RelayPolicy;
 			Transaction transfer = null;
 			try
@@ -3244,7 +3244,7 @@ namespace NBitcoin.Tests
 		private static TransactionBuilder CreateBuilder(CKeyStore keystore, Transaction txFrom)
 		{
 			var coins = txFrom.Outputs.AsCoins().ToArray();
-			var builder = txFrom.GetConsensusFactory().CreateTransactionBuilder();
+			var builder = Network.CreateTransactionBuilder();
 			builder.StandardTransactionPolicy = new StandardTransactionPolicy()
 			{
 				CheckFee = false,

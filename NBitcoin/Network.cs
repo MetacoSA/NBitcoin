@@ -2517,12 +2517,21 @@ namespace NBitcoin
 
 		public TransactionBuilder CreateTransactionBuilder()
 		{
-			return consensus.ConsensusFactory.CreateTransactionBuilder();
+#pragma warning disable CS0618 // Type or member is obsolete
+			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2();
+			builder.SetConsensusFactory(this);
+			return builder;
+#pragma warning restore CS0618 // Type or member is obsolete
 		}
 
 		public TransactionBuilder CreateTransactionBuilder(int seed)
 		{
-			return consensus.ConsensusFactory.CreateTransactionBuilder(seed);
+#pragma warning disable CS0618 // Type or member is obsolete
+			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2();
+			builder.SetConsensusFactory(this);
+			builder.ShuffleRandom = new Random(seed);
+			return builder;
+#pragma warning restore CS0618 // Type or member is obsolete
 		}
 
 		public Base58CheckEncoder GetBase58CheckEncoder()

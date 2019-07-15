@@ -586,7 +586,9 @@ namespace NBitcoin
 
 		internal TransactionBuilder CreateTransactionBuilder()
 		{
-			var transactionBuilder = tx.GetConsensusFactory().CreateTransactionBuilder();
+#pragma warning disable CS0618 // Type or member is obsolete
+			var transactionBuilder = this.Network == null ? tx.GetConsensusFactory().CreateTransactionBuilder() : Network.CreateTransactionBuilder();
+#pragma warning restore CS0618 // Type or member is obsolete
 			if (Settings.CustomBuilderExtensions != null)
 			{
 				transactionBuilder.Extensions.Clear();

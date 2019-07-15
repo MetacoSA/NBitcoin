@@ -1700,7 +1700,10 @@ namespace NBitcoin
 		/// <param name="coins">Coins to sign</param>
 		public void Sign(Key[] keys, ICoin[] coins)
 		{
+#pragma warning disable CS0618 // Type or member is obsolete
+			// This is OK, we don't use PSBT here so we don't need Network
 			TransactionBuilder builder = this.GetConsensusFactory().CreateTransactionBuilder();
+#pragma warning restore CS0618 // Type or member is obsolete
 			builder.AddKeys(keys);
 			builder.AddCoins(coins);
 			builder.SignTransactionInPlace(this);
