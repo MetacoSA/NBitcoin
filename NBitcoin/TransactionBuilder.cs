@@ -828,7 +828,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Will subtract fees from the previous TxOut added by the last TransactionBuidler.Send() call
+		/// Will subtract fees from the previous TxOut added by the last TransactionBuilder.Send() call
 		/// </summary>
 		/// <returns></returns>
 		public TransactionBuilder SubtractFees()
