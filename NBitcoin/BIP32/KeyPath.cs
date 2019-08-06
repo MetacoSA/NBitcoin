@@ -34,6 +34,8 @@ namespace NBitcoin
 		/// <returns>True if the string is parsed successfully; otherwise false</returns>
 		public static bool TryParse(string path, out KeyPath keyPath)
 		{
+			if (path == null)
+				throw new ArgumentNullException(nameof(path));
 			bool isValid = true;
 			int count = 0;
 			var indices =
