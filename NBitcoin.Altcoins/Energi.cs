@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 
@@ -127,9 +130,40 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
+			protected byte[] hashPrevBlock_c_str = new byte[65];
+			protected byte[] hashMerkleRoot_c_str = new byte[65];
+			protected byte[] hashMix_c_str = new byte[65];
+
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				stream.ReadWrite(ref nVersion);
+
+				if (stream.Type == SerializationType.Hash)
+				{
+					if (IsProofOfStake())
+					{
+						HashPoS(stream);
+					}
+					else
+					{
+						HashPow(stream);
+					}
+				}
+				else
+				{
+					if (IsProofOfStake())
+					{
+						ReadPoS(stream);
+					}
+					else
+					{
+						ReadPoW(stream);
+					}
+				}
+			}
+
+			private void ReadPoW(BitcoinStream stream)
+			{
 				stream.ReadWrite(ref hashPrevBlock);
 				stream.ReadWrite(ref hashMerkleRoot);
 				stream.ReadWrite(ref nTime);
@@ -137,22 +171,64 @@ namespace NBitcoin.Altcoins
 				stream.ReadWrite(ref nHeight);
 				stream.ReadWrite(ref hashMix);
 				stream.ReadWrite(ref newNonce);
+			}
 
-				if (IsProofOfStake())
-				{
-					stream.ReadWrite(ref posStakeHash);
-					stream.ReadWrite(ref posStakeN);
+			private void HashPow(BitcoinStream stream)
+			{
+				Encoding.Default.GetBytes(hashPrevBlock.ToString()).CopyTo(hashPrevBlock_c_str, 0);
+				Encoding.Default.GetBytes(hashMerkleRoot.ToString()).CopyTo(hashMerkleRoot_c_str, 0);
+				Encoding.Default.GetBytes(hashMix.ToString()).CopyTo(hashMix_c_str, 0);
 
-					if (stream.Type == SerializationType.Hash)
-					{
-						stream.ReadWrite(ref posBlockSig);
-					}
+				stream.ReadWrite(ref hashPrevBlock_c_str);
+				stream.ReadWrite(ref hashMerkleRoot_c_str);
+				stream.ReadWrite(ref nTime);
+				stream.ReadWrite(ref nBits);
+				stream.ReadWrite(ref nHeight);
+				stream.ReadWrite(ref newNonce);
+				stream.ReadWrite(ref hashMix_c_str);
+			}
 
-					if (!stream.Serializing)
-					{
-						stream.ReadWrite(posPubKey);
-					}
-				}
+			private void ReadPoS(BitcoinStream stream)
+			{
+				stream.ReadWrite(ref hashPrevBlock);
+				stream.ReadWrite(ref hashMerkleRoot);
+				stream.ReadWrite(ref nTime);
+				stream.ReadWrite(ref nBits);
+				stream.ReadWrite(ref nHeight);
+				stream.ReadWrite(ref hashMix);
+				stream.ReadWrite(ref newNonce);
+				stream.ReadWrite(ref posStakeHash);
+				stream.ReadWrite(ref posStakeN);
+				stream.ReadWrite(ref posBlockSig);
+				stream.ReadWrite(posPubKey);
+			}
+
+			private void HashPoS(BitcoinStream stream)
+			{
+				stream.ReadWrite(ref hashPrevBlock);
+				stream.ReadWrite(ref hashMerkleRoot);
+				stream.ReadWrite(ref nTime);
+				stream.ReadWrite(ref nBits);
+				stream.ReadWrite(ref nHeight);
+				stream.ReadWrite(ref hashMix);
+				stream.ReadWrite(ref newNonce);
+				stream.ReadWrite(ref posStakeHash);
+				stream.ReadWrite(ref posStakeN);
+				stream.ReadWrite(ref posBlockSig);
+			}
+
+			static byte[] CalculateHash(byte[] data, int offset, int count)
+			{
+				var hash = new HashX11.Crypto.SHA3.Keccak256();
+				return hash.ComputeBytes(data.Skip(offset).Take(count).ToArray())
+					.GetBytes()
+					.Reverse() //https://github.com/energicryptocurrency/energi/blob/master/src/uint256.h#L131 
+					.ToArray();
+			}
+
+			protected override HashStreamBase CreateHashStream()
+			{
+				return BufferedHashStream.CreateFrom(CalculateHash);
 			}
 
 			private bool IsProofOfStake()
@@ -165,7 +241,7 @@ namespace NBitcoin.Altcoins
 		{
 			public EnergiBlock(EnergiBlockHeader h)
 				: base(h)
-			{		
+			{
 
 			}
 
