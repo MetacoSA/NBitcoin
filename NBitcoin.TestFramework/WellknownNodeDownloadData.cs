@@ -1019,6 +1019,35 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class SmartCashNodeDownloadData
+		{
+			public NodeDownloadData v1_2_8 = new NodeDownloadData()
+			{
+				Version = "1.2.8",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://www.dropbox.com/s/rulwm5bigm3xmfx/smartcashd-v{0}.zip?dl=1",
+					Archive = "smartcashd-v{0}.zip",
+					Executable = "smartcashd.exe",
+					Hash = "d78968049874617b9703323bf9ca03a8d140ebf605fff415437693abe3ccc5a0"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/SmartCash/Core-Smart/releases/download/v{0}/smartcash-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "smartcash-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "smartcash-{0}-x86_64-linux-gnu/smartcash",
+					Hash = "D8738E8C3D97A3B776414278991EDCCD1E555756713911FDC21E77836D00A3F9"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/SmartCash/Core-Smart/releases/download/v{0}/smartcash-{0}-osx.dmg",
+					Archive = "smartcash-{0}-osx.dmg",
+					Executable = "smartcash-{0}-osx.dmg/smartcash",
+					Hash = "13B0DBF2480EB47D2B8A5B82145FE2FC87AEF22CB5CDF78E01C27A41C8CD41D1"
+				}
+			};
+		}
+
 		public static GoByteNodeDownloadData GoByte
 		{
 			get; set;
@@ -1142,6 +1171,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new StratisNodeDownloadData();
+
+		public static SmartCashNodeDownloadData SmartCash
+		{
+			get; set;
+		} = new SmartCashNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }

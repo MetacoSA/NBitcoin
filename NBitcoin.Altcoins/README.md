@@ -20,6 +20,7 @@ Currently supported altcoins are:
 * Koto
 * Bitcoinplus
 * Chaincoin
+* SmartCash
 
 ## How to use?
 
