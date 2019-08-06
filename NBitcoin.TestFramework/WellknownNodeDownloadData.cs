@@ -251,6 +251,21 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class EnergiNodeDownloadData
+		{
+			public NodeDownloadData v2_2_1 = new NodeDownloadData()
+			{
+				Version = "2.2.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/energicryptocurrency/energi/releases/download/v2.2.1/energicore-2.2.1-win64-setup.exe",
+					Archive = "",
+					Executable = "energicore-{0}-win64-setup",
+					Hash = "3d1ee90715e11de522757a8d409d0165b2c92bd6388f31237da11893cbc16761"
+				},
+			};
+		}
+
 		public class BCashNodeDownloadData
 		{
 			public NodeDownloadData v0_16_2 = new NodeDownloadData()
@@ -1142,6 +1157,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new StratisNodeDownloadData();
+
+		public static EnergiNodeDownloadData Energi
+		{
+			get; set;
+		} = new EnergiNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }

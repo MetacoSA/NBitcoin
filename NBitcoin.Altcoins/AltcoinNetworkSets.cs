@@ -32,6 +32,8 @@ namespace NBitcoin.Altcoins
 		public static Chaincoin Chaincoin { get; } = Chaincoin.Instance;
 		public static Stratis Stratis { get; } = Stratis.Instance;
 
+		public static Energi Energi { get; } = Energi.Instance;
+
 		public static IEnumerable<INetworkSet> GetAll()
 		{
 			yield return Bitcoin;
@@ -57,6 +59,7 @@ namespace NBitcoin.Altcoins
 			yield return Koto;
 			yield return Bitcoinplus;
 			yield return Chaincoin;
+			yield return Energi;
 		}
 	}
 }
