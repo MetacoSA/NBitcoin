@@ -731,6 +731,23 @@ namespace NBitcoin.Tests
 				RegtestFolderName = "elementsregtest",
 				AdditionalRegtestConfig = "initialfreecoins=210000000000000"
 			};
+
+			public NodeDownloadData v0_17_0_1 = new NodeDownloadData()
+			{
+				Version = "0.17.0.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/ElementsProject/elements/releases/download/elements-{0}/elements-{0}-win64.zip",
+					Archive = "elements-{0}-win64.zip",
+					Executable = "elements-0.17.0/bin/elementsd.exe",
+					Hash = "e1dd04716d23e214b697ee33f2a77c803ae7e93ed93f2db68462a8c278361a24"
+				},
+				RegtestFolderName = "elementsregtest",
+				Chain = "elementsregtest",
+				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0",
+				UseSectionInConfigFile = true
+			};
+
 		}
 		public class LiquidNodeDownloadData
 		{
