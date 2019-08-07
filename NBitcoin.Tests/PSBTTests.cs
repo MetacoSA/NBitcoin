@@ -334,7 +334,7 @@ namespace NBitcoin.Tests
 				// but otherwise, it will be the same.
 				else
 				{
-					Assert.Equal(a, e);
+					Assert.Equal(a.PrevOut, e.PrevOut);
 				}
 			}
 
@@ -369,7 +369,7 @@ namespace NBitcoin.Tests
 				}
 				else
 				{
-					Assert.Equal(a, e);
+					Assert.Equal(a.PrevOut, e.PrevOut);
 				}
 			}
 		}
