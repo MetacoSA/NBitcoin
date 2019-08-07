@@ -619,18 +619,6 @@ namespace NBitcoin
 			return ms.ToArrayEfficient();
 		}
 
-		public override bool Equals(object obj)
-		{
-			var item = obj as PSBTInput;
-			if (item == null)
-				return false;
-			return item.Equals(this);
-		}
-
-		public bool Equals(PSBTInput other) => other != null && this.ToBytes().SequenceEqual(other.ToBytes());
-
-		public override int GetHashCode() => Utils.GetHashCode(this.ToBytes());
-
 		public virtual ConsensusFactory GetConsensusFactory() => Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
 
 		internal void Write(JsonTextWriter jsonWriter)
