@@ -207,6 +207,19 @@ namespace NBitcoin.Tests
 			Assert.True(neuter.IsHardened);
 			neuter = key.Derive(44, false).Neuter();
 			Assert.False(neuter.IsHardened);
+
+			KeyPath a = new KeyPath("3/2");
+			KeyPath b = new KeyPath("5/6");
+			Assert.Equal(new KeyPath("3/2/5/6"), a + b);
+			b = null;
+			Assert.Equal(a, a + b);
+			a = null;
+			Assert.Null(a + b);
+			b = new KeyPath("5/6");
+			Assert.Equal(new KeyPath("5/6"), a + b);
+			a += new KeyPath("3/2");
+			a += new KeyPath("5/6");
+			Assert.Equal(new KeyPath("3/2/5/6"), a);
 		}
 
 		[Fact]

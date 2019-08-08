@@ -221,6 +221,17 @@ namespace NBitcoin
 			return a.ToString() == b.ToString();
 		}
 
+		public static KeyPath operator+(KeyPath a, KeyPath b)
+		{
+			if (a is null && !(b is null))
+				return b;
+			if (b is null && !(a is null))
+				return a;
+			if (a is null && b is null)
+				return null;
+			return a.Derive(b);
+		}
+
 		public static bool operator !=(KeyPath a, KeyPath b)
 		{
 			return !(a == b);
