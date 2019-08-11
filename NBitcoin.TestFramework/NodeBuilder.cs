@@ -100,6 +100,12 @@ namespace NBitcoin.Tests
 		}
 		public string RegtestFolderName { get; set; }
 
+		/// <summary>
+		/// For blockchains that use an arbitrary chain (e.g. instead of main, testnet and regtest
+		/// Elements can use chain=elementsregtest).
+		/// </summary>
+		public string Chain { get; set; }
+
 		public NodeOSDownloadData GetCurrentOSDownloadData()
 		{
 			return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Windows :
@@ -457,10 +463,24 @@ namespace NBitcoin.Tests
 		{
 			NodeConfigParameters config = new NodeConfigParameters();
 			StringBuilder configStr = new StringBuilder();
-			configStr.AppendLine("regtest=1");
+			if (String.IsNullOrEmpty(NodeImplementation.Chain))
+			{
+				configStr.AppendLine("regtest=1");
+			}
+			else
+			{
+				configStr.AppendLine($"chain={NodeImplementation.Chain}");
+			}
 			if (NodeImplementation.UseSectionInConfigFile)
 			{
-				configStr.AppendLine("[regtest]");
+				if (String.IsNullOrEmpty(NodeImplementation.Chain))
+				{
+					configStr.AppendLine("[regtest]");
+				}
+				else
+				{
+					configStr.AppendLine($"[{NodeImplementation.Chain}]");
+				}
 			}
 			config.Add("rest", "1");
 			config.Add("server", "1");

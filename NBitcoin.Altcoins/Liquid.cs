@@ -12,7 +12,7 @@ namespace NBitcoin.Altcoins
 		static Liquid()
 		{
 			ElementsParams<Liquid>.PeggedAssetId = new uint256("6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d");
-			ElementsParams<LiquidRegtest>.PeggedAssetId = new uint256("5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225");
+			ElementsParams<LiquidRegtest>.PeggedAssetId = new uint256("b2e15d0d7a0c94e4e2ce0fe6e8691b9e451377f6e46e8045a86f7c4b5d4f0f23");
 		}
 		public override string CryptoCode => "LBTC";
 		public static Liquid Instance { get; } = new Liquid();
