@@ -510,6 +510,7 @@ namespace NBitcoin
 			internal List<Builder> IssuanceBuilders = new List<Builder>();
 			internal Dictionary<AssetId, List<Builder>> BuildersByAsset = new Dictionary<AssetId, List<Builder>>();
 			internal Script[] ChangeScript = new Script[3];
+			internal bool sendAllToChange;
 
 			internal void Shuffle()
 			{
@@ -760,6 +761,8 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TransactionBuilder Send(IDestination destination, Money amount)
 		{
+			if (destination == null)
+				throw new ArgumentNullException(nameof(destination));
 			return Send(destination.ScriptPubKey, amount);
 		}
 
@@ -769,7 +772,11 @@ namespace NBitcoin
 		/// <param name="destination"></param>
 		/// <returns></returns>
 		public TransactionBuilder SendAll(IDestination destination)
-			=> SendAll(destination.ScriptPubKey);
+		{
+			if (destination == null)
+				throw new ArgumentNullException(nameof(destination));
+			return SendAll(destination.ScriptPubKey);
+		}
 
 
 		/// <summary>
@@ -779,8 +786,31 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TransactionBuilder SendAll(Script scriptPubKey)
 		{
+			if (scriptPubKey == null)
+				throw new ArgumentNullException(nameof(scriptPubKey));
 			var totalInput = CurrentGroup.Coins.Values.OfType<Coin>().Sum(coin => coin.Amount);
 			return Send(scriptPubKey, totalInput).SubtractFees();
+		}
+
+		public TransactionBuilder SendAllRemaining(IDestination destination)
+		{
+			if (destination == null)
+				throw new ArgumentNullException(nameof(destination));
+			return SendAllRemaining(destination.ScriptPubKey);
+		}
+
+		/// <summary>
+		/// Send all the remaining available coin to this destination
+		/// </summary>
+		/// <param name="scriptPubKey"></param>
+		/// <returns></returns>
+		public TransactionBuilder SendAllRemaining(Script scriptPubKey)
+		{
+			if (scriptPubKey == null)
+				throw new ArgumentNullException(nameof(scriptPubKey));
+			SetChange(scriptPubKey);
+			CurrentGroup.sendAllToChange = true;
+			return this;
 		}
 
 		readonly static TxNullDataTemplate _OpReturnTemplate = new TxNullDataTemplate(1024 * 1024);
@@ -1437,15 +1467,19 @@ namespace NBitcoin
 				target = ctx.CoverOnly.Add(ctx.ChangeAmount);
 			}
 
-			var unconsumed = coins.Where(c => ctx.ConsumedCoins.All(cc => cc.Outpoint != c.Outpoint));
+			var unconsumed = coins.Where(c => ctx.ConsumedCoins.All(cc => cc.Outpoint != c.Outpoint)).ToArray();
 			var selection = CoinSelector.Select(unconsumed, target)?.ToArray();
 			if(selection == null)
 				throw new NotEnoughFundsException("Not enough funds to cover the target",
 					group.Name,
 					target.Sub(unconsumed.Select(u => u.Amount).Sum(zero))
 					);
-			var total = selection.Select(s => s.Amount).Sum(zero);
-			var change = total.Sub(target);
+			var selectedAmount = selection.Select(s => s.Amount).Sum(zero);
+			var change = selectedAmount.Sub(target);
+			if (group.sendAllToChange)
+			{
+				change = unconsumed.Select(u => u.Amount).Sum(zero).Sub(target);
+			}
 			if(change.CompareTo(zero) == -1)
 				throw new NotEnoughFundsException("Not enough funds to cover the target",
 					group.Name,
