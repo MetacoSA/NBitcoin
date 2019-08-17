@@ -808,6 +808,7 @@ namespace NBitcoin
 		{
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
+			CurrentGroup.sendAllToChange = false;
 			SetChange(scriptPubKey);
 			CurrentGroup.sendAllToChange = true;
 			return this;
@@ -1183,7 +1184,9 @@ namespace NBitcoin
 
 		public TransactionBuilder SetChange(Script scriptPubKey, ChangeType changeType = ChangeType.All)
 		{
-			if((changeType & ChangeType.Colored) != 0)
+			if (CurrentGroup.sendAllToChange)
+				throw new InvalidOperationException($"You should not call {nameof(SetChange)} after {nameof(SendAllRemaining)}");
+			if ((changeType & ChangeType.Colored) != 0)
 			{
 				CurrentGroup.ChangeScript[(int)ChangeType.Colored] = scriptPubKey;
 			}
