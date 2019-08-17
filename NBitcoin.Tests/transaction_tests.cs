@@ -3569,6 +3569,8 @@ namespace NBitcoin.Tests
 			Assert.Equal(2, tx.Outputs.Count);
 			Assert.Equal(Money.Coins(0.1m), tx.Outputs.First(o => o.ScriptPubKey == dest1.ScriptPubKey).Value);
 			Assert.Equal(Money.Coins(1.0m) - fee - Money.Coins(0.1m), tx.Outputs.First(o => o.ScriptPubKey == dest2.ScriptPubKey).Value);
+
+			Assert.Throws<InvalidOperationException>(() => builder.SetChange(new Key()));
 		}
 
 		[Fact]
