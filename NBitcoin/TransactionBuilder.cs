@@ -511,6 +511,7 @@ namespace NBitcoin
 			internal Dictionary<AssetId, List<Builder>> BuildersByAsset = new Dictionary<AssetId, List<Builder>>();
 			internal Script[] ChangeScript = new Script[3];
 			internal bool sendAllToChange;
+			internal bool preventSetChange;
 
 			internal void Shuffle()
 			{
@@ -792,6 +793,11 @@ namespace NBitcoin
 			return Send(scriptPubKey, totalInput).SubtractFees();
 		}
 
+		/// <summary>
+		/// Send all the remaining available coins to this destination
+		/// </summary>
+		/// <param name="destination"></param>
+		/// <returns></returns>
 		public TransactionBuilder SendAllRemaining(IDestination destination)
 		{
 			if (destination == null)
@@ -800,7 +806,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Send all the remaining available coin to this destination
+		/// Send all the remaining available coins to this destination
 		/// </summary>
 		/// <param name="scriptPubKey"></param>
 		/// <returns></returns>
@@ -808,8 +814,19 @@ namespace NBitcoin
 		{
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
-			CurrentGroup.sendAllToChange = false;
 			SetChange(scriptPubKey);
+			CurrentGroup.sendAllToChange = true;
+			CurrentGroup.preventSetChange = true;
+			return this;
+		}
+
+		/// <summary>
+		/// Send all the remaining available coins to the change
+		/// </summary>
+		/// <returns></returns>
+		public TransactionBuilder SendAllRemainingToChange()
+		{
+			CurrentGroup.preventSetChange = false;
 			CurrentGroup.sendAllToChange = true;
 			return this;
 		}
@@ -1184,8 +1201,8 @@ namespace NBitcoin
 
 		public TransactionBuilder SetChange(Script scriptPubKey, ChangeType changeType = ChangeType.All)
 		{
-			if (CurrentGroup.sendAllToChange)
-				throw new InvalidOperationException($"You should not call {nameof(SetChange)} after {nameof(SendAllRemaining)}");
+			if (CurrentGroup.preventSetChange)
+				throw new InvalidOperationException($"You should not call {nameof(SetChange)} after {nameof(SendAllRemaining)}, maybe you should call {nameof(SendAllRemainingToChange)} instead of {nameof(SendAllRemaining)}");
 			if ((changeType & ChangeType.Colored) != 0)
 			{
 				CurrentGroup.ChangeScript[(int)ChangeType.Colored] = scriptPubKey;
