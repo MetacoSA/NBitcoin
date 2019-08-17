@@ -3570,5 +3570,34 @@ namespace NBitcoin.Tests
 			Assert.Equal(Money.Coins(0.1m), tx.Outputs.First(o => o.ScriptPubKey == dest1.ScriptPubKey).Value);
 			Assert.Equal(Money.Coins(1.0m) - fee - Money.Coins(0.1m), tx.Outputs.First(o => o.ScriptPubKey == dest2.ScriptPubKey).Value);
 		}
+
+		[Fact]
+		public void ShouldSendAllRemainingEvenWithoutOtherSend()
+		{
+			var builder = Network
+				.CreateTransactionBuilder();
+			((DefaultCoinSelector)builder.CoinSelector).GroupByScriptPubKey = false;
+			var k1 = new Key();
+			var k2 = new Key();
+			var dest1 = k1.PubKey.Hash;
+			var dest2 = k2.PubKey.Hash;
+
+			var rate = new FeeRate(Money.Coins(0.0004m));
+			builder
+				.AddCoins(RandomCoin(Money.Coins(0.5m), k1))
+				.AddCoins(RandomCoin(Money.Coins(0.5m), k2))
+				.AddKeys(k1, k2)
+				.SendAllRemaining(dest2);
+
+			var fee = builder.EstimateFees(rate);
+			builder.SendFees(fee);
+
+			var tx = builder.BuildTransaction(true);
+			if (!builder.Verify(tx, out var errors))
+				throw new AggregateException(errors.Select(e => new Exception(e.ToString())));
+			Assert.Equal(2, tx.Inputs.Count);
+			Assert.Single(tx.Outputs);
+			Assert.Equal(Money.Coins(1.0m) - fee, tx.Outputs.First(o => o.ScriptPubKey == dest2.ScriptPubKey).Value);
+		}
 	}
 }

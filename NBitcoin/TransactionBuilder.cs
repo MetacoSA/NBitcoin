@@ -1407,6 +1407,8 @@ namespace NBitcoin
 			}
 
 			_built = true;
+			if (ctx.Transaction.Outputs.Count == 0)
+				throw new NotEnoughFundsException("Not enough funds to create even one change output", null, GetDust());
 			return ctx.Transaction;
 		}
 
