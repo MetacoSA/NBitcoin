@@ -70,12 +70,12 @@ namespace NBitcoin.Protocol.Behaviors
 
 		protected override void AttachCore()
 		{
-			
+
 		}
 
 		protected override void DetachCore()
 		{
-			
+
 		}
 	}
 }

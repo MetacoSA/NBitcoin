@@ -49,7 +49,7 @@ namespace NBitcoin.RPC
 		/// <exception cref="System.ArgumentNullException">Null rest API endpoint</exception>
 		/// <exception cref="System.ArgumentException">Invalid value for RestResponseFormat</exception>
 		public RestClient(Uri address)
-			:this(address, Network.Main)
+			: this(address, Network.Main)
 		{
 		}
 
@@ -62,9 +62,9 @@ namespace NBitcoin.RPC
 		/// <exception cref="System.ArgumentException">Invalid value for RestResponseFormat</exception>
 		public RestClient(Uri address, Network network)
 		{
-			if(address == null)
+			if (address == null)
 				throw new ArgumentNullException(nameof(address));
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			_address = address;
 			_network = network;
@@ -78,7 +78,7 @@ namespace NBitcoin.RPC
 		/// <exception cref="System.ArgumentNullException">blockId cannot be null.</exception>
 		public async Task<Block> GetBlockAsync(uint256 blockId)
 		{
-			if(blockId == null)
+			if (blockId == null)
 				throw new ArgumentNullException(nameof(blockId));
 
 			var result = await SendRequestAsync("block", RestResponseFormat.Bin, blockId.ToString()).ConfigureAwait(false);
@@ -103,7 +103,7 @@ namespace NBitcoin.RPC
 		/// <exception cref="System.ArgumentNullException">txId cannot be null</exception>
 		public async Task<Transaction> GetTransactionAsync(uint256 txId)
 		{
-			if(txId == null)
+			if (txId == null)
 				throw new ArgumentNullException(nameof(txId));
 
 			var result = await SendRequestAsync("tx", RestResponseFormat.Bin, txId.ToString()).ConfigureAwait(false);
@@ -133,9 +133,9 @@ namespace NBitcoin.RPC
 		/// <exception cref="System.ArgumentOutOfRangeException">count must be greater or equal to one.</exception>
 		public async Task<IEnumerable<BlockHeader>> GetBlockHeadersAsync(uint256 blockId, int count)
 		{
-			if(blockId == null)
+			if (blockId == null)
 				throw new ArgumentNullException(nameof(blockId));
-			if(count < 1)
+			if (count < 1)
 				throw new ArgumentOutOfRangeException("count", "count must be greater or equal to one.");
 
 			var result = await SendRequestAsync("headers", RestResponseFormat.Bin, count.ToString(CultureInfo.InvariantCulture), blockId.ToString()).ConfigureAwait(false);
@@ -188,7 +188,7 @@ namespace NBitcoin.RPC
 		/// <exception cref="System.ArgumentNullException">outPoints cannot be null.</exception>
 		public async Task<UTxOutputs> GetUnspentOutputsAsync(IEnumerable<OutPoint> outPoints, bool checkMempool)
 		{
-			if(outPoints == null)
+			if (outPoints == null)
 				throw new ArgumentNullException(nameof(outPoints));
 			var ids = from op in outPoints
 					  select op.ToString();
@@ -204,7 +204,7 @@ namespace NBitcoin.RPC
 		public async Task<byte[]> SendRequestAsync(string resource, RestResponseFormat format, params string[] parms)
 		{
 			var request = BuildHttpRequest(resource, format, parms);
-			using(var response = await GetWebResponse(request).ConfigureAwait(false))
+			using (var response = await GetWebResponse(request).ConfigureAwait(false))
 			{
 				var stream = response.GetResponseStream();
 				var bytesToRead = (int)response.ContentLength;
@@ -213,7 +213,7 @@ namespace NBitcoin.RPC
 			}
 		}
 
-#region Private methods
+		#region Private methods
 		private WebRequest BuildHttpRequest(string resource, RestResponseFormat format, params string[] parms)
 		{
 			var hasParams = parms != null && parms.Length > 0;
@@ -236,18 +236,18 @@ namespace NBitcoin.RPC
 			{
 				response = await request.GetResponseAsync().ConfigureAwait(false);
 			}
-			catch(WebException ex)
+			catch (WebException ex)
 			{
 				// "WebException status: {0}", ex.Status);
 
 				// Even if the request "failed" we need to continue reading the response from the router
 				response = ex.Response as HttpWebResponse;
 
-				if(response == null)
+				if (response == null)
 					throw;
 				exception = ex;
 			}
-			if(exception != null)
+			if (exception != null)
 			{
 				var stream = response.GetResponseStream();
 				var bytesToRead = (int)response.ContentLength;
@@ -257,7 +257,7 @@ namespace NBitcoin.RPC
 			}
 			return response;
 		}
-#endregion
+		#endregion
 	}
 
 	public class RestApiException : Exception

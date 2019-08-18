@@ -781,13 +781,13 @@ namespace NBitcoin
 			if (inner.CanSeek)
 			{
 				bytes = (uint)Math.Min(inner.Length - inner.Position, bytes);
-				if(bytes > 0)
+				if (bytes > 0)
 					inner.Seek(bytes, SeekOrigin.Current);
 			}
 			else
 			{
 				uint remaining = bytes;
-				while(remaining != 0)
+				while (remaining != 0)
 				{
 					var readen = inner.Read(Scratch, 0, Scratch.Length);
 					if (readen <= 0)

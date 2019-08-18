@@ -38,7 +38,7 @@ namespace NBitcoin
 		}
 		public Network GetNetwork(NetworkType networkType)
 		{
-			switch(networkType)
+			switch (networkType)
 			{
 				case NetworkType.Mainnet:
 					return Mainnet;
@@ -54,13 +54,13 @@ namespace NBitcoin
 		volatile bool _Registering;
 		public void EnsureRegistered()
 		{
-			if(_Registered)
+			if (_Registered)
 				return;
-			lock(l)
+			lock (l)
 			{
-				if(_Registered)
+				if (_Registered)
 					return;
-				if(_Registering)
+				if (_Registering)
 					throw new InvalidOperationException("It seems like you are recursively accessing a Network which is not yet built.");
 				_Registering = true;
 				var builder = CreateMainnet();
@@ -153,17 +153,18 @@ namespace NBitcoin
 			var home = Environment.GetEnvironmentVariable("HOME");
 			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
 
-			if(string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
+			if (string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
 				return;
 
-			if(!string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
+			if (!string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
 			{
 				var bitcoinFolder = Path.Combine(home, "." + folderName.ToLowerInvariant());
 
 				if (Mainnet != null)
 				{
 					var mainnet = folder.MainnetFolder == null ? Path.Combine(bitcoinFolder, ".cookie")
-						                                       : Path.Combine(bitcoinFolder, folder.MainnetFolder, ".cookie"); ;
+															   : Path.Combine(bitcoinFolder, folder.MainnetFolder, ".cookie");
+					;
 					RPCClient.RegisterDefaultCookiePath(Mainnet, mainnet);
 				}
 
@@ -179,7 +180,7 @@ namespace NBitcoin
 					RPCClient.RegisterDefaultCookiePath(Regtest, regtest);
 				}
 			}
-			else if(!string.IsNullOrEmpty(localAppData))
+			else if (!string.IsNullOrEmpty(localAppData))
 			{
 				var bitcoinFolder = Path.Combine(localAppData, char.ToUpperInvariant(folderName[0]) + folderName.Substring(1));
 				if (Mainnet != null)

@@ -43,7 +43,7 @@ namespace NBitcoin.Protocol
 
 		internal T AssertPayload<T>() where T : Payload
 		{
-			if(Message.Payload is T)
+			if (Message.Payload is T)
 				return (T)(Message.Payload);
 			else
 			{

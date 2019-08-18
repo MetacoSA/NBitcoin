@@ -61,7 +61,7 @@ namespace NBitcoin
 		}
 
 		public virtual void AddKeyPath(PubKey pubKey, RootedKeyPath rootedKeyPath)
-        {
+		{
 			if (rootedKeyPath == null)
 				throw new ArgumentNullException(nameof(rootedKeyPath));
 			if (pubKey == null)

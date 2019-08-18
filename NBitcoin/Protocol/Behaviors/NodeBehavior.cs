@@ -36,14 +36,14 @@ namespace NBitcoin.Protocol.Behaviors
 
 		public void Attach(Node node)
 		{
-			if(node == null)
+			if (node == null)
 				throw new ArgumentNullException(nameof(node));
-			if(AttachedNode != null)
+			if (AttachedNode != null)
 				throw new InvalidOperationException("Behavior already attached to a node");
-			lock(cs)
+			lock (cs)
 			{
 				AttachedNode = node;
-				if(Disconnected(node))
+				if (Disconnected(node))
 					return;
 				AttachCore();
 			}
@@ -51,7 +51,7 @@ namespace NBitcoin.Protocol.Behaviors
 
 		protected void AssertNotAttached()
 		{
-			if(AttachedNode != null)
+			if (AttachedNode != null)
 				throw new InvalidOperationException("Can't modify the behavior while it is attached");
 		}
 
@@ -64,13 +64,13 @@ namespace NBitcoin.Protocol.Behaviors
 
 		public void Detach()
 		{
-			lock(cs)
+			lock (cs)
 			{
-				if(AttachedNode == null)
+				if (AttachedNode == null)
 					return;
 
 				DetachCore();
-				foreach(var dispo in _Disposables)
+				foreach (var dispo in _Disposables)
 					dispo.Dispose();
 
 				_Disposables.Clear();

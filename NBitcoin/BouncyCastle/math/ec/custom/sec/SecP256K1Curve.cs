@@ -31,7 +31,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 		public override bool SupportsCoordinateSystem(int coord)
 		{
-			switch(coord)
+			switch (coord)
 			{
 				case COORD_JACOBIAN:
 					return true;

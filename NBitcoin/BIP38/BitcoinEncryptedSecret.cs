@@ -94,7 +94,7 @@ namespace NBitcoin
 			var addressBytes = Encoders.ASCII.DecodeData(key.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network).ToString());
 			var salt = Hashes.Hash256(addressBytes).ToBytes().SafeSubarray(0, 4);
 
-			if(!Utils.ArrayEqual(salt, AddressHash))
+			if (!Utils.ArrayEqual(salt, AddressHash))
 				throw new SecurityException("Invalid password (or invalid Network)");
 			return key;
 		}
@@ -142,7 +142,7 @@ namespace NBitcoin
 			get
 			{
 				var hasLotSequence = (vchData[0] & 0x04) != 0;
-				if(!hasLotSequence)
+				if (!hasLotSequence)
 					return null;
 				return _LotSequence ?? (_LotSequence = new LotSequence(OwnerEntropy.SafeSubarray(4, 4)));
 			}
@@ -194,7 +194,7 @@ namespace NBitcoin
 			//Multiply passfactor by factorb mod N to yield the private key associated with generatedaddress.
 			var keyNum = new BigInteger(1, passfactor).Multiply(new BigInteger(1, factorb)).Mod(curve.N);
 			var keyBytes = keyNum.ToByteArrayUnsigned();
-			if(keyBytes.Length < 32)
+			if (keyBytes.Length < 32)
 				keyBytes = new byte[32 - keyBytes.Length].Concat(keyBytes).ToArray();
 
 			var key = new Key(keyBytes, fCompressedIn: IsCompressed);
@@ -202,7 +202,7 @@ namespace NBitcoin
 			var generatedaddress = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network);
 			var addresshash = HashAddress(generatedaddress);
 
-			if(!Utils.ArrayEqual(addresshash, AddressHash))
+			if (!Utils.ArrayEqual(addresshash, AddressHash))
 				throw new SecurityException("Invalid password (or invalid Network)");
 
 			return key;
@@ -226,7 +226,7 @@ namespace NBitcoin
 		internal static byte[] CalculatePassFactor(string password, LotSequence lotSequence, byte[] ownerEntropy)
 		{
 			byte[] passfactor;
-			if(lotSequence == null)
+			if (lotSequence == null)
 			{
 				passfactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), ownerEntropy, 32);
 			}
@@ -312,7 +312,7 @@ namespace NBitcoin
 			get
 			{
 				var lenOk = vchData.Length == ValidLength;
-				if(!lenOk)
+				if (!lenOk)
 					return false;
 				var reserved = (vchData[0] & 0x10) == 0 && (vchData[0] & 0x08) == 0;
 				return reserved;
@@ -365,7 +365,7 @@ namespace NBitcoin
 			var encrypt = aes.CreateEncryptor();
 #endif
 
-			for(int i = 0; i < 16; i++)
+			for (int i = 0; i < 16; i++)
 			{
 				derivedhalf1[i] = (byte)(keyhalf1[i] ^ derivedhalf1[i]);
 			}
@@ -375,7 +375,7 @@ namespace NBitcoin
 #else
 			encrypt.TransformBlock(derivedhalf1, 0, 16, encryptedhalf1, 0);
 #endif
-			for(int i = 0; i < 16; i++)
+			for (int i = 0; i < 16; i++)
 			{
 				derivedhalf1[16 + i] = (byte)(keyhalf2[i] ^ derivedhalf1[16 + i]);
 			}
@@ -414,7 +414,7 @@ namespace NBitcoin
 
 
 
-			for(int i = 0; i < 16; i++)
+			for (int i = 0; i < 16; i++)
 			{
 				bitcoinprivkey1[i] ^= derivedhalf1[i];
 			}
@@ -426,7 +426,7 @@ namespace NBitcoin
 			decrypt.TransformBlock(encryptedHalf2, 0, 16, bitcoinprivkey2, 0);
 			decrypt.TransformBlock(encryptedHalf2, 0, 16, bitcoinprivkey2, 0);
 #endif
-			for(int i = 0; i < 16; i++)
+			for (int i = 0; i < 16; i++)
 			{
 				bitcoinprivkey2[i] ^= derivedhalf1[16 + i];
 			}
@@ -451,7 +451,7 @@ namespace NBitcoin
 			var encrypt = aes.CreateEncryptor();
 #endif
 			//AES256Encrypt(seedb[0...15] xor derivedhalf1[0...15], derivedhalf2), call the 16-byte result encryptedpart1
-			for(int i = 0; i < 16; i++)
+			for (int i = 0; i < 16; i++)
 			{
 				derivedhalf1[i] = (byte)(seedb[i] ^ derivedhalf1[i]);
 			}
@@ -464,7 +464,7 @@ namespace NBitcoin
 
 			//AES256Encrypt((encryptedpart1[8...15] + seedb[16...23]) xor derivedhalf1[16...31], derivedhalf2), call the 16-byte result encryptedpart2. The "+" operator is concatenation.
 			var half = encryptedhalf1.SafeSubarray(8, 8).Concat(seedb.SafeSubarray(16, 8)).ToArray();
-			for(int i = 0; i < 16; i++)
+			for (int i = 0; i < 16; i++)
 			{
 				derivedhalf1[16 + i] = (byte)(half[i] ^ derivedhalf1[16 + i]);
 			}
@@ -502,18 +502,18 @@ namespace NBitcoin
 
 #endif
 			//half = (encryptedpart1[8...15] + seedb[16...23]) xor derivedhalf1[16...31])
-			for(int i = 0; i < 16; i++)
+			for (int i = 0; i < 16; i++)
 			{
 				half[i] = (byte)(half[i] ^ derivedhalf1[16 + i]);
 			}
 
 			//half =  (encryptedpart1[8...15] + seedb[16...23])
-			for(int i = 0; i < 8; i++)
+			for (int i = 0; i < 8; i++)
 			{
 				seedb[seedb.Length - i - 1] = half[half.Length - i - 1];
 			}
 			//Restore missing encrypted part
-			for(int i = 0; i < 8; i++)
+			for (int i = 0; i < 8; i++)
 			{
 				encrypted[i + 8] = half[i];
 			}
@@ -526,7 +526,7 @@ namespace NBitcoin
 			decrypt.TransformBlock(encryptedhalf1, 0, 16, seedb, 0);
 #endif
 			//seedb = seedb[0...15] xor derivedhalf1[0...15]
-			for(int i = 0; i < 16; i++)
+			for (int i = 0; i < 16; i++)
 			{
 				seedb[i] = (byte)(seedb[i] ^ derivedhalf1[i]);
 			}

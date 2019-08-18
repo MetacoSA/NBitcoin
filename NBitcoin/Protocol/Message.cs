@@ -62,7 +62,7 @@ namespace NBitcoin.Protocol
 		public bool IfPayloadIs<TPayload>(Action<TPayload> action) where TPayload : Payload
 		{
 			var payload = Payload as TPayload;
-			if(payload != null)
+			if (payload != null)
 				action(payload);
 			return payload != null;
 		}
@@ -75,17 +75,17 @@ namespace NBitcoin.Protocol
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			if(Payload == null && stream.Serializing)
+			if (Payload == null && stream.Serializing)
 				throw new InvalidOperationException("Payload not affected");
-			if(stream.Serializing || (!stream.Serializing && !_SkipMagic))
+			if (stream.Serializing || (!stream.Serializing && !_SkipMagic))
 				stream.ReadWrite(ref magic);
 
 			stream.ReadWrite(ref command);
 
-			if(stream.Serializing)
+			if (stream.Serializing)
 			{
 				// We can optimize by calculating the length at the same time we calculate the checksum
-				if(stream.ProtocolCapabilities.SupportCheckSum)
+				if (stream.ProtocolCapabilities.SupportCheckSum)
 				{
 					var hashStream = stream.ProtocolCapabilities.GetChecksumHashStream();
 					var bsStream = new BitcoinStream(hashStream, true);
@@ -110,7 +110,7 @@ namespace NBitcoin.Protocol
 			{
 				int length = 0;
 				stream.ReadWrite(ref length);
-				if(length < 0 || length > 0x02000000) //MAX_SIZE 0x02000000 Serialize.h
+				if (length < 0 || length > 0x02000000) //MAX_SIZE 0x02000000 Serialize.h
 				{
 					throw new FormatException("Message payload too big ( > 0x02000000 bytes)");
 				}
@@ -120,7 +120,7 @@ namespace NBitcoin.Protocol
 				try
 				{
 					uint expectedChecksum = 0;
-					if(stream.ProtocolCapabilities.SupportCheckSum)
+					if (stream.ProtocolCapabilities.SupportCheckSum)
 						stream.ReadWrite(ref expectedChecksum);
 
 					stream.ReadWrite(ref payloadBytes, 0, length);
@@ -133,13 +133,13 @@ namespace NBitcoin.Protocol
 					var payloadType = PayloadAttribute.GetCommandType(Command);
 					var unknown = payloadType == typeof(UnknowPayload);
 					if (unknown)
-						Logs.NodeServer.LogWarning("Unknown command received {command}", Command); 
-			
+						Logs.NodeServer.LogWarning("Unknown command received {command}", Command);
+
 					IBitcoinSerializable payload = null;
-					if(!stream.ConsensusFactory.TryCreateNew(payloadType, out payload))
+					if (!stream.ConsensusFactory.TryCreateNew(payloadType, out payload))
 						payload = (IBitcoinSerializable)Activator.CreateInstance(payloadType);
 					payload.ReadWrite(payloadStream);
-					if(unknown)
+					if (unknown)
 						((UnknowPayload)payload)._Command = Command;
 					Payload = (Payload)payload;
 				}
@@ -195,11 +195,11 @@ namespace NBitcoin.Protocol
 				ConsensusFactory = network.Consensus.ConsensusFactory
 			};
 
-			if(!network.ReadMagic(stream, cancellationToken, true))
+			if (!network.ReadMagic(stream, cancellationToken, true))
 				throw new FormatException("Magic incorrect, the message comes from another network");
 
 			Message message = new Message();
-			using(message.SkipMagicScope(true))
+			using (message.SkipMagicScope(true))
 			{
 				message.Magic = network.Magic;
 				message.ReadWrite(bitStream);

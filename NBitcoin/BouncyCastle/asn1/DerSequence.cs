@@ -37,7 +37,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 			params Asn1Encodable[] v)
 			: base(v.Length)
 		{
-			foreach(Asn1Encodable ae in v)
+			foreach (Asn1Encodable ae in v)
 			{
 				AddObject(ae);
 			}
@@ -50,7 +50,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 			Asn1EncodableVector v)
 			: base(v.Count)
 		{
-			foreach(Asn1Encodable ae in v)
+			foreach (Asn1Encodable ae in v)
 			{
 				AddObject(ae);
 			}
@@ -71,7 +71,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 			MemoryStream bOut = new MemoryStream();
 			DerOutputStream dOut = new DerOutputStream(bOut);
 
-			foreach(Asn1Encodable obj in this)
+			foreach (Asn1Encodable obj in this)
 			{
 				dOut.WriteObject(obj);
 			}

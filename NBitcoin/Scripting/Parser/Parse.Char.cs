@@ -26,13 +26,13 @@ namespace NBitcoin.Scripting.Parser
 			{
 				if (i.AtEnd)
 				{
-					return ParserResult<char, char>.Failure(i, new [] {expected}, "Unexpected end of input");
+					return ParserResult<char, char>.Failure(i, new[] { expected }, "Unexpected end of input");
 				}
 
 				if (predicate(i.GetCurrent()))
 					return ParserResult<char, char>.Success(i.Advance(), i.GetCurrent());
 
-				return ParserResult<char, char>.Failure(i, new [] {expected}, $"Unexpected '{i.GetCurrent()}'");
+				return ParserResult<char, char>.Failure(i, new[] { expected }, $"Unexpected '{i.GetCurrent()}'");
 			};
 		}
 		public static Parser<char, char> CharExcept(Func<char, bool> predicate, string description)
@@ -69,7 +69,8 @@ namespace NBitcoin.Scripting.Parser
 		/// <returns></returns>
 		public static Parser<char, IEnumerable<char>> String(string s)
 		{
-			if (s == null) throw new ArgumentNullException(nameof(s));
+			if (s == null)
+				throw new ArgumentNullException(nameof(s));
 
 			return s
 				.ToCharArray()
@@ -79,7 +80,8 @@ namespace NBitcoin.Scripting.Parser
 
 		public static Parser<char, T> Token<T>(this Parser<char, T> parser)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
 
 			return from leading in WhiteSpace.Many()
 				   from item in parser
@@ -96,7 +98,7 @@ namespace NBitcoin.Scripting.Parser
 		{
 			return characters.Select(chs => new string(chs.ToArray()));
 		}
-		
+
 		/// <summary>
 		/// Parse a number.
 		/// </summary>

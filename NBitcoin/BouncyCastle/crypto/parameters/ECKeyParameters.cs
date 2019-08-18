@@ -18,9 +18,9 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 			ECDomainParameters parameters)
 			: base(isPrivate)
 		{
-			if(algorithm == null)
+			if (algorithm == null)
 				throw new ArgumentNullException(nameof(algorithm));
-			if(parameters == null)
+			if (parameters == null)
 				throw new ArgumentNullException(nameof(parameters));
 
 			this.algorithm = VerifyAlgorithmName(algorithm);
@@ -46,12 +46,12 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 		public override bool Equals(
 			object obj)
 		{
-			if(obj == this)
+			if (obj == this)
 				return true;
 
 			ECDomainParameters other = obj as ECDomainParameters;
 
-			if(other == null)
+			if (other == null)
 				return false;
 
 			return Equals(other);
@@ -71,7 +71,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 		internal static string VerifyAlgorithmName(string algorithm)
 		{
 			string upper = Platform.ToUpperInvariant(algorithm);
-			if(Array.IndexOf(algorithms, algorithm, 0, algorithms.Length) < 0)
+			if (Array.IndexOf(algorithms, algorithm, 0, algorithms.Length) < 0)
 				throw new ArgumentException("unrecognised algorithm: " + algorithm, "algorithm");
 			return upper;
 		}

@@ -10,7 +10,7 @@ namespace NBitcoin.OpenAsset
 	{
 		public NoDuplicateColoredTransactionRepository(IColoredTransactionRepository inner)
 		{
-			if(inner == null)
+			if (inner == null)
 				throw new ArgumentNullException(nameof(inner));
 			_Inner = inner;
 		}
@@ -57,23 +57,23 @@ namespace NBitcoin.OpenAsset
 		Task<T> Request<T>(string key, Func<Task<T>> wrapped)
 		{
 			Task<T> task = null;
-			using(@lock.LockRead())
+			using (@lock.LockRead())
 			{
 				task = _Tasks.TryGet(key) as Task<T>;
 			}
-			if(task != null)
+			if (task != null)
 				return task;
-			using(@lock.LockWrite())
+			using (@lock.LockWrite())
 			{
 				task = _Tasks.TryGet(key) as Task<T>;
-				if(task != null)
+				if (task != null)
 					return task;
 				task = wrapped();
 				_Tasks.Add(key, task);
 			}
 			task.ContinueWith((_) =>
 			{
-				using(@lock.LockWrite())
+				using (@lock.LockWrite())
 				{
 					_Tasks.Remove(key);
 				}

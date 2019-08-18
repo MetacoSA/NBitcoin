@@ -20,7 +20,7 @@ namespace NBitcoin.BouncyCastle.Utilities.Encoders
 		{
 			Arrays.Fill(decodingTable, (byte)0xff);
 
-			for(int i = 0; i < encodingTable.Length; i++)
+			for (int i = 0; i < encodingTable.Length; i++)
 			{
 				decodingTable[encodingTable[i]] = (byte)i;
 			}
@@ -49,7 +49,7 @@ namespace NBitcoin.BouncyCastle.Utilities.Encoders
 			int length,
 			Stream outStream)
 		{
-			for(int i = off; i < (off + length); i++)
+			for (int i = off; i < (off + length); i++)
 			{
 				int v = data[i];
 
@@ -81,9 +81,9 @@ namespace NBitcoin.BouncyCastle.Utilities.Encoders
 			int outLen = 0;
 			int end = off + length;
 
-			while(end > off)
+			while (end > off)
 			{
-				if(!Ignore((char)data[end - 1]))
+				if (!Ignore((char)data[end - 1]))
 				{
 					break;
 				}
@@ -92,23 +92,23 @@ namespace NBitcoin.BouncyCastle.Utilities.Encoders
 			}
 
 			int i = off;
-			while(i < end)
+			while (i < end)
 			{
-				while(i < end && Ignore((char)data[i]))
+				while (i < end && Ignore((char)data[i]))
 				{
 					i++;
 				}
 
 				b1 = decodingTable[data[i++]];
 
-				while(i < end && Ignore((char)data[i]))
+				while (i < end && Ignore((char)data[i]))
 				{
 					i++;
 				}
 
 				b2 = decodingTable[data[i++]];
 
-				if((b1 | b2) >= 0x80)
+				if ((b1 | b2) >= 0x80)
 					throw new IOException("invalid characters encountered in Hex data");
 
 				outStream.WriteByte((byte)((b1 << 4) | b2));
@@ -134,9 +134,9 @@ namespace NBitcoin.BouncyCastle.Utilities.Encoders
 
 			int end = data.Length;
 
-			while(end > 0)
+			while (end > 0)
 			{
-				if(!Ignore(data[end - 1]))
+				if (!Ignore(data[end - 1]))
 				{
 					break;
 				}
@@ -145,23 +145,23 @@ namespace NBitcoin.BouncyCastle.Utilities.Encoders
 			}
 
 			int i = 0;
-			while(i < end)
+			while (i < end)
 			{
-				while(i < end && Ignore(data[i]))
+				while (i < end && Ignore(data[i]))
 				{
 					i++;
 				}
 
 				b1 = decodingTable[data[i++]];
 
-				while(i < end && Ignore(data[i]))
+				while (i < end && Ignore(data[i]))
 				{
 					i++;
 				}
 
 				b2 = decodingTable[data[i++]];
 
-				if((b1 | b2) >= 0x80)
+				if ((b1 | b2) >= 0x80)
 					throw new IOException("invalid characters encountered in Hex data");
 
 				outStream.WriteByte((byte)((b1 << 4) | b2));

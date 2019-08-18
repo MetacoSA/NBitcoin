@@ -59,7 +59,7 @@ namespace NBitcoin.RPC
 
 			StringBuilder builder = new StringBuilder();
 			builder.Append(extPubKey.ToString());
-			if(keyPath != null && keyPath.Indexes.Length != 0)
+			if (keyPath != null && keyPath.Indexes.Length != 0)
 			{
 				builder.Append(keyPath.ToString().Replace("m/", String.Empty));
 			}

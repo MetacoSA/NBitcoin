@@ -32,7 +32,7 @@ namespace NBitcoin
 
 			public void ReadWrite(BitcoinStream stream)
 			{
-				if(stream.Serializing)
+				if (stream.Serializing)
 				{
 #if !HAS_SPAN
 					var b = Value.ToBytes();
@@ -97,14 +97,14 @@ namespace NBitcoin
 		}
 		public static bool TryParse(string hex, out uint256 result)
 		{
-			if(hex == null)
+			if (hex == null)
 				throw new ArgumentNullException(nameof(hex));
-			if(hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+			if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				hex = hex.Substring(2);
 			result = null;
-			if(hex.Length != WIDTH_BYTE * 2)
+			if (hex.Length != WIDTH_BYTE * 2)
 				return false;
-			if(!((HexEncoder)Encoders.Hex).IsValid(hex))
+			if (!((HexEncoder)Encoders.Hex).IsValid(hex))
 				return false;
 			result = new uint256(hex);
 			return true;
@@ -126,7 +126,7 @@ namespace NBitcoin
 			var uintIndex = index / sizeof(uint);
 			var byteIndex = index % sizeof(uint);
 			UInt32 value;
-			switch(uintIndex)
+			switch (uintIndex)
 			{
 				case 0:
 					value = pn0;
@@ -184,14 +184,14 @@ namespace NBitcoin
 
 		public uint256(byte[] vch, int offset, int length, bool lendian = true)
 		{
-			if(length != WIDTH_BYTE)
+			if (length != WIDTH_BYTE)
 			{
 				throw new FormatException("the byte array should be 32 bytes long");
 			}
 
-			if(!lendian)
+			if (!lendian)
 			{
-				if(length != vch.Length)
+				if (length != vch.Length)
 					vch = vch.Take(32).ToArray();
 				vch = vch.Reverse().ToArray();
 			}
@@ -238,12 +238,12 @@ namespace NBitcoin
 			pn7 = 0;
 			str = str.Trim();
 
-			if(str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				str = str.Substring(2);
 
 			var bytes = Encoder.DecodeData(str);
 			Array.Reverse(bytes);
-			if(bytes.Length != WIDTH_BYTE)
+			if (bytes.Length != WIDTH_BYTE)
 				throw new FormatException("Invalid hex length");
 			pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
 			pn1 = Utils.ToUInt32(bytes, 4 * 1, true);
@@ -299,9 +299,9 @@ namespace NBitcoin
 
 		public static bool operator ==(uint256 a, uint256 b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 
 			bool equals = true;
@@ -346,35 +346,35 @@ namespace NBitcoin
 				return 1;
 			if (a.pn7 < b.pn7)
 				return -1;
-			if(a.pn7 > b.pn7)
+			if (a.pn7 > b.pn7)
 				return 1;
-			if(a.pn6 < b.pn6)
+			if (a.pn6 < b.pn6)
 				return -1;
-			if(a.pn6 > b.pn6)
+			if (a.pn6 > b.pn6)
 				return 1;
-			if(a.pn5 < b.pn5)
+			if (a.pn5 < b.pn5)
 				return -1;
-			if(a.pn5 > b.pn5)
+			if (a.pn5 > b.pn5)
 				return 1;
-			if(a.pn4 < b.pn4)
+			if (a.pn4 < b.pn4)
 				return -1;
-			if(a.pn4 > b.pn4)
+			if (a.pn4 > b.pn4)
 				return 1;
-			if(a.pn3 < b.pn3)
+			if (a.pn3 < b.pn3)
 				return -1;
-			if(a.pn3 > b.pn3)
+			if (a.pn3 > b.pn3)
 				return 1;
-			if(a.pn2 < b.pn2)
+			if (a.pn2 < b.pn2)
 				return -1;
-			if(a.pn2 > b.pn2)
+			if (a.pn2 > b.pn2)
 				return 1;
-			if(a.pn1 < b.pn1)
+			if (a.pn1 < b.pn1)
 				return -1;
-			if(a.pn1 > b.pn1)
+			if (a.pn1 > b.pn1)
 				return 1;
-			if(a.pn0 < b.pn0)
+			if (a.pn0 < b.pn0)
 				return -1;
-			if(a.pn0 > b.pn0)
+			if (a.pn0 > b.pn0)
 				return 1;
 			return 0;
 		}
@@ -404,7 +404,7 @@ namespace NBitcoin
 		{
 			var arr = new byte[WIDTH_BYTE];
 			ToBytes(arr);
-			if(!lendian)
+			if (!lendian)
 				Array.Reverse(arr);
 			return arr;
 		}
@@ -520,7 +520,7 @@ namespace NBitcoin
 
 			public void ReadWrite(BitcoinStream stream)
 			{
-				if(stream.Serializing)
+				if (stream.Serializing)
 				{
 					var b = Value.ToBytes();
 					stream.ReadWrite(ref b);
@@ -570,14 +570,14 @@ namespace NBitcoin
 		}
 		public static bool TryParse(string hex, out uint160 result)
 		{
-			if(hex == null)
+			if (hex == null)
 				throw new ArgumentNullException(nameof(hex));
-			if(hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+			if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				hex = hex.Substring(2);
 			result = null;
-			if(hex.Length != WIDTH_BYTE * 2)
+			if (hex.Length != WIDTH_BYTE * 2)
 				return false;
-			if(!((HexEncoder)Encoders.Hex).IsValid(hex))
+			if (!((HexEncoder)Encoders.Hex).IsValid(hex))
 				return false;
 			result = new uint160(hex);
 			return true;
@@ -596,7 +596,7 @@ namespace NBitcoin
 			var uintIndex = index / sizeof(uint);
 			var byteIndex = index % sizeof(uint);
 			UInt32 value;
-			switch(uintIndex)
+			switch (uintIndex)
 			{
 				case 0:
 					value = pn0;
@@ -635,12 +635,12 @@ namespace NBitcoin
 
 		public uint160(byte[] vch, bool lendian = true)
 		{
-			if(vch.Length != WIDTH_BYTE)
+			if (vch.Length != WIDTH_BYTE)
 			{
 				throw new FormatException("the byte array should be 20 bytes long");
 			}
 
-			if(!lendian)
+			if (!lendian)
 				vch = vch.Reverse().ToArray();
 
 			pn0 = Utils.ToUInt32(vch, 4 * 0, true);
@@ -660,11 +660,11 @@ namespace NBitcoin
 			pn4 = 0;
 			str = str.Trim();
 
-			if(str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				str = str.Substring(2);
 
 			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
-			if(bytes.Length != WIDTH_BYTE)
+			if (bytes.Length != WIDTH_BYTE)
 				throw new FormatException("Invalid hex length");
 			pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
 			pn1 = Utils.ToUInt32(bytes, 4 * 1, true);
@@ -711,9 +711,9 @@ namespace NBitcoin
 
 		public static bool operator ==(uint160 a, uint160 b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 
 			bool equals = true;
@@ -755,23 +755,23 @@ namespace NBitcoin
 				return 1;
 			if (a.pn4 < b.pn4)
 				return -1;
-			if(a.pn4 > b.pn4)
+			if (a.pn4 > b.pn4)
 				return 1;
-			if(a.pn3 < b.pn3)
+			if (a.pn3 < b.pn3)
 				return -1;
-			if(a.pn3 > b.pn3)
+			if (a.pn3 > b.pn3)
 				return 1;
-			if(a.pn2 < b.pn2)
+			if (a.pn2 < b.pn2)
 				return -1;
-			if(a.pn2 > b.pn2)
+			if (a.pn2 > b.pn2)
 				return 1;
-			if(a.pn1 < b.pn1)
+			if (a.pn1 < b.pn1)
 				return -1;
-			if(a.pn1 > b.pn1)
+			if (a.pn1 > b.pn1)
 				return 1;
-			if(a.pn0 < b.pn0)
+			if (a.pn0 < b.pn0)
 				return -1;
-			if(a.pn0 > b.pn0)
+			if (a.pn0 > b.pn0)
 				return 1;
 			return 0;
 		}
@@ -805,7 +805,7 @@ namespace NBitcoin
 			Buffer.BlockCopy(Utils.ToBytes(pn2, true), 0, arr, 4 * 2, 4);
 			Buffer.BlockCopy(Utils.ToBytes(pn3, true), 0, arr, 4 * 3, 4);
 			Buffer.BlockCopy(Utils.ToBytes(pn4, true), 0, arr, 4 * 4, 4);
-			if(!lendian)
+			if (!lendian)
 				Array.Reverse(arr);
 			return arr;
 		}

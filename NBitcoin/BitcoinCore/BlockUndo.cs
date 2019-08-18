@@ -84,11 +84,11 @@ namespace NBitcoin.BitcoinCore
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			if(stream.Serializing)
+			if (stream.Serializing)
 			{
 				uint o = (uint)(nHeight * 2 + (fCoinBase ? 1 : 0));
 				stream.ReadWriteAsCompactVarInt(ref o);
-				if(nHeight > 0)
+				if (nHeight > 0)
 					stream.ReadWriteAsCompactVarInt(ref nVersion);
 				TxOutCompressor compressor = new TxOutCompressor(txout);
 				stream.ReadWrite(ref compressor);
@@ -99,7 +99,7 @@ namespace NBitcoin.BitcoinCore
 				stream.ReadWriteAsCompactVarInt(ref nCode);
 				nHeight = nCode / 2;
 				fCoinBase = (nCode & 1) != 0;
-				if(nHeight > 0)
+				if (nHeight > 0)
 					stream.ReadWriteAsCompactVarInt(ref nVersion);
 				TxOutCompressor compressor = new TxOutCompressor();
 				stream.ReadWrite(ref compressor);

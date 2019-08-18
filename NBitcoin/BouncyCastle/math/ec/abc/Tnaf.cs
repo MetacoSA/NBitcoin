@@ -98,11 +98,11 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			// s3 = 2 * v^2
 			BigInteger s3 = lambda.v.Multiply(lambda.v).ShiftLeft(1);
 
-			if(mu == 1)
+			if (mu == 1)
 			{
 				norm = s1.Add(s2).Add(s3);
 			}
-			else if(mu == -1)
+			else if (mu == -1)
 			{
 				norm = s1.Subtract(s2).Add(s3);
 			}
@@ -139,11 +139,11 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			// s3 = 2 * v^2
 			SimpleBigDecimal s3 = v.Multiply(v).ShiftLeft(1);
 
-			if(mu == 1)
+			if (mu == 1)
 			{
 				norm = s1.Add(s2).Add(s3);
 			}
-			else if(mu == -1)
+			else if (mu == -1)
 			{
 				norm = s1.Subtract(s2).Add(s3);
 			}
@@ -172,10 +172,10 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			SimpleBigDecimal lambda1, sbyte mu)
 		{
 			int scale = lambda0.Scale;
-			if(lambda1.Scale != scale)
+			if (lambda1.Scale != scale)
 				throw new ArgumentException("lambda0 and lambda1 do not have same scale");
 
-			if(!((mu == 1) || (mu == -1)))
+			if (!((mu == 1) || (mu == -1)))
 				throw new ArgumentException("mu must be 1 or -1");
 
 			BigInteger f0 = lambda0.Round();
@@ -186,7 +186,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 
 			// eta = 2*eta0 + mu*eta1
 			SimpleBigDecimal eta = eta0.Add(eta0);
-			if(mu == 1)
+			if (mu == 1)
 			{
 				eta = eta.Add(eta1);
 			}
@@ -202,7 +202,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			SimpleBigDecimal fourEta1 = threeEta1.Add(eta1);
 			SimpleBigDecimal check1;
 			SimpleBigDecimal check2;
-			if(mu == 1)
+			if (mu == 1)
 			{
 				check1 = eta0.Subtract(threeEta1);
 				check2 = eta0.Add(fourEta1);
@@ -218,9 +218,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			sbyte h1 = 0;
 
 			// if eta >= 1
-			if(eta.CompareTo(BigInteger.One) >= 0)
+			if (eta.CompareTo(BigInteger.One) >= 0)
 			{
-				if(check1.CompareTo(MinusOne) < 0)
+				if (check1.CompareTo(MinusOne) < 0)
 				{
 					h1 = mu;
 				}
@@ -232,16 +232,16 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			else
 			{
 				// eta < 1
-				if(check2.CompareTo(BigInteger.Two) >= 0)
+				if (check2.CompareTo(BigInteger.Two) >= 0)
 				{
 					h1 = mu;
 				}
 			}
 
 			// if eta < -1
-			if(eta.CompareTo(MinusOne) < 0)
+			if (eta.CompareTo(MinusOne) < 0)
 			{
-				if(check1.CompareTo(BigInteger.One) >= 0)
+				if (check1.CompareTo(BigInteger.One) >= 0)
 				{
 					h1 = (sbyte)-mu;
 				}
@@ -253,7 +253,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			else
 			{
 				// eta >= -1
-				if(check2.CompareTo(MinusTwo) < 0)
+				if (check2.CompareTo(MinusTwo) < 0)
 				{
 					h1 = (sbyte)-mu;
 				}
@@ -294,7 +294,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 
 			BigInteger gsPlusJs = gs.Add(js);
 			BigInteger ls = gsPlusJs.ShiftRight(_k - c);
-			if(gsPlusJs.TestBit(_k - c - 1))
+			if (gsPlusJs.TestBit(_k - c - 1))
 			{
 				// round up
 				ls = ls.Add(BigInteger.One);
@@ -313,7 +313,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
         */
 		public static sbyte[] TauAdicNaf(sbyte mu, ZTauElement lambda)
 		{
-			if(!((mu == 1) || (mu == -1)))
+			if (!((mu == 1) || (mu == -1)))
 				throw new ArgumentException("mu must be 1 or -1");
 
 			BigInteger norm = Norm(mu, lambda);
@@ -334,15 +334,15 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			BigInteger r0 = lambda.u;
 			BigInteger r1 = lambda.v;
 
-			while(!((r0.Equals(BigInteger.Zero)) && (r1.Equals(BigInteger.Zero))))
+			while (!((r0.Equals(BigInteger.Zero)) && (r1.Equals(BigInteger.Zero))))
 			{
 				// If r0 is odd
-				if(r0.TestBit(0))
+				if (r0.TestBit(0))
 				{
 					u[i] = (sbyte)BigInteger.Two.Subtract((r0.Subtract(r1.ShiftLeft(1))).Mod(Four)).IntValue;
 
 					// r0 = r0 - u[i]
-					if(u[i] == 1)
+					if (u[i] == 1)
 					{
 						r0 = r0.ClearBit(0);
 					}
@@ -360,7 +360,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 
 				BigInteger t = r0;
 				BigInteger s = r0.ShiftRight(1);
-				if(mu == 1)
+				if (mu == 1)
 				{
 					r0 = r1.Add(s);
 				}
@@ -408,11 +408,11 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			BigInteger a = curve.A.ToBigInteger();
 
 			sbyte mu;
-			if(a.SignValue == 0)
+			if (a.SignValue == 0)
 			{
 				mu = -1;
 			}
-			else if(a.Equals(BigInteger.One))
+			else if (a.Equals(BigInteger.One))
 			{
 				mu = 1;
 			}
@@ -449,14 +449,14 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
         */
 		public static BigInteger[] GetLucas(sbyte mu, int k, bool doV)
 		{
-			if(!(mu == 1 || mu == -1))
+			if (!(mu == 1 || mu == -1))
 				throw new ArgumentException("mu must be 1 or -1");
 
 			BigInteger u0;
 			BigInteger u1;
 			BigInteger u2;
 
-			if(doV)
+			if (doV)
 			{
 				u0 = BigInteger.Two;
 				u1 = BigInteger.ValueOf(mu);
@@ -467,11 +467,11 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 				u1 = BigInteger.One;
 			}
 
-			for(int i = 1; i < k; i++)
+			for (int i = 1; i < k; i++)
 			{
 				// u2 = mu*u1 - 2*u0;
 				BigInteger s = null;
-				if(mu == 1)
+				if (mu == 1)
 				{
 					s = u1;
 				}
@@ -502,9 +502,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
         */
 		public static BigInteger GetTw(sbyte mu, int w)
 		{
-			if(w == 4)
+			if (w == 4)
 			{
-				if(mu == 1)
+				if (mu == 1)
 				{
 					return BigInteger.ValueOf(6);
 				}
@@ -538,7 +538,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
         */
 		public static BigInteger[] GetSi(AbstractF2mCurve curve)
 		{
-			if(!curve.IsKoblitz)
+			if (!curve.IsKoblitz)
 				throw new ArgumentException("si is defined for Koblitz curves only");
 
 			int m = curve.FieldSize;
@@ -548,7 +548,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			int index = m + 3 - a;
 			BigInteger[] ui = GetLucas(mu, index, false);
 
-			if(mu == 1)
+			if (mu == 1)
 			{
 				ui[0] = ui[0].Negate();
 				ui[1] = ui[1].Negate();
@@ -566,7 +566,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			int shifts = GetShiftsForCofactor(cofactor);
 			int index = fieldSize + 3 - curveA;
 			BigInteger[] ui = GetLucas(mu, index, false);
-			if(mu == 1)
+			if (mu == 1)
 			{
 				ui[0] = ui[0].Negate();
 				ui[1] = ui[1].Negate();
@@ -580,12 +580,12 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 
 		protected static int GetShiftsForCofactor(BigInteger h)
 		{
-			if(h != null && h.BitLength < 4)
+			if (h != null && h.BitLength < 4)
 			{
 				int hi = h.IntValue;
-				if(hi == 2)
+				if (hi == 2)
 					return 1;
-				if(hi == 4)
+				if (hi == 4)
 					return 2;
 			}
 
@@ -610,7 +610,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 		{
 			// d0 = s[0] + mu*s[1]; mu is either 1 or -1
 			BigInteger d0;
-			if(mu == 1)
+			if (mu == 1)
 			{
 				d0 = s[0].Add(s[1]);
 			}
@@ -695,11 +695,11 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			AbstractF2mPoint q = (AbstractF2mPoint)curve.Infinity;
 			AbstractF2mPoint pNeg = (AbstractF2mPoint)p.Negate();
 			int tauCount = 0;
-			for(int i = u.Length - 1; i >= 0; i--)
+			for (int i = u.Length - 1; i >= 0; i--)
 			{
 				++tauCount;
 				sbyte ui = u[i];
-				if(ui != 0)
+				if (ui != 0)
 				{
 					q = q.TauPow(tauCount);
 					tauCount = 0;
@@ -708,7 +708,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 					q = (AbstractF2mPoint)q.Add(x);
 				}
 			}
-			if(tauCount > 0)
+			if (tauCount > 0)
 			{
 				q = q.TauPow(tauCount);
 			}
@@ -732,7 +732,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 		public static sbyte[] TauAdicWNaf(sbyte mu, ZTauElement lambda,
 			sbyte width, BigInteger pow2w, BigInteger tw, ZTauElement[] alpha)
 		{
-			if(!((mu == 1) || (mu == -1)))
+			if (!((mu == 1) || (mu == -1)))
 				throw new ArgumentException("mu must be 1 or -1");
 
 			BigInteger norm = Norm(mu, lambda);
@@ -755,10 +755,10 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			int i = 0;
 
 			// while lambda <> (0, 0)
-			while(!((r0.Equals(BigInteger.Zero)) && (r1.Equals(BigInteger.Zero))))
+			while (!((r0.Equals(BigInteger.Zero)) && (r1.Equals(BigInteger.Zero))))
 			{
 				// if r0 is odd
-				if(r0.TestBit(0))
+				if (r0.TestBit(0))
 				{
 					// uUnMod = r0 + r1*tw Mod 2^width
 					BigInteger uUnMod
@@ -766,7 +766,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 
 					sbyte uLocal;
 					// if uUnMod >= 2^(width - 1)
-					if(uUnMod.CompareTo(pow2wMin1) >= 0)
+					if (uUnMod.CompareTo(pow2wMin1) >= 0)
 					{
 						uLocal = (sbyte)uUnMod.Subtract(pow2w).IntValue;
 					}
@@ -778,14 +778,14 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 
 					u[i] = uLocal;
 					bool s = true;
-					if(uLocal < 0)
+					if (uLocal < 0)
 					{
 						s = false;
 						uLocal = (sbyte)-uLocal;
 					}
 					// uLocal is now >= 0
 
-					if(s)
+					if (s)
 					{
 						r0 = r0.Subtract(alpha[uLocal].u);
 						r1 = r1.Subtract(alpha[uLocal].v);
@@ -803,7 +803,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 
 				BigInteger t = r0;
 
-				if(mu == 1)
+				if (mu == 1)
 				{
 					r0 = r1.Add(r0.ShiftRight(1));
 				}
@@ -832,7 +832,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			pu[0] = p;
 
 			uint precompLen = (uint)alphaTnaf.Length;
-			for(uint i = 3; i < precompLen; i += 2)
+			for (uint i = 3; i < precompLen; i += 2)
 			{
 				pu[i >> 1] = Tnaf.MultiplyFromTnaf(p, alphaTnaf[i]);
 			}

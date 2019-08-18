@@ -45,7 +45,7 @@ namespace NBitcoin.Crypto
 		public static void Compute(int rounds,
 								   uint[] input, int inputOffset, uint[] output, int outputOffset)
 		{
-			if(rounds < 2 || rounds > 20 || (rounds & 1) == 1)
+			if (rounds < 2 || rounds > 20 || (rounds & 1) == 1)
 			{
 				throw Exceptions.Argument("rounds", "Must be even and in the range 2 to 20.");
 			}
@@ -71,7 +71,7 @@ namespace NBitcoin.Crypto
 				uint x14 = input[inputOffset + 14];
 				uint x15 = input[inputOffset + 15];
 
-				for(int i = rounds; i > 0; i -= 2)
+				for (int i = rounds; i > 0; i -= 2)
 				{
 					x4 ^= R(x0 + x12, 7);
 					x8 ^= R(x4 + x0, 9);
@@ -140,7 +140,7 @@ namespace NBitcoin.Crypto
 				output[outputOffset + 15] = input[inputOffset + 15] + x15;
 				x15 = 0;
 			}
-			catch(IndexOutOfRangeException)
+			catch (IndexOutOfRangeException)
 			{
 				// For speed, don't bounds-check until .NET throws from a bounds error.
 				Check.Null("input", input);

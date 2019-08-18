@@ -222,9 +222,9 @@ namespace NBitcoin
 		public ColoredCoin(Transaction tx, ColoredEntry entry)
 			: this(entry.Asset, new Coin(tx, entry.Index))
 		{
-			if(tx == null)
+			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
-			if(entry == null)
+			if (entry == null)
 				throw new ArgumentNullException(nameof(entry));
 		}
 
@@ -295,13 +295,13 @@ namespace NBitcoin
 		}
 		public static IEnumerable<ColoredCoin> Find(uint256 txId, Transaction tx, ColoredTransaction colored)
 		{
-			if(colored == null)
+			if (colored == null)
 				throw new ArgumentNullException(nameof(colored));
-			if(tx == null)
+			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
-			if(txId == null)
+			if (txId == null)
 				txId = tx.GetHash();
-			foreach(var entry in colored.Issuances.Concat(colored.Transfers))
+			foreach (var entry in colored.Issuances.Concat(colored.Transfers))
 			{
 				var txout = tx.Outputs[entry.Index];
 				yield return new ColoredCoin(entry.Asset, new Coin(new OutPoint(txId, entry.Index), txout));
@@ -314,7 +314,7 @@ namespace NBitcoin
 		}
 		public static IEnumerable<ColoredCoin> Find(uint256 txId, Transaction tx, IColoredTransactionRepository repo)
 		{
-			if(txId == null)
+			if (txId == null)
 				txId = tx.GetHash();
 			var colored = tx.GetColoredTransaction(repo);
 			return Find(txId, tx, colored);
@@ -405,7 +405,7 @@ namespace NBitcoin
 
 		public Coin(Transaction fromTx, uint fromOutputIndex)
 		{
-			if(fromTx == null)
+			if (fromTx == null)
 				throw new ArgumentNullException(nameof(fromTx));
 			Outpoint = new OutPoint(fromTx, fromOutputIndex);
 			TxOut = fromTx.Outputs[fromOutputIndex];
@@ -413,9 +413,9 @@ namespace NBitcoin
 
 		public Coin(Transaction fromTx, TxOut fromOutput)
 		{
-			if(fromTx == null)
+			if (fromTx == null)
 				throw new ArgumentNullException(nameof(fromTx));
-			if(fromOutput == null)
+			if (fromOutput == null)
 				throw new ArgumentNullException(nameof(fromOutput));
 			uint outputIndex = (uint)fromTx.Outputs.FindIndex(r => Object.ReferenceEquals(fromOutput, r));
 			Outpoint = new OutPoint(fromTx, outputIndex);
@@ -435,12 +435,12 @@ namespace NBitcoin
 
 		public virtual Script GetScriptCode()
 		{
-			if(!CanGetScriptCode)
+			if (!CanGetScriptCode)
 				throw new InvalidOperationException("You need to provide P2WSH or P2SH redeem script with Coin.ToScriptCoin()");
-			if(_OverrideScriptCode != null)
+			if (_OverrideScriptCode != null)
 				return _OverrideScriptCode;
 			var key = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(ScriptPubKey);
-			if(key != null)
+			if (key != null)
 				return key.AsKeyId().ScriptPubKey;
 			return ScriptPubKey;
 		}
@@ -455,17 +455,17 @@ namespace NBitcoin
 
 		public virtual HashVersion GetHashVersion()
 		{
-			if(PayToWitTemplate.Instance.CheckScriptPubKey(ScriptPubKey))
+			if (PayToWitTemplate.Instance.CheckScriptPubKey(ScriptPubKey))
 				return HashVersion.Witness;
 			return HashVersion.Original;
 		}
 
 		public ScriptCoin ToScriptCoin(Script redeemScript)
 		{
-			if(redeemScript == null)
+			if (redeemScript == null)
 				throw new ArgumentNullException(nameof(redeemScript));
 			var scriptCoin = this as ScriptCoin;
-			if(scriptCoin != null)
+			if (scriptCoin != null)
 				return scriptCoin;
 			if (!ScriptCoin.IsCoherent(TxOut.ScriptPubKey, redeemScript, out var error))
 				throw new ArgumentException(paramName: nameof(redeemScript), message: error);
@@ -522,7 +522,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(TxOut == null)
+				if (TxOut == null)
 					return Money.Zero;
 				return TxOut.Value;
 			}
@@ -535,7 +535,7 @@ namespace NBitcoin
 
 		private void EnsureTxOut()
 		{
-			if(TxOut == null)
+			if (TxOut == null)
 				TxOut = new TxOut();
 		}
 
@@ -551,7 +551,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(TxOut == null)
+				if (TxOut == null)
 					return Script.Empty;
 				return TxOut.ScriptPubKey;
 			}
@@ -653,12 +653,12 @@ namespace NBitcoin
 
 		public Script GetP2SHRedeem()
 		{
-			if(!IsP2SH)
+			if (!IsP2SH)
 				return null;
 			var p2shRedeem = RedeemType == RedeemType.P2SH ? Redeem :
 							RedeemType == RedeemType.WitnessV0 ? Redeem.WitHash.ScriptPubKey :
 							null;
-			if(p2shRedeem == null)
+			if (p2shRedeem == null)
 				throw new NotSupportedException("RedeemType not supported for getting the P2SH script, contact the library author");
 			return p2shRedeem;
 		}
@@ -742,12 +742,12 @@ namespace NBitcoin
 
 		public override Script GetScriptCode()
 		{
-			if(!CanGetScriptCode)
+			if (!CanGetScriptCode)
 				throw new InvalidOperationException("You need to provide the P2WSH redeem script with ScriptCoin.ToScriptCoin()");
-			if(_OverrideScriptCode != null)
+			if (_OverrideScriptCode != null)
 				return _OverrideScriptCode;
 			var key = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(Redeem);
-			if(key != null)
+			if (key != null)
 				return key.AsKeyId().ScriptPubKey;
 			return Redeem;
 		}
@@ -775,7 +775,7 @@ namespace NBitcoin
 		/// <returns>The hash of the scriptPubkey</returns>
 		public static TxDestination GetRedeemHash(Script scriptPubKey)
 		{
-			if(scriptPubKey == null)
+			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
 			return PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) as TxDestination
 					??
@@ -815,9 +815,9 @@ namespace NBitcoin
 
 		public override Script GetScriptCode()
 		{
-			if(_OverrideScriptCode != null)
+			if (_OverrideScriptCode != null)
 				return _OverrideScriptCode;
-			if(Redeem == null)
+			if (Redeem == null)
 				return base.GetScriptCode();
 			else
 				return new ScriptCoin(this, Redeem).GetScriptCode();
@@ -825,7 +825,7 @@ namespace NBitcoin
 
 		public override HashVersion GetHashVersion()
 		{
-			if(Redeem == null)
+			if (Redeem == null)
 				return base.GetHashVersion();
 			else
 				return new ScriptCoin(this, Redeem).GetHashVersion();
@@ -841,7 +841,7 @@ namespace NBitcoin
 		public static StealthCoin Find(Transaction tx, BitcoinStealthAddress address, Key scan)
 		{
 			var payment = address.GetPayments(tx, scan).FirstOrDefault();
-			if(payment == null)
+			if (payment == null)
 				return null;
 			var txId = tx.GetHash();
 			var txout = tx.Outputs.First(o => o.ScriptPubKey == payment.ScriptPubKey);
@@ -856,7 +856,7 @@ namespace NBitcoin
 		public PubKey[] Uncover(PubKey[] spendPubKeys, Key scanKey)
 		{
 			var pubKeys = new PubKey[spendPubKeys.Length];
-			for(int i = 0; i < pubKeys.Length; i++)
+			for (int i = 0; i < pubKeys.Length; i++)
 			{
 				pubKeys[i] = spendPubKeys[i].UncoverReceiver(scanKey, StealthMetadata.EphemKey);
 			}
@@ -866,7 +866,7 @@ namespace NBitcoin
 		public Key[] Uncover(Key[] spendKeys, Key scanKey)
 		{
 			var keys = new Key[spendKeys.Length];
-			for(int i = 0; i < keys.Length; i++)
+			for (int i = 0; i < keys.Length; i++)
 			{
 				keys[i] = spendKeys[i].Uncover(scanKey, StealthMetadata.EphemKey);
 			}

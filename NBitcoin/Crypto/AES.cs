@@ -48,7 +48,7 @@ namespace NBitcoin.Crypto
 #else
 
 		private Aes _inner;
-		private ICryptoTransform _transformer; 
+		private ICryptoTransform _transformer;
 		private AesWrapper(Aes aes)
 		{
 			_inner = aes;
@@ -67,7 +67,8 @@ namespace NBitcoin.Crypto
 
 		internal void Initialize(byte[] key, byte[] iv, bool forEncryption)
 		{
-			if( _transformer != null) return;
+			if (_transformer != null)
+				return;
 			_inner.IV = iv;
 			_inner.KeySize = key.Length * 8;
 			_inner.Key = key;

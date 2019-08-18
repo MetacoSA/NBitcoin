@@ -27,12 +27,12 @@ namespace NBitcoin.BouncyCastle.Math.Field
 
 		public override bool Equals(object obj)
 		{
-			if(this == obj)
+			if (this == obj)
 			{
 				return true;
 			}
 			GF2Polynomial other = obj as GF2Polynomial;
-			if(null == other)
+			if (null == other)
 			{
 				return false;
 			}

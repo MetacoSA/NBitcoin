@@ -55,7 +55,7 @@ namespace NBitcoin.Protocol
 		public void Adjust()
 		{
 			var nNow = Utils.DateTimeToUnixTime(DateTimeOffset.UtcNow);
-			if(ntime <= 100000000 || ntime > nNow + 10 * 60)
+			if (ntime <= 100000000 || ntime > nNow + 10 * 60)
 				ntime = nNow - 5 * 24 * 60 * 60;
 		}
 
@@ -69,11 +69,11 @@ namespace NBitcoin.Protocol
 			{
 				port = (ushort)value.Port;
 				var ipBytes = value.Address.GetAddressBytes();
-				if(ipBytes.Length == 16)
+				if (ipBytes.Length == 16)
 				{
 					ip = ipBytes;
 				}
-				else if(ipBytes.Length == 4)
+				else if (ipBytes.Length == 4)
 				{
 					//Convert to ipv4 mapped to ipv6
 					//In these addresses, the first 80 bits are zero, the next 16 bits are one, and the remaining 32 bits are the IPv4 address
@@ -102,17 +102,17 @@ namespace NBitcoin.Protocol
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			if(stream.Type == SerializationType.Disk)
+			if (stream.Type == SerializationType.Disk)
 			{
 				stream.ReadWrite(ref version);
 			}
-			if(
+			if (
 				stream.Type == SerializationType.Disk ||
 				(stream.ProtocolCapabilities.SupportTimeAddress && stream.Type != SerializationType.Hash))
 				stream.ReadWrite(ref ntime);
 			stream.ReadWrite(ref service);
 			stream.ReadWrite(ref ip);
-			using(stream.BigEndianScope())
+			using (stream.BigEndianScope())
 			{
 				stream.ReadWrite(ref port);
 			}

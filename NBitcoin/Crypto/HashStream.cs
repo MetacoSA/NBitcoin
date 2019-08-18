@@ -112,7 +112,7 @@ namespace NBitcoin.Crypto
 		{
 			int copied = 0;
 			int toCopy = 0;
-			while(copied != count)
+			while (copied != count)
 			{
 				toCopy = Math.Min(_Buffer.Length - _Pos, count - copied);
 				Buffer.BlockCopy(buffer, offset + copied, _Buffer, _Pos, toCopy);
@@ -137,7 +137,7 @@ namespace NBitcoin.Crypto
 
 		private bool ProcessBlockIfNeeded()
 		{
-			if(_Pos == _Buffer.Length)
+			if (_Pos == _Buffer.Length)
 			{
 				ProcessBlock();
 				return true;
@@ -187,7 +187,7 @@ namespace NBitcoin.Crypto
 		protected override void Dispose(bool disposing)
 		{
 			System.Buffers.ArrayPool<byte>.Shared.Return(_Buffer);
-			if(disposing)
+			if (disposing)
 				sha.Dispose();
 			base.Dispose(disposing);
 		}
@@ -204,7 +204,7 @@ namespace NBitcoin.Crypto
 			Func<byte[], int, int, byte[]> _CalculateHash;
 			public FuncBufferedHashStream(Func<byte[], int, int, byte[]> calculateHash, int capacity) : base(capacity)
 			{
-				if(calculateHash == null)
+				if (calculateHash == null)
 					throw new ArgumentNullException(nameof(calculateHash));
 				_CalculateHash = calculateHash;
 			}

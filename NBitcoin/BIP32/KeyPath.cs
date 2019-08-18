@@ -89,7 +89,7 @@ namespace NBitcoin
 				throw new ArgumentOutOfRangeException("data length is not suited for KeyPath");
 			var depth = data.Length / 4;
 			uint[] result = new uint[depth];
-			for (int i = 0;  i < depth; i++)
+			for (int i = 0; i < depth; i++)
 			{
 				result[i] = Utils.ToUInt32(data, i * 4, true);
 			}
@@ -107,7 +107,7 @@ namespace NBitcoin
 				index = 0;
 				return false;
 			}
-			bool hardened = i[i.Length -1] == '\'' || i[i.Length - 1] == 'h';
+			bool hardened = i[i.Length - 1] == '\'' || i[i.Length - 1] == 'h';
 			var nonhardened = hardened ? i.Substring(0, i.Length - 1) : i;
 			if (!uint.TryParse(nonhardened, out index))
 				return false;
@@ -161,7 +161,7 @@ namespace NBitcoin
 
 		public KeyPath Derive(int index, bool hardened)
 		{
-			if(index < 0)
+			if (index < 0)
 				throw new ArgumentOutOfRangeException("index", "the index can't be negative");
 			uint realIndex = (uint)index;
 			realIndex = hardened ? realIndex | 0x80000000u : realIndex;
@@ -190,7 +190,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_Indexes.Length == 0)
+				if (_Indexes.Length == 0)
 					return null;
 				return new KeyPath(_Indexes.Take(_Indexes.Length - 1).ToArray());
 			}
@@ -198,7 +198,7 @@ namespace NBitcoin
 
 		public KeyPath Increment()
 		{
-			if(_Indexes.Length == 0)
+			if (_Indexes.Length == 0)
 				return null;
 			var indices = _Indexes.ToArray();
 			indices[indices.Length - 1]++;
@@ -208,20 +208,20 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			KeyPath item = obj as KeyPath;
-			if(item == null)
+			if (item == null)
 				return false;
 			return ToString().Equals(item.ToString());
 		}
 		public static bool operator ==(KeyPath a, KeyPath b)
 		{
-			if(ReferenceEquals(a, b))
+			if (ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 			return a.ToString() == b.ToString();
 		}
 
-		public static KeyPath operator+(KeyPath a, KeyPath b)
+		public static KeyPath operator +(KeyPath a, KeyPath b)
 		{
 			if (a is null && !(b is null))
 				return b;
@@ -262,7 +262,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_Indexes.Length == 0)
+				if (_Indexes.Length == 0)
 					throw new InvalidOperationException("No index found in this KeyPath");
 				return (_Indexes[_Indexes.Length - 1] & 0x80000000u) != 0;
 			}

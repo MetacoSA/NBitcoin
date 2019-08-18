@@ -70,7 +70,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 		{
 			X[xOff] = Pack.BE_To_UInt32(input, inOff);
 
-			if(++xOff == 16)
+			if (++xOff == 16)
 			{
 				ProcessBlock();
 			}
@@ -78,7 +78,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 
 		internal override void ProcessLength(long bitLength)
 		{
-			if(xOff > 14)
+			if (xOff > 14)
 			{
 				ProcessBlock();
 			}
@@ -149,7 +149,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			//
 			// expand 16 word block into 80 word block.
 			//
-			for(int i = 16; i < 80; i++)
+			for (int i = 16; i < 80; i++)
 			{
 				uint t = X[i - 3] ^ X[i - 8] ^ X[i - 14] ^ X[i - 16];
 				X[i] = t << 1 | t >> 31;
@@ -169,7 +169,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			//
 			int idx = 0;
 
-			for(int j = 0; j < 4; j++)
+			for (int j = 0; j < 4; j++)
 			{
 				// E = rotateLeft(A, 5) + F(B, C, D) + E + X[idx++] + Y1
 				// B = rotateLeft(B, 30)
@@ -192,7 +192,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			//
 			// round 2
 			//
-			for(int j = 0; j < 4; j++)
+			for (int j = 0; j < 4; j++)
 			{
 				// E = rotateLeft(A, 5) + H(B, C, D) + E + X[idx++] + Y2
 				// B = rotateLeft(B, 30)
@@ -215,7 +215,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			//
 			// round 3
 			//
-			for(int j = 0; j < 4; j++)
+			for (int j = 0; j < 4; j++)
 			{
 				// E = rotateLeft(A, 5) + G(B, C, D) + E + X[idx++] + Y3
 				// B = rotateLeft(B, 30)
@@ -238,7 +238,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			//
 			// round 4
 			//
-			for(int j = 0; j < 4; j++)
+			for (int j = 0; j < 4; j++)
 			{
 				// E = rotateLeft(A, 5) + H(B, C, D) + E + X[idx++] + Y4
 				// B = rotateLeft(B, 30)

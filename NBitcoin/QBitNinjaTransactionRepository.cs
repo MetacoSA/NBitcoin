@@ -26,7 +26,7 @@ namespace NBitcoin
 		/// <param name="network"></param>
 		public QBitNinjaTransactionRepository(Network network)
 		{
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			_BaseUri = new Uri("http://" + (network == Network.Main ? "" : "t") + "api.qbit.ninja/");
 			_Network = network;
@@ -50,11 +50,11 @@ namespace NBitcoin
 
 		public QBitNinjaTransactionRepository(string baseUri, Network network)
 		{
-			if(baseUri == null)
+			if (baseUri == null)
 				throw new ArgumentNullException(nameof(baseUri));
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
-			if(!baseUri.EndsWith("/"))
+			if (!baseUri.EndsWith("/"))
 				baseUri += "/";
 			_BaseUri = new Uri(baseUri, UriKind.Absolute);
 			_Network = network;
@@ -66,10 +66,10 @@ namespace NBitcoin
 
 		public async Task<Transaction> GetAsync(uint256 txId)
 		{
-			using(HttpClient client = new HttpClient())
+			using (HttpClient client = new HttpClient())
 			{
 				var tx = await client.GetAsync(BaseUri.AbsoluteUri + "transactions/" + txId + "?format=raw").ConfigureAwait(false);
-				if(tx.StatusCode == System.Net.HttpStatusCode.NotFound)
+				if (tx.StatusCode == System.Net.HttpStatusCode.NotFound)
 					return null;
 				tx.EnsureSuccessStatusCode();
 				var bytes = await tx.Content.ReadAsByteArrayAsync().ConfigureAwait(false);

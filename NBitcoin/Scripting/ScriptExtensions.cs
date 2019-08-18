@@ -145,7 +145,7 @@ namespace NBitcoin.Scripting
 							result.Add(GetItem(op));
 						else if ((byte)0x48 <= (byte)op.Code)
 							throw new ParsingException($"Miniscript does not support pushdata bigger than 33. Got {op}");
-						else 
+						else
 							throw new ParsingException($"Unknown Opcode to Miniscript {op.Name}");
 						break;
 				}

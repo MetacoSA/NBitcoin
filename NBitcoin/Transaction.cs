@@ -1914,7 +1914,7 @@ namespace NBitcoin
 				return Money.Zero;
 			spentCoins = spentCoins ?? new ICoin[0];
 			Dictionary<OutPoint, ICoin> coinsByOutpoint = new Dictionary<OutPoint, ICoin>();
-			foreach(var c in spentCoins)
+			foreach (var c in spentCoins)
 			{
 				coinsByOutpoint.TryAdd(c.Outpoint, c);
 			}
@@ -2318,7 +2318,7 @@ namespace NBitcoin
 			return this.GetSignatureHash(scriptCode, nIn, nHashType, amount, sigversion, null);
 		}
 
-		public uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput= null, HashVersion sigversion = HashVersion.Original)
+		public uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput = null, HashVersion sigversion = HashVersion.Original)
 		{
 			return this.GetSignatureHash(scriptCode, nIn, nHashType, spentOutput, sigversion, null);
 		}

@@ -28,7 +28,8 @@ namespace NBitcoin.DataEncoders
 			var str = new char[((count + 4) / 5) * 8];
 			var stri = 0;
 			ConvertBits(c => str[stri++] = pbase32[c], data, offset, count, 8, 5, true);
-			while (stri % 8 != 0) str[stri++] = '=';
+			while (stri % 8 != 0)
+				str[stri++] = '=';
 			return new string(str);
 		}
 #if HAS_SPAN
@@ -53,9 +54,10 @@ namespace NBitcoin.DataEncoders
 			}
 			if (pad)
 			{
-				if (bits != 0) outfn((byte)((acc << (tobits - bits)) & maxv));
+				if (bits != 0)
+					outfn((byte)((acc << (tobits - bits)) & maxv));
 			}
-			else if(bits >= frombits || ((acc << (tobits - bits)) & maxv) != 0)
+			else if (bits >= frombits || ((acc << (tobits - bits)) & maxv) != 0)
 			{
 				return false;
 			}
@@ -76,7 +78,8 @@ namespace NBitcoin.DataEncoders
 			foreach (var c in encoded)
 			{
 				int x = decode32_table[(byte)c];
-				if (x == -1) break;
+				if (x == -1)
+					break;
 				val[vali++] = (byte)x;
 				++p;
 			}

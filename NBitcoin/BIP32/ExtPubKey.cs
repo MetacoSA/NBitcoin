@@ -75,7 +75,7 @@ namespace NBitcoin
 		/// </summary>
 		public ExtPubKey(byte[] bytes)
 		{
-			if(bytes == null)
+			if (bytes == null)
 				throw new ArgumentNullException(nameof(bytes));
 			this.ReadWrite(new BitcoinStream(bytes));
 		}
@@ -93,18 +93,18 @@ namespace NBitcoin
 		/// <summary>
 		/// Constructor. Creates a new extended public key from the specified extended public key bytes, from the given hex string.
 		/// </summary>
-		public ExtPubKey(string hex) 
-		    : this(Encoders.Hex.DecodeData(hex))
+		public ExtPubKey(string hex)
+			: this(Encoders.Hex.DecodeData(hex))
 		{
 		}
 
 		public ExtPubKey(PubKey pubkey, byte[] chainCode, byte depth, HDFingerprint fingerprint, uint child)
 		{
-			if(pubkey == null)
+			if (pubkey == null)
 				throw new ArgumentNullException(nameof(pubkey));
-			if(chainCode == null)
+			if (chainCode == null)
 				throw new ArgumentNullException(nameof(chainCode));
-			if(chainCode.Length != ChainCodeLength)
+			if (chainCode.Length != ChainCodeLength)
 				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", ChainCodeLength), "chainCode");
 			this.pubkey = pubkey;
 			this.nDepth = depth;
@@ -135,11 +135,11 @@ namespace NBitcoin
 
 		public ExtPubKey(PubKey masterKey, byte[] chainCode)
 		{
-			if(masterKey == null)
+			if (masterKey == null)
 				throw new ArgumentNullException(nameof(masterKey));
-			if(chainCode == null)
+			if (chainCode == null)
 				throw new ArgumentNullException(nameof(chainCode));
-			if(chainCode.Length != ChainCodeLength)
+			if (chainCode.Length != ChainCodeLength)
 				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", ChainCodeLength), "chainCode");
 			this.pubkey = masterKey;
 			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, ChainCodeLength);
@@ -148,7 +148,7 @@ namespace NBitcoin
 
 		public bool IsChildOf(ExtPubKey parentKey)
 		{
-			if(Depth != parentKey.Depth + 1)
+			if (Depth != parentKey.Depth + 1)
 				return false;
 			return parentKey.PubKey.GetHDFingerPrint() == ParentFingerprint;
 		}
@@ -194,7 +194,7 @@ namespace NBitcoin
 
 		public ExtPubKey Derive(int index, bool hardened)
 		{
-			if(index < 0)
+			if (index < 0)
 				throw new ArgumentOutOfRangeException("index", "the index can't be negative");
 			uint realIndex = (uint)index;
 			realIndex = hardened ? realIndex | 0x80000000u : realIndex;
@@ -210,7 +210,7 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			using(stream.BigEndianScope())
+			using (stream.BigEndianScope())
 			{
 				stream.ReadWrite(ref nDepth);
 				stream.ReadWrite(ref parentFingerprint);
@@ -232,15 +232,15 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			ExtPubKey item = obj as ExtPubKey;
-			if(item == null)
+			if (item == null)
 				return false;
 			return Hash.Equals(item.Hash);
 		}
 		public static bool operator ==(ExtPubKey a, ExtPubKey b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 			return a.Hash == b.Hash;
 		}

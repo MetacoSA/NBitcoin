@@ -65,17 +65,17 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				switch(Code)
+				switch (Code)
 				{
 					case RejectCode.MALFORMED:
 						return RejectCodeType.Common;
 					case RejectCode.OBSOLETE:
-						if(Message == "block")
+						if (Message == "block")
 							return RejectCodeType.Block;
 						else
 							return RejectCodeType.Version;
 					case RejectCode.DUPLICATE:
-						if(Message == "tx")
+						if (Message == "tx")
 							return RejectCodeType.Transaction;
 						else
 							return RejectCodeType.Version;
@@ -86,7 +86,7 @@ namespace NBitcoin.Protocol
 					case RejectCode.CHECKPOINT:
 						return RejectCodeType.Block;
 					case RejectCode.INVALID:
-						if(Message == "tx")
+						if (Message == "tx")
 							return RejectCodeType.Transaction;
 						else
 							return RejectCodeType.Block;
@@ -133,7 +133,7 @@ namespace NBitcoin.Protocol
 			stream.ReadWrite(ref _Message);
 			stream.ReadWrite(ref _Code);
 			stream.ReadWrite(ref _Reason);
-			if(Message == "tx" || Message == "block")
+			if (Message == "tx" || Message == "block")
 				stream.ReadWrite(ref _Hash);
 		}
 	}

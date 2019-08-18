@@ -42,7 +42,7 @@ namespace NBitcoin
 
 		protected Base58Data(byte[] rawBytes, Network network)
 		{
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			_Network = network;
 			SetData(rawBytes);
@@ -53,10 +53,10 @@ namespace NBitcoin
 		}
 		private void SetString<T>(string psz) where T : Base58Data
 		{
-			if(_Network == null)
+			if (_Network == null)
 			{
 				_Network = Network.GetNetworkFromBase58Data(psz, Type);
-				if(_Network == null)
+				if (_Network == null)
 					throw new FormatException("Invalid " + this.GetType().Name);
 			}
 
@@ -65,9 +65,9 @@ namespace NBitcoin
 
 
 			vchVersion = vchTemp.SafeSubarray(0, expectedVersion.Length);
-			if(!Utils.ArrayEqual(vchVersion, expectedVersion))
+			if (!Utils.ArrayEqual(vchVersion, expectedVersion))
 			{
-				if(_Network.NetworkStringParser.TryParse(psz, Network, out T other))
+				if (_Network.NetworkStringParser.TryParse(psz, Network, out T other))
 				{
 					this.vchVersion = other.vchVersion;
 					this.vchData = other.vchData;
@@ -84,7 +84,7 @@ namespace NBitcoin
 				wifData = psz;
 			}
 
-			if(!IsValid)
+			if (!IsValid)
 				throw new FormatException("Invalid " + this.GetType().Name);
 
 		}
@@ -96,7 +96,7 @@ namespace NBitcoin
 			this.vchVersion = _Network.GetVersionBytes(Type, true);
 			wifData = _Network.NetworkStringParser.GetBase58CheckEncoder().EncodeData(vchVersion.Concat(vchData).ToArray());
 
-			if(!IsValid)
+			if (!IsValid)
 				throw new FormatException("Invalid " + this.GetType().Name);
 		}
 
@@ -132,15 +132,15 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			Base58Data item = obj as Base58Data;
-			if(item == null)
+			if (item == null)
 				return false;
 			return ToString().Equals(item.ToString());
 		}
 		public static bool operator ==(Base58Data a, Base58Data b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 			return a.ToString() == b.ToString();
 		}

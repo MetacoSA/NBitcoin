@@ -32,23 +32,23 @@ namespace NBitcoin
 		public BitcoinPubKeyAddress(string str, KeyId id, Network expectedNetwork = null)
 			: base(str, expectedNetwork)
 		{
-			if(id == null)
+			if (id == null)
 				throw new ArgumentNullException(nameof(id));
 			_KeyId = id;
 		}
 
 		private static string Validate(string base58, ref Network expectedNetwork)
 		{
-			if(base58 == null)
+			if (base58 == null)
 				throw new ArgumentNullException(nameof(base58));
 			var networks = expectedNetwork == null ? Network.GetNetworks() : new[] { expectedNetwork };
 			var data = (expectedNetwork == null ? Encoders.Base58Check : expectedNetwork.NetworkStringParser.GetBase58CheckEncoder()).DecodeData(base58);
-			foreach(var network in networks)
+			foreach (var network in networks)
 			{
 				var versionBytes = network.GetVersionBytes(Base58Type.PUBKEY_ADDRESS, false);
-				if(versionBytes != null && data.StartWith(versionBytes))
+				if (versionBytes != null && data.StartWith(versionBytes))
 				{
-					if(data.Length == versionBytes.Length + 20)
+					if (data.Length == versionBytes.Length + 20)
 					{
 						expectedNetwork = network;
 						return base58;
@@ -58,7 +58,7 @@ namespace NBitcoin
 			throw new FormatException("Invalid BitcoinPubKeyAddress");
 		}
 
-		
+
 
 		public BitcoinPubKeyAddress(KeyId keyId, Network network) :
 			base(NotNull(keyId) ?? Network.CreateBase58(Base58Type.PUBKEY_ADDRESS, keyId.ToBytes(), network), network)
@@ -68,7 +68,7 @@ namespace NBitcoin
 
 		private static string NotNull(KeyId keyId)
 		{
-			if(keyId == null)
+			if (keyId == null)
 				throw new ArgumentNullException(nameof(keyId));
 			return null;
 		}

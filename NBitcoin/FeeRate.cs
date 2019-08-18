@@ -27,7 +27,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return (decimal)_FeePerK.Satoshi/1000;
+				return (decimal)_FeePerK.Satoshi / 1000;
 			}
 		}
 
@@ -42,18 +42,18 @@ namespace NBitcoin
 
 		public FeeRate(Money feePerK)
 		{
-			if(feePerK is null)
+			if (feePerK is null)
 				throw new ArgumentNullException(nameof(feePerK));
-			if(feePerK.Satoshi < 0)
+			if (feePerK.Satoshi < 0)
 				throw new ArgumentOutOfRangeException(nameof(feePerK), "Cannot be less than 0.");
 			_FeePerK = feePerK;
 		}
 
 		public FeeRate(Money feePaid, int size)
 		{
-			if(feePaid is null)
+			if (feePaid is null)
 				throw new ArgumentNullException(nameof(feePaid));
-			if(feePaid.Satoshi < 0)
+			if (feePaid.Satoshi < 0)
 				throw new ArgumentOutOfRangeException(nameof(feePaid), "Cannot be less than 0.");
 			if (size > 0)
 				_FeePerK = (long)((decimal)feePaid.Satoshi / (decimal)size * 1000m);
@@ -63,7 +63,7 @@ namespace NBitcoin
 
 		public FeeRate(decimal satoshiPerByte)
 		{
-			if(satoshiPerByte < 0)
+			if (satoshiPerByte < 0)
 				throw new ArgumentOutOfRangeException(nameof(satoshiPerByte), "Cannot be less than 0.");
 			_FeePerK = Money.Satoshis(satoshiPerByte * 1000);
 		}
@@ -76,7 +76,7 @@ namespace NBitcoin
 		public Money GetFee(int virtualSize)
 		{
 			Money nFee = _FeePerK.Satoshi * virtualSize / 1000;
-			if(nFee == Money.Zero && _FeePerK.Satoshi > Money.Zero)
+			if (nFee == Money.Zero && _FeePerK.Satoshi > Money.Zero)
 				nFee = _FeePerK.Satoshi;
 			return nFee;
 		}
@@ -87,13 +87,13 @@ namespace NBitcoin
 
 		public override bool Equals(object obj)
 		{
-			if(Object.ReferenceEquals(this, obj))
+			if (Object.ReferenceEquals(this, obj))
 				return true;
-			if(this is null || obj is null)
+			if (this is null || obj is null)
 				return false;
 			var left = this;
 			var right = obj as FeeRate;
-			if(right is null)
+			if (right is null)
 				return false;
 			return left._FeePerK == right._FeePerK;
 		}
@@ -102,10 +102,10 @@ namespace NBitcoin
 		{
 			int divisibility = 0;
 			var value = SatoshiPerByte;
-			while(true)
+			while (true)
 			{
 				var rounded = Math.Round(value, divisibility, MidpointRounding.AwayFromZero);
-				if(rounded == 0 || (Math.Abs(rounded - value) / value) < 0.001m)
+				if (rounded == 0 || (Math.Abs(rounded - value) / value) < 0.001m)
 				{
 					value = rounded;
 					break;
@@ -124,8 +124,8 @@ namespace NBitcoin
 
 		public int CompareTo(FeeRate other)
 		{
-			return other is null 
-				? 1 
+			return other is null
+				? 1
 				: _FeePerK.CompareTo(other._FeePerK);
 		}
 
@@ -207,8 +207,8 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(left));
 			if (right is null)
 				throw new ArgumentNullException(nameof(right));
-			return left <= right 
-				? left 
+			return left <= right
+				? left
 				: right;
 		}
 

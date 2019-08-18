@@ -786,7 +786,7 @@ namespace NBitcoin.RPC
 			JArray response;
 			try
 			{
-				retry:
+			retry:
 				var webRequest = CreateWebRequest(writer.ToString());
 				using (var cts = new CancellationTokenSource(RequestTimeout))
 				{
@@ -892,7 +892,7 @@ namespace NBitcoin.RPC
 				var writer = new StringWriter();
 				request.WriteJSON(writer);
 				writer.Flush();
-				retry:
+			retry:
 				var webRequest = CreateWebRequest(writer.ToString());
 				using (var cts = new CancellationTokenSource(RequestTimeout))
 				{

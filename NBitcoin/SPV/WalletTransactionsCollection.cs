@@ -13,7 +13,7 @@ namespace NBitcoin.SPV
 		public WalletTransactionsCollection(WalletTransaction[] walletTransactions)
 		{
 			HashSet<uint256> confirmed = new HashSet<uint256>();
-			foreach(var conf in walletTransactions
+			foreach (var conf in walletTransactions
 											.Where(t => t.BlockInformation != null)
 											.Select(t => t.Transaction.GetHash()))
 			{
@@ -30,12 +30,12 @@ namespace NBitcoin.SPV
 							.Where(t => t.BlockInformation == null && !confirmed.Contains(t.Transaction.GetHash()))
 							.ToList();
 
-			foreach(var unconf in unconfs)
+			foreach (var unconf in unconfs)
 			{
 				int i = 0;
-				foreach(var conf in all)
+				foreach (var conf in all)
 				{
-					if(unconf.UnconfirmedSeen > conf.UnconfirmedSeen)
+					if (unconf.UnconfirmedSeen > conf.UnconfirmedSeen)
 						break;
 					i++;
 				}
@@ -50,7 +50,7 @@ namespace NBitcoin.SPV
 		{
 			get
 			{
-				if(_Summary == null)
+				if (_Summary == null)
 				{
 					WalletSummary summary = new WalletSummary();
 
@@ -59,11 +59,11 @@ namespace NBitcoin.SPV
 					var unconf = _All.Where(o => o.BlockInformation == null).ToList();
 					var unconfConflict = new List<WalletTransaction>();
 					Dictionary<OutPoint, OutPoint> spent = new Dictionary<OutPoint, OutPoint>();
-					foreach(var tx in unconf)
+					foreach (var tx in unconf)
 					{
-						foreach(var o in tx.Transaction.Inputs.Select(i => i.PrevOut))
+						foreach (var o in tx.Transaction.Inputs.Select(i => i.PrevOut))
 						{
-							if(!spent.TryAdd(o, o))
+							if (!spent.TryAdd(o, o))
 							{
 								unconfConflict.Add(tx);
 							}

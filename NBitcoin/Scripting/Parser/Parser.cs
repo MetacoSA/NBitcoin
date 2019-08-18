@@ -36,8 +36,10 @@ namespace NBitcoin.Scripting.Parser
 		/// <exception cref="ParsingException">It contains the details of the parsing error.</exception>
 		internal static T Parse<T>(this Parser<char, T> parser, string input)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
-			if (input == null) throw new ArgumentNullException(nameof(input));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
+			if (input == null)
+				throw new ArgumentNullException(nameof(input));
 
 			var result = parser.TryParse(input);
 
@@ -62,14 +64,16 @@ namespace NBitcoin.Scripting.Parser
 			// so this is good for assuring purity of this method.
 			catch (ParsingException e)
 			{
-				return ParserResult<ScriptToken, T>.Failure(new ScriptInput(new ScriptToken[]{}), e.Message);
+				return ParserResult<ScriptToken, T>.Failure(new ScriptInput(new ScriptToken[] { }), e.Message);
 			}
 		}
 
 		internal static T Parse<T>(this Parser<ScriptToken, T> parser, Script input)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
-			if (input == null) throw new ArgumentNullException(nameof(input));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
+			if (input == null)
+				throw new ArgumentNullException(nameof(input));
 
 			var result = parser.TryParse(input);
 

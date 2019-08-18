@@ -26,30 +26,30 @@ namespace NBitcoin.Payment
 		public BitcoinUrlBuilder(Uri uri)
 			: this(uri.AbsoluteUri)
 		{
-			if(uri == null)
+			if (uri == null)
 				throw new ArgumentNullException(nameof(uri));
 		}
 
 		public BitcoinUrlBuilder(string uri)
 		{
-			if(uri == null)
+			if (uri == null)
 				throw new ArgumentNullException(nameof(uri));
-			if(!uri.StartsWith("bitcoin:", StringComparison.OrdinalIgnoreCase))
+			if (!uri.StartsWith("bitcoin:", StringComparison.OrdinalIgnoreCase))
 				throw new FormatException("Invalid scheme");
 			uri = uri.Remove(0, "bitcoin:".Length);
-			if(uri.StartsWith("//"))
+			if (uri.StartsWith("//"))
 				uri = uri.Remove(0, 2);
 
 			var paramStart = uri.IndexOf('?');
 			string address = null;
-			if(paramStart == -1)
+			if (paramStart == -1)
 				address = uri;
 			else
 			{
 				address = uri.Substring(0, paramStart);
 				uri = uri.Remove(0, 1); //remove ?
 			}
-			if(address != String.Empty)
+			if (address != String.Empty)
 			{
 				Address = Network.Parse<BitcoinAddress>(address, null);
 			}
@@ -60,21 +60,21 @@ namespace NBitcoin.Payment
 			{
 				parameters = UriHelper.DecodeQueryParameters(uri);
 			}
-			catch(ArgumentException)
+			catch (ArgumentException)
 			{
 				throw new FormatException("A URI parameter is duplicated");
 			}
-			if(parameters.ContainsKey("amount"))
+			if (parameters.ContainsKey("amount"))
 			{
 				Amount = Money.Parse(parameters["amount"]);
 				parameters.Remove("amount");
 			}
-			if(parameters.ContainsKey("label"))
+			if (parameters.ContainsKey("label"))
 			{
 				Label = parameters["label"];
 				parameters.Remove("label");
 			}
-			if(parameters.ContainsKey("message"))
+			if (parameters.ContainsKey("message"))
 			{
 				Message = parameters["message"];
 				parameters.Remove("message");
@@ -88,7 +88,7 @@ namespace NBitcoin.Payment
 #pragma warning restore CS0618 // Type or member is obsolete
 			_UnknowParameters = parameters;
 			var reqParam = parameters.Keys.FirstOrDefault(k => k.StartsWith("req-", StringComparison.OrdinalIgnoreCase));
-			if(reqParam != null)
+			if (reqParam != null)
 				throw new FormatException("Non compatible required parameter " + reqParam);
 		}
 
@@ -104,19 +104,19 @@ namespace NBitcoin.Payment
 		[Obsolete("BIP70 is obsolete")]
 		public PaymentRequest GetPaymentRequest()
 		{
-			if(PaymentRequestUrl == null)
+			if (PaymentRequestUrl == null)
 				throw new InvalidOperationException("No PaymentRequestUrl specified");
-			
+
 			return GetPaymentRequestAsync().GetAwaiter().GetResult();
 		}
 		[Obsolete("BIP70 is obsolete")]
 		public async Task<PaymentRequest> GetPaymentRequestAsync(HttpClient httpClient = null)
 		{
-			if(PaymentRequestUrl == null)
+			if (PaymentRequestUrl == null)
 				throw new InvalidOperationException("No PaymentRequestUrl specified");
 
 			bool own = false;
-			if(httpClient == null)
+			if (httpClient == null)
 			{
 				httpClient = new HttpClient();
 				own = true;
@@ -128,9 +128,9 @@ namespace NBitcoin.Payment
 				req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(PaymentRequest.MediaType));
 
 				var result = await httpClient.SendAsync(req).ConfigureAwait(false);
-				if(!result.IsSuccessStatusCode)
+				if (!result.IsSuccessStatusCode)
 					throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
-				if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentRequest.MediaType, StringComparison.OrdinalIgnoreCase))
+				if (result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentRequest.MediaType, StringComparison.OrdinalIgnoreCase))
 				{
 					throw new WebException("Invalid contenttype received, expecting " + PaymentRequest.MediaType + ", but got " + result.Content.Headers.ContentType);
 				}
@@ -139,7 +139,7 @@ namespace NBitcoin.Payment
 			}
 			finally
 			{
-				if(own)
+				if (own)
 					httpClient.Dispose();
 			}
 		}
@@ -178,20 +178,20 @@ namespace NBitcoin.Payment
 				Dictionary<string, string> parameters = new Dictionary<string, string>();
 				StringBuilder builder = new StringBuilder();
 				builder.Append("bitcoin:");
-				if(Address != null)
+				if (Address != null)
 				{
 					builder.Append(Address.ToString());
 				}
 
-				if(Amount != null)
+				if (Amount != null)
 				{
 					parameters.Add("amount", Amount.ToString(false, true));
 				}
-				if(Label != null)
+				if (Label != null)
 				{
 					parameters.Add("label", Label.ToString());
 				}
-				if(Message != null)
+				if (Message != null)
 				{
 					parameters.Add("message", Message.ToString());
 				}
@@ -216,9 +216,9 @@ namespace NBitcoin.Payment
 		private static void WriteParameters(Dictionary<string, string> parameters, StringBuilder builder)
 		{
 			bool first = true;
-			foreach(var parameter in parameters)
+			foreach (var parameter in parameters)
 			{
-				if(first)
+				if (first)
 				{
 					first = false;
 					builder.Append("?");

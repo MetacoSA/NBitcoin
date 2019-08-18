@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
-    public class GetTxOutResponse
+	public class GetTxOutResponse
 	{
 		/// <summary>
 		/// the block hash

@@ -62,13 +62,13 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 			public ECCurve Create()
 			{
-				if(!outer.SupportsCoordinateSystem(coord))
+				if (!outer.SupportsCoordinateSystem(coord))
 				{
 					throw new InvalidOperationException("unsupported coordinate system");
 				}
 
 				ECCurve c = outer.CloneCurve();
-				if(c == outer)
+				if (c == outer)
 				{
 					throw new InvalidOperationException("implementation returned current curve");
 				}
@@ -109,7 +109,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		public virtual ECPoint ValidatePoint(BigInteger x, BigInteger y)
 		{
 			ECPoint p = CreatePoint(x, y);
-			if(!p.IsValid())
+			if (!p.IsValid())
 			{
 				throw new ArgumentException("Invalid point coordinates");
 			}
@@ -120,7 +120,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		public virtual ECPoint ValidatePoint(BigInteger x, BigInteger y, bool withCompression)
 		{
 			ECPoint p = CreatePoint(x, y, withCompression);
-			if(!p.IsValid())
+			if (!p.IsValid())
 			{
 				throw new ArgumentException("Invalid point coordinates");
 			}
@@ -149,7 +149,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		protected virtual ECMultiplier CreateDefaultMultiplier()
 		{
 			GlvEndomorphism glvEndomorphism = m_endomorphism as GlvEndomorphism;
-			if(glvEndomorphism != null)
+			if (glvEndomorphism != null)
 			{
 				return new GlvMultiplier(this, glvEndomorphism);
 			}
@@ -165,7 +165,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		public virtual PreCompInfo GetPreCompInfo(ECPoint point, string name)
 		{
 			CheckPoint(point);
-			lock(point)
+			lock (point)
 			{
 				IDictionary table = point.m_preCompTable;
 				return table == null ? null : (PreCompInfo)table[name];
@@ -187,10 +187,10 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		public virtual void SetPreCompInfo(ECPoint point, string name, PreCompInfo preCompInfo)
 		{
 			CheckPoint(point);
-			lock(point)
+			lock (point)
 			{
 				IDictionary table = point.m_preCompTable;
-				if(null == table)
+				if (null == table)
 				{
 					point.m_preCompTable = table = Platform.CreateHashtable(4);
 				}
@@ -200,11 +200,11 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 		public virtual ECPoint ImportPoint(ECPoint p)
 		{
-			if(this == p.Curve)
+			if (this == p.Curve)
 			{
 				return p;
 			}
-			if(p.IsInfinity)
+			if (p.IsInfinity)
 			{
 				return Infinity;
 			}
@@ -253,12 +253,12 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		{
 			CheckPoints(points, off, len);
 
-			switch(this.CoordinateSystem)
+			switch (this.CoordinateSystem)
 			{
 				case ECCurve.COORD_AFFINE:
 				case ECCurve.COORD_LAMBDA_AFFINE:
 					{
-						if(iso != null)
+						if (iso != null)
 							throw new ArgumentException("not valid for affine coordinates", "iso");
 
 						return;
@@ -271,24 +271,24 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			ECFieldElement[] zs = new ECFieldElement[len];
 			int[] indices = new int[len];
 			int count = 0;
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				ECPoint p = points[off + i];
-				if(null != p && (iso != null || !p.IsNormalized()))
+				if (null != p && (iso != null || !p.IsNormalized()))
 				{
 					zs[count] = p.GetZCoord(0);
 					indices[count++] = off + i;
 				}
 			}
 
-			if(count == 0)
+			if (count == 0)
 			{
 				return;
 			}
 
 			ECAlgorithms.MontgomeryTrick(zs, 0, count, iso);
 
-			for(int j = 0; j < count; ++j)
+			for (int j = 0; j < count; ++j)
 			{
 				int index = indices[j];
 				points[index] = points[index].Normalize(zs[j]);
@@ -350,7 +350,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 		protected virtual void CheckPoint(ECPoint point)
 		{
-			if(null == point || (this != point.Curve))
+			if (null == point || (this != point.Curve))
 				throw new ArgumentException("must be non-null and on this curve", "point");
 		}
 
@@ -361,24 +361,24 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 		protected virtual void CheckPoints(ECPoint[] points, int off, int len)
 		{
-			if(points == null)
+			if (points == null)
 				throw new ArgumentNullException(nameof(points));
-			if(off < 0 || len < 0 || (off > (points.Length - len)))
+			if (off < 0 || len < 0 || (off > (points.Length - len)))
 				throw new ArgumentException("invalid range specified", "points");
 
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				ECPoint point = points[off + i];
-				if(null != point && this != point.Curve)
+				if (null != point && this != point.Curve)
 					throw new ArgumentException("entries must be null or on this curve", "points");
 			}
 		}
 
 		public virtual bool Equals(ECCurve other)
 		{
-			if(this == other)
+			if (this == other)
 				return true;
-			if(null == other)
+			if (null == other)
 				return false;
 			return Field.Equals(other.Field)
 				&& A.ToBigInteger().Equals(other.A.ToBigInteger())
@@ -407,9 +407,9 @@ namespace NBitcoin.BouncyCastle.Math.EC
          */
 		public virtual ECMultiplier GetMultiplier()
 		{
-			lock(this)
+			lock (this)
 			{
-				if(this.m_multiplier == null)
+				if (this.m_multiplier == null)
 				{
 					this.m_multiplier = CreateDefaultMultiplier();
 				}
@@ -429,11 +429,11 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			int expectedLength = (FieldSize + 7) / 8;
 
 			byte type = encoded[0];
-			switch(type)
+			switch (type)
 			{
 				case 0x00: // infinity
 					{
-						if(encoded.Length != 1)
+						if (encoded.Length != 1)
 							throw new ArgumentException("Incorrect length for infinity encoding", "encoded");
 
 						p = Infinity;
@@ -443,14 +443,14 @@ namespace NBitcoin.BouncyCastle.Math.EC
 				case 0x02: // compressed
 				case 0x03: // compressed
 					{
-						if(encoded.Length != (expectedLength + 1))
+						if (encoded.Length != (expectedLength + 1))
 							throw new ArgumentException("Incorrect length for compressed encoding", "encoded");
 
 						int yTilde = type & 1;
 						BigInteger X = new BigInteger(1, encoded, 1, expectedLength);
 
 						p = DecompressPoint(yTilde, X);
-						if(!p.SatisfiesCofactor())
+						if (!p.SatisfiesCofactor())
 							throw new ArgumentException("Invalid point");
 
 						break;
@@ -458,7 +458,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 				case 0x04: // uncompressed
 					{
-						if(encoded.Length != (2 * expectedLength + 1))
+						if (encoded.Length != (2 * expectedLength + 1))
 							throw new ArgumentException("Incorrect length for uncompressed encoding", "encoded");
 
 						BigInteger X = new BigInteger(1, encoded, 1, expectedLength);
@@ -471,13 +471,13 @@ namespace NBitcoin.BouncyCastle.Math.EC
 				case 0x06: // hybrid
 				case 0x07: // hybrid
 					{
-						if(encoded.Length != (2 * expectedLength + 1))
+						if (encoded.Length != (2 * expectedLength + 1))
 							throw new ArgumentException("Incorrect length for hybrid encoding", "encoded");
 
 						BigInteger X = new BigInteger(1, encoded, 1, expectedLength);
 						BigInteger Y = new BigInteger(1, encoded, 1 + expectedLength, expectedLength);
 
-						if(Y.TestBit(0) != (type == 0x07))
+						if (Y.TestBit(0) != (type == 0x07))
 							throw new ArgumentException("Inconsistent Y coordinate in hybrid encoding", "encoded");
 
 						p = ValidatePoint(X, Y);
@@ -488,7 +488,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 					throw new FormatException("Invalid point encoding " + type);
 			}
 
-			if(type != 0x00 && p.IsInfinity)
+			if (type != 0x00 && p.IsInfinity)
 				throw new ArgumentException("Invalid infinity encoding", "encoded");
 
 			return p;
@@ -517,10 +517,10 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			/*
              * If y is not a square, then we haven't got a point on the curve
              */
-			if(y == null)
+			if (y == null)
 				throw new ArgumentException("Invalid point compression");
 
-			if(y.TestBitZero() != (yTilde == 1))
+			if (y.TestBitZero() != (yTilde == 1))
 			{
 				// Use the other root
 				y = y.Negate();
@@ -586,7 +586,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 		public override bool SupportsCoordinateSystem(int coord)
 		{
-			switch(coord)
+			switch (coord)
 			{
 				case COORD_AFFINE:
 				case COORD_HOMOGENEOUS:
@@ -639,9 +639,9 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 		public override ECPoint ImportPoint(ECPoint p)
 		{
-			if(this != p.Curve && this.CoordinateSystem == COORD_JACOBIAN && !p.IsInfinity)
+			if (this != p.Curve && this.CoordinateSystem == COORD_JACOBIAN && !p.IsInfinity)
 			{
-				switch(p.Curve.CoordinateSystem)
+				switch (p.Curve.CoordinateSystem)
 				{
 					case COORD_JACOBIAN:
 					case COORD_JACOBIAN_CHUDNOVSKY:
@@ -677,14 +677,14 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 		private static IFiniteField BuildField(int m, int k1, int k2, int k3)
 		{
-			if(k1 == 0)
+			if (k1 == 0)
 			{
 				throw new ArgumentException("k1 must be > 0");
 			}
 
-			if(k2 == 0)
+			if (k2 == 0)
 			{
-				if(k3 != 0)
+				if (k3 != 0)
 				{
 					throw new ArgumentException("k3 must be 0 if k2 == 0");
 				}
@@ -692,12 +692,12 @@ namespace NBitcoin.BouncyCastle.Math.EC
 				return FiniteFields.GetBinaryExtensionField(new int[] { 0, k1, m });
 			}
 
-			if(k2 <= k1)
+			if (k2 <= k1)
 			{
 				throw new ArgumentException("k2 must be > k1");
 			}
 
-			if(k3 <= k2)
+			if (k3 <= k2)
 			{
 				throw new ArgumentException("k3 must be > k2");
 			}
@@ -720,14 +720,14 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		{
 			ECFieldElement X = FromBigInteger(x), Y = FromBigInteger(y);
 
-			switch(this.CoordinateSystem)
+			switch (this.CoordinateSystem)
 			{
 				case COORD_LAMBDA_AFFINE:
 				case COORD_LAMBDA_PROJECTIVE:
 					{
-						if(X.IsZero)
+						if (X.IsZero)
 						{
-							if(!Y.Square().Equals(B))
+							if (!Y.Square().Equals(B))
 								throw new ArgumentException();
 						}
 						else
@@ -749,7 +749,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		protected override ECPoint DecompressPoint(int yTilde, BigInteger X1)
 		{
 			ECFieldElement xp = FromBigInteger(X1), yp = null;
-			if(xp.IsZero)
+			if (xp.IsZero)
 			{
 				yp = B.Sqrt();
 			}
@@ -758,14 +758,14 @@ namespace NBitcoin.BouncyCastle.Math.EC
 				ECFieldElement beta = xp.Square().Invert().Multiply(B).Add(A).Add(xp);
 				ECFieldElement z = SolveQuadradicEquation(beta);
 
-				if(z != null)
+				if (z != null)
 				{
-					if(z.TestBitZero() != (yTilde == 1))
+					if (z.TestBitZero() != (yTilde == 1))
 					{
 						z = z.AddOne();
 					}
 
-					switch(this.CoordinateSystem)
+					switch (this.CoordinateSystem)
 					{
 						case COORD_LAMBDA_AFFINE:
 						case COORD_LAMBDA_PROJECTIVE:
@@ -782,7 +782,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 				}
 			}
 
-			if(yp == null)
+			if (yp == null)
 				throw new ArgumentException("Invalid point compression");
 
 			return CreateRawPoint(xp, yp, true);
@@ -799,7 +799,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
          */
 		private ECFieldElement SolveQuadradicEquation(ECFieldElement beta)
 		{
-			if(beta.IsZero)
+			if (beta.IsZero)
 				return beta;
 
 			ECFieldElement gamma, z, zeroElement = FromBigInteger(BigInteger.Zero);
@@ -810,19 +810,19 @@ namespace NBitcoin.BouncyCastle.Math.EC
 				ECFieldElement t = FromBigInteger(BigInteger.Arbitrary(m));
 				z = zeroElement;
 				ECFieldElement w = beta;
-				for(int i = 1; i < m; i++)
+				for (int i = 1; i < m; i++)
 				{
 					ECFieldElement w2 = w.Square();
 					z = z.Square().Add(w2.Multiply(t));
 					w = w2.Add(beta);
 				}
-				if(!w.IsZero)
+				if (!w.IsZero)
 				{
 					return null;
 				}
 				gamma = z.Square().Add(z);
 			}
-			while(gamma.IsZero);
+			while (gamma.IsZero);
 
 			return z;
 		}
@@ -834,11 +834,11 @@ namespace NBitcoin.BouncyCastle.Math.EC
          */
 		internal virtual BigInteger[] GetSi()
 		{
-			if(si == null)
+			if (si == null)
 			{
-				lock(this)
+				lock (this)
 				{
-					if(si == null)
+					if (si == null)
 					{
 						si = Tnaf.GetSi(this);
 					}
@@ -1029,20 +1029,20 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			this.m_cofactor = cofactor;
 			this.m_infinity = new F2mPoint(this, null, null);
 
-			if(k1 == 0)
+			if (k1 == 0)
 				throw new ArgumentException("k1 must be > 0");
 
-			if(k2 == 0)
+			if (k2 == 0)
 			{
-				if(k3 != 0)
+				if (k3 != 0)
 					throw new ArgumentException("k3 must be 0 if k2 == 0");
 			}
 			else
 			{
-				if(k2 <= k1)
+				if (k2 <= k1)
 					throw new ArgumentException("k2 must be > k1");
 
-				if(k3 <= k2)
+				if (k3 <= k2)
 					throw new ArgumentException("k3 must be > k2");
 			}
 
@@ -1074,7 +1074,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 		public override bool SupportsCoordinateSystem(int coord)
 		{
-			switch(coord)
+			switch (coord)
 			{
 				case COORD_AFFINE:
 				case COORD_HOMOGENEOUS:
@@ -1087,7 +1087,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 		protected override ECMultiplier CreateDefaultMultiplier()
 		{
-			if(IsKoblitz)
+			if (IsKoblitz)
 			{
 				return new WTauNafMultiplier();
 			}

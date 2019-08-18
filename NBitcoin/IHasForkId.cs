@@ -4,11 +4,11 @@ using System.Text;
 
 namespace NBitcoin
 {
-    public interface IHasForkId
-    {
+	public interface IHasForkId
+	{
 		uint ForkId
 		{
 			get;
 		}
-    }
+	}
 }

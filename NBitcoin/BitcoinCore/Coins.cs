@@ -63,7 +63,7 @@ namespace NBitcoin.BitcoinCore
 		{
 			Value = Outputs
 				.Where(o => !IsNull(o))
-				.Sum(o=> o.Value);
+				.Sum(o => o.Value);
 		}
 
 		private bool IsNull(TxOut o) => o.Value.Satoshi == -1;
@@ -73,9 +73,9 @@ namespace NBitcoin.BitcoinCore
 		{
 			var count = Outputs.Count;
 			// remove spent outputs at the end of vout
-			for(int i = count - 1; i >= 0; i--)
+			for (int i = count - 1; i >= 0; i--)
 			{
-				if(IsNull(Outputs[i]))
+				if (IsNull(Outputs[i]))
 					Outputs.RemoveAt(i);
 				else
 					break;
@@ -88,15 +88,15 @@ namespace NBitcoin.BitcoinCore
 		public bool Spend(int position, out TxInUndo undo)
 		{
 			undo = null;
-			if(position >= Outputs.Count)
+			if (position >= Outputs.Count)
 				return false;
-			if(IsNull(Outputs[position]))
+			if (IsNull(Outputs[position]))
 				return false;
 			undo = new TxInUndo(Outputs[position].Clone());
 #pragma warning restore CS0612 // Type or member is obsolete
 			Outputs[position] = NullTxOut;
 			Cleanup();
-			if(IsEmpty)
+			if (IsEmpty)
 			{
 				undo.Height = nHeight;
 				undo.CoinBase = CoinBase;
@@ -117,7 +117,7 @@ namespace NBitcoin.BitcoinCore
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			if(stream.Serializing)
+			if (stream.Serializing)
 			{
 				uint nMaskSize = 0, nMaskCode = 0;
 				CalcMaskSize(ref nMaskSize, ref nMaskCode);
@@ -129,19 +129,19 @@ namespace NBitcoin.BitcoinCore
 				// size of header code
 				stream.ReadWriteAsVarInt(ref nCode);
 				// spentness bitmask
-				for(uint b = 0; b < nMaskSize; b++)
+				for (uint b = 0; b < nMaskSize; b++)
 				{
 					byte chAvail = 0;
-					for(uint i = 0; i < 8 && 2 + b * 8 + i < Outputs.Count; i++)
-						if(!IsNull(Outputs[2 + (int)b * 8 + (int)i]))
+					for (uint i = 0; i < 8 && 2 + b * 8 + i < Outputs.Count; i++)
+						if (!IsNull(Outputs[2 + (int)b * 8 + (int)i]))
 							chAvail |= (byte)(1 << (int)i);
 					stream.ReadWrite(ref chAvail);
 				}
 
 				// txouts themself
-				for(uint i = 0; i < Outputs.Count; i++)
+				for (uint i = 0; i < Outputs.Count; i++)
 				{
-					if(!IsNull(Outputs[(int)i]))
+					if (!IsNull(Outputs[(int)i]))
 					{
 						var compressedTx = new TxOutCompressor(Outputs[(int)i]);
 						stream.ReadWrite(ref compressedTx);
@@ -163,23 +163,23 @@ namespace NBitcoin.BitcoinCore
 				vAvail[1] = (nCode & 4) != 0;
 				uint nMaskCode = unchecked((uint)((nCode / 8) + ((nCode & 6) != 0 ? 0 : 1)));
 				//// spentness bitmask
-				while(nMaskCode > 0)
+				while (nMaskCode > 0)
 				{
 					byte chAvail = 0;
 					stream.ReadWrite(ref chAvail);
-					for(uint p = 0; p < 8; p++)
+					for (uint p = 0; p < 8; p++)
 					{
 						bool f = (chAvail & (1 << (int)p)) != 0;
 						vAvail.Add(f);
 					}
-					if(chAvail != 0)
+					if (chAvail != 0)
 						nMaskCode--;
 				}
 				// txouts themself
 				Outputs = Enumerable.Range(0, vAvail.Count).Select(_ => NullTxOut).ToList();
-				for(uint i = 0; i < vAvail.Count; i++)
+				for (uint i = 0; i < vAvail.Count; i++)
 				{
-					if(vAvail[(int)i])
+					if (vAvail[(int)i])
 					{
 						TxOutCompressor compressed = new TxOutCompressor();
 						stream.ReadWrite(ref compressed);
@@ -211,18 +211,18 @@ namespace NBitcoin.BitcoinCore
 		private void CalcMaskSize(ref uint nBytes, ref uint nNonzeroBytes)
 		{
 			uint nLastUsedByte = 0;
-			for(uint b = 0; 2 + b * 8 < Outputs.Count; b++)
+			for (uint b = 0; 2 + b * 8 < Outputs.Count; b++)
 			{
 				bool fZero = true;
-				for(uint i = 0; i < 8 && 2 + b * 8 + i < Outputs.Count; i++)
+				for (uint i = 0; i < 8 && 2 + b * 8 + i < Outputs.Count; i++)
 				{
-					if(!IsNull(Outputs[2 + (int)b * 8 + (int)i]))
+					if (!IsNull(Outputs[2 + (int)b * 8 + (int)i]))
 					{
 						fZero = false;
 						continue;
 					}
 				}
-				if(!fZero)
+				if (!fZero)
 				{
 					nLastUsedByte = b + 1;
 					nNonzeroBytes++;
@@ -239,7 +239,7 @@ namespace NBitcoin.BitcoinCore
 
 		public TxOut TryGetOutput(uint position)
 		{
-			if(!IsAvailable(position))
+			if (!IsAvailable(position))
 				return null;
 			return Outputs[(int)position];
 		}
@@ -253,10 +253,10 @@ namespace NBitcoin.BitcoinCore
 
 		public void ClearUnspendable()
 		{
-			for(int i = 0; i < Outputs.Count; i++)
+			for (int i = 0; i < Outputs.Count; i++)
 			{
 				var o = Outputs[i];
-				if(o.ScriptPubKey.IsUnspendable)
+				if (o.ScriptPubKey.IsUnspendable)
 				{
 					Outputs[i] = NullTxOut;
 				}
@@ -267,12 +267,12 @@ namespace NBitcoin.BitcoinCore
 		public void MergeFrom(Coins otherCoin)
 		{
 			var diff = otherCoin.Outputs.Count - this.Outputs.Count;
-			if(diff > 0)
-				for(int i = 0; i < diff; i++)
+			if (diff > 0)
+				for (int i = 0; i < diff; i++)
 				{
 					Outputs.Add(NullTxOut);
 				}
-			for(int i = 0; i < otherCoin.Outputs.Count; i++)
+			for (int i = 0; i < otherCoin.Outputs.Count; i++)
 			{
 				Outputs[i] = otherCoin.Outputs[i];
 			}

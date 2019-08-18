@@ -41,7 +41,7 @@ namespace NBitcoin
 			_MaxP2PVersion = version;
 			return this;
 		}
-	
+
 		public NetworkBuilder SetName(string name)
 		{
 			_Name = name;
@@ -50,15 +50,15 @@ namespace NBitcoin
 
 		public void CopyFrom(Network network)
 		{
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			_Base58Prefixes.Clear();
 			_Bech32Prefixes.Clear();
-			for(int i = 0; i < network.base58Prefixes.Length; i++)
+			for (int i = 0; i < network.base58Prefixes.Length; i++)
 			{
 				SetBase58Bytes((Base58Type)i, network.base58Prefixes[i]);
 			}
-			for(int i = 0; i < network.bech32Encoders.Length; i++)
+			for (int i = 0; i < network.bech32Encoders.Length; i++)
 			{
 				SetBech32((Bech32Type)i, network.bech32Encoders[i]);
 			}
@@ -120,12 +120,12 @@ namespace NBitcoin
 			_Consensus = consensus == null ? null : consensus.Clone();
 			return this;
 		}
-		
+
 		public NetworkBuilder SetGenesis(string hex)
 		{
 			_Genesis = Encoders.Hex.DecodeData(hex);
 			return this;
-		}		
+		}
 
 		public NetworkBuilder SetBase58Bytes(Base58Type type, byte[] bytes)
 		{

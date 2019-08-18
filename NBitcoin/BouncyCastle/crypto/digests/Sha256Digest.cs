@@ -96,7 +96,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 		{
 			X[xOff] = Pack.BE_To_UInt32(input, inOff);
 
-			if(++xOff == 16)
+			if (++xOff == 16)
 			{
 				ProcessBlock();
 			}
@@ -105,7 +105,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 		internal override void ProcessLength(
 			long bitLength)
 		{
-			if(xOff > 14)
+			if (xOff > 14)
 			{
 				ProcessBlock();
 			}
@@ -168,7 +168,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			//
 			// expand 16 word block into 64 word blocks.
 			//
-			for(int ti = 16; ti <= 63; ti++)
+			for (int ti = 16; ti <= 63; ti++)
 			{
 				X[ti] = Theta1(X[ti - 2]) + X[ti - 7] + Theta0(X[ti - 15]) + X[ti - 16];
 			}
@@ -186,7 +186,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			uint h = H8;
 
 			int t = 0;
-			for(int i = 0; i < 8; ++i)
+			for (int i = 0; i < 8; ++i)
 			{
 				// t = 8 * i
 				h += Sum1Ch(e, f, g) + K[t] + X[t];

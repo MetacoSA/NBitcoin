@@ -35,26 +35,26 @@ namespace NBitcoin.BitcoinCore
 			Dictionary<uint256, BlockHeader> headers = new Dictionary<uint256, BlockHeader>();
 			HashSet<uint256> inChain = new HashSet<uint256>();
 			inChain.Add(chain.GetBlock(0).HashBlock);
-			foreach(var header in Enumerate(true).Select(b => b.Item.Header))
+			foreach (var header in Enumerate(true).Select(b => b.Item.Header))
 			{
 				var hash = header.GetHash();
 				headers.Add(hash, header);
 			}
 			List<uint256> toRemove = new List<uint256>();
-			while(headers.Count != 0)
+			while (headers.Count != 0)
 			{
-				foreach(var header in headers)
+				foreach (var header in headers)
 				{
-					if(inChain.Contains(header.Value.HashPrevBlock))
+					if (inChain.Contains(header.Value.HashPrevBlock))
 					{
 						toRemove.Add(header.Key);
 						chain.SetTip(header.Value);
 						inChain.Add(header.Key);
 					}
 				}
-				foreach(var item in toRemove)
+				foreach (var item in toRemove)
 					headers.Remove(item);
-				if(toRemove.Count == 0)
+				if (toRemove.Count == 0)
 					break;
 				toRemove.Clear();
 			}
@@ -66,9 +66,9 @@ namespace NBitcoin.BitcoinCore
 		public IEnumerable<StoredBlock> Enumerate(Stream stream, uint fileIndex = 0, DiskBlockPosRange range = null, bool headersOnly = false)
 #pragma warning restore CS0612 // Type or member is obsolete
 		{
-			using(HeaderOnlyScope(headersOnly))
+			using (HeaderOnlyScope(headersOnly))
 			{
-				foreach(var r in Enumerate(stream, fileIndex, range))
+				foreach (var r in Enumerate(stream, fileIndex, range))
 				{
 					yield return r;
 				}
@@ -83,7 +83,7 @@ namespace NBitcoin.BitcoinCore
 			return new Scope(() =>
 			{
 				this.headerOnly = headersOnly;
-				if(!headerOnly)
+				if (!headerOnly)
 					BufferSize = 1024 * 1024;
 			}, () =>
 			{
@@ -103,24 +103,24 @@ namespace NBitcoin.BitcoinCore
 		{
 			int blockCount = 0;
 			DiskBlockPos start = null;
-			foreach(var block in Enumerate(true, null))
+			foreach (var block in Enumerate(true, null))
 			{
-				if(blockCount == blockCountStart)
+				if (blockCount == blockCountStart)
 				{
 					start = block.BlockPosition;
 				}
 				blockCount++;
 			}
-			if(start == null)
+			if (start == null)
 				yield break;
 
 
 			int i = 0;
 #pragma warning disable CS0612 // Type or member is obsolete
-			foreach(var result in Enumerate(headersOnly, new DiskBlockPosRange(start)))
+			foreach (var result in Enumerate(headersOnly, new DiskBlockPosRange(start)))
 #pragma warning restore CS0612 // Type or member is obsolete
 			{
-				if(i >= count)
+				if (i >= count)
 					break;
 				yield return result;
 				i++;
@@ -132,9 +132,9 @@ namespace NBitcoin.BitcoinCore
 		public IEnumerable<StoredBlock> Enumerate(bool headersOnly, DiskBlockPosRange range = null)
 #pragma warning restore CS0612 // Type or member is obsolete
 		{
-			using(HeaderOnlyScope(headersOnly))
+			using (HeaderOnlyScope(headersOnly))
 			{
-				foreach(var result in Enumerate(range))
+				foreach (var result in Enumerate(range))
 				{
 					yield return result;
 				}

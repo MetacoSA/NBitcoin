@@ -60,11 +60,11 @@ namespace NBitcoin
 
 		public static PerformanceSnapshot operator -(PerformanceSnapshot end, PerformanceSnapshot start)
 		{
-			if(end.Start != start.Start)
+			if (end.Start != start.Start)
 			{
 				throw new InvalidOperationException("Performance snapshot should be taken from the same point of time");
 			}
-			if(end.Taken < start.Taken)
+			if (end.Taken < start.Taken)
 			{
 				throw new InvalidOperationException("The difference of snapshot can't be negative");
 			}

@@ -19,23 +19,23 @@ namespace NBitcoin
 		public BitcoinScriptAddress(string str, ScriptId id, Network expectedNetwork = null)
 			: base(str, expectedNetwork)
 		{
-			if(id == null)
+			if (id == null)
 				throw new ArgumentNullException(nameof(id));
 			_Hash = id;
 		}
 
 		private static string Validate(string base58, ref Network expectedNetwork)
 		{
-			if(base58 == null)
+			if (base58 == null)
 				throw new ArgumentNullException(nameof(base58));
 			var networks = expectedNetwork == null ? Network.GetNetworks() : new[] { expectedNetwork };
 			var data = (expectedNetwork == null ? Encoders.Base58Check : expectedNetwork.NetworkStringParser.GetBase58CheckEncoder()).DecodeData(base58);
-			foreach(var network in networks)
+			foreach (var network in networks)
 			{
 				var versionBytes = network.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, false);
-				if(versionBytes != null && data.StartWith(versionBytes))
+				if (versionBytes != null && data.StartWith(versionBytes))
 				{
-					if(data.Length == versionBytes.Length + 20)
+					if (data.Length == versionBytes.Length + 20)
 					{
 						expectedNetwork = network;
 						return base58;
@@ -53,7 +53,7 @@ namespace NBitcoin
 
 		private static string NotNull(ScriptId scriptId)
 		{
-			if(scriptId == null)
+			if (scriptId == null)
 				throw new ArgumentNullException(nameof(scriptId));
 			return null;
 		}
@@ -95,7 +95,7 @@ namespace NBitcoin
 		/// <exception cref="System.FormatException">Invalid format</exception>
 		public static BitcoinAddress Create(string str, Network expectedNetwork)
 		{
-			if(str == null)
+			if (str == null)
 				throw new ArgumentNullException(nameof(str));
 			return Network.Parse<BitcoinAddress>(str, expectedNetwork);
 		}
@@ -109,29 +109,29 @@ namespace NBitcoin
 		[Obsolete("Use BitcoinCreate(string, Network) instead")]
 		public static BitcoinAddress Create(string str)
 		{
-			if(str == null)
+			if (str == null)
 				throw new ArgumentNullException(nameof(str));
 			return Network.Parse<BitcoinAddress>(str, null);
 		}
 
 		internal protected BitcoinAddress(string str, Network network)
 		{
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
-			if(str == null)
+			if (str == null)
 				throw new ArgumentNullException(nameof(str));
 			_Str = str;
 			_Network = network;
 		}
 
-		string _Str;		
+		string _Str;
 
 		Script _ScriptPubKey;
 		public Script ScriptPubKey
 		{
 			get
 			{
-				if(_ScriptPubKey == null)
+				if (_ScriptPubKey == null)
 				{
 					_ScriptPubKey = GeneratePaymentScript();
 				}
@@ -144,7 +144,7 @@ namespace NBitcoin
 		public BitcoinScriptAddress GetScriptAddress()
 		{
 			var bitcoinScriptAddress = this as BitcoinScriptAddress;
-			if(bitcoinScriptAddress != null)
+			if (bitcoinScriptAddress != null)
 				return bitcoinScriptAddress;
 
 			return new BitcoinScriptAddress(this.ScriptPubKey.Hash, Network);
@@ -174,15 +174,15 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			BitcoinAddress item = obj as BitcoinAddress;
-			if(item == null)
+			if (item == null)
 				return false;
 			return _Str.Equals(item._Str);
 		}
 		public static bool operator ==(BitcoinAddress a, BitcoinAddress b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 			return a._Str == b._Str;
 		}

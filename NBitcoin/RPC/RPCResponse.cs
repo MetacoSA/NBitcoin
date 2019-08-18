@@ -36,7 +36,7 @@ namespace NBitcoin.RPC
 		internal RPCResponse(JObject json)
 		{
 			var error = json.GetValue("error") as JObject;
-			if(error != null)
+			if (error != null)
 			{
 				Error = new RPCError(error);
 			}
@@ -63,7 +63,7 @@ namespace NBitcoin.RPC
 		{
 			get
 			{
-				if(Result == null)
+				if (Result == null)
 					return null;
 				return Result.ToString();
 			}
@@ -77,7 +77,7 @@ namespace NBitcoin.RPC
 
 		public void ThrowIfError()
 		{
-			if(Error != null)
+			if (Error != null)
 			{
 				throw new RPCException(Error.Code, Error.Message, this);
 			}

@@ -6,7 +6,7 @@
 		public virtual ECPoint Multiply(ECPoint p, BigInteger k)
 		{
 			int sign = k.SignValue;
-			if(sign == 0 || p.IsInfinity)
+			if (sign == 0 || p.IsInfinity)
 				return p.Curve.Infinity;
 
 			ECPoint positive = MultiplyPositive(p, k.Abs());

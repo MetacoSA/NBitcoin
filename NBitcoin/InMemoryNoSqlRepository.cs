@@ -12,9 +12,9 @@ namespace NBitcoin
 
 		protected override Task PutBytesBatch(IEnumerable<Tuple<string, byte[]>> enumerable)
 		{
-			foreach(var data in enumerable)
+			foreach (var data in enumerable)
 			{
-				if(data.Item2 == null)
+				if (data.Item2 == null)
 				{
 					_Table.Remove(data.Item1);
 				}

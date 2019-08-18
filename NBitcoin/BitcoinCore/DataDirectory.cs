@@ -37,7 +37,7 @@ namespace NBitcoin.BitcoinCore
 
 		private void EnsureExist(string folder)
 		{
-			if(!Directory.Exists(folder))
+			if (!Directory.Exists(folder))
 				Directory.CreateDirectory(folder);
 		}
 	}

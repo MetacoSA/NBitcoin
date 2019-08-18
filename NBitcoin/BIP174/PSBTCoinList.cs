@@ -6,7 +6,7 @@ using System.Text;
 
 namespace NBitcoin
 {
-	public class PSBTHDKeyMatch<T> : PSBTHDKeyMatch where T: PSBTCoin
+	public class PSBTHDKeyMatch<T> : PSBTHDKeyMatch where T : PSBTCoin
 	{
 		internal PSBTHDKeyMatch(T psbtCoin, IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<PubKey, RootedKeyPath> kv)
 			: base(psbtCoin, accountKey, addressKeyPath, kv)

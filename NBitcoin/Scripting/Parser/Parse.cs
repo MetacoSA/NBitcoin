@@ -61,7 +61,8 @@ namespace NBitcoin.Scripting.Parser
 		/// <seealso cref="XOr"/>
 		public static Parser<TToken, IEnumerable<T>> XMany<TToken, T>(this Parser<TToken, T> parser)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
 
 			return parser.Many<TToken, T>().Then(m => parser.Once().XOr(Return<TToken, IEnumerable<T>>(m)));
 		}
@@ -75,18 +76,20 @@ namespace NBitcoin.Scripting.Parser
 		/// <returns></returns>
 		public static Parser<TToken, IEnumerable<T>> AtLeastOnce<TToken, T>(this Parser<TToken, T> parser)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
 
 			return parser.Once().Then(t1 => parser.Many().Select(ts => t1.Concat(ts)));
 		}
 
-		public static Parser<TToken, IEnumerable<T>> Once<TToken,T>(this Parser<TToken, T> parser)
+		public static Parser<TToken, IEnumerable<T>> Once<TToken, T>(this Parser<TToken, T> parser)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
 			return parser.Select(r => (IEnumerable<T>)new[] { r });
 		}
 
-		public static Parser<TToken, IEnumerable<T>> AtLeastOne<TToken, T> (this Parser<TToken, T> parser)
+		public static Parser<TToken, IEnumerable<T>> AtLeastOne<TToken, T>(this Parser<TToken, T> parser)
 		{
 			if (parser == null)
 				throw new ArgumentNullException(nameof(parser));
@@ -104,7 +107,8 @@ namespace NBitcoin.Scripting.Parser
 		/// <returns></returns>
 		public static Parser<TToken, IEnumerable<T>> XAtLeastOnce<TToken, T>(this Parser<TToken, T> parser)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
 
 			return parser.Once().Then(t1 => parser.XMany().Select(ts => t1.Concat(ts)));
 		}
@@ -130,8 +134,10 @@ namespace NBitcoin.Scripting.Parser
 		/// <returns></returns>
 		public static Parser<TToken, U> Select<TToken, T, U>(this Parser<TToken, T> parser, Func<T, U> convert)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
-			if (convert == null) throw new ArgumentNullException(nameof(convert));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
+			if (convert == null)
+				throw new ArgumentNullException(nameof(convert));
 
 			return parser.Then(t => Return<TToken, U>(convert(t)));
 		}
@@ -152,7 +158,8 @@ namespace NBitcoin.Scripting.Parser
 		/// <returns></returns>
 		public static Parser<TToken, T> Ref<TToken, T>(Func<Parser<TToken, T>> reference)
 		{
-			if (reference == null) throw new ArgumentNullException(nameof(reference));
+			if (reference == null)
+				throw new ArgumentNullException(nameof(reference));
 
 			Parser<TToken, T> p = null;
 
@@ -175,7 +182,7 @@ namespace NBitcoin.Scripting.Parser
 		}
 
 
-		public static Parser<TToken, T> Or<TToken, T>(this Parser<TToken, T> first, Parser<TToken, T> second) 
+		public static Parser<TToken, T> Or<TToken, T>(this Parser<TToken, T> first, Parser<TToken, T> second)
 		{
 			if (first == null)
 				throw new ArgumentNullException(nameof(first));
@@ -205,10 +212,12 @@ namespace NBitcoin.Scripting.Parser
 		/// <param name="first"></param>
 		/// <param name="second"></param>
 		/// <returns></returns>
-		public static Parser<TToken, T> XOr<TToken, T> (this Parser<TToken, T> first, Parser<TToken, T> second)
+		public static Parser<TToken, T> XOr<TToken, T>(this Parser<TToken, T> first, Parser<TToken, T> second)
 		{
-			if (first == null) throw new ArgumentNullException(nameof(first));
-			if (second == null) throw new ArgumentNullException(nameof(second));
+			if (first == null)
+				throw new ArgumentNullException(nameof(first));
+			if (second == null)
+				throw new ArgumentNullException(nameof(second));
 
 			return i =>
 			{
@@ -240,8 +249,10 @@ namespace NBitcoin.Scripting.Parser
 		/// <returns></returns>
 		public static Parser<TToken, IEnumerable<T>> Concat<TToken, T>(this Parser<TToken, IEnumerable<T>> first, Parser<TToken, IEnumerable<T>> second)
 		{
-			if (first == null) throw new ArgumentNullException(nameof(first));
-			if (second == null) throw new ArgumentNullException(nameof(second));
+			if (first == null)
+				throw new ArgumentNullException(nameof(first));
+			if (second == null)
+				throw new ArgumentNullException(nameof(second));
 
 			return first.Then(f => second.Select(f.Concat));
 		}
@@ -276,7 +287,8 @@ namespace NBitcoin.Scripting.Parser
 		/// <returns></returns>
 		public static Parser<TToken, U> Return<TToken, T, U>(this Parser<TToken, T> parser, U value)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
 			return parser.Select(t => value);
 		}
 
@@ -292,27 +304,30 @@ namespace NBitcoin.Scripting.Parser
 		/// <returns></returns>
 		public static Parser<TToken, T> Except<TToken, T, U>(this Parser<TToken, T> parser, Parser<TToken, U> except)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
-			if (except == null) throw new ArgumentNullException(nameof(except));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
+			if (except == null)
+				throw new ArgumentNullException(nameof(except));
 
 			// Could be more like: except.Then(s => s.Fail("..")).XOr(parser)
 			return i =>
 				{
 					var r = except(i);
 					if (r.IsSuccess)
-						return ParserResult<TToken, T>.Failure(i, new[] { "other than the excepted input"} , "Excepted parser succeeded." );
+						return ParserResult<TToken, T>.Failure(i, new[] { "other than the excepted input" }, "Excepted parser succeeded.");
 					return parser(i);
 				};
 		}
 
 		public static Parser<TToken, T> End<TToken, T>(this Parser<TToken, T> parser)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
 
 			return i => parser(i).IfSuccess(s =>
 				s.Rest.AtEnd ? s : ParserResult<TToken, T>.Failure(
 					s.Rest,
-					new[] {"end of input"},
+					new[] { "end of input" },
 					string.Format("unexpected '{0}'", s.Rest.GetCurrent())
 				)
 			);
@@ -343,8 +358,10 @@ namespace NBitcoin.Scripting.Parser
 		/// <returns></returns>
 		public static Parser<TToken, T> Where<TToken, T>(this Parser<TToken, T> parser, Func<T, bool> predicate)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
-			if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
+			if (predicate == null)
+				throw new ArgumentNullException(nameof(predicate));
 
 			return i => parser(i).IfSuccess(s =>
 				predicate(s.Value) ? s : ParserResult<TToken, T>.Failure(i,
@@ -371,9 +388,12 @@ namespace NBitcoin.Scripting.Parser
 			Func<T, Parser<TToken, U>> selector,
 			Func<T, U, V> projector)
 		{
-			if (parser == null) throw new ArgumentNullException(nameof(parser));
-			if (selector == null) throw new ArgumentNullException(nameof(selector));
-			if (projector == null) throw new ArgumentNullException(nameof(projector));
+			if (parser == null)
+				throw new ArgumentNullException(nameof(parser));
+			if (selector == null)
+				throw new ArgumentNullException(nameof(selector));
+			if (projector == null)
+				throw new ArgumentNullException(nameof(projector));
 
 			return parser.Then(t => selector(t).Select(u => projector(t, u)));
 		}
@@ -394,14 +414,17 @@ namespace NBitcoin.Scripting.Parser
 		/// <param name="operand"></param>
 		/// <param name="apply"></param>
 		/// <returns></returns>
-		public static Parser<TToken, T> ChainOperator<TToken,T, TOp>(
+		public static Parser<TToken, T> ChainOperator<TToken, T, TOp>(
 			Parser<TToken, TOp> op,
 			Parser<TToken, T> operand,
 			Func<TOp, T, T, T> apply)
 		{
-			if (op == null) throw new ArgumentNullException(nameof(op));
-			if (operand == null) throw new ArgumentNullException(nameof(operand));
-			if (apply == null) throw new ArgumentNullException(nameof(apply));
+			if (op == null)
+				throw new ArgumentNullException(nameof(op));
+			if (operand == null)
+				throw new ArgumentNullException(nameof(operand));
+			if (apply == null)
+				throw new ArgumentNullException(nameof(apply));
 			return operand.Then(first => ChainOperatorRest(first, op, operand, apply, Or));
 		}
 
@@ -420,9 +443,12 @@ namespace NBitcoin.Scripting.Parser
 			Parser<TToken, T> operand,
 			Func<TOp, T, T, T> apply)
 		{
-			if (op == null) throw new ArgumentNullException(nameof(op));
-			if (operand == null) throw new ArgumentNullException(nameof(operand));
-			if (apply == null) throw new ArgumentNullException(nameof(apply));
+			if (op == null)
+				throw new ArgumentNullException(nameof(op));
+			if (operand == null)
+				throw new ArgumentNullException(nameof(operand));
+			if (apply == null)
+				throw new ArgumentNullException(nameof(apply));
 			return operand.Then(first => ChainOperatorRest(first, op, operand, apply, XOr));
 		}
 
@@ -433,9 +459,12 @@ namespace NBitcoin.Scripting.Parser
 			Func<TOp, T, T, T> apply,
 			Func<Parser<TToken, T>, Parser<TToken, T>, Parser<TToken, T>> or)
 		{
-			if (op == null) throw new ArgumentNullException(nameof(op));
-			if (operand == null) throw new ArgumentNullException(nameof(operand));
-			if (apply == null) throw new ArgumentNullException(nameof(apply));
+			if (op == null)
+				throw new ArgumentNullException(nameof(op));
+			if (operand == null)
+				throw new ArgumentNullException(nameof(operand));
+			if (apply == null)
+				throw new ArgumentNullException(nameof(apply));
 			return or(op.Then(opvalue =>
 						  operand.Then(operandValue =>
 							  ChainOperatorRest(apply(opvalue, firstOperand, operandValue), op, operand, apply, or))),
@@ -457,9 +486,12 @@ namespace NBitcoin.Scripting.Parser
 			Parser<TToken, T> operand,
 			Func<TOp, T, T, T> apply)
 		{
-			if (op == null) throw new ArgumentNullException(nameof(op));
-			if (operand == null) throw new ArgumentNullException(nameof(operand));
-			if (apply == null) throw new ArgumentNullException(nameof(apply));
+			if (op == null)
+				throw new ArgumentNullException(nameof(op));
+			if (operand == null)
+				throw new ArgumentNullException(nameof(operand));
+			if (apply == null)
+				throw new ArgumentNullException(nameof(apply));
 			return operand.Then(first => ChainRightOperatorRest(first, op, operand, apply, Or));
 		}
 
@@ -478,9 +510,12 @@ namespace NBitcoin.Scripting.Parser
 			Parser<TToken, T> operand,
 			Func<TOp, T, T, T> apply)
 		{
-			if (op == null) throw new ArgumentNullException(nameof(op));
-			if (operand == null) throw new ArgumentNullException(nameof(operand));
-			if (apply == null) throw new ArgumentNullException(nameof(apply));
+			if (op == null)
+				throw new ArgumentNullException(nameof(op));
+			if (operand == null)
+				throw new ArgumentNullException(nameof(operand));
+			if (apply == null)
+				throw new ArgumentNullException(nameof(apply));
 			return operand.Then(first => ChainRightOperatorRest(first, op, operand, apply, XOr));
 		}
 
@@ -491,9 +526,12 @@ namespace NBitcoin.Scripting.Parser
 			Func<TOp, T, T, T> apply,
 			Func<Parser<TToken, T>, Parser<TToken, T>, Parser<TToken, T>> or)
 		{
-			if (op == null) throw new ArgumentNullException(nameof(op));
-			if (operand == null) throw new ArgumentNullException(nameof(operand));
-			if (apply == null) throw new ArgumentNullException(nameof(apply));
+			if (op == null)
+				throw new ArgumentNullException(nameof(op));
+			if (operand == null)
+				throw new ArgumentNullException(nameof(operand));
+			if (apply == null)
+				throw new ArgumentNullException(nameof(apply));
 			return or(op.Then(opvalue =>
 						operand.Then(operandValue =>
 							ChainRightOperatorRest(operandValue, op, operand, apply, or)).Then(r =>
@@ -502,8 +540,8 @@ namespace NBitcoin.Scripting.Parser
 		}
 
 
-		# region sequence
-		public static Parser<TToken, IEnumerable<T>> DelimitedBy<TToken, T, U> (
+		#region sequence
+		public static Parser<TToken, IEnumerable<T>> DelimitedBy<TToken, T, U>(
 			this Parser<TToken, T> parser,
 			Parser<TToken, U> delimiter
 			)
@@ -552,7 +590,7 @@ namespace NBitcoin.Scripting.Parser
 			)
 			=> Repeat<TToken, T>(parser, count, count);
 
-		public static Parser<TToken, IEnumerable<T>> Repeat<TToken, T> (
+		public static Parser<TToken, IEnumerable<T>> Repeat<TToken, T>(
 			this Parser<TToken, T> parser,
 			int minimumCount,
 			int maximumCount

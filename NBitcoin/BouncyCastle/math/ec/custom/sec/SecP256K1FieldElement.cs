@@ -14,7 +14,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 		public SecP256K1FieldElement(BigInteger x)
 		{
-			if(x == null || x.SignValue < 0 || x.CompareTo(Q) >= 0)
+			if (x == null || x.SignValue < 0 || x.CompareTo(Q) >= 0)
 				throw new ArgumentException("value invalid for SecP256K1FieldElement", "x");
 
 			this.x = SecP256K1Field.FromBigInteger(x);
@@ -148,7 +148,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
              */
 
 			uint[] x1 = this.x;
-			if(Nat256.IsZero(x1) || Nat256.IsOne(x1))
+			if (Nat256.IsZero(x1) || Nat256.IsOne(x1))
 				return this;
 
 			uint[] x2 = Nat256.Create();
@@ -210,9 +210,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 		public virtual bool Equals(SecP256K1FieldElement other)
 		{
-			if(this == other)
+			if (this == other)
 				return true;
-			if(null == other)
+			if (null == other)
 				return false;
 			return Nat256.Eq(x, other.x);
 		}

@@ -14,7 +14,6 @@ namespace NBitcoin
 		internal Script originalScriptSig = Script.Empty;
 		internal WitScript originalWitScript = Script.Empty;
 		internal TxOut orphanTxOut = null; // When this input is not segwit, but we don't have the previous tx
-		//
 
 		internal PSBTInput(PSBT parent, uint index, TxIn input) : base(parent)
 		{
@@ -225,7 +224,7 @@ namespace NBitcoin
 		}
 
 		public override void AddKeyPath(PubKey key, RootedKeyPath rootedKeyPath)
-        {
+		{
 			base.AddKeyPath(key, rootedKeyPath);
 			TrySlimUTXO();
 		}

@@ -25,7 +25,7 @@ namespace NBitcoin.BitcoinCore
 		{
 			var stored = new StoredItem<BlockUndo>(Network.Magic, item, position);
 			stored.HasChecksum = true;
-			if(item.CalculatedChecksum == null)
+			if (item.CalculatedChecksum == null)
 				throw new InvalidOperationException("A block undo should have an calculated checksum with ComputeChecksum");
 			stored.Checksum = item.CalculatedChecksum;
 			return stored;

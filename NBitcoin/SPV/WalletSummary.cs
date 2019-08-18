@@ -63,9 +63,9 @@ namespace NBitcoin.SPV
 
 		public static WalletSummaryDetails operator +(WalletSummaryDetails c1, WalletSummaryDetails c2)
 		{
-			if(c1 == null)
+			if (c1 == null)
 				return c2;
-			if(c2 == null)
+			if (c2 == null)
 				return c1;
 			return new WalletSummaryDetails
 			{
@@ -80,7 +80,7 @@ namespace NBitcoin.SPV
 
 		public static WalletSummaryDetails operator -(WalletSummaryDetails c1)
 		{
-			if(c1 == null)
+			if (c1 == null)
 				return null;
 			WalletSummaryDetails result = new WalletSummaryDetails
 			{

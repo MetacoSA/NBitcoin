@@ -20,30 +20,30 @@ namespace NBitcoin.BouncyCastle.Asn1
 		public static Asn1Sequence GetInstance(
 			object obj)
 		{
-			if(obj == null || obj is Asn1Sequence)
+			if (obj == null || obj is Asn1Sequence)
 			{
 				return (Asn1Sequence)obj;
 			}
-			else if(obj is Asn1SequenceParser)
+			else if (obj is Asn1SequenceParser)
 			{
 				return Asn1Sequence.GetInstance(((Asn1SequenceParser)obj).ToAsn1Object());
 			}
-			else if(obj is byte[])
+			else if (obj is byte[])
 			{
 				try
 				{
 					return Asn1Sequence.GetInstance(FromByteArray((byte[])obj));
 				}
-				catch(IOException e)
+				catch (IOException e)
 				{
 					throw new ArgumentException("failed to construct sequence from byte[]: " + e.Message);
 				}
 			}
-			else if(obj is Asn1Encodable)
+			else if (obj is Asn1Encodable)
 			{
 				Asn1Object primitive = ((Asn1Encodable)obj).ToAsn1Object();
 
-				if(primitive is Asn1Sequence)
+				if (primitive is Asn1Sequence)
 				{
 					return (Asn1Sequence)primitive;
 				}
@@ -85,12 +85,12 @@ namespace NBitcoin.BouncyCastle.Asn1
 
 			public IAsn1Convertible ReadObject()
 			{
-				if(index == max)
+				if (index == max)
 					return null;
 
 				Asn1Encodable obj = outer[index++];
 
-				if(obj is Asn1Sequence)
+				if (obj is Asn1Sequence)
 					return ((Asn1Sequence)obj).Parser;
 
 				// NB: Asn1OctetString implements Asn1OctetStringParser directly
@@ -156,10 +156,10 @@ namespace NBitcoin.BouncyCastle.Asn1
 		{
 			int hc = Count;
 
-			foreach(object o in this)
+			foreach (object o in this)
 			{
 				hc *= 17;
-				if(o == null)
+				if (o == null)
 				{
 					hc ^= DerNull.Instance.GetHashCode();
 				}
@@ -177,21 +177,21 @@ namespace NBitcoin.BouncyCastle.Asn1
 		{
 			Asn1Sequence other = asn1Object as Asn1Sequence;
 
-			if(other == null)
+			if (other == null)
 				return false;
 
-			if(Count != other.Count)
+			if (Count != other.Count)
 				return false;
 
 			IEnumerator s1 = GetEnumerator();
 			IEnumerator s2 = other.GetEnumerator();
 
-			while(s1.MoveNext() && s2.MoveNext())
+			while (s1.MoveNext() && s2.MoveNext())
 			{
 				Asn1Object o1 = GetCurrent(s1).ToAsn1Object();
 				Asn1Object o2 = GetCurrent(s2).ToAsn1Object();
 
-				if(!o1.Equals(o2))
+				if (!o1.Equals(o2))
 					return false;
 			}
 
@@ -203,7 +203,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 			Asn1Encodable encObj = (Asn1Encodable)e.Current;
 
 			// unfortunately null was allowed as a substitute for DER null
-			if(encObj == null)
+			if (encObj == null)
 				return DerNull.Instance;
 
 			return encObj;

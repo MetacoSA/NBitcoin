@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace NBitcoin
-{ 
+{
 	public class ThreadSafeList<T> : IEnumerable<T>
 	{
 		private List<T> _Behaviors;

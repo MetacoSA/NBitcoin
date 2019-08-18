@@ -54,7 +54,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Macs
 			byte[] key = ((KeyParameter)parameters).GetKey();
 			int keyLength = key.Length;
 
-			if(keyLength > blockLength)
+			if (keyLength > blockLength)
 			{
 				digest.BlockUpdate(key, 0, keyLength);
 				digest.DoFinal(inputPad, 0);
@@ -72,7 +72,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Macs
 			XorPad(inputPad, blockLength, IPAD);
 			XorPad(outputBuf, blockLength, OPAD);
 
-			if(digest is IMemoable)
+			if (digest is IMemoable)
 			{
 				opadState = ((IMemoable)digest).Copy();
 
@@ -81,7 +81,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Macs
 
 			digest.BlockUpdate(inputPad, 0, inputPad.Length);
 
-			if(digest is IMemoable)
+			if (digest is IMemoable)
 			{
 				ipadState = ((IMemoable)digest).Copy();
 			}
@@ -106,7 +106,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Macs
 		{
 			digest.DoFinal(outputBuf, blockLength);
 
-			if(opadState != null)
+			if (opadState != null)
 			{
 				((IMemoable)digest).Reset(opadState);
 				digest.BlockUpdate(outputBuf, blockLength, digest.GetDigestSize());
@@ -120,7 +120,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Macs
 
 			Array.Clear(outputBuf, blockLength, digestSize);
 
-			if(ipadState != null)
+			if (ipadState != null)
 			{
 				((IMemoable)digest).Reset(ipadState);
 			}
@@ -146,7 +146,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Macs
 
 		private static void XorPad(byte[] pad, int len, byte n)
 		{
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				pad[i] ^= n;
 			}

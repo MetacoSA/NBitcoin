@@ -51,7 +51,7 @@ namespace NBitcoin
 			List<uint256> vHashes = new List<uint256>();
 
 
-			for(uint i = 0; i < block.Transactions.Count; i++)
+			for (uint i = 0; i < block.Transactions.Count; i++)
 			{
 				uint256 hash = block.Transactions[(int)i].GetHash();
 				vMatch.Add(filter.IsRelevantAndUpdate(block.Transactions[(int)i]));
@@ -67,7 +67,7 @@ namespace NBitcoin
 
 			List<bool> vMatch = new List<bool>();
 			List<uint256> vHashes = new List<uint256>();
-			for(int i = 0; i < block.Transactions.Count; i++)
+			for (int i = 0; i < block.Transactions.Count; i++)
 			{
 				var hash = block.Transactions[i].GetHash();
 				vHashes.Add(hash);

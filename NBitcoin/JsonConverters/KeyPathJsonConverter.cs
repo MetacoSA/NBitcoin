@@ -12,14 +12,14 @@ namespace NBitcoin.JsonConverters
 	internal
 #endif
 	class KeyPathJsonConverter : JsonConverter
-    {
-        public override bool CanConvert(Type objectType)
-        {
-            return typeof(KeyPath).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()) || typeof(RootedKeyPath).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
-        }
+	{
+		public override bool CanConvert(Type objectType)
+		{
+			return typeof(KeyPath).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()) || typeof(RootedKeyPath).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
+		}
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
+		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+		{
 			if (reader.TokenType == JsonToken.Null)
 				return null;
 			if (typeof(KeyPath).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()))
@@ -36,13 +36,13 @@ namespace NBitcoin.JsonConverters
 			}
 		}
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            if (value is KeyPath keyPath)
-                writer.WriteValue(keyPath.ToString());
+		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+		{
+			if (value is KeyPath keyPath)
+				writer.WriteValue(keyPath.ToString());
 			else if (value is RootedKeyPath rootedKeyPath)
 				writer.WriteValue(rootedKeyPath.ToString());
 		}
-    }
+	}
 }
 #endif

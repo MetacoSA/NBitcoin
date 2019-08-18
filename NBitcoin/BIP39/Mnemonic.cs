@@ -26,16 +26,16 @@ namespace NBitcoin
 	{
 		public Mnemonic(string mnemonic, Wordlist wordlist = null)
 		{
-			if(mnemonic == null)
+			if (mnemonic == null)
 				throw new ArgumentNullException(nameof(mnemonic));
 			_Mnemonic = mnemonic.Trim();
 
-			if(wordlist == null)
+			if (wordlist == null)
 				wordlist = Wordlist.AutoDetect(mnemonic) ?? Wordlist.English;
 
 			var words = mnemonic.Split(new char[] { ' ', '　' }, StringSplitOptions.RemoveEmptyEntries);
 			//if the sentence is not at least 12 characters or cleanly divisible by 3, it is bad!
-			if(!CorrectWordCount(words.Length))
+			if (!CorrectWordCount(words.Length))
 			{
 				throw new FormatException("Word count should be 12,15,18,21 or 24");
 			}
@@ -53,11 +53,11 @@ namespace NBitcoin
 		{
 			wordList = wordList ?? Wordlist.English;
 			_WordList = wordList;
-			if(entropy == null)
+			if (entropy == null)
 				entropy = RandomUtils.GetBytes(32);
 
 			var i = Array.IndexOf(entArray, entropy.Length * 8);
-			if(i == -1)
+			if (i == -1)
 				throw new ArgumentException("The length for entropy should be : " + String.Join(",", entArray), "entropy");
 
 			int cs = csArray[i];
@@ -80,7 +80,7 @@ namespace NBitcoin
 		private static byte[] GenerateEntropy(WordCount wordCount)
 		{
 			var ms = (int)wordCount;
-			if(!CorrectWordCount(ms))
+			if (!CorrectWordCount(ms))
 				throw new ArgumentException("Word count should be 12,15,18,21 or 24", "wordCount");
 			int i = Array.IndexOf(msArray, (int)wordCount);
 			return RandomUtils.GetBytes(entArray[i] / 8);
@@ -95,7 +95,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_IsValidChecksum == null)
+				if (_IsValidChecksum == null)
 				{
 					int i = Array.IndexOf(msArray, _Indices.Length);
 					int cs = csArray[i];
@@ -124,7 +124,7 @@ namespace NBitcoin
 		// FIXME: this method is not used. Shouldn't we delete it?
 		private int ToInt(BitArray bits)
 		{
-			if(bits.Length != 11)
+			if (bits.Length != 11)
 			{
 				throw new InvalidOperationException("should never happen, bug in nbitcoin");
 			}
@@ -133,9 +133,9 @@ namespace NBitcoin
 			int base2Divide = 1024; //it's all downhill from here...literally we halve this for each bit we move to.
 
 			//literally picture this loop as going from the most significant bit across to the least in the 11 bits, dividing by 2 for each bit as per binary/base 2
-			foreach(bool b in bits)
+			foreach (bool b in bits)
 			{
-				if(b)
+				if (b)
 				{
 					number = number + base2Divide;
 				}
@@ -197,7 +197,7 @@ namespace NBitcoin
 		internal static string NormalizeString(string word)
 		{
 #if !NOSTRNORMALIZE
-			if(!SupportOsNormalization())
+			if (!SupportOsNormalization())
 			{
 				return KDTable.NormalizeKD(word);
 			}
@@ -214,11 +214,11 @@ namespace NBitcoin
 		static bool? _SupportOSNormalization;
 		internal static bool SupportOsNormalization()
 		{
-			if(_SupportOSNormalization == null)
+			if (_SupportOSNormalization == null)
 			{
 				var notNormalized = "あおぞら";
 				var normalized = "あおぞら";
-				if(notNormalized.Equals(normalized, StringComparison.Ordinal))
+				if (notNormalized.Equals(normalized, StringComparison.Ordinal))
 				{
 					_SupportOSNormalization = false;
 				}

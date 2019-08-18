@@ -38,9 +38,9 @@ namespace NBitcoin
 		/// <summary>
 		/// Raw filter data
 		/// </summary>
-		public byte[] Data { get;  }
+		public byte[] Data { get; }
 
-		private ulong ModulusP { get;  }
+		private ulong ModulusP { get; }
 		private ulong ModulusNP { get; }
 
 		/// <summary>
@@ -97,7 +97,7 @@ namespace NBitcoin
 			this.N = n;
 			this.M = m;
 
-			this.ModulusP = 1UL << P;  
+			this.ModulusP = 1UL << P;
 			this.ModulusNP = (ulong)N * M;
 			this.Data = data;
 		}
@@ -124,7 +124,7 @@ namespace NBitcoin
 			var k1 = BitConverter.ToUInt64(key, 8);
 
 			// Process the data items and calculate the 64 bits hash for each of them.			
-			foreach(var item in data)
+			foreach (var item in data)
 			{
 				var hash = SipHash(k0, k1, item);
 				var value = FastReduction(hash, nphi, nplo);
@@ -157,7 +157,7 @@ namespace NBitcoin
 		{
 			if (data == null)
 				throw new ArgumentNullException(nameof(data));
-			return MatchAny(new[] {data}, 1, key);
+			return MatchAny(new[] { data }, 1, key);
 		}
 
 		/// <summary>
@@ -233,7 +233,7 @@ namespace NBitcoin
 				else if (lastValue2 > lastValue1)
 				{
 
-					if(sr.TryRead(out var val))
+					if (sr.TryRead(out var val))
 						lastValue1 = val;
 					else
 						return false;
@@ -303,12 +303,13 @@ namespace NBitcoin
 		private uint _m = GolombRiceFilter.DefaultM;
 		private byte[] _key;
 		private HashSet<byte[]> _values;
-		
+
 		/// <summary>
 		/// Helper class for making sure not two identical data elements are 
 		/// included in a filter.
 		/// </summary>
-		class ByteArrayComparer : IEqualityComparer<byte[]> {
+		class ByteArrayComparer : IEqualityComparer<byte[]>
+		{
 			public static readonly ByteArrayComparer Instance = new ByteArrayComparer();
 			private ByteArrayComparer()
 			{
@@ -316,9 +317,11 @@ namespace NBitcoin
 			}
 			public bool Equals(byte[] a, byte[] b)
 			{
-				if (a.Length != b.Length) return false;
+				if (a.Length != b.Length)
+					return false;
 				for (int i = 0; i < a.Length; i++)
-					if (a[i] != b[i]) return false;
+					if (a[i] != b[i])
+						return false;
 				return true;
 			}
 			public int GetHashCode(byte[] a)
@@ -346,18 +349,18 @@ namespace NBitcoin
 			var builder = new GolombRiceFilterBuilder()
 				.SetKey(block.GetHash());
 
-			foreach(var tx in block.Transactions)
+			foreach (var tx in block.Transactions)
 			{
-				if(!tx.IsCoinBase) // except for the coinbase transaction
+				if (!tx.IsCoinBase) // except for the coinbase transaction
 				{
-					foreach(var txin in tx.Inputs)
+					foreach (var txin in tx.Inputs)
 					{
 						// The outpoint of each input
 						builder.AddOutPoint(txin.PrevOut);
 					}
 				}
 
-				foreach(var txout in tx.Outputs)
+				foreach (var txout in tx.Outputs)
 				{
 					// The scriptPubKey of each output
 					builder.AddScriptPubkey(txout.ScriptPubKey);
@@ -384,10 +387,10 @@ namespace NBitcoin
 		/// <returns>The updated filter builder instance</returns>
 		public GolombRiceFilterBuilder SetKey(uint256 blockHash)
 		{
-			if(blockHash == null)
+			if (blockHash == null)
 				throw new ArgumentNullException(nameof(blockHash));
 
-			_key = blockHash.ToBytes().SafeSubarray(0,16);
+			_key = blockHash.ToBytes().SafeSubarray(0, 16);
 			return this;
 		}
 
@@ -400,7 +403,7 @@ namespace NBitcoin
 		{
 			if (p <= 0 || p > 32)
 				throw new ArgumentOutOfRangeException(nameof(p), "value has to be greater than zero and less or equal to 32.");
-			
+
 			_p = (byte)p;
 			return this;
 		}
@@ -457,11 +460,11 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(scriptSig));
 
 			var data = new List<byte[]>();
-			foreach(var op in scriptSig.ToOps())
+			foreach (var op in scriptSig.ToOps())
 			{
-				if(op.PushData != null)
+				if (op.PushData != null)
 					data.Add(op.PushData);
-				else if(op.Code == OpcodeType.OP_0)
+				else if (op.Code == OpcodeType.OP_0)
 					data.Add(EmptyBytes);
 			}
 			AddEntries(data);
@@ -507,7 +510,7 @@ namespace NBitcoin
 			if (entries == null)
 				throw new ArgumentNullException(nameof(entries));
 
-			foreach(var entry in entries)
+			foreach (var entry in entries)
 			{
 				_values.Add(entry);
 			}
@@ -537,6 +540,6 @@ namespace NBitcoin
 				sw.Write(value);
 			}
 			return bitStream.ToByteArray();
-		}		
+		}
 	}
 }

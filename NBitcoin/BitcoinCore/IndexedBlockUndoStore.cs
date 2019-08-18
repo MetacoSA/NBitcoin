@@ -34,7 +34,7 @@ namespace NBitcoin.BitcoinCore
 
 		public BlockUndo Get(uint256 blockId)
 		{
-			if(blockId == null)
+			if (blockId == null)
 				return null;
 			var undo = Get(blockId.ToString());
 			undo.BlockId = blockId;
@@ -43,7 +43,7 @@ namespace NBitcoin.BitcoinCore
 
 		protected override string GetKey(BlockUndo item)
 		{
-			if(item.BlockId == null)
+			if (item.BlockId == null)
 			{
 				throw new NotSupportedException("BlockUndo.BlockId unknow");
 			}

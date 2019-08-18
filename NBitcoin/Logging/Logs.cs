@@ -15,7 +15,7 @@ namespace NBitcoin.Logging
 			NodeServer = factory.CreateLogger("NodeServer");
 			Utils = factory.CreateLogger("Utils");
 		}
-		public static ILogger NodeServer 
+		public static ILogger NodeServer
 		{
 			get; set;
 		}

@@ -84,7 +84,7 @@ namespace NBitcoin.Protocol.Behaviors
 
 		protected override void AttachCore()
 		{
-			if(AttachedNode.PeerVersion != null && !PingVersion()) //If not handshaked, stil attach (the callback will also check version)
+			if (AttachedNode.PeerVersion != null && !PingVersion()) //If not handshaked, stil attach (the callback will also check version)
 				return;
 			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
 			AttachedNode.StateChanged += AttachedNode_StateChanged;
@@ -99,25 +99,25 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void AttachedNode_StateChanged(Node node, NodeState oldState)
 		{
-			if(node.State == NodeState.HandShaked)
+			if (node.State == NodeState.HandShaked)
 				Ping(null);
 		}
 
 		object cs = new object();
 		void Ping(object unused)
 		{
-			if(Monitor.TryEnter(cs))
+			if (Monitor.TryEnter(cs))
 			{
 				try
 				{
 					var node = AttachedNode;
-					if(node == null)
+					if (node == null)
 						return;
-					if(!PingVersion())
+					if (!PingVersion())
 						return;
-					if(node.State != NodeState.HandShaked)
+					if (node.State != NodeState.HandShaked)
 						return;
-					if(_CurrentPing != null)
+					if (_CurrentPing != null)
 						return;
 					_CurrentPing = new PingPayload();
 					_DateSent = DateTimeOffset.UtcNow;
@@ -142,7 +142,7 @@ namespace NBitcoin.Protocol.Behaviors
 		void PingTimeout(object ping)
 		{
 			var node = AttachedNode;
-			if(node != null && ((PingPayload)ping) == _CurrentPing)
+			if (node != null && ((PingPayload)ping) == _CurrentPing)
 				node.DisconnectAsync("Pong timeout for " + ((PingPayload)ping).Nonce);
 		}
 
@@ -158,10 +158,10 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void AttachedNode_MessageReceived(Node node, IncomingMessage message)
 		{
-			if(!PingVersion())
+			if (!PingVersion())
 				return;
 			var ping = message.Message.Payload as PingPayload;
-			if(ping != null && Mode.HasFlag(PingPongMode.RespondPong))
+			if (ping != null && Mode.HasFlag(PingPongMode.RespondPong))
 			{
 				node.SendMessageAsync(new PongPayload()
 				{
@@ -169,7 +169,7 @@ namespace NBitcoin.Protocol.Behaviors
 				});
 			}
 			var pong = message.Message.Payload as PongPayload;
-			if(pong != null &&
+			if (pong != null &&
 				Mode.HasFlag(PingPongMode.SendPing) &&
 				_CurrentPing != null &&
 				_CurrentPing.Nonce == pong.Nonce)
@@ -181,12 +181,12 @@ namespace NBitcoin.Protocol.Behaviors
 
 		private void ClearCurrentPing()
 		{
-			lock(cs)
+			lock (cs)
 			{
 				_CurrentPing = null;
 				_DateSent = default(DateTimeOffset);
 				var timeout = _PingTimeoutTimer;
-				if(timeout != null)
+				if (timeout != null)
 				{
 					timeout.Dispose();
 					_PingTimeoutTimer = null;

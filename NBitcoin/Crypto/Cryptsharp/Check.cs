@@ -27,7 +27,7 @@ namespace NBitcoin.Crypto.Internal
 		{
 			Check.Null(valueName, value);
 
-			if(offset < 0 || count < 0 || count > value.Length - offset)
+			if (offset < 0 || count < 0 || count > value.Length - offset)
 			{
 				throw Exceptions.ArgumentOutOfRange(valueName,
 													"Range [{0}, {1}) is outside array bounds [0, {2}).",
@@ -39,7 +39,7 @@ namespace NBitcoin.Crypto.Internal
 		{
 			Check.Null(valueName, value);
 
-			if(value.Length < minimum || value.Length > maximum)
+			if (value.Length < minimum || value.Length > maximum)
 			{
 				throw Exceptions.ArgumentOutOfRange(valueName,
 													"Length must be in the range [{0}, {1}].",
@@ -49,7 +49,7 @@ namespace NBitcoin.Crypto.Internal
 
 		public static void Null<T>(string valueName, T value)
 		{
-			if(value == null)
+			if (value == null)
 			{
 				throw Exceptions.ArgumentNull(valueName);
 			}
@@ -57,7 +57,7 @@ namespace NBitcoin.Crypto.Internal
 
 		public static void Range(string valueName, int value, int minimum, int maximum)
 		{
-			if(value < minimum || value > maximum)
+			if (value < minimum || value > maximum)
 			{
 				throw Exceptions.ArgumentOutOfRange(valueName,
 													"Value must be in the range [{0}, {1}].",

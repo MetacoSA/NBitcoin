@@ -21,7 +21,7 @@ namespace NBitcoin.JsonConverters
 			{
 				var nullable = objectType == typeof(LockTime?);
 				return reader.TokenType == JsonToken.Null
-					? (nullable ? null as object : LockTime.Zero) 
+					? (nullable ? null as object : LockTime.Zero)
 					: new LockTime((uint)(long)reader.Value);
 			}
 			catch
@@ -32,7 +32,7 @@ namespace NBitcoin.JsonConverters
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			if(value != null)
+			if (value != null)
 			{
 				writer.WriteValue(((LockTime)value).Value);
 			}

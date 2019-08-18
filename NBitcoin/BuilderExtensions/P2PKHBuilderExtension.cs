@@ -33,9 +33,9 @@ namespace NBitcoin.BuilderExtensions
 		{
 			var aSig = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(a);
 			var bSig = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(b);
-			if(aSig == null)
+			if (aSig == null)
 				return b;
-			if(bSig == null)
+			if (bSig == null)
 				return a;
 			var merged = new PayToPubkeyHashScriptSigParameters();
 			merged.PublicKey = aSig.PublicKey ?? bSig.PublicKey;
@@ -59,7 +59,7 @@ namespace NBitcoin.BuilderExtensions
 		{
 			var parameters = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 			var key = keyRepo.FindKey(parameters.ScriptPubKey);
-			if(key == null)
+			if (key == null)
 				return null;
 			var sig = signer.Sign(key);
 			return PayToPubkeyHashTemplate.Instance.GenerateScriptSig(sig, key);

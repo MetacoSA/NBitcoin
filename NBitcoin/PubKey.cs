@@ -55,13 +55,13 @@ namespace NBitcoin
 		/// <param name="unsafe">If false, make internal copy of bytes and does perform only a costly check for PubKey format. If true, the bytes array is used as is and only PubKey.Check is used for validating the format. </param>	 
 		public PubKey(byte[] bytes, bool @unsafe)
 		{
-			if(bytes == null)
+			if (bytes == null)
 				throw new ArgumentNullException(nameof(bytes));
-			if(!Check(bytes, false))
+			if (!Check(bytes, false))
 			{
 				throw new FormatException("Invalid public key");
 			}
-			if(@unsafe)
+			if (@unsafe)
 				this.vch = bytes;
 			else
 			{
@@ -70,7 +70,7 @@ namespace NBitcoin
 				{
 					_ECKey = new ECKey(bytes, false);
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
 					throw new FormatException("Invalid public key", ex);
 				}
@@ -82,7 +82,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_ECKey == null)
+				if (_ECKey == null)
 					_ECKey = new ECKey(vch, false);
 				return _ECKey;
 			}
@@ -93,13 +93,13 @@ namespace NBitcoin
 
 		public PubKey Compress()
 		{
-			if(IsCompressed)
+			if (IsCompressed)
 				return this;
 			return ECKey.GetPubKey(true);
 		}
 		public PubKey Decompress()
 		{
-			if(!IsCompressed)
+			if (!IsCompressed)
 				return this;
 			return ECKey.GetPubKey(false);
 		}
@@ -122,7 +122,7 @@ namespace NBitcoin
 						(count == 33 && (data[offset + 0] == 0x02 || data[offset + 0] == 0x03)) ||
 						(count == 65 && (data[offset + 0] == 0x04 || data[offset + 0] == 0x06 || data[offset + 0] == 0x07))
 					);
-			if(!deep || !quick)
+			if (!deep || !quick)
 				return quick;
 			try
 			{
@@ -141,7 +141,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_ID == null)
+				if (_ID == null)
 				{
 					_ID = new KeyId(Hashes.Hash160(vch, 0, vch.Length));
 				}
@@ -153,7 +153,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_WitID == null)
+				if (_WitID == null)
 				{
 					_WitID = new WitKeyId(Hashes.Hash160(vch, 0, vch.Length));
 				}
@@ -165,9 +165,9 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(this.vch.Length == 65)
+				if (this.vch.Length == 65)
 					return false;
-				if(this.vch.Length == 33)
+				if (this.vch.Length == 33)
 					return true;
 				throw new NotSupportedException("Invalid public key size");
 			}
@@ -243,7 +243,7 @@ namespace NBitcoin
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref vch);
-			if(!stream.Serializing)
+			if (!stream.Serializing)
 				_ECKey = new ECKey(vch, false);
 		}
 
@@ -255,7 +255,7 @@ namespace NBitcoin
 		}
 		public byte[] ToBytes(bool @unsafe)
 		{
-			if(@unsafe)
+			if (@unsafe)
 				return vch;
 			else
 				return vch.ToArray();
@@ -342,7 +342,7 @@ namespace NBitcoin
 
 		public static PubKey RecoverCompact(uint256 hash, byte[] signatureEncoded)
 		{
-			if(signatureEncoded.Length < 65)
+			if (signatureEncoded.Length < 65)
 				throw new ArgumentException("Signature truncated, expected 65 bytes and got " + signatureEncoded.Length);
 
 
@@ -351,13 +351,13 @@ namespace NBitcoin
 			// The header byte: 0x1B = first key with even y, 0x1C = first key with odd y,
 			//                  0x1D = second key with even y, 0x1E = second key with odd y
 
-			if(header < 27 || header > 34)
+			if (header < 27 || header > 34)
 				throw new ArgumentException("Header byte out of range: " + header);
 
 			var sig = DecodeSig(signatureEncoded);
 			bool compressed = false;
 
-			if(header >= 31)
+			if (header >= 31)
 			{
 				compressed = true;
 				header -= 4;
@@ -374,7 +374,7 @@ namespace NBitcoin
 			byte[] lr = null;
 			byte[] l = new byte[32];
 			byte[] r = new byte[32];
-			if((nChild >> 31) == 0)
+			if ((nChild >> 31) == 0)
 			{
 				var pubKey = ToBytes();
 				lr = Hashes.BIP32Hash(cc, nChild, pubKey[0], pubKey.Skip(1).ToArray());
@@ -391,11 +391,11 @@ namespace NBitcoin
 			BigInteger N = ECKey.CURVE.N;
 			BigInteger parse256LL = new BigInteger(1, l);
 
-			if(parse256LL.CompareTo(N) >= 0)
+			if (parse256LL.CompareTo(N) >= 0)
 				throw new InvalidOperationException("You won a prize ! this should happen very rarely. Take a screenshot, and roll the dice again.");
 
 			var q = ECKey.CURVE.G.Multiply(parse256LL).Add(ECKey.GetPublicKeyParameters().Q);
-			if(q.IsInfinity)
+			if (q.IsInfinity)
 				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
 
 			q = q.Normalize();
@@ -406,16 +406,16 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			PubKey item = obj as PubKey;
-			if(item == null)
+			if (item == null)
 				return false;
 			return Equals(item);
 		}
 		public bool Equals(PubKey pk) => pk != null && Utils.ArrayEqual(vch, pk.vch);
 		public static bool operator ==(PubKey a, PubKey b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 			return a.ToHex() == b.ToHex();
 		}
@@ -459,9 +459,9 @@ namespace NBitcoin
 
 		public PubKey Compress(bool compression)
 		{
-			if(IsCompressed == compression)
+			if (IsCompressed == compression)
 				return this;
-			if(compression)
+			if (compression)
 				return this.Compress();
 			else
 				return this.Decompress();
@@ -484,7 +484,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_ScriptPubKey == null)
+				if (_ScriptPubKey == null)
 				{
 					_ScriptPubKey = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(this);
 				}
@@ -512,10 +512,10 @@ namespace NBitcoin
 		{
 			var pub = _ECKey.GetPublicKeyParameters();
 			var privKey = key._ECKey.PrivateKey;
-			if(!pub.Parameters.Equals(privKey.Parameters))
+			if (!pub.Parameters.Equals(privKey.Parameters))
 				throw new InvalidOperationException("ECDH public key has wrong domain parameters");
 			ECPoint q = pub.Q.Multiply(privKey.D).Normalize();
-			if(q.IsInfinity)
+			if (q.IsInfinity)
 				throw new InvalidOperationException("Infinity is not a valid agreement value for ECDH");
 			var pubkey = ECKey.Secp256k1.Curve.CreatePoint(q.XCoord.ToBigInteger(), q.YCoord.ToBigInteger());
 			pubkey = pubkey.Normalize();
@@ -524,7 +524,7 @@ namespace NBitcoin
 
 		public string Encrypt(string message)
 		{
-			if(string.IsNullOrEmpty(message))
+			if (string.IsNullOrEmpty(message))
 				throw new ArgumentNullException(nameof(message));
 
 			var bytes = Encoding.UTF8.GetBytes(message);
@@ -533,7 +533,7 @@ namespace NBitcoin
 
 		public byte[] Encrypt(byte[] message)
 		{
-			if(message is null)
+			if (message is null)
 				throw new ArgumentNullException(nameof(message));
 			var ephemeral = new Key();
 			var sharedKey = Hashes.SHA512(GetSharedPubkey(ephemeral).ToBytes());

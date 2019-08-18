@@ -8,7 +8,7 @@ namespace NBitcoin
 {
 	public class PSBTException : InvalidOperationException
 	{
-		public PSBTException(IEnumerable<PSBTError> errors): base(GetMessage(errors))
+		public PSBTException(IEnumerable<PSBTError> errors) : base(GetMessage(errors))
 		{
 			Errors = errors.ToList();
 		}

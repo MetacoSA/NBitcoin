@@ -39,20 +39,20 @@ namespace NBitcoin.BouncyCastle.Utilities
 			return null;
 		}
 #else
-        internal static string GetEnvironmentVariable(
-            string variable)
-        {
-            try
-            {
-                return Environment.GetEnvironmentVariable(variable);
-            }
-            catch (System.Security.SecurityException)
-            {
-                // We don't have the required permission to read this environment variable,
-                // which is fine, just act as if it's not set
-                return null;
-            }
-        }
+		internal static string GetEnvironmentVariable(
+			string variable)
+		{
+			try
+			{
+				return Environment.GetEnvironmentVariable(variable);
+			}
+			catch (System.Security.SecurityException)
+			{
+				// We don't have the required permission to read this environment variable,
+				// which is fine, just act as if it's not set
+				return null;
+			}
+		}
 #endif
 
 #if NETCF_1_0
@@ -87,7 +87,7 @@ namespace NBitcoin.BouncyCastle.Utilities
 		internal static System.Collections.IList CreateArrayList(System.Collections.ICollection collection)
 		{
 			System.Collections.IList result = new List<object>(collection.Count);
-			foreach(object o in collection)
+			foreach (object o in collection)
 			{
 				result.Add(o);
 			}
@@ -96,7 +96,7 @@ namespace NBitcoin.BouncyCastle.Utilities
 		internal static System.Collections.IList CreateArrayList(System.Collections.IEnumerable collection)
 		{
 			System.Collections.IList result = new List<object>();
-			foreach(object o in collection)
+			foreach (object o in collection)
 			{
 				result.Add(o);
 			}
@@ -113,7 +113,7 @@ namespace NBitcoin.BouncyCastle.Utilities
 		internal static System.Collections.IDictionary CreateHashtable(System.Collections.IDictionary dictionary)
 		{
 			System.Collections.IDictionary result = new Dictionary<object, object>(dictionary.Count);
-			foreach(System.Collections.DictionaryEntry entry in dictionary)
+			foreach (System.Collections.DictionaryEntry entry in dictionary)
 			{
 				result.Add(entry.Key, entry.Value);
 			}
