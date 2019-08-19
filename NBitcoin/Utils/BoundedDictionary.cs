@@ -34,7 +34,7 @@ namespace NBitcoin
 				wasPresent = true;
 				return update(k, v);
 			});
-			if(!wasPresent)
+			if (!wasPresent)
 			{
 				_Queue.Enqueue(key);
 				Clean();
@@ -45,7 +45,7 @@ namespace NBitcoin
 		public bool TryAdd(TKey key, TValue value)
 		{
 			var added = _Dictionnary.TryAdd(key, value);
-			if(added)
+			if (added)
 			{
 				_Queue.Enqueue(key);
 				Clean();
@@ -65,10 +65,10 @@ namespace NBitcoin
 
 		private void Clean()
 		{
-			while(_Queue.Count > _MaxItems)
+			while (_Queue.Count > _MaxItems)
 			{
 				TKey result;
-				if(_Queue.TryDequeue(out result))
+				if (_Queue.TryDequeue(out result))
 				{
 					TValue result2;
 					_Dictionnary.TryRemove(result, out result2);

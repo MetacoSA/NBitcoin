@@ -16,11 +16,11 @@ namespace NBitcoin.BitcoinCore
 		public BlockRepository(IndexedBlockStore blockStore,
 							   IndexedBlockStore headerStore)
 		{
-			if(blockStore == null)
+			if (blockStore == null)
 				throw new ArgumentNullException(nameof(blockStore));
-			if(headerStore == null)
+			if (headerStore == null)
 				throw new ArgumentNullException(nameof(headerStore));
-			if(blockStore == headerStore)
+			if (blockStore == headerStore)
 				throw new ArgumentException("The two stores should be different");
 			_BlockStore = blockStore;
 			_HeaderStore = headerStore;

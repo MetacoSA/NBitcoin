@@ -16,7 +16,7 @@ namespace NBitcoin.OpenAsset
 
 		public ColoredTransaction GetFromCache(uint256 txId)
 		{
-			using(_lock.LockRead())
+			using (_lock.LockRead())
 			{
 				return _ColoredTransactions.TryGet(txId);
 			}
@@ -60,7 +60,7 @@ namespace NBitcoin.OpenAsset
 
 		public CachedColoredTransactionRepository(IColoredTransactionRepository inner)
 		{
-			if(inner == null)
+			if (inner == null)
 				throw new ArgumentNullException(nameof(inner));
 			_Inner = inner;
 			_InnerTransactionRepository = new CachedTransactionRepository(inner.Transactions);
@@ -87,7 +87,7 @@ namespace NBitcoin.OpenAsset
 		private void EvictIfNecessary(uint256 txId)
 		{
 			_EvictionQueue.Enqueue(txId);
-			while(_ColoredTransactions.Count > MaxCachedTransactions && _EvictionQueue.Count > 0)
+			while (_ColoredTransactions.Count > MaxCachedTransactions && _EvictionQueue.Count > 0)
 				_ColoredTransactions.Remove(_EvictionQueue.Dequeue());
 		}
 
@@ -95,16 +95,16 @@ namespace NBitcoin.OpenAsset
 		{
 			ColoredTransaction result = null;
 			bool found;
-			using(_lock.LockRead())
+			using (_lock.LockRead())
 			{
 				found = _ColoredTransactions.TryGetValue(txId, out result);
 			}
-			if(!found)
+			if (!found)
 			{
 				result = await _Inner.GetAsync(txId).ConfigureAwait(false);
-				if(ReadThrough)
+				if (ReadThrough)
 				{
-					using(_lock.LockWrite())
+					using (_lock.LockWrite())
 					{
 						_ColoredTransactions.AddOrReplace(txId, result);
 						EvictIfNecessary(txId);
@@ -117,12 +117,12 @@ namespace NBitcoin.OpenAsset
 		public Task PutAsync(uint256 txId, ColoredTransaction tx)
 		{
 
-			if(WriteThrough)
+			if (WriteThrough)
 			{
-				using(_lock.LockWrite())
+				using (_lock.LockWrite())
 				{
 
-					if(!_ColoredTransactions.ContainsKey(txId))
+					if (!_ColoredTransactions.ContainsKey(txId))
 					{
 						_ColoredTransactions.AddOrReplace(txId, tx);
 						EvictIfNecessary(txId);

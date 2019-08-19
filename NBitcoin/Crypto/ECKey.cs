@@ -34,7 +34,7 @@ namespace NBitcoin.Crypto
 
 		public ECKey(byte[] vch, bool isPrivate)
 		{
-			if(isPrivate)
+			if (isPrivate)
 				_Key = new ECPrivateKeyParameters(new NBitcoin.BouncyCastle.Math.BigInteger(1, vch), DomainParameter);
 			else
 			{
@@ -58,7 +58,7 @@ namespace NBitcoin.Crypto
 		{
 			get
 			{
-				if(_DomainParameter == null)
+				if (_DomainParameter == null)
 					_DomainParameter = new ECDomainParameters(Secp256k1.Curve, Secp256k1.G, Secp256k1.N, Secp256k1.H);
 				return _DomainParameter;
 			}
@@ -76,7 +76,7 @@ namespace NBitcoin.Crypto
 
 		private void AssertPrivateKey()
 		{
-			if(PrivateKey == null)
+			if (PrivateKey == null)
 				throw new InvalidOperationException("This key should be a private key for such operation");
 		}
 
@@ -103,7 +103,7 @@ namespace NBitcoin.Crypto
 
 		public ECPublicKeyParameters GetPublicKeyParameters()
 		{
-			if(_Key is ECPublicKeyParameters)
+			if (_Key is ECPublicKeyParameters)
 				return (ECPublicKeyParameters)_Key;
 			else
 			{
@@ -115,13 +115,13 @@ namespace NBitcoin.Crypto
 
 		public static ECKey RecoverFromSignature(int recId, ECDSASignature sig, uint256 message, bool compressed)
 		{
-			if(recId < 0)
+			if (recId < 0)
 				throw new ArgumentException("recId should be positive");
-			if(sig.R.SignValue < 0)
+			if (sig.R.SignValue < 0)
 				throw new ArgumentException("r should be positive");
-			if(sig.S.SignValue < 0)
+			if (sig.S.SignValue < 0)
 				throw new ArgumentException("s should be positive");
-			if(message == null)
+			if (message == null)
 				throw new ArgumentNullException(nameof(message));
 
 
@@ -142,7 +142,7 @@ namespace NBitcoin.Crypto
 			//
 			// More concisely, what these points mean is to use X as a compressed public key.
 			var prime = ((SecP256K1Curve)curve.Curve).QQ;
-			if(x.CompareTo(prime) >= 0)
+			if (x.CompareTo(prime) >= 0)
 			{
 				return null;
 			}
@@ -152,7 +152,7 @@ namespace NBitcoin.Crypto
 			ECPoint R = DecompressKey(x, (recId & 1) == 1);
 			//   1.4. If nR != point at infinity, then do another iteration of Step 1 (callers responsibility).
 
-			if(!R.Multiply(n).IsInfinity)
+			if (!R.Multiply(n).IsInfinity)
 				return null;
 
 			//   1.5. Compute e from M using Steps 2 and 3 of ECDSA signature verification.
@@ -175,7 +175,7 @@ namespace NBitcoin.Crypto
 			var eInvrInv = rInv.Multiply(eInv).Mod(n);
 			ECPoint q = ECAlgorithms.SumOfTwoMultiplies(curve.G, eInvrInv, R, srInv);
 			q = q.Normalize();
-			if(compressed)
+			if (compressed)
 			{
 				q = new SecP256K1Point(curve.Curve, q.XCoord, q.YCoord, true);
 			}

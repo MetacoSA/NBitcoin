@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class MedianFilterInt32 
+	public class MedianFilterInt32
 	{
 		Queue<Int32> vValues;
 		Queue<Int32> vSorted;
@@ -26,11 +26,11 @@ namespace NBitcoin
 			get
 			{
 				int size = vSorted.Count;
-				if(size <= 0)
+				if (size <= 0)
 					throw new InvalidOperationException("size <= 0");
 
 				var sortedList = vSorted.ToList();
-				if(size % 2 == 1)
+				if (size % 2 == 1)
 				{
 					return sortedList[size / 2];
 				}
@@ -43,7 +43,7 @@ namespace NBitcoin
 
 		public void Input(Int32 value)
 		{
-			if(vValues.Count == nSize)
+			if (vValues.Count == nSize)
 			{
 				vValues.Dequeue();
 			}
@@ -51,7 +51,7 @@ namespace NBitcoin
 			vSorted = new Queue<Int32>(vValues.OrderBy(o => o));
 		}
 	}
-	public class MedianFilterInt64 
+	public class MedianFilterInt64
 	{
 		Queue<Int64> vValues;
 		Queue<Int64> vSorted;
@@ -70,11 +70,11 @@ namespace NBitcoin
 			get
 			{
 				int size = vSorted.Count;
-				if(size <= 0)
+				if (size <= 0)
 					throw new InvalidOperationException("size <= 0");
 
 				var sortedList = vSorted.ToList();
-				if(size % 2 == 1)
+				if (size % 2 == 1)
 				{
 					return sortedList[size / 2];
 				}
@@ -87,7 +87,7 @@ namespace NBitcoin
 
 		public void Input(Int64 value)
 		{
-			if(vValues.Count == nSize)
+			if (vValues.Count == nSize)
 			{
 				vValues.Dequeue();
 			}

@@ -11,7 +11,7 @@ namespace NBitcoin
 		NoSqlRepository _Repository;
 		public NoSqlBlockRepository(NoSqlRepository repository)
 		{
-			if(repository == null)
+			if (repository == null)
 				throw new ArgumentNullException(nameof(repository));
 			_Repository = repository;
 		}

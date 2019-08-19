@@ -27,13 +27,13 @@ namespace NBitcoin.Protocol.Behaviors
 
 		protected override void OnAdding(INodeBehavior obj)
 		{
-			if(CanAttach)
+			if (CanAttach)
 				obj.Attach(_Node);
 		}
 
 		protected override void OnRemoved(INodeBehavior obj)
 		{
-			if(obj.AttachedNode != null)
+			if (obj.AttachedNode != null)
 				obj.Detach();
 		}
 		bool _DelayAttach;
@@ -46,8 +46,8 @@ namespace NBitcoin.Protocol.Behaviors
 			set
 			{
 				_DelayAttach = value;
-				if(CanAttach)
-					foreach(var b in this)
+				if (CanAttach)
+					foreach (var b in this)
 						b.Attach(_Node);
 			}
 		}

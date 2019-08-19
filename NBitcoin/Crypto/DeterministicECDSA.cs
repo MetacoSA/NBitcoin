@@ -41,14 +41,14 @@ namespace NBitcoin.Crypto
 		private byte[] _buffer = new byte[0];
 		private readonly IDigest _digest;
 
-		public DeterministicECDSA(bool forceLowR=true)
+		public DeterministicECDSA(bool forceLowR = true)
 			: base(new HMacDsaKCalculator(new Sha256Digest()), forceLowR)
 
 		{
 			_digest = new Sha256Digest();
 			this.forceLowR = forceLowR;
 		}
-		public DeterministicECDSA(Func<IDigest> digest, bool forceLowR=true)
+		public DeterministicECDSA(Func<IDigest> digest, bool forceLowR = true)
 			: base(new HMacDsaKCalculator(digest()), forceLowR)
 		{
 			_digest = digest();

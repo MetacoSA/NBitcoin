@@ -12,7 +12,7 @@ namespace NBitcoin.Protocol
 		MSG_TX = 1,
 		MSG_BLOCK = 2,
 		// Nodes may always request a MSG_FILTERED_BLOCK/MSG_CMPCT_BLOCK in a getdata, however,
-	    // MSG_FILTERED_BLOCK/MSG_CMPCT_BLOCK should not appear in any invs except as a part of getdata.
+		// MSG_FILTERED_BLOCK/MSG_CMPCT_BLOCK should not appear in any invs except as a part of getdata.
 		MSG_FILTERED_BLOCK = 3,
 		MSG_CMPCT_BLOCK,
 		// The following can only occur in getdata. Invs always use TX or BLOCK.

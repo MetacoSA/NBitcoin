@@ -11,8 +11,8 @@ namespace NBitcoin
 	/// <summary>
 	/// This class provide a hook for additional string format in altcoin network
 	/// </summary>
-    public class NetworkStringParser
-    {
+	public class NetworkStringParser
+	{
 		/// <summary>
 		/// Try to parse a string
 		/// </summary>

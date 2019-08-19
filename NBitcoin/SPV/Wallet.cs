@@ -92,7 +92,7 @@ namespace NBitcoin.SPV
 		internal JObject ToJson()
 		{
 			JObject obj = new JObject();
-			if(Name != null)
+			if (Name != null)
 				obj["Name"] = Name;
 			obj["Network"] = Network.ToString();
 			obj["SignatureRequired"] = SignatureRequired;
@@ -108,16 +108,16 @@ namespace NBitcoin.SPV
 			WalletCreation creation = new WalletCreation();
 			creation.Network = null;
 			JToken unused;
-			if(obj.TryGetValue("Name", out unused))
+			if (obj.TryGetValue("Name", out unused))
 				creation.Name = (string)obj["Name"];
 			else
 				creation.Name = null;
-			if(obj.Property("PurgeConnectionOnFilterChange") != null)
+			if (obj.Property("PurgeConnectionOnFilterChange") != null)
 			{
 				creation.PurgeConnectionOnFilterChange = (bool)obj["PurgeConnectionOnFilterChange"];
 			}
 			JToken network;
-			if(obj.TryGetValue("Network", out network))
+			if (obj.TryGetValue("Network", out network))
 				creation.Network = Network.GetNetwork((string)network);
 			creation.SignatureRequired = (int)(long)obj["SignatureRequired"];
 			creation.DerivationPath = KeyPath.Parse((string)obj["DerivationPath"]);
@@ -162,13 +162,13 @@ namespace NBitcoin.SPV
 #pragma warning disable CS0612 // Type or member is obsolete
 				_Tracker = AttachedNode.Behaviors.Find<TrackerBehavior>();
 #pragma warning restore CS0612 // Type or member is obsolete
-				if(_Tracker != null)
+				if (_Tracker != null)
 				{
 					AttachedNode.Disconnected += AttachedNode_Disconnected;
 					AttachedNode.StateChanged += AttachedNode_StateChanged;
 				}
 				_Broadcast = BroadcastHub.GetBroadcastHub(AttachedNode);
-				if(_Broadcast != null)
+				if (_Broadcast != null)
 				{
 					_Broadcast.TransactionBroadcasted += _Broadcast_TransactionBroadcasted;
 					_Broadcast.TransactionRejected += _Broadcast_TransactionRejected;
@@ -187,7 +187,7 @@ namespace NBitcoin.SPV
 
 			void AttachedNode_StateChanged(Node node, NodeState oldState)
 			{
-				if(node.State == NodeState.HandShaked)
+				if (node.State == NodeState.HandShaked)
 				{
 					_Tracker.Scan(_Wallet._ScanLocation, _Wallet.Created);
 					_Tracker.SendMessageAsync(new MempoolPayload());
@@ -201,7 +201,7 @@ namespace NBitcoin.SPV
 
 			protected override void DetachCore()
 			{
-				if(_Tracker != null)
+				if (_Tracker != null)
 				{
 					AttachedNode.Disconnected -= AttachedNode_Disconnected;
 					AttachedNode.StateChanged -= AttachedNode_StateChanged;
@@ -256,7 +256,7 @@ namespace NBitcoin.SPV
 		public Wallet(WalletCreation creation, int keyPoolSize = 500)
 #pragma warning restore CS0612 // Type or member is obsolete
 		{
-			if(creation == null)
+			if (creation == null)
 				throw new ArgumentNullException(nameof(creation));
 			_Parameters = creation;
 			_ScanLocation = new BlockLocator();
@@ -282,7 +282,7 @@ namespace NBitcoin.SPV
 			var lastLoaded = GetLastLoaded(keyPath);
 			var isInternal = IsInternal(keyPath);
 			var tracker = Tracker;
-			for(int i = lastLoaded; i < lastLoaded + _KeyPoolSize; i++)
+			for (int i = lastLoaded; i < lastLoaded + _KeyPoolSize; i++)
 			{
 				var childPath = keyPath.Derive(i, false);
 				AddKnown(childPath, tracker, isInternal);
@@ -303,7 +303,7 @@ namespace NBitcoin.SPV
 		private void AddKnown(KeyPath keyPath, Tracker tracker, bool isInternal)
 #pragma warning restore CS0612 // Type or member is obsolete
 		{
-			if(_Parameters.UseP2SH)
+			if (_Parameters.UseP2SH)
 			{
 				var script = GetScriptPubKey(keyPath, true);
 				_KnownScripts.Add(script.Hash.ScriptPubKey, keyPath);
@@ -320,7 +320,7 @@ namespace NBitcoin.SPV
 		public bool Rescan(uint256 blockId)
 		{
 			var block = Chain?.GetBlock(blockId);
-			if(block == null)
+			if (block == null)
 				return false;
 			_ScanLocation = block.GetLocator();
 			_Group?.Purge("Rescanning");
@@ -333,14 +333,14 @@ namespace NBitcoin.SPV
 			bool added = false;
 			var tracker = Tracker;
 			var internalChain = _Parameters.DerivationPath.Derive(1);
-			foreach(var known in _KnownScripts)
+			foreach (var known in _KnownScripts)
 			{
 				var child = known.Key;
 				var isInternal = known.Value.Parent == internalChain;
-				if(tracker.Add(child, _Parameters.UseP2SH, isInternal, wallet: walletName))
+				if (tracker.Add(child, _Parameters.UseP2SH, isInternal, wallet: walletName))
 					added = true;
 			}
-			if(added)
+			if (added)
 				tracker.UpdateTweak();
 			return added;
 		}
@@ -375,7 +375,7 @@ namespace NBitcoin.SPV
 		{
 			get
 			{
-				if(_Group == null)
+				if (_Group == null)
 					return null;
 				return _Group.NodeConnectionParameters.TemplateBehaviors
 							.OfType<ChainBehavior>()
@@ -388,7 +388,7 @@ namespace NBitcoin.SPV
 		{
 			get
 			{
-				if(_Group == null)
+				if (_Group == null)
 					return null;
 				return _Group.NodeConnectionParameters.TemplateBehaviors
 							.OfType<AddressManagerBehavior>()
@@ -403,7 +403,7 @@ namespace NBitcoin.SPV
 		{
 			get
 			{
-				if(_Group == null)
+				if (_Group == null)
 					return null;
 				return _Group.NodeConnectionParameters.TemplateBehaviors
 #pragma warning disable CS0612 // Type or member is obsolete
@@ -425,7 +425,7 @@ namespace NBitcoin.SPV
 		{
 			AssertGroupAffected();
 			Script result;
-			lock(cs)
+			lock (cs)
 			{
 				var currentIndex = GetNextIndex(keyPath);
 				KeyPath childPath = keyPath.Derive(currentIndex, false);
@@ -433,10 +433,10 @@ namespace NBitcoin.SPV
 				result = GetScriptPubKey(childPath, false);
 				IncrementCurrentIndex(keyPath);
 
-				if(_KeyPoolSize != 0)
+				if (_KeyPoolSize != 0)
 				{
 					var created = (double)(currentIndex + 1) / (double)GetLastLoaded(keyPath);
-					if(created > 0.9)
+					if (created > 0.9)
 					{
 						LoadPool(keyPath);
 						RefreshFilter();
@@ -445,16 +445,16 @@ namespace NBitcoin.SPV
 				else
 				{
 					AddKnown(childPath);
-					if(_Group != null)
+					if (_Group != null)
 					{
-						foreach(var node in _Group.ConnectedNodes)
+						foreach (var node in _Group.ConnectedNodes)
 						{
 #pragma warning disable CS0612 // Type or member is obsolete
 							var tracker = node.Behaviors.Find<TrackerBehavior>();
 #pragma warning restore CS0612 // Type or member is obsolete
-							if(tracker == null)
+							if (tracker == null)
 								continue;
-							foreach(var data in result.ToOps().Select(o => o.PushData).Where(o => o != null))
+							foreach (var data in result.ToOps().Select(o => o.PushData).Where(o => o != null))
 							{
 								tracker.SendMessageAsync(new FilterAddPayload(data));
 							}
@@ -467,13 +467,13 @@ namespace NBitcoin.SPV
 
 		private void RefreshFilter()
 		{
-			if(CreationSettings.PurgeConnectionOnFilterChange)
+			if (CreationSettings.PurgeConnectionOnFilterChange)
 				_Group.Purge("New bloom filter");
 			else
 			{
-				if(_Group != null)
+				if (_Group != null)
 				{
-					foreach(var node in _Group.ConnectedNodes)
+					foreach (var node in _Group.ConnectedNodes)
 					{
 #pragma warning disable CS0612 // Type or member is obsolete
 						node.Behaviors.Find<TrackerBehavior>().RefreshBloomFilter();
@@ -485,35 +485,35 @@ namespace NBitcoin.SPV
 
 		private void IncrementCurrentIndex(KeyPath keyPath)
 		{
-			if(!_PathStates.ContainsKey(keyPath))
+			if (!_PathStates.ContainsKey(keyPath))
 				_PathStates.Add(keyPath, new PathState());
 			_PathStates[keyPath].Next++;
 		}
 
 		private int GetNextIndex(KeyPath keyPath)
 		{
-			if(!_PathStates.ContainsKey(keyPath))
+			if (!_PathStates.ContainsKey(keyPath))
 				return 0;
 			return _PathStates[keyPath].Next;
 		}
 
 		private void IncrementLastLoaded(KeyPath keyPath, int value)
 		{
-			if(!_PathStates.ContainsKey(keyPath))
+			if (!_PathStates.ContainsKey(keyPath))
 				_PathStates.Add(keyPath, new PathState());
 			_PathStates[keyPath].Loaded += value;
 		}
 
 		private int GetLastLoaded(KeyPath keyPath)
 		{
-			if(!_PathStates.ContainsKey(keyPath))
+			if (!_PathStates.ContainsKey(keyPath))
 				return 0;
 			return _PathStates[keyPath].Loaded;
 		}
 
 		private void AssertGroupAffected()
 		{
-			if(_Group == null)
+			if (_Group == null)
 				throw new InvalidOperationException("Wallet.Configure should have been called before for setting up Wallet's components");
 		}
 
@@ -524,7 +524,7 @@ namespace NBitcoin.SPV
 		/// <returns>The key path to the scriptPubKey</returns>
 		public KeyPath GetKeyPath(Script scriptPubKey)
 		{
-			lock(cs)
+			lock (cs)
 			{
 				return _KnownScripts.TryGet(scriptPubKey);
 			}
@@ -537,21 +537,21 @@ namespace NBitcoin.SPV
 		}
 		public Script GetRedeemScript(Script scriptPubKey)
 		{
-			if(!_Parameters.UseP2SH)
+			if (!_Parameters.UseP2SH)
 				throw new InvalidOperationException("This is not a P2SH wallet");
 			var path = GetKeyPath(scriptPubKey);
-			if(path == null)
+			if (path == null)
 				return null;
 			return GetScriptPubKey(path, true);
 		}
 
 		public Script GetScriptPubKey(KeyPath keyPath, bool redeem)
 		{
-			if(!_Parameters.UseP2SH && redeem)
+			if (!_Parameters.UseP2SH && redeem)
 				throw new ArgumentException("The wallet is not P2SH so there is no redeem script", "redeem");
 
 			Script scriptPubKey = null;
-			if(_Parameters.RootKeys.Length == 1)
+			if (_Parameters.RootKeys.Length == 1)
 			{
 				var pubkey = Derivate(0, keyPath).PubKey;
 				scriptPubKey = _Parameters.UseP2SH ? pubkey.ScriptPubKey : pubkey.Hash.ScriptPubKey;
@@ -571,7 +571,7 @@ namespace NBitcoin.SPV
 		ExtPubKey[] _ParentKeys;
 		private ExtPubKey Derivate(int rootKeyIndex, KeyPath keyPath)
 		{
-			if(_ParentKeys == null)
+			if (_ParentKeys == null)
 			{
 				_ParentKeys = _Parameters.RootKeys.Select(r => r.Derive(_Parameters.DerivationPath)).ToArray();
 			}
@@ -588,7 +588,7 @@ namespace NBitcoin.SPV
 			get
 			{
 #pragma warning disable CS0612 // Type or member is obsolete
-				if(_State == WalletState.Created)
+				if (_State == WalletState.Created)
 #pragma warning restore CS0612 // Type or member is obsolete
 					return _State;
 #pragma warning disable CS0612 // Type or member is obsolete
@@ -614,7 +614,7 @@ namespace NBitcoin.SPV
 #pragma warning restore CS0612 // Type or member is obsolete
 		{
 #pragma warning disable CS0612 // Type or member is obsolete
-			if(State != WalletState.Created)
+			if (State != WalletState.Created)
 #pragma warning restore CS0612 // Type or member is obsolete
 				throw new InvalidOperationException("The wallet is already connecting or connected");
 
@@ -623,11 +623,11 @@ namespace NBitcoin.SPV
 
 
 			//Pick the behaviors
-			if(addrman != null)
+			if (addrman != null)
 				parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman));  //Listen addr, help for node discovery
-			if(chain != null)
+			if (chain != null)
 				parameters.TemplateBehaviors.Add(new ChainBehavior(chain)); //Keep chain in sync
-			if(tracker != null)
+			if (tracker != null)
 #pragma warning disable CS0612 // Type or member is obsolete
 				parameters.TemplateBehaviors.Add(new TrackerBehavior(tracker, chain)); //Set bloom filters and scan the blockchain
 #pragma warning restore CS0612 // Type or member is obsolete
@@ -641,7 +641,7 @@ namespace NBitcoin.SPV
 		/// <param name="parameters">The parameters to the connection</param>
 		public void Configure(NodeConnectionParameters parameters)
 		{
-			if(parameters == null)
+			if (parameters == null)
 				throw new ArgumentNullException(nameof(parameters));
 			Configure(new NodesGroup(_Parameters.Network, parameters));
 		}
@@ -652,23 +652,23 @@ namespace NBitcoin.SPV
 		/// <param name="group">The group to use</param>
 		public void Configure(NodesGroup group)
 		{
-			if(group == null)
+			if (group == null)
 				throw new ArgumentNullException(nameof(group));
 
 			var parameters = group.NodeConnectionParameters;
 			group.Requirements.SupportSPV = true;
 
 			var chain = parameters.TemplateBehaviors.Find<ChainBehavior>();
-			if(chain == null)
+			if (chain == null)
 			{
 				chain = new ChainBehavior(new ConcurrentChain(_Parameters.Network));
 				parameters.TemplateBehaviors.Add(chain);
 			}
-			if(chain.Chain.Genesis.HashBlock != _Parameters.Network.GetGenesis().GetHash())
+			if (chain.Chain.Genesis.HashBlock != _Parameters.Network.GetGenesis().GetHash())
 				throw new InvalidOperationException("ChainBehavior with invalid network chain detected");
 
 			var addrman = parameters.TemplateBehaviors.Find<AddressManagerBehavior>();
-			if(addrman == null)
+			if (addrman == null)
 			{
 				addrman = new AddressManagerBehavior(new AddressManager());
 				parameters.TemplateBehaviors.Add(addrman);
@@ -677,7 +677,7 @@ namespace NBitcoin.SPV
 #pragma warning disable CS0612 // Type or member is obsolete
 			var tracker = parameters.TemplateBehaviors.Find<TrackerBehavior>();
 #pragma warning restore CS0612 // Type or member is obsolete
-			if(tracker == null)
+			if (tracker == null)
 			{
 #pragma warning disable CS0612 // Type or member is obsolete
 #pragma warning disable CS0612 // Type or member is obsolete
@@ -687,20 +687,20 @@ namespace NBitcoin.SPV
 				parameters.TemplateBehaviors.Add(tracker);
 			}
 			var wallet = FindWalletBehavior(parameters.TemplateBehaviors);
-			if(wallet == null)
+			if (wallet == null)
 			{
 				wallet = new WalletBehavior(this);
 				parameters.TemplateBehaviors.Add(wallet);
 			}
 			var broadcast = parameters.TemplateBehaviors.Find<BroadcastHubBehavior>();
-			if(broadcast == null)
+			if (broadcast == null)
 			{
 				broadcast = new BroadcastHubBehavior();
 				parameters.TemplateBehaviors.Add(broadcast);
 			}
 
 			_Group = group;
-			if(_ListenedTracker != null)
+			if (_ListenedTracker != null)
 			{
 				_ListenedTracker.NewOperation -= _ListenerTracked_NewOperation;
 			}
@@ -720,9 +720,9 @@ namespace NBitcoin.SPV
 #pragma warning restore CS0612 // Type or member is obsolete
 		{
 			var newWalletTransaction = NewWalletTransaction;
-			if(newWalletTransaction != null && _Group != null)
+			if (newWalletTransaction != null && _Group != null)
 			{
-				if(trackerOperation.ContainsWallet(Name))
+				if (trackerOperation.ContainsWallet(Name))
 				{
 					newWalletTransaction(this, trackerOperation.ToWalletTransaction(Chain, Name));
 				}
@@ -739,7 +739,7 @@ namespace NBitcoin.SPV
 		{
 			AssertGroupAffected();
 #pragma warning disable CS0612 // Type or member is obsolete
-			if(State != WalletState.Created)
+			if (State != WalletState.Created)
 #pragma warning restore CS0612 // Type or member is obsolete
 				throw new InvalidOperationException("The wallet is already connecting or connected");
 #pragma warning disable CS0612 // Type or member is obsolete
@@ -747,16 +747,16 @@ namespace NBitcoin.SPV
 #pragma warning restore CS0612 // Type or member is obsolete
 			_Group.Connect();
 			_Group.ConnectedNodes.Added += ConnectedNodes_Added;
-			foreach(var node in _Group.ConnectedNodes)
+			foreach (var node in _Group.ConnectedNodes)
 			{
-				if(FindWalletBehavior(node.Behaviors) == null)
+				if (FindWalletBehavior(node.Behaviors) == null)
 					node.DisconnectAsync("The node is not configured for wallet");
 			}
 		}
 
 		void ConnectedNodes_Added(object sender, NodeEventArgs e)
 		{
-			if(FindWalletBehavior(e.Node.Behaviors) == null)
+			if (FindWalletBehavior(e.Node.Behaviors) == null)
 				e.Node.DisconnectAsync("The node is not configured for wallet");
 		}
 
@@ -785,10 +785,10 @@ namespace NBitcoin.SPV
 
 		private void TryUpdateLocation(IEnumerable<Node> nodes)
 		{
-			if(nodes != null)
+			if (nodes != null)
 			{
 				var current = Chain.FindFork(_ScanLocation);
-				if(current == null)
+				if (current == null)
 					return;
 				var progress =
 						nodes
@@ -807,7 +807,7 @@ namespace NBitcoin.SPV
 					   .OrderByDescending(o => o.Block.Height)
 					   .Select(o => o.Block)
 					   .FirstOrDefault();
-				if(progress != null)
+				if (progress != null)
 				{
 					_ScanLocation = progress.GetLocator();
 				}
@@ -821,7 +821,7 @@ namespace NBitcoin.SPV
 		public void Disconnect()
 		{
 #pragma warning disable CS0612 // Type or member is obsolete
-			if(_State == WalletState.Created)
+			if (_State == WalletState.Created)
 #pragma warning restore CS0612 // Type or member is obsolete
 				return;
 			TryUpdateLocation();
@@ -849,11 +849,11 @@ namespace NBitcoin.SPV
 		}
 		public void Save(Stream stream)
 		{
-			lock(cs)
+			lock (cs)
 			{
 				JObject obj = new JObject();
 				var indices = new JArray();
-				foreach(var indice in _PathStates)
+				foreach (var indice in _PathStates)
 				{
 					JObject index = new JObject();
 					index.Add(new JProperty("KeyPath", indice.Key.ToString()));
@@ -870,7 +870,7 @@ namespace NBitcoin.SPV
 				obj.Add("Location", Encoders.Hex.EncodeData(this._ScanLocation.ToBytes()));
 
 				var knownScripts = new JArray();
-				foreach(var knownScript in _KnownScripts)
+				foreach (var knownScript in _KnownScripts)
 				{
 					JObject known = new JObject();
 					known.Add("ScriptPubKey", Encoders.Hex.EncodeData(knownScript.Key.ToBytes()));
@@ -898,7 +898,7 @@ namespace NBitcoin.SPV
 			_Parameters = WalletCreation.FromJson((JObject)obj["Parameters"]);
 #pragma warning restore CS0612 // Type or member is obsolete
 			_PathStates = new Dictionary<KeyPath, PathState>();
-			if(obj.Property("CurrentIndex") != null) //legacy
+			if (obj.Property("CurrentIndex") != null) //legacy
 			{
 				var idx = (int)(long)obj["CurrentIndex"];
 				var loadedKeys = (int)(long)obj["LoadedKeys"];
@@ -915,9 +915,9 @@ namespace NBitcoin.SPV
 			}
 
 			var indices = obj["Indices"] as JArray;
-			if(indices != null)
+			if (indices != null)
 			{
-				foreach(var indice in indices.OfType<JObject>())
+				foreach (var indice in indices.OfType<JObject>())
 				{
 					_PathStates.Add(KeyPath.Parse((string)indice["KeyPath"]), new PathState()
 					{
@@ -932,15 +932,15 @@ namespace NBitcoin.SPV
 			_ScanLocation.FromBytes(Encoders.Hex.DecodeData((string)obj["Location"]));
 			_KnownScripts.Clear();
 			var knownScripts = (JArray)obj["KnownScripts"];
-			foreach(var known in knownScripts.OfType<JObject>())
+			foreach (var known in knownScripts.OfType<JObject>())
 			{
 				Script script = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)known["ScriptPubKey"]));
-				if(known["KeyPath"] != null) //Legacy data
+				if (known["KeyPath"] != null) //Legacy data
 				{
 					KeyPath keypath = KeyPath.Parse((string)known["KeyPath"]);
 					_KnownScripts.Add(script, _Parameters.DerivationPath.Derive(keypath));
 				}
-				if(known["AbsoluteKeyPath"] != null)
+				if (known["AbsoluteKeyPath"] != null)
 				{
 					KeyPath keypath = KeyPath.Parse((string)known["AbsoluteKeyPath"]);
 					_KnownScripts.Add(script, keypath);
@@ -951,7 +951,7 @@ namespace NBitcoin.SPV
 		public KeyValuePair<Script, KeyPath>[] GetKnownScripts(bool onlyGenerated = false)
 		{
 			KeyValuePair<Script, KeyPath>[] result;
-			lock(cs)
+			lock (cs)
 			{
 				result = _KnownScripts.Where(s => !onlyGenerated ||
 												  s.Value.Indexes.Last() < GetNextIndex(s.Value.Parent)).ToArray();
@@ -968,7 +968,7 @@ namespace NBitcoin.SPV
 		{
 			AssertGroupAffected();
 			var hub = BroadcastHub.GetBroadcastHub(_Group.NodeConnectionParameters);
-			if(hub == null)
+			if (hub == null)
 				throw new InvalidOperationException("No broadcast hub detected in the group");
 			return hub.BroadcastTransactionAsync(transaction);
 		}
@@ -979,14 +979,14 @@ namespace NBitcoin.SPV
 		internal void OnTransactionBroadcasted(Transaction tx)
 		{
 			var transactionBroadcasted = TransactionBroadcasted;
-			if(transactionBroadcasted != null)
+			if (transactionBroadcasted != null)
 				transactionBroadcasted(tx);
 		}
 
 		internal void OnTransactionRejected(Transaction tx, RejectPayload reject)
 		{
 			var transactionRejected = TransactionRejected;
-			if(transactionRejected != null)
+			if (transactionRejected != null)
 				transactionRejected(tx, reject);
 		}
 	}

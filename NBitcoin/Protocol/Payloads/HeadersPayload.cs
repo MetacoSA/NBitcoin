@@ -57,7 +57,7 @@ namespace NBitcoin.Protocol
 
 		public override void ReadWriteCore(BitcoinStream stream)
 		{
-			if(stream.Serializing)
+			if (stream.Serializing)
 			{
 				var heardersOff = headers.Select(h => new BlockHeaderWithTxCount(h)).ToList();
 				stream.ReadWrite(ref heardersOff);

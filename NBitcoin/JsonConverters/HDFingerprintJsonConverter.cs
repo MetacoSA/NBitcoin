@@ -33,7 +33,7 @@ namespace NBitcoin.JsonConverters
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			if(value != null)
+			if (value != null)
 			{
 				writer.WriteValue(NBitcoin.DataEncoders.Encoders.Hex.EncodeData(((HDFingerprint)value).ToBytes()));
 			}

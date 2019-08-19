@@ -65,9 +65,9 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
 			Asn1EncodableVector fieldIdParams = new Asn1EncodableVector(new DerInteger(m));
 
-			if(k2 == 0)
+			if (k2 == 0)
 			{
-				if(k3 != 0)
+				if (k3 != 0)
 					throw new ArgumentException("inconsistent k values");
 
 				fieldIdParams.Add(
@@ -76,7 +76,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 			}
 			else
 			{
-				if(k2 <= k1 || k3 <= k2)
+				if (k2 <= k1 || k3 <= k2)
 					throw new ArgumentException("inconsistent k values");
 
 				fieldIdParams.Add(

@@ -33,7 +33,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_ConfirmationCode == null)
+				if (_ConfirmationCode == null)
 				{
 					_ConfirmationCode = _CalculateConfirmation();
 					_CalculateConfirmation = null;
@@ -64,9 +64,9 @@ namespace NBitcoin
 	{
 		public LotSequence(int lot, int sequence)
 		{
-			if(lot > 1048575 || lot < 0)
+			if (lot > 1048575 || lot < 0)
 				throw new ArgumentOutOfRangeException("lot");
-			if(sequence > 1024 || sequence < 0)
+			if (sequence > 1024 || sequence < 0)
 				throw new ArgumentOutOfRangeException("sequence");
 
 			_Lot = lot;
@@ -132,9 +132,9 @@ namespace NBitcoin
 		}
 		public static bool operator ==(LotSequence a, LotSequence b)
 		{
-			if(ReferenceEquals(a, b))
+			if (ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 			return a.Id == b.Id;
 		}
@@ -165,7 +165,7 @@ namespace NBitcoin
 			ownersalt = ownersalt ?? RandomUtils.GetBytes(8);
 			var ownerEntropy = ownersalt;
 
-			if(hasLotSequence)
+			if (hasLotSequence)
 			{
 				ownersalt = ownersalt.Take(4).ToArray();
 				ownerEntropy = ownersalt.Concat(lotsequence.ToBytes()).ToArray();
@@ -174,7 +174,7 @@ namespace NBitcoin
 
 			var prefactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(passphrase), ownersalt, 32);
 			var passfactor = prefactor;
-			if(hasLotSequence)
+			if (hasLotSequence)
 			{
 				passfactor = Hashes.Hash256(prefactor.Concat(ownerEntropy).ToArray()).ToBytes();
 			}
@@ -201,7 +201,7 @@ namespace NBitcoin
 			get
 			{
 				var hasLotSequence = (vchData[0]) == 0x51;
-				if(!hasLotSequence)
+				if (!hasLotSequence)
 					return null;
 				return _LotSequence ?? (_LotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray()));
 			}

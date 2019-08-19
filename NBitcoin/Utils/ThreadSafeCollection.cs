@@ -19,7 +19,7 @@ namespace NBitcoin
 		/// <returns>When disposed, the item is removed</returns>
 		public IDisposable Add(T item)
 		{
-			if(item == null)
+			if (item == null)
 				throw new ArgumentNullException(nameof(item));
 			OnAdding(item);
 			_Behaviors.TryAdd(item, item);
@@ -39,7 +39,7 @@ namespace NBitcoin
 		{
 			T old;
 			var removed = _Behaviors.TryRemove(item, out old);
-			if(removed)
+			if (removed)
 				OnRemoved(old);
 			return removed;
 
@@ -48,7 +48,7 @@ namespace NBitcoin
 
 		public void Clear()
 		{
-			foreach(var behavior in this)
+			foreach (var behavior in this)
 				Remove(behavior);
 		}
 
@@ -59,7 +59,7 @@ namespace NBitcoin
 		public U FindOrCreate<U>(Func<U> create) where U : T
 		{
 			var result = this.OfType<U>().FirstOrDefault();
-			if(result == null)
+			if (result == null)
 			{
 				result = create();
 				Add(result);
@@ -73,7 +73,7 @@ namespace NBitcoin
 
 		public void Remove<U>() where U : T
 		{
-			foreach(var b in this.OfType<U>())
+			foreach (var b in this.OfType<U>())
 			{
 				T behavior;
 				_Behaviors.TryRemove(b, out behavior);

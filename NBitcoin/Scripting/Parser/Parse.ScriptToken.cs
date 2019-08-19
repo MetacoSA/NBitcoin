@@ -10,7 +10,7 @@ namespace NBitcoin.Scripting.Parser
 			{
 				if (i.AtEnd)
 				{
-					return ParserResult<ScriptToken, ScriptToken>.Failure(i, new [] {expected}, "Unexpected end of input");
+					return ParserResult<ScriptToken, ScriptToken>.Failure(i, new[] { expected }, "Unexpected end of input");
 				}
 
 				if (predicate(i.GetCurrent().Tag))

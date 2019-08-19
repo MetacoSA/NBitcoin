@@ -33,7 +33,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
              * NOTE: We try to optimize the first window using the precomputed points to substitute an
              * addition for 2 or more doublings.
              */
-			if(i > 1)
+			if (i > 1)
 			{
 				int wi = wnaf[--i];
 				int digit = wi >> 16, zeroes = wi & 0xFFFF;
@@ -42,7 +42,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 				ECPoint[] table = digit < 0 ? preCompNeg : preComp;
 
 				// Optimization can only be used for values in the lower half of the table
-				if((n << 2) < (1 << width))
+				if ((n << 2) < (1 << width))
 				{
 					int highest = LongArray.BitLengths[n];
 
@@ -64,7 +64,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 				R = R.TimesPow2(zeroes);
 			}
 
-			while(i > 0)
+			while (i > 0)
 			{
 				int wi = wnaf[--i];
 				int digit = wi >> 16, zeroes = wi & 0xFFFF;

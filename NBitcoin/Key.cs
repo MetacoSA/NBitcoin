@@ -42,19 +42,19 @@ namespace NBitcoin
 			do
 			{
 				RandomUtils.GetBytes(data);
-			} while(!Check(data));
+			} while (!Check(data));
 
 			SetBytes(data, data.Length, fCompressedIn);
 		}
 		public Key(byte[] data, int count = -1, bool fCompressedIn = true)
 		{
-			if(count == -1)
+			if (count == -1)
 				count = data.Length;
-			if(count != KEY_SIZE)
+			if (count != KEY_SIZE)
 			{
-				throw new ArgumentException(paramName:"data", message: $"The size of an EC key should be {KEY_SIZE}");
+				throw new ArgumentException(paramName: "data", message: $"The size of an EC key should be {KEY_SIZE}");
 			}
-			if(Check(data))
+			if (Check(data))
 			{
 				SetBytes(data, count, fCompressedIn);
 			}
@@ -81,7 +81,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_PubKey == null)
+				if (_PubKey == null)
 				{
 					ECKey key = new ECKey(vch, true);
 					_PubKey = key.GetPubKey(IsCompressed);
@@ -117,17 +117,17 @@ namespace NBitcoin
 			var sig = _ECKey.Sign(hash);
 			// Now we have to work backwards to figure out the recId needed to recover the signature.
 			int recId = -1;
-			for(int i = 0; i < 4; i++)
+			for (int i = 0; i < 4; i++)
 			{
 				ECKey k = ECKey.RecoverFromSignature(i, sig, hash, IsCompressed);
-				if(k != null && k.GetPubKey(IsCompressed).ToHex() == PubKey.ToHex())
+				if (k != null && k.GetPubKey(IsCompressed).ToHex() == PubKey.ToHex())
 				{
 					recId = i;
 					break;
 				}
 			}
 
-			if(recId == -1)
+			if (recId == -1)
 				throw new InvalidOperationException("Could not construct a recoverable key. This should never happen.");
 
 			int headerByte = recId + 27 + (IsCompressed ? 4 : 0);
@@ -148,7 +148,7 @@ namespace NBitcoin
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref vch);
-			if(!stream.Serializing)
+			if (!stream.Serializing)
 			{
 				_ECKey = new ECKey(vch, true);
 			}
@@ -158,7 +158,7 @@ namespace NBitcoin
 
 		public string Decrypt(string encryptedText)
 		{
-			if(string.IsNullOrEmpty(encryptedText))
+			if (string.IsNullOrEmpty(encryptedText))
 				throw new ArgumentNullException(nameof(encryptedText));
 			var bytes = Encoders.Base64.DecodeData(encryptedText);
 			var decrypted = Decrypt(bytes);
@@ -167,22 +167,22 @@ namespace NBitcoin
 
 		public byte[] Decrypt(byte[] encrypted)
 		{
-			if(encrypted is null)
+			if (encrypted is null)
 				throw new ArgumentNullException(nameof(encrypted));
 
-			if(encrypted.Length < 85)
+			if (encrypted.Length < 85)
 				throw new ArgumentException("Encrypted text is invalid, it should be length >= 85.");
 
-			var magic = encrypted.SafeSubarray(0,4);
-			var ephemeralPubkeyBytes = encrypted.SafeSubarray(4, 33); 
+			var magic = encrypted.SafeSubarray(0, 4);
+			var ephemeralPubkeyBytes = encrypted.SafeSubarray(4, 33);
 			var cipherText = encrypted.SafeSubarray(37, encrypted.Length - 32 - 37);
 			var mac = encrypted.SafeSubarray(encrypted.Length - 32);
-			if(!Utils.ArrayEqual(magic, Encoders.ASCII.DecodeData("BIE1")))
+			if (!Utils.ArrayEqual(magic, Encoders.ASCII.DecodeData("BIE1")))
 				throw new ArgumentException("Encrypted text is invalid, Invalid magic number.");
 
 			var ephemeralPubkey = new PubKey(ephemeralPubkeyBytes);
 			var ecpoint = ephemeralPubkey.ECKey.GetPublicKeyParameters().Q;
-			if(ecpoint.IsInfinity || !ecpoint.IsValid())
+			if (ecpoint.IsInfinity || !ecpoint.IsValid())
 				throw new ArgumentException("Encrypted text is invalid, Invalid ephemeral public key.");
 
 			var sharedKey = Hashes.SHA512(ephemeralPubkey.GetSharedPubkey(this).ToBytes());
@@ -190,8 +190,8 @@ namespace NBitcoin
 			var encryptionKey = sharedKey.SafeSubarray(16, 16);
 			var hashingKey = sharedKey.SafeSubarray(32);
 
-			var hashMAC = Hashes.HMACSHA256(hashingKey, encrypted.SafeSubarray(0, encrypted.Length -32));
-			if(!Utils.ArrayEqual(mac, hashMAC))
+			var hashMAC = Hashes.HMACSHA256(hashingKey, encrypted.SafeSubarray(0, encrypted.Length - 32));
+			if (!Utils.ArrayEqual(mac, hashMAC))
 				throw new ArgumentException("Encrypted text is invalid, Invalid mac.");
 
 			var aes = new AesBuilder().SetKey(encryptionKey).SetIv(iv).IsUsedForEncryption(false).Build();
@@ -202,7 +202,7 @@ namespace NBitcoin
 		public Key Derivate(byte[] cc, uint nChild, out byte[] ccChild)
 		{
 			byte[] l = null;
-			if((nChild >> 31) == 0)
+			if ((nChild >> 31) == 0)
 			{
 				var pubKey = PubKey.ToBytes();
 				l = Hashes.BIP32Hash(cc, nChild, pubKey[0], pubKey.SafeSubarray(1));
@@ -220,14 +220,14 @@ namespace NBitcoin
 			var kPar = new BigInteger(1, vch);
 			var N = ECKey.CURVE.N;
 
-			if(parse256LL.CompareTo(N) >= 0)
+			if (parse256LL.CompareTo(N) >= 0)
 				throw new InvalidOperationException("You won a prize ! this should happen very rarely. Take a screenshot, and roll the dice again.");
 			var key = parse256LL.Add(kPar).Mod(N);
-			if(key == BigInteger.Zero)
+			if (key == BigInteger.Zero)
 				throw new InvalidOperationException("You won the big prize ! this has probability lower than 1 in 2^127. Take a screenshot, and roll the dice again.");
 
 			var keyBytes = key.ToByteArrayUnsigned();
-			if(keyBytes.Length < 32)
+			if (keyBytes.Length < 32)
 				keyBytes = new byte[32 - keyBytes.Length].Concat(keyBytes).ToArray();
 			return new Key(keyBytes);
 		}
@@ -240,7 +240,7 @@ namespace NBitcoin
 							.Mod(curve.N)
 							.ToByteArrayUnsigned();
 
-			if(priv.Length < 32)
+			if (priv.Length < 32)
 				priv = new byte[32 - priv.Length].Concat(priv).ToArray();
 
 			var key = new Key(priv, fCompressedIn: this.IsCompressed);
@@ -293,15 +293,15 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			Key item = obj as Key;
-			if(item == null)
+			if (item == null)
 				return false;
 			return PubKey.Equals(item.PubKey);
 		}
 		public static bool operator ==(Key a, Key b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 			return a.PubKey == b.PubKey;
 		}

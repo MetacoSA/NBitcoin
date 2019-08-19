@@ -34,7 +34,7 @@ namespace NBitcoin
 
 		public bool Contains(uint256 blockHash)
 		{
-			using(_lock.LockRead())
+			using (_lock.LockRead())
 			{
 				return _HeightsByBlockHash.ContainsKey(blockHash);
 			}
@@ -42,7 +42,7 @@ namespace NBitcoin
 
 		public bool TryGetHeight(uint256 blockHash, out int height)
 		{
-			using(_lock.LockRead())
+			using (_lock.LockRead())
 			{
 				return _HeightsByBlockHash.TryGetValue(blockHash, out height);
 			}
@@ -50,9 +50,9 @@ namespace NBitcoin
 
 		public bool TryGetHash(int height, out uint256 blockHash)
 		{
-			using(_lock.LockRead())
+			using (_lock.LockRead())
 			{
-				if(height > _Height || height < 0)
+				if (height > _Height || height < 0)
 				{
 					blockHash = default(uint256);
 					return false;
@@ -76,7 +76,7 @@ namespace NBitcoin
 		/// <returns>True if newTip is the new tip</returns>
 		public bool TrySetTip(uint256 newTip, uint256 previous, bool nopIfContainsTip = false)
 		{
-			using(_lock.LockWrite())
+			using (_lock.LockWrite())
 			{
 				return TrySetTipNoLock(newTip, previous, nopIfContainsTip);
 			}
@@ -84,48 +84,48 @@ namespace NBitcoin
 
 		private bool TrySetTipNoLock(in uint256 newTip, in uint256 previous, bool nopIfContainsTip)
 		{
-			if(newTip == null)
+			if (newTip == null)
 				throw new ArgumentNullException(nameof(newTip));
-			if(newTip == previous)
+			if (newTip == previous)
 				throw new ArgumentException(message: "newTip should be different from previous");
 
-			if(newTip == _BlockHashesByHeight[_Height])
+			if (newTip == _BlockHashesByHeight[_Height])
 			{
-				if(newTip != _BlockHashesByHeight[0] && _BlockHashesByHeight[_Height - 1] != previous)
+				if (newTip != _BlockHashesByHeight[0] && _BlockHashesByHeight[_Height - 1] != previous)
 					throw new ArgumentException(message: "newTip is already inserted with a different previous block, this should never happen");
 				return true;
 			}
 
-			if(_HeightsByBlockHash.TryGetValue(newTip, out int newTipHeight))
+			if (_HeightsByBlockHash.TryGetValue(newTip, out int newTipHeight))
 			{
-				if(newTipHeight - 1 >= 0 && _BlockHashesByHeight[newTipHeight - 1] != previous)
+				if (newTipHeight - 1 >= 0 && _BlockHashesByHeight[newTipHeight - 1] != previous)
 					throw new ArgumentException(message: "newTip is already inserted with a different previous block, this should never happen");
 
-				if(newTipHeight == 0 && _BlockHashesByHeight[0] != newTip)
+				if (newTipHeight == 0 && _BlockHashesByHeight[0] != newTip)
 				{
 					throw new InvalidOperationException("Unexpected genesis block");
 				}
 
-				if(newTipHeight == 0 && previous != null)
+				if (newTipHeight == 0 && previous != null)
 					throw new ArgumentException(message: "Genesis block should not have previous block", paramName: nameof(previous));
 
-				if(nopIfContainsTip)
+				if (nopIfContainsTip)
 					return false;
 			}
 
-			if(previous == null && newTip != _BlockHashesByHeight[0])
+			if (previous == null && newTip != _BlockHashesByHeight[0])
 				throw new InvalidOperationException("Unexpected genesis block");
 
 			int prevHeight = -1;
-			if(previous != null && !_HeightsByBlockHash.TryGetValue(previous, out prevHeight))
+			if (previous != null && !_HeightsByBlockHash.TryGetValue(previous, out prevHeight))
 				return false;
-			for(int i = _Height; i > prevHeight; i--)
+			for (int i = _Height; i > prevHeight; i--)
 			{
 				_HeightsByBlockHash.Remove(_BlockHashesByHeight[i]);
 				_BlockHashesByHeight[i] = null;
 			}
 			_Height = prevHeight + 1;
-			if(_BlockHashesByHeight.Length <= _Height)
+			if (_BlockHashesByHeight.Length <= _Height)
 				Array.Resize(ref _BlockHashesByHeight, (int)((_Height + 100) * 1.1));
 			_BlockHashesByHeight[_Height] = newTip;
 			_HeightsByBlockHash.Add(newTip, _Height);
@@ -134,7 +134,7 @@ namespace NBitcoin
 
 		public BlockLocator GetTipLocator()
 		{
-			using(_lock.LockRead())
+			using (_lock.LockRead())
 			{
 				return GetLocatorNoLock(_Height);
 			}
@@ -142,9 +142,9 @@ namespace NBitcoin
 
 		public BlockLocator GetLocator(int height)
 		{
-			using(_lock.LockRead())
+			using (_lock.LockRead())
 			{
-				if(height > _Height || height < 0)
+				if (height > _Height || height < 0)
 					return null;
 				return GetLocatorNoLock(height);
 			}
@@ -152,9 +152,9 @@ namespace NBitcoin
 
 		public BlockLocator GetLocator(uint256 blockHash)
 		{
-			using(_lock.LockRead())
+			using (_lock.LockRead())
 			{
-				if(!_HeightsByBlockHash.TryGetValue(blockHash, out int height))
+				if (!_HeightsByBlockHash.TryGetValue(blockHash, out int height))
 					return null;
 				return GetLocatorNoLock(height);
 			}
@@ -164,15 +164,15 @@ namespace NBitcoin
 		{
 			int nStep = 1;
 			var vHave = new List<uint256>();
-			while(true)
+			while (true)
 			{
 				vHave.Add(_BlockHashesByHeight[height]);
 				// Stop when we have added the genesis block.
-				if(height == 0)
+				if (height == 0)
 					break;
 				// Exponentially larger steps back, plus the genesis block.
 				height = Math.Max(height - nStep, 0);
-				if(vHave.Count > 10)
+				if (vHave.Count > 10)
 					nStep *= 2;
 			}
 
@@ -188,12 +188,12 @@ namespace NBitcoin
 		/// <returns>First found block or null</returns>
 		public SlimChainedBlock FindFork(BlockLocator blockLocator)
 		{
-			if(blockLocator == null)
+			if (blockLocator == null)
 				throw new ArgumentNullException(nameof(blockLocator));
 			// Find the first block the caller has in the main chain
-			foreach(uint256 hash in blockLocator.Blocks)
+			foreach (uint256 hash in blockLocator.Blocks)
 			{
-				if(_HeightsByBlockHash.TryGetValue(hash, out int height))
+				if (_HeightsByBlockHash.TryGetValue(hash, out int height))
 				{
 					return CreateSlimBlock(height);
 				}
@@ -205,7 +205,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				using(_lock.LockRead())
+				using (_lock.LockRead())
 				{
 					return _BlockHashesByHeight[_Height];
 				}
@@ -216,7 +216,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				using(_lock.LockRead())
+				using (_lock.LockRead())
 				{
 					return CreateSlimBlock(Height);
 				}
@@ -225,9 +225,9 @@ namespace NBitcoin
 
 		public SlimChainedBlock GetBlock(int height)
 		{
-			using(_lock.LockRead())
+			using (_lock.LockRead())
 			{
-				if(height > Height || height < 0)
+				if (height > Height || height < 0)
 					return null;
 				return CreateSlimBlock(height);
 			}
@@ -235,9 +235,9 @@ namespace NBitcoin
 
 		public SlimChainedBlock GetBlock(uint256 blockHash)
 		{
-			using(_lock.LockRead())
+			using (_lock.LockRead())
 			{
-				if(!_HeightsByBlockHash.TryGetValue(blockHash, out int height))
+				if (!_HeightsByBlockHash.TryGetValue(blockHash, out int height))
 					return null;
 				return CreateSlimBlock(height);
 			}
@@ -252,7 +252,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				using(_lock.LockRead())
+				using (_lock.LockRead())
 				{
 					return _BlockHashesByHeight[0];
 				}
@@ -261,10 +261,10 @@ namespace NBitcoin
 
 		public void Save(Stream output)
 		{
-			using(_lock.LockRead())
+			using (_lock.LockRead())
 			{
 				var bytes = new byte[32];
-				for(int i = 0; i <= _Height; i++)
+				for (int i = 0; i <= _Height; i++)
 				{
 					_BlockHashesByHeight[i].ToBytes(bytes);
 					output.Write(bytes, 0, 32);
@@ -274,14 +274,14 @@ namespace NBitcoin
 
 		public void Load(Stream input)
 		{
-			using(_lock.LockWrite())
+			using (_lock.LockWrite())
 			{
 				var bytes = new byte[32];
 				uint256 prev = null;
-				while(input.ReadBytes(32, bytes) == 32)
+				while (input.ReadBytes(32, bytes) == 32)
 				{
 					uint256 tip = new uint256(bytes);
-					if(!TrySetTipNoLock(tip, prev, false))
+					if (!TrySetTipNoLock(tip, prev, false))
 						throw new InvalidOperationException("Unexpected genesis block");
 					prev = tip;
 				}
@@ -291,7 +291,7 @@ namespace NBitcoin
 
 		public override string ToString()
 		{
-			using(_lock.LockRead())
+			using (_lock.LockRead())
 			{
 				return $"Height: {Height}, Hash: {_BlockHashesByHeight[_Height]}";
 			}
@@ -302,11 +302,11 @@ namespace NBitcoin
 	{
 		public SlimChainedBlock(uint256 hash, uint256 prev, int height)
 		{
-			if(hash == null)
+			if (hash == null)
 				throw new ArgumentNullException(nameof(hash));
-			if(prev == null && height != 0)
+			if (prev == null && height != 0)
 				throw new ArgumentNullException(nameof(prev));
-			if(height < 0)
+			if (height < 0)
 				throw new ArgumentOutOfRangeException(nameof(height));
 			_Hash = hash;
 			_Previous = prev;

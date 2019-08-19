@@ -197,7 +197,7 @@ namespace NBitcoin.BouncyCastle.Math
 			Zero.nBitLength = 0;
 
 			SMALL_CONSTANTS[0] = Zero;
-			for(uint i = 1; i < SMALL_CONSTANTS.Length; ++i)
+			for (uint i = 1; i < SMALL_CONSTANTS.Length; ++i)
 			{
 				SMALL_CONSTANTS[i] = CreateUValueOf(i);
 			}
@@ -221,11 +221,11 @@ namespace NBitcoin.BouncyCastle.Math
 
 			primeProducts = new int[primeLists.Length];
 
-			for(int i = 0; i < primeLists.Length; ++i)
+			for (int i = 0; i < primeLists.Length; ++i)
 			{
 				int[] primeList = primeLists[i];
 				int product = primeList[0];
-				for(int j = 1; j < primeList.Length; ++j)
+				for (int j = 1; j < primeList.Length; ++j)
 				{
 					product *= primeList[j];
 				}
@@ -255,15 +255,15 @@ namespace NBitcoin.BouncyCastle.Math
 			int[] mag,
 			bool checkMag)
 		{
-			if(checkMag)
+			if (checkMag)
 			{
 				int i = 0;
-				while(i < mag.Length && mag[i] == 0)
+				while (i < mag.Length && mag[i] == 0)
 				{
 					++i;
 				}
 
-				if(i == mag.Length)
+				if (i == mag.Length)
 				{
 					this.sign = 0;
 					this.magnitude = ZeroMagnitude;
@@ -272,7 +272,7 @@ namespace NBitcoin.BouncyCastle.Math
 				{
 					this.sign = signum;
 
-					if(i == 0)
+					if (i == 0)
 					{
 						this.magnitude = mag;
 					}
@@ -301,7 +301,7 @@ namespace NBitcoin.BouncyCastle.Math
 			string str,
 			int radix)
 		{
-			if(str.Length == 0)
+			if (str.Length == 0)
 				throw new FormatException("Zero length BigInteger");
 
 			NumberStyles style;
@@ -309,7 +309,7 @@ namespace NBitcoin.BouncyCastle.Math
 			BigInteger r;
 			BigInteger rE;
 
-			switch(radix)
+			switch (radix)
 			{
 				case 2:
 					// Is there anyway to restrict to binary digits?
@@ -347,9 +347,9 @@ namespace NBitcoin.BouncyCastle.Math
 			int index = 0;
 			sign = 1;
 
-			if(str[0] == '-')
+			if (str[0] == '-')
 			{
-				if(str.Length == 1)
+				if (str.Length == 1)
 					throw new FormatException("Zero length BigInteger");
 
 				sign = -1;
@@ -357,12 +357,12 @@ namespace NBitcoin.BouncyCastle.Math
 			}
 
 			// strip leading zeros from the string str
-			while(index < str.Length && Int32.Parse(str[index].ToString(), style) == 0)
+			while (index < str.Length && Int32.Parse(str[index].ToString(), style) == 0)
 			{
 				index++;
 			}
 
-			if(index >= str.Length)
+			if (index >= str.Length)
 			{
 				// zero value - we're done
 				sign = 0;
@@ -381,7 +381,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 			int next = index + chunk;
 
-			if(next <= str.Length)
+			if (next <= str.Length)
 			{
 				do
 				{
@@ -389,11 +389,11 @@ namespace NBitcoin.BouncyCastle.Math
 					ulong i = ulong.Parse(s, style);
 					BigInteger bi = CreateUValueOf(i);
 
-					switch(radix)
+					switch (radix)
 					{
 						case 2:
 							// TODO Need this because we are parsing in radix 10 above
-							if(i >= 2)
+							if (i >= 2)
 								throw new FormatException("Bad character in radix 2 string: " + s);
 
 							// TODO Parse 64 bits at a time
@@ -401,7 +401,7 @@ namespace NBitcoin.BouncyCastle.Math
 							break;
 						case 8:
 							// TODO Need this because we are parsing in radix 10 above
-							if(i >= 8)
+							if (i >= 8)
 								throw new FormatException("Bad character in radix 8 string: " + s);
 
 							// TODO Parse 63 bits at a time
@@ -420,18 +420,18 @@ namespace NBitcoin.BouncyCastle.Math
 					index = next;
 					next += chunk;
 				}
-				while(next <= str.Length);
+				while (next <= str.Length);
 			}
 
-			if(index < str.Length)
+			if (index < str.Length)
 			{
 				string s = str.Substring(index);
 				ulong i = ulong.Parse(s, style);
 				BigInteger bi = CreateUValueOf(i);
 
-				if(b.sign > 0)
+				if (b.sign > 0)
 				{
-					if(radix == 2)
+					if (radix == 2)
 					{
 						// NB: Can't reach here since we are parsing one char at a time
 						Debug.Assert(false);
@@ -439,7 +439,7 @@ namespace NBitcoin.BouncyCastle.Math
 						// TODO Parse all bits at once
 						//						b = b.ShiftLeft(s.Length);
 					}
-					else if(radix == 8)
+					else if (radix == 8)
 					{
 						// NB: Can't reach here since we are parsing one char at a time
 						Debug.Assert(false);
@@ -447,7 +447,7 @@ namespace NBitcoin.BouncyCastle.Math
 						// TODO Parse all bits at once
 						//						b = b.ShiftLeft(s.Length * 3);
 					}
-					else if(radix == 16)
+					else if (radix == 16)
 					{
 						b = b.ShiftLeft(s.Length << 2);
 					}
@@ -489,11 +489,11 @@ namespace NBitcoin.BouncyCastle.Math
 			int offset,
 			int length)
 		{
-			if(length == 0)
+			if (length == 0)
 				throw new FormatException("Zero length BigInteger");
 
 			// TODO Move this processing into MakeMagnitude (provide sign argument)
-			if((sbyte)bytes[offset] < 0)
+			if ((sbyte)bytes[offset] < 0)
 			{
 				this.sign = -1;
 
@@ -501,11 +501,11 @@ namespace NBitcoin.BouncyCastle.Math
 
 				int iBval;
 				// strip leading sign bytes
-				for(iBval = offset; iBval < end && ((sbyte)bytes[iBval] == -1); iBval++)
+				for (iBval = offset; iBval < end && ((sbyte)bytes[iBval] == -1); iBval++)
 				{
 				}
 
-				if(iBval >= end)
+				if (iBval >= end)
 				{
 					this.magnitude = One.magnitude;
 				}
@@ -515,14 +515,14 @@ namespace NBitcoin.BouncyCastle.Math
 					byte[] inverse = new byte[numBytes];
 
 					int index = 0;
-					while(index < numBytes)
+					while (index < numBytes)
 					{
 						inverse[index++] = (byte)~bytes[iBval++];
 					}
 
 					Debug.Assert(iBval == end);
 
-					while(inverse[--index] == byte.MaxValue)
+					while (inverse[--index] == byte.MaxValue)
 					{
 						inverse[index] = byte.MinValue;
 					}
@@ -549,24 +549,24 @@ namespace NBitcoin.BouncyCastle.Math
 
 			// strip leading zeros
 			int firstSignificant;
-			for(firstSignificant = offset; firstSignificant < end
+			for (firstSignificant = offset; firstSignificant < end
 				&& bytes[firstSignificant] == 0; firstSignificant++)
 			{
 			}
 
-			if(firstSignificant >= end)
+			if (firstSignificant >= end)
 			{
 				return ZeroMagnitude;
 			}
 
 			int nInts = (end - firstSignificant + 3) / BytesPerInt;
 			int bCount = (end - firstSignificant) % BytesPerInt;
-			if(bCount == 0)
+			if (bCount == 0)
 			{
 				bCount = BytesPerInt;
 			}
 
-			if(nInts < 1)
+			if (nInts < 1)
 			{
 				return ZeroMagnitude;
 			}
@@ -575,12 +575,12 @@ namespace NBitcoin.BouncyCastle.Math
 
 			int v = 0;
 			int magnitudeIndex = 0;
-			for(int i = firstSignificant; i < end; ++i)
+			for (int i = firstSignificant; i < end; ++i)
 			{
 				v <<= 8;
 				v |= bytes[i] & 0xff;
 				bCount--;
-				if(bCount <= 0)
+				if (bCount <= 0)
 				{
 					mag[magnitudeIndex] = v;
 					magnitudeIndex++;
@@ -589,7 +589,7 @@ namespace NBitcoin.BouncyCastle.Math
 				}
 			}
 
-			if(magnitudeIndex < mag.Length)
+			if (magnitudeIndex < mag.Length)
 			{
 				mag[magnitudeIndex] = v;
 			}
@@ -610,10 +610,10 @@ namespace NBitcoin.BouncyCastle.Math
 			int offset,
 			int length)
 		{
-			if(sign < -1 || sign > 1)
+			if (sign < -1 || sign > 1)
 				throw new FormatException("Invalid sign value");
 
-			if(sign == 0)
+			if (sign == 0)
 			{
 				this.sign = 0;
 				this.magnitude = ZeroMagnitude;
@@ -630,13 +630,13 @@ namespace NBitcoin.BouncyCastle.Math
 			int sizeInBits,
 			Random random)
 		{
-			if(sizeInBits < 0)
+			if (sizeInBits < 0)
 				throw new ArgumentException("sizeInBits must be non-negative");
 
 			this.nBits = -1;
 			this.nBitLength = -1;
 
-			if(sizeInBits == 0)
+			if (sizeInBits == 0)
 			{
 				this.sign = 0;
 				this.magnitude = ZeroMagnitude;
@@ -660,13 +660,13 @@ namespace NBitcoin.BouncyCastle.Math
 			int certainty,
 			Random random)
 		{
-			if(bitLength < 2)
+			if (bitLength < 2)
 				throw new ArithmeticException("bitLength < 2");
 
 			this.sign = 1;
 			this.nBitLength = bitLength;
 
-			if(bitLength == 2)
+			if (bitLength == 2)
 			{
 				this.magnitude = random.Next(2) == 0
 					? Two.magnitude
@@ -681,7 +681,7 @@ namespace NBitcoin.BouncyCastle.Math
 			byte mask = (byte)(255U >> xBits);
 			byte lead = (byte)(1 << (7 - xBits));
 
-			for(;;)
+			for (; ; )
 			{
 				random.NextBytes(b);
 
@@ -698,17 +698,17 @@ namespace NBitcoin.BouncyCastle.Math
 				this.nBits = -1;
 				this.mQuote = 0;
 
-				if(certainty < 1)
+				if (certainty < 1)
 					break;
 
-				if(CheckProbablePrime(certainty, random, true))
+				if (CheckProbablePrime(certainty, random, true))
 					break;
 
-				for(int j = 1; j < (magnitude.Length - 1); ++j)
+				for (int j = 1; j < (magnitude.Length - 1); ++j)
 				{
 					this.magnitude[j] ^= random.Next();
 
-					if(CheckProbablePrime(certainty, random, true))
+					if (CheckProbablePrime(certainty, random, true))
 						return;
 				}
 			}
@@ -730,16 +730,16 @@ namespace NBitcoin.BouncyCastle.Math
 			int vI = b.Length - 1;
 			long m = 0;
 
-			while(vI >= 0)
+			while (vI >= 0)
 			{
 				m += ((long)(uint)a[tI] + (long)(uint)b[vI--]);
 				a[tI--] = (int)m;
 				m = (long)((ulong)m >> 32);
 			}
 
-			if(m != 0)
+			if (m != 0)
 			{
-				while(tI >= 0 && ++a[tI--] == 0)
+				while (tI >= 0 && ++a[tI--] == 0)
 				{
 				}
 			}
@@ -750,15 +750,15 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger Add(
 			BigInteger value)
 		{
-			if(this.sign == 0)
+			if (this.sign == 0)
 				return value;
 
-			if(this.sign != value.sign)
+			if (this.sign != value.sign)
 			{
-				if(value.sign == 0)
+				if (value.sign == 0)
 					return this;
 
-				if(value.sign < 0)
+				if (value.sign < 0)
 					return Subtract(value.Negate());
 
 				return value.Subtract(Negate());
@@ -771,7 +771,7 @@ namespace NBitcoin.BouncyCastle.Math
 			int[] magToAdd)
 		{
 			int[] big, small;
-			if(this.magnitude.Length < magToAdd.Length)
+			if (this.magnitude.Length < magToAdd.Length)
 			{
 				big = magToAdd;
 				small = this.magnitude;
@@ -784,13 +784,13 @@ namespace NBitcoin.BouncyCastle.Math
 
 			// Conservatively avoid over-allocation when no overflow possible
 			uint limit = uint.MaxValue;
-			if(big.Length == small.Length)
+			if (big.Length == small.Length)
 				limit -= (uint)small[0];
 
 			bool possibleOverflow = (uint)big[0] >= limit;
 
 			int[] bigCopy;
-			if(possibleOverflow)
+			if (possibleOverflow)
 			{
 				bigCopy = new int[big.Length + 1];
 				big.CopyTo(bigCopy, 1);
@@ -808,7 +808,7 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger And(
 			BigInteger value)
 		{
-			if(this.sign == 0 || value.sign == 0)
+			if (this.sign == 0 || value.sign == 0)
 			{
 				return Zero;
 			}
@@ -828,24 +828,24 @@ namespace NBitcoin.BouncyCastle.Math
 			int aStart = resultMag.Length - aMag.Length;
 			int bStart = resultMag.Length - bMag.Length;
 
-			for(int i = 0; i < resultMag.Length; ++i)
+			for (int i = 0; i < resultMag.Length; ++i)
 			{
 				int aWord = i >= aStart ? aMag[i - aStart] : 0;
 				int bWord = i >= bStart ? bMag[i - bStart] : 0;
 
-				if(this.sign < 0)
+				if (this.sign < 0)
 				{
 					aWord = ~aWord;
 				}
 
-				if(value.sign < 0)
+				if (value.sign < 0)
 				{
 					bWord = ~bWord;
 				}
 
 				resultMag[i] = aWord & bWord;
 
-				if(resultNeg)
+				if (resultNeg)
 				{
 					resultMag[i] = ~resultMag[i];
 				}
@@ -854,7 +854,7 @@ namespace NBitcoin.BouncyCastle.Math
 			BigInteger result = new BigInteger(1, resultMag, true);
 
 			// TODO Optimise this case
-			if(resultNeg)
+			if (resultNeg)
 			{
 				result = result.Not();
 			}
@@ -872,9 +872,9 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			get
 			{
-				if(nBits == -1)
+				if (nBits == -1)
 				{
-					if(sign < 0)
+					if (sign < 0)
 					{
 						// TODO Optimise this case
 						nBits = Not().BitCount;
@@ -882,7 +882,7 @@ namespace NBitcoin.BouncyCastle.Math
 					else
 					{
 						int sum = 0;
-						for(int i = 0; i < magnitude.Length; ++i)
+						for (int i = 0; i < magnitude.Length; ++i)
 						{
 							sum += BitCnt(magnitude[i]);
 						}
@@ -908,12 +908,12 @@ namespace NBitcoin.BouncyCastle.Math
 
 		private static int CalcBitLength(int sign, int indx, int[] mag)
 		{
-			for(;;)
+			for (; ; )
 			{
-				if(indx >= mag.Length)
+				if (indx >= mag.Length)
 					return 0;
 
-				if(mag[indx] != 0)
+				if (mag[indx] != 0)
 					break;
 
 				++indx;
@@ -927,17 +927,17 @@ namespace NBitcoin.BouncyCastle.Math
 			bitLength += BitLen(firstMag);
 
 			// Check for negative powers of two
-			if(sign < 0 && ((firstMag & -firstMag) == firstMag))
+			if (sign < 0 && ((firstMag & -firstMag) == firstMag))
 			{
 				do
 				{
-					if(++indx >= mag.Length)
+					if (++indx >= mag.Length)
 					{
 						--bitLength;
 						break;
 					}
 				}
-				while(mag[indx] == 0);
+				while (mag[indx] == 0);
 			}
 
 			return bitLength;
@@ -947,7 +947,7 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			get
 			{
-				if(nBitLength == -1)
+				if (nBitLength == -1)
 				{
 					nBitLength = sign == 0
 						? 0
@@ -965,13 +965,13 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			uint v = (uint)w;
 			uint t = v >> 24;
-			if(t != 0)
+			if (t != 0)
 				return 24 + BitLengthTable[t];
 			t = v >> 16;
-			if(t != 0)
+			if (t != 0)
 				return 16 + BitLengthTable[t];
 			t = v >> 8;
-			if(t != 0)
+			if (t != 0)
 				return 8 + BitLengthTable[t];
 			return BitLengthTable[v];
 		}
@@ -997,12 +997,12 @@ namespace NBitcoin.BouncyCastle.Math
 			int yIndx,
 			int[] y)
 		{
-			while(xIndx != x.Length && x[xIndx] == 0)
+			while (xIndx != x.Length && x[xIndx] == 0)
 			{
 				xIndx++;
 			}
 
-			while(yIndx != y.Length && y[yIndx] == 0)
+			while (yIndx != y.Length && y[yIndx] == 0)
 			{
 				yIndx++;
 			}
@@ -1018,19 +1018,19 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			int diff = (x.Length - y.Length) - (xIndx - yIndx);
 
-			if(diff != 0)
+			if (diff != 0)
 			{
 				return diff < 0 ? -1 : 1;
 			}
 
 			// lengths of magnitudes the same, test the magnitude values
 
-			while(xIndx < x.Length)
+			while (xIndx < x.Length)
 			{
 				uint v1 = (uint)x[xIndx++];
 				uint v2 = (uint)y[yIndx++];
 
-				if(v1 != v2)
+				if (v1 != v2)
 					return v1 < v2 ? -1 : 1;
 			}
 
@@ -1055,13 +1055,13 @@ namespace NBitcoin.BouncyCastle.Math
 			int[] y)
 		{
 			int xStart = 0;
-			while(xStart < x.Length && x[xStart] == 0)
+			while (xStart < x.Length && x[xStart] == 0)
 			{
 				++xStart;
 			}
 
 			int yStart = 0;
-			while(yStart < y.Length && y[yStart] == 0)
+			while (yStart < y.Length && y[yStart] == 0)
 			{
 				++yStart;
 			}
@@ -1071,7 +1071,7 @@ namespace NBitcoin.BouncyCastle.Math
 			int xyCmp = CompareNoLeadingZeroes(xStart, x, yStart, y);
 			int[] count;
 
-			if(xyCmp > 0)
+			if (xyCmp > 0)
 			{
 				int yBitLength = CalcBitLength(1, yStart, y);
 				int xBitLength = CalcBitLength(1, xStart, x);
@@ -1083,7 +1083,7 @@ namespace NBitcoin.BouncyCastle.Math
 				int[] c;
 				int cStart = 0;
 				int cBitLength = yBitLength;
-				if(shift > 0)
+				if (shift > 0)
 				{
 					//					iCount = ShiftLeft(One.magnitude, shift);
 					iCount = new int[(shift >> 5) + 1];
@@ -1103,31 +1103,31 @@ namespace NBitcoin.BouncyCastle.Math
 
 				count = new int[iCount.Length];
 
-				for(;;)
+				for (; ; )
 				{
-					if(cBitLength < xBitLength
+					if (cBitLength < xBitLength
 						|| CompareNoLeadingZeroes(xStart, x, cStart, c) >= 0)
 					{
 						Subtract(xStart, x, cStart, c);
 						AddMagnitudes(count, iCount);
 
-						while(x[xStart] == 0)
+						while (x[xStart] == 0)
 						{
-							if(++xStart == x.Length)
+							if (++xStart == x.Length)
 								return count;
 						}
 
 						//xBitLength = CalcBitLength(xStart, x);
 						xBitLength = 32 * (x.Length - xStart - 1) + BitLen(x[xStart]);
 
-						if(xBitLength <= yBitLength)
+						if (xBitLength <= yBitLength)
 						{
-							if(xBitLength < yBitLength)
+							if (xBitLength < yBitLength)
 								return count;
 
 							xyCmp = CompareNoLeadingZeroes(xStart, x, yStart, y);
 
-							if(xyCmp <= 0)
+							if (xyCmp <= 0)
 								break;
 						}
 					}
@@ -1135,15 +1135,15 @@ namespace NBitcoin.BouncyCastle.Math
 					shift = cBitLength - xBitLength;
 
 					// NB: The case where c[cStart] is 1-bit is harmless
-					if(shift == 1)
+					if (shift == 1)
 					{
 						uint firstC = (uint)c[cStart] >> 1;
 						uint firstX = (uint)x[xStart];
-						if(firstC > firstX)
+						if (firstC > firstX)
 							++shift;
 					}
 
-					if(shift < 2)
+					if (shift < 2)
 					{
 						ShiftRightOneInPlace(cStart, c);
 						--cBitLength;
@@ -1157,12 +1157,12 @@ namespace NBitcoin.BouncyCastle.Math
 					}
 
 					//cStart = c.Length - ((cBitLength + 31) / 32);
-					while(c[cStart] == 0)
+					while (c[cStart] == 0)
 					{
 						++cStart;
 					}
 
-					while(iCount[iCountStart] == 0)
+					while (iCount[iCountStart] == 0)
 					{
 						++iCountStart;
 					}
@@ -1173,7 +1173,7 @@ namespace NBitcoin.BouncyCastle.Math
 				count = new int[1];
 			}
 
-			if(xyCmp == 0)
+			if (xyCmp == 0)
 			{
 				AddMagnitudes(count, One.magnitude);
 				Array.Clear(x, xStart, x.Length - xStart);
@@ -1185,13 +1185,13 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger Divide(
 			BigInteger val)
 		{
-			if(val.sign == 0)
+			if (val.sign == 0)
 				throw new ArithmeticException("Division by zero error");
 
-			if(sign == 0)
+			if (sign == 0)
 				return Zero;
 
-			if(val.QuickPow2Check()) // val is power of two
+			if (val.QuickPow2Check()) // val is power of two
 			{
 				BigInteger result = this.Abs().ShiftRight(val.Abs().BitLength - 1);
 				return val.sign == this.sign ? result : result.Negate();
@@ -1205,17 +1205,17 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger[] DivideAndRemainder(
 			BigInteger val)
 		{
-			if(val.sign == 0)
+			if (val.sign == 0)
 				throw new ArithmeticException("Division by zero error");
 
 			BigInteger[] biggies = new BigInteger[2];
 
-			if(sign == 0)
+			if (sign == 0)
 			{
 				biggies[0] = Zero;
 				biggies[1] = Zero;
 			}
-			else if(val.QuickPow2Check()) // val is power of two
+			else if (val.QuickPow2Check()) // val is power of two
 			{
 				int e = val.Abs().BitLength - 1;
 				BigInteger quotient = this.Abs().ShiftRight(e);
@@ -1239,11 +1239,11 @@ namespace NBitcoin.BouncyCastle.Math
 		public override bool Equals(
 			object obj)
 		{
-			if(obj == this)
+			if (obj == this)
 				return true;
 
 			BigInteger biggie = obj as BigInteger;
-			if(biggie == null)
+			if (biggie == null)
 				return false;
 
 			return sign == biggie.sign && IsEqualMagnitude(biggie);
@@ -1252,11 +1252,11 @@ namespace NBitcoin.BouncyCastle.Math
 		private bool IsEqualMagnitude(BigInteger x)
 		{
 			int[] xMag = x.magnitude;
-			if(magnitude.Length != x.magnitude.Length)
+			if (magnitude.Length != x.magnitude.Length)
 				return false;
-			for(int i = 0; i < magnitude.Length; i++)
+			for (int i = 0; i < magnitude.Length; i++)
 			{
-				if(magnitude[i] != x.magnitude[i])
+				if (magnitude[i] != x.magnitude[i])
 					return false;
 			}
 			return true;
@@ -1265,17 +1265,17 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger Gcd(
 			BigInteger value)
 		{
-			if(value.sign == 0)
+			if (value.sign == 0)
 				return Abs();
 
-			if(sign == 0)
+			if (sign == 0)
 				return value.Abs();
 
 			BigInteger r;
 			BigInteger u = this;
 			BigInteger v = value;
 
-			while(v.sign != 0)
+			while (v.sign != 0)
 			{
 				r = u.Mod(v);
 				u = v;
@@ -1288,11 +1288,11 @@ namespace NBitcoin.BouncyCastle.Math
 		public override int GetHashCode()
 		{
 			int hc = magnitude.Length;
-			if(magnitude.Length > 0)
+			if (magnitude.Length > 0)
 			{
 				hc ^= magnitude[0];
 
-				if(magnitude.Length > 1)
+				if (magnitude.Length > 1)
 				{
 					hc ^= magnitude[magnitude.Length - 1];
 				}
@@ -1304,10 +1304,10 @@ namespace NBitcoin.BouncyCastle.Math
 		// TODO Make public?
 		private BigInteger Inc()
 		{
-			if(this.sign == 0)
+			if (this.sign == 0)
 				return One;
 
-			if(this.sign < 0)
+			if (this.sign < 0)
 				return new BigInteger(-1, doSubBigLil(this.magnitude, One.magnitude), true);
 
 			return AddToMagnitude(One.magnitude);
@@ -1317,7 +1317,7 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			get
 			{
-				if(sign == 0)
+				if (sign == 0)
 					return 0;
 
 				int n = magnitude.Length;
@@ -1340,15 +1340,15 @@ namespace NBitcoin.BouncyCastle.Math
 
 		internal bool IsProbablePrime(int certainty, bool randomlySelected)
 		{
-			if(certainty <= 0)
+			if (certainty <= 0)
 				return true;
 
 			BigInteger n = Abs();
 
-			if(!n.TestBit(0))
+			if (!n.TestBit(0))
 				return n.Equals(Two);
 
-			if(n.Equals(One))
+			if (n.Equals(One))
 				return false;
 
 			return n.CheckProbablePrime(certainty, RandomSource, randomlySelected);
@@ -1364,16 +1364,16 @@ namespace NBitcoin.BouncyCastle.Math
 			// Try to reduce the penalty for really small numbers
 			int numLists = System.Math.Min(BitLength - 1, primeLists.Length);
 
-			for(int i = 0; i < numLists; ++i)
+			for (int i = 0; i < numLists; ++i)
 			{
 				int test = Remainder(primeProducts[i]);
 
 				int[] primeList = primeLists[i];
-				for(int j = 0; j < primeList.Length; ++j)
+				for (int j = 0; j < primeList.Length; ++j)
 				{
 					int prime = primeList[j];
 					int qRem = test % prime;
-					if(qRem == 0)
+					if (qRem == 0)
 					{
 						// We may find small numbers in the list
 						return BitLength < 16 && IntValue == prime;
@@ -1415,14 +1415,14 @@ namespace NBitcoin.BouncyCastle.Math
 			Debug.Assert(TestBit(0));
 
 			int iterations = ((certainty - 1) / 2) + 1;
-			if(randomlySelected)
+			if (randomlySelected)
 			{
 				int itersFor100Cert = bits >= 1024 ? 4
 									: bits >= 512 ? 8
 									: bits >= 256 ? 16
 									: 50;
 
-				if(certainty < 100)
+				if (certainty < 100)
 				{
 					iterations = System.Math.Min(itersFor100Cert, iterations);
 				}
@@ -1451,27 +1451,27 @@ namespace NBitcoin.BouncyCastle.Math
 				{
 					a = new BigInteger(n.BitLength, random);
 				}
-				while(a.sign == 0 || a.CompareTo(n) >= 0
+				while (a.sign == 0 || a.CompareTo(n) >= 0
 					|| a.IsEqualMagnitude(montRadix) || a.IsEqualMagnitude(minusMontRadix));
 
 				BigInteger y = ModPowMonty(a, r, n, false);
 
-				if(!y.Equals(montRadix))
+				if (!y.Equals(montRadix))
 				{
 					int j = 0;
-					while(!y.Equals(minusMontRadix))
+					while (!y.Equals(minusMontRadix))
 					{
-						if(++j == s)
+						if (++j == s)
 							return false;
 
 						y = ModPowMonty(y, Two, n, false);
 
-						if(y.Equals(montRadix))
+						if (y.Equals(montRadix))
 							return false;
 					}
 				}
 			}
-			while(--iterations > 0);
+			while (--iterations > 0);
 
 			return true;
 		}
@@ -1523,7 +1523,7 @@ namespace NBitcoin.BouncyCastle.Math
 		//			return true;
 		//		}
 		//
-		public static int Jacobi( BigInteger a, BigInteger	b)
+		public static int Jacobi(BigInteger a, BigInteger b)
 		{
 			Debug.Assert(a.sign >= 0);
 			Debug.Assert(b.sign > 0);
@@ -1531,7 +1531,7 @@ namespace NBitcoin.BouncyCastle.Math
 			Debug.Assert(a.CompareTo(b) < 0);
 
 			int totalS = 1;
-			for (;;)
+			for (; ; )
 			{
 				if (a.sign == 0)
 					return 0;
@@ -1563,13 +1563,13 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			get
 			{
-				if(sign == 0)
+				if (sign == 0)
 					return 0;
 
 				int n = magnitude.Length;
 
 				long v = magnitude[n - 1] & IMASK;
-				if(n > 1)
+				if (n > 1)
 				{
 					v |= (magnitude[n - 2] & IMASK) << 32;
 				}
@@ -1593,7 +1593,7 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger Mod(
 			BigInteger m)
 		{
-			if(m.sign < 1)
+			if (m.sign < 1)
 				throw new ArithmeticException("Modulus must be positive");
 
 			BigInteger biggie = Remainder(m);
@@ -1604,7 +1604,7 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger ModInverse(
 			BigInteger m)
 		{
-			if(m.sign < 1)
+			if (m.sign < 1)
 				throw new ArithmeticException("Modulus must be positive");
 
 			// TODO Too slow at the moment
@@ -1645,7 +1645,7 @@ namespace NBitcoin.BouncyCastle.Math
 			//				}
 			//			}
 
-			if(m.QuickPow2Check())
+			if (m.QuickPow2Check())
 			{
 				return ModInversePow2(m);
 			}
@@ -1654,10 +1654,10 @@ namespace NBitcoin.BouncyCastle.Math
 			BigInteger x;
 			BigInteger gcd = ExtEuclid(d, m, out x);
 
-			if(!gcd.Equals(One))
+			if (!gcd.Equals(One))
 				throw new ArithmeticException("Numbers not relatively prime.");
 
-			if(x.sign < 0)
+			if (x.sign < 0)
 			{
 				x = x.Add(m);
 			}
@@ -1670,7 +1670,7 @@ namespace NBitcoin.BouncyCastle.Math
 			Debug.Assert(m.SignValue > 0);
 			Debug.Assert(m.BitCount == 1);
 
-			if(!TestBit(0))
+			if (!TestBit(0))
 			{
 				throw new ArithmeticException("Numbers not relatively prime.");
 			}
@@ -1678,14 +1678,14 @@ namespace NBitcoin.BouncyCastle.Math
 			int pow = m.BitLength - 1;
 
 			long inv64 = ModInverse64(LongValue);
-			if(pow < 64)
+			if (pow < 64)
 			{
 				inv64 &= ((1L << pow) - 1);
 			}
 
 			BigInteger x = BigInteger.ValueOf(inv64);
 
-			if(pow > 64)
+			if (pow > 64)
 			{
 				BigInteger d = this.Remainder(m);
 				int bitsCorrect = 64;
@@ -1696,10 +1696,10 @@ namespace NBitcoin.BouncyCastle.Math
 					x = x.Multiply(Two.Subtract(t)).Remainder(m);
 					bitsCorrect <<= 1;
 				}
-				while(bitsCorrect < pow);
+				while (bitsCorrect < pow);
 			}
 
-			if(x.sign < 0)
+			if (x.sign < 0)
 			{
 				x = x.Add(m);
 			}
@@ -1755,9 +1755,9 @@ namespace NBitcoin.BouncyCastle.Math
 			BigInteger u1 = One, v1 = Zero;
 			BigInteger u3 = a, v3 = b;
 
-			if(v3.sign > 0)
+			if (v3.sign > 0)
 			{
-				for(;;)
+				for (; ; )
 				{
 					BigInteger[] q = u3.DivideAndRemainder(v3);
 					u3 = v3;
@@ -1766,7 +1766,7 @@ namespace NBitcoin.BouncyCastle.Math
 					BigInteger oldU1 = u1;
 					u1 = v1;
 
-					if(v3.sign <= 0)
+					if (v3.sign <= 0)
 						break;
 
 					v1 = oldU1.Subtract(v1.Multiply(q[0]));
@@ -1786,26 +1786,26 @@ namespace NBitcoin.BouncyCastle.Math
 
 		public BigInteger ModPow(BigInteger e, BigInteger m)
 		{
-			if(m.sign < 1)
+			if (m.sign < 1)
 				throw new ArithmeticException("Modulus must be positive");
 
-			if(m.Equals(One))
+			if (m.Equals(One))
 				return Zero;
 
-			if(e.sign == 0)
+			if (e.sign == 0)
 				return One;
 
-			if(sign == 0)
+			if (sign == 0)
 				return Zero;
 
 			bool negExp = e.sign < 0;
-			if(negExp)
+			if (negExp)
 				e = e.Negate();
 
 			BigInteger result = this.Mod(m);
-			if(!e.Equals(One))
+			if (!e.Equals(One))
 			{
-				if((m.magnitude[m.magnitude.Length - 1] & 1) == 0)
+				if ((m.magnitude[m.magnitude.Length - 1] & 1) == 0)
 				{
 					result = ModPowBarrett(result, e, m);
 				}
@@ -1815,7 +1815,7 @@ namespace NBitcoin.BouncyCastle.Math
 				}
 			}
 
-			if(negExp)
+			if (negExp)
 				result = result.ModInverse(m);
 
 			return result;
@@ -1829,7 +1829,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 			// Sliding window from MSW to LSW
 			int extraBits = 0, expLength = e.BitLength;
-			while(expLength > ExpWindowThresholds[extraBits])
+			while (expLength > ExpWindowThresholds[extraBits])
 			{
 				++extraBits;
 			}
@@ -1840,7 +1840,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 			BigInteger b2 = ReduceBarrett(b.Square(), m, mr, yu);
 
-			for(int i = 1; i < numPowers; ++i)
+			for (int i = 1; i < numPowers; ++i)
 			{
 				oddPowers[i] = ReduceBarrett(oddPowers[i - 1].Multiply(b2), m, mr, yu);
 			}
@@ -1852,7 +1852,7 @@ namespace NBitcoin.BouncyCastle.Math
 			int mult = window & 0xFF, lastZeroes = window >> 8;
 
 			BigInteger y;
-			if(mult == 1)
+			if (mult == 1)
 			{
 				y = b2;
 				--lastZeroes;
@@ -1863,12 +1863,12 @@ namespace NBitcoin.BouncyCastle.Math
 			}
 
 			int windowPos = 1;
-			while((window = windowList[windowPos++]) != -1)
+			while ((window = windowList[windowPos++]) != -1)
 			{
 				mult = window & 0xFF;
 
 				int bits = lastZeroes + BitLengthTable[mult];
-				for(int j = 0; j < bits; ++j)
+				for (int j = 0; j < bits; ++j)
 				{
 					y = ReduceBarrett(y.Square(), m, mr, yu);
 				}
@@ -1878,7 +1878,7 @@ namespace NBitcoin.BouncyCastle.Math
 				lastZeroes = window >> 8;
 			}
 
-			for(int i = 0; i < lastZeroes; ++i)
+			for (int i = 0; i < lastZeroes; ++i)
 			{
 				y = ReduceBarrett(y.Square(), m, mr, yu);
 			}
@@ -1889,10 +1889,10 @@ namespace NBitcoin.BouncyCastle.Math
 		private static BigInteger ReduceBarrett(BigInteger x, BigInteger m, BigInteger mr, BigInteger yu)
 		{
 			int xLen = x.BitLength, mLen = m.BitLength;
-			if(xLen < mLen)
+			if (xLen < mLen)
 				return x;
 
-			if(xLen - mLen > 1)
+			if (xLen - mLen > 1)
 			{
 				int k = m.magnitude.Length;
 
@@ -1905,13 +1905,13 @@ namespace NBitcoin.BouncyCastle.Math
 				BigInteger r3 = r2.RemainderWords(k + 1);
 
 				x = r1.Subtract(r3);
-				if(x.sign < 0)
+				if (x.sign < 0)
 				{
 					x = x.Add(mr);
 				}
 			}
 
-			while(x.CompareTo(m) >= 0)
+			while (x.CompareTo(m) >= 0)
 			{
 				x = x.Subtract(m);
 			}
@@ -1927,7 +1927,7 @@ namespace NBitcoin.BouncyCastle.Math
 			uint mDash = (uint)m.GetMQuote();
 
 			// tmp = this * R mod m
-			if(convert)
+			if (convert)
 			{
 				b = b.ShiftLeft(powR).Remainder(m);
 			}
@@ -1936,7 +1936,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 			int[] zVal = b.magnitude;
 			Debug.Assert(zVal.Length <= n);
-			if(zVal.Length < n)
+			if (zVal.Length < n)
 			{
 				int[] tmp = new int[n];
 				zVal.CopyTo(tmp, n - zVal.Length);
@@ -1948,10 +1948,10 @@ namespace NBitcoin.BouncyCastle.Math
 			int extraBits = 0;
 
 			// Filter the common case of small RSA exponents with few bits set
-			if(e.magnitude.Length > 1 || e.BitCount > 2)
+			if (e.magnitude.Length > 1 || e.BitCount > 2)
 			{
 				int expLength = e.BitLength;
-				while(expLength > ExpWindowThresholds[extraBits])
+				while (expLength > ExpWindowThresholds[extraBits])
 				{
 					++extraBits;
 				}
@@ -1964,7 +1964,7 @@ namespace NBitcoin.BouncyCastle.Math
 			int[] zSquared = Arrays.Clone(zVal);
 			SquareMonty(yAccum, zSquared, m.magnitude, mDash, smallMontyModulus);
 
-			for(int i = 1; i < numPowers; ++i)
+			for (int i = 1; i < numPowers; ++i)
 			{
 				oddPowers[i] = Arrays.Clone(oddPowers[i - 1]);
 				MultiplyMonty(yAccum, oddPowers[i], zSquared, m.magnitude, mDash, smallMontyModulus);
@@ -1977,7 +1977,7 @@ namespace NBitcoin.BouncyCastle.Math
 			int mult = window & 0xFF, lastZeroes = window >> 8;
 
 			int[] yVal;
-			if(mult == 1)
+			if (mult == 1)
 			{
 				yVal = zSquared;
 				--lastZeroes;
@@ -1988,12 +1988,12 @@ namespace NBitcoin.BouncyCastle.Math
 			}
 
 			int windowPos = 1;
-			while((window = windowList[windowPos++]) != -1)
+			while ((window = windowList[windowPos++]) != -1)
 			{
 				mult = window & 0xFF;
 
 				int bits = lastZeroes + BitLengthTable[mult];
-				for(int j = 0; j < bits; ++j)
+				for (int j = 0; j < bits; ++j)
 				{
 					SquareMonty(yAccum, yVal, m.magnitude, mDash, smallMontyModulus);
 				}
@@ -2003,17 +2003,17 @@ namespace NBitcoin.BouncyCastle.Math
 				lastZeroes = window >> 8;
 			}
 
-			for(int i = 0; i < lastZeroes; ++i)
+			for (int i = 0; i < lastZeroes; ++i)
 			{
 				SquareMonty(yAccum, yVal, m.magnitude, mDash, smallMontyModulus);
 			}
 
-			if(convert)
+			if (convert)
 			{
 				// Return y * R^(-1) mod m
 				MontgomeryReduce(yVal, m.magnitude, mDash);
 			}
-			else if(smallMontyModulus && CompareTo(0, yVal, 0, m.magnitude) >= 0)
+			else if (smallMontyModulus && CompareTo(0, yVal, 0, m.magnitude) >= 0)
 			{
 				Subtract(0, yVal, 0, m.magnitude);
 			}
@@ -2039,15 +2039,15 @@ namespace NBitcoin.BouncyCastle.Math
 			int zeroes = 0;
 
 			int i = 0;
-			for(;;)
+			for (; ; )
 			{
-				for(; bitPos < 32; ++bitPos)
+				for (; bitPos < 32; ++bitPos)
 				{
-					if(mult < multLimit)
+					if (mult < multLimit)
 					{
 						mult = (mult << 1) | (int)((uint)v >> 31);
 					}
-					else if(v < 0)
+					else if (v < 0)
 					{
 						result[resultPos++] = CreateWindowEntry(mult, zeroes);
 						mult = 1;
@@ -2061,7 +2061,7 @@ namespace NBitcoin.BouncyCastle.Math
 					v <<= 1;
 				}
 
-				if(++i == mag.Length)
+				if (++i == mag.Length)
 				{
 					result[resultPos++] = CreateWindowEntry(mult, zeroes);
 					break;
@@ -2077,7 +2077,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 		private static int CreateWindowEntry(int mult, int zeroes)
 		{
-			while((mult & 1) == 0)
+			while ((mult & 1) == 0)
 			{
 				mult >>= 1;
 				++zeroes;
@@ -2101,7 +2101,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 			int wBase = w.Length - 1;
 
-			for(int i = x.Length - 1; i > 0; --i)
+			for (int i = x.Length - 1; i > 0; --i)
 			{
 				ulong v = (uint)x[i];
 
@@ -2109,7 +2109,7 @@ namespace NBitcoin.BouncyCastle.Math
 				w[wBase] = (int)c;
 				c >>= 32;
 
-				for(int j = i - 1; j >= 0; --j)
+				for (int j = i - 1; j >= 0; --j)
 				{
 					ulong prod = v * (uint)x[j];
 
@@ -2121,7 +2121,7 @@ namespace NBitcoin.BouncyCastle.Math
 				c += (uint)w[--wBase];
 				w[wBase] = (int)c;
 
-				if(--wBase >= 0)
+				if (--wBase >= 0)
 				{
 					w[wBase] = (int)(c >> 32);
 				}
@@ -2138,7 +2138,7 @@ namespace NBitcoin.BouncyCastle.Math
 			c = c * c + (uint)w[wBase];
 			w[wBase] = (int)c;
 
-			if(--wBase >= 0)
+			if (--wBase >= 0)
 			{
 				w[wBase] += (int)(c >> 32);
 			}
@@ -2157,7 +2157,7 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			int i = z.Length;
 
-			if(i < 1)
+			if (i < 1)
 				return x;
 
 			int xBase = x.Length - y.Length;
@@ -2167,9 +2167,9 @@ namespace NBitcoin.BouncyCastle.Math
 				long a = z[--i] & IMASK;
 				long val = 0;
 
-				if(a != 0)
+				if (a != 0)
 				{
-					for(int j = y.Length - 1; j >= 0; j--)
+					for (int j = y.Length - 1; j >= 0; j--)
 					{
 						val += a * (y[j] & IMASK) + (x[xBase + j] & IMASK);
 
@@ -2181,7 +2181,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 				--xBase;
 
-				if(xBase >= 0)
+				if (xBase >= 0)
 				{
 					x[xBase] = (int)val;
 				}
@@ -2190,7 +2190,7 @@ namespace NBitcoin.BouncyCastle.Math
 					Debug.Assert(val == 0);
 				}
 			}
-			while(i > 0);
+			while (i > 0);
 
 			return x;
 		}
@@ -2200,7 +2200,7 @@ namespace NBitcoin.BouncyCastle.Math
          */
 		private int GetMQuote()
 		{
-			if(mQuote != 0)
+			if (mQuote != 0)
 			{
 				return mQuote; // already calculated
 			}
@@ -2221,7 +2221,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 			int n = m.Length;
 
-			for(int i = n - 1; i >= 0; --i)
+			for (int i = n - 1; i >= 0; --i)
 			{
 				uint x0 = (uint)x[n - 1];
 				ulong t = x0 * mDash;
@@ -2230,7 +2230,7 @@ namespace NBitcoin.BouncyCastle.Math
 				Debug.Assert((uint)carry == 0);
 				carry >>= 32;
 
-				for(int j = n - 2; j >= 0; --j)
+				for (int j = n - 2; j >= 0; --j)
 				{
 					carry += t * (uint)m[j] + (uint)x[j];
 					x[j + 1] = (int)carry;
@@ -2241,7 +2241,7 @@ namespace NBitcoin.BouncyCastle.Math
 				Debug.Assert(carry >> 32 == 0);
 			}
 
-			if(CompareTo(0, x, 0, m) >= 0)
+			if (CompareTo(0, x, 0, m) >= 0)
 			{
 				Subtract(0, x, 0, m);
 			}
@@ -2265,7 +2265,7 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			int n = m.Length;
 
-			if(n == 1)
+			if (n == 1)
 			{
 				x[0] = (int)MultiplyMontyNIsOne((uint)x[0], (uint)y[0], (uint)m[0], mDash);
 				return;
@@ -2285,7 +2285,7 @@ namespace NBitcoin.BouncyCastle.Math
 				Debug.Assert((uint)carry == 0);
 				carry = (carry >> 32) + (prod2 >> 32);
 
-				for(int j = n - 2; j >= 0; --j)
+				for (int j = n - 2; j >= 0; --j)
 				{
 					ulong prod1 = xi * (uint)y[j];
 					prod2 = t * (uint)m[j];
@@ -2299,7 +2299,7 @@ namespace NBitcoin.BouncyCastle.Math
 				aMax = (int)(carry >> 32);
 			}
 
-			for(int i = n - 2; i >= 0; --i)
+			for (int i = n - 2; i >= 0; --i)
 			{
 				uint a0 = (uint)a[n];
 				ulong xi = (uint)x[i];
@@ -2313,7 +2313,7 @@ namespace NBitcoin.BouncyCastle.Math
 				Debug.Assert((uint)carry == 0);
 				carry = (carry >> 32) + (prod1 >> 32) + (prod2 >> 32);
 
-				for(int j = n - 2; j >= 0; --j)
+				for (int j = n - 2; j >= 0; --j)
 				{
 					prod1 = xi * (uint)y[j];
 					prod2 = t * (uint)m[j];
@@ -2330,7 +2330,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 			a[0] = aMax;
 
-			if(!smallMontyModulus && CompareTo(0, a, 0, m) >= 0)
+			if (!smallMontyModulus && CompareTo(0, a, 0, m) >= 0)
 			{
 				Subtract(0, a, 0, m);
 			}
@@ -2343,7 +2343,7 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			int n = m.Length;
 
-			if(n == 1)
+			if (n == 1)
 			{
 				uint xVal = (uint)x[0];
 				x[0] = (int)MultiplyMontyNIsOne(xVal, xVal, (uint)m[0], mDash);
@@ -2362,7 +2362,7 @@ namespace NBitcoin.BouncyCastle.Math
 				Debug.Assert((uint)carry == 0);
 				carry = (carry >> 32) + (prod2 >> 32);
 
-				for(int j = n - 2; j >= 0; --j)
+				for (int j = n - 2; j >= 0; --j)
 				{
 					ulong prod1 = x0 * (uint)x[j];
 					prod2 = t * (uint)m[j];
@@ -2376,7 +2376,7 @@ namespace NBitcoin.BouncyCastle.Math
 				aMax = (int)(carry >> 32);
 			}
 
-			for(int i = n - 2; i >= 0; --i)
+			for (int i = n - 2; i >= 0; --i)
 			{
 				uint a0 = (uint)a[n];
 				ulong t = a0 * mDash;
@@ -2385,7 +2385,7 @@ namespace NBitcoin.BouncyCastle.Math
 				Debug.Assert((uint)carry == 0);
 				carry >>= 32;
 
-				for(int j = n - 2; j > i; --j)
+				for (int j = n - 2; j > i; --j)
 				{
 					carry += t * (uint)m[j] + (uint)a[j + 1];
 					a[j + 2] = (int)carry;
@@ -2403,7 +2403,7 @@ namespace NBitcoin.BouncyCastle.Math
 					carry = (carry >> 32) + (prod1 >> 32) + (prod2 >> 32);
 				}
 
-				for(int j = i - 1; j >= 0; --j)
+				for (int j = i - 1; j >= 0; --j)
 				{
 					ulong prod1 = xi * (uint)x[j];
 					ulong prod2 = t * (uint)m[j];
@@ -2420,7 +2420,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 			a[0] = aMax;
 
-			if(!smallMontyModulus && CompareTo(0, a, 0, m) >= 0)
+			if (!smallMontyModulus && CompareTo(0, a, 0, m) >= 0)
 			{
 				Subtract(0, a, 0, m);
 			}
@@ -2437,7 +2437,7 @@ namespace NBitcoin.BouncyCastle.Math
 			carry += (uint)prod2;
 			Debug.Assert((uint)carry == 0);
 			carry = (carry >> 32) + (prod2 >> 32);
-			if(carry > um)
+			if (carry > um)
 			{
 				carry -= um;
 			}
@@ -2448,19 +2448,19 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger Multiply(
 			BigInteger val)
 		{
-			if(val == this)
+			if (val == this)
 				return Square();
 
-			if((sign & val.sign) == 0)
+			if ((sign & val.sign) == 0)
 				return Zero;
 
-			if(val.QuickPow2Check()) // val is power of two
+			if (val.QuickPow2Check()) // val is power of two
 			{
 				BigInteger result = this.ShiftLeft(val.Abs().BitLength - 1);
 				return val.sign > 0 ? result : result.Negate();
 			}
 
-			if(this.QuickPow2Check()) // this is power of two
+			if (this.QuickPow2Check()) // this is power of two
 			{
 				BigInteger result = val.ShiftLeft(this.Abs().BitLength - 1);
 				return this.sign > 0 ? result : result.Negate();
@@ -2477,12 +2477,12 @@ namespace NBitcoin.BouncyCastle.Math
 
 		public BigInteger Square()
 		{
-			if(sign == 0)
+			if (sign == 0)
 				return Zero;
-			if(this.QuickPow2Check())
+			if (this.QuickPow2Check())
 				return ShiftLeft(Abs().BitLength - 1);
 			int resLength = magnitude.Length << 1;
-			if((uint)magnitude[0] >> 16 == 0)
+			if ((uint)magnitude[0] >> 16 == 0)
 				--resLength;
 			int[] res = new int[resLength];
 			Square(res, magnitude);
@@ -2491,7 +2491,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 		public BigInteger Negate()
 		{
-			if(sign == 0)
+			if (sign == 0)
 				return this;
 
 			return new BigInteger(-sign, magnitude, false);
@@ -2499,15 +2499,15 @@ namespace NBitcoin.BouncyCastle.Math
 
 		public BigInteger NextProbablePrime()
 		{
-			if(sign < 0)
+			if (sign < 0)
 				throw new ArithmeticException("Cannot be called on value < 0");
 
-			if(CompareTo(Two) < 0)
+			if (CompareTo(Two) < 0)
 				return Two;
 
 			BigInteger n = Inc().SetBit(0);
 
-			while(!n.CheckProbablePrime(100, RandomSource, false))
+			while (!n.CheckProbablePrime(100, RandomSource, false))
 			{
 				n = n.Add(Two);
 			}
@@ -2522,23 +2522,23 @@ namespace NBitcoin.BouncyCastle.Math
 
 		public BigInteger Pow(int exp)
 		{
-			if(exp <= 0)
+			if (exp <= 0)
 			{
-				if(exp < 0)
+				if (exp < 0)
 					throw new ArithmeticException("Negative exponent");
 
 				return One;
 			}
 
-			if(sign == 0)
+			if (sign == 0)
 			{
 				return this;
 			}
 
-			if(QuickPow2Check())
+			if (QuickPow2Check())
 			{
 				long powOf2 = (long)exp * (BitLength - 1);
-				if(powOf2 > Int32.MaxValue)
+				if (powOf2 > Int32.MaxValue)
 				{
 					throw new ArithmeticException("Result too large");
 				}
@@ -2548,14 +2548,14 @@ namespace NBitcoin.BouncyCastle.Math
 			BigInteger y = One;
 			BigInteger z = this;
 
-			for(;;)
+			for (; ; )
 			{
-				if((exp & 0x1) == 1)
+				if ((exp & 0x1) == 1)
 				{
 					y = y.Multiply(z);
 				}
 				exp >>= 1;
-				if(exp == 0)
+				if (exp == 0)
 					break;
 				z = z.Multiply(z);
 			}
@@ -2576,7 +2576,7 @@ namespace NBitcoin.BouncyCastle.Math
 			Debug.Assert(m > 0);
 
 			long acc = 0;
-			for(int pos = 0; pos < magnitude.Length; ++pos)
+			for (int pos = 0; pos < magnitude.Length; ++pos)
 			{
 				long posVal = (uint)magnitude[pos];
 				acc = (acc << 32 | posVal) % m;
@@ -2593,13 +2593,13 @@ namespace NBitcoin.BouncyCastle.Math
 			int[] y)
 		{
 			int xStart = 0;
-			while(xStart < x.Length && x[xStart] == 0)
+			while (xStart < x.Length && x[xStart] == 0)
 			{
 				++xStart;
 			}
 
 			int yStart = 0;
-			while(yStart < y.Length && y[yStart] == 0)
+			while (yStart < y.Length && y[yStart] == 0)
 			{
 				++yStart;
 			}
@@ -2608,7 +2608,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 			int xyCmp = CompareNoLeadingZeroes(xStart, x, yStart, y);
 
-			if(xyCmp > 0)
+			if (xyCmp > 0)
 			{
 				int yBitLength = CalcBitLength(1, yStart, y);
 				int xBitLength = CalcBitLength(1, xStart, x);
@@ -2617,7 +2617,7 @@ namespace NBitcoin.BouncyCastle.Math
 				int[] c;
 				int cStart = 0;
 				int cBitLength = yBitLength;
-				if(shift > 0)
+				if (shift > 0)
 				{
 					c = ShiftLeft(y, shift);
 					cBitLength += shift;
@@ -2630,30 +2630,30 @@ namespace NBitcoin.BouncyCastle.Math
 					Array.Copy(y, yStart, c, 0, len);
 				}
 
-				for(;;)
+				for (; ; )
 				{
-					if(cBitLength < xBitLength
+					if (cBitLength < xBitLength
 						|| CompareNoLeadingZeroes(xStart, x, cStart, c) >= 0)
 					{
 						Subtract(xStart, x, cStart, c);
 
-						while(x[xStart] == 0)
+						while (x[xStart] == 0)
 						{
-							if(++xStart == x.Length)
+							if (++xStart == x.Length)
 								return x;
 						}
 
 						//xBitLength = CalcBitLength(xStart, x);
 						xBitLength = 32 * (x.Length - xStart - 1) + BitLen(x[xStart]);
 
-						if(xBitLength <= yBitLength)
+						if (xBitLength <= yBitLength)
 						{
-							if(xBitLength < yBitLength)
+							if (xBitLength < yBitLength)
 								return x;
 
 							xyCmp = CompareNoLeadingZeroes(xStart, x, yStart, y);
 
-							if(xyCmp <= 0)
+							if (xyCmp <= 0)
 								break;
 						}
 					}
@@ -2661,15 +2661,15 @@ namespace NBitcoin.BouncyCastle.Math
 					shift = cBitLength - xBitLength;
 
 					// NB: The case where c[cStart] is 1-bit is harmless
-					if(shift == 1)
+					if (shift == 1)
 					{
 						uint firstC = (uint)c[cStart] >> 1;
 						uint firstX = (uint)x[xStart];
-						if(firstC > firstX)
+						if (firstC > firstX)
 							++shift;
 					}
 
-					if(shift < 2)
+					if (shift < 2)
 					{
 						ShiftRightOneInPlace(cStart, c);
 						--cBitLength;
@@ -2681,14 +2681,14 @@ namespace NBitcoin.BouncyCastle.Math
 					}
 
 					//cStart = c.Length - ((cBitLength + 31) / 32);
-					while(c[cStart] == 0)
+					while (c[cStart] == 0)
 					{
 						++cStart;
 					}
 				}
 			}
 
-			if(xyCmp == 0)
+			if (xyCmp == 0)
 			{
 				Array.Clear(x, xStart, x.Length - xStart);
 			}
@@ -2699,20 +2699,20 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger Remainder(
 			BigInteger n)
 		{
-			if(n.sign == 0)
+			if (n.sign == 0)
 				throw new ArithmeticException("Division by zero error");
 
-			if(this.sign == 0)
+			if (this.sign == 0)
 				return Zero;
 
 			// For small values, use fast remainder method
-			if(n.magnitude.Length == 1)
+			if (n.magnitude.Length == 1)
 			{
 				int val = n.magnitude[0];
 
-				if(val > 0)
+				if (val > 0)
 				{
-					if(val == 1)
+					if (val == 1)
 						return Zero;
 
 					// TODO Make this func work on uint, and handle val == 1?
@@ -2724,11 +2724,11 @@ namespace NBitcoin.BouncyCastle.Math
 				}
 			}
 
-			if(CompareNoLeadingZeroes(0, magnitude, 0, n.magnitude) < 0)
+			if (CompareNoLeadingZeroes(0, magnitude, 0, n.magnitude) < 0)
 				return this;
 
 			int[] result;
-			if(n.QuickPow2Check())  // n is power of two
+			if (n.QuickPow2Check())  // n is power of two
 			{
 				// TODO Move before small values branch above?
 				result = LastNBits(n.Abs().BitLength - 1);
@@ -2745,7 +2745,7 @@ namespace NBitcoin.BouncyCastle.Math
 		private int[] LastNBits(
 			int n)
 		{
-			if(n < 1)
+			if (n < 1)
 				return ZeroMagnitude;
 
 			int numWords = (n + BitsPerInt - 1) / BitsPerInt;
@@ -2755,7 +2755,7 @@ namespace NBitcoin.BouncyCastle.Math
 			Array.Copy(this.magnitude, this.magnitude.Length - numWords, result, 0, numWords);
 
 			int excessBits = (numWords << 5) - n;
-			if(excessBits > 0)
+			if (excessBits > 0)
 			{
 				result[0] &= (int)(UInt32.MaxValue >> excessBits);
 			}
@@ -2767,7 +2767,7 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			Debug.Assert(w >= 0);
 			int n = magnitude.Length;
-			if(w >= n)
+			if (w >= n)
 				return Zero;
 			int[] mag = new int[n - w];
 			Array.Copy(magnitude, 0, mag, 0, n - w);
@@ -2778,7 +2778,7 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			Debug.Assert(w >= 0);
 			int n = magnitude.Length;
-			if(w >= n)
+			if (w >= n)
 				return this;
 			int[] mag = new int[w];
 			Array.Copy(magnitude, n - w, mag, 0, w);
@@ -2797,7 +2797,7 @@ namespace NBitcoin.BouncyCastle.Math
 			int magLen = mag.Length;
 			int[] newMag;
 
-			if(nBits == 0)
+			if (nBits == 0)
 			{
 				newMag = new int[magLen + nInts];
 				mag.CopyTo(newMag, 0);
@@ -2808,7 +2808,7 @@ namespace NBitcoin.BouncyCastle.Math
 				int nBits2 = 32 - nBits;
 				int highBits = (int)((uint)mag[0] >> nBits2);
 
-				if(highBits != 0)
+				if (highBits != 0)
 				{
 					newMag = new int[magLen + nInts + 1];
 					newMag[i++] = highBits;
@@ -2819,7 +2819,7 @@ namespace NBitcoin.BouncyCastle.Math
 				}
 
 				int m = mag[0];
-				for(int j = 0; j < magLen - 1; j++)
+				for (int j = 0; j < magLen - 1; j++)
 				{
 					int next = mag[j + 1];
 
@@ -2837,7 +2837,7 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			Debug.Assert(carry == 0 || carry == 1);
 			int pos = x.Length;
-			while(--pos >= 0)
+			while (--pos >= 0)
 			{
 				uint val = (uint)x[pos];
 				x[pos] = (int)(val << 1) | carry;
@@ -2849,25 +2849,25 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger ShiftLeft(
 			int n)
 		{
-			if(sign == 0 || magnitude.Length == 0)
+			if (sign == 0 || magnitude.Length == 0)
 				return Zero;
 
-			if(n == 0)
+			if (n == 0)
 				return this;
 
-			if(n < 0)
+			if (n < 0)
 				return ShiftRight(-n);
 
 			BigInteger result = new BigInteger(sign, ShiftLeft(magnitude, n), true);
 
-			if(this.nBits != -1)
+			if (this.nBits != -1)
 			{
 				result.nBits = sign > 0
 					? this.nBits
 					: this.nBits + n;
 			}
 
-			if(this.nBitLength != -1)
+			if (this.nBitLength != -1)
 			{
 				result.nBitLength = this.nBitLength + n;
 			}
@@ -2887,26 +2887,26 @@ namespace NBitcoin.BouncyCastle.Math
 			int nBits = n & 0x1f;
 			int magEnd = mag.Length - 1;
 
-			if(nInts != start)
+			if (nInts != start)
 			{
 				int delta = (nInts - start);
 
-				for(int i = magEnd; i >= nInts; i--)
+				for (int i = magEnd; i >= nInts; i--)
 				{
 					mag[i] = mag[i - delta];
 				}
-				for(int i = nInts - 1; i >= start; i--)
+				for (int i = nInts - 1; i >= start; i--)
 				{
 					mag[i] = 0;
 				}
 			}
 
-			if(nBits != 0)
+			if (nBits != 0)
 			{
 				int nBits2 = 32 - nBits;
 				int m = mag[magEnd];
 
-				for(int i = magEnd; i > nInts; --i)
+				for (int i = magEnd; i > nInts; --i)
 				{
 					int next = mag[i - 1];
 
@@ -2928,7 +2928,7 @@ namespace NBitcoin.BouncyCastle.Math
 			int i = mag.Length;
 			int m = mag[i - 1];
 
-			while(--i > start)
+			while (--i > start)
 			{
 				int next = mag[i - 1];
 				mag[i] = ((int)((uint)m >> 1)) | (next << 31);
@@ -2941,13 +2941,13 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger ShiftRight(
 			int n)
 		{
-			if(n == 0)
+			if (n == 0)
 				return this;
 
-			if(n < 0)
+			if (n < 0)
 				return ShiftLeft(-n);
 
-			if(n >= BitLength)
+			if (n >= BitLength)
 				return (this.sign < 0 ? One.Negate() : Zero);
 
 			//			int[] res = (int[]) this.magnitude.Clone();
@@ -2962,7 +2962,7 @@ namespace NBitcoin.BouncyCastle.Math
 			int numInts = n >> 5;
 			int numBits = n & 31;
 
-			if(numBits == 0)
+			if (numBits == 0)
 			{
 				Array.Copy(this.magnitude, 0, res, 0, res.Length);
 			}
@@ -2971,11 +2971,11 @@ namespace NBitcoin.BouncyCastle.Math
 				int numBits2 = 32 - numBits;
 
 				int magPos = this.magnitude.Length - 1 - numInts;
-				for(int i = resultLength - 1; i >= 0; --i)
+				for (int i = resultLength - 1; i >= 0; --i)
 				{
 					res[i] = (int)((uint)this.magnitude[magPos--] >> numBits);
 
-					if(magPos >= 0)
+					if (magPos >= 0)
 					{
 						res[i] |= this.magnitude[magPos] << numBits2;
 					}
@@ -3020,11 +3020,11 @@ namespace NBitcoin.BouncyCastle.Math
 				//				borrow = (m < 0) ? -1 : 0;
 				borrow = (int)(m >> 63);
 			}
-			while(iV > yStart);
+			while (iV > yStart);
 
-			if(borrow != 0)
+			if (borrow != 0)
 			{
-				while(--x[--iT] == -1)
+				while (--x[--iT] == -1)
 				{
 				}
 			}
@@ -3035,21 +3035,21 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger Subtract(
 			BigInteger n)
 		{
-			if(n.sign == 0)
+			if (n.sign == 0)
 				return this;
 
-			if(this.sign == 0)
+			if (this.sign == 0)
 				return n.Negate();
 
-			if(this.sign != n.sign)
+			if (this.sign != n.sign)
 				return Add(n.Negate());
 
 			int compare = CompareNoLeadingZeroes(0, magnitude, 0, n.magnitude);
-			if(compare == 0)
+			if (compare == 0)
 				return Zero;
 
 			BigInteger bigun, lilun;
-			if(compare < 0)
+			if (compare < 0)
 			{
 				bigun = n;
 				lilun = this;
@@ -3085,7 +3085,7 @@ namespace NBitcoin.BouncyCastle.Math
 		private byte[] ToByteArray(
 			bool unsigned)
 		{
-			if(sign == 0)
+			if (sign == 0)
 				return unsigned ? ZeroEncoding : new byte[1];
 
 			int nBits = (unsigned && sign > 0)
@@ -3098,9 +3098,9 @@ namespace NBitcoin.BouncyCastle.Math
 			int magIndex = magnitude.Length;
 			int bytesIndex = bytes.Length;
 
-			if(sign > 0)
+			if (sign > 0)
 			{
-				while(magIndex > 1)
+				while (magIndex > 1)
 				{
 					uint mag = (uint)magnitude[--magIndex];
 					bytes[--bytesIndex] = (byte)mag;
@@ -3110,7 +3110,7 @@ namespace NBitcoin.BouncyCastle.Math
 				}
 
 				uint lastMag = (uint)magnitude[0];
-				while(lastMag > byte.MaxValue)
+				while (lastMag > byte.MaxValue)
 				{
 					bytes[--bytesIndex] = (byte)lastMag;
 					lastMag >>= 8;
@@ -3122,11 +3122,11 @@ namespace NBitcoin.BouncyCastle.Math
 			{
 				bool carry = true;
 
-				while(magIndex > 1)
+				while (magIndex > 1)
 				{
 					uint mag = ~((uint)magnitude[--magIndex]);
 
-					if(carry)
+					if (carry)
 					{
 						carry = (++mag == uint.MinValue);
 					}
@@ -3139,13 +3139,13 @@ namespace NBitcoin.BouncyCastle.Math
 
 				uint lastMag = (uint)magnitude[0];
 
-				if(carry)
+				if (carry)
 				{
 					// Never wraps because magnitude[0] != 0
 					--lastMag;
 				}
 
-				while(lastMag > byte.MaxValue)
+				while (lastMag > byte.MaxValue)
 				{
 					bytes[--bytesIndex] = (byte)~lastMag;
 					lastMag >>= 8;
@@ -3153,7 +3153,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 				bytes[--bytesIndex] = (byte)~lastMag;
 
-				if(bytesIndex > 0)
+				if (bytesIndex > 0)
 				{
 					bytes[--bytesIndex] = byte.MaxValue;
 				}
@@ -3171,7 +3171,7 @@ namespace NBitcoin.BouncyCastle.Math
 		{
 			// TODO Make this method work for other radices (ideally 2 <= radix <= 36 as in Java)
 
-			switch(radix)
+			switch (radix)
 			{
 				case 2:
 				case 8:
@@ -3183,43 +3183,43 @@ namespace NBitcoin.BouncyCastle.Math
 			}
 
 			// NB: Can only happen to internally managed instances
-			if(magnitude == null)
+			if (magnitude == null)
 				return "null";
 
-			if(sign == 0)
+			if (sign == 0)
 				return "0";
 
 
 			// NOTE: This *should* be unnecessary, since the magnitude *should* never have leading zero digits
 			int firstNonZero = 0;
-			while(firstNonZero < magnitude.Length)
+			while (firstNonZero < magnitude.Length)
 			{
-				if(magnitude[firstNonZero] != 0)
+				if (magnitude[firstNonZero] != 0)
 				{
 					break;
 				}
 				++firstNonZero;
 			}
 
-			if(firstNonZero == magnitude.Length)
+			if (firstNonZero == magnitude.Length)
 			{
 				return "0";
 			}
 
 
 			StringBuilder sb = new StringBuilder();
-			if(sign == -1)
+			if (sign == -1)
 			{
 				sb.Append('-');
 			}
 
-			switch(radix)
+			switch (radix)
 			{
 				case 2:
 					{
 						int pos = firstNonZero;
 						sb.Append(Convert.ToString(magnitude[pos], 2));
-						while(++pos < magnitude.Length)
+						while (++pos < magnitude.Length)
 						{
 							AppendZeroExtendedString(sb, Convert.ToString(magnitude[pos], 2), 32);
 						}
@@ -3231,14 +3231,14 @@ namespace NBitcoin.BouncyCastle.Math
 						BigInteger u = this.Abs();
 						int bits = u.BitLength;
 						IList S = Platform.CreateArrayList();
-						while(bits > 30)
+						while (bits > 30)
 						{
 							S.Add(Convert.ToString(u.IntValue & mask, 8));
 							u = u.ShiftRight(30);
 							bits -= 30;
 						}
 						sb.Append(Convert.ToString(u.IntValue, 8));
-						for(int i = S.Count - 1; i >= 0; --i)
+						for (int i = S.Count - 1; i >= 0; --i)
 						{
 							AppendZeroExtendedString(sb, (string)S[i], 10);
 						}
@@ -3248,7 +3248,7 @@ namespace NBitcoin.BouncyCastle.Math
 					{
 						int pos = firstNonZero;
 						sb.Append(Convert.ToString(magnitude[pos], 16));
-						while(++pos < magnitude.Length)
+						while (++pos < magnitude.Length)
 						{
 							AppendZeroExtendedString(sb, Convert.ToString(magnitude[pos], 16), 8);
 						}
@@ -3259,7 +3259,7 @@ namespace NBitcoin.BouncyCastle.Math
 				case 10:
 					{
 						BigInteger q = this.Abs();
-						if(q.BitLength < 64)
+						if (q.BitLength < 64)
 						{
 							sb.Append(Convert.ToString(q.LongValue, radix));
 							break;
@@ -3272,7 +3272,7 @@ namespace NBitcoin.BouncyCastle.Math
 						long limit = Int64.MaxValue / radix;
 						long power = radix;
 						int exponent = 1;
-						while(power <= limit)
+						while (power <= limit)
 						{
 							power *= radix;
 							++exponent;
@@ -3281,7 +3281,7 @@ namespace NBitcoin.BouncyCastle.Math
 						BigInteger bigPower = BigInteger.ValueOf(power);
 
 						IList S = Platform.CreateArrayList();
-						while(q.CompareTo(bigPower) >= 0)
+						while (q.CompareTo(bigPower) >= 0)
 						{
 							BigInteger[] qr = q.DivideAndRemainder(bigPower);
 							S.Add(Convert.ToString(qr[1].LongValue, radix));
@@ -3289,7 +3289,7 @@ namespace NBitcoin.BouncyCastle.Math
 						}
 
 						sb.Append(Convert.ToString(q.LongValue, radix));
-						for(int i = S.Count - 1; i >= 0; --i)
+						for (int i = S.Count - 1; i >= 0; --i)
 						{
 							AppendZeroExtendedString(sb, (string)S[i], exponent);
 						}
@@ -3302,7 +3302,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 		private static void AppendZeroExtendedString(StringBuilder sb, string s, int minLength)
 		{
-			for(int len = s.Length; len < minLength; ++len)
+			for (int len = s.Length; len < minLength; ++len)
 			{
 				sb.Append('0');
 			}
@@ -3315,14 +3315,14 @@ namespace NBitcoin.BouncyCastle.Math
 			int msw = (int)(value >> 32);
 			int lsw = (int)value;
 
-			if(msw != 0)
+			if (msw != 0)
 				return new BigInteger(1, new int[] { msw, lsw }, false);
 
-			if(lsw != 0)
+			if (lsw != 0)
 			{
 				BigInteger n = new BigInteger(1, new int[] { lsw }, false);
 				// Check for a power of two
-				if((lsw & -lsw) == lsw)
+				if ((lsw & -lsw) == lsw)
 				{
 					n.nBits = 1;
 				}
@@ -3335,9 +3335,9 @@ namespace NBitcoin.BouncyCastle.Math
 		private static BigInteger CreateValueOf(
 			long value)
 		{
-			if(value < 0)
+			if (value < 0)
 			{
-				if(value == long.MinValue)
+				if (value == long.MinValue)
 					return CreateValueOf(~value).Not();
 
 				return CreateValueOf(-value).Negate();
@@ -3349,7 +3349,7 @@ namespace NBitcoin.BouncyCastle.Math
 		public static BigInteger ValueOf(
 			long value)
 		{
-			if(value >= 0 && value < SMALL_CONSTANTS.Length)
+			if (value >= 0 && value < SMALL_CONSTANTS.Length)
 			{
 				return SMALL_CONSTANTS[value];
 			}
@@ -3359,7 +3359,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 		public int GetLowestSetBit()
 		{
-			if(this.sign == 0)
+			if (this.sign == 0)
 				return -1;
 
 			return GetLowestSetBitMaskFirst(-1);
@@ -3372,19 +3372,19 @@ namespace NBitcoin.BouncyCastle.Math
 			uint word = (uint)(magnitude[--w] & firstWordMask);
 			Debug.Assert(magnitude[0] != 0);
 
-			while(word == 0)
+			while (word == 0)
 			{
 				word = (uint)magnitude[--w];
 				offset += 32;
 			}
 
-			while((word & 0xFF) == 0)
+			while ((word & 0xFF) == 0)
 			{
 				word >>= 8;
 				offset += 8;
 			}
 
-			while((word & 1) == 0)
+			while ((word & 1) == 0)
 			{
 				word >>= 1;
 				++offset;
@@ -3396,14 +3396,14 @@ namespace NBitcoin.BouncyCastle.Math
 		public bool TestBit(
 			int n)
 		{
-			if(n < 0)
+			if (n < 0)
 				throw new ArithmeticException("Bit position must not be negative");
 
-			if(sign < 0)
+			if (sign < 0)
 				return !Not().TestBit(n);
 
 			int wordNum = n / 32;
-			if(wordNum >= magnitude.Length)
+			if (wordNum >= magnitude.Length)
 				return false;
 
 			int word = magnitude[magnitude.Length - 1 - wordNum];
@@ -3413,10 +3413,10 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger Or(
 			BigInteger value)
 		{
-			if(this.sign == 0)
+			if (this.sign == 0)
 				return value;
 
-			if(value.sign == 0)
+			if (value.sign == 0)
 				return this;
 
 			int[] aMag = this.sign > 0
@@ -3434,24 +3434,24 @@ namespace NBitcoin.BouncyCastle.Math
 			int aStart = resultMag.Length - aMag.Length;
 			int bStart = resultMag.Length - bMag.Length;
 
-			for(int i = 0; i < resultMag.Length; ++i)
+			for (int i = 0; i < resultMag.Length; ++i)
 			{
 				int aWord = i >= aStart ? aMag[i - aStart] : 0;
 				int bWord = i >= bStart ? bMag[i - bStart] : 0;
 
-				if(this.sign < 0)
+				if (this.sign < 0)
 				{
 					aWord = ~aWord;
 				}
 
-				if(value.sign < 0)
+				if (value.sign < 0)
 				{
 					bWord = ~bWord;
 				}
 
 				resultMag[i] = aWord | bWord;
 
-				if(resultNeg)
+				if (resultNeg)
 				{
 					resultMag[i] = ~resultMag[i];
 				}
@@ -3460,7 +3460,7 @@ namespace NBitcoin.BouncyCastle.Math
 			BigInteger result = new BigInteger(1, resultMag, true);
 
 			// TODO Optimise this case
-			if(resultNeg)
+			if (resultNeg)
 			{
 				result = result.Not();
 			}
@@ -3471,10 +3471,10 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger Xor(
 			BigInteger value)
 		{
-			if(this.sign == 0)
+			if (this.sign == 0)
 				return value;
 
-			if(value.sign == 0)
+			if (value.sign == 0)
 				return this;
 
 			int[] aMag = this.sign > 0
@@ -3493,24 +3493,24 @@ namespace NBitcoin.BouncyCastle.Math
 			int aStart = resultMag.Length - aMag.Length;
 			int bStart = resultMag.Length - bMag.Length;
 
-			for(int i = 0; i < resultMag.Length; ++i)
+			for (int i = 0; i < resultMag.Length; ++i)
 			{
 				int aWord = i >= aStart ? aMag[i - aStart] : 0;
 				int bWord = i >= bStart ? bMag[i - bStart] : 0;
 
-				if(this.sign < 0)
+				if (this.sign < 0)
 				{
 					aWord = ~aWord;
 				}
 
-				if(value.sign < 0)
+				if (value.sign < 0)
 				{
 					bWord = ~bWord;
 				}
 
 				resultMag[i] = aWord ^ bWord;
 
-				if(resultNeg)
+				if (resultNeg)
 				{
 					resultMag[i] = ~resultMag[i];
 				}
@@ -3519,7 +3519,7 @@ namespace NBitcoin.BouncyCastle.Math
 			BigInteger result = new BigInteger(1, resultMag, true);
 
 			// TODO Optimise this case
-			if(resultNeg)
+			if (resultNeg)
 			{
 				result = result.Not();
 			}
@@ -3530,14 +3530,14 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger SetBit(
 			int n)
 		{
-			if(n < 0)
+			if (n < 0)
 				throw new ArithmeticException("Bit address less than zero");
 
-			if(TestBit(n))
+			if (TestBit(n))
 				return this;
 
 			// TODO Handle negative values and zero
-			if(sign > 0 && n < (BitLength - 1))
+			if (sign > 0 && n < (BitLength - 1))
 				return FlipExistingBit(n);
 
 			return Or(One.ShiftLeft(n));
@@ -3546,14 +3546,14 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger ClearBit(
 			int n)
 		{
-			if(n < 0)
+			if (n < 0)
 				throw new ArithmeticException("Bit address less than zero");
 
-			if(!TestBit(n))
+			if (!TestBit(n))
 				return this;
 
 			// TODO Handle negative values
-			if(sign > 0 && n < (BitLength - 1))
+			if (sign > 0 && n < (BitLength - 1))
 				return FlipExistingBit(n);
 
 			return AndNot(One.ShiftLeft(n));
@@ -3562,11 +3562,11 @@ namespace NBitcoin.BouncyCastle.Math
 		public BigInteger FlipBit(
 			int n)
 		{
-			if(n < 0)
+			if (n < 0)
 				throw new ArithmeticException("Bit address less than zero");
 
 			// TODO Handle negative values and zero
-			if(sign > 0 && n < (BitLength - 1))
+			if (sign > 0 && n < (BitLength - 1))
 				return FlipExistingBit(n);
 
 			return Xor(One.ShiftLeft(n));

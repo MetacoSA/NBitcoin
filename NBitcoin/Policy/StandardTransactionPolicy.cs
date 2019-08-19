@@ -67,7 +67,7 @@ namespace NBitcoin.Policy
 
 		public TransactionPolicyError[] Check(Transaction transaction, ICoin[] spentCoins)
 		{
-			if(transaction == null)
+			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
 
 			spentCoins = spentCoins ?? new ICoin[0];
@@ -76,15 +76,15 @@ namespace NBitcoin.Policy
 
 
 
-			foreach(var input in transaction.Inputs.AsIndexedInputs())
+			foreach (var input in transaction.Inputs.AsIndexedInputs())
 			{
 				var coin = spentCoins.FirstOrDefault(s => s.Outpoint == input.PrevOut);
-				if(coin != null)
+				if (coin != null)
 				{
-					if(ScriptVerify != null)
+					if (ScriptVerify != null)
 					{
 						ScriptError error;
-						if(!VerifyScript(input, coin.TxOut, ScriptVerify.Value, out error))
+						if (!VerifyScript(input, coin.TxOut, ScriptVerify.Value, out error))
 						{
 							errors.Add(new ScriptPolicyError(input, error, ScriptVerify.Value, coin.TxOut.ScriptPubKey));
 						}
@@ -92,56 +92,56 @@ namespace NBitcoin.Policy
 				}
 
 				var txin = input.TxIn;
-				if(txin.ScriptSig.Length > MaxScriptSigLength)
+				if (txin.ScriptSig.Length > MaxScriptSigLength)
 				{
 					errors.Add(new InputPolicyError("Max scriptSig length exceeded actual is " + txin.ScriptSig.Length + ", max is " + MaxScriptSigLength, input));
 				}
-				if(!txin.ScriptSig.IsPushOnly)
+				if (!txin.ScriptSig.IsPushOnly)
 				{
 					errors.Add(new InputPolicyError("All operation should be push", input));
 				}
-				if(!txin.ScriptSig.HasCanonicalPushes)
+				if (!txin.ScriptSig.HasCanonicalPushes)
 				{
 					errors.Add(new InputPolicyError("All operation should be canonical push", input));
 				}
 			}
 
-			if(CheckMalleabilitySafe)
+			if (CheckMalleabilitySafe)
 			{
-				foreach(var input in transaction.Inputs.AsIndexedInputs())
+				foreach (var input in transaction.Inputs.AsIndexedInputs())
 				{
 					var coin = spentCoins.FirstOrDefault(s => s.Outpoint == input.PrevOut);
-					if(coin != null && coin.GetHashVersion() != HashVersion.Witness)
+					if (coin != null && coin.GetHashVersion() != HashVersion.Witness)
 						errors.Add(new InputPolicyError("Malleable input detected", input));
 				}
 			}
 
-			if(CheckScriptPubKey)
+			if (CheckScriptPubKey)
 			{
-				foreach(var txout in transaction.Outputs.AsCoins())
+				foreach (var txout in transaction.Outputs.AsCoins())
 				{
-					if(!Strategy.IsStandardOutput(txout.TxOut))
+					if (!Strategy.IsStandardOutput(txout.TxOut))
 						errors.Add(new OutputPolicyError("Non-Standard scriptPubKey", (int)txout.Outpoint.N));
 				}
 			}
 
 			int txSize = transaction.GetSerializedSize();
-			if(MaxTransactionSize != null)
+			if (MaxTransactionSize != null)
 			{
-				if(txSize >= MaxTransactionSize.Value)
+				if (txSize >= MaxTransactionSize.Value)
 					errors.Add(new TransactionSizePolicyError(txSize, MaxTransactionSize.Value));
 			}
 
 			var fees = transaction.GetFee(spentCoins);
-			if(fees != null)
+			if (fees != null)
 			{
 				var virtualSize = transaction.GetVirtualSize();
-				if(CheckFee)
+				if (CheckFee)
 				{
-					if(MaxTxFee != null)
+					if (MaxTxFee != null)
 					{
 						var max = MaxTxFee.GetFee(virtualSize);
-						if(fees > max)
+						if (fees > max)
 							errors.Add(new FeeTooHighPolicyError(fees, max));
 					}
 
@@ -151,28 +151,28 @@ namespace NBitcoin.Policy
 							errors.Add(new FeeTooLowPolicyError(fees, MinFee));
 					}
 
-					if(MinRelayTxFee != null)
+					if (MinRelayTxFee != null)
 					{
-						if(MinRelayTxFee != null)
+						if (MinRelayTxFee != null)
 						{
 							var min = MinRelayTxFee.GetFee(virtualSize);
-							if(fees < min)
+							if (fees < min)
 								errors.Add(new FeeTooLowPolicyError(fees, min));
 						}
 					}
 				}
 			}
-			if(MinRelayTxFee != null)
+			if (MinRelayTxFee != null)
 			{
-				foreach(var output in transaction.Outputs)
+				foreach (var output in transaction.Outputs)
 				{
 					var bytes = output.ScriptPubKey.ToBytes(true);
-					if(output.IsDust(MinRelayTxFee) && !IsOpReturn(bytes))
+					if (output.IsDust(MinRelayTxFee) && !IsOpReturn(bytes))
 						errors.Add(new DustPolicyError(output.Value, output.GetDustThreshold(MinRelayTxFee)));
 				}
 			}
 			var opReturnCount = transaction.Outputs.Select(o => o.ScriptPubKey.ToBytes(true)).Count(b => IsOpReturn(b));
-			if(opReturnCount > 1)
+			if (opReturnCount > 1)
 				errors.Add(new TransactionPolicyError("More than one op return detected"));
 			return errors.ToArray();
 		}
@@ -186,22 +186,22 @@ namespace NBitcoin.Policy
 		{
 
 #if !NOCONSENSUSLIB
-			if(!UseConsensusLib)
+			if (!UseConsensusLib)
 #endif
 			{
-				if(input.Transaction is IHasForkId)
+				if (input.Transaction is IHasForkId)
 					scriptVerify |= NBitcoin.ScriptVerify.ForkId;
 				return input.VerifyScript(spentOutput, scriptVerify, out error);
 			}
 #if !NOCONSENSUSLIB
 			else
 			{
-			if(input.Transaction is IHasForkId)
+				if (input.Transaction is IHasForkId)
 					scriptVerify |= (NBitcoin.ScriptVerify)(1U << 16);
 				var ok = Script.VerifyScriptConsensus(spentOutput.ScriptPubKey, input.Transaction, input.Index, scriptVerify);
-				if(!ok)
+				if (!ok)
 				{
-					if(input.VerifyScript(spentOutput, scriptVerify, out error))
+					if (input.VerifyScript(spentOutput, scriptVerify, out error))
 						error = ScriptError.UnknownError;
 					return false;
 				}
@@ -248,7 +248,7 @@ namespace NBitcoin.Policy
 
 	public class StandardTransactionPolicyStrategy
 	{
-        public static StandardTransactionPolicyStrategy Instance { get; } = new StandardTransactionPolicyStrategy();
+		public static StandardTransactionPolicyStrategy Instance { get; } = new StandardTransactionPolicyStrategy();
 
 		public virtual bool IsStandardOutput(TxOut txout)
 		{

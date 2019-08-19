@@ -27,21 +27,21 @@ namespace NBitcoin
 
 		public static BlockHeader Parse(string hex, Network network)
 		{
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			return Parse(hex, network.Consensus.ConsensusFactory);
 		}
 
 		public static BlockHeader Parse(string hex, Consensus consensus)
 		{
-			if(consensus == null)
+			if (consensus == null)
 				throw new ArgumentNullException(nameof(consensus));
 			return Parse(hex, consensus.ConsensusFactory);
 		}
 
 		public static BlockHeader Parse(string hex, ConsensusFactory consensusFactory)
 		{
-			if(consensusFactory == null)
+			if (consensusFactory == null)
 				throw new ArgumentNullException(nameof(consensusFactory));
 			return new BlockHeader(Encoders.Hex.DecodeData(hex), consensusFactory);
 		}
@@ -73,9 +73,9 @@ namespace NBitcoin
 
 		public BlockHeader(string hex, ConsensusFactory consensusFactory)
 		{
-			if(hex == null)
+			if (hex == null)
 				throw new ArgumentNullException(nameof(hex));
-			if(consensusFactory == null)
+			if (consensusFactory == null)
 				throw new ArgumentNullException(nameof(consensusFactory));
 			BitcoinStream bs = new BitcoinStream(Encoders.Hex.DecodeData(hex))
 			{
@@ -106,9 +106,9 @@ namespace NBitcoin
 
 		public BlockHeader(byte[] data, ConsensusFactory consensusFactory)
 		{
-			if(data == null)
+			if (data == null)
 				throw new ArgumentNullException(nameof(data));
-			if(consensusFactory == null)
+			if (consensusFactory == null)
 				throw new ArgumentNullException(nameof(consensusFactory));
 			BitcoinStream bs = new BitcoinStream(data)
 			{
@@ -240,14 +240,14 @@ namespace NBitcoin
 		{
 			uint256 h = null;
 			var hashes = _Hashes;
-			if(hashes != null)
+			if (hashes != null)
 			{
 				h = hashes[0];
 			}
-			if(h != null)
+			if (h != null)
 				return h;
 
-			using(var hs = CreateHashStream())
+			using (var hs = CreateHashStream())
 			{
 				var stream = new BitcoinStream(hs, true);
 				stream.SerializationTypeScope(SerializationType.Hash);
@@ -256,7 +256,7 @@ namespace NBitcoin
 			}
 
 			hashes = _Hashes;
-			if(hashes != null)
+			if (hashes != null)
 			{
 				hashes[0] = h;
 			}
@@ -282,7 +282,7 @@ namespace NBitcoin
 		public void PrecomputeHash(bool invalidateExisting, bool lazily)
 		{
 			_Hashes = invalidateExisting ? new uint256[1] : _Hashes ?? new uint256[1];
-			if(!lazily && _Hashes[0] == null)
+			if (!lazily && _Hashes[0] == null)
 				_Hashes[0] = GetHash();
 		}
 
@@ -305,7 +305,7 @@ namespace NBitcoin
 		public bool CheckProofOfWork()
 		{
 			var bits = Bits.ToBigInteger();
-			if(bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
+			if (bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
 				return false;
 			// Check proof of work matches claimed amount
 			return GetPoWHash() <= Bits.ToUInt256();
@@ -355,11 +355,11 @@ namespace NBitcoin
 			var mtp = prev.GetMedianTimePast() + TimeSpan.FromSeconds(1);
 			var nNewTime = mtp > now ? mtp : now;
 
-			if(nOldTime < nNewTime)
+			if (nOldTime < nNewTime)
 				this.BlockTime = nNewTime;
 
 			// Updating time can change work required on testnet:
-			if(consensus.PowAllowMinDifficultyBlocks)
+			if (consensus.PowAllowMinDifficultyBlocks)
 				Bits = GetWorkRequired(consensus, prev);
 		}
 
@@ -449,7 +449,7 @@ namespace NBitcoin
 		[Obsolete("Should use ConsensusFactories")]
 		public Block(BlockHeader blockHeader)
 		{
-			if(blockHeader == null)
+			if (blockHeader == null)
 				throw new ArgumentNullException(nameof(blockHeader));
 			SetNull();
 			header = blockHeader;
@@ -485,7 +485,7 @@ namespace NBitcoin
 
 		public virtual void ReadWrite(BitcoinStream stream)
 		{
-			using(stream.ConsensusFactoryScope(GetConsensusFactory()))
+			using (stream.ConsensusFactoryScope(GetConsensusFactory()))
 			{
 				stream.ReadWrite(ref header);
 				stream.ReadWrite(ref vtx);
@@ -506,14 +506,14 @@ namespace NBitcoin
 		/// <returns>Null if block has been created before BIP34 got enforced, else, the height</returns>
 		public int? GetCoinbaseHeight()
 		{
-			if(Header.Version < 2 || Transactions.Count == 0 || Transactions[0].Inputs.Count == 0)
+			if (Header.Version < 2 || Transactions.Count == 0 || Transactions[0].Inputs.Count == 0)
 				return null;
 			return Transactions[0].Inputs[0].ScriptSig.ToOps().FirstOrDefault()?.GetInt();
 		}
 
 		void SetNull()
 		{
-			if(header != null)
+			if (header != null)
 				header.SetNull();
 			vtx.Clear();
 		}
@@ -552,11 +552,11 @@ namespace NBitcoin
 		/// <returns>A new block with only the options wanted</returns>
 		public Block WithOptions(TransactionOptions options)
 		{
-			if(Transactions.Count == 0)
+			if (Transactions.Count == 0)
 				return this;
-			if(options == TransactionOptions.Witness && Transactions[0].HasWitness)
+			if (options == TransactionOptions.Witness && Transactions[0].HasWitness)
 				return this;
-			if(options == TransactionOptions.None && !Transactions[0].HasWitness)
+			if (options == TransactionOptions.None && !Transactions[0].HasWitness)
 				return this;
 			var instance = GetConsensusFactory().CreateBlock();
 			var ms = new MemoryStream();
@@ -621,7 +621,7 @@ namespace NBitcoin
 		}
 		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height, DateTimeOffset now)
 		{
-			if(address == null)
+			if (address == null)
 				throw new ArgumentNullException(nameof(address));
 			Block block = GetConsensusFactory().CreateBlock();
 			block.Header.Nonce = RandomUtils.GetUInt32();
@@ -688,7 +688,7 @@ namespace NBitcoin
 			blk.Header.Version = (int)block["ver"];
 			blk.Header.HashPrevBlock = uint256.Parse((string)block["prev_block"]);
 			blk.Header.HashMerkleRoot = uint256.Parse((string)block["mrkl_root"]);
-			foreach(var tx in txs)
+			foreach (var tx in txs)
 			{
 				blk.AddTransaction(formatter.Parse((JObject)tx));
 			}
@@ -697,23 +697,23 @@ namespace NBitcoin
 #endif
 		public static Block Parse(string hex, Network network)
 		{
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			return Parse(hex, network.Consensus.ConsensusFactory);
 		}
 
 		public static Block Parse(string hex, Consensus consensus)
 		{
-			if(consensus == null)
+			if (consensus == null)
 				throw new ArgumentNullException(nameof(consensus));
 			return Parse(hex, consensus.ConsensusFactory);
 		}
 
 		public static Block Parse(string hex, ConsensusFactory consensusFactory)
 		{
-			if(hex == null)
+			if (hex == null)
 				throw new ArgumentNullException(nameof(hex));
-			if(consensusFactory == null)
+			if (consensusFactory == null)
 				throw new ArgumentNullException(nameof(consensusFactory));
 			var block = consensusFactory.CreateBlock();
 			block.ReadWrite(Encoders.Hex.DecodeData(hex), consensusFactory);
@@ -722,25 +722,25 @@ namespace NBitcoin
 
 		public static Block Load(byte[] hex, Network network)
 		{
-			if(hex == null)
+			if (hex == null)
 				throw new ArgumentNullException(nameof(hex));
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			return Load(hex, network.Consensus.ConsensusFactory);
 		}
 		public static Block Load(byte[] hex, Consensus consensus)
 		{
-			if(hex == null)
+			if (hex == null)
 				throw new ArgumentNullException(nameof(hex));
-			if(consensus == null)
+			if (consensus == null)
 				throw new ArgumentNullException(nameof(consensus));
 			return Load(hex, consensus.ConsensusFactory);
 		}
 		public static Block Load(byte[] hex, ConsensusFactory consensusFactory)
 		{
-			if(hex == null)
+			if (hex == null)
 				throw new ArgumentNullException(nameof(hex));
-			if(consensusFactory == null)
+			if (consensusFactory == null)
 				throw new ArgumentNullException(nameof(consensusFactory));
 			var block = consensusFactory.CreateBlock();
 			block.ReadWrite(hex, consensusFactory);

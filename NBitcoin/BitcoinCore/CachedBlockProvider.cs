@@ -37,11 +37,11 @@ namespace NBitcoin.BitcoinCore
 		public Block GetBlock(uint256 id, List<byte[]> searchedData)
 		{
 			Block result = null;
-			if(_Blocks.TryGetValue(id, out result))
+			if (_Blocks.TryGetValue(id, out result))
 				return result;
 			result = Inner.GetBlock(id, searchedData);
 			_Blocks.AddOrUpdate(id, result, (i, b) => b);
-			while(_Blocks.Count > MaxCachedBlock)
+			while (_Blocks.Count > MaxCachedBlock)
 			{
 				var removed = TakeRandom(_Blocks.Keys.ToList());
 				Block ignored = null;
@@ -52,7 +52,7 @@ namespace NBitcoin.BitcoinCore
 
 		private static uint256 TakeRandom(List<uint256> id)
 		{
-			if(id.Count == 0)
+			if (id.Count == 0)
 				return null;
 			Random rand = new Random();
 			return id[rand.Next(0, id.Count)];

@@ -29,13 +29,13 @@ namespace NBitcoin.BitcoinCore
 		/// <param name="end">End of the range (excluded)</param>
 		public DiskBlockPosRange(DiskBlockPos begin = null, DiskBlockPos end = null)
 		{
-			if(begin == null)
+			if (begin == null)
 				begin = DiskBlockPos.Begin;
-			if(end == null)
+			if (end == null)
 				end = DiskBlockPos.End;
 			_Begin = begin;
 			_End = end;
-			if(end <= begin)
+			if (end <= begin)
 				throw new ArgumentException("End should be more than begin");
 		}
 		private readonly DiskBlockPos _Begin;
@@ -118,7 +118,7 @@ namespace NBitcoin.BitcoinCore
 		{
 			stream.ReadWriteAsCompactVarInt(ref _File);
 			stream.ReadWriteAsCompactVarInt(ref _Position);
-			if(!stream.Serializing)
+			if (!stream.Serializing)
 				UpdateHash();
 		}
 
@@ -131,20 +131,20 @@ namespace NBitcoin.BitcoinCore
 
 		#endregion
 
-        public bool Equals(DiskBlockPos other)
-        {
-            return this == other; //Uses operator ==
-        }
-
-        public override bool Equals(object obj)
+		public bool Equals(DiskBlockPos other)
 		{
-            return this == (obj as DiskBlockPos); //Uses operator ==
+			return this == other; //Uses operator ==
+		}
+
+		public override bool Equals(object obj)
+		{
+			return this == (obj as DiskBlockPos); //Uses operator ==
 		}
 		public static bool operator ==(DiskBlockPos a, DiskBlockPos b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 			return a.File == b.File && a.Position == b.Position;
 		}
@@ -156,9 +156,9 @@ namespace NBitcoin.BitcoinCore
 
 		public static bool operator <(DiskBlockPos a, DiskBlockPos b)
 		{
-			if(a.File < b.File)
+			if (a.File < b.File)
 				return true;
-			if(a.File == b.File && a.Position < b.Position)
+			if (a.File == b.File && a.Position < b.Position)
 				return true;
 			return false;
 		}
@@ -168,9 +168,9 @@ namespace NBitcoin.BitcoinCore
 		}
 		public static bool operator >(DiskBlockPos a, DiskBlockPos b)
 		{
-			if(a.File > b.File)
+			if (a.File > b.File)
 				return true;
-			if(a.File == b.File && a.Position > b.Position)
+			if (a.File == b.File && a.Position > b.Position)
 				return true;
 			return false;
 		}
@@ -202,7 +202,7 @@ namespace NBitcoin.BitcoinCore
 		public static DiskBlockPos Parse(string data)
 		{
 			var match = _Reg.Match(data);
-			if(!match.Success)
+			if (!match.Success)
 				throw new FormatException("Invalid position string : " + data);
 			return new DiskBlockPos(uint.Parse(match.Groups[1].Value), uint.Parse(match.Groups[2].Value));
 		}
@@ -231,21 +231,21 @@ namespace NBitcoin.BitcoinCore
 		static byte[] _Unused = new byte[1024 * 4];
 		protected override void ReadWriteItem(BitcoinStream stream, ref Block item)
 		{
-			if(!ParseSkipBlockContent)
+			if (!ParseSkipBlockContent)
 				stream.ReadWrite(ref item);
 			else
 			{
 				var beforeReading = stream.Inner.Position;
 				BlockHeader header = item == null ? null : item.Header;
 				stream.ReadWrite(ref header);
-				if(!stream.Serializing)
+				if (!stream.Serializing)
 #pragma warning disable CS0618 // Type or member is obsolete
 					item = new Block(header);
 #pragma warning restore CS0618 // Type or member is obsolete
 
 				var headerSize = stream.Inner.Position - beforeReading;
 				var bodySize = this.Header.ItemSize - headerSize;
-				if(bodySize > 1024 * 4)
+				if (bodySize > 1024 * 4)
 				{
 					stream.Inner.Position = beforeReading + Header.ItemSize;
 				}

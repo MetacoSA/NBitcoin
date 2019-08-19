@@ -41,30 +41,30 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 		public static AddressManager GetAddrman(NodeConnectionParameters parameters)
 		{
-			if(parameters == null)
+			if (parameters == null)
 				throw new ArgumentNullException(nameof(parameters));
 			return GetAddrman(parameters.TemplateBehaviors);
 		}
 
 		public static AddressManager GetAddrman(NodeBehaviorsCollection behaviors)
 		{
-			if(behaviors == null)
+			if (behaviors == null)
 				throw new ArgumentNullException(nameof(behaviors));
 			var behavior = behaviors.Find<AddressManagerBehavior>();
-			if(behavior == null)
+			if (behavior == null)
 				return null;
 			return behavior.AddressManager;
 		}
 		public static void SetAddrman(Node node, AddressManager addrman)
 		{
-			if(node == null)
+			if (node == null)
 				throw new ArgumentNullException(nameof(node));
 			SetAddrman(node.Behaviors, addrman);
 		}
 
 		public static void SetAddrman(NodeConnectionParameters parameters, AddressManager addrman)
 		{
-			if(parameters == null)
+			if (parameters == null)
 				throw new ArgumentNullException(nameof(parameters));
 			SetAddrman(parameters.TemplateBehaviors, addrman);
 		}
@@ -88,10 +88,10 @@ namespace NBitcoin.Protocol.Behaviors
 
 		public static void SetAddrman(NodeBehaviorsCollection behaviors, AddressManager addrman)
 		{
-			if(behaviors == null)
+			if (behaviors == null)
 				throw new ArgumentNullException(nameof(behaviors));
 			var behavior = behaviors.Find<AddressManagerBehavior>();
-			if(behavior == null)
+			if (behavior == null)
 			{
 				// FIXME: Please take a look at this
 				behavior = new AddressManagerBehavior(addrman);
@@ -102,7 +102,7 @@ namespace NBitcoin.Protocol.Behaviors
 
 		public AddressManagerBehavior(AddressManager manager)
 		{
-			if(manager == null)
+			if (manager == null)
 				throw new ArgumentNullException(nameof(manager));
 			_AddressManager = manager;
 			Mode = AddressManagerBehaviorMode.AdvertizeDiscover;
@@ -123,7 +123,7 @@ namespace NBitcoin.Protocol.Behaviors
 			set
 			{
 				AssertNotAttached();
-				if(value == null)
+				if (value == null)
 					throw new ArgumentNullException(nameof(value));
 				_AddressManager = value;
 			}
@@ -136,19 +136,19 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void AttachedNode_MessageReceived(Node node, IncomingMessage message)
 		{
-			if((Mode & AddressManagerBehaviorMode.Advertize) != 0)
+			if ((Mode & AddressManagerBehaviorMode.Advertize) != 0)
 			{
 				var getaddr = message.Message.Payload as GetAddrPayload;
-				if(getaddr != null)
+				if (getaddr != null)
 				{
 					node.SendMessageAsync(new AddrPayload(AddressManager.GetAddr().Take(1000).ToArray()));
 				}
 			}
 
-			if((Mode & AddressManagerBehaviorMode.Discover) != 0)
+			if ((Mode & AddressManagerBehaviorMode.Discover) != 0)
 			{
 				var addr = message.Message.Payload as AddrPayload;
-				if(addr != null)
+				if (addr != null)
 				{
 					AddressManager.Add(addr.Addresses, node.RemoteSocketAddress);
 				}
@@ -157,11 +157,11 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void AttachedNode_StateChanged(Node node, NodeState oldState)
 		{
-			if((Mode & AddressManagerBehaviorMode.Discover) != 0)
+			if ((Mode & AddressManagerBehaviorMode.Discover) != 0)
 			{
-				if(node.State <= NodeState.Disconnecting && oldState == NodeState.HandShaked)
+				if (node.State <= NodeState.Disconnecting && oldState == NodeState.HandShaked)
 					AddressManager.Connected(node.Peer);
-				if(node.State == NodeState.HandShaked)
+				if (node.State == NodeState.HandShaked)
 					AddressManager.Good(node.Peer);
 			}
 		}
@@ -184,7 +184,7 @@ namespace NBitcoin.Protocol.Behaviors
 
 		internal void DiscoverPeers(Network network, NodeConnectionParameters parameters)
 		{
-			if(Mode.HasFlag(AddressManagerBehaviorMode.Discover))
+			if (Mode.HasFlag(AddressManagerBehaviorMode.Discover))
 				AddressManager.DiscoverPeers(network, parameters, PeersToDiscover);
 		}
 

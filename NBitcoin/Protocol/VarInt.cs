@@ -24,7 +24,7 @@ namespace NBitcoin.Protocol
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			if(stream.Serializing)
+			if (stream.Serializing)
 			{
 				ulong n = _Value;
 #if HAS_SPAN
@@ -33,12 +33,12 @@ namespace NBitcoin.Protocol
 				byte[] tmp = new byte[(_Size * 8 + 6) / 7];
 #endif
 				int len = 0;
-				while(true)
+				while (true)
 				{
 					byte a = (byte)(n & 0x7F);
 					byte b = (byte)(len != 0 ? 0x80 : 0x00);
 					tmp[len] = (byte)(a | b);
-					if(n <= 0x7F)
+					if (n <= 0x7F)
 						break;
 					n = (n >> 7) - 1;
 					len++;
@@ -47,19 +47,19 @@ namespace NBitcoin.Protocol
 				{
 					byte b = tmp[len];
 					stream.ReadWrite(ref b);
-				} while(len-- != 0);
+				} while (len-- != 0);
 			}
 			else
 			{
 				ulong n = 0;
-				while(true)
+				while (true)
 				{
 					byte chData = 0;
 					stream.ReadWrite(ref chData);
 					ulong a = (n << 7);
 					byte b = (byte)(chData & 0x7F);
 					n = (a | b);
-					if((chData & 0x80) != 0)
+					if ((chData & 0x80) != 0)
 						n++;
 					else
 						break;
@@ -99,21 +99,21 @@ namespace NBitcoin.Protocol
 
 		public static void StaticWrite(BitcoinStream bs, ulong length)
 		{
-			if(!bs.Serializing)
+			if (!bs.Serializing)
 				throw new InvalidOperationException("Stream should be serializing");
 			var stream = bs.Inner;
 			bs.Counter.AddWritten(1);
-			if(length < 0xFD)
+			if (length < 0xFD)
 			{
 				stream.WriteByte((byte)length);
 			}
-			else if(length <= 0xffff)
+			else if (length <= 0xffff)
 			{
 				var value = (ushort)length;
 				stream.WriteByte((byte)0xFD);
 				bs.ReadWrite(ref value);
 			}
-			else if(length <= 0xffffffff)
+			else if (length <= 0xffffffff)
 			{
 				var value = (uint)length;
 				stream.WriteByte((byte)0xFE);
@@ -129,21 +129,21 @@ namespace NBitcoin.Protocol
 
 		public static ulong StaticRead(BitcoinStream bs)
 		{
-			if(bs.Serializing)
+			if (bs.Serializing)
 				throw new InvalidOperationException("Stream should not be serializing");
-			var prefix= bs.Inner.ReadByte();
+			var prefix = bs.Inner.ReadByte();
 			bs.Counter.AddReaden(1);
-			if(prefix == -1)
+			if (prefix == -1)
 				throw new EndOfStreamException("No more byte to read");
-			if(prefix < 0xFD)
+			if (prefix < 0xFD)
 				return (byte)prefix;
-			else if(prefix == 0xFD)
+			else if (prefix == 0xFD)
 			{
 				var value = (ushort)0;
 				bs.ReadWrite(ref value);
 				return value;
 			}
-			else if(prefix == 0xFE)
+			else if (prefix == 0xFE)
 			{
 				var value = (uint)0;
 				bs.ReadWrite(ref value);
@@ -166,10 +166,10 @@ namespace NBitcoin.Protocol
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			if(stream.Serializing)
+			if (stream.Serializing)
 				StaticWrite(stream, _Value);
 			else
-				_Value = StaticRead(stream);			
+				_Value = StaticRead(stream);
 		}
 
 		#endregion

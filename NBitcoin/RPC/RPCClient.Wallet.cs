@@ -220,26 +220,26 @@ namespace NBitcoin.RPC
 
 		private JObject FundRawTransactionOptionsToJson(FundRawTransactionOptions options)
 		{
-				var jOptions = new JObject();
-				if (options.ChangeAddress != null)
-					jOptions.Add(new JProperty("changeAddress", options.ChangeAddress.ToString()));
-				if (options.ChangePosition != null)
-					jOptions.Add(new JProperty("changePosition", options.ChangePosition.Value));
-				jOptions.Add(new JProperty("includeWatching", options.IncludeWatching));
-				jOptions.Add(new JProperty("lockUnspents", options.LockUnspents));
-				if (options.ReserveChangeKey != null)
-					jOptions.Add(new JProperty("reserveChangeKey", options.ReserveChangeKey));
-				if (options.FeeRate != null)
-					jOptions.Add(new JProperty("feeRate", options.FeeRate.GetFee(1000).ToDecimal(MoneyUnit.BTC)));
-				if (options.SubtractFeeFromOutputs != null)
+			var jOptions = new JObject();
+			if (options.ChangeAddress != null)
+				jOptions.Add(new JProperty("changeAddress", options.ChangeAddress.ToString()));
+			if (options.ChangePosition != null)
+				jOptions.Add(new JProperty("changePosition", options.ChangePosition.Value));
+			jOptions.Add(new JProperty("includeWatching", options.IncludeWatching));
+			jOptions.Add(new JProperty("lockUnspents", options.LockUnspents));
+			if (options.ReserveChangeKey != null)
+				jOptions.Add(new JProperty("reserveChangeKey", options.ReserveChangeKey));
+			if (options.FeeRate != null)
+				jOptions.Add(new JProperty("feeRate", options.FeeRate.GetFee(1000).ToDecimal(MoneyUnit.BTC)));
+			if (options.SubtractFeeFromOutputs != null)
+			{
+				JArray array = new JArray();
+				foreach (var v in options.SubtractFeeFromOutputs)
 				{
-					JArray array = new JArray();
-					foreach (var v in options.SubtractFeeFromOutputs)
-					{
-						array.Add(new JValue(v));
-					}
-					jOptions.Add(new JProperty("subtractFeeFromOutputs", array));
+					array.Add(new JValue(v));
 				}
+				jOptions.Add(new JProperty("subtractFeeFromOutputs", array));
+			}
 			return jOptions;
 		}
 
@@ -916,13 +916,13 @@ namespace NBitcoin.RPC
 		{
 			var values = new object[] { };
 			if (inputs == null)
-				inputs = new TxIn[] {};
+				inputs = new TxIn[] { };
 			if (outputs == null)
 				throw new ArgumentNullException(nameof(outputs));
 
 			var rpcInputs = inputs.Select(i => i.ToRPCInputs()).ToArray();
 
-			var outputToSend = new JObject {};
+			var outputToSend = new JObject { };
 			if (outputs.Item1 != null)
 			{
 				foreach (var kv in outputs.Item1)
@@ -1010,8 +1010,8 @@ namespace NBitcoin.RPC
 		private Money GetMoney(RPCResponse response)
 		{
 			decimal coins = response.Result is JValue jVal
-				            ? Convert.ToDecimal(jVal.Value)
-				            : response.Result.Value<decimal>();
+							? Convert.ToDecimal(jVal.Value)
+							: response.Result.Value<decimal>();
 			return Money.Coins(coins);
 		}
 	}

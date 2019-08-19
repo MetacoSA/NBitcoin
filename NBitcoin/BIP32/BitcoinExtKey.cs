@@ -65,7 +65,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_Key == null)
+				if (_Key == null)
 				{
 					_Key = new ExtKey();
 					_Key.ReadWrite(new BitcoinStream(vchData));
@@ -160,7 +160,7 @@ namespace NBitcoin
 		/// </summary>
 		public static implicit operator ExtKey(BitcoinExtKey key)
 		{
-			if(key == null)
+			if (key == null)
 				return null;
 			return key.ExtKey;
 		}
@@ -196,7 +196,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_PubKey == null)
+				if (_PubKey == null)
 				{
 					_PubKey = new ExtPubKey();
 					_PubKey.ReadWrite(new BitcoinStream(vchData));
@@ -210,7 +210,7 @@ namespace NBitcoin
 			get
 			{
 				var baseSize = 1 + 4 + 4 + 32;
-				if(vchData.Length != baseSize + 33 && vchData.Length != baseSize + 65)
+				if (vchData.Length != baseSize + 33 && vchData.Length != baseSize + 65)
 					return false;
 				try
 				{
@@ -249,7 +249,7 @@ namespace NBitcoin
 		/// </summary>
 		public static implicit operator ExtPubKey(BitcoinExtPubKey key)
 		{
-			if(key == null)
+			if (key == null)
 				return null;
 			return key.ExtPubKey;
 		}

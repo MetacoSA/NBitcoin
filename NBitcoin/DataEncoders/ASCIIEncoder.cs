@@ -11,7 +11,7 @@ namespace NBitcoin.DataEncoders
 		//Do not using Encoding.ASCII (not portable)
 		public override byte[] DecodeData(string encoded)
 		{
-			if(String.IsNullOrEmpty(encoded))
+			if (String.IsNullOrEmpty(encoded))
 				return new byte[0];
 			return encoded.ToCharArray().Select(o => (byte)o).ToArray();
 		}

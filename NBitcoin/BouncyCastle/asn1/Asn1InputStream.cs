@@ -20,11 +20,11 @@ namespace NBitcoin.BouncyCastle.Asn1
 
 		internal static int FindLimit(Stream input)
 		{
-			if(input is LimitedInputStream)
+			if (input is LimitedInputStream)
 			{
 				return ((LimitedInputStream)input).GetRemaining();
 			}
-			else if(input is MemoryStream)
+			else if (input is MemoryStream)
 			{
 				MemoryStream mem = (MemoryStream)input;
 				return (int)(mem.Length - mem.Position);
@@ -78,19 +78,19 @@ namespace NBitcoin.BouncyCastle.Asn1
 
 			DefiniteLengthInputStream defIn = new DefiniteLengthInputStream(this.s, length);
 
-			if((tag & Asn1Tags.Application) != 0)
+			if ((tag & Asn1Tags.Application) != 0)
 			{
 				throw new IOException("invalid ECDSA sig");
 			}
 
-			if((tag & Asn1Tags.Tagged) != 0)
+			if ((tag & Asn1Tags.Tagged) != 0)
 			{
 				throw new IOException("invalid ECDSA sig");
 			}
 
-			if(isConstructed)
+			if (isConstructed)
 			{
-				switch(tagNo)
+				switch (tagNo)
 				{
 					case Asn1Tags.Sequence:
 						return CreateDerSequence(defIn);
@@ -107,7 +107,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 			Asn1EncodableVector v = new Asn1EncodableVector();
 
 			Asn1Object o;
-			while((o = ReadObject()) != null)
+			while ((o = ReadObject()) != null)
 			{
 				v.Add(o);
 			}
@@ -130,9 +130,9 @@ namespace NBitcoin.BouncyCastle.Asn1
 		public Asn1Object ReadObject()
 		{
 			int tag = ReadByte();
-			if(tag <= 0)
+			if (tag <= 0)
 			{
-				if(tag == 0)
+				if (tag == 0)
 					throw new IOException("unexpected end-of-contents marker");
 
 				return null;
@@ -150,7 +150,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 			//
 			int length = ReadLength(this.s, limit);
 
-			if(length < 0) // indefinite length method
+			if (length < 0) // indefinite length method
 			{
 				throw new IOException("indefinite length primitive encoding encountered");
 			}
@@ -160,7 +160,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 				{
 					return BuildObject(tag, tagNo, length);
 				}
-				catch(ArgumentException e)
+				catch (ArgumentException e)
 				{
 					throw new Asn1Exception("corrupted stream detected", e);
 				}
@@ -176,7 +176,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 			//
 			// with tagged object tag number is bottom 5 bits, or stored at the start of the content
 			//
-			if(tagNo == 0x1f)
+			if (tagNo == 0x1f)
 			{
 				tagNo = 0;
 
@@ -184,19 +184,19 @@ namespace NBitcoin.BouncyCastle.Asn1
 
 				// X.690-0207 8.1.2.4.2
 				// "c) bits 7 to 1 of the first subsequent octet shall not all be zero."
-				if((b & 0x7f) == 0) // Note: -1 will pass
+				if ((b & 0x7f) == 0) // Note: -1 will pass
 				{
 					throw new IOException("Corrupted stream - invalid high tag number found");
 				}
 
-				while((b >= 0) && ((b & 0x80) != 0))
+				while ((b >= 0) && ((b & 0x80) != 0))
 				{
 					tagNo |= (b & 0x7f);
 					tagNo <<= 7;
 					b = s.ReadByte();
 				}
 
-				if(b < 0)
+				if (b < 0)
 					throw new EndOfStreamException("EOF found inside tag value.");
 
 				tagNo |= (b & 0x7f);
@@ -210,35 +210,35 @@ namespace NBitcoin.BouncyCastle.Asn1
 			int limit)
 		{
 			int length = s.ReadByte();
-			if(length < 0)
+			if (length < 0)
 				throw new EndOfStreamException("EOF found when length expected");
 
-			if(length == 0x80)
+			if (length == 0x80)
 				return -1;      // indefinite-length encoding
 
-			if(length > 127)
+			if (length > 127)
 			{
 				int size = length & 0x7f;
 
 				// Note: The invalid long form "0xff" (see X.690 8.1.3.5c) will be caught here
-				if(size > 4)
+				if (size > 4)
 					throw new IOException("DER length more than 4 bytes: " + size);
 
 				length = 0;
-				for(int i = 0; i < size; i++)
+				for (int i = 0; i < size; i++)
 				{
 					int next = s.ReadByte();
 
-					if(next < 0)
+					if (next < 0)
 						throw new EndOfStreamException("EOF found reading length");
 
 					length = (length << 8) + next;
 				}
 
-				if(length < 0)
+				if (length < 0)
 					throw new IOException("Corrupted stream - negative length found");
 
-				if(length >= limit)   // after all we must have read at least 1 byte
+				if (length >= limit)   // after all we must have read at least 1 byte
 					throw new IOException("Corrupted stream - out of bounds length found");
 			}
 
@@ -248,13 +248,13 @@ namespace NBitcoin.BouncyCastle.Asn1
 		internal static byte[] GetBuffer(DefiniteLengthInputStream defIn, byte[][] tmpBuffers)
 		{
 			int len = defIn.GetRemaining();
-			if(len >= tmpBuffers.Length)
+			if (len >= tmpBuffers.Length)
 			{
 				return defIn.ToArray();
 			}
 
 			byte[] buf = tmpBuffers[len];
-			if(buf == null)
+			if (buf == null)
 			{
 				buf = tmpBuffers[len] = new byte[len];
 			}
@@ -269,7 +269,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 			DefiniteLengthInputStream defIn,
 			byte[][] tmpBuffers)
 		{
-			switch(tagNo)
+			switch (tagNo)
 			{
 				case Asn1Tags.Boolean:
 					throw new IOException("invalid ECDSA sig");
@@ -281,7 +281,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 
 			byte[] bytes = defIn.ToArray();
 
-			switch(tagNo)
+			switch (tagNo)
 			{
 				case Asn1Tags.Integer:
 					return new DerInteger(bytes);

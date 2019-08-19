@@ -14,9 +14,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 
 		public static int[] GenerateCompactNaf(BigInteger k)
 		{
-			if((k.BitLength >> 16) != 0)
+			if ((k.BitLength >> 16) != 0)
 				throw new ArgumentException("must have bitlength < 2^16", "k");
-			if(k.SignValue == 0)
+			if (k.SignValue == 0)
 				return EMPTY_INTS;
 
 			BigInteger _3k = k.ShiftLeft(1).Add(k);
@@ -27,9 +27,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			BigInteger diff = _3k.Xor(k);
 
 			int highBit = bits - 1, length = 0, zeroes = 0;
-			for(int i = 1; i < highBit; ++i)
+			for (int i = 1; i < highBit; ++i)
 			{
-				if(!diff.TestBit(i))
+				if (!diff.TestBit(i))
 				{
 					++zeroes;
 					continue;
@@ -43,7 +43,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 
 			naf[length++] = (1 << 16) | zeroes;
 
-			if(naf.Length > length)
+			if (naf.Length > length)
 			{
 				naf = Trim(naf, length);
 			}
@@ -53,16 +53,16 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 
 		public static int[] GenerateCompactWindowNaf(int width, BigInteger k)
 		{
-			if(width == 2)
+			if (width == 2)
 			{
 				return GenerateCompactNaf(k);
 			}
 
-			if(width < 2 || width > 16)
+			if (width < 2 || width > 16)
 				throw new ArgumentException("must be in the range [2, 16]", "width");
-			if((k.BitLength >> 16) != 0)
+			if ((k.BitLength >> 16) != 0)
 				throw new ArgumentException("must have bitlength < 2^16", "k");
-			if(k.SignValue == 0)
+			if (k.SignValue == 0)
 				return EMPTY_INTS;
 
 			int[] wnaf = new int[k.BitLength / width + 1];
@@ -75,9 +75,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			bool carry = false;
 			int length = 0, pos = 0;
 
-			while(pos <= k.BitLength)
+			while (pos <= k.BitLength)
 			{
-				if(k.TestBit(pos) == carry)
+				if (k.TestBit(pos) == carry)
 				{
 					++pos;
 					continue;
@@ -86,13 +86,13 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 				k = k.ShiftRight(pos);
 
 				int digit = k.IntValue & mask;
-				if(carry)
+				if (carry)
 				{
 					++digit;
 				}
 
 				carry = (digit & sign) != 0;
-				if(carry)
+				if (carry)
 				{
 					digit -= pow2;
 				}
@@ -103,7 +103,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			}
 
 			// Reduce the WNAF array to its actual length
-			if(wnaf.Length > length)
+			if (wnaf.Length > length)
 			{
 				wnaf = Trim(wnaf, length);
 			}
@@ -120,41 +120,41 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			int j = 0, d0 = 0, d1 = 0;
 
 			int offset = 0;
-			while((d0 | d1) != 0 || k0.BitLength > offset || k1.BitLength > offset)
+			while ((d0 | d1) != 0 || k0.BitLength > offset || k1.BitLength > offset)
 			{
 				int n0 = ((int)((uint)k0.IntValue >> offset) + d0) & 7;
 				int n1 = ((int)((uint)k1.IntValue >> offset) + d1) & 7;
 
 				int u0 = n0 & 1;
-				if(u0 != 0)
+				if (u0 != 0)
 				{
 					u0 -= (n0 & 2);
-					if((n0 + u0) == 4 && (n1 & 3) == 2)
+					if ((n0 + u0) == 4 && (n1 & 3) == 2)
 					{
 						u0 = -u0;
 					}
 				}
 
 				int u1 = n1 & 1;
-				if(u1 != 0)
+				if (u1 != 0)
 				{
 					u1 -= (n1 & 2);
-					if((n1 + u1) == 4 && (n0 & 3) == 2)
+					if ((n1 + u1) == 4 && (n0 & 3) == 2)
 					{
 						u1 = -u1;
 					}
 				}
 
-				if((d0 << 1) == 1 + u0)
+				if ((d0 << 1) == 1 + u0)
 				{
 					d0 ^= 1;
 				}
-				if((d1 << 1) == 1 + u1)
+				if ((d1 << 1) == 1 + u1)
 				{
 					d1 ^= 1;
 				}
 
-				if(++offset == 30)
+				if (++offset == 30)
 				{
 					offset = 0;
 					k0 = k0.ShiftRight(30);
@@ -165,7 +165,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			}
 
 			// Reduce the JSF array to its actual length
-			if(jsf.Length > j)
+			if (jsf.Length > j)
 			{
 				jsf = Trim(jsf, j);
 			}
@@ -175,7 +175,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 
 		public static byte[] GenerateNaf(BigInteger k)
 		{
-			if(k.SignValue == 0)
+			if (k.SignValue == 0)
 				return EMPTY_BYTES;
 
 			BigInteger _3k = k.ShiftLeft(1).Add(k);
@@ -185,9 +185,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 
 			BigInteger diff = _3k.Xor(k);
 
-			for(int i = 1; i < digits; ++i)
+			for (int i = 1; i < digits; ++i)
 			{
-				if(diff.TestBit(i))
+				if (diff.TestBit(i))
 				{
 					naf[i - 1] = (byte)(k.TestBit(i) ? -1 : 1);
 					++i;
@@ -213,14 +213,14 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
          */
 		public static byte[] GenerateWindowNaf(int width, BigInteger k)
 		{
-			if(width == 2)
+			if (width == 2)
 			{
 				return GenerateNaf(k);
 			}
 
-			if(width < 2 || width > 8)
+			if (width < 2 || width > 8)
 				throw new ArgumentException("must be in the range [2, 8]", "width");
-			if(k.SignValue == 0)
+			if (k.SignValue == 0)
 				return EMPTY_BYTES;
 
 			byte[] wnaf = new byte[k.BitLength + 1];
@@ -233,9 +233,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			bool carry = false;
 			int length = 0, pos = 0;
 
-			while(pos <= k.BitLength)
+			while (pos <= k.BitLength)
 			{
-				if(k.TestBit(pos) == carry)
+				if (k.TestBit(pos) == carry)
 				{
 					++pos;
 					continue;
@@ -244,13 +244,13 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 				k = k.ShiftRight(pos);
 
 				int digit = k.IntValue & mask;
-				if(carry)
+				if (carry)
 				{
 					++digit;
 				}
 
 				carry = (digit & sign) != 0;
-				if(carry)
+				if (carry)
 				{
 					digit -= pow2;
 				}
@@ -261,7 +261,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			}
 
 			// Reduce the WNAF array to its actual length
-			if(wnaf.Length > length)
+			if (wnaf.Length > length)
 			{
 				wnaf = Trim(wnaf, length);
 			}
@@ -271,7 +271,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 
 		public static int GetNafWeight(BigInteger k)
 		{
-			if(k.SignValue == 0)
+			if (k.SignValue == 0)
 				return 0;
 
 			BigInteger _3k = k.ShiftLeft(1).Add(k);
@@ -287,7 +287,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 
 		public static WNafPreCompInfo GetWNafPreCompInfo(PreCompInfo preCompInfo)
 		{
-			if((preCompInfo != null) && (preCompInfo is WNafPreCompInfo))
+			if ((preCompInfo != null) && (preCompInfo is WNafPreCompInfo))
 			{
 				return (WNafPreCompInfo)preCompInfo;
 			}
@@ -316,9 +316,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 		public static int GetWindowSize(int bits, int[] windowSizeCutoffs)
 		{
 			int w = 0;
-			for(; w < windowSizeCutoffs.Length; ++w)
+			for (; w < windowSizeCutoffs.Length; ++w)
 			{
-				if(bits < windowSizeCutoffs[w])
+				if (bits < windowSizeCutoffs[w])
 				{
 					break;
 				}
@@ -336,7 +336,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			WNafPreCompInfo wnafPreCompQ = GetWNafPreCompInfo(c.GetPreCompInfo(q, PRECOMP_NAME));
 
 			ECPoint twiceP = wnafPreCompP.Twice;
-			if(twiceP != null)
+			if (twiceP != null)
 			{
 				ECPoint twiceQ = pointMap.Map(twiceP);
 				wnafPreCompQ.Twice = twiceQ;
@@ -344,16 +344,16 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 
 			ECPoint[] preCompP = wnafPreCompP.PreComp;
 			ECPoint[] preCompQ = new ECPoint[preCompP.Length];
-			for(int i = 0; i < preCompP.Length; ++i)
+			for (int i = 0; i < preCompP.Length; ++i)
 			{
 				preCompQ[i] = pointMap.Map(preCompP[i]);
 			}
 			wnafPreCompQ.PreComp = preCompQ;
 
-			if(includeNegated)
+			if (includeNegated)
 			{
 				ECPoint[] preCompNegQ = new ECPoint[preCompQ.Length];
-				for(int i = 0; i < preCompNegQ.Length; ++i)
+				for (int i = 0; i < preCompNegQ.Length; ++i)
 				{
 					preCompNegQ[i] = preCompQ[i].Negate();
 				}
@@ -373,7 +373,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			int iniPreCompLen = 0, reqPreCompLen = 1 << System.Math.Max(0, width - 2);
 
 			ECPoint[] preComp = wnafPreCompInfo.PreComp;
-			if(preComp == null)
+			if (preComp == null)
 			{
 				preComp = EMPTY_POINTS;
 			}
@@ -382,18 +382,18 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 				iniPreCompLen = preComp.Length;
 			}
 
-			if(iniPreCompLen < reqPreCompLen)
+			if (iniPreCompLen < reqPreCompLen)
 			{
 				preComp = ResizeTable(preComp, reqPreCompLen);
 
-				if(reqPreCompLen == 1)
+				if (reqPreCompLen == 1)
 				{
 					preComp[0] = p.Normalize();
 				}
 				else
 				{
 					int curPreCompLen = iniPreCompLen;
-					if(curPreCompLen == 0)
+					if (curPreCompLen == 0)
 					{
 						preComp[0] = p;
 						curPreCompLen = 1;
@@ -401,14 +401,14 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 
 					ECFieldElement iso = null;
 
-					if(reqPreCompLen == 2)
+					if (reqPreCompLen == 2)
 					{
 						preComp[1] = p.ThreeTimes();
 					}
 					else
 					{
 						ECPoint twiceP = wnafPreCompInfo.Twice, last = preComp[curPreCompLen - 1];
-						if(twiceP == null)
+						if (twiceP == null)
 						{
 							twiceP = preComp[0].Twice();
 							wnafPreCompInfo.Twice = twiceP;
@@ -423,9 +423,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
                              *      1) additions do not use the curve's A, B coefficients.
                              *      2) no special cases (i.e. Q +/- Q) when calculating 1P, 3P, 5P, ...
                              */
-							if(ECAlgorithms.IsFpCurve(c) && c.FieldSize >= 64)
+							if (ECAlgorithms.IsFpCurve(c) && c.FieldSize >= 64)
 							{
-								switch(c.CoordinateSystem)
+								switch (c.CoordinateSystem)
 								{
 									case ECCurve.COORD_JACOBIAN:
 									case ECCurve.COORD_JACOBIAN_CHUDNOVSKY:
@@ -438,7 +438,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 											ECFieldElement iso2 = iso.Square(), iso3 = iso2.Multiply(iso);
 											last = last.ScaleX(iso2).ScaleY(iso3);
 
-											if(iniPreCompLen == 0)
+											if (iniPreCompLen == 0)
 											{
 												preComp[0] = last;
 											}
@@ -448,7 +448,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 							}
 						}
 
-						while(curPreCompLen < reqPreCompLen)
+						while (curPreCompLen < reqPreCompLen)
 						{
 							/*
                              * Compute the new ECPoints for the precomputation array. The values 1, 3,
@@ -467,12 +467,12 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 
 			wnafPreCompInfo.PreComp = preComp;
 
-			if(includeNegated)
+			if (includeNegated)
 			{
 				ECPoint[] preCompNeg = wnafPreCompInfo.PreCompNeg;
 
 				int pos;
-				if(preCompNeg == null)
+				if (preCompNeg == null)
 				{
 					pos = 0;
 					preCompNeg = new ECPoint[reqPreCompLen];
@@ -480,13 +480,13 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 				else
 				{
 					pos = preCompNeg.Length;
-					if(pos < reqPreCompLen)
+					if (pos < reqPreCompLen)
 					{
 						preCompNeg = ResizeTable(preCompNeg, reqPreCompLen);
 					}
 				}
 
-				while(pos < reqPreCompLen)
+				while (pos < reqPreCompLen)
 				{
 					preCompNeg[pos] = preComp[pos].Negate();
 					++pos;

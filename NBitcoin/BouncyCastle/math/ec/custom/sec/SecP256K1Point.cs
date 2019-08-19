@@ -42,7 +42,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 		public SecP256K1Point(ECCurve curve, ECFieldElement x, ECFieldElement y, bool withCompression)
 			: base(curve, x, y, withCompression)
 		{
-			if((x == null) != (y == null))
+			if ((x == null) != (y == null))
 				throw new ArgumentException("Exactly one of the field elements is null");
 		}
 
@@ -59,11 +59,11 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 		public override ECPoint Add(ECPoint b)
 		{
-			if(this.IsInfinity)
+			if (this.IsInfinity)
 				return b;
-			if(b.IsInfinity)
+			if (b.IsInfinity)
 				return this;
-			if(this == b)
+			if (this == b)
 				return Twice();
 
 			ECCurve curve = this.Curve;
@@ -82,7 +82,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 			bool Z1IsOne = Z1.IsOne;
 			uint[] U2, S2;
-			if(Z1IsOne)
+			if (Z1IsOne)
 			{
 				U2 = X2.x;
 				S2 = Y2.x;
@@ -101,7 +101,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 			bool Z2IsOne = Z2.IsOne;
 			uint[] U1, S1;
-			if(Z2IsOne)
+			if (Z2IsOne)
 			{
 				U1 = X1.x;
 				S1 = Y1.x;
@@ -125,9 +125,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 			SecP256K1Field.Subtract(S1, S2, R);
 
 			// Check if b == this or b == -this
-			if(Nat256.IsZero(H))
+			if (Nat256.IsZero(H))
 			{
-				if(Nat256.IsZero(R))
+				if (Nat256.IsZero(R))
 				{
 					// this == b, i.e. this must be doubled
 					return this.Twice();
@@ -162,11 +162,11 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 			SecP256K1Field.Reduce(tt1, Y3.x);
 
 			SecP256K1FieldElement Z3 = new SecP256K1FieldElement(H);
-			if(!Z1IsOne)
+			if (!Z1IsOne)
 			{
 				SecP256K1Field.Multiply(Z3.x, Z1.x, Z3.x);
 			}
-			if(!Z2IsOne)
+			if (!Z2IsOne)
 			{
 				SecP256K1Field.Multiply(Z3.x, Z2.x, Z3.x);
 			}
@@ -178,13 +178,13 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 		public override ECPoint Twice()
 		{
-			if(this.IsInfinity)
+			if (this.IsInfinity)
 				return this;
 
 			ECCurve curve = this.Curve;
 
 			SecP256K1FieldElement Y1 = (SecP256K1FieldElement)this.RawYCoord;
-			if(Y1.IsZero)
+			if (Y1.IsZero)
 				return curve.Infinity;
 
 			SecP256K1FieldElement X1 = (SecP256K1FieldElement)this.RawXCoord, Z1 = (SecP256K1FieldElement)this.RawZCoords[0];
@@ -223,7 +223,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 			SecP256K1FieldElement Z3 = new SecP256K1FieldElement(M);
 			SecP256K1Field.Twice(Y1.x, Z3.x);
-			if(!Z1.IsOne)
+			if (!Z1.IsOne)
 			{
 				SecP256K1Field.Multiply(Z3.x, Z1.x, Z3.x);
 			}
@@ -233,15 +233,15 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 		public override ECPoint TwicePlus(ECPoint b)
 		{
-			if(this == b)
+			if (this == b)
 				return ThreeTimes();
-			if(this.IsInfinity)
+			if (this.IsInfinity)
 				return b;
-			if(b.IsInfinity)
+			if (b.IsInfinity)
 				return Twice();
 
 			ECFieldElement Y1 = this.RawYCoord;
-			if(Y1.IsZero)
+			if (Y1.IsZero)
 				return b;
 
 			return Twice().Add(b);
@@ -249,7 +249,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 		public override ECPoint ThreeTimes()
 		{
-			if(this.IsInfinity || this.RawYCoord.IsZero)
+			if (this.IsInfinity || this.RawYCoord.IsZero)
 				return this;
 
 			// NOTE: Be careful about recursions between TwicePlus and ThreeTimes
@@ -258,7 +258,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 		public override ECPoint Negate()
 		{
-			if(IsInfinity)
+			if (IsInfinity)
 				return this;
 
 			return new SecP256K1Point(Curve, RawXCoord, RawYCoord.Negate(), RawZCoords, IsCompressed);

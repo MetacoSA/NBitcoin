@@ -15,12 +15,12 @@ namespace NBitcoin.RPC
 		{
 			OutPoint = new OutPoint(uint256.Parse((string)unspent["txid"]), (uint)unspent["vout"]);
 			var address = (string)unspent["address"];
-			if(address != null)
+			if (address != null)
 				Address = network.Parse<BitcoinAddress>(address);
 			Account = (string)unspent["account"];
 			ScriptPubKey = new Script(Encoders.Hex.DecodeData((string)unspent["scriptPubKey"]));
 			var redeemScriptHex = (string)unspent["redeemScript"];
-			if(redeemScriptHex != null)
+			if (redeemScriptHex != null)
 			{
 				RedeemScript = new Script(Encoders.Hex.DecodeData(redeemScriptHex));
 			}
@@ -29,7 +29,7 @@ namespace NBitcoin.RPC
 			Confirmations = (uint)unspent["confirmations"];
 
 			// Added in Bitcoin Core 0.10.0
-			if(unspent["spendable"] != null)
+			if (unspent["spendable"] != null)
 			{
 				IsSpendable = (bool)unspent["spendable"];
 			}
@@ -83,7 +83,7 @@ namespace NBitcoin.RPC
 		public Coin AsCoin()
 		{
 			var coin = new Coin(OutPoint, new TxOut(Amount, ScriptPubKey));
-			if(RedeemScript != null)
+			if (RedeemScript != null)
 				coin = coin.ToScriptCoin(RedeemScript);
 			return coin;
 		}

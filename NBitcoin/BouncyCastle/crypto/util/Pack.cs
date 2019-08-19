@@ -64,7 +64,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Utilities
 
 		internal static void UInt32_To_BE(uint[] ns, byte[] bs, int off)
 		{
-			for(int i = 0; i < ns.Length; ++i)
+			for (int i = 0; i < ns.Length; ++i)
 			{
 				UInt32_To_BE(ns[i], bs, off);
 				off += 4;
@@ -89,7 +89,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Utilities
 
 		internal static void BE_To_UInt32(byte[] bs, int off, uint[] ns)
 		{
-			for(int i = 0; i < ns.Length; ++i)
+			for (int i = 0; i < ns.Length; ++i)
 			{
 				ns[i] = BE_To_UInt32(bs, off);
 				off += 4;
@@ -124,7 +124,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Utilities
 
 		internal static void UInt64_To_BE(ulong[] ns, byte[] bs, int off)
 		{
-			for(int i = 0; i < ns.Length; ++i)
+			for (int i = 0; i < ns.Length; ++i)
 			{
 				UInt64_To_BE(ns[i], bs, off);
 				off += 8;
@@ -147,7 +147,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Utilities
 
 		internal static void BE_To_UInt64(byte[] bs, int off, ulong[] ns)
 		{
-			for(int i = 0; i < ns.Length; ++i)
+			for (int i = 0; i < ns.Length; ++i)
 			{
 				ns[i] = BE_To_UInt64(bs, off);
 				off += 8;
@@ -212,7 +212,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Utilities
 
 		internal static void UInt32_To_LE(uint[] ns, byte[] bs, int off)
 		{
-			for(int i = 0; i < ns.Length; ++i)
+			for (int i = 0; i < ns.Length; ++i)
 			{
 				UInt32_To_LE(ns[i], bs, off);
 				off += 4;
@@ -237,7 +237,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Utilities
 
 		internal static void LE_To_UInt32(byte[] bs, int off, uint[] ns)
 		{
-			for(int i = 0; i < ns.Length; ++i)
+			for (int i = 0; i < ns.Length; ++i)
 			{
 				ns[i] = LE_To_UInt32(bs, off);
 				off += 4;
@@ -246,7 +246,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Utilities
 
 		internal static void LE_To_UInt32(byte[] bs, int bOff, uint[] ns, int nOff, int count)
 		{
-			for(int i = 0; i < count; ++i)
+			for (int i = 0; i < count; ++i)
 			{
 				ns[nOff + i] = LE_To_UInt32(bs, bOff);
 				bOff += 4;
@@ -256,7 +256,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Utilities
 		internal static uint[] LE_To_UInt32(byte[] bs, int off, int count)
 		{
 			uint[] ns = new uint[count];
-			for(int i = 0; i < ns.Length; ++i)
+			for (int i = 0; i < ns.Length; ++i)
 			{
 				ns[i] = LE_To_UInt32(bs, off);
 				off += 4;

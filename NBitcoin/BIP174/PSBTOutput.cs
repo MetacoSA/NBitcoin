@@ -23,7 +23,7 @@ namespace NBitcoin
 
 		private static uint defaultKeyLen = 1;
 
-		internal PSBTOutput(PSBT parent, uint index, TxOut txOut): base(parent)
+		internal PSBTOutput(PSBT parent, uint index, TxOut txOut) : base(parent)
 		{
 			if (txOut == null)
 				throw new ArgumentNullException(nameof(txOut));
@@ -32,7 +32,7 @@ namespace NBitcoin
 			TxOut = txOut;
 			Index = index;
 		}
-		internal PSBTOutput(BitcoinStream stream, PSBT parent, uint index, TxOut txOut): base(parent)
+		internal PSBTOutput(BitcoinStream stream, PSBT parent, uint index, TxOut txOut) : base(parent)
 		{
 			if (txOut == null)
 				throw new ArgumentNullException(nameof(txOut));
@@ -241,7 +241,7 @@ namespace NBitcoin
 			return new PSBTHDKeyMatch<PSBTOutput>(this, accountKey, addressKeyPath, kv);
 		}
 	}
-	
+
 
 	public class PSBTOutputList : PSBTCoinList<PSBTOutput>
 	{

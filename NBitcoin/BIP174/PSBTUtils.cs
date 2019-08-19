@@ -34,10 +34,10 @@ namespace NBitcoin
 	{
 		PubKeyComparer()
 		{
-				
+
 		}
 		public static PubKeyComparer Instance { get; } = new PubKeyComparer();
-        public int Compare(PubKey x, PubKey y)
+		public int Compare(PubKey x, PubKey y)
 		{
 			return BytesComparer.Instance.Compare(x.ToBytes(), y.ToBytes());
 		}

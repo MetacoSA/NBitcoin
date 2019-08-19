@@ -37,7 +37,7 @@ namespace NBitcoin.BitcoinCore
 		{
 			get
 			{
-				if(_FileRegex == null)
+				if (_FileRegex == null)
 				{
 					_FileRegex = new Regex(FilePrefix + "([0-9]{5,5}).dat");
 				}
@@ -75,9 +75,9 @@ namespace NBitcoin.BitcoinCore
 
 		protected Store(DirectoryInfo folder, Network network)
 		{
-			if(folder == null)
+			if (folder == null)
 				throw new ArgumentNullException(nameof(folder));
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			_Folder = folder;
 			_Network = network;
@@ -98,15 +98,15 @@ namespace NBitcoin.BitcoinCore
 		public IEnumerable<TStoredItem> Enumerate(DiskBlockPosRange range)
 #pragma warning restore CS0612 // Type or member is obsolete
 		{
-			if(range == null)
+			if (range == null)
 #pragma warning disable CS0612 // Type or member is obsolete
 				range = DiskBlockPosRange.All;
 #pragma warning restore CS0612 // Type or member is obsolete
-			using(CreateLock(FileLockType.Read))
+			using (CreateLock(FileLockType.Read))
 			{
-				foreach(var b in EnumerateFolder(range))
+				foreach (var b in EnumerateFolder(range))
 				{
-					if(b.Header.Magic == Network.Magic)
+					if (b.Header.Magic == Network.Magic)
 						yield return b;
 				}
 			}
@@ -118,26 +118,26 @@ namespace NBitcoin.BitcoinCore
 		public IEnumerable<TStoredItem> Enumerate(Stream stream, uint fileIndex = 0, DiskBlockPosRange range = null)
 #pragma warning restore CS0612 // Type or member is obsolete
 		{
-			if(range == null)
+			if (range == null)
 #pragma warning disable CS0612 // Type or member is obsolete
 				range = DiskBlockPosRange.All;
 #pragma warning restore CS0612 // Type or member is obsolete
 
-			if(fileIndex < range.Begin.File || range.End.File < fileIndex)
+			if (fileIndex < range.Begin.File || range.End.File < fileIndex)
 				yield break;
-			if(range.Begin.File < fileIndex)
+			if (range.Begin.File < fileIndex)
 			{
 				var start = DiskBlockPos.Begin.OfFile(fileIndex);
-				if(start >= range.End)
+				if (start >= range.End)
 					yield break;
 #pragma warning disable CS0612 // Type or member is obsolete
 				range = new DiskBlockPosRange(start, range.End);
 #pragma warning restore CS0612 // Type or member is obsolete
 			}
-			if(range.End.File > fileIndex)
+			if (range.End.File > fileIndex)
 			{
 				var end = DiskBlockPos.End.OfFile(fileIndex);
-				if(range.Begin >= end)
+				if (range.Begin >= end)
 					yield break;
 #pragma warning disable CS0612 // Type or member is obsolete
 				range = new DiskBlockPosRange(range.Begin, end);
@@ -146,13 +146,13 @@ namespace NBitcoin.BitcoinCore
 
 			stream.Position = range.Begin.Position;
 			var len = stream.Length;
-			while(stream.Position < len)
+			while (stream.Position < len)
 			{
 				var storedItem = ReadStoredItem(stream, new DiskBlockPos(fileIndex, (uint)stream.Position));
-				if(storedItem.Header.Magic == 0)
+				if (storedItem.Header.Magic == 0)
 					break;
 				yield return storedItem;
-				if(stream.Position >= range.End.Position)
+				if (stream.Position >= range.End.Position)
 					break;
 			}
 		}
@@ -161,15 +161,15 @@ namespace NBitcoin.BitcoinCore
 		public IEnumerable<TStoredItem> EnumerateFile(FileInfo file, uint fileIndex = 0, DiskBlockPosRange range = null)
 #pragma warning restore CS0612 // Type or member is obsolete
 		{
-			if(range == null)
+			if (range == null)
 #pragma warning disable CS0612 // Type or member is obsolete
 				range = DiskBlockPosRange.All;
 #pragma warning restore CS0612 // Type or member is obsolete
 
-			using(var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, BufferSize))
+			using (var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, BufferSize))
 			{
 				fs.Position = range.Begin.Position;
-				foreach(var block in Enumerate(fs, fileIndex, range))
+				foreach (var block in Enumerate(fs, fileIndex, range))
 				{
 					yield return block;
 				}
@@ -180,7 +180,7 @@ namespace NBitcoin.BitcoinCore
 		public IEnumerable<TStoredItem> EnumerateFile(string fileName, uint fileIndex = 0, DiskBlockPosRange range = null)
 #pragma warning restore CS0612 // Type or member is obsolete
 		{
-			if(range == null)
+			if (range == null)
 #pragma warning disable CS0612 // Type or member is obsolete
 				range = DiskBlockPosRange.All;
 #pragma warning restore CS0612 // Type or member is obsolete
@@ -192,16 +192,16 @@ namespace NBitcoin.BitcoinCore
 		public IEnumerable<TStoredItem> EnumerateFolder(DiskBlockPosRange range = null)
 #pragma warning restore CS0612 // Type or member is obsolete
 		{
-			if(range == null)
+			if (range == null)
 #pragma warning disable CS0612 // Type or member is obsolete
 				range = DiskBlockPosRange.All;
 #pragma warning restore CS0612 // Type or member is obsolete
-			foreach(var file in _Folder.GetFiles().OrderBy(f => f.Name))
+			foreach (var file in _Folder.GetFiles().OrderBy(f => f.Name))
 			{
 				var fileIndex = GetFileIndex(file.Name);
-				if(fileIndex < 0)
+				if (fileIndex < 0)
 					continue;
-				foreach(var block in EnumerateFile(file, (uint)fileIndex, range))
+				foreach (var block in EnumerateFile(file, (uint)fileIndex, range))
 				{
 					yield return block;
 				}
@@ -211,7 +211,7 @@ namespace NBitcoin.BitcoinCore
 		private int GetFileIndex(string fileName)
 		{
 			var match = FileRegex.Match(fileName);
-			if(!match.Success)
+			if (!match.Success)
 				return -1;
 			return int.Parse(match.Groups[1].Value);
 		}
@@ -219,7 +219,7 @@ namespace NBitcoin.BitcoinCore
 		public void Write(TStoredItem stored)
 		{
 			var fileName = string.Format(FilePrefix + "{0:00000}.dat", stored.BlockPosition.File);
-			using(var fs = new FileStream(Path.Combine(Folder.FullName, fileName), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+			using (var fs = new FileStream(Path.Combine(Folder.FullName, fileName), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
 			{
 				fs.Position = stored.BlockPosition.Position;
 				stored.ReadWrite(fs, true);
@@ -229,9 +229,9 @@ namespace NBitcoin.BitcoinCore
 		public DiskBlockPos SeekEnd()
 		{
 			var highestFile = _Folder.GetFiles().OrderBy(f => f.Name).Where(f => GetFileIndex(f.Name) != -1).LastOrDefault();
-			if(highestFile == null)
+			if (highestFile == null)
 				return new DiskBlockPos(0, 0);
-			using(var fs = new FileStream(highestFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+			using (var fs = new FileStream(highestFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
 				var index = (uint)GetFileIndex(highestFile.Name);
 				return new DiskBlockPos(index, (uint)fs.Length);
@@ -247,7 +247,7 @@ namespace NBitcoin.BitcoinCore
 		DiskBlockPos _last;
 		protected DiskBlockPos SeekEnd(FileLock @lock)
 		{
-			if(_last != null)
+			if (_last != null)
 				return _last;
 			_last = SeekEnd();
 			return _last;
@@ -255,10 +255,10 @@ namespace NBitcoin.BitcoinCore
 
 		public DiskBlockPos Append(TItem item)
 		{
-			using(var @lock = CreateLock(FileLockType.ReadWrite))
+			using (var @lock = CreateLock(FileLockType.ReadWrite))
 			{
 				DiskBlockPos position = SeekEnd(@lock);
-				if(position.Position > MaxFileSize)
+				if (position.Position > MaxFileSize)
 					position = new DiskBlockPos(position.File + 1, 0);
 				var stored = CreateStoredItem(item, position);
 				Write(stored);
@@ -270,7 +270,7 @@ namespace NBitcoin.BitcoinCore
 
 		public void AppendAll(IEnumerable<TItem> items)
 		{
-			foreach(var item in items)
+			foreach (var item in items)
 			{
 				Append(item);
 			}

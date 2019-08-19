@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
-    public class EstimateSmartFeeResponse
-    {
+	public class EstimateSmartFeeResponse
+	{
 		public FeeRate FeeRate
 		{
 			get; set;

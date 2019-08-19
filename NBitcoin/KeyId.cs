@@ -15,7 +15,7 @@ namespace NBitcoin
 
 		public TxDestination(byte[] value)
 		{
-			if(value == null)
+			if (value == null)
 				throw new ArgumentNullException(nameof(value));
 			_DestBytes = value;
 		}
@@ -44,7 +44,7 @@ namespace NBitcoin
 		}
 		public byte[] ToBytes(bool @unsafe)
 		{
-			if(@unsafe)
+			if (@unsafe)
 				return _DestBytes;
 			var array = new byte[_DestBytes.Length];
 			Array.Copy(_DestBytes, array, _DestBytes.Length);
@@ -54,15 +54,15 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			TxDestination item = obj as TxDestination;
-			if(item == null)
+			if (item == null)
 				return false;
 			return Utils.ArrayEqual(_DestBytes, item._DestBytes) && item.GetType() == this.GetType();
 		}
 		public static bool operator ==(TxDestination a, TxDestination b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 			return Utils.ArrayEqual(a._DestBytes, b._DestBytes) && a.GetType() == b.GetType();
 		}
@@ -80,7 +80,7 @@ namespace NBitcoin
 		string _Str;
 		public override string ToString()
 		{
-			if(_Str == null)
+			if (_Str == null)
 				_Str = Encoders.Hex.EncodeData(_DestBytes);
 			return _Str;
 		}
@@ -96,7 +96,7 @@ namespace NBitcoin
 		public KeyId(byte[] value)
 			: base(value)
 		{
-			if(value.Length != 20)
+			if (value.Length != 20)
 				throw new ArgumentException("value should be 20 bytes", "value");
 		}
 		public KeyId(uint160 value)
@@ -134,7 +134,7 @@ namespace NBitcoin
 		public WitKeyId(byte[] value)
 			: base(value)
 		{
-			if(value.Length != 20)
+			if (value.Length != 20)
 				throw new ArgumentException("value should be 20 bytes", "value");
 		}
 		public WitKeyId(uint160 value)
@@ -194,7 +194,7 @@ namespace NBitcoin
 		public WitScriptId(byte[] value)
 			: base(value)
 		{
-			if(value.Length != 32)
+			if (value.Length != 32)
 				throw new ArgumentException("value should be 32 bytes", "value");
 		}
 		public WitScriptId(uint256 value)
@@ -238,7 +238,7 @@ namespace NBitcoin
 		public ScriptId(byte[] value)
 			: base(value)
 		{
-			if(value.Length != 20)
+			if (value.Length != 20)
 				throw new ArgumentException("value should be 20 bytes", "value");
 		}
 		public ScriptId(uint160 value)

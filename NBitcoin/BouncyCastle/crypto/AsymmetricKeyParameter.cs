@@ -24,7 +24,7 @@ namespace NBitcoin.BouncyCastle.Crypto
 		{
 			AsymmetricKeyParameter other = obj as AsymmetricKeyParameter;
 
-			if(other == null)
+			if (other == null)
 			{
 				return false;
 			}

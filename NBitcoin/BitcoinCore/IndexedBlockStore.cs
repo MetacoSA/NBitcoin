@@ -35,12 +35,12 @@ namespace NBitcoin.BitcoinCore
 		public async Task<BlockHeader> GetHeaderAsync(uint256 hash)
 		{
 			var pos = await Index.GetAsync<DiskBlockPos>(hash.ToString()).ConfigureAwait(false);
-			if(pos == null)
+			if (pos == null)
 				return null;
 #pragma warning disable CS0612 // Type or member is obsolete
 			var stored = _Store.Enumerate(false, new DiskBlockPosRange(pos)).FirstOrDefault();
 #pragma warning restore CS0612 // Type or member is obsolete
-			if(stored == null)
+			if (stored == null)
 				return null;
 			return stored.Item.Header;
 		}
@@ -59,7 +59,7 @@ namespace NBitcoin.BitcoinCore
 		public Block GetBlock(uint256 id, List<byte[]> searchedData)
 		{
 			var block = Get(id.ToString());
-			if(block == null)
+			if (block == null)
 				throw new Exception("Block " + id + " not present in the index");
 			return block;
 		}

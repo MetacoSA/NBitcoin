@@ -40,7 +40,7 @@ namespace NBitcoin
 		private static bool IsStandardScriptSig(Script scriptSig, Script scriptPubKey)
 		{
 			var template = GetTemplateFromScriptPubKey(scriptPubKey);
-			if(template == null)
+			if (template == null)
 				return false;
 
 			return template.CheckScriptSig(scriptSig, scriptPubKey);
@@ -59,15 +59,15 @@ namespace NBitcoin
 		[Obsolete]
 		public static bool AreInputsStandard(Transaction tx, CoinsView coinsView)
 		{
-			if(tx.IsCoinBase)
+			if (tx.IsCoinBase)
 				return true; // Coinbases don't use vin normally
 
-			foreach(var input in tx.Inputs)
+			foreach (var input in tx.Inputs)
 			{
 				TxOut prev = coinsView.GetOutputFor(input);
-				if(prev == null)
+				if (prev == null)
 					return false;
-				if(!IsStandardScriptSig(input.ScriptSig, prev.ScriptPubKey))
+				if (!IsStandardScriptSig(input.ScriptSig, prev.ScriptPubKey))
 					return false;
 			}
 

@@ -236,32 +236,32 @@ namespace NBitcoin.Scripting
 				int num = 0;
 				switch (Tag)
 				{
-				case 26:
-				{
-					Number number = (Number)this;
-					num = 26;
-					return -1640531527 + ((int)number.Item + ((num << 6) + (num >> 2)));
-				}
-				case 27:
-				{
-					Hash160Hash hash160Hash = (Hash160Hash)this;
-					num = 27;
-					return -1640531527 + (hash160Hash.Item.GetHashCode()) + ((num << 6) + (num >> 2));
-				}
-				case 28:
-				{
-					Sha256Hash sha256Hash = (Sha256Hash)this;
-					num = 28;
-					return -1640531527 + (sha256Hash.Item.GetHashCode()) + ((num << 6) + (num >> 2));
-				}
-				case 29:
-				{
-					Pk pk = (Pk)this;
-					num = 29;
-					return -1640531527 + (pk.Item.GetHashCode()) + ((num << 6) + (num >> 2));
-				}
-				default:
-					return Tag;
+					case 26:
+						{
+							Number number = (Number)this;
+							num = 26;
+							return -1640531527 + ((int)number.Item + ((num << 6) + (num >> 2)));
+						}
+					case 27:
+						{
+							Hash160Hash hash160Hash = (Hash160Hash)this;
+							num = 27;
+							return -1640531527 + (hash160Hash.Item.GetHashCode()) + ((num << 6) + (num >> 2));
+						}
+					case 28:
+						{
+							Sha256Hash sha256Hash = (Sha256Hash)this;
+							num = 28;
+							return -1640531527 + (sha256Hash.Item.GetHashCode()) + ((num << 6) + (num >> 2));
+						}
+					case 29:
+						{
+							Pk pk = (Pk)this;
+							num = 29;
+							return -1640531527 + (pk.Item.GetHashCode()) + ((num << 6) + (num >> 2));
+						}
+					default:
+						return Tag;
 				}
 			}
 			return 0;
@@ -288,32 +288,32 @@ namespace NBitcoin.Scripting
 					{
 						switch (Tag)
 						{
-						case 26:
-						{
-							Number number = (Number)this;
-							Number number2 = (Number)obj;
-							return number.Item == number2.Item;
-						}
-						case 27:
-						{
-							Hash160Hash hash160Hash = (Hash160Hash)this;
-							Hash160Hash hash160Hash2 = (Hash160Hash)obj;
-							return hash160Hash.Item == hash160Hash2.Item;
-						}
-						case 28:
-						{
-							Sha256Hash sha256Hash = (Sha256Hash)this;
-							Sha256Hash sha256Hash2 = (Sha256Hash)obj;
-							return sha256Hash.Item == sha256Hash2.Item;
-						}
-						case 29:
-						{
-							Pk pk = (Pk)this;
-							Pk pk2 = (Pk)obj;
-							return pk.Item == pk2.Item;
-						}
-						default:
-							return true;
+							case 26:
+								{
+									Number number = (Number)this;
+									Number number2 = (Number)obj;
+									return number.Item == number2.Item;
+								}
+							case 27:
+								{
+									Hash160Hash hash160Hash = (Hash160Hash)this;
+									Hash160Hash hash160Hash2 = (Hash160Hash)obj;
+									return hash160Hash.Item == hash160Hash2.Item;
+								}
+							case 28:
+								{
+									Sha256Hash sha256Hash = (Sha256Hash)this;
+									Sha256Hash sha256Hash2 = (Sha256Hash)obj;
+									return sha256Hash.Item == sha256Hash2.Item;
+								}
+							case 29:
+								{
+									Pk pk = (Pk)this;
+									Pk pk2 = (Pk)obj;
+									return pk.Item == pk2.Item;
+								}
+							default:
+								return true;
 						}
 					}
 					return false;

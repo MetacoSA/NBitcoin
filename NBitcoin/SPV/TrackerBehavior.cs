@@ -49,7 +49,7 @@ namespace NBitcoin.SPV
 		/// <param name="chain">The chain used to fetch height of incoming blocks, if null, use the chain of ChainBehavior</param>
 		public TrackerBehavior(Tracker tracker, ConcurrentChain chain = null)
 		{
-			if(tracker == null)
+			if (tracker == null)
 				throw new ArgumentNullException(nameof(tracker));
 			FalsePositiveRate = 0.000005;
 			_Chain = chain;
@@ -67,14 +67,14 @@ namespace NBitcoin.SPV
 
 		protected override void AttachCore()
 		{
-			if(_Chain == null)
+			if (_Chain == null)
 			{
 				var chainBehavior = AttachedNode.Behaviors.Find<ChainBehavior>();
-				if(chainBehavior == null)
+				if (chainBehavior == null)
 					throw new InvalidOperationException("A chain should either be passed in the constructor of TrackerBehavior, or a ChainBehavior should be attached on the node");
 				_Chain = chainBehavior.Chain;
 			}
-			if(AttachedNode.State == Protocol.NodeState.HandShaked)
+			if (AttachedNode.State == Protocol.NodeState.HandShaked)
 				SetBloomFilter();
 			AttachedNode.StateChanged += AttachedNode_StateChanged;
 			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
@@ -85,22 +85,22 @@ namespace NBitcoin.SPV
 		void StartScan(object unused)
 		{
 			var node = AttachedNode;
-			if(FilterState != SPV.FilterState.Loaded)
+			if (FilterState != SPV.FilterState.Loaded)
 			{
 				_OnFilterLoaded.Add(() => StartScan(unused));
 				return;
 			}
-			if(!IsScanning(node))
+			if (!IsScanning(node))
 			{
-				if(Monitor.TryEnter(cs))
+				if (Monitor.TryEnter(cs))
 				{
 					try
 					{
-						if(!IsScanning(node))
+						if (!IsScanning(node))
 						{
 							GetDataPayload payload = new GetDataPayload();
 							var fork = _Chain.FindFork(_CurrentProgress);
-							foreach(var block in _Chain
+							foreach (var block in _Chain
 								.EnumerateAfter(fork)
 								.Where(b => b.Header.BlockTime + TimeSpan.FromHours(5.0) > _SkipBefore) //Take 5 more hours, block time might not be right
 								.Partition(100)
@@ -109,7 +109,7 @@ namespace NBitcoin.SPV
 								payload.Inventory.Add(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, block.HashBlock));
 								_InFlight.TryAdd(block.HashBlock, block.HashBlock);
 							}
-							if(payload.Inventory.Count > 0)
+							if (payload.Inventory.Count > 0)
 								node.SendMessageAsync(payload);
 						}
 					}
@@ -128,7 +128,7 @@ namespace NBitcoin.SPV
 
 		void AttachedNode_StateChanged(Protocol.Node node, Protocol.NodeState oldState)
 		{
-			if(node.State == Protocol.NodeState.HandShaked)
+			if (node.State == Protocol.NodeState.HandShaked)
 				SetBloomFilter();
 		}
 
@@ -144,18 +144,18 @@ namespace NBitcoin.SPV
 		void AttachedNode_MessageReceived(Protocol.Node node, Protocol.IncomingMessage message)
 		{
 			var merkleBlock = message.Message.Payload as MerkleBlockPayload;
-			if(merkleBlock != null)
+			if (merkleBlock != null)
 			{
-				if(!CheckFPRate(merkleBlock))
+				if (!CheckFPRate(merkleBlock))
 				{
 					return;
 				}
 
-				foreach(var txId in merkleBlock.Object.PartialMerkleTree.GetMatchedTransactions())
+				foreach (var txId in merkleBlock.Object.PartialMerkleTree.GetMatchedTransactions())
 				{
 					_TransactionsToBlock.AddOrUpdate(txId, merkleBlock.Object, (k, v) => merkleBlock.Object);
 					var tx = _Tracker.GetKnownTransaction(txId);
-					if(tx != null)
+					if (tx != null)
 					{
 						Notify(tx, merkleBlock.Object);
 					}
@@ -163,9 +163,9 @@ namespace NBitcoin.SPV
 
 				var h = merkleBlock.Object.Header.GetHash();
 				uint256 unused;
-				if(_InFlight.TryRemove(h, out unused))
+				if (_InFlight.TryRemove(h, out unused))
 				{
-					if(_InFlight.Count == 0)
+					if (_InFlight.Count == 0)
 					{
 						UpdateCurrentProgress(h);
 						StartScan(unused);
@@ -174,14 +174,14 @@ namespace NBitcoin.SPV
 			}
 
 			var pong = message.Message.Payload as PongPayload;
-			if(pong != null)
+			if (pong != null)
 			{
 				var ping = _RunningPing;
-				if(ping != null && pong.Nonce == ping.Nonce)
+				if (ping != null && pong.Nonce == ping.Nonce)
 				{
 					_RunningPing = null;
 					_FilterState = SPV.FilterState.Loaded;
-					foreach(var item in _OnFilterLoaded)
+					foreach (var item in _OnFilterLoaded)
 					{
 						item();
 					}
@@ -190,33 +190,33 @@ namespace NBitcoin.SPV
 			}
 
 			var notfound = message.Message.Payload as NotFoundPayload;
-			if(notfound != null)
+			if (notfound != null)
 			{
-				foreach(var txid in notfound)
+				foreach (var txid in notfound)
 				{
 					uint256 unusued;
-					if(_InFlight.TryRemove(txid.Hash, out unusued))
+					if (_InFlight.TryRemove(txid.Hash, out unusued))
 					{
-						if(_InFlight.Count == 0)
+						if (_InFlight.Count == 0)
 							StartScan(null);
 					}
 				}
 			}
 
 			var invs = message.Message.Payload as InvPayload;
-			if(invs != null)
+			if (invs != null)
 			{
-				foreach(var inv in invs)
+				foreach (var inv in invs)
 				{
-					if((inv.Type & InventoryType.MSG_BLOCK) != 0)
+					if ((inv.Type & InventoryType.MSG_BLOCK) != 0)
 						node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, inv.Hash)));
-					if((inv.Type & InventoryType.MSG_TX) != 0)
+					if ((inv.Type & InventoryType.MSG_TX) != 0)
 						node.SendMessageAsync(new GetDataPayload(inv));
 				}
 			}
 
 			var txPayload = message.Message.Payload as TxPayload;
-			if(txPayload != null)
+			if (txPayload != null)
 			{
 				var tx = txPayload.Object;
 				MerkleBlock blk;
@@ -229,11 +229,11 @@ namespace NBitcoin.SPV
 		private bool CheckFPRate(MerkleBlockPayload merkleBlock)
 		{
 			var maxFPRate = FalsePositiveRate + MaximumFalsePositiveRateDifference;
-			if(_TotalReceived > 100
+			if (_TotalReceived > 100
 				&& ActualFalsePostiveRate >= maxFPRate)
 			{
 				var currentBlock = _Chain.GetBlock(merkleBlock.Object.Header.GetHash());
-				if(currentBlock != null && currentBlock.Previous != null)
+				if (currentBlock != null && currentBlock.Previous != null)
 					UpdateCurrentProgress(currentBlock.Previous.HashBlock);
 				this.AttachedNode.DisconnectAsync("The actual false positive rate exceed MaximumFalsePositiveRate");
 				return false;
@@ -244,7 +244,7 @@ namespace NBitcoin.SPV
 		private void UpdateCurrentProgress(uint256 h)
 		{
 			var chained = _Chain.GetBlock(h);
-			if(chained != null && !EarlierThanCurrentProgress(chained.GetLocator()))
+			if (chained != null && !EarlierThanCurrentProgress(chained.GetLocator()))
 			{
 				_CurrentProgress = chained.GetLocator();
 			}
@@ -268,11 +268,11 @@ namespace NBitcoin.SPV
 		/// <param name="locator"></param>
 		public void Scan(BlockLocator locator, DateTimeOffset skipBefore)
 		{
-			lock(cs)
+			lock (cs)
 			{
-				if(_SkipBefore == default(DateTimeOffset) || skipBefore < _SkipBefore)
+				if (_SkipBefore == default(DateTimeOffset) || skipBefore < _SkipBefore)
 					_SkipBefore = skipBefore;
-				if(_CurrentProgress == null || EarlierThanCurrentProgress(locator))
+				if (_CurrentProgress == null || EarlierThanCurrentProgress(locator))
 					_CurrentProgress = locator;
 			}
 		}
@@ -285,14 +285,14 @@ namespace NBitcoin.SPV
 		private bool Notify(Transaction tx, MerkleBlock blk)
 		{
 			bool hit = false;
-			if(blk == null)
+			if (blk == null)
 			{
 				hit = _Tracker.NotifyTransaction(tx);
 			}
 			else
 			{
 				var prev = _Chain.GetBlock(blk.Header.HashPrevBlock);
-				if(prev != null)
+				if (prev != null)
 				{
 					var header = new ChainedBlock(blk.Header, null, prev);
 					hit = _Tracker.NotifyTransaction(tx, header, blk);
@@ -304,7 +304,7 @@ namespace NBitcoin.SPV
 			}
 
 			Interlocked.Increment(ref _TotalReceived);
-			if(!hit)
+			if (!hit)
 			{
 				Interlocked.Increment(ref _FalsePositiveCount);
 			}
@@ -364,7 +364,7 @@ namespace NBitcoin.SPV
 		void SetBloomFilter()
 		{
 			var node = AttachedNode;
-			if(node != null)
+			if (node != null)
 			{
 				_RunningPing = null;
 				var filter = _Tracker.CreateBloomFilter(FalsePositiveRate);
@@ -406,9 +406,9 @@ namespace NBitcoin.SPV
 		public void SendMessageAsync(Payload payload)
 		{
 			var node = AttachedNode;
-			if(node == null)
+			if (node == null)
 				return;
-			if(FilterState == SPV.FilterState.Loaded)
+			if (FilterState == SPV.FilterState.Loaded)
 				node.SendMessageAsync(payload);
 			else
 			{

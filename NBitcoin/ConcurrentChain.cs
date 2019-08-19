@@ -30,7 +30,7 @@ namespace NBitcoin
 			}
 			internal void AssertCoherent()
 			{
-				if(!SerializePrecomputedBlockHash && !SerializeBlockHeader)
+				if (!SerializePrecomputedBlockHash && !SerializeBlockHeader)
 					throw new InvalidOperationException("The ChainSerializationFormat is invalid, SerializePrecomputedBlockHash or SerializeBlockHeader should be true");
 			}
 		}
@@ -48,7 +48,7 @@ namespace NBitcoin
 		}
 		public ConcurrentChain(Network network)
 		{
-			if(network != null)
+			if (network != null)
 			{
 				var genesis = network.GetGenesis();
 				SetTip(new ChainedBlock(genesis.Header, 0));
@@ -137,21 +137,21 @@ namespace NBitcoin
 
 		public void Load(Stream stream, ConsensusFactory consensusFactory, ChainSerializationFormat format)
 		{
-			if(consensusFactory == null)
+			if (consensusFactory == null)
 				throw new ArgumentNullException(nameof(consensusFactory));
 			Load(new BitcoinStream(stream, false) { ConsensusFactory = consensusFactory }, format);
 		}
 
 		public void Load(Stream stream, Network network, ChainSerializationFormat format)
 		{
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			Load(stream, network.Consensus.ConsensusFactory, format);
 		}
 
 		public void Load(Stream stream, Consensus consensus, ChainSerializationFormat format)
 		{
-			if(consensus == null)
+			if (consensus == null)
 				throw new ArgumentNullException(nameof(consensus));
 			Load(stream, consensus.ConsensusFactory, format);
 		}
@@ -175,31 +175,31 @@ namespace NBitcoin
 			format = format ?? new ChainSerializationFormat();
 			format.AssertCoherent();
 			var genesis = this.Genesis;
-			using(@lock.LockWrite())
+			using (@lock.LockWrite())
 			{
 				try
 				{
 					int height = 0;
-					while(true)
+					while (true)
 					{
 						uint256.MutableUint256 id = null;
-						if(format.SerializePrecomputedBlockHash)
+						if (format.SerializePrecomputedBlockHash)
 							stream.ReadWrite<uint256.MutableUint256>(ref id);
 						BlockHeader header = null;
-						if(format.SerializeBlockHeader)
+						if (format.SerializeBlockHeader)
 							stream.ReadWrite(ref header);
-						if(height == 0)
+						if (height == 0)
 						{
 							_BlocksByHeight = new ChainedBlock[0];
 							_BlocksById.Clear();
 							_Tip = null;
-							if(header != null && genesis != null && header.GetHash() != genesis.HashBlock)
+							if (header != null && genesis != null && header.GetHash() != genesis.HashBlock)
 							{
 								throw new InvalidOperationException("Unexpected genesis block");
 							}
 							SetTipNoLock(new ChainedBlock(genesis?.Header ?? header, 0));
 						}
-						else if(!format.SerializeBlockHeader || 
+						else if (!format.SerializeBlockHeader ||
 								(_Tip.HashBlock == header.HashPrevBlock && !(header.IsNull && header.Nonce == 0)))
 							SetTipNoLock(new ChainedBlock(header, id?.Value, Tip));
 						else
@@ -207,7 +207,7 @@ namespace NBitcoin
 						height++;
 					}
 				}
-				catch(EndOfStreamException)
+				catch (EndOfStreamException)
 				{
 				}
 			}
@@ -238,14 +238,14 @@ namespace NBitcoin
 		{
 			format = format ?? new ChainSerializationFormat();
 			format.AssertCoherent();
-			using(@lock.LockRead())
+			using (@lock.LockRead())
 			{
-				for(int i = 0; i < Tip.Height + 1; i++)
+				for (int i = 0; i < Tip.Height + 1; i++)
 				{
 					var block = GetBlockNoLock(i);
-					if(format.SerializePrecomputedBlockHash)
+					if (format.SerializePrecomputedBlockHash)
 						stream.ReadWrite(block.HashBlock.AsBitcoinSerializable());
-					if(format.SerializeBlockHeader)
+					if (format.SerializeBlockHeader)
 						stream.ReadWrite(block.Header);
 				}
 			}
@@ -255,9 +255,9 @@ namespace NBitcoin
 		{
 			ConcurrentChain chain = new ConcurrentChain();
 			chain._Tip = _Tip;
-			using(@lock.LockRead())
+			using (@lock.LockRead())
 			{
-				foreach(var kv in _BlocksById)
+				foreach (var kv in _BlocksById)
 				{
 					chain._BlocksById.Add(kv.Key, kv.Value);
 				}
@@ -273,7 +273,7 @@ namespace NBitcoin
 		/// <returns>forking point</returns>
 		public override ChainedBlock SetTip(ChainedBlock block)
 		{
-			using(@lock.LockWrite())
+			using (@lock.LockWrite())
 			{
 				return SetTipNoLock(block);
 			}
@@ -282,14 +282,14 @@ namespace NBitcoin
 		private ChainedBlock SetTipNoLock(ChainedBlock block)
 		{
 			int height = Tip == null ? -1 : Tip.Height;
-			foreach(var orphaned in EnumerateThisToFork(block))
+			foreach (var orphaned in EnumerateThisToFork(block))
 			{
 				_BlocksById.Remove(orphaned.HashBlock);
 				RemoveBlocksByHeight(orphaned.Height);
 				height--;
 			}
 			var fork = GetBlockNoLock(height);
-			foreach(var newBlock in block.EnumerateToGenesis()
+			foreach (var newBlock in block.EnumerateToGenesis()
 				.TakeWhile(c => c != fork))
 			{
 				_BlocksById.AddOrReplace(newBlock.HashBlock, newBlock);
@@ -301,25 +301,25 @@ namespace NBitcoin
 
 		private IEnumerable<ChainedBlock> EnumerateThisToFork(ChainedBlock block)
 		{
-			if(_Tip == null)
+			if (_Tip == null)
 				yield break;
 			var tip = _Tip;
-			while(true)
+			while (true)
 			{
-				if(object.ReferenceEquals(null, block) || object.ReferenceEquals(null, tip))
+				if (object.ReferenceEquals(null, block) || object.ReferenceEquals(null, tip))
 					throw new InvalidOperationException("No fork found between the two chains");
-				if(tip.Height > block.Height)
+				if (tip.Height > block.Height)
 				{
 					yield return tip;
 					tip = tip.Previous;
 				}
-				else if(tip.Height < block.Height)
+				else if (tip.Height < block.Height)
 				{
 					block = block.Previous;
 				}
-				else if(tip.Height == block.Height)
+				else if (tip.Height == block.Height)
 				{
-					if(tip.HashBlock == block.HashBlock)
+					if (tip.HashBlock == block.HashBlock)
 						break;
 					yield return tip;
 					block = block.Previous;
@@ -332,7 +332,7 @@ namespace NBitcoin
 
 		public override ChainedBlock GetBlock(uint256 id)
 		{
-			using(@lock.LockRead())
+			using (@lock.LockRead())
 			{
 				ChainedBlock result;
 				_BlocksById.TryGetValue(id, out result);
@@ -350,7 +350,7 @@ namespace NBitcoin
 		private bool TryGetBlocksByHeight(int height, out ChainedBlock result)
 		{
 			result = null;
-			if(height >= _BlocksByHeight.Length || height < 0)
+			if (height >= _BlocksByHeight.Length || height < 0)
 				return false;
 			result = _BlocksByHeight[height];
 			return result != null;
@@ -358,14 +358,14 @@ namespace NBitcoin
 
 		private void RemoveBlocksByHeight(int height)
 		{
-			if(height >= _BlocksByHeight.Length)
+			if (height >= _BlocksByHeight.Length)
 				return;
 			_BlocksByHeight[height] = null;
 		}
 
 		private void AddOrReplaceBlocksByHeight(int height, ChainedBlock newBlock)
 		{
-			while(height >= _BlocksByHeight.Length)
+			while (height >= _BlocksByHeight.Length)
 			{
 				Array.Resize(ref _BlocksByHeight, (int)((_BlocksByHeight.Length + 100) * 1.1));
 			}
@@ -374,7 +374,7 @@ namespace NBitcoin
 
 		public override ChainedBlock GetBlock(int height)
 		{
-			using(@lock.LockRead())
+			using (@lock.LockRead())
 			{
 				return GetBlockNoLock(height);
 			}
@@ -404,12 +404,12 @@ namespace NBitcoin
 		{
 			int i = 0;
 			ChainedBlock block = null;
-			while(true)
+			while (true)
 			{
-				using(@lock.LockRead())
+				using (@lock.LockRead())
 				{
 					block = GetBlockNoLock(i);
-					if(block == null)
+					if (block == null)
 						yield break;
 				}
 				yield return block;
@@ -442,7 +442,7 @@ namespace NBitcoin
 		internal bool TryLockWrite(out IDisposable locked)
 		{
 			locked = null;
-			if(this.@lock.TryEnterWriteLock(0))
+			if (this.@lock.TryEnterWriteLock(0))
 			{
 				locked = new ActionDisposable(() =>
 				{

@@ -25,7 +25,7 @@ namespace NBitcoin.Crypto.Internal
 	{
 		public static void Clear(Array array)
 		{
-			if(array != null)
+			if (array != null)
 			{
 				Array.Clear(array, 0, array.Length);
 			}

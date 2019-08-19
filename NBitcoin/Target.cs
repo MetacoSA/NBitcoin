@@ -43,16 +43,16 @@ namespace NBitcoin
 
 		public Target(byte[] compact)
 		{
-			if(compact.Length == 4)
+			if (compact.Length == 4)
 			{
 				var exp = compact[0];
 				var val = new BigInteger(compact.SafeSubarray(1, 3));
-				_Target = val.ShiftLeft(8  * (exp - 3));
+				_Target = val.ShiftLeft(8 * (exp - 3));
 			}
 			else
 				throw new FormatException("Invalid number of bytes");
-		}		
-		
+		}
+
 		public Target(BigInteger target)
 		{
 			_Target = target;
@@ -74,23 +74,23 @@ namespace NBitcoin
 			var val = bytes.SafeSubarray(0, Math.Min(bytes.Length, 3));
 			Array.Reverse(val);
 			var exp = (byte)(bytes.Length);
-			if(exp == 1 && bytes[0] == 0)
+			if (exp == 1 && bytes[0] == 0)
 				exp = 0;
 			var missing = 4 - val.Length;
-			if(missing > 0)
+			if (missing > 0)
 				val = val.Concat(new byte[missing]).ToArray();
-			if(missing < 0)
+			if (missing < 0)
 				val = val.Take(-missing).ToArray();
 			return (uint)val[0] + (uint)(val[1] << 8) + (uint)(val[2] << 16) + (uint)(exp << 24);
 		}
 
 		double? _Difficulty;
-		
+
 		public double Difficulty
 		{
 			get
 			{
-				if(_Difficulty == null)
+				if (_Difficulty == null)
 				{
 					var qr = Difficulty1._Target.DivideAndRemainder(_Target);
 					var quotient = qr[0];
@@ -102,7 +102,7 @@ namespace NBitcoin
 					StringBuilder builder = new StringBuilder(quotientStr.Length + 1 + precision);
 					builder.Append(quotientStr);
 					builder.Append('.');
-					for(int i = 0; i < precision; i++)
+					for (int i = 0; i < precision; i++)
 					{
 						var div = (remainder.Multiply(BigInteger.Ten)).Divide(_Target);
 						decimalPart = decimalPart.Multiply(BigInteger.Ten);
@@ -126,15 +126,15 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			Target item = obj as Target;
-			if(item == null)
+			if (item == null)
 				return false;
 			return _Target.Equals(item._Target);
 		}
 		public static bool operator ==(Target a, Target b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 			return a._Target.Equals(b._Target);
 		}
@@ -148,7 +148,7 @@ namespace NBitcoin
 		{
 			return _Target.GetHashCode();
 		}
-		
+
 		public BigInteger ToBigInteger()
 		{
 			return _Target;
@@ -169,9 +169,9 @@ namespace NBitcoin
 			var array = input.ToByteArray();
 
 			var missingZero = 32 - array.Length;
-			if(missingZero < 0)
+			if (missingZero < 0)
 				throw new InvalidOperationException("Awful bug, this should never happen");
-			if(missingZero != 0)
+			if (missingZero != 0)
 			{
 				array = new byte[missingZero].Concat(array).ToArray();
 			}

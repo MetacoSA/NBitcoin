@@ -58,17 +58,17 @@ namespace NBitcoin.BitcoinCore
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			if(_ExpectedNetwork == null || stream.Serializing)
+			if (_ExpectedNetwork == null || stream.Serializing)
 			{
 				stream.ReadWrite(ref magic);
 			}
 			else
 			{
-				if(!_ExpectedNetwork.ReadMagic(stream.Inner, default(CancellationToken)))
+				if (!_ExpectedNetwork.ReadMagic(stream.Inner, default(CancellationToken)))
 					return;
 				magic = ExpectedNetwork.Magic;
 			}
-			if(magic == 0)
+			if (magic == 0)
 				return;
 			stream.ReadWrite(ref size);
 		}
@@ -163,14 +163,14 @@ namespace NBitcoin.BitcoinCore
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref _Header);
-			if(_Header.Magic == 0)
+			if (_Header.Magic == 0)
 				return;
 
-			if(ParseSkipItem)
+			if (ParseSkipItem)
 				stream.Inner.Position += _Header.ItemSize;
 			else
 				ReadWriteItem(stream, ref _Item);
-			if(HasChecksum)
+			if (HasChecksum)
 				stream.ReadWrite(ref _Checksum);
 		}
 

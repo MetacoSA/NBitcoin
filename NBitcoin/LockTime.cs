@@ -17,7 +17,7 @@ namespace NBitcoin
 		public LockTime(DateTimeOffset dateTime)
 		{
 			_value = Utils.DateTimeToUnixTime(dateTime);
-			if(_value < LOCKTIME_THRESHOLD)
+			if (_value < LOCKTIME_THRESHOLD)
 				throw new ArgumentOutOfRangeException("dateTime", "The minimum possible date is be Tue Nov  5 00:53:20 1985 UTC");
 		}
 		public LockTime(int valueOrHeight)
@@ -34,7 +34,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(!IsTimeLock)
+				if (!IsTimeLock)
 					throw new InvalidOperationException("This is not a time based lock");
 				return Utils.UnixTimeToDateTime(_value);
 			}
@@ -44,7 +44,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(!IsHeightLock)
+				if (!IsHeightLock)
 					throw new InvalidOperationException("This is not a height based lock");
 				return (int)_value;
 			}
@@ -126,7 +126,7 @@ namespace NBitcoin
 
 		public override bool Equals(object obj)
 		{
-			if(!(obj is LockTime))
+			if (!(obj is LockTime))
 				return false;
 			var item = (LockTime)obj;
 			return _value.Equals(item._value);

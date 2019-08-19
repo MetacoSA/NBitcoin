@@ -43,7 +43,7 @@ namespace NBitcoin.Protocol
 			PreferredTransactionOptions = other.PreferredTransactionOptions;
 			EndpointConnector = other.EndpointConnector.Clone();
 			SocketSettings = other.SocketSettings.Clone();
-			foreach(var behavior in other.TemplateBehaviors)
+			foreach (var behavior in other.TemplateBehaviors)
 			{
 				TemplateBehaviors.Add(behavior.Clone());
 			}

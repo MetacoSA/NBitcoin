@@ -12,7 +12,7 @@
 
 		public static FixedPointPreCompInfo GetFixedPointPreCompInfo(PreCompInfo preCompInfo)
 		{
-			if((preCompInfo != null) && (preCompInfo is FixedPointPreCompInfo))
+			if ((preCompInfo != null) && (preCompInfo is FixedPointPreCompInfo))
 			{
 				return (FixedPointPreCompInfo)preCompInfo;
 			}
@@ -28,14 +28,14 @@
 			FixedPointPreCompInfo info = GetFixedPointPreCompInfo(c.GetPreCompInfo(p, PRECOMP_NAME));
 			ECPoint[] lookupTable = info.PreComp;
 
-			if(lookupTable == null || lookupTable.Length < n)
+			if (lookupTable == null || lookupTable.Length < n)
 			{
 				int bits = GetCombSize(c);
 				int d = (bits + minWidth - 1) / minWidth;
 
 				ECPoint[] pow2Table = new ECPoint[minWidth];
 				pow2Table[0] = p;
-				for(int i = 1; i < minWidth; ++i)
+				for (int i = 1; i < minWidth; ++i)
 				{
 					pow2Table[i] = pow2Table[i - 1].TimesPow2(d);
 				}
@@ -45,12 +45,12 @@
 				lookupTable = new ECPoint[n];
 				lookupTable[0] = c.Infinity;
 
-				for(int bit = minWidth - 1; bit >= 0; --bit)
+				for (int bit = minWidth - 1; bit >= 0; --bit)
 				{
 					ECPoint pow2 = pow2Table[bit];
 
 					int step = 1 << bit;
-					for(int i = step; i < n; i += (step << 1))
+					for (int i = step; i < n; i += (step << 1))
 					{
 						lookupTable[i] = lookupTable[i - step].Add(pow2);
 					}

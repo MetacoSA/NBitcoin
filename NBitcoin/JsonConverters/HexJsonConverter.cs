@@ -34,7 +34,7 @@ namespace NBitcoin.JsonConverters
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			if(value != null)
+			if (value != null)
 			{
 				writer.WriteValue(Encoders.Hex.EncodeData((byte[])value));
 			}

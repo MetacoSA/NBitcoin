@@ -18,7 +18,8 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				return _GroupByRandom = _GroupByRandom ?? new Func<IPEndPoint, byte[]>((ip) =>{
+				return _GroupByRandom = _GroupByRandom ?? new Func<IPEndPoint, byte[]>((ip) =>
+				{
 
 					var group = new byte[20];
 					_Rand.NextBytes(group);
@@ -33,8 +34,9 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				return _GroupByIp = _GroupByIp ?? new Func<IPEndPoint, byte[]>((ip) => {
-					return ip.Address.GetAddressBytes();	
+				return _GroupByIp = _GroupByIp ?? new Func<IPEndPoint, byte[]>((ip) =>
+				{
+					return ip.Address.GetAddressBytes();
 				});
 			}
 		}
@@ -44,7 +46,8 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				return _GroupByEndpoint = _GroupByEndpoint ?? new Func<IPEndPoint, byte[]>((endpoint) => {
+				return _GroupByEndpoint = _GroupByEndpoint ?? new Func<IPEndPoint, byte[]>((endpoint) =>
+				{
 					var bytes = endpoint.Address.GetAddressBytes();
 					var port = Utils.ToBytes((uint)endpoint.Port, true);
 					var result = new byte[bytes.Length + port.Length];
@@ -60,7 +63,8 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				return _GroupByNetwork = _GroupByNetwork ?? new Func<IPEndPoint, byte[]>((ip) => {
+				return _GroupByNetwork = _GroupByNetwork ?? new Func<IPEndPoint, byte[]>((ip) =>
+				{
 					return IpExtensions.GetGroup(ip.Address);
 				});
 			}
@@ -126,15 +130,15 @@ namespace NBitcoin.Protocol
 
 		internal void StartConnecting()
 		{
-			if(_Disconnect.IsCancellationRequested)
+			if (_Disconnect.IsCancellationRequested)
 				return;
-			if(_ConnectedNodes.Count >= MaximumNodeConnection)
+			if (_ConnectedNodes.Count >= MaximumNodeConnection)
 				return;
-			if(_Connecting)
+			if (_Connecting)
 				return;
 			Task.Factory.StartNew(() =>
 			{
-				if(Monitor.TryEnter(cs))
+				if (Monitor.TryEnter(cs))
 				{
 					_Connecting = true;
 					try
@@ -214,7 +218,7 @@ namespace NBitcoin.Protocol
 			Task.Factory.StartNew(() =>
 			{
 				var initialNodes = _ConnectedNodes.ToDictionary(n => n);
-				while(!_Disconnect.IsCancellationRequested && initialNodes.Count != 0)
+				while (!_Disconnect.IsCancellationRequested && initialNodes.Count != 0)
 				{
 					var node = initialNodes.First();
 					node.Value.Disconnect(reason);
@@ -283,7 +287,7 @@ namespace NBitcoin.Protocol
 		{
 			Disconnect();
 			_logScope.Dispose();
-			
+
 		}
 
 		#endregion

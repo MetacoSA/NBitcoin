@@ -67,7 +67,7 @@ namespace NBitcoin
 	{
 		public TransactionChecker(Transaction tx, int index, TxOut spentOutput, PrecomputedTransactionData precomputedTransactionData)
 		{
-			if(tx == null)
+			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
 			_Transaction = tx;
 			_Index = index;
@@ -76,7 +76,7 @@ namespace NBitcoin
 		}
 		public TransactionChecker(Transaction tx, int index, TxOut spentOutput = null)
 		{
-			if(tx == null)
+			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
 			_Transaction = tx;
 			_Index = index;
@@ -183,11 +183,11 @@ namespace NBitcoin
 			}
 			public CScriptNum(byte[] vch, bool fRequireMinimal, long nMaxNumSize)
 			{
-				if(vch.Length > nMaxNumSize)
+				if (vch.Length > nMaxNumSize)
 				{
 					throw new ArgumentException("script number overflow", "vch");
 				}
-				if(fRequireMinimal && vch.Length > 0)
+				if (fRequireMinimal && vch.Length > 0)
 				{
 					// Check that the number is encoded with the minimum possible
 					// number of bytes.
@@ -195,14 +195,14 @@ namespace NBitcoin
 					// If the most-significant-byte - excluding the sign bit - is zero
 					// then we're not minimal. Note how this test also rejects the
 					// negative-zero encoding, 0x80.
-					if((vch[vch.Length - 1] & 0x7f) == 0)
+					if ((vch[vch.Length - 1] & 0x7f) == 0)
 					{
 						// One exception: if there's more than one byte and the most
 						// significant bit of the second-most-significant-byte is set
 						// it would conflict with the sign bit. An example of this case
 						// is +-255, which encode to 0xff00 and 0xff80 respectively.
 						// (big-endian).
-						if(vch.Length <= 1 || (vch[vch.Length - 2] & 0x80) == 0)
+						if (vch.Length <= 1 || (vch[vch.Length - 2] & 0x80) == 0)
 						{
 							throw new ArgumentException("non-minimally encoded script number", "vch");
 						}
@@ -217,7 +217,7 @@ namespace NBitcoin
 			}
 			public override bool Equals(object obj)
 			{
-				if(obj == null || !(obj is CScriptNum))
+				if (obj == null || !(obj is CScriptNum))
 					return false;
 				CScriptNum item = (CScriptNum)obj;
 				return m_value == item.m_value;
@@ -308,7 +308,7 @@ namespace NBitcoin
 
 			private static void assert(bool result)
 			{
-				if(!result)
+				if (!result)
 					throw new InvalidOperationException("Assertion fail for CScriptNum");
 			}
 
@@ -331,9 +331,9 @@ namespace NBitcoin
 
 			public int getint()
 			{
-				if(m_value > int.MaxValue)
+				if (m_value > int.MaxValue)
 					return int.MaxValue;
-				else if(m_value < int.MinValue)
+				else if (m_value < int.MinValue)
 					return int.MinValue;
 				return (int)m_value;
 			}
@@ -345,14 +345,14 @@ namespace NBitcoin
 
 			static byte[] serialize(long value)
 			{
-				if(value == 0)
+				if (value == 0)
 					return new byte[0];
 
 				var result = new List<byte>();
 				bool neg = value < 0;
 				long absvalue = neg ? -value : value;
 
-				while(absvalue != 0)
+				while (absvalue != 0)
 				{
 					result.Add((byte)(absvalue & 0xff));
 					absvalue >>= 8;
@@ -368,9 +368,9 @@ namespace NBitcoin
 				//    0x80 to it, since it will be subtracted and interpreted as a negative when
 				//    converting to an integral.
 
-				if((result[result.Count - 1] & 0x80) != 0)
+				if ((result[result.Count - 1] & 0x80) != 0)
 					result.Add((byte)(neg ? 0x80 : 0));
-				else if(neg)
+				else if (neg)
 					result[result.Count - 1] |= 0x80;
 
 				return result.ToArray();
@@ -378,16 +378,16 @@ namespace NBitcoin
 
 			static long set_vch(byte[] vch)
 			{
-				if(vch.Length == 0)
+				if (vch.Length == 0)
 					return 0;
 
 				long result = 0;
-				for(int i = 0; i != vch.Length; ++i)
+				for (int i = 0; i != vch.Length; ++i)
 					result |= ((long)(vch[i])) << 8 * i;
 
 				// If the input vector's most significant byte is 0x80, remove it from
 				// the result's msb and return a negative.
-				if((vch[vch.Length - 1] & 0x80) != 0)
+				if ((vch[vch.Length - 1] & 0x80) != 0)
 				{
 					var temp = ~(0x80UL << (8 * (vch.Length - 1)));
 					return -((long)((ulong)result & temp));
@@ -440,38 +440,38 @@ namespace NBitcoin
 		{
 			WitScript witness = checker.Input.WitScript;
 			SetError(ScriptError.UnknownError);
-			if((ScriptVerify & ScriptVerify.SigPushOnly) != 0 && !scriptSig.IsPushOnly)
+			if ((ScriptVerify & ScriptVerify.SigPushOnly) != 0 && !scriptSig.IsPushOnly)
 				return SetError(ScriptError.SigPushOnly);
 
 			ScriptEvaluationContext evaluationCopy = null;
 
-			if(!EvalScript(scriptSig, checker, 0))
+			if (!EvalScript(scriptSig, checker, 0))
 				return false;
-			if((ScriptVerify & ScriptVerify.P2SH) != 0)
+			if ((ScriptVerify & ScriptVerify.P2SH) != 0)
 			{
 				evaluationCopy = Clone();
 			}
-			if(!EvalScript(scriptPubKey, checker, 0))
+			if (!EvalScript(scriptPubKey, checker, 0))
 				return false;
 
-			if(!Result)
+			if (!Result)
 				return SetError(ScriptError.EvalFalse);
 
 			bool hadWitness = false;
 			// Bare witness programs
 
-			if((ScriptVerify & ScriptVerify.Witness) != 0)
+			if ((ScriptVerify & ScriptVerify.Witness) != 0)
 			{
 				var wit = PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(scriptPubKey);
-				if(wit != null)
+				if (wit != null)
 				{
 					hadWitness = true;
-					if(scriptSig.Length != 0)
+					if (scriptSig.Length != 0)
 					{
 						// The scriptSig must be _exactly_ CScript(), otherwise we reintroduce malleability.
 						return SetError(ScriptError.WitnessMalleated);
 					}
-					if(!VerifyWitnessProgram(witness, wit, checker))
+					if (!VerifyWitnessProgram(witness, wit, checker))
 					{
 						return false;
 					}
@@ -483,41 +483,41 @@ namespace NBitcoin
 			}
 
 			// Additional validation for spend-to-script-hash transactions:
-			if(((ScriptVerify & ScriptVerify.P2SH) != 0) && scriptPubKey.IsScriptType(ScriptType.P2SH))
+			if (((ScriptVerify & ScriptVerify.P2SH) != 0) && scriptPubKey.IsScriptType(ScriptType.P2SH))
 			{
 				Load(evaluationCopy);
 				evaluationCopy = this;
-				if(!scriptSig.IsPushOnly)
+				if (!scriptSig.IsPushOnly)
 					return SetError(ScriptError.SigPushOnly);
 
 				// stackCopy cannot be empty here, because if it was the
 				// P2SH  HASH <> EQUAL  scriptPubKey would be evaluated with
 				// an empty stack and the EvalScript above would return false.
-				if(evaluationCopy.Stack.Count == 0)
+				if (evaluationCopy.Stack.Count == 0)
 					throw new InvalidOperationException("stackCopy cannot be empty here");
 
 				var redeem = new Script(evaluationCopy.Stack.Pop());
 
-				if(!evaluationCopy.EvalScript(redeem, checker, 0))
+				if (!evaluationCopy.EvalScript(redeem, checker, 0))
 					return false;
 
-				if(!evaluationCopy.Result)
+				if (!evaluationCopy.Result)
 					return SetError(ScriptError.EvalFalse);
 
 				// P2SH witness program
-				if((ScriptVerify & ScriptVerify.Witness) != 0)
+				if ((ScriptVerify & ScriptVerify.Witness) != 0)
 				{
 					var wit = PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(redeem);
-					if(wit != null)
+					if (wit != null)
 					{
 						hadWitness = true;
-						if(scriptSig != new Script(Op.GetPushOp(redeem.ToBytes())))
+						if (scriptSig != new Script(Op.GetPushOp(redeem.ToBytes())))
 						{
 							// The scriptSig must be _exactly_ a single push of the redeemScript. Otherwise we
 							// reintroduce malleability.
 							return SetError(ScriptError.WitnessMalleatedP2SH);
 						}
-						if(!VerifyWitnessProgram(witness, wit, checker))
+						if (!VerifyWitnessProgram(witness, wit, checker))
 						{
 							return false;
 						}
@@ -532,26 +532,26 @@ namespace NBitcoin
 			// The CLEANSTACK check is only performed after potential P2SH evaluation,
 			// as the non-P2SH evaluation of a P2SH script will obviously not result in
 			// a clean stack (the P2SH inputs remain).
-			if((ScriptVerify & ScriptVerify.CleanStack) != 0)
+			if ((ScriptVerify & ScriptVerify.CleanStack) != 0)
 			{
 				// Disallow CLEANSTACK without P2SH, as otherwise a switch CLEANSTACK->P2SH+CLEANSTACK
 				// would be possible, which is not a softfork (and P2SH should be one).
-				if((ScriptVerify & ScriptVerify.P2SH) == 0)
+				if ((ScriptVerify & ScriptVerify.P2SH) == 0)
 					throw new InvalidOperationException("ScriptVerify : CleanStack without P2SH is not allowed");
-				if((ScriptVerify & ScriptVerify.Witness) == 0)
+				if ((ScriptVerify & ScriptVerify.Witness) == 0)
 					throw new InvalidOperationException("ScriptVerify : CleanStack without Witness is not allowed");
-				if(Stack.Count != 1)
+				if (Stack.Count != 1)
 					return SetError(ScriptError.CleanStack);
 			}
 
-			if((ScriptVerify & ScriptVerify.Witness) != 0)
+			if ((ScriptVerify & ScriptVerify.Witness) != 0)
 			{
 				// We can't check for correct unexpected witness data if P2SH was off, so require
 				// that WITNESS implies P2SH. Otherwise, going from WITNESS->P2SH+WITNESS would be
 				// possible, which is not a softfork.
-				if((ScriptVerify & ScriptVerify.P2SH) == 0)
+				if ((ScriptVerify & ScriptVerify.P2SH) == 0)
 					throw new InvalidOperationException("ScriptVerify : Witness without P2SH is not allowed");
-				if(!hadWitness && witness.PushCount != 0)
+				if (!hadWitness && witness.PushCount != 0)
 				{
 					return SetError(ScriptError.WitnessUnexpected);
 				}
@@ -565,30 +565,30 @@ namespace NBitcoin
 			List<byte[]> stack = new List<byte[]>();
 			Script scriptPubKey;
 
-			if(wit.Version == 0)
+			if (wit.Version == 0)
 			{
-				if(wit.Program.Length == 32)
+				if (wit.Program.Length == 32)
 				{
 					// Version 0 segregated witness program: SHA256(CScript) inside the program, CScript + inputs in witness
-					if(witness.PushCount == 0)
+					if (witness.PushCount == 0)
 					{
 						return SetError(ScriptError.WitnessProgramEmpty);
 					}
 					scriptPubKey = Script.FromBytesUnsafe(witness.GetUnsafePush(witness.PushCount - 1));
-					for(int i = 0; i < witness.PushCount - 1; i++)
+					for (int i = 0; i < witness.PushCount - 1; i++)
 					{
 						stack.Add(witness.GetUnsafePush(i));
 					}
 					var hashScriptPubKey = Hashes.SHA256(scriptPubKey.ToBytes(true));
-					if(!Utils.ArrayEqual(hashScriptPubKey, wit.Program))
+					if (!Utils.ArrayEqual(hashScriptPubKey, wit.Program))
 					{
 						return SetError(ScriptError.WitnessProgramMissmatch);
 					}
 				}
-				else if(wit.Program.Length == 20)
+				else if (wit.Program.Length == 20)
 				{
 					// Special case for pay-to-pubkeyhash; signature + pubkey in witness
-					if(witness.PushCount != 2)
+					if (witness.PushCount != 2)
 					{
 						return SetError(ScriptError.WitnessProgramMissmatch); // 2 items in witness
 					}
@@ -600,7 +600,7 @@ namespace NBitcoin
 					return SetError(ScriptError.WitnessProgramWrongLength);
 				}
 			}
-			else if((ScriptVerify & ScriptVerify.DiscourageUpgradableWitnessProgram) != 0)
+			else if ((ScriptVerify & ScriptVerify.DiscourageUpgradableWitnessProgram) != 0)
 			{
 				return SetError(ScriptError.DiscourageUpgradableWitnessProgram);
 			}
@@ -612,23 +612,23 @@ namespace NBitcoin
 
 			var ctx = this.Clone();
 			ctx.Stack.Clear();
-			foreach(var item in stack)
+			foreach (var item in stack)
 				ctx.Stack.Push(item);
 
 			// Disallow stack item size > MAX_SCRIPT_ELEMENT_SIZE in witness stack
-			for(int i = 0; i < ctx.Stack.Count; i++)
+			for (int i = 0; i < ctx.Stack.Count; i++)
 			{
-				if(ctx.Stack.Top(-(i + 1)).Length > MAX_SCRIPT_ELEMENT_SIZE)
+				if (ctx.Stack.Top(-(i + 1)).Length > MAX_SCRIPT_ELEMENT_SIZE)
 					return SetError(ScriptError.PushSize);
 			}
-			if(!ctx.EvalScript(scriptPubKey, checker, 1))
+			if (!ctx.EvalScript(scriptPubKey, checker, 1))
 			{
 				return SetError(ctx.Error);
 			}
 			// Scripts inside witness implicitly require cleanstack behaviour
-			if(ctx.Stack.Count != 1)
+			if (ctx.Stack.Count != 1)
 				return SetError(ScriptError.EvalFalse);
-			if(!CastToBool(ctx.Stack.Top(-1)))
+			if (!CastToBool(ctx.Stack.Top(-1)))
 				return SetError(ScriptError.EvalFalse);
 			return true;
 		}
@@ -650,7 +650,7 @@ namespace NBitcoin
 		}
 		bool EvalScript(Script s, TransactionChecker checker, int hashversion)
 		{
-			if(s.Length > 10000)
+			if (s.Length > 10000)
 				return SetError(ScriptError.ScriptSize);
 
 			SetError(ScriptError.UnknownError);
@@ -667,19 +667,19 @@ namespace NBitcoin
 			try
 			{
 				Op opcode;
-				while((opcode = script.Read()) != null)
+				while ((opcode = script.Read()) != null)
 				{
 					//
 					// Read instruction
 					//
-					if(opcode.PushData != null && opcode.PushData.Length > MAX_SCRIPT_ELEMENT_SIZE)
+					if (opcode.PushData != null && opcode.PushData.Length > MAX_SCRIPT_ELEMENT_SIZE)
 						return SetError(ScriptError.PushSize);
 
 					// Note how OP_RESERVED does not count towards the opcode limit.
-					if(opcode.Code > OpcodeType.OP_16 && ++nOpCount > 201)
+					if (opcode.Code > OpcodeType.OP_16 && ++nOpCount > 201)
 						return SetError(ScriptError.OpCount);
 
-					if(opcode.Code == OpcodeType.OP_CAT ||
+					if (opcode.Code == OpcodeType.OP_CAT ||
 						opcode.Code == OpcodeType.OP_SUBSTR ||
 						opcode.Code == OpcodeType.OP_LEFT ||
 						opcode.Code == OpcodeType.OP_RIGHT ||
@@ -699,12 +699,12 @@ namespace NBitcoin
 					}
 
 					bool fExec = vfExec.All(o => o); //!count(vfExec.begin(), vfExec.end(), false);
-					if(fExec && opcode.IsInvalid)
+					if (fExec && opcode.IsInvalid)
 						return SetError(ScriptError.BadOpCode);
 
-					if(fExec && 0 <= (int)opcode.Code && (int)opcode.Code <= (int)OpcodeType.OP_PUSHDATA4)
+					if (fExec && 0 <= (int)opcode.Code && (int)opcode.Code <= (int)OpcodeType.OP_PUSHDATA4)
 					{
-						if(fRequireMinimal && !CheckMinimalPush(opcode.PushData, opcode.Code))
+						if (fRequireMinimal && !CheckMinimalPush(opcode.PushData, opcode.Code))
 							return SetError(ScriptError.MinimalData);
 
 						_stack.Push(opcode.PushData);
@@ -712,9 +712,9 @@ namespace NBitcoin
 
 					//if(fExec && opcode.PushData != null)
 					//	_Stack.Push(opcode.PushData);
-					else if(fExec || (OpcodeType.OP_IF <= opcode.Code && opcode.Code <= OpcodeType.OP_ENDIF))
+					else if (fExec || (OpcodeType.OP_IF <= opcode.Code && opcode.Code <= OpcodeType.OP_ENDIF))
 					{
-						switch(opcode.Code)
+						switch (opcode.Code)
 						{
 							//
 							// Push value
@@ -750,17 +750,17 @@ namespace NBitcoin
 							case OpcodeType.OP_NOP1:
 							case OpcodeType.OP_CHECKLOCKTIMEVERIFY:
 								{
-									if((ScriptVerify & ScriptVerify.CheckLockTimeVerify) == 0)
+									if ((ScriptVerify & ScriptVerify.CheckLockTimeVerify) == 0)
 									{
 										// not enabled; treat as a NOP2
-										if((ScriptVerify & ScriptVerify.DiscourageUpgradableNops) != 0)
+										if ((ScriptVerify & ScriptVerify.DiscourageUpgradableNops) != 0)
 										{
 											return SetError(ScriptError.DiscourageUpgradableNops);
 										}
 										break;
 									}
 
-									if(Stack.Count < 1)
+									if (Stack.Count < 1)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									// Note that elsewhere numeric opcodes are limited to
@@ -782,28 +782,28 @@ namespace NBitcoin
 									// In the rare event that the argument may be < 0 due to
 									// some arithmetic being done first, you can always use
 									// 0 MAX CHECKLOCKTIMEVERIFY.
-									if(nLockTime < 0)
+									if (nLockTime < 0)
 										return SetError(ScriptError.NegativeLockTime);
 
 									// Actually compare the specified lock time with the transaction.
-									if(!CheckLockTime(nLockTime, checker))
+									if (!CheckLockTime(nLockTime, checker))
 										return SetError(ScriptError.UnsatisfiedLockTime);
 
 									break;
 								}
 							case OpcodeType.OP_CHECKSEQUENCEVERIFY:
 								{
-									if((ScriptVerify & ScriptVerify.CheckSequenceVerify) == 0)
+									if ((ScriptVerify & ScriptVerify.CheckSequenceVerify) == 0)
 									{
 										// not enabled; treat as a NOP3
-										if((ScriptVerify & ScriptVerify.DiscourageUpgradableNops) != 0)
+										if ((ScriptVerify & ScriptVerify.DiscourageUpgradableNops) != 0)
 										{
 											return SetError(ScriptError.DiscourageUpgradableNops);
 										}
 										break;
 									}
 
-									if(Stack.Count < 1)
+									if (Stack.Count < 1)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									// nSequence, like nLockTime, is a 32-bit unsigned integer
@@ -814,16 +814,16 @@ namespace NBitcoin
 									// In the rare event that the argument may be < 0 due to
 									// some arithmetic being done first, you can always use
 									// 0 MAX CHECKSEQUENCEVERIFY.
-									if(nSequence < 0)
+									if (nSequence < 0)
 										return SetError(ScriptError.NegativeLockTime);
 
 									// To provide for future soft-fork extensibility, if the
 									// operand has the disabled lock-time flag set,
 									// CHECKSEQUENCEVERIFY behaves as a NOP.
-									if(((uint)nSequence & Sequence.SEQUENCE_LOCKTIME_DISABLE_FLAG) != 0)
+									if (((uint)nSequence & Sequence.SEQUENCE_LOCKTIME_DISABLE_FLAG) != 0)
 										break;
 									// Compare the specified sequence number with the input.
-									if(!CheckSequence(nSequence, checker))
+									if (!CheckSequence(nSequence, checker))
 										return SetError(ScriptError.UnsatisfiedLockTime);
 
 									break;
@@ -837,7 +837,7 @@ namespace NBitcoin
 							case OpcodeType.OP_NOP8:
 							case OpcodeType.OP_NOP9:
 							case OpcodeType.OP_NOP10:
-								if((ScriptVerify & ScriptVerify.DiscourageUpgradableNops) != 0)
+								if ((ScriptVerify & ScriptVerify.DiscourageUpgradableNops) != 0)
 								{
 									return SetError(ScriptError.DiscourageUpgradableNops);
 								}
@@ -848,23 +848,23 @@ namespace NBitcoin
 								{
 									// <expression> if [statements] [else [statements]] endif
 									var bValue = false;
-									if(fExec)
+									if (fExec)
 									{
-										if(_stack.Count < 1)
+										if (_stack.Count < 1)
 											return SetError(ScriptError.UnbalancedConditional);
 
 										var vch = _stack.Top(-1);
 
-										if(hashversion == (int)HashVersion.Witness && (ScriptVerify & ScriptVerify.MinimalIf) != 0)
+										if (hashversion == (int)HashVersion.Witness && (ScriptVerify & ScriptVerify.MinimalIf) != 0)
 										{
-											if(vch.Length > 1)
+											if (vch.Length > 1)
 												return SetError(ScriptError.MinimalIf);
-											if(vch.Length == 1 && vch[0] != 1)
+											if (vch.Length == 1 && vch[0] != 1)
 												return SetError(ScriptError.MinimalIf);
 										}
 
 										bValue = CastToBool(vch);
-										if(opcode.Code == OpcodeType.OP_NOTIF)
+										if (opcode.Code == OpcodeType.OP_NOTIF)
 											bValue = !bValue;
 										_stack.Pop();
 									}
@@ -873,7 +873,7 @@ namespace NBitcoin
 								}
 							case OpcodeType.OP_ELSE:
 								{
-									if(vfExec.Count == 0)
+									if (vfExec.Count == 0)
 										return SetError(ScriptError.UnbalancedConditional);
 
 									var v = vfExec.Pop();
@@ -882,7 +882,7 @@ namespace NBitcoin
 								}
 							case OpcodeType.OP_ENDIF:
 								{
-									if(vfExec.Count == 0)
+									if (vfExec.Count == 0)
 										return SetError(ScriptError.UnbalancedConditional);
 
 									vfExec.Pop();
@@ -892,10 +892,10 @@ namespace NBitcoin
 								{
 									// (true -- ) or
 									// (false -- false) and return
-									if(_stack.Count < 1)
+									if (_stack.Count < 1)
 										return SetError(ScriptError.InvalidStackOperation);
 
-									if(!CastToBool(_stack.Top(-1)))
+									if (!CastToBool(_stack.Top(-1)))
 										return SetError(ScriptError.Verify);
 
 									_stack.Pop();
@@ -910,7 +910,7 @@ namespace NBitcoin
 							//
 							case OpcodeType.OP_TOALTSTACK:
 								{
-									if(_stack.Count < 1)
+									if (_stack.Count < 1)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									altstack.Push(_stack.Top(-1));
@@ -919,7 +919,7 @@ namespace NBitcoin
 								}
 							case OpcodeType.OP_FROMALTSTACK:
 								{
-									if(altstack.Count < 1)
+									if (altstack.Count < 1)
 										return SetError(ScriptError.InvalidAltStackOperation);
 
 									_stack.Push(altstack.Top(-1));
@@ -929,7 +929,7 @@ namespace NBitcoin
 							case OpcodeType.OP_2DROP:
 								{
 									// (x1 x2 -- )
-									if(_stack.Count < 2)
+									if (_stack.Count < 2)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									_stack.Pop();
@@ -939,7 +939,7 @@ namespace NBitcoin
 							case OpcodeType.OP_2DUP:
 								{
 									// (x1 x2 -- x1 x2 x1 x2)
-									if(_stack.Count < 2)
+									if (_stack.Count < 2)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch1 = _stack.Top(-2);
@@ -951,7 +951,7 @@ namespace NBitcoin
 							case OpcodeType.OP_3DUP:
 								{
 									// (x1 x2 x3 -- x1 x2 x3 x1 x2 x3)
-									if(_stack.Count < 3)
+									if (_stack.Count < 3)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch1 = _stack.Top(-3);
@@ -965,7 +965,7 @@ namespace NBitcoin
 							case OpcodeType.OP_2OVER:
 								{
 									// (x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2)
-									if(_stack.Count < 4)
+									if (_stack.Count < 4)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch1 = _stack.Top(-4);
@@ -977,7 +977,7 @@ namespace NBitcoin
 							case OpcodeType.OP_2ROT:
 								{
 									// (x1 x2 x3 x4 x5 x6 -- x3 x4 x5 x6 x1 x2)
-									if(_stack.Count < 6)
+									if (_stack.Count < 6)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch1 = _stack.Top(-6);
@@ -990,7 +990,7 @@ namespace NBitcoin
 							case OpcodeType.OP_2SWAP:
 								{
 									// (x1 x2 x3 x4 -- x3 x4 x1 x2)
-									if(_stack.Count < 4)
+									if (_stack.Count < 4)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									_stack.Swap(-4, -2);
@@ -1000,11 +1000,11 @@ namespace NBitcoin
 							case OpcodeType.OP_IFDUP:
 								{
 									// (x - 0 | x x)
-									if(_stack.Count < 1)
+									if (_stack.Count < 1)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch = _stack.Top(-1);
-									if(CastToBool(vch))
+									if (CastToBool(vch))
 										_stack.Push(vch);
 									break;
 								}
@@ -1018,7 +1018,7 @@ namespace NBitcoin
 							case OpcodeType.OP_DROP:
 								{
 									// (x -- )
-									if(_stack.Count < 1)
+									if (_stack.Count < 1)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									_stack.Pop();
@@ -1027,7 +1027,7 @@ namespace NBitcoin
 							case OpcodeType.OP_DUP:
 								{
 									// (x -- x x)
-									if(_stack.Count < 1)
+									if (_stack.Count < 1)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch = _stack.Top(-1);
@@ -1037,7 +1037,7 @@ namespace NBitcoin
 							case OpcodeType.OP_NIP:
 								{
 									// (x1 x2 -- x2)
-									if(_stack.Count < 2)
+									if (_stack.Count < 2)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									_stack.Remove(-2);
@@ -1046,7 +1046,7 @@ namespace NBitcoin
 							case OpcodeType.OP_OVER:
 								{
 									// (x1 x2 -- x1 x2 x1)
-									if(_stack.Count < 2)
+									if (_stack.Count < 2)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch = _stack.Top(-2);
@@ -1058,16 +1058,16 @@ namespace NBitcoin
 								{
 									// (xn ... x2 x1 x0 n - xn ... x2 x1 x0 xn)
 									// (xn ... x2 x1 x0 n - ... x2 x1 x0 xn)
-									if(_stack.Count < 2)
+									if (_stack.Count < 2)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									int n = new CScriptNum(_stack.Top(-1), fRequireMinimal).getint();
 									_stack.Pop();
-									if(n < 0 || n >= _stack.Count)
+									if (n < 0 || n >= _stack.Count)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch = _stack.Top(-n - 1);
-									if(opcode.Code == OpcodeType.OP_ROLL)
+									if (opcode.Code == OpcodeType.OP_ROLL)
 										_stack.Remove(-n - 1);
 									_stack.Push(vch);
 									break;
@@ -1077,7 +1077,7 @@ namespace NBitcoin
 									// (x1 x2 x3 -- x2 x3 x1)
 									//  x2 x1 x3  after first swap
 									//  x2 x3 x1  after second swap
-									if(_stack.Count < 3)
+									if (_stack.Count < 3)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									_stack.Swap(-3, -2);
@@ -1087,7 +1087,7 @@ namespace NBitcoin
 							case OpcodeType.OP_SWAP:
 								{
 									// (x1 x2 -- x2 x1)
-									if(_stack.Count < 2)
+									if (_stack.Count < 2)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									_stack.Swap(-2, -1);
@@ -1096,7 +1096,7 @@ namespace NBitcoin
 							case OpcodeType.OP_TUCK:
 								{
 									// (x1 x2 -- x2 x1 x2)
-									if(_stack.Count < 2)
+									if (_stack.Count < 2)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch = _stack.Top(-1);
@@ -1106,7 +1106,7 @@ namespace NBitcoin
 							case OpcodeType.OP_SIZE:
 								{
 									// (in -- in size)
-									if(_stack.Count < 1)
+									if (_stack.Count < 1)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var bn = new CScriptNum(_stack.Top(-1).Length);
@@ -1121,7 +1121,7 @@ namespace NBitcoin
 								{
 									//case OpcodeType.OP_NOTEQUAL: // use OpcodeType.OP_NUMNOTEQUAL
 									// (x1 x2 - bool)
-									if(_stack.Count < 2)
+									if (_stack.Count < 2)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch1 = _stack.Top(-2);
@@ -1135,9 +1135,9 @@ namespace NBitcoin
 									_stack.Pop();
 									_stack.Pop();
 									_stack.Push(fEqual ? vchTrue : vchFalse);
-									if(opcode.Code == OpcodeType.OP_EQUALVERIFY)
+									if (opcode.Code == OpcodeType.OP_EQUALVERIFY)
 									{
-										if(!fEqual)
+										if (!fEqual)
 											return SetError(ScriptError.EqualVerify);
 
 										_stack.Pop();
@@ -1155,11 +1155,11 @@ namespace NBitcoin
 							case OpcodeType.OP_0NOTEQUAL:
 								{
 									// (in -- out)
-									if(_stack.Count < 1)
+									if (_stack.Count < 1)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var bn = new CScriptNum(_stack.Top(-1), fRequireMinimal);
-									switch(opcode.Code)
+									switch (opcode.Code)
 									{
 										case OpcodeType.OP_1ADD:
 											bn += 1;
@@ -1171,7 +1171,7 @@ namespace NBitcoin
 											bn = -bn;
 											break;
 										case OpcodeType.OP_ABS:
-											if(bn < 0)
+											if (bn < 0)
 												bn = -bn;
 											break;
 										case OpcodeType.OP_NOT:
@@ -1202,13 +1202,13 @@ namespace NBitcoin
 							case OpcodeType.OP_MAX:
 								{
 									// (x1 x2 -- out)
-									if(_stack.Count < 2)
+									if (_stack.Count < 2)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var bn1 = new CScriptNum(_stack.Top(-2), fRequireMinimal);
 									var bn2 = new CScriptNum(_stack.Top(-1), fRequireMinimal);
 									var bn = new CScriptNum(0);
-									switch(opcode.Code)
+									switch (opcode.Code)
 									{
 										case OpcodeType.OP_ADD:
 											bn = bn1 + bn2;
@@ -1258,9 +1258,9 @@ namespace NBitcoin
 									_stack.Pop();
 									_stack.Push(bn.getvch());
 
-									if(opcode.Code == OpcodeType.OP_NUMEQUALVERIFY)
+									if (opcode.Code == OpcodeType.OP_NUMEQUALVERIFY)
 									{
-										if(!CastToBool(_stack.Top(-1)))
+										if (!CastToBool(_stack.Top(-1)))
 											return SetError(ScriptError.NumEqualVerify);
 										_stack.Pop();
 									}
@@ -1269,7 +1269,7 @@ namespace NBitcoin
 							case OpcodeType.OP_WITHIN:
 								{
 									// (x min max -- out)
-									if(_stack.Count < 3)
+									if (_stack.Count < 3)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var bn1 = new CScriptNum(_stack.Top(-3), fRequireMinimal);
@@ -1292,20 +1292,20 @@ namespace NBitcoin
 							case OpcodeType.OP_HASH256:
 								{
 									// (in -- hash)
-									if(_stack.Count < 1)
+									if (_stack.Count < 1)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch = _stack.Top(-1);
 									byte[] vchHash = null; //((opcode == OpcodeType.OP_RIPEMD160 || opcode == OpcodeType.OP_SHA1 || opcode == OpcodeType.OP_HASH160) ? 20 : 32);
-									if(opcode.Code == OpcodeType.OP_RIPEMD160)
+									if (opcode.Code == OpcodeType.OP_RIPEMD160)
 										vchHash = Hashes.RIPEMD160(vch, 0, vch.Length);
-									else if(opcode.Code == OpcodeType.OP_SHA1)
+									else if (opcode.Code == OpcodeType.OP_SHA1)
 										vchHash = Hashes.SHA1(vch, 0, vch.Length);
-									else if(opcode.Code == OpcodeType.OP_SHA256)
+									else if (opcode.Code == OpcodeType.OP_SHA256)
 										vchHash = Hashes.SHA256(vch, 0, vch.Length);
-									else if(opcode.Code == OpcodeType.OP_HASH160)
+									else if (opcode.Code == OpcodeType.OP_HASH160)
 										vchHash = Hashes.Hash160(vch, 0, vch.Length).ToBytes();
-									else if(opcode.Code == OpcodeType.OP_HASH256)
+									else if (opcode.Code == OpcodeType.OP_HASH256)
 										vchHash = Hashes.Hash256(vch, 0, vch.Length).ToBytes();
 									_stack.Pop();
 									_stack.Push(vchHash);
@@ -1321,7 +1321,7 @@ namespace NBitcoin
 							case OpcodeType.OP_CHECKSIGVERIFY:
 								{
 									// (sig pubkey -- bool)
-									if(_stack.Count < 2)
+									if (_stack.Count < 2)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vchSig = _stack.Top(-2);
@@ -1334,25 +1334,25 @@ namespace NBitcoin
 									// Subset of script starting at the most recent codeseparator
 									var scriptCode = new Script(s._Script.Skip(pbegincodehash).ToArray());
 									// Drop the signature, since there's no way for a signature to sign itself
-									if(hashversion == (int)HashVersion.Original)
+									if (hashversion == (int)HashVersion.Original)
 										scriptCode = scriptCode.FindAndDelete(vchSig);
 
-									if(!CheckSignatureEncoding(vchSig) || !CheckPubKeyEncoding(vchPubKey, hashversion))
+									if (!CheckSignatureEncoding(vchSig) || !CheckPubKeyEncoding(vchPubKey, hashversion))
 									{
 										//serror is set
 										return false;
 									}
 
 									bool fSuccess = CheckSig(vchSig, vchPubKey, scriptCode, checker, hashversion);
-									if(!fSuccess && (ScriptVerify & ScriptVerify.NullFail) != 0 && vchSig.Length != 0)
+									if (!fSuccess && (ScriptVerify & ScriptVerify.NullFail) != 0 && vchSig.Length != 0)
 										return SetError(ScriptError.NullFail);
 
 									_stack.Pop();
 									_stack.Pop();
 									_stack.Push(fSuccess ? vchTrue : vchFalse);
-									if(opcode.Code == OpcodeType.OP_CHECKSIGVERIFY)
+									if (opcode.Code == OpcodeType.OP_CHECKSIGVERIFY)
 									{
-										if(!fSuccess)
+										if (!fSuccess)
 											return SetError(ScriptError.CheckSigVerify);
 
 										_stack.Pop();
@@ -1365,15 +1365,15 @@ namespace NBitcoin
 									// ([sig ...] num_of_signatures [pubkey ...] num_of_pubkeys -- bool)
 
 									int i = 1;
-									if(_stack.Count < i)
+									if (_stack.Count < i)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									int nKeysCount = new CScriptNum(_stack.Top(-i), fRequireMinimal).getint();
-									if(nKeysCount < 0 || nKeysCount > 20)
+									if (nKeysCount < 0 || nKeysCount > 20)
 										return SetError(ScriptError.PubkeyCount);
 
 									nOpCount += nKeysCount;
-									if(nOpCount > 201)
+									if (nOpCount > 201)
 										return SetError(ScriptError.OpCount);
 
 									int ikey = ++i;
@@ -1381,30 +1381,30 @@ namespace NBitcoin
 									// ikey2 is the position of last non-signature item in the stack. Top stack item = 1.
 									// With SCRIPT_VERIFY_NULLFAIL, this is used for cleanup if operation fails.
 									int ikey2 = nKeysCount + 2;
-									if(_stack.Count < i)
+									if (_stack.Count < i)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									int nSigsCount = new CScriptNum(_stack.Top(-i), fRequireMinimal).getint();
-									if(nSigsCount < 0 || nSigsCount > nKeysCount)
+									if (nSigsCount < 0 || nSigsCount > nKeysCount)
 										return SetError(ScriptError.SigCount);
 
 									int isig = ++i;
 									i += nSigsCount;
-									if(_stack.Count < i)
+									if (_stack.Count < i)
 										return SetError(ScriptError.InvalidStackOperation);
 
 									// Subset of script starting at the most recent codeseparator
 									Script scriptCode = new Script(s._Script.Skip(pbegincodehash).ToArray());
 									// Drop the signatures, since there's no way for a signature to sign itself
-									for(int k = 0; k < nSigsCount; k++)
+									for (int k = 0; k < nSigsCount; k++)
 									{
 										var vchSig = _stack.Top(-isig - k);
-										if(hashversion == (int)HashVersion.Original)
+										if (hashversion == (int)HashVersion.Original)
 											scriptCode = scriptCode.FindAndDelete(vchSig);
 									}
 
 									bool fSuccess = true;
-									while(fSuccess && nSigsCount > 0)
+									while (fSuccess && nSigsCount > 0)
 									{
 										var vchSig = _stack.Top(-isig);
 										var vchPubKey = _stack.Top(-ikey);
@@ -1412,7 +1412,7 @@ namespace NBitcoin
 										// Note how this makes the exact order of pubkey/signature evaluation
 										// distinguishable by CHECKMULTISIG NOT if the STRICTENC flag is set.
 										// See the script_(in)valid tests for details.
-										if(!CheckSignatureEncoding(vchSig) || !CheckPubKeyEncoding(vchPubKey, hashversion))
+										if (!CheckSignatureEncoding(vchSig) || !CheckPubKeyEncoding(vchPubKey, hashversion))
 										{
 											// serror is set
 											return false;
@@ -1420,7 +1420,7 @@ namespace NBitcoin
 
 										bool fOk = CheckSig(vchSig, vchPubKey, scriptCode, checker, hashversion);
 
-										if(fOk)
+										if (fOk)
 										{
 											isig++;
 											nSigsCount--;
@@ -1430,17 +1430,17 @@ namespace NBitcoin
 
 										// If there are more signatures left than keys left,
 										// then too many signatures have failed
-										if(nSigsCount > nKeysCount)
+										if (nSigsCount > nKeysCount)
 											fSuccess = false;
 									}
 
 									// Clean up stack of actual arguments
-									while(i-- > 1)
+									while (i-- > 1)
 									{
 										// If the operation failed, we require that all signatures must be empty vector
-										if(!fSuccess && (ScriptVerify & ScriptVerify.NullFail) != 0 && ikey2 == 0 && _stack.Top(-1).Length != 0)
+										if (!fSuccess && (ScriptVerify & ScriptVerify.NullFail) != 0 && ikey2 == 0 && _stack.Top(-1).Length != 0)
 											return SetError(ScriptError.NullFail);
-										if(ikey2 > 0)
+										if (ikey2 > 0)
 											ikey2--;
 										_stack.Pop();
 									}
@@ -1451,19 +1451,19 @@ namespace NBitcoin
 									// Unfortunately this is a potential source of mutability,
 									// so optionally verify it is exactly equal to zero prior
 									// to removing it from the stack.
-									if(_stack.Count < 1)
+									if (_stack.Count < 1)
 										return SetError(ScriptError.InvalidStackOperation);
 
-									if(((ScriptVerify & ScriptVerify.NullDummy) != 0) && _stack.Top(-1).Length != 0)
+									if (((ScriptVerify & ScriptVerify.NullDummy) != 0) && _stack.Top(-1).Length != 0)
 										return SetError(ScriptError.SigNullDummy);
 
 									_stack.Pop();
 
 									_stack.Push(fSuccess ? vchTrue : vchFalse);
 
-									if(opcode.Code == OpcodeType.OP_CHECKMULTISIGVERIFY)
+									if (opcode.Code == OpcodeType.OP_CHECKMULTISIGVERIFY)
 									{
-										if(!fSuccess)
+										if (!fSuccess)
 											return SetError(ScriptError.CheckMultiSigVerify);
 
 										_stack.Pop();
@@ -1475,17 +1475,17 @@ namespace NBitcoin
 						}
 					}
 					// Size limits
-					if(_stack.Count + altstack.Count > 1000)
+					if (_stack.Count + altstack.Count > 1000)
 						return SetError(ScriptError.StackSize);
 				}
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				ThrownException = ex;
 				return SetError(ScriptError.UnknownError);
 			}
 
-			if(vfExec.Count != 0)
+			if (vfExec.Count != 0)
 				return SetError(ScriptError.UnbalancedConditional);
 
 			return SetSuccess(ScriptError.OK);
@@ -1501,14 +1501,14 @@ namespace NBitcoin
 
 			// Fail if the transaction's version number is not set high
 			// enough to trigger BIP 68 rules.
-			if(txTo.Version < 2)
+			if (txTo.Version < 2)
 				return false;
 
 			// Sequence numbers with their most significant bit set are not
 			// consensus constrained. Testing that the transaction's sequence
 			// number do not have this bit set prevents using this property
 			// to get around a CHECKSEQUENCEVERIFY check.
-			if((txToSequence & Sequence.SEQUENCE_LOCKTIME_DISABLE_FLAG) != 0)
+			if ((txToSequence & Sequence.SEQUENCE_LOCKTIME_DISABLE_FLAG) != 0)
 				return false;
 
 			// Mask off any bits that do not have consensus-enforced meaning
@@ -1524,7 +1524,7 @@ namespace NBitcoin
 			// We want to compare apples to apples, so fail the script
 			// unless the type of nSequenceMasked being tested is the same as
 			// the nSequenceMasked in the transaction.
-			if(!(
+			if (!(
 				(txToSequenceMasked < Sequence.SEQUENCE_LOCKTIME_TYPE_FLAG && nSequenceMasked < Sequence.SEQUENCE_LOCKTIME_TYPE_FLAG) ||
 				(txToSequenceMasked >= Sequence.SEQUENCE_LOCKTIME_TYPE_FLAG && nSequenceMasked >= Sequence.SEQUENCE_LOCKTIME_TYPE_FLAG)
 			))
@@ -1534,7 +1534,7 @@ namespace NBitcoin
 
 			// Now that we know we're comparing apples-to-apples, the
 			// comparison is a simple numeric one.
-			if(nSequenceMasked > txToSequenceMasked)
+			if (nSequenceMasked > txToSequenceMasked)
 				return false;
 
 			return true;
@@ -1552,7 +1552,7 @@ namespace NBitcoin
 			// We want to compare apples to apples, so fail the script
 			// unless the type of nLockTime being tested is the same as
 			// the nLockTime in the transaction.
-			if(!(
+			if (!(
 				(txTo.LockTime < LockTime.LOCKTIME_THRESHOLD && nLockTime < LockTime.LOCKTIME_THRESHOLD) ||
 				(txTo.LockTime >= LockTime.LOCKTIME_THRESHOLD && nLockTime >= LockTime.LOCKTIME_THRESHOLD)
 			))
@@ -1560,7 +1560,7 @@ namespace NBitcoin
 
 			// Now that we know we're comparing apples-to-apples, the
 			// comparison is a simple numeric one.
-			if(nLockTime > (long)txTo.LockTime)
+			if (nLockTime > (long)txTo.LockTime)
 				return false;
 
 			// Finally the nLockTime feature can be disabled and thus
@@ -1573,7 +1573,7 @@ namespace NBitcoin
 			// prevent this condition. Alternatively we could test all
 			// inputs, but testing just this input minimizes the data
 			// required to prove correct CHECKLOCKTIMEVERIFY execution.
-			if(Sequence.SEQUENCE_FINAL == txTo.Inputs[nIn].Sequence)
+			if (Sequence.SEQUENCE_FINAL == txTo.Inputs[nIn].Sequence)
 				return false;
 
 			return true;
@@ -1593,22 +1593,22 @@ namespace NBitcoin
 
 		private bool IsCompressedOrUncompressedPubKey(byte[] vchPubKey)
 		{
-			if(vchPubKey.Length < 33)
+			if (vchPubKey.Length < 33)
 			{
 				//  Non-canonical public key: too short
 				return false;
 			}
-			if(vchPubKey[0] == 0x04)
+			if (vchPubKey[0] == 0x04)
 			{
-				if(vchPubKey.Length != 65)
+				if (vchPubKey.Length != 65)
 				{
 					//  Non-canonical public key: invalid length for uncompressed key
 					return false;
 				}
 			}
-			else if(vchPubKey[0] == 0x02 || vchPubKey[0] == 0x03)
+			else if (vchPubKey[0] == 0x02 || vchPubKey[0] == 0x03)
 			{
-				if(vchPubKey.Length != 33)
+				if (vchPubKey.Length != 33)
 				{
 					//  Non-canonical public key: invalid length for compressed key
 					return false;
@@ -1626,21 +1626,21 @@ namespace NBitcoin
 		{
 			// Empty signature. Not strictly DER encoded, but allowed to provide a
 			// compact way to provide an invalid signature for use with CHECK(MULTI)SIG
-			if(vchSig.Length == 0)
+			if (vchSig.Length == 0)
 			{
 				return true;
 			}
-			if((ScriptVerify & (ScriptVerify.DerSig | ScriptVerify.LowS | ScriptVerify.StrictEnc)) != 0 && !IsValidSignatureEncoding(vchSig))
+			if ((ScriptVerify & (ScriptVerify.DerSig | ScriptVerify.LowS | ScriptVerify.StrictEnc)) != 0 && !IsValidSignatureEncoding(vchSig))
 			{
 				Error = ScriptError.SigDer;
 				return false;
 			}
-			if((ScriptVerify & ScriptVerify.LowS) != 0 && !IsLowDERSignature(vchSig))
+			if ((ScriptVerify & ScriptVerify.LowS) != 0 && !IsLowDERSignature(vchSig))
 			{
 				// serror is set
 				return false;
 			}
-			if((ScriptVerify & ScriptVerify.StrictEnc) != 0 && !IsDefinedHashtypeSignature(vchSig))
+			if ((ScriptVerify & ScriptVerify.StrictEnc) != 0 && !IsDefinedHashtypeSignature(vchSig))
 			{
 				Error = ScriptError.SigHashType;
 				return false;
@@ -1650,12 +1650,12 @@ namespace NBitcoin
 
 		private bool CheckPubKeyEncoding(byte[] vchPubKey, int sigversion)
 		{
-			if((ScriptVerify & ScriptVerify.StrictEnc) != 0 && !IsCompressedOrUncompressedPubKey(vchPubKey))
+			if ((ScriptVerify & ScriptVerify.StrictEnc) != 0 && !IsCompressedOrUncompressedPubKey(vchPubKey))
 			{
 				Error = ScriptError.PubKeyType;
 				return false;
 			}
-			if((ScriptVerify & ScriptVerify.WitnessPubkeyType) != 0 && sigversion == (int)HashVersion.Witness && !IsCompressedPubKey(vchPubKey))
+			if ((ScriptVerify & ScriptVerify.WitnessPubkeyType) != 0 && sigversion == (int)HashVersion.Witness && !IsCompressedPubKey(vchPubKey))
 			{
 				return SetError(ScriptError.WitnessPubkeyType);
 			}
@@ -1664,12 +1664,12 @@ namespace NBitcoin
 
 		static bool IsCompressedPubKey(byte[] vchPubKey)
 		{
-			if(vchPubKey.Length != 33)
+			if (vchPubKey.Length != 33)
 			{
 				//  Non-canonical public key: invalid length for compressed key
 				return false;
 			}
-			if(vchPubKey[0] != 0x02 && vchPubKey[0] != 0x03)
+			if (vchPubKey[0] != 0x02 && vchPubKey[0] != 0x03)
 			{
 				//  Non-canonical public key: invalid prefix for compressed key
 				return false;
@@ -1680,18 +1680,18 @@ namespace NBitcoin
 
 		bool IsDefinedHashtypeSignature(byte[] vchSig)
 		{
-			if(vchSig.Length == 0)
+			if (vchSig.Length == 0)
 			{
 				return false;
 			}
 
 			var temp = ~(SigHash.AnyoneCanPay);
-			if((ScriptVerify & ScriptVerify.ForkId) != 0)
+			if ((ScriptVerify & ScriptVerify.ForkId) != 0)
 			{
 				temp = (SigHash)((uint)temp & ~(0x40u));
 			}
 			byte nHashType = (byte)(vchSig[vchSig.Length - 1] & (byte)temp);
-			if(nHashType < (byte)SigHash.All || nHashType > (byte)SigHash.Single)
+			if (nHashType < (byte)SigHash.All || nHashType > (byte)SigHash.Single)
 				return false;
 
 			return true;
@@ -1699,7 +1699,7 @@ namespace NBitcoin
 
 		private bool IsLowDERSignature(byte[] vchSig)
 		{
-			if(!IsValidSignatureEncoding(vchSig))
+			if (!IsValidSignatureEncoding(vchSig))
 			{
 				Error = ScriptError.SigDer;
 				return false;
@@ -1710,7 +1710,7 @@ namespace NBitcoin
 			// If the S value is above the order of the curve divided by two, its
 			// complement modulo the order could have been used instead, which is
 			// one byte shorter when encoded correctly.
-			if(!CheckSignatureElement(vchSig, S, nLenS, true))
+			if (!CheckSignatureElement(vchSig, S, nLenS, true))
 			{
 				Error = ScriptError.SigHighS;
 				return false;
@@ -1750,25 +1750,25 @@ namespace NBitcoin
 		private int CompareBigEndian(byte[] c1, int ic1, int c1len, byte[] c2, int c2len)
 		{
 			int ic2 = 0;
-			while(c1len > c2len)
+			while (c1len > c2len)
 			{
-				if(c1[ic1] != 0)
+				if (c1[ic1] != 0)
 					return 1;
 				ic1++;
 				c1len--;
 			}
-			while(c2len > c1len)
+			while (c2len > c1len)
 			{
-				if(c2[ic2] != 0)
+				if (c2[ic2] != 0)
 					return -1;
 				ic2++;
 				c2len--;
 			}
-			while(c1len > 0)
+			while (c1len > 0)
 			{
-				if(c1[ic1] > c2[ic2])
+				if (c1[ic1] > c2[ic2])
 					return 1;
-				if(c2[ic2] > c1[ic1])
+				if (c2[ic2] > c1[ic1])
 					return -1;
 				ic1++;
 				ic2++;
@@ -1795,22 +1795,22 @@ namespace NBitcoin
 			var signLen = sig.Length;
 
 			// Minimum and maximum size constraints.
-			if(signLen < 9 || signLen > 73)
+			if (signLen < 9 || signLen > 73)
 				return false;
 
 			// A signature is of type 0x30 (compound).
-			if(sig[0] != 0x30)
+			if (sig[0] != 0x30)
 				return false;
 
 			// Make sure the length covers the entire signature.
-			if(sig[1] != signLen - 3)
+			if (sig[1] != signLen - 3)
 				return false;
 
 			// Extract the length of the R element.
 			uint lenR = sig[3];
 
 			// Make sure the length of the S element is still inside the signature.
-			if(5 + lenR >= signLen)
+			if (5 + lenR >= signLen)
 				return false;
 
 			// Extract the length of the S element.
@@ -1818,41 +1818,41 @@ namespace NBitcoin
 
 			// Verify that the length of the signature matches the sum of the length
 			// of the elements.
-			if((lenR + lenS + 7) != signLen)
+			if ((lenR + lenS + 7) != signLen)
 				return false;
 
 			// Check whether the R element is an integer.
-			if(sig[2] != 0x02)
+			if (sig[2] != 0x02)
 				return false;
 
 			// Zero-length integers are not allowed for R.
-			if(lenR == 0)
+			if (lenR == 0)
 				return false;
 
 			// Negative numbers are not allowed for R.
-			if((sig[4] & 0x80) != 0)
+			if ((sig[4] & 0x80) != 0)
 				return false;
 
 			// Null bytes at the start of R are not allowed, unless R would
 			// otherwise be interpreted as a negative number.
-			if(lenR > 1 && (sig[4] == 0x00) && (sig[5] & 0x80) == 0)
+			if (lenR > 1 && (sig[4] == 0x00) && (sig[5] & 0x80) == 0)
 				return false;
 
 			// Check whether the S element is an integer.
-			if(sig[lenR + 4] != 0x02)
+			if (sig[lenR + 4] != 0x02)
 				return false;
 
 			// Zero-length integers are not allowed for S.
-			if(lenS == 0)
+			if (lenS == 0)
 				return false;
 
 			// Negative numbers are not allowed for S.
-			if((sig[lenR + 6] & 0x80) != 0)
+			if ((sig[lenR + 6] & 0x80) != 0)
 				return false;
 
 			// Null bytes at the start of S are not allowed, unless S would otherwise be
 			// interpreted as a negative number.
-			if(lenS > 1 && (sig[lenR + 6] == 0x00) && (sig[lenR + 7] & 0x80) == 0)
+			if (lenS > 1 && (sig[lenR + 6] == 0x00) && (sig[lenR + 7] & 0x80) == 0)
 				return false;
 
 			return true;
@@ -1861,32 +1861,32 @@ namespace NBitcoin
 
 		bool CheckMinimalPush(byte[] data, OpcodeType opcode)
 		{
-			if(data.Length == 0)
+			if (data.Length == 0)
 			{
 				// Could have used OP_0.
 				return opcode == OpcodeType.OP_0;
 			}
-			else if(data.Length == 1 && data[0] >= 1 && data[0] <= 16)
+			else if (data.Length == 1 && data[0] >= 1 && data[0] <= 16)
 			{
 				// Could have used OP_1 .. OP_16.
 				return (int)opcode == ((int)OpcodeType.OP_1) + (data[0] - 1);
 			}
-			else if(data.Length == 1 && data[0] == 0x81)
+			else if (data.Length == 1 && data[0] == 0x81)
 			{
 				// Could have used OP_1NEGATE.
 				return opcode == OpcodeType.OP_1NEGATE;
 			}
-			else if(data.Length <= 75)
+			else if (data.Length <= 75)
 			{
 				// Could have used a direct push (opcode indicating number of bytes pushed + those bytes).
 				return (int)opcode == data.Length;
 			}
-			else if(data.Length <= 255)
+			else if (data.Length <= 255)
 			{
 				// Could have used OP_PUSHDATA.
 				return opcode == OpcodeType.OP_PUSHDATA1;
 			}
-			else if(data.Length <= 65535)
+			else if (data.Length <= 65535)
 			{
 				// Could have used OP_PUSHDATA2.
 				return opcode == OpcodeType.OP_PUSHDATA2;
@@ -1896,12 +1896,12 @@ namespace NBitcoin
 
 		private static bool CastToBool(byte[] vch)
 		{
-			for(uint i = 0; i < vch.Length; i++)
+			for (uint i = 0; i < vch.Length; i++)
 			{
-				if(vch[i] != 0)
+				if (vch[i] != 0)
 				{
 
-					if(i == vch.Length - 1 && vch[i] == 0x80)
+					if (i == vch.Length - 1 && vch[i] == 0x80)
 						return false;
 					return true;
 				}
@@ -1944,14 +1944,14 @@ namespace NBitcoin
 			{
 				pubkey = new PubKey(vchPubKey);
 			}
-			catch(Exception)
+			catch (Exception)
 			{
 				return false;
 			}
 
 
 			// Hash type is one byte tacked on to the end of the signature
-			if(vchSig.Length == 0)
+			if (vchSig.Length == 0)
 				return false;
 
 			TransactionSignature scriptSig = null;
@@ -1959,14 +1959,14 @@ namespace NBitcoin
 			{
 				scriptSig = new TransactionSignature(vchSig);
 			}
-			catch(Exception)
+			catch (Exception)
 			{
-				if((ScriptVerify.DerSig & ScriptVerify) != 0)
+				if ((ScriptVerify.DerSig & ScriptVerify) != 0)
 					throw;
 				return false;
 			}
 
-			if(!IsAllowedSignature(scriptSig.SigHash))
+			if (!IsAllowedSignature(scriptSig.SigHash))
 				return false;
 
 			uint256 sighash = checker.Transaction.GetSignatureHash(scriptCode, checker.Index, scriptSig.SigHash, checker.SpentOutput, (HashVersion)sigversion, checker.PrecomputedTransactionData);
@@ -1977,9 +1977,9 @@ namespace NBitcoin
 				Hash = sighash,
 				Signature = scriptSig
 			});
-			if(!pubkey.Verify(sighash, scriptSig.Signature))
+			if (!pubkey.Verify(sighash, scriptSig.Signature))
 			{
-				if((ScriptVerify & ScriptVerify.StrictEnc) != 0)
+				if ((ScriptVerify & ScriptVerify.StrictEnc) != 0)
 					return false;
 
 				//Replicate OpenSSL bug on 23b397edccd3740a74adb603c9756370fafcde9bcc4483eb271ecad09a94dd63 (http://r6.ca/blog/20111119T211504Z.html)
@@ -1990,9 +1990,9 @@ namespace NBitcoin
 				var newS = new NBitcoin.BouncyCastle.Math.BigInteger(1, vchSig, S, nLenS);
 				var newR = new NBitcoin.BouncyCastle.Math.BigInteger(1, vchSig, R, nLenR);
 				var sig2 = new ECDSASignature(newR, newS);
-				if(sig2.R != scriptSig.Signature.R || sig2.S != scriptSig.Signature.S)
+				if (sig2.R != scriptSig.Signature.R || sig2.S != scriptSig.Signature.S)
 				{
-					if(!pubkey.Verify(sighash, sig2))
+					if (!pubkey.Verify(sighash, sig2))
 						return false;
 				}
 			}
@@ -2003,7 +2003,7 @@ namespace NBitcoin
 
 		public bool IsAllowedSignature(SigHash sigHash)
 		{
-			if(SigHash == NBitcoin.SigHash.Undefined)
+			if (SigHash == NBitcoin.SigHash.Undefined)
 				return true;
 			return SigHash == sigHash;
 		}
@@ -2031,7 +2031,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(Stack.Count == 0)
+				if (Stack.Count == 0)
 					return false;
 				return CastToBool(_stack.Top(-1));
 			}
@@ -2114,7 +2114,7 @@ namespace NBitcoin
 		/// <exception cref="System.ArgumentOutOfRangeException">Cannot remove more elements</exception>
 		public void Clear(int n)
 		{
-			if(n > Count)
+			if (n > Count)
 				throw new ArgumentOutOfRangeException("n", "Cannot remove more elements");
 			_position -= n;
 		}
@@ -2127,7 +2127,7 @@ namespace NBitcoin
 		/// <exception cref="System.IndexOutOfRangeException">topIndex</exception>
 		public T Top(int i)
 		{
-			if(i > 0 || -i > Count)
+			if (i > 0 || -i > Count)
 				throw new IndexOutOfRangeException("topIndex");
 			return _array[Count + i];
 		}
@@ -2142,9 +2142,9 @@ namespace NBitcoin
 		/// </exception>
 		public void Swap(int i, int j)
 		{
-			if(i > 0 || -i > Count)
+			if (i > 0 || -i > Count)
 				throw new IndexOutOfRangeException("i");
-			if(i > 0 || -j > Count)
+			if (i > 0 || -j > Count)
 				throw new IndexOutOfRangeException("j");
 
 			var t = _array[Count + i];
@@ -2162,7 +2162,7 @@ namespace NBitcoin
 			EnsureSize();
 
 			position = Count + position;
-			for(int i = _position; i >= position + 1; i--)
+			for (int i = _position; i >= position + 1; i--)
 			{
 				_array[i + 1] = _array[i];
 			}
@@ -2187,9 +2187,9 @@ namespace NBitcoin
 		public void Remove(int from, int to)
 		{
 			int toRemove = to - from;
-			for(int i = Count + from; i < Count + from + toRemove; i++)
+			for (int i = Count + from; i < Count + from + toRemove; i++)
 			{
-				for(int y = Count + from; y < Count; y++)
+				for (int y = Count + from; y < Count; y++)
 					_array[y] = _array[y + 1];
 			}
 			_position -= toRemove;
@@ -2197,7 +2197,7 @@ namespace NBitcoin
 
 		private void EnsureSize()
 		{
-			if(_position < _array.Length - 1)
+			if (_position < _array.Length - 1)
 				return;
 			Array.Resize(ref _array, 2 * _array.Length);
 		}
@@ -2243,7 +2243,7 @@ namespace NBitcoin
 			{
 				get
 				{
-					if(_index == -1)
+					if (_index == -1)
 					{
 						throw new InvalidOperationException("Enumeration has ended");
 					}

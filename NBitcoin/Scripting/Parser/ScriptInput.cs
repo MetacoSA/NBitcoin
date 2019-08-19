@@ -4,7 +4,7 @@ using System.Collections;
 
 namespace NBitcoin.Scripting.Parser
 {
- 	internal class ScriptInput : IInput<ScriptToken>
+	internal class ScriptInput : IInput<ScriptToken>
 	{
 		public ScriptInput(Script source) : this(source.ToTokens(), 0) { }
 
