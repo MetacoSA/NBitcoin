@@ -16,7 +16,7 @@ namespace NBitcoin.Altcoins
 		public static Dystem Dystem { get; } = Dystem.Instance;
 		public static Litecoin Litecoin { get; } = Litecoin.Instance;
 		public static Feathercoin Feathercoin { get; } = Feathercoin.Instance;
-		public static Viacoin Viacoin {get; } = Viacoin.Instance;
+		public static Viacoin Viacoin { get; } = Viacoin.Instance;
 		public static Polis Polis { get; } = Polis.Instance;
 		public static Monacoin Monacoin { get; } = Monacoin.Instance;
 		public static Ufo Ufo { get; } = Ufo.Instance;

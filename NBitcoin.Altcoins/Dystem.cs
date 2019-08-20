@@ -85,30 +85,30 @@ namespace NBitcoin.Altcoins
 		{
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus
-				{
-					SubsidyHalvingInterval = 210240,
-					MajorityEnforceBlockUpgrade = 750,
-					MajorityRejectBlockOutdated = 950,
-					MajorityWindow = 1000,
-					BIP34Hash = new uint256("00000f4fb42644a07735beea3647155995ab01cf49d05fdc082c08eb673433f9"),
-					PowLimit = new Target(0 >> 1),
-					MinimumChainWork = new uint256("000000000000000000000000000000000000000000000000010b219afffe4a8b"),
-					PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
-					PowTargetSpacing = TimeSpan.FromSeconds(1 * 60),
-					PowAllowMinDifficultyBlocks = false,
-					CoinbaseMaturity = 30,
-					PowNoRetargeting = false,
-					RuleChangeActivationThreshold = 1916,
-					MinerConfirmationWindow = 2016,
-					ConsensusFactory = DystemConsensusFactory.Instance,
-					SupportSegwit = false,
-					CoinType = 222
-				})
-				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] {30})
-				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] {68})
-				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] {58})
-				.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] {0x04, 0x88, 0xB2, 0x1E})
-				.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] {0x04, 0x88, 0xAD, 0xE4})
+			{
+				SubsidyHalvingInterval = 210240,
+				MajorityEnforceBlockUpgrade = 750,
+				MajorityRejectBlockOutdated = 950,
+				MajorityWindow = 1000,
+				BIP34Hash = new uint256("00000f4fb42644a07735beea3647155995ab01cf49d05fdc082c08eb673433f9"),
+				PowLimit = new Target(0 >> 1),
+				MinimumChainWork = new uint256("000000000000000000000000000000000000000000000000010b219afffe4a8b"),
+				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
+				PowTargetSpacing = TimeSpan.FromSeconds(1 * 60),
+				PowAllowMinDifficultyBlocks = false,
+				CoinbaseMaturity = 30,
+				PowNoRetargeting = false,
+				RuleChangeActivationThreshold = 1916,
+				MinerConfirmationWindow = 2016,
+				ConsensusFactory = DystemConsensusFactory.Instance,
+				SupportSegwit = false,
+				CoinType = 222
+			})
+				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 30 })
+				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 68 })
+				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 58 })
+				.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
+				.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
 				.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("Dystem"))
 				.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("Dystem"))
 				.SetMagic(0x3595a329)
@@ -134,30 +134,30 @@ namespace NBitcoin.Altcoins
 		{
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus
-				{
-					SubsidyHalvingInterval = 210240,
-					MajorityEnforceBlockUpgrade = 51,
-					MajorityRejectBlockOutdated = 75,
-					MajorityWindow = 100,
-					BIP34Hash = new uint256("0x0000047d24635e347be3aaaeb66c26be94901a2f962feccd4f95090191f208c1"),
-					PowLimit = new Target(0 >> 1),
-					MinimumChainWork = new uint256("0x000000000000000000000000000000000000000000000000000924e924a21715"),
-					PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
-					PowTargetSpacing = TimeSpan.FromSeconds(1 * 60),
-					PowAllowMinDifficultyBlocks = true,
-					CoinbaseMaturity = 30,
-					PowNoRetargeting = false,
-					RuleChangeActivationThreshold = 1512,
-					MinerConfirmationWindow = 2016,
-					ConsensusFactory = DystemConsensusFactory.Instance,
-					SupportSegwit = false,
-					CoinType = 1
-				})
-				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] {30})
-				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] {68})
-				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] {58})
-				.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] {0x04, 0x88, 0xB2, 0x1E})
-				.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] {0x04, 0x88, 0xAD, 0xE4})
+			{
+				SubsidyHalvingInterval = 210240,
+				MajorityEnforceBlockUpgrade = 51,
+				MajorityRejectBlockOutdated = 75,
+				MajorityWindow = 100,
+				BIP34Hash = new uint256("0x0000047d24635e347be3aaaeb66c26be94901a2f962feccd4f95090191f208c1"),
+				PowLimit = new Target(0 >> 1),
+				MinimumChainWork = new uint256("0x000000000000000000000000000000000000000000000000000924e924a21715"),
+				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
+				PowTargetSpacing = TimeSpan.FromSeconds(1 * 60),
+				PowAllowMinDifficultyBlocks = true,
+				CoinbaseMaturity = 30,
+				PowNoRetargeting = false,
+				RuleChangeActivationThreshold = 1512,
+				MinerConfirmationWindow = 2016,
+				ConsensusFactory = DystemConsensusFactory.Instance,
+				SupportSegwit = false,
+				CoinType = 1
+			})
+				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 30 })
+				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 68 })
+				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 58 })
+				.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
+				.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
 				.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tDystem"))
 				.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tDystem"))
 				.SetMagic(0x1d322dc2)
@@ -183,29 +183,29 @@ namespace NBitcoin.Altcoins
 		{
 			var builder = new NetworkBuilder();
 			var res = builder.SetConsensus(new Consensus
-				{
-					SubsidyHalvingInterval = 210240,
-					MajorityEnforceBlockUpgrade = 750,
-					MajorityRejectBlockOutdated = 950,
-					MajorityWindow = 1000,
-					BIP34Hash = new uint256("0x000007d91d1254d60e2dd1ae580383070a4ddffa4c64c2eeb4a2f9ecc0414343"),
-					PowLimit = new Target(0 >> 1),
-					MinimumChainWork = new uint256("0x000000000000000000000000000000000000000000000100a308553b4863b755"),
-					PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
-					PowTargetSpacing = TimeSpan.FromSeconds(1 * 60),
-					PowAllowMinDifficultyBlocks = false,
-					CoinbaseMaturity = 10,
-					PowNoRetargeting = false,
-					RuleChangeActivationThreshold = 1916,
-					MinerConfirmationWindow = 2016,
-					ConsensusFactory = DystemConsensusFactory.Instance,
-					SupportSegwit = false
-				})
-				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] {30})
-				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] {68})
-				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] {58})
-				.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] {0x04, 0x88, 0xB2, 0x1E})
-				.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] {0x04, 0x88, 0xAD, 0xE4})
+			{
+				SubsidyHalvingInterval = 210240,
+				MajorityEnforceBlockUpgrade = 750,
+				MajorityRejectBlockOutdated = 950,
+				MajorityWindow = 1000,
+				BIP34Hash = new uint256("0x000007d91d1254d60e2dd1ae580383070a4ddffa4c64c2eeb4a2f9ecc0414343"),
+				PowLimit = new Target(0 >> 1),
+				MinimumChainWork = new uint256("0x000000000000000000000000000000000000000000000100a308553b4863b755"),
+				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
+				PowTargetSpacing = TimeSpan.FromSeconds(1 * 60),
+				PowAllowMinDifficultyBlocks = false,
+				CoinbaseMaturity = 10,
+				PowNoRetargeting = false,
+				RuleChangeActivationThreshold = 1916,
+				MinerConfirmationWindow = 2016,
+				ConsensusFactory = DystemConsensusFactory.Instance,
+				SupportSegwit = false
+			})
+				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 30 })
+				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 68 })
+				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 58 })
+				.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
+				.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
 				.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tDystem"))
 				.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tDystem"))
 				.SetMagic(0x7d322ba2)

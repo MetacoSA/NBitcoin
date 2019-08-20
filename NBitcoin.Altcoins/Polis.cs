@@ -44,7 +44,7 @@ namespace NBitcoin.Altcoins
 #pragma warning disable CS0618 // Type or member is obsolete
 		public class PolisBlockHeader : BlockHeader
 		{
-			
+
 			static byte[] CalculateHash(byte[] data, int offset, int count)
 			{
 				return new HashX11.X11().ComputeBytes(data.Skip(offset).Take(count).ToArray());

@@ -15,7 +15,7 @@ namespace NBitcoin.Altcoins.GincoinInternals
 			hashA = blake.ComputeBytes(input).GetBytes();
 			Lyra2.Lyra2 lyra2 = new Lyra2.Lyra2();
 			lyra2.Calculate(hashB, hashA, hashA, 8, 8, 8);
-		
+
 			return hashB;
 		}
 	}

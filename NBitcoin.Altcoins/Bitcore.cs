@@ -36,7 +36,7 @@ namespace NBitcoin.Altcoins
 			Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0x25,0x78,0xba,0x55}, 8666),
 			Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xbc,0x47,0xdf,0xce}, 8666),
 			Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xb9,0xc2,0x8e,0x7a}, 8666),
-		};        		     		
+		};
 
 #pragma warning disable CS0618 // Type or member is obsolete
 		public class BitcoreConsensusFactory : ConsensusFactory
@@ -62,7 +62,7 @@ namespace NBitcoin.Altcoins
 			public override uint256 GetPoWHash()
 			{
 				//BTX Timetravel Algo implement here
-                                throw new NotSupportedException("PoW for BitCore BTX is not supported");
+				throw new NotSupportedException("PoW for BitCore BTX is not supported");
 			}
 		}
 
@@ -90,11 +90,11 @@ namespace NBitcoin.Altcoins
 			NetworkBuilder builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
 			{
-				SubsidyHalvingInterval = 210000, 
+				SubsidyHalvingInterval = 210000,
 				MajorityEnforceBlockUpgrade = 750,
 				MajorityRejectBlockOutdated = 950,
 				MajorityWindow = 1000,
-				BIP34Hash = new uint256("604148281e5c4b7f2487e5d03cd60d8e6f69411d613f6448034508cea52e9574"), 
+				BIP34Hash = new uint256("604148281e5c4b7f2487e5d03cd60d8e6f69411d613f6448034508cea52e9574"),
 				PowLimit = new Target(new uint256("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				PowTargetTimespan = TimeSpan.FromSeconds(3.5 * 24 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2.5 * 60),
@@ -113,7 +113,7 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("btx"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("btx"))
 			.SetMagic(0xD9B4BEF9) //defined in inverted direction, 0xF9BEB4D9
-			.SetPort(8555) 
+			.SetPort(8555)
 			.SetRPCPort(8556)
 			.SetMaxP2PVersion(80000)
 			.SetName("btx-main")
@@ -128,12 +128,12 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("185.194.140.60", "185.194.140.60"),
 				new DNSSeedData("188.71.223.206", "188.71.223.206")
 			})
-			.AddSeeds(ToSeed(pnSeed6_main)) 
+			.AddSeeds(ToSeed(pnSeed6_main))
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c787795041016d5ee652e55e3a6aeff6c8019cf0c525887337e0b4206552691613f7fc58f0ff0f1ea12400000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4004ffff001d010438506f77657264652062792042697473656e642d4575726f7065636f696e2d4469616d6f6e642d4d41432d42332032332f4170722f32303137ffffffff010000000000000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
 			return builder;
 		}
 
-   		protected override NetworkBuilder CreateTestnet()
+		protected override NetworkBuilder CreateTestnet()
 		{
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
@@ -204,8 +204,8 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tbtx")) 
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tbtx")) 
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tbtx"))
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tbtx"))
 			.SetMagic(0xDAB5BFFA) //defined in inverted direction, 0xFABFB5DA
 			.SetPort(19444)
 			.SetRPCPort(19332)

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace NBitcoin.Altcoins.HashX11
 {
 	public class C11
-    {
+	{
 		private IHash[] _hashers;
-				
+
 		public C11()
 		{
 			var blake512 = HashFactory.Crypto.SHA3.CreateBlake512();
@@ -24,7 +24,7 @@ namespace NBitcoin.Altcoins.HashX11
 			var simd512 = HashFactory.Crypto.SHA3.CreateSIMD512();
 			var echo512 = HashFactory.Crypto.SHA3.CreateEcho512();
 
-			_hashers = new IHash[] 
+			_hashers = new IHash[]
 			{
 				blake512, bmw512, groestl512, jh512, keccak512, skein512,
 				luffa512, cubehash512, shavite512, simd512, echo512
@@ -41,5 +41,5 @@ namespace NBitcoin.Altcoins.HashX11
 
 			return hashResult.Take(32).ToArray();
 		}
-    }
+	}
 }

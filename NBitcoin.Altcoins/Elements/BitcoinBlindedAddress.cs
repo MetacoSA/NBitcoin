@@ -60,7 +60,7 @@ namespace NBitcoin.Altcoins.Elements
 
 			if (address is BitcoinBlindedAddress ba)
 				address = ba.UnblindedAddress;
-			if(!(address is IBase58Data))
+			if (!(address is IBase58Data))
 				throw new ArgumentException("Unsupported address");
 
 			var network = address.Network;

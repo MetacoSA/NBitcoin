@@ -66,7 +66,7 @@ namespace NBitcoin.Altcoins.Elements
 						.Select(o => o.Value)
 						.Sum();
 					var fee = totalInput - totalOutput;
-					if(fee > Money.Zero)
+					if (fee > Money.Zero)
 						transaction.Outputs.Add(fee, Script.Empty);
 				}
 			}

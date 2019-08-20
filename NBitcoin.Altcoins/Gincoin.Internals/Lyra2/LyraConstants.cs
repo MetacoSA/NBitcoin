@@ -11,7 +11,7 @@
 
 namespace NBitcoin.Altcoins.GincoinInternals.Lyra2
 {
-    public static class LyraConstants
+	public static class LyraConstants
 	{
 		public const ulong UINT64_SIZE = 8;
 		public const ulong BLOCK_LEN_INT64 = 12; //Block length: 768 bits (=96 bytes, =12 uint64_t)

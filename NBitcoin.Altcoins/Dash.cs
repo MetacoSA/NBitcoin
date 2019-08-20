@@ -88,7 +88,7 @@ namespace NBitcoin.Altcoins
 			/// Version number. Currently set to 1 for all DashTransactionTypes
 			/// </summary>
 			public ushort Version { get; set; }
-	  
+
 			/// <summary>
 			/// https://github.com/dashevo/dashcore-lib/blob/master/lib/constants/index.js
 			/// </summary>
@@ -98,7 +98,7 @@ namespace NBitcoin.Altcoins
 			public const int BLS_PUBLIC_KEY_SIZE = 48;
 			public const int BLS_SIGNATURE_SIZE = 96;
 			public const int IpAddressLength = 16;
-			
+
 			protected void MakeSureWeAreAtEndOfPayload()
 			{
 				if (data.BaseStream.Position < data.BaseStream.Length)
@@ -150,7 +150,7 @@ namespace NBitcoin.Altcoins
 			public uint PayloadSigSize;
 			public byte[] PayloadSig { get; set; }
 		}
-	
+
 		public class ProviderUpdateServiceTransaction : SpecialTransaction
 		{
 			public ProviderUpdateServiceTransaction(byte[] extraPayload) : base(extraPayload)
@@ -174,7 +174,7 @@ namespace NBitcoin.Altcoins
 			public uint256 InputsHash { get; set; }
 			public byte[] PayloadSig { get; set; }
 		}
-	
+
 		public class ProviderUpdateRegistrarTransaction : SpecialTransaction
 		{
 			public ProviderUpdateRegistrarTransaction(byte[] extraPayload) : base(extraPayload)
@@ -207,7 +207,7 @@ namespace NBitcoin.Altcoins
 			public uint PayloadSigSize;
 			public byte[] PayloadSig { get; set; }
 		}
-	
+
 		public class ProviderUpdateRevocationTransaction : SpecialTransaction
 		{
 			public ProviderUpdateRevocationTransaction(byte[] extraPayload) : base(extraPayload)

@@ -161,7 +161,7 @@ namespace NBitcoin.Altcoins
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xcf,0x9a,0xd2,0xde}, 10201),
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xda,0xf4,0x92,0x6f}, 18333)
 };
-		
+
 		class BCashConsensusFactory : ConsensusFactory
 		{
 			private BCashConsensusFactory()
@@ -228,7 +228,7 @@ namespace NBitcoin.Altcoins
 			{
 				var prefix = _Prefix;
 				str = str.Trim();
-				if(str.StartsWith($"{prefix}:", StringComparison.OrdinalIgnoreCase))
+				if (str.StartsWith($"{prefix}:", StringComparison.OrdinalIgnoreCase))
 				{
 					try
 					{
@@ -469,7 +469,7 @@ namespace BCashAddr
 
 			public string GetHash()
 			{
-				if(Hash == null)
+				if (Hash == null)
 					return null;
 				return Encoders.Hex.EncodeData(Hash);
 			}
@@ -513,7 +513,7 @@ namespace BCashAddr
 		public static string EncodeAsCashaddrNoPrefix(BchAddrData decoded)
 		{
 			var address = EncodeAsCashaddr(decoded);
-			if(address.IndexOf(":") != -1)
+			if (address.IndexOf(":") != -1)
 			{
 				return address.Split(':')[1];
 			}
@@ -640,7 +640,7 @@ namespace BCashAddr
 		/// <returns></returns>
 		public static string GetType(byte versionByte)
 		{
-			switch(versionByte & 120)
+			switch (versionByte & 120)
 			{
 				case 0:
 					return "P2PKH";
@@ -681,7 +681,7 @@ namespace BCashAddr
 		public static byte[] ChecksumToByte5Array(long checksum)
 		{
 			var result = new byte[8];
-			for(var i = 0; i < 8; ++i)
+			for (var i = 0; i < 8; ++i)
 			{
 				result[7 - i] = (byte)(checksum & 31);
 				checksum = checksum >> 5;
@@ -698,14 +698,14 @@ namespace BCashAddr
 		{
 			var GENERATOR = new long[] { 0x98f2bc8e61, 0x79b76d99e2, 0xf33e5fb3c4, 0xae2eabe2a8, 0x1e4f43e470 };
 			long checksum = 1;
-			for(var i = 0; i < data.Length; ++i)
+			for (var i = 0; i < data.Length; ++i)
 			{
 				var value = data[i];
 				var topBits = checksum >> 35;
 				checksum = ((checksum & 0x07ffffffff) << 5) ^ value;
-				for(var j = 0; j < GENERATOR.Length; ++j)
+				for (var j = 0; j < GENERATOR.Length; ++j)
 				{
-					if(((topBits >> j) & 1).Equals(1))
+					if (((topBits >> j) & 1).Equals(1))
 					{
 						checksum = checksum ^ GENERATOR[j];
 					}
@@ -723,7 +723,7 @@ namespace BCashAddr
 		{
 			var result = new byte[prefix.Length];
 			int i = 0;
-			foreach(char c in prefix.ToCharArray())
+			foreach (char c in prefix.ToCharArray())
 			{
 				result[i++] = (byte)(c & 31);
 			}
@@ -747,7 +747,7 @@ namespace BCashAddr
 		/// <returns></returns>
 		public static byte GetHashSizeBits(byte[] hash)
 		{
-			switch(hash.Length * 8)
+			switch (hash.Length * 8)
 			{
 				case 160:
 					return 0;
@@ -777,7 +777,7 @@ namespace BCashAddr
 		/// <returns></returns>
 		public static int GetHashSize(byte versionByte)
 		{
-			switch(versionByte & 7)
+			switch (versionByte & 7)
 			{
 				case 0:
 					return 160;
@@ -807,7 +807,7 @@ namespace BCashAddr
 		/// <returns></returns>
 		public static byte GetTypeBits(string type)
 		{
-			switch(type)
+			switch (type)
 			{
 				case "P2PKH":
 					return 0;
@@ -866,22 +866,22 @@ namespace BCashAddr
 			var index = 0;
 			var accumulator = 0;
 			var bits = 0;
-			for(var i = 0; i < data.Length; ++i)
+			for (var i = 0; i < data.Length; ++i)
 			{
 				var value = data[i];
 				Validation.Validate(0 <= value && (value >> from) == 0, $"Invalid value: {value}");
 				accumulator = (accumulator << from) | value;
 				bits += from;
-				while(bits >= to)
+				while (bits >= to)
 				{
 					bits -= to;
 					result[index] = (byte)((accumulator >> bits) & mask);
 					++index;
 				}
 			}
-			if(!strictMode)
+			if (!strictMode)
 			{
-				if(bits > 0)
+				if (bits > 0)
 				{
 					result[index] = (byte)((accumulator << (to - bits)) & mask);
 					++index;
@@ -906,7 +906,7 @@ namespace BCashAddr
 		static Base32()
 		{
 			DIGITS = "qpzry9x8gf2tvdw0s3jn54khce6mua7l".ToCharArray();
-			for(int i = 0; i < DIGITS.Length; i++)
+			for (int i = 0; i < DIGITS.Length; i++)
 				CHAR_MAP[DIGITS[i]] = i;
 		}
 
@@ -917,15 +917,15 @@ namespace BCashAddr
 		/// <returns></returns>
 		public static byte[] Decode(string encoded)
 		{
-			if(encoded.Length == 0)
+			if (encoded.Length == 0)
 			{
 				throw new CashaddrBase32EncoderException("Invalid encoded string");
 			}
 			var result = new byte[encoded.Length];
 			int next = 0;
-			foreach(char c in encoded.ToCharArray())
+			foreach (char c in encoded.ToCharArray())
 			{
-				if(!CHAR_MAP.ContainsKey(c))
+				if (!CHAR_MAP.ContainsKey(c))
 				{
 					throw new CashaddrBase32EncoderException($"Invalid character: {c}");
 				}
@@ -941,15 +941,15 @@ namespace BCashAddr
 		/// <returns></returns>
 		public static string Encode(byte[] data)
 		{
-			if(data.Length == 0)
+			if (data.Length == 0)
 			{
 				throw new CashaddrBase32EncoderException("Invalid data");
 			}
 			string base32 = String.Empty;
-			for(var i = 0; i < data.Length; ++i)
+			for (var i = 0; i < data.Length; ++i)
 			{
 				var value = data[i];
-				if(0 <= value && value < 32)
+				if (0 <= value && value < 32)
 					base32 += DIGITS[value];
 				else
 					throw new CashaddrBase32EncoderException($"Invalid value: {value}");
@@ -969,7 +969,7 @@ namespace BCashAddr
 	{
 		public static void Validate(bool condition, string message)
 		{
-			if(!condition)
+			if (!condition)
 			{
 				throw new ValidationError(message);
 			}

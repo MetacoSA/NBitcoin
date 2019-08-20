@@ -158,7 +158,7 @@ namespace NBitcoin.Altcoins
 					stream.ReadWriteAsVarInt(ref nSolutionSize);
 					if (nSolutionSize > 0)
 					{
-						if(!stream.Serializing)
+						if (!stream.Serializing)
 						{
 							nSolution = new byte[nSolutionSize];
 						}

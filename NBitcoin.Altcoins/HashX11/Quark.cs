@@ -16,7 +16,7 @@ namespace NBitcoin.Altcoins.HashX11
 			blake512 = HashFactory.Crypto.SHA3.CreateBlake512();
 			bmw512 = HashFactory.Crypto.SHA3.CreateBlueMidnightWish512();
 			groestl512 = HashFactory.Crypto.SHA3.CreateGroestl512();
-		 skein512 = HashFactory.Crypto.SHA3.CreateSkein512_Custom();
+			skein512 = HashFactory.Crypto.SHA3.CreateSkein512_Custom();
 			jh512 = HashFactory.Crypto.SHA3.CreateJH512();
 			keccak512 = HashFactory.Crypto.SHA3.CreateKeccak512();
 		}
@@ -30,11 +30,11 @@ namespace NBitcoin.Altcoins.HashX11
 			// ZBLAKE;
 
 			hash[0] = blake512.ComputeBytes(input).GetBytes();
-		
+
 			// ZBMW;
 			hash[1] = bmw512.ComputeBytes(hash[0]).GetBytes();
 
-			if((hash[1][0] & 8) != 0)
+			if ((hash[1][0] & 8) != 0)
 			{
 				// ZGROESTL;
 				hash[2] = groestl512.ComputeBytes(hash[1]).GetBytes();
@@ -51,7 +51,7 @@ namespace NBitcoin.Altcoins.HashX11
 			// ZJH;
 			hash[4] = jh512.ComputeBytes(hash[3]).GetBytes();
 
-			if((hash[4][0] & 8) != 0)
+			if ((hash[4][0] & 8) != 0)
 			{
 				// ZBLAKE;
 				hash[5] = blake512.ComputeBytes(hash[4]).GetBytes();
@@ -68,7 +68,7 @@ namespace NBitcoin.Altcoins.HashX11
 			// SKEIN;
 			hash[7] = skein512.ComputeBytes(hash[6]).GetBytes();
 
-			if((hash[7][0] & 8) != 0)
+			if ((hash[7][0] & 8) != 0)
 			{
 				// ZKECCAK;
 				hash[8] = keccak512.ComputeBytes(hash[7]).GetBytes();
@@ -78,9 +78,9 @@ namespace NBitcoin.Altcoins.HashX11
 				// ZJH;
 				hash[8] = jh512.ComputeBytes(hash[7]).GetBytes();
 			}
-			
+
 			return hash[8].Take(32).ToArray();
-			
+
 		}
 	}
 }

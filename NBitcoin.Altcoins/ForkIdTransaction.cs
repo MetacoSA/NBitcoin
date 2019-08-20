@@ -6,7 +6,7 @@ using NBitcoin.Crypto;
 
 namespace NBitcoin.Altcoins
 {
-    public class ForkIdTransaction : Transaction, IHasForkId
+	public class ForkIdTransaction : Transaction, IHasForkId
 	{
 #pragma warning disable CS0618 // Type or member is obsolete
 		public ForkIdTransaction(uint forkId, bool supportSegwit, ConsensusFactory consensusFactory)
@@ -44,10 +44,10 @@ namespace NBitcoin.Altcoins
 		public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 		{
 			uint nForkHashType = (uint)nHashType;
-			if(UsesForkId(nHashType))
+			if (UsesForkId(nHashType))
 				nForkHashType |= ForkId << 8;
 
-			if((SupportSegwit && sigversion == HashVersion.Witness) || UsesForkId(nHashType))
+			if ((SupportSegwit && sigversion == HashVersion.Witness) || UsesForkId(nHashType))
 			{
 				if (spentOutput?.Value == null || spentOutput.Value == TxOut.NullMoney)
 					throw new ArgumentException("The output being signed with the amount must be provided", nameof(spentOutput));
@@ -55,24 +55,24 @@ namespace NBitcoin.Altcoins
 				uint256 hashSequence = uint256.Zero;
 				uint256 hashOutputs = uint256.Zero;
 
-				if((nHashType & SigHash.AnyoneCanPay) == 0)
+				if ((nHashType & SigHash.AnyoneCanPay) == 0)
 				{
 					hashPrevouts = precomputedTransactionData == null ?
 								   GetHashPrevouts() : precomputedTransactionData.HashPrevouts;
 				}
 
-				if((nHashType & SigHash.AnyoneCanPay) == 0 && ((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
+				if ((nHashType & SigHash.AnyoneCanPay) == 0 && ((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
 				{
 					hashSequence = precomputedTransactionData == null ?
 								   GetHashSequence() : precomputedTransactionData.HashSequence;
 				}
 
-				if(((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
+				if (((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
 				{
 					hashOutputs = precomputedTransactionData == null ?
 									GetHashOutputs() : precomputedTransactionData.HashOutputs;
 				}
-				else if(((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < this.Outputs.Count)
+				else if (((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < this.Outputs.Count)
 				{
 					BitcoinStream ss = CreateHashWriter(sigversion);
 					ss.ReadWrite(this.Outputs[nIn]);
@@ -105,7 +105,7 @@ namespace NBitcoin.Altcoins
 
 
 
-			if(nIn >= Inputs.Count)
+			if (nIn >= Inputs.Count)
 			{
 				return uint256.One;
 			}
@@ -113,9 +113,9 @@ namespace NBitcoin.Altcoins
 			var hashType = nHashType & (SigHash)31;
 
 			// Check for invalid use of SIGHASH_SINGLE
-			if(hashType == SigHash.Single)
+			if (hashType == SigHash.Single)
 			{
-				if(nIn >= Outputs.Count)
+				if (nIn >= Outputs.Count)
 				{
 					return uint256.One;
 				}
@@ -127,40 +127,40 @@ namespace NBitcoin.Altcoins
 			var txCopy = GetConsensusFactory().CreateTransaction();
 			txCopy.FromBytes(this.ToBytes());
 			//Set all TxIn script to empty string
-			foreach(var txin in txCopy.Inputs)
+			foreach (var txin in txCopy.Inputs)
 			{
 				txin.ScriptSig = new Script();
 			}
 			//Copy subscript into the txin script you are checking
 			txCopy.Inputs[nIn].ScriptSig = scriptCopy;
 
-			if(hashType == SigHash.None)
+			if (hashType == SigHash.None)
 			{
 				//The output of txCopy is set to a vector of zero size.
 				txCopy.Outputs.Clear();
 
 				//All other inputs aside from the current input in txCopy have their nSequence index set to zero
-				foreach(var input in txCopy.Inputs.Where((x, i) => i != nIn))
+				foreach (var input in txCopy.Inputs.Where((x, i) => i != nIn))
 					input.Sequence = 0;
 			}
-			else if(hashType == SigHash.Single)
+			else if (hashType == SigHash.Single)
 			{
 				//The output of txCopy is resized to the size of the current input index+1.
 				txCopy.Outputs.RemoveRange(nIn + 1, txCopy.Outputs.Count - (nIn + 1));
 				//All other txCopy outputs aside from the output that is the same as the current input index are set to a blank script and a value of (long) -1.
-				for(var i = 0; i < txCopy.Outputs.Count; i++)
+				for (var i = 0; i < txCopy.Outputs.Count; i++)
 				{
-					if(i == nIn)
+					if (i == nIn)
 						continue;
 					txCopy.Outputs[i] = new TxOut();
 				}
 				//All other txCopy inputs aside from the current input are set to have an nSequence index of zero.
-				foreach(var input in txCopy.Inputs.Where((x, i) => i != nIn))
+				foreach (var input in txCopy.Inputs.Where((x, i) => i != nIn))
 					input.Sequence = 0;
 			}
 
 
-			if((nHashType & SigHash.AnyoneCanPay) != 0)
+			if ((nHashType & SigHash.AnyoneCanPay) != 0)
 			{
 				//The txCopy input vector is resized to a length of one.
 				var script = txCopy.Inputs[nIn];
@@ -194,7 +194,7 @@ namespace NBitcoin.Altcoins
 		{
 			uint256 hashOutputs;
 			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
-			foreach(var txout in Outputs)
+			foreach (var txout in Outputs)
 			{
 				ss.ReadWrite(txout);
 			}
@@ -206,7 +206,7 @@ namespace NBitcoin.Altcoins
 		{
 			uint256 hashSequence;
 			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
-			foreach(var input in Inputs)
+			foreach (var input in Inputs)
 			{
 				ss.ReadWrite((uint)input.Sequence);
 			}
@@ -218,7 +218,7 @@ namespace NBitcoin.Altcoins
 		{
 			uint256 hashPrevouts;
 			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
-			foreach(var input in Inputs)
+			foreach (var input in Inputs)
 			{
 				ss.ReadWrite(input.PrevOut);
 			}

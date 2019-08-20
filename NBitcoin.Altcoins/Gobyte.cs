@@ -9,22 +9,22 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
- namespace NBitcoin.Altcoins
+namespace NBitcoin.Altcoins
 {
 	public class GoByte : NetworkSetBase
 	{
 		public static GoByte Instance { get; } = new GoByte();
- 		public override string CryptoCode => "GBX";
- 		private GoByte()
+		public override string CryptoCode => "GBX";
+		private GoByte()
 		{
- 		}
+		}
 		public class GoByteConsensusFactory : ConsensusFactory
 		{
 			private GoByteConsensusFactory()
 			{
 			}
- 			public static GoByteConsensusFactory Instance { get; } = new GoByteConsensusFactory();
- 			public override BlockHeader CreateBlockHeader()
+			public static GoByteConsensusFactory Instance { get; } = new GoByteConsensusFactory();
+			public override BlockHeader CreateBlockHeader()
 			{
 				return new GoByteBlockHeader();
 			}
@@ -33,10 +33,10 @@ using System.Threading.Tasks;
 				return new GoByteBlock(new GoByteBlockHeader());
 			}
 		}
- #pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
 		public class GoByteBlockHeader : BlockHeader
 		{
-			
+
 			static byte[] CalculateHash(byte[] data, int offset, int count)
 			{
 				// TODO: change the hash algorithm
@@ -47,30 +47,30 @@ using System.Threading.Tasks;
 				return BufferedHashStream.CreateFrom(CalculateHash, 80);
 			}
 		}
- 		public class GoByteBlock : Block
+		public class GoByteBlock : Block
 		{
 #pragma warning disable CS0612 // Type or member is obsolete
 			public GoByteBlock(GoByteBlockHeader h) : base(h)
 #pragma warning restore CS0612 // Type or member is obsolete
 			{
- 			}
+			}
 			public override ConsensusFactory GetConsensusFactory()
 			{
 				return GoByteConsensusFactory.Instance;
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
- 		protected override void PostInit()
+		protected override void PostInit()
 		{
 			RegisterDefaultCookiePath("GoByteCore");
 		}
- 		static uint256 GetPoWHash(BlockHeader header)
+		static uint256 GetPoWHash(BlockHeader header)
 		{
 			var headerBytes = header.ToBytes();
 			var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
 			return new uint256(h);
 		}
- 		protected override NetworkBuilder CreateMainnet()
+		protected override NetworkBuilder CreateMainnet()
 		{
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
@@ -92,15 +92,15 @@ using System.Threading.Tasks;
 				ConsensusFactory = GoByteConsensusFactory.Instance,
 				SupportSegwit = false
 			}) // done
-			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 38 }) 
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 38 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 10 })
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 198 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("gobyte"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("gobyte"))
-			.SetMagic(0xD4C3B21A) 
-			.SetPort(12455) 
+			.SetMagic(0xD4C3B21A)
+			.SetPort(12455)
 			.SetRPCPort(12454)
 			.SetMaxP2PVersion(70209)
 			.SetName("gobyte-main")
@@ -122,7 +122,7 @@ using System.Threading.Tasks;
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000219f39f283f43185a0ef69cba1702151ab0cf02454a57e1039dabcc19d719adc00b60d5af0ff0f1e6fe618000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4204ffff001d01043a5468652053746172204d616c61797369612031377468204e6f76656d626572203230313720476f427974652047656e65736973205265626f726effffffff0100f2052a010000004341043e5a5fbfbb2caa5f4b7c8fd24d890d6c244de254d579b5ba629f64c1b48275f59e0e1c834a60f6ffb4aaa022aaa4866434ca729a12465f80618fb2070045cb16ac00000000");
 			return builder;
 		}
- 		protected override NetworkBuilder CreateTestnet()
+		protected override NetworkBuilder CreateTestnet()
 		{
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
@@ -139,8 +139,8 @@ using System.Threading.Tasks;
 				PowAllowMinDifficultyBlocks = true,
 				CoinbaseMaturity = 100,
 				PowNoRetargeting = false,
-				RuleChangeActivationThreshold = 1512, 
-				MinerConfirmationWindow = 2016, 
+				RuleChangeActivationThreshold = 1512,
+				MinerConfirmationWindow = 2016,
 				ConsensusFactory = GoByteConsensusFactory.Instance,
 				SupportSegwit = false
 			})
@@ -166,7 +166,7 @@ using System.Threading.Tasks;
 		   .SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000219f39f283f43185a0ef69cba1702151ab0cf02454a57e1039dabcc19d719adc20de0b5af0ff0f1ebbc02d000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4204ffff001d01043a5468652053746172204d616c61797369612031377468204e6f76656d626572203230313720476f427974652047656e65736973205265626f726effffffff0100f2052a010000004341043e5a5fbfbb2caa5f4b7c8fd24d890d6c244de254d579b5ba629f64c1b48275f59e0e1c834a60f6ffb4aaa022aaa4866434ca729a12465f80618fb2070045cb16ac00000000");
 			return builder;
 		}
- 		protected override NetworkBuilder CreateRegtest()
+		protected override NetworkBuilder CreateRegtest()
 		{
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
@@ -198,7 +198,7 @@ using System.Threading.Tasks;
 			.SetMagic(0x7BD5B3A1)
 			.SetPort(13565)
 			.SetRPCPort(13564)
-			.SetMaxP2PVersion(70209) 
+			.SetMaxP2PVersion(70209)
 			.SetName("gobyte-reg")
 			.AddAlias("gobyte-regtest")
 			.AddDNSSeeds(new DNSSeedData[0])
@@ -206,5 +206,5 @@ using System.Threading.Tasks;
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000219f39f283f43185a0ef69cba1702151ab0cf02454a57e1039dabcc19d719adcbcdd0b5af0ff0f1e63c00d000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4204ffff001d01043a5468652053746172204d616c61797369612031377468204e6f76656d626572203230313720476f427974652047656e65736973205265626f726effffffff0100f2052a010000004341043e5a5fbfbb2caa5f4b7c8fd24d890d6c244de254d579b5ba629f64c1b48275f59e0e1c834a60f6ffb4aaa022aaa4866434ca729a12465f80618fb2070045cb16ac00000000");
 			return builder;
 		}
- 	}
-} 
+	}
+}

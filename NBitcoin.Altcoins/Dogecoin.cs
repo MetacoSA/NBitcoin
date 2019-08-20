@@ -198,9 +198,9 @@ namespace NBitcoin.Altcoins
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				base.ReadWrite(stream);
-				if((Version & VERSION_AUXPOW) != 0)
+				if ((Version & VERSION_AUXPOW) != 0)
 				{
-					if(!stream.Serializing)
+					if (!stream.Serializing)
 					{
 						stream.ReadWrite(ref auxPow);
 					}
@@ -215,7 +215,7 @@ namespace NBitcoin.Altcoins
 		//static Tuple<byte[], int>[] pnSeed6_main = null;
 		//static Tuple<byte[], int>[] pnSeed6_test = null;
 		// Not used in DOGE: https://github.com/dogecoin/dogecoin/blob/10a5e93a055ab5f239c5447a5fe05283af09e293/src/chainparams.cpp#L135
-		
+
 
 		static uint256 GetPoWHash(BlockHeader header)
 		{

@@ -799,7 +799,7 @@ namespace NBitcoin.Altcoins.Elements
 				sss.ReadWrite(scriptCode);
 				sss.ReadWrite(spentOutputElem.ConfidentialValue);
 				sss.ReadWrite((uint)Inputs[nIn].Sequence);
-				if(this.Inputs[nIn] is ElementsTxIn elemInput && elemInput.HasAssetIssuance)
+				if (this.Inputs[nIn] is ElementsTxIn elemInput && elemInput.HasAssetIssuance)
 				{
 					elemInput.AssetIssuance.ReadWrite(sss);
 				}

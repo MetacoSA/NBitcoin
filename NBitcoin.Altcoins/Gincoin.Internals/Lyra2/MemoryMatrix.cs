@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace NBitcoin.Altcoins.GincoinInternals.Lyra2
 {
-    public class MemoryMatrix
+	public class MemoryMatrix
 	{
 		private readonly byte[] matrix;
 		private readonly ulong nRows;

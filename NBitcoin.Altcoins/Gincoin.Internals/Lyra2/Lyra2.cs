@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace NBitcoin.Altcoins.GincoinInternals.Lyra2
 {
-    public class Lyra2
+	public class Lyra2
 	{
 		private const ulong BLOCK_LEN_BLAKE2_SAFE_INT64 = 8;
 		private const ulong BLOCK_LEN_BLAKE2_SAFE_BYTES = BLOCK_LEN_BLAKE2_SAFE_INT64 * 8;
@@ -105,7 +105,7 @@ namespace NBitcoin.Altcoins.GincoinInternals.Lyra2
 				step = (tau % 2 == 0) ? -1 : (int)nRows / 2 - 1;
 				do
 				{
-                    rowa = (long)(((state[0])) % nRows);
+					rowa = (long)(((state[0])) % nRows);
 
 					sponge.ReducedDuplexRow((ulong)prev, (ulong)rowa, (ulong)row, nCols);
 
@@ -161,7 +161,7 @@ namespace NBitcoin.Altcoins.GincoinInternals.Lyra2
 
 			for (int i = 8; i < 16; i++)
 			{
-				state[i] = blake2b_IV[i-8];
+				state[i] = blake2b_IV[i - 8];
 			}
 		}
 	}

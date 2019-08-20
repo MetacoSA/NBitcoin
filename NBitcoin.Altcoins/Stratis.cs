@@ -126,9 +126,12 @@ namespace NBitcoin.Altcoins
 
 			public override bool Equals(object obj)
 			{
-				if (ReferenceEquals(null, obj)) return false;
-				if (ReferenceEquals(this, obj)) return true;
-				if (obj.GetType() != this.GetType()) return false;
+				if (ReferenceEquals(null, obj))
+					return false;
+				if (ReferenceEquals(this, obj))
+					return true;
+				if (obj.GetType() != this.GetType())
+					return false;
 				return Equals((StratisBlockSignature)obj);
 			}
 
@@ -239,7 +242,7 @@ namespace NBitcoin.Altcoins
 
 			public override uint256 GetPoWHash()
 			{
-				
+
 				return new uint256(this.x13.ComputeBytes(this.ToBytes()));
 			}
 		}
@@ -281,7 +284,7 @@ namespace NBitcoin.Altcoins
 				stream.ReadWrite(ref this.blockSignature);
 			}
 		}
-		
+
 		private class StratisWitness
 		{
 			private TxInList _Inputs;
@@ -335,7 +338,7 @@ namespace NBitcoin.Altcoins
 			public uint Time { get; set; } = Utils.DateTimeToUnixTime(DateTime.UtcNow);
 
 			public override void ReadWrite(BitcoinStream stream)
-			{		
+			{
 				var witSupported = stream.TransactionOptions.HasFlag(TransactionOptions.Witness) && stream.ProtocolCapabilities.SupportWitness;
 
 				if (stream.Serializing)
