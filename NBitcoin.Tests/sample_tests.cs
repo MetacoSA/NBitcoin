@@ -6,13 +6,13 @@ using Xunit;
 
 namespace NBitcoin.Tests
 {
-    public class sample_tests
-    {
+	public class sample_tests
+	{
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildSegwitP2SHMultisigTransactions()
 		{
-			using(var nodeBuilder = NodeBuilderEx.Create())
+			using (var nodeBuilder = NodeBuilderEx.Create())
 			{
 				var rpc = nodeBuilder.CreateNode().CreateRPCClient();
 				nodeBuilder.StartAll();

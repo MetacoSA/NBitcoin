@@ -81,7 +81,7 @@ namespace NBitcoin.Tests
 		{
 			Hashes.SipHasher hasher = new Hashes.SipHasher(0x0706050403020100UL, 0x0F0E0D0C0B0A0908UL);
 			Assert.Equal(0x726fdb47dd0e0e31UL, hasher.Finalize());
-			byte[] t0 = new byte[]{ 0 };
+			byte[] t0 = new byte[] { 0 };
 			hasher.Write(t0);
 			Assert.Equal(0x74f839c593dc67fdUL, hasher.Finalize());
 			byte[] t1 = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
@@ -95,7 +95,7 @@ namespace NBitcoin.Tests
 			byte[] t3 = new byte[] { 18, 19, 20, 21, 22, 23, 24, 25, 26 };
 			hasher.Write(t3);
 			Assert.Equal(0x2f2e6163076bcfadUL, hasher.Finalize());
-			byte[] t4 = new byte[]{ 27, 28, 29, 30, 31 };
+			byte[] t4 = new byte[] { 27, 28, 29, 30, 31 };
 			hasher.Write(t4);
 			Assert.Equal(0x7127512f72f27cceUL, hasher.Finalize());
 			hasher.Write(0x2726252423222120UL);
@@ -107,14 +107,14 @@ namespace NBitcoin.Tests
 
 			// Check test vectors from spec, one byte at a time
 			Hashes.SipHasher hasher2 = new Hashes.SipHasher(0x0706050403020100UL, 0x0F0E0D0C0B0A0908UL);
-			for(byte x = 0; x < siphash_4_2_testvec.Length; ++x)
+			for (byte x = 0; x < siphash_4_2_testvec.Length; ++x)
 			{
 				Assert.Equal(hasher2.Finalize(), siphash_4_2_testvec[x]);
 				hasher2.Write(new byte[] { x });
 			}
 			// Check test vectors from spec, eight bytes at a time
 			Hashes.SipHasher hasher3 = new Hashes.SipHasher(0x0706050403020100UL, 0x0F0E0D0C0B0A0908UL);
-			for(var x = 0; x < siphash_4_2_testvec.Length; x += 8)
+			for (var x = 0; x < siphash_4_2_testvec.Length; x += 8)
 			{
 				Assert.Equal(hasher3.Finalize(), siphash_4_2_testvec[x]);
 				hasher3.Write(uint64_t(x) | (uint64_t(x + 1) << 8) | (uint64_t(x + 2) << 16) | (uint64_t(x + 3) << 24) |
@@ -156,7 +156,7 @@ namespace NBitcoin.Tests
 			var bytes = Encoders.Hex.DecodeData("01000000000000000000000000000000000000000000000000000000000000000000000027cc0d8f6a20e41f445b1045d1c73ba4b068ee60b5fd4aa34027cbbe5c2e161e1546db5af0ff0f1e18cb3f01");
 			var hashBytes = new Quark().ComputeBytes(bytes).ToArray();
 
-			var hash = Encoders.Hex.EncodeData(hashBytes.Reverse().ToArray());			
+			var hash = Encoders.Hex.EncodeData(hashBytes.Reverse().ToArray());
 			Assert.Equal("00000f4fb42644a07735beea3647155995ab01cf49d05fdc082c08eb673433f9", hash);
 		}
 

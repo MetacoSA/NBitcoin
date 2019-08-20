@@ -25,12 +25,12 @@ namespace NBitcoin.Tests
 		public static Script ParseScript(string s)
 		{
 			MemoryStream result = new MemoryStream();
-			if(mapOpNames.Count == 0)
+			if (mapOpNames.Count == 0)
 			{
 				mapOpNames = new Dictionary<string, OpcodeType>(Op._OpcodeByName);
-				foreach(var kv in mapOpNames.ToArray())
+				foreach (var kv in mapOpNames.ToArray())
 				{
-					if(kv.Key.StartsWith("OP_", StringComparison.Ordinal))
+					if (kv.Key.StartsWith("OP_", StringComparison.Ordinal))
 					{
 						var name = kv.Key.Substring(3, kv.Key.Length - 3);
 						mapOpNames.AddOrReplace(name, kv.Value);
@@ -40,11 +40,11 @@ namespace NBitcoin.Tests
 
 			var words = s.Split(' ', '\t', '\n');
 
-			foreach(string w in words)
+			foreach (string w in words)
 			{
-				if(w == "")
+				if (w == "")
 					continue;
-				if(w.All(l => l.IsDigit()) ||
+				if (w.All(l => l.IsDigit()) ||
 					(w.StartsWith("-") && w.Substring(1).All(l => l.IsDigit())))
 				{
 
@@ -52,20 +52,20 @@ namespace NBitcoin.Tests
 					long n = long.Parse(w);
 					Op.GetPushOp(n).WriteTo(result);
 				}
-				else if(w.StartsWith("0x") && HexEncoder.IsWellFormed(w.Substring(2)))
+				else if (w.StartsWith("0x") && HexEncoder.IsWellFormed(w.Substring(2)))
 				{
 					// Raw hex data, inserted NOT pushed onto stack:
 					var raw = Encoders.Hex.DecodeData(w.Substring(2));
 					result.Write(raw, 0, raw.Length);
 				}
-				else if(w.Length >= 2 && w.StartsWith("'") && w.EndsWith("'"))
+				else if (w.Length >= 2 && w.StartsWith("'") && w.EndsWith("'"))
 				{
 					// Single-quoted string, pushed as data. NOTE: this is poor-man's
 					// parsing, spaces/tabs/newlines in single-quoted strings won't work.
 					var b = TestUtils.ToBytes(w.Substring(1, w.Length - 2));
 					Op.GetPushOp(b).WriteTo(result);
 				}
-				else if(mapOpNames.ContainsKey(w))
+				else if (mapOpNames.ContainsKey(w))
 				{
 					// opcode, e.g. OP_ADD or ADD:
 					result.WriteByte((byte)mapOpNames[w]);
@@ -176,7 +176,7 @@ namespace NBitcoin.Tests
 				//new object[]{65535UL, new byte[]{0x82, 0xFD, 0x7F}},
 				new object[]{(ulong)1 << 32, new byte[]{0x8E, 0xFE, 0xFE, 0xFF, 0x00}},
 			};
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				ulong val = (ulong)test[0];
 				byte[] expectedBytes = (byte[])test[1];
@@ -193,7 +193,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(val, compact.ToLong());
 			}
 
-			foreach(var i in Enumerable.Range(0, 65535 * 4))
+			foreach (var i in Enumerable.Range(0, 65535 * 4))
 			{
 				var compact = new CompactVarInt((ulong)i, sizeof(ulong));
 				var bytes = compact.ToBytes();
@@ -310,15 +310,15 @@ namespace NBitcoin.Tests
 		{
 			Assert.False(TransactionSignature.IsValid(new byte[0]));
 			var sigs = JArray.Parse(File.ReadAllText("data/sig_canonical.json"));
-			foreach(var sig in sigs)
+			foreach (var sig in sigs)
 			{
 				Assert.True(TransactionSignature.IsValid(Encoders.Hex.DecodeData(sig.ToString())));
 			}
 
 			sigs = JArray.Parse(File.ReadAllText("data/sig_noncanonical.json"));
-			foreach(var sig in sigs)
+			foreach (var sig in sigs)
 			{
-				if(((HexEncoder)Encoders.Hex).IsValid(sig.ToString()))
+				if (((HexEncoder)Encoders.Hex).IsValid(sig.ToString()))
 				{
 					Assert.False(TransactionSignature.IsValid(Encoders.Hex.DecodeData(sig.ToString())));
 				}
@@ -331,18 +331,18 @@ namespace NBitcoin.Tests
 		{
 			EnsureHasLibConsensus();
 			var tests = TestCase.read_json("data/script_tests.json");
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
-				if(test.Count == 1)
+				if (test.Count == 1)
 					continue;
 				int i = 0;
 
 				Script wit = null;
 				Money amount = Money.Zero;
-				if(test[i] is JArray)
+				if (test[i] is JArray)
 				{
 					var array = (JArray)test[i];
-					for(int ii = 0; ii < array.Count - 1; ii++)
+					for (int ii = 0; ii < array.Count - 1; ii++)
 					{
 						wit += Encoders.Hex.DecodeData(array[ii].ToString());
 					}
@@ -364,7 +364,7 @@ namespace NBitcoin.Tests
 
 		private void AssertVerifyScript(WitScript wit, Money amount, Script scriptSig, Script scriptPubKey, ScriptVerify flags, int testIndex, string comment, ScriptError expectedError)
 		{
-			if(flags.HasFlag(ScriptVerify.CleanStack))
+			if (flags.HasFlag(ScriptVerify.CleanStack))
 			{
 				flags |= ScriptVerify.Witness;
 				flags |= ScriptVerify.P2SH;
@@ -381,7 +381,7 @@ namespace NBitcoin.Tests
 			// If the spendingTransaction correctly spends the scriptPubKey but the expected error is not okay
 			// because of a policy flags then, we ignore the test; otherwise assert everything the expected result
 			// is the expected one.
-			if(ok && (expectedError != ScriptError.OK) && (flags & ~ScriptVerify.Consensus)!=0)
+			if (ok && (expectedError != ScriptError.OK) && (flags & ~ScriptVerify.Consensus) != 0)
 				return;
 			Assert.True(ok == (expectedError == ScriptError.OK), "[ConsensusLib] Test : " + testIndex + " " + comment);
 #endif
@@ -394,15 +394,15 @@ namespace NBitcoin.Tests
 			var bitcoinPath = NodeBuilder.EnsureDownloaded(NodeDownloadData.Bitcoin.v0_17_0);
 
 			string libConsensusDll = null;
-			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
 				libConsensusDll = "libbitcoinconsensus-0.dll";
 			}
-			else if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+			else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
 			{
 				libConsensusDll = "libbitcoinconsensus.0.dylib";
 			}
-			else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 			{
 				libConsensusDll = "libbitcoinconsensus.so";
 			}
@@ -446,81 +446,81 @@ namespace NBitcoin.Tests
 
 		private ScriptError ParseScriptError(string str)
 		{
-			if(str == "OK")
+			if (str == "OK")
 				return ScriptError.OK;
-			if(str == "EVAL_FALSE")
+			if (str == "EVAL_FALSE")
 				return ScriptError.EvalFalse;
-			if(str == "BAD_OPCODE")
+			if (str == "BAD_OPCODE")
 				return ScriptError.BadOpCode;
-			if(str == "UNBALANCED_CONDITIONAL")
+			if (str == "UNBALANCED_CONDITIONAL")
 				return ScriptError.UnbalancedConditional;
-			if(str == "OP_RETURN")
+			if (str == "OP_RETURN")
 				return ScriptError.OpReturn;
-			if(str == "VERIFY")
+			if (str == "VERIFY")
 				return ScriptError.Verify;
-			if(str == "INVALID_ALTSTACK_OPERATION")
+			if (str == "INVALID_ALTSTACK_OPERATION")
 				return ScriptError.InvalidAltStackOperation;
-			if(str == "INVALID_STACK_OPERATION")
+			if (str == "INVALID_STACK_OPERATION")
 				return ScriptError.InvalidStackOperation;
-			if(str == "EQUALVERIFY")
+			if (str == "EQUALVERIFY")
 				return ScriptError.EqualVerify;
-			if(str == "DISABLED_OPCODE")
+			if (str == "DISABLED_OPCODE")
 				return ScriptError.DisabledOpCode;
-			if(str == "UNKNOWN_ERROR")
+			if (str == "UNKNOWN_ERROR")
 				return ScriptError.UnknownError;
-			if(str == "DISCOURAGE_UPGRADABLE_NOPS")
+			if (str == "DISCOURAGE_UPGRADABLE_NOPS")
 				return ScriptError.DiscourageUpgradableNops;
-			if(str == "PUSH_SIZE")
+			if (str == "PUSH_SIZE")
 				return ScriptError.PushSize;
-			if(str == "OP_COUNT")
+			if (str == "OP_COUNT")
 				return ScriptError.OpCount;
-			if(str == "STACK_SIZE")
+			if (str == "STACK_SIZE")
 				return ScriptError.StackSize;
-			if(str == "SCRIPT_SIZE")
+			if (str == "SCRIPT_SIZE")
 				return ScriptError.ScriptSize;
-			if(str == "PUBKEY_COUNT")
+			if (str == "PUBKEY_COUNT")
 				return ScriptError.PubkeyCount;
-			if(str == "SIG_COUNT")
+			if (str == "SIG_COUNT")
 				return ScriptError.SigCount;
-			if(str == "SIG_PUSHONLY")
+			if (str == "SIG_PUSHONLY")
 				return ScriptError.SigPushOnly;
-			if(str == "MINIMALDATA")
+			if (str == "MINIMALDATA")
 				return ScriptError.MinimalData;
-			if(str == "PUBKEYTYPE")
+			if (str == "PUBKEYTYPE")
 				return ScriptError.PubKeyType;
-			if(str == "SIG_DER")
+			if (str == "SIG_DER")
 				return ScriptError.SigDer;
-			if(str == "WITNESS_MALLEATED")
+			if (str == "WITNESS_MALLEATED")
 				return ScriptError.WitnessMalleated;
-			if(str == "WITNESS_MALLEATED_P2SH")
+			if (str == "WITNESS_MALLEATED_P2SH")
 				return ScriptError.WitnessMalleatedP2SH;
-			if(str == "WITNESS_PROGRAM_WITNESS_EMPTY")
+			if (str == "WITNESS_PROGRAM_WITNESS_EMPTY")
 				return ScriptError.WitnessProgramEmpty;
-			if(str == "WITNESS_PROGRAM_MISMATCH")
+			if (str == "WITNESS_PROGRAM_MISMATCH")
 				return ScriptError.WitnessProgramMissmatch;
-			if(str == "WITNESS_PROGRAM_WRONG_LENGTH")
+			if (str == "WITNESS_PROGRAM_WRONG_LENGTH")
 				return ScriptError.WitnessProgramWrongLength;
-			if(str == "WITNESS_UNEXPECTED")
+			if (str == "WITNESS_UNEXPECTED")
 				return ScriptError.WitnessUnexpected;
-			if(str == "SIG_HIGH_S")
+			if (str == "SIG_HIGH_S")
 				return ScriptError.SigHighS;
-			if(str == "SIG_HASHTYPE")
+			if (str == "SIG_HASHTYPE")
 				return ScriptError.SigHashType;
-			if(str == "SIG_NULLDUMMY")
+			if (str == "SIG_NULLDUMMY")
 				return ScriptError.SigNullDummy;
-			if(str == "CLEANSTACK")
+			if (str == "CLEANSTACK")
 				return ScriptError.CleanStack;
-			if(str == "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM")
+			if (str == "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM")
 				return ScriptError.DiscourageUpgradableWitnessProgram;
-			if(str == "NULLFAIL")
+			if (str == "NULLFAIL")
 				return ScriptError.NullFail;
-			if(str == "NEGATIVE_LOCKTIME")
+			if (str == "NEGATIVE_LOCKTIME")
 				return ScriptError.NegativeLockTime;
-			if(str == "UNSATISFIED_LOCKTIME")
+			if (str == "UNSATISFIED_LOCKTIME")
 				return ScriptError.UnsatisfiedLockTime;
-			if(str == "MINIMALIF")
+			if (str == "MINIMALIF")
 				return ScriptError.MinimalIf;
-			if(str == "WITNESS_PUBKEYTYPE")
+			if (str == "WITNESS_PUBKEYTYPE")
 				return ScriptError.WitnessPubkeyType;
 			throw new NotSupportedException(str);
 		}
@@ -528,64 +528,64 @@ namespace NBitcoin.Tests
 		private ScriptVerify ParseFlag(string flag)
 		{
 			ScriptVerify result = ScriptVerify.None;
-			foreach(var p in flag.Split(',', '|').Select(p => p.Trim().ToUpperInvariant()))
+			foreach (var p in flag.Split(',', '|').Select(p => p.Trim().ToUpperInvariant()))
 			{
-				if(p == "P2SH")
+				if (p == "P2SH")
 					result |= ScriptVerify.P2SH;
-				else if(p == "STRICTENC")
+				else if (p == "STRICTENC")
 					result |= ScriptVerify.StrictEnc;
-				else if(p == "MINIMALDATA")
+				else if (p == "MINIMALDATA")
 				{
 					result |= ScriptVerify.MinimalData;
 				}
-				else if(p == "DERSIG")
+				else if (p == "DERSIG")
 				{
 					result |= ScriptVerify.DerSig;
 				}
-				else if(p == "SIGPUSHONLY")
+				else if (p == "SIGPUSHONLY")
 				{
 					result |= ScriptVerify.SigPushOnly;
 				}
-				else if(p == "NULLDUMMY")
+				else if (p == "NULLDUMMY")
 				{
 					result |= ScriptVerify.NullDummy;
 				}
-				else if(p == "LOW_S")
+				else if (p == "LOW_S")
 				{
 					result |= ScriptVerify.LowS;
 				}
-				else if(p == "")
+				else if (p == "")
 				{
 				}
-				else if(p == "DISCOURAGE_UPGRADABLE_NOPS")
+				else if (p == "DISCOURAGE_UPGRADABLE_NOPS")
 				{
 					result |= ScriptVerify.DiscourageUpgradableNops;
 				}
-				else if(p == "CLEANSTACK")
+				else if (p == "CLEANSTACK")
 				{
 					result |= ScriptVerify.CleanStack;
 				}
-				else if(p == "WITNESS")
+				else if (p == "WITNESS")
 				{
 					result |= ScriptVerify.Witness;
 				}
-				else if(p == "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM")
+				else if (p == "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM")
 				{
 					result |= ScriptVerify.DiscourageUpgradableWitnessProgram;
 				}
-				else if(p == "CHECKSEQUENCEVERIFY")
+				else if (p == "CHECKSEQUENCEVERIFY")
 				{
 					result |= ScriptVerify.CheckSequenceVerify;
 				}
-				else if(p == "NULLFAIL")
+				else if (p == "NULLFAIL")
 				{
 					result |= ScriptVerify.NullFail;
 				}
-				else if(p == "MINIMALIF")
+				else if (p == "MINIMALIF")
 				{
 					result |= ScriptVerify.MinimalIf;
 				}
-				else if(p == "WITNESS_PUBKEYTYPE")
+				else if (p == "WITNESS_PUBKEYTYPE")
 				{
 					result |= ScriptVerify.WitnessPubkeyType;
 				}
@@ -599,14 +599,14 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void script_standard_push()
 		{
-			for(int i = -1; i < 1000; i++)
+			for (int i = -1; i < 1000; i++)
 			{
 				Script script = new Script(Op.GetPushOp(i).ToBytes());
 				Assert.True(script.IsPushOnly, "Number " + i + " is not pure push.");
 				Assert.True(script.HasCanonicalPushes, "Number " + i + " push is not canonical.");
 			}
 
-			for(int i = 0; i < 1000; i++)
+			for (int i = 0; i < 1000; i++)
 			{
 				var data = Enumerable.Range(0, i).Select(_ => (byte)0x49).ToArray();
 				Script script = new Script(Op.GetPushOp(data).ToBytes());
@@ -631,7 +631,7 @@ namespace NBitcoin.Tests
 			// and vice-versa)
 			//
 			ops.Add(OpcodeType.OP_0);
-			foreach(Key key in keys)
+			foreach (Key key in keys)
 			{
 				var vchSig = key.Sign(hash).ToDER().ToList();
 				vchSig.Add((byte)SigHash.All);
@@ -1013,7 +1013,7 @@ namespace NBitcoin.Tests
 				(Bytes: new byte[] { 0xFF, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00 }, Value: 0x0000000100000000),
 				(Bytes: new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }, Value: 0xFFFFFFFFFFFFFFFF)
 			};
-			foreach(var testCase in testCases)
+			foreach (var testCase in testCases)
 			{
 				var stream = new BitcoinStream(testCase.Bytes);
 				Assert.Equal(testCase.Value, VarInt.StaticRead(stream));
@@ -1229,7 +1229,7 @@ namespace NBitcoin.Tests
 			var pk3_2 = new PubKey("020000000000000000000000000000000000004141414141414141414141414141");
 			var pk3_3 = new PubKey("020000000000000000000000000000000000004141414141414141414141414140");
 			var pk3_4 = new PubKey("030000000000000000000000000000000000004141414141414141414141414140");
-			script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, true, new PubKey[] {pk3_1, pk3_2, pk3_3, pk3_4});
+			script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, true, new PubKey[] { pk3_1, pk3_2, pk3_3, pk3_4 });
 			expected = Script.FromBytesUnsafe(Encoders.Hex.DecodeData("522102000000000000000000000000000000000000414141414141414141414141414021020000000000000000000000000000000000004141414141414141414141414141210300000000000000000000000000000000000041414141414141414141414141402103000000000000000000000000000000000000414141414141414141414141414154ae"));
 			Assert.Equal(expected, script);
 

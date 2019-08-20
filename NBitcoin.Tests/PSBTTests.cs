@@ -173,7 +173,7 @@ namespace NBitcoin.Tests
 			var alice = Key.Parse("L23Ng7B8iXTcQ9emwDYpabUJVsxDQDxKwePrTwAZo1VT9xcDPfBF", network);
 			var bob = Key.Parse("L2nRrbzZytXSTjn95a4droGrAj5uwSEeG3JUHeNwdB9pUHu8Znjo", network);
 			var carol = Key.Parse("KzHNhJn4P3FML22cQ9yr6rc35hmTPwVmaCnXkc114fQ8ZKRR9hoK", network);
-			var keys = new Key[]{ alice, bob, carol };
+			var keys = new Key[] { alice, bob, carol };
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
 			var funds = CreateDummyFunds(network, keys, redeem);
 
@@ -207,7 +207,7 @@ namespace NBitcoin.Tests
 				.SignWithKeys(alice);
 			Assert.Empty(signedPSBTWithCoins.Inputs[0].PartialSigs); // can not sign for non segwit input without non-witness UTXO
 			Assert.Empty(signedPSBTWithCoins.Inputs[2].PartialSigs); // This too.
-			// otherwise, It will increase Partial sigs count.
+																	 // otherwise, It will increase Partial sigs count.
 			Assert.Single(signedPSBTWithCoins.Inputs[1].PartialSigs);
 			Assert.Single(signedPSBTWithCoins.Inputs[3].PartialSigs);
 			Assert.Single(signedPSBTWithCoins.Inputs[4].PartialSigs);
@@ -418,7 +418,7 @@ namespace NBitcoin.Tests
 			expected = PSBT.Parse((string)testcase["psbt2"], Network.Main);
 			Assert.Equal(expected, psbt, ComparerInstance);
 
-			foreach(var psbtin in psbt.Inputs)
+			foreach (var psbtin in psbt.Inputs)
 				psbtin.SighashType = SigHash.All;
 			expected = PSBT.Parse((string)testcase["psbt3"], Network.Main);
 			Assert.Equal(expected, psbt, ComparerInstance);
@@ -489,7 +489,7 @@ namespace NBitcoin.Tests
 			var accountExtKey = masterExtkey.Derive(new KeyPath("0'/0'/0'"));
 			var accountRootedKeyPath = new KeyPath("0'/0'/0'").ToRootedKeyPath(masterExtkey);
 			uint hardenedFlag = 0x80000000U;
-			retry:
+		retry:
 			Transaction funding = masterExtkey.Network.CreateTransaction();
 			funding.Outputs.Add(Money.Coins(2.0m), accountExtKey.Derive(0 | hardenedFlag).ScriptPubKey);
 			funding.Outputs.Add(Money.Coins(2.0m), accountExtKey.Derive(1 | hardenedFlag).ScriptPubKey);
@@ -503,7 +503,7 @@ namespace NBitcoin.Tests
 
 			var psbt = PSBT.FromTransaction(tx, Network.TestNet);
 			psbt.AddTransactions(funding);
-			psbt.AddKeyPath(accountExtKey, Tuple.Create(new KeyPath(0 | hardenedFlag), funding.Outputs[0].ScriptPubKey), 
+			psbt.AddKeyPath(accountExtKey, Tuple.Create(new KeyPath(0 | hardenedFlag), funding.Outputs[0].ScriptPubKey),
 										   Tuple.Create(new KeyPath(1 | hardenedFlag), funding.Outputs[1].ScriptPubKey));
 			Assert.Equal(new KeyPath(0 | hardenedFlag), psbt.Inputs[0].HDKeyPaths[accountExtKey.Derive(0 | hardenedFlag).GetPublicKey()].KeyPath);
 			Assert.Equal(new KeyPath(1 | hardenedFlag), psbt.Inputs[1].HDKeyPaths[accountExtKey.Derive(1 | hardenedFlag).GetPublicKey()].KeyPath);

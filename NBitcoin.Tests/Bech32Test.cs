@@ -75,7 +75,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void ValidateValidChecksum()
 		{
-			foreach(var test in VALID_CHECKSUM)
+			foreach (var test in VALID_CHECKSUM)
 			{
 				var bech = Bech32Encoder.ExtractEncoderFromString(test);
 				var pos = test.LastIndexOf('1');
@@ -87,7 +87,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void DetectInvalidChecksum()
 		{
-			foreach(var test in INVALID_CHECKSUM)
+			foreach (var test in INVALID_CHECKSUM)
 			{
 				try
 				{
@@ -97,8 +97,8 @@ namespace NBitcoin.Tests
 					bech.Decode(test2, out var wit);
 					throw new Exception($"The \"{test}\" string was recognized as a valid bech32 encoded string. FormatException was expected.");
 				}
-				catch(FormatException)
-				{}
+				catch (FormatException)
+				{ }
 			}
 		}
 
@@ -107,7 +107,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void ValidAddress()
 		{
-			foreach(var address in VALID_ADDRESS)
+			foreach (var address in VALID_ADDRESS)
 			{
 				byte witVer;
 				byte[] witProg;
@@ -135,19 +135,19 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void InvalidAddress()
 		{
-			foreach(var test in INVALID_ADDRESS)
+			foreach (var test in INVALID_ADDRESS)
 			{
 				byte witver;
 				try
 				{
 					bech32.Decode(test, out witver);
 				}
-				catch(FormatException) { }
+				catch (FormatException) { }
 				try
 				{
 					tbech32.Decode(test, out witver);
 				}
-				catch(FormatException) { }
+				catch (FormatException) { }
 			}
 		}
 

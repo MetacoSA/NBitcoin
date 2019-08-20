@@ -45,7 +45,7 @@ namespace NBitcoin.Tests
 		public void CanAddEntropyToRandom()
 		{
 			RandomUtils.AddEntropy(new byte[] { 1, 2, 3 });
-			for(int i = 0; i < 100; i++)
+			for (int i = 0; i < 100; i++)
 			{
 				Assert.Equal(50, RandomUtils.GetBytes(50).Length);
 			}
@@ -103,7 +103,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseKeyPath()
 		{
-			var valid = new[] 
+			var valid = new[]
 			{
 				"",
 				"m",
@@ -406,7 +406,7 @@ namespace NBitcoin.Tests
 				new object[]{ 1.23456789m, MoneyUnit.BTC, 1.23456789m, MoneyUnit.BTC  },
 			};
 
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				var inputAmount = (decimal)test[0];
 				var inputUnit = (MoneyUnit)test[1];
@@ -430,7 +430,7 @@ namespace NBitcoin.Tests
 		public void util_ParseMoney()
 		{
 			Money ret;
-			foreach(var prefix in new string[] { "", "+", "-" })
+			foreach (var prefix in new string[] { "", "+", "-" })
 			{
 				int multiplier = prefix == "-" ? -1 : 1;
 				Assert.True(Money.TryParse(prefix + "0.0", out ret));
@@ -653,7 +653,7 @@ namespace NBitcoin.Tests
 				( "localhost", localIp.ToString())
 			};
 
-			foreach(var test in data)
+			foreach (var test in data)
 			{
 				var endpoint = Utils.ParseEndpoint(test.Input, 10);
 				var result = (await endpoint.ResolveToIPEndpointsAsync()).First();
@@ -721,7 +721,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRoundTripBigIntegerToBytes()
 		{
-			foreach(var expected in Enumerable.Range(-100, 100))
+			foreach (var expected in Enumerable.Range(-100, 100))
 			{
 				var bytes = Utils.BigIntegerToBytes(BigInteger.ValueOf(expected));
 				var actual = Utils.BytesToBigInteger(bytes);
@@ -790,7 +790,7 @@ namespace NBitcoin.Tests
 		private void CanConvertBigIntegerToBytesCore(BigInteger b, byte[] bbytes, bool testByteSerialization = true)
 		{
 			Assert.Equal(b, Utils.BytesToBigInteger(bbytes));
-			if(testByteSerialization)
+			if (testByteSerialization)
 				Assert.True(Utils.BigIntegerToBytes(b).SequenceEqual(bbytes));
 		}
 
@@ -798,7 +798,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void NetworksAreValid()
 		{
-			foreach(var network in Network.GetNetworks())
+			foreach (var network in Network.GetNetworks())
 			{
 				Assert.NotNull(network);
 			}
@@ -830,7 +830,7 @@ namespace NBitcoin.Tests
 					ExpectedSecret = "7fcfa754a40ceaabee5cd3df1a99ee2e5d2c027fdcbd8e437d9be757ea58708f"
 				}
 			};
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				var pubKey = new PubKey(test.Pubkey);
 				var key = new Key(Encoders.Hex.DecodeData(test.Private));
@@ -849,7 +849,7 @@ namespace NBitcoin.Tests
 				new byte[555],
 				Encoders.ASCII.DecodeData("Chancellor on the brink of second bailout for banks")
 			};
-			foreach(var plainText in msgs)
+			foreach (var plainText in msgs)
 			{
 				var cipherText1 = key.PubKey.Encrypt(plainText);
 				var cipherText2 = key.PubKey.Encrypt(plainText);
@@ -1072,9 +1072,9 @@ namespace NBitcoin.Tests
 					}
 				};
 
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
-				if(test.ExpectedType == null)
+				if (test.ExpectedType == null)
 				{
 					Assert.Throws<FormatException>(() => Network.Parse(test.Base58, null));
 				}
@@ -1082,14 +1082,14 @@ namespace NBitcoin.Tests
 				{
 					var result = Network.Parse(test.Base58, null);
 					Assert.True(test.ExpectedType == result.GetType());
-					if(test.Network != null)
+					if (test.Network != null)
 						Assert.Equal(test.Network, result.Network);
 					Network.Parse(test.Base58, test.Network);
 
-					if(test.Network != null)
-						foreach(var network in Network.GetNetworks())
+					if (test.Network != null)
+						foreach (var network in Network.GetNetworks())
 						{
-							if(network == test.Network)
+							if (network == test.Network)
 								break;
 							Assert.Throws<FormatException>(() => Network.Parse(test.Base58, network));
 						}

@@ -79,7 +79,7 @@ namespace NBitcoin.Tests.Generators
 			where tx.Outputs.Count > vout
 			select ReplaceTxOut(tx, txout, vout);
 
-		private static Transaction ReplaceTxOut (Transaction tx, TxOut txout, int index)
+		private static Transaction ReplaceTxOut(Transaction tx, TxOut txout, int index)
 		{
 			tx.Outputs[index] = txout;
 			return tx;

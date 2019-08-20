@@ -13,22 +13,22 @@ namespace NBitcoin.Tests.Generators
 		public static Arbitrary<Tuple<Transaction, Network>> TransactionAndNetworkArb()
 		{
 			var result = from n in ChainParamsGenerator.NetworkGen()
-									 from tx in TX(n)
-									 select Tuple.Create(tx, n);
+						 from tx in TX(n)
+						 select Tuple.Create(tx, n);
 			return Arb.From(result);
 		}
 
 		public static Gen<OutPoint> OutPoint() => from txid in CryptoGenerator.Hash256()
-																							from vout in Gen.Choose(0, Int32.MaxValue)
-																							select new OutPoint(txid, vout);
+												  from vout in Gen.Choose(0, Int32.MaxValue)
+												  select new OutPoint(txid, vout);
 
 		public static Gen<TxIn> Input() => from prevout in OutPoint()
-																			 from ss in ScriptGenerator.RandomScriptSig()
-																			 from nSequence in PrimitiveGenerator.UInt32()
-																			 select new TxIn(prevout, ss) { Sequence = nSequence };
+										   from ss in ScriptGenerator.RandomScriptSig()
+										   from nSequence in PrimitiveGenerator.UInt32()
+										   select new TxIn(prevout, ss) { Sequence = nSequence };
 
 		public static Gen<List<TxIn>> NonEmptyInputs() => from txins in Gen.NonEmptyListOf(Input())
-																											select txins.ToList();
+														  select txins.ToList();
 
 		public static Gen<TxOut> Output() =>
 			from m in MoneyGenerator.Money()

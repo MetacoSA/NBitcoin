@@ -74,33 +74,33 @@ namespace NBitcoin.Tests
 		}
 		private static Coin RandomCoin(Key[] bobs, Money amount, CoinType type)
 		{
-			if(bobs.Length == 1)
+			if (bobs.Length == 1)
 			{
 				var bob = bobs[0];
-				if(type == CoinType.Normal)
+				if (type == CoinType.Normal)
 					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, bob.PubKey.Hash.ScriptPubKey);
-				if(type == CoinType.P2WPKH)
+				if (type == CoinType.P2WPKH)
 					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, bob.PubKey.WitHash.ScriptPubKey);
-				if(type == CoinType.P2SH)
+				if (type == CoinType.P2SH)
 					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, bob.PubKey.ScriptPubKey.Hash.ScriptPubKey).ToScriptCoin(bob.PubKey.ScriptPubKey);
-				if(type == CoinType.SegwitP2SH)
+				if (type == CoinType.SegwitP2SH)
 					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, bob.PubKey.ScriptPubKey.WitHash.ScriptPubKey.Hash.ScriptPubKey).ToScriptCoin(bob.PubKey.ScriptPubKey);
-				if(type == CoinType.Segwit)
+				if (type == CoinType.Segwit)
 					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, bob.PubKey.ScriptPubKey.WitHash.ScriptPubKey).ToScriptCoin(bob.PubKey.ScriptPubKey);
 				throw new NotSupportedException();
 			}
 			else
 			{
-				while(type == CoinType.Normal || type == CoinType.P2WPKH)
+				while (type == CoinType.Normal || type == CoinType.P2WPKH)
 				{
 					type = (CoinType)(RandomUtils.GetUInt32() % 5);
 				}
 				var script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey((int)(1 + (RandomUtils.GetUInt32() % bobs.Length)), bobs.Select(b => b.PubKey).ToArray());
-				if(type == CoinType.P2SH)
+				if (type == CoinType.P2SH)
 					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, script.Hash.ScriptPubKey).ToScriptCoin(script);
-				if(type == CoinType.SegwitP2SH)
+				if (type == CoinType.SegwitP2SH)
 					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, script.WitHash.ScriptPubKey.Hash.ScriptPubKey).ToScriptCoin(script);
-				if(type == CoinType.Segwit)
+				if (type == CoinType.Segwit)
 					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, script.WitHash.ScriptPubKey).ToScriptCoin(script);
 				throw new NotSupportedException();
 			}
@@ -137,10 +137,10 @@ namespace NBitcoin.Tests
 			Assert.Equal(v.expectedBaseSize, v.baseSize); // No signature here, should be fix
 			Assert.True(v.witSize - v.expectedWitsize < 4); // the signature size might vary
 
-			for(int i = 0; i < 100; i++)
+			for (int i = 0; i < 100; i++)
 			{
 				builder = Network.CreateTransactionBuilder();
-				for(int ii = 0; ii < 1 + RandomUtils.GetUInt32() % 10; ii++)
+				for (int ii = 0; ii < 1 + RandomUtils.GetUInt32() % 10; ii++)
 				{
 					var signersCount = 1 + (int)(RandomUtils.GetUInt32() % 6);
 					var signers = Enumerable.Range(0, signersCount).Select(_ => new Key()).ToArray();
