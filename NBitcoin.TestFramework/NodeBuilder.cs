@@ -31,11 +31,11 @@ namespace NBitcoin.Tests
 	{
 		public void Import(NodeConfigParameters configParameters, bool overrides)
 		{
-			foreach(var kv in configParameters)
+			foreach (var kv in configParameters)
 			{
-				if(!ContainsKey(kv.Key))
+				if (!ContainsKey(kv.Key))
 					Add(kv.Key, kv.Value);
-				else if(overrides)
+				else if (overrides)
 				{
 					Remove(kv.Key);
 					Add(kv.Key, kv.Value);
@@ -46,7 +46,7 @@ namespace NBitcoin.Tests
 		public override string ToString()
 		{
 			StringBuilder builder = new StringBuilder();
-			foreach(var kv in this)
+			foreach (var kv in this)
 				builder.AppendLine(kv.Key + "=" + kv.Value);
 			return builder.ToString();
 		}
@@ -121,14 +121,14 @@ namespace NBitcoin.Tests
 			network = network ?? Network.RegTest;
 			var isFilePath = downloadData.Version.Length >= 2 && downloadData.Version[1] == ':';
 			var path = isFilePath ? downloadData.Version : EnsureDownloaded(downloadData);
-			if(!Directory.Exists(caller))
+			if (!Directory.Exists(caller))
 				Directory.CreateDirectory(caller);
 			return new NodeBuilder(caller, path) { Network = network, NodeImplementation = downloadData, ShowNodeConsole = showNodeConsole };
 		}
 
 		public static string EnsureDownloaded(NodeDownloadData downloadData)
 		{
-			if(!Directory.Exists("TestData"))
+			if (!Directory.Exists("TestData"))
 				Directory.CreateDirectory("TestData");
 
 			var osDownloadData = downloadData.GetCurrentOSDownloadData();
@@ -136,7 +136,7 @@ namespace NBitcoin.Tests
 				throw new Exception("This platform does not support tests involving this crypto currency, DownloadData for this OS are unavailable");
 			var bitcoind = Path.Combine("TestData", String.Format(osDownloadData.Executable, downloadData.Version));
 			var zip = Path.Combine("TestData", String.Format(osDownloadData.Archive, downloadData.Version));
-			if(File.Exists(bitcoind))
+			if (File.Exists(bitcoind))
 				return bitcoind;
 
 			string url = String.Format(osDownloadData.DownloadLink, downloadData.Version);
@@ -147,14 +147,14 @@ namespace NBitcoin.Tests
 			File.WriteAllBytes(zip, data);
 
 			var extractDirectory = "TestData";
-			if(osDownloadData.CreateFolder != null)
+			if (osDownloadData.CreateFolder != null)
 			{
-				if(!Directory.Exists(osDownloadData.CreateFolder))
+				if (!Directory.Exists(osDownloadData.CreateFolder))
 					Directory.CreateDirectory(osDownloadData.CreateFolder);
 				extractDirectory = Path.Combine(extractDirectory, string.Format(osDownloadData.CreateFolder, downloadData.Version));
 			}
 
-			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
 				ZipFile.ExtractToDirectory(zip, extractDirectory);
 			}
@@ -169,7 +169,7 @@ namespace NBitcoin.Tests
 		private static void CheckHash(NodeOSDownloadData osDownloadData, byte[] data)
 		{
 			var actual = Encoders.Hex.EncodeData(Hashes.SHA256(data));
-			if(!actual.Equals(osDownloadData.Hash, StringComparison.OrdinalIgnoreCase))
+			if (!actual.Equals(osDownloadData.Hash, StringComparison.OrdinalIgnoreCase))
 				throw new Exception($"Hash of downloaded file does not match (Expected: {osDownloadData.Hash}, Actual: {actual})");
 		}
 
@@ -190,11 +190,11 @@ namespace NBitcoin.Tests
 			this.BitcoinD = bitcoindPath;
 		}
 
-        public bool CleanBeforeStartingNode
+		public bool CleanBeforeStartingNode
 		{
 			get; set;
 		} = true;
-       
+
 		public Network Network
 		{
 			get;
@@ -208,7 +208,7 @@ namespace NBitcoin.Tests
 			last++;
 			var node = new CoreNode(child, this) { Network = Network };
 			Nodes.Add(node);
-			if(start)
+			if (start)
 				node.Start();
 			return node;
 		}
@@ -220,9 +220,9 @@ namespace NBitcoin.Tests
 
 		public void Dispose()
 		{
-			foreach(var node in Nodes)
+			foreach (var node in Nodes)
 				node.Kill();
-			foreach(var disposable in _Disposables)
+			foreach (var disposable in _Disposables)
 				disposable.Dispose();
 		}
 		List<IDisposable> _Disposables = new List<IDisposable>();
@@ -284,7 +284,7 @@ namespace NBitcoin.Tests
 			ConfigParameters.Import(builder.ConfigParameters, true);
 			ports = new int[2];
 
-			if(builder.CleanBeforeStartingNode && File.Exists(_Config))
+			if (builder.CleanBeforeStartingNode && File.Exists(_Config))
 			{
 				var oldCreds = ExtractCreds(File.ReadAllText(_Config));
 				CookieAuth = oldCreds == null;
@@ -308,7 +308,7 @@ namespace NBitcoin.Tests
 				}
 				CancellationTokenSource cts = new CancellationTokenSource();
 				cts.CancelAfter(10000);
-				while(!cts.IsCancellationRequested && Directory.Exists(_Folder))
+				while (!cts.IsCancellationRequested && Directory.Exists(_Folder))
 				{
 					try
 					{
@@ -318,7 +318,7 @@ namespace NBitcoin.Tests
 					catch { }
 					Thread.Sleep(100);
 				}
-				if(cts.IsCancellationRequested)
+				if (cts.IsCancellationRequested)
 					throw new InvalidOperationException("You seem to have a running node from a previous test, please kill the process and restart the test.");
 			}
 
@@ -330,7 +330,7 @@ namespace NBitcoin.Tests
 
 		public string GetRPCAuth()
 		{
-			if(!CookieAuth)
+			if (!CookieAuth)
 				return creds.UserName + ":" + creds.Password;
 			else
 				return "cookiefile=" + Path.Combine(dataDir, this._Builder.NodeImplementation.RegtestFolderName ?? "regtest", ".cookie");
@@ -345,7 +345,7 @@ namespace NBitcoin.Tests
 		private NetworkCredential ExtractCreds(string config)
 		{
 			var user = Regex.Match(config, "rpcuser=(.*)");
-			if(!user.Success)
+			if (!user.Success)
 				return null;
 			var pass = Regex.Match(config, "rpcpassword=(.*)");
 			return new NetworkCredential(user.Groups[1].Value.Trim(), pass.Groups[1].Value.Trim());
@@ -362,7 +362,7 @@ namespace NBitcoin.Tests
 			{
 				Directory.Delete(_Folder, true);
 			}
-			catch(DirectoryNotFoundException) { }
+			catch (DirectoryNotFoundException) { }
 		}
 #if !NOSOCKET
 		public void Sync(CoreNode node, bool keepConnection = false)
@@ -370,11 +370,11 @@ namespace NBitcoin.Tests
 			var rpc = CreateRPCClient();
 			var rpc1 = node.CreateRPCClient();
 			rpc.AddNode(node.Endpoint, true);
-			while(rpc.GetBestBlockHash() != rpc1.GetBestBlockHash())
+			while (rpc.GetBestBlockHash() != rpc1.GetBestBlockHash())
 			{
 				Task.Delay(200).GetAwaiter().GetResult();
 			}
-			if(!keepConnection)
+			if (!keepConnection)
 				rpc.RemoveNode(node.Endpoint);
 		}
 #endif
@@ -485,12 +485,12 @@ namespace NBitcoin.Tests
 			config.Add("rest", "1");
 			config.Add("server", "1");
 			config.Add("txindex", "1");
-			if(!CookieAuth)
+			if (!CookieAuth)
 			{
 				config.Add("rpcuser", creds.UserName);
 				config.Add("rpcpassword", creds.Password);
 			}
-			if(!WhiteBind)
+			if (!WhiteBind)
 				config.Add("port", ports[0].ToString());
 			else
 				config.Add("whitebind", "127.0.0.1:" + ports[0].ToString());
@@ -507,7 +507,7 @@ namespace NBitcoin.Tests
 
 		private async Task Run()
 		{
-			lock(l)
+			lock (l)
 			{
 				string appPath = new FileInfo(this._Builder.BitcoinD).FullName;
 				string args = "-conf=bitcoin.conf" + " -datadir=" + dataDir + " -debug=net";
@@ -525,7 +525,7 @@ namespace NBitcoin.Tests
 
 				_State = CoreNodeState.Starting;
 			}
-			while(true)
+			while (true)
 			{
 				try
 				{
@@ -534,7 +534,7 @@ namespace NBitcoin.Tests
 					break;
 				}
 				catch { }
-				if(_Process == null || _Process.HasExited)
+				if (_Process == null || _Process.HasExited)
 					break;
 			}
 		}
@@ -546,11 +546,11 @@ namespace NBitcoin.Tests
 		private void FindPorts(int[] ports)
 		{
 			int i = 0;
-			while(i < ports.Length)
+			while (i < ports.Length)
 			{
 				var port = RandomUtils.GetUInt32() % 4000;
 				port = port + 10000;
-				if(ports.Any(p => p == port))
+				if (ports.Any(p => p == port))
 					continue;
 				try
 				{
@@ -560,7 +560,7 @@ namespace NBitcoin.Tests
 					ports[i] = (int)port;
 					i++;
 				}
-				catch(SocketException) { }
+				catch (SocketException) { }
 			}
 		}
 
@@ -568,9 +568,9 @@ namespace NBitcoin.Tests
 		{
 			uint256[] blockIds = new uint256[blockCount];
 			int generated = 0;
-			while(generated < blockCount)
+			while (generated < blockCount)
 			{
-				foreach(var id in CreateRPCClient().Generate(blockCount - generated))
+				foreach (var id in CreateRPCClient().Generate(blockCount - generated))
 				{
 					blockIds[generated++] = id;
 				}
@@ -582,7 +582,7 @@ namespace NBitcoin.Tests
 		{
 			var rpc = CreateRPCClient();
 			var batch = rpc.PrepareBatch();
-			foreach(var tx in transactions)
+			foreach (var tx in transactions)
 			{
 				batch.SendRawTransactionAsync(tx);
 			}
@@ -592,22 +592,22 @@ namespace NBitcoin.Tests
 		object l = new object();
 		public void Kill(bool cleanFolder = true)
 		{
-			lock(l)
+			lock (l)
 			{
-				if(_Process != null && !_Process.HasExited)
+				if (_Process != null && !_Process.HasExited)
 				{
 					_Process.Kill();
 					_Process.WaitForExit();
 				}
 				_State = CoreNodeState.Killed;
-				if(cleanFolder)
+				if (cleanFolder)
 					CleanFolder();
 			}
 		}
 
 		public void WaitForExit()
 		{
-			if(_Process != null && !_Process.HasExited)
+			if (_Process != null && !_Process.HasExited)
 			{
 				_Process.WaitForExit();
 			}
@@ -639,31 +639,31 @@ namespace NBitcoin.Tests
 
 		private List<Transaction> Reorder(List<Transaction> transactions)
 		{
-			if(transactions.Count == 0)
+			if (transactions.Count == 0)
 				return transactions;
 			var result = new List<Transaction>();
 			var dictionary = transactions.ToDictionary(t => t.GetHash(), t => new TransactionNode(t));
-			foreach(var transaction in dictionary.Select(d => d.Value))
+			foreach (var transaction in dictionary.Select(d => d.Value))
 			{
-				foreach(var input in transaction.Transaction.Inputs)
+				foreach (var input in transaction.Transaction.Inputs)
 				{
 					var node = dictionary.TryGet(input.PrevOut.Hash);
-					if(node != null)
+					if (node != null)
 					{
 						transaction.DependsOn.Add(node);
 					}
 				}
 			}
-			while(dictionary.Count != 0)
+			while (dictionary.Count != 0)
 			{
-				foreach(var node in dictionary.Select(d => d.Value).ToList())
+				foreach (var node in dictionary.Select(d => d.Value).ToList())
 				{
-					foreach(var parent in node.DependsOn.ToList())
+					foreach (var parent in node.DependsOn.ToList())
 					{
-						if(!dictionary.ContainsKey(parent.Hash))
+						if (!dictionary.ContainsKey(parent.Hash))
 							node.DependsOn.Remove(parent);
 					}
-					if(node.DependsOn.Count == 0)
+					if (node.DependsOn.Count == 0)
 					{
 						result.Add(node.Transaction);
 						dictionary.Remove(node.Hash);
@@ -675,10 +675,10 @@ namespace NBitcoin.Tests
 
 		private BitcoinSecret GetFirstSecret(RPCClient rpc)
 		{
-			if(MinerSecret != null)
+			if (MinerSecret != null)
 				return MinerSecret;
 			var dest = rpc.ListSecrets().FirstOrDefault();
-			if(dest == null)
+			if (dest == null)
 			{
 				var address = rpc.GetNewAddress();
 				dest = rpc.DumpPrivKey(address);

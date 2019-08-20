@@ -318,21 +318,21 @@ namespace NBitcoin.Tests
 					Archive = "feathercoin-{0}-win64.zip",
 					Executable = "feathercoin-{0}/bin/feathercoind.exe",
 					Hash = "5BA572C4283E8C4C0332A8072C82B4C8FD6CADD0D15E6400BA1C0C2991575155"
-                },
+				},
 				Linux = new NodeOSDownloadData()
 				{
 					DownloadLink = "http://downloads.feathercoin.com/feathercoin-0.16.0-x86_64-linux-gnu.tar.gz",
 					Archive = "feathercoin-{0}-x86_64-linux-gnu.tar.gz",
 					Executable = "feathercoin-{0}/bin/feathercoind",
 					Hash = "5673DA0CE1141D5417D6EE502DAD8741F36100CDF89B4F67A525475E9EB435DE"
-                },
+				},
 				Mac = new NodeOSDownloadData()
 				{
 					DownloadLink = "http://downloads.feathercoin.com/feathercoin-{0}-osx64.tar.gz",
 					Archive = "feathercoin-{0}-osx64.tar.gz",
 					Executable = "feathercoin-{0}/bin/feathercoind",
 					Hash = "E6ECE15424DDD83E3FAC64F9A0786AD40F8D89A24ECDC6285353435CD46EEBB1"
-                }
+				}
 			};
 		}
 
@@ -464,7 +464,7 @@ namespace NBitcoin.Tests
 					Archive = "mogwaicore-{0}-win64.zip",
 					Executable = "mogwaicore-0.12.2/bin/mogwaid.exe",
 					Hash = "af830999026809416cf5b93d840e6e90ce8af0dc61738bd9bf1c5f059439b0a6"
-                },
+				},
 				Linux = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://github.com/mogwaicoin/mogwai/releases/download/v{0}/mogwaicore-{0}-linux64.tar.gz",
@@ -597,31 +597,31 @@ namespace NBitcoin.Tests
 			};
 		}
 
-        public class UfoNodeDownloadData
-        {
-            public NodeDownloadData v0_16_0 = new NodeDownloadData()
-            {
-                Version = "0.16.0",
-                Windows = new NodeOSDownloadData()
-                {
-                    DownloadLink = "https://downloads.ufobject.com/ufo-0.16.0.zip",
-                    Archive = "UFO-{0}-win64.zip",
-                    Executable = "UFO-{0}/bin/ufod.exe",
-                    Hash = "B06D8564CF2BF95EDD4AECEB3F725C12FB18A31398E59B48A242AED210261FAE"
-                },
-                Linux = new NodeOSDownloadData()
-                {
-                    DownloadLink = "https://downloads.ufobject.com/ufo-0.16.0-x86_64-linux-gnu.tar.gz",
-                    Archive = "UFO-{0}-linux64.tar.gz",
-                    Executable = "UFO-{0}/bin/ufod",
-                    Hash = "2A0F4ED78EA58C232CCEA6DDD4EB36F766C72663D1DF9B6FDA0CB39143FE0F60"
-                },
-                Mac = new NodeOSDownloadData()
-                {
-                    DownloadLink = "https://downloads.ufobject.com/ufo-0.16.0-osx64.tar.gz",
-                    Archive = "UFO-{0}-osx.dmg",
-                    Executable = "UFO-{0}/bin/ufod",
-                    Hash = "5CC7E5F742584BAD0CADD516B09C93566D38B42C352F21D521C84C9490088ACB"
+		public class UfoNodeDownloadData
+		{
+			public NodeDownloadData v0_16_0 = new NodeDownloadData()
+			{
+				Version = "0.16.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://downloads.ufobject.com/ufo-0.16.0.zip",
+					Archive = "UFO-{0}-win64.zip",
+					Executable = "UFO-{0}/bin/ufod.exe",
+					Hash = "B06D8564CF2BF95EDD4AECEB3F725C12FB18A31398E59B48A242AED210261FAE"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://downloads.ufobject.com/ufo-0.16.0-x86_64-linux-gnu.tar.gz",
+					Archive = "UFO-{0}-linux64.tar.gz",
+					Executable = "UFO-{0}/bin/ufod",
+					Hash = "2A0F4ED78EA58C232CCEA6DDD4EB36F766C72663D1DF9B6FDA0CB39143FE0F60"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://downloads.ufobject.com/ufo-0.16.0-osx64.tar.gz",
+					Archive = "UFO-{0}-osx.dmg",
+					Executable = "UFO-{0}/bin/ufod",
+					Hash = "5CC7E5F742584BAD0CADD516B09C93566D38B42C352F21D521C84C9490088ACB"
 				}
 			};
 		}
@@ -906,7 +906,7 @@ namespace NBitcoin.Tests
 				},
 				Linux = new NodeOSDownloadData()
 				{
-					DownloadLink = 
+					DownloadLink =
 						"https://github.com/gincoin-dev/gincoin-core/releases/download/{0}.0/gincoin-binaries-linux-64bit.tar.gz",
 					Archive = "gincoin-binaries-linux-64bit.tar.gz",
 					Executable = "gincoin-binaries/gincoind",
@@ -950,34 +950,34 @@ namespace NBitcoin.Tests
 			};
 		}
 
-        public class BitcoinplusNodeDownloadData
-        {
-            public NodeDownloadData v2_7_0 = new NodeDownloadData()
-            {
-                Version = "2.7.0",
-                Windows = new NodeOSDownloadData()
-                {
-                    DownloadLink = "https://downloads.bitcoinplus.org/bitcoinplus-2.7.0.zip",
-                    Archive = "bitcoinplus-{0}-win64.zip",
-                    Executable = "bitcoinplus-{0}/bin/bitcoinplusd.exe",
-                    Hash = "3eb8fc8c57eba865c4818653f1745adbca7ee5c9065e622311907eb4d5c34273"
-                },
-                Linux = new NodeOSDownloadData()
-                {
-                    DownloadLink = "https://downloads.bitcoinplus.org/bitcoinplus-2.7.0-x86_64.tar.gz",
-                    Archive = "bitcoinplus-{0}-x86_64-linux-gnu.tar.gz",
-                    Executable = "bitcoinplus-{0}/bin/bitcoinplusd",
-                    Hash = "753547b23988124defbf9bee029b4902d6277ce467c63f2ad6588c53817b2251"
-                },
-                Mac = new NodeOSDownloadData()
-                {
-                    DownloadLink = "https://downloads.bitcoinplus.org/bitcoinplus-2.7.0-osx64.tar.gz",
-                    Archive = "Bitcoinplus-Core.dmg",
-                    Executable = "bitcoinplusd",
-                    Hash = "09d381ed0082fccd6e3af4792b975fee177cffc546fd449181a4c37b4907cff8"
-                }
-            };
-        }
+		public class BitcoinplusNodeDownloadData
+		{
+			public NodeDownloadData v2_7_0 = new NodeDownloadData()
+			{
+				Version = "2.7.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://downloads.bitcoinplus.org/bitcoinplus-2.7.0.zip",
+					Archive = "bitcoinplus-{0}-win64.zip",
+					Executable = "bitcoinplus-{0}/bin/bitcoinplusd.exe",
+					Hash = "3eb8fc8c57eba865c4818653f1745adbca7ee5c9065e622311907eb4d5c34273"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://downloads.bitcoinplus.org/bitcoinplus-2.7.0-x86_64.tar.gz",
+					Archive = "bitcoinplus-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoinplus-{0}/bin/bitcoinplusd",
+					Hash = "753547b23988124defbf9bee029b4902d6277ce467c63f2ad6588c53817b2251"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://downloads.bitcoinplus.org/bitcoinplus-2.7.0-osx64.tar.gz",
+					Archive = "Bitcoinplus-Core.dmg",
+					Executable = "bitcoinplusd",
+					Hash = "09d381ed0082fccd6e3af4792b975fee177cffc546fd449181a4c37b4907cff8"
+				}
+			};
+		}
 
 		public class ChaincoinNodeDownloadData
 		{
@@ -1139,7 +1139,7 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new GincoinNodeDownloadData();
-		
+
 		public static KotoNodeDownloadData Koto
 		{
 			get; set;
