@@ -19,7 +19,7 @@ namespace NBitcoin.Tests
 			ConcurrentChain chain = new ConcurrentChain(Network.Main);
 			EnsureDownloaded("MainChain.dat", "https://aois.blob.core.windows.net/public/MainChain.dat");
 			chain.Load(File.ReadAllBytes("MainChain.dat"), Network.Main);
-			foreach(var block in chain.EnumerateAfter(chain.Genesis))
+			foreach (var block in chain.EnumerateAfter(chain.Genesis))
 			{
 				var thisWork = block.GetWorkRequired(Network.Main);
 				var thisWork2 = block.Previous.GetNextWorkRequired(Network.Main);
@@ -30,7 +30,7 @@ namespace NBitcoin.Tests
 
 		private static void EnsureDownloaded(string file, string url)
 		{
-			if(File.Exists(file))
+			if (File.Exists(file))
 				return;
 			HttpClient client = new HttpClient();
 			client.Timeout = TimeSpan.FromMinutes(5);

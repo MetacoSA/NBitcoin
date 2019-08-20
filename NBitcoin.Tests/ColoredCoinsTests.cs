@@ -24,7 +24,7 @@ namespace NBitcoin.Tests
 				var testcase = JsonConvert.DeserializeObject<TestCase[]>(File.ReadAllText("data/openasset-known-tx.json"))
 					.First(t => t.test == test);
 				NoSqlTransactionRepository repository = new NoSqlTransactionRepository();
-				foreach(var tx in testcase.txs)
+				foreach (var tx in testcase.txs)
 				{
 					var txObj = Transaction.Parse(tx, Network.Main);
 					repository.Put(txObj.GetHash(), txObj);
@@ -406,7 +406,7 @@ namespace NBitcoin.Tests
 				"6a056a104f41010003ac0200e58e260412345678", //valid push consume a marker
 			};
 
-			foreach(var script in invalidMarkers.Select(m => new Script(Encoders.Hex.DecodeData(m))))
+			foreach (var script in invalidMarkers.Select(m => new Script(Encoders.Hex.DecodeData(m))))
 			{
 				var marker = ColorMarker.TryParse(script);
 				Assert.Null(marker);
@@ -419,7 +419,7 @@ namespace NBitcoin.Tests
 				"6a576e104f41010003ac0200e58e2604123456786811", //Invalid push at the end
 			};
 
-			foreach(var script in validMarkers.Select(m => new Script(Encoders.Hex.DecodeData(m))))
+			foreach (var script in validMarkers.Select(m => new Script(Encoders.Hex.DecodeData(m))))
 			{
 				var marker = ColorMarker.TryParse(script);
 				Assert.NotNull(marker);

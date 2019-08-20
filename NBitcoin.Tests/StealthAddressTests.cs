@@ -42,7 +42,7 @@ namespace NBitcoin.Tests
 				}
 			};
 
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				var bitField = new BitField(test.Encoded, test.BitCount);
 				Assert.Equal(TestUtils.ParseHex(test.Raw), bitField.GetRawForm());
@@ -79,7 +79,7 @@ namespace NBitcoin.Tests
 					Match = true
 				}
 			};
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				BitField field = new BitField(test.Encoded, test.BitCount);
 				Assert.Equal(test.Match, field.Match(Utils.ToUInt32(TestUtils.ParseHex(test.Data), true)));
@@ -116,7 +116,7 @@ namespace NBitcoin.Tests
 
 
 
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				var field = new BitField(TestUtils.ParseHex(test.Encoded), test.BitCount);
 				Transaction transaction = Network.Main.CreateTransaction();
@@ -156,7 +156,7 @@ namespace NBitcoin.Tests
 					PrefixValue = "",
 				}
 			};
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				var scanSecret = new Key(TestUtils.ParseHex(test.ScanSecret));
 				AssertEx.CollectionEquals(scanSecret.PubKey.ToBytes(), TestUtils.ParseHex(test.ScanPubKey));
@@ -169,7 +169,7 @@ namespace NBitcoin.Tests
 
 				AssertEx.CollectionEquals(stealth.ScanPubKey.ToBytes(),
 											  TestUtils.ParseHex(test.ScanPubKey));
-				for(int i = 0; i < test.SpendPubKeys.Length; i++)
+				for (int i = 0; i < test.SpendPubKeys.Length; i++)
 				{
 					AssertEx.CollectionEquals(stealth.SpendPubKeys[i].ToBytes(),
 											  TestUtils.ParseHex(test.SpendPubKeys[i]));
@@ -223,7 +223,7 @@ namespace NBitcoin.Tests
 				}
 			};
 
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				var scan = AssertKeys(test.ScanSecret, test.ScanPubKey);
 				var spend = AssertKeys(test.SpendSecret, test.SpendPubKey);
@@ -238,7 +238,7 @@ namespace NBitcoin.Tests
 
 				var payment = address.CreatePayment(ephem);
 				var generatedKey = spend.Uncover(scan, payment.Metadata.EphemKey);
-				if(stealth != null)
+				if (stealth != null)
 				{
 					Assert.Equal(stealth.PubKey.Hash, payment.StealthKeys[0].ID);
 					Assert.Equal(stealth.ToBytes(), generatedKey.ToBytes());
@@ -256,10 +256,10 @@ namespace NBitcoin.Tests
 
 		private Key AssertKeys(string key, string pub)
 		{
-			if(key == null)
+			if (key == null)
 				return null;
 			Key k = new Key(TestUtils.ParseHex(key));
-			if(pub != null)
+			if (pub != null)
 			{
 				PubKey p = new PubKey(TestUtils.ParseHex(pub));
 				AssertEx.Equal(k.PubKey.ToBytes(), p.ToBytes());
@@ -327,7 +327,7 @@ namespace NBitcoin.Tests
 
 		internal static IEnumerable<CanCreatePaymentData> GenerateRandoms(int count)
 		{
-			for(int i = 0; i < count; i++)
+			for (int i = 0; i < count; i++)
 			{
 				CanCreatePaymentData data = new CanCreatePaymentData();
 				var spend = new Key();

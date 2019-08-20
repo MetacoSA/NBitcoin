@@ -94,11 +94,11 @@ namespace NBitcoin.Tests
 				},
 			};
 
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				var address = BitcoinAddress.Create(test.Address, Network.Main);
 				var pkh = (address as IPubkeyHashUsable);
-				if(test.PrivateKey != null)
+				if (test.PrivateKey != null)
 				{
 					var secret = Network.Main.CreateBitcoinSecret(test.PrivateKey);
 					var signature = secret.PrivateKey.SignMessage(test.Message);
@@ -157,7 +157,7 @@ namespace NBitcoin.Tests
 				}
 			};
 
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				BitcoinSecret secret = Network.Main.CreateBitcoinSecret(test.PrivateKeyWIF);
 				Assert.Equal(test.PubKey, secret.PrivateKey.PubKey.ToHex());
@@ -217,10 +217,10 @@ namespace NBitcoin.Tests
 			Assert.True(addr2C.Hash == pubkey2C.Hash);
 
 
-			for(int n = 0; n < 16; n++)
+			for (int n = 0; n < 16; n++)
 			{
 				string strMsg = String.Format("Very secret message {0}: 11", n);
-				if(n == 10)
+				if (n == 10)
 				{
 					//Test one long message
 					strMsg = String.Join(",", Enumerable.Range(0, 2000).Select(i => i.ToString()).ToArray());

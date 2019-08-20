@@ -40,7 +40,7 @@ namespace NBitcoin.Tests
 			PSBTComparerInstance = new PSBTComparer();
 			Output = output;
 		}
-		
+
 		[Fact]
 		public void InvalidCommandSendRPCException()
 		{
@@ -1026,7 +1026,7 @@ namespace NBitcoin.Tests
 				var amount = Money.Coins(40.0m);
 				var fee = Money.Coins(0.0001m);
 				var txs = new List<uint256>();
-				for(var i=0; i < 10; i++)
+				for (var i = 0; i < 10; i++)
 				{
 					amount = amount / 2 - fee;
 					var address = rpc.GetNewAddress();
@@ -1097,7 +1097,7 @@ namespace NBitcoin.Tests
 				var result = rpc.TestMempoolAccept(tx);
 				Assert.False(result.IsAllowed);
 				Assert.Equal(Protocol.RejectCode.INVALID, result.RejectCode);
-				Assert.Equal("mandatory-script-verify-flag-failed (Operation not valid with the current stack size)",result.RejectReason);
+				Assert.Equal("mandatory-script-verify-flag-failed (Operation not valid with the current stack size)", result.RejectReason);
 
 				var signedTx = rpc.SignRawTransactionWithWallet(new SignRawTransactionRequest()
 				{
@@ -1322,7 +1322,7 @@ namespace NBitcoin.Tests
 				node.Start();
 				var client = node.CreateRPCClient();
 
-				var keys = new Key[] {new Key(), new Key(), new Key() };
+				var keys = new Key[] { new Key(), new Key(), new Key() };
 				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(ki => ki.PubKey).ToArray());
 				var funds = PSBTTests.CreateDummyFunds(Network.TestNet, keys, redeem);
 
@@ -1415,7 +1415,7 @@ namespace NBitcoin.Tests
 				client.GenerateToAddress(1, tmpaddr.PubKey.GetAddress(node.Network));
 
 				// case 1: irrelevant psbt.
-				var keys = new Key[] {new Key(), new Key(), new Key() };
+				var keys = new Key[] { new Key(), new Key(), new Key() };
 				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(ki => ki.PubKey).ToArray());
 				var funds = PSBTTests.CreateDummyFunds(Network.TestNet, keys, redeem);
 				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, true);
@@ -1490,7 +1490,7 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 
 				// prepare multisig script and watch with node.
-				var nodes = new CoreNode[]{nodeAlice, nodeBob, nodeCarol};
+				var nodes = new CoreNode[] { nodeAlice, nodeBob, nodeCarol };
 				var clients = nodes.Select(n => n.CreateRPCClient()).ToArray();
 				var addresses = clients.Select(c => c.GetNewAddress());
 				var addrInfos = addresses.Select((a, i) => clients[i].GetAddressInfo(a));
@@ -1562,7 +1562,7 @@ namespace NBitcoin.Tests
 				var aSend = new Key().PubKey.GetAddress(nodeAlice.Network);
 				var outputs = new Dictionary<BitcoinAddress, Money>();
 				outputs.Add(aSend, Money.Coins(10));
-				var fundOptions = new FundRawTransactionOptions() { SubtractFeeFromOutputs = new int[] {0}, IncludeWatching = true };
+				var fundOptions = new FundRawTransactionOptions() { SubtractFeeFromOutputs = new int[] { 0 }, IncludeWatching = true };
 				PSBT psbt = carol.WalletCreateFundedPSBT(null, outputs, 0, fundOptions).PSBT;
 				psbt = carol.WalletProcessPSBT(psbt).PSBT;
 

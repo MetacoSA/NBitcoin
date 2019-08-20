@@ -18,7 +18,7 @@ namespace NBitcoin.Tests
 			OpcodeType[] oplist = { OpcodeType.OP_FALSE, OpcodeType.OP_1, OpcodeType.OP_2, OpcodeType.OP_3, OpcodeType.OP_CHECKSIG, OpcodeType.OP_IF, OpcodeType.OP_VERIF, OpcodeType.OP_RETURN, OpcodeType.OP_CODESEPARATOR };
 			var script = new Script();
 			int ops = (rand.Next() % 10);
-			for(int i = 0; i < ops; i++)
+			for (int i = 0; i < ops; i++)
 				script += oplist[rand.Next() % oplist.Length];
 
 			return script;
@@ -54,15 +54,15 @@ namespace NBitcoin.Tests
 		{
 			var tests = TestCase.read_json("data/sighash.json");
 
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				var strTest = test.ToString();
-				if(test.Count < 1) // Allow for extra stuff (useful for comments)
+				if (test.Count < 1) // Allow for extra stuff (useful for comments)
 				{
 					Assert.True(false, "Bad test: " + strTest);
 					continue;
 				}
-				if(test.Count == 1)
+				if (test.Count == 1)
 					continue; // comment
 
 				string raw_tx, raw_script, sigHashHex;

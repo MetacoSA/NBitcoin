@@ -13,8 +13,8 @@ namespace NBitcoin.Tests.Generators
 		public static Arbitrary<Tuple<Transaction, Network>> TransactionAndNetworkArb()
 		{
 			var result = from n in ChainParamsGenerator.NetworkGen()
-									 from tx in TX(n)
-									 select Tuple.Create(tx, n);
+						 from tx in TX(n)
+						 select Tuple.Create(tx, n);
 			return Arb.From(result);
 		}
 
@@ -52,7 +52,7 @@ namespace NBitcoin.Tests.Generators
 			from outputs in NonEmptyOutputs()
 			from locktime in PrimitiveGenerator.UInt32()
 			let tx = LegacyTransactionGenerators.ComposeTx(Transaction.Create(network), inputs, outputs, locktime)
-		  	where tx.HasWitness
-		  	select tx;
+			where tx.HasWitness
+			select tx;
 	}
 }

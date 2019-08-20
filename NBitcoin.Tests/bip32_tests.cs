@@ -132,7 +132,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRecoverExtKeyFromExtPubKeyAndOneChildExtKey2()
 		{
-			for(int i = 0; i < 255; i++)
+			for (int i = 0; i < 255; i++)
 			{
 				ExtKey key = new ExtKey().Derive((uint)i);
 				var childKey = key.Derive((uint)i);
@@ -226,12 +226,12 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanInstantiateFromRawBytes()
 		{
-			var data = new byte[] { 0x01, 0x00,  0x00, 0x80 };
+			var data = new byte[] { 0x01, 0x00, 0x00, 0x80 };
 			var keyPath = KeyPath.FromBytes(data);
 			Assert.Equal("1'", keyPath.ToString());
 			AssertEx.CollectionEquals(data, keyPath.ToBytes());
 
-			data = new byte[] { 0x01, 0x00,  0x00, 0x80, 0x02, 0x00, 0x00, 0x00 };
+			data = new byte[] { 0x01, 0x00, 0x00, 0x80, 0x02, 0x00, 0x00, 0x00 };
 			keyPath = KeyPath.FromBytes(data);
 			Assert.Equal("1'/2", keyPath.ToString());
 			AssertEx.CollectionEquals(data, keyPath.ToBytes());
@@ -256,15 +256,15 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRecoverExtPubKeyFromHexString()
 		{
-		    var key = new ExtKey();
-		    var pubkeyBytes = key.Neuter().ToBytes();
-		    var pubkeyHexString = Encoders.Hex.EncodeData(pubkeyBytes);
+			var key = new ExtKey();
+			var pubkeyBytes = key.Neuter().ToBytes();
+			var pubkeyHexString = Encoders.Hex.EncodeData(pubkeyBytes);
 
 
-		    var pubKeyFromBytes = new ExtPubKey(pubkeyBytes);
-		    var pubKeyFromHexString = new ExtPubKey(pubkeyHexString);
+			var pubKeyFromBytes = new ExtPubKey(pubkeyBytes);
+			var pubKeyFromHexString = new ExtPubKey(pubkeyHexString);
 
-		    Assert.True(pubKeyFromBytes.Equals(pubKeyFromHexString));
+			Assert.True(pubKeyFromBytes.Equals(pubKeyFromHexString));
 		}
 
 		[Fact]
@@ -294,7 +294,7 @@ namespace NBitcoin.Tests
 			var seed = TestUtils.ParseHex(test.strHexMaster);
 			ExtKey key = new ExtKey(seed);
 			ExtPubKey pubkey = key.Neuter();
-			foreach(TestDerivation derive in test.vDerive)
+			foreach (TestDerivation derive in test.vDerive)
 			{
 				byte[] data = key.ToBytes();
 				Assert.Equal(74, data.Length);
@@ -303,7 +303,7 @@ namespace NBitcoin.Tests
 				// Test private key
 				BitcoinExtKey b58key = Network.Main.CreateBitcoinExtKey(key);
 				var a = Encoders.Hex.EncodeData(Encoders.Base58Check.DecodeData(b58key.ToString()));
-				var expected = Encoders.Hex.EncodeData( Encoders.Base58Check.DecodeData(derive.prv));
+				var expected = Encoders.Hex.EncodeData(Encoders.Base58Check.DecodeData(derive.prv));
 				Assert.True(b58key.ToString() == derive.prv);
 				// Test public key
 				BitcoinExtPubKey b58pubkey = Network.Main.CreateBitcoinExtPubKey(pubkey);
@@ -311,7 +311,7 @@ namespace NBitcoin.Tests
 				// Derive new keys
 				ExtKey keyNew = key.Derive(derive.nChild);
 				ExtPubKey pubkeyNew = keyNew.Neuter();
-				if(!((derive.nChild & 0x80000000) != 0))
+				if (!((derive.nChild & 0x80000000) != 0))
 				{
 					// Compare with public derivation
 					ExtPubKey pubkeyNew2 = pubkey.Derive(derive.nChild);

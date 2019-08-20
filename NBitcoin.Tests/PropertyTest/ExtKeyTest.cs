@@ -24,7 +24,7 @@ namespace NBitcoin.Tests.PropertyTest
 		[Trait("PropertyTest", "BidirectionalConversion")]
 		public void ShouldRecoverNeuteredParentKeyIfNotHardened(ExtKey key, uint index)
 		{
-			var child = key.Derive((int) index, false);
+			var child = key.Derive((int)index, false);
 			Assert.Equal(child.Child, index);
 
 			Assert.Equal(key, child.GetParentExtKey(key.Neuter()));

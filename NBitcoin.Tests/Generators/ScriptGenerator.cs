@@ -26,7 +26,7 @@ namespace NBitcoin.Tests.Generators
 
 		// 2. p2sh scriptSig
 		public static Gen<Script> MultiSignatureScriptSig() =>
-			from N in Gen.Choose(1, (int) 20)
+			from N in Gen.Choose(1, (int)20)
 			from hash in Hash256()
 			from M in Gen.Choose(1, N)
 			from pks in PrivateKeys(M)
@@ -64,12 +64,12 @@ namespace NBitcoin.Tests.Generators
 
 		public static Gen<Op> NonPushOpcode()
 			=> from b in PrimitiveGenerator.RandomByte()
-				 where Enum.IsDefined(typeof(OpcodeType), b)
-				 let op = (OpcodeType) b
-				 where !Op.IsPushCode(op)
-				 let opc = (Op) (OpcodeType) b
-				 where !opc.IsInvalid
-				 select opc;
+			   where Enum.IsDefined(typeof(OpcodeType), b)
+			   let op = (OpcodeType)b
+			   where !Op.IsPushCode(op)
+			   let opc = (Op)(OpcodeType)b
+			   where !opc.IsInvalid
+			   select opc;
 
 		// ------- facades -------
 		public static Gen<Script> ScriptSig() => Gen.OneOf(P2PKHScriptSig(), MultiSignatureScriptSig());
@@ -86,7 +86,7 @@ namespace NBitcoin.Tests.Generators
 			select pk.Hash.ScriptPubKey;
 
 		public static Gen<Script> P2MultisigScriptPubKey() =>
-			from t in PublicKey().Zip(Gen.Choose(0, (int) 16))
+			from t in PublicKey().Zip(Gen.Choose(0, (int)16))
 			select PayToMultiSigTemplate.Instance.GenerateScriptPubKey(t.Item2, t.Item1);
 
 		public static Gen<Script> LegacyScriptPubKey() =>

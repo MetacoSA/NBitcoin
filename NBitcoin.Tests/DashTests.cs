@@ -124,7 +124,7 @@ namespace NBitcoin.Tests
 			Assert.Equal((uint)20, cbTx.Height);
 			Assert.Equal("e83c76065797d4542f1cd02e00d02093bea6fb53f5ad6aaa160fd3ccb30001b9", cbTx.MerkleRootMNList.ToString());
 		}
-	
+
 		/// <summary>
 		/// https://github.com/dashevo/dashcore-lib/blob/master/test/transaction/payload/commitmenttxpayload.js
 		/// </summary>
@@ -157,7 +157,7 @@ namespace NBitcoin.Tests
 				"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
 				Encoders.Hex.EncodeData(qcTx.Commitment.Sig));
 		}
-	
+
 		/// <summary>
 		/// Check with debug console in Dash Testnet (block 7000 is the first with special transactions,
 		/// all blocks prior to 7000 are standard transactions in testnet):
