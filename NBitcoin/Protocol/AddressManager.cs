@@ -1163,7 +1163,7 @@ namespace NBitcoin.Protocol
 
 		internal void DiscoverPeers(Network network, NodeConnectionParameters parameters, int peerToFind)
 		{
-
+			TimeSpan backoff = TimeSpan.Zero;
 			Logs.NodeServer.LogTrace("Discovering nodes");
 
 			int found = 0;
@@ -1171,6 +1171,11 @@ namespace NBitcoin.Protocol
 			{
 				while (found < peerToFind)
 				{
+					Thread.Sleep(backoff);
+					backoff = backoff == TimeSpan.Zero ? TimeSpan.FromSeconds(1.0) : TimeSpan.FromSeconds(backoff.TotalSeconds * 2);
+					if (backoff > TimeSpan.FromSeconds(10.0))
+						backoff = TimeSpan.FromSeconds(10.0);
+
 					parameters.ConnectCancellation.ThrowIfCancellationRequested();
 
 					Logs.NodeServer.LogTrace("Remaining peer to get {remainingPeerCount}", (-found + peerToFind));
@@ -1215,6 +1220,7 @@ namespace NBitcoin.Protocol
 										if (addr != null)
 										{
 											Interlocked.Add(ref found, addr.Addresses.Length);
+											backoff = TimeSpan.FromSeconds(0);
 											if (found >= peerToFind)
 												peerTableFull.Cancel();
 										}
