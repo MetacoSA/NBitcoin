@@ -531,6 +531,18 @@ namespace NBitcoin
 		}
 
 		/// <summary>
+		/// Returns the fee of the transaction being signed
+		/// </summary>
+		/// <returns>The fees</returns>
+		/// <exception cref="System.InvalidOperationException">Not enough information to know about the fee</exception>
+		public Money GetFee()
+		{
+			if (!TryGetFee(out var fee))
+				throw new InvalidOperationException("Not enough information to know about the fee");
+			return fee;
+		}
+
+		/// <summary>
 		/// Returns the fee rate of the transaction. If the PSBT is finalized, then the exact rate is returned, else an estimation is made.
 		/// </summary>
 		/// <param name="estimatedFeeRate"></param>
@@ -560,6 +572,18 @@ namespace NBitcoin
 				estimatedFeeRate = null;
 				return false;
 			}
+		}
+
+		/// <summary>
+		/// Returns the fee rate of the transaction. If the PSBT is finalized, then the exact rate is returned, else an estimation is made.
+		/// </summary>
+		/// <returns>The estimated fee</returns>
+		/// <exception cref="System.InvalidOperationException">Not enough information to know about the fee rate</exception>
+		public FeeRate GetEstimatedFeeRate()
+		{
+			if (!TryGetEstimatedFeeRate(out var feeRate))
+				throw new InvalidOperationException("Not enough information to know about the fee rate");
+			return feeRate;
 		}
 
 		public PSBT SignWithKeys(params Key[] keys)

@@ -28,7 +28,7 @@ namespace NBitcoin
 			return true;
 		}
 
-		public HDFingerprint Parse(string str)
+		public static HDFingerprint Parse(string str)
 		{
 			if (!TryParse(str, out var result))
 				throw new FormatException("Invalid HD Fingerprint");
