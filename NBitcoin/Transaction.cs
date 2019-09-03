@@ -1334,15 +1334,35 @@ namespace NBitcoin
 
 		public static Transaction Parse(string hex, Network network)
 		{
-			return Parse(hex, null, network);
-		}
-		public static Transaction Parse(string hex, uint? version, Network network)
-		{
 			if (hex == null)
 				throw new ArgumentNullException(nameof(hex));
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			return Load(Encoders.Hex.DecodeData(hex), network);
+		}
+
+		public static bool TryParse(string hex, Network network, out Transaction transaction)
+		{
+			if (hex == null)
+				throw new ArgumentNullException(nameof(hex));
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			try
+			{
+				transaction = Parse(hex, network);
+				return true;
+			}
+			catch
+			{
+				transaction = null;
+				return false;
+			}
+		}
+
+		[Obsolete]
+		public static Transaction Parse(string hex, uint? version, Network network)
+		{
+			return Parse(hex, network);
 		}
 
 

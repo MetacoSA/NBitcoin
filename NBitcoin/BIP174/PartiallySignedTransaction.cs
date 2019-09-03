@@ -135,6 +135,23 @@ namespace NBitcoin
 
 			return Load(raw, network);
 		}
+		public static bool TryParse(string hexOrBase64, Network network, out PSBT psbt)
+		{
+			if (hexOrBase64 == null)
+				throw new ArgumentNullException(nameof(hexOrBase64));
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			try
+			{
+				psbt = Parse(hexOrBase64, network);
+				return true;
+			}
+			catch
+			{
+				psbt = null;
+				return false;
+			}
+		}
 		[Obsolete("Use Load(byte[] rawBytes, Network network)")]
 		public static PSBT Parse(string hexOrBase64, ConsensusFactory consensusFactory)
 		{
