@@ -106,7 +106,7 @@ namespace NBitcoin
 		/// <param name="str">The string to parse</param>
 		/// <returns>A BitcoinAddress or BitcoinScriptAddress</returns>
 		/// <exception cref="System.FormatException">Invalid format</exception>
-		[Obsolete("Use BitcoinCreate(string, Network) instead")]
+		[Obsolete("Use BitcoinAddress.Create(string, Network) instead")]
 		public static BitcoinAddress Create(string str)
 		{
 			if (str == null)
