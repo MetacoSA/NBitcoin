@@ -27,7 +27,7 @@ namespace NBitcoin
 	}
 
 	/// <summary>
-	/// Algorithm implemented by bitcoin core https://github.com/bitcoin/bitcoin/blob/master/src/wallet.cpp#L1276
+	/// Algorithm implemented by bitcoin core https://github.com/bitcoin/bitcoin/blob/3015e0bca6bc2cb8beb747873fdf7b80e74d679f/src/wallet.cpp#L1276
 	/// Minimize the change
 	/// </summary>
 	public class DefaultCoinSelector : ICoinSelector
