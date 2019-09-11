@@ -29,7 +29,7 @@ namespace NBitcoin
 		/// </summary>
 		SegwitP2SH
 	}
-	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>
+	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>, IComparable
 	{
 		/// <summary>
 		/// Create a new Public key from string
@@ -89,7 +89,7 @@ namespace NBitcoin
 		}
 
 
-		public int CompareTo(PubKey other) => BytesComparer.Instance.Compare(this.ToBytes(), other.ToBytes());
+		public int CompareTo(PubKey other) => other == null ? 1 : BytesComparer.Instance.Compare(this.ToBytes(), other.ToBytes());
 
 		public PubKey Compress()
 		{
@@ -552,6 +552,11 @@ namespace NBitcoin
 		public BitcoinWitPubKeyAddress GetSegwitAddress(Network network)
 		{
 			return new BitcoinWitPubKeyAddress(WitHash, network);
+		}
+
+		public int CompareTo(object obj)
+		{
+			return this.CompareTo(obj as PubKey);
 		}
 
 		#endregion

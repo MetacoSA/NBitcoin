@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace NBitcoin
 {
-	public class OutPoint : IBitcoinSerializable
+	public class OutPoint : IBitcoinSerializable, IComparable, IComparable<OutPoint>, IEquatable<OutPoint>
 	{
 		public bool IsNull
 		{
@@ -180,13 +180,6 @@ namespace NBitcoin
 		{
 			return !(a == b);
 		}
-		public override bool Equals(object obj)
-		{
-			OutPoint item = obj as OutPoint;
-			if (object.ReferenceEquals(null, item))
-				return false;
-			return item == this;
-		}
 
 		public override int GetHashCode()
 		{
@@ -200,10 +193,32 @@ namespace NBitcoin
 		{
 			return $"{Hash}-{N}";
 		}
+
+		public int CompareTo(object obj)
+			=> CompareTo(obj as OutPoint);
+		public int CompareTo(OutPoint other)
+		{
+			if (other is null || this < other)
+				return -1;
+			if (this == other)
+				return 0;
+			return 1;
+		}
+
+		public override bool Equals(object obj)
+			=> Equals(obj as OutPoint);
+
+		public bool Equals(OutPoint other)
+		{
+			if (other is null)
+				return false;
+			return other == this;
+		}
+
 	}
 
 
-	public class TxIn : IBitcoinSerializable
+	public class TxIn : IBitcoinSerializable, IEquatable<TxIn>
 	{
 		public TxIn()
 		{
@@ -334,6 +349,41 @@ namespace NBitcoin
 			txin.ScriptSig = new Script(Op.GetPushOp(height)) + OpcodeType.OP_0;
 			return txin;
 		}
+
+		#region IEquatable members
+		public override bool Equals(object other)
+			=> Equals(other as TxIn);
+
+		public bool Equals(TxIn other)
+			=> this == other;
+		public static bool operator ==(TxIn a, TxIn b)
+		{
+			if (Object.ReferenceEquals(a, null))
+			{
+				return Object.ReferenceEquals(b, null);
+			}
+			if (Object.ReferenceEquals(b, null))
+			{
+				return false;
+			}
+			return (a.prevout == b.prevout && a.Sequence == b.Sequence && a.ScriptSig.Equals(b.ScriptSig) && a.WitScript.Equals(b.WitScript));
+		}
+
+		public static bool operator !=(TxIn a, TxIn b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			var num = 0;
+			num = -1640531527 + prevout.GetHashCode() + ((num << 6) + (num >> 2));
+			num = -1640531527 + nSequence.GetHashCode() + ((num << 6) + (num >> 2));
+			num = -1640531527 + ScriptSig.GetHashCode() + ((num << 6) + (num >> 2));
+			num = -1640531527 + WitScript.GetHashCode() + ((num << 6) + (num >> 2));
+			return num;
+		}
+		# endregion
 	}
 
 	public class TxOutCompressor : IBitcoinSerializable

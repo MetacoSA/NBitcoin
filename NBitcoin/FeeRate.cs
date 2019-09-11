@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class FeeRate : IEquatable<FeeRate>, IComparable<FeeRate>
+	public class FeeRate : IEquatable<FeeRate>, IComparable<FeeRate>, IComparable
 	{
 		private readonly Money _FeePerK;
 		/// <summary>
