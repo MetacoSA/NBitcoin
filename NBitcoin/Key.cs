@@ -111,6 +111,9 @@ namespace NBitcoin
 		}
 		public string SignMessage(byte[] messageBytes, bool forceLowR)
 		{
+			if (messageBytes is null)
+				throw new ArgumentNullException(nameof(messageBytes));
+
 			byte[] data = Utils.FormatMessageForSigning(messageBytes);
 			var hash = Hashes.Hash256(data);
 			return Convert.ToBase64String(SignCompact(hash, forceLowR));
@@ -123,6 +126,9 @@ namespace NBitcoin
 		}
 		public byte[] SignCompact(uint256 hash, bool forceLowR)
 		{
+			if (hash is null)
+				throw new ArgumentNullException(nameof(hash));
+
 			var sig = _ECKey.Sign(hash, forceLowR);
 			// Now we have to work backwards to figure out the recId needed to recover the signature.
 			int recId = -1;
