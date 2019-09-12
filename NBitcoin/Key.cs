@@ -104,7 +104,12 @@ namespace NBitcoin
 		{
 			return SignMessage(Encoding.UTF8.GetBytes(message));
 		}
-		public string SignMessage(byte[] messageBytes, bool forceLowR = true)
+
+		public string SignMessage(byte[] messageBytes)
+		{
+			return SignMessage(messageBytes, true);
+		}
+		public string SignMessage(byte[] messageBytes, bool forceLowR)
 		{
 			byte[] data = Utils.FormatMessageForSigning(messageBytes);
 			var hash = Hashes.Hash256(data);
@@ -112,7 +117,11 @@ namespace NBitcoin
 		}
 
 
-		public byte[] SignCompact(uint256 hash, bool forceLowR = true)
+		public byte[] SignCompact(uint256 hash)
+		{
+			return SignCompact(hash, true);
+		}
+		public byte[] SignCompact(uint256 hash, bool forceLowR)
 		{
 			var sig = _ECKey.Sign(hash, forceLowR);
 			// Now we have to work backwards to figure out the recId needed to recover the signature.
