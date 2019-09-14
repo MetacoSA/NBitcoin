@@ -60,7 +60,7 @@
 		<PackageReference Include="System.Net.Requests" Version="4.3.0" />
 	</ItemGroup>
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net461' ">
-		<PackageReference Include="System.Net.Http" Version="4.3.0" />
+		<Reference Include="System.Net.Http" />
 	</ItemGroup>
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
 		<PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
