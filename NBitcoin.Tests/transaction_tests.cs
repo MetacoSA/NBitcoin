@@ -237,6 +237,63 @@ namespace NBitcoin.Tests
 			});
 		}
 
+
+		class BrokenCoinSelector : ICoinSelector
+		{
+			private Dictionary<OutPoint, Coin> CoinsByOutpoint { get; }
+
+			public BrokenCoinSelector(IEnumerable<Coin> coins)
+			{
+				CoinsByOutpoint = coins.ToDictionary(x=>x.Outpoint);
+			}
+
+			public IEnumerable<ICoin> Select(IEnumerable<ICoin> coins, IMoney target)
+			{
+				var totalOutAmount = (Money)target;
+				var unspentCoins = coins.Select(c => CoinsByOutpoint[c.Outpoint]).ToArray();
+				var coinsToSpend = new HashSet<Coin>();
+
+				foreach (var coin in unspentCoins.OrderByDescending(x => x.Amount))
+				{
+					coinsToSpend.Add(coin);
+					if (coinsToSpend.Select(x => x.Amount).Sum() >= totalOutAmount)
+					{
+						// Add if we can find address reuse.
+						foreach (var c in unspentCoins
+							.Except(coinsToSpend) // So we're choosing from the non selected coins.
+							.Where(x => coinsToSpend.Any(y => y.ScriptPubKey == x.ScriptPubKey)))// Where the selected coins contains the same script.
+						{
+							coinsToSpend.Add(c);
+						}
+
+						break;
+					}
+				}
+				return coinsToSpend;
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void RunForever()
+		{
+			var network = Network.TestNet;
+			var scriptPubKey = new Key().ScriptPubKey;
+			var amount = Money.Coins(0.01m);
+			var inputs = new[]{
+				(new Coin(RandOutpoint(), new TxOut(amount, scriptPubKey ))),
+				(new Coin(RandOutpoint(), new TxOut(amount, scriptPubKey))),
+				(new Coin(RandOutpoint(), new TxOut(amount, new Key().ScriptPubKey ))),  // this is different script.
+				(new Coin(RandOutpoint(), new TxOut(amount, scriptPubKey)))};
+
+			var builder = network.CreateTransactionBuilder();
+			builder.SetCoinSelector(new BrokenCoinSelector(inputs));
+			builder.AddCoins(inputs);
+			builder.Send(new Key().PubKey.GetSegwitAddress(network), Money.Coins(0.015m));
+			builder.SetChange(new Key().PubKey.GetSegwitAddress(network));
+			builder.SendEstimatedFees(new FeeRate(10m));
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildIssueColoredCoinWithMultiSigP2SH()
@@ -455,7 +512,7 @@ namespace NBitcoin.Tests
 			Assert.True(unsigned.Outputs[2].IsTo(aliceKey.PubKey.Hash));
 			Assert.True(unsigned.Outputs[2].Value == Money.Parse("0.02"));
 
-			//Alice signs	
+			//Alice signs
 			txBuilder = Network.CreateTransactionBuilder();
 			var aliceSigned = txBuilder
 					.AddCoins(aliceBobCoins)
@@ -759,8 +816,8 @@ namespace NBitcoin.Tests
 			repo.Transactions.Put(tx);
 
 
-			//Can swap : 
-			//satoshi wants to send 100 gold to bob 
+			//Can swap :
+			//satoshi wants to send 100 gold to bob
 			//bob wants to send 200 silver, 5 gold and 0.9 BTC to satoshi
 
 			//Satoshi receive gold
@@ -1162,14 +1219,14 @@ namespace NBitcoin.Tests
 			CanVerifySequenceLockCore(
 				new[]
 				{
-					new Sequence(smallStep), //MTP(block[11] is +60min) 
+					new Sequence(smallStep), //MTP(block[11] is +60min)
 				},
 				new[] { 12 }, 13, now, true, new SequenceLock(-1, now + TimeSpan.FromMinutes(60.0) + smallStep - TimeSpan.FromSeconds(1)));
 
 			CanVerifySequenceLockCore(
 				new[]
 				{
-					new Sequence(smallStep), //MTP(block[11] is +60min) 
+					new Sequence(smallStep), //MTP(block[11] is +60min)
 				},
 				new[] { 12 }, 12, now, false, new SequenceLock(-1, now + TimeSpan.FromMinutes(60.0) + smallStep - TimeSpan.FromSeconds(1)));
 		}
