@@ -4,7 +4,7 @@
 		<Company>Metaco SA</Company>
 		<Copyright>Copyright © Metaco SA 2017</Copyright>
 		<Description>The C# Bitcoin Library</Description>
-		<PackageIconUrl>https://aois.blob.core.windows.net/public/Bitcoin.png</PackageIconUrl>
+    <PackageIcon>icon.png</PackageIcon>
 		<PackageTags>bitcoin</PackageTags>
 		<PackageProjectUrl>https://github.com/MetacoSA/NBitcoin</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -76,6 +76,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+    <None Include="..\icon.png" Pack="true" PackagePath="\"/>
 		<None Update="BitcoinStream.Partial.tt">
 			<Generator>TextTemplatingFileGenerator</Generator>
 			<LastGenOutput>BitcoinStream.Partial.cs</LastGenOutput>

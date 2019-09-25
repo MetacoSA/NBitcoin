@@ -9,6 +9,7 @@
 		<PackageId>NBitcoin.TestFramework</PackageId>
     <PackageTags>bitcoin,altcoins,bcash,bgold,bitcore,dash,dogecoin,dystem,feathercoin,groestlcoin,litecoin,monacoin,polis,ufo,viacoin,zclassic,liquid</PackageTags>
     <PackageProjectUrl>https://github.com/MetacoSA/NBitcoin</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
 		<PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
@@ -41,6 +42,9 @@
 	</ItemGroup>
   <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\icon.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>portable</DebugType>
