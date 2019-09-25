@@ -1515,7 +1515,7 @@ namespace NBitcoin
 				if (!(ctx.Dust is Money) || change.CompareTo(GetDust(changeScript)) == 1)
 				{
 					ctx.RestoreMemento(originalCtx);
-					ctx.ChangeAmount = change;
+					ctx.ChangeAmount = ctx.ChangeAmount.Add(change);
 					goto retry;
 				}
 			}

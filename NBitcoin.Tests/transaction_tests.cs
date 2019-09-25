@@ -2523,6 +2523,63 @@ namespace NBitcoin.Tests
 		{
 		}
 
+		class BrokenCoinSelector : ICoinSelector
+		{
+			private Dictionary<OutPoint, Coin> CoinsByOutpoint { get; }
+
+			public BrokenCoinSelector(IEnumerable<Coin> coins)
+			{
+				CoinsByOutpoint = coins.ToDictionary(x => x.Outpoint);
+			}
+
+			public IEnumerable<ICoin> Select(IEnumerable<ICoin> coins, IMoney target)
+			{
+				var totalOutAmount = (Money)target;
+				var unspentCoins = coins.Select(c => CoinsByOutpoint[c.Outpoint]).ToArray();
+				var coinsToSpend = new HashSet<Coin>();
+
+				foreach (var coin in unspentCoins.OrderByDescending(x => x.Amount))
+				{
+					coinsToSpend.Add(coin);
+					if (coinsToSpend.Select(x => x.Amount).Sum() >= totalOutAmount)
+					{
+						// Add if we can find address reuse.
+						foreach (var c in unspentCoins
+							.Except(coinsToSpend) // So we're choosing from the non selected coins.
+							.Where(x => coinsToSpend.Any(y => y.ScriptPubKey == x.ScriptPubKey)))// Where the selected coins contains the same script.
+						{
+							coinsToSpend.Add(c);
+						}
+
+						break;
+					}
+				}
+				return coinsToSpend;
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		// Fix https://github.com/MetacoSA/NBitcoin/pull/745#issuecomment-534946500
+		public void TransactionBuilderDoesNotRunForever()
+		{
+			var network = Network.TestNet;
+			var scriptPubKey = new Key().ScriptPubKey;
+			var amount = Money.Coins(0.01m);
+			var inputs = new[]{
+				(new Coin(RandOutpoint(), new TxOut(amount, scriptPubKey ))),
+				(new Coin(RandOutpoint(), new TxOut(amount, scriptPubKey))),
+				(new Coin(RandOutpoint(), new TxOut(amount, new Key().ScriptPubKey ))),  // this is different script.
+				(new Coin(RandOutpoint(), new TxOut(amount, scriptPubKey)))};
+
+			var builder = network.CreateTransactionBuilder();
+			builder.SetCoinSelector(new BrokenCoinSelector(inputs));
+			builder.AddCoins(inputs);
+			builder.Send(new Key().PubKey.GetSegwitAddress(network), Money.Coins(0.015m));
+			builder.SetChange(new Key().PubKey.GetSegwitAddress(network));
+			builder.SendEstimatedFees(new FeeRate(10m));
+		}
+
 		protected virtual BigInteger CalculateE(BigInteger n, byte[] message)
 		{
 			int messageBitLength = message.Length * 8;
