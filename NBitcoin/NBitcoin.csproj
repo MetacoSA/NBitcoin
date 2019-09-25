@@ -12,7 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<Version Condition=" '$(Version)' == '' ">4.2.7</Version>
+		<Version Condition=" '$(Version)' == '' ">4.2.8</Version>
 		<LangVersion>7.2</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -21,7 +21,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
     <TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1;netcoreapp2.1;netstandard2.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(Build30)' == 'true'">net461;net452;netstandard1.3;netstandard1.1;netcoreapp2.1;netcoreapp3.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(Build30)' == 'true'">net461;net452;netstandard1.3;netstandard1.1;netcoreapp2.1;netstandard2.1;netstandard2.0</TargetFrameworks>
 		<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetFrameworkOverride)' != ''">$(TargetFrameworkOverride)</TargetFrameworks>
 		<NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
@@ -38,10 +38,10 @@
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
 		<DefineConstants>$(DefineConstants);NO_RCA;CLASSICDOTNET;LEGACY_X509</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netcoreapp3.0' Or '$(TargetFramework)' == 'netstandard2.0' ">
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'netstandard2.0' ">
 		<DefineConstants>$(DefineConstants);NOCUSTOMSSLVALIDATION</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netcoreapp3.0'">
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netstandard2.1'">
 		<DefineConstants>$(DefineConstants);NETCORE;HAS_SPAN</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
