@@ -1450,6 +1450,7 @@ namespace NBitcoin
 			IEnumerable<ICoin> coins,
 			IMoney zero)
 		{
+			ICoin[] selection = null;
 		retry:
 			var hasColoredCoins = _BuilderGroups.Any(g => g.BuildersByAsset.Count != 0 || g.IssuanceBuilders.Count != 0);
 			var originalCtx = ctx.CreateMemento();
@@ -1490,7 +1491,7 @@ namespace NBitcoin
 			}
 
 			var unconsumed = coins.Where(c => ctx.ConsumedCoins.All(cc => cc.Outpoint != c.Outpoint)).ToArray();
-			var selection = CoinSelector.Select(unconsumed, target)?.ToArray();
+			selection = selection ?? CoinSelector.Select(unconsumed, target)?.ToArray();
 			if (selection == null)
 				throw new NotEnoughFundsException("Not enough funds to cover the target",
 					group.Name,
@@ -1515,7 +1516,7 @@ namespace NBitcoin
 				if (!(ctx.Dust is Money) || change.CompareTo(GetDust(changeScript)) == 1)
 				{
 					ctx.RestoreMemento(originalCtx);
-					ctx.ChangeAmount = ctx.ChangeAmount.Add(change);
+					ctx.ChangeAmount = change;
 					goto retry;
 				}
 			}

@@ -2572,12 +2572,16 @@ namespace NBitcoin.Tests
 				(new Coin(RandOutpoint(), new TxOut(amount, new Key().ScriptPubKey ))),  // this is different script.
 				(new Coin(RandOutpoint(), new TxOut(amount, scriptPubKey)))};
 
+			var change = new Key().PubKey.GetSegwitAddress(network).ScriptPubKey;
 			var builder = network.CreateTransactionBuilder();
 			builder.SetCoinSelector(new BrokenCoinSelector(inputs));
 			builder.AddCoins(inputs);
 			builder.Send(new Key().PubKey.GetSegwitAddress(network), Money.Coins(0.015m));
-			builder.SetChange(new Key().PubKey.GetSegwitAddress(network));
+			builder.SetChange(change);
 			builder.SendEstimatedFees(new FeeRate(10m));
+			var tx = builder.BuildTransaction(false);
+			Assert.Contains(tx.Outputs, output => output.ScriptPubKey == change);
+			Assert.Equal(3, tx.Inputs.Count);
 		}
 
 		protected virtual BigInteger CalculateE(BigInteger n, byte[] message)
