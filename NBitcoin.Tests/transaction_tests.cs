@@ -2584,6 +2584,32 @@ namespace NBitcoin.Tests
 			Assert.Equal(3, tx.Inputs.Count);
 		}
 
+		[Fact]
+		// Fix https://github.com/MetacoSA/NBitcoin/issues/746
+		public void TransactionBuilderDoesNotCreateInvalidTx()
+		{
+			var masterKey = new ExtKey();
+			var keys = Enumerable.Range(0, 4).Select(x => masterKey.Derive((uint)x)).ToArray();
+			var inputs = new[]{
+		(new Coin(RandOutpoint(), new TxOut(Money.Coins(0.02510227m), keys[0].PrivateKey.PubKey.WitHash.ScriptPubKey))),
+		(new Coin(RandOutpoint(), new TxOut(Money.Coins(0.94979264m), keys[1].PrivateKey.PubKey.WitHash.ScriptPubKey))),
+		(new Coin(RandOutpoint(), new TxOut(Money.Coins(0.32476287m), keys[2].PrivateKey.PubKey.WitHash.ScriptPubKey))),
+		(new Coin(RandOutpoint(), new TxOut(Money.Coins(0.64993041m), keys[3].PrivateKey.PubKey.WitHash.ScriptPubKey)))};
+
+			TransactionBuilder builder = Network.CreateTransactionBuilder();
+			builder.SetCoinSelector(new BrokenCoinSelector(inputs));
+			builder.AddCoins(inputs);
+			builder.SendAllRemaining(new Key().ScriptPubKey);
+			builder.SendEstimatedFees(new FeeRate(10m));
+
+			var psbt = builder.BuildPSBT(false);
+			builder = builder.AddKeys(keys.ToArray());
+			builder.SignPSBT(psbt);
+			psbt.Finalize();
+
+			psbt.TryGetEstimatedFeeRate(out FeeRate actualFeeRate);
+		}
+
 		protected virtual BigInteger CalculateE(BigInteger n, byte[] message)
 		{
 			int messageBitLength = message.Length * 8;
