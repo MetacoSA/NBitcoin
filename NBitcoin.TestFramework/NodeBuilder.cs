@@ -176,7 +176,10 @@ namespace NBitcoin.Tests
 		int last = 0;
 		private string _Root;
 
-		public bool ShowNodeConsole { private set; get; }
+		/// <summary>
+		/// If true, the bitcoind process will set printtoconsole=1, default to false
+		/// </summary>
+		public bool ShowNodeConsole { set; get; }
 
 		public string BitcoinD { get; }
 
@@ -512,7 +515,7 @@ namespace NBitcoin.Tests
 				string appPath = new FileInfo(this._Builder.BitcoinD).FullName;
 				string args = "-conf=bitcoin.conf" + " -datadir=" + dataDir + " -debug=net";
 
-				if (_Builder.ShowNodeConsole == true)
+				if (_Builder.ShowNodeConsole)
 				{
 					ProcessStartInfo info = new ProcessStartInfo(appPath, args);
 					info.UseShellExecute = true;
