@@ -593,7 +593,7 @@ namespace NBitcoin.Tests
 		}
 
 		object l = new object();
-		public void Kill(bool cleanFolder = true)
+		public void Kill(bool cleanFolder = false)
 		{
 			lock (l)
 			{
