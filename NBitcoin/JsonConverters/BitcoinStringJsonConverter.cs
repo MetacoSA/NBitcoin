@@ -58,9 +58,9 @@ namespace NBitcoin.JsonConverters
 				}
 				return result;
 			}
-			catch (FormatException)
+			catch (FormatException ex)
 			{
-				throw new JsonObjectException("Invalid Base58Check data", reader);
+				throw new JsonObjectException(ex.Message, reader);
 			}
 		}
 
