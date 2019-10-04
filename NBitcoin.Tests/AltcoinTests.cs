@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NBitcoin.Altcoins;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -17,7 +18,7 @@ namespace NBitcoin.Tests
 			HashSet<string> coins = new HashSet<string>();
 			foreach (var network in NBitcoin.Altcoins.AltNetworkSets.GetAll().ToList())
 			{
-				if (network == Altcoins.AltNetworkSets.Liquid) // No testnet
+				if (network is ILiquidNetwork) // No testnet
 					continue;
 				Assert.True(coins.Add(network.CryptoCode.ToLowerInvariant()));
 				Assert.NotEqual(network.Mainnet, network.Regtest);

@@ -83,6 +83,12 @@ namespace NBitcoin
 			return this;
 		}
 
+		public NetworkBuilder AddAliases(string[] aliases)
+		{
+			_Aliases.AddRange(aliases);
+			return this;
+		}
+
 		public NetworkBuilder SetRPCPort(int port)
 		{
 			_RPCPort = port;
