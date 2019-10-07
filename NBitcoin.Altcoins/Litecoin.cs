@@ -150,7 +150,7 @@ namespace NBitcoin.Altcoins
 		{
 			public override bool TryParse<T>(string str, Network network, out T result)
 			{
-				if(str.StartsWith("Ltpv", StringComparison.OrdinalIgnoreCase) && typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtKey)))
+				if(str.StartsWith("Ltpv", StringComparison.OrdinalIgnoreCase) && typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtKey).GetTypeInfo()))
 				{
 					try
 					{
@@ -166,7 +166,7 @@ namespace NBitcoin.Altcoins
 					{
 					}
 				}
-				if(str.StartsWith("Ltub", StringComparison.OrdinalIgnoreCase) && typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtPubKey)))
+				if(str.StartsWith("Ltub", StringComparison.OrdinalIgnoreCase) && typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtPubKey).GetTypeInfo()))
 				{
 					try
 					{
