@@ -1,5 +1,6 @@
 ﻿using NBitcoin;
 using NBitcoin.DataEncoders;
+using System.Reflection;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
 using System;
@@ -149,7 +150,7 @@ namespace NBitcoin.Altcoins
 		{
 			public override bool TryParse<T>(string str, Network network, out T result)
 			{
-				if(str.StartsWith("Ltpv", StringComparison.OrdinalIgnoreCase) && typeof(T) == typeof(BitcoinExtKey))
+				if(str.StartsWith("Ltpv", StringComparison.OrdinalIgnoreCase) && typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtKey)))
 				{
 					try
 					{
@@ -165,7 +166,7 @@ namespace NBitcoin.Altcoins
 					{
 					}
 				}
-				if(str.StartsWith("Ltub", StringComparison.OrdinalIgnoreCase) && typeof(T) == typeof(BitcoinExtPubKey))
+				if(str.StartsWith("Ltub", StringComparison.OrdinalIgnoreCase) && typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtPubKey)))
 				{
 					try
 					{
