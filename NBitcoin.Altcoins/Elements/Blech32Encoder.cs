@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NBitcoin.DataEncoders;
 
-namespace NBitcoin.DataEncoders
+namespace NBitcoin.Altcoins.Elements
 {
 	public class Blech32Encoder : DataEncoder
 	{
-		private static readonly byte[] Byteset = Encoders.ASCII.DecodeData("qpzry9x8gf2tvdw0s3jn54khce6mua7l");
+		private static readonly byte[] Byteset = DataEncoders.Encoders.ASCII.DecodeData("qpzry9x8gf2tvdw0s3jn54khce6mua7l");
 		private static readonly ulong[] Generator = { 0x7d52fba40bd886, 0x5e8dbf1a03950c, 0x1c3a3c74072a18, 0x385d72fa0e5139, 0x7093e5a608865b };
 
-		internal Blech32Encoder(string hrp) : this(hrp == null ? null : Encoders.ASCII.DecodeData(hrp))
+		internal Blech32Encoder(string hrp) : this(hrp == null ? null : DataEncoders.Encoders.ASCII.DecodeData(hrp))
 		{
 		}
 		public Blech32Encoder(byte[] hrp)
@@ -43,7 +44,8 @@ namespace NBitcoin.DataEncoders
 			foreach (var value in values)
 			{
 				var top = chk >> 55;
-				chk = value ^ ((chk & 0x7fffffffffffff) << 5);
+				chk = value ^ ((chk & 0x7fffffffffffff) <<
+				               5);
 				foreach (var i in Enumerable.Range(0, 5))
 				{
 					chk ^= ((top >> i) & 1) == 1 ? Generator[i] : 0;
@@ -93,7 +95,7 @@ namespace NBitcoin.DataEncoders
 			{
 				combined[_Hrp.Length + 1 + i] = Byteset[combined[_Hrp.Length + 1 + i]];
 			}
-			return Encoders.ASCII.EncodeData(combined);
+			return DataEncoders.Encoders.ASCII.EncodeData(combined);
 		}
 
 		public static Blech32Encoder ExtractEncoderFromString(string test)
@@ -121,13 +123,13 @@ namespace NBitcoin.DataEncoders
 			if (encoded == null)
 				throw new ArgumentNullException(nameof(encoded));
 			CheckCase(encoded);
-			var buffer = Encoders.ASCII.DecodeData(encoded);
+			var buffer = DataEncoders.Encoders.ASCII.DecodeData(encoded);
 			if (buffer.Any(b => b < 33 || b > 126))
 			{
 				throw new FormatException("bech chars are out of range");
 			}
 			encoded = encoded.ToLowerInvariant();
-			buffer = Encoders.ASCII.DecodeData(encoded);
+			buffer = DataEncoders.Encoders.ASCII.DecodeData(encoded);
 			var pos = encoded.LastIndexOf("1", StringComparison.OrdinalIgnoreCase);
 			if (pos < 1 || pos + 7 > encoded.Length || encoded.Length > 90)
 			{
@@ -138,8 +140,8 @@ namespace NBitcoin.DataEncoders
 				throw new FormatException("bech chars are out of range");
 			}
 
-			buffer = Encoders.ASCII.DecodeData(encoded);
-			var hrp = Encoders.ASCII.DecodeData(encoded.Substring(0, pos));
+			buffer = DataEncoders.Encoders.ASCII.DecodeData(encoded);
+			var hrp = DataEncoders.Encoders.ASCII.DecodeData(encoded.Substring(0, pos));
 			if (!hrp.SequenceEqual(_Hrp))
 			{
 				throw new FormatException("Mismatching human readable part");

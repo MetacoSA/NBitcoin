@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using NBitcoin.DataEncoders;
+using NBitcoin.Altcoins.Elements;
 using Xunit;
+using Encoders = NBitcoin.DataEncoders.Encoders;
 
 namespace NBitcoin.Tests
 {

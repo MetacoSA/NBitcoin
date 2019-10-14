@@ -13,7 +13,7 @@ namespace NBitcoin.Altcoins.Elements
 			: base(base58, network)
 		{
 			var prefix = network.GetVersionBytes(Base58Type.BLINDED_ADDRESS, true);
-			var vchData = Encoders.Base58Check.DecodeData(base58);
+			var vchData = NBitcoin.DataEncoders.Encoders.Base58Check.DecodeData(base58);
 			var version = network.GetVersionBytes(Base58Type.PUBKEY_ADDRESS, false);
 			bool p2pkh = true;
 			if (version == null || !StartWith(prefix.Length, vchData, version))
@@ -68,7 +68,7 @@ namespace NBitcoin.Altcoins.Elements
 			if (keyId == null)
 				throw new ArgumentException("The passed address can't be reduced to a hash");
 			var bytes = address.Network.GetVersionBytes(Base58Type.BLINDED_ADDRESS, true).Concat(network.GetVersionBytes(((IBase58Data)address).Type, true), blindingKey.ToBytes(), keyId.ToBytes());
-			return Encoders.Base58Check.EncodeData(bytes);
+			return NBitcoin.DataEncoders.Encoders.Base58Check.EncodeData(bytes);
 		}
 
 		private static bool StartWith(int aoffset, byte[] a, byte[] b)
