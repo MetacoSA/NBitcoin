@@ -1,11 +1,6 @@
 ﻿using NBitcoin.Protocol;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -14,12 +9,18 @@ namespace NBitcoin
 		static readonly TypeInfo BlockHeaderType = typeof(BlockHeader).GetTypeInfo();
 		static readonly TypeInfo BlockType = typeof(Block).GetTypeInfo();
 		static readonly TypeInfo TransactionType = typeof(Transaction).GetTypeInfo();
+		static readonly TypeInfo TxInType = typeof(TxIn).GetTypeInfo();
 		static readonly TypeInfo TxOutType = typeof(TxOut).GetTypeInfo();
 		static readonly TypeInfo PSBTType = typeof(PSBT).GetTypeInfo();
 
 		protected bool IsBlockHeader(Type type)
 		{
 			return BlockHeaderType.IsAssignableFrom(type.GetTypeInfo());
+		}
+
+		protected bool IsTxIn(Type type)
+		{
+			return TxInType.IsAssignableFrom(type.GetTypeInfo());
 		}
 
 		protected bool IsTxOut(Type type)
@@ -40,6 +41,11 @@ namespace NBitcoin
 		public virtual bool TryCreateNew(Type type, out IBitcoinSerializable result)
 		{
 			result = null;
+			if (IsTxIn(type))
+			{
+				result = CreateTxIn();
+				return true;
+			}
 			if (IsTxOut(type))
 			{
 				result = CreateTxOut();
@@ -110,6 +116,13 @@ namespace NBitcoin
 		{
 #pragma warning disable CS0618 // Type or member is obsolete
 			return new Transaction();
+#pragma warning restore CS0618 // Type or member is obsolete
+		}
+
+		public virtual TxIn CreateTxIn()
+		{
+#pragma warning disable CS0618 // Type or member is obsolete
+			return new TxIn();
 #pragma warning restore CS0618 // Type or member is obsolete
 		}
 
