@@ -324,7 +324,7 @@ namespace NBitcoin
 			if(offset > buffer.Length - count) throw new ArgumentOutOfRangeException("count");
 
 			//IO interruption not supported on these platforms.
-			
+
 			int totalReadCount = 0;
 #if !NOSOCKET
 			var interruptable = stream is NetworkStream && cancellation.CanBeCanceled;
@@ -414,6 +414,45 @@ namespace NBitcoin
 		public static int UnixTimestamp(this DateTime ignored)
 		{
 			return (int)Math.Truncate((DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds);
+		}
+	}
+
+	internal static class ScriptExtensions
+	{
+		/// <summary>
+		/// Adds an `OP_VERIFY` to the script, unless the most-recently-added opcode has an
+		/// alternate `VERIFY` form, in which case that opcode
+		/// is replaced. e.g. `OP_CHECKSIG` will become `OP_CHECKSIGVERIFY`
+		/// </summary>
+		/// <param name="self"></param>
+		internal static List<Op> PushVerify(this List<Op> self)
+		{
+			if (self.Count == 0)
+			{
+				self.Add(OpcodeType.OP_VERIFY);
+				return self;
+			}
+
+			var last = (self.Last());
+			switch (last.Code)
+			{
+				case OpcodeType.OP_EQUAL:
+					self[self.Count - 1] = OpcodeType.OP_EQUALVERIFY;
+					break;
+				case OpcodeType.OP_NUMEQUAL:
+					self[self.Count - 1] = OpcodeType.OP_NUMEQUALVERIFY;
+					break;
+				case OpcodeType.OP_CHECKSIG:
+					self[self.Count - 1] = OpcodeType.OP_CHECKSIGVERIFY;
+					break;
+				case OpcodeType.OP_CHECKMULTISIG:
+					self[self.Count - 1] = OpcodeType.OP_CHECKMULTISIGVERIFY;
+					break;
+				default:
+					self.Add(OpcodeType.OP_VERIFY);
+					break;
+			}
+			return self;
 		}
 	}
 

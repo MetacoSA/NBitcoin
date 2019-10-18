@@ -206,5 +206,79 @@ namespace NBitcoin.Scripting.Miniscript
 			return false;
 		}
 
+		public static ScriptToken FromScript()
+		{
+			throw new Exception("");
+		}
+		public override string ToString()
+		{
+			switch (this.Tag)
+			{
+				case Tags.BoolAnd:
+					return "BoolAnd";
+				case Tags.BoolOr:
+					return "BoolAnd";
+				case Tags.Add:
+					return "Add";
+				case Tags.Equal:
+					return "Equal";
+				case Tags.CheckSig:
+					return "CheckSig";
+				case Tags.CheckMultiSig:
+					return "CheckMultiSig";
+				case Tags.CheckSequenceVerify:
+					return "CheckSequenceVerify";
+				case Tags.CheckLocktimeVerify:
+					return "CheckLocktimeVerify";
+				case Tags.FromAltStack:
+					return "FromAltStack";
+				case Tags.ToAltStack:
+					return "ToAltStack";
+				case Tags.Drop:
+					return "Drop";
+				case Tags.Dup:
+					return "Dup";
+				case Tags.If:
+					return "If";
+				case Tags.IfDup:
+					return "IfDup";
+				case Tags.NotIf:
+					return "NotIf";
+				case Tags.Else:
+					return "Else";
+				case Tags.EndIf:
+					return "EndIf";
+				case Tags.ZeroNotEqual:
+					return "ZeroNotEqual";
+				case Tags.Size:
+					return "Size";
+				case Tags.Swap:
+					return "Swap";
+				case Tags.Verify:
+					return "Verify";
+				case Tags.Ripemd160:
+					return "Ripemd160";
+				case Tags.Hash160:
+					return "Hash160";
+				case Tags.Sha256:
+					return "Sha256";
+				case Tags.Hash256:
+					return "Hash256";
+				case Tags.Number:
+					var n = ((Number)this).Item;
+					return $"Number({n})";
+				case Tags.Hash20:
+					var hash20 = ((Hash20)this).Item;
+					return $"Hash20({hash20})";
+				case Tags.Hash32:
+					var hash32 = ((Hash32)this).Item;
+					return $"Hash30({hash32})";
+				case Tags.Pk:
+					var pk = ((Pk)this).Item;
+					return $"Pk({pk})";
+			}
+			throw new Exception("Unreachable");
+		}
+
 	}
 }

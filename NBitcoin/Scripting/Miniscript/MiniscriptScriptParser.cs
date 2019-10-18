@@ -2,11 +2,13 @@ using System;
 using System.Linq;
 using NBitcoin.Scripting.Parser;
 
-using P = NBitcoin.Scripting.Parser.Parser<NBitcoin.Scripting.Miniscript.ScriptToken, NBitcoin.Scripting.Miniscript.AstElem>;
+using P = NBitcoin.Scripting.Parser.Parser<NBitcoin.Scripting.Miniscript.ScriptToken, NBitcoin.Scripting.Miniscript.Miniscript>;
+
 namespace NBitcoin.Scripting.Miniscript
 {
 	internal static class MiniscriptScriptParser
 	{
+		/*
 
 		private static readonly Parser<ScriptToken, uint> PNumber =
 			from t in Parse.ScriptToken(ScriptToken.Tags.Number)
@@ -387,5 +389,10 @@ namespace NBitcoin.Scripting.Miniscript
 
 		public static AstElem ParseScript(Script sc)
 			=> PT.Parse(sc);
+		*/
+
+		private static readonly P
+
+		public static Terminal ParseScript(Script sc) =>
 	}
 }
