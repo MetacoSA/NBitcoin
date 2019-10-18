@@ -39,21 +39,318 @@ namespace NBitcoin.Altcoins
 			{
 				return new PolisBlock(new PolisBlockHeader());
 			}
+			public override Transaction CreateTransaction()
+			{
+				return new PolisTransaction();
+			}
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
 		public class PolisBlockHeader : BlockHeader
 		{
-			
+
 			static byte[] CalculateHash(byte[] data, int offset, int count)
 			{
 				return new HashX11.X11().ComputeBytes(data.Skip(offset).Take(count).ToArray());
 			}
 
-			// https://github.com/polispay/polis/blob/e596762ca22d703a79c6880a9d3edb1c7c972fd3/src/primitives/block.cpp#L13
 			protected override HashStreamBase CreateHashStream()
 			{
 				return BufferedHashStream.CreateFrom(CalculateHash, 80);
+			}
+		}
+
+		/// <summary>
+		/// Transactions with version >= 3 have a special transaction type in the version code
+		/// https://docs.dash.org/en/stable/merchants/technical.html#v0-13-0-integration-notes
+		/// 0.14 will add more types: https://github.com/dashpay/dips/blob/master/dip-0002-special-transactions.md
+		/// </summary>
+		public enum PolisTransactionType
+		{
+			StandardTransaction = 0,
+			MasternodeRegistration = 1,
+			UpdateMasternodeService = 2,
+			UpdateMasternodeOperator = 3,
+			MasternodeRevocation = 4,
+			MasternodeListMerkleProof = 5,
+			QuorumCommitment = 6
+		}
+
+		public abstract class SpecialTransaction
+		{
+			protected SpecialTransaction(byte[] extraPayload)
+			{
+				data = new BinaryReader(new MemoryStream(extraPayload));
+				Version = data.ReadUInt16();
+			}
+
+			protected readonly BinaryReader data;
+			/// <summary>
+			/// Version number. Currently set to 1 for all DashTransactionTypes
+			/// </summary>
+			public ushort Version { get; set; }
+
+			/// <summary>
+			/// https://github.com/dashevo/dashcore-lib/blob/master/lib/constants/index.js
+			/// </summary>
+			public const int PUBKEY_ID_SIZE = 20;
+			public const int COMPACT_SIGNATURE_SIZE = 65;
+			public const int SHA256_HASH_SIZE = 32;
+			public const int BLS_PUBLIC_KEY_SIZE = 48;
+			public const int BLS_SIGNATURE_SIZE = 96;
+			public const int IpAddressLength = 16;
+
+			protected void MakeSureWeAreAtEndOfPayload()
+			{
+				if (data.BaseStream.Position < data.BaseStream.Length)
+					throw new Exception(
+						"Failed to parse payload: raw payload is bigger than expected (pos=" +
+						data.BaseStream.Position + ", len=" + data.BaseStream.Length + ")");
+			}
+		}
+
+		/// <summary>
+		/// https://github.com/dashpay/dips/blob/master/dip-0003.md
+		/// </summary>
+		public class ProviderRegistrationTransaction : SpecialTransaction
+		{
+			public ProviderRegistrationTransaction(byte[] extraPayload) : base(extraPayload)
+			{
+				Type = data.ReadUInt16();
+				Mode = data.ReadUInt16();
+				CollateralHash = new uint256(data.ReadBytes(SHA256_HASH_SIZE), true);
+				CollateralIndex = data.ReadUInt32();
+				IpAddress = data.ReadBytes(IpAddressLength);
+				Port = BitConverter.ToUInt16(data.ReadBytes(2).Reverse().ToArray(), 0);
+				KeyIdOwner = new uint160(data.ReadBytes(PUBKEY_ID_SIZE), true);
+				KeyIdOperator = data.ReadBytes(BLS_PUBLIC_KEY_SIZE);
+				KeyIdVoting = new uint160(data.ReadBytes(PUBKEY_ID_SIZE), true);
+				OperatorReward = data.ReadUInt16();
+				var bs = new BitcoinStream(data.BaseStream, false);
+				bs.ReadWriteAsVarInt(ref ScriptPayoutSize);
+				ScriptPayout = new Script(data.ReadBytes((int)ScriptPayoutSize));
+				InputsHash = new uint256(data.ReadBytes(SHA256_HASH_SIZE), true);
+				bs.ReadWriteAsVarInt(ref PayloadSigSize);
+				PayloadSig = data.ReadBytes((int)PayloadSigSize);
+				MakeSureWeAreAtEndOfPayload();
+			}
+
+			public ushort Type { get; set; }
+			public ushort Mode { get; set; }
+			public uint256 CollateralHash { get; set; }
+			public uint CollateralIndex { get; set; }
+			public byte[] IpAddress { get; set; }
+			public ushort Port { get; set; }
+			public uint160 KeyIdOwner { get; set; }
+			public byte[] KeyIdOperator { get; set; }
+			public uint160 KeyIdVoting { get; set; }
+			public ushort OperatorReward { get; set; }
+			public uint ScriptPayoutSize;
+			public Script ScriptPayout { get; set; }
+			public uint256 InputsHash { get; set; }
+			public uint PayloadSigSize;
+			public byte[] PayloadSig { get; set; }
+		}
+
+		public class ProviderUpdateServiceTransaction : SpecialTransaction
+		{
+			public ProviderUpdateServiceTransaction(byte[] extraPayload) : base(extraPayload)
+			{
+				ProTXHash = new uint256(data.ReadBytes(SHA256_HASH_SIZE), true);
+				IpAddress = data.ReadBytes(IpAddressLength);
+				Port = BitConverter.ToUInt16(data.ReadBytes(2).Reverse().ToArray(), 0);
+				var bs = new BitcoinStream(data.BaseStream, false);
+				bs.ReadWriteAsVarInt(ref ScriptOperatorPayoutSize);
+				ScriptOperatorPayout = new Script(data.ReadBytes((int)ScriptOperatorPayoutSize));
+				InputsHash = new uint256(data.ReadBytes(SHA256_HASH_SIZE), true);
+				PayloadSig = data.ReadBytes(BLS_SIGNATURE_SIZE);
+				MakeSureWeAreAtEndOfPayload();
+			}
+
+			public uint256 ProTXHash { get; set; }
+			public byte[] IpAddress { get; set; }
+			public ushort Port { get; set; }
+			public uint ScriptOperatorPayoutSize;
+			public Script ScriptOperatorPayout { get; set; }
+			public uint256 InputsHash { get; set; }
+			public byte[] PayloadSig { get; set; }
+		}
+
+		public class ProviderUpdateRegistrarTransaction : SpecialTransaction
+		{
+			public ProviderUpdateRegistrarTransaction(byte[] extraPayload) : base(extraPayload)
+			{
+				ProTXHash = new uint256(data.ReadBytes(SHA256_HASH_SIZE), true);
+				Mode = data.ReadUInt16();
+				PubKeyOperator = data.ReadBytes(BLS_PUBLIC_KEY_SIZE);
+				KeyIdVoting = new uint160(data.ReadBytes(PUBKEY_ID_SIZE), true);
+				var bs = new BitcoinStream(data.BaseStream, false);
+				bs.ReadWriteAsVarInt(ref ScriptPayoutSize);
+				ScriptPayout = new Script(data.ReadBytes((int)ScriptPayoutSize));
+				InputsHash = new uint256(data.ReadBytes(SHA256_HASH_SIZE), true);
+				if (data.BaseStream.Position < data.BaseStream.Length)
+				{
+					bs.ReadWriteAsVarInt(ref PayloadSigSize);
+					PayloadSig = data.ReadBytes((int)PayloadSigSize);
+				}
+				else
+					PayloadSig = new byte[0];
+				MakeSureWeAreAtEndOfPayload();
+			}
+
+			public uint256 ProTXHash { get; set; }
+			public ushort Mode { get; set; }
+			public byte[] PubKeyOperator { get; set; }
+			public uint160 KeyIdVoting { get; set; }
+			public uint ScriptPayoutSize;
+			public Script ScriptPayout { get; set; }
+			public uint256 InputsHash { get; set; }
+			public uint PayloadSigSize;
+			public byte[] PayloadSig { get; set; }
+		}
+
+		public class ProviderUpdateRevocationTransaction : SpecialTransaction
+		{
+			public ProviderUpdateRevocationTransaction(byte[] extraPayload) : base(extraPayload)
+			{
+				ProTXHash = new uint256(data.ReadBytes(SHA256_HASH_SIZE), true);
+				Reason = data.ReadUInt16();
+				InputsHash = new uint256(data.ReadBytes(SHA256_HASH_SIZE), true);
+				PayloadSig = data.ReadBytes(BLS_SIGNATURE_SIZE);
+				MakeSureWeAreAtEndOfPayload();
+			}
+
+			public uint256 ProTXHash { get; set; }
+			public ushort Reason { get; set; }
+			public uint256 InputsHash { get; set; }
+			public uint PayloadSigSize;
+			public byte[] PayloadSig { get; set; }
+		}
+
+		public abstract class SpecialTransactionWithHeight : SpecialTransaction
+		{
+			protected SpecialTransactionWithHeight(byte[] extraPayload) : base(extraPayload)
+			{
+				Height = data.ReadUInt32();
+			}
+
+			/// <summary>
+			/// Height of the block
+			/// </summary>
+			public uint Height { get; set; }
+		}
+
+		/// <summary>
+		/// For DashTransactionType.MasternodeListMerkleProof
+		/// https://github.com/dashpay/dips/blob/master/dip-0004.md
+		/// Only needs deserialization here, ExtraPayload can still be serialized
+		/// </summary>
+		public class CoinbaseSpecialTransaction : SpecialTransactionWithHeight
+		{
+			public CoinbaseSpecialTransaction(byte[] extraPayload) : base(extraPayload)
+			{
+				MerkleRootMNList = new uint256(data.ReadBytes(SHA256_HASH_SIZE));
+				MakeSureWeAreAtEndOfPayload();
+			}
+
+			/// <summary>
+			/// Merkle root of the masternode list
+			/// </summary>
+			public uint256 MerkleRootMNList { get; set; }
+		}
+
+		/// <summary>
+		/// https://github.com/dashevo/dashcore-lib/blob/master/lib/transaction/payload/commitmenttxpayload.js
+		/// </summary>
+		public class QuorumCommitmentTransaction : SpecialTransactionWithHeight
+		{
+			public QuorumCommitmentTransaction(byte[] extraPayload) : base(extraPayload)
+			{
+				Commitment = new QuorumCommitment(data);
+				MakeSureWeAreAtEndOfPayload();
+			}
+
+			public QuorumCommitment Commitment { get; set; }
+		}
+
+		public class QuorumCommitment
+		{
+			public QuorumCommitment(BinaryReader data)
+			{
+				QfcVersion = data.ReadUInt16();
+				LlmqType = data.ReadByte();
+				QuorumHash = new uint256(data.ReadBytes(SpecialTransaction.SHA256_HASH_SIZE));
+				var bs = new BitcoinStream(data.BaseStream, false);
+				bs.ReadWriteAsVarInt(ref SignersSize);
+				Signers = data.ReadBytes(((int)SignersSize + 7) / 8);
+				bs.ReadWriteAsVarInt(ref ValidMembersSize);
+				ValidMembers = data.ReadBytes(((int)ValidMembersSize + 7) / 8);
+				QuorumPublicKey = data.ReadBytes(SpecialTransaction.BLS_PUBLIC_KEY_SIZE);
+				QuorumVvecHash = new uint256(data.ReadBytes(SpecialTransaction.SHA256_HASH_SIZE));
+				QuorumSig = data.ReadBytes(SpecialTransaction.BLS_SIGNATURE_SIZE);
+				Sig = data.ReadBytes(SpecialTransaction.BLS_SIGNATURE_SIZE);
+			}
+
+			public ushort QfcVersion { get; set; }
+			public byte LlmqType { get; set; }
+			public uint256 QuorumHash { get; set; }
+			public uint SignersSize;
+			public byte[] Signers { get; set; }
+			public uint ValidMembersSize;
+			public byte[] ValidMembers { get; set; }
+			public byte[] QuorumPublicKey { get; set; }
+			public uint256 QuorumVvecHash { get; set; }
+			public byte[] QuorumSig { get; set; }
+			public byte[] Sig { get; set; }
+		}
+
+		/// <summary>
+		/// https://docs.dash.org/en/stable/merchants/technical.html#v0-13-0-integration-notes
+		/// </summary>
+		public class PolisTransaction : Transaction
+		{
+			public uint PolisVersion => Version & 0xffff;
+			public PolisTransactionType PolisType => (PolisTransactionType)((Version >> 16) & 0xffff);
+			public byte[] ExtraPayload = new byte[0];
+			public ProviderRegistrationTransaction ProRegTx =>
+				PolisType == PolisTransactionType.MasternodeRegistration
+					? new ProviderRegistrationTransaction(ExtraPayload)
+					: null;
+			public ProviderUpdateServiceTransaction ProUpServTx =>
+				PolisType == PolisTransactionType.UpdateMasternodeService
+					? new ProviderUpdateServiceTransaction(ExtraPayload)
+					: null;
+			public ProviderUpdateRegistrarTransaction ProUpRegTx =>
+				PolisType == PolisTransactionType.UpdateMasternodeOperator
+					? new ProviderUpdateRegistrarTransaction(ExtraPayload)
+					: null;
+			public ProviderUpdateRevocationTransaction ProUpRevTx =>
+				PolisType == PolisTransactionType.MasternodeRevocation
+					? new ProviderUpdateRevocationTransaction(ExtraPayload)
+					: null;
+			public CoinbaseSpecialTransaction CbTx =>
+				PolisType == PolisTransactionType.MasternodeListMerkleProof
+					? new CoinbaseSpecialTransaction(ExtraPayload)
+					: null;
+			public QuorumCommitmentTransaction QcTx =>
+				PolisType == PolisTransactionType.QuorumCommitment
+					? new QuorumCommitmentTransaction(ExtraPayload)
+					: null;
+
+			public override void ReadWrite(BitcoinStream stream)
+			{
+				base.ReadWrite(stream);
+				// Support for Dash 0.13 extraPayload for Special Transactions
+				// https://github.com/dashpay/dips/blob/master/dip-0002-special-transactions.md
+				if (PolisVersion >= 3 && PolisType != PolisTransactionType.StandardTransaction)
+				{
+					// Extra payload size is VarInt
+					uint extraPayloadSize = (uint)ExtraPayload.Length;
+					stream.ReadWriteAsVarInt(ref extraPayloadSize);
+					if (ExtraPayload.Length != extraPayloadSize)
+						ExtraPayload = new byte[extraPayloadSize];
+					stream.ReadWrite(ref ExtraPayload);
+				}
 			}
 		}
 
@@ -69,6 +366,11 @@ namespace NBitcoin.Altcoins
 			{
 				return PolisConsensusFactory.Instance;
 			}
+			public override string ToString()
+			{
+				return "DashBlock " + Header + ", Height=" + GetCoinbaseHeight() +
+					", Version=" + Header.Version + ", Txs=" + Transactions.Count;
+			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
 
@@ -77,7 +379,6 @@ namespace NBitcoin.Altcoins
 		{
 			RegisterDefaultCookiePath("PolisCore");
 		}
-
 
 		static uint256 GetPoWHash(BlockHeader header)
 		{
@@ -118,14 +419,13 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xBD6B0CBF)
 			.SetPort(24126)
 			.SetRPCPort(24127)
-			.SetMaxP2PVersion(70211)
+			.SetMaxP2PVersion(70219)
 			.SetName("polis-main")
 			.AddAlias("polis-mainnet")
 			.AddDNSSeeds(new[]
 			{
-				new DNSSeedData("dnsseed.poliscentral.org", "dnsseed.poliscentral.org"),
-				new DNSSeedData("dnsseed2.poliscentral.org", "dnsseed2.poliscentral.org"),
-				new DNSSeedData("dnsseed3.poliscentral.org", "dnsseed3.poliscentral.org"),
+				new DNSSeedData("blockbook.polispay.org", "blockbook.polispay.org"),
+				new DNSSeedData("insight.polispay.org", "insight.polispay.org"),
 				new DNSSeedData("polis.seeds.mn.zone", "polis.seeds.mn.zone"),
 				new DNSSeedData("polis.mnseeds.com", "polis.mnseeds.com")
 			})
@@ -166,7 +466,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xFFCAE2CE)
 			.SetPort(24130)
 			.SetRPCPort(24131)
-			.SetMaxP2PVersion(70211)
+			.SetMaxP2PVersion(70219)
 		   	.SetName("polis-test")
 		   	.AddAlias("polis-testnet")
 		   	.AddSeeds(new NetworkAddress[0])
@@ -206,7 +506,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xDCB7C1FC)
 			.SetPort(19994)
 			.SetRPCPort(19993)
-			.SetMaxP2PVersion(70211)
+			.SetMaxP2PVersion(70219)
 			.SetName("polis-reg")
 			.AddAlias("polis-regtest")
 			.AddDNSSeeds(new DNSSeedData[0])
