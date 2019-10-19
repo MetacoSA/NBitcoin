@@ -12,7 +12,7 @@ namespace NBitcoin
 	/// for a new kind Bitcoin light clients. This code is based on the BIP:
 	/// https://github.com/bitcoin/bips/blob/master/bip-0158.mediawiki
 	/// </summary>
-	public class GolombRiceFilter
+	public class GolombRiceFilter : IEquatable<GolombRiceFilter>
 	{
 		// This is the value used by default as P as defined in the BIP.
 		internal const byte DefaultP = 19;
@@ -290,6 +290,38 @@ namespace NBitcoin
 			hasher.Write(data);
 			return hasher.Finalize();
 		}
+
+		#region EqualityAndComparison
+
+		public override bool Equals(object obj) => obj is GolombRiceFilter tx && this == tx;
+
+		public bool Equals(GolombRiceFilter other) => this == other;
+
+		public override int GetHashCode()
+		{
+			// https://github.com/bcgit/bc-csharp/blob/b19e68a517e56ef08cd2e50df4dcb8a96ddbe507/crypto/src/util/Arrays.cs#L206
+			if (Data is null)
+			{
+				return 0;
+			}
+
+			int i = Data.Length;
+			int hash = i + 1;
+
+			while (--i >= 0)
+			{
+				hash *= 257;
+				hash ^= Data[i];
+			}
+
+			return hash;
+		}
+
+		public static bool operator ==(GolombRiceFilter x, GolombRiceFilter y) => Utils.ArrayEqual(y?.Data, x?.Data);
+
+		public static bool operator !=(GolombRiceFilter x, GolombRiceFilter y) => !(x == y);
+
+		#endregion EqualityAndComparison
 	}
 
 	/// <summary>

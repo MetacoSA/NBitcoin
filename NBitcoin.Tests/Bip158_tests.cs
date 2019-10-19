@@ -16,6 +16,7 @@ namespace NBitcoin.Tests
 		{
 			var tests = TestCase.read_json("data/bip158_vectors.json");
 
+			GolombRiceFilter prevFilter = null;
 			foreach (var test in tests.Skip(1))
 			{
 				var i = 0;
@@ -33,6 +34,11 @@ namespace NBitcoin.Tests
 
 				var deserializedBasicFilter = GolombRiceFilter.Parse(testBasicFilter);
 				Assert.Equal(testBasicFilter, deserializedBasicFilter.ToString());
+
+				// Equality tests.
+				Assert.True(basicFilter == deserializedBasicFilter);
+				Assert.True(basicFilter != prevFilter);
+				prevFilter = basicFilter;
 			}
 		}
 
