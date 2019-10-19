@@ -1202,7 +1202,19 @@ namespace NBitcoin.RPC
 			return GetBlockHeader(hash);
 		}
 
+		public BlockHeader GetBlockHeader(uint height)
+		{
+			var hash = GetBlockHash(height);
+			return GetBlockHeader(hash);
+		}
+
 		public async Task<BlockHeader> GetBlockHeaderAsync(int height)
+		{
+			var hash = await GetBlockHashAsync(height).ConfigureAwait(false);
+			return await GetBlockHeaderAsync(hash).ConfigureAwait(false);
+		}
+
+		public async Task<BlockHeader> GetBlockHeaderAsync(uint height)
 		{
 			var hash = await GetBlockHashAsync(height).ConfigureAwait(false);
 			return await GetBlockHeaderAsync(hash).ConfigureAwait(false);
@@ -1234,7 +1246,18 @@ namespace NBitcoin.RPC
 			return GetBlockAsync(height).GetAwaiter().GetResult();
 		}
 
+		public Block GetBlock(uint height)
+		{
+			return GetBlockAsync(height).GetAwaiter().GetResult();
+		}
+
 		public async Task<Block> GetBlockAsync(int height)
+		{
+			var hash = await GetBlockHashAsync(height).ConfigureAwait(false);
+			return await GetBlockAsync(hash).ConfigureAwait(false);
+		}
+
+		public async Task<Block> GetBlockAsync(uint height)
 		{
 			var hash = await GetBlockHashAsync(height).ConfigureAwait(false);
 			return await GetBlockAsync(hash).ConfigureAwait(false);
@@ -1266,7 +1289,19 @@ namespace NBitcoin.RPC
 			return uint256.Parse(resp.Result.ToString());
 		}
 
+		public uint256 GetBlockHash(uint height)
+		{
+			var resp = SendCommand(RPCOperations.getblockhash, height);
+			return uint256.Parse(resp.Result.ToString());
+		}
+
 		public async Task<uint256> GetBlockHashAsync(int height)
+		{
+			var resp = await SendCommandAsync(RPCOperations.getblockhash, height).ConfigureAwait(false);
+			return uint256.Parse(resp.Result.ToString());
+		}
+
+		public async Task<uint256> GetBlockHashAsync(uint height)
 		{
 			var resp = await SendCommandAsync(RPCOperations.getblockhash, height).ConfigureAwait(false);
 			return uint256.Parse(resp.Result.ToString());
