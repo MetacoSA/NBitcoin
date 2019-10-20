@@ -314,10 +314,37 @@ namespace NBitcoin
 				hash ^= Data[i];
 			}
 
+			hash ^= P.GetHashCode();
+			hash ^= M.GetHashCode();
+
 			return hash;
 		}
 
-		public static bool operator ==(GolombRiceFilter x, GolombRiceFilter y) => Utils.ArrayEqual(y?.Data, x?.Data);
+		public static bool operator ==(GolombRiceFilter x, GolombRiceFilter y)
+		{
+			if(x is null)
+			{
+				if(y is null)
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else if(y is null)
+			{
+				return false;
+			}
+
+			if (x.P != y.P || x.M != y.M || x.N != y.N)
+			{
+				return false;
+			}
+
+			return Utils.ArrayEqual(y.Data, x.Data);
+		}
 
 		public static bool operator !=(GolombRiceFilter x, GolombRiceFilter y) => !(x == y);
 
