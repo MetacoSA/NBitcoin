@@ -293,7 +293,7 @@ namespace NBitcoin
 
 		#region EqualityAndComparison
 
-		public override bool Equals(object obj) => obj is GolombRiceFilter tx && this == tx;
+		public override bool Equals(object obj) => obj is GolombRiceFilter filter && this == filter;
 
 		public bool Equals(GolombRiceFilter other) => this == other;
 
