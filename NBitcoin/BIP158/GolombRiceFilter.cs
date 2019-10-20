@@ -322,9 +322,9 @@ namespace NBitcoin
 
 		public static bool operator ==(GolombRiceFilter x, GolombRiceFilter y)
 		{
-			if(x is null)
+			if (x is null)
 			{
-				if(y is null)
+				if (y is null)
 				{
 					return true;
 				}
@@ -333,7 +333,7 @@ namespace NBitcoin
 					return false;
 				}
 			}
-			else if(y is null)
+			else if (y is null)
 			{
 				return false;
 			}
