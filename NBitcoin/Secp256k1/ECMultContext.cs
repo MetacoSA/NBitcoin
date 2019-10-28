@@ -222,6 +222,30 @@ namespace NBitcoin.Secp256k1
 				return ECMultiply(state, @as, nas, ng, 1);
 			}
 		}
+
+#if SECP256K1_LIB
+		public GEJ Mult(in Span<GEJ> @as, in Span<Scalar> nas)
+		{
+			var n = @as.Length;
+			unsafe
+			{
+				GEJ* prej = stackalloc GEJ[n * ArraySize_A];
+				FE* zr = stackalloc FE[n * ArraySize_A];
+				GE* pre_a = stackalloc GE[n * ArraySize_A];
+				GE* pre_a_lam = stackalloc GE[n * ArraySize_A];
+				StraussPointState* ps = stackalloc StraussPointState[n];
+
+				StraussState state = default;
+				state.prej = prej;
+				state.zr = zr;
+				state.pre_a = pre_a;
+				state.pre_a_lam = pre_a_lam;
+				state.ps = ps;
+				return ECMultiply(state, @as, nas, null, n);
+			}
+		}
+#endif
+
 		unsafe GEJ ECMultiply(in StraussState state, in Span<GEJ> a, in Span<Scalar> na, in Scalar? ng, int num)
 		{
 			var r = GEJ.Infinity;

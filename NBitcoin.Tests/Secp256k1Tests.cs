@@ -1339,6 +1339,21 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanMultiplyInBatch()
+		{
+			var ns = Enumerable.Range(1, count).Select(x => new Scalar((uint)x)).ToArray();
+			var gs = Enumerable.Repeat(EC.G.ToGroupElementJacobian(), count).ToArray();
+			var me = ecmult_ctx.Mult(gs, ns).ToGroupElement();
+
+			var mult = Enumerable.Zip(ns, gs, (n, g) => n * g.ToGroupElement());
+			var em = mult.Aggregate(
+				(acc, elem) => (acc + elem.ToGroupElement()));
+
+			Assert.Equal(me, em.ToGroupElement());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanSerializeScalar()
 		{
 			Span<byte> output = stackalloc byte[32];
