@@ -330,5 +330,10 @@ namespace NBitcoin
 		{
 			return PubKey.GetHashCode();
 		}
+
+		public string ToHex()
+		{
+			return Encoders.Hex.EncodeData(vch);
+		}
 	}
 }

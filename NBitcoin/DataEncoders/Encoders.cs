@@ -4,7 +4,7 @@ namespace NBitcoin.DataEncoders
 {
 	public abstract class DataEncoder
 	{
-		// char.IsWhiteSpace fits well but it match other whitespaces 
+		// char.IsWhiteSpace fits well but it match other whitespaces
 		// characters too and also works for unicode characters.
 		public static bool IsSpace(char c)
 		{
@@ -99,5 +99,6 @@ namespace NBitcoin.DataEncoders
 		{
 			return new Bech32Encoder(hrp);
 		}
+
 	}
 }

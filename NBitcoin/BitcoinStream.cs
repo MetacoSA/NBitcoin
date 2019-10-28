@@ -265,6 +265,25 @@ namespace NBitcoin
 			}
 		}
 
+		public  void ReadWriteListBytes<TList>(ref TList data)
+			where TList : List<byte[]>, new()
+		{
+			var dataArray = data?.ToArray();
+			if (Serializing && dataArray == null)
+			{
+				dataArray = new byte[0][];
+			}
+			ReadWriteArray(ref dataArray);
+			if (!Serializing)
+			{
+				if (data == null)
+					data = new TList();
+				else
+					data.Clear();
+				data.AddRange(dataArray);
+			}
+		}
+
 		public void ReadWrite(ref byte[] arr)
 		{
 			ReadWriteBytes(ref arr);

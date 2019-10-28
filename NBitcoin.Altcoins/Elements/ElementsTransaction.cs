@@ -1,16 +1,8 @@
 ﻿using NBitcoin.BouncyCastle.Crypto.Digests;
 using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using NBitcoin.Logging;
 
 namespace NBitcoin.Altcoins.Elements
 {
@@ -241,14 +233,16 @@ namespace NBitcoin.Altcoins.Elements
 
 	public class ElementsTxIn<TNetwork> : ElementsTxIn
 	{
-		public ElementsTxIn()
-		{
+		private readonly ConsensusFactory _consensusFactory;
 
+		public ElementsTxIn(ElementsConsensusFactory<TNetwork> consensusFactory)
+		{
+			_consensusFactory = consensusFactory;
 		}
 
 		public override ConsensusFactory GetConsensusFactory()
 		{
-			return ElementsConsensusFactory<TNetwork>.Instance;
+			return _consensusFactory;
 		}
 
 		public override TxIn Clone()
@@ -559,11 +553,15 @@ namespace NBitcoin.Altcoins.Elements
 
 	public class ElementsTxOut<TNetwork> : ElementsTxOut
 	{
-		public ElementsTxOut()
+		public ElementsTxOut(ElementsConsensusFactory<TNetwork> consensusFactory)
 		{
+			_consensusFactory = consensusFactory;
+
 			_Asset = new ConfidentialAsset<TNetwork>();
 		}
 		ConfidentialAsset<TNetwork> _Asset;
+		private ElementsConsensusFactory<TNetwork> _consensusFactory;
+
 		public new ConfidentialAsset<TNetwork> Asset
 		{
 			get
@@ -586,12 +584,9 @@ namespace NBitcoin.Altcoins.Elements
 			stream.ReadWrite(ref publicKey);
 		}
 
-		public override TxOut Clone()
+		public override ConsensusFactory GetConsensusFactory()
 		{
-			var txOut = (ElementsTxOut<TNetwork>)base.Clone();
-			txOut.SurjectionProof = SurjectionProof;
-			txOut.RangeProof = RangeProof;
-			return txOut;
+			return _consensusFactory;
 		}
 
 		protected override ConfidentialAsset GetAssetCore()
@@ -603,9 +598,20 @@ namespace NBitcoin.Altcoins.Elements
 
 	public class ElementsTransaction<TNetwork> : ElementsTransaction
 	{
+		private ElementsConsensusFactory<TNetwork> _consensusFactory;
+
+		public ElementsTransaction()
+		{
+
+		}
+
+		public ElementsTransaction(ElementsConsensusFactory<TNetwork> consensusFactory)
+		{
+			_consensusFactory = consensusFactory;
+		}
 		public override ConsensusFactory GetConsensusFactory()
 		{
-			return ElementsConsensusFactory<TNetwork>.Instance;
+			return _consensusFactory;
 		}
 	}
 	public abstract class ElementsTransaction : Transaction
@@ -643,13 +649,18 @@ namespace NBitcoin.Altcoins.Elements
 
 		public override void ReadWrite(BitcoinStream stream)
 		{
-			var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
+			var fAllowWitness = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
 								stream.ProtocolCapabilities.SupportWitness;
 
-			byte flags = (byte)(this.HasWitness && witSupported ? 1 : 0);
+			byte flags = 0;
+			if (fAllowWitness && HasWitness)
+			{
+				flags |= 1;
+			}
 			stream.ReadWrite(ref nVersion);
 			stream.ReadWrite(ref flags);
 			stream.ReadWrite<TxInList, TxIn>(ref vin);
+
 			vin.Transaction = this;
 			stream.ReadWrite<TxOutList, TxOut>(ref vout);
 			vout.Transaction = this;

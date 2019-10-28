@@ -1,42 +1,38 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
-using System.Text;
 using NBitcoin.Policy;
 
 namespace NBitcoin.Altcoins.Elements
 {
 	public class ElementsConsensusFactory<TNetwork> : ConsensusFactory
 	{
-		public static ElementsConsensusFactory<TNetwork> Instance { get; } = new ElementsConsensusFactory<TNetwork>();
-
 		public override bool TryCreateNew(Type type, out IBitcoinSerializable result)
 		{
 			if (typeof(TxIn).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
 			{
-				result = new ElementsTxIn<TNetwork>();
+				result = new ElementsTxIn<TNetwork>(this);
 				return true;
 			}
 			if (IsTxOut(type))
 			{
-				result = new ElementsTxOut<TNetwork>();
+				result = new ElementsTxOut<TNetwork>(this);
 				return true;
 			}
 			return base.TryCreateNew(type, out result);
 		}
 		public override BlockHeader CreateBlockHeader()
 		{
-			return new ElementsBlockHeader();
+			return new ElementsBlockHeader<TNetwork>();
 		}
 		public override Block CreateBlock()
 		{
-			return new ElementsBlock(new ElementsBlockHeader(), this);
+			return new ElementsBlock<TNetwork>((ElementsBlockHeader<TNetwork>) CreateBlockHeader(), this);
 		}
 
 		public override Transaction CreateTransaction()
 		{
-			return new ElementsTransaction<TNetwork>();
+			return new ElementsTransaction<TNetwork>(this);
 		}
 
 		protected override TransactionBuilder CreateTransactionBuilderCore()
