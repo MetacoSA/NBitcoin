@@ -771,7 +771,7 @@ namespace NBitcoin.Tests
 				},
 				RegtestFolderName = "elementsregtest",
 				Chain = "elementsregtest",
-				AdditionalRegtestConfig = "initialfreecoins=0\nvalidatepegin=0\n\ncon_dyna_deploy_start=99999999999999999",
+				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0\n\ncon_dyna_deploy_start=99999999999999999",
 				UseSectionInConfigFile = true,
 			};
 
