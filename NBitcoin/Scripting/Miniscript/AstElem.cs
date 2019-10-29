@@ -1,16 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq.Expressions;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
+using System.Diagnostics;
 using System.Linq;
 
 namespace NBitcoin.Scripting.Miniscript
 {
 	internal class NonTerm : IEquatable<NonTerm>
 	{
+		#region Subtype definitions
+
 		internal static class Tags
 		{
 			public const int Expression = 0;
@@ -83,15 +81,19 @@ namespace NBitcoin.Scripting.Miniscript
 				K = k;
 			}
 		}
+		#endregion
 
+		#region Equatable members
 		public bool Equals(NonTerm other)
 		{
 			throw new NotImplementedException("");
 		}
+		#endregion
 	}
 
-	public class Terminal : IEquatable<Terminal>
+	public partial class Terminal<TPk> : IEquatable<Terminal<TPk>> where TPk : IMiniscriptKey
 	{
+		# region Subtype definitions
 		internal static class Tags
 		{
 			public const int True = 0;
@@ -122,195 +124,315 @@ namespace NBitcoin.Scripting.Miniscript
 			public const int ThreshM = 25;
 		}
 
-		private int Tag;
+		internal int Tag;
 
 		private Terminal(int tag) => Tag = tag;
-		public static Terminal True { get; } = new Terminal(Tags.True);
-		public static Terminal False { get; } = new Terminal(Tags.False);
+		public static Terminal<TPk> True { get; } = new Terminal<TPk>(Tags.True);
+		public static Terminal<TPk> False { get; } = new Terminal<TPk>(Tags.False);
 
-		internal class Pk : Terminal
+		internal class Pk : Terminal<TPk>
 		{
-			readonly public PubKey Item;
-			public Pk(PubKey pk) : base(Tags.Pk) => Item = pk;
+			readonly public TPk Item;
+			public Pk(TPk pk) : base(Tags.Pk) => Item = pk;
 		}
 
-		internal class PkH : Terminal
+		internal class PkH : Terminal<TPk>
 		{
-			readonly public uint160 Item;
-			public PkH(uint160 item) : base(Tags.PkH) => Item = item;
+			readonly public IMiniscriptKeyHash Item;
+			public PkH(IMiniscriptKeyHash item) : base(Tags.PkH) => Item = item;
 		}
 
-		internal class After : Terminal
+		internal class After : Terminal<TPk>
 		{
 			readonly public uint Item;
 			public After(uint item) : base(Tags.After) => Item = item;
 		}
 
-		internal class Older : Terminal
+		internal class Older : Terminal<TPk>
 		{
 			readonly public uint Item;
 			public Older(uint item) : base(Tags.Older) => Item = item;
 		}
 
-		internal class Sha256 : Terminal
+		internal class Sha256 : Terminal<TPk>
 		{
 			readonly public uint256 Item;
 			public Sha256(uint256 item) : base(Tags.Sha256) => Item = item;
 		}
-		internal class Hash256 : Terminal
+		internal class Hash256 : Terminal<TPk>
 		{
 			readonly public uint256 Item;
 			public Hash256(uint256 item) : base(Tags.Hash256) => Item = item;
 		}
 
-		internal class Ripemd160 : Terminal
+		internal class Ripemd160 : Terminal<TPk>
 		{
 			readonly public uint160 Item;
 			public Ripemd160(uint160 item) : base(Tags.Ripemd160) => Item = item;
 		}
 
-		internal class Hash160 : Terminal
+		internal class Hash160 : Terminal<TPk>
 		{
 			readonly public uint160 Item;
 			public Hash160(uint160 item) : base(Tags.Hash160) => Item = item;
 		}
 
-		internal class Alt : Terminal
+		internal class Alt : Terminal<TPk>
 		{
-			readonly public Miniscript Item;
-			public Alt(Miniscript item) : base(Tags.Alt) => Item = item;
+			readonly public Miniscript<TPk> Item;
+			public Alt(Miniscript<TPk> item) : base(Tags.Alt) => Item = item;
 		}
 
-		internal class Swap : Terminal
+		internal class Swap : Terminal<TPk>
 		{
-			readonly public Miniscript Item;
-			public Swap(Miniscript item): base(Tags.Swap) => Item = item;
+			readonly public Miniscript<TPk> Item;
+			public Swap(Miniscript<TPk> item): base(Tags.Swap) => Item = item;
 		}
 
-		internal class Check : Terminal
+		internal class Check : Terminal<TPk>
 		{
-			readonly public Miniscript Item;
-			public Check(Miniscript item): base(Tags.Check) => Item = item;
+			readonly public Miniscript<TPk> Item;
+			public Check(Miniscript<TPk> item): base(Tags.Check) => Item = item;
 		}
-		internal class DupIf : Terminal
+		internal class DupIf : Terminal<TPk>
 		{
-			readonly public Miniscript Item;
-			public DupIf (Miniscript item): base(Tags.DupIf ) => Item = item;
+			readonly public Miniscript<TPk> Item;
+			public DupIf (Miniscript<TPk> item): base(Tags.DupIf ) => Item = item;
 		}
-		internal class Verify : Terminal
+		internal class Verify : Terminal<TPk>
 		{
-			readonly public Miniscript Item;
-			public Verify(Miniscript item): base(Tags.Verify) => Item = item;
+			readonly public Miniscript<TPk> Item;
+			public Verify(Miniscript<TPk> item): base(Tags.Verify) => Item = item;
 		}
-		internal class NonZero : Terminal
+		internal class NonZero : Terminal<TPk>
 		{
-			readonly public Miniscript Item;
-			public NonZero(Miniscript item): base(Tags.NonZero) => Item = item;
+			readonly public Miniscript<TPk> Item;
+			public NonZero(Miniscript<TPk> item): base(Tags.NonZero) => Item = item;
 		}
-		internal class ZeroNotEqual : Terminal
+		internal class ZeroNotEqual : Terminal<TPk>
 		{
-			readonly public Miniscript Item;
-			public ZeroNotEqual(Miniscript item): base(Tags.ZeroNotEqual) => Item = item;
+			readonly public Miniscript<TPk> Item;
+			public ZeroNotEqual(Miniscript<TPk> item): base(Tags.ZeroNotEqual) => Item = item;
 		}
-		internal class AndV : Terminal
+		internal class AndV : Terminal<TPk>
 		{
-			readonly public Miniscript Item1;
-			readonly public Miniscript Item2;
-			public AndV(Miniscript item1,Miniscript item2): base(Tags.AndV)
+			readonly public Miniscript<TPk> Item1;
+			readonly public Miniscript<TPk> Item2;
+			public AndV(Miniscript<TPk> item1,Miniscript<TPk> item2): base(Tags.AndV)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
-		internal class AndB : Terminal
+		internal class AndB : Terminal<TPk>
 		{
-			readonly public Miniscript Item1;
-			readonly public Miniscript Item2;
-			public AndB(Miniscript item, Miniscript item2): base(Tags.AndB)
+			readonly public Miniscript<TPk> Item1;
+			readonly public Miniscript<TPk> Item2;
+			public AndB(Miniscript<TPk> item, Miniscript<TPk> item2): base(Tags.AndB)
 			{
 				Item1 = item;
 				Item2 = item2;
 			}
 		}
-		internal class AndOr : Terminal
+		internal class AndOr : Terminal<TPk>
 		{
-			readonly public Miniscript Item1;
-			readonly public Miniscript Item2;
-			readonly public Miniscript Item3;
+			readonly public Miniscript<TPk> Item1;
+			readonly public Miniscript<TPk> Item2;
+			readonly public Miniscript<TPk> Item3;
 
-			public AndOr(Miniscript item1, Miniscript item2, Miniscript item3) : base(Tags.AndOr)
+			public AndOr(Miniscript<TPk> item1, Miniscript<TPk> item2, Miniscript<TPk> item3) : base(Tags.AndOr)
 			{
 				Item1 = item1;
 				Item2 = item2;
 				Item3 = item3;
 			}
 		}
-		internal class OrB : Terminal
+		internal class OrB : Terminal<TPk>
 		{
-			readonly public Miniscript Item1;
-			readonly public Miniscript Item2;
-			public OrB(Miniscript item1, Miniscript item2): base(Tags.OrB)
+			readonly public Miniscript<TPk> Item1;
+			readonly public Miniscript<TPk> Item2;
+			public OrB(Miniscript<TPk> item1, Miniscript<TPk> item2): base(Tags.OrB)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
-		internal class OrD : Terminal
+		internal class OrD : Terminal<TPk>
 		{
-			readonly public Miniscript Item1;
-			readonly public Miniscript Item2;
-			public OrD(Miniscript item1, Miniscript item2): base(Tags.OrD)
-			{
-				Item1 = item1;
-				Item2 = item2;
-			}
-		}
-
-		internal class OrC : Terminal
-		{
-			readonly public Miniscript Item1;
-			readonly public Miniscript Item2;
-			public OrC(Miniscript item1, Miniscript item2): base(Tags.OrC)
+			readonly public Miniscript<TPk> Item1;
+			readonly public Miniscript<TPk> Item2;
+			public OrD(Miniscript<TPk> item1, Miniscript<TPk> item2): base(Tags.OrD)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
 
-		internal class OrI : Terminal
+		internal class OrC : Terminal<TPk>
 		{
-			readonly public Miniscript Item1;
-			readonly public Miniscript Item2;
-			public OrI(Miniscript item1, Miniscript item2): base(Tags.OrI)
+			readonly public Miniscript<TPk> Item1;
+			readonly public Miniscript<TPk> Item2;
+			public OrC(Miniscript<TPk> item1, Miniscript<TPk> item2): base(Tags.OrC)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
-		internal class Thresh : Terminal
+
+		internal class OrI : Terminal<TPk>
 		{
-			readonly public ulong Item1;
-			readonly public Miniscript[] Item2;
-			public Thresh(ulong item1, Miniscript[] item2): base(Tags.Thresh)
+			readonly public Miniscript<TPk> Item1;
+			readonly public Miniscript<TPk> Item2;
+			public OrI(Miniscript<TPk> item1, Miniscript<TPk> item2): base(Tags.OrI)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
-		internal class ThreshM : Terminal
+		internal class Thresh : Terminal<TPk>
 		{
-			readonly public ulong Item1;
-			readonly public Pk[] Item2;
-			public ThreshM(ulong item1, Pk[] item2): base(Tags.ThreshM)
+			readonly public uint Item1;
+			readonly public Miniscript<TPk>[] Item2;
+			public Thresh(uint item1, Miniscript<TPk>[] item2): base(Tags.Thresh)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
-		public bool Equals(Terminal other)
+		internal class ThreshM : Terminal<TPk>
 		{
-			throw new NotImplementedException();
+			readonly public uint Item1;
+			readonly public TPk[] Item2;
+			public ThreshM(uint item1, TPk[] item2): base(Tags.ThreshM)
+			{
+				Item1 = item1;
+				Item2 = item2;
+			}
 		}
+
+		public static Terminal<TPk> NewTrue() => Terminal<TPk>.True;
+		public static Terminal<TPk> NewFalse() => Terminal<TPk>.False;
+		public static Terminal<TPk> NewPk(TPk item) => new Pk(item);
+		public static Terminal<TPk> NewPkH(IMiniscriptKeyHash item) => new PkH(item);
+		public static Terminal<TPk> NewAfter(uint item) => new After(item);
+		public static Terminal<TPk> NewOlder(uint item) => new Older(item);
+		public static Terminal<TPk> NewSha256(uint256 item)
+			=>  new Sha256(item);
+		public static Terminal<TPk> NewHash256(uint256 item)
+			=> new Hash256(item);
+		public static Terminal<TPk> NewRipemd160(uint160 item)
+			=> new Ripemd160(item);
+		public static Terminal<TPk> NewHash160(uint160 item)
+			=> new Hash160(item);
+		public static Terminal<TPk> NewAlt(Miniscript<TPk> item) => new Terminal<TPk>.Alt(item);
+		public static Terminal<TPk> NewSwap(Miniscript<TPk> item) => new Terminal<TPk>.Swap(item);
+		public static Terminal<TPk> NewCheck(Miniscript<TPk> item) => new Terminal<TPk>.Check(item);
+		public static Terminal<TPk> NewDupIf(Miniscript<TPk> item) => new DupIf(item);
+		public static Terminal<TPk> NewVerify(Miniscript<TPk> item) => new Verify(item);
+		public static Terminal<TPk> NewNonZero(Miniscript<TPk> item) => new NonZero(item);
+
+		public static Terminal<TPk> NewAndV(Miniscript<TPk> item1, Miniscript<TPk> item2)
+			=> new AndV(item1, item2);
+
+		public static Terminal<TPk> NewAndB(Miniscript<TPk> item1, Miniscript<TPk> item2)
+			=> new AndB(item1, item2);
+
+		public static Terminal<TPk> NewAndOr(Miniscript<TPk> item1, Miniscript<TPk> item2, Miniscript<TPk> item3)
+			=> new AndOr(item1, item2, item3);
+
+		public static Terminal<TPk> NewOrB(Miniscript<TPk> item1, Miniscript<TPk> item2)
+			=> new OrB(item1, item2);
+
+		public static Terminal<TPk> NewOrD(Miniscript<TPk> item1, Miniscript<TPk> item2)
+			=> new OrD(item1, item2);
+		public static Terminal<TPk> NewOrC(Miniscript<TPk> item1, Miniscript<TPk> item2)
+			=> new OrC(item1, item2);
+		public static Terminal<TPk> NewOrI(Miniscript<TPk> item1, Miniscript<TPk> item2)
+			=> new OrI(item1, item2);
+
+		public static Terminal<TPk> NewThresh(uint item1, IEnumerable<Miniscript<TPk>> item2)
+			=> new Thresh(item1, item2.ToArray());
+		public static Terminal<TPk> NewThreshM(uint item1, IEnumerable<TPk> item2)
+			=> new ThreshM(item1, item2.ToArray());
+		#endregion
+
+		#region Equatable members
+		public bool Equals(Terminal<TPk> other)
+		{
+			if (other == null)
+				return false;
+			if (this.Tag != other.Tag)
+				return false;
+
+			switch (this.Tag)
+			{
+				case Tags.True: return true;
+				case Tags.False: return true;
+			}
+
+			switch (this)
+			{
+				case Pk self:
+					return self.Item.Equals(((Pk) other).Item);
+				case PkH self:
+					return self.Item.Equals(((PkH) other).Item);
+				case After self:
+					return self.Item.Equals(((After) other).Item);
+				case Older self:
+					return self.Item.Equals(((Older) other).Item);
+				case Sha256 self:
+					return self.Item.Equals(((Sha256) other).Item);
+				case Hash256 self:
+					return self.Item.Equals(((Hash256) other).Item);
+				case Ripemd160 self:
+					return self.Item.Equals(((Ripemd160) other).Item);
+				case Hash160 self:
+					return self.Item.Equals(((Hash160) other).Item);
+				case Alt self:
+					return self.Item.Equals(((Alt) other).Item);
+				case Swap self:
+					return self.Item.Equals(((Swap) other).Item);
+				case Check self:
+					return self.Item.Equals(((Check) other).Item);
+				case DupIf self:
+					return self.Item.Equals(((DupIf) other).Item);
+				case Verify self:
+					return self.Item.Equals(((Verify) other).Item);
+				case NonZero self:
+					return self.Item.Equals(((NonZero) other).Item);
+				case ZeroNotEqual self:
+					return self.Item.Equals(((ZeroNotEqual) other).Item);
+				case AndV self:
+					var andv = (AndV) other;
+					return self.Item1.Equals(andv.Item1) && self.Item2.Equals(andv.Item2);
+				case AndB self:
+					var andb = (AndB) other;
+					return self.Item1.Equals(andb.Item1) && self.Item2.Equals(andb.Item2);
+				case AndOr self:
+					var andOr = (AndOr) other;
+					return self.Item1.Equals(andOr.Item1) && self.Item2.Equals(andOr.Item2) && self.Item3.Equals(andOr.Item3);
+				case OrB self:
+					var orb = (OrB) other;
+					return self.Item1.Equals(orb.Item1) && self.Item2.Equals(orb.Item2);
+				case OrD self:
+					var ord = (OrD) other;
+					return self.Item1.Equals(ord.Item1) && self.Item2.Equals(ord.Item2);
+				case OrC self:
+					var orc = (OrC) other;
+					return self.Item1.Equals(orc.Item1) && self.Item2.Equals(orc.Item2);
+				case OrI self:
+					var ori = (OrI) other;
+					return self.Item1.Equals(ori.Item1) && self.Item2.Equals(ori.Item2);
+				case Thresh self:
+					var t = (Thresh) other;
+					return self.Item1.Equals(t.Item1) && self.Item2.SequenceEqual(t.Item2);
+				case ThreshM self:
+					var tm = (ThreshM) other;
+					return self.Item1.Equals(tm.Item1) && self.Item2.SequenceEqual(tm.Item2);
+			}
+			throw new Exception("Unreachable!");
+		}
+		#endregion
 
 		public Script ToScript() =>
 			new Script(this.ToOpList());
@@ -329,12 +451,12 @@ namespace NBitcoin.Scripting.Miniscript
 			switch (this)
 			{
 				case Pk self:
-					l.Add(Op.GetPushOp(self.Item.ToBytes()));
+					l.Add(Op.GetPushOp(self.Item.ToPublicKey().ToBytes()));
 					return l;
 				case PkH self:
 					l.Add(OpcodeType.OP_DUP);
 					l.Add(OpcodeType.OP_HASH160);
-					l.Add(Op.GetPushOp(self.Item.ToBytes()));
+					l.Add(Op.GetPushOp(self.Item.ToHash160().ToBytes()));
 					l.Add(OpcodeType.OP_EQUALVERIFY);
 					return l;
 				case After self:
@@ -461,7 +583,7 @@ namespace NBitcoin.Scripting.Miniscript
 					l.Add(Op.GetPushOp((long)self.Item1));
 					foreach (var sub in self.Item2)
 					{
-						l.Add(Op.GetPushOp(sub.Item.ToBytes()));
+						l.Add(Op.GetPushOp(sub.ToPublicKey().ToBytes()));
 					}
 					l.Add(Op.GetPushOp(self.Item2.Length));
 					l.Add(OpcodeType.OP_CHECKMULTISIG);
@@ -470,8 +592,404 @@ namespace NBitcoin.Scripting.Miniscript
 			throw new Exception(("Unreachable!"));
 		}
 
-		public ulong ScriptSize()
-		{}
+		private int ScriptNumSize(int n) => ScriptNumSize((ulong)n);
+		private int ScriptNumSize(ulong n)
+		{
+			if (n <= 0x10) // OP_n
+				return 1;
+			if (n < 0x10) // OP_PUSH1 <n>
+				return 2;
+			if (n < 0x8000) // OP_PUSH2 <n>
+				return 3;
+			if (n < 0x800000) // OP_PUSH3 <n>
+				return 4;
+			if (n < 0x80000000) // OP_PUSH4 <n>
+				return 5;
+
+			return 6; // OP_PUSH5 <n>
+		}
+		public int ScriptSize()
+		{
+			switch (this.Tag)
+			{
+				case Tags.True:
+					return 1;
+				case Tags.False:
+					return 1;
+			}
+
+			switch (this)
+			{
+				case Pk self:
+					return self.Item.SerializedLength();
+				case PkH _:
+					return 24;
+				case After self:
+					return ScriptNumSize(self.Item) + 1;
+				case Older self:
+					return ScriptNumSize(self.Item) + 1;
+				case Sha256 _:
+					return 33 + 6;
+				case Hash256 _:
+					return 33 + 6;
+				case Ripemd160 _:
+					return 21 + 6;
+				case Hash160 _:
+					return 21 + 6;
+				case Alt self:
+					return self.Item.Node.ScriptSize() + 2;
+				case Swap self:
+					return self.Item.Node.ScriptSize() + 1;
+				case Check self:
+					return self.Item.Node.ScriptSize() + 1;
+				case DupIf self:
+					return self.Item.Node.ScriptSize() + 3;
+				case Verify self:
+					return self.Item.Node.ScriptSize() + (self.Item.Ext.HasVerifyForm ? 0 : 1);
+				case NonZero self:
+					return self.Item.Node.ScriptSize() + 4;
+				case ZeroNotEqual self:
+					return self.Item.Node.ScriptSize() + 1;
+				case AndV self:
+					return self.Item1.Node.ScriptSize() + self.Item2.Node.ScriptSize();
+				case AndB self:
+					return self.Item1.Node.ScriptSize() + self.Item2.Node.ScriptSize() + 1;
+				case AndOr self:
+					return
+						self.Item1.Node.ScriptSize() +
+						self.Item2.Node.ScriptSize() +
+						self.Item3.Node.ScriptSize() + 3;
+				case OrB self:
+					return
+						self.Item1.Node.ScriptSize() + self.Item2.Node.ScriptSize() + 1;
+				case OrD self:
+					return
+						self.Item1.Node.ScriptSize() + self.Item2.Node.ScriptSize() + 3;
+				case OrC self:
+					return
+						self.Item1.Node.ScriptSize() + self.Item2.Node.ScriptSize() + 2;
+				case OrI self:
+					return
+						self.Item1.Node.ScriptSize() + self.Item2.Node.ScriptSize() + 3;
+				case Thresh self:
+					Debug.Assert(self.Item2.Length != 0);
+					return
+						ScriptNumSize(self.Item1) + // k
+						1 + // EQUAL
+						self.Item2.Select(s => s.Node.ScriptSize()).Sum() +
+						self.Item2.Length // ADD
+                        - 1; // no ADD on first element
+				case ThreshM self:
+					return
+						ScriptNumSize(self.Item1) +
+						1 +
+						ScriptNumSize(self.Item2.Length) +
+						self.Item2.Select(x => x.SerializedLength()).Sum();
+			}
+
+			throw new Exception("Unreachable!");
+		}
+
+		public int? MaxDissatisfactionWitnessElements()
+		{
+			switch (this.Tag)
+			{
+				case (Tags.False):
+					return 0;
+			}
+			switch (this)
+			{
+				case Pk _:
+					return 1;
+				case PkH _:
+					return 2;
+				case Alt self:
+					return self.Item.Node.MaxDissatisfactionWitnessElements();
+				case Swap self:
+					return self.Item.Node.MaxDissatisfactionWitnessElements();
+				case Check self:
+					return self.Item.Node.MaxDissatisfactionWitnessElements();
+				case DupIf _:
+					return 1;
+				case NonZero _:
+					return 1;
+				case AndB self:
+					return
+						self.Item1.Node.MaxDissatisfactionWitnessElements() +
+						self.Item2.Node.MaxDissatisfactionWitnessElements();
+				case AndOr self:
+					return
+						self.Item1.Node.MaxDissatisfactionWitnessElements() +
+						self.Item3.Node.MaxDissatisfactionWitnessElements();
+				case OrB self:
+					return
+						self.Item1.Node.MaxDissatisfactionWitnessElements() +
+						self.Item2.Node.MaxDissatisfactionWitnessElements();
+				case OrI self:
+					var l = self.Item1.Node.MaxDissatisfactionWitnessElements();
+					var r = self.Item2.Node.MaxDissatisfactionWitnessElements();
+					if (!l.HasValue && r.HasValue)
+						return 1 + r.Value;
+					else if (l.HasValue && !r.HasValue)
+						return 1 + l.Value;
+					else if (!(l.HasValue) && (!r.HasValue))
+						return null;
+					throw new Exception($"tried to dissatisfy or_i with both branches being dissatisfiable");
+				case Thresh self:
+					var sum = 0;
+					foreach (var sub in self.Item2)
+					{
+						var s = sub.Node.MaxDissatisfactionWitnessElements();
+						if (s.HasValue)
+							sum += s.Value;
+						else
+							return null;
+					}
+					return sum;
+				case ThreshM self:
+					return 1 + (int)self.Item1;
+			}
+
+			return null;
+		}
+
+		public int? MaxDissatisfactionSize(int oneCost)
+		{
+			switch (this.Tag)
+			{
+				case (Tags.False):
+					return 0;
+			}
+
+			switch (this)
+			{
+				case Pk _:
+					return 1;
+				case PkH _:
+					return 35;
+				case Alt self:
+					return self.Item.Node.MaxDissatisfactionSize(oneCost);
+				case Swap self:
+					return self.Item.Node.MaxDissatisfactionSize(oneCost);
+				case Check self:
+					return self.Item.Node.MaxDissatisfactionSize(oneCost);
+				case DupIf _:
+					return 1;
+				case NonZero _:
+					return 1;
+				case AndB self:
+					return
+						self.Item1.Node.MaxDissatisfactionSize(oneCost) +
+						self.Item2.Node.MaxDissatisfactionSize(oneCost);
+				case AndOr self:
+					return
+						self.Item1.Node.MaxDissatisfactionSize(oneCost) +
+						self.Item3.Node.MaxDissatisfactionSize(oneCost);
+				case OrB self:
+					return
+						self.Item1.Node.MaxDissatisfactionSize(oneCost) +
+						self.Item2.Node.MaxDissatisfactionSize(oneCost);
+				case OrD self:
+					return
+						self.Item1.Node.MaxDissatisfactionSize(oneCost) +
+						self.Item2.Node.MaxDissatisfactionSize(oneCost);
+				case OrI self:
+					var l = self.Item1.Node.MaxDissatisfactionSize(oneCost);
+					var r = self.Item2.Node.MaxDissatisfactionSize(oneCost);
+					if (!l.HasValue && r.HasValue)
+						return 1 + r.Value;
+					else if (l.HasValue && !r.HasValue)
+						return oneCost + l.Value;
+					else if (!(l.HasValue) && (!r.HasValue))
+						return null;
+					throw new Exception($"tried to dissatisfy or_i with both branches being dissatisfiable");
+
+				case Thresh self:
+					var sum = 0;
+					foreach (var sub in self.Item2)
+					{
+						var s = sub.Node.MaxDissatisfactionSize(oneCost);
+						if (s.HasValue)
+							sum += s.Value;
+						else
+							return null;
+					}
+					return sum;
+				case ThreshM self:
+					return 1 + (int)self.Item1;
+			}
+
+			return null;
+		}
+
+		public int MaxSatisfactionWitnessElements()
+		{
+			switch (this.Tag)
+			{
+				case Tags.True: return 0;
+				case Tags.False: return 0;
+			}
+
+			switch (this)
+			{
+				case Pk _:
+					return 1;
+				case PkH _: return 2;
+				case After _: return 0;
+				case Older _: return 0;
+				case Sha256 _: return 1;
+				case Hash256 _: return 1;
+				case Ripemd160 _: return 1;
+				case Hash160 _: return 1;
+				case Alt self:
+					return self.Item.Node.MaxSatisfactionWitnessElements();
+				case Swap self:
+					return self.Item.Node.MaxSatisfactionWitnessElements();
+				case Check self:
+					return self.Item.Node.MaxSatisfactionWitnessElements();
+				case DupIf self:
+					return 1 + self.Item.Node.MaxSatisfactionWitnessElements();
+				case Verify self:
+					return self.Item.Node.MaxSatisfactionWitnessElements();
+				case NonZero self:
+					return self.Item.Node.MaxSatisfactionWitnessElements();
+				case ZeroNotEqual self:
+					return self.Item.Node.MaxSatisfactionWitnessElements();
+				case AndV self:
+					return
+						self.Item1.Node.MaxSatisfactionWitnessElements() +
+						self.Item2.Node.MaxSatisfactionWitnessElements();
+				case AndB self:
+					return
+						self.Item1.Node.MaxSatisfactionWitnessElements() +
+						self.Item2.Node.MaxSatisfactionWitnessElements();
+				case AndOr self:
+					var aSat = self.Item1.Node.MaxSatisfactionWitnessElements();
+					var aDissat = self.Item1.Node.MaxDissatisfactionWitnessElements();
+					return
+						Math.Max(
+							(aSat + self.Item3.Node.MaxSatisfactionWitnessElements()),
+							 aDissat.Value + self.Item2.Node.MaxSatisfactionWitnessElements());
+				case OrB self:
+					return
+						Math.Max(
+							(self.Item1.Node.MaxSatisfactionWitnessElements() +
+							 self.Item2.Node.MaxDissatisfactionWitnessElements().Value),
+							(self.Item1.Node.MaxDissatisfactionWitnessElements().Value +
+							 self.Item2.Node.MaxSatisfactionWitnessElements())
+						);
+				case OrD self:
+					return
+						Math.Max(
+							self.Item1.Node.MaxSatisfactionWitnessElements(),
+							self.Item1.Node.MaxDissatisfactionWitnessElements().Value + self.Item2.Node.MaxSatisfactionWitnessElements()
+							);
+				case OrC self:
+					return
+						Math.Max(
+							self.Item1.Node.MaxSatisfactionWitnessElements(),
+							self.Item1.Node.MaxDissatisfactionWitnessElements().Value + self.Item2.Node.MaxSatisfactionWitnessElements()
+							);
+				case OrI self:
+					return
+						1 + Math.Max(
+							self.Item1.Node.MaxSatisfactionWitnessElements(),
+							self.Item2.Node.MaxSatisfactionWitnessElements());
+				case Thresh self:
+					return
+						self.Item2
+							.Select(sub =>
+								Tuple.Create(sub.Node.MaxSatisfactionWitnessElements(),
+									sub.Node.MaxDissatisfactionWitnessElements().Value)
+							)
+							.OrderBy(t => t.Item1 - t.Item2)
+							.Reverse()
+							.Select((t, i) => i < self.Item1 ? t.Item1 : t.Item2)
+							.Sum();
+						;
+				case ThreshM self: return 1 + (int)self.Item1;
+			}
+
+			throw new Exception("Unreachable!");
+		}
+
+		/// <summary>
+		/// Maximum size, in bytes, of a satisfying witness.
+		/// </summary>
+		/// <returns></returns>
+		public int MaxSatisfactionSize(int oneCost)
+		{
+			switch (Tag)
+			{
+				case Tags.True: return 0;
+				case Tags.False: return 0;
+			}
+
+			switch (this)
+			{
+				case Pk _: return 73;
+				case PkH _: return 34 + 73;
+				case After _: return 0;
+				case Older _: return 0;
+				case Sha256 _: return 33;
+				case Hash256 _: return 33;
+				case Ripemd160 _: return 33;
+				case Hash160 _: return 33;
+				case Alt self: return self.Item.Node.MaxSatisfactionSize(oneCost);
+				case Swap self: return self.Item.Node.MaxSatisfactionSize(oneCost);
+				case Check self: return self.Item.Node.MaxSatisfactionSize(oneCost);
+				case DupIf self: return oneCost + self.Item.Node.MaxSatisfactionSize(oneCost);
+				case Verify self: return self.Item.Node.MaxSatisfactionSize(oneCost);
+				case NonZero self: return self.Item.Node.MaxSatisfactionSize(oneCost);
+				case ZeroNotEqual self: return self.Item.Node.MaxSatisfactionSize(oneCost);
+				case AndV self:
+					return self.Item1.Node.MaxSatisfactionSize(oneCost) + self.Item2.Node.MaxSatisfactionSize(oneCost);
+				case AndB self:
+					return self.Item1.Node.MaxSatisfactionSize(oneCost) + self.Item2.Node.MaxSatisfactionSize(oneCost);
+				case AndOr self:
+					return
+						Math.Max(
+							self.Item1.Node.MaxSatisfactionSize(oneCost) + self.Item3.Node.MaxSatisfactionSize(oneCost),
+							self.Item1.Node.MaxDissatisfactionSize(oneCost).Value +
+							self.Item2.Node.MaxSatisfactionSize(oneCost)
+						);
+				case OrB self:
+					return
+						Math.Max(
+							self.Item1.Node.MaxSatisfactionSize(oneCost) +
+							self.Item2.Node.MaxDissatisfactionSize(oneCost).Value,
+							self.Item1.Node.MaxDissatisfactionSize(oneCost).Value +
+							self.Item2.Node.MaxSatisfactionSize(oneCost)
+						);
+				case OrD self:
+					return
+						Math.Max(
+							self.Item1.Node.MaxSatisfactionSize(oneCost),
+							self.Item1.Node.MaxDissatisfactionSize(oneCost).Value +
+							self.Item2.Node.MaxSatisfactionSize(oneCost)
+						);
+				case OrI self:
+					return
+						Math.Max(
+							oneCost + self.Item1.Node.MaxSatisfactionSize(oneCost),
+							1 + self.Item2.Node.MaxSatisfactionSize(oneCost)
+						);
+				case Thresh self:
+					return
+						self.Item2
+							.Select(sub =>
+								new {
+									Sat = sub.Node.MaxSatisfactionSize(oneCost),
+									Dissat = sub.Node.MaxDissatisfactionSize(oneCost).Value
+								})
+							.OrderBy(v => v.Sat - v.Dissat)
+							.Reverse()
+							.Select((v, i) => i < self.Item1 ? v.Sat : v.Dissat)
+							.Sum();
+				case ThreshM self : return 1 + 73 + (int)self.Item1;
+			}
+			throw new Exception("unreachable!");
+		}
 	}
 
 }

@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Runtime.InteropServices.ComTypes;
+using NBitcoin.Scripting.Miniscript.Types;
 using NBitcoin.Scripting.Parser;
 
 using P = NBitcoin.Scripting.Parser.Parser<NBitcoin.Scripting.Miniscript.ScriptToken, NBitcoin.Scripting.Miniscript.Miniscript>;
@@ -391,8 +395,72 @@ namespace NBitcoin.Scripting.Miniscript
 			=> PT.Parse(sc);
 		*/
 
-		private static readonly P
 
 		public static Terminal ParseScript(Script sc) =>
+			throw new NotImplementedException();
+
+		private class TerminalStack
+		{
+			internal readonly Stack<Miniscript> Inner;
+			internal TerminalStack(Stack<Miniscript> inner)
+			{
+				Inner = inner;
+			}
+
+			internal Miniscript Pop() =>
+				this.Inner.Pop();
+
+			internal void Reduce0(Terminal ms)
+			{
+				MiniscriptFragmentType ty = default;
+				ty = ty.TypeCheck(ms, _ => null);
+				ExtData ext = default;
+				ext = ext.TypeCheck(ms, _ => null);
+				this.Inner.Push(new Miniscript(ty, ms, ext));
+			}
+
+			internal void Reduce1(Func<Miniscript, Terminal> wrap)
+			{
+				var top = this.Pop();
+				var wrappedMs = wrap(top);
+				var ty = MiniscriptFragmentType.TypeCheck(wrappedMs, _ => null);
+				var ext = ExtData.TypeCheck(wrappedMs, _ => null);
+				this.Inner.Push(new Miniscript(ty, wrappedMs, ext));
+			}
+
+			internal void Reduce2(Func<Miniscript, Miniscript, Terminal> wrap)
+			{
+				var left = this.Pop();
+				var right = this.Pop();
+				var wrappedMs = wrap(left, right);
+				var ty = MiniscriptFragmentType.TypeCheck(wrappedMs, _ => null);
+				var ext = ExtData.TypeCheck(wrappedMs, _ => null);
+				this.Inner.Push(new Miniscript(ty, wrappedMs, ext));
+			}
+		}
+
+		private static T MatchToken<T>(Func<T> f) => f.Invoke();
+
+		private static void MatchToken(ScriptToken tokens)
+		{
+			throw new NotImplementedException();
+		}
+		public static Miniscript<TPk> ParseScriptToken(ScriptToken sct)
+		{
+			var nonTerm = new Stack<NonTerm>();
+			var term = new TerminalStack(new Stack<Miniscript>());
+
+			nonTerm.Push(NonTerm.MaybeAndV);
+			nonTerm.Push(NonTerm.MaybeSwap);
+			nonTerm.Push(NonTerm.Expression);
+			while (true)
+			{
+				if (nonTerm.Count == 0)
+					break;
+				var popped = nonTerm.Pop();
+				if (popped == NonTerm.Expression)
+				{}
+			}
+		}
 	}
 }

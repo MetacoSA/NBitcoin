@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NBitcoin.BouncyCastle.Math.EC;
+using NBitcoin.BouncyCastle.Utilities.Encoders;
+using NBitcoin.Scripting.Miniscript;
 
 namespace NBitcoin
 {
@@ -29,7 +31,7 @@ namespace NBitcoin
 		/// </summary>
 		SegwitP2SH
 	}
-	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>
+	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>, IMiniscriptKey
 	{
 		/// <summary>
 		/// Create a new Public key from string
@@ -48,11 +50,29 @@ namespace NBitcoin
 		{
 		}
 
+		public bool TryParse(string hex)
+		{
+			if (hex == null) throw new ArgumentNullException(nameof(hex));
+			var v = Hex.Decode(hex);
+			if (!Check(v, true))
+				return false;
+			vch = v;
+			try
+			{
+				_ECKey = new ECKey(v, false);
+			}
+			catch (Exception ex)
+			{
+				throw new FormatException("Invalid public key", ex);
+			}
+			return true;
+		}
+
 		/// <summary>
 		/// Create a new Public key from byte array
 		/// </summary>
 		/// <param name="bytes">byte array</param>
-		/// <param name="unsafe">If false, make internal copy of bytes and does perform only a costly check for PubKey format. If true, the bytes array is used as is and only PubKey.Check is used for validating the format. </param>	 
+		/// <param name="unsafe">If false, make internal copy of bytes and does perform only a costly check for PubKey format. If true, the bytes array is used as is and only PubKey.Check is used for validating the format. </param>
 		public PubKey(byte[] bytes, bool @unsafe)
 		{
 			if (bytes == null)
@@ -555,5 +575,14 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public IMiniscriptKeyHash MiniscriptKeyHash => Hash;
+		public PubKey ToPublicKey() => this;
+
+		public int SerializedLength() =>
+			this.ToBytes().Length;
+
+		public uint160 HashToHash160(KeyId keyId) =>
+			new uint160(keyId._DestBytes);
 	}
 }

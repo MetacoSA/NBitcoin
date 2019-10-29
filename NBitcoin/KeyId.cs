@@ -1,6 +1,7 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using System;
+using NBitcoin.Scripting.Miniscript;
 
 namespace NBitcoin
 {
@@ -85,7 +86,7 @@ namespace NBitcoin
 			return _Str;
 		}
 	}
-	public class KeyId : TxDestination
+	public class KeyId : TxDestination , IMiniscriptKeyHash
 	{
 		public KeyId()
 			: this(0)
@@ -122,6 +123,9 @@ namespace NBitcoin
 		{
 			return network.NetworkStringParser.CreateP2PKH(this, network);
 		}
+
+		public uint160 ToHash160() =>
+			new uint160(this._DestBytes);
 	}
 	public class WitKeyId : TxDestination
 	{
