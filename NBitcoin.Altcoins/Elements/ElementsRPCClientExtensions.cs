@@ -48,12 +48,12 @@ namespace NBitcoin.Altcoins.Elements
 		/// <param name="network"></param>
 		/// <returns></returns>
 		public static async Task<ElementsTransaction> UnblindTransaction(
-			this RPCClient rpcClient, List<(BitcoinBlindedAddress address, Key blindingKey)> addressBlindingKeys,
+			this RPCClient rpcClient, List<UnblindTransactionBlindingAddressKey> addressBlindingKeys,
 			ElementsTransaction transaction, Network network)
 		{
-			addressBlindingKeys.ForEach(async tuple =>
+			addressBlindingKeys.ForEach(async key =>
 			{
-				var blindImportResponse = await rpcClient.ImportBlindingKey(tuple.address, tuple.blindingKey);
+				var blindImportResponse = await rpcClient.ImportBlindingKey(key.Address, key.BlindingKey);
 				blindImportResponse.ThrowIfError();
 			});
 
@@ -83,6 +83,12 @@ namespace NBitcoin.Altcoins.Elements
 		}
 
 
+	}
+
+	public class UnblindTransactionBlindingAddressKey
+	{
+		public BitcoinBlindedAddress Address { get; set; }
+		public Key BlindingKey { get; set; }
 	}
 
 	public class ElementsGetAddressInfoResponse : GetAddressInfoResponse
