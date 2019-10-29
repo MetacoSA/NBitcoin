@@ -333,9 +333,11 @@ namespace NBitcoin.Tests
 				var rpc = node.CreateRPCClient();
 				if (IsElements(node.Network))
 				{
-					Assert.DoesNotContain((await rpc.GetBalancesAsync()), pair => pair.Value != Money.Zero);
+					Assert.Contains((await rpc.GetBalancesAsync()),
+						pair => pair.Value == Money.FromUnit(2100000, MoneyUnit.BTC));
 					node.Generate(1);
-					Assert.DoesNotContain((await rpc.GetBalancesAsync()), pair => pair.Value != Money.Zero);
+					Assert.Contains((await rpc.GetBalancesAsync()),
+						pair => pair.Value == Money.FromUnit(2100000, MoneyUnit.BTC));
 				}
 				else
 				{

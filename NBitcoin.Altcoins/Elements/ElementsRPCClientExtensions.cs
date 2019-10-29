@@ -79,7 +79,7 @@ namespace NBitcoin.Altcoins.Elements
 			var response = await rpcClient.SendCommandAsync(ElementsRPCOperations.getbalance);
 
 			return response.Result.Children().ToDictionary(token => (token as JProperty).Name,
-				token => Money.Parse((token as JProperty).Value.ToString()));
+				token => Money.Parse(((JProperty) token).Value.ToString()));
 		}
 
 
