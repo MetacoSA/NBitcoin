@@ -317,7 +317,7 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("rltc"))
 			.SetMagic(0xdab5bffa)
 			.SetPort(19444)
-			.SetRPCPort(19332)
+			.SetRPCPort(19443)
 			.SetName("ltc-reg")
 			.AddAlias("ltc-regtest")
 			.AddAlias("litecoin-reg")
