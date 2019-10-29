@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NBitcoin.Altcoins;
-using NBitcoin.DataEncoders;
 using Xunit;
 using Encoders = NBitcoin.DataEncoders.Encoders;
 
@@ -77,7 +75,7 @@ namespace NBitcoin.Tests
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
 				var genesis = rpc.GetBlock(0);
-				if (new[] {Liquid.Instance.Mainnet, Liquid.Instance.Testnet, Liquid.Instance.Regtest,}.Contains(rpc.Network))
+				if (IsElements(builder.Network))
 				{
 					Assert.Contains(genesis.Transactions.SelectMany(t => t.Outputs).OfType<ElementsTxOut>(), o => o.IsPeggedAsset == true && o.ConfidentialValue.Amount != null && o.ConfidentialValue.Amount != Money.Zero);
 				}
@@ -234,15 +232,6 @@ namespace NBitcoin.Tests
 				var node = builder.CreateNode();
 				builder.StartAll();
 				var rpc = node.CreateRPCClient();
-				if (new[] {Liquid.Instance.Mainnet, Liquid.Instance.Testnet, Liquid.Instance.Regtest}.Contains(node.Network))
-				{
-					await rpc.GenerateToAddressAsync(builder.Network.Consensus.CoinbaseMaturity + 1, await rpc.GetNewAddressAsync(node.Network));
-				}
-				else
-				{
-					await rpc.GenerateAsync(builder.Network.Consensus.CoinbaseMaturity + 1);
-				}
-
 				rpc.ScanRPCCapabilities();
 				Assert.NotNull(rpc.Capabilities);
 
@@ -257,7 +246,7 @@ namespace NBitcoin.Tests
 					{
 						AddressType = AddressType.Bech32
 					});
-					if (new[] {Liquid.Instance.Mainnet, Liquid.Instance.Testnet, Liquid.Instance.Regtest,}.Contains(rpc.Network))
+					if (IsElements(node.Network))
 					{
 //						if (address is BitcoinBlindedAddress blindedAddress)
 //						{
@@ -315,8 +304,7 @@ namespace NBitcoin.Tests
 
 			using (var builder = NodeBuilderEx.Create())
 			{
-				if (new[] {Liquid.Instance.Mainnet, Liquid.Instance.Testnet, Liquid.Instance.Regtest,}.Contains(
-					builder.Network))
+				if (IsElements(builder.Network))
 				{
 					//no pow in liquid
 					return;
@@ -343,8 +331,7 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				node.Generate(builder.Network.Consensus.CoinbaseMaturity);
 				var rpc = node.CreateRPCClient();
-				if (new[] {Liquid.Instance.Mainnet, Liquid.Instance.Testnet, Liquid.Instance.Regtest,}.Contains(
-					builder.Network))
+				if (IsElements(node.Network))
 				{
 					Assert.DoesNotContain((await rpc.GetBalancesAsync()), pair => pair.Value != Money.Zero);
 					node.Generate(1);
@@ -383,6 +370,11 @@ namespace NBitcoin.Tests
 				var b2 = nodeClient.GetBlocks(new Protocol.SynchronizeChainOptions() { SkipPoWCheck = true }).ToArray()[50];
 				Assert.Equal(b2.Header.GetType(), chain.GetBlock(50).Header.GetType());
 			}
+		}
+
+		private bool IsElements(Network nodeNetwork)
+		{
+			return nodeNetwork.NetworkSet.CryptoCode.Equals("lbtc", StringComparison.InvariantCultureIgnoreCase);
 		}
 	}
 }
