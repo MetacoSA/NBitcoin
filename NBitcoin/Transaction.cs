@@ -1009,7 +1009,7 @@ namespace NBitcoin
 		BlockExplorer,
 	}
 
-	public class WitScript : IEquatable<WitScript>
+	public class WitScript : IEquatable<WitScript>, IBitcoinSerializable
 	{
 		byte[][] _Pushes;
 		public WitScript(string script)
@@ -1206,6 +1206,24 @@ namespace NBitcoin
 		public override string ToString()
 		{
 			return ToScript().ToString();
+		}
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			if (stream.Serializing)
+			{
+				var pushCount = Convert.ToUInt32(_Pushes.Length);
+				stream.ReadWriteAsVarInt(ref pushCount);
+				foreach (var push in _Pushes)
+				{
+					var bytes = push;
+					stream.ReadWriteAsVarString(ref bytes);
+				}
+			}
+			else
+			{
+				ReadCore(stream);
+			}
 		}
 
 		public Script ToScript()
