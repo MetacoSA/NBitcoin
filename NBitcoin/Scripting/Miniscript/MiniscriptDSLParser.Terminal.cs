@@ -1,7 +1,125 @@
+using System;
+using System.Linq;
+using NBitcoin.Scripting.Miniscript.Policy;
+using NBitcoin.Scripting.Parser;
+
 namespace NBitcoin.Scripting.Miniscript
 {
-	internal static partial class MiniscriptDSLParser
+	internal static partial class MiniscriptDSLParser<TPk, TPKh>
+		where TPk : IMiniscriptKey<TPKh>
+		where TPKh : IMiniscriptKeyHash
 	{
+		# region Leaf
+		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalPk
+			=
+			from pk in ExprP("pk").Then(s => TryParseMiniscriptKey(s))
+			select Terminal<TPk, TPKh>.NewPk(pk);
 
+		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalPkH
+			=
+			from pkH in ExprP("pk_h").Then(TryParseMiniscriptKeyHash)
+			select Terminal<TPk, TPKh>.NewPkH(pkH);
+
+		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalTrue =
+			from _t in Parse.Char('0').Token()
+			select Terminal<TPk, TPKh>.NewTrue();
+
+		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalAfter =
+			from t in ExprP("after").Then(s => TryConvert(s, UInt32.Parse))
+			select Terminal<TPk, TPKh>.NewAfter(t);
+
+		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalOlder =
+			from t in ExprP("older").Then(s => TryConvert(s, UInt32.Parse))
+			select Terminal<TPk, TPKh>.NewOlder(t);
+
+		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalSha256 =
+			from t in ExprP("sha256").Then(s => TryConvert(s, uint256.Parse))
+			select Terminal<TPk, TPKh>.NewSha256(t);
+
+		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalHash256 =
+			from t in ExprP("hash256").Then(s => TryConvert(s, uint256.Parse))
+			select Terminal<TPk, TPKh>.NewHash256(t);
+
+		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalRipemd160 =
+			from t in ExprP("ripemd160").Then(s => TryConvert(s, uint160.Parse))
+			select Terminal<TPk, TPKh>.NewRipemd160(t);
+
+		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalHash160 =
+			from t in ExprP("hash160").Then(s => TryConvert(s, uint160.Parse))
+			select Terminal<TPk, TPKh>.NewHash160(t);
+
+		#endregion
+
+		private static Parser<char, Terminal<TPk, TPKh>> PWrapper(char identifier,
+			Func<Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> construct)
+			=>
+				from _t in Parse.Char(identifier).Then(_ => Parse.Char(':'))
+				from inner in TerminalDSLParser
+					.Except(PWrapper(identifier, construct)) // should not have same wrapper twice
+				select construct(Miniscript<TPk, TPKh>.FromAst(inner));
+
+		private static Parser<char, Terminal<TPk, TPKh>> PBinary(
+			string identifier,
+			Func<Miniscript<TPk, TPKh>, Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> constructor
+		) =>
+			from s in PSubExprs(identifier, TerminalDSLParser)
+			where s.Count() == 2
+			select constructor(Miniscript<TPk, TPKh>.FromAst(s.ElementAt(0)),
+				Miniscript<TPk, TPKh>.FromAst(s.ElementAt(1)));
+
+		private static Parser<char, Terminal<TPk, TPKh>> PTernary(
+			string identifier,
+			Func<Miniscript<TPk, TPKh>, Miniscript<TPk, TPKh>, Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> constructor
+		) =>
+			from s in PSubExprs(identifier, TerminalDSLParser)
+			where s.Count() == 3
+			select constructor(
+				Miniscript<TPk, TPKh>.FromAst(s.ElementAt(0)),
+				Miniscript<TPk, TPKh>.FromAst(s.ElementAt(1)),
+				Miniscript<TPk, TPKh>.FromAst(s.ElementAt(2)));
+
+		private static Parser<char, Terminal<TPk, TPKh>> PTerminalThresh =
+			PThresh(
+				"thresh",
+				Terminal<TPk, TPKh>.NewThresh,
+				TerminalDSLParser.Select(t => Miniscript<TPk, TPKh>.FromAst(t)));
+
+		private static Parser<char, Terminal<TPk, TPKh>> PTerminalThreshM =
+			PThresh("thresh_m", Terminal<TPk, TPKh>.NewThreshM,
+			(from pk in ExprP("pk").Then(s => TryParseMiniscriptKey(s))
+			select pk));
+
+		private static readonly Parser<char, Terminal<TPk, TPKh>> TerminalDSLParser =
+			// ------ leafs ------
+			PTerminalPk
+				.Or(PTerminalPkH)
+				.Or(PTerminalAfter)
+				.Or(PTerminalOlder)
+				.Or(PTerminalSha256)
+				.Or(PTerminalHash256)
+				.Or(PTerminalRipemd160)
+				.Or(PTerminalHash160)
+				// ------- wrappers --------
+				.Or(PWrapper('a', Terminal<TPk, TPKh>.NewAlt))
+				.Or(PWrapper('s', Terminal<TPk, TPKh>.NewSwap))
+				.Or(PWrapper('c', Terminal<TPk, TPKh>.NewCheck))
+				.Or(PWrapper('d', Terminal<TPk, TPKh>.NewDupIf))
+				.Or(PWrapper('v', Terminal<TPk, TPKh>.NewVerify))
+				.Or(PWrapper('j', Terminal<TPk, TPKh>.NewZeroNotEqual))
+				// ------- Conjunctions -----
+				.Or(PBinary("and_v", Terminal<TPk, TPKh>.NewAndV))
+				.Or(PBinary("and_b", Terminal<TPk, TPKh>.NewAndB))
+				.Or(PTernary("and_or", Terminal<TPk, TPKh>.NewAndOr))
+				// ------- Disjunctions  -----
+				.Or(PBinary("or_b", Terminal<TPk, TPKh>.NewOrB))
+				.Or(PBinary("or_d", Terminal<TPk, TPKh>.NewOrD))
+				.Or(PBinary("or_c", Terminal<TPk, TPKh>.NewOrC))
+				.Or(PBinary("or_i", Terminal<TPk, TPKh>.NewOrI))
+				// ------- Thresholds ------
+				.Or(PTerminalThresh)
+				.Or(PTerminalThreshM);
+
+		public static Terminal<TPk, TPKh> ParseTerminal(string input)
+			=> TerminalDSLParser.Parse(input);
 	}
 }

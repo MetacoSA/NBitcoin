@@ -31,7 +31,7 @@ namespace NBitcoin
 		/// </summary>
 		SegwitP2SH
 	}
-	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>, IMiniscriptKey
+	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>, IMiniscriptKey<uint160>
 	{
 		/// <summary>
 		/// Create a new Public key from string
@@ -66,6 +66,11 @@ namespace NBitcoin
 				throw new FormatException("Invalid public key", ex);
 			}
 			return true;
+		}
+
+		public bool Equals(IMiniscriptKey<uint160> other)
+		{
+			throw new NotImplementedException();
 		}
 
 		/// <summary>
@@ -577,6 +582,11 @@ namespace NBitcoin
 		#endregion
 
 		public IMiniscriptKeyHash MiniscriptKeyHash => Hash;
+		public uint160 ToPubKeyHash()
+		{
+			throw new NotImplementedException();
+		}
+
 		public PubKey ToPublicKey() => this;
 
 		public int SerializedLength() =>

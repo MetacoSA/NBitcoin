@@ -1,12 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices.ComTypes;
 using NBitcoin.Scripting.Miniscript.Types;
-using NBitcoin.Scripting.Parser;
-
-using P = NBitcoin.Scripting.Parser.Parser<NBitcoin.Scripting.Miniscript.ScriptToken, NBitcoin.Scripting.Miniscript.Miniscript>;
 
 namespace NBitcoin.Scripting.Miniscript
 {
@@ -396,46 +390,42 @@ namespace NBitcoin.Scripting.Miniscript
 		*/
 
 
-		public static Terminal ParseScript(Script sc) =>
+		public static Terminal<TPk, TPKh> ParseScript<TPk, TPKh>(Script sc)
+			where TPk : IMiniscriptKey<TPKh>
+			where TPKh : IMiniscriptKeyHash
+			=>
 			throw new NotImplementedException();
 
-		private class TerminalStack
+		private class TerminalStack<TPk, TPKh>
+		where TPk : IMiniscriptKey<TPKh>
+		where TPKh : IMiniscriptKeyHash
 		{
-			internal readonly Stack<Miniscript> Inner;
-			internal TerminalStack(Stack<Miniscript> inner)
+			internal readonly Stack<Miniscript<TPk, TPKh>> Inner;
+			internal TerminalStack(Stack<Miniscript<TPk, TPKh>> inner)
 			{
 				Inner = inner;
 			}
 
-			internal Miniscript Pop() =>
+			internal Miniscript<TPk, TPKh> Pop() =>
 				this.Inner.Pop();
 
-			internal void Reduce0(Terminal ms)
+			internal void Reduce0(Terminal<TPk, TPKh> ms)
 			{
 				MiniscriptFragmentType ty = default;
 				ty = ty.TypeCheck(ms, _ => null);
 				ExtData ext = default;
 				ext = ext.TypeCheck(ms, _ => null);
-				this.Inner.Push(new Miniscript(ty, ms, ext));
+				this.Inner.Push(new Miniscript<TPk, TPKh>(ty, ms, ext));
 			}
 
-			internal void Reduce1(Func<Miniscript, Terminal> wrap)
+			internal void Reduce1(Func<Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> wrap)
 			{
-				var top = this.Pop();
-				var wrappedMs = wrap(top);
-				var ty = MiniscriptFragmentType.TypeCheck(wrappedMs, _ => null);
-				var ext = ExtData.TypeCheck(wrappedMs, _ => null);
-				this.Inner.Push(new Miniscript(ty, wrappedMs, ext));
+				throw new NotImplementedException();
 			}
 
-			internal void Reduce2(Func<Miniscript, Miniscript, Terminal> wrap)
+			internal void Reduce2(Func<Miniscript<TPk, TPKh>, Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> wrap)
 			{
-				var left = this.Pop();
-				var right = this.Pop();
-				var wrappedMs = wrap(left, right);
-				var ty = MiniscriptFragmentType.TypeCheck(wrappedMs, _ => null);
-				var ext = ExtData.TypeCheck(wrappedMs, _ => null);
-				this.Inner.Push(new Miniscript(ty, wrappedMs, ext));
+				throw new NotImplementedException();
 			}
 		}
 
@@ -445,10 +435,12 @@ namespace NBitcoin.Scripting.Miniscript
 		{
 			throw new NotImplementedException();
 		}
-		public static Miniscript<TPk> ParseScriptToken(ScriptToken sct)
+		public static Miniscript<TPk, TPKh> ParseScriptToken<TPk, TPKh>(ScriptToken sct)
+		where TPk : IMiniscriptKey<TPKh>
+		where TPKh : IMiniscriptKeyHash
 		{
 			var nonTerm = new Stack<NonTerm>();
-			var term = new TerminalStack(new Stack<Miniscript>());
+			var term = new TerminalStack<TPk, TPKh>(new Stack<Miniscript<TPk, TPKh>>());
 
 			nonTerm.Push(NonTerm.MaybeAndV);
 			nonTerm.Push(NonTerm.MaybeSwap);
@@ -461,6 +453,7 @@ namespace NBitcoin.Scripting.Miniscript
 				if (popped == NonTerm.Expression)
 				{}
 			}
+			throw new NotImplementedException();
 		}
 	}
 }

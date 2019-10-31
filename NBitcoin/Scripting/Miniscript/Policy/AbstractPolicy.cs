@@ -7,7 +7,9 @@ using NBitcoin.RPC;
 
 namespace NBitcoin.Scripting.Miniscript.Policy
 {
-	public class AbstractPolicy<TPk> : IEquatable<AbstractPolicy<TPk>> where TPk : IMiniscriptKey
+	public class AbstractPolicy<TPk, TPKh> : IEquatable<AbstractPolicy<TPk, TPKh>>
+		where TPKh : IMiniscriptKeyHash
+		where TPk : IMiniscriptKey<TPKh>
 	{
 		#region Subtype definitions
 		internal static class Tags
@@ -29,19 +31,19 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		private int Tag;
 		private AbstractPolicy(int tag) => Tag = tag;
 
-		public static AbstractPolicy<TPk> UnSatisfiable { get; } = new AbstractPolicy<TPk>(Tags.Unsatisfiable);
-		public static AbstractPolicy<TPk> Trivial { get; } = new AbstractPolicy<TPk>(Tags.Trivial);
+		public static AbstractPolicy<TPk, TPKh> UnSatisfiable { get; } = new AbstractPolicy<TPk, TPKh>(Tags.Unsatisfiable);
+		public static AbstractPolicy<TPk, TPKh> Trivial { get; } = new AbstractPolicy<TPk, TPKh>(Tags.Trivial);
 
-		internal class KeyHash : AbstractPolicy<TPk>
+		internal class KeyHash : AbstractPolicy<TPk, TPKh>
 		{
-			internal IMiniscriptKeyHash Item;
-			internal KeyHash(IMiniscriptKeyHash item) : base(Tags.KeyHash)
+			internal TPKh Item;
+			internal KeyHash(TPKh item) : base(Tags.KeyHash)
 			{
 				Item = item;
 			}
 		}
 
-		internal class After : AbstractPolicy<TPk>
+		internal class After : AbstractPolicy<TPk, TPKh>
 		{
 			internal uint Item;
 
@@ -51,7 +53,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			}
 		}
 
-		internal class Older : AbstractPolicy<TPk>
+		internal class Older : AbstractPolicy<TPk, TPKh>
 		{
 			internal uint Item;
 
@@ -61,7 +63,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			}
 		}
 
-		internal class Sha256 : AbstractPolicy<TPk>
+		internal class Sha256 : AbstractPolicy<TPk, TPKh>
 		{
 			internal uint256 Item;
 
@@ -71,7 +73,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			}
 		}
 
-		internal class Hash256 : AbstractPolicy<TPk>
+		internal class Hash256 : AbstractPolicy<TPk, TPKh>
 		{
 			internal uint256 Item;
 
@@ -81,7 +83,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			}
 		}
 
-		internal class Ripemd160 : AbstractPolicy<TPk>
+		internal class Ripemd160 : AbstractPolicy<TPk, TPKh>
 		{
 			internal uint160 Item;
 
@@ -91,7 +93,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			}
 		}
 
-		internal class Hash160 : AbstractPolicy<TPk>
+		internal class Hash160 : AbstractPolicy<TPk, TPKh>
 		{
 			internal uint160 Item;
 
@@ -101,50 +103,50 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			}
 		}
 
-		internal class And : AbstractPolicy<TPk>
+		internal class And : AbstractPolicy<TPk, TPKh>
 		{
-			internal List<AbstractPolicy<TPk>> Item;
+			internal List<AbstractPolicy<TPk, TPKh>> Item;
 
-			public And(List<AbstractPolicy<TPk>> item) : base(Tags.And)
+			public And(List<AbstractPolicy<TPk, TPKh>> item) : base(Tags.And)
 			{
 				Item = item;
 			}
 		}
 
-		internal class Or : AbstractPolicy<TPk>
+		internal class Or : AbstractPolicy<TPk, TPKh>
 		{
-			internal List<AbstractPolicy<TPk>> Item;
+			internal List<AbstractPolicy<TPk, TPKh>> Item;
 
-			public Or(List<AbstractPolicy<TPk>> item) : base(Tags.Or)
+			public Or(List<AbstractPolicy<TPk, TPKh>> item) : base(Tags.Or)
 			{
 				Item = item;
 			}
 		}
 
-		internal class Threshold : AbstractPolicy<TPk>
+		internal class Threshold : AbstractPolicy<TPk, TPKh>
 		{
 			internal uint Item1;
-			internal List<AbstractPolicy<TPk>> Item2;
+			internal List<AbstractPolicy<TPk, TPKh>> Item2;
 
-			public Threshold(uint item1, List<AbstractPolicy<TPk>> item2) : base (Tags.Threshold)
+			public Threshold(uint item1, List<AbstractPolicy<TPk, TPKh>> item2) : base (Tags.Threshold)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
 
-		public static AbstractPolicy<TPk> NewUnsatisfiable() => UnSatisfiable;
-		public static AbstractPolicy<TPk> NewTrivial() => Trivial;
-		public static AbstractPolicy<TPk> NewKeyHash(IMiniscriptKeyHash item) => new KeyHash(item);
-		public static AbstractPolicy<TPk> NewAfter(uint item) => new After(item);
-		public static AbstractPolicy<TPk> NewOlder(uint item) => new Older(item);
-		public static AbstractPolicy<TPk> NewSha256(uint256 item) => new Sha256(item);
-		public static AbstractPolicy<TPk> NewHash256(uint256 item) => new Hash256(item);
-		public static AbstractPolicy<TPk> NewRipemd160(uint160 item) => new Ripemd160(item);
-		public static AbstractPolicy<TPk> NewHash160(uint160 item) => new Hash160(item);
-		public static AbstractPolicy<TPk> NewAnd(List<AbstractPolicy<TPk>> item) => new And(item);
-		public static AbstractPolicy<TPk> NewOr(List<AbstractPolicy<TPk>> item) => new Or(item);
-		public static AbstractPolicy<TPk> NewThreshold(uint item1, List<AbstractPolicy<TPk>> item2) => new Threshold(item1, item2);
+		public static AbstractPolicy<TPk, TPKh> NewUnsatisfiable() => UnSatisfiable;
+		public static AbstractPolicy<TPk, TPKh> NewTrivial() => Trivial;
+		public static AbstractPolicy<TPk, TPKh> NewKeyHash(TPKh item) => new KeyHash(item);
+		public static AbstractPolicy<TPk, TPKh> NewAfter(uint item) => new After(item);
+		public static AbstractPolicy<TPk, TPKh> NewOlder(uint item) => new Older(item);
+		public static AbstractPolicy<TPk, TPKh> NewSha256(uint256 item) => new Sha256(item);
+		public static AbstractPolicy<TPk, TPKh> NewHash256(uint256 item) => new Hash256(item);
+		public static AbstractPolicy<TPk, TPKh> NewRipemd160(uint160 item) => new Ripemd160(item);
+		public static AbstractPolicy<TPk, TPKh> NewHash160(uint160 item) => new Hash160(item);
+		public static AbstractPolicy<TPk, TPKh> NewAnd(List<AbstractPolicy<TPk, TPKh>> item) => new And(item);
+		public static AbstractPolicy<TPk, TPKh> NewOr(List<AbstractPolicy<TPk, TPKh>> item) => new Or(item);
+		public static AbstractPolicy<TPk, TPKh> NewThreshold(uint item1, List<AbstractPolicy<TPk, TPKh>> item2) => new Threshold(item1, item2);
 
 		#endregion
 
@@ -213,7 +215,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		}
 
 
-		public bool Equals(AbstractPolicy<TPk> other)
+		public bool Equals(AbstractPolicy<TPk, TPKh> other)
 		{
 			if (other == null)
 				return false;
@@ -241,13 +243,13 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 				case Hash160 self:
 					return self.Item.Equals(((Hash160)other).Item);
 				case And self:
-					var andSet = new HashSet<AbstractPolicy<TPk>>(self.Item);
+					var andSet = new HashSet<AbstractPolicy<TPk, TPKh>>(self.Item);
 					return andSet.SetEquals(((And)other).Item);
 				case Or self:
-					var orSet = new HashSet<AbstractPolicy<TPk>>(self.Item);
+					var orSet = new HashSet<AbstractPolicy<TPk, TPKh>>(self.Item);
 					return orSet.SetEquals(((Or)other).Item);
 				case Threshold self:
-					var subSet = new HashSet<AbstractPolicy<TPk>>(self.Item2);
+					var subSet = new HashSet<AbstractPolicy<TPk, TPKh>>(self.Item2);
 					var o = (Threshold) other;
 					return (self.Item1 == o.Item1) && (subSet.SetEquals(o.Item2));
 			}
@@ -256,16 +258,16 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 
 		#endregion
 
-		public static AbstractPolicy<TPk> FromTree<T>(Tree<T> top)
+		public static AbstractPolicy<TPk, TPKh> FromTree<T>(Tree<T> top)
 		{
 			var n = top.Name;
 			var l = top.Args.Length;
 			if (n == "UNSATISFIABLE" && l == 0)
-				return AbstractPolicy<TPk>.UnSatisfiable;
+				return AbstractPolicy<TPk, TPKh>.UnSatisfiable;
 			if (n == "TRIVIAL" && l == 0)
-				return AbstractPolicy<TPk>.Trivial;
+				return AbstractPolicy<TPk, TPKh>.Trivial;
 			//if (n == "pkh" && l == 1)
-				// return AbstractPolicy<TPk>.KeyHash;
+				// return AbstractPolicy<TPk, TPKh>.KeyHash;
 			throw new NotImplementedException();
 		}
 
@@ -274,12 +276,12 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		/// `Unsatisfiable`'s Does not reorder any branches; use `.sort`
 		/// </summary>
 		/// <returns></returns>
-		public AbstractPolicy<TPk> Normalize()
+		public AbstractPolicy<TPk, TPKh> Normalize()
 		{
 			switch (this)
 			{
 				case And self:
-					var retSubsAnd = new List<AbstractPolicy<TPk>>();
+					var retSubsAnd = new List<AbstractPolicy<TPk, TPKh>>();
 					foreach (var sub in self.Item)
 					{
 						var s = sub.Normalize();
@@ -308,7 +310,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 						return NewAnd(retSubsAnd);
 
 				case Or self:
-					var retSubsOr = new List<AbstractPolicy<TPk>>();
+					var retSubsOr = new List<AbstractPolicy<TPk, TPKh>>();
 					foreach (var sub in self.Item)
 					{
 						if (sub == Trivial) return Trivial;

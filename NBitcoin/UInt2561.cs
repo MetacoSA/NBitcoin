@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using NBitcoin.DataEncoders;
+using NBitcoin.Scripting.Miniscript;
 
 namespace NBitcoin
 {
@@ -493,7 +494,7 @@ namespace NBitcoin
 			return hash;
 		}
 	}
-	public sealed class uint160 : IComparable<uint160>, IEquatable<uint160>, IComparable
+	public sealed class uint160 : IComparable<uint160>, IEquatable<uint160>, IComparable, IMiniscriptKeyHash
 	{
 		public class MutableUint160 : IBitcoinSerializable
 		{
@@ -850,6 +851,15 @@ namespace NBitcoin
 				hash = hash * 31 + (int)pn4;
 			}
 			return hash;
+		}
+
+		public uint160 ToHash160() => this;
+
+		public string ToHex() => ToString();
+
+		public bool TryParse(string str)
+		{
+			return uint160.TryParse(str, out this);
 		}
 	}
 }

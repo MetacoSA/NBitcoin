@@ -136,16 +136,18 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		ThresholdNotStrong
 	}
 
-	class TypeCheckException<TPk> : Exception where TPk : IMiniscriptKey
+	class TypeCheckException<TPk, TPKh> : Exception
+		where TPk : IMiniscriptKey<TPKh>
+		where TPKh : IMiniscriptKeyHash
 	{
-		public readonly Terminal<TPk> Fragment;
+		public readonly Terminal<TPk, TPKh> Fragment;
 		public readonly ErrorKind Kind;
 		public readonly int[] Items;
-		public TypeCheckException(Terminal<TPk> fragment, ErrorKind kind)
+		public TypeCheckException(Terminal<TPk, TPKh> fragment, ErrorKind kind)
 			: this(fragment, kind, new int[] { })
 		{}
 
-		public TypeCheckException(Terminal<TPk> fragment, ErrorKind kind, int[] items):
+		public TypeCheckException(Terminal<TPk, TPKh> fragment, ErrorKind kind, int[] items):
 			base($"Error: {kind.ToString("G")}. Fragment: {fragment}, items: {items.Select(i => i.ToString()).Aggregate((str, i) => $"{str}, {i}")}")
 
 		{
@@ -171,22 +173,28 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		/// <typeparam name="T"></typeparam>
 		/// <exception cref="TypeCheckException"></exception>
 		/// <returns></returns>
-		internal static T TypeCheck<T, TPk>(this T prop, Terminal<TPk> fragment, Func<int, T> child) where T : class, IProperty<T>
-		where TPk : IMiniscriptKey
+		internal static T TypeCheck<T, TPk, TPKh>(this T prop, Terminal<TPk, TPKh> fragment, Func<int, T> child)
+			where T : class, IProperty<T>
+			where TPk : IMiniscriptKey<TPKh>
+			where TPKh : IMiniscriptKeyHash
 		{
 			var res = prop.TypeCheckCore(fragment, child);
 			res.SanityChecks();
 			return res;
 		}
 
-		internal static T TypeCheck<T, TPk>(this T prop, Terminal<TPk> fragment) where T : class, IProperty<T>
-			where TPk : IMiniscriptKey
+		internal static T TypeCheck<T, TPk, TPKh>(this T prop, Terminal<TPk, TPKh> fragment)
+			where T : class, IProperty<T>
+			where TPk : IMiniscriptKey<TPKh>
+			where TPKh : IMiniscriptKeyHash
 			=> prop.TypeCheck(fragment, (_) => null);
 
-		private static T TypeCheckCore<T, TPk>(this T prop, Terminal<TPk> fragment,Func<int, T> child) where T : class, IProperty<T>
-		where TPk : IMiniscriptKey
+		private static T TypeCheckCore<T, TPk, TPKh>(this T prop, Terminal<TPk, TPKh> fragment,Func<int, T> child)
+			where T : class, IProperty<T>
+			where TPk : IMiniscriptKey<TPKh>
+			where TPKh : IMiniscriptKeyHash
 		{
-			T GetChild(Terminal<TPk> sub, int n)
+			T GetChild(Terminal<TPk, TPKh> sub, int n)
 				{
 					try
 					{
@@ -199,102 +207,102 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				}
 			switch (fragment.Tag)
 			{
-				case Terminal<TPk>.Tags.True:
+				case Terminal<TPk, TPKh>.Tags.True:
 					return prop.FromTrue();
-				case Terminal<TPk>.Tags.False:
+				case Terminal<TPk, TPKh>.Tags.False:
 					return prop.FromFalse();
 			}
 
 			switch (fragment)
 			{
-				case Terminal<TPk>.Pk self:
+				case Terminal<TPk, TPKh>.Pk self:
 					return prop.FromPk();
-				case Terminal<TPk>.PkH self:
+				case Terminal<TPk, TPKh>.PkH self:
 					return prop.FromPkH();
-				case Terminal<TPk>.ThreshM self:
+				case Terminal<TPk, TPKh>.ThreshM self:
 					if (self.Item1 == 0)
 					{
-						throw new TypeCheckException<TPk>(fragment, ErrorKind.ZeroThreshold);
+						throw new TypeCheckException<TPk, TPKh>(fragment, ErrorKind.ZeroThreshold);
 					}
 
 					if (self.Item1 > self.Item2.Length)
 					{
-						throw new TypeCheckException<TPk>(
+						throw new TypeCheckException<TPk, TPKh>(
 							fragment,
 							ErrorKind.OverThreshold,
 							new int[] {self.Item1, self.Item2.Length});
 					}
 					return prop.FromMulti(self.Item1, self.Item2.Length);
-				case Terminal<TPk>.After self:
+				case Terminal<TPk, TPKh>.After self:
 					if (self.Item == 0)
 					{
-						throw new TypeCheckException<TPk>(fragment, ErrorKind.ZeroTime);
+						throw new TypeCheckException<TPk, TPKh>(fragment, ErrorKind.ZeroTime);
 					}
 
 					return prop.FromAfter(self.Item);
-				case Terminal<TPk>.Older self:
+				case Terminal<TPk, TPKh>.Older self:
 					if (self.Item == 0)
 					{
-						throw new TypeCheckException<TPk>(fragment, ErrorKind.ZeroTime);
+						throw new TypeCheckException<TPk, TPKh>(fragment, ErrorKind.ZeroTime);
 					}
 
 					return prop.FromOlder(self.Item);
-				case Terminal<TPk>.Sha256 self:
+				case Terminal<TPk, TPKh>.Sha256 self:
 					return prop.FromSha256();
-				case Terminal<TPk>.Hash256 self:
+				case Terminal<TPk, TPKh>.Hash256 self:
 					return prop.FromHash256();
-				case Terminal<TPk>.Ripemd160 self:
+				case Terminal<TPk, TPKh>.Ripemd160 self:
 					return prop.FromRipemd160();
-				case Terminal<TPk>.Alt self:
+				case Terminal<TPk, TPKh>.Alt self:
 					return GetChild(self.Item.Node, 0).CastAlt();
-				case Terminal<TPk>.Swap self:
+				case Terminal<TPk, TPKh>.Swap self:
 					return GetChild(self.Item.Node, 0).CastSwap();
-				case Terminal<TPk>.Check self:
+				case Terminal<TPk, TPKh>.Check self:
 					return GetChild(self.Item.Node, 0).CastCheck();
-				case Terminal<TPk>.DupIf self:
+				case Terminal<TPk, TPKh>.DupIf self:
 					return GetChild(self.Item.Node, 0).CastDupIf();
-				case Terminal<TPk>.Verify self:
+				case Terminal<TPk, TPKh>.Verify self:
 					return GetChild(self.Item.Node, 0).CastVerify();
-				case Terminal<TPk>.NonZero self:
+				case Terminal<TPk, TPKh>.NonZero self:
 					return GetChild(self.Item.Node, 0).CastNonZero();
-				case Terminal<TPk>.AndB self:
+				case Terminal<TPk, TPKh>.AndB self:
 					var andBL = GetChild(self.Item1.Node, 0);
 					var andBR = GetChild(self.Item2.Node, 1);
 					return prop.AndB(andBL, andBR);
-				case Terminal<TPk>.AndV self:
+				case Terminal<TPk, TPKh>.AndV self:
 					var andVL = GetChild(self.Item1.Node, 0);
 					var andVR = GetChild(self.Item2.Node, 1);
 					return prop.AndV(andVL, andVR);
-				case Terminal<TPk>.OrB self:
+				case Terminal<TPk, TPKh>.OrB self:
 					var orBL = GetChild(self.Item1.Node, 0);
 					var orBR = GetChild(self.Item2.Node, 1);
 					return prop.OrB(orBL, orBR);
-				case Terminal<TPk>.OrD self:
+				case Terminal<TPk, TPKh>.OrD self:
 					var orDL = GetChild(self.Item1.Node, 0);
 					var orDR = GetChild(self.Item2.Node, 1);
 					return prop.OrD(orDL, orDR);
-				case Terminal<TPk>.OrC self:
+				case Terminal<TPk, TPKh>.OrC self:
 					var orCL = GetChild(self.Item1.Node, 0);
 					var orCR = GetChild(self.Item2.Node, 1);
 					return prop.OrC(orCL, orCR);
-				case Terminal<TPk>.OrI self:
+				case Terminal<TPk, TPKh>.OrI self:
 					var orIL = GetChild(self.Item1.Node, 0);
 					var orIR = GetChild(self.Item2.Node, 1);
 					return prop.OrC(orIL, orIR);
-				case Terminal<TPk>.AndOr self:
+				case Terminal<TPk, TPKh>.AndOr self:
 					var a = GetChild(self.Item1.Node, 0);
 					var b = GetChild(self.Item2.Node, 1);
 					var c = GetChild(self.Item3.Node, 2);
 					return prop.AndOr(a, b, c);
-				case Terminal<TPk>.Thresh self:
+				case Terminal<TPk, TPKh>.Thresh self:
 					if (self.Item1 == 0)
 					{
-						throw new TypeCheckException<TPk>(fragment, ErrorKind.ZeroThreshold);
+						throw new TypeCheckException<TPk, TPKh>(fragment, ErrorKind.ZeroThreshold);
 					}
 
 					if (self.Item1 > self.Item2.Length)
 					{
-						throw new TypeCheckException<TPk>(fragment, ErrorKind.OverThreshold);
+						throw new TypeCheckException<TPk, TPKh>(fragment, ErrorKind.OverThreshold);
 					}
 					return
 						prop.Threshold(self.Item1, self.Item2.Length, (n) =>

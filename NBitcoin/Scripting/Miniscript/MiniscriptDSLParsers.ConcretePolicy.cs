@@ -8,9 +8,11 @@ using System.Collections.Generic;
 using NBitcoin.Scripting.Miniscript;
 using NBitcoin.Scripting.Miniscript.Policy;
 
-namespace NBitcoin.Scripting
+namespace NBitcoin.Scripting.Miniscript
 {
-	internal static partial class MiniscriptDSLParser
+	internal static partial class MiniscriptDSLParser<TPk, TPKh>
+			where TPk : IMiniscriptKey<TPKh>
+			where TPKh : IMiniscriptKeyHash
 	{
 		internal static readonly Parser<char, string> SurroundedByBrackets  =
 				from leftB in Parse.Char('(').Token()
@@ -79,14 +81,22 @@ namespace NBitcoin.Scripting
 			};
 		}
 
-		internal static Parser<char, TPk> TryParseMiniscriptKey<TPk>(string str)
-			where TPk : IMiniscriptKey
+		internal static Parser<char, TPk> TryParseMiniscriptKey(string str)
 			=> i =>
 			{
 				TPk t = default;
 				if (!t.TryParse(str))
-					return ParserResult<char, TPk>.Failure(i, $"Failed to parse MiniscriptKey {i}");
+					return ParserResult<char, TPk>.Failure(i, $"Failed to parse MiniscriptKey {str}");
 				return ParserResult<char, TPk>.Success(i, t);
+			};
+
+		internal static Parser<char, TPKh> TryParseMiniscriptKeyHash(string str)
+			=> i =>
+			{
+				TPKh t = default;
+				if (!t.TryParse(str))
+					return ParserResult<char, TPKh>.Failure(i, "");
+				return ParserResult<char, TPKh>.Success(i, t);
 			};
 
 		internal static Parser<char, string> ExprP(string name)
@@ -100,117 +110,109 @@ namespace NBitcoin.Scripting
 			from x in ExprP(name)
 			select SafeSplit(x);
 
-		private static Parser<char, ConcretePolicy<TPk>> PPubKeyExpr<TPk>()
-			where TPk : IMiniscriptKey
-			=>
-			from pk in ExprP("pk").Then(s => TryParseMiniscriptKey<TPk>(s))
-			select ConcretePolicy<TPk>.NewKey(pk);
+		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PPubKeyExpr
+			=
+			from pk in ExprP("pk").Then(s => TryParseMiniscriptKey(s))
+			select ConcretePolicy<TPk, TPKh>.NewKey(pk);
 
-		private static Parser<char, ConcretePolicy<TPk>> PSha256Expr<TPk>()
-			where TPk : IMiniscriptKey
-			=>
+		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PSha256Expr
+			=
 			from hash in ExprP("sha256").Then(s => TryConvert(s, uint256.Parse))
-			select ConcretePolicy<TPk>.NewSha256(hash);
+			select ConcretePolicy<TPk, TPKh>.NewSha256(hash);
 
-		private static Parser<char, ConcretePolicy<TPk>> PHash256Expr<TPk>()
-			where TPk : IMiniscriptKey
-			=>
+		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PHash256Expr
+			=
 			from hash in ExprP("hash256").Then(s => TryConvert(s, uint256.Parse))
-			select ConcretePolicy<TPk>.NewHash256(hash);
+			select ConcretePolicy<TPk, TPKh>.NewHash256(hash);
 
-		private static Parser<char, ConcretePolicy<TPk>> PRipemd160Expr<TPk>()
-			where TPk : IMiniscriptKey
-			=>
+		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PRipemd160Expr
+			=
 			from hash in ExprP("ripemd160").Then(s => TryConvert(s, uint160.Parse))
-			select ConcretePolicy<TPk>.NewRipemd160(hash);
+			select ConcretePolicy<TPk, TPKh>.NewRipemd160(hash);
 
-		private static Parser<char, ConcretePolicy<TPk>> PHash160Expr<TPk>()
-			where TPk : IMiniscriptKey
-			=>
+		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PHash160Expr
+			=
 			from hash in ExprP("hash160").Then(s => TryConvert(s, uint160.Parse))
-			select ConcretePolicy<TPk>.NewHash160(hash);
+			select ConcretePolicy<TPk, TPKh>.NewHash160(hash);
 
-		private static Parser<char, ConcretePolicy<TPk>> PAfterExpr<TPk>()
-			where TPk : IMiniscriptKey
-			=>
+		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PAfterExpr
+			=
 			from t in ExprP("after").Then(s => TryConvert(s, UInt32.Parse))
-			select ConcretePolicy<TPk>.NewAfter(t);
+			select ConcretePolicy<TPk, TPKh>.NewAfter(t);
 
-		private static Parser<char, ConcretePolicy<TPk>> POlderExpr<TPk>()
-			where TPk : IMiniscriptKey
-			=>
+		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> POlderExpr
+			=
 			from t in ExprP("older").Then(s => TryConvert(s, UInt32.Parse))
-			select ConcretePolicy<TPk>.NewOlder(t);
+			select ConcretePolicy<TPk, TPKh>.NewOlder(t);
 
-		private static Parser<char, IEnumerable<TSub>> PSubExprs<TSub>(string name, Func<Parser<char, TSub>> subP) =>
+		private static Parser<char, IEnumerable<TSub>> PSubExprs<TSub>(string name, Parser<char, TSub> subP) =>
 			from _n in Parse.String(name)
 			from _left in Parse.Char('(')
 			from x in Parse
-				.Ref(subP)
+				.Ref(() => subP)
 				.DelimitedBy(Parse.Char(',').Token()).Token()
 			from _right in Parse.Char(')')
 			select x;
 
-		private static Parser<char, ConcretePolicy<TPk>> PAndExpr<TPk>()
-			where TPk : IMiniscriptKey
-			=>
-			from x in PSubExprs("and", DSLParser<TPk>)
-			select ConcretePolicy<TPk>.NewAnd(x);
+		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PAndExpr
+			=
+			from x in PSubExprs("and", DSLParser)
+			select ConcretePolicy<TPk, TPKh>.NewAnd(x);
 
-		private static Parser<char, Tuple<uint, ConcretePolicy<TPk>>> POrWithProb<TPk>()
-			where TPk : IMiniscriptKey
-			=>
+		private static readonly Parser<char, Tuple<uint, ConcretePolicy<TPk, TPKh>>> POrWithProb
+			=
 			from x in Parse.Digit.AtLeastOnce().Text()
 				.Then(digitStr => TryConvert(digitStr, UInt32.Parse))
 			from _a in Parse.Char('@')
-			from sub in Parse.Ref(DSLParser<TPk>)
+			from sub in Parse.Ref(() => DSLParser)
 			select Tuple.Create(x, sub);
 
-		private static Parser<char, Tuple<uint, ConcretePolicy<TPk>>> POrWithoutProb<TPk>()
-			where TPk : IMiniscriptKey
-			=>
-			from sub in Parse.Ref(DSLParser<TPk>)
+		private static readonly Parser<char, Tuple<uint, ConcretePolicy<TPk, TPKh>>> POrWithoutProb
+			=
+			from sub in Parse.Ref(() => DSLParser)
 			select Tuple.Create(1U, sub);
 
-		private static Parser<char, ConcretePolicy<TPk>> POrExpr<TPk>()
-			where TPk : IMiniscriptKey
-			=>
+		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> POrExpr
+			=
 			from x in
-				PSubExprs("or", POrWithProb<TPk>)
-				.Or(PSubExprs("or", POrWithoutProb<TPk>))
-			select ConcretePolicy<TPk>.NewOr(x);
+				PSubExprs("or", POrWithProb)
+				.Or(PSubExprs("or", POrWithoutProb))
+			select ConcretePolicy<TPk, TPKh>.NewOr(x);
 
-		internal static Parser<char, ConcretePolicy<TPk>> PThresholdExpr<TPk>()
-			where TPk : IMiniscriptKey
-			=>
-				from _n in Parse.String("thres")
-				from _left in Parse.Char('(')
-				from numStr in Parse.Digit.AtLeastOnce().Text()
-				from _sep in Parse.Char(',')
-				from num in TryConvert(numStr, UInt32.Parse)
-				from x in Parse
-					.Ref(DSLParser<TPk>)
-					.DelimitedBy(Parse.Char(',').Token()).Token()
-				from _right in Parse.Char(')')
-				where num <= x.Count()
-				select ConcretePolicy<TPk>.NewThreshold(num, x.ToArray());
+		private static Parser<char, T> PThresh<T, TIn>(
+			string identifier,
+			Func<uint, IEnumerable<TIn>, T> constructor,
+			Parser<char, TIn> subP
+			) =>
+			from _n in Parse.String(identifier)
+			from _left in Parse.Char('(')
+			from numStr in Parse.Digit.AtLeastOnce().Text()
+			from _sep in Parse.Char(',')
+			from num in TryConvert(numStr, UInt32.Parse)
+			from x in Parse
+				.Ref(() => subP)
+				.DelimitedBy(Parse.Char(',').Token()).Token()
+			from _right in Parse.Char(')')
+			where num <= x.Count()
+			select constructor(num, x);
 
-		internal static Parser<char, ConcretePolicy<TPk>> DSLParser<TPk>()
-				where TPk : IMiniscriptKey
-				=>
-				(PPubKeyExpr<TPk>()
-					.Or(PAfterExpr<TPk>())
-					.Or(POlderExpr<TPk>())
-					.Or(PSha256Expr<TPk>())
-					.Or(PHash256Expr<TPk>())
-					.Or(PRipemd160Expr<TPk>())
-					.Or(PHash160Expr<TPk>())
-					.Or(PAndExpr<TPk>())
-					.Or(POrExpr<TPk>())
-					.Or(PThresholdExpr<TPk>())).Token();
+		internal static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PThresholdExpr =
+			PThresh("thresh", ConcretePolicy<TPk, TPKh>.NewThreshold, DSLParser);
 
-		public static ConcretePolicy<TPk> ParseDSL<TPk>(string input)
-			where TPk : IMiniscriptKey
-			=> DSLParser<TPk>().Parse(input);
+		internal static readonly Parser<char, ConcretePolicy<TPk, TPKh>> DSLParser
+			=
+			(PPubKeyExpr
+				.Or(PAfterExpr)
+				.Or(POlderExpr)
+				.Or(PSha256Expr)
+				.Or(PHash256Expr)
+				.Or(PRipemd160Expr)
+				.Or(PHash160Expr)
+				.Or(PAndExpr)
+				.Or(POrExpr)
+				.Or(PThresholdExpr)).Token();
+
+		public static ConcretePolicy<TPk, TPKh> ParseConcretePolicy(string input)
+			=> DSLParser.Parse(input);
 	}
 }

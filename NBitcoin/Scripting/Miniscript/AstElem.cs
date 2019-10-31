@@ -91,7 +91,9 @@ namespace NBitcoin.Scripting.Miniscript
 		#endregion
 	}
 
-	public partial class Terminal<TPk> : IEquatable<Terminal<TPk>> where TPk : IMiniscriptKey
+	public partial class Terminal<TPk, TPKh> : IEquatable<Terminal<TPk, TPKh>>
+		where TPk : IMiniscriptKey<TPKh>
+		where TPKh : IMiniscriptKeyHash
 	{
 		# region Subtype definitions
 		internal static class Tags
@@ -127,179 +129,179 @@ namespace NBitcoin.Scripting.Miniscript
 		internal int Tag;
 
 		private Terminal(int tag) => Tag = tag;
-		public static Terminal<TPk> True { get; } = new Terminal<TPk>(Tags.True);
-		public static Terminal<TPk> False { get; } = new Terminal<TPk>(Tags.False);
+		public static Terminal<TPk, TPKh> True { get; } = new Terminal<TPk, TPKh>(Tags.True);
+		public static Terminal<TPk, TPKh> False { get; } = new Terminal<TPk, TPKh>(Tags.False);
 
-		internal class Pk : Terminal<TPk>
+		internal class Pk : Terminal<TPk, TPKh>
 		{
 			readonly public TPk Item;
 			public Pk(TPk pk) : base(Tags.Pk) => Item = pk;
 		}
 
-		internal class PkH : Terminal<TPk>
+		internal class PkH : Terminal<TPk, TPKh>
 		{
-			readonly public IMiniscriptKeyHash Item;
-			public PkH(IMiniscriptKeyHash item) : base(Tags.PkH) => Item = item;
+			readonly public TPKh Item;
+			public PkH(TPKh item) : base(Tags.PkH) => Item = item;
 		}
 
-		internal class After : Terminal<TPk>
+		internal class After : Terminal<TPk, TPKh>
 		{
 			readonly public uint Item;
 			public After(uint item) : base(Tags.After) => Item = item;
 		}
 
-		internal class Older : Terminal<TPk>
+		internal class Older : Terminal<TPk, TPKh>
 		{
 			readonly public uint Item;
 			public Older(uint item) : base(Tags.Older) => Item = item;
 		}
 
-		internal class Sha256 : Terminal<TPk>
+		internal class Sha256 : Terminal<TPk, TPKh>
 		{
 			readonly public uint256 Item;
 			public Sha256(uint256 item) : base(Tags.Sha256) => Item = item;
 		}
-		internal class Hash256 : Terminal<TPk>
+		internal class Hash256 : Terminal<TPk, TPKh>
 		{
 			readonly public uint256 Item;
 			public Hash256(uint256 item) : base(Tags.Hash256) => Item = item;
 		}
 
-		internal class Ripemd160 : Terminal<TPk>
+		internal class Ripemd160 : Terminal<TPk, TPKh>
 		{
 			readonly public uint160 Item;
 			public Ripemd160(uint160 item) : base(Tags.Ripemd160) => Item = item;
 		}
 
-		internal class Hash160 : Terminal<TPk>
+		internal class Hash160 : Terminal<TPk, TPKh>
 		{
 			readonly public uint160 Item;
 			public Hash160(uint160 item) : base(Tags.Hash160) => Item = item;
 		}
 
-		internal class Alt : Terminal<TPk>
+		internal class Alt : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item;
-			public Alt(Miniscript<TPk> item) : base(Tags.Alt) => Item = item;
+			readonly public Miniscript<TPk, TPKh> Item;
+			public Alt(Miniscript<TPk, TPKh> item) : base(Tags.Alt) => Item = item;
 		}
 
-		internal class Swap : Terminal<TPk>
+		internal class Swap : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item;
-			public Swap(Miniscript<TPk> item): base(Tags.Swap) => Item = item;
+			readonly public Miniscript<TPk, TPKh> Item;
+			public Swap(Miniscript<TPk, TPKh> item): base(Tags.Swap) => Item = item;
 		}
 
-		internal class Check : Terminal<TPk>
+		internal class Check : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item;
-			public Check(Miniscript<TPk> item): base(Tags.Check) => Item = item;
+			readonly public Miniscript<TPk, TPKh> Item;
+			public Check(Miniscript<TPk, TPKh> item): base(Tags.Check) => Item = item;
 		}
-		internal class DupIf : Terminal<TPk>
+		internal class DupIf : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item;
-			public DupIf (Miniscript<TPk> item): base(Tags.DupIf ) => Item = item;
+			readonly public Miniscript<TPk, TPKh> Item;
+			public DupIf (Miniscript<TPk, TPKh> item): base(Tags.DupIf ) => Item = item;
 		}
-		internal class Verify : Terminal<TPk>
+		internal class Verify : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item;
-			public Verify(Miniscript<TPk> item): base(Tags.Verify) => Item = item;
+			readonly public Miniscript<TPk, TPKh> Item;
+			public Verify(Miniscript<TPk, TPKh> item): base(Tags.Verify) => Item = item;
 		}
-		internal class NonZero : Terminal<TPk>
+		internal class NonZero : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item;
-			public NonZero(Miniscript<TPk> item): base(Tags.NonZero) => Item = item;
+			readonly public Miniscript<TPk, TPKh> Item;
+			public NonZero(Miniscript<TPk, TPKh> item): base(Tags.NonZero) => Item = item;
 		}
-		internal class ZeroNotEqual : Terminal<TPk>
+		internal class ZeroNotEqual : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item;
-			public ZeroNotEqual(Miniscript<TPk> item): base(Tags.ZeroNotEqual) => Item = item;
+			readonly public Miniscript<TPk, TPKh> Item;
+			public ZeroNotEqual(Miniscript<TPk, TPKh> item): base(Tags.ZeroNotEqual) => Item = item;
 		}
-		internal class AndV : Terminal<TPk>
+		internal class AndV : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item1;
-			readonly public Miniscript<TPk> Item2;
-			public AndV(Miniscript<TPk> item1,Miniscript<TPk> item2): base(Tags.AndV)
+			readonly public Miniscript<TPk, TPKh> Item1;
+			readonly public Miniscript<TPk, TPKh> Item2;
+			public AndV(Miniscript<TPk, TPKh> item1,Miniscript<TPk, TPKh> item2): base(Tags.AndV)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
-		internal class AndB : Terminal<TPk>
+		internal class AndB : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item1;
-			readonly public Miniscript<TPk> Item2;
-			public AndB(Miniscript<TPk> item, Miniscript<TPk> item2): base(Tags.AndB)
+			readonly public Miniscript<TPk, TPKh> Item1;
+			readonly public Miniscript<TPk, TPKh> Item2;
+			public AndB(Miniscript<TPk, TPKh> item, Miniscript<TPk, TPKh> item2): base(Tags.AndB)
 			{
 				Item1 = item;
 				Item2 = item2;
 			}
 		}
-		internal class AndOr : Terminal<TPk>
+		internal class AndOr : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item1;
-			readonly public Miniscript<TPk> Item2;
-			readonly public Miniscript<TPk> Item3;
+			readonly public Miniscript<TPk, TPKh> Item1;
+			readonly public Miniscript<TPk, TPKh> Item2;
+			readonly public Miniscript<TPk, TPKh> Item3;
 
-			public AndOr(Miniscript<TPk> item1, Miniscript<TPk> item2, Miniscript<TPk> item3) : base(Tags.AndOr)
+			public AndOr(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2, Miniscript<TPk, TPKh> item3) : base(Tags.AndOr)
 			{
 				Item1 = item1;
 				Item2 = item2;
 				Item3 = item3;
 			}
 		}
-		internal class OrB : Terminal<TPk>
+		internal class OrB : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item1;
-			readonly public Miniscript<TPk> Item2;
-			public OrB(Miniscript<TPk> item1, Miniscript<TPk> item2): base(Tags.OrB)
+			readonly public Miniscript<TPk, TPKh> Item1;
+			readonly public Miniscript<TPk, TPKh> Item2;
+			public OrB(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2): base(Tags.OrB)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
-		internal class OrD : Terminal<TPk>
+		internal class OrD : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item1;
-			readonly public Miniscript<TPk> Item2;
-			public OrD(Miniscript<TPk> item1, Miniscript<TPk> item2): base(Tags.OrD)
-			{
-				Item1 = item1;
-				Item2 = item2;
-			}
-		}
-
-		internal class OrC : Terminal<TPk>
-		{
-			readonly public Miniscript<TPk> Item1;
-			readonly public Miniscript<TPk> Item2;
-			public OrC(Miniscript<TPk> item1, Miniscript<TPk> item2): base(Tags.OrC)
+			readonly public Miniscript<TPk, TPKh> Item1;
+			readonly public Miniscript<TPk, TPKh> Item2;
+			public OrD(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2): base(Tags.OrD)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
 
-		internal class OrI : Terminal<TPk>
+		internal class OrC : Terminal<TPk, TPKh>
 		{
-			readonly public Miniscript<TPk> Item1;
-			readonly public Miniscript<TPk> Item2;
-			public OrI(Miniscript<TPk> item1, Miniscript<TPk> item2): base(Tags.OrI)
+			readonly public Miniscript<TPk, TPKh> Item1;
+			readonly public Miniscript<TPk, TPKh> Item2;
+			public OrC(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2): base(Tags.OrC)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
-		internal class Thresh : Terminal<TPk>
+
+		internal class OrI : Terminal<TPk, TPKh>
+		{
+			readonly public Miniscript<TPk, TPKh> Item1;
+			readonly public Miniscript<TPk, TPKh> Item2;
+			public OrI(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2): base(Tags.OrI)
+			{
+				Item1 = item1;
+				Item2 = item2;
+			}
+		}
+		internal class Thresh : Terminal<TPk, TPKh>
 		{
 			readonly public uint Item1;
-			readonly public Miniscript<TPk>[] Item2;
-			public Thresh(uint item1, Miniscript<TPk>[] item2): base(Tags.Thresh)
+			readonly public Miniscript<TPk, TPKh>[] Item2;
+			public Thresh(uint item1, Miniscript<TPk, TPKh>[] item2): base(Tags.Thresh)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
-		internal class ThreshM : Terminal<TPk>
+		internal class ThreshM : Terminal<TPk, TPKh>
 		{
 			readonly public uint Item1;
 			readonly public TPk[] Item2;
@@ -310,54 +312,55 @@ namespace NBitcoin.Scripting.Miniscript
 			}
 		}
 
-		public static Terminal<TPk> NewTrue() => Terminal<TPk>.True;
-		public static Terminal<TPk> NewFalse() => Terminal<TPk>.False;
-		public static Terminal<TPk> NewPk(TPk item) => new Pk(item);
-		public static Terminal<TPk> NewPkH(IMiniscriptKeyHash item) => new PkH(item);
-		public static Terminal<TPk> NewAfter(uint item) => new After(item);
-		public static Terminal<TPk> NewOlder(uint item) => new Older(item);
-		public static Terminal<TPk> NewSha256(uint256 item)
+		public static Terminal<TPk, TPKh> NewTrue() => Terminal<TPk, TPKh>.True;
+		public static Terminal<TPk, TPKh> NewFalse() => Terminal<TPk, TPKh>.False;
+		public static Terminal<TPk, TPKh> NewPk(TPk item) => new Pk(item);
+		public static Terminal<TPk, TPKh> NewPkH(TPKh item) => new PkH(item);
+		public static Terminal<TPk, TPKh> NewAfter(uint item) => new After(item);
+		public static Terminal<TPk, TPKh> NewOlder(uint item) => new Older(item);
+		public static Terminal<TPk, TPKh> NewSha256(uint256 item)
 			=>  new Sha256(item);
-		public static Terminal<TPk> NewHash256(uint256 item)
+		public static Terminal<TPk, TPKh> NewHash256(uint256 item)
 			=> new Hash256(item);
-		public static Terminal<TPk> NewRipemd160(uint160 item)
+		public static Terminal<TPk, TPKh> NewRipemd160(uint160 item)
 			=> new Ripemd160(item);
-		public static Terminal<TPk> NewHash160(uint160 item)
+		public static Terminal<TPk, TPKh> NewHash160(uint160 item)
 			=> new Hash160(item);
-		public static Terminal<TPk> NewAlt(Miniscript<TPk> item) => new Terminal<TPk>.Alt(item);
-		public static Terminal<TPk> NewSwap(Miniscript<TPk> item) => new Terminal<TPk>.Swap(item);
-		public static Terminal<TPk> NewCheck(Miniscript<TPk> item) => new Terminal<TPk>.Check(item);
-		public static Terminal<TPk> NewDupIf(Miniscript<TPk> item) => new DupIf(item);
-		public static Terminal<TPk> NewVerify(Miniscript<TPk> item) => new Verify(item);
-		public static Terminal<TPk> NewNonZero(Miniscript<TPk> item) => new NonZero(item);
+		public static Terminal<TPk, TPKh> NewAlt(Miniscript<TPk, TPKh> item) => new Terminal<TPk, TPKh>.Alt(item);
+		public static Terminal<TPk, TPKh> NewSwap(Miniscript<TPk, TPKh> item) => new Terminal<TPk, TPKh>.Swap(item);
+		public static Terminal<TPk, TPKh> NewCheck(Miniscript<TPk, TPKh> item) => new Terminal<TPk, TPKh>.Check(item);
+		public static Terminal<TPk, TPKh> NewDupIf(Miniscript<TPk, TPKh> item) => new DupIf(item);
+		public static Terminal<TPk, TPKh> NewVerify(Miniscript<TPk, TPKh> item) => new Verify(item);
+		public static Terminal<TPk, TPKh> NewNonZero(Miniscript<TPk, TPKh> item) => new NonZero(item);
+		public static Terminal<TPk, TPKh> NewZeroNotEqual(Miniscript<TPk, TPKh> item) => new ZeroNotEqual(item);
 
-		public static Terminal<TPk> NewAndV(Miniscript<TPk> item1, Miniscript<TPk> item2)
+		public static Terminal<TPk, TPKh> NewAndV(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2)
 			=> new AndV(item1, item2);
 
-		public static Terminal<TPk> NewAndB(Miniscript<TPk> item1, Miniscript<TPk> item2)
+		public static Terminal<TPk, TPKh> NewAndB(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2)
 			=> new AndB(item1, item2);
 
-		public static Terminal<TPk> NewAndOr(Miniscript<TPk> item1, Miniscript<TPk> item2, Miniscript<TPk> item3)
+		public static Terminal<TPk, TPKh> NewAndOr(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2, Miniscript<TPk, TPKh> item3)
 			=> new AndOr(item1, item2, item3);
 
-		public static Terminal<TPk> NewOrB(Miniscript<TPk> item1, Miniscript<TPk> item2)
+		public static Terminal<TPk, TPKh> NewOrB(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2)
 			=> new OrB(item1, item2);
 
-		public static Terminal<TPk> NewOrD(Miniscript<TPk> item1, Miniscript<TPk> item2)
+		public static Terminal<TPk, TPKh> NewOrD(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2)
 			=> new OrD(item1, item2);
-		public static Terminal<TPk> NewOrC(Miniscript<TPk> item1, Miniscript<TPk> item2)
+		public static Terminal<TPk, TPKh> NewOrC(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2)
 			=> new OrC(item1, item2);
-		public static Terminal<TPk> NewOrI(Miniscript<TPk> item1, Miniscript<TPk> item2)
+		public static Terminal<TPk, TPKh> NewOrI(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2)
 			=> new OrI(item1, item2);
 
-		public static Terminal<TPk> NewThresh(uint item1, IEnumerable<Miniscript<TPk>> item2)
+		public static Terminal<TPk, TPKh> NewThresh(uint item1, IEnumerable<Miniscript<TPk, TPKh>> item2)
 			=> new Thresh(item1, item2.ToArray());
-		public static Terminal<TPk> NewThreshM(uint item1, IEnumerable<TPk> item2)
+		public static Terminal<TPk, TPKh> NewThreshM(uint item1, IEnumerable<TPk> item2)
 			=> new ThreshM(item1, item2.ToArray());
 		#endregion
 
 		#region Equatable members
-		public bool Equals(Terminal<TPk> other)
+		public bool Equals(Terminal<TPk, TPKh> other)
 		{
 			if (other == null)
 				return false;

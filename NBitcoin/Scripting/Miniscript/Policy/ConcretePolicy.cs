@@ -32,7 +32,9 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		/// </summary>
 		TimeTooFar
 	}
-	public class ConcretePolicy<TPk> : IEquatable<ConcretePolicy<TPk>>, ILiftable<TPk> where TPk : IMiniscriptKey
+	public class ConcretePolicy<TPk, TPKh> : IEquatable<ConcretePolicy<TPk, TPKh>>, ILiftable<TPk, TPKh>
+		where TPk : IMiniscriptKey<TPKh>
+		where TPKh : IMiniscriptKeyHash
 	{
 		#region Subtype definitions
 
@@ -55,102 +57,102 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 
 		private ConcretePolicy(int tag) => Tag = tag;
 
-		internal class Key : ConcretePolicy<TPk>
+		internal class Key : ConcretePolicy<TPk, TPKh>
 		{
 			public TPk Item;
 			public Key(TPk item) : base(Tags.Key) => Item = item;
 		}
 
-		internal class After : ConcretePolicy<TPk>
+		internal class After : ConcretePolicy<TPk, TPKh>
 		{
 			public uint Item;
 
 			public After(uint item) : base(Tags.After) => Item = item;
 		}
 
-		internal class Older : ConcretePolicy<TPk>
+		internal class Older : ConcretePolicy<TPk, TPKh>
 		{
 			public uint Item;
 
 			public Older(uint item) : base(Tags.Older) => Item = item;
 		}
 
-		internal class Sha256 : ConcretePolicy<TPk>
+		internal class Sha256 : ConcretePolicy<TPk, TPKh>
 		{
 			public uint256 Item;
 
 			public Sha256(uint256 item) : base(Tags.Sha256) => Item = item;
 		}
 
-		internal class Hash256 : ConcretePolicy<TPk>
+		internal class Hash256 : ConcretePolicy<TPk, TPKh>
 		{
 			public uint256 Item;
 
 			public Hash256(uint256 item) : base(Tags.Hash256) => Item = item;
 		}
 
-		internal class Ripemd160 : ConcretePolicy<TPk>
+		internal class Ripemd160 : ConcretePolicy<TPk, TPKh>
 		{
 			public uint160 Item;
 
 			public Ripemd160(uint160 item) : base(Tags.Ripemd160) => Item = item;
 		}
 
-		internal class Hash160 : ConcretePolicy<TPk>
+		internal class Hash160 : ConcretePolicy<TPk, TPKh>
 		{
 			public uint160 Item;
 			public Hash160(uint160 item) : base(Tags.Hash160) => Item = item;
 		}
 
-		internal class And : ConcretePolicy<TPk>
+		internal class And : ConcretePolicy<TPk, TPKh>
 		{
-			public List<ConcretePolicy<TPk>> Item;
+			public List<ConcretePolicy<TPk, TPKh>> Item;
 
-			public And(List<ConcretePolicy<TPk>> item) : base(Tags.And)
+			public And(List<ConcretePolicy<TPk, TPKh>> item) : base(Tags.And)
 			{
 				Item = item;
 			}
 		}
 
-		internal class Or : ConcretePolicy<TPk>
+		internal class Or : ConcretePolicy<TPk, TPKh>
 		{
-			public List<Tuple<uint, ConcretePolicy<TPk>>> Item;
+			public List<Tuple<uint, ConcretePolicy<TPk, TPKh>>> Item;
 
-			public Or(List<Tuple<uint, ConcretePolicy<TPk>>> item) : base(Tags.Or)
+			public Or(List<Tuple<uint, ConcretePolicy<TPk, TPKh>>> item) : base(Tags.Or)
 			{
 				Item = item;
 			}
 		}
 
-		internal class Threshold : ConcretePolicy<TPk>
+		internal class Threshold : ConcretePolicy<TPk, TPKh>
 		{
 			public uint Item1;
-			public List<ConcretePolicy<TPk>> Item2;
+			public List<ConcretePolicy<TPk, TPKh>> Item2;
 
-			public Threshold(uint item1, List<ConcretePolicy<TPk>> item2) : base(Tags.Threshold)
+			public Threshold(uint item1, List<ConcretePolicy<TPk, TPKh>> item2) : base(Tags.Threshold)
 			{
 				Item1 = item1;
 				Item2 = item2;
 			}
 		}
 
-		public static ConcretePolicy<TPk> NewKey(TPk pk) => new Key(pk);
-		public static ConcretePolicy<TPk> NewAfter(uint time) => new After(time);
-		public static ConcretePolicy<TPk> NewOlder(uint item) => new Older(item);
-		public static ConcretePolicy<TPk> NewSha256(uint256 item) => new Sha256(item);
-		public static ConcretePolicy<TPk> NewHash256(uint256 item) => new Hash256(item);
-		public static ConcretePolicy<TPk> NewRipemd160(uint160 item) => new Ripemd160(item);
-		public static ConcretePolicy<TPk> NewHash160(uint160 item) => new Hash160(item);
-		public static ConcretePolicy<TPk> NewAnd(IEnumerable<ConcretePolicy<TPk>> subs) => new And(subs.ToList());
-		public static ConcretePolicy<TPk> NewOr(IEnumerable<Tuple<uint, ConcretePolicy<TPk>>> item) => new Or(item.ToList());
-		public static ConcretePolicy<TPk> NewThreshold(uint k, IEnumerable<ConcretePolicy<TPk>> subs) => new Threshold(k, subs.ToList());
+		public static ConcretePolicy<TPk, TPKh> NewKey(TPk pk) => new Key(pk);
+		public static ConcretePolicy<TPk, TPKh> NewAfter(uint time) => new After(time);
+		public static ConcretePolicy<TPk, TPKh> NewOlder(uint item) => new Older(item);
+		public static ConcretePolicy<TPk, TPKh> NewSha256(uint256 item) => new Sha256(item);
+		public static ConcretePolicy<TPk, TPKh> NewHash256(uint256 item) => new Hash256(item);
+		public static ConcretePolicy<TPk, TPKh> NewRipemd160(uint160 item) => new Ripemd160(item);
+		public static ConcretePolicy<TPk, TPKh> NewHash160(uint160 item) => new Hash160(item);
+		public static ConcretePolicy<TPk, TPKh> NewAnd(IEnumerable<ConcretePolicy<TPk, TPKh>> subs) => new And(subs.ToList());
+		public static ConcretePolicy<TPk, TPKh> NewOr(IEnumerable<Tuple<uint, ConcretePolicy<TPk, TPKh>>> item) => new Or(item.ToList());
+		public static ConcretePolicy<TPk, TPKh> NewThreshold(uint k, IEnumerable<ConcretePolicy<TPk, TPKh>> subs) => new Threshold(k, subs.ToList());
 
 		#endregion
 
 
 		#region Equatable members
 
-		public bool Equals(ConcretePolicy<TPk> other)
+		public bool Equals(ConcretePolicy<TPk, TPKh> other)
 		{
 			if (other == null || this.Tag != other.Tag)
 				return false;
@@ -171,14 +173,14 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 				case Hash160 self:
 					return self.Item.Equals(((Hash160) other).Item);
 				case And self:
-					var andSet = new HashSet<ConcretePolicy<TPk>>(self.Item);
+					var andSet = new HashSet<ConcretePolicy<TPk, TPKh>>(self.Item);
 					return andSet.SetEquals(((And)other).Item);
 				case Or self:
-					var orSet = new HashSet<Tuple<uint, ConcretePolicy<TPk>>>(self.Item);
+					var orSet = new HashSet<Tuple<uint, ConcretePolicy<TPk, TPKh>>>(self.Item);
 					return orSet.SetEquals(((Or)other).Item);
 				case Threshold self:
 					var thres = (Threshold) other;
-					var threshSet = new HashSet<ConcretePolicy<TPk>>(self.Item2);
+					var threshSet = new HashSet<ConcretePolicy<TPk, TPKh>>(self.Item2);
 					return self.Item1 == thres.Item1 && threshSet.SetEquals(thres.Item2);
 			}
 			throw new Exception("Unreachable!");
@@ -238,40 +240,40 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			throw new Exception("Unreachable!");
 		}
 
-		public AbstractPolicy<TPk> Lift()
+		public AbstractPolicy<TPk, TPKh> Lift()
 		{
-			AbstractPolicy<TPk> res = null;
+			AbstractPolicy<TPk, TPKh> res = null;
 			switch (this)
 			{
 				case Key self:
-					res = AbstractPolicy<TPk>.NewKeyHash(self.Item.MiniscriptKeyHash);
+					res = AbstractPolicy<TPk, TPKh>.NewKeyHash(self.Item.ToPubKeyHash());
 					break;
 				case After self:
-					res = AbstractPolicy<TPk>.NewAfter(self.Item);
+					res = AbstractPolicy<TPk, TPKh>.NewAfter(self.Item);
 					break;
 				case Older self:
-					res = AbstractPolicy<TPk>.NewOlder(self.Item);
+					res = AbstractPolicy<TPk, TPKh>.NewOlder(self.Item);
 					break;
 				case Sha256 self:
-					res = AbstractPolicy<TPk>.NewSha256(self.Item);
+					res = AbstractPolicy<TPk, TPKh>.NewSha256(self.Item);
 					break;
 				case Hash256 self:
-					res = AbstractPolicy<TPk>.NewHash256(self.Item);
+					res = AbstractPolicy<TPk, TPKh>.NewHash256(self.Item);
 					break;
 				case Ripemd160 self:
-					res = AbstractPolicy<TPk>.NewRipemd160(self.Item);
+					res = AbstractPolicy<TPk, TPKh>.NewRipemd160(self.Item);
 					break;
 				case Hash160 self:
-					res = AbstractPolicy<TPk>.NewHash160(self.Item);
+					res = AbstractPolicy<TPk, TPKh>.NewHash160(self.Item);
 					break;
 				case And self:
-					res = AbstractPolicy<TPk>.NewAnd(self.Item.Select(sub => sub.Lift()).ToList());
+					res = AbstractPolicy<TPk, TPKh>.NewAnd(self.Item.Select(sub => sub.Lift()).ToList());
 					break;
 				case Or self:
-					res = AbstractPolicy<TPk>.NewOr(self.Item.Select(sub => sub.Item2.Lift()).ToList());
+					res = AbstractPolicy<TPk, TPKh>.NewOr(self.Item.Select(sub => sub.Item2.Lift()).ToList());
 					break;
 				case Threshold self:
-					res = AbstractPolicy<TPk>.NewThreshold(self.Item1, self.Item2.Select(sub => sub.Lift()).ToList());
+					res = AbstractPolicy<TPk, TPKh>.NewThreshold(self.Item1, self.Item2.Select(sub => sub.Lift()).ToList());
 					break;
 			}
 
@@ -280,7 +282,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		}
 
 		public override bool Equals(object obj) =>
-			Equals(obj as ConcretePolicy<TPk>);
+			Equals(obj as ConcretePolicy<TPk, TPKh>);
 
 		#endregion
 
@@ -450,13 +452,13 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			throw new Exception("Unreachable!");
 		}
 
-		public static ConcretePolicy<TPk> FromTree()
+		public static ConcretePolicy<TPk, TPKh> FromTree()
 		{
 
 			throw new NotImplementedException("");
 		}
 
-		private static Tuple<uint, ConcretePolicy<TPk>> FromTreeProb<T>(Tree<T> top, bool allowProb)
+		private static Tuple<uint, ConcretePolicy<TPk, TPKh>> FromTreeProb<T>(Tree<T> top, bool allowProb)
 		{
 			int fragProb = default;
 			string fragName = default;
