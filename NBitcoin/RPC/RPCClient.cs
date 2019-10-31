@@ -1526,7 +1526,6 @@ namespace NBitcoin.RPC
 
 		public Transaction DecodeRawTransaction(byte[] raw)
 		{
-
 			return DecodeRawTransaction(Encoders.Hex.EncodeData(raw));
 		}
 		public Task<Transaction> DecodeRawTransactionAsync(string rawHex)

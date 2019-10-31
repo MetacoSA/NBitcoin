@@ -11,11 +11,11 @@ namespace NBitcoin.Altcoins.Elements
 	{
 		public enum ElementsRPCOperations
 		{
-			decoderawtransaction,
 			importblindingkey,
 			getnewaddress,
 			getaddressinfo,
-			getbalance
+			getbalance,
+			unblindrawtransaction
 		}
 		public static Task<RPCResponse> SendCommandAsync(this RPCClient rpcClient, ElementsRPCOperations commandName,
 			params object[] parameters)
@@ -23,13 +23,20 @@ namespace NBitcoin.Altcoins.Elements
 			return rpcClient.SendCommandAsync(commandName.ToString(), parameters);
 		}
 
-		public static async Task<ElementsTransaction> DecodeRawTransaction(
+		public static async Task<ElementsTransaction> UnblindRawTransaction(
 			this RPCClient rpcClient, string transactionHex, Network network = null)
 		{
-			var result = await rpcClient.SendCommandAsync(ElementsRPCOperations.decoderawtransaction, transactionHex);
+			var result = await rpcClient.SendCommandAsync(ElementsRPCOperations.unblindrawtransaction, transactionHex);
 			result.ThrowIfError();
-			return Serializer.ToObject<ElementsTransaction>(result.Result.ToString(),
-				network ?? Liquid.Instance.Mainnet);
+
+			return ParseTxHex(result.Result["hex"].Value<string>(), network ?? Liquid.Instance.Mainnet);
+		}
+
+		private static ElementsTransaction ParseTxHex(string hex,  Network network)
+		{
+			var tx = network.Consensus.ConsensusFactory.CreateTransaction() as ElementsTransaction;
+			tx.ReadWrite(NBitcoin.DataEncoders.Encoders.Hex.DecodeData(hex), network);
+			return tx;
 		}
 
 		public static Task<RPCResponse> ImportBlindingKey(this RPCClient rpcClient,
@@ -51,13 +58,12 @@ namespace NBitcoin.Altcoins.Elements
 			this RPCClient rpcClient, List<UnblindTransactionBlindingAddressKey> addressBlindingKeys,
 			ElementsTransaction transaction, Network network)
 		{
-			addressBlindingKeys.ForEach(async key =>
+			await Task.WhenAll(addressBlindingKeys.Select(async key =>
 			{
 				var blindImportResponse = await rpcClient.ImportBlindingKey(key.Address, key.BlindingKey);
 				blindImportResponse.ThrowIfError();
-			});
-
-			return await rpcClient.DecodeRawTransaction(transaction.ToHex(), network);
+			}));
+			return await rpcClient.UnblindRawTransaction(transaction.ToHex(), network);
 		}
 
 		public static async Task<BitcoinAddress> GetNewAddressAsync(this RPCClient rpcClient, Network network)
@@ -65,7 +71,6 @@ namespace NBitcoin.Altcoins.Elements
 			var result = await rpcClient.SendCommandAsync(ElementsRPCOperations.getnewaddress).ConfigureAwait(false);
 			return new BitcoinBlindedAddress(result.ResultString, network);
 		}
-
 
 		public static async Task<ElementsGetAddressInfoResponse> GetAddressInfoAsync(this RPCClient rpcClient, string address, Network network)
 		{
