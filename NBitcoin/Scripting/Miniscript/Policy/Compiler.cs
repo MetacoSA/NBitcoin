@@ -70,6 +70,16 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		/// </summary>
 		internal readonly double SatisfyCost;
 		internal readonly double? DissatCost;
+
+		public CompilerExtData(double? branchProb, double satisfyCost, double? dissatCost)
+		{
+			BranchProb = branchProb;
+			SatisfyCost = satisfyCost;
+			DissatCost = dissatCost;
+		}
+
+		public CompilerExtData() {}
+
 		public void SanityChecks()
 		{
 			throw new NotImplementedException();
@@ -273,22 +283,17 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 
 		internal static AstElemExt<TPk, TPKh> Terminal(Terminal<TPk, TPKh> ast)
 		{
-			CompilerExtData compExtData = default;
-			Miniscript<TPk, TPKh> ms = default;
-			return new AstElemExt<TPk, TPKh>(compExtData.TypeCheck(ast), Miniscript<TPk, TPKh>.FromAst(ast));
+			return new AstElemExt<TPk, TPKh>(Property<CompilerExtData, TPk, TPKh>.TypeCheck(ast), Miniscript<TPk, TPKh>.FromAst(ast));
 		}
 
 		internal static AstElemExt<TPk, TPKh> Binary(Terminal<TPk, TPKh> ast, AstElemExt<TPk, TPKh> l, AstElemExt<TPk, TPKh> r)
 		{
-			MiniscriptFragmentType ty = default;
-			ty = ty.TypeCheck(ast);
-			ExtData ext = default;
-			ext = ext.TypeCheck(ast);
+			var ty = Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(ast);
+			var ext = Property<ExtData, TPk, TPKh>.TypeCheck(ast);
 
 			Func<int, CompilerExtData> lookupExt =
 				(int n) => n == 0 ? l.CompExtData : n == 1 ? r.CompExtData : throw new Exception("Unreachable");
-			CompilerExtData compExtData = default;
-			compExtData = compExtData.TypeCheck(ast, lookupExt);
+			var compExtData = Property<CompilerExtData, TPk, TPKh>.TypeCheck(ast, lookupExt);
 
 			return new AstElemExt<TPk, TPKh>(compExtData, new Miniscript<TPk, TPKh>(ty, ast, ext));
 		}
@@ -307,12 +312,9 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 					n == 2 ? c.CompExtData :
 					throw new Exception("Unreachable");
 
-			MiniscriptFragmentType ty = default;
-			ty = ty.TypeCheck(ast);
-			ExtData ext = default;
-			ext = ext.TypeCheck(ast);
-			CompilerExtData compilerExtData = default;
-			compilerExtData = compilerExtData.TypeCheck(ast, lookupExt);
+			var ty = Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(ast);
+			var ext = Property<ExtData, TPk, TPKh>.TypeCheck(ast);
+			var compilerExtData = Property<CompilerExtData, TPk, TPKh>.TypeCheck(ast, lookupExt);
 
 			return new AstElemExt<TPk, TPKh>(compilerExtData, new Miniscript<TPk, TPKh>(ty, ast, ext));
 		}

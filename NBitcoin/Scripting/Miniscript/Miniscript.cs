@@ -25,26 +25,21 @@ namespace NBitcoin.Scripting.Miniscript
 
 		public static Miniscript<TPk, TPKh> FromAst(Terminal<TPk, TPKh> t)
 		{
-			MiniscriptFragmentType ty = default;
-			ExtData ext = default;
-
 			return
 				new Miniscript<TPk, TPKh>(
-					ty.TypeCheck(t, (_) => null),
+					Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(t),
 					t,
-					ext.TypeCheck(t, (_) => null)
+					Property<ExtData, TPk, TPKh>.TypeCheck(t)
 				);
 		}
 
 		public static Miniscript<TPk, TPKh> Parse(string str)
 		{
 			var inner = MiniscriptDSLParser<TPk, TPKh>.ParseTerminal(str);
-			MiniscriptFragmentType ty = default;
-			ExtData ext = default;
 			return new Miniscript<TPk, TPKh>(
-				ty.TypeCheck(inner),
+				Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(inner),
 				inner,
-				ext.TypeCheck(inner)
+				Property<ExtData, TPk, TPKh>.TypeCheck(inner)
 				);
 		}
 

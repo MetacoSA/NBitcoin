@@ -52,6 +52,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			NonMalleable = nonMalleable;
 		}
 
+		public Malleability() {}
+
 		internal bool IsSubtype(Malleability other) =>
 			Dissat.IsSubType(other.Dissat) &&
 				other.Safe &&

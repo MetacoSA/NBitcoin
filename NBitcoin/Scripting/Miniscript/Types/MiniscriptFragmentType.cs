@@ -18,6 +18,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			Malleability = malleability;
 		}
 
+		public MiniscriptFragmentType() {}
+
 		public bool IsSubtype(MiniscriptFragmentType other) =>
 			this.Correctness.IsSubtype(other.Correctness) &&
 			this.Malleability.IsSubtype(other.Malleability);
@@ -32,43 +34,43 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType FromTrue()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(cor.FromTrue(), mal.FromTrue());
 		}
 
 		public MiniscriptFragmentType FromFalse()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(cor.FromFalse(), mal.FromFalse());
 		}
 
 		public MiniscriptFragmentType FromPk()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(cor.FromPk(), mal.FromPk());
 		}
 
 		public MiniscriptFragmentType FromPkH()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(cor.FromPkH(), mal.FromPkH());
 		}
 
 		public MiniscriptFragmentType FromMulti(int k, int pkLength)
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(cor.FromMulti(k, pkLength), mal.FromMulti(k, pkLength));
 		}
 
 		public MiniscriptFragmentType FromAfter(uint time)
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.FromAfter(time),
 				mal.FromAfter(time));
@@ -76,8 +78,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType FromOlder(uint time)
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.FromOlder(time),
 				mal.FromOlder(time));
@@ -86,8 +88,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public MiniscriptFragmentType FromHash()
 		{
 
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.FromHash(),
 				mal.FromHash());
@@ -95,8 +97,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType FromSha256()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.FromSha256(),
 				mal.FromSha256());
@@ -104,8 +106,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType FromHash256()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.FromHash256(),
 				mal.FromHash256());
@@ -113,8 +115,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType FromRipemd160()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.FromRipemd160(),
 				mal.FromRipemd160());
@@ -122,8 +124,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType FromHash160()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.FromHash160(),
 				mal.FromHash160());
@@ -131,8 +133,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType CastAlt()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.CastAlt(),
 				mal.CastAlt());
@@ -140,8 +142,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType CastSwap()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.CastSwap(),
 				mal.CastSwap());
@@ -149,8 +151,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType CastCheck()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.CastCheck(),
 				mal.CastCheck());
@@ -158,8 +160,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType CastDupIf()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.CastDupIf(),
 				mal.CastDupIf());
@@ -167,8 +169,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType CastVerify()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.CastVerify(),
 				mal.CastVerify());
@@ -176,8 +178,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType CastNonZero()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.CastNonZero(),
 				mal.CastNonZero());
@@ -185,8 +187,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType CastZeroNotEqual()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.CastZeroNotEqual(),
 				mal.CastZeroNotEqual());
@@ -194,8 +196,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType CastTrue()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.CastTrue(),
 				mal.CastTrue());
@@ -203,8 +205,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType CastOrIFalse()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.CastOrIFalse(),
 				mal.CastOrIFalse());
@@ -212,8 +214,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType CastUnLikely()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.CastUnLikely(),
 				mal.CastUnLikely());
@@ -221,8 +223,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType CastLikely()
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.CastLikely(),
 				mal.CastLikely());
@@ -230,8 +232,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType AndB(MiniscriptFragmentType left, MiniscriptFragmentType right)
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.AndB(left.Correctness, right.Correctness),
 				mal.AndB(left.Malleability, right.Malleability));
@@ -239,8 +241,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public MiniscriptFragmentType AndV(MiniscriptFragmentType left, MiniscriptFragmentType right)
 		{
-			Correctness cor = default;
-			Malleability mal = default;
+			var cor = new Correctness();
+			var mal = new Malleability();
 			return new MiniscriptFragmentType(
 				cor.AndV(left.Correctness, right.Correctness),
 				mal.AndV(left.Malleability, right.Malleability));
