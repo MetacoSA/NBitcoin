@@ -11,8 +11,8 @@ using NBitcoin.Scripting.Miniscript.Policy;
 namespace NBitcoin.Scripting.Miniscript
 {
 	internal static partial class MiniscriptDSLParser<TPk, TPKh>
-			where TPk : IMiniscriptKey<TPKh>
-			where TPKh : IMiniscriptKeyHash
+			where TPk : class, IMiniscriptKey<TPKh>, new()
+			where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		internal static readonly Parser<char, string> SurroundedByBrackets  =
 				from leftB in Parse.Char('(').Token()
@@ -85,18 +85,30 @@ namespace NBitcoin.Scripting.Miniscript
 			=> i =>
 			{
 				TPk t = default;
-				if (!t.TryParse(str))
+				try
+				{
+					var k = MiniscriptKeyParser<TPk, TPKh>.TryParse(str);
 					return ParserResult<char, TPk>.Failure(i, $"Failed to parse MiniscriptKey {str}");
-				return ParserResult<char, TPk>.Success(i, t);
+				}
+				catch
+				{
+					return ParserResult<char, TPk>.Success(i, t);
+				}
 			};
 
 		internal static Parser<char, TPKh> TryParseMiniscriptKeyHash(string str)
 			=> i =>
 			{
 				TPKh t = default;
-				if (!t.TryParse(str))
+				try
+				{
+					var k = MiniscriptKeyParser<TPk, TPKh>.TryParseHash(str);
+					return ParserResult<char, TPKh>.Success(i, t);
+				}
+				catch
+				{
 					return ParserResult<char, TPKh>.Failure(i, "");
-				return ParserResult<char, TPKh>.Success(i, t);
+				}
 			};
 
 		internal static Parser<char, string> ExprP(string name)

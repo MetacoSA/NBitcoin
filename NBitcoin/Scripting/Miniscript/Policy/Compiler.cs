@@ -247,8 +247,8 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 	}
 
 	internal class AstElemExt<TPk, TPKh>
-		where TPk : IMiniscriptKey<TPKh>
-		where TPKh : IMiniscriptKeyHash
+		where TPk : class, IMiniscriptKey<TPKh>, new()
+		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		internal readonly Miniscript<TPk, TPKh> Ms;
 		internal readonly CompilerExtData CompExtData;
@@ -321,8 +321,8 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 	}
 
 	internal class Cast<TPk, TPKh>
-		where TPk : IMiniscriptKey<TPKh>
-		where TPKh : IMiniscriptKeyHash
+		where TPk : class, IMiniscriptKey<TPKh>, new()
+		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		public Func<Terminal<TPk, TPKh>> Node;
 		public Func<MiniscriptFragmentType> AstType;
@@ -415,8 +415,8 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 	}
 
 	public static class Compiler<TPk, TPKh>
-		where TPk : IMiniscriptKey<TPKh>
-		where TPKh : IMiniscriptKeyHash
+		where TPk : class, IMiniscriptKey<TPKh>, new()
+		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		private static void InsertElem(
 			IDictionary<CompilationKey, AstElemExt<TPk, TPKh>> map,

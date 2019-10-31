@@ -6,8 +6,8 @@ using NBitcoin.Scripting.Parser;
 namespace NBitcoin.Scripting.Miniscript
 {
 	internal static partial class MiniscriptDSLParser<TPk, TPKh>
-		where TPk : IMiniscriptKey<TPKh>
-		where TPKh : IMiniscriptKeyHash
+		where TPk : class, IMiniscriptKey<TPKh>, new()
+		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		# region Leaf
 		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalPk
@@ -54,7 +54,7 @@ namespace NBitcoin.Scripting.Miniscript
 			Func<Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> construct)
 			=>
 				from _t in Parse.Char(identifier).Then(_ => Parse.Char(':'))
-				from inner in TerminalDSLParser
+				from inner in Parse.Ref(() => TerminalDSLParser)
 					.Except(PWrapper(identifier, construct)) // should not have same wrapper twice
 				select construct(Miniscript<TPk, TPKh>.FromAst(inner));
 

@@ -5,8 +5,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 {
 	public static class Property<T, TPk, TPKh>
 	where T : class, IProperty<T>, new()
-	where TPk : IMiniscriptKey<TPKh>
-	where TPKh : IMiniscriptKeyHash
+	where TPk : class, IMiniscriptKey<TPKh>, new()
+	where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		/*
 		internal static void SanityChecks(T item)
@@ -36,12 +36,6 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		/// the types of its children, if available and relevant for the
 		/// given fragment.
 		/// </summary>
-		/// <param name="prop"></param>
-		/// <param name="fragment"></param>
-		/// <param name="child"></param>
-		/// <typeparam name="T"></typeparam>
-		/// <exception cref="TypeCheckException"></exception>
-		/// <returns></returns>
 		internal static T TypeCheck(Terminal<TPk, TPKh> fragment, Func<int, T> child)
 		{
 			var res = TypeCheckCore(fragment, child);

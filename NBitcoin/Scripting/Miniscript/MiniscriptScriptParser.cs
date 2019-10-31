@@ -387,7 +387,6 @@ namespace NBitcoin.Scripting.Miniscript
 
 		public static AstElem ParseScript(Script sc)
 			=> PT.Parse(sc);
-		*/
 
 
 		public static Terminal<TPk, TPKh> ParseScript<TPk, TPKh>(Script sc)
@@ -455,5 +454,6 @@ namespace NBitcoin.Scripting.Miniscript
 			}
 			throw new NotImplementedException();
 		}
+		*/
 	}
 }

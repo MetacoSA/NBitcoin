@@ -137,8 +137,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 	}
 
 	class TypeCheckException<TPk, TPKh> : Exception
-		where TPk : IMiniscriptKey<TPKh>
-		where TPKh : IMiniscriptKeyHash
+		where TPk : class, IMiniscriptKey<TPKh>, new()
+		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		public readonly Terminal<TPk, TPKh> Fragment;
 		public readonly ErrorKind Kind;

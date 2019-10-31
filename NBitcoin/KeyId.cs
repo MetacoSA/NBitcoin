@@ -86,7 +86,7 @@ namespace NBitcoin
 			return _Str;
 		}
 	}
-	public class KeyId : TxDestination , IMiniscriptKeyHash
+	public class KeyId : TxDestination
 	{
 		public KeyId()
 			: this(0)

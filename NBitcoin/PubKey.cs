@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using NBitcoin.BouncyCastle.Math.EC;
 using NBitcoin.BouncyCastle.Utilities.Encoders;
 using NBitcoin.Scripting.Miniscript;
@@ -42,6 +41,8 @@ namespace NBitcoin
 
 		}
 
+		public PubKey() {}
+
 		/// <summary>
 		/// Create a new Public key from byte array
 		/// </summary>
@@ -50,27 +51,22 @@ namespace NBitcoin
 		{
 		}
 
-		public bool TryParse(string hex)
+		public static bool TryParse(string hex, out PubKey result)
 		{
+			result = null;
 			if (hex == null) throw new ArgumentNullException(nameof(hex));
 			var v = Hex.Decode(hex);
 			if (!Check(v, true))
 				return false;
-			vch = v;
 			try
 			{
-				_ECKey = new ECKey(v, false);
+				result = new PubKey(v);
+				return true;
 			}
-			catch (Exception ex)
+			catch
 			{
-				throw new FormatException("Invalid public key", ex);
+				return true;
 			}
-			return true;
-		}
-
-		public bool Equals(IMiniscriptKey<uint160> other)
-		{
-			throw new NotImplementedException();
 		}
 
 		/// <summary>
@@ -261,6 +257,11 @@ namespace NBitcoin
 		public string ToHex()
 		{
 			return Encoders.Hex.EncodeData(vch);
+		}
+
+		public bool Equals(IMiniscriptKey<uint160> other)
+		{
+			throw new NotImplementedException();
 		}
 
 		#region IBitcoinSerializable Members
@@ -581,7 +582,6 @@ namespace NBitcoin
 
 		#endregion
 
-		public IMiniscriptKeyHash MiniscriptKeyHash => Hash;
 		public uint160 ToPubKeyHash()
 		{
 			throw new NotImplementedException();

@@ -4,8 +4,8 @@ using NBitcoin.Scripting.Miniscript.Types;
 namespace NBitcoin.Scripting.Miniscript
 {
 	public partial class Miniscript<TPk, TPKh>
-		where TPk : IMiniscriptKey<TPKh>
-		where TPKh : IMiniscriptKeyHash
+		where TPk : class, IMiniscriptKey<TPKh>, new()
+		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		internal readonly Terminal<TPk, TPKh> Node;
 		public readonly MiniscriptFragmentType Type;

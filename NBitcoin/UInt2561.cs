@@ -857,9 +857,5 @@ namespace NBitcoin
 
 		public string ToHex() => ToString();
 
-		public bool TryParse(string str)
-		{
-			return uint160.TryParse(str, out this);
-		}
 	}
 }

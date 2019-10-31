@@ -92,8 +92,8 @@ namespace NBitcoin.Scripting.Miniscript
 	}
 
 	public partial class Terminal<TPk, TPKh> : IEquatable<Terminal<TPk, TPKh>>
-		where TPk : IMiniscriptKey<TPKh>
-		where TPKh : IMiniscriptKeyHash
+		where TPk : class, IMiniscriptKey<TPKh>, new()
+		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		# region Subtype definitions
 		internal static class Tags

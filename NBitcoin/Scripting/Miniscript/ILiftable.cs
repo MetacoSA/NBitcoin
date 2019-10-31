@@ -13,16 +13,16 @@ namespace NBitcoin.Scripting.Miniscript
 	}
 
 	public partial class Miniscript<TPk, TPKh> : ILiftable<TPk, TPKh>
-		where TPk : IMiniscriptKey<TPKh>
-		where TPKh : IMiniscriptKeyHash
+		where TPk : class, IMiniscriptKey<TPKh>, new()
+		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		public AbstractPolicy<TPk, TPKh> Lift() =>
 			this.Node.Lift();
 	}
 
 	public partial class Terminal<TPk, TPKh>
-		where TPk : IMiniscriptKey<TPKh>
-		where TPKh : IMiniscriptKeyHash
+		where TPk : class, IMiniscriptKey<TPKh>, new()
+		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		public AbstractPolicy<TPk, TPKh> Lift()
 		{
