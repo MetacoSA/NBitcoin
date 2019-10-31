@@ -33,8 +33,8 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		TimeTooFar
 	}
 	public class ConcretePolicy<TPk, TPKh> : IEquatable<ConcretePolicy<TPk, TPKh>>, ILiftable<TPk, TPKh>
-		where TPk : IMiniscriptKey<TPKh>
-		where TPKh : IMiniscriptKeyHash
+		where TPk : class, IMiniscriptKey<TPKh>, new()
+		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		#region Subtype definitions
 
@@ -452,10 +452,9 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			throw new Exception("Unreachable!");
 		}
 
-		public static ConcretePolicy<TPk, TPKh> FromTree()
+		public static ConcretePolicy<TPk, TPKh> Parse(string str)
 		{
-
-			throw new NotImplementedException("");
+			return MiniscriptDSLParser<TPk, TPKh>.ParseConcretePolicy(str);
 		}
 
 		private static Tuple<uint, ConcretePolicy<TPk, TPKh>> FromTreeProb<T>(Tree<T> top, bool allowProb)

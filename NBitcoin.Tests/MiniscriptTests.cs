@@ -1,11 +1,12 @@
 using System;
 using NBitcoin.Scripting.Miniscript;
+using NBitcoin.Scripting.Miniscript.Policy;
 using NBitcoin.Scripting.Parser;
 using Xunit;
 
 namespace NBitcoin.Tests
 {
-	public static class MiniscriptTests
+	public class MiniscriptTests
 	{
 		public static readonly TheoryData<string, string, bool, bool, bool, uint, uint> MSAttributeTestCase =
 			new TheoryData<string, string, bool, bool, bool, uint, uint>()
@@ -168,7 +169,7 @@ namespace NBitcoin.Tests
 		[Theory]
 		[MemberData(nameof(MSAttributeTestCase))]
 		[Trait("Core", "Core")]
-		public static void MiniscriptAttributesTest(
+		public void MiniscriptAttributesTest(
 			string msStr, string expectedHex, bool valid, bool nonMalleable,
 			bool needSig, uint ops, uint _stack)
 		{
@@ -184,6 +185,13 @@ namespace NBitcoin.Tests
 			{
 				Assert.Throws<ParsingException>(() => Miniscript<PubKey, uint160>.Parse(msStr));
 			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void MiniscriptUnitTest()
+		{
+			var ms = ConcretePolicy<MiniscriptStringKey, MiniscriptStringKeyHash>.Parse("pk()");
 		}
 	}
 }

@@ -91,14 +91,14 @@ namespace NBitcoin.Scripting.Miniscript
 
 		private static readonly Parser<char, Terminal<TPk, TPKh>> TerminalDSLParser =
 			// ------ leafs ------
-			PTerminalPk
-				.Or(PTerminalPkH)
-				.Or(PTerminalAfter)
-				.Or(PTerminalOlder)
-				.Or(PTerminalSha256)
-				.Or(PTerminalHash256)
-				.Or(PTerminalRipemd160)
-				.Or(PTerminalHash160)
+			Parse.Ref(() => PTerminalPk)
+				.Or(Parse.Ref(() => PTerminalPkH))
+				.Or(Parse.Ref(() => PTerminalAfter))
+				.Or(Parse.Ref(() => PTerminalOlder))
+				.Or(Parse.Ref(() => PTerminalSha256))
+				.Or(Parse.Ref(() => PTerminalHash256))
+				.Or(Parse.Ref(() => PTerminalRipemd160))
+				.Or(Parse.Ref(() => PTerminalHash160))
 				// ------- wrappers --------
 				.Or(PWrapper('a', Terminal<TPk, TPKh>.NewAlt))
 				.Or(PWrapper('s', Terminal<TPk, TPKh>.NewSwap))
@@ -116,10 +116,10 @@ namespace NBitcoin.Scripting.Miniscript
 				.Or(PBinary("or_c", Terminal<TPk, TPKh>.NewOrC))
 				.Or(PBinary("or_i", Terminal<TPk, TPKh>.NewOrI))
 				// ------- Thresholds ------
-				.Or(PTerminalThresh)
-				.Or(PTerminalThreshM);
+				.Or(Parse.Ref(() => PTerminalThresh))
+				.Or(Parse.Ref(() => PTerminalThreshM));
 
 		public static Terminal<TPk, TPKh> ParseTerminal(string input)
-			=> TerminalDSLParser.Parse(input);
+			=> Parse.Ref(() => TerminalDSLParser).Parse(input);
 	}
 }

@@ -14,7 +14,7 @@ namespace NBitcoin.Scripting.Miniscript
 			where TPk : class, IMiniscriptKey<TPKh>, new()
 			where TPKh : class, IMiniscriptKeyHash, new()
 	{
-		internal static readonly Parser<char, string> SurroundedByBrackets  =
+		internal static Parser<char, string> SurroundedByBrackets()  =>
 				from leftB in Parse.Char('(').Token()
 				from x in Parse.CharExcept(')').Many().Text()
 				from rightB in Parse.Char(')').Token()
@@ -88,11 +88,11 @@ namespace NBitcoin.Scripting.Miniscript
 				try
 				{
 					var k = MiniscriptKeyParser<TPk, TPKh>.TryParse(str);
-					return ParserResult<char, TPk>.Failure(i, $"Failed to parse MiniscriptKey {str}");
+					return ParserResult<char, TPk>.Success(i, k);
 				}
-				catch
+				catch (Exception ex)
 				{
-					return ParserResult<char, TPk>.Success(i, t);
+					return ParserResult<char, TPk>.Failure(i, $"Failed to parse MiniscriptKey {str}. {ex}");
 				}
 			};
 
@@ -114,7 +114,7 @@ namespace NBitcoin.Scripting.Miniscript
 		internal static Parser<char, string> ExprP(string name)
 			=>
 			from identifier in Parse.String(name)
-			from x in SurroundedByBrackets
+			from x in SurroundedByBrackets()
 			select x;
 
 		private static Parser<char, string[]> ExprPMany(string name)
@@ -122,38 +122,38 @@ namespace NBitcoin.Scripting.Miniscript
 			from x in ExprP(name)
 			select SafeSplit(x);
 
-		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PPubKeyExpr
-			=
+		private static Parser<char, ConcretePolicy<TPk, TPKh>> PPubKeyExpr()
+			=>
 			from pk in ExprP("pk").Then(s => TryParseMiniscriptKey(s))
 			select ConcretePolicy<TPk, TPKh>.NewKey(pk);
 
-		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PSha256Expr
-			=
+		private static Parser<char, ConcretePolicy<TPk, TPKh>> PSha256Expr()
+			=>
 			from hash in ExprP("sha256").Then(s => TryConvert(s, uint256.Parse))
 			select ConcretePolicy<TPk, TPKh>.NewSha256(hash);
 
-		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PHash256Expr
-			=
+		private static Parser<char, ConcretePolicy<TPk, TPKh>> PHash256Expr()
+			=>
 			from hash in ExprP("hash256").Then(s => TryConvert(s, uint256.Parse))
 			select ConcretePolicy<TPk, TPKh>.NewHash256(hash);
 
-		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PRipemd160Expr
-			=
+		private static Parser<char, ConcretePolicy<TPk, TPKh>> PRipemd160Expr()
+			=>
 			from hash in ExprP("ripemd160").Then(s => TryConvert(s, uint160.Parse))
 			select ConcretePolicy<TPk, TPKh>.NewRipemd160(hash);
 
-		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PHash160Expr
-			=
+		private static Parser<char, ConcretePolicy<TPk, TPKh>> PHash160Expr()
+			=>
 			from hash in ExprP("hash160").Then(s => TryConvert(s, uint160.Parse))
 			select ConcretePolicy<TPk, TPKh>.NewHash160(hash);
 
-		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PAfterExpr
-			=
+		private static Parser<char, ConcretePolicy<TPk, TPKh>> PAfterExpr()
+			=>
 			from t in ExprP("after").Then(s => TryConvert(s, UInt32.Parse))
 			select ConcretePolicy<TPk, TPKh>.NewAfter(t);
 
-		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> POlderExpr
-			=
+		private static Parser<char, ConcretePolicy<TPk, TPKh>> POlderExpr()
+			=>
 			from t in ExprP("older").Then(s => TryConvert(s, UInt32.Parse))
 			select ConcretePolicy<TPk, TPKh>.NewOlder(t);
 
@@ -166,29 +166,29 @@ namespace NBitcoin.Scripting.Miniscript
 			from _right in Parse.Char(')')
 			select x;
 
-		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PAndExpr
-			=
-			from x in PSubExprs("and", DSLParser)
+		private static Parser<char, ConcretePolicy<TPk, TPKh>> PAndExpr()
+			=>
+			from x in PSubExprs("and", DSLParser())
 			select ConcretePolicy<TPk, TPKh>.NewAnd(x);
 
-		private static readonly Parser<char, Tuple<uint, ConcretePolicy<TPk, TPKh>>> POrWithProb
-			=
+		private static Parser<char, Tuple<uint, ConcretePolicy<TPk, TPKh>>> POrWithProb()
+			=>
 			from x in Parse.Digit.AtLeastOnce().Text()
 				.Then(digitStr => TryConvert(digitStr, UInt32.Parse))
 			from _a in Parse.Char('@')
-			from sub in Parse.Ref(() => DSLParser)
+			from sub in Parse.Ref(() => DSLParser())
 			select Tuple.Create(x, sub);
 
-		private static readonly Parser<char, Tuple<uint, ConcretePolicy<TPk, TPKh>>> POrWithoutProb
-			=
-			from sub in Parse.Ref(() => DSLParser)
+		private static Parser<char, Tuple<uint, ConcretePolicy<TPk, TPKh>>> POrWithoutProb()
+			=>
+			from sub in Parse.Ref(() => DSLParser())
 			select Tuple.Create(1U, sub);
 
-		private static readonly Parser<char, ConcretePolicy<TPk, TPKh>> POrExpr
-			=
+		private static Parser<char, ConcretePolicy<TPk, TPKh>> POrExpr()
+			=>
 			from x in
-				PSubExprs("or", POrWithProb)
-				.Or(PSubExprs("or", POrWithoutProb))
+				PSubExprs("or", POrWithProb())
+				.Or(PSubExprs("or", POrWithoutProb()))
 			select ConcretePolicy<TPk, TPKh>.NewOr(x);
 
 		private static Parser<char, T> PThresh<T, TIn>(
@@ -208,23 +208,22 @@ namespace NBitcoin.Scripting.Miniscript
 			where num <= x.Count()
 			select constructor(num, x);
 
-		internal static readonly Parser<char, ConcretePolicy<TPk, TPKh>> PThresholdExpr =
-			PThresh("thresh", ConcretePolicy<TPk, TPKh>.NewThreshold, DSLParser);
+		internal static Parser<char, ConcretePolicy<TPk, TPKh>> PThresholdExpr() =>
+			PThresh("thresh", ConcretePolicy<TPk, TPKh>.NewThreshold, DSLParser());
 
-		internal static readonly Parser<char, ConcretePolicy<TPk, TPKh>> DSLParser
-			=
-			(PPubKeyExpr
-				.Or(PAfterExpr)
-				.Or(POlderExpr)
-				.Or(PSha256Expr)
-				.Or(PHash256Expr)
-				.Or(PRipemd160Expr)
-				.Or(PHash160Expr)
-				.Or(PAndExpr)
-				.Or(POrExpr)
-				.Or(PThresholdExpr)).Token();
+		internal static Parser<char, ConcretePolicy<TPk, TPKh>> DSLParser() =>
+			(PPubKeyExpr())
+				.Or(PAfterExpr())
+				.Or(POlderExpr()
+				.Or(PSha256Expr())
+				.Or(PHash256Expr())
+				.Or(PRipemd160Expr())
+				.Or(PHash160Expr())
+				.Or(PAndExpr())
+				.Or(POrExpr())
+				.Or(PThresholdExpr())).Token();
 
 		public static ConcretePolicy<TPk, TPKh> ParseConcretePolicy(string input)
-			=> DSLParser.Parse(input);
+			=> DSLParser().Parse(input);
 	}
 }
