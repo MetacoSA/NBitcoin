@@ -39,52 +39,56 @@ namespace NBitcoin.Scripting.Miniscript
 
 	public class MiniscriptStringKeyHash : IMiniscriptKeyHash
 	{
+		public readonly string Text;
+		public MiniscriptStringKeyHash() {}
+
+		public MiniscriptStringKeyHash(string text)
+		{
+			Text = text;
+		}
+
 		public uint160 ToHash160()
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException();
 		}
 
-		public string ToHex()
-		{
-			throw new NotImplementedException();
-		}
+		public string ToHex() => Text;
 
-		public static MiniscriptStringKeyHash Parse(string str)
-		{
-			throw new NotImplementedException();
-		}
+		public static MiniscriptStringKeyHash Parse(string str) => new MiniscriptStringKeyHash(str);
 	}
 	public class MiniscriptStringKey : IMiniscriptKey<MiniscriptStringKeyHash>
 	{
-		public MiniscriptStringKeyHash ToPubKeyHash()
+		public readonly string Text;
+
+		public MiniscriptStringKey() {}
+		public MiniscriptStringKey(string text)
 		{
-			throw new NotImplementedException();
+			Text = text;
 		}
+
+		public MiniscriptStringKeyHash ToPubKeyHash() =>
+			new MiniscriptStringKeyHash($"<{Text}>");
 
 		public PubKey ToPublicKey()
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException();
 		}
 
 		public int SerializedLength()
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException();
 		}
 
-		public string ToHex()
-		{
-			throw new NotImplementedException();
-		}
+		public string ToHex() => Text;
 
 		public bool Equals(IMiniscriptKey<MiniscriptStringKeyHash> other)
 		{
-			throw new NotImplementedException();
+			return Equals(other as MiniscriptStringKey);
 		}
 
+
 		public static MiniscriptStringKey Parse(string str)
-		{
-			throw new NotImplementedException();
-		}
+			=> new MiniscriptStringKey(str);
 	}
 	public static class MiniscriptKeyParser<T, TPKh>
 		where TPKh : class, IMiniscriptKeyHash, new()
