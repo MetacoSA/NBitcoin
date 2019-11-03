@@ -354,7 +354,7 @@ namespace NBitcoin
 			public TransactionBuildingContext(TransactionBuilder builder)
 			{
 				Builder = builder;
-				Transaction = builder._ConsensusFactory.CreateTransaction();
+				Transaction = builder.Network.CreateTransaction();
 				AdditionalFees = Money.Zero;
 			}
 			public TransactionBuilder.BuilderGroup Group
@@ -558,8 +558,8 @@ namespace NBitcoin
 				return _CurrentGroup;
 			}
 		}
-		[Obsolete("Use Network.CreateTransactionBuilder() or ConsensusFactory.CreateTransactionBuilder() instead")]
-		public TransactionBuilder()
+
+		internal TransactionBuilder()
 		{
 			ShuffleRandom = new Random();
 			CoinSelector = new DefaultCoinSelector(ShuffleRandom);
@@ -581,16 +581,6 @@ namespace NBitcoin
 		/// The random number generator used for shuffling transaction outputs or selected coins
 		/// </summary>
 		public Random ShuffleRandom { get; set; } = new Random();
-
-		[Obsolete("Use Network.CreateTransactionBuilder(int seed) or ConsensusFactory.CreateTransactionBuilder(int seed) instead")]
-		public TransactionBuilder(int seed)
-		{
-			ShuffleRandom = new Random(seed);
-			CoinSelector = new DefaultCoinSelector(ShuffleRandom);
-			StandardTransactionPolicy = new StandardTransactionPolicy();
-			DustPrevention = true;
-			InitExtensions();
-		}
 
 		public ICoinSelector CoinSelector
 		{
@@ -1214,37 +1204,10 @@ namespace NBitcoin
 			return this;
 		}
 
-		ConsensusFactory _ConsensusFactory;
-		public ConsensusFactory ConsensusFactory
-		{
-			get
-			{
-				return _ConsensusFactory ?? Network.Main.Consensus.ConsensusFactory;
-			}
-		}
-		Network _Network;
-
 		public Network Network
 		{
-			get
-			{
-				return _Network ?? Network.Main;
-			}
-		}
-
-		[Obsolete("Use ConsensusFactory.CreateTransactionBuilder() instead, so you don't have to use this method anymore")]
-		public TransactionBuilder SetConsensusFactory(ConsensusFactory consensusFactory)
-		{
-			_ConsensusFactory = consensusFactory ?? Network.Main.Consensus.ConsensusFactory;
-			return this;
-		}
-
-		[Obsolete("Use Network.CreateTransactionBuilder() instead, so you don't have to use this method anymore")]
-		public TransactionBuilder SetConsensusFactory(Network network)
-		{
-			_ConsensusFactory = network?.Consensus?.ConsensusFactory;
-			_Network = network;
-			return this;
+			get;
+			internal set;
 		}
 
 		public TransactionBuilder SetCoinSelector(ICoinSelector selector)
@@ -1298,9 +1261,7 @@ namespace NBitcoin
 			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, sigHash);
 			if (sign)
 				SignTransactionInPlace(signingContext);
-#pragma warning disable CS0618 // Type or member is obsolete
-			var psbt = _Network == null ? tx.CreatePSBT() : tx.CreatePSBT(_Network);
-#pragma warning restore CS0618 // Type or member is obsolete
+			var psbt = tx.CreatePSBT(Network);
 			UpdatePSBT(psbt);
 			if (sign)
 				UpdatePSBTSignatures(psbt, signingContext);
@@ -1860,7 +1821,7 @@ namespace NBitcoin
 
 		private TxOut CreateTxOut(Money amount = null, Script script = null)
 		{
-			if (!this.ConsensusFactory.TryCreateNew<TxOut>(out var txOut))
+			if (!this.Network.Consensus.ConsensusFactory.TryCreateNew<TxOut>(out var txOut))
 				txOut = new TxOut();
 			if (amount != null)
 				txOut.Value = amount;

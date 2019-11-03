@@ -779,7 +779,7 @@ namespace NBitcoin.Tests
 
 
 			//Gold receive 2.5 BTC
-			tx = txBuilder.ConsensusFactory.CreateTransaction();
+			tx = txBuilder.Network.Consensus.ConsensusFactory.CreateTransaction();
 			tx.Outputs.Add("2.5", gold.PubKey);
 			repo.Transactions.Put(tx.GetHash(), tx);
 
@@ -1478,7 +1478,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(previousCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
 
 			//P2WSH
-			previousTx = builder.ConsensusFactory.CreateTransaction();
+			previousTx = builder.Network.Consensus.ConsensusFactory.CreateTransaction();
 			previousTx.Outputs.Add(new TxOut(Money.Coins(1.0m), alice.PubKey.ScriptPubKey.WitHash));
 			previousCoin = previousTx.Outputs.AsCoins().First();
 
@@ -2441,9 +2441,8 @@ namespace NBitcoin.Tests
 		public void bip143Test()
 		{
 			Transaction tx = Transaction.Parse("0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f0000000000eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac11000000", Network);
-#pragma warning disable CS0618 // Type or member is obsolete
-			var h = tx.GetSignatureHash(new Script(Encoders.Hex.DecodeData("76a9141d0f172a0ecb48aee1be1f2687d2963ae33f71a188ac")), 1, SigHash.All, Money.Satoshis(0x23c34600L), HashVersion.Witness);
-#pragma warning restore CS0618 // Type or member is obsolete
+			var output = tx.Outputs.CreateNewTxOut(Money.Satoshis(0x23c34600L), new Script(Encoders.Hex.DecodeData("76a9141d0f172a0ecb48aee1be1f2687d2963ae33f71a188ac")));
+			var h = tx.GetSignatureHash(output.ScriptPubKey, 1, SigHash.All, output, HashVersion.Witness);
 			Assert.Equal(new uint256(Encoders.Hex.DecodeData("c37af31116d1b27caf68aae9e3ac82f1477929014d5b917657d0eb49478cb670"), true), h);
 		}
 		[Fact]

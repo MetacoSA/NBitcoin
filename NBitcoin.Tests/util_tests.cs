@@ -227,10 +227,6 @@ namespace NBitcoin.Tests
 
 			Assert.Throws<Bech32FormatException>(() => new BitcoinWitPubKeyAddress("bc1qw507d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4", Network.Main));
 
-			var addr1 = new BitcoinWitPubKeyAddress("tb1qr5d68t6qm8t2n7ch4nph3ha4prztteuw98ewda", Network.TestNet);
-			var addr2 = new BitcoinWitPubKeyAddress("tb1qr5d68t6qm8t2n7ch4nph3ha4prztteuw98ewda");
-			Assert.Equal(addr1, addr2);
-
 			var extKey = new BitcoinExtKey(new ExtKey(), Network.Main);
 			var segwit = extKey.AsHDScriptPubKey(ScriptPubKeyType.Segwit).ScriptPubKey.GetDestinationAddress(Network.Main);
 			var segwit2 = extKey.ExtKey.AsHDScriptPubKey(ScriptPubKeyType.Segwit).ScriptPubKey.GetDestinationAddress(Network.Main);
@@ -897,15 +893,6 @@ namespace NBitcoin.Tests
 
 			Script script = new Script("0359d3092e4a8d5f3b3948235b5dec7395259273ccf3c4e9d5e16695a3fc9588d6 OP_CHECKSIG");
 			Assert.Equal("OP_HASH160 a216e3bce8c1b3adf376731b6cd0b6936c4e053f OP_EQUAL", script.PaymentScript.ToString());
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		//https://en.bitcoin.it/wiki/List_of_address_prefixes
-		public void CanDeduceNetworkInBase58Constructor()
-		{
-			BitcoinAddress addr = new BitcoinPubKeyAddress("17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem");
-			Assert.Equal(addr.Network, Network.Main);
 		}
 
 		public class DummyClass

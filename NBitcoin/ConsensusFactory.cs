@@ -144,26 +144,5 @@ namespace NBitcoin
 		{
 			return CreateTransactionBuilderCore();
 		}
-
-		[Obsolete("Use Network.CreateTransactionBuilder instead")]
-		public TransactionBuilder CreateTransactionBuilder()
-		{
-#pragma warning disable CS0618 // Type or member is obsolete
-			var builder = CreateTransactionBuilderCore();
-			builder.SetConsensusFactory(this);
-			return builder;
-#pragma warning restore CS0618 // Type or member is obsolete
-		}
-
-		[Obsolete("Use Network.CreateTransactionBuilder instead")]
-		public TransactionBuilder CreateTransactionBuilder(int seed)
-		{
-#pragma warning disable CS0618 // Type or member is obsolete
-			var builder = CreateTransactionBuilderCore();
-			builder.SetConsensusFactory(this);
-			builder.ShuffleRandom = new Random(seed);
-			return builder;
-#pragma warning restore CS0618 // Type or member is obsolete
-		}
 	}
 }

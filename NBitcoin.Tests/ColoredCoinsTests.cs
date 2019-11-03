@@ -94,7 +94,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseColoredAddress()
 		{
-			var address = new BitcoinPubKeyAddress("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM");
+			var address = new BitcoinPubKeyAddress("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM", Network.Main);
 			var colored = address.ToColoredAddress();
 			Assert.Equal("akB4NBW9UuCmHuepksob6yfZs6naHtRCPNy", colored.ToWif());
 			Assert.Equal(address.ScriptPubKey, colored.ScriptPubKey);
