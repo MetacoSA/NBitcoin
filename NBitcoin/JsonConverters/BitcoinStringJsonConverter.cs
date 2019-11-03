@@ -13,12 +13,10 @@ namespace NBitcoin.JsonConverters
 #endif
 	class BitcoinStringJsonConverter : JsonConverter
 	{
-		public BitcoinStringJsonConverter()
-		{
-
-		}
 		public BitcoinStringJsonConverter(Network network)
 		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
 			Network = network;
 		}
 		public override bool CanConvert(Type objectType)
@@ -35,23 +33,12 @@ namespace NBitcoin.JsonConverters
 
 			try
 			{
-				IBitcoinString result = null;
-				if (Network != null)
+				IBitcoinString result = Network.Parse(reader.Value.ToString());
+				if (result == null)
 				{
-					result = Network.Parse(reader.Value.ToString());
-					if (result == null)
-					{
-						throw new JsonObjectException("Invalid BitcoinString network", reader);
-					}
+					throw new JsonObjectException("Invalid BitcoinString network", reader);
 				}
-				else
-				{
-					result = Network.Parse(reader.Value.ToString(), null);
-					if (result == null)
-					{
-						throw new JsonObjectException("Invalid BitcoinString data", reader);
-					}
-				}
+
 				if (!objectType.GetTypeInfo().IsAssignableFrom(result.GetType().GetTypeInfo()))
 				{
 					throw new JsonObjectException("Invalid BitcoinString type expected " + objectType.Name + ", actual " + result.GetType().Name, reader);

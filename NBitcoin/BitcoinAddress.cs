@@ -34,7 +34,6 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(base58));
 			if (expectedNetwork == null)
 				throw new ArgumentNullException(nameof(expectedNetwork));
-			var networks = new[] { expectedNetwork };
 			var data = expectedNetwork.NetworkStringParser.GetBase58CheckEncoder().DecodeData(base58);
 			var versionBytes = expectedNetwork.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, false);
 			if (versionBytes != null && data.StartWith(versionBytes))

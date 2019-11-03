@@ -23,19 +23,21 @@ namespace NBitcoin.Payment
 		{
 
 		}
-		public BitcoinUrlBuilder(Uri uri)
-			: this(uri.AbsoluteUri)
+		public BitcoinUrlBuilder(Uri uri, Network network)
+			: this(uri.AbsoluteUri, network)
 		{
 			if (uri == null)
 				throw new ArgumentNullException(nameof(uri));
 		}
 
-		public BitcoinUrlBuilder(string uri)
+		public BitcoinUrlBuilder(string uri, Network network)
 		{
 			if (uri == null)
 				throw new ArgumentNullException(nameof(uri));
 			if (!uri.StartsWith("bitcoin:", StringComparison.OrdinalIgnoreCase))
 				throw new FormatException("Invalid scheme");
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
 			uri = uri.Remove(0, "bitcoin:".Length);
 			if (uri.StartsWith("//"))
 				uri = uri.Remove(0, 2);
@@ -51,7 +53,7 @@ namespace NBitcoin.Payment
 			}
 			if (address != String.Empty)
 			{
-				Address = Network.Parse<BitcoinAddress>(address, null);
+				Address = Network.Parse<BitcoinAddress>(address, network);
 			}
 			uri = uri.Remove(0, address.Length);
 

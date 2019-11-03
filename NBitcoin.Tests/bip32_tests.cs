@@ -113,7 +113,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRecoverExtKeyFromExtPubKeyAndOneChildExtKey()
 		{
-			ExtKey key = ExtKey.Parse("xprv9s21ZrQH143K3Z9EwCXrA5VbypnvWGiE9z22S1cLLPi7r8DVUkTabBvMjeirS8KCyppw24KoD4sFmja8UDU4VL32SBdip78LY6sz3X2GPju")
+			ExtKey key = ExtKey.Parse("xprv9s21ZrQH143K3Z9EwCXrA5VbypnvWGiE9z22S1cLLPi7r8DVUkTabBvMjeirS8KCyppw24KoD4sFmja8UDU4VL32SBdip78LY6sz3X2GPju", Network.Main)
 				.Derive(1);
 			var pubkey = key.Neuter();
 			var childKey = key.Derive(1);
@@ -248,8 +248,8 @@ namespace NBitcoin.Tests
 		{
 			var key = new ExtKey();
 			var pubkey = key.Neuter();
-			Assert.True(ExtKey.Parse(key.ToString(Network.Main)).ToString(Network.Main) == key.ToString(Network.Main));
-			Assert.True(ExtPubKey.Parse(pubkey.ToString(Network.Main)).ToString(Network.Main) == pubkey.ToString(Network.Main));
+			Assert.True(ExtKey.Parse(key.ToString(Network.Main), Network.Main).ToString(Network.Main) == key.ToString(Network.Main));
+			Assert.True(ExtPubKey.Parse(pubkey.ToString(Network.Main), Network.Main).ToString(Network.Main) == pubkey.ToString(Network.Main));
 		}
 
 		[Fact]

@@ -942,7 +942,7 @@ namespace NBitcoin.Tests
 			Assert.IsType<BitcoinExtPubKey>(result);
 			Assert.True(result.Network == Network.RegTest);
 
-			result = Network.Parse(address.Base58, null);
+			result = Network.Parse(address.Base58, Network.TestNet);
 			Assert.True(result.Network == Network.TestNet);
 
 			var str = Serializer.ToString(new DummyClass() { ExtPubKey = new ExtKey().Neuter().GetWif(Network.RegTest) }, Network.RegTest);
@@ -1032,25 +1032,25 @@ namespace NBitcoin.Tests
 					{
 						Base58 = "6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7",
 						ExpectedType = typeof(BitcoinEncryptedSecretNoEC),
-						Network = (Network)null
+						Network = Network.Main
 					},
 					new
 					{
 						Base58 = "6PfQu77ygVyJLZjfvMLyhLMQbYnu5uguoJJ4kMCLqWwPEdfpwANVS76gTX",
 						ExpectedType = typeof(BitcoinEncryptedSecretEC),
-						Network = (Network)null
+						Network = Network.Main
 					},
 					new
 					{
 						Base58 = "passphrasepxFy57B9v8HtUsszJYKReoNDV6VHjUSGt8EVJmux9n1J3Ltf1gRxyDGXqnf9qm",
 						ExpectedType = typeof(BitcoinPassphraseCode),
-						Network = (Network)null
+						Network = Network.Main
 					},
 					new
 					{
 						Base58 = "cfrm38V8aXBn7JWA1ESmFMUn6erxeBGZGAxJPY4e36S9QWkzZKtaVqLNMgnifETYw7BPwWC9aPD",
 						ExpectedType = typeof(BitcoinConfirmationCode),
-						Network = (Network)null
+						Network = Network.Main
 					},
 					new
 					{
@@ -1076,23 +1076,21 @@ namespace NBitcoin.Tests
 			{
 				if (test.ExpectedType == null)
 				{
-					Assert.Throws<FormatException>(() => Network.Parse(test.Base58, null));
+					Assert.Throws<FormatException>(() => Network.Parse(test.Base58, test.Network ?? Network.RegTest));
 				}
 				else
 				{
-					var result = Network.Parse(test.Base58, null);
+					var result = Network.Parse(test.Base58, test.Network);
 					Assert.True(test.ExpectedType == result.GetType());
 					if (test.Network != null)
 						Assert.Equal(test.Network, result.Network);
-					Network.Parse(test.Base58, test.Network);
 
-					if (test.Network != null)
-						foreach (var network in Network.GetNetworks())
-						{
-							if (network == test.Network)
-								break;
-							Assert.Throws<FormatException>(() => Network.Parse(test.Base58, network));
-						}
+					foreach (var network in Network.GetNetworks())
+					{
+						if (network == test.Network)
+							break;
+						Assert.Throws<FormatException>(() => Network.Parse(test.Base58, network));
+					}
 				}
 			}
 		}
