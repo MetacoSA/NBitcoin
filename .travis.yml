@@ -18,8 +18,8 @@ matrix:
       dotnet: 3.0
       env: TargetFrameworkOverride=netstandard2.0
     - os: osx
-      dotnet: 3.0
-      osx_image: xcode8.3 # dotnet requires at least this version
+      dotnet: 3.0.100 # For OSX, we need absolute dotnet version until https://github.com/dotnet/core-setup/issues/4187 is resolved
+      osx_image: xcode11
 
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -qq update; EXTRA_CONSTANT=-p:BuildConstants=NOCONSENSUSLIB; fi
