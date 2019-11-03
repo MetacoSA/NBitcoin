@@ -8,7 +8,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 {
 	public class MiniscriptFragmentType : IProperty<MiniscriptFragmentType>
 	{
-		public readonly Correctness Correctness;
+		internal readonly Correctness Correctness;
 
 		internal readonly Malleability Malleability;
 

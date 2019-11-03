@@ -1,18 +1,27 @@
 using System;
+using System.Diagnostics;
 using NBitcoin.Scripting.Miniscript.Policy;
 
 namespace NBitcoin.Scripting.Miniscript.Types
 {
-	public class Correctness : IProperty<Correctness>
+	internal class Correctness : IProperty<Correctness>
 	{
-		public Base Base;
-		public Input Input;
-		public bool DisSatisfiable;
+		public readonly Base Base;
+		public readonly Input Input;
+		public readonly bool DisSatisfiable;
 		/// <summary>
 		/// Whether the fragment's "nonzero' output on satisfaction is
 		/// always the constant 1.
 		/// </summary>
 		public bool Unit;
+
+		public Correctness(Base @base, Input input, bool disSatisfiable, bool unit)
+		{
+			Base = @base;
+			Input = input;
+			DisSatisfiable = disSatisfiable;
+			Unit = unit;
+		}
 
 		public bool IsSubtype(Correctness other) =>
 			(this.Base == other.Base) &&
@@ -22,48 +31,44 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public void SanityChecks()
 		{
-			throw new NotImplementedException();
+			if (Base == Base.B) return;
+			if (Base == Base.K) Debug.Assert(Unit);
+			if (Base == Base.V)
+			{
+				Debug.Assert(Unit);
+				Debug.Assert(DisSatisfiable);
+			}
+
+			if (Base == Base.W)
+			{
+				Debug.Assert(Input != Input.OneNonZero);
+				Debug.Assert(Input != Input.AnyNonZero);
+			}
 		}
 
 		public Correctness FromTrue()
-		{
-			throw new NotImplementedException();
-		}
+			=> new Correctness(Base.B, Input.Zero, false, true);
 
 		public Correctness FromFalse()
-		{
-			throw new NotImplementedException();
-		}
+			=> new Correctness(Base.B, Input.Zero, true, false);
 
 		public Correctness FromPk()
-		{
-			throw new NotImplementedException();
-		}
+			=> new Correctness(Base.K, Input.OneNonZero, true, true);
 
 		public Correctness FromPkH()
-		{
-			throw new NotImplementedException();
-		}
+			=> new Correctness(Base.K, Input.AnyNonZero, true, true);
 
 		public Correctness FromMulti(int k, int pkLength)
-		{
-			throw new NotImplementedException();
-		}
+			=> new Correctness(Base.B, Input.AnyNonZero, true, true);
 
 		public Correctness FromAfter(uint time)
-		{
-			throw new NotImplementedException();
-		}
+			=> new Correctness(Base.B, Input.Zero, false, false);
 
 		public Correctness FromOlder(uint time)
-		{
-			throw new NotImplementedException();
-		}
+			=> new Correctness(Base.B, Input.Zero, false, false);
 
 		public Correctness FromHash()
-		{
-			throw new NotImplementedException();
-		}
+			=> new Correctness(Base.B, Input.OneNonZero, true, true);
 
 		public Correctness FromSha256()
 		{

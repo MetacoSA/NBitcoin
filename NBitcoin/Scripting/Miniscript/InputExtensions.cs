@@ -7,10 +7,10 @@ namespace NBitcoin.Scripting.Miniscript
 			if (self == other)
 				return true;
 
-			if (self == Input.OneNoneZero && other == Input.One)
+			if (self == Input.OneNonZero && other == Input.One)
 				return true;
 
-			if (self == Input.OneNoneZero && other == Input.AnyNonZero)
+			if (self == Input.OneNonZero && other == Input.AnyNonZero)
 				return true;
 
 			if (other == Input.Any)

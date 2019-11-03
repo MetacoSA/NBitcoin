@@ -1,4 +1,5 @@
 using System;
+using NBitcoin.DataEncoders;
 using NBitcoin.Scripting.Miniscript;
 using NBitcoin.Scripting.Miniscript.Policy;
 using NBitcoin.Scripting.Parser;
@@ -8,6 +9,7 @@ namespace NBitcoin.Tests
 {
 	public class MiniscriptTests
 	{
+		public static HexEncoder Hex = new DataEncoders.HexEncoder();
 		public static readonly TheoryData<string, string, bool, bool, bool, uint, uint> MSAttributeTestCase =
 			new TheoryData<string, string, bool, bool, bool, uint, uint>()
 			{
@@ -189,9 +191,21 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void MiniscriptUnitTest()
+		public void PolicyParserTest()
 		{
-			var ms = ConcretePolicy<MiniscriptStringKey, MiniscriptStringKeyHash>.Parse("pk()");
+			ConcretePolicy<MiniscriptStringKey, MiniscriptStringKeyHash>.Parse("pk(foo)");
+
+			var pk = new Key(Hex.DecodeData("4141414141414141414141414141414141414141414141414141414141414141")).PubKey;
+			Assert.Throws<ParsingException>(() => ConcretePolicy<PubKey, uint160>.Parse("pk(foo)"));
+			var msRealPK = ConcretePolicy<PubKey, uint160>.Parse($"pk({pk})");
+			Assert.True(msRealPK.IsValid());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void MiniscriptParserTest()
+		{
+			var ms = Miniscript<PubKey, uint160>.Parse();
 		}
 	}
 }

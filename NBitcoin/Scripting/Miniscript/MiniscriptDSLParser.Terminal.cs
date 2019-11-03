@@ -62,7 +62,7 @@ namespace NBitcoin.Scripting.Miniscript
 			string identifier,
 			Func<Miniscript<TPk, TPKh>, Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> constructor
 		) =>
-			from s in PSubExprs(identifier, TerminalDSLParser)
+			from s in PSubExprs(identifier, () => TerminalDSLParser)
 			where s.Count() == 2
 			select constructor(Miniscript<TPk, TPKh>.FromAst(s.ElementAt(0)),
 				Miniscript<TPk, TPKh>.FromAst(s.ElementAt(1)));
@@ -71,7 +71,7 @@ namespace NBitcoin.Scripting.Miniscript
 			string identifier,
 			Func<Miniscript<TPk, TPKh>, Miniscript<TPk, TPKh>, Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> constructor
 		) =>
-			from s in PSubExprs(identifier, TerminalDSLParser)
+			from s in PSubExprs(identifier, () => TerminalDSLParser)
 			where s.Count() == 3
 			select constructor(
 				Miniscript<TPk, TPKh>.FromAst(s.ElementAt(0)),
@@ -82,11 +82,11 @@ namespace NBitcoin.Scripting.Miniscript
 			PThresh(
 				"thresh",
 				Terminal<TPk, TPKh>.NewThresh,
-				TerminalDSLParser.Select(t => Miniscript<TPk, TPKh>.FromAst(t)));
+				() => TerminalDSLParser.Select(t => Miniscript<TPk, TPKh>.FromAst(t)));
 
 		private static Parser<char, Terminal<TPk, TPKh>> PTerminalThreshM =
 			PThresh("thresh_m", Terminal<TPk, TPKh>.NewThreshM,
-			(from pk in ExprP("pk").Then(s => TryParseMiniscriptKey(s))
+			() => (from pk in ExprP("pk").Then(s => TryParseMiniscriptKey(s))
 			select pk));
 
 		private static readonly Parser<char, Terminal<TPk, TPKh>> TerminalDSLParser =

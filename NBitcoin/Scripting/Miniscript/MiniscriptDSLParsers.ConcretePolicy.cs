@@ -117,11 +117,6 @@ namespace NBitcoin.Scripting.Miniscript
 			from x in SurroundedByBrackets()
 			select x;
 
-		private static Parser<char, string[]> ExprPMany(string name)
-			=>
-			from x in ExprP(name)
-			select SafeSplit(x);
-
 		private static Parser<char, ConcretePolicy<TPk, TPKh>> PPubKeyExpr()
 			=>
 			from pk in ExprP("pk").Then(s => TryParseMiniscriptKey(s))
@@ -157,18 +152,18 @@ namespace NBitcoin.Scripting.Miniscript
 			from t in ExprP("older").Then(s => TryConvert(s, UInt32.Parse))
 			select ConcretePolicy<TPk, TPKh>.NewOlder(t);
 
-		private static Parser<char, IEnumerable<TSub>> PSubExprs<TSub>(string name, Parser<char, TSub> subP) =>
+		private static Parser<char, IEnumerable<TSub>> PSubExprs<TSub>(string name, Func<Parser<char, TSub>> subP) =>
 			from _n in Parse.String(name)
 			from _left in Parse.Char('(')
 			from x in Parse
-				.Ref(() => subP)
+				.Ref(subP)
 				.DelimitedBy(Parse.Char(',').Token()).Token()
 			from _right in Parse.Char(')')
 			select x;
 
 		private static Parser<char, ConcretePolicy<TPk, TPKh>> PAndExpr()
 			=>
-			from x in PSubExprs("and", DSLParser())
+			from x in PSubExprs("and", DSLParser)
 			select ConcretePolicy<TPk, TPKh>.NewAnd(x);
 
 		private static Parser<char, Tuple<uint, ConcretePolicy<TPk, TPKh>>> POrWithProb()
@@ -187,14 +182,14 @@ namespace NBitcoin.Scripting.Miniscript
 		private static Parser<char, ConcretePolicy<TPk, TPKh>> POrExpr()
 			=>
 			from x in
-				PSubExprs("or", POrWithProb())
-				.Or(PSubExprs("or", POrWithoutProb()))
+				PSubExprs("or", POrWithProb)
+				.Or(PSubExprs("or", POrWithoutProb))
 			select ConcretePolicy<TPk, TPKh>.NewOr(x);
 
 		private static Parser<char, T> PThresh<T, TIn>(
 			string identifier,
 			Func<uint, IEnumerable<TIn>, T> constructor,
-			Parser<char, TIn> subP
+			Func<Parser<char, TIn>> subP
 			) =>
 			from _n in Parse.String(identifier)
 			from _left in Parse.Char('(')
@@ -202,19 +197,19 @@ namespace NBitcoin.Scripting.Miniscript
 			from _sep in Parse.Char(',')
 			from num in TryConvert(numStr, UInt32.Parse)
 			from x in Parse
-				.Ref(() => subP)
+				.Ref(subP)
 				.DelimitedBy(Parse.Char(',').Token()).Token()
 			from _right in Parse.Char(')')
 			where num <= x.Count()
 			select constructor(num, x);
 
 		internal static Parser<char, ConcretePolicy<TPk, TPKh>> PThresholdExpr() =>
-			PThresh("thresh", ConcretePolicy<TPk, TPKh>.NewThreshold, DSLParser());
+			PThresh("thresh", ConcretePolicy<TPk, TPKh>.NewThreshold, DSLParser);
 
 		internal static Parser<char, ConcretePolicy<TPk, TPKh>> DSLParser() =>
 			(PPubKeyExpr())
-				.Or(PAfterExpr())
-				.Or(POlderExpr()
+			.Or(PAfterExpr())
+			.Or(POlderExpr()
 				.Or(PSha256Expr())
 				.Or(PHash256Expr())
 				.Or(PRipemd160Expr())
