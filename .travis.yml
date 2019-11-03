@@ -12,14 +12,14 @@ matrix:
   include:
     - os: linux 
       dist: xenial # Ubuntu 16.04
-      dotnet: 2.1.502
+      dotnet: 3.0
     - os: linux
       dist: xenial # Ubuntu 16.04
-      dotnet: 2.1.502
+      dotnet: 3.0
       env: TargetFrameworkOverride=netstandard2.0
     - os: osx
-      dotnet: 2.1.507
-      osx_image: xcode8.3 # dotnet requires at least this version
+      dotnet: 3.0.100 # For OSX, we need absolute dotnet version until https://github.com/dotnet/core-setup/issues/4187 is resolved
+      osx_image: xcode11
 
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -qq update; EXTRA_CONSTANT=-p:BuildConstants=NOCONSENSUSLIB; fi
@@ -27,4 +27,4 @@ before_install:
 
 script:
   - dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj /p:TargetFrameworkOverride=$TargetFrameworkOverride -c Release -f netcoreapp2.1  $EXTRA_CONSTANT
-  - dotnet test --no-build -v n -c Release -f netcoreapp2.1 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false
+  - dotnet test --no-build -v n -c Release -f netcoreapp3.0 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false

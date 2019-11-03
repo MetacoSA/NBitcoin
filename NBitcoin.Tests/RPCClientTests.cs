@@ -650,7 +650,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network)),
-						PubKeys = new string[] { key.PubKey.ToString() }
+						PubKeys = new [] { key.PubKey }
 					}
 				};
 
@@ -664,7 +664,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
-						PubKeys = new string[] { key.PubKey.ToString() },
+						PubKeys = new[] { key.PubKey },
 						Internal = true
 					}
 				};
@@ -679,7 +679,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
-						PubKeys = new string[] { key.PubKey.ToString() }
+						PubKeys = new [] { key.PubKey }
 					}
 				};
 
@@ -693,7 +693,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
-						Keys = new string[] { key.GetWif(network).ToString() }
+						Keys = new [] { key.GetWif(network) }
 					}
 				};
 
@@ -704,7 +704,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
-						Keys = new string[] { key.GetWif(network).ToString() }
+						Keys = new [] { key.GetWif(network) }
 					}
 				};
 
@@ -721,7 +721,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
-						Keys = new string[] { key.GetWif(network).ToString() },
+						Keys = new [] { key.GetWif(network) },
 						WatchOnly = true
 					}
 				};
@@ -736,7 +736,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
-						Keys = new string[] { key.GetWif(network).ToString() },
+						Keys = new [] { key.GetWif(network) },
 						Internal = true
 					}
 				};
@@ -751,7 +751,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
-						Keys = new string[] { key.GetWif(network).ToString() }
+						Keys = new [] { key.GetWif(network) }
 					}
 				};
 
@@ -781,7 +781,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
-						PubKeys = new string[] { new Key().PubKey.ToString() }
+						PubKeys = new [] { new Key().PubKey }
 					}
 				};
 
@@ -795,7 +795,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
-						PubKeys = new string[] { new Key().PubKey.ToString() },
+						PubKeys = new [] { new Key().PubKey },
 						Internal = true
 					}
 				};
@@ -810,7 +810,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
-						Keys = new string[] { new Key().GetWif(network).ToString() }
+						Keys = new [] { new Key().GetWif(network) }
 					}
 				};
 
@@ -824,7 +824,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
-						Keys = new string[] { new Key().GetWif(network).ToString() },
+						Keys = new [] { new Key().GetWif(network) },
 						Internal = true
 					}
 				};
@@ -1505,7 +1505,7 @@ namespace NBitcoin.Tests
 						new ImportMultiAddress()
 						{
 							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(multiAddresses[0]),
-							RedeemScript = script.ToHex(),
+							RedeemScript = script,
 							Internal = true,
 						},
 						/*

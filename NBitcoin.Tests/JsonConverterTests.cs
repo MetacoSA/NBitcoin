@@ -21,7 +21,7 @@ namespace NBitcoin.Tests
 			CanSerializeInJsonCore(new byte[] { 1, 2, 3 });
 			CanSerializeInJsonCore(k);
 			CanSerializeInJsonCore(Money.Coins(5.0m));
-			CanSerializeInJsonCore(k.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main));
+			CanSerializeInJsonCore(k.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main), Network.Main);
 			CanSerializeInJsonCore(new KeyPath("1/2"));
 			CanSerializeInJsonCore(RootedKeyPath.Parse("7b09d780/0'/0'/2'"));
 			CanSerializeInJsonCore(Network.Main);
@@ -29,8 +29,8 @@ namespace NBitcoin.Tests
 			CanSerializeInJsonCore(new uint160(RandomUtils.GetBytes(20)));
 			CanSerializeInJsonCore(new AssetId(k.PubKey));
 			CanSerializeInJsonCore(k.PubKey.ScriptPubKey);
-			CanSerializeInJsonCore(new Key().PubKey.WitHash.GetAddress(Network.Main));
-			CanSerializeInJsonCore(new Key().PubKey.WitHash.ScriptPubKey.GetWitScriptAddress(Network.Main));
+			CanSerializeInJsonCore(new Key().PubKey.WitHash.GetAddress(Network.Main), Network.Main);
+			CanSerializeInJsonCore(new Key().PubKey.WitHash.ScriptPubKey.GetWitScriptAddress(Network.Main), Network.Main);
 			var sig = k.Sign(new uint256(RandomUtils.GetBytes(32)));
 			CanSerializeInJsonCore(sig);
 			CanSerializeInJsonCore(new TransactionSignature(sig, SigHash.All));
@@ -74,11 +74,11 @@ namespace NBitcoin.Tests
 			Assert.Equal("\"44f69ca74088d6d88e30156da85aae54543a87f67cdfdabbe9b53a92d6d7027c01000000\"", str);
 		}
 
-		private T CanSerializeInJsonCore<T>(T value)
+		private T CanSerializeInJsonCore<T>(T value, Network network = null)
 		{
-			var str = Serializer.ToString(value);
-			var obj2 = Serializer.ToObject<T>(str);
-			Assert.Equal(str, Serializer.ToString(obj2));
+			var str = Serializer.ToString(value, network);
+			var obj2 = Serializer.ToObject<T>(str, network);
+			Assert.Equal(str, Serializer.ToString(obj2, network));
 			return obj2;
 		}
 		private T CanSerializeInJsonCore<T>(T value, out string str)

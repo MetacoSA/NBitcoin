@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Reflection;
 using System.Collections.Generic;
@@ -90,20 +91,30 @@ namespace NBitcoin
 			internal set;
 		}
 
-		public Bech32Encoder GetBech32Encoder(Bech32Type type, bool throws)
+		public Bech32Encoder? GetBech32Encoder(Bech32Type type, bool throws)
 		{
 			var encoder = bech32Encoders[(int)type];
 			if (encoder == null && throws)
-				throw new NotImplementedException("The network " + this + " does not have any prefix for bech32 " + Enum.GetName(typeof(Bech32Type), type));
+				throw Bech32NotSupported(type);
 			return encoder;
 		}
 
-		public byte[] GetVersionBytes(Base58Type type, bool throws)
+		private NotSupportedException Bech32NotSupported(Bech32Type type)
+		{
+			return new NotSupportedException("The network " + this + " does not have any prefix for bech32 " + Enum.GetName(typeof(Bech32Type), type));
+		}
+
+		public byte[]? GetVersionBytes(Base58Type type, bool throws)
 		{
 			var prefix = base58Prefixes[(int)type];
 			if (prefix == null && throws)
-				throw new NotImplementedException("The network " + this + " does not have any prefix for base58 " + Enum.GetName(typeof(Base58Type), type));
+				throw Base58NotSupported(type);
 			return prefix?.ToArray();
+		}
+
+		internal NotSupportedException Base58NotSupported(Base58Type type)
+		{
+			return new NotSupportedException("The network " + this + " does not have any prefix for base58 " + Enum.GetName(typeof(Base58Type), type));
 		}
 
 		internal static string CreateBase58(Base58Type type, byte[] bytes, Network network)
@@ -122,8 +133,9 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(network));
 			if (bytes == null)
 				throw new ArgumentNullException(nameof(bytes));
-			var encoder = network.GetBech32Encoder(type, true);
-			return encoder.Encode(witnessVersion, bytes);
+			if (network.GetBech32Encoder(type, false) is Bech32Encoder encoder)
+				return encoder.Encode(witnessVersion, bytes);
+			throw network.Bech32NotSupported(type);
 		}
 
 		public Transaction CreateTransaction()
@@ -313,8 +325,8 @@ namespace NBitcoin
 			}
 		}
 
-		uint256 _BIP34Hash;
-		public uint256 BIP34Hash
+		uint256? _BIP34Hash;
+		public uint256? BIP34Hash
 		{
 			get
 			{
@@ -328,8 +340,8 @@ namespace NBitcoin
 		}
 
 
-		Target _PowLimit;
-		public Target PowLimit
+		Target? _PowLimit;
+		public Target? PowLimit
 		{
 			get
 			{
@@ -404,26 +416,32 @@ namespace NBitcoin
 
 		internal void SetBlock(byte[] genesis)
 		{
+			if (genesis == null)
+				throw new ArgumentNullException(nameof(genesis));
 			EnsureNotFrozen();
-			_HashGenesisBlock = new Lazy<uint256>(() =>
-			{
-				var block = ConsensusFactory.CreateBlock();
-				block.ReadWrite(genesis, ConsensusFactory);
-				return block.GetHash();
-			}, true);
+			_genesis = genesis;
 		}
 
-		Lazy<uint256> _HashGenesisBlock;
+		uint256? _HashGenesisBlock;
+		byte[]? _genesis;
 		public uint256 HashGenesisBlock
 		{
 			get
 			{
-				return _HashGenesisBlock.Value;
+				if (_HashGenesisBlock == null)
+				{
+					if (_genesis == null)
+						throw new NotImplementedException("The genesis block is missing");
+					var block = ConsensusFactory.CreateBlock();
+					block.ReadWrite(_genesis, ConsensusFactory);
+					_HashGenesisBlock = block.GetHash();
+				}
+				return _HashGenesisBlock;
 			}
 		}
 
-		uint256 _MinimumChainWork;
-		public uint256 MinimumChainWork
+		uint256? _MinimumChainWork;
+		public uint256? MinimumChainWork
 		{
 			get
 			{
@@ -1881,20 +1899,7 @@ namespace NBitcoin
 };
 
 
-		uint magic;
-		byte[] vAlertPubKey;
-		PubKey _AlertPubKey;
-		public PubKey AlertPubKey
-		{
-			get
-			{
-				if (_AlertPubKey == null)
-				{
-					_AlertPubKey = new PubKey(vAlertPubKey);
-				}
-				return _AlertPubKey;
-			}
-		}
+		readonly uint magic;
 
 #if !NOSOCKET
 		List<DNSSeedData> vSeeds = new List<DNSSeedData>();
@@ -1903,7 +1908,7 @@ namespace NBitcoin
 		List<string> vSeeds = new List<string>();
 		List<string> vFixedSeeds = new List<string>();
 #endif
-		byte[] _GenesisBytes;
+		readonly byte[] _GenesisBytes;
 
 		private int nRPCPort;
 		public int RPCPort
@@ -1933,11 +1938,28 @@ namespace NBitcoin
 			}
 		}
 
-		private Network()
+		private Network(string name, byte[] genesis, uint magic, INetworkSet networkSet)
 		{
+			if (name == null)
+				throw new ArgumentNullException(nameof(name));
+			if (genesis == null)
+				throw new ArgumentNullException(nameof(genesis));
+			if (networkSet == null)
+				throw new ArgumentNullException(nameof(networkSet));
+			this._GenesisBytes = genesis;
+			this.magic = magic;
+			this._NetworkSet = networkSet;
+			this._MagicBytes = new byte[]
+			{
+				(byte)Magic,
+				(byte)(Magic >> 8),
+				(byte)(Magic >> 16),
+				(byte)(Magic >> 24)
+			};
+			this.name = name;
 		}
 
-		private string name;
+		private readonly string name;
 
 		public string Name
 		{
@@ -1958,18 +1980,24 @@ namespace NBitcoin
 
 		static Network()
 		{
-			_Main = new Network();
+			_Main = new Network("Main",
+				Encoders.Hex.DecodeData("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000"),
+				0xD9B4BEF9,
+				NBitcoin.Bitcoin.Instance);
 			_Main.InitMain();
-			_Main._NetworkSet = NBitcoin.Bitcoin.Instance;
 			_Main.Consensus.Freeze();
 
-			_TestNet = new Network();
-			_TestNet._NetworkSet = NBitcoin.Bitcoin.Instance;
+			_TestNet = new Network("TestNet",
+				Encoders.Hex.DecodeData("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4adae5494dffff001d1aa4ae180101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000"),
+				0x0709110B,
+				NBitcoin.Bitcoin.Instance);
 			_TestNet.InitTest();
 			_TestNet.Consensus.Freeze();
 
-			_RegTest = new Network();
-			_RegTest._NetworkSet = NBitcoin.Bitcoin.Instance;
+			_RegTest = new Network("RegTest",
+				Encoders.Hex.DecodeData("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4adae5494dffff7f20020000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000"),
+				0xDAB5BFFA,
+				NBitcoin.Bitcoin.Instance);
 			_RegTest.InitReg();
 			_RegTest.Consensus.Freeze();
 		}
@@ -2005,7 +2033,7 @@ namespace NBitcoin
 		static List<Network> _OtherNetworks = new List<Network>();
 
 
-		private INetworkSet _NetworkSet;
+		private readonly INetworkSet _NetworkSet;
 		public INetworkSet NetworkSet
 		{
 			get
@@ -2020,12 +2048,9 @@ namespace NBitcoin
 				throw new InvalidOperationException("A network name need to be provided");
 			if (GetNetwork(builder._Name) != null)
 				throw new InvalidOperationException("The network " + builder._Name + " is already registered");
-			Network network = new Network();
-			network.name = builder._Name;
+			Network network = new Network(builder._Name, builder._Genesis.ToArray(), builder._Magic, builder._NetworkSet);
 			network.networkType = builder._NetworkType;
 			network.consensus = builder._Consensus;
-			network.magic = builder._Magic;
-			network._NetworkSet = builder._NetworkSet;
 			network.nDefaultPort = builder._Port;
 			network.nRPCPort = builder._RPCPort;
 			network.NetworkStringParser = builder._NetworkStringParser;
@@ -2067,8 +2092,6 @@ namespace NBitcoin
 				_OtherNetworks.Add(network);
 			}
 
-
-			network._GenesisBytes = builder._Genesis;
 			network.consensus.SetBlock(builder._Genesis);
 			network.consensus.Freeze();
 			return network;
@@ -2078,7 +2101,6 @@ namespace NBitcoin
 		const uint BITCOIN_MAX_P2P_VERSION = 70012;
 		private void InitMain()
 		{
-			name = "Main";
 			networkType = NetworkType.Mainnet;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.CoinbaseMaturity = 100;
@@ -2108,11 +2130,8 @@ namespace NBitcoin
 			// The message start string is designed to be unlikely to occur in normal data.
 			// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 			// a large 4-byte int at any alignment.
-			magic = 0xD9B4BEF9;
-			vAlertPubKey = Encoders.Hex.DecodeData("04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284");
 			nDefaultPort = 8333;
 			nRPCPort = 8332;
-			_GenesisBytes = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1, Money.Coins(50m)).ToBytes();
 			consensus.SetBlock(_GenesisBytes);
 			assert(consensus.HashGenesisBlock == uint256.Parse("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
 #if !NOSOCKET
@@ -2159,7 +2178,6 @@ namespace NBitcoin
 		}
 		private void InitTest()
 		{
-			name = "TestNet";
 			_TestNet.networkType = NetworkType.Testnet;
 			networkType = NetworkType.Testnet;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
@@ -2186,15 +2204,11 @@ namespace NBitcoin
 
 			consensus.CoinType = 1;
 
-			magic = 0x0709110B;
-
-			vAlertPubKey = DataEncoders.Encoders.Hex.DecodeData("04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a");
 			nDefaultPort = 18333;
 			nRPCPort = 18332;
 			//strDataDir = "testnet3";
 
 			// Modify the testnet genesis block so the timestamp is valid for a later start.
-			_GenesisBytes = CreateGenesisBlock(1296688602, 414098458, 0x1d00ffff, 1, Money.Coins(50m)).ToBytes();
 			consensus.SetBlock(_GenesisBytes);
 			assert(consensus.HashGenesisBlock == uint256.Parse("0x000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"));
 
@@ -2240,7 +2254,6 @@ namespace NBitcoin
 		}
 		private void InitReg()
 		{
-			name = "RegTest";
 			networkType = NetworkType.Regtest;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.SubsidyHalvingInterval = 150;
@@ -2260,13 +2273,10 @@ namespace NBitcoin
 			consensus.RuleChangeActivationThreshold = 108;
 			consensus.MinerConfirmationWindow = 144;
 
-			magic = 0xDAB5BFFA;
-
 			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 0, 999999999);
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 0, 999999999);
 			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, BIP9DeploymentsParameters.AlwaysActive, 999999999);
 
-			_GenesisBytes = CreateGenesisBlock(1296688602, 2, 0x207fffff, 1, Money.Coins(50m)).ToBytes();
 			consensus.SetBlock(_GenesisBytes);
 			nDefaultPort = 18444;
 			nRPCPort = 18443;
@@ -2368,7 +2378,7 @@ namespace NBitcoin
 		}
 
 
-		internal static Network GetNetworkFromBase58Data(string base58, Base58Type? expectedType = null)
+		internal static Network? GetNetworkFromBase58Data(string base58, Base58Type? expectedType = null)
 		{
 			foreach (var network in GetNetworks())
 			{
@@ -2399,27 +2409,12 @@ namespace NBitcoin
 		}
 		public T Parse<T>(string str) where T : IBitcoinString
 		{
-			return Parse<T>(str, this);
-		}
-
-		public static IBitcoinString Parse(string str, Network expectedNetwork)
-		{
-			return Parse<IBitcoinString>(str, expectedNetwork);
-		}
-		public static T Parse<T>(string str, Network expectedNetwork = null) where T : IBitcoinString
-		{
 			if (str == null)
 				throw new ArgumentNullException(nameof(str));
+			if (NetworkStringParser.TryParse<T>(str, this, out T o))
+				return o;
+			var base58Encoder = (Base58CheckEncoder)NetworkStringParser.GetBase58CheckEncoder();
 
-			if (expectedNetwork != null)
-			{
-				if (expectedNetwork.NetworkStringParser.TryParse<T>(str, expectedNetwork, out T o))
-					return o;
-			}
-
-			var base58Encoder = (Base58CheckEncoder)(expectedNetwork == null ? Encoders.Base58Check : expectedNetwork.NetworkStringParser.GetBase58CheckEncoder());
-
-			var networks = expectedNetwork == null ? GetNetworks() : new[] { expectedNetwork };
 			var maybeb58 = base58Encoder.IsMaybeEncoded(str);
 			if (maybeb58)
 			{
@@ -2430,82 +2425,80 @@ namespace NBitcoin
 				catch (FormatException) { maybeb58 = false; }
 				if (maybeb58)
 				{
-					foreach (var candidate in GetCandidates(networks, str))
-					{
-						bool rightNetwork = expectedNetwork == null || (candidate.Network == expectedNetwork);
-						bool rightType = candidate is T;
-						if (rightNetwork && rightType)
-							return (T)(object)candidate;
-					}
+					if (GetCandidate(str) is T candidate)
+						return candidate;
 					throw new FormatException("Invalid base58 string");
 				}
 			}
 
-			foreach (var network in networks)
+			int i = -1;
+			foreach (var encoder in bech32Encoders)
 			{
-				int i = -1;
-				foreach (var encoder in network.bech32Encoders)
+				i++;
+				if (encoder == null)
+					continue;
+				var type = (Bech32Type)i;
+				try
 				{
-					i++;
-					if (encoder == null)
-						continue;
-					var type = (Bech32Type)i;
-					try
-					{
-						byte witVersion;
-						var bytes = encoder.Decode(str, out witVersion);
-						object candidate = null;
+					byte witVersion;
+					var bytes = encoder.Decode(str, out witVersion);
+					object? candidate = null;
+					if (witVersion == 0 && bytes.Length == 20 && type == Bech32Type.WITNESS_PUBKEY_ADDRESS)
+						candidate = new BitcoinWitPubKeyAddress(str, this);
+					if (witVersion == 0 && bytes.Length == 32 && type == Bech32Type.WITNESS_SCRIPT_ADDRESS)
+						candidate = new BitcoinWitScriptAddress(str, this);
 
-						if (witVersion == 0 && bytes.Length == 20 && type == Bech32Type.WITNESS_PUBKEY_ADDRESS)
-							candidate = new BitcoinWitPubKeyAddress(str, network);
-						if (witVersion == 0 && bytes.Length == 32 && type == Bech32Type.WITNESS_SCRIPT_ADDRESS)
-							candidate = new BitcoinWitScriptAddress(str, network);
-
-						if (candidate is T)
-							return (T)(object)candidate;
-					}
-					catch (Bech32FormatException) { throw; }
-					catch (FormatException) { continue; }
+					if (candidate is T typedCandidate)
+						return typedCandidate;
 				}
-
+				catch (Bech32FormatException) { throw; }
+				catch (FormatException) { continue; }
 			}
-
 			throw new FormatException("Invalid string");
 		}
 
-		private static IEnumerable<IBase58Data> GetCandidates(IEnumerable<Network> networks, string base58)
+		public static IBitcoinString Parse(string str, Network expectedNetwork)
+		{
+			return Parse<IBitcoinString>(str, expectedNetwork);
+		}
+
+		public static T Parse<T>(string str, Network expectedNetwork) where T : IBitcoinString
+		{
+			if (expectedNetwork == null)
+				throw new ArgumentNullException(nameof(expectedNetwork));
+			if (str == null)
+				throw new ArgumentNullException(nameof(str));
+			return expectedNetwork.Parse<T>(str);
+		}
+
+		private IBase58Data? GetCandidate(string base58)
 		{
 			if (base58 == null)
 				throw new ArgumentNullException(nameof(base58));
-			foreach (var network in networks)
+			var maybeType = GetBase58Type(base58);
+			if (maybeType is Base58Type type)
 			{
-				var type = network.GetBase58Type(base58);
-				if (type.HasValue)
+				if (type == Base58Type.COLORED_ADDRESS)
 				{
-					if (type.Value == Base58Type.COLORED_ADDRESS)
-					{
-						var wrapped = BitcoinColoredAddress.GetWrappedBase58(base58, network);
-						var wrappedType = network.GetBase58Type(wrapped);
-						if (wrappedType == null)
-							continue;
-						try
-						{
-							var inner = network.CreateBase58Data(wrappedType.Value, wrapped);
-							if (inner.Network != network)
-								continue;
-						}
-						catch (FormatException) { }
-					}
-					IBase58Data data = null;
+					var wrapped = BitcoinColoredAddress.GetWrappedBase58(base58, this);
+					var wrappedType = GetBase58Type(wrapped);
+					if (wrappedType == null)
+						return null;
 					try
 					{
-						data = network.CreateBase58Data(type.Value, base58);
+						var inner = CreateBase58Data(wrappedType.Value, wrapped);
+						if (inner.Network != this)
+							return null;
 					}
 					catch (FormatException) { }
-					if (data != null)
-						yield return data;
 				}
+				try
+				{
+					return CreateBase58Data(type, base58);
+				}
+				catch (FormatException) { }
 			}
+			return null;
 		}
 
 
@@ -2680,7 +2673,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="name">main,mainnet,testnet,test,testnet3,reg,regtest,seg,segnet</param>
 		/// <returns>The network or null of the name does not match any network</returns>
-		public static Network GetNetwork(string name)
+		public static Network? GetNetwork(string name)
 		{
 			if (name == null)
 				throw new ArgumentNullException(nameof(name));
@@ -2756,22 +2749,11 @@ namespace NBitcoin
 			}
 		}
 #endif
-		byte[] _MagicBytes;
+		readonly byte[] _MagicBytes;
 		public byte[] MagicBytes
 		{
 			get
 			{
-				if (_MagicBytes == null)
-				{
-					var bytes = new byte[]
-					{
-						(byte)Magic,
-						(byte)(Magic >> 8),
-						(byte)(Magic >> 16),
-						(byte)(Magic >> 24)
-					};
-					_MagicBytes = bytes;
-				}
 				return _MagicBytes;
 			}
 		}
@@ -2821,3 +2803,4 @@ namespace NBitcoin
 		}
 	}
 }
+#nullable disable

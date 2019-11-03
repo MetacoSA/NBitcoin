@@ -10,9 +10,13 @@ namespace NBitcoin
 	/// </summary>
 	public class ExtPubKey : IBitcoinSerializable, IDestination, IHDKey
 	{
-		public static ExtPubKey Parse(string wif, Network expectedNetwork = null)
+		public static ExtPubKey Parse(string wif, Network expectedNetwork)
 		{
-			return Network.Parse<BitcoinExtPubKey>(wif, expectedNetwork).ExtPubKey;
+			if (expectedNetwork == null)
+				throw new ArgumentNullException(nameof(expectedNetwork));
+			if (wif == null)
+				throw new ArgumentNullException(nameof(wif));
+			return expectedNetwork.Parse<BitcoinExtPubKey>(wif).ExtPubKey;
 		}
 
 		private const int ChainCodeLength = 32;

@@ -1,5 +1,6 @@
 ﻿#if !NOJSONNET
 using NBitcoin.DataEncoders;
+using NBitcoin.JsonConverters;
 using NBitcoin.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -390,16 +391,31 @@ namespace NBitcoin.RPC
 			ImportMultiAsync(addresses, rescan).GetAwaiter().GetResult();
 		}
 
+
+		JsonSerializerSettings _JsonSerializer;
+		JsonSerializerSettings JsonSerializerSettings
+		{
+			get
+			{
+				if (_JsonSerializer == null)
+				{
+					var seria = new JsonSerializerSettings();
+					Serializer.RegisterFrontConverters(seria, Network);
+					_JsonSerializer = seria;
+				}
+				return _JsonSerializer;
+			}
+		}
 		public async Task ImportMultiAsync(ImportMultiAddress[] addresses, bool rescan)
 		{
 			var parameters = new List<object>();
 
 			var array = new JArray();
 			parameters.Add(array);
-
+			var seria = JsonSerializer.CreateDefault(JsonSerializerSettings);
 			foreach (var addr in addresses)
 			{
-				var obj = JObject.FromObject(addr);
+				var obj = JObject.FromObject(addr, seria);
 				if (obj["timestamp"] == null || obj["timestamp"].Type == JTokenType.Null)
 					obj["timestamp"] = "now";
 				else
