@@ -112,7 +112,7 @@ namespace NBitcoin
 			return prefix?.ToArray();
 		}
 
-		private NotSupportedException Base58NotSupported(Base58Type type)
+		internal NotSupportedException Base58NotSupported(Base58Type type)
 		{
 			return new NotSupportedException("The network " + this + " does not have any prefix for base58 " + Enum.GetName(typeof(Base58Type), type));
 		}

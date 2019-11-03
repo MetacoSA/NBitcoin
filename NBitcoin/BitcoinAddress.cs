@@ -14,7 +14,10 @@ namespace NBitcoin
 			: base(Validate(base58, expectedNetwork), expectedNetwork)
 		{
 			var decoded = expectedNetwork.NetworkStringParser.GetBase58CheckEncoder().DecodeData(base58);
-			_Hash = new ScriptId(new uint160(decoded.Skip(expectedNetwork.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, true).Length).ToArray()));
+			if (expectedNetwork.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, false) is byte[] v)
+				_Hash = new ScriptId(new uint160(decoded.Skip(v.Length).ToArray()));
+			else
+				throw expectedNetwork.Base58NotSupported(Base58Type.SCRIPT_ADDRESS);
 		}
 
 		public BitcoinScriptAddress(string str, ScriptId id, Network expectedNetwork)
@@ -99,20 +102,6 @@ namespace NBitcoin
 			if (expectedNetwork == null)
 				throw new ArgumentNullException(nameof(expectedNetwork));
 			return expectedNetwork.Parse<BitcoinAddress>(str);
-		}
-
-		/// <summary>
-		/// Detect whether the input base58 is a pubkey hash or a script hash
-		/// </summary>
-		/// <param name="str">The string to parse</param>
-		/// <returns>A BitcoinAddress or BitcoinScriptAddress</returns>
-		/// <exception cref="System.FormatException">Invalid format</exception>
-		[Obsolete("Use BitcoinAddress.Create(string, Network) instead")]
-		public static BitcoinAddress Create(string str)
-		{
-			if (str == null)
-				throw new ArgumentNullException(nameof(str));
-			return Network.Parse<BitcoinAddress>(str, null);
 		}
 
 		internal protected BitcoinAddress(string str, Network network)
