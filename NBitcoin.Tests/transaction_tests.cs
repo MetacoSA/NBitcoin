@@ -162,7 +162,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanSignTransaction()
 		{
-			var key = new Key();
+			var key = new Key().GetBitcoinSecret(Network.RegTest);
 			var scriptPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey);
 
 			Transaction tx = Network.CreateTransaction();
@@ -170,9 +170,9 @@ namespace NBitcoin.Tests
 			tx.Inputs.Add(new OutPoint(tx.GetHash(), 1), scriptPubKey);
 			tx.Outputs.Add("21", key.PubKey.Hash);
 			var clone = tx.Clone();
-			tx.Sign(key, CreateFakeCoins(tx.Inputs, scriptPubKey));
+			tx.Sign(new[] { key }, CreateFakeCoins(tx.Inputs, scriptPubKey));
 			AssertCorrectlySigned(tx, new TxOut(null, scriptPubKey));
-			clone.Sign(key, CreateFakeCoins(clone.Inputs, scriptPubKey, true));
+			clone.Sign(new[] { key }, CreateFakeCoins(clone.Inputs, scriptPubKey, true));
 			AssertCorrectlySigned(clone, new TxOut(TxOut.NullMoney, scriptPubKey.Hash.ScriptPubKey));
 		}
 
@@ -2078,7 +2078,7 @@ namespace NBitcoin.Tests
 			var privKeys = new[]{"5JaTXbAUmfPYZFRwrYaALK48fN6sFJp4rHqq2QSXs8ucfpE4yQU",
 						"5Jb7fCeh1Wtm4yBBg3q3XbT6B525i17kVhy3vMC9AqfR6FH2qGk",
 						"5JFjmGo5Fww9p8gvx48qBYDJNAzR9pmH5S389axMtDyPT8ddqmw"}
-						.Select(k => new BitcoinSecret(k).PrivateKey).ToArray();
+						.Select(k => new BitcoinSecret(k)).ToArray();
 
 			//First: combine the three keys into a multisig address
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, privKeys.Select(k => k.PubKey).ToArray());
@@ -2109,10 +2109,10 @@ namespace NBitcoin.Tests
 			//... Now I can partially sign it using one private key:
 
 			var coins = CreateFakeCoins(spendTransaction.Inputs, redeem, true);
-			partiallySigned.Sign(privKeys[0], coins);
+			partiallySigned.Sign(new[] { privKeys[0] }, coins);
 
 			//the other private keys (note the "hex" result getting longer):
-			partiallySigned.Sign(privKeys[1], coins);
+			partiallySigned.Sign(new[] { privKeys[1] }, coins);
 
 
 			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0], allowHighS);
@@ -2124,8 +2124,8 @@ namespace NBitcoin.Tests
 
 			//Can sign out of order
 			partiallySigned = spendTransaction.Clone();
-			partiallySigned.Sign(privKeys[2], coins);
-			partiallySigned.Sign(privKeys[0], coins);
+			partiallySigned.Sign(new[] { privKeys[2] }, coins);
+			partiallySigned.Sign(new[] { privKeys[0] }, coins);
 			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0]);
 
 			//Can sign multiple inputs
@@ -2135,8 +2135,8 @@ namespace NBitcoin.Tests
 				PrevOut = new OutPoint(fundingTransaction.GetHash(), 1),
 			});
 			partiallySigned.Inputs[1].ScriptSig = redeem; //The redeem should be in the scriptSig before signing
-			partiallySigned.Sign(privKeys[2], partiallySigned.Outputs.AsCoins().ToArray());
-			partiallySigned.Sign(privKeys[0], partiallySigned.Outputs.AsCoins().ToArray());
+			partiallySigned.Sign(new[] { privKeys[2] }, partiallySigned.Outputs.AsCoins().ToArray());
+			partiallySigned.Sign(new[] { privKeys[0] }, partiallySigned.Outputs.AsCoins().ToArray());
 		}
 
 		private void AssertCorrectlySigned(Transaction tx, TxOut txOut, ScriptVerify scriptVerify = ScriptVerify.Standard)
@@ -2447,14 +2447,14 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void witnessHasPushSizeLimit()
 		{
-			Key bob = new Key();
+			var bob = new Key().GetWif(Network.RegTest);
 			Transaction tx = Network.CreateTransaction();
 			tx.Outputs.Add(new TxOut(Money.Coins(1.0m), bob.PubKey.ScriptPubKey.WitHash));
 			ScriptCoin coin = new ScriptCoin(tx.Outputs.AsCoins().First(), bob.PubKey.ScriptPubKey);
 
 			Transaction spending = Network.CreateTransaction();
 			spending.Inputs.Add(tx, 0);
-			spending.Sign(bob, coin);
+			spending.Sign(new[] { bob }, new[] { coin });
 			ScriptError error;
 			Assert.True(spending.Inputs.AsIndexedInputs().First().VerifyScript(coin, out error));
 			spending.Inputs[0].WitScript = new WitScript(new[] { new byte[521] }.Concat(spending.Inputs[0].WitScript.Pushes).ToArray());

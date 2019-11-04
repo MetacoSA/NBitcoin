@@ -133,16 +133,16 @@ namespace NBitcoin
 #pragma warning restore CS0618 // Type or member is obsolete
 		}
 
-		protected virtual TransactionBuilder CreateTransactionBuilderCore()
+		protected virtual TransactionBuilder CreateTransactionBuilderCore(Network network)
 		{
 #pragma warning disable CS0618 // Type or member is obsolete
-			return new TransactionBuilder();
+			return new TransactionBuilder(network);
 #pragma warning restore CS0618 // Type or member is obsolete
 		}
 
-		internal TransactionBuilder CreateTransactionBuilderCore2()
+		internal TransactionBuilder CreateTransactionBuilderCore2(Network network)
 		{
-			return CreateTransactionBuilderCore();
+			return CreateTransactionBuilderCore(network);
 		}
 	}
 }

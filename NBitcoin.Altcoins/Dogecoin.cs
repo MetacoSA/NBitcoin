@@ -37,9 +37,9 @@ namespace NBitcoin.Altcoins
 			{
 				return new DogecoinBlock(new DogecoinBlockHeader());
 			}
-			protected override TransactionBuilder CreateTransactionBuilderCore()
+			protected override TransactionBuilder CreateTransactionBuilderCore(Network network)
 			{
-				var txBuilder = base.CreateTransactionBuilderCore();
+				var txBuilder = base.CreateTransactionBuilderCore(network);
 				txBuilder.StandardTransactionPolicy.MinFee = Money.Coins(1m);
 				return txBuilder;
 			}

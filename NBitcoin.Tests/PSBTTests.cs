@@ -122,7 +122,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void ShouldPreserveOriginalTxPropertyAsPossible()
 		{
-			var keys = new Key[] { new Key(), new Key(), new Key() };
+			var keys = new Key[] { new Key(), new Key(), new Key() }.Select(k => k.GetWif(Network.RegTest)).ToArray();
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
 			var network = Network.Main;
 			var funds = CreateDummyFunds(network, keys, redeem);
@@ -170,10 +170,10 @@ namespace NBitcoin.Tests
 		public void CanUpdate()
 		{
 			var network = Network.Main;
-			var alice = Key.Parse("L23Ng7B8iXTcQ9emwDYpabUJVsxDQDxKwePrTwAZo1VT9xcDPfBF", network);
-			var bob = Key.Parse("L2nRrbzZytXSTjn95a4droGrAj5uwSEeG3JUHeNwdB9pUHu8Znjo", network);
-			var carol = Key.Parse("KzHNhJn4P3FML22cQ9yr6rc35hmTPwVmaCnXkc114fQ8ZKRR9hoK", network);
-			var keys = new Key[] { alice, bob, carol };
+			var alice = new BitcoinSecret("L23Ng7B8iXTcQ9emwDYpabUJVsxDQDxKwePrTwAZo1VT9xcDPfBF", network);
+			var bob = new BitcoinSecret("L2nRrbzZytXSTjn95a4droGrAj5uwSEeG3JUHeNwdB9pUHu8Znjo", network);
+			var carol = new BitcoinSecret("KzHNhJn4P3FML22cQ9yr6rc35hmTPwVmaCnXkc114fQ8ZKRR9hoK", network);
+			var keys = new[] { alice, bob, carol };
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
 			var funds = CreateDummyFunds(network, keys, redeem);
 
@@ -287,7 +287,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void ShouldCaptureExceptionInFinalization()
 		{
-			var keys = new Key[] { new Key(), new Key(), new Key() };
+			var keys = new Key[] { new Key(), new Key(), new Key() }.Select(k => k.GetWif(Network.RegTest)).ToArray();
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
 			var network = Network.Main;
 			var funds = CreateDummyFunds(network, keys, redeem);
@@ -303,7 +303,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void AddingScriptCoinShouldResultMoreInfoThanAddingSeparatelyInCaseOfP2SH()
 		{
-			var keys = new Key[] { new Key(), new Key(), new Key() };
+			var keys = new Key[] { new Key(), new Key(), new Key() }.Select(k => k.GetWif(Network.RegTest)).ToArray();
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
 			var network = Network.Main;
 			var funds = CreateDummyFunds(network, keys, redeem);
@@ -635,7 +635,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(expectedPsbt, actualPsbt);
 		}
 
-		static internal ICoin[] DummyFundsToCoins(IEnumerable<Transaction> txs, Script redeem, Key key)
+		static internal ICoin[] DummyFundsToCoins(IEnumerable<Transaction> txs, Script redeem, BitcoinSecret key)
 		{
 			var barecoins = txs.SelectMany(tx => tx.Outputs.AsCoins()).ToArray();
 			var coins = new ICoin[barecoins.Length];
@@ -650,7 +650,7 @@ namespace NBitcoin.Tests
 
 		static internal Transaction CreateTxToSpendFunds(
 				Transaction[] funds,
-				Key[] keys,
+				BitcoinSecret[] keys,
 				Script redeem,
 				bool withScript,
 				bool sign
@@ -688,7 +688,7 @@ namespace NBitcoin.Tests
 			return tx;
 		}
 
-		static internal Transaction[] CreateDummyFunds(Network network, Key[] keyForOutput, Script redeem)
+		static internal Transaction[] CreateDummyFunds(Network network, BitcoinSecret[] keyForOutput, Script redeem)
 		{
 			// 1. p2pkh and p2wpkh
 			var tx1 = network.CreateTransaction();

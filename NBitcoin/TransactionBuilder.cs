@@ -559,8 +559,11 @@ namespace NBitcoin
 			}
 		}
 
-		internal TransactionBuilder()
+		internal TransactionBuilder(Network network)
 		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			Network = network;
 			ShuffleRandom = new Random();
 			CoinSelector = new DefaultCoinSelector(ShuffleRandom);
 			StandardTransactionPolicy = new StandardTransactionPolicy();
@@ -1207,7 +1210,6 @@ namespace NBitcoin
 		public Network Network
 		{
 			get;
-			internal set;
 		}
 
 		public TransactionBuilder SetCoinSelector(ICoinSelector selector)

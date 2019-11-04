@@ -39,15 +39,19 @@ namespace NBitcoin.Altcoins.Elements
 			return new ElementsTransaction<TNetwork>();
 		}
 
-		protected override TransactionBuilder CreateTransactionBuilderCore()
+		protected override TransactionBuilder CreateTransactionBuilderCore(Network network)
 		{
-			var builder = new ElementsTransactionBuilder();
+			var builder = new ElementsTransactionBuilder(network);
 			builder.StandardTransactionPolicy.Strategy = new StandardElementsTransactionPolicyStrategy();
 			return builder;
 		}
 #pragma warning disable CS0618 // Type or member is obsolete
 		class ElementsTransactionBuilder : TransactionBuilder
 		{
+			public ElementsTransactionBuilder(Network network): base(network)
+			{
+
+			}
 			protected override void AfterBuild(Transaction transaction)
 			{
 				if (transaction.Outputs.OfType<ElementsTxOut>().All(o => !o.IsFee))

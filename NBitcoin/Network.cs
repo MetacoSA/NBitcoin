@@ -2510,15 +2510,13 @@ namespace NBitcoin
 
 		public TransactionBuilder CreateTransactionBuilder()
 		{
-			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2();
-			builder.Network = this;
+			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2(this);
 			return builder;
 		}
 
 		public TransactionBuilder CreateTransactionBuilder(int seed)
 		{
-			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2();
-			builder.Network = this;
+			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2(this);
 			builder.ShuffleRandom = new Random(seed);
 			return builder;
 		}
