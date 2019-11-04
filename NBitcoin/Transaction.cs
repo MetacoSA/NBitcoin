@@ -748,39 +748,15 @@ namespace NBitcoin
 			set;
 		}
 
-		[Obsolete("Use VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard) instead")]
-		public bool VerifyScript(Script scriptPubKey, ScriptVerify scriptVerify = ScriptVerify.Standard)
-		{
-			ScriptError unused;
-			return VerifyScript(scriptPubKey, scriptVerify, out unused);
-		}
 		public bool VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard)
 		{
 			ScriptError unused;
 			return VerifyScript(spentOutput, scriptVerify, out unused);
 		}
-		[Obsolete("Use VerifyScript(TxOut spentOutput, out ScriptError error) instead")]
-		public bool VerifyScript(Script scriptPubKey, out ScriptError error)
-		{
-			TxOut txOut = Transaction.Outputs.CreateNewTxOut(null, scriptPubKey);
-			return Script.VerifyScript(Transaction, (int)Index, txOut, out error);
-		}
+
 		public bool VerifyScript(TxOut spentOutput, out ScriptError error)
 		{
 			return Script.VerifyScript(Transaction, (int)Index, spentOutput, out error);
-		}
-		[Obsolete("Use VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error) instead")]
-		public bool VerifyScript(Script scriptPubKey, ScriptVerify scriptVerify, out ScriptError error)
-		{
-			TxOut txOut = Transaction.Outputs.CreateNewTxOut(null, scriptPubKey);
-			return Script.VerifyScript(Transaction, (int)Index, txOut, scriptVerify, SigHash.Undefined, out error);
-		}
-
-		[Obsolete("Use VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error) instead")]
-		public bool VerifyScript(Script scriptPubKey, Money value, ScriptVerify scriptVerify, out ScriptError error)
-		{
-			TxOut txOut = Transaction.Outputs.CreateNewTxOut(value, scriptPubKey);
-			return Script.VerifyScript(Transaction, (int)Index, txOut, scriptVerify, SigHash.Undefined, out error);
 		}
 
 		public bool VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error)
@@ -1312,9 +1288,7 @@ namespace NBitcoin
 		protected TxOutList vout;
 		protected LockTime nLockTime;
 
-
-		[Obsolete("You should better use Transaction.Create(Network network)")]
-		public Transaction()
+		internal Transaction()
 		{
 			vin = new TxInList(this);
 			vout = new TxOutList(this);
@@ -1552,7 +1526,8 @@ namespace NBitcoin
 
 		public Transaction Clone(bool cloneCache)
 		{
-			var clone = BitcoinSerializableExtensions.Clone(this);
+			var clone = GetConsensusFactory().CreateTransaction();
+			clone.ReadWrite(this.ToBytes(), GetConsensusFactory());
 			if (cloneCache)
 				clone._Hashes = _Hashes.ToArray();
 			return clone;
