@@ -117,26 +117,6 @@ namespace NBitcoin
 			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, ChainCodeLength);
 		}
 
-		[Obsolete("Use ExtPubKey(PubKey pubkey, byte[] chainCode, byte depth, HDFingerPrint fingerprint, uint child) instead")]
-		public ExtPubKey(PubKey pubkey, byte[] chainCode, byte depth, byte[] fingerprint, uint child)
-		{
-			if (pubkey == null)
-				throw new ArgumentNullException(nameof(pubkey));
-			if (chainCode == null)
-				throw new ArgumentNullException(nameof(chainCode));
-			if (chainCode.Length != ChainCodeLength)
-				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", ChainCodeLength), "chainCode");
-			if (fingerprint == null)
-				throw new ArgumentNullException(nameof(fingerprint));
-			if (fingerprint.Length != 4)
-				throw new ArgumentException(string.Format("The fingerprint must be {0} bytes.", 4), "fingerprint");
-			this.pubkey = pubkey;
-			this.nDepth = depth;
-			this.nChild = child;
-			parentFingerprint = new HDFingerprint(fingerprint);
-			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, ChainCodeLength);
-		}
-
 		public ExtPubKey(PubKey masterKey, byte[] chainCode)
 		{
 			if (masterKey == null)
@@ -162,15 +142,6 @@ namespace NBitcoin
 		}
 
 		public HDFingerprint ParentFingerprint
-		{
-			get
-			{
-				return parentFingerprint;
-			}
-		}
-
-		[Obsolete("Use ParentFingerprint instead. The Fingerprint of the HD key is actually the fingerprint of the parent public key, this field was not well named.")]
-		public HDFingerprint Fingerprint
 		{
 			get
 			{

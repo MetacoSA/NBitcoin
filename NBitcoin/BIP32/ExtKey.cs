@@ -280,15 +280,6 @@ namespace NBitcoin
 			}
 		}
 
-		[Obsolete("Use ParentFingerprint instead. The Fingerprint of the HD key is actually the fingerprint of the parent public key, this field was not well named.")]
-		public HDFingerprint Fingerprint
-		{
-			get
-			{
-				return parentFingerprint;
-			}
-		}
-
 		/// <summary>
 		/// Derives a new extended key in the hierarchy as the given child number.
 		/// </summary>
