@@ -22,18 +22,25 @@ namespace NBitcoin.Altcoins.Elements
 			{
 					var vchData = blech32.Decode(base58, out var witnessVerion);
 					bool p2pkh = !(version == null || !StartWith(prefix.Length, vchData, version));
-
+					var script = false;
 					var blinding = vchData.SafeSubarray(0, 33);
-					var hash = vchData.SafeSubarray(version.Length + 32, 20);
+					byte[] hash;
+					if (vchData.Length == 53)
+					{
+
+						hash = vchData.SafeSubarray(version.Length + 32, 20);
+					}
+					else
+					{
+						hash = vchData.SafeSubarray(version.Length + 32, vchData.Length - version.Length - 32);
+						script = true;
+					}
 					if (PubKey.Check(blinding, true))
 					{
 						_BlindingKey = new PubKey(blinding);
 						if (witnessVerion == 0)
 						{
-							_UnblindedAddress =
-								p2pkh
-									? (BitcoinAddress) new BitcoinPubKeyAddress(new KeyId(hash), network)
-									: new BitcoinScriptAddress(new ScriptId(hash), network);
+							_UnblindedAddress =script?  (BitcoinAddress) new BitcoinWitScriptAddress(new WitScriptId(hash), network):  new BitcoinWitPubKeyAddress(new WitKeyId(hash), network);
 						}
 						else if (witnessVerion > 16 || hash.Length < 2 || hash.Length > 40)
 						{
