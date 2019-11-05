@@ -595,22 +595,6 @@ namespace NBitcoin.Scripting.Miniscript
 			throw new Exception(("Unreachable!"));
 		}
 
-		private int ScriptNumSize(int n) => ScriptNumSize((ulong)n);
-		private int ScriptNumSize(ulong n)
-		{
-			if (n <= 0x10) // OP_n
-				return 1;
-			if (n < 0x10) // OP_PUSH1 <n>
-				return 2;
-			if (n < 0x8000) // OP_PUSH2 <n>
-				return 3;
-			if (n < 0x800000) // OP_PUSH3 <n>
-				return 4;
-			if (n < 0x80000000) // OP_PUSH4 <n>
-				return 5;
-
-			return 6; // OP_PUSH5 <n>
-		}
 		public int ScriptSize()
 		{
 			switch (this.Tag)
@@ -628,9 +612,9 @@ namespace NBitcoin.Scripting.Miniscript
 				case PkH _:
 					return 24;
 				case After self:
-					return ScriptNumSize(self.Item) + 1;
+					return Utils.ScriptNumSize(self.Item) + 1;
 				case Older self:
-					return ScriptNumSize(self.Item) + 1;
+					return Utils.ScriptNumSize(self.Item) + 1;
 				case Sha256 _:
 					return 33 + 6;
 				case Hash256 _:
@@ -677,16 +661,16 @@ namespace NBitcoin.Scripting.Miniscript
 				case Thresh self:
 					Debug.Assert(self.Item2.Length != 0);
 					return
-						ScriptNumSize(self.Item1) + // k
+						Utils.ScriptNumSize(self.Item1) + // k
 						1 + // EQUAL
 						self.Item2.Select(s => s.Node.ScriptSize()).Sum() +
 						self.Item2.Length // ADD
                         - 1; // no ADD on first element
 				case ThreshM self:
 					return
-						ScriptNumSize(self.Item1) +
+						Utils.ScriptNumSize(self.Item1) +
 						1 +
-						ScriptNumSize(self.Item2.Length) +
+						Utils.ScriptNumSize(self.Item2.Length) +
 						self.Item2.Select(x => x.SerializedLength()).Sum();
 			}
 

@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using NBitcoin.Scripting.Miniscript.Policy;
 
 namespace NBitcoin.Scripting.Miniscript.Types
 {
@@ -14,6 +13,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		/// always the constant 1.
 		/// </summary>
 		public bool Unit;
+
+		public Correctness() {}
 
 		public Correctness(Base @base, Input input, bool disSatisfiable, bool unit)
 		{
@@ -29,7 +30,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			(!(!(this.DisSatisfiable) && other.DisSatisfiable)) &&
 			(!(!(this.Unit) && other.Unit));
 
-		public void SanityChecks()
+		public override void SanityChecks()
 		{
 			if (Base == Base.B) return;
 			if (Base == Base.K) Debug.Assert(Unit);
@@ -46,148 +47,256 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			}
 		}
 
-		public Correctness FromTrue()
+		public override Correctness FromTrue()
 			=> new Correctness(Base.B, Input.Zero, false, true);
 
-		public Correctness FromFalse()
+		public override Correctness FromFalse()
 			=> new Correctness(Base.B, Input.Zero, true, false);
 
-		public Correctness FromPk()
+		public override Correctness FromPk()
 			=> new Correctness(Base.K, Input.OneNonZero, true, true);
 
-		public Correctness FromPkH()
+		public override Correctness FromPkH()
 			=> new Correctness(Base.K, Input.AnyNonZero, true, true);
 
-		public Correctness FromMulti(int k, int pkLength)
+		public override Correctness FromMulti(int k, int pkLength)
 			=> new Correctness(Base.B, Input.AnyNonZero, true, true);
 
-		public Correctness FromAfter(uint time)
-			=> new Correctness(Base.B, Input.Zero, false, false);
-
-		public Correctness FromOlder(uint time)
-			=> new Correctness(Base.B, Input.Zero, false, false);
-
-		public Correctness FromHash()
+		public override Correctness FromHash()
 			=> new Correctness(Base.B, Input.OneNonZero, true, true);
 
-		public Correctness FromSha256()
+		public override Correctness FromTime(uint time)
+			=> new Correctness(Base.B, Input.Zero, false, false);
+
+		public override Correctness CastAlt()
+			=> new Correctness(
+				(Base == Base.B ? Base.W : throw CastException.ChildBase1(Base)),
+				Input.Any,
+				DisSatisfiable,
+				Unit
+		);
+
+		public override Correctness CastSwap() =>
+			new Correctness(
+				(Base == Base.B ? Base.W : throw CastException.ChildBase1(Base)),
+				(Input == Input.One || Input == Input.OneNonZero ? Input.Any : throw CastException.ChildBase1(Base)),
+				DisSatisfiable,
+				Unit
+				);
+
+		public override Correctness CastCheck() =>
+			new Correctness(
+				(Base == Base.K ? Base.B : throw CastException.ChildBase1(Base)),
+				Input,
+				DisSatisfiable,
+				true
+			);
+
+		public override Correctness CastDupIf() =>
+			new Correctness(
+				(Base == Base.V ? Base.B : throw CastException.ChildBase1(Base)),
+				(Input == Input.Zero ? Input.OneNonZero : throw CastException.NonZeroDupIf),
+				true,
+				true
+				);
+
+		public override Correctness CastVerify() =>
+			new Correctness(
+				(Base == Base.B ? Base.V : throw CastException.ChildBase1(Base)),
+				Input,
+				false,false
+				);
+
+		public override Correctness CastNonZero()
 		{
-			throw new NotImplementedException();
+			if (Input != Input.OneNonZero && Input != Input.AnyNonZero)
+				throw CastException.NonZeroZero;
+			return new Correctness(
+				(Base == Base.B ? Base.B : throw CastException.ChildBase1(Base)),
+				Input,
+				true,
+				Unit
+				);
 		}
 
-		public Correctness FromHash256()
+		public override Correctness CastZeroNotEqual() =>
+			new Correctness(
+				(Base == Base.B ? Base.B : throw CastException.ChildBase1(Base)),
+				Input,
+				DisSatisfiable,
+				true
+				);
+
+		public override Correctness CastTrue() =>
+			new Correctness(
+				(Base == Base.V ? Base.B : throw CastException.ChildBase1(Base)),
+				Input,
+				false,
+				true
+			);
+
+		public override Correctness CastOrIFalse() =>
+			new Correctness(
+				(Base == Base.B ? Base.B : throw CastException.ChildBase1(Base)),
+				(Input == Input.Zero ? Input.One : Input.Any),
+				true,
+				Unit
+				);
+
+		public override Correctness AndB(Correctness l, Correctness r) =>
+			new Correctness(
+				((l.Base == Base.B && r.Base == Base.W) ? Base.B : throw CastException.ChildBase2(l.Base, r.Base) ),
+
+				(l.Input == Input.Zero && r.Input == Input.Zero) ? Input.Zero :
+				((l.Input == Input.Zero && r.Input == Input.One)
+					|| l.Input == Input.One || r.Input == Input.Zero) ? Input.One :
+				(l.Input == Input.Zero && r.Input == Input.OneNonZero)
+					|| (l.Input == Input.OneNonZero && r.Input == Input.Zero) ? Input.OneNonZero :
+				((l.Input == Input.AnyNonZero) || (l.Input == Input.Zero && r.Input == Input.AnyNonZero)) ? Input.AnyNonZero :
+				(Input.Any),
+
+				(l.DisSatisfiable && r.DisSatisfiable),
+				true
+				);
+
+		public override Correctness AndV(Correctness l, Correctness r)
 		{
-			throw new NotImplementedException();
+			return new Correctness(
+				(l.Base == Base.V && r.Base == Base.B) ? Base.B :
+				(l.Base == Base.V && r.Base == Base.K) ? Base.K :
+				(l.Base == Base.V && r.Base == Base.V) ? Base.V : throw CastException.ChildBase2(l.Base, r.Base),
+
+				(l.Input == Input.Zero && r.Input == Input.Zero) ? Input.Zero :
+				(l.Input == Input.Zero && r.Input == Input.One) ||
+					(l.Input == Input.One && r.Input == Input.Zero) ? Input.One :
+				(l.Input == Input.Zero && r.Input == Input.OneNonZero) ||
+					(l.Input == Input.OneNonZero && r.Input == Input.Zero) ? Input.OneNonZero :
+				(l.Input == Input.OneNonZero) ||
+					(l.Input == Input.AnyNonZero) ||
+					(l.Input == Input.Zero && r.Input == Input.AnyNonZero) ? Input.AnyNonZero :
+				Input.Any,
+				false,
+				r.Unit
+				);
 		}
 
-		public Correctness FromRipemd160()
+		public override Correctness OrB(Correctness l, Correctness r)
 		{
-			throw new NotImplementedException();
+			if (!l.DisSatisfiable)
+				throw CastException.LeftNotDissatisfiable;
+			if (!r.DisSatisfiable)
+				throw CastException.RightNotDissatisfiable;
+			return new Correctness(
+				(l.Base == Base.B && r.Base == Base.W) ? Base.B : throw CastException.ChildBase2(l.Base, r.Base),
+				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.Zero :
+				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.One) ||
+					(l.Input == Miniscript.Input.One && r.Input == Miniscript.Input.Zero) ||
+					(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.OneNonZero) ||
+					(l.Input == Miniscript.Input.OneNonZero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.One :
+				Miniscript.Input.Any,
+				true,
+				true
+				);
 		}
 
-		public Correctness FromHash160()
+		public override Correctness OrD(Correctness l, Correctness r)
 		{
-			throw new NotImplementedException();
+			if (!l.DisSatisfiable)
+				throw CastException.LeftNotDissatisfiable;
+			if (!l.Unit)
+				throw CastException.LeftNotUnit;
+			return new Correctness(
+				(l.Base == Base.B) ? Base.B : throw CastException.ChildBase2(l.Base, r.Base),
+				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.Zero :
+					(l.Input == Miniscript.Input.One && r.Input == Miniscript.Input.Zero) ||
+					(l.Input == Miniscript.Input.OneNonZero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.One :
+				Miniscript.Input.Any,
+				r.DisSatisfiable,
+				r.Unit
+				);
 		}
 
-		public Correctness CastAlt()
+		public override Correctness OrC(Correctness l, Correctness r)
 		{
-			throw new NotImplementedException();
+			if (!l.DisSatisfiable)
+				throw CastException.LeftNotDissatisfiable;
+			if (!l.Unit)
+				throw CastException.LeftNotUnit;
+
+			return
+				new Correctness(
+					(l.Base == Miniscript.Base.B && r.Base == Miniscript.Base.V)
+						? Miniscript.Base.V
+						: throw CastException.ChildBase2(l.Base, r.Base),
+					Miniscript.Input.Any,
+					false,
+					false
+				);
 		}
 
-		public Correctness CastSwap()
+		public override Correctness OrI(Correctness l, Correctness r) =>
+			new Correctness(
+				(l.Base == Miniscript.Base.B && r.Base == Miniscript.Base.B) ? Miniscript.Base.B :
+				(l.Base == Miniscript.Base.V && r.Base == Miniscript.Base.V) ? Miniscript.Base.V :
+				(l.Base == Miniscript.Base.K && r.Base == Miniscript.Base.K) ? Miniscript.Base.K : throw CastException.ChildBase2(l.Base, r.Base),
+				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.One : Miniscript.Input.Any,
+				(l.DisSatisfiable || r.DisSatisfiable),
+				l.Unit && r.Unit
+			);
+
+		public override Correctness AndOr(Correctness a, Correctness b, Correctness c)
 		{
-			throw new NotImplementedException();
+			if (!a.DisSatisfiable)
+				throw CastException.LeftNotDissatisfiable;
+			if (!a.Unit)
+				throw CastException.LeftNotUnit;
+			return new Correctness(
+				(a.Base == Base.B && b.Base == Base.B && c.Base == Base.B) ? Miniscript.Base.B :
+					(a.Base == Base.B && b.Base == Base.K && c.Base == Base.K) ? Base.K :
+					(a.Base == Base.B && b.Base == Base.V && c.Base == Base.V) ? Base.V :
+					throw CastException.ChildBase3(a.Base, b.Base, c.Base),
+				(a.Input == Input.Zero && b.Input == Input.Zero && c.Input == Input.Zero) ? Input.Zero :
+				(a.Input == Input.Zero && b.Input == Input.One && c.Input == Input.One) ||
+					(a.Input  == Input.Zero && b.Input == Input.One && c.Input == Input.OneNonZero) ||
+					(a.Input == Input.Zero && b.Input == Input.OneNonZero && c.Input == Input.One) ||
+					(a.Input == Input.Zero && b.Input == Input.OneNonZero && c.Input == Input.OneNonZero) ||
+					(a.Input == Input.One && b.Input == Input.Zero && c.Input == Input.Zero) ||
+					(a.Input == Input.OneNonZero && b.Input == Input.Zero && c.Input == Input.Zero)
+					? Input.One :
+					Input.Any,
+				c.DisSatisfiable,
+				b.Unit && c.Unit
+				);
 		}
 
-		public Correctness CastCheck()
+		public override Correctness Threshold(int k, int n, Func<int, Correctness> subCk)
 		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness CastDupIf()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness CastVerify()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness CastNonZero()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness CastZeroNotEqual()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness CastTrue()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness CastOrIFalse()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness CastUnLikely()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness CastLikely()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness AndB(Correctness left, Correctness right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness AndV(Correctness left, Correctness right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness AndN(Correctness left, Correctness right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness OrB(Correctness left, Correctness right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness OrD(Correctness left, Correctness right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness OrC(Correctness left, Correctness right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness OrI(Correctness left, Correctness right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness AndOr(Correctness a, Correctness b, Correctness c)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Correctness Threshold(int k, int n, Func<uint, Correctness> subCk)
-		{
-			throw new NotImplementedException();
+			var isN = k == n;
+			for (int i = 0; i < n; i++)
+			{
+				var subType = subCk(i);
+				if (i == 0)
+				{
+					isN &= subType.Input == Input.OneNonZero || subType.Input == Input.AnyNonZero;
+					if (subType.Base != Base.B)
+						throw CastException.ThresholdBase(0U, subType.Base);
+				}
+				else
+				{
+					if (subType.Base != Miniscript.Base.W)
+						throw CastException.ThresholdBase((uint)n, subType.Base);
+				}
+				if (!subType.Unit)
+					throw CastException.ThresholdNonUnit((uint)n);
+				if (!subType.DisSatisfiable)
+					throw CastException.ThresholdDissat((uint)n);
+			}
+			return new Correctness(
+				Base.B,
+				(isN ? Input.AnyNonZero : Miniscript.Input.Any),
+				true,
+				true
+				);
 		}
 	}
 }

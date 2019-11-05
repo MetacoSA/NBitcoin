@@ -59,160 +59,166 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				other.Safe &&
 				!(!NonMalleable && other.NonMalleable);
 
-		public Malleability FromTrue() =>
+		public override Malleability FromTrue() =>
 			new Malleability(Dissat.None, false, true);
 
-		public Malleability FromFalse() =>
+		public override Malleability FromFalse() =>
 			new Malleability(Dissat.None, true, true);
 
-		public Malleability FromPk() =>
+		public override Malleability FromPk() =>
 			new Malleability(Dissat.Unique, true, true);
 
-		public Malleability FromPkH() =>
+		public override Malleability FromPkH() =>
 			new Malleability(Dissat.Unique, true, true);
 
-		public Malleability FromMulti(int k, int pkLength) =>
+		public override Malleability FromMulti(int k, int pkLength) =>
 			new Malleability(Dissat.Unique, true,true);
 
-		public Malleability FromAfter(uint time)
-		{
-			throw new System.NotImplementedException();
-		}
-
-		public Malleability FromOlder(uint time)
-		{
-			throw new System.NotImplementedException();
-		}
-
-		public Malleability FromHash() =>
+		public override Malleability FromTime(uint time) =>
 			new Malleability(Dissat.None, false, true);
 
-		public Malleability FromSha256()
-		{
-			throw new System.NotImplementedException();
-		}
+		public override Malleability FromHash() =>
+			new Malleability(Dissat.None, false, true);
 
-		public Malleability FromHash256()
-		{
-			throw new System.NotImplementedException();
-		}
-
-		public Malleability FromRipemd160()
-		{
-			throw new System.NotImplementedException();
-		}
-
-		public Malleability FromHash160()
-		{
-			throw new System.NotImplementedException();
-		}
-
-		public Malleability CastAlt() =>
+		public override Malleability CastAlt() =>
 			this;
 
-		public Malleability CastSwap()
-		{
-			throw new System.NotImplementedException();
-		}
+		public override Malleability CastSwap() =>
+			this;
 
-		public Malleability CastCheck()
-		{
-			throw new System.NotImplementedException();
-		}
+		public override Malleability CastCheck() =>
+			this;
 
-		public Malleability CastDupIf()
-		{
-			throw new System.NotImplementedException();
-		}
+		public override Malleability CastDupIf() =>
+			new Malleability(
+				(Dissat == Dissat.None ? Dissat.Unique : Dissat.Unknown),
+				Safe,
+				NonMalleable
+				);
 
-		public Malleability CastVerify()
-		{
-			throw new System.NotImplementedException();
-		}
+		public override Malleability CastVerify() =>
+			new Malleability(
+				Dissat.None,
+				Safe,
+				NonMalleable
+				);
 
-		public Malleability CastNonZero()
-		{
-			throw new System.NotImplementedException();
-		}
+		public override Malleability CastNonZero() =>
+			new Malleability(
+				Dissat == Dissat.None ? Dissat.Unique : Dissat.Unknown,
+				Safe,
+				NonMalleable
+				);
 
-		public Malleability CastZeroNotEqual()
-		{
-			throw new System.NotImplementedException();
-		}
+		public override Malleability CastZeroNotEqual() => this;
 
-		public Malleability CastTrue()
-		{
-			throw new System.NotImplementedException();
-		}
+		public override Malleability CastTrue() =>
+			new Malleability(
+				Dissat == Dissat.None ? Dissat.Unique : Dissat.Unknown,
+				Safe,
+				NonMalleable
+				);
 
-		public Malleability CastOrIFalse()
-		{
-			throw new System.NotImplementedException();
-		}
+		public override Malleability CastOrIFalse() =>
+			new Malleability(
+				Dissat == Dissat.None ? Dissat.Unique : Dissat.Unknown,
+				Safe,
+				NonMalleable
+				);
 
-		public Malleability CastUnLikely()
-		{
-			throw new System.NotImplementedException();
-		}
+		public override Malleability AndB(Malleability left, Malleability right) =>
+			new Malleability(
+				(left.Dissat == Dissat.None && right.Dissat == Dissat.None) ||
+					(left.Dissat == Dissat.None && left.Safe) ||
+					(right.Dissat == Dissat.None && right.Safe) ? Dissat.None :
+					(left.Dissat == Dissat.Unique && right.Dissat == Dissat.Unique && left.Safe && right.Safe) ? Dissat.Unique :
+					Dissat.Unknown,
+				left.Safe || right.Safe,
+				left.NonMalleable && right.NonMalleable
+				);
 
-		public Malleability CastLikely()
-		{
-			throw new System.NotImplementedException();
-		}
 
-		public Malleability AndB(Malleability left, Malleability right)
-		{
-			throw new NotImplementedException();
-		}
+		public override Malleability AndV(Malleability left, Malleability right) =>
+			new Malleability(
+				(left.Safe) || (right.Dissat == Dissat.None) ? Dissat.None : Dissat.Unknown,
+				left.Safe || right.Safe,
+				left.NonMalleable && right.NonMalleable
+				);
 
-		public Malleability AndV(Malleability left, Malleability right)
-		{
-			throw new NotImplementedException();
-		}
+		public override Malleability OrB(Malleability left, Malleability right) =>
+			new Malleability(
+				Dissat.Unique,
+				left.Safe && right.Safe,
+				left.NonMalleable
+				&& left.Dissat == Dissat.Unique
+				&& right.NonMalleable
+				&& right.Dissat == Dissat.Unique
+				&& (left.Safe || right.Safe)
+				);
 
-		public Malleability AndN(Malleability left, Malleability right)
-		{
-			throw new NotImplementedException();
-		}
+		public override Malleability OrD(Malleability left, Malleability right) =>
+			new Malleability(
+				right.Dissat,
+				left.Safe && right.Safe,
+				left.NonMalleable
+				&& left.Dissat == Dissat.Unique
+				&& right.NonMalleable
+				&& (left.Safe || right.Safe)
+				);
 
-		public Malleability OrB(Malleability left, Malleability right)
-		{
-			throw new NotImplementedException();
-		}
 
-		public Malleability OrD(Malleability left, Malleability right)
-		{
-			throw new NotImplementedException();
-		}
+		public override Malleability OrC(Malleability left, Malleability right) =>
+			new Malleability(
+				Dissat.None,
+				left.Safe && right.Safe,
+				left.NonMalleable
+				&& left.Dissat == Dissat.Unique
+				&& right.NonMalleable
+				&& (left.Safe && right.Safe)
+				);
 
-		public Malleability OrC(Malleability left, Malleability right)
-		{
-			throw new NotImplementedException();
-		}
+		public override Malleability OrI(Malleability left, Malleability right) =>
+			new Malleability(
+				(left.Dissat == Dissat.None && right.Dissat == Dissat.None) ? Dissat.None :
+					(left.Dissat == Dissat.Unique && right.Dissat == Dissat.None) ? Dissat.Unique :
+					(left.Dissat == Dissat.None && right.Dissat == Dissat.Unique) ? Dissat.Unique :
+				Dissat.Unknown,
+				left.Safe && right.Safe,
+				left.NonMalleable && right.NonMalleable && (left.Safe || right.Safe)
+				);
 
-		public Malleability OrI(Malleability left, Malleability right)
-		{
-			throw new NotImplementedException();
-		}
+		public override Malleability AndOr(Malleability a, Malleability b, Malleability c) =>
+			new Malleability(
+				(b.Dissat == Dissat.None && c.Dissat == Dissat.Unique) ? Dissat.Unique :
+					(a.Safe && c.Dissat == Dissat.Unique) ?  Dissat.Unique:
+					(b.Dissat == Dissat.None && c.Dissat == Dissat.None) ? Dissat.None :
+					(a.Safe && c.Dissat == Dissat.None) ? Dissat.None :
+				Dissat.Unknown,
+				(a.Safe || b.Safe) && c.Safe,
+				a.NonMalleable
+				&& b.NonMalleable
+				&& c.NonMalleable
+				&& a.Dissat == Dissat.Unique
+				&& (a.Safe || b.Safe || c.Safe)
+				);
 
-		public Malleability AndOr(Malleability a, Malleability b, Malleability c)
+		public override Malleability Threshold(int k, int n, Func<int, Malleability> subCk)
 		{
-			throw new NotImplementedException();
-		}
-
-		public Malleability Threshold(int k, int n, Func<uint, Malleability> subCk)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Malleability AndB()
-		{
-			throw new System.NotImplementedException();
-		}
-
-		public void SanityChecks()
-		{
-			throw new System.NotImplementedException();
+			var safeCount = 0;
+			var allAreDissatUnique = true;
+			var allAreNonMalleable = true;
+			for (int i = 0; i < n; i++)
+			{
+				var subType = subCk(i);
+				safeCount += (subType.Safe ? 1 : 0);
+				allAreDissatUnique &= subType.Dissat == Dissat.Unique;
+				allAreNonMalleable &= subType.NonMalleable;
+			}
+			return new Malleability(
+				allAreDissatUnique && (k == 1 || safeCount == n) ? Dissat.Unique : Dissat.Unknown,
+					safeCount > n - k,
+					allAreNonMalleable && safeCount >= n -k && (k == n || allAreDissatUnique)
+				);
 		}
 
 	}

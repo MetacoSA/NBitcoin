@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices.ComTypes;
 using NBitcoin.Scripting.Miniscript.Types;
 
@@ -11,6 +14,10 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			new CompilerException("Top level element of compilation result was not safe");
 		public static CompilerException ImpossibleNonMalleableCompilation =
 			new CompilerException("Top level of compilation result was malleable!");
+
+		public static CompilerException MaxOpCountExceeded =
+			new CompilerException(
+				$"one path in the optimal miniscript has opcodes more than {Constants.MAX_OPS_PER_SCRIPT}. consider using more simple script");
 
 		private CompilerException(string msg) : base(msg) {}
 	}
@@ -42,11 +49,11 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		internal readonly double? DissatProb;
 
 		public bool IsSubtype(CompilationKey other) =>
-			this.Type.IsSubtype(other.Type) &&
-			this.ExpensiveVerify == other.ExpensiveVerify &&
-			this.DissatProb == other.DissatProb;
+			Type.IsSubtype(other.Type) &&
+			ExpensiveVerify == other.ExpensiveVerify &&
+			DissatProb == other.DissatProb;
 
-		private CompilationKey(MiniscriptFragmentType type, double? dissatProb, bool expensiveVerify)
+		internal CompilationKey(MiniscriptFragmentType type, bool expensiveVerify, double? dissatProb)
 		{
 			Type = type;
 			DissatProb = dissatProb;
@@ -62,7 +69,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		/// the probability of its branch being taken. Otherwise it is ignored.
 		/// All functions initialize it to `None` .
 		/// </summary>
-		internal readonly double? BranchProb;
+		internal double? BranchProb;
 
 		/// <summary>
 		/// The number of bytes needed to satisfy the fragment in segwit format
@@ -80,169 +87,158 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 
 		public CompilerExtData() {}
 
-		public void SanityChecks()
+		public override CompilerExtData FromTrue()
 		{
-			throw new NotImplementedException();
+			// only used in casts. should never be computed directly
+			throw new Exception("Unreachable");
 		}
 
-		public CompilerExtData FromTrue()
+		public override CompilerExtData FromFalse() =>
+			new CompilerExtData(
+				null,
+				double.MaxValue,
+				0.0
+				);
+
+		public override CompilerExtData FromPk() =>
+			new CompilerExtData(
+				null,
+				73.0,
+				1.0
+				);
+
+		public override CompilerExtData FromPkH() =>
+			new CompilerExtData(null, 73.0 + 34.0, 1.0 + 34.0);
+
+		public override CompilerExtData FromMulti(int k, int pkLength) =>
+			new CompilerExtData(null, 1.0 + 73.0 * k, (1.0 * (k + 1)));
+
+		public override CompilerExtData FromHash()
+			=> new CompilerExtData(null, 33.0, 33.0);
+
+		public override CompilerExtData FromTime(uint time) =>
+			new CompilerExtData(null, 0.0, null);
+
+		public override CompilerExtData CastAlt()
+			=> new CompilerExtData(null, SatisfyCost, DissatCost);
+
+		public override CompilerExtData CastSwap() =>
+			new CompilerExtData(null, SatisfyCost, DissatCost);
+
+		public override CompilerExtData CastCheck()
+			=> new CompilerExtData(null, SatisfyCost, DissatCost);
+
+		public override CompilerExtData CastDupIf()
+			=> new CompilerExtData(null, 2.0 + SatisfyCost, 1.0);
+
+		public override CompilerExtData CastVerify()
+			=> new CompilerExtData(null, SatisfyCost, null);
+
+		public override CompilerExtData CastNonZero()
+			=> new CompilerExtData(null, SatisfyCost, 1.0);
+
+		public override CompilerExtData CastZeroNotEqual()
+			=> new CompilerExtData(null, SatisfyCost, DissatCost);
+
+		public override CompilerExtData CastTrue()
+			=> new CompilerExtData(null, SatisfyCost, null);
+
+		public override CompilerExtData CastOrIFalse()
+			=> new CompilerExtData(null, SatisfyCost, null);
+
+		public override CompilerExtData CastUnLikely()
+			=> new CompilerExtData(null, 2.0 + SatisfyCost, 1.0);
+
+		public override CompilerExtData CastLikely()
+			=> new CompilerExtData(null, 1.0 + SatisfyCost, 2.0);
+
+		public override CompilerExtData AndB(CompilerExtData l, CompilerExtData r)
+			=> new CompilerExtData(null, l.SatisfyCost + r.SatisfyCost,
+				l.DissatCost + r.DissatCost
+				);
+
+		public override CompilerExtData AndV(CompilerExtData l, CompilerExtData r)
+			=> new CompilerExtData(null, l.SatisfyCost + r.SatisfyCost, null);
+
+		public override CompilerExtData OrB(CompilerExtData left, CompilerExtData right)
 		{
-			throw new NotImplementedException();
+			var lProb = left.BranchProb.Value; // left branch prob must always be set for disjunctions
+			var rProb = right.BranchProb.Value; // and for right branch.
+			return new CompilerExtData(
+				null,
+				lProb * (left.SatisfyCost + right.DissatCost.Value) + rProb * (right.SatisfyCost + left.DissatCost.Value),
+				left.DissatCost + right.DissatCost
+				);
 		}
 
-		public CompilerExtData FromFalse()
+		public override CompilerExtData OrD(CompilerExtData left, CompilerExtData right)
 		{
-			throw new NotImplementedException();
+			var lProb = left.BranchProb.Value; // left branch prob must always be set for disjunctions
+			var rProb = left.BranchProb.Value; // and for right branch.
+			return new CompilerExtData(
+				null,
+				(lProb * left.SatisfyCost + rProb * (right.SatisfyCost + left.DissatCost.Value)),
+				right.DissatCost + left.DissatCost
+				);
 		}
 
-		public CompilerExtData FromPk()
+		public override CompilerExtData OrC(CompilerExtData left, CompilerExtData right)
 		{
-			throw new NotImplementedException();
+			var lProb = left.BranchProb.Value; // left branch prob must always be set for disjunctions
+			var rProb = right.BranchProb.Value; // and for right branch.
+			return new CompilerExtData(
+				null,
+				lProb * (left.SatisfyCost + right.DissatCost.Value) +
+				rProb * (right.SatisfyCost + left.DissatCost.Value),
+				null
+			);
 		}
 
-		public CompilerExtData FromPkH()
+		public override CompilerExtData OrI(CompilerExtData left, CompilerExtData right)
 		{
-			throw new NotImplementedException();
+			var lProb = left.BranchProb.Value; // left branch prob must always be set for disjunctions
+			var rProb = right.BranchProb.Value; // and for right branch.
+			return new CompilerExtData(
+				null,
+				lProb * (2.0 + left.SatisfyCost) + rProb * (1.0 + right.SatisfyCost),
+				new[] {(2.0 + left.DissatCost), (1.0 + right.DissatCost)}.Min()
+				);
 		}
 
-		public CompilerExtData FromMulti(int k, int pkLength)
+		public override CompilerExtData AndOr(CompilerExtData a, CompilerExtData b, CompilerExtData c)
 		{
-			throw new NotImplementedException();
+			if (!a.DissatCost.HasValue) throw CastException.LeftNotDissatisfiable;
+			var aProb = a.BranchProb.Value;
+			var bProb = b.BranchProb.Value;
+			var cProb = c.BranchProb.Value;
+			var aDis = a.DissatCost.Value;
+			return new CompilerExtData(
+				null,
+				aProb * (a.SatisfyCost + b.SatisfyCost)
+				+ cProb * (aDis + c.SatisfyCost),
+				aDis + c.DissatCost
+				);
 		}
 
-		public CompilerExtData FromAfter(uint time)
-		{
-			throw new NotImplementedException();
-		}
+		public override CompilerExtData AndN(CompilerExtData l, CompilerExtData r)
+			=> new CompilerExtData(null, l.SatisfyCost + r.SatisfyCost, l.DissatCost);
 
-		public CompilerExtData FromOlder(uint time)
+		public override CompilerExtData Threshold(int k, int n, Func<int, CompilerExtData> subCk)
 		{
-			throw new NotImplementedException();
-		}
+			var kOverN = k;
+			var satisfyCost = 0.0;
+			var dissatisfyCost = 0.0;
+			for (int i = 0; i < n; i++)
+			{
+				var sub = subCk(i);
+				satisfyCost += sub.SatisfyCost;
+				dissatisfyCost += sub.DissatCost.Value;
+			}
 
-		public CompilerExtData FromHash()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData FromSha256()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData FromHash256()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData FromRipemd160()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData FromHash160()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData CastAlt()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData CastSwap()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData CastCheck()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData CastDupIf()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData CastVerify()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData CastNonZero()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData CastZeroNotEqual()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData CastTrue()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData CastOrIFalse()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData CastUnLikely()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData CastLikely()
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData AndB(CompilerExtData left, CompilerExtData right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData AndV(CompilerExtData left, CompilerExtData right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData AndN(CompilerExtData left, CompilerExtData right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData OrB(CompilerExtData left, CompilerExtData right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData OrD(CompilerExtData left, CompilerExtData right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData OrC(CompilerExtData left, CompilerExtData right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData OrI(CompilerExtData left, CompilerExtData right)
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData AndOr(CompilerExtData a, CompilerExtData b, CompilerExtData c)
-		{
-			throw new NotImplementedException();
-		}
-
-		public CompilerExtData Threshold(int k, int n, Func<uint, CompilerExtData> subCk)
-		{
-			throw new NotImplementedException();
+			return new CompilerExtData(
+				null,
+				satisfyCost * kOverN + dissatisfyCost * (1.0 - kOverN),
+				dissatisfyCost);
 		}
 	}
 
@@ -275,8 +271,8 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			else if (dissatProb.HasValue && !CompExtData.DissatCost.HasValue)
 				dissatCost = double.PositiveInfinity;
 			return
-				(double)this.Ms.Ext.PkCost +
-				(this.CompExtData.SatisfyCost * satProb) +
+				Ms.Ext.PkCost +
+				(CompExtData.SatisfyCost * satProb) +
 				dissatCost;
 
 		}
@@ -340,11 +336,11 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		public AstElemExt<TPk, TPKh> InvokeCast()
 			=>
 				new AstElemExt<TPk, TPKh>(
-					compilerExtData: this.CompilerExtData.Invoke(),
+					compilerExtData: CompilerExtData.Invoke(),
 					ms: new Miniscript<TPk, TPKh>(
-						this.AstType.Invoke(),
-						this.Node.Invoke(),
-						this.ExtData.Invoke()
+						AstType.Invoke(),
+						Node.Invoke(),
+						ExtData.Invoke()
 
 					));
 
@@ -418,18 +414,131 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		where TPk : class, IMiniscriptKey<TPKh>, new()
 		where TPKh : class, IMiniscriptKeyHash, new()
 	{
-		private static void InsertElem(
+		private static bool InsertElem(
 			IDictionary<CompilationKey, AstElemExt<TPk, TPKh>> map,
 			AstElemExt<TPk, TPKh> astElemExt,
-			double SatProb,
+			double satProb,
 			double? dissatProb
 		)
 		{
-			throw new NotImplementedException();
+			if (!astElemExt.Ms.Type.Malleability.NonMalleable)
+				return false;
+
+			if (astElemExt.Ms.Ext.OpsCountSat > Constants.MAX_OPS_PER_SCRIPT)
+				return false;
+
+			var elemCost = astElemExt.Cost1d(satProb, dissatProb);
+			var elemKey = new CompilationKey(astElemExt.Ms.Type, astElemExt.Ms.Ext.HasVerifyForm, dissatProb);
+
+			// Check whether the new element is worse than any existing element. If there
+			//
+			var isWorse = map.Select((kv) =>
+			{
+				var existingElementCost = kv.Value.Cost1d(satProb, dissatProb);
+				return kv.Key.IsSubtype(elemKey) && existingElementCost <= elemCost;
+			}).Aggregate(false, (acc, x) => acc || x);
+			if (!isWorse)
+			{
+				// if the element is not worse any element in the map, remove elements
+				// whose subtype is the current element and have worse cost.
+				map = map.Where(kv =>
+				{
+					var existingElementsCost = kv.Value.Cost1d(satProb, dissatProb);
+					return !((elemKey.IsSubtype(kv.Key)) && existingElementsCost >= elemCost);
+				}).ToDictionary(kv => kv.Key, kv => kv.Value);
+				map.Add(elemKey, astElemExt);
+			}
+
+			return !isWorse;
 		}
 
 		/// <summary>
-		/// Get teh best compilations of a policy with a given sat and dissat probabilities. This functions
+		/// Insert the cast-closure of in the `astElemExt`. The castStack
+		/// has all the elements whose closure is yet to inserted in the map.
+		/// A cast-closure refers to trying all possible casts on a particular element
+		/// if they are better than the current elements
+		/// </summary>
+		/// <param name="map"></param>
+		/// <param name="astElemExt"></param>
+		/// <param name="satProb"></param>
+		/// <param name="dissatProb"></param>
+		/// <exception cref="NotImplementedException"></exception>
+		private static void InsertElemClosure(
+			IDictionary<CompilationKey, AstElemExt<TPk, TPKh>> map,
+			AstElemExt<TPk, TPKh> astElemExt,
+			double satProb,
+			double? dissatProb
+		)
+		{
+			var castStack = new Stack<AstElemExt<TPk, TPKh>>();
+			if (InsertElem(map, astElemExt, satProb, dissatProb))
+				castStack.Push(astElemExt);
+
+			while (castStack.Count != 0)
+			{
+				var casts = Cast<TPk, TPKh>.GetAllCasts(castStack.Pop());
+				foreach (var c in casts)
+				{
+					try
+					{
+						var newExt = c.InvokeCast();
+						if (InsertElem(map, newExt, satProb, dissatProb))
+							castStack.Push(newExt);
+					} catch (CastException e) {}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Insert the best wrapped compilations of a particular Terminal. If the
+		/// dissat probability is None, then we directly get the closure of the element.
+		/// Otherwise, some wrappers require the compilation of the policy with dissat
+		/// `null` because they convert it into a dissat around it.
+		/// For example, `l` wrapper should it argument it dissat. `null` because it can
+		/// always dissatisfy the policy outside and it find the better inner compilation
+		/// given that it may be not be necessary to dissatisfy. For these elements, we
+		/// apply the wrappers around the element once and bring them into the same
+		/// dissat probability map and get their closure.
+		/// </summary>
+		/// <param name="policyCache"></param>
+		/// <param name="policy"></param>
+		/// <param name="map"></param>
+		/// <param name="data"></param>
+		/// <param name="satProb"></param>
+		/// <param name="dissatProb"></param>
+		private static void InsertBestWrapped(
+			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, double, double?>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
+				policyCache,
+			ConcretePolicy<TPk, TPKh> policy,
+			IDictionary<CompilationKey, AstElemExt<TPk, TPKh>> map,
+			AstElemExt<TPk, TPKh> data,
+			double satProb,
+			double? dissatProb
+		)
+		{
+			InsertElemClosure(map, data, satProb, dissatProb);
+
+			if (dissatProb.HasValue)
+			{
+				foreach (var x in BestCompilations(policyCache, policy, satProb, null).Values)
+				{
+					var casts = Cast<TPk, TPKh>.GetAllCasts(x);
+					foreach (var c in casts) {
+						try
+						{
+							var newExt = c.InvokeCast();
+							InsertElemClosure(map, newExt, satProb, dissatProb);
+						}
+						catch (CastException _)
+						{
+						}
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Get the best compilations of a policy with a given sat and dissat probabilities. This functions
 		/// caches the results into a global policy cache.
 		/// </summary>
 		/// <param name="policyCache"></param>
@@ -437,19 +546,248 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		/// <param name="satProb"></param>
 		/// <param name="dissatProb"></param>
 		/// <returns></returns>
-		private static IDictionary<CompilationKey, AstElemExt<TPk, TPKh>> BestCompilation(
-			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, float, float>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
+		private static IDictionary<CompilationKey, AstElemExt<TPk, TPKh>> BestCompilations(
+			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, double, double?>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
 				policyCache,
 			ConcretePolicy<TPk, TPKh> policy,
 			double satProb,
 			double? dissatProb
 		)
 		{
-			throw new NotImplementedException();
+			if (policyCache.TryGetValue(Tuple.Create(policy, satProb, dissatProb), out var result))
+				return result;
+			var ret = new Dictionary<CompilationKey, AstElemExt<TPk, TPKh>>();
+
+			// ---- define helpers ----
+			Action<AstElemExt<TPk, TPKh>> insertWrap = (x) =>
+				InsertBestWrapped(policyCache, policy, ret, x, satProb, dissatProb);
+
+			Action<
+					IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>,
+					IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>,
+					Tuple<double, double>,
+					Func<Miniscript<TPk, TPKh>, Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>>>
+				compileBinary = (l, right, w, f) =>
+					CompileBinary(policyCache, policy, ret,  l, right, w, satProb, dissatProb, f);
+
+			Action<
+					IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>,
+					IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>,
+					IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>,
+					Tuple<double, double>
+				>
+				compileTernary = (a, b, c, w) =>
+					CompileTernary(policyCache, policy, ret, a, b, c, w, satProb, dissatProb);
+			// -------
+
+			switch (policy)
+			{
+				case ConcretePolicy<TPk, TPKh>.Key pol:
+					insertWrap(AstElemExt<TPk, TPKh>.Terminal(Terminal<TPk, TPKh>.NewPkH(pol.Item.ToPubKeyHash())));
+					insertWrap(AstElemExt<TPk, TPKh>.Terminal(Terminal<TPk, TPKh>.NewPk(pol.Item)));
+					break;
+				case ConcretePolicy<TPk, TPKh>.After pol:
+					insertWrap(AstElemExt<TPk, TPKh>.Terminal(Terminal<TPk, TPKh>.NewAfter(pol.Item)));
+					break;
+				case ConcretePolicy<TPk, TPKh>.Older pol:
+					insertWrap(AstElemExt<TPk, TPKh>.Terminal(Terminal<TPk, TPKh>.NewOlder(pol.Item)));
+					break;
+				case ConcretePolicy<TPk, TPKh>.Sha256 pol:
+					insertWrap(AstElemExt<TPk, TPKh>.Terminal(Terminal<TPk, TPKh>.NewSha256(pol.Item)));
+					break;
+				case ConcretePolicy<TPk, TPKh>.Hash256 pol:
+					insertWrap(AstElemExt<TPk, TPKh>.Terminal(Terminal<TPk, TPKh>.NewHash256(pol.Item)));
+					break;
+				case ConcretePolicy<TPk, TPKh>.Ripemd160 pol:
+					insertWrap(AstElemExt<TPk, TPKh>.Terminal(Terminal<TPk, TPKh>.NewRipemd160(pol.Item)));
+					break;
+				case ConcretePolicy<TPk, TPKh>.Hash160 pol:
+					insertWrap(AstElemExt<TPk, TPKh>.Terminal(Terminal<TPk, TPKh>.NewHash160(pol.Item)));
+					break;
+				case ConcretePolicy<TPk, TPKh>.And pol:
+					Debug.Assert(pol.Item.Count == 2);
+					var l = BestCompilations(policyCache, pol.Item[0], satProb, dissatProb);
+					var r = BestCompilations(policyCache, pol.Item[1], satProb, dissatProb);
+					var q_zero_l = BestCompilations(policyCache, pol.Item[0], satProb, null);
+					var q_zero_r = BestCompilations(policyCache, pol.Item[1], satProb, null);
+					compileBinary(l, r, Tuple.Create(1.0, 1.0), Terminal<TPk, TPKh>.NewAndB);
+					compileBinary(r, l, Tuple.Create(1.0, 1.0), Terminal<TPk, TPKh>.NewAndB);
+					compileBinary(l, r, Tuple.Create(1.0, 1.0), Terminal<TPk, TPKh>.NewAndV);
+					compileBinary(r, l, Tuple.Create(1.0, 1.0), Terminal<TPk, TPKh>.NewAndV);
+					var zeroComp = new Dictionary<CompilationKey, AstElemExt<TPk, TPKh>>();
+					zeroComp.Add(
+						new CompilationKey(
+							new MiniscriptFragmentType().FromFalse(),
+							new ExtData().FromFalse().HasVerifyForm,
+							dissatProb
+							),
+						AstElemExt<TPk, TPKh>.Terminal(Terminal<TPk, TPKh>.NewFalse())
+						);
+					compileTernary(l, q_zero_r, zeroComp, Tuple.Create(1.0, 0.0));
+					compileTernary(r, q_zero_l, zeroComp, Tuple.Create(1.0, 0.0));
+					break;
+				case ConcretePolicy<TPk, TPKh>.Or pol:
+					var total = (double) (pol.Item[0].Item1 + pol.Item[1].Item1);
+					var lw = pol.Item[0].Item1 / total;
+					var rw = pol.Item[1].Item1 / total;
+					if (pol.Item[0].Item2 is ConcretePolicy<TPk, TPKh>.And a)
+					{
+						var a1 =
+							BestCompilations(
+								policyCache,
+								a.Item[0],
+								lw * satProb,
+								(dissatProb ?? 0.0) + rw * satProb);
+						var a2 =
+							BestCompilations(
+								policyCache,
+								a.Item[0],
+								lw * satProb, null);
+						var b1 =
+							BestCompilations(
+								policyCache,
+								a.Item[1],
+								lw * satProb,
+								(dissatProb ?? 0) + rw * satProb
+								);
+						var b2 =
+							BestCompilations(
+								policyCache,
+								a.Item[1],
+								lw * satProb,
+								null
+								);
+						var c = BestCompilations(policyCache, pol.Item[1].Item2, rw * satProb, dissatProb);
+						compileTernary(a1, b2, c, Tuple.Create(lw, rw));
+						compileTernary(b1, a2, c, Tuple.Create(lw, rw));
+					}
+
+					if (pol.Item[1].Item2 is ConcretePolicy<TPk, TPKh>.And x)
+					{
+						var a1 = BestCompilations(policyCache, x.Item[0], rw * satProb, (dissatProb ?? 0.0) + lw * satProb);
+						var a2 = BestCompilations(policyCache, x.Item[0], rw * satProb, null);
+						var b1 = BestCompilations(policyCache, x.Item[1], rw * satProb, (dissatProb ?? 0.0) + lw * satProb);
+						var b2 = BestCompilations(policyCache, x.Item[1], rw * satProb, null);
+						var c = BestCompilations(policyCache, pol.Item[0].Item2, lw * satProb, dissatProb);
+						compileTernary(a1, b2, c, Tuple.Create(rw, lw));
+						compileTernary(b1, a2, c, Tuple.Create(rw, lw));
+					}
+
+					Func<double, List<double?>> dissatProbs =
+						(w) =>
+						{
+							var dissatSet = new List<double?>();
+							dissatSet.Add((dissatProb ?? 0.0) + w * satProb);
+							dissatSet.Add(w * satProb);
+							dissatSet.Add(dissatProb);
+							dissatSet.Add(null);
+							return dissatSet;
+						};
+
+					var lComp = new List<IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>();
+					var rComp = new List<IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>();
+					foreach (var dissatProbRight in dissatProbs(rw))
+						lComp.Add(BestCompilations(policyCache, pol.Item[0].Item2, lw * satProb, dissatProbRight));
+					foreach (var dissatProbLeft in dissatProbs(lw))
+						rComp.Add(BestCompilations(policyCache, pol.Item[1].Item2, rw * satProb, dissatProbLeft));
+					compileBinary(lComp[0], rComp[0], Tuple.Create(lw, rw), Terminal<TPk, TPKh>.NewOrB);
+					compileBinary(rComp[0], lComp[0], Tuple.Create(rw, lw), Terminal<TPk, TPKh>.NewOrB);
+
+					compileBinary(lComp[0], rComp[2], Tuple.Create<double, double>(lw, rw), Terminal<TPk, TPKh>.NewOrD);
+					compileBinary(rComp[0], lComp[2], Tuple.Create<double, double>(rw, lw), Terminal<TPk, TPKh>.NewOrD);
+
+					compileBinary(lComp[1], rComp[3], Tuple.Create(lw, rw), Terminal<TPk, TPKh>.NewOrC);
+					compileBinary(rComp[1], lComp[3], Tuple.Create(rw, lw), Terminal<TPk, TPKh>.NewOrC);
+
+					compileBinary(lComp[2], rComp[3], Tuple.Create(lw, rw), Terminal<TPk, TPKh>.NewOrI);
+					compileBinary(rComp[2], lComp[3], Tuple.Create(rw, lw), Terminal<TPk, TPKh>.NewOrI);
+
+					compileBinary(lComp[3], rComp[2], Tuple.Create(lw, rw), Terminal<TPk, TPKh>.NewOrI);
+					compileBinary(rComp[3], lComp[2], Tuple.Create(rw, lw), Terminal<TPk, TPKh>.NewOrI);
+					break;
+
+				case ConcretePolicy<TPk, TPKh>.Threshold pol:
+					var n = pol.Item2.Count;
+					var kOverN = ((double) pol.Item1) / n;
+					var subAst = new List<Miniscript<TPk, TPKh>>();
+					var subExtData  = new List<CompilerExtData>();
+					var bestEs = new List<Tuple<CompilerExtData, AstElemExt<TPk, TPKh>>>();
+					var bestWs = new List<Tuple<CompilerExtData, AstElemExt<TPk, TPKh>>>();
+
+					var minValue = new { Item1 = 0, Item2 = double.PositiveInfinity };
+
+					for (int i = 0; i < pol.Item2.Count; i++)
+					{
+						var ast = pol.Item2[i];
+						var sp = satProb * kOverN;
+						var dp = (dissatProb ?? 0.0) + (1.0 - kOverN) * satProb;
+						var be = BestE(policyCache, ast, sp, dp);
+						var bw = BestW(policyCache, ast, sp, dp);
+						var diff = be.Cost1d(sp, dp) - bw.Cost1d(sp, dp);
+						bestEs.Add(Tuple.Create(be.CompExtData, be));
+						bestWs.Add(Tuple.Create(bw.CompExtData, bw));
+						if (diff < minValue.Item2)
+							minValue = new {Item1 = i, Item2 = diff};
+						subExtData.Add(bestEs[minValue.Item1].Item1);
+						subAst.Add(bestEs[minValue.Item1].Item2.Ms);
+					}
+					for (int j = 0; j < pol.Item2.Count; j++)
+					{
+						if (j != minValue.Item1)
+						{
+							subExtData.Add(bestWs[j].Item1);
+							subAst.Add(bestWs[j].Item2.Ms);
+						}
+					}
+
+					var astResult = Terminal<TPk, TPKh>.NewThresh(pol.Item1, subAst);
+					var astExtResult = new AstElemExt<TPk, TPKh>(
+						new CompilerExtData().Threshold((int)pol.Item1, n, index => subExtData[index]),
+							Miniscript<TPk, TPKh>.FromAst(astResult));
+					insertWrap(astExtResult);
+					var keyVec =
+						pol.Item2
+							.Select(s => (s is ConcretePolicy<TPk, TPKh>.Key pk) ? pk.Item : null)
+							.Where(pk => pk != null)
+							.ToList();
+					if (keyVec.Count == pol.Item2.Count && pol.Item2.Count <= 20)
+						insertWrap(AstElemExt<TPk, TPKh>.Terminal(Terminal<TPk, TPKh>.NewThreshM(pol.Item1, keyVec)));
+					break;
+				default:
+					throw new Exception("Unreachable!");
+			}
+
+			foreach (var k in ret.Keys)
+				Debug.Assert(k.DissatProb == dissatProb);
+
+			if (ret.Count == 0)
+				// The only reason we are discarding elements out of compiler is because
+				// compilations exceed opcount or are non-malleable. If there is no possible
+				// compilations for any policies regardless of dissat probability then it must
+				// have all compilations exceeded the Max opcount because we already checked
+				// that policy must have non-malleable compilations before calling this compile function
+				throw CompilerException.MaxOpCountExceeded;
+			policyCache.Add(Tuple.Create(policy, satProb, dissatProb), ret);
+			return ret;
 		}
+		/// <summary>
+		/// Helper function to compile different types of binary fragments.
+		/// `sat_prob` and `dissat_prob` represent the sat and dissat probabilities
+		/// of root or. `weights` represents the odds for taking each sub branch.
+		/// </summary>
+		/// <param name="policyCache"></param>
+		/// <param name="policy"></param>
+		/// <param name="ret"></param>
+		/// <param name="leftComp"></param>
+		/// <param name="rightComp"></param>
+		/// <param name="weights"></param>
+		/// <param name="satProb"></param>
+		/// <param name="dissatProb"></param>
+		/// <param name="binFunc"></param>
+		/// <exception cref="NotImplementedException"></exception>
 
 		private static void CompileBinary(
-			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, float, float>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
+			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, double, double?>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
 				policyCache,
 			ConcretePolicy<TPk, TPKh> policy,
 			IDictionary<CompilationKey, AstElemExt<TPk, TPKh>> ret,
@@ -461,11 +799,25 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			Func<Miniscript<TPk, TPKh>, Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> binFunc
 		)
 		{
+			foreach (var l in leftComp.Values)
+			{
+				foreach (var r in rightComp.Values)
+				{
+					var ast = binFunc(l.Ms, r.Ms);
+					l.CompExtData.BranchProb = weights.Item1;
+					r.CompExtData.BranchProb = weights.Item2;
+					try
+					{
+						var newExt = AstElemExt<TPk, TPKh>.Binary(ast, l, r);
+						InsertBestWrapped(policyCache, policy, ret, newExt, satProb, dissatProb);
+					} catch (TypeCheckException<TPk, TPKh> ex) {}
+				}
+			}
 			throw new NotImplementedException();
 		}
 
 		private static void CompileTernary(
-			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, float, float>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
+			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, double, double?>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
 				policyCache,
 			ConcretePolicy<TPk, TPKh> policy,
 			IDictionary<CompilationKey, AstElemExt<TPk, TPKh>> ret,
@@ -474,8 +826,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			IDictionary<CompilationKey, AstElemExt<TPk, TPKh>> cComp,
 			Tuple<double, double> weights,
 			double satProb,
-			double? dissatProb,
-			Func<Miniscript<TPk, TPKh>, Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> binFunc
+			double? dissatProb
 			)
 		{
 		}
@@ -483,7 +834,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		public static Miniscript<TPk, TPKh> BestCompilation(ConcretePolicy<TPk, TPKh> policy)
 		{
 			var policyCache =
-				new Dictionary<Tuple<ConcretePolicy<TPk, TPKh>, float, float>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>();
+				new Dictionary<Tuple<ConcretePolicy<TPk, TPKh>, double, double?>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>();
 			var x = BestT(policyCache, policy, 1.0, null).Ms;
 			if (!x.Type.Malleability.Safe)
 				throw CompilerException.TopLevelNonSafe;
@@ -494,7 +845,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		}
 
 		private static AstElemExt<TPk, TPKh> BestT(
-			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, float, float>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
+			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, double, double?>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
 				policyCache,
 			ConcretePolicy<TPk, TPKh> policy,
 			double satProb,
@@ -505,7 +856,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		}
 
 		private static AstElemExt<TPk, TPKh> BestE(
-			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, float, float>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
+			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, double, double?>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
 				policyCache,
 				ConcretePolicy<TPk, TPKh> policy,
 				double satProb,
@@ -516,7 +867,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		}
 
 		private static AstElemExt<TPk, TPKh> BestW(
-			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, float, float>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
+			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, double, double?>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
 				policyCache,
 				ConcretePolicy<TPk, TPKh> policy,
 				double satProb,

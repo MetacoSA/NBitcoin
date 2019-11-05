@@ -4,32 +4,10 @@ using NBitcoin.Scripting.Miniscript.Policy;
 namespace NBitcoin.Scripting.Miniscript.Types
 {
 	public static class Property<T, TPk, TPKh>
-	where T : class, IProperty<T>, new()
+	where T : IProperty<T>, new()
 	where TPk : class, IMiniscriptKey<TPKh>, new()
 	where TPKh : class, IMiniscriptKeyHash, new()
 	{
-		/*
-		internal static void SanityChecks(T item)
-		{
-			if (item is Correctness correctness)
-				throw new NotImplementedException();
-
-			// no check for default.
-		}
-
-		internal static T FromTrue(T item)
-		{
-			if (item is CompilerExtData compilerExtData)
-				throw new NotSupportedException("Unreachable");
-		}
-
-		internal static IProperty<T> FromFalse(T item)
-		{
-			if (item is CompilerExtData compilerExtData)
-				return new CompilerExtData(null, double.MaxValue, 0.0);
-		}
-		*/
-
 
 		/// <summary>
 		/// Compute the type of a fragment, given a function to look up

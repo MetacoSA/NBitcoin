@@ -21,10 +21,10 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public MiniscriptFragmentType() {}
 
 		public bool IsSubtype(MiniscriptFragmentType other) =>
-			this.Correctness.IsSubtype(other.Correctness) &&
-			this.Malleability.IsSubtype(other.Malleability);
+			Correctness.IsSubtype(other.Correctness) &&
+			Malleability.IsSubtype(other.Malleability);
 
-		public void SanityChecks()
+		public override void SanityChecks()
 		{
 			Debug.Assert(!this.Correctness.DisSatisfiable || this.Malleability.Dissat != Dissat.None);
 			Debug.Assert(this.Malleability.Dissat == Dissat.None || this.Correctness.Base != Base.K);
@@ -32,255 +32,189 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			Debug.Assert(this.Malleability.NonMalleable || this.Correctness.Input != Input.Zero);
 		}
 
-		public MiniscriptFragmentType FromTrue()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(cor.FromTrue(), mal.FromTrue());
-		}
+		public override MiniscriptFragmentType FromTrue()
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().FromTrue(),
+				new Malleability().FromTrue());
 
-		public MiniscriptFragmentType FromFalse()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(cor.FromFalse(), mal.FromFalse());
-		}
+		public override MiniscriptFragmentType FromFalse() =>
+			new MiniscriptFragmentType(
+				new Correctness().FromFalse(),
+				new Malleability().FromFalse());
 
-		public MiniscriptFragmentType FromPk()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(cor.FromPk(), mal.FromPk());
-		}
+		public override MiniscriptFragmentType FromPk()
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().FromPk(),
+				new Malleability().FromPk());
 
-		public MiniscriptFragmentType FromPkH()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(cor.FromPkH(), mal.FromPkH());
-		}
+		public override MiniscriptFragmentType FromPkH()
+			=>
+			new MiniscriptFragmentType(new Correctness().FromPkH(), new Malleability().FromPkH());
 
-		public MiniscriptFragmentType FromMulti(int k, int pkLength)
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(cor.FromMulti(k, pkLength), mal.FromMulti(k, pkLength));
-		}
+		public override MiniscriptFragmentType FromMulti(int k, int pkLength)
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().FromMulti(k, pkLength),
+				new Malleability().FromMulti(k, pkLength));
 
-		public MiniscriptFragmentType FromAfter(uint time)
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.FromAfter(time),
-				mal.FromAfter(time));
-		}
+		public override MiniscriptFragmentType FromTime(uint time) =>
+			new MiniscriptFragmentType(
+				new Correctness().FromTime(time),
+				new Malleability().FromTime(time)
+				);
 
-		public MiniscriptFragmentType FromOlder(uint time)
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.FromOlder(time),
-				mal.FromOlder(time));
-		}
+		public override MiniscriptFragmentType FromAfter(uint time)
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().FromAfter(time),
+				new Malleability().FromAfter(time));
 
-		public MiniscriptFragmentType FromHash()
-		{
+		public override MiniscriptFragmentType FromOlder(uint time)
+			=> new MiniscriptFragmentType(
+				new Correctness().FromOlder(time),
+				new Malleability().FromOlder(time));
 
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.FromHash(),
-				mal.FromHash());
-		}
+		public override MiniscriptFragmentType FromHash()
+			=>
 
-		public MiniscriptFragmentType FromSha256()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.FromSha256(),
-				mal.FromSha256());
-		}
+			new MiniscriptFragmentType(
+				new Correctness().FromHash(),
+				new Malleability().FromHash());
 
-		public MiniscriptFragmentType FromHash256()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.FromHash256(),
-				mal.FromHash256());
-		}
+		public override MiniscriptFragmentType FromSha256()
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().FromSha256(),
+				new Malleability().FromSha256());
 
-		public MiniscriptFragmentType FromRipemd160()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.FromRipemd160(),
-				mal.FromRipemd160());
-		}
+		public override MiniscriptFragmentType FromHash256()
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().FromHash256(),
+				new Malleability().FromHash256());
 
-		public MiniscriptFragmentType FromHash160()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.FromHash160(),
-				mal.FromHash160());
-		}
+		public override MiniscriptFragmentType FromRipemd160()
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().FromRipemd160(),
+				new Malleability().FromRipemd160());
 
-		public MiniscriptFragmentType CastAlt()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.CastAlt(),
-				mal.CastAlt());
-		}
+		public override MiniscriptFragmentType FromHash160()
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().FromHash160(),
+				new Malleability().FromHash160());
 
-		public MiniscriptFragmentType CastSwap()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.CastSwap(),
-				mal.CastSwap());
-		}
+		public override MiniscriptFragmentType CastAlt()
+			=>
+			new MiniscriptFragmentType(
+				Correctness.CastAlt(),
+				Malleability.CastAlt());
 
-		public MiniscriptFragmentType CastCheck()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.CastCheck(),
-				mal.CastCheck());
-		}
+		public override MiniscriptFragmentType CastSwap()
+			=> new MiniscriptFragmentType(
+				Correctness.CastSwap(),
+				Malleability.CastSwap());
 
-		public MiniscriptFragmentType CastDupIf()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.CastDupIf(),
-				mal.CastDupIf());
-		}
+		public override MiniscriptFragmentType CastCheck()
+			=> new MiniscriptFragmentType(
+				Correctness.CastCheck(),
+				Malleability.CastCheck());
 
-		public MiniscriptFragmentType CastVerify()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.CastVerify(),
-				mal.CastVerify());
-		}
+		public override MiniscriptFragmentType CastDupIf()
+			=> new MiniscriptFragmentType(
+				Correctness.CastDupIf(),
+				Malleability.CastDupIf());
 
-		public MiniscriptFragmentType CastNonZero()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.CastNonZero(),
-				mal.CastNonZero());
-		}
+		public override MiniscriptFragmentType CastVerify()
+			=> new MiniscriptFragmentType(
+				Correctness.CastVerify(),
+				Malleability.CastVerify());
+		public override MiniscriptFragmentType CastNonZero()
+			=>
+			new MiniscriptFragmentType(
+				Correctness.CastNonZero(),
+				Malleability.CastNonZero());
 
-		public MiniscriptFragmentType CastZeroNotEqual()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.CastZeroNotEqual(),
-				mal.CastZeroNotEqual());
-		}
+		public override MiniscriptFragmentType CastZeroNotEqual()
+			=>
+			new MiniscriptFragmentType(
+				Correctness.CastZeroNotEqual(),
+				Malleability.CastZeroNotEqual());
 
-		public MiniscriptFragmentType CastTrue()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.CastTrue(),
-				mal.CastTrue());
-		}
+		public override MiniscriptFragmentType CastTrue()
+			=>
+			new MiniscriptFragmentType(
+				Correctness.CastTrue(),
+				Malleability.CastTrue());
 
-		public MiniscriptFragmentType CastOrIFalse()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.CastOrIFalse(),
-				mal.CastOrIFalse());
-		}
+		public override MiniscriptFragmentType CastOrIFalse()
+			=>
+			new MiniscriptFragmentType(
+				Correctness.CastOrIFalse(),
+				Malleability.CastOrIFalse());
 
-		public MiniscriptFragmentType CastUnLikely()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.CastUnLikely(),
-				mal.CastUnLikely());
-		}
+		public override MiniscriptFragmentType CastUnLikely()
+			=>
+			new MiniscriptFragmentType(
+				Correctness.CastUnLikely(),
+				Malleability.CastUnLikely());
 
-		public MiniscriptFragmentType CastLikely()
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.CastLikely(),
-				mal.CastLikely());
-		}
+		public override MiniscriptFragmentType CastLikely()
+			=>
+			new MiniscriptFragmentType(
+				Correctness.CastLikely(),
+				Malleability.CastLikely());
 
-		public MiniscriptFragmentType AndB(MiniscriptFragmentType left, MiniscriptFragmentType right)
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.AndB(left.Correctness, right.Correctness),
-				mal.AndB(left.Malleability, right.Malleability));
-		}
+		public override MiniscriptFragmentType AndB(MiniscriptFragmentType left, MiniscriptFragmentType right)
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().AndB(left.Correctness, right.Correctness),
+				new Malleability().AndB(left.Malleability, right.Malleability));
 
-		public MiniscriptFragmentType AndV(MiniscriptFragmentType left, MiniscriptFragmentType right)
-		{
-			var cor = new Correctness();
-			var mal = new Malleability();
-			return new MiniscriptFragmentType(
-				cor.AndV(left.Correctness, right.Correctness),
-				mal.AndV(left.Malleability, right.Malleability));
-		}
+		public override MiniscriptFragmentType AndV(MiniscriptFragmentType left, MiniscriptFragmentType right)
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().AndV(left.Correctness, right.Correctness),
+				new Malleability().AndV(left.Malleability, right.Malleability));
 
-		public MiniscriptFragmentType AndN(MiniscriptFragmentType left, MiniscriptFragmentType right)
-		{
-			throw new NotImplementedException();
-		}
 
-		public MiniscriptFragmentType OrB(MiniscriptFragmentType left, MiniscriptFragmentType right)
-		{
-			throw new NotImplementedException();
-		}
+		public override MiniscriptFragmentType OrB(MiniscriptFragmentType left, MiniscriptFragmentType right)
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().OrB(left.Correctness, right.Correctness),
+				new Malleability().OrB(left.Malleability, right.Malleability));
 
-		public MiniscriptFragmentType OrD(MiniscriptFragmentType left, MiniscriptFragmentType right)
-		{
-			throw new NotImplementedException();
-		}
+		public override MiniscriptFragmentType OrD(MiniscriptFragmentType left, MiniscriptFragmentType right)
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().OrD(left.Correctness, right.Correctness),
+				new Malleability().OrD(left.Malleability, right.Malleability));
 
-		public MiniscriptFragmentType OrC(MiniscriptFragmentType left, MiniscriptFragmentType right)
-		{
-			throw new NotImplementedException();
-		}
+		public override MiniscriptFragmentType OrC(MiniscriptFragmentType left, MiniscriptFragmentType right)
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().OrC(left.Correctness, right.Correctness),
+				new Malleability().OrC(left.Malleability, right.Malleability));
 
-		public MiniscriptFragmentType OrI(MiniscriptFragmentType left, MiniscriptFragmentType right)
-		{
-			throw new NotImplementedException();
-		}
+		public override MiniscriptFragmentType OrI(MiniscriptFragmentType left, MiniscriptFragmentType right)
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().OrI(left.Correctness, right.Correctness),
+				new Malleability().OrI(left.Malleability, right.Malleability));
 
-		public MiniscriptFragmentType AndOr(MiniscriptFragmentType a, MiniscriptFragmentType b, MiniscriptFragmentType c)
-		{
-			throw new NotImplementedException();
-		}
+		public override MiniscriptFragmentType AndOr(MiniscriptFragmentType a, MiniscriptFragmentType b, MiniscriptFragmentType c)
+			=>
+			new MiniscriptFragmentType(
+				new Correctness().AndOr(a.Correctness, b.Correctness, c.Correctness),
+				new Malleability().AndOr(a.Malleability, b.Malleability, c.Malleability));
 
-		public MiniscriptFragmentType Threshold(int k, int n, Func<uint, MiniscriptFragmentType> subCk)
-		{
-			throw new NotImplementedException();
-		}
+		public override MiniscriptFragmentType Threshold(int k, int n, Func<int, MiniscriptFragmentType> func)
+			=>
+				new MiniscriptFragmentType(
+					new Correctness().Threshold(k, n, i => func(i).Correctness),
+					new Malleability().Threshold(k, n , i => func(i).Malleability));
 	}
 }

@@ -1,44 +1,59 @@
 using System;
 using System.Linq;
+using NBitcoin.Scripting.Miniscript.Policy;
 
 namespace NBitcoin.Scripting.Miniscript.Types
 {
-	public interface IProperty<T> where T: IProperty<T>
+	public abstract class IProperty<T> where T: IProperty<T>
 	{
-		void SanityChecks();
-		T FromTrue();
-		T FromFalse();
-		T FromPk();
-		T FromPkH();
-		T FromMulti(int k, int pkLength);
-		T FromAfter(uint time);
-		T FromOlder(uint time);
-		T FromHash();
-		T FromSha256();
-		T FromHash256();
-		T FromRipemd160();
-		T FromHash160();
+		public virtual void SanityChecks() {}
 
-		T CastAlt();
-		T CastSwap();
-		T CastCheck();
-		T CastDupIf();
-		T CastVerify();
-		T CastNonZero();
-		T CastZeroNotEqual();
-		T CastTrue();
-		T CastOrIFalse();
-		T CastUnLikely();
-		T CastLikely();
-		T AndB(T left, T right);
-		T AndV(T left, T right);
-		T AndN(T left, T right);
-		T OrB(T left, T right);
-		T OrD(T left, T right);
-		T OrC(T left, T right);
-		T OrI(T left, T right);
-		T AndOr(T a, T b, T c);
-		T Threshold(int k, int n, Func<uint, T> subCk);
+		# region Casting operation
+		public abstract T CastAlt();
+		public abstract T CastSwap();
+		public abstract T CastCheck();
+		public abstract T CastDupIf();
+		public abstract T CastVerify();
+		public abstract T CastNonZero();
+		public abstract T CastZeroNotEqual();
+		public abstract T CastTrue();
+		public abstract T CastOrIFalse();
+		public virtual T CastUnLikely() => CastOrIFalse();
+		public virtual T CastLikely() => CastOrIFalse();
+
+		#endregion
+
+		#region Constructors
+
+		// Technically These should work as static methods. But since there are no
+		// `abstract static` in C#, we create empty instance first and call these methods
+		// against those instance.
+		public abstract T FromTrue();
+		public abstract T FromFalse();
+		public abstract T FromPk();
+		public abstract T FromPkH();
+		public abstract T FromMulti(int k, int pkLength);
+		public abstract T FromHash();
+		public virtual T FromSha256() => this.FromHash();
+		public virtual T FromHash256() => this.FromHash();
+		public virtual T FromRipemd160() => this.FromHash();
+		public virtual T FromHash160() => this.FromHash();
+
+		public abstract T FromTime(uint time);
+		public virtual T FromAfter(uint time) => this.FromTime(time);
+		public virtual T FromOlder(uint time) => this.FromTime(time);
+
+
+		public abstract T AndB(T l, T r);
+		public abstract T AndV(T l, T r);
+		public virtual T AndN(T l, T r) => AndOr(l, r, FromFalse());
+		public abstract T OrB(T left, T right);
+		public abstract T OrD(T left, T right);
+		public abstract T OrC(T left, T right);
+		public abstract T OrI(T left, T right);
+		public abstract T AndOr(T a, T b, T c);
+		public abstract T Threshold(int k, int n, Func<int, T> subCk);
+		#endregion
 	}
 
 	public enum ErrorKind
@@ -47,11 +62,6 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		/// Relative or absolute timelock had a time value of 0;
 		/// </summary>
 		ZeroTime,
-
-		/// <summary>
-		/// Passed a `z` argument to a `d` wrapper when `z` was expected
-		/// </summary>
-		NonZeroDupIf,
 
 		/// <summary>
 		/// Multisignature or threshold policy had a `k` value of 0
@@ -71,32 +81,16 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		/// </summary>
 		NoStrongChild,
 
-		/// <summary>
-		/// Many fragments (all disjunctions except `or_i` as well as
-		/// `andor`) require their left child be dissatisfiable.
-		/// </summary>
-		LeftNotDissatisfiable,
+
 
 		/// <summary>
-		/// `or_b` requires its right child be dissatisfiable
+		/// Insufficiently many children of a threshold fragment were strong
 		/// </summary>
-		RightNotDissatisfiable,
+		ThresholdNotStrong
+	}
 
-		/// <summary>
-		/// Tried to use the `s:` modifier on a fragment that takes more
-		/// than one input.
-		/// </summary>
-		SwapNonOne,
-		/// <summary>
-		/// Tried to use `s:` modifier on a fragment that takes more than one input
-		/// </summary>
-		NonZeroZero,
-
-		/// <summary>
-		/// Many fragments require their left child to be a unit. This
-		/// was not the case.
-		/// </summary>
-		LeftNotUnit,
+	internal enum CastErrorKind
+	{
 
 		/// <summary>
 		/// Attempted to construct a wrapper, but the child had an invalid type
@@ -115,6 +109,39 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		ChildBase3,
 
 		/// <summary>
+		/// Tried to use the `s:` modifier on a fragment that takes more
+		/// than one input.
+		/// </summary>
+		SwapNonOne,
+
+		/// <summary>
+		/// Passed a `z` argument to a `d` wrapper when `z` was expected
+		/// </summary>
+		NonZeroDupIf,
+
+		/// <summary>
+		/// Tried to use `s:` modifier on a fragment that takes more than one input
+		/// </summary>
+		NonZeroZero,
+
+		/// <summary>
+		/// Many fragments (all disjunctions except `or_i` as well as
+		/// `andor`) require their left child be dissatisfiable.
+		/// </summary>
+		LeftNotDissatisfiable,
+
+		/// <summary>
+		/// `or_b` requires its right child be dissatisfiable
+		/// </summary>
+		RightNotDissatisfiable,
+
+		/// <summary>
+		/// Many fragments require their left child to be a unit. This
+		/// was not the case.
+		/// </summary>
+		LeftNotUnit,
+
+		/// <summary>
 		/// The nth child of a threshold fragment had an invalid type (the
 		/// first must be `B` and the rest `W`s)
 		/// </summary>
@@ -130,10 +157,51 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		/// </summary>
 		ThresholdNonUnit,
 
-		/// <summary>
-		/// Insufficiently many children of a threshold fragment were strong
-		/// </summary>
-		ThresholdNotStrong
+	}
+
+	internal class CastException : InvalidCastException
+	{
+		internal CastErrorKind Kind;
+
+		private CastException(CastErrorKind e, string msg) : base(
+			$"Failed to cast. kind {e.ToString("G")}. msg: {msg} ")
+		{
+			Kind = e;
+		}
+
+		public static CastException LeftNotUnit =
+			new CastException(CastErrorKind.LeftNotUnit, "this fragment requires left to be unit. But it was not.");
+
+		public static CastException ChildBase1(Base b) =>
+			new CastException(CastErrorKind.ChildBase1, $"Attempted to construct a wrapper. But the child had an invalid type {b.ToString("G")}");
+		public static CastException ChildBase2(Base l, Base r) =>
+			new CastException(CastErrorKind.ChildBase2, $"Attempted to construct a wrapper. But the child had an invalid type. left: {l.ToString("G")}. right: {r.ToString("G")}");
+
+		public static CastException ChildBase3(Base a, Base b, Base c) =>
+			new CastException(CastErrorKind.ChildBase3, $"Attempted to construct a wrapper. But the child had an invalid type. a: {a.ToString("G")}. b: {b.ToString("G")}. c: {c.ToString("G")}");
+
+		public static CastException SwapNoneOne =
+			new CastException(CastErrorKind.SwapNonOne, "Tried to use the s: modifier for the fragment takes more than one output.");
+
+		public static CastException NonZeroDupIf =
+			new CastException(CastErrorKind.NonZeroDupIf, $"Passed a z argument to a d wrapper when `z` was expected.");
+
+		public static CastException NonZeroZero =
+			new CastException(CastErrorKind.NonZeroZero, "Tried to use `s:` modifier on a fragment that takes more than one input");
+		public static CastException LeftNotDissatisfiable =
+			new CastException(CastErrorKind.LeftNotDissatisfiable, "Left child must be dissatisfiable");
+		public static CastException RightNotDissatisfiable =
+			new CastException(CastErrorKind.RightNotDissatisfiable, "Right child must be dissatisfiable.");
+
+		public static CastException ThresholdBase(uint i, Base b) =>
+			new CastException(CastErrorKind.ThresholdBase,
+				$"the {i}th value of the threshold fragment had an invalid type (first must be `B` and rest must be `W`.)");
+
+		public static CastException ThresholdNonUnit(uint n) =>
+			new CastException(CastErrorKind.ThresholdNonUnit, "the {n} th fragment of the threshold was not the unit");
+
+		public static CastException ThresholdDissat(uint n) =>
+			new CastException(CastErrorKind.ThresholdDissat, $"the {n}th child of the threshold did not have unique satisfaction");
 	}
 
 	class TypeCheckException<TPk, TPKh> : Exception
