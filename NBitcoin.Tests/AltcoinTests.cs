@@ -254,7 +254,7 @@ namespace NBitcoin.Tests
 //						}
 						//the above works too but might as well test this elements rpc call too
 						var addrInfo = await rpc.GetAddressInfoAsync(address.ToString(), rpc.Network);
-						address =addrInfo.Unconfidential;
+						address = addrInfo.Unconfidential;
 					}
 
 					// If this fail, rpc support segwit but you said it does not
@@ -301,7 +301,6 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanSyncWithPoW()
 		{
-
 			using (var builder = NodeBuilderEx.Create())
 			{
 				if (IsElements(builder.Network))
@@ -309,7 +308,6 @@ namespace NBitcoin.Tests
 					//no pow in liquid
 					return;
 				}
-
 				var node = builder.CreateNode();
 				builder.StartAll();
 				node.Generate(100);
@@ -345,8 +343,6 @@ namespace NBitcoin.Tests
 					node.Generate(1);
 					Assert.NotEqual(Money.Zero,await rpc.GetBalanceAsync());
 				}
-
-
 			}
 		}
 
@@ -376,7 +372,7 @@ namespace NBitcoin.Tests
 
 		private bool IsElements(Network nodeNetwork)
 		{
-			return nodeNetwork.NetworkSet.CryptoCode.Equals("lbtc", StringComparison.InvariantCultureIgnoreCase);
+			return nodeNetwork.NetworkSet == Altcoins.Liquid.Instance;
 		}
 	}
 }
