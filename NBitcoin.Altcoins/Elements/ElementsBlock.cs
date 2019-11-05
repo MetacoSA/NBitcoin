@@ -111,7 +111,14 @@ namespace NBitcoin.Altcoins.Elements
 				stream.ReadWrite(ref _nHeight);
 				stream.ReadWrite(ref DynaFedParams);
 				if (stream.Type != SerializationType.Hash && fAllowWitness) {
-					stream.ReadWrite(SignBlockWitness);
+					if (stream.Serializing)
+					{
+						SignBlockWitness.WriteToStream(stream);
+					}
+					else
+					{
+						SignBlockWitness = WitScript.Load(stream);
+					}
 				}
 				stream.ReadWrite(ref hashMerkleRoot);
 				stream.ReadWrite(ref nTime);

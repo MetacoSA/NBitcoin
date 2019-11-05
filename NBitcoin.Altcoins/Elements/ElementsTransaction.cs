@@ -585,7 +585,7 @@ namespace NBitcoin.Altcoins.Elements
 		}
 
 
-		public new static TxOut Parse(string hex, ElementsConsensusFactory<TNetwork> consensusFactory)
+		public static TxOut Parse(string hex, ElementsConsensusFactory<TNetwork> consensusFactory)
 		{
 			var ret = new ElementsTxOut<TNetwork>(consensusFactory);
 			ret.FromBytes(NBitcoin.DataEncoders.Encoders.Hex.DecodeData(hex));
