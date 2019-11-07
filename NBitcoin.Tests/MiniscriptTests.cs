@@ -214,8 +214,22 @@ namespace NBitcoin.Tests
 
 			var strOr = $"or(99@pk({PubKeys[0]}),pk({PubKeys[1]}))";
 			// var strOr = $"or(pk({PubKeys[0]}),pk({PubKeys[1]}))";
-			var msRealOr = ConcretePolicy<PubKey, uint160>.Parse(strOr);
-			Assert.True(msRealOr.IsValid());
+			var orRes = ConcretePolicy<PubKey, uint160>.Parse(strOr);
+			Assert.True(orRes.IsValid());
+
+			var strNestedOr = $"or(after(3),{strOr})";
+			var nestedOrRes = ConcretePolicy<PubKey, uint160>.Parse(strNestedOr);
+			Assert.True(nestedOrRes.IsValid());
+
+			var strAnd = $"and(older(3),{strNestedOr})";
+			var andRes = ConcretePolicy<PubKey, uint160>.Parse(strAnd);
+			Assert.True(andRes.IsValid());
+
+			var hash256 = Crypto.Hashes.Hash256(PubKeys[2].ToBytes()).ToString();
+			var hash160 = Crypto.Hashes.Hash160(PubKeys[2].ToBytes()).ToString();
+			var strThresh = $"thresh(2,hash256({hash256}),{strAnd},hash160({hash160}))";
+			var threshRes = ConcretePolicy<PubKey,uint160>.Parse(strThresh);
+			Assert.True(threshRes.IsValid());
 		}
 
 		[Fact]
