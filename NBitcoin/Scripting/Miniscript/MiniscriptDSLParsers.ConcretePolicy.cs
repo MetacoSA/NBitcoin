@@ -117,6 +117,7 @@ namespace NBitcoin.Scripting.Miniscript
 			from x in SurroundedByBrackets()
 			select x;
 
+		# region leaf
 		private static Parser<char, ConcretePolicy<TPk, TPKh>> PPubKeyExpr()
 			=>
 			from pk in ExprP("pk").Then(s => TryParseMiniscriptKey(s))
@@ -152,6 +153,8 @@ namespace NBitcoin.Scripting.Miniscript
 			from t in ExprP("older").Then(s => TryConvert(s, UInt32.Parse))
 			select ConcretePolicy<TPk, TPKh>.NewOlder(t);
 
+		# endregion
+
 		internal static Parser<char, IEnumerable<TSub>> PSubExprs<TSub>(string name, Func<Parser<char, TSub>> subP) =>
 			from _n in Parse.String(name)
 			from _left in Parse.Char('(')
@@ -182,8 +185,7 @@ namespace NBitcoin.Scripting.Miniscript
 		internal static Parser<char, ConcretePolicy<TPk, TPKh>> POrExpr()
 			=>
 			from x in
-				PSubExprs("or", POrWithProb)
-				.Or(PSubExprs("or", POrWithoutProb))
+				PSubExprs("or",  () => POrWithProb().Or(POrWithoutProb()))
 			select ConcretePolicy<TPk, TPKh>.NewOr(x);
 
 		private static Parser<char, T> PThresh<T, TIn>(

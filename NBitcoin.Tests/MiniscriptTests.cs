@@ -214,9 +214,8 @@ namespace NBitcoin.Tests
 
 			var strOr = $"or(99@pk({PubKeys[0]}),pk({PubKeys[1]}))";
 			// var strOr = $"or(pk({PubKeys[0]}),pk({PubKeys[1]}))";
-			// var msRealOr = ConcretePolicy<PubKey, uint160>.Parse(strOr);
-			var msRealOr = MiniscriptDSLParser<PubKey, uint160>.PSubExprs("or", MiniscriptDSLParser<PubKey, uint160>.POrWithProb).Parse(strOr);
-			// Assert.True(msRealOr.IsValid());
+			var msRealOr = ConcretePolicy<PubKey, uint160>.Parse(strOr);
+			Assert.True(msRealOr.IsValid());
 		}
 
 		[Fact]
@@ -225,9 +224,11 @@ namespace NBitcoin.Tests
 		{
 			var pkStr = $"c:pk({PubKeys[0]})";
 			var orStr = $"or_b(c:pk({PubKeys[0]}),sc:pk({PubKeys[1]}))";
+			var andStr = $"and(time(3),{orStr})";
 			// var orMs = Miniscript<PubKey, uint160>.Parse(orStr);
 			var pkRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(pkStr);
 			var orRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(orStr);
+			var andRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(andStr);
 		}
 	}
 }
