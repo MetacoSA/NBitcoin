@@ -246,17 +246,6 @@ namespace NBitcoin.Tests
 					{
 						AddressType = AddressType.Bech32
 					});
-					if (IsElements(node.Network))
-					{
-//						if (address is BitcoinBlindedAddress blindedAddress)
-//						{
-//							address =blindedAddress.UnblindedAddress;
-//						}
-						//the above works too but might as well test this elements rpc call too
-						var addrInfo = await rpc.GetAddressInfoAsync(address.ToString(), rpc.Network);
-						address = addrInfo.Unconfidential;
-					}
-
 					// If this fail, rpc support segwit but you said it does not
 					Assert.Equal(rpc.Capabilities.SupportSegwit, address.ScriptPubKey.IsScriptType(ScriptType.Witness));
 					if (rpc.Capabilities.SupportSegwit)
