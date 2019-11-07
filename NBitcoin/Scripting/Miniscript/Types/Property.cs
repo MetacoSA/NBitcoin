@@ -54,28 +54,27 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				case Terminal<TPk, TPKh>.ThreshM self:
 					if (self.Item1 == 0)
 					{
-						throw new TypeCheckException<TPk, TPKh>(fragment, ErrorKind.ZeroThreshold);
+						throw FragmentPropertyException.ZeroThreshold(fragment.ToString());
 					}
 
 					if (self.Item1 > self.Item2.Length)
 					{
-						throw new TypeCheckException<TPk, TPKh>(
-							fragment,
-							ErrorKind.OverThreshold,
-							new int[] {(int)self.Item1, self.Item2.Length});
+						throw FragmentPropertyException.OverThreshold(
+							fragment.ToString()
+							);
 					}
 					return new T().FromMulti((int)self.Item1, self.Item2.Length);
 				case Terminal<TPk, TPKh>.After self:
 					if (self.Item == 0)
 					{
-						throw new TypeCheckException<TPk, TPKh>(fragment, ErrorKind.ZeroTime);
+						throw FragmentPropertyException.ZeroTime(fragment.ToString());
 					}
 
 					return new T().FromAfter(self.Item);
 				case Terminal<TPk, TPKh>.Older self:
 					if (self.Item == 0)
 					{
-						throw new TypeCheckException<TPk, TPKh>(fragment, ErrorKind.ZeroTime);
+						throw FragmentPropertyException.ZeroTime(fragment.ToString());
 					}
 
 					return new T().FromOlder(self.Item);
@@ -129,12 +128,12 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				case Terminal<TPk, TPKh>.Thresh self:
 					if (self.Item1 == 0)
 					{
-						throw new TypeCheckException<TPk, TPKh>(fragment, ErrorKind.ZeroThreshold);
+						throw FragmentPropertyException.ZeroThreshold(fragment.ToString());
 					}
 
 					if (self.Item1 > self.Item2.Length)
 					{
-						throw new TypeCheckException<TPk, TPKh>(fragment, ErrorKind.OverThreshold);
+						throw FragmentPropertyException.OverThreshold(fragment.ToString());
 					}
 					return
 						new T().Threshold((int)self.Item1, self.Item2.Length, (n) =>

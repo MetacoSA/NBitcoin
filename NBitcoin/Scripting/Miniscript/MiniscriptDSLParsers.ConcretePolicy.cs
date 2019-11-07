@@ -152,7 +152,7 @@ namespace NBitcoin.Scripting.Miniscript
 			from t in ExprP("older").Then(s => TryConvert(s, UInt32.Parse))
 			select ConcretePolicy<TPk, TPKh>.NewOlder(t);
 
-		private static Parser<char, IEnumerable<TSub>> PSubExprs<TSub>(string name, Func<Parser<char, TSub>> subP) =>
+		internal static Parser<char, IEnumerable<TSub>> PSubExprs<TSub>(string name, Func<Parser<char, TSub>> subP) =>
 			from _n in Parse.String(name)
 			from _left in Parse.Char('(')
 			from x in Parse
@@ -166,20 +166,20 @@ namespace NBitcoin.Scripting.Miniscript
 			from x in PSubExprs("and", DSLParser)
 			select ConcretePolicy<TPk, TPKh>.NewAnd(x);
 
-		private static Parser<char, Tuple<uint, ConcretePolicy<TPk, TPKh>>> POrWithProb()
+		internal static Parser<char, Tuple<uint, ConcretePolicy<TPk, TPKh>>> POrWithProb()
 			=>
 			from x in Parse.Digit.AtLeastOnce().Text()
 				.Then(digitStr => TryConvert(digitStr, UInt32.Parse))
 			from _a in Parse.Char('@')
-			from sub in Parse.Ref(() => DSLParser())
+			from sub in Parse.Ref( DSLParser)
 			select Tuple.Create(x, sub);
 
 		private static Parser<char, Tuple<uint, ConcretePolicy<TPk, TPKh>>> POrWithoutProb()
 			=>
-			from sub in Parse.Ref(() => DSLParser())
+			from sub in Parse.Ref(DSLParser)
 			select Tuple.Create(1U, sub);
 
-		private static Parser<char, ConcretePolicy<TPk, TPKh>> POrExpr()
+		internal static Parser<char, ConcretePolicy<TPk, TPKh>> POrExpr()
 			=>
 			from x in
 				PSubExprs("or", POrWithProb)

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using NBitcoin.DataEncoders;
 using NBitcoin.Scripting.Miniscript;
 using NBitcoin.Scripting.Miniscript.Policy;
@@ -10,6 +11,18 @@ namespace NBitcoin.Tests
 	public class MiniscriptTests
 	{
 		public static HexEncoder Hex = new DataEncoders.HexEncoder();
+
+		public static Key[] PrivKeys = (new []
+			{
+				"4141414141414141414141414141414141414141414141414141414141414141",
+				"4242424242424242424242424242424242424242424242424242424242424242",
+				"4343434343434343434343434343434343434343434343434343434343434343",
+				"4444444444444444444444444444444444444444444444444444444444444444",
+				"4545454545454545454545454545454545454545454545454545454545454545",
+			}).Select(str => new Key(Hex.DecodeData(str))).ToArray();
+
+		public static PubKey[] PubKeys = PrivKeys.Select(k => k.PubKey).ToArray();
+
 		public static readonly TheoryData<string, string, bool, bool, bool, uint, uint> MSAttributeTestCase =
 			new TheoryData<string, string, bool, bool, bool, uint, uint>()
 			{
@@ -195,17 +208,26 @@ namespace NBitcoin.Tests
 		{
 			ConcretePolicy<MiniscriptStringKey, MiniscriptStringKeyHash>.Parse("pk(foo)");
 
-			var pk = new Key(Hex.DecodeData("4141414141414141414141414141414141414141414141414141414141414141")).PubKey;
 			Assert.Throws<ParsingException>(() => ConcretePolicy<PubKey, uint160>.Parse("pk(foo)"));
-			var msRealPK = ConcretePolicy<PubKey, uint160>.Parse($"pk({pk})");
+			var msRealPK = ConcretePolicy<PubKey, uint160>.Parse($"pk({PubKeys[0]})");
 			Assert.True(msRealPK.IsValid());
+
+			var strOr = $"or(99@pk({PubKeys[0]}),pk({PubKeys[1]}))";
+			// var strOr = $"or(pk({PubKeys[0]}),pk({PubKeys[1]}))";
+			// var msRealOr = ConcretePolicy<PubKey, uint160>.Parse(strOr);
+			var msRealOr = MiniscriptDSLParser<PubKey, uint160>.PSubExprs("or", MiniscriptDSLParser<PubKey, uint160>.POrWithProb).Parse(strOr);
+			// Assert.True(msRealOr.IsValid());
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void MiniscriptParserTest()
 		{
-			var ms = Miniscript<PubKey, uint160>.Parse();
+			var pkStr = $"c:pk({PubKeys[0]})";
+			var orStr = $"or_b(c:pk({PubKeys[0]}),sc:pk({PubKeys[1]}))";
+			// var orMs = Miniscript<PubKey, uint160>.Parse(orStr);
+			var pkRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(pkStr);
+			var orRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(orStr);
 		}
 	}
 }

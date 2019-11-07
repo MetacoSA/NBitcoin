@@ -27,7 +27,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public override void SanityChecks()
 		{
 			Debug.Assert(!this.Correctness.DisSatisfiable || this.Malleability.Dissat != Dissat.None);
-			Debug.Assert(this.Malleability.Dissat == Dissat.None || this.Correctness.Base != Base.K);
+			Debug.Assert(this.Malleability.Dissat == Dissat.None || this.Correctness.Base != Base.V);
 			Debug.Assert(this.Malleability.Safe || this.Correctness.Base != Base.K);
 			Debug.Assert(this.Malleability.NonMalleable || this.Correctness.Input != Input.Zero);
 		}

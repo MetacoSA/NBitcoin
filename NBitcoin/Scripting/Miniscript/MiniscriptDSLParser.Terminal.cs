@@ -55,7 +55,7 @@ namespace NBitcoin.Scripting.Miniscript
 			=>
 				from _t in Parse.Char(identifier).Then(_ => Parse.Char(':'))
 				from inner in Parse.Ref(() => TerminalDSLParser)
-					.Except(PWrapper(identifier, construct)) // should not have same wrapper twice
+					.Except(PWrapper(identifier, construct)) // should not have the same wrapper twice
 				select construct(Miniscript<TPk, TPKh>.FromAst(inner));
 
 		private static Parser<char, Terminal<TPk, TPKh>> PBinary(

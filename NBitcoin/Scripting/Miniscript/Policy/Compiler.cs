@@ -207,7 +207,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 
 		public override CompilerExtData AndOr(CompilerExtData a, CompilerExtData b, CompilerExtData c)
 		{
-			if (!a.DissatCost.HasValue) throw CastException.LeftNotDissatisfiable;
+			if (!a.DissatCost.HasValue) throw FragmentPropertyException.LeftNotDissatisfiable();
 			var aProb = a.BranchProb.Value;
 			var bProb = b.BranchProb.Value;
 			var cProb = c.BranchProb.Value;
@@ -484,7 +484,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 						var newExt = c.InvokeCast();
 						if (InsertElem(map, newExt, satProb, dissatProb))
 							castStack.Push(newExt);
-					} catch (CastException e) {}
+					} catch (FragmentPropertyException e) {}
 				}
 			}
 		}
@@ -529,7 +529,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 							var newExt = c.InvokeCast();
 							InsertElemClosure(map, newExt, satProb, dissatProb);
 						}
-						catch (CastException _)
+						catch (FragmentPropertyException _)
 						{
 						}
 					}
@@ -810,7 +810,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 					{
 						var newExt = AstElemExt<TPk, TPKh>.Binary(ast, l, r);
 						InsertBestWrapped(policyCache, policy, ret, newExt, satProb, dissatProb);
-					} catch (TypeCheckException<TPk, TPKh> ex) {}
+					} catch (FragmentPropertyException ex) {}
 				}
 			}
 			throw new NotImplementedException();
@@ -829,6 +829,25 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			double? dissatProb
 			)
 		{
+			foreach (var a in aComp.Values)
+			{
+				foreach (var b in bComp.Values)
+				{
+					foreach (var c in cComp.Values)
+					{
+						a.CompExtData.BranchProb = weights.Item1;
+						b.CompExtData.BranchProb = weights.Item1;
+						c.CompExtData.BranchProb = weights.Item2;
+						var ast = Terminal<TPk, TPKh>.NewAndOr(a.Ms, b.Ms, c.Ms);
+						try
+						{
+							var newExt = AstElemExt<TPk, TPKh>.Ternary(ast, a, b, c);
+							InsertBestWrapped(policyCache, policy, ret, newExt, satProb, dissatProb);
+						} catch (FragmentPropertyException ex)
+						{}
+					}
+				}
+			}
 		}
 
 		public static Miniscript<TPk, TPKh> BestCompilation(ConcretePolicy<TPk, TPKh> policy)
@@ -844,6 +863,15 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			return x;
 		}
 
+		/// <summary>
+		/// Obtain the best B expression with given sat and dissat.
+		/// </summary>
+		/// <param name="policyCache"></param>
+		/// <param name="policy"></param>
+		/// <param name="satProb"></param>
+		/// <param name="dissatProb"></param>
+		/// <returns></returns>
+		/// <exception cref="NotImplementedException"></exception>
 		private static AstElemExt<TPk, TPKh> BestT(
 			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, double, double?>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
 				policyCache,
@@ -852,9 +880,31 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			double? dissatProb
 			)
 		{
-			throw new NotImplementedException();
+			var result =
+				BestCompilations(policyCache, policy, satProb, dissatProb)
+					.Where(kv => kv.Key.Type.Correctness.Base == Base.B && kv.Key.DissatProb == dissatProb)
+					.Select(kv => kv.Value);
+
+			if (!result.Any())
+				throw CompilerException.MaxOpCountExceeded;
+			return result.Aggregate( // get where the cost is minimum
+				(champion, challenger) =>
+				{
+					 var challengerValue = challenger.Cost1d(satProb, dissatProb);
+					 var championValue = champion.Cost1d(satProb, dissatProb);
+					 return (challengerValue < championValue) ? challenger : champion;
+				});
 		}
 
+		/// <summary>
+		/// Obtain the B.deu with the given sat and dissat.
+		/// </summary>
+		/// <param name="policyCache"></param>
+		/// <param name="policy"></param>
+		/// <param name="satProb"></param>
+		/// <param name="dissatProb"></param>
+		/// <returns></returns>
+		/// <exception cref="NotImplementedException"></exception>
 		private static AstElemExt<TPk, TPKh> BestE(
 			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, double, double?>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
 				policyCache,
@@ -863,7 +913,24 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 				double? dissatProb
 			)
 		{
-			throw new NotImplementedException();
+			var result =
+				BestCompilations(policyCache, policy, satProb, dissatProb)
+					.Where(kv =>
+						kv.Key.Type.Correctness.Base == Base.B
+						&& kv.Key.Type.Correctness.Unit
+						&& kv.Value.Ms.Type.Malleability.Dissat == Dissat.Unique
+						&& kv.Key.DissatProb == dissatProb);
+			if (!result.Any())
+				throw CompilerException.MaxOpCountExceeded;
+			return result.Select(kv => kv.Value)
+				.Aggregate( // get where cost is minimum
+					(champion, challenger) =>
+						{
+							var challengerValue = challenger.Cost1d(satProb, dissatProb);
+							var championValue = champion.Cost1d(satProb, dissatProb);
+							return (challengerValue < championValue) ? challenger : champion;
+						}
+					);
 		}
 
 		private static AstElemExt<TPk, TPKh> BestW(
@@ -874,7 +941,24 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 				double? dissatProb
 			)
 		{
-			throw new NotImplementedException();
+			var result =
+				BestCompilations(policyCache, policy, satProb, dissatProb)
+					.Where(kv =>
+						kv.Key.Type.Correctness.Unit
+						&& kv.Value.Ms.Type.Malleability.Dissat == Dissat.Unique
+						&& kv.Key.DissatProb == dissatProb
+					);
+			if (!result.Any())
+				throw CompilerException.MaxOpCountExceeded;
+			return result.Select(kv => kv.Value)
+				.Aggregate( // get where cost is minimum
+					(champion, challenger) =>
+						{
+							var challengerValue = challenger.Cost1d(satProb, dissatProb);
+							var championValue = champion.Cost1d(satProb, dissatProb);
+							return (challengerValue < championValue) ? challenger : champion;
+						}
+					);
 		}
 	}
 }

@@ -70,7 +70,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public override Correctness CastAlt()
 			=> new Correctness(
-				(Base == Base.B ? Base.W : throw CastException.ChildBase1(Base)),
+				(Base == Base.B ? Base.W : throw FragmentPropertyException.ChildBase1(Base)),
 				Input.Any,
 				DisSatisfiable,
 				Unit
@@ -78,15 +78,15 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public override Correctness CastSwap() =>
 			new Correctness(
-				(Base == Base.B ? Base.W : throw CastException.ChildBase1(Base)),
-				(Input == Input.One || Input == Input.OneNonZero ? Input.Any : throw CastException.ChildBase1(Base)),
+				(Base == Base.B ? Base.W : throw FragmentPropertyException.ChildBase1(Base)),
+				(Input == Input.One || Input == Input.OneNonZero ? Input.Any : throw FragmentPropertyException.ChildBase1(Base)),
 				DisSatisfiable,
 				Unit
 				);
 
 		public override Correctness CastCheck() =>
 			new Correctness(
-				(Base == Base.K ? Base.B : throw CastException.ChildBase1(Base)),
+				(Base == Base.K ? Base.B : throw FragmentPropertyException.ChildBase1(Base)),
 				Input,
 				DisSatisfiable,
 				true
@@ -94,15 +94,15 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public override Correctness CastDupIf() =>
 			new Correctness(
-				(Base == Base.V ? Base.B : throw CastException.ChildBase1(Base)),
-				(Input == Input.Zero ? Input.OneNonZero : throw CastException.NonZeroDupIf),
+				(Base == Base.V ? Base.B : throw FragmentPropertyException.ChildBase1(Base)),
+				(Input == Input.Zero ? Input.OneNonZero : throw FragmentPropertyException.NonZeroDupIf()),
 				true,
 				true
 				);
 
 		public override Correctness CastVerify() =>
 			new Correctness(
-				(Base == Base.B ? Base.V : throw CastException.ChildBase1(Base)),
+				(Base == Base.B ? Base.V : throw FragmentPropertyException.ChildBase1(Base)),
 				Input,
 				false,false
 				);
@@ -110,9 +110,9 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public override Correctness CastNonZero()
 		{
 			if (Input != Input.OneNonZero && Input != Input.AnyNonZero)
-				throw CastException.NonZeroZero;
+				throw FragmentPropertyException.NonZeroZero();
 			return new Correctness(
-				(Base == Base.B ? Base.B : throw CastException.ChildBase1(Base)),
+				(Base == Base.B ? Base.B : throw FragmentPropertyException.ChildBase1(Base)),
 				Input,
 				true,
 				Unit
@@ -121,7 +121,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public override Correctness CastZeroNotEqual() =>
 			new Correctness(
-				(Base == Base.B ? Base.B : throw CastException.ChildBase1(Base)),
+				(Base == Base.B ? Base.B : throw FragmentPropertyException.ChildBase1(Base)),
 				Input,
 				DisSatisfiable,
 				true
@@ -129,7 +129,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public override Correctness CastTrue() =>
 			new Correctness(
-				(Base == Base.V ? Base.B : throw CastException.ChildBase1(Base)),
+				(Base == Base.V ? Base.B : throw FragmentPropertyException.ChildBase1(Base)),
 				Input,
 				false,
 				true
@@ -137,7 +137,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public override Correctness CastOrIFalse() =>
 			new Correctness(
-				(Base == Base.B ? Base.B : throw CastException.ChildBase1(Base)),
+				(Base == Base.B ? Base.B : throw FragmentPropertyException.ChildBase1(Base)),
 				(Input == Input.Zero ? Input.One : Input.Any),
 				true,
 				Unit
@@ -145,7 +145,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public override Correctness AndB(Correctness l, Correctness r) =>
 			new Correctness(
-				((l.Base == Base.B && r.Base == Base.W) ? Base.B : throw CastException.ChildBase2(l.Base, r.Base) ),
+				((l.Base == Base.B && r.Base == Base.W) ? Base.B : throw FragmentPropertyException.ChildBase2(l.Base, r.Base) ),
 
 				(l.Input == Input.Zero && r.Input == Input.Zero) ? Input.Zero :
 				((l.Input == Input.Zero && r.Input == Input.One)
@@ -164,7 +164,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			return new Correctness(
 				(l.Base == Base.V && r.Base == Base.B) ? Base.B :
 				(l.Base == Base.V && r.Base == Base.K) ? Base.K :
-				(l.Base == Base.V && r.Base == Base.V) ? Base.V : throw CastException.ChildBase2(l.Base, r.Base),
+				(l.Base == Base.V && r.Base == Base.V) ? Base.V : throw FragmentPropertyException.ChildBase2(l.Base, r.Base),
 
 				(l.Input == Input.Zero && r.Input == Input.Zero) ? Input.Zero :
 				(l.Input == Input.Zero && r.Input == Input.One) ||
@@ -183,11 +183,11 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public override Correctness OrB(Correctness l, Correctness r)
 		{
 			if (!l.DisSatisfiable)
-				throw CastException.LeftNotDissatisfiable;
+				throw FragmentPropertyException.LeftNotDissatisfiable();
 			if (!r.DisSatisfiable)
-				throw CastException.RightNotDissatisfiable;
+				throw FragmentPropertyException.RightNotDissatisfiable();
 			return new Correctness(
-				(l.Base == Base.B && r.Base == Base.W) ? Base.B : throw CastException.ChildBase2(l.Base, r.Base),
+				(l.Base == Base.B && r.Base == Base.W) ? Base.B : throw FragmentPropertyException.ChildBase2(l.Base, r.Base),
 				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.Zero :
 				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.One) ||
 					(l.Input == Miniscript.Input.One && r.Input == Miniscript.Input.Zero) ||
@@ -202,11 +202,11 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public override Correctness OrD(Correctness l, Correctness r)
 		{
 			if (!l.DisSatisfiable)
-				throw CastException.LeftNotDissatisfiable;
+				throw FragmentPropertyException.LeftNotDissatisfiable();
 			if (!l.Unit)
-				throw CastException.LeftNotUnit;
+				throw FragmentPropertyException.LeftNotUnit();
 			return new Correctness(
-				(l.Base == Base.B) ? Base.B : throw CastException.ChildBase2(l.Base, r.Base),
+				(l.Base == Base.B) ? Base.B : throw FragmentPropertyException.ChildBase2(l.Base, r.Base),
 				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.Zero :
 					(l.Input == Miniscript.Input.One && r.Input == Miniscript.Input.Zero) ||
 					(l.Input == Miniscript.Input.OneNonZero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.One :
@@ -219,15 +219,15 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public override Correctness OrC(Correctness l, Correctness r)
 		{
 			if (!l.DisSatisfiable)
-				throw CastException.LeftNotDissatisfiable;
+				throw FragmentPropertyException.LeftNotDissatisfiable();
 			if (!l.Unit)
-				throw CastException.LeftNotUnit;
+				throw FragmentPropertyException.LeftNotUnit();
 
 			return
 				new Correctness(
 					(l.Base == Miniscript.Base.B && r.Base == Miniscript.Base.V)
 						? Miniscript.Base.V
-						: throw CastException.ChildBase2(l.Base, r.Base),
+						: throw FragmentPropertyException.ChildBase2(l.Base, r.Base),
 					Miniscript.Input.Any,
 					false,
 					false
@@ -238,7 +238,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			new Correctness(
 				(l.Base == Miniscript.Base.B && r.Base == Miniscript.Base.B) ? Miniscript.Base.B :
 				(l.Base == Miniscript.Base.V && r.Base == Miniscript.Base.V) ? Miniscript.Base.V :
-				(l.Base == Miniscript.Base.K && r.Base == Miniscript.Base.K) ? Miniscript.Base.K : throw CastException.ChildBase2(l.Base, r.Base),
+				(l.Base == Miniscript.Base.K && r.Base == Miniscript.Base.K) ? Miniscript.Base.K : throw FragmentPropertyException.ChildBase2(l.Base, r.Base),
 				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.One : Miniscript.Input.Any,
 				(l.DisSatisfiable || r.DisSatisfiable),
 				l.Unit && r.Unit
@@ -247,14 +247,14 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public override Correctness AndOr(Correctness a, Correctness b, Correctness c)
 		{
 			if (!a.DisSatisfiable)
-				throw CastException.LeftNotDissatisfiable;
+				throw FragmentPropertyException.LeftNotDissatisfiable();
 			if (!a.Unit)
-				throw CastException.LeftNotUnit;
+				throw FragmentPropertyException.LeftNotUnit();
 			return new Correctness(
 				(a.Base == Base.B && b.Base == Base.B && c.Base == Base.B) ? Miniscript.Base.B :
 					(a.Base == Base.B && b.Base == Base.K && c.Base == Base.K) ? Base.K :
 					(a.Base == Base.B && b.Base == Base.V && c.Base == Base.V) ? Base.V :
-					throw CastException.ChildBase3(a.Base, b.Base, c.Base),
+					throw FragmentPropertyException.ChildBase3(a.Base, b.Base, c.Base),
 				(a.Input == Input.Zero && b.Input == Input.Zero && c.Input == Input.Zero) ? Input.Zero :
 				(a.Input == Input.Zero && b.Input == Input.One && c.Input == Input.One) ||
 					(a.Input  == Input.Zero && b.Input == Input.One && c.Input == Input.OneNonZero) ||
@@ -279,17 +279,17 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				{
 					isN &= subType.Input == Input.OneNonZero || subType.Input == Input.AnyNonZero;
 					if (subType.Base != Base.B)
-						throw CastException.ThresholdBase(0U, subType.Base);
+						throw FragmentPropertyException.ThresholdBase(0U, subType.Base);
 				}
 				else
 				{
 					if (subType.Base != Miniscript.Base.W)
-						throw CastException.ThresholdBase((uint)n, subType.Base);
+						throw FragmentPropertyException.ThresholdBase((uint)n, subType.Base);
 				}
 				if (!subType.Unit)
-					throw CastException.ThresholdNonUnit((uint)n);
+					throw FragmentPropertyException.ThresholdNonUnit((uint)n);
 				if (!subType.DisSatisfiable)
-					throw CastException.ThresholdDissat((uint)n);
+					throw FragmentPropertyException.ThresholdDissat((uint)n);
 			}
 			return new Correctness(
 				Base.B,
