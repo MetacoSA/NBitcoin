@@ -241,7 +241,10 @@ namespace NBitcoin.Tests
 			// var andStr = $"";
 			// var orMs = Miniscript<PubKey, uint160>.Parse(orStr);
 			var pkRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(pkStr);
+			Assert.True(pkRes is Terminal<PubKey, uint160>.Check c && (c.Item.Node is Terminal<PubKey, uint160>.Pk));
+
 			var orRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(orStr);
+			Assert.True(orRes is Terminal<PubKey, uint160>.OrB);
 			// var andRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(andStr);
 		}
 	}
