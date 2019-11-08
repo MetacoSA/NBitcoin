@@ -314,7 +314,14 @@ namespace NBitcoin.Scripting.Miniscript
 
 		public static Terminal<TPk, TPKh> NewTrue() => Terminal<TPk, TPKh>.True;
 		public static Terminal<TPk, TPKh> NewFalse() => Terminal<TPk, TPKh>.False;
-		public static Terminal<TPk, TPKh> NewPk(TPk item) => new Pk(item);
+		public static Terminal<TPk, TPKh> NewPk(TPk item)
+		{
+			if (item is null)
+				throw new ArgumentNullException(nameof(item));
+
+			return new Pk(item);
+		}
+
 		public static Terminal<TPk, TPKh> NewPkH(TPKh item) => new PkH(item);
 		public static Terminal<TPk, TPKh> NewAfter(uint item) => new After(item);
 		public static Terminal<TPk, TPKh> NewOlder(uint item) => new Older(item);
@@ -328,7 +335,14 @@ namespace NBitcoin.Scripting.Miniscript
 			=> new Hash160(item);
 		public static Terminal<TPk, TPKh> NewAlt(Miniscript<TPk, TPKh> item) => new Terminal<TPk, TPKh>.Alt(item);
 		public static Terminal<TPk, TPKh> NewSwap(Miniscript<TPk, TPKh> item) => new Terminal<TPk, TPKh>.Swap(item);
-		public static Terminal<TPk, TPKh> NewCheck(Miniscript<TPk, TPKh> item) => new Terminal<TPk, TPKh>.Check(item);
+		public static Terminal<TPk, TPKh> NewCheck(Miniscript<TPk, TPKh> item)
+		{
+			if (item is null)
+				throw new ArgumentNullException(nameof(item));
+
+			return new Check(item);
+		}
+
 		public static Terminal<TPk, TPKh> NewDupIf(Miniscript<TPk, TPKh> item) => new DupIf(item);
 		public static Terminal<TPk, TPKh> NewVerify(Miniscript<TPk, TPKh> item) => new Verify(item);
 		public static Terminal<TPk, TPKh> NewNonZero(Miniscript<TPk, TPKh> item) => new NonZero(item);
@@ -344,7 +358,15 @@ namespace NBitcoin.Scripting.Miniscript
 			=> new AndOr(item1, item2, item3);
 
 		public static Terminal<TPk, TPKh> NewOrB(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2)
-			=> new OrB(item1, item2);
+		{
+			if (item1 is null)
+				throw new ArgumentNullException(nameof(item1));
+
+			if (item2 is null)
+				throw new ArgumentNullException(nameof(item2));
+
+			return new OrB(item1, item2);
+		}
 
 		public static Terminal<TPk, TPKh> NewOrD(Miniscript<TPk, TPKh> item1, Miniscript<TPk, TPKh> item2)
 			=> new OrD(item1, item2);

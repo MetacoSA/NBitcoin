@@ -26,6 +26,9 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		private static T TypeCheckCore(Terminal<TPk, TPKh> fragment,Func<int, T> child)
 		{
+			if (fragment is null)
+				throw new ArgumentNullException(nameof(fragment));
+
 			T GetChild(Terminal<TPk, TPKh> sub, int n)
 				{
 						var r = child(n);
@@ -33,6 +36,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 							return TypeCheck(sub, _ => null);
 						return r;
 				}
+
 			switch (fragment.Tag)
 			{
 				case Terminal<TPk, TPKh>.Tags.True:

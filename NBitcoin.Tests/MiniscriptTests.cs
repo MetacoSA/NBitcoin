@@ -238,11 +238,11 @@ namespace NBitcoin.Tests
 		{
 			var pkStr = $"c:pk({PubKeys[0]})";
 			var orStr = $"or_b(c:pk({PubKeys[0]}),sc:pk({PubKeys[1]}))";
-			var andStr = $"and(time(3),{orStr})";
+			// var andStr = $"";
 			// var orMs = Miniscript<PubKey, uint160>.Parse(orStr);
 			var pkRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(pkStr);
 			var orRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(orStr);
-			var andRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(andStr);
+			// var andRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(andStr);
 		}
 	}
 }
