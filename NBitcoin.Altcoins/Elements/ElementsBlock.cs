@@ -63,14 +63,12 @@ namespace NBitcoin.Altcoins.Elements
 
 	public class ElementsBlock<TNetwork> : Block
 	{
-		public ElementsBlock(ElementsBlockHeader<TNetwork> header, ConsensusFactory consensusFactory) : base(header)
+		public ElementsBlock(ElementsBlockHeader<TNetwork> header) : base(header)
 		{
-			ElementsConsensusFactory = consensusFactory;
 		}
-		public ConsensusFactory ElementsConsensusFactory { get; set; }
 		public override ConsensusFactory GetConsensusFactory()
 		{
-			return ElementsConsensusFactory;
+			return ElementsConsensusFactory<TNetwork>.Instance;
 		}
 	}
 

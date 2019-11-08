@@ -233,16 +233,9 @@ namespace NBitcoin.Altcoins.Elements
 
 	public class ElementsTxIn<TNetwork> : ElementsTxIn
 	{
-		private readonly ConsensusFactory _consensusFactory;
-
-		public ElementsTxIn(ElementsConsensusFactory<TNetwork> consensusFactory)
-		{
-			_consensusFactory = consensusFactory;
-		}
-
 		public override ConsensusFactory GetConsensusFactory()
 		{
-			return _consensusFactory;
+			return ElementsConsensusFactory<TNetwork>.Instance;
 		}
 
 		public override TxIn Clone()
@@ -553,14 +546,11 @@ namespace NBitcoin.Altcoins.Elements
 
 	public class ElementsTxOut<TNetwork> : ElementsTxOut
 	{
-		public ElementsTxOut(ElementsConsensusFactory<TNetwork> consensusFactory)
+		public ElementsTxOut()
 		{
-			_consensusFactory = consensusFactory;
-
 			_Asset = new ConfidentialAsset<TNetwork>();
 		}
 		ConfidentialAsset<TNetwork> _Asset;
-		private ElementsConsensusFactory<TNetwork> _consensusFactory;
 
 		public new ConfidentialAsset<TNetwork> Asset
 		{
@@ -585,16 +575,16 @@ namespace NBitcoin.Altcoins.Elements
 		}
 
 
-		public static TxOut Parse(string hex, ElementsConsensusFactory<TNetwork> consensusFactory)
+		public new static TxOut Parse(string hex)
 		{
-			var ret = new ElementsTxOut<TNetwork>(consensusFactory);
+			var ret = new ElementsTxOut<TNetwork>();
 			ret.FromBytes(NBitcoin.DataEncoders.Encoders.Hex.DecodeData(hex));
 			return ret;
 		}
 
 		public override ConsensusFactory GetConsensusFactory()
 		{
-			return _consensusFactory;
+			return ElementsConsensusFactory<TNetwork>.Instance;
 		}
 
 		protected override ConfidentialAsset GetAssetCore()
@@ -606,20 +596,9 @@ namespace NBitcoin.Altcoins.Elements
 
 	public class ElementsTransaction<TNetwork> : ElementsTransaction
 	{
-		private ElementsConsensusFactory<TNetwork> _consensusFactory;
-
-		public ElementsTransaction()
-		{
-
-		}
-
-		public ElementsTransaction(ElementsConsensusFactory<TNetwork> consensusFactory)
-		{
-			_consensusFactory = consensusFactory;
-		}
 		public override ConsensusFactory GetConsensusFactory()
 		{
-			return _consensusFactory;
+			return ElementsConsensusFactory<TNetwork>.Instance;
 		}
 	}
 	public abstract class ElementsTransaction : Transaction

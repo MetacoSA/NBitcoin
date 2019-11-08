@@ -42,7 +42,7 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
 				CoinbaseMaturity = 100,
-				ConsensusFactory = new ElementsConsensusFactory<Liquid>()
+				ConsensusFactory = ElementsConsensusFactory<Liquid>.Instance
 			})
 			.SetNetworkStringParser(new ElementsStringParser())
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { (57) })
@@ -88,7 +88,7 @@ namespace NBitcoin.Altcoins
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new ElementsConsensusFactory<LiquidRegtest>()
+				ConsensusFactory = ElementsConsensusFactory<LiquidRegtest>.Instance
 			})
 			.SetNetworkStringParser(new ElementsStringParser())
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { (235) })

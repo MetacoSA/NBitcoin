@@ -7,16 +7,17 @@ namespace NBitcoin.Altcoins.Elements
 {
 	public class ElementsConsensusFactory<TNetwork> : ConsensusFactory
 	{
+		public static ElementsConsensusFactory<TNetwork> Instance { get; } = new ElementsConsensusFactory<TNetwork>();
 		public override bool TryCreateNew(Type type, out IBitcoinSerializable result)
 		{
 			if (typeof(TxIn).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
 			{
-				result = new ElementsTxIn<TNetwork>(this);
+				result = new ElementsTxIn<TNetwork>();
 				return true;
 			}
 			if (IsTxOut(type))
 			{
-				result = new ElementsTxOut<TNetwork>(this);
+				result = new ElementsTxOut<TNetwork>();
 				return true;
 			}
 			return base.TryCreateNew(type, out result);
@@ -27,12 +28,12 @@ namespace NBitcoin.Altcoins.Elements
 		}
 		public override Block CreateBlock()
 		{
-			return new ElementsBlock<TNetwork>((ElementsBlockHeader<TNetwork>) CreateBlockHeader(), this);
+			return new ElementsBlock<TNetwork>((ElementsBlockHeader<TNetwork>) CreateBlockHeader());
 		}
 
 		public override Transaction CreateTransaction()
 		{
-			return new ElementsTransaction<TNetwork>(this);
+			return new ElementsTransaction<TNetwork>();
 		}
 
 		protected override TransactionBuilder CreateTransactionBuilderCore()
