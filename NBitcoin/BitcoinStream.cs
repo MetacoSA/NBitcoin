@@ -265,8 +265,7 @@ namespace NBitcoin
 			}
 		}
 
-		public  void ReadWriteListBytes<TList>(ref TList data)
-			where TList : List<byte[]>, new()
+		public  void ReadWriteListBytes(ref List<byte[]> data)
 		{
 			var dataArray = data?.ToArray();
 			if (Serializing && dataArray == null)
@@ -277,7 +276,7 @@ namespace NBitcoin
 			if (!Serializing)
 			{
 				if (data == null)
-					data = new TList();
+					data = new List<byte[]>();
 				else
 					data.Clear();
 				data.AddRange(dataArray);
