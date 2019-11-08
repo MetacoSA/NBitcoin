@@ -28,14 +28,10 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		{
 			T GetChild(Terminal<TPk, TPKh> sub, int n)
 				{
-					try
-					{
-						return child(n);
-					}
-					catch
-					{
-						return TypeCheck(sub, _ => null);
-					}
+						var r = child(n);
+						if (r is null)
+							return TypeCheck(sub, _ => null);
+						return r;
 				}
 			switch (fragment.Tag)
 			{
