@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NBitcoin.BitcoinCore;
 using NBitcoin.Logging;
 
 namespace NBitcoin.Protocol

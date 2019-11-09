@@ -407,8 +407,8 @@ namespace NBitcoin.Altcoins
 
 				this.Version = nVersionTemp;
 				this.Time = nTimeTemp; // POS Timestamp
-				vinTemp.ForEach(i => this.AddInput(i));
-				voutTemp.ForEach(i => this.AddOutput(i));
+				vinTemp.ForEach(i => this.Inputs.Add(i));
+				voutTemp.ForEach(i => this.Outputs.Add(i));
 				this.LockTime = lockTimeTemp;
 			}
 

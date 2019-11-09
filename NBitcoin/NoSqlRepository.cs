@@ -11,6 +11,14 @@ namespace NBitcoin
 {
 	public abstract class NoSqlRepository
 	{
+		public ConsensusFactory ConsensusFactory { get; }
+
+		public NoSqlRepository(ConsensusFactory consensusFactory)
+		{
+			if (consensusFactory == null)
+				throw new ArgumentNullException(nameof(consensusFactory));
+			ConsensusFactory = consensusFactory;
+		}
 
 		public Task PutAsync(string key, IBitcoinSerializable obj)
 		{
@@ -22,12 +30,13 @@ namespace NBitcoin
 			PutAsync(key, obj).GetAwaiter().GetResult();
 		}
 
-		public async Task<T> GetAsync<T>(string key) where T : IBitcoinSerializable, new()
+		public async Task<T> GetAsync<T>(string key) where T : IBitcoinSerializable
 		{
 			var data = await GetBytes(key).ConfigureAwait(false);
 			if (data == null)
 				return default(T);
-			T obj = new T();
+			if (!ConsensusFactory.TryCreateNew<T>(out var obj))
+				obj = Activator.CreateInstance<T>();
 			obj.ReadWrite(new BitcoinStream(data));
 			return obj;
 		}

@@ -39,7 +39,7 @@ namespace NBitcoin
 			#endregion
 		}
 
-		public CachedNoSqlRepository(NoSqlRepository inner)
+		public CachedNoSqlRepository(NoSqlRepository inner): base(Network.Main.Consensus.ConsensusFactory)
 		{
 			_InnerRepository = inner;
 		}

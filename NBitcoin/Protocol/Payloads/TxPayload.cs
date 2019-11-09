@@ -10,15 +10,33 @@ namespace NBitcoin.Protocol
 	/// Represents a transaction being sent on the network, is sent after being requested by a getdata (of Transaction or MerkleBlock) message.
 	/// </summary>
 	[Payload("tx")]
-	public class TxPayload : BitcoinSerializablePayload<Transaction>
+	public class TxPayload : Payload
 	{
 		public TxPayload()
 		{
 
 		}
-		public TxPayload(Transaction transaction) : base(transaction)
+		public TxPayload(Transaction transaction)
 		{
+			_Object = transaction;
+		}
 
+		Transaction _Object;
+		public Transaction Object
+		{
+			get
+			{
+				return _Object;
+			}
+			set
+			{
+				_Object = value;
+			}
+		}
+
+		public override void ReadWriteCore(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref _Object);
 		}
 	}
 }

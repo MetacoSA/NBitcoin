@@ -94,7 +94,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseColoredAddress()
 		{
-			var address = new BitcoinPubKeyAddress("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM");
+			var address = new BitcoinPubKeyAddress("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM", Network.Main);
 			var colored = address.ToColoredAddress();
 			Assert.Equal("akB4NBW9UuCmHuepksob6yfZs6naHtRCPNy", colored.ToWif());
 			Assert.Equal(address.ScriptPubKey, colored.ScriptPubKey);
@@ -341,7 +341,7 @@ namespace NBitcoin.Tests
 			Assert.True(destroyed[0].Id == colored2.Inputs[0].Asset.Id);
 
 			//Verify that FetchColor update the repository
-			var persistent = new NoSqlColoredTransactionRepository(tester.Repository.Transactions, new InMemoryNoSqlRepository());
+			var persistent = new NoSqlColoredTransactionRepository(tester.Repository.Transactions, new InMemoryNoSqlRepository(Network.Main.Consensus.ConsensusFactory));
 			colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, persistent);
 			Assert.NotNull(persistent.Get(tester.TestedTxId));
 

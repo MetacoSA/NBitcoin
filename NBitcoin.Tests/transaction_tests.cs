@@ -1,5 +1,4 @@
 ﻿using NBitcoin.Altcoins.Elements;
-using NBitcoin.BitcoinCore;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
@@ -164,7 +163,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanSignTransaction()
 		{
-			var key = new Key();
+			var key = new Key().GetBitcoinSecret(Network.RegTest);
 			var scriptPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey);
 
 			Transaction tx = Network.CreateTransaction();
@@ -172,9 +171,9 @@ namespace NBitcoin.Tests
 			tx.Inputs.Add(new OutPoint(tx.GetHash(), 1), scriptPubKey);
 			tx.Outputs.Add("21", key.PubKey.Hash);
 			var clone = tx.Clone();
-			tx.Sign(key, CreateFakeCoins(tx.Inputs, scriptPubKey));
+			tx.Sign(new[] { key }, CreateFakeCoins(tx.Inputs, scriptPubKey));
 			AssertCorrectlySigned(tx, new TxOut(null, scriptPubKey));
-			clone.Sign(key, CreateFakeCoins(clone.Inputs, scriptPubKey, true));
+			clone.Sign(new[] { key }, CreateFakeCoins(clone.Inputs, scriptPubKey, true));
 			AssertCorrectlySigned(clone, new TxOut(TxOut.NullMoney, scriptPubKey.Hash.ScriptPubKey));
 		}
 
@@ -780,7 +779,7 @@ namespace NBitcoin.Tests
 
 
 			//Gold receive 2.5 BTC
-			tx = txBuilder.ConsensusFactory.CreateTransaction();
+			tx = txBuilder.Network.Consensus.ConsensusFactory.CreateTransaction();
 			tx.Outputs.Add("2.5", gold.PubKey);
 			repo.Transactions.Put(tx.GetHash(), tx);
 
@@ -1479,7 +1478,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(previousCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
 
 			//P2WSH
-			previousTx = builder.ConsensusFactory.CreateTransaction();
+			previousTx = builder.Network.Consensus.ConsensusFactory.CreateTransaction();
 			previousTx.Outputs.Add(new TxOut(Money.Coins(1.0m), alice.PubKey.ScriptPubKey.WitHash));
 			previousCoin = previousTx.Outputs.AsCoins().First();
 
@@ -2080,7 +2079,7 @@ namespace NBitcoin.Tests
 			var privKeys = new[]{"5JaTXbAUmfPYZFRwrYaALK48fN6sFJp4rHqq2QSXs8ucfpE4yQU",
 						"5Jb7fCeh1Wtm4yBBg3q3XbT6B525i17kVhy3vMC9AqfR6FH2qGk",
 						"5JFjmGo5Fww9p8gvx48qBYDJNAzR9pmH5S389axMtDyPT8ddqmw"}
-						.Select(k => new BitcoinSecret(k).PrivateKey).ToArray();
+						.Select(k => new BitcoinSecret(k)).ToArray();
 
 			//First: combine the three keys into a multisig address
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, privKeys.Select(k => k.PubKey).ToArray());
@@ -2111,10 +2110,10 @@ namespace NBitcoin.Tests
 			//... Now I can partially sign it using one private key:
 
 			var coins = CreateFakeCoins(spendTransaction.Inputs, redeem, true);
-			partiallySigned.Sign(privKeys[0], coins);
+			partiallySigned.Sign(new[] { privKeys[0] }, coins);
 
 			//the other private keys (note the "hex" result getting longer):
-			partiallySigned.Sign(privKeys[1], coins);
+			partiallySigned.Sign(new[] { privKeys[1] }, coins);
 
 
 			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0], allowHighS);
@@ -2126,8 +2125,8 @@ namespace NBitcoin.Tests
 
 			//Can sign out of order
 			partiallySigned = spendTransaction.Clone();
-			partiallySigned.Sign(privKeys[2], coins);
-			partiallySigned.Sign(privKeys[0], coins);
+			partiallySigned.Sign(new[] { privKeys[2] }, coins);
+			partiallySigned.Sign(new[] { privKeys[0] }, coins);
 			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0]);
 
 			//Can sign multiple inputs
@@ -2137,8 +2136,8 @@ namespace NBitcoin.Tests
 				PrevOut = new OutPoint(fundingTransaction.GetHash(), 1),
 			});
 			partiallySigned.Inputs[1].ScriptSig = redeem; //The redeem should be in the scriptSig before signing
-			partiallySigned.Sign(privKeys[2], partiallySigned.Outputs.AsCoins().ToArray());
-			partiallySigned.Sign(privKeys[0], partiallySigned.Outputs.AsCoins().ToArray());
+			partiallySigned.Sign(new[] { privKeys[2] }, partiallySigned.Outputs.AsCoins().ToArray());
+			partiallySigned.Sign(new[] { privKeys[0] }, partiallySigned.Outputs.AsCoins().ToArray());
 		}
 
 		private void AssertCorrectlySigned(Transaction tx, TxOut txOut, ScriptVerify scriptVerify = ScriptVerify.Standard)
@@ -2388,9 +2387,9 @@ namespace NBitcoin.Tests
 			Transaction toCheck = Transaction.Parse("01000000000103b019e2344634c5b34aeb867f2cd8b09dbbd95b5bf8c5d56d58be1dd9077f9d3a00000000da0047304402201b2be1016abd4df4ca699e0430b97bc8dcd4c1c90b6a6ee382be75f42956566402205ab38fddace15ba4b2c4dbacc6793bb1f35a371aa8386f1348bd65dfeda9657201483045022100db1dbea1a5d05ff7daf6d106931ab701a29d2dddd8cd7781e9eb7fefd31139790220319eb8a238e6c635ebe2960f5960eeb96371f5a38503cf41aa89a33807c8b6a50147522102a96e9843b846b8cc3277ea54638f1454378219854ef89c81a8a4e9217f1f3ca02103d5feb2e2f2fa1403ede18aaac7631dd2c9a893953a9ab338e7d9fa749d91f03b52aeffffffffb019e2344634c5b34aeb867f2cd8b09dbbd95b5bf8c5d56d58be1dd9077f9d3a01000000db00483045022100aec68f5760337efdf425007387f094df284a576e824492597b0d046e038034100220434cb22f056e97cd823a13751c482a9f2d3fb956abcfa69db4dcd2679379070101483045022100c7ce0a9617cbcaa9308758092d336b228f67d358ad25a786711a87a29e2f72d102203d608bf6a4416e9493a5d89552633da300e9a237811e9affea3cda3320a3257c0147522102c4bd91a554815c73814848b311051c43ad6a75810269e1ff0eb9c13d828fc6fb21031035e69a48e04bc4d6315590620f784ab79d8369d122bd45ad7e77c81ac1cb1c52aeffffffffbcf750fad5ddd1909d8b3e2edda94f7ae3c866952932823763291b9467e3b9580000000023220020e0be53749d09a8e2d3843633cf11133e51e73944334d11a147f1ae53f1c3dfe5ffffffff019cbaf0080000000017a9148d52e4999751ec43c07eb371119f8c45047d26dc870000040047304402205bdc03fac6c3be92309e4fdd1572147ca56210dbb4413539874a4e3b0670ac0b02206422cd069e6078bcdc8f698ff77aed65566b6fa1ff028cc322d14d036d2c192401473044022022fa0bda2e8e21716b9d74499665e4f31cbcf2bf49d0b535188e7e196e8e90d8022076ad55655fbd54637c0cf5bbd7f07905446e23a621f82a940cb07677dab2f8fe0147522102d01cf4abc1b6c22cc0e0e43e5277f1a7fb544eca52244cd4cb88bef5943c5563210284a2ffb3e6b6ac0ac9444b0ecd9856f79b53bbd3100894ec6dc80e6e956edbeb52ae00000000", Network);
 
 			ScriptError error;
-#pragma warning disable CS0618 // Type or member is obsolete
-			Assert.True(toCheck.Inputs.AsIndexedInputs().Skip(0).First().VerifyScript(new Script("OP_HASH160 442afa4f034468652c571202da0bf277cb729def OP_EQUAL"), Money.Satoshis(100000), ScriptVerify.Mandatory, out error));
-#pragma warning restore CS0618 // Type or member is obsolete
+
+			var txOut = tx.Outputs.CreateNewTxOut(Money.Satoshis(100000), new Script("OP_HASH160 442afa4f034468652c571202da0bf277cb729def OP_EQUAL"));
+			Assert.True(toCheck.Inputs.AsIndexedInputs().Skip(0).First().VerifyScript(txOut, ScriptVerify.Mandatory, out error));
 		}
 
 		private static void CanCheckSegwitSigCore(Transaction tx, int input, Money amount, string scriptCodeHex = null)
@@ -2432,9 +2431,8 @@ namespace NBitcoin.Tests
 			tx = Transaction.Parse("010000000001015d896079097272b13ed9cb22acfabeca9ce83f586d98cc15a08ea2f9c558013b0200000000ffffffff01605af40500000000160014a8cbb5eca9af499cecaa08457690ab367f23d95b02483045022100d3edd272c4ff247c36a1af34a2394859ece319f61ee85f759b94ec0ecd61912402206dbdc7c6ca8f7279405464d2d935b5e171dfd76656872f76399dbf333c0ac3a001fd08020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000", Network);
 
 			ScriptError error;
-#pragma warning disable CS0618 // Type or member is obsolete
-			Assert.False(tx.Inputs.AsIndexedInputs().First().VerifyScript(new Script("0 b7854eb547106248b136ca2bf48d8df2f1167588"), out error));
-#pragma warning restore CS0618 // Type or member is obsolete
+			var txout = tx.Outputs.CreateNewTxOut(Money.Zero, new Script("0 b7854eb547106248b136ca2bf48d8df2f1167588"));
+			Assert.False(tx.Inputs.AsIndexedInputs().First().VerifyScript(txout, out error));
 			Assert.Equal(ScriptError.EqualVerify, error);
 		}
 		[Fact]
@@ -2442,23 +2440,22 @@ namespace NBitcoin.Tests
 		public void bip143Test()
 		{
 			Transaction tx = Transaction.Parse("0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f0000000000eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac11000000", Network);
-#pragma warning disable CS0618 // Type or member is obsolete
-			var h = tx.GetSignatureHash(new Script(Encoders.Hex.DecodeData("76a9141d0f172a0ecb48aee1be1f2687d2963ae33f71a188ac")), 1, SigHash.All, Money.Satoshis(0x23c34600L), HashVersion.Witness);
-#pragma warning restore CS0618 // Type or member is obsolete
+			var output = tx.Outputs.CreateNewTxOut(Money.Satoshis(0x23c34600L), new Script(Encoders.Hex.DecodeData("76a9141d0f172a0ecb48aee1be1f2687d2963ae33f71a188ac")));
+			var h = tx.GetSignatureHash(output.ScriptPubKey, 1, SigHash.All, output, HashVersion.Witness);
 			Assert.Equal(new uint256(Encoders.Hex.DecodeData("c37af31116d1b27caf68aae9e3ac82f1477929014d5b917657d0eb49478cb670"), true), h);
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void witnessHasPushSizeLimit()
 		{
-			Key bob = new Key();
+			var bob = new Key().GetWif(Network.RegTest);
 			Transaction tx = Network.CreateTransaction();
 			tx.Outputs.Add(new TxOut(Money.Coins(1.0m), bob.PubKey.ScriptPubKey.WitHash));
 			ScriptCoin coin = new ScriptCoin(tx.Outputs.AsCoins().First(), bob.PubKey.ScriptPubKey);
 
 			Transaction spending = Network.CreateTransaction();
 			spending.Inputs.Add(tx, 0);
-			spending.Sign(bob, coin);
+			spending.Sign(new[] { bob }, new[] { coin });
 			ScriptError error;
 			Assert.True(spending.Inputs.AsIndexedInputs().First().VerifyScript(coin, out error));
 			spending.Inputs[0].WitScript = new WitScript(new[] { new byte[521] }.Concat(spending.Inputs[0].WitScript.Pushes).ToArray());

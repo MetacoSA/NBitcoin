@@ -100,7 +100,7 @@ namespace NBitcoin
 			return encoder;
 		}
 
-		private NotSupportedException Bech32NotSupported(Bech32Type type)
+		internal NotSupportedException Bech32NotSupported(Bech32Type type)
 		{
 			return new NotSupportedException("The network " + this + " does not have any prefix for bech32 " + Enum.GetName(typeof(Bech32Type), type));
 		}
@@ -2520,21 +2520,15 @@ namespace NBitcoin
 
 		public TransactionBuilder CreateTransactionBuilder()
 		{
-#pragma warning disable CS0618 // Type or member is obsolete
-			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2();
-			builder.SetConsensusFactory(this);
+			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2(this);
 			return builder;
-#pragma warning restore CS0618 // Type or member is obsolete
 		}
 
 		public TransactionBuilder CreateTransactionBuilder(int seed)
 		{
-#pragma warning disable CS0618 // Type or member is obsolete
-			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2();
-			builder.SetConsensusFactory(this);
+			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2(this);
 			builder.ShuffleRandom = new Random(seed);
 			return builder;
-#pragma warning restore CS0618 // Type or member is obsolete
 		}
 
 		public Base58CheckEncoder GetBase58CheckEncoder()

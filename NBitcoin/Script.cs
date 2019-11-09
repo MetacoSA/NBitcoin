@@ -620,24 +620,6 @@ namespace NBitcoin
 			}
 		}
 
-		[Obsolete("Use Transaction.GetSignatureHash(ICoin coin, SigHash nHashType = SigHash.All) instead")]
-		public static uint256 SignatureHash(ICoin coin, Transaction txTo, SigHash nHashType = SigHash.All)
-		{
-			return txTo.GetSignatureHash(coin, nHashType);
-		}
-
-		[Obsolete("Use Transaction.GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, Money amount = null, HashVersion sigversion = HashVersion.Original) instead")]
-		public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, Money amount = null, HashVersion sigversion = HashVersion.Original)
-		{
-			return txTo.GetSignatureHash(scriptCode, nIn, nHashType, amount, sigversion, null);
-		}
-
-		[Obsolete("Use Transaction.GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, Money amount, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData) instead")]
-		public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, Money amount, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
-		{
-			return txTo.GetSignatureHash(scriptCode, nIn, nHashType, amount, sigversion, precomputedTransactionData);
-		}
-
 		public static Script operator +(Script a, IEnumerable<byte> bytes)
 		{
 			if (a == null)

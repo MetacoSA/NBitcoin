@@ -133,37 +133,16 @@ namespace NBitcoin
 #pragma warning restore CS0618 // Type or member is obsolete
 		}
 
-		protected virtual TransactionBuilder CreateTransactionBuilderCore()
+		protected virtual TransactionBuilder CreateTransactionBuilderCore(Network network)
 		{
 #pragma warning disable CS0618 // Type or member is obsolete
-			return new TransactionBuilder();
+			return new TransactionBuilder(network);
 #pragma warning restore CS0618 // Type or member is obsolete
 		}
 
-		internal TransactionBuilder CreateTransactionBuilderCore2()
+		internal TransactionBuilder CreateTransactionBuilderCore2(Network network)
 		{
-			return CreateTransactionBuilderCore();
-		}
-
-		[Obsolete("Use Network.CreateTransactionBuilder instead")]
-		public TransactionBuilder CreateTransactionBuilder()
-		{
-#pragma warning disable CS0618 // Type or member is obsolete
-			var builder = CreateTransactionBuilderCore();
-			builder.SetConsensusFactory(this);
-			return builder;
-#pragma warning restore CS0618 // Type or member is obsolete
-		}
-
-		[Obsolete("Use Network.CreateTransactionBuilder instead")]
-		public TransactionBuilder CreateTransactionBuilder(int seed)
-		{
-#pragma warning disable CS0618 // Type or member is obsolete
-			var builder = CreateTransactionBuilderCore();
-			builder.SetConsensusFactory(this);
-			builder.ShuffleRandom = new Random(seed);
-			return builder;
-#pragma warning restore CS0618 // Type or member is obsolete
+			return CreateTransactionBuilderCore(network);
 		}
 	}
 }
