@@ -54,19 +54,23 @@ namespace NBitcoin.Scripting.Miniscript
 
 		#endregion
 
-		private static Parser<char, Terminal<TPk, TPKh>> PWrapper(char identifier,
+		private static Parser<char, Terminal<TPk, TPKh>> PWrapperNested(char identifier,
 			Func<Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> construct)
 			=>
-				(
-					from _t in Parse.Char(identifier)
-					from x in Parse.Ref(() => PWrappers).Except(PWrapper(identifier, construct))
-					select x
-				)
-				.Or(
-					from _t in Parse.Char(identifier).Then(_ => Parse.Char(':'))
-					from inner in Parse.Ref(PNonWrappers)
-					select construct(Miniscript<TPk, TPKh>.FromAst(inner))
-					);
+			(
+				from _t in Parse.Char(identifier)
+				from x in Parse.Ref(() => PWrappersNested).Except(PWrapperNested(identifier, construct))
+				select x
+			);
+
+			private static Parser<char, Terminal<TPk, TPKh>> PWrapperInnerMost(char identifier,
+			Func<Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> construct)
+				=>
+			(
+				from _t in Parse.Char(identifier).Then(_ => Parse.Char(':'))
+				from inner in Parse.Ref(PNonWrappers)
+				select construct(Miniscript<TPk, TPKh>.FromAst(inner))
+			);
 
 		private static Parser<char, Terminal<TPk, TPKh>> PBinary(
 			string identifier,
@@ -99,13 +103,22 @@ namespace NBitcoin.Scripting.Miniscript
 			() => (from pk in ExprP("pk").Then(s => TryParseMiniscriptKey(s))
 			select pk));
 
-		private static readonly Parser<char, Terminal<TPk, TPKh>> PWrappers =
-				PWrapper('a', Terminal<TPk, TPKh>.NewAlt)
-				.Or(PWrapper('c', Terminal<TPk, TPKh>.NewCheck))
-				.Or(PWrapper('s', Terminal<TPk, TPKh>.NewSwap))
-				.Or(PWrapper('d', Terminal<TPk, TPKh>.NewDupIf))
-				.Or(PWrapper('v', Terminal<TPk, TPKh>.NewVerify))
-				.Or(PWrapper('j', Terminal<TPk, TPKh>.NewZeroNotEqual));
+		private static readonly Parser<char, Terminal<TPk, TPKh>> PWrappersNested =
+				PWrapperNested('a', Terminal<TPk, TPKh>.NewAlt)
+				.Or(PWrapperNested('c', Terminal<TPk, TPKh>.NewCheck))
+				.Or(PWrapperNested('s', Terminal<TPk, TPKh>.NewSwap))
+				.Or(PWrapperNested('d', Terminal<TPk, TPKh>.NewDupIf))
+				.Or(PWrapperNested('v', Terminal<TPk, TPKh>.NewVerify))
+				.Or(PWrapperNested('j', Terminal<TPk, TPKh>.NewZeroNotEqual));
+
+		private static readonly Parser<char, Terminal<TPk, TPKh>> PWrappersInnerMost =
+			PWrapperInnerMost('a', Terminal<TPk, TPKh>.NewAlt)
+			.Or(PWrapperInnerMost('c', Terminal<TPk, TPKh>.NewCheck))
+			.Or(PWrapperInnerMost('s', Terminal<TPk, TPKh>.NewSwap))
+			.Or(PWrapperInnerMost('d', Terminal<TPk, TPKh>.NewDupIf))
+			.Or(PWrapperInnerMost('v', Terminal<TPk, TPKh>.NewVerify))
+			.Or(PWrapperInnerMost('j', Terminal<TPk, TPKh>.NewZeroNotEqual));
+
 
 		private static Parser<char, Terminal<TPk, TPKh>> PNonWrappers() =>
 			// ------ leafs ------
@@ -132,7 +145,8 @@ namespace NBitcoin.Scripting.Miniscript
 				.Or(Parse.Ref(() => PTerminalThresh))
 				.Or(Parse.Ref(() => PTerminalThreshM));
 		private static Parser<char, Terminal<TPk, TPKh>> TerminalDSLParser() =>
-				Parse.Ref(() => PWrappers)
+				Parse.Ref(() => PWrappersNested)
+					.Or(Parse.Ref(() => PWrappersInnerMost))
 					.Or(PNonWrappers());
 				// ------- wrappers --------
 
