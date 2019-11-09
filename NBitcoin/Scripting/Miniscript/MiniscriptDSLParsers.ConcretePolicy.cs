@@ -41,7 +41,7 @@ namespace NBitcoin.Scripting.Miniscript
 				TPk t = default;
 				try
 				{
-					var k = MiniscriptKeyParser<TPk, TPKh>.TryParse(str);
+					var k = MiniscriptFragmentParser<TPk, TPKh>.ParseKey(str);
 					return ParserResult<char, TPk>.Success(i, k);
 				}
 				catch (Exception ex)
@@ -56,7 +56,7 @@ namespace NBitcoin.Scripting.Miniscript
 				TPKh t = default;
 				try
 				{
-					var k = MiniscriptKeyParser<TPk, TPKh>.TryParseHash(str);
+					var k = MiniscriptFragmentParser<TPk, TPKh>.ParseHash(str);
 					return ParserResult<char, TPKh>.Success(i, t);
 				}
 				catch

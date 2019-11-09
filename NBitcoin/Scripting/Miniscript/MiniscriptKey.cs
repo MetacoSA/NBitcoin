@@ -90,26 +90,26 @@ namespace NBitcoin.Scripting.Miniscript
 		public static MiniscriptStringKey Parse(string str)
 			=> new MiniscriptStringKey(str);
 	}
-	public static class MiniscriptKeyParser<T, TPKh>
+	public static class MiniscriptFragmentParser<TPk, TPKh>
+		where TPk : class, IMiniscriptKey<TPKh>, new()
 		where TPKh : class, IMiniscriptKeyHash, new()
-		where T : class, IMiniscriptKey<TPKh>, new()
 	{
-		public static T TryParse(string str)
+		public static TPk ParseKey(string str)
 		{
-			var t = new T();
+			var t = new TPk();
 			if (t is PubKey)
 			{
-				return new PubKey(str) as T;
+				return new PubKey(str) as TPk;
 			}
 
 			if (t is MiniscriptStringKey)
 			{
-				return MiniscriptStringKey.Parse(str) as T;
+				return MiniscriptStringKey.Parse(str) as TPk;
 			}
 			throw new NotSupportedException();
 		}
 
-		public static TPKh TryParseHash(string str)
+		public static TPKh ParseHash(string str)
 		{
 			var t = new TPKh();
 			if (t is uint160)
@@ -118,6 +118,6 @@ namespace NBitcoin.Scripting.Miniscript
 				return MiniscriptStringKeyHash.Parse(str) as TPKh;
 			throw new NotSupportedException();
 		}
-	}
 
+	}
 }

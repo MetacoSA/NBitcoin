@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using NBitcoin.Scripting.Miniscript.Types;
+using NBitcoin.Scripting.Parser;
 
 namespace NBitcoin.Scripting.Miniscript
 {
@@ -1291,6 +1293,184 @@ namespace NBitcoin.Scripting.Miniscript
 			}
 
 			throw new Exception("Unreachable!");
+		}
+
+		internal static Terminal<TPk, TPKh> FromTree(Tree top)
+		{
+			string fragWrap = String.Empty;
+			string fragName = String.Empty;
+			var nameSplit = top.Name.Split(':');
+			if (nameSplit.Length == 1)
+			{
+				fragName = nameSplit[0];
+			}
+			else if (nameSplit.Length == 2)
+			{
+				if (nameSplit[0] == String.Empty)
+					throw new ParsingException($"unexpected fragment name {top.Name}");
+				fragWrap = nameSplit[0];
+				fragName = nameSplit[1];
+			}
+			else throw new ParsingException($"Found more `:` in fragment {top.Name}");
+
+			Terminal<TPk, TPKh> unwrapped = null;
+			switch (fragName)
+			{
+				case "pk":
+					if (top.Args.Count == 1)
+						unwrapped = Tree.Terminal(top.Args[0], x => NewPk(MiniscriptFragmentParser<TPk, TPKh>.ParseKey(x)));
+					break;
+				case "pk_h":
+					if (top.Args.Count == 1)
+						unwrapped = Tree.Terminal(top.Args[0], x => NewPkH(MiniscriptFragmentParser<TPk, TPKh>.ParseHash(x)));
+					break;
+				case "after":
+					if (top.Args.Count == 1)
+						unwrapped = Tree.Terminal(top.Args[0], x => NewAfter(UInt32.Parse(x)));
+					break;
+				case "older":
+					if (top.Args.Count == 1)
+						unwrapped = Tree.Terminal(top.Args[0], x => NewOlder(UInt32.Parse(x)));
+					break;
+				case "sha256":
+					if (top.Args.Count == 1)
+						unwrapped = Tree.Terminal(top.Args[0], x => NewSha256(uint256.Parse(x)));
+					break;
+				case "hash256":
+					if (top.Args.Count == 1)
+						unwrapped = Tree.Terminal(top.Args[0], x => NewHash256(uint256.Parse(x.Reverse().ToString())));
+					break;
+				case "ripemd160":
+					if (top.Args.Count == 1)
+						unwrapped = Tree.Terminal(top.Args[0], x => NewRipemd160(uint160.Parse(x)));
+					break;
+				case "hash160":
+					if (top.Args.Count == 1)
+						unwrapped = Tree.Terminal(top.Args[0], x => NewHash160(uint160.Parse(x)));
+					break;
+				case "1":
+					if (top.Args.Count == 0)
+						unwrapped = Tree.Terminal(top.Args[0], _ => NewTrue());
+					break;
+				case "0":
+					if (top.Args.Count == 0)
+						unwrapped = Tree.Terminal(top.Args[0], _ => NewFalse());
+					break;
+				case "and_v":
+					if (top.Args.Count == 2)
+					{
+						var expr = Tree.Binary<TPk, TPKh>(top, NewAndV);
+						if (expr is AndV andv && andv.Item2.Node == True)
+							throw new ParsingException($"Non canonical true in {expr}");
+						unwrapped = expr;
+					}
+					break;
+				case "and_b":
+					if (top.Args.Count == 2)
+						unwrapped = Tree.Binary<TPk, TPKh>(top, NewAndB);
+					break;
+				case "and_n":
+					if (top.Args.Count == 2)
+						unwrapped =
+							Tree.Binary<TPk, TPKh>(
+								top,
+								(a, b) => NewAndOr(a, b, Miniscript<TPk, TPKh>.FromAst(NewFalse()))
+							);
+					break;
+				case "andor":
+					if (top.Args.Count == 3)
+						unwrapped = Tree.Ternary<TPk, TPKh>(top, NewAndOr);
+					break;
+				case "or_b":
+					if (top.Args.Count == 2)
+						unwrapped = Tree.Binary<TPk, TPKh>(top, NewOrB);
+					break;
+				case "or_d":
+					if (top.Args.Count == 2)
+						unwrapped = Tree.Binary<TPk, TPKh>(top, NewOrD);
+					break;
+				case "or_c":
+					if (top.Args.Count == 2)
+						unwrapped = Tree.Binary<TPk, TPKh>(top, NewOrC);
+					break;
+				case "or_i":
+					if (top.Args.Count == 2)
+					{
+						var expr = Tree.Binary<TPk, TPKh>(top, NewOrI);
+						if (expr is OrI ori && (ori.Item1.Node == False || ori.Item2.Node == False))
+							throw new ParsingException($"Non canonical false in {expr}");
+						unwrapped = expr;
+					}
+					break;
+				case "thresh":
+					var k = Tree.Terminal(top.Args[0], UInt32.Parse);
+					var n = top.Args.Count;
+					if (n == 0 || k > n - 1)
+						throw new ParsingException($"threshold ({k}) is higher than the number of sub exprs ({n})");
+					if (n == 1) throw new ParsingException("Empty thresholds not allowed in descriptors");
+					var subs = top.Args.Skip(1).Select(Miniscript<TPk, TPKh>.FromTree);
+					return NewThresh(k, subs);
+				case "thresh_m":
+					var km = Tree.Terminal(top.Args[0], UInt32.Parse);
+					var nm = top.Args.Count;
+					if (nm == 0 || km > nm - 1)
+						throw new ParsingException($"");
+					var subsm = top.Args.Skip(1).Select(sub => Tree.Terminal(sub, MiniscriptFragmentParser<TPk, TPKh>.ParseKey));
+					return NewThreshM(km, subsm);
+			}
+			if (unwrapped is null)
+				throw new ParsingException($"{top.Name}({top.Args.Count} args) while parsing Miniscript");
+
+			foreach (var ch in fragWrap.ToCharArray().Reverse())
+			{
+				switch (ch)
+				{
+					case 'a':
+						unwrapped = NewAlt(Miniscript<TPk, TPKh>.FromAst(unwrapped));
+						break;
+					case 's':
+						unwrapped = NewSwap(Miniscript<TPk, TPKh>.FromAst(unwrapped));
+						break;
+					case 'c':
+						unwrapped = NewCheck(Miniscript<TPk, TPKh>.FromAst(unwrapped));
+						break;
+					case 'd':
+						unwrapped = NewDupIf(Miniscript<TPk, TPKh>.FromAst(unwrapped));
+						break;
+					case 'v':
+						unwrapped = NewVerify(Miniscript<TPk, TPKh>.FromAst(unwrapped));
+						break;
+					case 'j':
+						unwrapped = NewNonZero(Miniscript<TPk, TPKh>.FromAst(unwrapped));
+						break;
+					case 'n':
+						unwrapped = NewZeroNotEqual(Miniscript<TPk, TPKh>.FromAst(unwrapped));
+						break;
+					case 't':
+						unwrapped = NewAndV(
+							Miniscript<TPk, TPKh>.FromAst(unwrapped),
+							Miniscript<TPk, TPKh>.FromAst(NewTrue())
+							);
+						break;
+					case 'u':
+						unwrapped = NewOrI(
+							Miniscript<TPk, TPKh>.FromAst(unwrapped),
+							Miniscript<TPk, TPKh>.FromAst(NewFalse())
+							);
+						break;
+					case 'l':
+						if (unwrapped == False)
+							throw new ParsingException($"Encountered l:o which is syntactically equal to `u:o` except stupid");
+						unwrapped = NewOrI(
+							Miniscript<TPk, TPKh>.FromAst(NewFalse()),
+							Miniscript<TPk, TPKh>.FromAst(unwrapped)
+							);
+						break;
+					default: throw new ParsingException($"Unknown wrapper {ch}");
+				}
+			}
+
+			return unwrapped;
 		}
 	}
 }

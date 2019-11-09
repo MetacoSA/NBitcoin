@@ -65,7 +65,7 @@ namespace NBitcoin
 			}
 			catch
 			{
-				return true;
+				return false;
 			}
 		}
 
