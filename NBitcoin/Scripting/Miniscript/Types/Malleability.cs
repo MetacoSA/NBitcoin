@@ -37,6 +37,11 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			if (other == Dissat.Unknown) return true;
 			return false;
 		}
+
+		public static string DebugPrint(this Dissat self)
+			=> self == Dissat.None ? "f" :
+				self == Dissat.Unique ? "e" :
+				"";
 	}
 
 	internal class Malleability : IProperty<Malleability>

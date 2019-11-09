@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics;
 using NBitcoin.Scripting.Miniscript.Types;
 
 namespace NBitcoin.Scripting.Miniscript
 {
+	[DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
 	public partial class Miniscript<TPk, TPKh>
 		where TPk : class, IMiniscriptKey<TPKh>, new()
 		where TPKh : class, IMiniscriptKeyHash, new()
@@ -46,5 +48,10 @@ namespace NBitcoin.Scripting.Miniscript
 		public Script ToScript() =>
 			Node.ToScript();
 
+		public override string ToString()
+			=> this.Node.ToString();
+
+		public string ToDebugString() =>
+			Node.ToDebugString();
 	}
 }

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
+using NBitcoin.Scripting.Miniscript.Types;
 
 namespace NBitcoin.Scripting.Miniscript
 {
@@ -91,6 +93,7 @@ namespace NBitcoin.Scripting.Miniscript
 		#endregion
 	}
 
+	[DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
 	public partial class Terminal<TPk, TPKh> : IEquatable<Terminal<TPk, TPKh>>
 		where TPk : class, IMiniscriptKey<TPKh>, new()
 		where TPKh : class, IMiniscriptKeyHash, new()
@@ -999,6 +1002,295 @@ namespace NBitcoin.Scripting.Miniscript
 			}
 			throw new Exception("unreachable!");
 		}
-	}
 
+		public override string ToString()
+			=> ToStringCore(new StringBuilder()).ToString();
+
+		/// <summary>
+		/// Internal helper function for displaying wrapper types;
+		/// append a character to display before the `:` as well as a reference
+		/// to the wrapped type to allow easy recursion.
+		/// </summary>
+		/// <param name="???"></param>
+		/// <returns></returns>
+		private Tuple<char, Miniscript<TPk, TPKh>> WrapChar()
+		{
+			switch (this)
+			{
+				case Alt self: return Tuple.Create('a', self.Item);
+				case Swap self: return Tuple.Create('s', self.Item);
+				case Check self: return Tuple.Create('c', self.Item);
+				case DupIf self: return Tuple.Create('d', self.Item);
+				case Verify self: return Tuple.Create('v', self.Item);
+				case NonZero self: return Tuple.Create('j', self.Item);
+				case ZeroNotEqual self: return Tuple.Create('n', self.Item);
+				case AndV self:
+					return (self.Item2.Node == True) ? Tuple.Create('t', self.Item1) : null;
+				case OrI self:
+					return
+						(self.Item2.Node == False)
+							? Tuple.Create('u', self.Item1) :
+						(self.Item1.Node == False)
+							? Tuple.Create('l', self.Item2) : null;
+						;
+			}
+			return null;
+		}
+
+		private StringBuilder ToStringCore(StringBuilder sb)
+		{
+			switch (this.Tag)
+			{
+				case Tags.True: return sb.Append("1");
+				case Tags.False: return sb.Append("0");
+			}
+
+			switch (this)
+			{
+				case Pk self:
+					return sb.Append($"pk({self.Item})");
+				case PkH self:
+					return sb.Append($"pk_h({self.Item})");
+				case After self:
+					return sb.Append($"after({self.Item})");
+				case Older self:
+					return sb.Append($"older({self.Item})");
+				case Sha256 self:
+					return sb.Append($"sha256({self.Item})");
+				case Hash256 self:
+					return sb.Append($"hash256({self.Item})");
+				case Ripemd160 self:
+					return sb.Append($"ripemd160({self.Item})");
+				case Hash160 self:
+					return sb.Append($"hash160({self.Item})");
+				case AndV self:
+					if (!self.Item2.Node.Equals(True))
+					{
+						sb.Append("and_v(");
+						self.Item1.Node.ToStringCore(sb);
+						sb.Append(",");
+						self.Item2.Node.ToStringCore(sb);
+						sb.Append(")");
+					}
+					return sb;
+				case AndB self:
+					sb.Append("and_b(");
+					self.Item1.Node.ToStringCore(sb);
+					sb.Append(",");
+					self.Item2.Node.ToStringCore(sb);
+					return sb.Append(")");
+				case AndOr self:
+					if (self.Item3.Node == False)
+					{
+						sb.Append("and_n(");
+						self.Item1.Node.ToStringCore(sb);
+						sb.Append(",");
+						self.Item2.Node.ToStringCore(sb);
+						return sb.Append(")");
+					}
+
+					sb.Append("andor(");
+					self.Item1.Node.ToStringCore(sb);
+					sb.Append(",");
+					self.Item2.Node.ToStringCore(sb);
+					sb.Append(",");
+					self.Item3.Node.ToStringCore(sb);
+					return sb.Append(")");
+				case OrB self:
+					sb.Append("or_b(");
+					self.Item1.Node.ToStringCore(sb);
+					sb.Append(",");
+					self.Item2.Node.ToStringCore(sb);
+					return sb.Append(")");
+				case OrD self:
+					sb.Append("or_d(");
+					self.Item1.Node.ToStringCore(sb);
+					sb.Append(",");
+					self.Item2.Node.ToStringCore(sb);
+					return sb.Append(")");
+				case OrC self:
+					sb.Append("or_c(");
+					self.Item1.Node.ToStringCore(sb);
+					sb.Append(",");
+					self.Item2.Node.ToStringCore(sb);
+					return sb.Append(")");
+				case OrI self:
+					if (self.Item1.Node != False && self.Item2.Node != False)
+					{
+						sb.Append("or_i(");
+						self.Item1.Node.ToStringCore(sb);
+						sb.Append(",");
+						self.Item2.Node.ToStringCore(sb);
+						sb.Append(")");
+					}
+					return sb;
+				case Thresh self:
+					sb.Append("thresh(");
+					sb.Append(self.Item1);
+					foreach (var sub in self.Item2)
+					{
+						sb.Append(",");
+						sub.Node.ToStringCore(sb);
+					}
+					return sb.Append(")");
+				case ThreshM self:
+					sb.Append("thresh_m(");
+					sb.Append(self.Item1);
+					foreach (var key in self.Item2)
+					{
+						sb.Append(",");
+						sb.Append(key.ToHex());
+					}
+					return sb.Append(")");
+			}
+			var t = WrapChar();
+			if (t is null)
+				throw new Exception("Unreachable!");
+			sb.Append(t.Item1);
+			if (t.Item2.Node.WrapChar() is null)
+				sb.Append(':');
+			return t.Item2.Node.ToStringCore(sb);
+		}
+
+		public string ToDebugString() =>
+			ToDebugStringCore(new StringBuilder()).ToString();
+
+		private StringBuilder ToDebugStringCore(StringBuilder sb)
+		{
+			sb.Append("[");
+			try
+			{
+				var typeMap = Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(this);
+				sb.Append(typeMap.Correctness.Base);
+				sb.Append(typeMap.Correctness.Input.DebugPrint());
+				if (typeMap.Correctness.DisSatisfiable)
+					sb.Append('d');
+				if (typeMap.Correctness.Unit)
+					sb.Append('u');
+				sb.Append(typeMap.Malleability.Dissat.DebugPrint());
+				if (typeMap.Malleability.Safe)
+					sb.Append('s');
+				if (typeMap.Malleability.NonMalleable)
+					sb.Append('m');
+			}
+			catch (FragmentPropertyException)
+			{
+				sb.Append("TYPECHECK FAILED");
+			}
+			sb.Append("]");
+
+			var t = WrapChar();
+			if (!(t is null))
+			{
+				sb.Append(t.Item1);
+				var sub = t.Item2;
+				if (sub.Node.WrapChar() is null)
+					sb.Append(":");
+				return sub.Node.ToDebugStringCore(sb);
+			}
+
+			switch (Tag)
+			{
+				case Tags.True : return sb.Append("1");
+				case Tags.False : return sb.Append("0");
+			}
+
+			switch (this)
+			{
+				case Pk self:
+					return sb.Append($"pk({self.Item})");
+				case PkH self:
+					return sb.Append($"pk_h({self.Item})");
+				case After self:
+					return sb.Append($"after({self.Item})");
+				case Older self:
+					return sb.Append($"older({self.Item})");
+				case Sha256 self:
+					return sb.Append($"sha256({self.Item})");
+				case Hash256 self:
+					return sb.Append($"hash256({self.Item})");
+				case Ripemd160 self:
+					return sb.Append($"ripemd160({self.Item})");
+				case Hash160 self:
+					return sb.Append($"hash160({self.Item})");
+				case AndV self:
+					sb.Append("and_v(");
+					self.Item1.Node.ToDebugStringCore(sb);
+					sb.Append(",");
+					self.Item2.Node.ToDebugStringCore(sb);
+					return sb.Append(")");
+				case AndB self:
+					sb.Append("and_b(");
+					self.Item1.Node.ToDebugStringCore(sb);
+					sb.Append(",");
+					self.Item2.Node.ToDebugStringCore(sb);
+					return sb.Append(")");
+				case AndOr self:
+					if (self.Item3.Node == False)
+					{
+						sb.Append("and_n(");
+						self.Item1.Node.ToDebugStringCore(sb);
+						sb.Append(",");
+						self.Item2.Node.ToDebugStringCore(sb);
+						return sb.Append(")");
+					}
+
+					sb.Append("andor(");
+					self.Item1.Node.ToDebugStringCore(sb);
+					sb.Append(",");
+					self.Item2.Node.ToDebugStringCore(sb);
+					sb.Append(",");
+					self.Item3.Node.ToDebugStringCore(sb);
+					return sb.Append(")");
+				case OrB self:
+					sb.Append("or_b(");
+					self.Item1.Node.ToDebugStringCore(sb);
+					sb.Append(",");
+					self.Item2.Node.ToDebugStringCore(sb);
+					return sb.Append(")");
+				case OrD self:
+					sb.Append("or_d(");
+					self.Item1.Node.ToDebugStringCore(sb);
+					sb.Append(",");
+					self.Item2.Node.ToDebugStringCore(sb);
+					return sb.Append(")");
+				case OrC self:
+					sb.Append("or_c(");
+					self.Item1.Node.ToDebugStringCore(sb);
+					sb.Append(",");
+					self.Item2.Node.ToDebugStringCore(sb);
+					return sb.Append(")");
+				case OrI self:
+					if (self.Item1.Node != False && self.Item2.Node != False)
+					{
+						sb.Append("or_i(");
+						self.Item1.Node.ToDebugStringCore(sb);
+						sb.Append(",");
+						self.Item2.Node.ToDebugStringCore(sb);
+						sb.Append(")");
+					}
+					return sb;
+				case Thresh self:
+					sb.Append("thresh(");
+					sb.Append(self.Item1);
+					foreach (var sub in self.Item2)
+					{
+						sb.Append(",");
+						sub.Node.ToDebugStringCore(sb);
+					}
+					return sb.Append(")");
+				case ThreshM self:
+					sb.Append("thresh_m(");
+					sb.Append(self.Item1);
+					foreach (var key in self.Item2)
+					{
+						sb.Append(",");
+						sb.Append(key.ToHex());
+					}
+					return sb.Append(")");
+			}
+
+			throw new Exception("Unreachable!");
+		}
+	}
 }

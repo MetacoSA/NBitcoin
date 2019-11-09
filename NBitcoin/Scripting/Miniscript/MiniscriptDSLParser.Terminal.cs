@@ -21,8 +21,12 @@ namespace NBitcoin.Scripting.Miniscript
 			select Terminal<TPk, TPKh>.NewPkH(pkH);
 
 		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalTrue =
-			from _t in Parse.Char('0').Token()
+			from _t in Parse.Char('1').Token()
 			select Terminal<TPk, TPKh>.NewTrue();
+
+		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalFalse =
+			from _t in Parse.Char('0').Token()
+			select Terminal<TPk, TPKh>.NewFalse();
 
 		private static readonly Parser<char, Terminal<TPk, TPKh>> PTerminalAfter =
 			from t in ExprP("after").Then(s => TryConvert(s, UInt32.Parse))
@@ -53,13 +57,15 @@ namespace NBitcoin.Scripting.Miniscript
 		private static Parser<char, Terminal<TPk, TPKh>> PWrapper(char identifier,
 			Func<Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> construct)
 			=>
-				(from _t in Parse.Char(identifier).Then(_ => Parse.Char(':'))
-				from inner in Parse.Ref(PNonWrappers)
-				select construct(Miniscript<TPk, TPKh>.FromAst(inner)))
-				.Or(
+				(
 					from _t in Parse.Char(identifier)
 					from x in Parse.Ref(() => PWrappers).Except(PWrapper(identifier, construct))
 					select x
+				)
+				.Or(
+					from _t in Parse.Char(identifier).Then(_ => Parse.Char(':'))
+					from inner in Parse.Ref(PNonWrappers)
+					select construct(Miniscript<TPk, TPKh>.FromAst(inner))
 					);
 
 		private static Parser<char, Terminal<TPk, TPKh>> PBinary(
@@ -111,6 +117,8 @@ namespace NBitcoin.Scripting.Miniscript
 				.Or(PTerminalHash256)
 				.Or(PTerminalRipemd160)
 				.Or(PTerminalHash160)
+				.Or(PTerminalTrue)
+				.Or(PTerminalFalse)
 				// ------- Conjunctions -----
 				.Or(PBinary("and_v", Terminal<TPk, TPKh>.NewAndV))
 				.Or(PBinary("and_b", Terminal<TPk, TPKh>.NewAndB))
