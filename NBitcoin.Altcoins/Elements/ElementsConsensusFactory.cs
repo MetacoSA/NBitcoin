@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
-using System.Text;
 using NBitcoin.Policy;
 
 namespace NBitcoin.Altcoins.Elements
@@ -10,7 +8,6 @@ namespace NBitcoin.Altcoins.Elements
 	public class ElementsConsensusFactory<TNetwork> : ConsensusFactory
 	{
 		public static ElementsConsensusFactory<TNetwork> Instance { get; } = new ElementsConsensusFactory<TNetwork>();
-
 		public override bool TryCreateNew(Type type, out IBitcoinSerializable result)
 		{
 			if (typeof(TxIn).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
@@ -27,11 +24,11 @@ namespace NBitcoin.Altcoins.Elements
 		}
 		public override BlockHeader CreateBlockHeader()
 		{
-			return new ElementsBlockHeader();
+			return new ElementsBlockHeader<TNetwork>();
 		}
 		public override Block CreateBlock()
 		{
-			return new ElementsBlock(new ElementsBlockHeader(), this);
+			return new ElementsBlock<TNetwork>((ElementsBlockHeader<TNetwork>) CreateBlockHeader());
 		}
 
 		public override Transaction CreateTransaction()

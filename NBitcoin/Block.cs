@@ -207,7 +207,7 @@ namespace NBitcoin
 			nNonce = 0;
 		}
 
-		public bool IsNull
+		public virtual bool IsNull
 		{
 			get
 			{

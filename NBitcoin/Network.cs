@@ -77,7 +77,8 @@ namespace NBitcoin
 	public enum Bech32Type
 	{
 		WITNESS_PUBKEY_ADDRESS,
-		WITNESS_SCRIPT_ADDRESS
+		WITNESS_SCRIPT_ADDRESS,
+		BLINDED_ADDRESS
 	}
 
 	public partial class Network
@@ -2071,11 +2072,20 @@ namespace NBitcoin
 			{
 				network.base58Prefixes[(int)kv.Key] = kv.Value;
 			}
-			network.bech32Encoders = Network.Main.bech32Encoders.ToArray();
+			var bech32Encoders = Network.Main.bech32Encoders.ToList();
 			foreach (var kv in builder._Bech32Prefixes)
 			{
-				network.bech32Encoders[(int)kv.Key] = kv.Value;
+				var index = (int) kv.Key;
+				if (index < bech32Encoders.Count)
+				{
+					bech32Encoders[index] = kv.Value;
+				}
+				else
+				{
+					bech32Encoders.Add(kv.Value);
+				}
 			}
+			network.bech32Encoders = bech32Encoders.ToArray();
 			lock (_OtherAliases)
 			{
 				foreach (var alias in builder._Aliases)
@@ -2166,7 +2176,7 @@ namespace NBitcoin
 			for (int i = 0; i < pnSeed6_main.Length; i++)
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
-				// it'll get a pile of addresses with newer timestamps.				
+				// it'll get a pile of addresses with newer timestamps.
 				NetworkAddress addr = new NetworkAddress();
 				// Seed nodes are given a random 'last seen time' of between one and two
 				// weeks ago.
@@ -2242,7 +2252,7 @@ namespace NBitcoin
 			for (int i = 0; i < pnSeed6_test.Length; i++)
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
-				// it'll get a pile of addresses with newer timestamps.				
+				// it'll get a pile of addresses with newer timestamps.
 				NetworkAddress addr = new NetworkAddress();
 				// Seed nodes are given a random 'last seen time' of between one and two
 				// weeks ago.

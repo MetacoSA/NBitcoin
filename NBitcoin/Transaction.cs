@@ -1086,7 +1086,16 @@ namespace NBitcoin
 			_Pushes = pushes.ToArray();
 		}
 
-
+		public void WriteToStream(BitcoinStream stream)
+		{
+			var pushCount = Convert.ToUInt32(_Pushes.Length);
+			stream.ReadWriteAsVarInt(ref pushCount);
+			foreach (var push in _Pushes)
+			{
+				var bytes = push;
+				stream.ReadWriteAsVarString(ref bytes);
+			}
+		}
 		public static WitScript Load(BitcoinStream stream)
 		{
 			WitScript script = new WitScript();

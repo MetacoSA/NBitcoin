@@ -113,6 +113,33 @@ namespace NBitcoin.Tests
 				},
 				UseSectionInConfigFile = true
 			};
+
+			public NodeDownloadData v0_18_1 = new NodeDownloadData()
+			{
+				Version = "0.18.1",
+				Linux = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "600d1db5e751fa85903e935a01a74f5cc57e1e7473c15fd3e17ed21e202cfe5a"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-osx64.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "b7bbcee7a7540f711b171d6981f939ca8482005fde22689bc016596d80548bb1"
+				},
+				Windows = new NodeOSDownloadData()
+				{
+					Executable = "bitcoin-{0}/bin/bitcoind.exe",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win64.zip",
+					Archive = "bitcoin-{0}-win64.zip",
+					Hash = "b0f94ab43c068bac9c10a59cb3f1b595817256a00b84f0b724f8504b44e1314f"
+				},
+				UseSectionInConfigFile = true
+			};
 		}
 
 		public class LitecoinNodeDownloadData
@@ -732,20 +759,20 @@ namespace NBitcoin.Tests
 				AdditionalRegtestConfig = "initialfreecoins=210000000000000"
 			};
 
-			public NodeDownloadData v0_17_0_1 = new NodeDownloadData()
+			public NodeDownloadData v0_18_1_1 = new NodeDownloadData()
 			{
-				Version = "0.17.0.1",
+				Version = "0.18.1.1",
 				Windows = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://github.com/ElementsProject/elements/releases/download/elements-{0}/elements-{0}-win64.zip",
 					Archive = "elements-{0}-win64.zip",
-					Executable = "elements-0.17.0/bin/elementsd.exe",
-					Hash = "e1dd04716d23e214b697ee33f2a77c803ae7e93ed93f2db68462a8c278361a24"
+					Executable = "elements-0.18.1.1/bin/elementsd.exe",
+					Hash = "f6ca18e3f4fe4fb4aadb70b7b447466afb68eec11d9cd5e2cac613414a28a1a5"
 				},
 				RegtestFolderName = "elementsregtest",
 				Chain = "elementsregtest",
-				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0",
-				UseSectionInConfigFile = true
+				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0\n\ncon_dyna_deploy_start=99999999999999999",
+				UseSectionInConfigFile = true,
 			};
 
 		}

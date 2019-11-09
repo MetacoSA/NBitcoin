@@ -168,7 +168,7 @@ namespace NBitcoin.DataEncoders
 		  452, 710, 552, 128, 612, 600, 275, 322, 193
 		};
 
-		private static readonly byte[] Byteset = Encoders.ASCII.DecodeData("qpzry9x8gf2tvdw0s3jn54khce6mua7l");
+		protected readonly byte[] Byteset = Encoders.ASCII.DecodeData("qpzry9x8gf2tvdw0s3jn54khce6mua7l");
 		private static readonly uint[] Generator = { 0x3b6a57b2U, 0x26508e6dU, 0x1ea119faU, 0x3d4233ddU, 0x2a1462b3U };
 
 
@@ -279,8 +279,8 @@ namespace NBitcoin.DataEncoders
 			}
 		}
 
-		private readonly byte[] _HrpExpand;
-		private readonly byte[] _Hrp;
+		protected readonly byte[] _HrpExpand;
+		protected readonly byte[] _Hrp;
 		public byte[] HumanReadablePart
 		{
 			get
@@ -304,7 +304,7 @@ namespace NBitcoin.DataEncoders
 			return chk;
 		}
 
-		bool VerifyChecksum(byte[] data, int bechStringLen, out int[] errorPosition)
+		protected virtual bool VerifyChecksum(byte[] data, int bechStringLen, out int[] errorPosition)
 		{
 			errorPosition = null;
 			var values = _HrpExpand.Concat(data);
@@ -370,7 +370,7 @@ namespace NBitcoin.DataEncoders
 			return Encoders.Bech32(test.Substring(0, i));
 		}
 
-		internal static void CheckCase(string hrp)
+		protected virtual void CheckCase(string hrp)
 		{
 			if (hrp.ToLowerInvariant().Equals(hrp))
 				return;
@@ -382,7 +382,7 @@ namespace NBitcoin.DataEncoders
 		{
 			throw new NotSupportedException();
 		}
-		byte[] DecodeDataCore(string encoded)
+		protected virtual byte[] DecodeDataCore(string encoded)
 		{
 			if (encoded == null)
 				throw new ArgumentNullException(nameof(encoded));
@@ -427,7 +427,7 @@ namespace NBitcoin.DataEncoders
 			return data.Take(data.Length - 6).ToArray();
 		}
 
-		private static byte[] ConvertBits(IEnumerable<byte> data, int fromBits, int toBits, bool pad = true)
+		protected virtual byte[] ConvertBits(IEnumerable<byte> data, int fromBits, int toBits, bool pad = true)
 		{
 			var acc = 0;
 			var bits = 0;
@@ -459,7 +459,7 @@ namespace NBitcoin.DataEncoders
 			return ret.ToArray();
 		}
 
-		public byte[] Decode(string addr, out byte witnessVerion)
+		public virtual byte[] Decode(string addr, out byte witnessVerion)
 		{
 			if (addr == null)
 				throw new ArgumentNullException(nameof(addr));

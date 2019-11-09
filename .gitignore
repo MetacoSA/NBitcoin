@@ -192,3 +192,4 @@ project.lock.json
 /dotnet-tpl35/
 /dotnet-tpl35
 /NBitcoin.Bench/BenchmarkDotNet.Artifacts
+.idea

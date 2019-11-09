@@ -1,16 +1,8 @@
 ﻿using NBitcoin.BouncyCastle.Crypto.Digests;
 using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using NBitcoin.Logging;
 
 namespace NBitcoin.Altcoins.Elements
 {
@@ -241,11 +233,6 @@ namespace NBitcoin.Altcoins.Elements
 
 	public class ElementsTxIn<TNetwork> : ElementsTxIn
 	{
-		public ElementsTxIn()
-		{
-
-		}
-
 		public override ConsensusFactory GetConsensusFactory()
 		{
 			return ElementsConsensusFactory<TNetwork>.Instance;
@@ -564,6 +551,7 @@ namespace NBitcoin.Altcoins.Elements
 			_Asset = new ConfidentialAsset<TNetwork>();
 		}
 		ConfidentialAsset<TNetwork> _Asset;
+
 		public new ConfidentialAsset<TNetwork> Asset
 		{
 			get
@@ -586,12 +574,17 @@ namespace NBitcoin.Altcoins.Elements
 			stream.ReadWrite(ref publicKey);
 		}
 
-		public override TxOut Clone()
+
+		public new static TxOut Parse(string hex)
 		{
-			var txOut = (ElementsTxOut<TNetwork>)base.Clone();
-			txOut.SurjectionProof = SurjectionProof;
-			txOut.RangeProof = RangeProof;
-			return txOut;
+			var ret = new ElementsTxOut<TNetwork>();
+			ret.FromBytes(NBitcoin.DataEncoders.Encoders.Hex.DecodeData(hex));
+			return ret;
+		}
+
+		public override ConsensusFactory GetConsensusFactory()
+		{
+			return ElementsConsensusFactory<TNetwork>.Instance;
 		}
 
 		protected override ConfidentialAsset GetAssetCore()
@@ -643,13 +636,18 @@ namespace NBitcoin.Altcoins.Elements
 
 		public override void ReadWrite(BitcoinStream stream)
 		{
-			var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
+			var fAllowWitness = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
 								stream.ProtocolCapabilities.SupportWitness;
 
-			byte flags = (byte)(this.HasWitness && witSupported ? 1 : 0);
+			byte flags = 0;
+			if (fAllowWitness && HasWitness)
+			{
+				flags |= 1;
+			}
 			stream.ReadWrite(ref nVersion);
 			stream.ReadWrite(ref flags);
 			stream.ReadWrite<TxInList, TxIn>(ref vin);
+
 			vin.Transaction = this;
 			stream.ReadWrite<TxOutList, TxOut>(ref vout);
 			vout.Transaction = this;

@@ -26,42 +26,45 @@ namespace NBitcoin.RPC
 
 		public static GetAddressInfoResponse FromJsonResponse(JObject raw, Network network)
 		{
-			var result = new GetAddressInfoResponse();
-			SetSubInfo(result, raw, network);
-			result.IsMine = raw.Property("ismine").Value.Value<bool>();
-			result.Solvable = raw.Property("solvable")?.Value.Value<bool>();
-			result.Desc = raw.Property("desc") == null ? null : new ScanTxoutDescriptor(raw.Property("desc").Value.Value<string>());
-			result.IsWatchOnly = raw.Property("iswatchonly").Value.Value<bool>();
-			result.IsScript = raw.Property("isscript").Value.Value<bool>();
-			result.IsWitness = raw.Property("iswitness").Value.Value<bool>();
-			result.Script = raw.Property("script")?.Value.Value<string>();
-			result.Hex = raw.Property("hex")?.Value.Value<string>();
+			return new GetAddressInfoResponse().LoadFromJson(raw, network);
+		}
+		public virtual GetAddressInfoResponse LoadFromJson(JObject raw, Network network)
+		{
+			SetSubInfo(this, raw, network);
+			IsMine = raw.Property("ismine").Value.Value<bool>();
+			Solvable = raw.Property("solvable")?.Value.Value<bool>();
+			Desc = raw.Property("desc") == null ? null : new ScanTxoutDescriptor(raw.Property("desc").Value.Value<string>());
+			IsWatchOnly = raw.Property("iswatchonly").Value.Value<bool>();
+			IsScript = raw.Property("isscript").Value.Value<bool>();
+			IsWitness = raw.Property("iswitness").Value.Value<bool>();
+			Script = raw.Property("script")?.Value.Value<string>();
+			Hex = raw.Property("hex")?.Value.Value<string>();
 			var jEmbedded = raw.Property("embedded");
 			if (jEmbedded != null)
 			{
 				var j = jEmbedded.Value.Value<JObject>();
 				var e = new GetAddressInfoScriptInfoResponse();
 				SetSubInfo(e, j, network);
-				result.Embedded = e;
+				Embedded = e;
 			}
-			result.IsCompressed = raw.Property("iscompressed")?.Value.Value<bool>();
-			result.Label = raw.Property("label").Value.Value<string>();
-			result.IsChange = raw.Property("ischange")?.Value.Value<bool>();
-			result.Timestamp = raw.Property("timestamp") == null ? (DateTimeOffset?)null : Utils.UnixTimeToDateTime(raw.Property("timestamp").Value.Value<ulong>());
-			result.HDKeyPath = raw.Property("hdkeypath") == null ? null : KeyPath.Parse(raw.Property("hdkeypath").Value.Value<string>());
-			result.HDSeedID = raw.Property("hdseedid") == null ? null : uint160.Parse(raw.Property("hdseedid").Value.Value<string>());
-			result.HDMasterKeyID = raw.Property("hdmasterkeyid") == null ? null : uint160.Parse(raw.Property("hdmasterkeyid").Value.Value<string>());
+			IsCompressed = raw.Property("iscompressed")?.Value.Value<bool>();
+			Label = raw.Property("label").Value.Value<string>();
+			IsChange = raw.Property("ischange")?.Value.Value<bool>();
+			Timestamp = raw.Property("timestamp") == null ? (DateTimeOffset?)null : Utils.UnixTimeToDateTime(raw.Property("timestamp").Value.Value<ulong>());
+			HDKeyPath = raw.Property("hdkeypath") == null ? null : KeyPath.Parse(raw.Property("hdkeypath").Value.Value<string>());
+			HDSeedID = raw.Property("hdseedid") == null ? null : uint160.Parse(raw.Property("hdseedid").Value.Value<string>());
+			HDMasterKeyID = raw.Property("hdmasterkeyid") == null ? null : uint160.Parse(raw.Property("hdmasterkeyid").Value.Value<string>());
 			var jlabels = raw.Property("labels");
 			if (jlabels != null)
 			{
 				var labelObjects = jlabels.Value.Value<JArray>();
 				foreach (var jObj in labelObjects)
 				{
-					result.Labels.Add(((JObject)jObj).ToObject<Dictionary<string, string>>());
+					Labels.Add(((JObject)jObj).ToObject<Dictionary<string, string>>());
 				}
 			}
 
-			return result;
+			return this;
 		}
 
 		private static void SetSubInfo(GetAddressInfoScriptInfoResponse target, JObject raw, Network network)
