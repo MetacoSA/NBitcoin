@@ -258,10 +258,10 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 
 		#endregion
 
-		public static AbstractPolicy<TPk, TPKh> FromTree<T>(Tree<T> top)
+		public static AbstractPolicy<TPk, TPKh> FromTree(Tree top)
 		{
 			var n = top.Name;
-			var l = top.Args.Length;
+			var l = top.Args.Count;
 			if (n == "UNSATISFIABLE" && l == 0)
 				return AbstractPolicy<TPk, TPKh>.UnSatisfiable;
 			if (n == "TRIVIAL" && l == 0)

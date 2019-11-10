@@ -457,7 +457,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			return MiniscriptDSLParser<TPk, TPKh>.ParseConcretePolicy(str);
 		}
 
-		private static Tuple<uint, ConcretePolicy<TPk, TPKh>> FromTreeProb<T>(Tree<T> top, bool allowProb)
+		private static Tuple<uint, ConcretePolicy<TPk, TPKh>> FromTreeProb<T>(Tree top, bool allowProb)
 		{
 			int fragProb = default;
 			string fragName = default;
