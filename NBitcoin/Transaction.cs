@@ -1297,7 +1297,7 @@ namespace NBitcoin
 		protected TxOutList vout;
 		protected LockTime nLockTime;
 
-		internal Transaction()
+		protected internal Transaction()
 		{
 			vin = new TxInList(this);
 			vout = new TxOutList(this);
