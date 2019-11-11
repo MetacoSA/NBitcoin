@@ -225,7 +225,7 @@ namespace NBitcoin.Tests
 		/// This test check if we can scan RPC capabilities
 		/// </summary>
 		[Fact]
-		public async Task DoesRPCCapabilitiesWellAdvertised()
+		public void DoesRPCCapabilitiesWellAdvertised()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{

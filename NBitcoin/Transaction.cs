@@ -588,7 +588,7 @@ namespace NBitcoin
 		#endregion
 	}
 
-	public class TxOut : IBitcoinSerializable, IDestination
+	public class TxOut : IBitcoinSerializable
 	{
 		protected Script publicKey = Script.Empty;
 		public Script ScriptPubKey
