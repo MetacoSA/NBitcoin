@@ -418,7 +418,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			{
 				opsCountSatVec.Sort();
 				opsCountSatVec.Reverse();
-				Func<ulong?, double> summer = v => v ?? 0UL;
+				Func<ulong?, double> summer = v => v.Value;
 				sum = (ulong)opsCountSatVec.Skip(remainingSat).Sum(summer);
 			}
 			return new ExtData(
@@ -426,7 +426,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				pkCost + (ulong)n - 1UL,
 				true,
 				opsCountStatic + ((ulong)n - 1UL) + 1UL,
-				opsCountSat + ((ulong)n - 1UL) + (sum + opsCountNSatSum),
+				opsCountSat + ((ulong)n - 1UL) + 1UL + (sum + opsCountNSatSum),
 				opsCountNSat + ((ulong)n - 1UL) + 1UL
 				);
 		}
