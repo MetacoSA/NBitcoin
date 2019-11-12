@@ -581,16 +581,11 @@ namespace NBitcoin
 		#endregion
 
 		public uint160 ToPubKeyHash()
-		{
-			throw new NotImplementedException();
-		}
-
+			=> new uint160(Hash._DestBytes);
 		public PubKey ToPublicKey() => this;
 
 		public int SerializedLength() =>
 			this.ToBytes().Length;
 
-		public uint160 HashToHash160(KeyId keyId) =>
-			new uint160(keyId._DestBytes);
 	}
 }

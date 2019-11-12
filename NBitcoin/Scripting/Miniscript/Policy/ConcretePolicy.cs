@@ -283,110 +283,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 
 		#endregion
 
-		/// <summary>
-		/// This returns whether the given policy is valid or not. It maybe possible that the policy
-		/// contains Non-two argument `and`, `or` a `0` arg thresh.
-		/// </summary>
-		/// <returns></returns>
-		/// <exception cref="PolicyException"></exception>
-		public bool IsValid()
-		{
-			switch (this)
-			{
-				case And self:
-					if (self.Item.Count != 2)
-						throw PolicyException.NonBinaryArgAnd;
-					return self.Item.All(sub => sub.IsValid());
-				case Or self:
-					if (self.Item.Count != 2)
-						throw PolicyException.IncorrectThresh;
-					return self.Item.All(sub => sub.Item2.IsValid());
-				case Threshold self:
-					if (self.Item1 <= 0 || self.Item1 > self.Item2.Count)
-						throw PolicyException.IncorrectThresh;
-					return self.Item2.All(sub => sub.IsValid());
-				case After self:
-					if (self.Item == 0)
-						throw PolicyException.ZeroTime;
-					else if (self.Item > Math.Pow(2u, 31))
-						throw PolicyException.TimeTooFar;
-					return true;
-				case Older self:
-					if (self.Item == 0)
-						throw PolicyException.ZeroTime;
-					else if (self.Item > Math.Pow(2u, 31))
-						throw PolicyException.TimeTooFar;
-					return true;
-
-			}
-
-			return true;
-		}
-
-		/// <summary>
-		/// This returns whether any possible compilation of the policy could be
-		/// compiled as non-malleable and safe. Note that this returns a tuple
-		/// (safe, non-malleable) to avoid because the non-malleability depends on
-		/// safety and we would like to cache results
-		/// </summary>
-		/// <returns></returns>
-		public Tuple<bool, bool> IsSafeNonMalleable()
-		{
-			switch (this)
-			{
-				case Key _ : return Tuple.Create(true, true);
-				case Sha256 _:
-				case Hash256 _:
-				case Ripemd160 _:
-				case Hash160 _:
-				case After _:
-				case Older _:
-					return Tuple.Create(false, true);
-				case Threshold self:
-					var res =
-						self.Item2
-							.Select((sub) => sub.IsSafeNonMalleable())
-							.Aggregate(Tuple.Create(0, 0), (acc, sub) =>
-							{
-								var safeCount = acc.Item1 + (sub.Item1 ? 1: 0);
-								var nonMallCount = acc.Item2 + (sub.Item2 ? 1 : 0);
-								return Tuple.Create(safeCount, nonMallCount);
-							});
-					var hasEnoughSafeSubs = (res.Item1 >= (self.Item2.Count - self.Item1 + 1));
-					var hasEnoughNonMallCount = (res.Item2 == self.Item2.Count && res.Item2 >= (self.Item2.Count - self.Item1));
-					return Tuple.Create(hasEnoughSafeSubs, hasEnoughNonMallCount);
-				case And self:
-					return
-						self.Item
-							.Select(sub => sub.IsSafeNonMalleable())
-							.Aggregate(
-								Tuple.Create(false, true),
-								(acc, x) =>
-								{
-									var l = acc.Item1 || x.Item1; // true if it has at least one safe sub.
-									var r = acc.Item2 && x.Item2; // true if all subs are non malleable
-									return Tuple.Create(l, r);
-								});
-				case Or self:
-					var resOr =
-						self.Item
-							.Select(sub => sub.Item2.IsSafeNonMalleable())
-							.Aggregate(
-								Tuple.Create(true, false, true),
-								(acc, x) =>
-								{
-									var one = acc.Item1 && x.Item1; // all subs are safe
-									var two = acc.Item2 || x.Item1; // at least one is safe
-									var three = acc.Item3 && x.Item2; // all non malleable
-									return Tuple.Create(one, two, three);
-								}
-							);
-					return Tuple.Create(resOr.Item1, resOr.Item2 && resOr.Item3);
-
-			}
-			throw new Exception("Unreachable!");
-		}
-
+		# region to/from string
 		public override string ToString() =>
 			ToStringCore(new StringBuilder()).ToString();
 
@@ -548,6 +445,122 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			if (res is null)
 				throw new ParsingException($"Unexpected {top.Name}");
 			return Tuple.Create(fragProb, res);
+		}
+		# endregion
+
+		/// <summary>
+		/// This returns whether the given policy is valid or not. It maybe possible that the policy
+		/// contains Non-two argument `and`, `or` a `0` arg thresh.
+		/// </summary>
+		/// <returns></returns>
+		/// <exception cref="PolicyException"></exception>
+		public bool AssertValid()
+		{
+			switch (this)
+			{
+				case And self:
+					if (self.Item.Count != 2)
+						throw PolicyException.NonBinaryArgAnd;
+					return self.Item.All(sub => sub.AssertValid());
+				case Or self:
+					if (self.Item.Count != 2)
+						throw PolicyException.IncorrectThresh;
+					return self.Item.All(sub => sub.Item2.AssertValid());
+				case Threshold self:
+					if (self.Item1 <= 0 || self.Item1 > self.Item2.Count)
+						throw PolicyException.IncorrectThresh;
+					return self.Item2.All(sub => sub.AssertValid());
+				case After self:
+					if (self.Item == 0)
+						throw PolicyException.ZeroTime;
+					else if (self.Item > Math.Pow(2u, 31))
+						throw PolicyException.TimeTooFar;
+					return true;
+				case Older self:
+					if (self.Item == 0)
+						throw PolicyException.ZeroTime;
+					else if (self.Item > Math.Pow(2u, 31))
+						throw PolicyException.TimeTooFar;
+					return true;
+
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		/// This returns whether any possible compilation of the policy could be
+		/// compiled as non-malleable and safe. Note that this returns a tuple
+		/// (safe, non-malleable) to avoid because the non-malleability depends on
+		/// safety and we would like to cache results
+		/// </summary>
+		/// <returns></returns>
+		public Tuple<bool, bool> IsSafeNonMalleable()
+		{
+			switch (this)
+			{
+				case Key _ : return Tuple.Create(true, true);
+				case Sha256 _:
+				case Hash256 _:
+				case Ripemd160 _:
+				case Hash160 _:
+				case After _:
+				case Older _:
+					return Tuple.Create(false, true);
+				case Threshold self:
+					var res =
+						self.Item2
+							.Select((sub) => sub.IsSafeNonMalleable())
+							.Aggregate(Tuple.Create(0, 0), (acc, sub) =>
+							{
+								var safeCount = acc.Item1 + (sub.Item1 ? 1: 0);
+								var nonMallCount = acc.Item2 + (sub.Item2 ? 1 : 0);
+								return Tuple.Create(safeCount, nonMallCount);
+							});
+					var hasEnoughSafeSubs = (res.Item1 >= (self.Item2.Count - self.Item1 + 1));
+					var hasEnoughNonMallCount = (res.Item2 == self.Item2.Count && res.Item2 >= (self.Item2.Count - self.Item1));
+					return Tuple.Create(hasEnoughSafeSubs, hasEnoughNonMallCount);
+				case And self:
+					return
+						self.Item
+							.Select(sub => sub.IsSafeNonMalleable())
+							.Aggregate(
+								Tuple.Create(false, true),
+								(acc, x) =>
+								{
+									var l = acc.Item1 || x.Item1; // true if it has at least one safe sub.
+									var r = acc.Item2 && x.Item2; // true if all subs are non malleable
+									return Tuple.Create(l, r);
+								});
+				case Or self:
+					var resOr =
+						self.Item
+							.Select(sub => sub.Item2.IsSafeNonMalleable())
+							.Aggregate(
+								Tuple.Create(true, false, true),
+								(acc, x) =>
+								{
+									var one = acc.Item1 && x.Item1; // all subs are safe
+									var two = acc.Item2 || x.Item1; // at least one is safe
+									var three = acc.Item3 && x.Item2; // all non malleable
+									return Tuple.Create(one, two, three);
+								}
+							);
+					return Tuple.Create(resOr.Item1, resOr.Item2 && resOr.Item3);
+
+			}
+			throw new Exception("Unreachable!");
+		}
+
+		public Miniscript<TPk, TPKh> Compile()
+		{
+			AssertValid();
+			var t = IsSafeNonMalleable();
+			var isSafe = t.Item1;
+			var isNonMalleable = t.Item2;
+			if (!isSafe) throw CompilerException.TopLevelNonSafe;
+			if (!isNonMalleable) throw CompilerException.ImpossibleNonMalleableCompilation;
+			return Compiler<TPk, TPKh>.BestCompilation(this);
 		}
 	}
 }
