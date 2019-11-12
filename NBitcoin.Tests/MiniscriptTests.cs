@@ -27,7 +27,6 @@ namespace NBitcoin.Tests
 		public static TheoryData<string, string, bool, bool, bool, uint, uint> MSAttributeTestCase =>
 			new TheoryData<string, string, bool, bool, bool, uint, uint>
 			{
-				/*
 				{
 					"lltvln:after(1231488000)",
 					"6300676300676300670400046749b1926869516868",
@@ -131,7 +130,6 @@ namespace NBitcoin.Tests
 					"82012088aa208a35d9ca92a48eaade6f53a64985e9e2afeb74dcf8acb4c3721e0dc7e4294b2587640350c300b2696782012088aa20939894f70e6c3a25da75da0cc2071b4076d9b006563cf635986ada2e93c0d735886804ff64cd1db1",
 					true, false, false, 14, 2
 				},
-				*/
 				{
 					"andor(hash256(5f8d30e655a7ba0d7596bb3ddfb1d2d20390d23b1845000e1e118b3be1b3f040),j:and_v(v:hash160(3a2bff0da9d96868e66abc4427bea4691cf61ccd),older(4194305)),ripemd160(44d90e2d3714c8663b632fcf0f9d5f22192cc4c8))",
 					"82012088aa205f8d30e655a7ba0d7596bb3ddfb1d2d20390d23b1845000e1e118b3be1b3f040876482012088a61444d90e2d3714c8663b632fcf0f9d5f22192cc4c8876782926382012088a9143a2bff0da9d96868e66abc4427bea4691cf61ccd8803010040b26868",
@@ -194,20 +192,20 @@ namespace NBitcoin.Tests
 			string msStr, string expectedHex, bool valid, bool nonMalleable,
 			bool needSig, uint ops, uint _stack)
 		{
-			if (valid)
+			Miniscript<PubKey, uint160> ms;
+			Console.WriteLine($"Testing {msStr}");
+			try
 			{
-				Miniscript<PubKey, uint160> ms;
-				Console.WriteLine($"Testing {msStr}");
-				try
-				{
-					ms = Miniscript<PubKey, uint160>.Parse(msStr);
-					Assert.Equal(ms.ToScript().ToHex(), expectedHex);
-					Assert.Equal(ms.Type.Malleability.NonMalleable, nonMalleable);
-					Assert.Equal(ms.Type.Malleability.Safe, needSig);
-					Assert.Equal(ms.Ext.OpsCountSat, ops);
-				}
-				catch (MiniscriptException)
-				{ }
+				ms = Miniscript<PubKey, uint160>.Parse(msStr);
+				Assert.Equal(Script.FromHex(expectedHex), ms.ToScript());
+				Assert.Equal(expectedHex, ms.ToScript().ToHex());
+				Assert.Equal(nonMalleable, ms.Type.Malleability.NonMalleable);
+				Assert.Equal(needSig, ms.Type.Malleability.Safe);
+				Assert.Equal(ops, ms.Ext.OpsCountSat);
+			}
+			catch (ParsingException)
+			{
+				Assert.False(valid);
 			}
 		}
 

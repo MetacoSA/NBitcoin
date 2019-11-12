@@ -84,6 +84,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 					return new T().FromHash256();
 				case Terminal<TPk, TPKh>.Ripemd160 self:
 					return new T().FromRipemd160();
+				case Terminal<TPk, TPKh>.Hash160 self:
+					return new T().FromHash160();
 				case Terminal<TPk, TPKh>.Alt self:
 					return GetChild(self.Item.Node, 0).CastAlt();
 				case Terminal<TPk, TPKh>.Swap self:
@@ -96,6 +98,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 					return GetChild(self.Item.Node, 0).CastVerify();
 				case Terminal<TPk, TPKh>.NonZero self:
 					return GetChild(self.Item.Node, 0).CastNonZero();
+				case Terminal<TPk, TPKh>.ZeroNotEqual self:
+					return GetChild(self.Item.Node, 0).CastZeroNotEqual();
 				case Terminal<TPk, TPKh>.AndB self:
 					var andBL = GetChild(self.Item1.Node, 0);
 					var andBR = GetChild(self.Item2.Node, 1);
@@ -139,7 +143,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 						new T().Threshold((int)self.Item1, self.Item2.Length, (n) =>
 							GetChild(self.Item2[n].Node, (int)n));
 			}
-			throw new Exception("Unreachable!");;
+			throw new Exception($"Unreachable! {fragment}");;
 		}
 	}
 }

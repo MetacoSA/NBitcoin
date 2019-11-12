@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using NBitcoin.Scripting.Miniscript.Types;
+using NBitcoin.Scripting.Parser;
 
 namespace NBitcoin.Scripting.Miniscript
 {
@@ -47,14 +48,19 @@ namespace NBitcoin.Scripting.Miniscript
 		public static Miniscript<TPk, TPKh> Parse(string str)
 		{
 			var inner = Terminal<TPk, TPKh>.FromTree(Tree.Parse(str));
-			var ms = new Miniscript<TPk, TPKh>(
-				Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(inner),
-				inner,
-				Property<ExtData, TPk, TPKh>.TypeCheck(inner)
-				);
-			if (ms.Type.Correctness.Base != Base.B)
-				throw new MiniscriptException.NonTopLevel(ms.Type.Correctness.Base.ToString("G"));
-			return ms;
+			try
+			{
+				var ms = new Miniscript<TPk, TPKh>(
+					Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(inner),
+					inner,
+					Property<ExtData, TPk, TPKh>.TypeCheck(inner)
+					);
+				if (ms.Type.Correctness.Base != Base.B)
+					throw new MiniscriptException.NonTopLevel(ms.Type.Correctness.Base.ToString("G"));
+				return ms;
+			} catch(FragmentPropertyException ex) {
+				throw new ParsingException("Failed to parse miniscript from ast", ex);
+			}
 		}
 
 		public Script ToScript() =>

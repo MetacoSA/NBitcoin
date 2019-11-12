@@ -99,6 +99,7 @@ namespace NBitcoin.Scripting.Miniscript
 		where TPk : class, IMiniscriptKey<TPKh>, new()
 		where TPKh : class, IMiniscriptKeyHash, new()
 	{
+		private static DataEncoders.HexEncoder Hex = new DataEncoders.HexEncoder();
 		# region Subtype definitions
 		internal static class Tags
 		{
@@ -514,7 +515,7 @@ namespace NBitcoin.Scripting.Miniscript
 					return l;
 				case Ripemd160 self:
 					l.Add(OpcodeType.OP_SIZE);
-					l.Add(Op.GetPushOp(20));
+					l.Add(Op.GetPushOp(32));
 					l.Add(OpcodeType.OP_EQUALVERIFY);
 					l.Add(OpcodeType.OP_RIPEMD160);
 					l.Add(Op.GetPushOp(self.Item.ToBytes()));
@@ -522,7 +523,7 @@ namespace NBitcoin.Scripting.Miniscript
 					return l;
 				case Hash160 self:
 					l.Add(OpcodeType.OP_SIZE);
-					l.Add(Op.GetPushOp(20));
+					l.Add(Op.GetPushOp(32));
 					l.Add(OpcodeType.OP_EQUALVERIFY);
 					l.Add(OpcodeType.OP_HASH160);
 					l.Add(Op.GetPushOp(self.Item.ToBytes()));
@@ -591,6 +592,12 @@ namespace NBitcoin.Scripting.Miniscript
 					l.AddRange(self.Item2.Node.ToOpList());
 					l.Add(OpcodeType.OP_ENDIF);
 					return l;
+				case OrC self:
+					l.AddRange(self.Item1.Node.ToOpList());
+					l.Add(OpcodeType.OP_NOTIF);
+					l.AddRange(self.Item2.Node.ToOpList());
+					l.Add(OpcodeType.OP_ENDIF);
+					return l;
 				case OrI self:
 					l.Add(OpcodeType.OP_IF);
 					l.AddRange(self.Item1.Node.ToOpList());
@@ -618,7 +625,7 @@ namespace NBitcoin.Scripting.Miniscript
 					l.Add(OpcodeType.OP_CHECKMULTISIG);
 					return l;
 			}
-			throw new Exception(("Unreachable!"));
+			throw new Exception(($"Unreachable! {this}"));
 		}
 
 		public int ScriptSize()
@@ -1333,19 +1340,19 @@ namespace NBitcoin.Scripting.Miniscript
 					break;
 				case "sha256":
 					if (top.Args.Count == 1)
-						unwrapped = Tree.Terminal(top.Args[0], x => NewSha256(uint256.Parse(x)));
+						unwrapped = Tree.Terminal(top.Args[0], x => NewSha256(new uint256(Hex.DecodeData(x), true)));
 					break;
 				case "hash256":
 					if (top.Args.Count == 1)
-						unwrapped = Tree.Terminal(top.Args[0], x => NewHash256(uint256.Parse(x.ToCharArray().Reverse().ToString())));
+						unwrapped = Tree.Terminal(top.Args[0], x => NewHash256(new uint256(Hex.DecodeData(x), true)));
 					break;
 				case "ripemd160":
 					if (top.Args.Count == 1)
-						unwrapped = Tree.Terminal(top.Args[0], x => NewRipemd160(uint160.Parse(x)));
+						unwrapped = Tree.Terminal(top.Args[0], x => NewRipemd160(new uint160(Hex.DecodeData(x), true)));
 					break;
 				case "hash160":
 					if (top.Args.Count == 1)
-						unwrapped = Tree.Terminal(top.Args[0], x => NewHash160(uint160.Parse(x)));
+						unwrapped = Tree.Terminal(top.Args[0], x => NewHash160(new uint160(Hex.DecodeData(x), true)));
 					break;
 				case "1":
 					if (top.Args.Count == 0)

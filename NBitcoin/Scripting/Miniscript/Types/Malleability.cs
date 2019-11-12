@@ -83,7 +83,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			new Malleability(Dissat.None, false, true);
 
 		public override Malleability FromHash() =>
-			new Malleability(Dissat.None, false, true);
+			new Malleability(Dissat.Unknown, false, true);
 
 		public override Malleability CastAlt() =>
 			this;
