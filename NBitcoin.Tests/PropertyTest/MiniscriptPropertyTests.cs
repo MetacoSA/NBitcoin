@@ -16,7 +16,7 @@ namespace NBitcoin.Tests.PropertyTest
 			Arb.Register<ConcretePolicyGenerator>();
 		}
 
-		[Property(MaxTest = 100)]
+		[Property(MaxTest = 12)]
 		[Trait("UnitTest", "UnitTest")]
 		public void ShouldBidirectionallyConvertConcretePolicyToString(ConcretePolicy<PubKey, uint160> p)
 		{
@@ -27,16 +27,19 @@ namespace NBitcoin.Tests.PropertyTest
 			Assert.Equal(p.GetHashCode(), c.GetHashCode());
 		}
 
-		[Property(MaxTest = 100)]
+		[Property(MaxTest = 12)]
+		[Trait("UnitTest", "UnitTest")]
 		public void ShouldCompileConcretePolicy(ConcretePolicy<PubKey, uint160> p)
 		{
-			Console.WriteLine(p);
 			var t = p.IsSafeNonMalleable();
 			var isSafe = t.Item1;
 			var IsNonMalleable = t.Item2;
+				Console.WriteLine($"Compiling {p}");
 			if (isSafe && IsNonMalleable)
 			{
+				Console.WriteLine($"it is safe and non malleable");
 				var ms = p.Compile();
+				Console.WriteLine($"Compiled {ms}");
 			}
 			else
 			{

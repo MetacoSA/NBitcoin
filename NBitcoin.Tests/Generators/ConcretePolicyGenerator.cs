@@ -17,6 +17,7 @@ namespace NBitcoin.Tests.Generators
 		{
 			public override Gen<ConcretePolicy<PubKey, uint160>> Generator => Gen.Sized(ConcretePolicyGen);
 
+			/*
 			public override IEnumerable<ConcretePolicy<PubKey, uint160>> Shrinker(ConcretePolicy<PubKey, uint160> parent)
 			{
 				switch (parent)
@@ -55,6 +56,7 @@ namespace NBitcoin.Tests.Generators
 						yield break;
 				}
 			}
+			*/
 
 			private static Gen<ConcretePolicy<PubKey, uint160>> ConcretePolicyGen(int size)
 			{
@@ -84,12 +86,12 @@ namespace NBitcoin.Tests.Generators
 
 			private static Gen<ConcretePolicy<PubKey, uint160>> AfterGen()
 				=>
-					from t in Arb.Generate<uint>()
-					select ConcretePolicy<PubKey, uint160>.NewAfter(t);
+					from t in Arb.Generate<PositiveInt>()
+					select ConcretePolicy<PubKey, uint160>.NewAfter((uint)t.Get);
 			private static Gen<ConcretePolicy<PubKey, uint160>> OlderGen()
 				=>
-					from t in Arb.Generate<uint>()
-					select ConcretePolicy<PubKey, uint160>.NewOlder(t);
+					from t in Arb.Generate<PositiveInt>()
+					select ConcretePolicy<PubKey, uint160>.NewOlder((uint)t.Get);
 
 			private static Gen<ConcretePolicy<PubKey, uint160>> Sha256Gen()
 				=>
