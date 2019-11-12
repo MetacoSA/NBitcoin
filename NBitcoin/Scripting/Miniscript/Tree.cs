@@ -43,9 +43,9 @@ namespace NBitcoin.Scripting.Miniscript
 			for (var n = 0; n < str.Length; n++)
 			{
 				var ch = str[n];
-				if (ch == '(') found = new { Found = Found.LParen, Pos = n};
-				if (ch == ',') found = new { Found = Found.Comma, Pos = n};
-				if (ch == ')') found = new { Found = Found.RParen, Pos = n};
+				if (ch == '(') { found = new { Found = Found.LParen, Pos = n}; break; }
+				if (ch == ',') { found = new { Found = Found.Comma, Pos = n}; break; }
+				if (ch == ')') { found = new { Found = Found.RParen, Pos = n}; break; }
 			}
 
 			switch (found.Found)

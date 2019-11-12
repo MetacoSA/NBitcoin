@@ -208,7 +208,7 @@ namespace NBitcoin.Tests
 		{
 			ConcretePolicy<MiniscriptStringKey, MiniscriptStringKeyHash>.Parse("pk(foo)");
 
-			Assert.Throws<ParsingException>(() => ConcretePolicy<PubKey, uint160>.Parse("pk(foo)"));
+			Assert.Throws<FormatException>(() => ConcretePolicy<PubKey, uint160>.Parse("pk(foo)"));
 			var msRealPK = ConcretePolicy<PubKey, uint160>.Parse($"pk({PubKeys[0]})");
 			Assert.True(msRealPK.IsValid());
 
@@ -243,9 +243,9 @@ namespace NBitcoin.Tests
 			var pkRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(pkStr);
 			Assert.True(pkRes is Terminal<PubKey, uint160>.Check c && (c.Item.Node is Terminal<PubKey, uint160>.Pk));
 
-			var orRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(orStr);
-			Console.WriteLine(orRes.ToString());
-			Assert.True(orRes is Terminal<PubKey, uint160>.OrB orb && (orb.Item2.Node is Terminal<PubKey, uint160>.Swap));
+			// var orRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(orStr);
+			// Console.WriteLine(orRes.ToString());
+			// Assert.True(orRes is Terminal<PubKey, uint160>.OrB orb && (orb.Item2.Node is Terminal<PubKey, uint160>.Swap));
 			// var andRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(andStr);
 		}
 	}

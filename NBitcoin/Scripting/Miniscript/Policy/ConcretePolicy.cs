@@ -453,30 +453,39 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		}
 
 		public static ConcretePolicy<TPk, TPKh> Parse(string str)
-		{
-			return MiniscriptDSLParser<TPk, TPKh>.ParseConcretePolicy(str);
-		}
+			=> FromTree(Tree.Parse(str));
 
-		private static Tuple<uint, ConcretePolicy<TPk, TPKh>> FromTreeProb<T>(Tree top, bool allowProb)
+		/// <summary>
+		/// Instantiate policy from Tree.
+		/// </summary>
+		/// <param name="t"></param>
+		/// <returns></returns>
+		private static ConcretePolicy<TPk, TPKh> FromTree(Tree t)
+			=> FromTreeProb(t, false).Item2;
+
+		/// <summary>
+		/// Helper for FromTree which takes into account if we are able to hold `@` in or expression.
+		/// </summary>
+		/// <param name="top"></param>
+		/// <param name="allowProb">If the top level expression is `or` it is not allowed to be prefixed with `@`
+		/// otherwise it is allowed to.</param>
+		/// <returns></returns>
+		/// <exception cref="ParsingException"></exception>
+		/// <exception cref="NotImplementedException"></exception>
+		private static Tuple<uint, ConcretePolicy<TPk, TPKh>> FromTreeProb(Tree top, bool allowProb)
 		{
-			int fragProb = default;
-			string fragName = default;
+			uint fragProb = 1;
+			string fragName = String.Empty;
 			var nameSplit = top.Name.Split('@');
-			if (nameSplit.Length == 0)
+			if (nameSplit.Length == 1)
 			{
-				fragProb = 1;
-				fragName = "";
-			}
-			else if (nameSplit.Length == 1)
-			{
-				fragProb = 1;
 				fragName = nameSplit[0];
 			}
 			else if (nameSplit.Length == 2)
 			{
 				if (!allowProb)
-					throw new ParsingException("we found @ in outside of `or` expression");
-				fragProb = Int32.Parse(nameSplit[0]);
+					throw new ParsingException("we found @ in the context not allowed to.");
+				fragProb = UInt32.Parse(nameSplit[0]);
 				fragName = nameSplit[1];
 			}
 			else
@@ -484,9 +493,64 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 				throw new ParsingException("We found more than one @ in expression");
 			}
 
-			throw new NotImplementedException();
-			// if (fragName == "pk" && top.Args.Length == 1)
-
+			ConcretePolicy<TPk, TPKh> res = null;
+			switch (fragName)
+			{
+				case "pk":
+					if (top.Args.Count == 1)
+						res = Tree.Terminal(top.Args[0], pk => NewKey(MiniscriptFragmentParser<TPk, TPKh>.ParseKey(pk)));
+					break;
+				case "after":
+					if (top.Args.Count == 1)
+						res = Tree.Terminal(top.Args[0], x => NewAfter(UInt32.Parse(x)));
+					break;
+				case "older":
+					if (top.Args.Count == 1)
+						res = Tree.Terminal(top.Args[0], x => NewOlder(UInt32.Parse(x)));
+					break;
+				case "sha256":
+					if (top.Args.Count == 1)
+						res = Tree.Terminal(top.Args[0], x => NewSha256(uint256.Parse(x)));
+					break;
+				case "hash256":
+					if (top.Args.Count == 1)
+						res = Tree.Terminal(top.Args[0], x => NewHash256(uint256.Parse(x)));
+					break;
+				case "ripemd160":
+					if (top.Args.Count == 1)
+						res = Tree.Terminal(top.Args[0], x => NewRipemd160(uint160.Parse(x)));
+					break;
+				case "hash160":
+					if (top.Args.Count == 1)
+						res = Tree.Terminal(top.Args[0], x => NewHash160(uint160.Parse(x)));
+					break;
+				case "and":
+					if (!top.Args.Any())
+						throw new ParsingException("and without args");
+					var subsAnd = top.Args.Select(FromTree);
+					res = NewAnd(subsAnd);
+					break;
+				case "or":
+					if (!top.Args.Any())
+						throw new ParsingException("or without args");
+					var subsOr = top.Args.Select(x => FromTreeProb(x, true));
+					res = NewOr(subsOr);
+					break;
+				case "thresh":
+					if (!top.Args.Any())
+						throw new ParsingException("thresh without args");
+					if (top.Args[0].Args.Any())
+						throw new ParsingException($"Unexpected {top.Args[0].Args[0].Name}");
+					var thresh = UInt32.Parse(top.Args[0].Name);
+					if (thresh >= top.Args.Count)
+						throw new ParsingException(
+							$"number of sub policy in threshold ({top.Args.Count}), exceeded k ({top.Args[0].Name})");
+					res = NewThreshold(thresh, top.Args.Skip(1).Select(FromTree));
+					break;
+			}
+			if (res is null)
+				throw new ParsingException($"Unexpected {top.Name}");
+			return Tuple.Create(fragProb, res);
 		}
 	}
 }

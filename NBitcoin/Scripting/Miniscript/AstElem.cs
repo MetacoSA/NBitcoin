@@ -1338,7 +1338,7 @@ namespace NBitcoin.Scripting.Miniscript
 					break;
 				case "hash256":
 					if (top.Args.Count == 1)
-						unwrapped = Tree.Terminal(top.Args[0], x => NewHash256(uint256.Parse(x.Reverse().ToString())));
+						unwrapped = Tree.Terminal(top.Args[0], x => NewHash256(uint256.Parse(x.ToCharArray().Reverse().ToString())));
 					break;
 				case "ripemd160":
 					if (top.Args.Count == 1)
