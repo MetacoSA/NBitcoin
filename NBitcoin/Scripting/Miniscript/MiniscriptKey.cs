@@ -94,6 +94,7 @@ namespace NBitcoin.Scripting.Miniscript
 		where TPk : class, IMiniscriptKey<TPKh>, new()
 		where TPKh : class, IMiniscriptKeyHash, new()
 	{
+		private static DataEncoders.HexEncoder Hex = new DataEncoders.HexEncoder();
 		public static TPk ParseKey(string str)
 		{
 			var t = new TPk();
@@ -113,7 +114,7 @@ namespace NBitcoin.Scripting.Miniscript
 		{
 			var t = new TPKh();
 			if (t is uint160)
-				return uint160.Parse(str) as TPKh;
+				return new uint160(Hex.DecodeData(str), true) as TPKh;
 			if (t is MiniscriptStringKeyHash)
 				return MiniscriptStringKeyHash.Parse(str) as TPKh;
 			throw new NotSupportedException();

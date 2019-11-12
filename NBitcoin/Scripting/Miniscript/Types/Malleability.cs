@@ -179,7 +179,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				left.NonMalleable
 				&& left.Dissat == Dissat.Unique
 				&& right.NonMalleable
-				&& (left.Safe && right.Safe)
+				&& (left.Safe || right.Safe)
 				);
 
 		public override Malleability OrI(Malleability left, Malleability right) =>
