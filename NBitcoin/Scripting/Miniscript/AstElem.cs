@@ -1415,14 +1415,16 @@ namespace NBitcoin.Scripting.Miniscript
 						throw new ParsingException($"threshold ({k}) is higher than the number of sub exprs ({n})");
 					if (n == 1) throw new ParsingException("Empty thresholds not allowed in descriptors");
 					var subs = top.Args.Skip(1).Select(Miniscript<TPk, TPKh>.FromTree);
-					return NewThresh(k, subs);
+					unwrapped = NewThresh(k, subs);
+					break;
 				case "thresh_m":
 					var km = Tree.Terminal(top.Args[0], UInt32.Parse);
 					var nm = top.Args.Count;
 					if (nm == 0 || km > nm - 1)
 						throw new ParsingException($"");
 					var subsm = top.Args.Skip(1).Select(sub => Tree.Terminal(sub, MiniscriptFragmentParser<TPk, TPKh>.ParseKey));
-					return NewThreshM(km, subsm);
+					unwrapped = NewThreshM(km, subsm);
+					break;
 			}
 			if (unwrapped is null)
 				throw new ParsingException($"{top.Name}({top.Args.Count} args) while parsing Miniscript");

@@ -47,9 +47,9 @@ namespace NBitcoin.Scripting.Miniscript
 		}
 		public static Miniscript<TPk, TPKh> Parse(string str)
 		{
-			var inner = Terminal<TPk, TPKh>.FromTree(Tree.Parse(str));
 			try
 			{
+				var inner = Terminal<TPk, TPKh>.FromTree(Tree.Parse(str));
 				var ms = new Miniscript<TPk, TPKh>(
 					Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(inner),
 					inner,

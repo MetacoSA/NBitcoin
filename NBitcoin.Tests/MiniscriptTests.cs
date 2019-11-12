@@ -135,7 +135,6 @@ namespace NBitcoin.Tests
 					"82012088aa205f8d30e655a7ba0d7596bb3ddfb1d2d20390d23b1845000e1e118b3be1b3f040876482012088a61444d90e2d3714c8663b632fcf0f9d5f22192cc4c8876782926382012088a9143a2bff0da9d96868e66abc4427bea4691cf61ccd8803010040b26868",
 					true, false, false, 20, 2
 				},
-				/*
 				{
 					"or_i(c:and_v(v:after(500000),pk(02c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5)),sha256(d9147961436944f43cd99d28b2bbddbf452ef872b30c8279e255e7daafc7f946))",
 					"630320a107b1692102c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5ac6782012088a820d9147961436944f43cd99d28b2bbddbf452ef872b30c8279e255e7daafc7f9468768",
@@ -193,7 +192,6 @@ namespace NBitcoin.Tests
 			bool needSig, uint ops, uint _stack)
 		{
 			Miniscript<PubKey, uint160> ms;
-			Console.WriteLine($"Testing {msStr}");
 			try
 			{
 				ms = Miniscript<PubKey, uint160>.Parse(msStr);
@@ -202,10 +200,11 @@ namespace NBitcoin.Tests
 				Assert.Equal(nonMalleable, ms.Type.Malleability.NonMalleable);
 				Assert.Equal(needSig, ms.Type.Malleability.Safe);
 				Assert.Equal(ops, ms.Ext.OpsCountSat);
+				Assert.True(valid);
 			}
-			catch (ParsingException)
+			catch (ParsingException ex)
 			{
-				Assert.False(valid);
+				Assert.False(valid, ex.ToString());
 			}
 		}
 
