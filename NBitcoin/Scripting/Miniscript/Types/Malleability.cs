@@ -68,7 +68,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			new Malleability(Dissat.None, false, true);
 
 		public override Malleability FromFalse() =>
-			new Malleability(Dissat.None, true, true);
+			new Malleability(Dissat.Unique, true, true);
 
 		public override Malleability FromPk() =>
 			new Malleability(Dissat.Unique, true, true);

@@ -6,6 +6,7 @@ using Malleability = NBitcoin.Scripting.Miniscript.Types.Malleability;
 
 namespace NBitcoin.Scripting.Miniscript.Types
 {
+	[DebuggerDisplay("{" + nameof(DebugPrint) + "()}")]
 	public class MiniscriptFragmentType : IProperty<MiniscriptFragmentType>
 	{
 		internal readonly Correctness Correctness;
@@ -26,11 +27,15 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public override void SanityChecks()
 		{
-			Debug.Assert(!this.Correctness.DisSatisfiable || this.Malleability.Dissat != Dissat.None);
-			Debug.Assert(this.Malleability.Dissat == Dissat.None || this.Correctness.Base != Base.V);
-			Debug.Assert(this.Malleability.Safe || this.Correctness.Base != Base.K);
-			Debug.Assert(this.Malleability.NonMalleable || this.Correctness.Input != Input.Zero);
+			Debug.Assert(
+				(!this.Correctness.DisSatisfiable || this.Malleability.Dissat != Dissat.None) &&
+				(this.Malleability.Dissat == Dissat.None || this.Correctness.Base != Base.V) &&
+				(this.Malleability.Safe || this.Correctness.Base != Base.K) &&
+				(this.Malleability.NonMalleable || this.Correctness.Input != Input.Zero), this.DebugPrint());
 		}
+
+		internal string DebugPrint()
+			=> $"Correctness: {Correctness.DebugPrint()}. is safe?: {Malleability.Safe}. is non malleable?: {Malleability.NonMalleable}";
 
 		public override MiniscriptFragmentType FromTrue()
 			=>

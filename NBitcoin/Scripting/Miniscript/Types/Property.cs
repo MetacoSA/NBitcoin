@@ -119,7 +119,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				case Terminal<TPk, TPKh>.OrI self:
 					var orIL = GetChild(self.Item1.Node, 0);
 					var orIR = GetChild(self.Item2.Node, 1);
-					return new T().OrC(orIL, orIR);
+					return new T().OrI(orIL, orIR);
 				case Terminal<TPk, TPKh>.AndOr self:
 					var a = GetChild(self.Item1.Node, 0);
 					var b = GetChild(self.Item2.Node, 1);

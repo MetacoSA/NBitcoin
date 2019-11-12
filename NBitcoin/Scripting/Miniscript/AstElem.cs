@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using NBitcoin.Scripting.Miniscript.Types;
 using NBitcoin.Scripting.Parser;
@@ -1175,9 +1174,9 @@ namespace NBitcoin.Scripting.Miniscript
 				if (typeMap.Malleability.NonMalleable)
 					sb.Append('m');
 			}
-			catch (FragmentPropertyException)
+			catch (FragmentPropertyException ex)
 			{
-				sb.Append("TYPECHECK FAILED");
+				sb.Append($"TYPECHECK FAILED {ex}");
 			}
 			sb.Append("]");
 

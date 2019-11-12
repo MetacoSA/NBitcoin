@@ -3,6 +3,7 @@ using System.Diagnostics;
 
 namespace NBitcoin.Scripting.Miniscript.Types
 {
+	[DebuggerDisplay("{" + nameof(DebugPrint) + "()}")]
 	internal class Correctness : IProperty<Correctness>
 	{
 		public readonly Base Base;
@@ -23,6 +24,9 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			DisSatisfiable = disSatisfiable;
 			Unit = unit;
 		}
+
+		internal string DebugPrint()
+			=> $"Input: {Input.DebugPrint()}; Base: {Base.ToString()}";
 
 		public bool IsSubtype(Correctness other) =>
 			(this.Base == other.Base) &&
@@ -51,7 +55,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			=> new Correctness(Base.B, Input.Zero, false, true);
 
 		public override Correctness FromFalse()
-			=> new Correctness(Base.B, Input.Zero, true, false);
+			=> new Correctness(Base.B, Input.Zero, true, true);
 
 		public override Correctness FromPk()
 			=> new Correctness(Base.K, Input.OneNonZero, true, true);
