@@ -27,5 +27,9 @@ namespace NBitcoin.Tests.PropertyTest
 		}
 
 		[Property(MaxTest = 100)]
+		public void ShouldCompileConcretePolicy(ConcretePolicy<PubKey, uint160> p)
+		{
+			// var ms = p.Compile();
+		}
 	}
 }

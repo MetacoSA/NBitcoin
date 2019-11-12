@@ -586,6 +586,5 @@ namespace NBitcoin
 
 		public int SerializedLength() =>
 			this.ToBytes().Length;
-
 	}
 }

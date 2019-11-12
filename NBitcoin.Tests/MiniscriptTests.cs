@@ -23,8 +23,8 @@ namespace NBitcoin.Tests
 
 		public static PubKey[] PubKeys = PrivKeys.Select(k => k.PubKey).ToArray();
 
-		public static readonly TheoryData<string, string, bool, bool, bool, uint, uint> MSAttributeTestCase =
-			new TheoryData<string, string, bool, bool, bool, uint, uint>()
+		public static TheoryData<string, string, bool, bool, bool, uint, uint> MSAttributeTestCase =>
+			new TheoryData<string, string, bool, bool, bool, uint, uint>
 			{
 				{
 					"lltvln:after(1231488000)",
@@ -182,15 +182,15 @@ namespace NBitcoin.Tests
 			};
 
 		[Theory]
-		[MemberData(nameof(MSAttributeTestCase))]
 		[Trait("Core", "Core")]
+		[MemberData(nameof(MSAttributeTestCase))]
 		public void MiniscriptAttributesTest(
 			string msStr, string expectedHex, bool valid, bool nonMalleable,
 			bool needSig, uint ops, uint _stack)
 		{
 			if (valid)
 			{
-				var ms = Miniscript<PubKey, uint160>.Parse(msStr);
+				// var ms = Miniscript<PubKey, uint160>.Parse(msStr);
 				// Assert.Equal(ms.ToScript().ToHex(), expectedHex);
 				// Assert.Equal(ms.Type.Malleability.NonMalleable, nonMalleable);
 				// Assert.Equal(ms.Type.Malleability.Safe, needSig);
@@ -210,26 +210,25 @@ namespace NBitcoin.Tests
 
 			Assert.Throws<FormatException>(() => ConcretePolicy<PubKey, uint160>.Parse("pk(foo)"));
 			var msRealPK = ConcretePolicy<PubKey, uint160>.Parse($"pk({PubKeys[0]})");
-			Assert.True(msRealPK.IsValid());
+			Assert.True(msRealPK.AssertValid());
 
 			var strOr = $"or(99@pk({PubKeys[0]}),pk({PubKeys[1]}))";
-			// var strOr = $"or(pk({PubKeys[0]}),pk({PubKeys[1]}))";
 			var orRes = ConcretePolicy<PubKey, uint160>.Parse(strOr);
-			Assert.True(orRes.IsValid());
+			Assert.True(orRes.AssertValid());
 
 			var strNestedOr = $"or(after(3),{strOr})";
 			var nestedOrRes = ConcretePolicy<PubKey, uint160>.Parse(strNestedOr);
-			Assert.True(nestedOrRes.IsValid());
+			Assert.True(nestedOrRes.AssertValid());
 
 			var strAnd = $"and(older(3),{strNestedOr})";
 			var andRes = ConcretePolicy<PubKey, uint160>.Parse(strAnd);
-			Assert.True(andRes.IsValid());
+			Assert.True(andRes.AssertValid());
 
 			var hash256 = Crypto.Hashes.Hash256(PubKeys[2].ToBytes()).ToString();
 			var hash160 = Crypto.Hashes.Hash160(PubKeys[2].ToBytes()).ToString();
 			var strThresh = $"thresh(2,hash256({hash256}),{strAnd},hash160({hash160}))";
 			var threshRes = ConcretePolicy<PubKey,uint160>.Parse(strThresh);
-			Assert.True(threshRes.IsValid());
+			Assert.True(threshRes.AssertValid());
 
 		}
 
@@ -246,23 +245,6 @@ namespace NBitcoin.Tests
 			var concreteP2_1 = ConcretePolicy<PubKey, uint160>.Parse(testCase2);
 			var concreteP2_2 = ConcretePolicy<PubKey, uint160>.Parse(testCase2);
 			Assert.Equal(concreteP2_1.GetHashCode(), concreteP2_2.GetHashCode());
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void MiniscriptParserTest()
-		{
-			var pkStr = $"c:pk({PubKeys[0]})";
-			var orStr = $"or_b(c:pk({PubKeys[0]}),sc:pk({PubKeys[1]}))";
-			// var andStr = $"";
-			// var orMs = Miniscript<PubKey, uint160>.Parse(orStr);
-			var pkRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(pkStr);
-			Assert.True(pkRes is Terminal<PubKey, uint160>.Check c && (c.Item.Node is Terminal<PubKey, uint160>.Pk));
-
-			// var orRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(orStr);
-			// Console.WriteLine(orRes.ToString());
-			// Assert.True(orRes is Terminal<PubKey, uint160>.OrB orb && (orb.Item2.Node is Terminal<PubKey, uint160>.Swap));
-			// var andRes = MiniscriptDSLParser<PubKey, uint160>.ParseTerminal(andStr);
 		}
 	}
 }
