@@ -16,15 +16,16 @@ namespace NBitcoin.Tests.PropertyTest
 			Arb.Register<ConcretePolicyGenerator>();
 		}
 
-		[Property(MaxTest = 10)]
+		[Property(MaxTest = 100)]
 		[Trait("UnitTest", "UnitTest")]
-		public void ShouldBidirectionallyConvertConcretePolicy(ConcretePolicy<PubKey, uint160> p)
+		public void ShouldBidirectionallyConvertConcretePolicyToString(ConcretePolicy<PubKey, uint160> p)
 		{
-			Console.WriteLine("start test");
 			var str = p.ToString();
-			Console.WriteLine($"Going to parse {str}");
 			var c = ConcretePolicy<PubKey, uint160>.Parse(str);
 			Assert.Equal(p, c);
+			Assert.Equal(p.GetHashCode(), c.GetHashCode());
 		}
+
+		[Property(MaxTest = 100)]
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using FsCheck;
@@ -16,12 +17,51 @@ namespace NBitcoin.Tests.Generators
 		{
 			public override Gen<ConcretePolicy<PubKey, uint160>> Generator => Gen.Sized(ConcretePolicyGen);
 
+			public override IEnumerable<ConcretePolicy<PubKey, uint160>> Shrinker(ConcretePolicy<PubKey, uint160> parent)
+			{
+				switch (parent)
+				{
+					case ConcretePolicy<PubKey, uint160>.And p:
+						foreach (var i in p.Item)
+							yield return i;
+						foreach (var i in Arb.Shrink(p.Item))
+							if (i.Count == 2)
+								yield return ConcretePolicy<PubKey, uint160>.NewAnd(i);
+						break;
+					case ConcretePolicy<PubKey, uint160>.Or p:
+						foreach (var i in p.Item)
+							yield return i.Item2;
+						foreach (var i in Arb.Shrink(p.Item))
+							if (i.Count == 2)
+								yield return ConcretePolicy<PubKey, uint160>.NewOr(i);
+						break;
+					case ConcretePolicy<PubKey, uint160>.Threshold p:
+						foreach (var subP in p.Item2)
+						{
+							yield return subP;
+						}
+						foreach (var i in Arb.Shrink(p.Item2).Select(s => s.Select(sub => Shrinker(sub))))
+						{
+							foreach (var i2 in i)
+								if (1 < i2.Count())
+									yield return ConcretePolicy<PubKey, uint160>.NewThreshold(1, i2);
+						}
+
+						foreach (var subP in Arb.Shrink(p.Item2))
+						{
+							if (1 < subP.Count())
+								yield return ConcretePolicy<PubKey, uint160>.NewThreshold(1, subP);
+						}
+						yield break;
+				}
+			}
+
 			private static Gen<ConcretePolicy<PubKey, uint160>> ConcretePolicyGen(int size)
 			{
 				if (size == 0) return NonRecursivePolicyGen();
 				return Gen.Frequency(
-					Tuple.Create(3, NonRecursivePolicyGen())
-					// Tuple.Create(2, RecursivePolicyGen(size / 2))
+					Tuple.Create(3, NonRecursivePolicyGen()),
+					Tuple.Create(2, RecursivePolicyGen(size / 2))
 					);
 			}
 

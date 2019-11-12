@@ -230,6 +230,22 @@ namespace NBitcoin.Tests
 			var strThresh = $"thresh(2,hash256({hash256}),{strAnd},hash160({hash160}))";
 			var threshRes = ConcretePolicy<PubKey,uint160>.Parse(strThresh);
 			Assert.True(threshRes.IsValid());
+
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ConcretePolicyUnitTest()
+		{
+			var testCase1 = "and(sha256(a12b09447802e01b4fd9b7f226b08e18538765ef2a5e3cc6a435139d7bb69dee),and(hash256(f0ce5893c7a52f6a9e7c06e41f53ddbbf62ab492cdb4ad69f620f84acf57a6a3),hash160(e21d51db6c8f9079fb9d2471fbd9639ed2630d33)))";
+			var concreteP1_1 = ConcretePolicy<PubKey, uint160>.Parse(testCase1);
+			var concreteP1_2 = ConcretePolicy<PubKey, uint160>.Parse(testCase1);
+			Assert.Equal(concreteP1_1, concreteP1_2);
+
+			var testCase2 = "and(ripemd160(a8cb8a3e2c696b51f3178711ef2a11f20554b107),pk(024aa5f11820cdf29e8aa46ec1f97def0538e12e5f9dd9a7693294570551f8ad9a))";
+			var concreteP2_1 = ConcretePolicy<PubKey, uint160>.Parse(testCase2);
+			var concreteP2_2 = ConcretePolicy<PubKey, uint160>.Parse(testCase2);
+			Assert.Equal(concreteP2_1.GetHashCode(), concreteP2_2.GetHashCode());
 		}
 
 		[Fact]

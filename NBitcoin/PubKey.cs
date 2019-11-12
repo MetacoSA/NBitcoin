@@ -260,9 +260,7 @@ namespace NBitcoin
 		}
 
 		public bool Equals(IMiniscriptKey<uint160> other)
-		{
-			throw new NotImplementedException();
-		}
+			=> Equals(other as PubKey);
 
 		#region IBitcoinSerializable Members
 

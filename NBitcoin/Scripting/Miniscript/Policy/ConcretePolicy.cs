@@ -173,15 +173,12 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 				case Hash160 self:
 					return self.Item.Equals(((Hash160) other).Item);
 				case And self:
-					var andSet = new HashSet<ConcretePolicy<TPk, TPKh>>(self.Item);
-					return andSet.SetEquals(((And)other).Item);
+					return self.Item.SequenceEqual(((And)other).Item);
 				case Or self:
-					var orSet = new HashSet<Tuple<uint, ConcretePolicy<TPk, TPKh>>>(self.Item);
-					return orSet.SetEquals(((Or)other).Item);
+					return self.Item.SequenceEqual(((Or)other).Item);
 				case Threshold self:
 					var thres = (Threshold) other;
-					var threshSet = new HashSet<ConcretePolicy<TPk, TPKh>>(self.Item2);
-					return self.Item1 == thres.Item1 && threshSet.SetEquals(thres.Item2);
+					return self.Item1 == thres.Item1 && self.Item2.SequenceEqual(thres.Item2);
 			}
 			throw new Exception("Unreachable!");
 		}
@@ -216,7 +213,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 					num = Tags.And;
 					foreach (var a in self.Item)
 					{
-						num = -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+						num = -1640531527 + a.GetHashCode() + ((num << 6) + (num >> 2));
 					}
 					return num;
 				case Or self:
@@ -430,7 +427,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 						sb.Append(self.Item[0].Item1.ToString());
 						sb.Append("@");
 						self.Item[0].Item2.ToStringCore(sb);
-						foreach (var sub in self.Item)
+						foreach (var sub in self.Item.Skip(1))
 						{
 							sb.Append(",");
 							sb.Append(sub.Item1.ToString());
@@ -438,7 +435,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 							sub.Item2.ToStringCore(sb);
 						}
 					}
-					return sb.Append("(");
+					return sb.Append(")");
 				case Threshold self:
 					sb.Append($"thresh({self.Item1.ToString()}");
 					foreach (var sub in self.Item2)
