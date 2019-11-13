@@ -25,6 +25,16 @@ namespace NBitcoin.JsonConverters
 		{
 			Path = reader.Path;
 		}
+		public JsonObjectException(Exception inner, string path)
+			: base(inner.Message, inner)
+		{
+			Path = path;
+		}
+		public JsonObjectException(string message, string path)
+			: base(message)
+		{
+			Path = path;
+		}
 
 		public string Path
 		{

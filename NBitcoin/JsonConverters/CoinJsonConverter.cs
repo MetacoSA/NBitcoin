@@ -1,4 +1,5 @@
-﻿#if !NOJSONNET
+﻿#nullable enable
+#if !NOJSONNET
 using NBitcoin;
 using NBitcoin.OpenAsset;
 using Newtonsoft.Json;
@@ -48,43 +49,53 @@ namespace NBitcoin.JsonConverters
 					}
 				}
 			}
-			public ICoin ToCoin()
+			public ICoin ToCoin(string path)
 			{
-				var coin = RedeemScript == null ? new Coin(new OutPoint(TransactionId, Index), new TxOut(Value, ScriptPubKey)) : new ScriptCoin(new OutPoint(TransactionId, Index), new TxOut(Value, ScriptPubKey), RedeemScript);
+				if (TransactionId == null)
+					throw new JsonObjectException("'transactionId' is missing", path);
+				if (!(Index is uint index))
+					throw new JsonObjectException("'index' is missing", path);
+				if (Value is null)
+					throw new JsonObjectException("'value' is missing", path);
+				if (ScriptPubKey is null)
+					throw new JsonObjectException("'scriptPubKey' is missing", path);
+
+				
+				var coin = RedeemScript == null ? new Coin(new OutPoint(TransactionId, index), new TxOut(Value, ScriptPubKey)) : new ScriptCoin(new OutPoint(TransactionId, index), new TxOut(Value, ScriptPubKey), RedeemScript);
 				if (AssetId != null)
 					return coin.ToColoredCoin(new AssetMoney(AssetId, Quantity));
 				return coin;
 			}
 
-			public uint256 TransactionId
+			public uint256? TransactionId
 			{
 				get;
 				set;
 			}
-			public uint Index
+			public uint? Index
 			{
 				get;
 				set;
 			}
-			public Money Value
-			{
-				get;
-				set;
-			}
-
-			public Script ScriptPubKey
+			public Money? Value
 			{
 				get;
 				set;
 			}
 
-			public Script RedeemScript
+			public Script? ScriptPubKey
+			{
+				get;
+				set;
+			}
+
+			public Script? RedeemScript
 			{
 				get;
 				set;
 			}
 			[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-			public BitcoinAssetId AssetId
+			public BitcoinAssetId? AssetId
 			{
 				get;
 				set;
@@ -112,9 +123,13 @@ namespace NBitcoin.JsonConverters
 			return typeof(ICoin).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
 		}
 
-		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+		public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			return reader.TokenType == JsonToken.Null ? null : serializer.Deserialize<CoinJson>(reader).ToCoin();
+			if (reader.TokenType == JsonToken.Null)
+				return default;
+			reader.AssertJsonType(JsonToken.StartObject);
+			var path = reader.Path;
+			return serializer.Deserialize<CoinJson>(reader).ToCoin(path);
 		}
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -124,3 +139,4 @@ namespace NBitcoin.JsonConverters
 	}
 }
 #endif
+#nullable disable

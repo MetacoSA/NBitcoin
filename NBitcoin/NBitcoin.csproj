@@ -12,7 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<Version Condition=" '$(Version)' == '' ">5.0.1</Version>
+		<Version Condition=" '$(Version)' == '' ">5.0.2</Version>
 		<LangVersion>8.0</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -78,7 +78,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-    <None Include="..\icon.png" Pack="true" PackagePath="\"/>
+    <None Include="..\icon.png" Pack="true" PackagePath="\" />
 		<None Update="BitcoinStream.Partial.tt">
 			<Generator>TextTemplatingFileGenerator</Generator>
 			<LastGenOutput>BitcoinStream.Partial.cs</LastGenOutput>

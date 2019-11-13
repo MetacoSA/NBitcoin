@@ -9,6 +9,7 @@ using System.Linq;
 
 namespace NBitcoin
 {
+#nullable enable
 	public class OutPoint : IBitcoinSerializable
 	{
 		public bool IsNull
@@ -56,7 +57,7 @@ namespace NBitcoin
 		/// <param name="str">The string to parse</param>
 		/// <param name="result">The outpoint</param>
 		/// <returns>True if parsing succeed</returns>
-		public static bool TryParse(string str, out OutPoint result)
+		public static bool TryParse(string str, out OutPoint? result)
 		{
 			result = null;
 			if (str == null)
@@ -104,8 +105,7 @@ namespace NBitcoin
 		/// <returns>The outpoint</returns>
 		public static OutPoint Parse(string str)
 		{
-			OutPoint result;
-			if (TryParse(str, out result))
+			if (TryParse(str, out var result) && result is OutPoint)
 				return result;
 			throw new FormatException("The format of the outpoint is incorrect");
 		}
@@ -163,7 +163,7 @@ namespace NBitcoin
 			return (a.hash > b.hash || (a.hash == b.hash && a.n > b.n));
 		}
 
-		public static bool operator ==(OutPoint a, OutPoint b)
+		public static bool operator ==(OutPoint? a, OutPoint? b)
 		{
 			if (Object.ReferenceEquals(a, null))
 			{
@@ -176,13 +176,13 @@ namespace NBitcoin
 			return (a.hash == b.hash && a.n == b.n);
 		}
 
-		public static bool operator !=(OutPoint a, OutPoint b)
+		public static bool operator !=(OutPoint? a, OutPoint? b)
 		{
 			return !(a == b);
 		}
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
-			OutPoint item = obj as OutPoint;
+			var item = obj as OutPoint;
 			if (object.ReferenceEquals(null, item))
 				return false;
 			return item == this;
@@ -201,8 +201,7 @@ namespace NBitcoin
 			return $"{Hash}-{N}";
 		}
 	}
-
-
+#nullable disable
 	public class TxIn : IBitcoinSerializable
 	{
 		public TxIn()

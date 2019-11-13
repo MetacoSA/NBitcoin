@@ -20,7 +20,8 @@ namespace NBitcoin.JsonConverters
 		{
 			settings.Converters.Add(new MoneyJsonConverter());
 			settings.Converters.Add(new KeyJsonConverter());
-			settings.Converters.Add(new CoinJsonConverter(network));
+			if (network != null)
+				settings.Converters.Add(new CoinJsonConverter(network));
 			settings.Converters.Add(new ScriptJsonConverter());
 			settings.Converters.Add(new FeeRateJsonConverter());
 			settings.Converters.Add(new UInt160JsonConverter());
