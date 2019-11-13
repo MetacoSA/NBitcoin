@@ -6,8 +6,8 @@
 		<Description>The C# Bitcoin Library</Description>
 	</PropertyGroup>
   <PropertyGroup>
-	  <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
-	  <TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netcoreapp2.1</TargetFrameworks>
+	  <TargetFrameworks>net461;netcoreapp3.0</TargetFrameworks>
+	  <TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netcoreapp3.0</TargetFrameworks>
 	  <!--<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true' And '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp2.1</TargetFrameworks>-->
 	  <!--<NoWarn>CS0618</NoWarn>-->
   </PropertyGroup>
