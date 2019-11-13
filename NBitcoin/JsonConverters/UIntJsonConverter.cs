@@ -26,6 +26,7 @@ namespace NBitcoin.JsonConverters
 		{
 			if (reader.TokenType == JsonToken.Null)
 				return null;
+			reader.AssertJsonType(JsonToken.String);
 			try
 			{
 				return uint160.Parse((string)reader.Value);
@@ -60,6 +61,7 @@ namespace NBitcoin.JsonConverters
 		{
 			if (reader.TokenType == JsonToken.Null)
 				return null;
+			reader.AssertJsonType(JsonToken.String);
 			try
 			{
 				return uint256.Parse((string)reader.Value);

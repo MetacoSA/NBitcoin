@@ -24,7 +24,10 @@ namespace NBitcoin.JsonConverters
 		{
 			try
 			{
-				return reader.TokenType == JsonToken.Null ? null : Encoders.Hex.DecodeData((string)reader.Value);
+				if (reader.TokenType == JsonToken.Null)
+					return null;
+				reader.AssertJsonType(JsonToken.String);
+				return Encoders.Hex.DecodeData((string)reader.Value);
 			}
 			catch
 			{

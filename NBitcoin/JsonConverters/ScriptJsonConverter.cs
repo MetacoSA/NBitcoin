@@ -23,6 +23,7 @@ namespace NBitcoin.JsonConverters
 		{
 			if (reader.TokenType == JsonToken.Null)
 				return null;
+			reader.AssertJsonType(JsonToken.String);
 			try
 			{
 				if (objectType == typeof(Script))

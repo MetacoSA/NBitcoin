@@ -25,7 +25,7 @@ namespace NBitcoin.JsonConverters
 			if (reader.TokenType == JsonToken.Null)
 				return null;
 
-
+			reader.AssertJsonType(JsonToken.String);
 			try
 			{
 				if (!OutPoint.TryParse((string)reader.Value, out var outpoint))

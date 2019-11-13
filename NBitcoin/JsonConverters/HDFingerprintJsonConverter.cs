@@ -21,6 +21,7 @@ namespace NBitcoin.JsonConverters
 			{
 				if (reader.TokenType == JsonToken.Null)
 					return default;
+				reader.AssertJsonType(new[] { JsonToken.Integer, JsonToken.String });
 				if (reader.TokenType == JsonToken.String)
 					return new HDFingerprint(NBitcoin.DataEncoders.Encoders.Hex.DecodeData((string)reader.Value));
 				return new HDFingerprint((uint)(long)reader.Value);

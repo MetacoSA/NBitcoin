@@ -22,6 +22,7 @@ namespace NBitcoin.JsonConverters
 		{
 			if (reader.TokenType == JsonToken.Null)
 				return null;
+			reader.AssertJsonType(new[] { JsonToken.Integer, JsonToken.Float });
 			try
 			{
 				if (reader.TokenType == JsonToken.Integer)

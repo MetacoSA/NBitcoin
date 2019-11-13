@@ -20,9 +20,14 @@ namespace NBitcoin.JsonConverters
 			try
 			{
 				var nullable = objectType == typeof(LockTime?);
-				return reader.TokenType == JsonToken.Null
-					? (nullable ? null as object : LockTime.Zero)
-					: new LockTime((uint)(long)reader.Value);
+				if (reader.TokenType == JsonToken.Null)
+				{
+					if (nullable)
+						return null;
+					return LockTime.Zero;
+				}
+				reader.AssertJsonType(JsonToken.Integer);
+				return new LockTime((uint)(long)reader.Value);
 			}
 			catch
 			{

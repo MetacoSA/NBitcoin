@@ -22,7 +22,10 @@ namespace NBitcoin.JsonConverters
 		{
 			try
 			{
-				return reader.TokenType == JsonToken.Null ? null : new Money((long)reader.Value);
+				if (reader.TokenType == JsonToken.Null)
+					return null;
+				reader.AssertJsonType(JsonToken.Integer);
+				return new Money((long)reader.Value);
 			}
 			catch (InvalidCastException)
 			{

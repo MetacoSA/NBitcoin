@@ -22,7 +22,7 @@ namespace NBitcoin.JsonConverters
 		{
 			if (reader.TokenType == JsonToken.Null)
 				return null;
-
+			reader.AssertJsonType(JsonToken.String);
 			var network = (string)reader.Value;
 			if (network == null)
 				return null;

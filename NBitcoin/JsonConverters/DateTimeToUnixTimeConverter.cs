@@ -27,6 +27,9 @@ namespace NBitcoin.JsonConverters
 		{
 			if (reader.Value == null)
 				return null;
+			if (reader.TokenType == JsonToken.Null)
+				return null;
+			reader.AssertJsonType(JsonToken.Integer);
 			var result = Utils.UnixTimeToDateTime((ulong)(long)reader.Value);
 			if (objectType == typeof(DateTime))
 				return result.UtcDateTime;

@@ -72,6 +72,11 @@ namespace NBitcoin.Tests
 
 			CanSerializeInJsonCore(expectedOutpoint, out str);
 			Assert.Equal("\"44f69ca74088d6d88e30156da85aae54543a87f67cdfdabbe9b53a92d6d7027c01000000\"", str);
+
+			Assert.Throws<JsonObjectException>(() =>
+			{
+				Serializer.ToObject<OutPoint>("1");
+			});
 		}
 
 		private T CanSerializeInJsonCore<T>(T value, Network network = null)
