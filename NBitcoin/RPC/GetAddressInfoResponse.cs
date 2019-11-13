@@ -48,7 +48,7 @@ namespace NBitcoin.RPC
 				Embedded = e;
 			}
 			IsCompressed = raw.Property("iscompressed")?.Value.Value<bool>();
-			Label = raw.Property("label").Value.Value<string>();
+			Label = raw.Property("label")?.Value.Value<string>();
 			IsChange = raw.Property("ischange")?.Value.Value<bool>();
 			Timestamp = raw.Property("timestamp") == null ? (DateTimeOffset?)null : Utils.UnixTimeToDateTime(raw.Property("timestamp").Value.Value<ulong>());
 			HDKeyPath = raw.Property("hdkeypath") == null ? null : KeyPath.Parse(raw.Property("hdkeypath").Value.Value<string>());
