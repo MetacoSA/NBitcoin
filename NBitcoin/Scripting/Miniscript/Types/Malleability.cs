@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using NBitcoin.Scripting.Miniscript.Policy;
 
@@ -85,73 +86,115 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public override Malleability FromHash() =>
 			new Malleability(Dissat.Unknown, false, true);
 
-		public override Malleability CastAlt() =>
-			this;
+		public override bool TryCastAlt(out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = this;
+			return true;
+		}
 
-		public override Malleability CastSwap() =>
-			this;
+		public override bool TryCastSwap(out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = this;
+			return true;
+		}
 
-		public override Malleability CastCheck() =>
-			this;
+		public override bool TryCastCheck(out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = this;
+			return true;
+		}
 
-		public override Malleability CastDupIf() =>
+		public override bool TryCastDupIf(out Malleability result, List<FragmentPropertyException> error)
+		{
+			result =
 			new Malleability(
 				(Dissat == Dissat.None ? Dissat.Unique : Dissat.Unknown),
 				Safe,
 				NonMalleable
 				);
+			return true;
+		}
 
-		public override Malleability CastVerify() =>
+		public override bool TryCastVerify(out Malleability result, List<FragmentPropertyException> error)
+		{
+			result =
 			new Malleability(
 				Dissat.None,
 				Safe,
 				NonMalleable
-				);
+			);
+			return true;
+		}
 
-		public override Malleability CastNonZero() =>
-			new Malleability(
+		public override bool TryCastNonZero(out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = new Malleability(
 				Dissat == Dissat.None ? Dissat.Unique : Dissat.Unknown,
 				Safe,
 				NonMalleable
-				);
+			);
+			return true;
+		}
 
-		public override Malleability CastZeroNotEqual() => this;
+		public override bool TryCastZeroNotEqual(out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = this;
+			return true;
+		}
 
-		public override Malleability CastTrue() =>
-			new Malleability(
+		public override bool TryCastTrue(out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = new Malleability(
 				Dissat == Dissat.None ? Dissat.Unique : Dissat.Unknown,
 				Safe,
 				NonMalleable
-				);
+			);
+			return true;
+		}
 
-		public override Malleability CastOrIFalse() =>
-			new Malleability(
+		public override bool TryCastOrIFalse(out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = new Malleability(
 				Dissat == Dissat.None ? Dissat.Unique : Dissat.Unknown,
 				Safe,
 				NonMalleable
-				);
+			);
+			return true;
+		}
 
-		public override Malleability AndB(Malleability left, Malleability right) =>
-			new Malleability(
+		public override bool TryAndB(Malleability left, Malleability right, out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = new Malleability(
 				(left.Dissat == Dissat.None && right.Dissat == Dissat.None) ||
-					(left.Dissat == Dissat.None && left.Safe) ||
-					(right.Dissat == Dissat.None && right.Safe) ? Dissat.None :
-					(left.Dissat == Dissat.Unique && right.Dissat == Dissat.Unique && left.Safe && right.Safe) ? Dissat.Unique :
-					Dissat.Unknown,
+				(left.Dissat == Dissat.None && left.Safe) ||
+				(right.Dissat == Dissat.None && right.Safe)
+					? Dissat.None
+					:
+					(left.Dissat == Dissat.Unique && right.Dissat == Dissat.Unique && left.Safe && right.Safe)
+						?
+						Dissat.Unique
+						:
+						Dissat.Unknown,
 				left.Safe || right.Safe,
 				left.NonMalleable && right.NonMalleable
-				);
+			);
+			return true;
+		}
 
 
-		public override Malleability AndV(Malleability left, Malleability right) =>
-			new Malleability(
+		public override bool TryAndV(Malleability left, Malleability right, out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = new Malleability(
 				(left.Safe) || (right.Dissat == Dissat.None) ? Dissat.None : Dissat.Unknown,
 				left.Safe || right.Safe,
 				left.NonMalleable && right.NonMalleable
-				);
+			);
+			return true;
+		}
 
-		public override Malleability OrB(Malleability left, Malleability right) =>
-			new Malleability(
+		public override bool TryOrB(Malleability left, Malleability right, out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = new Malleability(
 				Dissat.Unique,
 				left.Safe && right.Safe,
 				left.NonMalleable
@@ -159,45 +202,57 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				&& right.NonMalleable
 				&& right.Dissat == Dissat.Unique
 				&& (left.Safe || right.Safe)
-				);
+			);
+			return true;
+		}
 
-		public override Malleability OrD(Malleability left, Malleability right) =>
-			new Malleability(
+		public override bool TryOrD(Malleability left, Malleability right, out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = new Malleability(
 				right.Dissat,
 				left.Safe && right.Safe,
 				left.NonMalleable
 				&& left.Dissat == Dissat.Unique
 				&& right.NonMalleable
 				&& (left.Safe || right.Safe)
-				);
+			);
+			return true;
+		}
 
 
-		public override Malleability OrC(Malleability left, Malleability right) =>
-			new Malleability(
+		public override bool TryOrC(Malleability left, Malleability right, out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = new Malleability(
 				Dissat.None,
 				left.Safe && right.Safe,
 				left.NonMalleable
 				&& left.Dissat == Dissat.Unique
 				&& right.NonMalleable
 				&& (left.Safe || right.Safe)
-				);
+			);
+			return true;
+		}
 
-		public override Malleability OrI(Malleability left, Malleability right) =>
-			new Malleability(
+		public override bool TryOrI(Malleability left, Malleability right, out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = new Malleability(
 				(left.Dissat == Dissat.None && right.Dissat == Dissat.None) ? Dissat.None :
-					(left.Dissat == Dissat.Unique && right.Dissat == Dissat.None) ? Dissat.Unique :
-					(left.Dissat == Dissat.None && right.Dissat == Dissat.Unique) ? Dissat.Unique :
+				(left.Dissat == Dissat.Unique && right.Dissat == Dissat.None) ? Dissat.Unique :
+				(left.Dissat == Dissat.None && right.Dissat == Dissat.Unique) ? Dissat.Unique :
 				Dissat.Unknown,
 				left.Safe && right.Safe,
 				left.NonMalleable && right.NonMalleable && (left.Safe || right.Safe)
-				);
+			);
+			return true;
+		}
 
-		public override Malleability AndOr(Malleability a, Malleability b, Malleability c) =>
-			new Malleability(
+		public override bool TryAndOr(Malleability a, Malleability b, Malleability c, out Malleability result, List<FragmentPropertyException> error)
+		{
+			result = new Malleability(
 				(b.Dissat == Dissat.None && c.Dissat == Dissat.Unique) ? Dissat.Unique :
-					(a.Safe && c.Dissat == Dissat.Unique) ?  Dissat.Unique:
-					(b.Dissat == Dissat.None && c.Dissat == Dissat.None) ? Dissat.None :
-					(a.Safe && c.Dissat == Dissat.None) ? Dissat.None :
+				(a.Safe && c.Dissat == Dissat.Unique) ? Dissat.Unique :
+				(b.Dissat == Dissat.None && c.Dissat == Dissat.None) ? Dissat.None :
+				(a.Safe && c.Dissat == Dissat.None) ? Dissat.None :
 				Dissat.Unknown,
 				(a.Safe || b.Safe) && c.Safe,
 				a.NonMalleable
@@ -205,9 +260,11 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				&& c.NonMalleable
 				&& a.Dissat == Dissat.Unique
 				&& (a.Safe || b.Safe || c.Safe)
-				);
+			);
+			return true;
+		}
 
-		public override Malleability Threshold(int k, int n, Func<int, Malleability> subCk)
+		public override bool TryThreshold(int k, int n, Func<int, Malleability> subCk, out Malleability result, List<FragmentPropertyException> error)
 		{
 			var safeCount = 0;
 			var allAreDissatUnique = true;
@@ -219,11 +276,12 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				allAreDissatUnique &= subType.Dissat == Dissat.Unique;
 				allAreNonMalleable &= subType.NonMalleable;
 			}
-			return new Malleability(
+			result = new Malleability(
 				allAreDissatUnique && (k == 1 || safeCount == n) ? Dissat.Unique : Dissat.Unknown,
 					safeCount > n - k,
 					allAreNonMalleable && safeCount >= n -k && (k == n || allAreDissatUnique)
 				);
+			return true;
 		}
 
 	}

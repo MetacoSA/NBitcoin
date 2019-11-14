@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using NBitcoin.Scripting.Miniscript.Policy;
 
 namespace NBitcoin.Scripting.Miniscript.Types
 {
-	public static class Property<T, TPk, TPKh>
+	internal static class Property<T, TPk, TPKh>
 	where T : IProperty<T>, new()
 	where TPk : class, IMiniscriptKey<TPKh>, new()
 	where TPKh : class, IMiniscriptKeyHash, new()
@@ -44,6 +45,9 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				case Terminal<TPk, TPKh>.Tags.False:
 					return new T().FromFalse();
 			}
+
+			var errors = new List<FragmentPropertyException>();
+			T res;
 
 			switch (fragment)
 			{
@@ -87,48 +91,76 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				case Terminal<TPk, TPKh>.Hash160 self:
 					return new T().FromHash160();
 				case Terminal<TPk, TPKh>.Alt self:
-					return GetChild(self.Item.Node, 0).CastAlt();
+					if (GetChild(self.Item.Node, 0).TryCastAlt(out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.Swap self:
-					return GetChild(self.Item.Node, 0).CastSwap();
+					if (GetChild(self.Item.Node, 0).TryCastSwap(out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.Check self:
-					return GetChild(self.Item.Node, 0).CastCheck();
+					if (GetChild(self.Item.Node, 0).TryCastCheck(out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.DupIf self:
-					return GetChild(self.Item.Node, 0).CastDupIf();
+					if (GetChild(self.Item.Node, 0).TryCastDupIf(out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.Verify self:
-					return GetChild(self.Item.Node, 0).CastVerify();
+					if (GetChild(self.Item.Node, 0).TryCastVerify(out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.NonZero self:
-					return GetChild(self.Item.Node, 0).CastNonZero();
+					if (GetChild(self.Item.Node, 0).TryCastNonZero(out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.ZeroNotEqual self:
-					return GetChild(self.Item.Node, 0).CastZeroNotEqual();
+					if (GetChild(self.Item.Node, 0).TryCastZeroNotEqual(out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.AndB self:
 					var andBL = GetChild(self.Item1.Node, 0);
 					var andBR = GetChild(self.Item2.Node, 1);
-					return new T().AndB(andBL, andBR);
+					if (new T().TryAndB(andBL, andBR, out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.AndV self:
 					var andVL = GetChild(self.Item1.Node, 0);
 					var andVR = GetChild(self.Item2.Node, 1);
-					return new T().AndV(andVL, andVR);
+					if (new T().TryAndV(andVL, andVR, out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.OrB self:
 					var orBL = GetChild(self.Item1.Node, 0);
 					var orBR = GetChild(self.Item2.Node, 1);
-					return new T().OrB(orBL, orBR);
+					if (new T().TryOrB(orBL, orBR, out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.OrD self:
 					var orDL = GetChild(self.Item1.Node, 0);
 					var orDR = GetChild(self.Item2.Node, 1);
-					return new T().OrD(orDL, orDR);
+					if (new T().TryOrD(orDL, orDR, out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.OrC self:
 					var orCL = GetChild(self.Item1.Node, 0);
 					var orCR = GetChild(self.Item2.Node, 1);
-					return new T().OrC(orCL, orCR);
+					if (new T().TryOrC(orCL, orCR, out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.OrI self:
 					var orIL = GetChild(self.Item1.Node, 0);
 					var orIR = GetChild(self.Item2.Node, 1);
-					return new T().OrI(orIL, orIR);
+					if (new T().TryOrI(orIL, orIR, out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.AndOr self:
 					var a = GetChild(self.Item1.Node, 0);
 					var b = GetChild(self.Item2.Node, 1);
 					var c = GetChild(self.Item3.Node, 2);
-					return new T().AndOr(a, b, c);
+					if (new T().TryAndOr(a, b, c, out res, errors))
+						return res;
+					throw errors.Flatten();
 				case Terminal<TPk, TPKh>.Thresh self:
 					if (self.Item1 == 0)
 					{
@@ -139,9 +171,12 @@ namespace NBitcoin.Scripting.Miniscript.Types
 					{
 						throw FragmentPropertyException.OverThreshold(fragment.ToString());
 					}
-					return
-						new T().Threshold((int)self.Item1, self.Item2.Length, (n) =>
-							GetChild(self.Item2[n].Node, (int)n));
+					if (new T().TryThreshold(
+						(int)self.Item1,
+						self.Item2.Length, (n) =>
+							GetChild(self.Item2[n].Node, (int)n), out res, errors))
+						return res;
+					throw errors.Flatten();
 			}
 			throw new Exception($"Unreachable! {fragment}");;
 		}

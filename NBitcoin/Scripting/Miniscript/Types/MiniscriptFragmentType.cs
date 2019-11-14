@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using NBitcoin.Scripting.Miniscript.Policy;
 using Dissat = NBitcoin.Scripting.Miniscript.Types.Dissat;
@@ -7,7 +8,7 @@ using Malleability = NBitcoin.Scripting.Miniscript.Types.Malleability;
 namespace NBitcoin.Scripting.Miniscript.Types
 {
 	[DebuggerDisplay("{" + nameof(DebugPrint) + "()}")]
-	public class MiniscriptFragmentType : IProperty<MiniscriptFragmentType>, IEquatable<MiniscriptFragmentType>
+	internal class MiniscriptFragmentType : IProperty<MiniscriptFragmentType>, IEquatable<MiniscriptFragmentType>
 	{
 		internal readonly Correctness Correctness;
 
@@ -112,115 +113,249 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				new Correctness().FromHash160(),
 				new Malleability().FromHash160());
 
-		public override MiniscriptFragmentType CastAlt()
-			=>
-			new MiniscriptFragmentType(
-				Correctness.CastAlt(),
-				Malleability.CastAlt());
+		public override bool TryCastAlt(out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (Correctness.TryCastAlt(out var corr, error) && Malleability.TryCastAlt(out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
 
-		public override MiniscriptFragmentType CastSwap()
-			=> new MiniscriptFragmentType(
-				Correctness.CastSwap(),
-				Malleability.CastSwap());
+			return false;
+		}
 
-		public override MiniscriptFragmentType CastCheck()
-			=> new MiniscriptFragmentType(
-				Correctness.CastCheck(),
-				Malleability.CastCheck());
+		public override bool TryCastSwap(out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (Correctness.TryCastSwap(out var corr, error) && Malleability.TryCastSwap(out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
 
-		public override MiniscriptFragmentType CastDupIf()
-			=> new MiniscriptFragmentType(
-				Correctness.CastDupIf(),
-				Malleability.CastDupIf());
+			return false;
+		}
 
-		public override MiniscriptFragmentType CastVerify()
-			=> new MiniscriptFragmentType(
-				Correctness.CastVerify(),
-				Malleability.CastVerify());
-		public override MiniscriptFragmentType CastNonZero()
-			=>
-			new MiniscriptFragmentType(
-				Correctness.CastNonZero(),
-				Malleability.CastNonZero());
+		public override bool TryCastCheck(out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (Correctness.TryCastCheck(out var corr, error) && Malleability.TryCastCheck(out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
 
-		public override MiniscriptFragmentType CastZeroNotEqual()
-			=>
-			new MiniscriptFragmentType(
-				Correctness.CastZeroNotEqual(),
-				Malleability.CastZeroNotEqual());
+			return false;
+		}
+		public override bool TryCastDupIf(out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (Correctness.TryCastDupIf(out var corr, error) && Malleability.TryCastDupIf(out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
 
-		public override MiniscriptFragmentType CastTrue()
-			=>
-			new MiniscriptFragmentType(
-				Correctness.CastTrue(),
-				Malleability.CastTrue());
+			return false;
+		}
 
-		public override MiniscriptFragmentType CastOrIFalse()
-			=>
-			new MiniscriptFragmentType(
-				Correctness.CastOrIFalse(),
-				Malleability.CastOrIFalse());
+		public override bool TryCastVerify(out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (Correctness.TryCastVerify(out var corr, error) && Malleability.TryCastVerify(out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
 
-		public override MiniscriptFragmentType CastUnLikely()
-			=>
-			new MiniscriptFragmentType(
-				Correctness.CastUnLikely(),
-				Malleability.CastUnLikely());
+			return false;
+		}
 
-		public override MiniscriptFragmentType CastLikely()
-			=>
-			new MiniscriptFragmentType(
-				Correctness.CastLikely(),
-				Malleability.CastLikely());
+		public override bool TryCastNonZero(out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (Correctness.TryCastNonZero(out var corr, error) && Malleability.TryCastNonZero(out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
 
-		public override MiniscriptFragmentType AndB(MiniscriptFragmentType left, MiniscriptFragmentType right)
-			=>
-			new MiniscriptFragmentType(
-				new Correctness().AndB(left.Correctness, right.Correctness),
-				new Malleability().AndB(left.Malleability, right.Malleability));
+			return false;
+		}
 
-		public override MiniscriptFragmentType AndV(MiniscriptFragmentType left, MiniscriptFragmentType right)
-			=>
-			new MiniscriptFragmentType(
-				new Correctness().AndV(left.Correctness, right.Correctness),
-				new Malleability().AndV(left.Malleability, right.Malleability));
+		public override bool TryCastZeroNotEqual(out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (Correctness.TryCastZeroNotEqual(out var corr, error) && Malleability.TryCastZeroNotEqual(out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
+
+			return false;
+		}
 
 
-		public override MiniscriptFragmentType OrB(MiniscriptFragmentType left, MiniscriptFragmentType right)
-			=>
-			new MiniscriptFragmentType(
-				new Correctness().OrB(left.Correctness, right.Correctness),
-				new Malleability().OrB(left.Malleability, right.Malleability));
+		public override bool TryCastTrue(out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (Correctness.TryCastTrue(out var corr, error) && Malleability.TryCastTrue(out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
 
-		public override MiniscriptFragmentType OrD(MiniscriptFragmentType left, MiniscriptFragmentType right)
-			=>
-			new MiniscriptFragmentType(
-				new Correctness().OrD(left.Correctness, right.Correctness),
-				new Malleability().OrD(left.Malleability, right.Malleability));
+			return false;
+		}
 
-		public override MiniscriptFragmentType OrC(MiniscriptFragmentType left, MiniscriptFragmentType right)
-			=>
-			new MiniscriptFragmentType(
-				new Correctness().OrC(left.Correctness, right.Correctness),
-				new Malleability().OrC(left.Malleability, right.Malleability));
+		public override bool TryCastOrIFalse(out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (Correctness.TryCastOrIFalse(out var corr, error) && Malleability.TryCastOrIFalse(out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
 
-		public override MiniscriptFragmentType OrI(MiniscriptFragmentType left, MiniscriptFragmentType right)
-			=>
-			new MiniscriptFragmentType(
-				new Correctness().OrI(left.Correctness, right.Correctness),
-				new Malleability().OrI(left.Malleability, right.Malleability));
+			return false;
+		}
+		public override bool TryCastUnLikely(out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (Correctness.TryCastUnLikely(out var corr, error) && Malleability.TryCastUnLikely(out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
 
-		public override MiniscriptFragmentType AndOr(MiniscriptFragmentType a, MiniscriptFragmentType b, MiniscriptFragmentType c)
-			=>
-			new MiniscriptFragmentType(
-				new Correctness().AndOr(a.Correctness, b.Correctness, c.Correctness),
-				new Malleability().AndOr(a.Malleability, b.Malleability, c.Malleability));
+			return false;
+		}
 
-		public override MiniscriptFragmentType Threshold(int k, int n, Func<int, MiniscriptFragmentType> func)
-			=>
-				new MiniscriptFragmentType(
-					new Correctness().Threshold(k, n, i => func(i).Correctness),
-					new Malleability().Threshold(k, n , i => func(i).Malleability));
+		public override bool TryCastLikely(out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (Correctness.TryCastLikely(out var corr, error) && Malleability.TryCastLikely(out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
+
+			return false;
+		}
+
+
+		public override bool TryAndB(MiniscriptFragmentType left, MiniscriptFragmentType right,
+			out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (new Correctness().TryAndB(left.Correctness, right.Correctness,out var corr, error)
+			    && new Malleability().TryAndB(left.Malleability, right.Malleability , out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
+
+			return false;
+		}
+
+		public override bool TryAndV(MiniscriptFragmentType left, MiniscriptFragmentType right, out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (new Correctness().TryAndV(left.Correctness, right.Correctness,out var corr, error)
+			    && new Malleability().TryAndV(left.Malleability, right.Malleability , out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
+
+			return false;
+		}
+
+
+		public override bool TryOrB(MiniscriptFragmentType left, MiniscriptFragmentType right, out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (new Correctness().TryOrB(left.Correctness, right.Correctness,out var corr, error)
+			    && new Malleability().TryOrB(left.Malleability, right.Malleability , out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
+
+			return false;
+		}
+
+		public override bool TryOrD(MiniscriptFragmentType left, MiniscriptFragmentType right, out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (new Correctness().TryOrD(left.Correctness, right.Correctness,out var corr, error)
+			    && new Malleability().TryOrD(left.Malleability, right.Malleability , out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
+
+			return false;
+		}
+
+
+		public override bool TryOrC(MiniscriptFragmentType left, MiniscriptFragmentType right, out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (new Correctness().TryOrC(left.Correctness, right.Correctness,out var corr, error)
+			    && new Malleability().TryOrC(left.Malleability, right.Malleability , out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
+
+			return false;
+		}
+
+
+		public override bool TryOrI(MiniscriptFragmentType left, MiniscriptFragmentType right, out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (new Correctness().TryOrI(left.Correctness, right.Correctness,out var corr, error)
+			    && new Malleability().TryOrI(left.Malleability, right.Malleability , out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
+
+			return false;
+		}
+
+
+		public override bool TryAndOr(MiniscriptFragmentType a, MiniscriptFragmentType b, MiniscriptFragmentType c, out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (new Correctness().TryAndOr(a.Correctness, b.Correctness,c.Correctness, out var corr, error)
+			    && new Malleability().TryAndOr(a.Malleability, b.Malleability, c.Malleability, out var mall, error))
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
+
+			return false;
+		}
+
+
+
+		public override bool TryThreshold(int k, int n, Func<int, MiniscriptFragmentType> func,
+			out MiniscriptFragmentType result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (new Correctness().TryThreshold(k, n, i => func(i).Correctness, out var corr, error)
+			    && new Malleability().TryThreshold(k, n, i => func(i).Malleability, out var mall, error)
+			)
+			{
+				result = new MiniscriptFragmentType(corr, mall);
+				return true;
+			}
+			return false;
+		}
 
 
 		public override bool Equals(object obj) => Equals(obj as MiniscriptFragmentType);

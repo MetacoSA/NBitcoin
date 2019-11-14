@@ -11,7 +11,7 @@ namespace NBitcoin.Scripting.Miniscript
 		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		internal readonly Terminal<TPk, TPKh> Node;
-		public readonly MiniscriptFragmentType Type;
+		internal readonly MiniscriptFragmentType Type;
 
 		/// <summary>
 		/// Additional information helpful for extra analysis.

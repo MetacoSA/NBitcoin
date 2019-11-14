@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace NBitcoin.Scripting.Miniscript.Types
 {
@@ -101,10 +103,11 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		/// </summary>
 		ThresholdNonUnit,
 	}
-	class FragmentPropertyException : Exception
+	internal class FragmentPropertyException : Exception
 	{
 		public readonly ErrorKind Kind;
 		public FragmentPropertyException(string msg, Exception innerException): base(msg, innerException) {}
+		public FragmentPropertyException(string msg): base(msg) {}
 
 		internal FragmentPropertyException(ErrorKind kind, string msg, string fragment = null) : base($"Error in {fragment}\n {msg} . Kind:{kind.ToString("G")}")
 		{
@@ -162,5 +165,12 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				ErrorKind.ZeroTime,
 				"Relative or absolute timelock had a time value of 0",
 				fragment);
+
+	}
+
+	internal static class FragmentPropertyExceptionExtension
+	{
+		internal static FragmentPropertyException Flatten(this List<FragmentPropertyException> es)
+			=> new FragmentPropertyException($"{es.Aggregate("", (acc, e) => acc + ", " + e)}");
 	}
 }

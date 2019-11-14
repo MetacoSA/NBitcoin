@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace NBitcoin.Scripting.Miniscript.Types
@@ -72,104 +73,228 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public override Correctness FromTime(uint time)
 			=> new Correctness(Base.B, Input.Zero, false, false);
 
-		public override Correctness CastAlt()
-			=> new Correctness(
-				(Base == Base.B ? Base.W : throw FragmentPropertyException.ChildBase1(Base)),
+		public override bool TryCastAlt(out Correctness result, List<FragmentPropertyException> fragmentPropertyExceptions)
+		{
+			result = null;
+			if (this.Base != Miniscript.Base.B)
+			{
+				fragmentPropertyExceptions.Add(FragmentPropertyException.ChildBase1(Base));
+				return false;
+			}
+
+			result =
+				new Correctness(
+					Base.W,
+					Input.Any,
+					DisSatisfiable,
+					Unit
+				);
+			return true;
+		}
+
+		public override bool TryCastSwap(out Correctness result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (this.Base != Base.B)
+			{
+				error.Add(FragmentPropertyException.ChildBase1(Base));
+				return false;
+			}
+			if (Input != Input.One && Input != Input.OneNonZero)
+			{
+				error.Add(FragmentPropertyException.SwapNoneOne());
+				return false;
+			}
+
+			result = new Correctness(
+				Base.W,
 				Input.Any,
 				DisSatisfiable,
 				Unit
-		);
+			);
+			return true;
+		}
 
-		public override Correctness CastSwap() =>
-			new Correctness(
-				(Base == Base.B ? Base.W : throw FragmentPropertyException.ChildBase1(Base)),
-				(Input == Input.One || Input == Input.OneNonZero ? Input.Any : throw FragmentPropertyException.ChildBase1(Base)),
-				DisSatisfiable,
-				Unit
-				);
-
-		public override Correctness CastCheck() =>
-			new Correctness(
-				(Base == Base.K ? Base.B : throw FragmentPropertyException.ChildBase1(Base)),
+		public override bool TryCastCheck(out Correctness result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (Base != Base.K)
+			{
+				error.Add(FragmentPropertyException.ChildBase1(Base));
+				return false;
+			}
+			result = new Correctness(
+				Miniscript.Base.B,
 				Input,
 				DisSatisfiable,
 				true
 			);
+			return true;
+		}
 
-		public override Correctness CastDupIf() =>
-			new Correctness(
-				(Base == Base.V ? Base.B : throw FragmentPropertyException.ChildBase1(Base)),
-				(Input == Input.Zero ? Input.OneNonZero : throw FragmentPropertyException.NonZeroDupIf()),
+		public override bool TryCastDupIf(out Correctness result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (this.Base != Base.V)
+			{
+				error.Add(FragmentPropertyException.ChildBase1(Base));
+				return false;
+			}
+
+			if (this.Input != Input.Zero)
+			{
+				error.Add(FragmentPropertyException.NonZeroDupIf());
+				return false;
+			}
+			result = new Correctness(
+				Base.B,
+				Input.OneNonZero,
 				true,
 				true
-				);
+			);
+			return true;
+		}
 
-		public override Correctness CastVerify() =>
-			new Correctness(
-				(Base == Base.B ? Base.V : throw FragmentPropertyException.ChildBase1(Base)),
-				Input,
-				false,false
-				);
-
-		public override Correctness CastNonZero()
+		public override bool TryCastVerify(out Correctness result, List<FragmentPropertyException> error)
 		{
+			result = null;
+			if (this.Base != Base.B)
+			{
+				error.Add(FragmentPropertyException.ChildBase1(Base));
+				return false;
+			}
+			result = new Correctness(
+				Base.V,
+				Input,
+				false, false
+			);
+			return true;
+		}
+
+		public override bool TryCastNonZero(out Correctness result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (this.Base != Base.B)
+			{
+				error.Add(FragmentPropertyException.ChildBase1(Base));
+				return false;
+			}
 			if (Input != Input.OneNonZero && Input != Input.AnyNonZero)
-				throw FragmentPropertyException.NonZeroZero();
-			return new Correctness(
-				(Base == Base.B ? Base.B : throw FragmentPropertyException.ChildBase1(Base)),
+			{
+				error.Add(FragmentPropertyException.NonZeroZero());
+				return false;
+			}
+
+			result =
+				new Correctness(
+					Base.B,
 				Input,
 				true,
 				Unit
 				);
+			return true;
 		}
 
-		public override Correctness CastZeroNotEqual() =>
-			new Correctness(
-				(Base == Base.B ? Base.B : throw FragmentPropertyException.ChildBase1(Base)),
+		public override bool TryCastZeroNotEqual(out Correctness result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (this.Base != Base.B)
+			{
+				error.Add(FragmentPropertyException.ChildBase1(Base));
+				return false;
+			}
+			result = new Correctness(
+				Base.B,
 				Input,
 				DisSatisfiable,
 				true
-				);
+			);
+			return true;
+		}
 
-		public override Correctness CastTrue() =>
+		public override bool TryCastTrue(out Correctness result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (this.Base != Base.V)
+			{
+				error.Add(FragmentPropertyException.ChildBase1(Base));
+				return false;
+			}
+			result =
 			new Correctness(
-				(Base == Base.V ? Base.B : throw FragmentPropertyException.ChildBase1(Base)),
+				Base.B,
 				Input,
 				false,
 				true
 			);
+			return true;
+		}
 
-		public override Correctness CastOrIFalse() =>
+		public override bool TryCastOrIFalse(out Correctness result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (this.Base != Base.B)
+			{
+				error.Add(FragmentPropertyException.ChildBase1(Base));
+				return false;
+			}
+			result =
 			new Correctness(
-				(Base == Base.B ? Base.B : throw FragmentPropertyException.ChildBase1(Base)),
+				Base.B,
 				(Input == Input.Zero ? Input.One : Input.Any),
 				true,
 				Unit
-				);
+			);
+			return true;
+		}
 
-		public override Correctness AndB(Correctness l, Correctness r) =>
-			new Correctness(
-				((l.Base == Base.B && r.Base == Base.W) ? Base.B : throw FragmentPropertyException.ChildBase2(l.Base, r.Base) ),
-
-				(l.Input == Input.Zero && r.Input == Input.Zero) ? Input.Zero :
-				((l.Input == Input.Zero && r.Input == Input.One)
-					|| l.Input == Input.One || r.Input == Input.Zero) ? Input.One :
-				(l.Input == Input.Zero && r.Input == Input.OneNonZero)
-					|| (l.Input == Input.OneNonZero && r.Input == Input.Zero) ? Input.OneNonZero :
-				((l.Input == Input.AnyNonZero) || (l.Input == Input.Zero && r.Input == Input.AnyNonZero)) ? Input.AnyNonZero :
-				(Input.Any),
-
+		public override bool TryAndB(Correctness l, Correctness r, out Correctness result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			if (l.Base != Base.B || r.Base != Base.W)
+			{
+				error.Add(FragmentPropertyException.ChildBase2(r.Base, l.Base));
+				return false;
+			}
+			result = new Correctness(
+				Miniscript.Base.B,
+				(l.Input == Input.Zero && r.Input == Input.Zero)
+					? Input.Zero
+					:
+					((l.Input == Input.Zero && r.Input == Input.One)
+					 || l.Input == Input.One || r.Input == Input.Zero)
+						? Input.One
+						:
+						(l.Input == Input.Zero && r.Input == Input.OneNonZero)
+						|| (l.Input == Input.OneNonZero && r.Input == Input.Zero)
+							? Input.OneNonZero
+							:
+							((l.Input == Input.AnyNonZero) || (l.Input == Input.Zero && r.Input == Input.AnyNonZero))
+								?
+								Input.AnyNonZero
+								:
+								(Input.Any),
 				(l.DisSatisfiable && r.DisSatisfiable),
 				true
-				);
+			);
+			return true;
+		}
 
-		public override Correctness AndV(Correctness l, Correctness r)
+		public override bool TryAndV(Correctness l, Correctness r, out Correctness result, List<FragmentPropertyException> error)
 		{
-			return new Correctness(
+			result = null;
+			var newBase =
 				(l.Base == Base.V && r.Base == Base.B) ? Base.B :
 				(l.Base == Base.V && r.Base == Base.K) ? Base.K :
-				(l.Base == Base.V && r.Base == Base.V) ? Base.V : throw FragmentPropertyException.ChildBase2(l.Base, r.Base),
-
+				(l.Base == Base.V && r.Base == Base.V) ? Base.V : Miniscript.Base.W;
+			if (newBase == Base.W)
+			{
+				error.Add(FragmentPropertyException.ChildBase2(l.Base, r.Base));
+				return false;
+			}
+			result =
+				new Correctness(
+					newBase,
 				(l.Input == Input.Zero && r.Input == Input.Zero) ? Input.Zero :
 				(l.Input == Input.Zero && r.Input == Input.One) ||
 					(l.Input == Input.One && r.Input == Input.Zero) ? Input.One :
@@ -182,16 +307,32 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				false,
 				r.Unit
 				);
+			return true;
 		}
 
-		public override Correctness OrB(Correctness l, Correctness r)
+		public override bool TryOrB(Correctness l, Correctness r, out Correctness result, List<FragmentPropertyException> error)
 		{
+			result = null;
 			if (!l.DisSatisfiable)
-				throw FragmentPropertyException.LeftNotDissatisfiable();
+			{
+				error.Add(FragmentPropertyException.LeftNotDissatisfiable());
+				return false;
+			}
+
 			if (!r.DisSatisfiable)
-				throw FragmentPropertyException.RightNotDissatisfiable();
-			return new Correctness(
-				(l.Base == Base.B && r.Base == Base.W) ? Base.B : throw FragmentPropertyException.ChildBase2(l.Base, r.Base),
+			{
+				error.Add(FragmentPropertyException.RightNotDissatisfiable());
+				return false;
+			}
+
+			if (l.Base != Base.B || r.Base != Base.W)
+			{
+				error.Add(FragmentPropertyException.ChildBase2(l.Base, r.Base));
+				return false;
+			}
+
+			result = new Correctness(
+				Miniscript.Base.B,
 				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.Zero :
 				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.One) ||
 					(l.Input == Miniscript.Input.One && r.Input == Miniscript.Input.Zero) ||
@@ -201,16 +342,32 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				true,
 				true
 				);
+			return true;
 		}
 
-		public override Correctness OrD(Correctness l, Correctness r)
+		public override bool TryOrD(Correctness l, Correctness r, out Correctness result, List<FragmentPropertyException> error)
 		{
+			result = null;
 			if (!l.DisSatisfiable)
-				throw FragmentPropertyException.LeftNotDissatisfiable();
+			{
+				error.Add(FragmentPropertyException.LeftNotDissatisfiable());
+				return false;
+			}
+
 			if (!l.Unit)
-				throw FragmentPropertyException.LeftNotUnit();
-			return new Correctness(
-				(l.Base == Base.B) ? Base.B : throw FragmentPropertyException.ChildBase2(l.Base, r.Base),
+			{
+				error.Add(FragmentPropertyException.LeftNotUnit());
+				return false;
+			}
+
+			if (l.Base != Base.B)
+			{
+				error.Add(FragmentPropertyException.ChildBase2(l.Base, r.Base));
+				return false;
+			}
+
+			result = new Correctness(
+				Miniscript.Base.B,
 				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.Zero :
 					(l.Input == Miniscript.Input.One && r.Input == Miniscript.Input.Zero) ||
 					(l.Input == Miniscript.Input.OneNonZero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.One :
@@ -218,47 +375,91 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				r.DisSatisfiable,
 				r.Unit
 				);
+			return true;
 		}
 
-		public override Correctness OrC(Correctness l, Correctness r)
+		public override bool TryOrC(Correctness l, Correctness r, out Correctness result, List<FragmentPropertyException> error)
 		{
+			result = null;
 			if (!l.DisSatisfiable)
-				throw FragmentPropertyException.LeftNotDissatisfiable();
-			if (!l.Unit)
-				throw FragmentPropertyException.LeftNotUnit();
+			{
+				error.Add(FragmentPropertyException.LeftNotDissatisfiable());
+				return false;
+			}
 
-			return
+			if (!l.Unit)
+			{
+				error.Add(FragmentPropertyException.LeftNotUnit());
+				return false;
+			}
+
+			if (l.Base != Base.B || r.Base != Base.V)
+			{
+				error.Add(FragmentPropertyException.ChildBase2(l.Base, r.Base));
+				return false;
+			}
+
+			result =
 				new Correctness(
-					(l.Base == Miniscript.Base.B && r.Base == Miniscript.Base.V)
-						? Miniscript.Base.V
-						: throw FragmentPropertyException.ChildBase2(l.Base, r.Base),
+					Base.V,
 					Miniscript.Input.Any,
 					false,
 					false
 				);
+			return true;
 		}
 
-		public override Correctness OrI(Correctness l, Correctness r) =>
-			new Correctness(
+		public override bool TryOrI(Correctness l, Correctness r, out Correctness result, List<FragmentPropertyException> error)
+		{
+			result = null;
+			var nextBase =
 				(l.Base == Miniscript.Base.B && r.Base == Miniscript.Base.B) ? Miniscript.Base.B :
 				(l.Base == Miniscript.Base.V && r.Base == Miniscript.Base.V) ? Miniscript.Base.V :
-				(l.Base == Miniscript.Base.K && r.Base == Miniscript.Base.K) ? Miniscript.Base.K : throw FragmentPropertyException.ChildBase2(l.Base, r.Base),
-				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.Zero) ? Miniscript.Input.One : Miniscript.Input.Any,
+				(l.Base == Miniscript.Base.K && r.Base == Miniscript.Base.K) ? Miniscript.Base.K :
+				Miniscript.Base.W;
+			if (nextBase == Base.W)
+			{
+				error.Add(FragmentPropertyException.ChildBase2(l.Base, r.Base));
+				return false;
+			}
+			result = new Correctness(
+				nextBase,
+				(l.Input == Miniscript.Input.Zero && r.Input == Miniscript.Input.Zero)
+					? Miniscript.Input.One
+					: Miniscript.Input.Any,
 				(l.DisSatisfiable || r.DisSatisfiable),
 				l.Unit && r.Unit
 			);
+			return true;
+		}
 
-		public override Correctness AndOr(Correctness a, Correctness b, Correctness c)
+		public override bool TryAndOr(Correctness a, Correctness b, Correctness c, out Correctness result, List<FragmentPropertyException> error)
 		{
+			result = null;
 			if (!a.DisSatisfiable)
-				throw FragmentPropertyException.LeftNotDissatisfiable();
+			{
+				error.Add(FragmentPropertyException.LeftNotDissatisfiable());
+				return false;
+			}
+
 			if (!a.Unit)
-				throw FragmentPropertyException.LeftNotUnit();
-			return new Correctness(
+			{
+				error.Add(FragmentPropertyException.LeftNotUnit());
+				return false;
+			}
+
+			var nextBase =
 				(a.Base == Base.B && b.Base == Base.B && c.Base == Base.B) ? Miniscript.Base.B :
-					(a.Base == Base.B && b.Base == Base.K && c.Base == Base.K) ? Base.K :
-					(a.Base == Base.B && b.Base == Base.V && c.Base == Base.V) ? Base.V :
-					throw FragmentPropertyException.ChildBase3(a.Base, b.Base, c.Base),
+				(a.Base == Base.B && b.Base == Base.K && c.Base == Base.K) ? Base.K :
+				(a.Base == Base.B && b.Base == Base.V && c.Base == Base.V) ? Base.V :
+				Base.W;
+			if (nextBase == Base.W)
+			{
+				error.Add(FragmentPropertyException.ChildBase3(a.Base, b.Base, c.Base));
+				return false;
+			}
+			result = new Correctness(
+				nextBase,
 				(a.Input == Input.Zero && b.Input == Input.Zero && c.Input == Input.Zero) ? Input.Zero :
 				(a.Input == Input.Zero && b.Input == Input.One && c.Input == Input.One) ||
 					(a.Input  == Input.Zero && b.Input == Input.One && c.Input == Input.OneNonZero) ||
@@ -271,10 +472,12 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				c.DisSatisfiable,
 				b.Unit && c.Unit
 				);
+			return true;
 		}
 
-		public override Correctness Threshold(int k, int n, Func<int, Correctness> subCk)
+		public override bool TryThreshold(int k, int n, Func<int, Correctness> subCk, out Correctness result, List<FragmentPropertyException> error)
 		{
+			result = null;
 			var isN = k == n;
 			for (int i = 0; i < n; i++)
 			{
@@ -283,24 +486,39 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				{
 					isN &= subType.Input == Input.OneNonZero || subType.Input == Input.AnyNonZero;
 					if (subType.Base != Base.B)
-						throw FragmentPropertyException.ThresholdBase(0U, subType.Base);
+					{
+						error.Add(FragmentPropertyException.ThresholdBase(0U, subType.Base));
+						return false;
+					}
 				}
 				else
 				{
 					if (subType.Base != Miniscript.Base.W)
-						throw FragmentPropertyException.ThresholdBase((uint)n, subType.Base);
+					{
+						error.Add(FragmentPropertyException.ThresholdBase((uint) n, subType.Base));
+						return false;
+					}
 				}
+
 				if (!subType.Unit)
-					throw FragmentPropertyException.ThresholdNonUnit((uint)n);
+				{
+					error.Add(FragmentPropertyException.ThresholdNonUnit((uint) n));
+					return false;
+				}
+
 				if (!subType.DisSatisfiable)
-					throw FragmentPropertyException.ThresholdDissat((uint)n);
+				{
+					error.Add(FragmentPropertyException.ThresholdDissat((uint) n));
+					return false;
+				}
 			}
-			return new Correctness(
+			result = new Correctness(
 				Base.B,
 				(isN ? Input.AnyNonZero : Miniscript.Input.Any),
 				true,
 				true
 				);
+			return true;
 		}
 	}
 }

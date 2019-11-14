@@ -1,24 +1,25 @@
 using System;
+using System.Collections.Generic;
 using NBitcoin.Scripting.Miniscript.Policy;
 
 namespace NBitcoin.Scripting.Miniscript.Types
 {
-	public abstract class IProperty<T> where T: IProperty<T>
+	internal abstract class IProperty<T> where T: IProperty<T>
 	{
 		public virtual void SanityChecks() {}
 
 		# region Casting operation
-		public abstract T CastAlt();
-		public abstract T CastSwap();
-		public abstract T CastCheck();
-		public abstract T CastDupIf();
-		public abstract T CastVerify();
-		public abstract T CastNonZero();
-		public abstract T CastZeroNotEqual();
-		public abstract T CastTrue();
-		public abstract T CastOrIFalse();
-		public virtual T CastUnLikely() => CastOrIFalse();
-		public virtual T CastLikely() => CastOrIFalse();
+		public abstract bool TryCastAlt(out T result, List<FragmentPropertyException> error);
+		public abstract bool TryCastSwap(out T result, List<FragmentPropertyException> error);
+		public abstract bool TryCastCheck(out T result, List<FragmentPropertyException> error);
+		public abstract bool TryCastDupIf(out T result, List<FragmentPropertyException> error);
+		public abstract bool TryCastVerify(out T result, List<FragmentPropertyException> error);
+		public abstract bool TryCastNonZero(out T result, List<FragmentPropertyException> error);
+		public abstract bool TryCastZeroNotEqual(out T result, List<FragmentPropertyException> error);
+		public abstract bool TryCastTrue(out T result, List<FragmentPropertyException> error);
+		public abstract bool TryCastOrIFalse(out T result, List<FragmentPropertyException> error);
+		public virtual bool TryCastLikely(out T result, List<FragmentPropertyException> error) => TryCastOrIFalse(out result, error);
+		public virtual bool TryCastUnLikely(out T result, List<FragmentPropertyException> error) => TryCastOrIFalse(out result, error);
 
 		#endregion
 
@@ -43,15 +44,17 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public virtual T FromOlder(uint time) => this.FromTime(time);
 
 
-		public abstract T AndB(T l, T r);
-		public abstract T AndV(T l, T r);
-		public virtual T AndN(T l, T r) => AndOr(l, r, FromFalse());
-		public abstract T OrB(T left, T right);
-		public abstract T OrD(T left, T right);
-		public abstract T OrC(T left, T right);
-		public abstract T OrI(T left, T right);
-		public abstract T AndOr(T a, T b, T c);
-		public abstract T Threshold(int k, int n, Func<int, T> subCk);
+		public abstract bool TryAndB(T l, T r, out T result, List<FragmentPropertyException> error);
+		public abstract bool TryAndV(T l, T r, out T result, List<FragmentPropertyException> error);
+		public virtual bool TryAndN(T l, T r, out T result, List<FragmentPropertyException> error)
+			=> TryAndOr(l, r, FromFalse(), out result, error);
+
+		public abstract bool TryOrB(T l, T r, out T result, List<FragmentPropertyException> error);
+		public abstract bool TryOrD(T l, T r, out T result, List<FragmentPropertyException> error);
+		public abstract bool TryOrC(T l, T r, out T result, List<FragmentPropertyException> error);
+		public abstract bool TryOrI(T l, T r, out T result, List<FragmentPropertyException> error);
+		public abstract bool TryAndOr(T a, T b, T c, out T result, List<FragmentPropertyException> error);
+		public abstract bool TryThreshold(int k, int n, Func<int, T> subCk, out T result, List<FragmentPropertyException> error);
 		#endregion
 	}
 }

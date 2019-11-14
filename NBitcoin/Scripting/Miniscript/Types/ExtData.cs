@@ -168,17 +168,24 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				1,
 				null
 				);
-		public override ExtData CastAlt() =>
-			new ExtData(
-				LegacySafe,
-				PkCost + 2,
-				false,
-				OpsCountStatic + 2,
-				OpsCountSat + 2,
-				OpsCountNSat + 2
-				);
 
-		public override ExtData CastSwap() =>
+		public override bool TryCastAlt(out ExtData result, List<FragmentPropertyException> error)
+		{
+			result =
+				new ExtData(
+					LegacySafe,
+					PkCost + 2,
+					false,
+					OpsCountStatic + 2,
+					OpsCountSat + 2,
+					OpsCountNSat + 2
+				);
+			return true;
+		}
+
+		public override bool TryCastSwap(out ExtData result, List<FragmentPropertyException> error)
+		{
+			result =
 			new ExtData(
 				LegacySafe,
 				PkCost + 1,
@@ -186,9 +193,12 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				OpsCountStatic + 1,
 				OpsCountSat + 1,
 				OpsCountNSat + 1
-				);
+			);
+			return true;
+		}
 
-		public override ExtData CastCheck() =>
+		public override bool TryCastCheck(out ExtData result, List<FragmentPropertyException> error) {
+			result =
 			new ExtData(
 				LegacySafe,
 				PkCost + 1,
@@ -197,8 +207,11 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				OpsCountSat + 1,
 				OpsCountNSat + 1
 				);
+			return true;
+		}
 
-		public override ExtData CastDupIf() =>
+		public override bool TryCastDupIf(out ExtData result, List<FragmentPropertyException> error) {
+			result =
 			new ExtData(
 				LegacySafe.SegwitOnly,
 				PkCost + 3,
@@ -207,11 +220,14 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				OpsCountSat + 3,
 				OpsCountStatic + 3
 				);
+			return true;
+		}
 
-		public override ExtData CastVerify()
+		public override bool TryCastVerify(out ExtData result, List<FragmentPropertyException> error)
 		{
 			var verifyCost = this.HasVerifyForm ? 0UL : 1UL;
-			return new ExtData(
+			result =
+			new ExtData(
 				LegacySafe,
 				PkCost + verifyCost,
 				false,
@@ -219,19 +235,25 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				OpsCountSat + verifyCost,
 				null
 				);
+			return true;
 		}
 
-		public override ExtData CastNonZero() =>
-			new ExtData(
-				LegacySafe,
-				PkCost + 4UL,
-				false,
-				OpsCountStatic + 4,
-				OpsCountSat + 4UL,
-				OpsCountStatic + 4
+		public override bool TryCastNonZero(out ExtData result, List<FragmentPropertyException> error)
+		{
+			result =
+				new ExtData(
+					LegacySafe,
+					PkCost + 4UL,
+					false,
+					OpsCountStatic + 4,
+					OpsCountSat + 4UL,
+					OpsCountStatic + 4
 				);
+			return true;
+		}
 
-		public override ExtData CastZeroNotEqual() =>
+		public override bool TryCastZeroNotEqual(out ExtData result, List<FragmentPropertyException> error) {
+			result =
 			new ExtData(
 				LegacySafe,
 				PkCost + 1,
@@ -240,8 +262,11 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				OpsCountSat + 1UL,
 				OpsCountNSat + 1UL
 				);
+			return true;
+		}
 
-		public override ExtData CastTrue() =>
+		public override bool TryCastTrue(out ExtData result, List<FragmentPropertyException> error) {
+			result =
 			new ExtData(
 				LegacySafe,
 				PkCost + 1,
@@ -250,13 +275,16 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				OpsCountSat,
 				null
 				);
+			return true;
+		}
 
-		public override ExtData CastOrIFalse()
+		public override bool TryCastOrIFalse(out ExtData result, List<FragmentPropertyException> error)
 		{
 			throw new Exception("Unreachable!");
 		}
 
-		public override ExtData CastUnLikely() =>
+		public override bool TryCastUnLikely(out ExtData result, List<FragmentPropertyException> error) {
+			result =
 			new ExtData(
 				LegacySafe,
 				PkCost + 4,
@@ -265,8 +293,11 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				OpsCountSat + 3,
 				OpsCountNSat + 3
 				);
+			return true;
+		}
 
-		public override ExtData CastLikely() =>
+		public override bool TryCastLikely(out ExtData result, List<FragmentPropertyException> error) {
+			result =
 			new ExtData(
 				LegacySafe,
 				PkCost + 4,
@@ -275,30 +306,41 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				OpsCountSat + 3,
 				OpsCountStatic + 3
 				);
-
+			return true;
+		}
 		private static LegacySafe LegacySafe2(LegacySafe a, LegacySafe b) =>
 			(a == LegacySafe.LegacySafe && b == LegacySafe.LegacySafe) ? LegacySafe.LegacySafe : LegacySafe.SegwitOnly;
-		public override ExtData AndB(ExtData l, ExtData r) =>
-			new ExtData(
-				LegacySafe2(l.LegacySafe, r.LegacySafe),
-				l.PkCost + r.PkCost + 1,
-				false,
-				l.OpsCountStatic + r.OpsCountStatic + 1,
-				l.OpsCountSat + r.OpsCountSat + 1,
-				l.OpsCountNSat + r.OpsCountNSat + 1
+		public override bool TryAndB(ExtData l, ExtData r, out ExtData result, List<FragmentPropertyException> error)
+		{
+			result =
+				new ExtData(
+					LegacySafe2(l.LegacySafe, r.LegacySafe),
+					l.PkCost + r.PkCost + 1,
+					false,
+					l.OpsCountStatic + r.OpsCountStatic + 1,
+					l.OpsCountSat + r.OpsCountSat + 1,
+					l.OpsCountNSat + r.OpsCountNSat + 1
 				);
+			return true;
+		}
 
-		public override ExtData AndV(ExtData l, ExtData r) =>
-			new ExtData(
+		public override bool TryAndV(ExtData l, ExtData r, out ExtData result, List<FragmentPropertyException> error)
+		{
+			result =
+			  new ExtData(
 				LegacySafe2(l.LegacySafe, r.LegacySafe),
 				l.PkCost + r.PkCost,
 				r.HasVerifyForm,
 				l.OpsCountStatic + r.OpsCountStatic,
 				l.OpsCountSat + r.OpsCountSat,
 				null
-				);
+			);
+			return true;
+		}
 
-		public override ExtData OrB(ExtData left, ExtData right) =>
+		public override bool TryOrB(ExtData left, ExtData right, out ExtData result, List<FragmentPropertyException> error)
+		{
+			result =
 			new ExtData(
 				LegacySafe2(left.LegacySafe, right.LegacySafe),
 				left.PkCost + right.PkCost + 1,
@@ -306,13 +348,16 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				left.OpsCountStatic + right.OpsCountStatic + 1,
 				left.OpsCountSat + right.OpsCountSat + 1,
 				left.OpsCountNSat + right.OpsCountNSat + 1
-				);
+			);
+			return true;
+		}
 
-		public override ExtData OrD(ExtData left, ExtData right)
+		public override bool TryOrD(ExtData left, ExtData right, out ExtData result, List<FragmentPropertyException> error)
 		{
 			var opsCountSat1 = left.OpsCountSat + 3 + right.OpsCountStatic;
 			var opsCountSat2 = right.OpsCountSat + left.OpsCountNSat + 3;
-			return new ExtData(
+			result =
+			new ExtData(
 				LegacySafe.SegwitOnly,
 				left.PkCost + right.PkCost + 3,
 				false,
@@ -320,14 +365,15 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				Nullable.Compare(opsCountSat1, opsCountSat2) > 0 ? opsCountSat1 : opsCountSat2,
 				left.OpsCountSat + right.OpsCountNSat + 3
 			);
+			return true;
 		}
 
-		public override ExtData OrC(ExtData left, ExtData right)
+		public override bool TryOrC(ExtData left, ExtData right, out ExtData result, List<FragmentPropertyException> error)
 		{
 			var opsCountSat1 = left.OpsCountSat + 2 + right.OpsCountStatic;
 			var opsCountSat2 = right.OpsCountSat + left.OpsCountNSat + 2;
 
-			return
+			result =
 			new ExtData(
 				LegacySafe2(left.LegacySafe, right.LegacySafe),
 				left.PkCost + right.PkCost + 2,
@@ -336,9 +382,10 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				Nullable.Compare(opsCountSat1, opsCountSat2) > 0 ? opsCountSat1 : opsCountSat2,
 					null
 			);
+			return true;
 		}
 
-		public override ExtData OrI(ExtData left, ExtData right)
+		public override bool TryOrI(ExtData left, ExtData right, out ExtData result, List<FragmentPropertyException> error)
 		{
 			var opsCountSat1 = left.OpsCountSat + right.OpsCountStatic + 3;
 			var opsCountSat2 = right.OpsCountSat + left.OpsCountStatic + 3;
@@ -350,7 +397,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 					: (left.OpsCountNSat.HasValue)
 						? left.OpsCountNSat + 3
 						: right.OpsCountNSat + 3;
-			return new ExtData(
+			result =
+			new ExtData(
 				LegacySafe2(left.LegacySafe, right.LegacySafe),
 				left.PkCost + right.PkCost + 3,
 				false,
@@ -358,9 +406,10 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				Nullable.Compare(opsCountSat1, opsCountSat2) > 0 ? opsCountSat1 : opsCountSat2,
 				opsCountNSat
 				);
+			return true;
 		}
 
-		public override ExtData AndOr(ExtData a, ExtData b, ExtData c)
+		public override bool TryAndOr(ExtData a, ExtData b, ExtData c, out ExtData result, List<FragmentPropertyException> error)
 		{
 			var legacySafe = LegacySafe2(LegacySafe2(a.LegacySafe, b.LegacySafe), c.LegacySafe);
 			var opsCountSat1 = a.OpsCountSat + b.OpsCountSat + c.OpsCountStatic + 3;
@@ -369,7 +418,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 			var opsCountNSat = c.OpsCountNSat +  b.OpsCountStatic + a.OpsCountNSat + 3;
 
-			return new ExtData(
+			result = new ExtData(
 				legacySafe,
 				a.PkCost + b.PkCost + c.PkCost + 2,
 				false,
@@ -377,9 +426,10 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				opsCountSat,
 				opsCountNSat
 				);
+			return true;
 		}
 
-		public override ExtData Threshold(int k, int n, Func<int, ExtData> subCk)
+		public override bool TryThreshold(int k, int n, Func<int, ExtData> subCk, out ExtData result, List<FragmentPropertyException> error)
 		{
 			var pkCost = 1UL + (ulong)Utils.ScriptNumSize(k);
 			var legacySafe = LegacySafe.LegacySafe;
@@ -421,7 +471,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				Func<ulong?, double> summer = v => v.Value;
 				sum = (ulong)opsCountSatVec.Skip(remainingSat).Sum(summer);
 			}
-			return new ExtData(
+			result = new ExtData(
 				legacySafe,
 				pkCost + (ulong)n - 1UL,
 				true,
@@ -429,6 +479,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				opsCountSat + ((ulong)n - 1UL) + 1UL + (sum + opsCountNSatSum),
 				opsCountNSat + ((ulong)n - 1UL) + 1UL
 				);
+			return true;
 		}
 	}
 }

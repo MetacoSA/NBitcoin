@@ -134,111 +134,158 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		public override CompilerExtData FromTime(uint time) =>
 			new CompilerExtData(null, 0.0, null);
 
-		public override CompilerExtData CastAlt()
-			=> new CompilerExtData(null, SatisfyCost, DissatCost);
+		public override bool TryCastAlt(out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, SatisfyCost, DissatCost);
+			return true;
+		}
 
-		public override CompilerExtData CastSwap() =>
-			new CompilerExtData(null, SatisfyCost, DissatCost);
+		public override bool TryCastSwap(out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, SatisfyCost, DissatCost);
+			return true;
+		}
 
-		public override CompilerExtData CastCheck()
-			=> new CompilerExtData(null, SatisfyCost, DissatCost);
+		public override bool TryCastCheck(out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, SatisfyCost, DissatCost);
+			return true;
+		}
 
-		public override CompilerExtData CastDupIf()
-			=> new CompilerExtData(null, 2.0 + SatisfyCost, 1.0);
+		public override bool TryCastDupIf(out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, 2.0 + SatisfyCost, 1.0);
+			return true;
+		}
 
-		public override CompilerExtData CastVerify()
-			=> new CompilerExtData(null, SatisfyCost, null);
+		public override bool TryCastVerify(out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, SatisfyCost, null);
+			return true;
+		}
 
-		public override CompilerExtData CastNonZero()
-			=> new CompilerExtData(null, SatisfyCost, 1.0);
+		public override bool TryCastNonZero(out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, SatisfyCost, 1.0);
+			return true;
+		}
 
-		public override CompilerExtData CastZeroNotEqual()
-			=> new CompilerExtData(null, SatisfyCost, DissatCost);
+		public override bool TryCastZeroNotEqual(out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, SatisfyCost, DissatCost);
+			return true;
+		}
 
-		public override CompilerExtData CastTrue()
-			=> new CompilerExtData(null, SatisfyCost, null);
+		public override bool TryCastTrue(out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, SatisfyCost, null);
+			return true;
+		}
 
-		public override CompilerExtData CastOrIFalse()
-			=> new CompilerExtData(null, SatisfyCost, null);
+		public override bool TryCastOrIFalse(out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, SatisfyCost, null);
+			return true;
+		}
 
-		public override CompilerExtData CastUnLikely()
-			=> new CompilerExtData(null, 2.0 + SatisfyCost, 1.0);
+		public override bool TryCastUnLikely(out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, 2.0 + SatisfyCost, 1.0);
+			return true;
+		}
 
-		public override CompilerExtData CastLikely()
-			=> new CompilerExtData(null, 1.0 + SatisfyCost, 2.0);
+		public override bool TryCastLikely(out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, 1.0 + SatisfyCost, 2.0);
+			return true;
+		}
 
-		public override CompilerExtData AndB(CompilerExtData l, CompilerExtData r)
-			=> new CompilerExtData(null, l.SatisfyCost + r.SatisfyCost,
+		public override bool TryAndB(CompilerExtData l, CompilerExtData r, out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, l.SatisfyCost + r.SatisfyCost,
 				l.DissatCost + r.DissatCost
-				);
+			);
+			return true;
+		}
 
-		public override CompilerExtData AndV(CompilerExtData l, CompilerExtData r)
-			=> new CompilerExtData(null, l.SatisfyCost + r.SatisfyCost, null);
+		public override bool TryAndV(CompilerExtData l, CompilerExtData r, out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, l.SatisfyCost + r.SatisfyCost, null);
+			return true;
+		}
 
-		public override CompilerExtData OrB(CompilerExtData left, CompilerExtData right)
+		public override bool TryOrB(CompilerExtData left, CompilerExtData right, out CompilerExtData result, List<FragmentPropertyException> error)
 		{
 			var lProb = left.BranchProb.Value; // left branch prob must always be set for disjunctions
 			var rProb = right.BranchProb.Value; // and for right branch.
-			return new CompilerExtData(
+			result = new CompilerExtData(
 				null,
 				lProb * (left.SatisfyCost + right.DissatCost.Value) + rProb * (right.SatisfyCost + left.DissatCost.Value),
 				left.DissatCost + right.DissatCost
 				);
+			return true;
 		}
 
-		public override CompilerExtData OrD(CompilerExtData left, CompilerExtData right)
+		public override bool TryOrD(CompilerExtData left, CompilerExtData right, out CompilerExtData result, List<FragmentPropertyException> error)
 		{
 			var lProb = left.BranchProb.Value; // left branch prob must always be set for disjunctions
 			var rProb = left.BranchProb.Value; // and for right branch.
-			return new CompilerExtData(
+			result = new CompilerExtData(
 				null,
 				(lProb * left.SatisfyCost + rProb * (right.SatisfyCost + left.DissatCost.Value)),
 				right.DissatCost + left.DissatCost
 				);
+			return true;
 		}
 
-		public override CompilerExtData OrC(CompilerExtData left, CompilerExtData right)
+		public override bool TryOrC(CompilerExtData left, CompilerExtData right, out CompilerExtData result, List<FragmentPropertyException> error)
 		{
 			var lProb = left.BranchProb.Value; // left branch prob must always be set for disjunctions
 			var rProb = right.BranchProb.Value; // and for right branch.
-			return new CompilerExtData(
+			result = new CompilerExtData(
 				null,
 				lProb * (left.SatisfyCost + right.DissatCost.Value) +
 				rProb * (right.SatisfyCost + left.DissatCost.Value),
 				null
 			);
+			return true;
 		}
 
-		public override CompilerExtData OrI(CompilerExtData left, CompilerExtData right)
+		public override bool TryOrI(CompilerExtData left, CompilerExtData right, out CompilerExtData result, List<FragmentPropertyException> error)
 		{
 			var lProb = left.BranchProb.Value; // left branch prob must always be set for disjunctions
 			var rProb = right.BranchProb.Value; // and for right branch.
-			return new CompilerExtData(
+			result = new CompilerExtData(
 				null,
 				lProb * (2.0 + left.SatisfyCost) + rProb * (1.0 + right.SatisfyCost),
 				new[] {(2.0 + left.DissatCost), (1.0 + right.DissatCost)}.Min()
 				);
+			return true;
 		}
 
-		public override CompilerExtData AndOr(CompilerExtData a, CompilerExtData b, CompilerExtData c)
+		public override bool TryAndOr(CompilerExtData a, CompilerExtData b, CompilerExtData c, out CompilerExtData result, List<FragmentPropertyException> error)
 		{
 			if (!a.DissatCost.HasValue) throw FragmentPropertyException.LeftNotDissatisfiable();
 			var aProb = a.BranchProb.Value;
 			var bProb = b.BranchProb.Value;
 			var cProb = c.BranchProb.Value;
 			var aDis = a.DissatCost.Value;
-			return new CompilerExtData(
+			result = new CompilerExtData(
 				null,
 				aProb * (a.SatisfyCost + b.SatisfyCost)
 				+ cProb * (aDis + c.SatisfyCost),
 				aDis + c.DissatCost
 				);
+			return true;
 		}
 
-		public override CompilerExtData AndN(CompilerExtData l, CompilerExtData r)
-			=> new CompilerExtData(null, l.SatisfyCost + r.SatisfyCost, l.DissatCost);
+		public override bool TryAndN(CompilerExtData l, CompilerExtData r, out CompilerExtData result, List<FragmentPropertyException> error)
+		{
+			result = new CompilerExtData(null, l.SatisfyCost + r.SatisfyCost, l.DissatCost);
+			return true;
+		}
 
-		public override CompilerExtData Threshold(int k, int n, Func<int, CompilerExtData> subCk)
+		public override bool TryThreshold(int k, int n, Func<int, CompilerExtData> subCk, out CompilerExtData result, List<FragmentPropertyException> error)
 		{
 			var kOverN = k;
 			var satisfyCost = 0.0;
@@ -250,10 +297,11 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 				dissatisfyCost += sub.DissatCost.Value;
 			}
 
-			return new CompilerExtData(
+			result = new CompilerExtData(
 				null,
 				satisfyCost * kOverN + dissatisfyCost * (1.0 - kOverN),
 				dissatisfyCost);
+			return true;
 		}
 	}
 
@@ -329,100 +377,157 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 
 			return new AstElemExt<TPk, TPKh>(compilerExtData, new Miniscript<TPk, TPKh>(ty, ast, ext));
 		}
-	}
-
-	internal class Cast<TPk, TPKh>
-		where TPk : class, IMiniscriptKey<TPKh>, new()
-		where TPKh : class, IMiniscriptKeyHash, new()
-	{
-		public Func<Terminal<TPk, TPKh>> Node;
-		public Func<MiniscriptFragmentType> AstType;
-		public Func<ExtData> ExtData;
-		public Func<CompilerExtData> CompilerExtData;
-
-		public Cast(Func<ExtData> extData, Func<MiniscriptFragmentType> astType, Func<Terminal<TPk, TPKh>> node, Func<CompilerExtData> compilerExtData)
+		public List<AstElemExt<TPk, TPKh>> GetAllCasts()
 		{
-			ExtData = extData;
-			AstType = astType;
-			Node = node;
-			CompilerExtData = compilerExtData;
-		}
-
-		public AstElemExt<TPk, TPKh> InvokeCast()
-			=>
-				new AstElemExt<TPk, TPKh>(
-					compilerExtData: CompilerExtData.Invoke(),
-					ms: new Miniscript<TPk, TPKh>(
-						AstType.Invoke(),
-						Node.Invoke(),
-						ExtData.Invoke()
-
-					));
-
-		public static List<Cast<TPk, TPKh>> GetAllCasts(AstElemExt<TPk, TPKh> ast)
-			=> new List<Cast<TPk, TPKh>>()
+			var ast = this;
+			var casts = new List<AstElemExt<TPk, TPKh>>();
+			var errors = new List<FragmentPropertyException>();
+			if (ast.Ms.Ext.TryCastCheck(out var resExtCheck, errors)
+			    && ast.Ms.Type.TryCastCheck(out var resTypeCheck, errors)
+			    && ast.CompExtData.TryCastCheck(out var resCompExtCheck, errors)
+			    )
 			{
-				new Cast<TPk, TPKh>(
-					ast.Ms.Ext.CastCheck,
-					ast.Ms.Type.CastCheck,
-					() => Terminal<TPk, TPKh>.NewCheck(ast.Ms),
-					ast.CompExtData.CastCheck
-				),
-				new Cast<TPk, TPKh>(
-					ast.Ms.Ext.CastDupIf,
-					ast.Ms.Type.CastDupIf,
-					() => Terminal<TPk, TPKh>.NewDupIf(ast.Ms),
-					ast.CompExtData.CastDupIf
-					),
-				new Cast<TPk, TPKh>(
-					ast.Ms.Ext.CastLikely,
-					ast.Ms.Type.CastLikely,
-					() => Terminal<TPk, TPKh>.NewOrI(Miniscript<TPk, TPKh>.FromAst(Terminal<TPk, TPKh>.False), ast.Ms),
-					ast.CompExtData.CastLikely
-					),
-				new Cast<TPk, TPKh>(
-					ast.Ms.Ext.CastUnLikely,
-					ast.Ms.Type.CastUnLikely,
-					() => Terminal<TPk, TPKh>.NewOrI(Miniscript<TPk, TPKh>.FromAst(Terminal<TPk, TPKh>.False), ast.Ms),
-					ast.CompExtData.CastUnLikely
-					),
-				new Cast<TPk, TPKh>(
-					ast.Ms.Ext.CastVerify,
-					ast.Ms.Type.CastVerify,
-					() => Terminal<TPk, TPKh>.NewVerify(ast.Ms),
-					ast.CompExtData.CastVerify
-					),
-				new Cast<TPk, TPKh>(
-					ast.Ms.Ext.CastNonZero,
-					ast.Ms.Type.CastNonZero,
-					() => Terminal<TPk, TPKh>.NewNonZero(ast.Ms),
-					ast.CompExtData.CastNonZero
-					),
-				new Cast<TPk, TPKh>(
-					ast.Ms.Ext.CastTrue,
-					ast.Ms.Type.CastTrue,
-					() => Terminal<TPk, TPKh>.NewAndV(ast.Ms, Miniscript<TPk, TPKh>.FromAst(Terminal<TPk, TPKh>.True)),
-					ast.CompExtData.CastTrue
-					),
-				new Cast<TPk, TPKh>(
-					ast.Ms.Ext.CastSwap,
-					ast.Ms.Type.CastSwap,
-					() => Terminal<TPk, TPKh>.NewSwap(ast.Ms),
-					ast.CompExtData.CastSwap
-					),
-				new Cast<TPk, TPKh>(
-					ast.Ms.Ext.CastAlt,
-					ast.Ms.Type.CastAlt,
-					() => Terminal<TPk, TPKh>.NewAlt(ast.Ms),
-					ast.CompExtData.CastAlt
-					),
-				new Cast<TPk, TPKh>(
-					ast.Ms.Ext.CastZeroNotEqual,
-					ast.Ms.Type.CastZeroNotEqual,
-					() => Terminal<TPk, TPKh>.NewZeroNotEqual(ast.Ms),
-					ast.CompExtData.CastZeroNotEqual
-					),
-			};
+				var castC =
+					new AstElemExt<TPk, TPKh>(
+						resCompExtCheck,
+						new Miniscript<TPk,TPKh>(resTypeCheck, Terminal<TPk, TPKh>.NewCheck(ast.Ms), resExtCheck)
+					);
+				casts.Add(castC);
+			}
+			if (ast.Ms.Ext.TryCastDupIf(out var resExtD, errors)
+			    && ast.Ms.Type.TryCastDupIf(out var resTypeD, errors)
+			    && ast.CompExtData.TryCastDupIf(out var resCompExtD, errors)
+			    )
+			{
+				var castD =
+					new AstElemExt<TPk, TPKh>(
+						resCompExtD,
+						new Miniscript<TPk,TPKh>(resTypeD, Terminal<TPk, TPKh>.NewDupIf(ast.Ms), resExtD)
+					);
+				casts.Add(castD);
+			}
+			if (ast.Ms.Ext.TryCastLikely(out var resExtLikely, errors)
+			    && ast.Ms.Type.TryCastLikely(out var resTypeLikely, errors)
+			    && ast.CompExtData.TryCastLikely(out var resCompExtLikely, errors)
+			    )
+			{
+				var castLikely =
+					new AstElemExt<TPk, TPKh>(
+						resCompExtLikely,
+						new Miniscript<TPk,TPKh>(
+							resTypeLikely,
+							Terminal<TPk, TPKh>.NewOrI(Miniscript<TPk, TPKh>.FromAst(Terminal<TPk, TPKh>.False), ast.Ms),
+							resExtLikely)
+					);
+				casts.Add(castLikely);
+			}
+			if (ast.Ms.Ext.TryCastUnLikely(out var resExtUnLikely, errors)
+			    && ast.Ms.Type.TryCastUnLikely(out var resTypeUnLikely, errors)
+			    && ast.CompExtData.TryCastUnLikely(out var resCompExtUnLikely, errors)
+			    )
+			{
+				var castUnLikely =
+					new AstElemExt<TPk, TPKh>(
+						resCompExtUnLikely,
+						new Miniscript<TPk,TPKh>(
+							resTypeUnLikely,
+							Terminal<TPk, TPKh>.NewOrI(ast.Ms, Miniscript<TPk, TPKh>.FromAst(Terminal<TPk, TPKh>.False)),
+							resExtUnLikely)
+					);
+				casts.Add(castUnLikely);
+			}
+			if (ast.Ms.Ext.TryCastVerify(out var resExtV, errors)
+			    && ast.Ms.Type.TryCastVerify(out var resTypeV, errors)
+			    && ast.CompExtData.TryCastVerify(out var resCompExtV, errors)
+			    )
+			{
+				var castV =
+					new AstElemExt<TPk, TPKh>(
+						resCompExtV,
+						new Miniscript<TPk,TPKh>(
+							resTypeV,
+							Terminal<TPk, TPKh>.NewVerify(ast.Ms),
+							resExtV)
+					);
+				casts.Add(castV);
+			}
+			if (ast.Ms.Ext.TryCastNonZero(out var resExtJ, errors)
+			    && ast.Ms.Type.TryCastNonZero(out var resTypeJ, errors)
+			    && ast.CompExtData.TryCastNonZero(out var resCompExtJ, errors)
+			    )
+			{
+				var castJ =
+					new AstElemExt<TPk, TPKh>(
+						resCompExtJ,
+						new Miniscript<TPk,TPKh>(
+							resTypeJ,
+							Terminal<TPk, TPKh>.NewNonZero(ast.Ms),
+							resExtJ)
+					);
+				casts.Add(castJ);
+			}
+			if (ast.Ms.Ext.TryCastTrue(out var resExtTrue, errors)
+			    && ast.Ms.Type.TryCastTrue(out var resTypeTrue, errors)
+			    && ast.CompExtData.TryCastTrue(out var resCompExtTrue, errors)
+			    )
+			{
+				var castTrue =
+					new AstElemExt<TPk, TPKh>(
+						resCompExtTrue,
+						new Miniscript<TPk,TPKh>(
+							resTypeTrue,
+							Terminal<TPk, TPKh>.NewAndV(ast.Ms, Miniscript<TPk, TPKh>.FromAst(Terminal<TPk, TPKh>.True)),
+							resExtTrue)
+					);
+				casts.Add(castTrue);
+			}
+			if (ast.Ms.Ext.TryCastSwap(out var resExtS, errors)
+			    && ast.Ms.Type.TryCastSwap(out var resTypeS, errors)
+			    && ast.CompExtData.TryCastSwap(out var resCompExtS, errors)
+			    )
+			{
+				var castS =
+					new AstElemExt<TPk, TPKh>(
+						resCompExtS,
+						new Miniscript<TPk, TPKh>(
+							resTypeS,
+							Terminal<TPk, TPKh>.NewSwap(ast.Ms),
+							resExtS)
+					);
+				casts.Add(castS);
+			}
+			if (ast.Ms.Ext.TryCastAlt(out var resExtA, errors)
+			    && ast.Ms.Type.TryCastAlt(out var resTypeA, errors)
+			    && ast.CompExtData.TryCastAlt(out var resCompExtA, errors)
+			    )
+			{
+				var castA =
+					new AstElemExt<TPk, TPKh>(
+						resCompExtA,
+						new Miniscript<TPk,TPKh>(
+							resTypeA,
+							Terminal<TPk, TPKh>.NewAlt(ast.Ms),
+							resExtA)
+					);
+				casts.Add(castA);
+			}
+			if (ast.Ms.Ext.TryCastZeroNotEqual(out var resExtN, errors)
+			    && ast.Ms.Type.TryCastZeroNotEqual(out var resTypeN, errors)
+			    && ast.CompExtData.TryCastZeroNotEqual(out var resCompExtN, errors)
+			    )
+			{
+				var castN =
+					new AstElemExt<TPk, TPKh>(
+						resCompExtN,
+						new Miniscript<TPk,TPKh>(
+							resTypeN,
+							Terminal<TPk, TPKh>.NewZeroNotEqual(ast.Ms),
+							resExtN)
+					);
+				casts.Add(castN);
+			}
+			return casts;
+		}
 	}
 
 	public static class Compiler<TPk, TPKh>
@@ -498,15 +603,10 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 
 			while (castStack.Count != 0)
 			{
-				var casts = Cast<TPk, TPKh>.GetAllCasts(castStack.Dequeue());
-				foreach (var c in casts)
+				var casts = castStack.Dequeue().GetAllCasts();
+				foreach (var newExt in casts)
 				{
-					AstElemExt<TPk, TPKh> newExt = null;
-					try
-					{
-						newExt = c.InvokeCast();
-					} catch (FragmentPropertyException ) { }
-					if (!(newExt is null) && InsertElem(map, newExt, satProb, dissatProb))
+					if (InsertElem(map, newExt, satProb, dissatProb))
 						castStack.Enqueue(newExt);
 				}
 			}
@@ -545,16 +645,9 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			{
 				foreach (var x in BestCompilations(policyCache, policy, satProb, null).Values)
 				{
-					var casts = Cast<TPk, TPKh>.GetAllCasts(x);
-					foreach (var c in casts) {
-						try
-						{
-							var newExt = c.InvokeCast();
-							InsertElemClosure(map, newExt, satProb, dissatProb);
-						}
-						catch (FragmentPropertyException _)
-						{
-						}
+					var casts = x.GetAllCasts();
+					foreach (var newExt in casts) {
+						InsertElemClosure(map, newExt, satProb, dissatProb);
 					}
 				}
 			}
@@ -764,8 +857,10 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 					}
 
 					var astResult = Terminal<TPk, TPKh>.NewThresh(pol.Item1, subAst);
+					new CompilerExtData().TryThreshold((int) pol.Item1, n, index => subExtData[index],
+						out var newThresh, new List<FragmentPropertyException>());
 					var astExtResult = new AstElemExt<TPk, TPKh>(
-						new CompilerExtData().Threshold((int)pol.Item1, n, index => subExtData[index]),
+							newThresh,
 							Miniscript<TPk, TPKh>.FromAst(astResult));
 					insertWrap(astExtResult);
 					var keyVec =
