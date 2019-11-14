@@ -7,7 +7,7 @@ using Malleability = NBitcoin.Scripting.Miniscript.Types.Malleability;
 namespace NBitcoin.Scripting.Miniscript.Types
 {
 	[DebuggerDisplay("{" + nameof(DebugPrint) + "()}")]
-	public class MiniscriptFragmentType : IProperty<MiniscriptFragmentType>
+	public class MiniscriptFragmentType : IProperty<MiniscriptFragmentType>, IEquatable<MiniscriptFragmentType>
 	{
 		internal readonly Correctness Correctness;
 
@@ -221,5 +221,24 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				new MiniscriptFragmentType(
 					new Correctness().Threshold(k, n, i => func(i).Correctness),
 					new Malleability().Threshold(k, n , i => func(i).Malleability));
+
+
+		public override bool Equals(object obj) => Equals(obj as MiniscriptFragmentType);
+		public bool Equals(MiniscriptFragmentType other)
+			=> (!(other is null))
+				&& (Correctness.Base == other.Correctness.Base)
+				&& (Correctness.Input == other.Correctness.Input)
+				&& (Malleability.NonMalleable == other.Malleability.NonMalleable)
+				&& (Malleability.Safe == other.Malleability.Safe);
+
+		public override int GetHashCode()
+		{
+			int num = 0;
+			num = -1640531527 + Correctness.Base.GetHashCode() + ((num << 6) + (num >> 2));
+			num = -1640531527 + Correctness.Input.GetHashCode() + ((num << 6) + (num >> 2));
+			num = -1640531527 + Malleability.NonMalleable.GetHashCode() + ((num << 6) + (num >> 2));
+			num = -1640531527 + Malleability.Safe.GetHashCode() + ((num << 6) + (num >> 2));
+			return num;
+		}
 	}
 }

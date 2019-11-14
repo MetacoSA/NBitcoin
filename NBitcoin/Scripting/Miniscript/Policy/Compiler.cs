@@ -26,7 +26,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 	/// This represents the state of the best possible compilation
 	/// of a given policy(implicitly keyed).
 	/// </summary>
-	internal class CompilationKey
+	internal class CompilationKey : IEquatable<CompilationKey>
 	{
 		/// <summary>
 		/// The type of the compilation result
@@ -60,6 +60,21 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			ExpensiveVerify = expensiveVerify;
 		}
 
+		public override bool Equals(object obj) => Equals(obj as CompilationKey);
+
+		public bool Equals(CompilationKey other)
+			=>
+			!(other is null) &&
+				(Type.Equals(other.Type) && DissatProb == other.DissatProb && ExpensiveVerify == other.ExpensiveVerify);
+
+		public override int GetHashCode()
+		{
+			int num = 0;
+			num = -1640531527 + Type.GetHashCode() + ((num << 6) + (num >> 2));
+			num = -1640531527 + DissatProb.GetHashCode() + ((num << 6) + (num >> 2));
+			num = -1640531527 + ExpensiveVerify.GetHashCode() + ((num << 6) + (num >> 2));
+			return num;
+		}
 	}
 
 	internal class CompilerExtData : IProperty<CompilerExtData>
@@ -431,7 +446,8 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			var elemKey = new CompilationKey(astElemExt.Ms.Type, astElemExt.Ms.Ext.HasVerifyForm, dissatProb);
 
 			// Check whether the new element is worse than any existing element. If there
-			//
+			// is an element which is a subtype of the current element and has better cost,
+			// don't consier this element.
 			var isWorse = map.Select((kv) =>
 			{
 				var existingElementCost = kv.Value.Cost1d(satProb, dissatProb);
@@ -441,12 +457,14 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			{
 				// if the element is not worse any element in the map, remove elements
 				// whose subtype is the current element and have worse cost.
-				map = map.Where(kv =>
+				var keysToRemove = map.Where(kv =>
 				{
 					var existingElementsCost = kv.Value.Cost1d(satProb, dissatProb);
-					return !((elemKey.IsSubtype(kv.Key)) && existingElementsCost >= elemCost);
-				}).ToDictionary(kv => kv.Key, kv => kv.Value);
-				map.Add(elemKey, astElemExt);
+					return (elemKey.IsSubtype(kv.Key) && existingElementsCost >= elemCost);
+				}).Select(kv => kv.Key).ToList();
+				foreach (var k in keysToRemove)
+					map.Remove(k);
+				map.AddOrReplace(elemKey, astElemExt);
 			}
 
 			return !isWorse;
@@ -456,7 +474,11 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		/// Insert the cast-closure of in the `astElemExt`. The castStack
 		/// has all the elements whose closure is yet to inserted in the map.
 		/// A cast-closure refers to trying all possible casts on a particular element
-		/// if they are better than the current elements
+		/// if they are better than the current elements in the global map
+		///
+		/// At the start and end of this function, we maintain that the invariant that
+		/// all map is smallest possible closure of all compilation of a policy with
+		/// given sat and dissat probabilities.
 		/// </summary>
 		/// <param name="map"></param>
 		/// <param name="astElemExt"></param>
@@ -470,21 +492,22 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			double? dissatProb
 		)
 		{
-			var castStack = new Stack<AstElemExt<TPk, TPKh>>();
+			var castStack = new Queue<AstElemExt<TPk, TPKh>>();
 			if (InsertElem(map, astElemExt, satProb, dissatProb))
-				castStack.Push(astElemExt);
+				castStack.Enqueue(astElemExt);
 
 			while (castStack.Count != 0)
 			{
-				var casts = Cast<TPk, TPKh>.GetAllCasts(castStack.Pop());
+				var casts = Cast<TPk, TPKh>.GetAllCasts(castStack.Dequeue());
 				foreach (var c in casts)
 				{
+					AstElemExt<TPk, TPKh> newExt = null;
 					try
 					{
-						var newExt = c.InvokeCast();
-						if (InsertElem(map, newExt, satProb, dissatProb))
-							castStack.Push(newExt);
-					} catch (FragmentPropertyException e) {}
+						newExt = c.InvokeCast();
+					} catch (FragmentPropertyException ) { }
+					if (!(newExt is null) && InsertElem(map, newExt, satProb, dissatProb))
+						castStack.Enqueue(newExt);
 				}
 			}
 		}
@@ -810,10 +833,9 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 					{
 						var newExt = AstElemExt<TPk, TPKh>.Binary(ast, l, r);
 						InsertBestWrapped(policyCache, policy, ret, newExt, satProb, dissatProb);
-					} catch (FragmentPropertyException ex) {}
+					} catch (FragmentPropertyException) {}
 				}
 			}
-			throw new NotImplementedException();
 		}
 
 		private static void CompileTernary(

@@ -462,6 +462,108 @@ namespace NBitcoin.Scripting.Miniscript
 			}
 			throw new Exception("Unreachable!");
 		}
+
+		public override int GetHashCode()
+		{
+
+			int num = 0;
+			switch (this.Tag)
+			{
+				case Tags.True: return Tags.True;
+				case Tags.False: return Tags.False;
+			}
+
+			switch (this)
+			{
+				case Pk self:
+					num = Tags.Pk;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case PkH self:
+					num = Tags.PkH;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case After self:
+					num = Tags.After;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case Older self:
+					num = Tags.Older;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case Sha256 self:
+					num = Tags.Sha256;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case Hash256 self:
+					num = Tags.Hash256;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case Ripemd160 self:
+					num = Tags.Ripemd160;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case Hash160 self:
+					num = Tags.Hash160;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case Alt self:
+					num = Tags.Alt;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case Swap self:
+					num = Tags.Swap;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case Check self:
+					num = Tags.Check;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case DupIf self:
+					num = Tags.DupIf;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case Verify self:
+					num = Tags.Verify;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case NonZero self:
+					num = Tags.NonZero;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case ZeroNotEqual self:
+					num = Tags.ZeroNotEqual;
+					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
+				case AndV self:
+					num = Tags.AndV;
+					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
+					return -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
+				case AndB self:
+					num = Tags.AndB;
+					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
+					return -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
+				case AndOr self:
+					num = Tags.AndOr;
+					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
+					num = -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
+					return -1640531527 + self.Item3.GetHashCode() + ((num << 6) + (num >> 2));
+				case OrB self:
+					num = Tags.OrB;
+					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
+					return -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
+				case OrD self:
+					num = Tags.OrD;
+					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
+					return -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
+				case OrC self:
+					num = Tags.OrC;
+					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
+					return -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
+				case OrI self:
+					num = Tags.OrI;
+					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
+					return -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
+				case Thresh self:
+					num = Tags.Thresh;
+					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
+					foreach (var sub in self.Item2)
+						num = -1640531527 + sub.GetHashCode() + ((num << 6) + (num >> 2));
+					return num;
+				case ThreshM self:
+					num = Tags.ThreshM;
+					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
+					foreach (var sub in self.Item2)
+						num = -1640531527 + sub.GetHashCode() + ((num << 6) + (num >> 2));
+					return num;
+			}
+			throw new Exception("Unreachable!");
+		}
 		#endregion
 
 		public Script ToScript() =>

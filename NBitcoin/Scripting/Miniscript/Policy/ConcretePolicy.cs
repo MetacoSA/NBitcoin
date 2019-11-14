@@ -237,6 +237,12 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			throw new Exception("Unreachable!");
 		}
 
+		public override bool Equals(object obj) =>
+			Equals(obj as ConcretePolicy<TPk, TPKh>);
+
+		#endregion
+
+
 		public AbstractPolicy<TPk, TPKh> Lift()
 		{
 			AbstractPolicy<TPk, TPKh> res = null;
@@ -277,11 +283,6 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			return res.Normalize();
 
 		}
-
-		public override bool Equals(object obj) =>
-			Equals(obj as ConcretePolicy<TPk, TPKh>);
-
-		#endregion
 
 		# region to/from string
 		public override string ToString() =>
