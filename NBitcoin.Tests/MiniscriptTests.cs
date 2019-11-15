@@ -264,8 +264,8 @@ namespace NBitcoin.Tests
 		{
 			var policy = ConcretePolicy<PubKey, uint160>.Parse(s);
 			var ms = policy.Compile();
-			Console.WriteLine($"Compilation result was {ms}");
 			Assert.Equal(policy.Lift(), ms.Lift());
+			Assert.Equal(policy.Lift().GetHashCode(), ms.Lift().GetHashCode());
 		}
 
 		[Fact]

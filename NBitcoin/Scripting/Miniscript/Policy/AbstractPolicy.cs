@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using NBitcoin.BouncyCastle.Asn1;
@@ -325,6 +326,68 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			}
 
 			return this;
+		}
+
+		public override string ToString()
+			=> ToStringCore(new StringBuilder()).ToString();
+
+		private StringBuilder ToStringCore(StringBuilder sb)
+		{
+			switch (this.Tag)
+			{
+				case Tags.Unsatisfiable: return sb.Append("UNSATISFIABLE");
+				case Tags.Trivial: return sb.Append("TRIVIAL");
+			}
+			switch (this)
+			{
+				case KeyHash self:
+					return sb.AppendFormat("pkh({0})", self.Item.ToHex());
+				case After self:
+					return sb.AppendFormat("after({0})", self.Item);
+				case Older self:
+					return sb.AppendFormat("older({0})", self.Item);
+				case Sha256 self:
+					return sb.AppendFormat("sha256({0})", self.Item);
+				case Hash256 self:
+					return sb.AppendFormat("hash256({0})", self.Item);
+				case Ripemd160 self:
+					return sb.AppendFormat("ripemd160({0})", self.Item);
+				case Hash160 self:
+					return sb.AppendFormat("hash160({0})", self.Item);
+				case And self:
+					sb.Append("and(");
+					if (self.Item.Any())
+					{
+						self.Item[0].ToStringCore(sb);
+						foreach (var sub in self.Item.Skip(1))
+						{
+							sb.Append(",");
+							sub.ToStringCore(sb);
+						}
+					}
+					return sb.Append(")");
+				case Or self:
+					sb.Append("or(");
+					if (self.Item.Any())
+					{
+						self.Item[0].ToStringCore(sb);
+						foreach (var sub in self.Item.Skip(1))
+						{
+							sb.Append(",");
+							sub.ToStringCore(sb);
+						}
+					}
+					return sb.Append(")");
+				case Threshold self:
+					sb.AppendFormat("thresh({0}",self.Item1);
+					foreach (var sub in self.Item2)
+					{
+						sb.Append(",");
+						sub.ToStringCore(sb);
+					}
+					return sb.Append(")");
+			}
+			throw new Exception("Unreachable!");
 		}
 	}
 }
