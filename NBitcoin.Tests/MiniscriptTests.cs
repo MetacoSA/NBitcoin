@@ -264,6 +264,7 @@ namespace NBitcoin.Tests
 		{
 			var policy = ConcretePolicy<PubKey, uint160>.Parse(s);
 			var ms = policy.Compile();
+			Console.WriteLine($"Compilation result was {ms}");
 			Assert.Equal(policy.Lift(), ms.Lift());
 		}
 
@@ -275,7 +276,7 @@ namespace NBitcoin.Tests
 			Assert.Throws<CompilerException>(() => PolicyCompileLiftCheck("older(1)"));
 			Assert.Throws<CompilerException>(() => PolicyCompileLiftCheck("sha256(1111111111111111111111111111111111111111111111111111111111111111)"));
 			PolicyCompileLiftCheck($"and(pk({PubKeys[0]}),pk({PubKeys[1]}))");
-			// PolicyCompileLiftCheck($"or(pk({PubKeys[0]}),pk({PubKeys[1]}))");
+			PolicyCompileLiftCheck($"or(pk({PubKeys[0]}),pk({PubKeys[1]}))");
 			// PolicyCompileLiftCheck($"thresh(2,pk({PubKeys[0]}),pk({PubKeys[1]}),pk({PubKeys[2]}))");
 		}
 	}

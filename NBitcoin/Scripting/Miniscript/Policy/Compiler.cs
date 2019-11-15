@@ -244,7 +244,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			var rProb = right.BranchProb.Value; // and for right branch.
 			result = new CompilerExtData(
 				null,
-				lProb * (left.SatisfyCost + right.DissatCost.Value) +
+				lProb * (left.SatisfyCost) +
 				rProb * (right.SatisfyCost + left.DissatCost.Value),
 				null
 			);
