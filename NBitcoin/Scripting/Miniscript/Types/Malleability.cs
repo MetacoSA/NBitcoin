@@ -264,14 +264,16 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			return true;
 		}
 
-		public override bool TryThreshold(int k, int n, Func<int, Malleability> subCk, out Malleability result, List<FragmentPropertyException> error)
+		public override bool TryThreshold(int k, int n, SubCk ck, out Malleability result, List<FragmentPropertyException> error)
 		{
+			result = null;
 			var safeCount = 0;
 			var allAreDissatUnique = true;
 			var allAreNonMalleable = true;
 			for (int i = 0; i < n; i++)
 			{
-				var subType = subCk(i);
+				if (!ck(i, out var subType, error))
+					return false;
 				safeCount += (subType.Safe ? 1 : 0);
 				allAreDissatUnique &= subType.Dissat == Dissat.Unique;
 				allAreNonMalleable &= subType.NonMalleable;

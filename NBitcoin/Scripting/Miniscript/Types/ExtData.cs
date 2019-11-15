@@ -429,8 +429,9 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			return true;
 		}
 
-		public override bool TryThreshold(int k, int n, Func<int, ExtData> subCk, out ExtData result, List<FragmentPropertyException> error)
+		public override bool TryThreshold(int k, int n, SubCk ck, out ExtData result, List<FragmentPropertyException> error)
 		{
+			result = null;
 			var pkCost = 1UL + (ulong)Utils.ScriptNumSize(k);
 			var legacySafe = LegacySafe.LegacySafe;
 			var opsCountStatic = 0UL;
@@ -441,7 +442,8 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			var satCount = 0;
 			for (int i = 0; i < n; i++)
 			{
-				var sub = subCk(i);
+				if (!ck(i, out var sub, error))
+					return false;
 				pkCost += sub.PkCost;
 				opsCountStatic += sub.OpsCountStatic;
 				if (sub.OpsCountSat.HasValue && sub.OpsCountNSat.HasValue)

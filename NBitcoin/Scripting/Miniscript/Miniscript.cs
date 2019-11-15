@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using NBitcoin.Scripting.Miniscript.Types;
 using NBitcoin.Scripting.Parser;
@@ -26,35 +27,30 @@ namespace NBitcoin.Scripting.Miniscript
 			Ext = ext;
 		}
 
-		public static Miniscript<TPk, TPKh> FromAst(Terminal<TPk, TPKh> t)
+		internal static Miniscript<TPk, TPKh> FromAst(Terminal<TPk, TPKh> t)
 		{
-			return
-				new Miniscript<TPk, TPKh>(
-					Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(t),
-					t,
-					Property<ExtData, TPk, TPKh>.TypeCheck(t)
-				);
+			var errors = new List<FragmentPropertyException>();
+			if (Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(t, out var fragmentType, errors)
+				&& Property<ExtData, TPk, TPKh>.TypeCheck(t, out var extData, errors))
+				return
+					new Miniscript<TPk, TPKh>(
+						fragmentType,
+						t,
+						extData
+					);
+			throw errors.Flatten();
 		}
 
-		public static Miniscript<TPk, TPKh> FromTree(Tree t)
+		internal static Miniscript<TPk, TPKh> FromTree(Tree t)
 		{
 			var inner = Terminal<TPk, TPKh>.FromTree(t);
-			return new Miniscript<TPk, TPKh>(
-				Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(inner),
-				inner,
-				Property<ExtData, TPk, TPKh>.TypeCheck(inner)
-				);
+			return FromAst(inner);
 		}
 		public static Miniscript<TPk, TPKh> Parse(string str)
 		{
 			try
 			{
-				var inner = Terminal<TPk, TPKh>.FromTree(Tree.Parse(str));
-				var ms = new Miniscript<TPk, TPKh>(
-					Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(inner),
-					inner,
-					Property<ExtData, TPk, TPKh>.TypeCheck(inner)
-					);
+				var ms = FromTree(Tree.Parse(str));
 				if (ms.Type.Correctness.Base != Base.B)
 					throw new MiniscriptException.NonTopLevel(ms.Type.Correctness.Base.ToString("G"));
 				return ms;

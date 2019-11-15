@@ -475,13 +475,14 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			return true;
 		}
 
-		public override bool TryThreshold(int k, int n, Func<int, Correctness> subCk, out Correctness result, List<FragmentPropertyException> error)
+		public override bool TryThreshold(int k, int n, SubCk ck, out Correctness result, List<FragmentPropertyException> error)
 		{
 			result = null;
 			var isN = k == n;
 			for (int i = 0; i < n; i++)
 			{
-				var subType = subCk(i);
+				if (!ck(i, out var subType, error))
+					return false;
 				if (i == 0)
 				{
 					isN &= subType.Input == Input.OneNonZero || subType.Input == Input.AnyNonZero;

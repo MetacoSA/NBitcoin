@@ -285,14 +285,16 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			return true;
 		}
 
-		public override bool TryThreshold(int k, int n, Func<int, CompilerExtData> subCk, out CompilerExtData result, List<FragmentPropertyException> error)
+		public override bool TryThreshold(int k, int n, SubCk ck, out CompilerExtData result, List<FragmentPropertyException> error)
 		{
+			result = null;
 			var kOverN = k;
 			var satisfyCost = 0.0;
 			var dissatisfyCost = 0.0;
 			for (int i = 0; i < n; i++)
 			{
-				var sub = subCk(i);
+				if (!ck(i, out var sub, error))
+					return false;
 				satisfyCost += sub.SatisfyCost;
 				dissatisfyCost += sub.DissatCost.Value;
 			}
@@ -342,28 +344,40 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 
 		internal static AstElemExt<TPk, TPKh> Terminal(Terminal<TPk, TPKh> ast)
 		{
-			return new AstElemExt<TPk, TPKh>(Property<CompilerExtData, TPk, TPKh>.TypeCheck(ast), Miniscript<TPk, TPKh>.FromAst(ast));
+			if (Property<CompilerExtData, TPk, TPKh>.TypeCheck(ast, out var compExtData, new List<FragmentPropertyException>()))
+				return new AstElemExt<TPk, TPKh>(compExtData, Miniscript<TPk, TPKh>.FromAst(ast));
+			throw new Exception("Unreachable!");
 		}
 
-		internal static AstElemExt<TPk, TPKh> Binary(Terminal<TPk, TPKh> ast, AstElemExt<TPk, TPKh> l, AstElemExt<TPk, TPKh> r)
+		internal static  bool TryConstructBinary(
+			Terminal<TPk, TPKh> ast,
+			AstElemExt<TPk, TPKh> l,
+			AstElemExt<TPk, TPKh> r,
+			out AstElemExt<TPk, TPKh> result,
+			List<FragmentPropertyException> errors)
 		{
-			var ty = Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(ast);
-			var ext = Property<ExtData, TPk, TPKh>.TypeCheck(ast);
-
+			result = null;
 			Func<int, CompilerExtData> lookupExt =
 				(int n) => n == 0 ? l.CompExtData : n == 1 ? r.CompExtData : throw new Exception("Unreachable");
-			var compExtData = Property<CompilerExtData, TPk, TPKh>.TypeCheck(ast, lookupExt);
-
-			return new AstElemExt<TPk, TPKh>(compExtData, new Miniscript<TPk, TPKh>(ty, ast, ext));
+			if (Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(ast, out var ty, errors)
+			    && Property<ExtData, TPk, TPKh>.TypeCheck(ast, out var ext, errors)
+			    && Property<CompilerExtData, TPk, TPKh>.TryTypeCheck(ast, lookupExt, out var compExtdata, errors))
+			{
+				result = new AstElemExt<TPk, TPKh>(compExtdata, new Miniscript<TPk, TPKh>(ty, ast, ext));
+				return true;
+			}
+			return false;
 		}
 
-		internal static AstElemExt<TPk, TPKh> Ternary(
+		internal static bool TryConstructTernary(
 			Terminal<TPk, TPKh> ast,
 			AstElemExt<TPk, TPKh> a,
 			AstElemExt<TPk, TPKh> b,
-			AstElemExt<TPk, TPKh> c
-		)
+			AstElemExt<TPk, TPKh> c,
+			out AstElemExt<TPk, TPKh> result,
+			List<FragmentPropertyException> errors)
 		{
+			result = null;
 			Func<int, CompilerExtData> lookupExt =
 				n =>
 					n == 0 ? a.CompExtData :
@@ -371,11 +385,14 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 					n == 2 ? c.CompExtData :
 					throw new Exception("Unreachable");
 
-			var ty = Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(ast);
-			var ext = Property<ExtData, TPk, TPKh>.TypeCheck(ast);
-			var compilerExtData = Property<CompilerExtData, TPk, TPKh>.TypeCheck(ast, lookupExt);
-
-			return new AstElemExt<TPk, TPKh>(compilerExtData, new Miniscript<TPk, TPKh>(ty, ast, ext));
+			if (Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(ast, out var ty, errors)
+			    && Property<ExtData, TPk, TPKh>.TypeCheck(ast, out var ext, errors)
+			    && Property<CompilerExtData, TPk, TPKh>.TryTypeCheck(ast, lookupExt, out var compExtdata, errors))
+			{
+				result = new AstElemExt<TPk, TPKh>(compExtdata, new Miniscript<TPk, TPKh>(ty, ast, ext));
+				return true;
+			}
+			return false;
 		}
 		public List<AstElemExt<TPk, TPKh>> GetAllCasts()
 		{
@@ -857,7 +874,13 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 					}
 
 					var astResult = Terminal<TPk, TPKh>.NewThresh(pol.Item1, subAst);
-					new CompilerExtData().TryThreshold((int) pol.Item1, n, index => subExtData[index],
+					IProperty<CompilerExtData>.SubCk subCk =
+						(int i, out CompilerExtData data, List<FragmentPropertyException> errors) =>
+						{
+							data = subExtData[i];
+							return true;
+						};
+					new CompilerExtData().TryThreshold((int) pol.Item1, n, subCk,
 						out var newThresh, new List<FragmentPropertyException>());
 					var astExtResult = new AstElemExt<TPk, TPKh>(
 							newThresh,
@@ -917,6 +940,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			Func<Miniscript<TPk, TPKh>, Miniscript<TPk, TPKh>, Terminal<TPk, TPKh>> binFunc
 		)
 		{
+			var errors = new List<FragmentPropertyException>();
 			foreach (var l in leftComp.Values)
 			{
 				foreach (var r in rightComp.Values)
@@ -924,11 +948,8 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 					var ast = binFunc(l.Ms, r.Ms);
 					l.CompExtData.BranchProb = weights.Item1;
 					r.CompExtData.BranchProb = weights.Item2;
-					try
-					{
-						var newExt = AstElemExt<TPk, TPKh>.Binary(ast, l, r);
+					if (AstElemExt<TPk, TPKh>.TryConstructBinary(ast, l, r, out var newExt, errors))
 						InsertBestWrapped(policyCache, policy, ret, newExt, satProb, dissatProb);
-					} catch (FragmentPropertyException) {}
 				}
 			}
 		}
@@ -946,6 +967,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			double? dissatProb
 			)
 		{
+			var errors = new List<FragmentPropertyException>();
 			foreach (var a in aComp.Values)
 			{
 				foreach (var b in bComp.Values)
@@ -956,12 +978,8 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 						b.CompExtData.BranchProb = weights.Item1;
 						c.CompExtData.BranchProb = weights.Item2;
 						var ast = Terminal<TPk, TPKh>.NewAndOr(a.Ms, b.Ms, c.Ms);
-						try
-						{
-							var newExt = AstElemExt<TPk, TPKh>.Ternary(ast, a, b, c);
+						if (AstElemExt<TPk, TPKh>.TryConstructTernary(ast, a, b, c, out var newExt, errors))
 							InsertBestWrapped(policyCache, policy, ret, newExt, satProb, dissatProb);
-						} catch (FragmentPropertyException ex)
-						{}
 					}
 				}
 			}
@@ -989,7 +1007,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		/// <param name="dissatProb"></param>
 		/// <returns></returns>
 		/// <exception cref="NotImplementedException"></exception>
-		private static AstElemExt<TPk, TPKh> BestT(
+		internal static AstElemExt<TPk, TPKh> BestT(
 			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, double, double?>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
 				policyCache,
 			ConcretePolicy<TPk, TPKh> policy,

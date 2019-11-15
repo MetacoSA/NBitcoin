@@ -1267,10 +1267,11 @@ namespace NBitcoin.Scripting.Miniscript
 
 		private StringBuilder ToDebugStringCore(StringBuilder sb)
 		{
+			var errors = new List<FragmentPropertyException>();
 			sb.Append("[");
-			try
+			if (Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(this, out var typeMap,
+				errors))
 			{
-				var typeMap = Property<MiniscriptFragmentType, TPk, TPKh>.TypeCheck(this);
 				sb.Append(typeMap.Correctness.Base);
 				sb.Append(typeMap.Correctness.Input.DebugPrint());
 				if (typeMap.Correctness.DisSatisfiable)
@@ -1283,9 +1284,9 @@ namespace NBitcoin.Scripting.Miniscript
 				if (typeMap.Malleability.NonMalleable)
 					sb.Append('m');
 			}
-			catch (FragmentPropertyException ex)
+			else
 			{
-				sb.Append($"TYPECHECK FAILED {ex}");
+				sb.Append($"TYPECHECK FAILED {errors.Flatten()}");
 			}
 			sb.Append("]");
 
@@ -1531,56 +1532,46 @@ namespace NBitcoin.Scripting.Miniscript
 			if (unwrapped is null)
 				throw new ParsingException($"{top.Name}({top.Args.Count} args) while parsing Miniscript");
 
-			foreach (var ch in fragWrap.ToCharArray().Reverse())
-			{
-				switch (ch)
-				{
-					case 'a':
-						unwrapped = NewAlt(Miniscript<TPk, TPKh>.FromAst(unwrapped));
-						break;
-					case 's':
-						unwrapped = NewSwap(Miniscript<TPk, TPKh>.FromAst(unwrapped));
-						break;
-					case 'c':
-						unwrapped = NewCheck(Miniscript<TPk, TPKh>.FromAst(unwrapped));
-						break;
-					case 'd':
-						unwrapped = NewDupIf(Miniscript<TPk, TPKh>.FromAst(unwrapped));
-						break;
-					case 'v':
-						unwrapped = NewVerify(Miniscript<TPk, TPKh>.FromAst(unwrapped));
-						break;
-					case 'j':
-						unwrapped = NewNonZero(Miniscript<TPk, TPKh>.FromAst(unwrapped));
-						break;
-					case 'n':
-						unwrapped = NewZeroNotEqual(Miniscript<TPk, TPKh>.FromAst(unwrapped));
-						break;
-					case 't':
-						unwrapped = NewAndV(
-							Miniscript<TPk, TPKh>.FromAst(unwrapped),
-							Miniscript<TPk, TPKh>.FromAst(NewTrue())
-							);
-						break;
-					case 'u':
-						unwrapped = NewOrI(
-							Miniscript<TPk, TPKh>.FromAst(unwrapped),
-							Miniscript<TPk, TPKh>.FromAst(NewFalse())
-							);
-						break;
-					case 'l':
-						if (unwrapped == False)
-							throw new ParsingException($"Encountered l:o which is syntactically equal to `u:o` except stupid");
-						unwrapped = NewOrI(
-							Miniscript<TPk, TPKh>.FromAst(NewFalse()),
-							Miniscript<TPk, TPKh>.FromAst(unwrapped)
-							);
-						break;
-					default: throw new ParsingException($"Unknown wrapper {ch}");
-				}
-			}
+			return fragWrap.ToCharArray().Reverse().Aggregate(unwrapped, (acc, ch) => WrapExpression(ch, acc));
+		}
 
-			return unwrapped;
+		private static Terminal<TPk, TPKh> WrapExpression(char wrapChar, Terminal<TPk, TPKh> t)
+		{
+			switch (wrapChar)
+			{
+				case 'a':
+					return NewAlt(Miniscript<TPk, TPKh>.FromAst(t));
+				case 's':
+					return NewSwap(Miniscript<TPk, TPKh>.FromAst(t));
+				case 'c':
+					return NewCheck(Miniscript<TPk, TPKh>.FromAst(t));
+				case 'd':
+					return NewDupIf(Miniscript<TPk, TPKh>.FromAst(t));
+				case 'v':
+					return NewVerify(Miniscript<TPk, TPKh>.FromAst(t));
+				case 'j':
+					return NewNonZero(Miniscript<TPk, TPKh>.FromAst(t));
+				case 'n':
+					return NewZeroNotEqual(Miniscript<TPk, TPKh>.FromAst(t));
+				case 't':
+					return NewAndV(
+						Miniscript<TPk, TPKh>.FromAst(t),
+						Miniscript<TPk, TPKh>.FromAst(NewTrue())
+						);
+				case 'u':
+					return NewOrI(
+						Miniscript<TPk, TPKh>.FromAst(t),
+						Miniscript<TPk, TPKh>.FromAst(NewFalse())
+						);
+				case 'l':
+					if (t == False)
+						throw new ParsingException($"Encountered l:o which is syntactically equal to `u:o` except stupid");
+					return NewOrI(
+						Miniscript<TPk, TPKh>.FromAst(NewFalse()),
+						Miniscript<TPk, TPKh>.FromAst(t)
+						);
+				default: throw new ParsingException($"Unknown wrapper {wrapChar}");
+			}
 		}
 	}
 }

@@ -343,12 +343,34 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 
 
-		public override bool TryThreshold(int k, int n, Func<int, MiniscriptFragmentType> func,
+		public override bool TryThreshold(int k, int n, SubCk subCk,
 			out MiniscriptFragmentType result, List<FragmentPropertyException> error)
 		{
 			result = null;
-			if (new Correctness().TryThreshold(k, n, i => func(i).Correctness, out var corr, error)
-			    && new Malleability().TryThreshold(k, n, i => func(i).Malleability, out var mall, error)
+			IProperty<Correctness>.SubCk getSubCorrectness =
+				(int i, out Correctness subCorr, List<FragmentPropertyException> list) =>
+				{
+					subCorr = null;
+					if (subCk(i, out var subResult, error))
+					{
+						subCorr = subResult.Correctness;
+						return true;
+					}
+					return false;
+				};
+			IProperty<Malleability>.SubCk getSubMalleability =
+				(int i, out Malleability subCorr, List<FragmentPropertyException> list) =>
+				{
+					subCorr = null;
+					if (subCk(i, out var subResult, error))
+					{
+						subCorr = subResult.Malleability;
+						return true;
+					}
+					return false;
+				};
+			if (new Correctness().TryThreshold(k, n, getSubCorrectness, out var corr, error)
+			    && new Malleability().TryThreshold(k, n, getSubMalleability, out var mall, error)
 			)
 			{
 				result = new MiniscriptFragmentType(corr, mall);

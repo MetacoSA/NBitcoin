@@ -54,7 +54,9 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public abstract bool TryOrC(T l, T r, out T result, List<FragmentPropertyException> error);
 		public abstract bool TryOrI(T l, T r, out T result, List<FragmentPropertyException> error);
 		public abstract bool TryAndOr(T a, T b, T c, out T result, List<FragmentPropertyException> error);
-		public abstract bool TryThreshold(int k, int n, Func<int, T> subCk, out T result, List<FragmentPropertyException> error);
+
+		public delegate bool SubCk(int i, out T result, List<FragmentPropertyException> errors);
+		public abstract bool TryThreshold(int k, int n, SubCk subCk, out T result, List<FragmentPropertyException> error);
 		#endregion
 	}
 }

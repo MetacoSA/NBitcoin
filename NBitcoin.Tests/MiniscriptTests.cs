@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NBitcoin.DataEncoders;
 using NBitcoin.Scripting.Miniscript;
@@ -206,14 +207,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void TerminalUnitTest()
-		{
-			var t1 = Terminal<PubKey, uint160>.NewFalse();
-			Property<MiniscriptFragmentType, PubKey, uint160>.TypeCheck(t1);
-			Property<ExtData, PubKey, uint160>.TypeCheck(t1);
-		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -272,12 +265,38 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CompilerUnitTest()
 		{
+			// we cannot compile if the top level is not safe. (i.e. can spend by anyone.)
 			Assert.Throws<CompilerException>(() => PolicyCompileLiftCheck("after(9)"));
 			Assert.Throws<CompilerException>(() => PolicyCompileLiftCheck("older(1)"));
 			Assert.Throws<CompilerException>(() => PolicyCompileLiftCheck("sha256(1111111111111111111111111111111111111111111111111111111111111111)"));
+			Assert.Throws<CompilerException>(() => PolicyCompileLiftCheck($"thresh(2,after(9),after(9),pk({PubKeys[0]}))"));
+
+			// Impossible to compile with non-malleable form
+			Assert.Throws<CompilerException>(() => PolicyCompileLiftCheck($"and(pk({PubKeys[0]}),or(after(9),after(9)))"));
+
+			// successful case
 			PolicyCompileLiftCheck($"and(pk({PubKeys[0]}),pk({PubKeys[1]}))");
 			PolicyCompileLiftCheck($"or(pk({PubKeys[0]}),pk({PubKeys[1]}))");
 			PolicyCompileLiftCheck($"thresh(2,pk({PubKeys[0]}),pk({PubKeys[1]}),pk({PubKeys[2]}))");
+			PolicyCompileLiftCheck($"or(1@and(pk({PubKeys[0]}),pk({PubKeys[1]})),127@pk({PubKeys[2]}))");
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CompileQ()
+		{
+			// var policy = ConcretePolicy<PubKey, uint160>.Parse($"or(1@and(pk({PubKeys[0]}),pk({PubKeys[1]})),127@pk({PubKeys[2]}))");
+			/*
+			var compilation = Compiler<PubKey, uint160>.BestT(
+				new Dictionary<Tuple<ConcretePolicy<PubKey, uint160>, double, double?>,
+					IDictionary<CompilationKey, AstElemExt<PubKey, uint160>>>(),
+				policy,
+				1.0,
+				null
+			);
+			Assert.Equal(compilation.Cost1d(1.0, null), 88.0 + 74.109375);
+			Assert.Equal(policy.Lift(), compilation.Ms.Lift());
+			*/
 		}
 	}
 }
