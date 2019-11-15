@@ -844,9 +844,9 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 						bestWs.Add(Tuple.Create(bw.CompExtData, bw));
 						if (diff < minValue.Item2)
 							minValue = new {Item1 = i, Item2 = diff};
-						subExtData.Add(bestEs[minValue.Item1].Item1);
-						subAst.Add(bestEs[minValue.Item1].Item2.Ms);
 					}
+					subExtData.Add(bestEs[minValue.Item1].Item1);
+					subAst.Add(bestEs[minValue.Item1].Item2.Ms);
 					for (int j = 0; j < pol.Item2.Count; j++)
 					{
 						if (j != minValue.Item1)
@@ -1061,7 +1061,8 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			var result =
 				BestCompilations(policyCache, policy, satProb, dissatProb)
 					.Where(kv =>
-						kv.Key.Type.Correctness.Unit
+						kv.Key.Type.Correctness.Base == Base.W
+						&& kv.Key.Type.Correctness.Unit
 						&& kv.Value.Ms.Type.Malleability.Dissat == Dissat.Unique
 						&& kv.Key.DissatProb == dissatProb
 					);

@@ -144,7 +144,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		public static FragmentPropertyException  ThresholdBase(uint i, Base b, string fragment = null) =>
 			new FragmentPropertyException (ErrorKind.ThresholdBase,
-				$"the {i}th value of the threshold fragment had an invalid type (first must be `B` and rest must be `W`.)", fragment);
+				$"the {i}th value of the threshold fragment had an invalid type {b} (first must be `B` and rest must be `W`.)", fragment);
 
 		public static FragmentPropertyException  ThresholdNonUnit(uint n, string fragment = null) =>
 			new FragmentPropertyException (ErrorKind.ThresholdNonUnit, $"the {n} th fragment of the threshold was not the unit", fragment);

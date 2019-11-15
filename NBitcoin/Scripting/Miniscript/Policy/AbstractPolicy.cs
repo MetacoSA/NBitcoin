@@ -3,14 +3,14 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using NBitcoin.BouncyCastle.Asn1;
-using NBitcoin.BouncyCastle.Math.EC.Multiplier;
-using NBitcoin.RPC;
+using NBitcoin.Scripting.Parser;
+
 
 namespace NBitcoin.Scripting.Miniscript.Policy
 {
 	public class AbstractPolicy<TPk, TPKh> : IEquatable<AbstractPolicy<TPk, TPKh>>
-		where TPKh : IMiniscriptKeyHash
-		where TPk : IMiniscriptKey<TPKh>
+		where TPk : class, IMiniscriptKey<TPKh>, new()
+		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		#region Subtype definitions
 		internal static class Tags
@@ -145,9 +145,9 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		public static AbstractPolicy<TPk, TPKh> NewHash256(uint256 item) => new Hash256(item);
 		public static AbstractPolicy<TPk, TPKh> NewRipemd160(uint160 item) => new Ripemd160(item);
 		public static AbstractPolicy<TPk, TPKh> NewHash160(uint160 item) => new Hash160(item);
-		public static AbstractPolicy<TPk, TPKh> NewAnd(List<AbstractPolicy<TPk, TPKh>> item) => new And(item);
-		public static AbstractPolicy<TPk, TPKh> NewOr(List<AbstractPolicy<TPk, TPKh>> item) => new Or(item);
-		public static AbstractPolicy<TPk, TPKh> NewThreshold(uint item1, List<AbstractPolicy<TPk, TPKh>> item2) => new Threshold(item1, item2);
+		public static AbstractPolicy<TPk, TPKh> NewAnd(IEnumerable<AbstractPolicy<TPk, TPKh>> item) => new And(item.ToList());
+		public static AbstractPolicy<TPk, TPKh> NewOr(IEnumerable<AbstractPolicy<TPk, TPKh>> item) => new Or(item.ToList());
+		public static AbstractPolicy<TPk, TPKh> NewThreshold(uint item1, IEnumerable<AbstractPolicy<TPk, TPKh>> item2) => new Threshold(item1, item2.ToList());
 
 		#endregion
 
@@ -264,12 +264,50 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			var n = top.Name;
 			var l = top.Args.Count;
 			if (n == "UNSATISFIABLE" && l == 0)
-				return AbstractPolicy<TPk, TPKh>.UnSatisfiable;
+				return UnSatisfiable;
 			if (n == "TRIVIAL" && l == 0)
-				return AbstractPolicy<TPk, TPKh>.Trivial;
-			//if (n == "pkh" && l == 1)
-				// return AbstractPolicy<TPk, TPKh>.KeyHash;
-			throw new NotImplementedException();
+				return Trivial;
+			if (n == "pkh" && l == 1)
+				return Tree.Terminal(top.Args[0], pk => NewKeyHash(MiniscriptFragmentParser<TPk, TPKh>.ParseHash(pk)));
+			if (n == "after" && l == 1)
+				return Tree.Terminal(top.Args[0], x => NewAfter(UInt32.Parse(x)));
+			if (n == "older" && l == 1)
+				return Tree.Terminal(top.Args[0], x => NewOlder(UInt32.Parse(x)));
+			if (n == "sha256" && l == 1)
+				return Tree.Terminal(top.Args[0], x => NewSha256(uint256.Parse(x)));
+			if (n == "hash256" && l == 1)
+				return Tree.Terminal(top.Args[0], x => NewHash256(uint256.Parse(x)));
+			if (n == "ripemd160" && l == 1)
+				return Tree.Terminal(top.Args[0], x => NewRipemd160(uint160.Parse(x)));
+			if (n == "hash160" && l == 1)
+				return Tree.Terminal(top.Args[0], x => NewHash160(uint160.Parse(x)));
+			if (n == "and")
+			{
+				if (!top.Args.Any())
+					throw new ParsingException("and without args");
+				var subsAnd = top.Args.Select(FromTree);
+				return NewAnd(subsAnd);
+			}
+			if (n == "or")
+			{
+				if (!top.Args.Any())
+					throw new ParsingException("and without args");
+				var subsAnd = top.Args.Select(FromTree);
+				return NewOr(subsAnd);
+			}
+
+			if (n == "thresh")
+			{
+				if (!top.Args[0].Args.Any())
+					throw new ParsingException($"Unexpected {top.Args[0].Args[0].Name}");
+				var thresh = UInt32.Parse(top.Args[0].Name);
+				if (thresh >= l)
+					throw new ParsingException(
+						$"number of sub policy in threshold ({l}), exceeded k ({top.Args[0].Name})");
+				return NewThreshold(thresh, top.Args.Skip(1).Select(FromTree));
+			}
+
+			throw new ParsingException($"Unexpected {n}. with {l} argument");
 		}
 
 		/// <summary>

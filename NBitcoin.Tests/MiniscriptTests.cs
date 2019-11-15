@@ -277,7 +277,7 @@ namespace NBitcoin.Tests
 			Assert.Throws<CompilerException>(() => PolicyCompileLiftCheck("sha256(1111111111111111111111111111111111111111111111111111111111111111)"));
 			PolicyCompileLiftCheck($"and(pk({PubKeys[0]}),pk({PubKeys[1]}))");
 			PolicyCompileLiftCheck($"or(pk({PubKeys[0]}),pk({PubKeys[1]}))");
-			// PolicyCompileLiftCheck($"thresh(2,pk({PubKeys[0]}),pk({PubKeys[1]}),pk({PubKeys[2]}))");
+			PolicyCompileLiftCheck($"thresh(2,pk({PubKeys[0]}),pk({PubKeys[1]}),pk({PubKeys[2]}))");
 		}
 	}
 }

@@ -6,8 +6,8 @@ using NBitcoin.Scripting.Miniscript.Policy;
 namespace NBitcoin.Scripting.Miniscript
 {
 	public interface ILiftable<TPk, TPKh>
-		where TPk : IMiniscriptKey<TPKh>
-		where TPKh : IMiniscriptKeyHash
+		where TPk : class, IMiniscriptKey<TPKh>, new()
+		where TPKh : class, IMiniscriptKeyHash, new()
 	{
 		AbstractPolicy<TPk, TPKh> Lift();
 	}
