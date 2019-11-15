@@ -253,17 +253,22 @@ namespace NBitcoin.Tests
 			Assert.Equal(concreteP2_1.GetHashCode(), concreteP2_2.GetHashCode());
 		}
 
-		private void PolicyCompileLiftCheck(string s)
+		private void PolicyCompileLiftCheck(string s, string expected = null)
 		{
 			var policy = ConcretePolicy<PubKey, uint160>.Parse(s);
 			var ms = policy.Compile();
 			Assert.Equal(policy.Lift(), ms.Lift());
 			Assert.Equal(policy.Lift().GetHashCode(), ms.Lift().GetHashCode());
+			if (expected != null)
+			{
+				var expectedMs = Miniscript<PubKey, uint160>.Parse(expected);
+				Console.WriteLine(ms);
+				Assert.Equal(expectedMs.Node, ms.Node);
+			}
 		}
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CompilerUnitTest()
+		public void CompilerUnitTestInvalid()
 		{
 			// we cannot compile if the top level is not safe. (i.e. can spend by anyone.)
 			Assert.Throws<CompilerException>(() => PolicyCompileLiftCheck("after(9)"));
@@ -273,12 +278,26 @@ namespace NBitcoin.Tests
 
 			// Impossible to compile with non-malleable form
 			Assert.Throws<CompilerException>(() => PolicyCompileLiftCheck($"and(pk({PubKeys[0]}),or(after(9),after(9)))"));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CompilerUnitTestValid()
+		{
 
 			// successful case
-			PolicyCompileLiftCheck($"and(pk({PubKeys[0]}),pk({PubKeys[1]}))");
-			PolicyCompileLiftCheck($"or(pk({PubKeys[0]}),pk({PubKeys[1]}))");
-			PolicyCompileLiftCheck($"thresh(2,pk({PubKeys[0]}),pk({PubKeys[1]}),pk({PubKeys[2]}))");
-			PolicyCompileLiftCheck($"or(1@and(pk({PubKeys[0]}),pk({PubKeys[1]})),127@pk({PubKeys[2]}))");
+			PolicyCompileLiftCheck(
+				$"and(pk({PubKeys[0]}),pk({PubKeys[1]}))",
+				$"c:and_v(vc:pk({PubKeys[0]}),pk({PubKeys[1]}))");
+			PolicyCompileLiftCheck(
+				$"or(pk({PubKeys[0]}),pk({PubKeys[1]}))",
+				$"or_b(c:pk({PubKeys[0]}),sc:pk({PubKeys[1]}))"
+				);
+			PolicyCompileLiftCheck(
+				$"thresh(2,pk({PubKeys[0]}),pk({PubKeys[1]}),pk({PubKeys[2]}))",
+				$"thresh_m(2,{PubKeys[0]},{PubKeys[1]},{PubKeys[2]})"
+				);
+			// PolicyCompileLiftCheck($"or(1@and(pk({PubKeys[0]}),pk({PubKeys[1]})),127@pk({PubKeys[2]}))");
 		}
 
 		[Fact]

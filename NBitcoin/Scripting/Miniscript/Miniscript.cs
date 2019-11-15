@@ -7,7 +7,7 @@ using NBitcoin.Scripting.Parser;
 namespace NBitcoin.Scripting.Miniscript
 {
 	[DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
-	public partial class Miniscript<TPk, TPKh>
+	public partial class Miniscript<TPk, TPKh> : IEquatable<Miniscript<TPk, TPKh>>
 		where TPk : class, IMiniscriptKey<TPKh>, new()
 		where TPKh : class, IMiniscriptKeyHash, new()
 	{
@@ -67,5 +67,8 @@ namespace NBitcoin.Scripting.Miniscript
 
 		public string ToDebugString() =>
 			Node.ToDebugString();
+
+		public bool Equals(Miniscript<TPk, TPKh> other)
+			=> this.Node.Equals(other.Node);
 	}
 }

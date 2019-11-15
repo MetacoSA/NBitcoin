@@ -1173,15 +1173,12 @@ namespace NBitcoin.Scripting.Miniscript
 					return sb.Append($"ripemd160({self.Item})");
 				case Hash160 self:
 					return sb.Append($"hash160({self.Item})");
-				case AndV self:
-					if (!self.Item2.Node.Equals(True))
-					{
-						sb.Append("and_v(");
-						self.Item1.Node.ToStringCore(sb);
-						sb.Append(",");
-						self.Item2.Node.ToStringCore(sb);
-						sb.Append(")");
-					}
+				case AndV self when (!self.Item2.Node.Equals(True)):
+					sb.Append("and_v(");
+					self.Item1.Node.ToStringCore(sb);
+					sb.Append(",");
+					self.Item2.Node.ToStringCore(sb);
+					sb.Append(")");
 					return sb;
 				case AndB self:
 					sb.Append("and_b(");
