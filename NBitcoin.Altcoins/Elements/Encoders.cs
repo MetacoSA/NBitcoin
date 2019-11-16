@@ -2,7 +2,7 @@ using NBitcoin.DataEncoders;
 
 namespace NBitcoin.Altcoins.Elements
 {
-	public static class Encoders
+	public static class ElementsEncoders
 	{
 		public static Blech32Encoder Blech32(string hrp)
 		{

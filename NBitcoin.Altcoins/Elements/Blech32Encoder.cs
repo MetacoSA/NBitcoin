@@ -74,7 +74,7 @@ namespace NBitcoin.Altcoins.Elements
 			var i = test.IndexOf('1');
 			if (i == -1)
 				throw new FormatException("Invalid Blech32 string");
-			return Encoders.Blech32(test.Substring(0, i));
+			return ElementsEncoders.Blech32(test.Substring(0, i));
 		}
 
 		protected override void CheckCase(string hrp)
