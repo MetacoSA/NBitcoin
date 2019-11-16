@@ -1142,6 +1142,18 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanRoundtripSerializeSequence()
+		{
+			var now = new DateTimeOffset(1988, 7, 18, 0, 0, 0, TimeSpan.Zero);
+			var step = TimeSpan.FromMinutes(10.0);
+			var sequence = new Sequence(step);
+			var serialized = NBitcoin.JsonConverters.Serializer.ToString(sequence);
+			var roundtripped = NBitcoin.JsonConverters.Serializer.ToObject<Sequence>(serialized);
+			Assert.Equal(roundtripped, sequence);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanVerifySequenceLock()
 		{
 			var now = new DateTimeOffset(1988, 7, 18, 0, 0, 0, TimeSpan.Zero);
