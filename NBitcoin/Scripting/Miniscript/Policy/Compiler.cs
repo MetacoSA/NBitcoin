@@ -229,11 +229,11 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 		public override bool TryOrD(CompilerExtData left, CompilerExtData right, out CompilerExtData result, List<FragmentPropertyException> error)
 		{
 			var lProb = left.BranchProb.Value; // left branch prob must always be set for disjunctions
-			var rProb = left.BranchProb.Value; // and for right branch.
+			var rProb = right.BranchProb.Value; // and for right branch.
 			result = new CompilerExtData(
 				null,
 				(lProb * left.SatisfyCost + rProb * (right.SatisfyCost + left.DissatCost.Value)),
-				right.DissatCost + left.DissatCost
+				right.DissatCost + left.DissatCost.Value
 				);
 			return true;
 		}

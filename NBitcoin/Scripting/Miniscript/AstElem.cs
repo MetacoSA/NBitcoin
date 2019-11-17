@@ -1121,7 +1121,6 @@ namespace NBitcoin.Scripting.Miniscript
 		/// append a character to display before the `:` as well as a reference
 		/// to the wrapped type to allow easy recursion.
 		/// </summary>
-		/// <param name="???"></param>
 		/// <returns></returns>
 		private Tuple<char, Miniscript<TPk, TPKh>> WrapChar()
 		{
@@ -1270,6 +1269,7 @@ namespace NBitcoin.Scripting.Miniscript
 				errors))
 			{
 				sb.Append(typeMap.Correctness.Base);
+				sb.Append("/");
 				sb.Append(typeMap.Correctness.Input.DebugPrint());
 				if (typeMap.Correctness.DisSatisfiable)
 					sb.Append('d');

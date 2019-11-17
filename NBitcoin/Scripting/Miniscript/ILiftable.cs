@@ -43,6 +43,7 @@ namespace NBitcoin.Scripting.Miniscript
 				case Ripemd160 self: return AbstractPolicy<TPk, TPKh>.NewRipemd160(self.Item).Normalize();
 				case Hash160 self: return AbstractPolicy<TPk, TPKh>.NewHash160(self.Item).Normalize();
 				case Alt self: return self.Item.Node.Lift().Normalize();
+				case Swap self: return self.Item.Node.Lift().Normalize();
 				case Check self: return self.Item.Node.Lift().Normalize();
 				case DupIf self: return self.Item.Node.Lift().Normalize();
 				case Verify self: return self.Item.Node.Lift().Normalize();
@@ -73,7 +74,7 @@ namespace NBitcoin.Scripting.Miniscript
 						).Normalize();
 			}
 
-			throw new Exception("Unreachable!");
+			throw new Exception($"Unreachable! {this}");
 		}
 	}
 }

@@ -360,7 +360,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 				return false;
 			}
 
-			if (l.Base != Base.B)
+			if (l.Base != Base.B || r.Base != Base.B)
 			{
 				error.Add(FragmentPropertyException.ChildBase2(l.Base, r.Base));
 				return false;

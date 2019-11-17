@@ -207,6 +207,14 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TerminalUnitTest()
+		{
+			// must fail to type check
+			Assert.Throws<ParsingException>(() => Miniscript<PubKey, uint160>.Parse($"or_d(c:pk({PubKeys[0]}),pk({PubKeys[1]}))"));
+		}
+
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -282,20 +290,31 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CompilerUnitTestValidTmp()
+		{
+			PolicyCompileLiftCheck(
+				$"or(pk({PubKeys[0]}),pk({PubKeys[1]}))",
+				$"or_b(c:pk({PubKeys[0]}),sc:pk({PubKeys[1]}))"
+				);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CompilerUnitTestValid()
 		{
 
 			// successful case
 			PolicyCompileLiftCheck(
 				$"and(pk({PubKeys[0]}),pk({PubKeys[1]}))",
-				$"c:and_v(vc:pk({PubKeys[0]}),pk({PubKeys[1]}))");
+				$"c:and_v(vc:pk({PubKeys[0]}),pk({PubKeys[1]}))"
+				);
 			PolicyCompileLiftCheck(
 				$"or(pk({PubKeys[0]}),pk({PubKeys[1]}))",
-				$"or_b(c:pk({PubKeys[0]}),sc:pk({PubKeys[1]}))"
+					$"or_b(c:pk({PubKeys[0]}),sc:pk({PubKeys[1]}))"
 				);
 			PolicyCompileLiftCheck(
 				$"thresh(2,pk({PubKeys[0]}),pk({PubKeys[1]}),pk({PubKeys[2]}))",
-				$"thresh_m(2,{PubKeys[0]},{PubKeys[1]},{PubKeys[2]})"
+					$"thresh_m(2,{PubKeys[0]},{PubKeys[1]},{PubKeys[2]})"
 				);
 			// PolicyCompileLiftCheck($"or(1@and(pk({PubKeys[0]}),pk({PubKeys[1]})),127@pk({PubKeys[2]}))");
 		}
