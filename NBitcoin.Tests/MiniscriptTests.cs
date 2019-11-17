@@ -274,6 +274,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(expectedMs.Node, ms.Node);
 			}
 		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CompilerUnitTestInvalid()
@@ -286,16 +287,6 @@ namespace NBitcoin.Tests
 
 			// Impossible to compile with non-malleable form
 			Assert.Throws<CompilerException>(() => PolicyCompileLiftCheck($"and(pk({PubKeys[0]}),or(after(9),after(9)))"));
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CompilerUnitTestValidTmp()
-		{
-			PolicyCompileLiftCheck(
-				$"or(pk({PubKeys[0]}),pk({PubKeys[1]}))",
-				$"or_b(c:pk({PubKeys[0]}),sc:pk({PubKeys[1]}))"
-				);
 		}
 
 		[Fact]
@@ -316,7 +307,7 @@ namespace NBitcoin.Tests
 				$"thresh(2,pk({PubKeys[0]}),pk({PubKeys[1]}),pk({PubKeys[2]}))",
 					$"thresh_m(2,{PubKeys[0]},{PubKeys[1]},{PubKeys[2]})"
 				);
-			// PolicyCompileLiftCheck($"or(1@and(pk({PubKeys[0]}),pk({PubKeys[1]})),127@pk({PubKeys[2]}))");
+			PolicyCompileLiftCheck($"or(1@and(pk({PubKeys[0]}),pk({PubKeys[1]})),127@pk({PubKeys[2]}))");
 		}
 
 		[Fact]

@@ -385,6 +385,9 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			=> (!(other is null))
 				&& (Correctness.Base == other.Correctness.Base)
 				&& (Correctness.Input == other.Correctness.Input)
+				&& (Correctness.DisSatisfiable == other.Correctness.DisSatisfiable)
+				&& (Correctness.Unit == other.Correctness.Unit)
+				&& (Malleability.Dissat == other.Malleability.Dissat)
 				&& (Malleability.NonMalleable == other.Malleability.NonMalleable)
 				&& (Malleability.Safe == other.Malleability.Safe);
 
@@ -393,6 +396,9 @@ namespace NBitcoin.Scripting.Miniscript.Types
 			int num = 0;
 			num = -1640531527 + Correctness.Base.GetHashCode() + ((num << 6) + (num >> 2));
 			num = -1640531527 + Correctness.Input.GetHashCode() + ((num << 6) + (num >> 2));
+			num = -1640531527 + Correctness.DisSatisfiable.GetHashCode() + ((num << 6) + (num >> 2));
+			num = -1640531527 + Correctness.Unit.GetHashCode() + ((num << 6) + (num >> 2));
+			num = -1640531527 + Malleability.Dissat.GetHashCode() + ((num << 6) + (num >> 2));
 			num = -1640531527 + Malleability.NonMalleable.GetHashCode() + ((num << 6) + (num >> 2));
 			num = -1640531527 + Malleability.Safe.GetHashCode() + ((num << 6) + (num >> 2));
 			return num;

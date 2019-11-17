@@ -62,7 +62,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 
 		internal bool IsSubtype(Malleability other) =>
 			Dissat.IsSubType(other.Dissat) &&
-				other.Safe &&
+				!(!this.Safe && other.Safe) &&
 				!(!NonMalleable && other.NonMalleable);
 
 		public override Malleability FromTrue() =>
