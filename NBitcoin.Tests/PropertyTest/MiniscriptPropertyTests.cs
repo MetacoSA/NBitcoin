@@ -27,7 +27,7 @@ namespace NBitcoin.Tests.PropertyTest
 			Assert.Equal(p.GetHashCode(), c.GetHashCode());
 		}
 
-		[Property(MaxTest = 100, Skip="For now")]
+		[Property(MaxTest = 100, Skip = "skip for now")]
 		[Trait("UnitTest", "UnitTest")]
 		public void ShouldCompileConcretePolicy(ConcretePolicy<PubKey, uint160> p)
 		{

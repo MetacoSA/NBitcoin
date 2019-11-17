@@ -493,7 +493,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 						resCompExtTrue,
 						new Miniscript<TPk,TPKh>(
 							resTypeTrue,
-							Terminal<TPk, TPKh>.NewAndV(ast.Ms, Miniscript<TPk, TPKh>.FromAst(Terminal<TPk, TPKh>.True)),
+							Terminal<TPk, TPKh>.NewAndV(ast.Ms, Miniscript<TPk, TPKh>.FromAst(Terminal<TPk, TPKh>.NewTrue())),
 							resExtTrue)
 					);
 				casts.Add(castTrue);
@@ -880,12 +880,18 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 							data = subExtData[i];
 							return true;
 						};
-					new CompilerExtData().TryThreshold((int) pol.Item1, n, subCk,
-						out var newThresh, new List<FragmentPropertyException>());
-					var astExtResult = new AstElemExt<TPk, TPKh>(
-							newThresh,
-							Miniscript<TPk, TPKh>.FromAst(astResult));
-					insertWrap(astExtResult);
+					if (new CompilerExtData().TryThreshold((int) pol.Item1, n, subCk,
+						out var newThresh, new List<FragmentPropertyException>()))
+					{
+						var astExtResult = new AstElemExt<TPk, TPKh>(
+								newThresh,
+								Miniscript<TPk, TPKh>.FromAst(astResult));
+						insertWrap(astExtResult);
+					}
+					else
+					{
+						throw new Exception("Bug: Failed to create CompilerExtData from sub expression we have just compiled");
+					}
 					var keyVec =
 						pol.Item2
 							.Select(s => (s is ConcretePolicy<TPk, TPKh>.Key pk) ? pk.Item : null)
@@ -1068,7 +1074,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 					);
 		}
 
-		private static AstElemExt<TPk, TPKh> BestW(
+		internal static AstElemExt<TPk, TPKh> BestW(
 			IDictionary<Tuple<ConcretePolicy<TPk, TPKh>, double, double?>, IDictionary<CompilationKey, AstElemExt<TPk, TPKh>>>
 				policyCache,
 				ConcretePolicy<TPk, TPKh> policy,

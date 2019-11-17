@@ -16,11 +16,14 @@ namespace NBitcoin.Tests
 
 		public static Key[] PrivKeys = (new[]
 			{
+				"4040404040404040404040404040404040404040404040404040404040404040",
 				"4141414141414141414141414141414141414141414141414141414141414141",
 				"4242424242424242424242424242424242424242424242424242424242424242",
 				"4343434343434343434343434343434343434343434343434343434343434343",
 				"4444444444444444444444444444444444444444444444444444444444444444",
 				"4545454545454545454545454545454545454545454545454545454545454545",
+				"4646464646464646464646464646464646464646464646464646464646464646",
+				"4747474747474747474747474747474747474747474747474747474747474747"
 			}).Select(str => new Key(Hex.DecodeData(str))).ToArray();
 
 		public static PubKey[] PubKeys = PrivKeys.Select(k => k.PubKey).ToArray();
@@ -312,10 +315,60 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CompilerMisc()
+		{
+			var policy = ConcretePolicy<PubKey, uint160>.Parse($"and(older(10000),thresh(2,pk({PubKeys[0]}),pk({PubKeys[1]}),pk({PubKeys[2]})))");
+			var desc = policy.Compile();
+			var l = new List<Op>();
+			l.Add(Op.GetPushOp(2));
+			l.Add(Op.GetPushOp(PubKeys[0].ToBytes()));
+			l.Add(Op.GetPushOp(PubKeys[1].ToBytes()));
+			l.Add(Op.GetPushOp(PubKeys[2].ToBytes()));
+			l.Add(Op.GetPushOp(3));
+			l.Add(OpcodeType.OP_CHECKMULTISIGVERIFY);
+			l.Add(Op.GetPushOp(10000));
+			l.Add(OpcodeType.OP_CHECKSEQUENCEVERIFY);
+			var expectedStr = new Script(l);
+			Assert.Equal(expectedStr, desc.ToScript());
+
+			// Liquid policy
+			var pol = $"or(127@thresh(3,pk({PubKeys[0]}),pk({PubKeys[1]}),pk({PubKeys[2]}),pk({PubKeys[3]}),pk({PubKeys[4]})),1@and(older(10000),thresh(2,pk({PubKeys[5]}),pk({PubKeys[6]}),pk({PubKeys[7]}))))";
+			Console.WriteLine(pol);
+			var liquidPolicy = ConcretePolicy<PubKey, uint160>.Parse(pol);
+			var compiledLiquid = liquidPolicy.Compile();
+			var ms = Miniscript<PubKey, uint160>.Parse(
+				$"or_d(thresh_m(3,{PubKeys[0]},{PubKeys[1]},{PubKeys[2]},{PubKeys[3]},{PubKeys[4]})," +
+				$"and_v(v:thresh(2,c:pk_h({PubKeys[5].ToPubKeyHash()})," +
+				$"ac:pk_h({PubKeys[6].ToPubKeyHash()}),ac:pk_h({PubKeys[7].ToPubKeyHash()})),older(10000)))");
+			Assert.Equal(ms, compiledLiquid);
+		}
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CompileValidTmp()
+		{
+			var sp = 0.66145833333333326;
+			var dp = 0.33854166666666669;
+			var policy = ConcretePolicy<PubKey, uint160>.Parse($"thresh(2,or(127@pk({PubKeys[2]}),1@pk({PubKeys[3]})),after(100),or(and(pk({PubKeys[4]}),after(200)),and(pk({PubKeys[0]}),sha256(66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925))))");
+			var compilation = Compiler<PubKey, uint160>.BestW(
+				new Dictionary<Tuple<ConcretePolicy<PubKey, uint160>, double, double?>,
+					IDictionary<CompilationKey, AstElemExt<PubKey, uint160>>>(),
+				policy,
+				sp,
+				dp
+			);
+			Assert.True(Property<Malleability, PubKey, uint160>.TypeCheck(compilation.Ms.Node, out var rm, new List<FragmentPropertyException>()) && rm.Dissat == Dissat.Unique);
+			Assert.True(Property<MiniscriptFragmentType, PubKey, uint160>.TypeCheck(compilation.Ms.Node, out var r, new List<FragmentPropertyException>()) && r.Malleability.Dissat == Dissat.Unique);
+			Assert.True(compilation.CompExtData.DissatCost.HasValue);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CompileQ()
 		{
-			// var policy = ConcretePolicy<PubKey, uint160>.Parse($"or(1@and(pk({PubKeys[0]}),pk({PubKeys[1]})),127@pk({PubKeys[2]}))");
 			/*
+			var policy = ConcretePolicy<PubKey, uint160>.Parse($"or(1@and(pk({PubKeys[0]}),pk({PubKeys[1]})),127@pk({PubKeys[2]}))");
 			var compilation = Compiler<PubKey, uint160>.BestT(
 				new Dictionary<Tuple<ConcretePolicy<PubKey, uint160>, double, double?>,
 					IDictionary<CompilationKey, AstElemExt<PubKey, uint160>>>(),
@@ -326,6 +379,17 @@ namespace NBitcoin.Tests
 			Assert.Equal(compilation.Cost1d(1.0, null), 88.0 + 74.109375);
 			Assert.Equal(policy.Lift(), compilation.Ms.Lift());
 			*/
+
+			var policy2 = ConcretePolicy<PubKey, uint160>.Parse($"and(and(and(or(127@thresh(2,pk({PubKeys[0]}),pk({PubKeys[1]}),thresh(2,or(127@pk({PubKeys[2]}),1@pk({PubKeys[3]})),after(100),or(and(pk({PubKeys[4]}),after(200)),and(pk({PubKeys[0]}),sha256(66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925))),pk({PubKeys[1]}))),1@pk({PubKeys[2]})),sha256(66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925)),or(127@pk({PubKeys[3]}),1@after(300))),or(127@after(400),pk({PubKeys[4]})))");
+			var compilation2 = Compiler<PubKey, uint160>.BestT(
+				new Dictionary<Tuple<ConcretePolicy<PubKey, uint160>, double, double?>,
+					IDictionary<CompilationKey, AstElemExt<PubKey, uint160>>>(),
+				policy2,
+				1.0,
+				null
+			);
+			Assert.Equal(compilation2.Cost1d(1.0, null), 437.0 + 299.4003295898438);
+			Assert.Equal(policy2.Lift(), compilation2.Ms.Lift());
 		}
 	}
 }

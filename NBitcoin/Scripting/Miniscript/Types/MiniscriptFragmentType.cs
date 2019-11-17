@@ -359,12 +359,12 @@ namespace NBitcoin.Scripting.Miniscript.Types
 					return false;
 				};
 			IProperty<Malleability>.SubCk getSubMalleability =
-				(int i, out Malleability subCorr, List<FragmentPropertyException> list) =>
+				(int i, out Malleability subMall, List<FragmentPropertyException> list) =>
 				{
-					subCorr = null;
+					subMall = null;
 					if (subCk(i, out var subResult, error))
 					{
-						subCorr = subResult.Malleability;
+						subMall = subResult.Malleability;
 						return true;
 					}
 					return false;
