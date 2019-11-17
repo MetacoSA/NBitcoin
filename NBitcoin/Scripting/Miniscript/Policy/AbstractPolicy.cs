@@ -427,5 +427,25 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			}
 			throw new Exception("Unreachable!");
 		}
+
+		public AbstractPolicy<TPk, TPKh> Sort()
+		{
+			switch (this)
+			{
+				case And self:
+					var newSubsAnd = self.Item.Select(x => x.Sort()).ToList();
+					newSubsAnd.Sort();
+					return NewAnd(newSubsAnd);
+				case Or self:
+					var newSubsOr = self.Item.Select(x => x.Sort()).ToList();
+					newSubsOr.Sort();
+					return NewOr(newSubsOr);
+				case Threshold self:
+					var newSubs = self.Item2.Select(x => x.Sort()).ToList();
+					newSubs.Sort();
+					return NewThreshold(self.Item1, newSubs);
+			}
+			return this;
+		}
 	}
 }
