@@ -145,7 +145,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 		public override bool TryCastTrue(out Malleability result, List<FragmentPropertyException> error)
 		{
 			result = new Malleability(
-				Dissat == Dissat.None ? Dissat.Unique : Dissat.Unknown,
+				Dissat.None,
 				Safe,
 				NonMalleable
 			);
