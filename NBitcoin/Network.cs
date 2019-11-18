@@ -2421,15 +2421,7 @@ namespace NBitcoin
 		{
 			if (str == null)
 				throw new ArgumentNullException(nameof(str));
-			if (targetType == null)
-			{
-				targetType = typeof(IBitcoinString);
-			}
-			else if (typeof(IBitcoinString) != targetType &&
-			         targetType.GetTypeInfo().IsAssignableFrom(typeof(IBitcoinString).GetTypeInfo()))
-			{
-				throw new ArgumentNullException(nameof(targetType));
-			}
+			targetType ??= typeof(IBitcoinString);
 			if (NetworkStringParser.TryParse(str, this, targetType, out var o))
 				return o;
 			var base58Encoder = NetworkStringParser.GetBase58CheckEncoder();
