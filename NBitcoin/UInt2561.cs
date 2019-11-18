@@ -75,7 +75,7 @@ namespace NBitcoin
 
 		public static bool TryParse(string hex, out uint256 result)
 		{
-			if (hex == null)
+			if (hex is null)
 				throw new ArgumentNullException(nameof(hex));
 			if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				hex = hex.Substring(2);
@@ -519,7 +519,7 @@ namespace NBitcoin
 
 		public static bool TryParse(string hex, out uint160 result)
 		{
-			if (hex == null)
+			if (hex is null)
 				throw new ArgumentNullException(nameof(hex));
 			if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				hex = hex.Substring(2);
