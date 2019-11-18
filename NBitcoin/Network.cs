@@ -2473,7 +2473,11 @@ namespace NBitcoin
 
 		public static IBitcoinString Parse(string str, Network expectedNetwork, Type? targetType = null)
 		{
-			return Parse<IBitcoinString>(str, expectedNetwork, targetType);
+			if (expectedNetwork == null)
+				throw new ArgumentNullException(nameof(expectedNetwork));
+			if (str == null)
+				throw new ArgumentNullException(nameof(str));
+			return expectedNetwork.Parse(str, targetType);
 		}
 
 		public static T Parse<T>(string str, Network expectedNetwork, Type? targetType = null) where T : IBitcoinString
