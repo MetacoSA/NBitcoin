@@ -103,44 +103,26 @@ namespace NBitcoin
 		{
 			var uintIndex = index / sizeof(uint);
 			var byteIndex = index % sizeof(uint);
-			UInt32 value;
-			switch (uintIndex)
+			var value = uintIndex switch
 			{
-				case 0:
-					value = pn0;
-					break;
+				0 => pn0,
 
-				case 1:
-					value = pn1;
-					break;
+				1 => pn1,
 
-				case 2:
-					value = pn2;
-					break;
+				2 => pn2,
 
-				case 3:
-					value = pn3;
-					break;
+				3 => pn3,
 
-				case 4:
-					value = pn4;
-					break;
+				4 => pn4,
 
-				case 5:
-					value = pn5;
-					break;
+				5 => pn5,
 
-				case 6:
-					value = pn6;
-					break;
+				6 => pn6,
 
-				case 7:
-					value = pn7;
-					break;
+				7 => pn7,
 
-				default:
-					throw new ArgumentOutOfRangeException("index");
-			}
+				_ => throw new ArgumentOutOfRangeException("index"),
+			};
 			return (byte)(value >> (byteIndex * 8));
 		}
 
@@ -562,32 +544,20 @@ namespace NBitcoin
 		{
 			var uintIndex = index / sizeof(uint);
 			var byteIndex = index % sizeof(uint);
-			UInt32 value;
-			switch (uintIndex)
+			var value = uintIndex switch
 			{
-				case 0:
-					value = pn0;
-					break;
+				0 => pn0,
 
-				case 1:
-					value = pn1;
-					break;
+				1 => pn1,
 
-				case 2:
-					value = pn2;
-					break;
+				2 => pn2,
 
-				case 3:
-					value = pn3;
-					break;
+				3 => pn3,
 
-				case 4:
-					value = pn4;
-					break;
+				4 => pn4,
 
-				default:
-					throw new ArgumentOutOfRangeException("index");
-			}
+				_ => throw new ArgumentOutOfRangeException("index"),
+			};
 			return (byte)(value >> (byteIndex * 8));
 		}
 
