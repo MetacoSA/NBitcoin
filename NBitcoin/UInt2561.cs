@@ -12,7 +12,7 @@ namespace NBitcoin
 
 			public MutableUint256()
 			{
-				Value = uint256.Zero;
+				Value = Zero;
 			}
 
 			public MutableUint256(uint256 value)
@@ -266,7 +266,7 @@ namespace NBitcoin
 
 		public static bool operator ==(uint256 a, uint256 b)
 		{
-			if (System.Object.ReferenceEquals(a, b))
+			if (ReferenceEquals(a, b))
 				return true;
 			if ((a is null) || (b is null))
 				return false;
@@ -471,7 +471,7 @@ namespace NBitcoin
 
 			public MutableUint160()
 			{
-				Value = uint160.Zero;
+				Value = Zero;
 			}
 
 			public MutableUint160(uint160 value)
@@ -651,7 +651,7 @@ namespace NBitcoin
 
 		public static bool operator ==(uint160 a, uint160 b)
 		{
-			if (System.Object.ReferenceEquals(a, b))
+			if (ReferenceEquals(a, b))
 				return true;
 			if ((a is null) || (b is null))
 				return false;
