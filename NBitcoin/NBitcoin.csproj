@@ -10,6 +10,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryUrl>https://github.com/MetacoSA/NBitcoin</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
+    <Nullable></Nullable>
 	</PropertyGroup>
 	<PropertyGroup>
 		<Version Condition=" '$(Version)' == '' ">5.0.40</Version>

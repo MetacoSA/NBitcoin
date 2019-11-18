@@ -62,7 +62,7 @@ namespace NBitcoin.JsonConverters
 
 				
 				var coin = RedeemScript == null ? new Coin(new OutPoint(TransactionId, index), new TxOut(Value, ScriptPubKey)) : new ScriptCoin(new OutPoint(TransactionId, index), new TxOut(Value, ScriptPubKey), RedeemScript);
-				if (AssetId != null)
+				if (!(AssetId is null))
 					return coin.ToColoredCoin(new AssetMoney(AssetId, Quantity));
 				return coin;
 			}

@@ -11,9 +11,8 @@ namespace NBitcoin.OpenAsset
 	/// </summary>
 	public class BitcoinAssetId : Base58Data
 	{
-		public BitcoinAssetId(string base58, Network expectedNetwork = null)
+		public BitcoinAssetId(string base58, Network expectedNetwork): base(base58, expectedNetwork)
 		{
-			Init<BitcoinAssetId>(base58, expectedNetwork);
 		}
 		public BitcoinAssetId(byte[] raw, Network network)
 			: base(raw, network)

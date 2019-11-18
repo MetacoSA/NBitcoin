@@ -152,6 +152,26 @@ namespace NBitcoin
 		{
 			return Consensus.ConsensusFactory.CreateTransaction();
 		}
+
+		internal bool TryExtractBase58Data(Base58Type type, string base58, out byte[]? data)
+		{
+			data = null;
+			try
+			{
+				var decoded = this.GetBase58CheckEncoder().DecodeData(base58);
+				if (base58Prefixes[(int)type] is byte[] prefix && decoded.StartWith(prefix))
+				{
+					data = new byte[decoded.Length - prefix.Length];
+					Array.Copy(decoded, prefix.Length, data, 0, data.Length);
+					return true;
+				}
+				return false;
+			}
+			catch
+			{
+				return false;
+			}
+		}
 	}
 
 	public enum BuriedDeployments : int
@@ -2759,7 +2779,7 @@ namespace NBitcoin
 		}
 		public BitcoinPubKeyAddress CreateBitcoinAddress(KeyId dest)
 		{
-			if (dest == null)
+			if (dest is null)
 				throw new ArgumentNullException(nameof(dest));
 			return NetworkStringParser.CreateP2PKH(dest, this);
 		}

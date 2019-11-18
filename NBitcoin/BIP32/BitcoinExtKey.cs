@@ -1,12 +1,12 @@
-﻿using System;
+﻿#nullable enable
+using System;
 
 namespace NBitcoin
 {
 	public abstract class BitcoinExtKeyBase : Base58Data, IDestination
 	{
-		protected BitcoinExtKeyBase()
+		protected BitcoinExtKeyBase(string base58, Network expectedNetwork) : base(base58, expectedNetwork)
 		{
-
 		}
 		protected BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
 			: base(key.ToBytes(), network)
@@ -32,9 +32,8 @@ namespace NBitcoin
 		/// <summary>
 		/// Constructor. Creates an extended key from the Base58 representation, checking the expected network.
 		/// </summary>
-		public BitcoinExtKey(string base58, Network expectedNetwork = null)
+		public BitcoinExtKey(string base58, Network expectedNetwork): base(base58, expectedNetwork)
 		{
-			Init<BitcoinExtKey>(base58, expectedNetwork);
 		}
 
 		/// <summary>
@@ -43,6 +42,7 @@ namespace NBitcoin
 		public BitcoinExtKey(ExtKey key, Network network)
 			: base(key, network)
 		{
+			_Key = key;
 		}
 
 		/// <summary>
@@ -56,7 +56,7 @@ namespace NBitcoin
 			}
 		}
 
-		ExtKey _Key;
+		ExtKey? _Key;
 
 		/// <summary>
 		/// Gets the extended key, converting from the Base58 representation.
@@ -117,17 +117,17 @@ namespace NBitcoin
 
 		public BitcoinExtKey Derive(KeyPath keyPath)
 		{
-			if (keyPath == null)
+			if (keyPath is null)
 				throw new ArgumentNullException(nameof(keyPath));
 			return new BitcoinExtKey(ExtKey.Derive(keyPath), Network);
 		}
 		public ExtKey Derive(RootedKeyPath rootedKeyPath)
 		{
-			if (rootedKeyPath == null)
+			if (rootedKeyPath is null)
 				throw new ArgumentNullException(nameof(rootedKeyPath));
 			if (rootedKeyPath.MasterFingerprint != GetPublicKey().GetHDFingerPrint())
 				throw new ArgumentException(paramName: nameof(rootedKeyPath), message: "The rootedKeyPath's fingerprint does not match this ExtKey");
-			return Derive(rootedKeyPath.KeyPath);
+			return Derive(rootedKeyPath.KeyPath).ExtKey;
 		}
 
 		public PubKey GetPublicKey()
@@ -158,9 +158,9 @@ namespace NBitcoin
 		/// <summary>
 		/// Implicit cast from BitcoinExtKey to ExtKey.
 		/// </summary>
-		public static implicit operator ExtKey(BitcoinExtKey key)
+		public static implicit operator ExtKey?(BitcoinExtKey key)
 		{
-			if (key == null)
+			if (key is null)
 				return null;
 			return key.ExtKey;
 		}
@@ -174,9 +174,8 @@ namespace NBitcoin
 		/// <summary>
 		/// Constructor. Creates an extended public key from the Base58 representation, checking the expected network.
 		/// </summary>
-		public BitcoinExtPubKey(string base58, Network expectedNetwork = null)
+		public BitcoinExtPubKey(string base58, Network expectedNetwork): base(base58, expectedNetwork)
 		{
-			Init<BitcoinExtPubKey>(base58, expectedNetwork);
 		}
 
 		/// <summary>
@@ -185,9 +184,10 @@ namespace NBitcoin
 		public BitcoinExtPubKey(ExtPubKey key, Network network)
 			: base(key, network)
 		{
+			_PubKey = key;
 		}
 
-		ExtPubKey _PubKey;
+		ExtPubKey? _PubKey;
 
 		/// <summary>
 		/// Gets the extended public key, converting from the Base58 representation.
@@ -246,9 +246,9 @@ namespace NBitcoin
 		/// <summary>
 		/// Implicit cast from BitcoinExtPubKey to ExtPubKey.
 		/// </summary>
-		public static implicit operator ExtPubKey(BitcoinExtPubKey key)
+		public static implicit operator ExtPubKey?(BitcoinExtPubKey key)
 		{
-			if (key == null)
+			if (key is null)
 				return null;
 			return key.ExtPubKey;
 		}
@@ -265,7 +265,7 @@ namespace NBitcoin
 
 		public BitcoinExtPubKey Derive(KeyPath keyPath)
 		{
-			if (keyPath == null)
+			if (keyPath is null)
 				throw new ArgumentNullException(nameof(keyPath));
 			return new BitcoinExtPubKey(ExtPubKey.Derive(keyPath), Network);
 		}
@@ -281,3 +281,4 @@ namespace NBitcoin
 		}
 	}
 }
+#nullable disable

@@ -155,9 +155,9 @@ namespace NBitcoin
 	public class BitcoinPassphraseCode : Base58Data
 	{
 
-		public BitcoinPassphraseCode(string passphrase, Network network, LotSequence lotsequence, byte[] ownersalt = null)
+		public BitcoinPassphraseCode(string passphrase, Network network, LotSequence lotsequence, byte[] ownersalt = null):
+			base(GenerateWif(passphrase, network, lotsequence, ownersalt), network)
 		{
-			Init<BitcoinPassphraseCode>(GenerateWif(passphrase, network, lotsequence, ownersalt), network);
 		}
 		private static string GenerateWif(string passphrase, Network network, LotSequence lotsequence, byte[] ownersalt)
 		{
@@ -192,9 +192,8 @@ namespace NBitcoin
 			return network.NetworkStringParser.GetBase58CheckEncoder().EncodeData(bytes);
 		}
 
-		public BitcoinPassphraseCode(string wif, Network expectedNetwork = null)
+		public BitcoinPassphraseCode(string wif, Network expectedNetwork): base(wif, expectedNetwork)
 		{
-			Init<BitcoinPassphraseCode>(wif, expectedNetwork);
 		}
 
 		LotSequence _LotSequence;

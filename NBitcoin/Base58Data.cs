@@ -39,12 +39,6 @@ namespace NBitcoin
 			}
 		}
 
-		protected void Init<T>(string base64, Network expectedNetwork = null) where T : Base58Data
-		{
-			_Network = expectedNetwork;
-			SetString<T>(base64);
-		}
-
 		protected Base58Data(byte[] rawBytes, Network network)
 		{
 			if (network == null)
@@ -56,16 +50,14 @@ namespace NBitcoin
 		{
 
 		}
-		private void SetString<T>(string psz) where T : Base58Data
+		protected Base58Data(string wif, Network network)
 		{
-			if (_Network == null)
-			{
-				_Network = Network.GetNetworkFromBase58Data(psz, Type);
-				if (_Network == null)
-					throw new FormatException("Invalid " + this.GetType().Name);
-			}
+			if (wif is null)
+				throw new ArgumentNullException(nameof(wif));
+			if (network is null)
+				throw new ArgumentNullException(nameof(network));
 
-			byte[] vchTemp = _Network.NetworkStringParser.GetBase58CheckEncoder().DecodeData(psz);
+			byte[] vchTemp = _Network.NetworkStringParser.GetBase58CheckEncoder().DecodeData(wif);
 #if HAS_SPAN
 			if (!(_Network.GetVersionMemory(Type, false) is ReadOnlyMemory<byte> expectedVersion))
 				throw new FormatException("Invalid " + this.GetType().Name);
@@ -87,7 +79,7 @@ namespace NBitcoin
 			if (!Utils.ArrayEqual(vchVersion, expectedVersion))
 #endif
 			{
-				if (_Network.NetworkStringParser.TryParse(psz, Network, out T other))
+				if (_Network.NetworkStringParser.TryParse(wif, Network, this.GetType(), out var o) && o is Base58Data other)
 				{
 					this.vchVersion = other.vchVersion;
 					this.vchData = other.vchData;
@@ -105,14 +97,12 @@ namespace NBitcoin
 #else
 				vchData = vchTemp.SafeSubarray(expectedVersion.Length);
 #endif
-				wifData = psz;
+				wifData = wif;
 			}
 
 			if (!IsValid)
 				throw new FormatException("Invalid " + this.GetType().Name);
-
 		}
-
 
 		private void SetData(byte[] vchData)
 		{
