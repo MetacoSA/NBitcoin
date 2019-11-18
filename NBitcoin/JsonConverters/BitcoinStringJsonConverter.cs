@@ -33,7 +33,7 @@ namespace NBitcoin.JsonConverters
 			reader.AssertJsonType(JsonToken.String);
 			try
 			{
-				IBitcoinString result = Network.Parse(reader.Value.ToString());
+				IBitcoinString result = Network.Parse(reader.Value.ToString(), objectType);
 				if (result == null)
 				{
 					throw new JsonObjectException("Invalid BitcoinString network", reader);

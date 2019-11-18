@@ -2413,17 +2413,18 @@ namespace NBitcoin
 			return null;
 		}
 
-		public IBitcoinString Parse(string str)
-		{
-			return Parse<IBitcoinString>(str, this);
-		}
 		public T Parse<T>(string str) where T : IBitcoinString
+		{
+			return (T) Parse(str, typeof(T));
+		}
+		public IBitcoinString Parse(string str, Type targetType = null)
 		{
 			if (str == null)
 				throw new ArgumentNullException(nameof(str));
-			if (NetworkStringParser.TryParse<T>(str, this, out T o))
+			targetType ??= typeof(IBitcoinString);
+			if (NetworkStringParser.TryParse(str, this, targetType, out var o))
 				return o;
-			var base58Encoder = (Base58CheckEncoder)NetworkStringParser.GetBase58CheckEncoder();
+			var base58Encoder = NetworkStringParser.GetBase58CheckEncoder();
 
 			var maybeb58 = base58Encoder.IsMaybeEncoded(str);
 			if (maybeb58)
@@ -2435,7 +2436,8 @@ namespace NBitcoin
 				catch (FormatException) { maybeb58 = false; }
 				if (maybeb58)
 				{
-					if (GetCandidate(str) is T candidate)
+					var candidate = GetCandidate(str);
+					if (candidate!= null && targetType.GetTypeInfo().IsAssignableFrom((candidate.GetType().GetTypeInfo())))
 						return candidate;
 					throw new FormatException("Invalid base58 string");
 				}
@@ -2452,14 +2454,14 @@ namespace NBitcoin
 				{
 					byte witVersion;
 					var bytes = encoder.Decode(str, out witVersion);
-					object? candidate = null;
+					IBitcoinString? candidate = null;
 					if (witVersion == 0 && bytes.Length == 20 && type == Bech32Type.WITNESS_PUBKEY_ADDRESS)
 						candidate = new BitcoinWitPubKeyAddress(str, this);
 					if (witVersion == 0 && bytes.Length == 32 && type == Bech32Type.WITNESS_SCRIPT_ADDRESS)
 						candidate = new BitcoinWitScriptAddress(str, this);
 
-					if (candidate is T typedCandidate)
-						return typedCandidate;
+					if (candidate != null && targetType.GetTypeInfo().IsAssignableFrom((candidate.GetType().GetTypeInfo())))
+						return candidate;
 				}
 				catch (Bech32FormatException) { throw; }
 				catch (FormatException) { continue; }
@@ -2467,9 +2469,13 @@ namespace NBitcoin
 			throw new FormatException("Invalid string");
 		}
 
-		public static IBitcoinString Parse(string str, Network expectedNetwork)
+		public static IBitcoinString Parse(string str, Network expectedNetwork, Type? targetType = null)
 		{
-			return Parse<IBitcoinString>(str, expectedNetwork);
+			if (expectedNetwork == null)
+				throw new ArgumentNullException(nameof(expectedNetwork));
+			if (str == null)
+				throw new ArgumentNullException(nameof(str));
+			return expectedNetwork.Parse(str, targetType);
 		}
 
 		public static T Parse<T>(string str, Network expectedNetwork) where T : IBitcoinString

@@ -148,9 +148,9 @@ namespace NBitcoin.Altcoins
 
 		public class LitecoinMainnetAddressStringParser : NetworkStringParser
 		{
-			public override bool TryParse<T>(string str, Network network, out T result)
+			public override bool TryParse(string str, Network network, Type targetType, out IBitcoinString result)
 			{
-				if(str.StartsWith("Ltpv", StringComparison.OrdinalIgnoreCase) && typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtKey).GetTypeInfo()))
+				if(str.StartsWith("Ltpv", StringComparison.OrdinalIgnoreCase) && targetType.GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtKey).GetTypeInfo()))
 				{
 					try
 					{
@@ -159,14 +159,14 @@ namespace NBitcoin.Altcoins
 						decoded[1] = 0x88;
 						decoded[2] = 0xAD;
 						decoded[3] = 0xE4;
-						result = (T)(object)new BitcoinExtKey(Encoders.Base58Check.EncodeData(decoded), network);
+						result = new BitcoinExtKey(Encoders.Base58Check.EncodeData(decoded), network);
 						return true;
 					}
 					catch
 					{
 					}
 				}
-				if(str.StartsWith("Ltub", StringComparison.OrdinalIgnoreCase) && typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtPubKey).GetTypeInfo()))
+				if(str.StartsWith("Ltub", StringComparison.OrdinalIgnoreCase) && targetType.GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtPubKey).GetTypeInfo()))
 				{
 					try
 					{
@@ -175,14 +175,14 @@ namespace NBitcoin.Altcoins
 						decoded[1] = 0x88;
 						decoded[2] = 0xB2;
 						decoded[3] = 0x1E;
-						result = (T)(object)new BitcoinExtPubKey(Encoders.Base58Check.EncodeData(decoded), network);
+						result = new BitcoinExtPubKey(Encoders.Base58Check.EncodeData(decoded), network);
 						return true;
 					}
 					catch
 					{
 					}
 				}
-				return base.TryParse(str, network, out result);
+				return base.TryParse(str, network, targetType, out result);
 			}
 		}
 

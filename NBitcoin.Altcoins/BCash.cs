@@ -161,7 +161,7 @@ namespace NBitcoin.Altcoins
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xcf,0x9a,0xd2,0xde}, 10201),
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xda,0xf4,0x92,0x6f}, 18333)
 };
-		
+
 		class BCashConsensusFactory : ConsensusFactory
 		{
 			private BCashConsensusFactory()
@@ -224,7 +224,7 @@ namespace NBitcoin.Altcoins
 				_Prefix = prefix;
 			}
 
-			public override bool TryParse<T>(string str, Network network, out T result)
+			public override bool TryParse(string str, Network network, Type targetType, out IBitcoinString result)
 			{
 				var prefix = _Prefix;
 				str = str.Trim();
@@ -233,20 +233,20 @@ namespace NBitcoin.Altcoins
 					try
 					{
 						var addr = BCashAddr.BchAddr.DecodeAddress(str, prefix, network);
-						if (addr.Type == BCashAddr.BchAddr.CashType.P2PKH && typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BTrashPubKeyAddress).GetTypeInfo()))
+						if (addr.Type == BCashAddr.BchAddr.CashType.P2PKH && targetType.GetTypeInfo().IsAssignableFrom(typeof(BTrashPubKeyAddress).GetTypeInfo()))
 						{
-							result = (T)(object)new BTrashPubKeyAddress(str, addr);
+							result = new BTrashPubKeyAddress(str, addr);
 							return true;
 						}
-						else if (addr.Type == BCashAddr.BchAddr.CashType.P2SH && typeof(T).GetTypeInfo().IsAssignableFrom(typeof(BTrashScriptAddress).GetTypeInfo()))
+						else if (addr.Type == BCashAddr.BchAddr.CashType.P2SH && targetType.GetTypeInfo().IsAssignableFrom(typeof(BTrashScriptAddress).GetTypeInfo()))
 						{
-							result = (T)(object)new BTrashScriptAddress(str, addr);
+							result = new BTrashScriptAddress(str, addr);
 							return true;
 						}
 					}
 					catch { }
 				}
-				return base.TryParse(str, network, out result);
+				return base.TryParse(str, network, targetType, out result);
 			}
 
 			public override BitcoinPubKeyAddress CreateP2PKH(KeyId keyId, Network network)

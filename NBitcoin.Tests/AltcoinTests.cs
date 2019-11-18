@@ -3,8 +3,11 @@ using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using NBitcoin.JsonConverters;
+using Newtonsoft.Json;
 using Xunit;
 using Encoders = NBitcoin.DataEncoders.Encoders;
 
@@ -103,6 +106,40 @@ namespace NBitcoin.Tests
 
 				new ConcurrentChain(builder.Network);
 			}
+		}
+		[Fact]
+		public void ElementsAddressSerializationTest()
+		{
+
+			var network = Altcoins.Liquid.Instance.Regtest;
+			var address =
+				"el1qqvx2mprx8re8pd7xjeg9tu8w3jllhcty05l0hlyvlsaj0rce90nk97ze47dv3sy356nuxhjlpms73ztf8lalkerz9ndvg0rva";
+			var  bitcoinBlindedAddress=new BitcoinBlindedAddress(address, network);
+			var seria = new JsonSerializerSettings();
+			Serializer.RegisterFrontConverters(seria, network);
+			var serializer = JsonSerializer.Create(seria);
+			using (var textWriter = new StringWriter())
+			{
+				 serializer.Serialize(textWriter, bitcoinBlindedAddress);
+
+				 Assert.Equal(address,textWriter.ToString().Trim('"'));
+
+				 using (var textReader = new JsonTextReader(new StringReader(textWriter.ToString())))
+				 {
+
+					 Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<BitcoinAddress>(textReader));
+					 Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<BitcoinBlindedAddress>(textReader));
+					 Assert.Throws<JsonObjectException>(() =>
+					 {
+						 Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<IDestination>(textReader));
+					 });
+					 Assert.Throws<ArgumentNullException>(() =>
+					 {
+						 Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<IBitcoinString>(textReader));
+					 });
+				 }
+			}
+
 		}
 
 		[Fact]
