@@ -2424,7 +2424,9 @@ namespace NBitcoin
 			if (targetType == null)
 			{
 				targetType = typeof(IBitcoinString);
-			}else if (targetType.GetTypeInfo().IsAssignableFrom(typeof(IBitcoinString).GetTypeInfo()))
+			}
+			else if (typeof(IBitcoinString) != targetType &&
+			         targetType.GetTypeInfo().IsAssignableFrom(typeof(IBitcoinString).GetTypeInfo()))
 			{
 				throw new ArgumentNullException(nameof(targetType));
 			}
@@ -2443,7 +2445,7 @@ namespace NBitcoin
 				if (maybeb58)
 				{
 					var candidate = GetCandidate(str);
-					if (targetType.GetTypeInfo().IsAssignableFrom((candidate.GetType().GetTypeInfo())))
+					if (candidate!= null && targetType.GetTypeInfo().IsAssignableFrom((candidate.GetType().GetTypeInfo())))
 						return candidate;
 					throw new FormatException("Invalid base58 string");
 				}
