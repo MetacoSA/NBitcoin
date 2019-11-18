@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -32,7 +33,7 @@ namespace NBitcoin
 		/// <param name="path">The KeyPath formated like 10/0/2'/3</param>
 		/// <param name="keyPath">The successfully parsed Key path</param>
 		/// <returns>True if the string is parsed successfully; otherwise false</returns>
-		public static bool TryParse(string path, out KeyPath keyPath)
+		public static bool TryParse(string path, out KeyPath? keyPath)
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
@@ -186,7 +187,7 @@ namespace NBitcoin
 				.ToArray());
 		}
 
-		public KeyPath Parent
+		public KeyPath? Parent
 		{
 			get
 			{
@@ -196,7 +197,7 @@ namespace NBitcoin
 			}
 		}
 
-		public KeyPath Increment()
+		public KeyPath? Increment()
 		{
 			if (_Indexes.Length == 0)
 				return null;
@@ -207,10 +208,9 @@ namespace NBitcoin
 
 		public override bool Equals(object obj)
 		{
-			KeyPath item = obj as KeyPath;
-			if (item == null)
-				return false;
-			return ToString().Equals(item.ToString());
+			if (obj is KeyPath k)
+				return _Indexes.Length == k._Indexes.Length && _Indexes.SequenceEqual(k._Indexes);
+			return false;
 		}
 		public static bool operator ==(KeyPath a, KeyPath b)
 		{
@@ -221,7 +221,7 @@ namespace NBitcoin
 			return a.ToString() == b.ToString();
 		}
 
-		public static KeyPath operator +(KeyPath a, KeyPath b)
+		public static KeyPath? operator +(KeyPath a, KeyPath b)
 		{
 			if (a is null && !(b is null))
 				return b;
@@ -229,7 +229,7 @@ namespace NBitcoin
 				return a;
 			if (a is null && b is null)
 				return null;
-			return a.Derive(b);
+			return a!.Derive(b!);
 		}
 
 		public static bool operator !=(KeyPath a, KeyPath b)
@@ -242,7 +242,7 @@ namespace NBitcoin
 			return ToString().GetHashCode();
 		}
 
-		string _Path;
+		string? _Path;
 		public override string ToString()
 		{
 			return _Path ?? (_Path = string.Join("/", _Indexes.Select(ToString).ToArray()));
@@ -326,3 +326,4 @@ namespace NBitcoin
 		}
 	}
 }
+#nullable disable
