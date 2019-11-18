@@ -33,7 +33,7 @@ namespace NBitcoin.JsonConverters
 
 			try
 			{
-				IBitcoinString result = Network.Parse(reader.Value.ToString());
+				IBitcoinString result = Network.Parse(reader.Value.ToString(), objectType);
 				if (result == null)
 				{
 					result = Network.Parse(reader.Value.ToString(), objectType);
