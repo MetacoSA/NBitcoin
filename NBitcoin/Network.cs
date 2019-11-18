@@ -2424,7 +2424,7 @@ namespace NBitcoin
 			if (targetType == null)
 			{
 				targetType = typeof(IBitcoinString);
-			}else if (targetType.GetTypeInfo().IsAssignableFrom(typeof(IBitcoinString)))
+			}else if (targetType.GetTypeInfo().IsAssignableFrom(typeof(IBitcoinString).GetTypeInfo()))
 			{
 				throw new ArgumentNullException(nameof(targetType));
 			}
