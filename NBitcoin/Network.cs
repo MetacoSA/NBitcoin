@@ -2415,9 +2415,13 @@ namespace NBitcoin
 
 		public T Parse<T>(string str) where T : IBitcoinString
 		{
-			return (T) Parse(str, typeof(T));
+			return (T)Parse(str, typeof(T));
 		}
-		public IBitcoinString Parse(string str, Type targetType = null)
+		public IBitcoinString Parse(string str)
+		{
+			return Parse(str, null);
+		}
+		public IBitcoinString Parse(string str, Type? targetType)
 		{
 			if (str == null)
 				throw new ArgumentNullException(nameof(str));
