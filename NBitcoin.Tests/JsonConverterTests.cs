@@ -44,6 +44,9 @@ namespace NBitcoin.Tests
 			CanSerializeInJsonCore(new LockTime(130), out var str);
 			Assert.Equal("130", str);
 			CanSerializeInJsonCore(new LockTime(DateTime.UtcNow));
+			CanSerializeInJsonCore(new Sequence(1));
+			CanSerializeInJsonCore(new Sequence?(1));
+			CanSerializeInJsonCore(new Sequence?());
 			CanSerializeInJsonCore(new FeeRate(Money.Satoshis(1), 1000));
 			CanSerializeInJsonCore(new FeeRate(Money.Satoshis(1000), 1000));
 			CanSerializeInJsonCore(new FeeRate(0.5m));
