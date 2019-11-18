@@ -228,11 +228,7 @@ namespace NBitcoin
 		{
 		}
 
-		public override bool Equals(object obj)
-		{
-			var item = obj as uint256;
-			return Equals(item);
-		}
+		public override bool Equals(object obj) => obj is uint256 item && Equals(item);
 
 		public bool Equals(uint256 other)
 		{
@@ -253,15 +249,13 @@ namespace NBitcoin
 			return equals;
 		}
 
-		public int CompareTo(uint256 other)
-		{
-			return Comparison(this, other);
-		}
+		public int CompareTo(uint256 other) => Comparison(this, other);
 
 		public int CompareTo(object obj)
 		{
 			return obj is uint256 v ? CompareTo(v) :
-				   obj is null ? CompareTo(null as uint256) : throw new ArgumentException($"Object is not an instance of {nameof(uint256)}", nameof(obj));
+				obj is null ? CompareTo(null as uint256) :
+					throw new ArgumentException($"Object is not an instance of {nameof(uint256)}", nameof(obj));
 		}
 
 		public static bool operator ==(uint256 a, uint256 b)
@@ -346,25 +340,13 @@ namespace NBitcoin
 			return 0;
 		}
 
-		public static bool operator !=(uint256 a, uint256 b)
-		{
-			return !(a == b);
-		}
+		public static bool operator !=(uint256 a, uint256 b) => !(a == b);
 
-		public static bool operator ==(uint256 a, ulong b)
-		{
-			return (a == new uint256(b));
-		}
+		public static bool operator ==(uint256 a, ulong b) => a == new uint256(b);
 
-		public static bool operator !=(uint256 a, ulong b)
-		{
-			return !(a == new uint256(b));
-		}
+		public static bool operator !=(uint256 a, ulong b) => !(a == new uint256(b));
 
-		public static implicit operator uint256(ulong value)
-		{
-			return new uint256(value);
-		}
+		public static implicit operator uint256(ulong value) => new uint256(value);
 
 		public byte[] ToBytes(bool lendian = true)
 		{
@@ -427,23 +409,11 @@ namespace NBitcoin
 			return WIDTH_BYTE;
 		}
 
-		public int Size
-		{
-			get
-			{
-				return WIDTH_BYTE;
-			}
-		}
+		public int Size => WIDTH_BYTE;
 
-		public ulong GetLow64()
-		{
-			return pn0 | (ulong)pn1 << 32;
-		}
+		public ulong GetLow64() => pn0 | (ulong)pn1 << 32;
 
-		public uint GetLow32()
-		{
-			return pn0;
-		}
+		public uint GetLow32() => pn0;
 
 		public override int GetHashCode()
 		{
@@ -512,10 +482,7 @@ namespace NBitcoin
 			pn4 = b.pn4;
 		}
 
-		public static uint160 Parse(string hex)
-		{
-			return new uint160(hex);
-		}
+		public static uint160 Parse(string hex) => new uint160(hex);
 
 		public static bool TryParse(string hex, out uint160 result)
 		{
@@ -561,10 +528,7 @@ namespace NBitcoin
 			return (byte)(value >> (byteIndex * 8));
 		}
 
-		public override string ToString()
-		{
-			return Encoder.EncodeData(ToBytes().Reverse().ToArray());
-		}
+		public override string ToString() => Encoder.EncodeData(ToBytes().Reverse().ToArray());
 
 		public uint160(ulong b)
 		{
@@ -638,15 +602,12 @@ namespace NBitcoin
 			return equals;
 		}
 
-		public int CompareTo(uint160 other)
-		{
-			return Comparison(this, other);
-		}
+		public int CompareTo(uint160 other) => Comparison(this, other);
 
 		public int CompareTo(object obj)
 		{
 			return obj is uint160 v ? CompareTo(v) :
-				   obj is null ? CompareTo(null as uint160) : throw new ArgumentException($"Object is not an instance of uint160", nameof(obj));
+				   obj is null ? CompareTo(null as uint160) : throw new ArgumentException($"Object is not an instance of {nameof(uint160)}", nameof(obj));
 		}
 
 		public static bool operator ==(uint160 a, uint160 b)
@@ -665,25 +626,13 @@ namespace NBitcoin
 			return equals;
 		}
 
-		public static bool operator <(uint160 a, uint160 b)
-		{
-			return Comparison(a, b) < 0;
-		}
+		public static bool operator <(uint160 a, uint160 b) => Comparison(a, b) < 0;
 
-		public static bool operator >(uint160 a, uint160 b)
-		{
-			return Comparison(a, b) > 0;
-		}
+		public static bool operator >(uint160 a, uint160 b) => Comparison(a, b) > 0;
 
-		public static bool operator <=(uint160 a, uint160 b)
-		{
-			return Comparison(a, b) <= 0;
-		}
+		public static bool operator <=(uint160 a, uint160 b) => Comparison(a, b) <= 0;
 
-		public static bool operator >=(uint160 a, uint160 b)
-		{
-			return Comparison(a, b) >= 0;
-		}
+		public static bool operator >=(uint160 a, uint160 b) => Comparison(a, b) >= 0;
 
 		private static int Comparison(uint160 a, uint160 b)
 		{
@@ -716,25 +665,13 @@ namespace NBitcoin
 			return 0;
 		}
 
-		public static bool operator !=(uint160 a, uint160 b)
-		{
-			return !(a == b);
-		}
+		public static bool operator !=(uint160 a, uint160 b) => !(a == b);
 
-		public static bool operator ==(uint160 a, ulong b)
-		{
-			return (a == new uint160(b));
-		}
+		public static bool operator ==(uint160 a, ulong b) => (a == new uint160(b));
 
-		public static bool operator !=(uint160 a, ulong b)
-		{
-			return !(a == new uint160(b));
-		}
+		public static bool operator !=(uint160 a, ulong b) => !(a == new uint160(b));
 
-		public static implicit operator uint160(ulong value)
-		{
-			return new uint160(value);
-		}
+		public static implicit operator uint160(ulong value) => new uint160(value);
 
 		public byte[] ToBytes(bool lendian = true)
 		{
@@ -749,33 +686,18 @@ namespace NBitcoin
 			return arr;
 		}
 
-		public MutableUint160 AsBitcoinSerializable()
-		{
-			return new MutableUint160(this);
-		}
+		public MutableUint160 AsBitcoinSerializable() => new MutableUint160(this);
 
 		public int GetSerializeSize(int nType = 0, uint? protocolVersion = null)
 		{
 			return WIDTH_BYTE;
 		}
 
-		public int Size
-		{
-			get
-			{
-				return WIDTH_BYTE;
-			}
-		}
+		public int Size => WIDTH_BYTE;
 
-		public ulong GetLow64()
-		{
-			return pn0 | (ulong)pn1 << 32;
-		}
+		public ulong GetLow64() => pn0 | (ulong)pn1 << 32;
 
-		public uint GetLow32()
-		{
-			return pn0;
-		}
+		public uint GetLow32() => pn0;
 
 		public override int GetHashCode()
 		{
