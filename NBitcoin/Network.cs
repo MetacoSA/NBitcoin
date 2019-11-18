@@ -2466,7 +2466,7 @@ namespace NBitcoin
 					if (witVersion == 0 && bytes.Length == 32 && type == Bech32Type.WITNESS_SCRIPT_ADDRESS)
 						candidate = new BitcoinWitScriptAddress(str, this);
 
-					if (targetType.GetTypeInfo().IsAssignableFrom((candidate.GetType().GetTypeInfo())))
+					if (candidate != null && targetType.GetTypeInfo().IsAssignableFrom((candidate.GetType().GetTypeInfo())))
 						return candidate;
 				}
 				catch (Bech32FormatException) { throw; }

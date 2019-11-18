@@ -9,7 +9,7 @@ namespace NBitcoin.Altcoins.Elements
 	{
 		public override bool TryParse(string str, Network network, Type targetType, out IBitcoinString result)
 		{
-			if (typeof(IBitcoinString).GetTypeInfo().IsAssignableFrom(targetType.GetTypeInfo()))
+			if (typeof(BitcoinAddress).GetTypeInfo().IsAssignableFrom(targetType.GetTypeInfo()))
 			{
 				try
 				{
