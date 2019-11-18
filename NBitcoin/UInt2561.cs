@@ -261,7 +261,7 @@ namespace NBitcoin
 		public int CompareTo(object obj)
 		{
 			return obj is uint256 v ? CompareTo(v) :
-				   obj is null ? CompareTo(null as uint256) : throw new ArgumentException($"Object is not an instance of uint256", nameof(obj));
+				   obj is null ? CompareTo(null as uint256) : throw new ArgumentException($"Object is not an instance of {nameof(uint256)}", nameof(obj));
 		}
 
 		public static bool operator ==(uint256 a, uint256 b)
