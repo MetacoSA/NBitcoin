@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Linq;
 using NBitcoin.DataEncoders;
 
@@ -9,7 +8,8 @@ namespace NBitcoin
 	{
 		public class MutableUint256 : IBitcoinSerializable
 		{
-			uint256 _Value;
+			private uint256 _Value;
+
 			public uint256 Value
 			{
 				get
@@ -21,10 +21,12 @@ namespace NBitcoin
 					_Value = value;
 				}
 			}
+
 			public MutableUint256()
 			{
 				_Value = uint256.Zero;
 			}
+
 			public MutableUint256(uint256 value)
 			{
 				_Value = value;
@@ -57,7 +59,9 @@ namespace NBitcoin
 				}
 			}
 		}
-		static readonly uint256 _Zero = new uint256();
+
+		private static readonly uint256 _Zero = new uint256();
+
 		public static uint256 Zero
 		{
 			get
@@ -66,7 +70,8 @@ namespace NBitcoin
 			}
 		}
 
-		static readonly uint256 _One = new uint256(1);
+		private static readonly uint256 _One = new uint256(1);
+
 		public static uint256 One
 		{
 			get
@@ -95,6 +100,7 @@ namespace NBitcoin
 		{
 			return new uint256(hex);
 		}
+
 		public static bool TryParse(string hex, out uint256 result)
 		{
 			if (hex == null)
@@ -131,27 +137,35 @@ namespace NBitcoin
 				case 0:
 					value = pn0;
 					break;
+
 				case 1:
 					value = pn1;
 					break;
+
 				case 2:
 					value = pn2;
 					break;
+
 				case 3:
 					value = pn3;
 					break;
+
 				case 4:
 					value = pn4;
 					break;
+
 				case 5:
 					value = pn5;
 					break;
+
 				case 6:
 					value = pn6;
 					break;
+
 				case 7:
 					value = pn7;
 					break;
+
 				default:
 					throw new ArgumentOutOfRangeException("index");
 			}
@@ -179,7 +193,6 @@ namespace NBitcoin
 
 		public uint256(byte[] vch, bool lendian = true) : this(vch, 0, vch.Length, lendian)
 		{
-
 		}
 
 		public uint256(byte[] vch, int offset, int length, bool lendian = true)
@@ -204,13 +217,13 @@ namespace NBitcoin
 			pn5 = Utils.ToUInt32(vch, offset + 4 * 5, true);
 			pn6 = Utils.ToUInt32(vch, offset + 4 * 6, true);
 			pn7 = Utils.ToUInt32(vch, offset + 4 * 7, true);
-
 		}
 
 #if HAS_SPAN
+
 		public uint256(ReadOnlySpan<byte> bytes)
 		{
-			if(bytes.Length != WIDTH_BYTE)
+			if (bytes.Length != WIDTH_BYTE)
 			{
 				throw new FormatException("the byte array should be 32 bytes long");
 			}
@@ -224,6 +237,7 @@ namespace NBitcoin
 			pn6 = Utils.ToUInt32(bytes.Slice(4 * 6), true);
 			pn7 = Utils.ToUInt32(bytes.Slice(4 * 7), true);
 		}
+
 #endif
 
 		public uint256(string str)
@@ -253,7 +267,6 @@ namespace NBitcoin
 			pn5 = Utils.ToUInt32(bytes, 4 * 5, true);
 			pn6 = Utils.ToUInt32(bytes, 4 * 6, true);
 			pn7 = Utils.ToUInt32(bytes, 4 * 7, true);
-
 		}
 
 		public uint256(byte[] vch)
@@ -399,7 +412,6 @@ namespace NBitcoin
 			return new uint256(value);
 		}
 
-
 		public byte[] ToBytes(bool lendian = true)
 		{
 			var arr = new byte[WIDTH_BYTE];
@@ -422,9 +434,10 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
+
 		public void ToBytes(Span<byte> output, bool lendian = true)
 		{
-			if(output.Length < WIDTH_BYTE)
+			if (output.Length < WIDTH_BYTE)
 				throw new ArgumentException(message: $"The array should be at least of size {WIDTH_BYTE}", paramName: nameof(output));
 
 			var initial = output;
@@ -444,10 +457,12 @@ namespace NBitcoin
 			output = output.Slice(4);
 			Utils.ToBytes(pn7, true, output);
 
-			if(!lendian)
+			if (!lendian)
 				initial.Reverse();
 		}
+
 #endif
+
 		public MutableUint256 AsBitcoinSerializable()
 		{
 			return new MutableUint256(this);
@@ -493,11 +508,13 @@ namespace NBitcoin
 			return hash;
 		}
 	}
+
 	public sealed class uint160 : IComparable<uint160>, IEquatable<uint160>, IComparable
 	{
 		public class MutableUint160 : IBitcoinSerializable
 		{
-			uint160 _Value;
+			private uint160 _Value;
+
 			public uint160 Value
 			{
 				get
@@ -509,10 +526,12 @@ namespace NBitcoin
 					_Value = value;
 				}
 			}
+
 			public MutableUint160()
 			{
 				_Value = uint160.Zero;
 			}
+
 			public MutableUint160(uint160 value)
 			{
 				_Value = value;
@@ -533,7 +552,9 @@ namespace NBitcoin
 				}
 			}
 		}
-		static readonly uint160 _Zero = new uint160();
+
+		private static readonly uint160 _Zero = new uint160();
+
 		public static uint160 Zero
 		{
 			get
@@ -542,7 +563,8 @@ namespace NBitcoin
 			}
 		}
 
-		static readonly uint160 _One = new uint160(1);
+		private static readonly uint160 _One = new uint160(1);
+
 		public static uint160 One
 		{
 			get
@@ -568,6 +590,7 @@ namespace NBitcoin
 		{
 			return new uint160(hex);
 		}
+
 		public static bool TryParse(string hex, out uint160 result)
 		{
 			if (hex == null)
@@ -601,18 +624,23 @@ namespace NBitcoin
 				case 0:
 					value = pn0;
 					break;
+
 				case 1:
 					value = pn1;
 					break;
+
 				case 2:
 					value = pn2;
 					break;
+
 				case 3:
 					value = pn3;
 					break;
+
 				case 4:
 					value = pn4;
 					break;
+
 				default:
 					throw new ArgumentOutOfRangeException("index");
 			}
@@ -648,7 +676,6 @@ namespace NBitcoin
 			pn2 = Utils.ToUInt32(vch, 4 * 2, true);
 			pn3 = Utils.ToUInt32(vch, 4 * 3, true);
 			pn4 = Utils.ToUInt32(vch, 4 * 4, true);
-
 		}
 
 		public uint160(string str)
@@ -671,7 +698,6 @@ namespace NBitcoin
 			pn2 = Utils.ToUInt32(bytes, 4 * 2, true);
 			pn3 = Utils.ToUInt32(bytes, 4 * 3, true);
 			pn4 = Utils.ToUInt32(bytes, 4 * 4, true);
-
 		}
 
 		public uint160(byte[] vch)
@@ -795,7 +821,6 @@ namespace NBitcoin
 		{
 			return new uint160(value);
 		}
-
 
 		public byte[] ToBytes(bool lendian = true)
 		{
