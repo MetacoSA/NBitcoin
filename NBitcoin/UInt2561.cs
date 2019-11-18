@@ -8,28 +8,16 @@ namespace NBitcoin
 	{
 		public class MutableUint256 : IBitcoinSerializable
 		{
-			private uint256 _Value;
-
-			public uint256 Value
-			{
-				get
-				{
-					return _Value;
-				}
-				set
-				{
-					_Value = value;
-				}
-			}
+			public uint256 Value { get; set; }
 
 			public MutableUint256()
 			{
-				_Value = uint256.Zero;
+				Value = uint256.Zero;
 			}
 
 			public MutableUint256(uint256 value)
 			{
-				_Value = value;
+				Value = value;
 			}
 
 			public void ReadWrite(BitcoinStream stream)
@@ -54,31 +42,15 @@ namespace NBitcoin
 #else
 					Span<byte> b = stackalloc byte[WIDTH_BYTE];
 					stream.ReadWrite(ref b);
-					_Value = new uint256(b);
+					Value = new uint256(b);
 #endif
 				}
 			}
 		}
 
-		private static readonly uint256 _Zero = new uint256();
+		public static uint256 Zero { get; } = new uint256();
 
-		public static uint256 Zero
-		{
-			get
-			{
-				return _Zero;
-			}
-		}
-
-		private static readonly uint256 _One = new uint256(1);
-
-		public static uint256 One
-		{
-			get
-			{
-				return _One;
-			}
-		}
+		public static uint256 One { get; } = new uint256(1);
 
 		public uint256()
 		{
@@ -513,28 +485,16 @@ namespace NBitcoin
 	{
 		public class MutableUint160 : IBitcoinSerializable
 		{
-			private uint160 _Value;
-
-			public uint160 Value
-			{
-				get
-				{
-					return _Value;
-				}
-				set
-				{
-					_Value = value;
-				}
-			}
+			public uint160 Value { get; set; }
 
 			public MutableUint160()
 			{
-				_Value = uint160.Zero;
+				Value = uint160.Zero;
 			}
 
 			public MutableUint160(uint160 value)
 			{
-				_Value = value;
+				Value = value;
 			}
 
 			public void ReadWrite(BitcoinStream stream)
@@ -548,30 +508,14 @@ namespace NBitcoin
 				{
 					byte[] b = new byte[WIDTH_BYTE];
 					stream.ReadWrite(ref b);
-					_Value = new uint160(b);
+					Value = new uint160(b);
 				}
 			}
 		}
 
-		private static readonly uint160 _Zero = new uint160();
+		public static uint160 Zero { get; } = new uint160();
 
-		public static uint160 Zero
-		{
-			get
-			{
-				return _Zero;
-			}
-		}
-
-		private static readonly uint160 _One = new uint160(1);
-
-		public static uint160 One
-		{
-			get
-			{
-				return _One;
-			}
-		}
+		public static uint160 One { get; } = new uint160(1);
 
 		public uint160()
 		{
