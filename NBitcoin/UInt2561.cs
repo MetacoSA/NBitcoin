@@ -121,7 +121,7 @@ namespace NBitcoin
 
 				7 => pn7,
 
-				_ => throw new ArgumentOutOfRangeException("index"),
+				_ => throw new ArgumentOutOfRangeException(nameof(index)),
 			};
 			return (byte)(value >> (byteIndex * 8));
 		}
@@ -556,7 +556,7 @@ namespace NBitcoin
 
 				4 => pn4,
 
-				_ => throw new ArgumentOutOfRangeException("index"),
+				_ => throw new ArgumentOutOfRangeException(nameof(index)),
 			};
 			return (byte)(value >> (byteIndex * 8));
 		}
