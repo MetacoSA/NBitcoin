@@ -9,7 +9,7 @@ namespace NBitcoin.Altcoins.Elements
 	{
 		public override bool TryParse(string str, Network network, Type targetType, out IBitcoinString result)
 		{
-			if (typeof(IBitcoinString).GetTypeInfo().IsAssignableFrom(targetType))
+			if (typeof(IBitcoinString).GetTypeInfo().IsAssignableFrom(targetType.GetTypeInfo()))
 			{
 				try
 				{
@@ -20,7 +20,7 @@ namespace NBitcoin.Altcoins.Elements
 				{
 				}
 			}
-			return base.TryParse(str, network, out result);
+			return base.TryParse(str, network, targetType, out result);
 		}
 	}
 }

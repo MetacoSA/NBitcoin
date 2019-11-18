@@ -233,12 +233,12 @@ namespace NBitcoin.Altcoins
 					try
 					{
 						var addr = BCashAddr.BchAddr.DecodeAddress(str, prefix, network);
-						if (addr.Type == BCashAddr.BchAddr.CashType.P2PKH && targetType.IsAssignableFrom(typeof(BTrashPubKeyAddress).GetTypeInfo()))
+						if (addr.Type == BCashAddr.BchAddr.CashType.P2PKH && targetType.GetTypeInfo().IsAssignableFrom(typeof(BTrashPubKeyAddress).GetTypeInfo()))
 						{
 							result = new BTrashPubKeyAddress(str, addr);
 							return true;
 						}
-						else if (addr.Type == BCashAddr.BchAddr.CashType.P2SH && targetType.IsAssignableFrom(typeof(BTrashScriptAddress).GetTypeInfo()))
+						else if (addr.Type == BCashAddr.BchAddr.CashType.P2SH && targetType.GetTypeInfo().IsAssignableFrom(typeof(BTrashScriptAddress).GetTypeInfo()))
 						{
 							result = new BTrashScriptAddress(str, addr);
 							return true;
@@ -246,7 +246,7 @@ namespace NBitcoin.Altcoins
 					}
 					catch { }
 				}
-				return base.TryParse(str, network, out result);
+				return base.TryParse(str, network, targetType, out result);
 			}
 
 			public override BitcoinPubKeyAddress CreateP2PKH(KeyId keyId, Network network)
