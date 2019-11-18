@@ -7,13 +7,13 @@ namespace NBitcoin.Altcoins.Elements
 {
 	public class ElementsStringParser : NetworkStringParser
 	{
-		public override bool TryParse<T>(string str, Network network, out T result)
+		public override bool TryParse(string str, Network network, Type targetType, out IBitcoinString result)
 		{
-			if (typeof(BitcoinAddress).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()))
+			if (typeof(IBitcoinString).GetTypeInfo().IsAssignableFrom(targetType))
 			{
 				try
 				{
-					result = (T)(object)new BitcoinBlindedAddress(str, network);
+					result = new BitcoinBlindedAddress(str, network);
 					return true;
 				}
 				catch

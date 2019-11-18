@@ -2413,16 +2413,20 @@ namespace NBitcoin
 			return null;
 		}
 
-		public IBitcoinString Parse(string str)
+		public IBitcoinString Parse(string str, Type? targetType = null)
 		{
-			return Parse<IBitcoinString>(str, this);
+			return Parse<IBitcoinString>(str, this, targetType);
 		}
-		public T Parse<T>(string str) where T : IBitcoinString
+		public T Parse<T>(string str, Type? targetType = null) where T : IBitcoinString
 		{
 			if (str == null)
 				throw new ArgumentNullException(nameof(str));
-			if (NetworkStringParser.TryParse<T>(str, this, out T o))
-				return o;
+			if (targetType == null)
+			{
+				targetType = typeof(T);
+			}
+			if (NetworkStringParser.TryParse(str, this, targetType, out var o))
+				return (T) o;
 			var base58Encoder = (Base58CheckEncoder)NetworkStringParser.GetBase58CheckEncoder();
 
 			var maybeb58 = base58Encoder.IsMaybeEncoded(str);
@@ -2467,18 +2471,18 @@ namespace NBitcoin
 			throw new FormatException("Invalid string");
 		}
 
-		public static IBitcoinString Parse(string str, Network expectedNetwork)
+		public static IBitcoinString Parse(string str, Network expectedNetwork, Type? targetType = null)
 		{
-			return Parse<IBitcoinString>(str, expectedNetwork);
+			return Parse<IBitcoinString>(str, expectedNetwork, targetType);
 		}
 
-		public static T Parse<T>(string str, Network expectedNetwork) where T : IBitcoinString
+		public static T Parse<T>(string str, Network expectedNetwork, Type? targetType = null) where T : IBitcoinString
 		{
 			if (expectedNetwork == null)
 				throw new ArgumentNullException(nameof(expectedNetwork));
 			if (str == null)
 				throw new ArgumentNullException(nameof(str));
-			return expectedNetwork.Parse<T>(str);
+			return expectedNetwork.Parse<T>(str, targetType);
 		}
 
 		private IBase58Data? GetCandidate(string base58)
