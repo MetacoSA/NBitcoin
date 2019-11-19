@@ -274,6 +274,8 @@ namespace NBitcoin
 		{
 			if (coins == null)
 				return this;
+			if (IsAllFinalized())
+				return this;
 			foreach (var coin in coins)
 			{
 				var indexedInput = this.Inputs.FindIndexedInput(coin.Outpoint);
@@ -316,6 +318,8 @@ namespace NBitcoin
 				txsById.TryAdd(tx.GetHash(), tx);
 			foreach (var input in Inputs)
 			{
+				if (input.IsFinalized())
+					continue;
 				if (input.WitnessUtxo == null && txsById.TryGetValue(input.TxIn.PrevOut.Hash, out var tx))
 				{
 					if (input.TxIn.PrevOut.N >= tx.Outputs.Count)
@@ -870,6 +874,8 @@ namespace NBitcoin
 				var p2shp2wsh = redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey;
 				foreach (var o in this.Inputs.OfType<PSBTCoin>().Concat(this.Outputs))
 				{
+					if (o is PSBTInput i && i.IsFinalized())
+						continue;
 					var txout = o.GetCoin()?.TxOut;
 					if (txout == null)
 						continue;
@@ -1031,7 +1037,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Add keypath information to this PSBT
+		/// Add keypath information to this PSBT, if the PSBT all finalized this operation is a no-op
 		/// </summary>
 		/// <param name="pubkey">The public key which need to sign</param>
 		/// <param name="rootedKeyPath">The keypath to this public key</param>
@@ -1043,10 +1049,13 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(pubkey));
 			if (rootedKeyPath == null)
 				throw new ArgumentNullException(nameof(rootedKeyPath));
-
+			if (IsAllFinalized())
+				return this;
 			var txBuilder = CreateTransactionBuilder();
 			foreach (var o in this.Inputs.OfType<PSBTCoin>().Concat(this.Outputs))
 			{
+				if (o is PSBTInput i && i.IsFinalized())
+					continue;
 				var coin = o.GetCoin();
 				if (coin == null)
 					continue;
@@ -1063,7 +1072,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Rebase the keypaths.
 		/// If a PSBT updater only know the child HD public key but not the root one, another updater knowing the parent master key it is based on
-		/// can rebase the paths.
+		/// can rebase the paths. If the PSBT is all finalized this operation is a no-op
 		/// </summary>
 		/// <param name="accountKey">The current account key</param>
 		/// <param name="newRoot">The KeyPath with the fingerprint of the new root key</param>
@@ -1074,10 +1083,14 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(accountKey));
 			if (newRoot == null)
 				throw new ArgumentNullException(nameof(newRoot));
+			if (IsAllFinalized())
+				return this;
 			accountKey = accountKey.AsHDKeyCache();
 			var accountKeyFP = accountKey.GetPublicKey().GetHDFingerPrint();
 			foreach (var o in HDKeysFor(accountKey).GroupBy(c => c.Coin))
 			{
+				if (o.Key is PSBTInput i && i.IsFinalized())
+					continue;
 				foreach (var keyPath in o)
 				{
 					o.Key.HDKeyPaths.Remove(keyPath.PubKey);

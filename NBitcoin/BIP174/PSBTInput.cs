@@ -238,6 +238,8 @@ namespace NBitcoin
 				throw new InvalidOperationException("Impossible to modify the PSBTInput if it has been finalized");
 			if (coin.Outpoint != PrevOut)
 				throw new ArgumentException("This coin does not match the input", nameof(coin));
+			if (IsFinalized())
+				return;
 			if (coin is ScriptCoin scriptCoin)
 			{
 				if (scriptCoin.RedeemType == RedeemType.P2SH)
@@ -468,6 +470,8 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(accountKey));
 			if (accountHDScriptPubKey == null)
 				throw new ArgumentNullException(nameof(accountHDScriptPubKey));
+			if (IsFinalized())
+				return;
 			var cache = accountKey.AsHDKeyCache();
 			accountHDScriptPubKey = accountHDScriptPubKey.AsHDKeyCache();
 			foreach (var hdk in this.HDKeysFor(accountHDScriptPubKey, cache, accountKeyPath))
