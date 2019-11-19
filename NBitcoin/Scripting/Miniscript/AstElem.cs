@@ -103,16 +103,52 @@ namespace NBitcoin.Scripting.Miniscript
 		# region Subtype definitions
 		internal static class Tags
 		{
+			/// <summary>
+			/// `1`
+			/// </summary>
 			public const int True = 0;
+			/// <summary>
+			/// `0`
+			/// </summary>
 			public const int False = 1;
+			/// <summary>
+			/// `<key>`
+			/// </summary>
 			public const int Pk = 2;
+			/// <summary>
+			/// `DUP HASH160 <keyhash> EQUALVERIFY`
+			/// </summary>
 			public const int PkH = 3;
+			/// <summary>
+			/// relative timelock
+			/// `n CHECKSEQUENCEVERIFY`
+			/// </summary>
 			public const int After = 4;
+			/// <summary>
+			/// Absolute timelock
+			/// `n CHECKLOCKTIMEVERIFY`
+			/// </summary>
 			public const int Older = 5;
+			/// <summary>
+			/// `SIZE 32 EQUALVERIFY SHA256 <hash> EQUAL`
+			/// </summary>
 			public const int Sha256 = 6;
+			/// <summary>
+			/// `SIZE 32 EQUALVERIFY HASH256 <hash> EQUAL`
+			/// </summary>
 			public const int Hash256 = 7;
+			/// <summary>
+			/// `SIZE 32 EQUALVERIFY RIEPMD160 <hash> EQUAL`
+			/// </summary>
 			public const int Ripemd160 = 8;
+			/// <summary>
+			/// `SIZE 32 EQUALVERIFY HASH160 <hash> EQUAL`
+			/// </summary>
 			public const int Hash160 = 9;
+			// ------ wrappers ----
+			/// <summary>
+			/// `TOALTSTACK [E] FROMALTSTACK`
+			/// </summary>
 			public const int Alt = 10;
 			public const int Swap = 11;
 			public const int Check = 12;
@@ -120,6 +156,7 @@ namespace NBitcoin.Scripting.Miniscript
 			public const int Verify = 14;
 			public const int NonZero = 15;
 			public const int ZeroNotEqual = 16;
+			// --------------------
 			public const int AndV = 17;
 			public const int AndB = 18;
 			public const int AndOr = 19;

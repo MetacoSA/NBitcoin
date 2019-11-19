@@ -1,4 +1,5 @@
 using System;
+using NBitcoin.Scripting.Miniscript;
 
 namespace NBitcoin.Scripting.Parser
 {
@@ -19,11 +20,26 @@ namespace NBitcoin.Scripting.Parser
 			};
 		}
 
+		public static Parser<ScriptToken, T> ScriptToken<T>()
+		=> i =>
+			{
+				var expected = typeof(T).Name;
+				if (i.AtEnd)
+				{
+					return ParserResult<ScriptToken, T>.Failure(i, new[] { expected }, "Unexpected end of input");
+				}
+				var curr = i.GetCurrent();
+				if (curr is T ti)
+					return ParserResult<ScriptToken, T>.Success(i.Advance(), ti);
+				return ParserResult<ScriptToken, T>.Failure(i, $"Unexpected {curr}");
+			};
+
 		public static Parser<ScriptToken, ScriptToken> ScriptToken(ScriptToken sct, string expected)
 			=> ScriptToken((tag) => tag == sct.Tag, expected);
 
 		public static Parser<ScriptToken, ScriptToken> ScriptToken(int tag)
 			=> ScriptToken(actualTag => actualTag == tag, $"ScriptToken for tag: {tag}");
+
 		public static Parser<ScriptToken, ScriptToken> ScriptToken(ScriptToken sct)
 			=> ScriptToken(sct, sct.ToString());
 	}

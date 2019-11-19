@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using System.Collections;
+using NBitcoin.Scripting.Miniscript;
 
 namespace NBitcoin.Scripting.Parser
 {

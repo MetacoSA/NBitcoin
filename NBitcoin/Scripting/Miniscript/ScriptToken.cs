@@ -1,7 +1,15 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Emit;
+using System.Runtime.InteropServices;
+using NBitcoin.Scripting.Parser;
 
 namespace NBitcoin.Scripting.Miniscript
 {
+	/// <summary>
+	/// Precursor of the actual miniscript fragment when we deserialize from the raw script from the raw script.
+	/// </summary>
 	internal class ScriptToken : IEquatable<ScriptToken>
 	{
 		internal static class Tags
@@ -90,6 +98,7 @@ namespace NBitcoin.Scripting.Miniscript
 		public static ScriptToken EndIf { get; } = new ScriptToken(Tags.EndIf);
 		public static ScriptToken ZeroNotEqual { get; } = new ScriptToken(Tags.ZeroNotEqual);
 		public static ScriptToken Size { get; } = new ScriptToken(Tags.Size);
+		public static ScriptToken Swap { get; } = new ScriptToken(Tags.Swap);
 		public static ScriptToken Verify { get; } = new ScriptToken(Tags.Verify);
 		public static ScriptToken Ripemd160 { get; } = new ScriptToken(Tags.Ripemd160);
 		public static ScriptToken Hash160 { get; } = new ScriptToken(Tags.Hash160);
@@ -157,14 +166,7 @@ namespace NBitcoin.Scripting.Miniscript
 		}
 
 		public sealed override bool Equals(object obj)
-		{
-			ScriptToken token = obj as ScriptToken;
-			if (token != null)
-			{
-				return Equals(token);
-			}
-			return false;
-		}
+			=> Equals(obj as ScriptToken);
 		public bool Equals(ScriptToken obj)
 		{
 			if (obj == null)
@@ -206,10 +208,189 @@ namespace NBitcoin.Scripting.Miniscript
 			return false;
 		}
 
-		public static ScriptToken FromScript()
+		public static List<ScriptToken> FromScript(Script script)
 		{
-			throw new Exception("");
+			var ret = new List<ScriptToken>();
+			foreach (var s in script.ToOps())
+			{
+				switch (s.Code)
+				{
+					case OpcodeType.OP_BOOLAND:
+						ret.Add(BoolAnd);
+						break;
+					case OpcodeType.OP_BOOLOR:
+						ret.Add(BoolOr);
+						break;
+					case OpcodeType.OP_EQUAL:
+						ret.Add(Equal);
+						break;
+					case OpcodeType.OP_EQUALVERIFY:
+						ret.Add(Equal);
+						ret.Add(Verify);
+						break;
+					case OpcodeType.OP_CHECKSIG:
+						ret.Add(CheckSig);
+						break;
+					case OpcodeType.OP_CHECKSIGVERIFY:
+						ret.Add(CheckSig);
+						ret.Add(Verify);
+						break;
+					case OpcodeType.OP_CHECKMULTISIG:
+						ret.Add(CheckMultiSig);
+						break;
+					case OpcodeType.OP_CHECKMULTISIGVERIFY:
+						ret.Add(CheckMultiSig);
+						ret.Add(Verify);
+						break;
+					case OpcodeType.OP_CHECKSEQUENCEVERIFY:
+						ret.Add(CheckSequenceVerify);
+						break;
+					case OpcodeType.OP_CHECKLOCKTIMEVERIFY:
+						ret.Add(CheckLocktimeVerify);
+						break;
+					case OpcodeType.OP_FROMALTSTACK:
+						ret.Add(FromAltStack);
+						break;
+					case OpcodeType.OP_TOALTSTACK:
+						ret.Add(ToAltStack);
+						break;
+					case OpcodeType.OP_DROP:
+						ret.Add(Drop);
+						break;
+					case OpcodeType.OP_DUP:
+						ret.Add(Dup);
+						break;
+					case OpcodeType.OP_ADD:
+						ret.Add(Add);
+						break;
+					case OpcodeType.OP_IF:
+						ret.Add(If);
+						break;
+					case OpcodeType.OP_NOTIF:
+						ret.Add(NotIf);
+						break;
+					case OpcodeType.OP_ELSE:
+						ret.Add(Else);
+						break;
+					case OpcodeType.OP_ENDIF:
+						ret.Add(EndIf);
+						break;
+					case OpcodeType.OP_0NOTEQUAL:
+						ret.Add(ZeroNotEqual);
+						break;
+					case OpcodeType.OP_SIZE:
+						ret.Add(Size);
+						break;
+					case OpcodeType.OP_SWAP:
+						ret.Add(Swap);
+						break;
+					case OpcodeType.OP_VERIFY:
+						var last = ret.LastOrDefault();
+						if (last.Equals(Equal) || last.Equals(CheckSig) || last.Equals(CheckMultiSig))
+							throw new ParsingException($"Miniscript must use truncated OP_*VERIFY but got separated representation {last} and OP_VERIFY when deserializing");
+						ret.Add(Verify);
+						break;
+					case OpcodeType.OP_SHA256:
+						ret.Add(Sha256);
+						break;
+					case OpcodeType.OP_HASH256:
+						ret.Add(Sha256);
+						break;
+					case OpcodeType.OP_RIPEMD160:
+						ret.Add(Ripemd160);
+						break;
+					case OpcodeType.OP_HASH160:
+						ret.Add(Hash160);
+						break;
+					case OpcodeType.OP_0:
+						ret.Add(new Number(0u));
+						break;
+					case OpcodeType.OP_1:
+						ret.Add(new Number(1u));
+						break;
+					case OpcodeType.OP_2:
+						ret.Add(new Number(2u));
+						break;
+					case OpcodeType.OP_3:
+						ret.Add(new Number(3u));
+						break;
+					case OpcodeType.OP_4:
+						ret.Add(new Number(4u));
+						break;
+					case OpcodeType.OP_5:
+						ret.Add(new Number(5u));
+						break;
+					case OpcodeType.OP_6:
+						ret.Add(new Number(6u));
+						break;
+					case OpcodeType.OP_7:
+						ret.Add(new Number(7u));
+						break;
+					case OpcodeType.OP_8:
+						ret.Add(new Number(8u));
+						break;
+					case OpcodeType.OP_9:
+						ret.Add(new Number(9u));
+						break;
+					case OpcodeType.OP_10:
+						ret.Add(new Number(10u));
+						break;
+					case OpcodeType.OP_11:
+						ret.Add(new Number(11u));
+						break;
+					case OpcodeType.OP_12:
+						ret.Add(new Number(12u));
+						break;
+					case OpcodeType.OP_13:
+						ret.Add(new Number(13u));
+						break;
+					case OpcodeType.OP_14:
+						ret.Add(new Number(14u));
+						break;
+					case OpcodeType.OP_15:
+						ret.Add(new Number(15u));
+						break;
+					case OpcodeType.OP_16:
+						ret.Add(new Number(16u));
+						break;
+					default:
+						if (0x01 <= (byte) s.Code && (byte) s.Code < 0x48)
+							ret.Add(GetItem(s));
+						else if (0x48 <= (byte)s.Code)
+							throw new ParsingException($"Miniscript does not support pushdata bigger than 33. Got {s}");
+						else
+							throw new ParsingException($"Unknown Opcode to Miniscript {s.Name}");
+						break;
+				}
+			}
+
+			return ret;
 		}
+
+		private static ScriptToken GetItem(Op op)
+		{
+			if (op.PushData.Length == 20)
+				return new Hash20(new uint160(op.PushData, false));
+			if (op.PushData.Length == 32)
+				return new Hash32(new uint256(op.PushData, false));
+			if (op.PushData.Length == 33)
+			{
+				try
+				{
+					return new Pk(new PubKey(op.PushData));
+				}
+				catch (FormatException ex)
+				{
+					throw new ParsingException("Invalid Public Key", ex);
+				}
+			}
+
+			var i = op.GetInt();
+			if (i.HasValue)
+				return new Number((uint)i.Value);
+			throw new ParsingException($"Invalid push with Opcode {op}");
+		}
+
 		public override string ToString()
 		{
 			switch (this.Tag)
@@ -279,6 +460,5 @@ namespace NBitcoin.Scripting.Miniscript
 			}
 			throw new Exception("Unreachable");
 		}
-
 	}
 }

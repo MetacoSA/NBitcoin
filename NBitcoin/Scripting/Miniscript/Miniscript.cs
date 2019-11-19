@@ -6,6 +6,9 @@ using NBitcoin.Scripting.Parser;
 
 namespace NBitcoin.Scripting.Miniscript
 {
+	/// <summary>
+	/// Public facade for working with actual script fragment
+	/// </summary>
 	[DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
 	public partial class Miniscript<TPk, TPKh> : IEquatable<Miniscript<TPk, TPKh>>
 		where TPk : class, IMiniscriptKey<TPKh>, new()
