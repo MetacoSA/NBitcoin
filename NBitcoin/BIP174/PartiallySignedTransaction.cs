@@ -874,7 +874,7 @@ namespace NBitcoin
 				var p2shp2wsh = redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey;
 				foreach (var o in this.Inputs.OfType<PSBTCoin>().Concat(this.Outputs))
 				{
-					if (o is PSBTInput i && i.IsFinalized())
+					if (o is PSBTInput ii && ii.IsFinalized())
 						continue;
 					var txout = o.GetCoin()?.TxOut;
 					if (txout == null)
