@@ -208,7 +208,7 @@ namespace NBitcoin.Scripting.Miniscript
 			return false;
 		}
 
-		public static List<ScriptToken> FromScript(Script script)
+		public static ScriptToken[] FromScript(Script script)
 		{
 			var ret = new List<ScriptToken>();
 			foreach (var s in script.ToOps())
@@ -363,8 +363,8 @@ namespace NBitcoin.Scripting.Miniscript
 						break;
 				}
 			}
-
-			return ret;
+			ret.Reverse();
+			return ret.ToArray();
 		}
 
 		private static ScriptToken GetItem(Op op)
