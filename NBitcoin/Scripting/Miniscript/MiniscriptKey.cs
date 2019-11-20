@@ -90,7 +90,30 @@ namespace NBitcoin.Scripting.Miniscript
 		public static MiniscriptStringKey Parse(string str)
 			=> new MiniscriptStringKey(str);
 	}
-	public static class MiniscriptFragmentParser<TPk, TPKh>
+	/// <summary>
+	/// Dummy key which de/serializes to the empty string; useful sometimes for testing.
+	/// </summary>
+	internal class DummyKeyHash : IMiniscriptKeyHash
+
+	{
+		public uint160 ToHash160() => new uint160();
+		public string ToHex() => "";
+		public override string ToString() => "";
+	}
+	internal class DummyKey : IMiniscriptKey<DummyKeyHash>
+	{
+		public bool Equals(IMiniscriptKey<DummyKeyHash> other) => true;
+
+		public int SerializedLength() => 33;
+
+		public string ToHex() => "";
+		public override string ToString() => "";
+
+		public DummyKeyHash ToPubKeyHash() => new DummyKeyHash();
+
+		public PubKey ToPublicKey() => new PubKey("0250863ad64a87ae8a2fe83c1af1a8403cb53f53e486d8511dad8a04887e5b2352");
+	}
+	public static partial class MiniscriptFragmentParser<TPk, TPKh>
 		where TPk : class, IMiniscriptKey<TPKh>, new()
 		where TPKh : class, IMiniscriptKeyHash, new()
 	{
@@ -107,6 +130,10 @@ namespace NBitcoin.Scripting.Miniscript
 			{
 				return MiniscriptStringKey.Parse(str) as TPk;
 			}
+			if (t is DummyKey)
+			{
+				return t;
+			}
 			throw new NotSupportedException();
 		}
 
@@ -117,6 +144,10 @@ namespace NBitcoin.Scripting.Miniscript
 				return new uint160(Hex.DecodeData(str), true) as TPKh;
 			if (t is MiniscriptStringKeyHash)
 				return MiniscriptStringKeyHash.Parse(str) as TPKh;
+			if (t is DummyKeyHash)
+			{
+				return t;
+			}
 			throw new NotSupportedException();
 		}
 
