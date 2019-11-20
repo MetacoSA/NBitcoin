@@ -1257,16 +1257,15 @@ namespace NBitcoin.Scripting.Miniscript
 					sb.Append(",");
 					self.Item2.Node.ToStringCore(sb);
 					return sb.Append(")");
-				case OrI self:
-					if (self.Item1.Node != False && self.Item2.Node != False)
+				case OrI self when (self.Item1.Node != False && self.Item2.Node != False):
 					{
 						sb.Append("or_i(");
 						self.Item1.Node.ToStringCore(sb);
 						sb.Append(",");
 						self.Item2.Node.ToStringCore(sb);
 						sb.Append(")");
+						return sb;
 					}
-					return sb;
 				case Thresh self:
 					sb.Append("thresh(");
 					sb.Append(self.Item1);
