@@ -262,7 +262,7 @@ namespace NBitcoin.Scripting.Miniscript.Types
 					? Input.Zero
 					:
 					((l.Input == Input.Zero && r.Input == Input.One)
-					 || l.Input == Input.One || r.Input == Input.Zero)
+					 || (l.Input == Input.One && r.Input == Input.Zero))
 						? Input.One
 						:
 						(l.Input == Input.Zero && r.Input == Input.OneNonZero)
