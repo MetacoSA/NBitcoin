@@ -7,7 +7,7 @@ namespace NBitcoin.Scripting.Miniscript
 		{
 			if (n <= 0x10) // OP_n
 				return 1;
-			if (n < 0x10) // OP_PUSH1 <n>
+			if (n < 0x80) // OP_PUSH1 <n>
 				return 2;
 			if (n < 0x8000) // OP_PUSH2 <n>
 				return 3;

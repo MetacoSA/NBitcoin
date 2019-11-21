@@ -907,6 +907,13 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 			foreach (var k in ret.Keys)
 				Debug.Assert(k.DissatProb == dissatProb);
 
+			Console.WriteLine($"finished best-compilations for {policy}");
+			var costs = ret.Values.Select(x => Tuple.Create(x.Cost1d(satProb, dissatProb), x.Ms)).ToList();
+			costs.Sort((x, y) => x.Item1.CompareTo(y.Item1));
+			foreach (var cost in costs)
+				Console.WriteLine($"{cost.Item1} ::: {cost.Item2}");
+			Console.WriteLine("");
+
 			if (ret.Count == 0)
 				// The only reason we are discarding elements out of compiler is because
 				// compilations exceed opcount or are non-malleable. If there is no possible
@@ -1061,6 +1068,7 @@ namespace NBitcoin.Scripting.Miniscript.Policy
 						&& kv.Key.Type.Correctness.Unit
 						&& kv.Value.Ms.Type.Malleability.Dissat == Dissat.Unique
 						&& kv.Key.DissatProb == dissatProb);
+
 			if (!result.Any())
 				throw CompilerException.MaxOpCountExceeded;
 			return result.Select(kv => kv.Value)

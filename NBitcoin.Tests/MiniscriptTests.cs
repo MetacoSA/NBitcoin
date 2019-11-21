@@ -14,6 +14,7 @@ namespace NBitcoin.Tests
 	{
 		public static HexEncoder Hex = new DataEncoders.HexEncoder();
 
+
 		public static Key[] PrivKeys = (new[]
 			{
 				"4040404040404040404040404040404040404040404040404040404040404040",
@@ -365,6 +366,21 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CompiledCostShouldBeSameWithRustBitcoin()
+		{
+			var threshPolicy = ConcretePolicy<PubKey, uint160>.Parse($"thresh(2,pk({PubKeys[0]}),pk({PubKeys[2]}))");
+			var compilation = Compiler<PubKey, uint160>.BestT(
+				new Dictionary<Tuple<ConcretePolicy<PubKey, uint160>, double, double?>,
+					IDictionary<CompilationKey, AstElemExt<PubKey, uint160>>>(),
+				threshPolicy,
+				1.0,
+				null
+			);
+			Assert.Equal(218, compilation.Cost1d(1.0, null));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CompileQ()
 		{
 			/*
@@ -380,10 +396,10 @@ namespace NBitcoin.Tests
 			Assert.Equal(policy.Lift(), compilation.Ms.Lift());
 			*/
 
-			var policy2 = ConcretePolicy<PubKey, uint160>.Parse($"and(and(and(or(127@thresh(2,pk({PubKeys[0]}),pk({PubKeys[1]}),thresh(2,or(127@pk({PubKeys[2]}),1@pk({PubKeys[3]})),after(100),or(and(pk({PubKeys[4]}),after(200)),and(pk({PubKeys[0]}),sha256(66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925))),pk({PubKeys[1]}))),1@pk({PubKeys[2]})),sha256(66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925)),or(127@pk({PubKeys[3]}),1@after(300))),or(127@after(400),pk({PubKeys[4]})))");
-			var compilation2 = Compiler<PubKey, uint160>.BestT(
-				new Dictionary<Tuple<ConcretePolicy<PubKey, uint160>, double, double?>,
-					IDictionary<CompilationKey, AstElemExt<PubKey, uint160>>>(),
+			var policy2 = ConcretePolicy<DummyKey, DummyKeyHash>.Parse("and(and(and(or(127@thresh(2,pk(),pk(),thresh(2,or(127@pk(),1@pk()),after(100),or(and(pk(),after(200)),and(pk(),sha256(66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925))),pk())),1@pk()),sha256(66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925)),or(127@pk(),1@after(300))),or(127@after(400),pk()))");
+			var compilation2 = Compiler<DummyKey, DummyKeyHash>.BestT(
+				new Dictionary<Tuple<ConcretePolicy<DummyKey, DummyKeyHash>, double, double?>,
+					IDictionary<CompilationKey, AstElemExt<DummyKey, DummyKeyHash>>>(),
 				policy2,
 				1.0,
 				null
@@ -391,5 +407,10 @@ namespace NBitcoin.Tests
 			Assert.Equal(compilation2.Cost1d(1.0, null), 437.0 + 299.4003295898438);
 			Assert.Equal(policy2.Lift(), compilation2.Ms.Lift());
 		}
+
+		[Fact]
+		[Trait("UnitTest","UnitTest")]
+		public void ShouldDeserializeScriptsIntoMiniscript()
+		{}
 	}
 }

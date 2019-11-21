@@ -17,7 +17,7 @@ namespace NBitcoin.Scripting.Miniscript
 	{
 		public static string DebugPrint(this Input i)
 			=> (i == Input.Zero) ? "z" :
-				(i == Input.One) ? "0" :
+				(i == Input.One) ? "o" :
 				(i == Input.OneNonZero) ? "on" :
 				(i == Input.Any) ? "" :
 				(i == Input.AnyNonZero) ? "n" : "";

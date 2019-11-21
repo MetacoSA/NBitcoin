@@ -425,182 +425,10 @@ namespace NBitcoin.Scripting.Miniscript
 
 		#region Equatable members
 		public bool Equals(Terminal<TPk, TPKh> other)
-		{
-			if (other == null)
-				return false;
-			if (this.Tag != other.Tag)
-				return false;
-
-			switch (this.Tag)
-			{
-				case Tags.True: return true;
-				case Tags.False: return true;
-			}
-
-			switch (this)
-			{
-				case Pk self:
-					return self.Item.Equals(((Pk) other).Item);
-				case PkH self:
-					return self.Item.Equals(((PkH) other).Item);
-				case After self:
-					return self.Item.Equals(((After) other).Item);
-				case Older self:
-					return self.Item.Equals(((Older) other).Item);
-				case Sha256 self:
-					return self.Item.Equals(((Sha256) other).Item);
-				case Hash256 self:
-					return self.Item.Equals(((Hash256) other).Item);
-				case Ripemd160 self:
-					return self.Item.Equals(((Ripemd160) other).Item);
-				case Hash160 self:
-					return self.Item.Equals(((Hash160) other).Item);
-				case Alt self:
-					return self.Item.Equals(((Alt) other).Item);
-				case Swap self:
-					return self.Item.Equals(((Swap) other).Item);
-				case Check self:
-					return self.Item.Equals(((Check) other).Item);
-				case DupIf self:
-					return self.Item.Equals(((DupIf) other).Item);
-				case Verify self:
-					return self.Item.Equals(((Verify) other).Item);
-				case NonZero self:
-					return self.Item.Equals(((NonZero) other).Item);
-				case ZeroNotEqual self:
-					return self.Item.Equals(((ZeroNotEqual) other).Item);
-				case AndV self:
-					var andv = (AndV) other;
-					return self.Item1.Equals(andv.Item1) && self.Item2.Equals(andv.Item2);
-				case AndB self:
-					var andb = (AndB) other;
-					return self.Item1.Equals(andb.Item1) && self.Item2.Equals(andb.Item2);
-				case AndOr self:
-					var andOr = (AndOr) other;
-					return self.Item1.Equals(andOr.Item1) && self.Item2.Equals(andOr.Item2) && self.Item3.Equals(andOr.Item3);
-				case OrB self:
-					var orb = (OrB) other;
-					return self.Item1.Equals(orb.Item1) && self.Item2.Equals(orb.Item2);
-				case OrD self:
-					var ord = (OrD) other;
-					return self.Item1.Equals(ord.Item1) && self.Item2.Equals(ord.Item2);
-				case OrC self:
-					var orc = (OrC) other;
-					return self.Item1.Equals(orc.Item1) && self.Item2.Equals(orc.Item2);
-				case OrI self:
-					var ori = (OrI) other;
-					return self.Item1.Equals(ori.Item1) && self.Item2.Equals(ori.Item2);
-				case Thresh self:
-					var t = (Thresh) other;
-					return self.Item1.Equals(t.Item1) && self.Item2.SequenceEqual(t.Item2);
-				case ThreshM self:
-					var tm = (ThreshM) other;
-					return self.Item1.Equals(tm.Item1) && self.Item2.SequenceEqual(tm.Item2);
-			}
-			throw new Exception("Unreachable!");
-		}
+			=> this.ToScript().Equals(other.ToScript());
 
 		public override int GetHashCode()
-		{
-
-			int num = 0;
-			switch (this.Tag)
-			{
-				case Tags.True: return Tags.True;
-				case Tags.False: return Tags.False;
-			}
-
-			switch (this)
-			{
-				case Pk self:
-					num = Tags.Pk;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case PkH self:
-					num = Tags.PkH;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case After self:
-					num = Tags.After;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case Older self:
-					num = Tags.Older;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case Sha256 self:
-					num = Tags.Sha256;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case Hash256 self:
-					num = Tags.Hash256;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case Ripemd160 self:
-					num = Tags.Ripemd160;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case Hash160 self:
-					num = Tags.Hash160;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case Alt self:
-					num = Tags.Alt;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case Swap self:
-					num = Tags.Swap;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case Check self:
-					num = Tags.Check;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case DupIf self:
-					num = Tags.DupIf;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case Verify self:
-					num = Tags.Verify;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case NonZero self:
-					num = Tags.NonZero;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case ZeroNotEqual self:
-					num = Tags.ZeroNotEqual;
-					return -1640531527 + self.Item.GetHashCode() + ((num << 6) + (num >> 2));
-				case AndV self:
-					num = Tags.AndV;
-					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
-					return -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
-				case AndB self:
-					num = Tags.AndB;
-					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
-					return -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
-				case AndOr self:
-					num = Tags.AndOr;
-					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
-					num = -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
-					return -1640531527 + self.Item3.GetHashCode() + ((num << 6) + (num >> 2));
-				case OrB self:
-					num = Tags.OrB;
-					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
-					return -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
-				case OrD self:
-					num = Tags.OrD;
-					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
-					return -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
-				case OrC self:
-					num = Tags.OrC;
-					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
-					return -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
-				case OrI self:
-					num = Tags.OrI;
-					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
-					return -1640531527 + self.Item2.GetHashCode() + ((num << 6) + (num >> 2));
-				case Thresh self:
-					num = Tags.Thresh;
-					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
-					foreach (var sub in self.Item2)
-						num = -1640531527 + sub.GetHashCode() + ((num << 6) + (num >> 2));
-					return num;
-				case ThreshM self:
-					num = Tags.ThreshM;
-					num = -1640531527 + self.Item1.GetHashCode() + ((num << 6) + (num >> 2));
-					foreach (var sub in self.Item2)
-						num = -1640531527 + sub.GetHashCode() + ((num << 6) + (num >> 2));
-					return num;
-			}
-			throw new Exception("Unreachable!");
-		}
+			=> this.ToScript().GetHashCode();
 		#endregion
 
 		public Script ToScript() =>
@@ -1257,16 +1085,15 @@ namespace NBitcoin.Scripting.Miniscript
 					sb.Append(",");
 					self.Item2.Node.ToStringCore(sb);
 					return sb.Append(")");
-				case OrI self:
-					if (self.Item1.Node != False && self.Item2.Node != False)
+				case OrI self when (self.Item1.Node != False && self.Item2.Node != False):
 					{
 						sb.Append("or_i(");
 						self.Item1.Node.ToStringCore(sb);
 						sb.Append(",");
 						self.Item2.Node.ToStringCore(sb);
 						sb.Append(")");
+						return sb;
 					}
-					return sb;
 				case Thresh self:
 					sb.Append("thresh(");
 					sb.Append(self.Item1);
