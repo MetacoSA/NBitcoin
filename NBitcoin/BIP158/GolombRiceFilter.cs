@@ -43,8 +43,10 @@ namespace NBitcoin
 		private ulong ModulusP { get; }
 		private ulong ModulusNP { get; }
 
+		public static GolombRiceFilter Empty { get; } = new GolombRiceFilter(new byte[] { 0 });
+
 		/// <summary>
-		/// Creates a new Golomb-Rice filter from the data byte array which 
+		/// Creates a new Golomb-Rice filter from the data byte array which
 		/// contains a serialized filter. Uses the DefaultP value (20).
 		/// </summary>
 		/// <param name="data">A serialized Golomb-Rice filter.</param>
@@ -56,7 +58,7 @@ namespace NBitcoin
 
 
 		/// <summary>
-		/// Creates a new Golomb-Rice filter from the data byte array which 
+		/// Creates a new Golomb-Rice filter from the data byte array which
 		/// contains a serialized filter. Uses the DefaultP value (20).
 		/// </summary>
 		/// <param name="data">A serialized Golomb-Rice filter.</param>
@@ -66,7 +68,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Creates a new Golomb-Rice filter from the data byte array which 
+		/// Creates a new Golomb-Rice filter from the data byte array which
 		/// contains a serialized filter.
 		/// </summary>
 		/// <param name="data">A serialized Golomb-Rice filter.</param>
@@ -103,7 +105,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Computes the sorted-and-uncompressed list of values to be included in the filter.   
+		/// Computes the sorted-and-uncompressed list of values to be included in the filter.
 		/// /// </summary>
 		/// <param name="P">P value used.</param>
 		/// <param name="key">Key used for hashing the datalements.</param>
@@ -123,7 +125,7 @@ namespace NBitcoin
 			var k0 = BitConverter.ToUInt64(key, 0);
 			var k1 = BitConverter.ToUInt64(key, 8);
 
-			// Process the data items and calculate the 64 bits hash for each of them.			
+			// Process the data items and calculate the 64 bits hash for each of them.
 			foreach (var item in data)
 			{
 				var hash = SipHash(k0, k1, item);
@@ -207,6 +209,10 @@ namespace NBitcoin
 				throw new ArgumentException("data can not be null or empty array.", nameof(data));
 			if (key == null)
 				throw new ArgumentNullException(nameof(key));
+
+			if (N == 0)
+				return false;
+
 			var hs = ConstructHashedSet(P, N, M, key, data, dataCount);
 
 			var lastValue1 = 0UL;
@@ -244,7 +250,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Serialize the filter as a array of bytes using [varint(N) | data]. 
+		/// Serialize the filter as a array of bytes using [varint(N) | data].
 		/// </summary>
 		/// <returns>A array of bytes with the serialized filter data.</returns>
 		public byte[] ToBytes()
@@ -254,7 +260,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Serialize the filter as hexadecimal string. 
+		/// Serialize the filter as hexadecimal string.
 		/// </summary>
 		/// <returns>A string with the serialized filter data</returns>
 		public override string ToString()
@@ -305,7 +311,7 @@ namespace NBitcoin
 		private HashSet<byte[]> _values;
 
 		/// <summary>
-		/// Helper class for making sure not two identical data elements are 
+		/// Helper class for making sure not two identical data elements are
 		/// included in a filter.
 		/// </summary>
 		class ByteArrayComparer : IEqualityComparer<byte[]>
@@ -336,7 +342,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Builds the basic filter for a given block.
 		///
-		/// The basic filter is designed to contain everything that a light client needs to sync a regular Bitcoin wallet. 
+		/// The basic filter is designed to contain everything that a light client needs to sync a regular Bitcoin wallet.
 		/// A basic filter MUST contain exactly the following items for each transaction in a block:
 		///  * The outpoint of each input, except for the coinbase transaction
 		///  * The scriptPubKey of each output

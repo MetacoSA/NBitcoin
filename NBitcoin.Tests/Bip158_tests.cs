@@ -12,6 +12,15 @@ namespace NBitcoin.Tests
 	{
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void EmptyFilterMatchFalseTest()
+		{
+			var randomEntries = new [] { RandomUtils.GetBytes(20) };
+			var fakeFilterKey = RandomUtils.GetBytes(16);
+			Assert.False(GolombRiceFilter.Empty.MatchAny(randomEntries, fakeFilterKey));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void GenerateTestVectorsTest()
 		{
 			var tests = TestCase.read_json("data/bip158_vectors.json");
