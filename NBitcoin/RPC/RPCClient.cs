@@ -674,7 +674,7 @@ namespace NBitcoin.RPC
 			var jobj = result.Result as JObject;
 			var amount = Money.Coins(jobj.Property("total_amount").Value.Value<decimal>());
 			var success = jobj.Property("success").Value.Value<bool>();
-			var searchedItems = (int)jobj.Property("searched_items").Value.Value<long>();
+			var searchedItems = (int)jobj.Property("txouts").Value.Value<long>();
 			var outputs = new List<ScanTxoutOutput>();
 			foreach (var unspent in (jobj.Property("unspents").Value as JArray).OfType<JObject>())
 			{
@@ -732,7 +732,7 @@ namespace NBitcoin.RPC
 		/// <returns>Returns true when abort was successful</returns>
 		public async Task<bool> AbortScanTxoutSetAsync()
 		{
-			var result = await SendCommandAsync(RPCOperations.scantxoutset, "abort");
+			var result = await SendCommandAsync(RPCOperations.scantxoutset, "abort", new object[0]);
 			result.ThrowIfError();
 			return ((JValue)result.Result).Value<bool>();
 		}
@@ -1157,25 +1157,14 @@ namespace NBitcoin.RPC
 				ChainWork = new uint256(result.Value<string>("chainwork")),
 				SizeOnDisk = result.Value<ulong?>("size_on_disk") ?? 0,
 				Pruned = result.Value<bool>("pruned"),
-				SoftForks = result["softforks"]?.Select(x =>
+				SoftForks = result["softforks"]?.Cast<JProperty>().Select(x =>
 					new BlockchainInfo.SoftFork
 					{
-						Bip = (string)(x["id"]),
-						Version = (int)(x["version"]),
-						RejectStatus = bool.Parse((string)(x["reject"]["status"]))
-					}).ToList(),
-				Bip9SoftForks = result["bip9_softforks"]?.Select(x =>
-				{
-					var o = x.First();
-					return new BlockchainInfo.Bip9SoftFork
-					{
-						Name = ((JProperty)x).Name,
-						Status = (string)o["status"],
-						StartTime = epochToDtateTimeOffset((long)o["startTime"]),
-						Timeout = epochToDtateTimeOffset((long)o["timeout"]),
-						SinceHeight = o.Value<ulong?>("since") ?? 0,
-					};
-				}).ToList()
+						Bip = x.Name,
+						ForkType = x.Value.Value<string>("type"),
+						Activated = x.Value.Value<bool>("activated"),
+						Height = x.Value.Value<uint>("height"),
+					}).ToList()
 			};
 
 			return blockchainInfo;
@@ -1367,7 +1356,7 @@ namespace NBitcoin.RPC
 			return new MempoolEntry
 			{
 				TransactionId = txid,
-				VirtualSizeBytes = response.Result["size"].Value<int>(),
+				VirtualSizeBytes = response.Result["vsize"].Value<int>(),
 				Time = Utils.UnixTimeToDateTime(response.Result["time"].Value<long>()),
 				Height = response.Result["height"].Value<int>(),
 				DescendantCount = response.Result["descendantcount"].Value<int>(),
@@ -1384,14 +1373,14 @@ namespace NBitcoin.RPC
 			};
 		}
 
-		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, bool allowHighFees = false)
+		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, FeeRate maxFeeRate = null)
 		{
-			return TestMempoolAcceptAsync(transaction, allowHighFees).GetAwaiter().GetResult();
+			return TestMempoolAcceptAsync(transaction, maxFeeRate).GetAwaiter().GetResult();
 		}
 
-		public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, bool allowHighFees = false)
+		public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, FeeRate maxFeeRate = null)
 		{
-			var response = await SendCommandAsync("testmempoolaccept", new[] { transaction.ToHex() }, allowHighFees).ConfigureAwait(false);
+			var response = await SendCommandAsync("testmempoolaccept", new[] { transaction.ToHex() }, maxFeeRate?.FeePerK.ToDecimal(MoneyUnit.Satoshi)).ConfigureAwait(false);
 
 			var first = response.Result[0];
 			var allowed = first["allowed"].Value<bool>();
@@ -2093,8 +2082,9 @@ namespace NBitcoin.RPC
 		public class SoftFork
 		{
 			public string Bip { get; set; }
-			public int Version { get; set; }
-			public bool RejectStatus { get; set; }
+			public string ForkType { get; set; }
+			public bool Activated { get; set; }
+			public uint Height { get; set; }
 		}
 
 		public class Bip9SoftFork

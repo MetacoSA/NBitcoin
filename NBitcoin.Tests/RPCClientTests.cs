@@ -23,8 +23,8 @@ using static NBitcoin.Tests.Comparer;
 namespace NBitcoin.Tests
 {
 	//Require a rpc server on test network running on default port with -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword
-	//For me : 
-	//"bitcoin-qt.exe" -testnet -server -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword 
+	//For me :
+	//"bitcoin-qt.exe" -testnet -server -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword
 	[Trait("RPCClient", "RPCClient")]
 	public class RPCClientTests
 	{
@@ -363,8 +363,6 @@ namespace NBitcoin.Tests
 
 				Assert.Equal(builder.Network, response.Chain);
 				Assert.Equal(builder.Network.GetGenesis().GetHash(), response.BestBlockHash);
-				Assert.Contains(response.Bip9SoftForks, x => x.Name == "segwit");
-				Assert.Contains(response.Bip9SoftForks, x => x.Name == "csv");
 				Assert.Contains(response.SoftForks, x => x.Bip == "bip34");
 				Assert.Contains(response.SoftForks, x => x.Bip == "bip65");
 				Assert.Contains(response.SoftForks, x => x.Bip == "bip66");
@@ -1404,7 +1402,7 @@ namespace NBitcoin.Tests
 
 				var client = node.CreateRPCClient();
 
-				// ensure the wallet has whole kinds of coins ... 
+				// ensure the wallet has whole kinds of coins ...
 				var addr = client.GetNewAddress();
 				client.GenerateToAddress(101, addr);
 				addr = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Bech32 });
@@ -1467,7 +1465,8 @@ namespace NBitcoin.Tests
 				result.PSBT.Finalize();
 
 				var txResult = result.PSBT.ExtractTransaction();
-				var acceptResult = client.TestMempoolAccept(txResult, true);
+				var absurdlyHighFee = new FeeRate(10_000);
+				var acceptResult = client.TestMempoolAccept(txResult, absurdlyHighFee);
 				Assert.True(acceptResult.IsAllowed, acceptResult.RejectReason);
 			}
 		}
