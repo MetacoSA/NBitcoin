@@ -1094,7 +1094,7 @@ namespace NBitcoin.Tests
 
 					Assert.Equal(blockFilter.Header, blockFilter.Filter.GetHeader(prevFilterHeader));
 
-					byte[] FilterKey(uint256 blockHash) => blockHash.ToBytes().SafeSubarray(0, 16);
+					byte[] FilterKey(uint256 hash) => hash.ToBytes().SafeSubarray(0, 16);
 					var coinbaseTx = block.Transactions[0];
 					var minerScriptPubKey = coinbaseTx.Outputs[0].ScriptPubKey;
 					Assert.True(blockFilter.Filter.MatchAny(new[] { minerScriptPubKey.ToBytes() }, FilterKey(blockHash) ));
