@@ -284,7 +284,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(102, result.Outputs[0].Height);
 				Assert.Equal(Money.Coins(1.0m), result.TotalAmount);
 
-				// Assert.False(rpc.AbortScanTxoutSet());
+				Assert.False(rpc.AbortScanTxoutSet());
 				Assert.Null(rpc.GetStatusScanTxoutSet());
 			}
 		}
