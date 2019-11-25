@@ -1076,6 +1076,36 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void GetFilter()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+				node.Generate(101);
+
+				var prevFilterHeader = uint256.Zero;
+				for(var height = 0; height < 101; height++)
+				{
+					var block = rpc.GetBlock(height);
+					var blockHash = block.GetHash();
+					var blockFilter = rpc.GetBlockFilter(blockHash);
+
+					Assert.Equal(blockFilter.Header, blockFilter.Filter.GetHeader(prevFilterHeader));
+
+					byte[] FilterKey(uint256 blockHash) => blockHash.ToBytes().SafeSubarray(0, 16);
+					var coinbaseTx = block.Transactions[0];
+					var minerScriptPubKey = coinbaseTx.Outputs[0].ScriptPubKey;
+					Assert.True(blockFilter.Filter.MatchAny(new[] { minerScriptPubKey.ToBytes() }, FilterKey(blockHash) ));
+					Assert.False(blockFilter.Filter.MatchAny(new[] { RandomUtils.GetBytes(20) }, FilterKey(blockHash) ));
+
+					prevFilterHeader = blockFilter.Header;
+				}
+			}
+		}
+
+		[Fact]
 		public void CanTestMempoolAccept()
 		{
 			using (var builder = NodeBuilderEx.Create())

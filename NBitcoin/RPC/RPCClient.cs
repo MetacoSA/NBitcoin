@@ -1296,6 +1296,27 @@ namespace NBitcoin.RPC
 			return uint256.Parse(resp.Result.ToString());
 		}
 
+		public BlockFilter GetBlockFilter(uint256 blockHash)
+		{
+			var resp = SendCommand("getblockfilter", blockHash, "basic");
+			return ParseCompactFilter(resp);
+		}
+
+		public async Task<BlockFilter> GetBlockFilterAsync(uint256 blockHash)
+		{
+			var resp = await SendCommandAsync("getfilter", blockHash, "basic").ConfigureAwait(false);
+			return ParseCompactFilter(resp);
+		}
+
+		private BlockFilter ParseCompactFilter(RPCResponse resp)
+		{
+			var json = (JObject)resp.Result;
+			return new BlockFilter(
+				GolombRiceFilter.Parse(json.Value<string>("filter")),
+				uint256.Parse(json.Value<string>("header"))
+			);
+		}
+
 		public int GetBlockCount()
 		{
 			return (int)SendCommand(RPCOperations.getblockcount).Result;
@@ -2217,6 +2238,16 @@ namespace NBitcoin.RPC
 		public string RejectReason { get; internal set; }
 	}
 
+	public class BlockFilter
+	{
+		public GolombRiceFilter Filter { get; }
+		public uint256 Header { get; }
 
+		public BlockFilter(GolombRiceFilter filter, uint256 header)
+		{
+			Filter = filter;
+			Header = header;
+		}
+	}
 }
 #endif
