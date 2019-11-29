@@ -156,18 +156,37 @@ namespace NBitcoin
 
 			return setCoinsRet.SelectMany(s => s.Coins);
 		}
+
+#if NO_ARRAY_FILL
+		void ArrayFill<T>(T[] array, T value)
+		{
+			for (int i = 0; i < array.Length; i++)
+			{
+				array[i] = value;
+			}
+		}
+#endif
+
 		void ApproximateBestSubset(List<OutputGroup> groups, IMoney nTotalLower, IMoney nTargetValue,
 								  out bool[] vfBest, out IMoney nBest, int iterations = 1000)
 		{
 			var zero = nTargetValue.Sub(nTargetValue);
 			vfBest = new bool[groups.Count];
+#if NO_ARRAY_FILL
+			ArrayFill(vfBest, true);
+#else
 			Array.Fill(vfBest, true);
+#endif
 			bool[] vfIncluded = new bool[groups.Count];
 			nBest = nTotalLower;
 
 			for (int nRep = 0; nRep < iterations && nBest != nTargetValue; nRep++)
 			{
+#if NO_ARRAY_FILL
+				ArrayFill(vfIncluded, false);
+#else
 				Array.Fill(vfIncluded, false);
+#endif
 				var nTotal = zero;
 				bool fReachedTarget = false;
 				for (int nPass = 0; nPass < 2 && !fReachedTarget; nPass++)
@@ -201,7 +220,7 @@ namespace NBitcoin
 			}
 		}
 
-		#endregion
+#endregion
 	}
 
 	/// <summary>
@@ -276,7 +295,7 @@ namespace NBitcoin
 				this.sigHash = sigHash;
 				this.txIn = txIn;
 			}
-			#region ISigner Members
+#region ISigner Members
 
 			public List<SignatureEvent> EmittedSignatures { get; } = new List<SignatureEvent>();
 
@@ -288,7 +307,7 @@ namespace NBitcoin
 				return sig;
 			}
 
-			#endregion
+#endregion
 		}
 		internal class TransactionBuilderKeyRepository : IKeyRepository
 		{
@@ -297,14 +316,14 @@ namespace NBitcoin
 			{
 				_Ctx = ctx;
 			}
-			#region IKeyRepository Members
+#region IKeyRepository Members
 
 			public PubKey? FindKey(Script scriptPubkey)
 			{
 				return _Ctx.FindKey(scriptPubkey)?.PubKey;
 			}
 
-			#endregion
+#endregion
 		}
 
 		class KnownSignatureSigner : ISigner, IKeyRepository

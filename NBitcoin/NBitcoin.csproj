@@ -32,10 +32,10 @@
 		<DocumentationFile>bin\Release\NBitcoin.XML</DocumentationFile>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
-		<DefineConstants>$(DefineConstants);CLASSICDOTNET</DefineConstants>
+		<DefineConstants>$(DefineConstants);CLASSICDOTNET;NO_ARRAY_FILL</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
-		<DefineConstants>$(DefineConstants);NO_RCA;CLASSICDOTNET;LEGACY_X509</DefineConstants>
+		<DefineConstants>$(DefineConstants);NO_RCA;CLASSICDOTNET;LEGACY_X509;NO_ARRAY_FILL</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'netstandard2.0' ">
 		<DefineConstants>$(DefineConstants);NOCUSTOMSSLVALIDATION</DefineConstants>
@@ -44,13 +44,13 @@
 		<DefineConstants>$(DefineConstants);NETCORE;HAS_SPAN</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-		<DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETSTANDARD;NO_ARRAY_FILL</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH;NO_BEGINCONNECT</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH;NO_BEGINCONNECT;NO_ARRAY_FILL</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-		<DefineConstants>$(DefineConstants);NO_RCA;NOPARALLEL;NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH</DefineConstants>
+		<DefineConstants>$(DefineConstants);NO_RCA;NOPARALLEL;NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH;NO_ARRAY_FILL</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
