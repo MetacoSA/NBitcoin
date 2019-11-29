@@ -56,87 +56,149 @@ namespace NBitcoin
 			get; set;
 		} = true;
 
+		public Money MinimumChange { get; set; } = Money.Coins(1.0m / 100);
+
 		#region ICoinSelector Members
 
+		class OutputGroup
+		{
+			public OutputGroup(IMoney amount, ICoin[] coins)
+			{
+				Amount = amount;
+				Coins = coins;
+			}
+			public IMoney Amount { get; set; }
+			public ICoin[] Coins { get; set; }
+		}
 		public IEnumerable<ICoin>? Select(IEnumerable<ICoin> coins, IMoney target)
 		{
+			List<OutputGroup> setCoinsRet = new List<OutputGroup>();
 			var zero = target.Sub(target);
 
-			List<ICoin> result = new List<ICoin>();
-			IMoney total = zero;
-
-			if (target.CompareTo(zero) == 0)
-				return result;
-
-			var orderedCoinGroups = coins.GroupBy(c => GroupByScriptPubKey ? c.TxOut.ScriptPubKey : new Key().ScriptPubKey)
-									.Select(scriptPubKeyCoins => new
-									{
-										Amount = scriptPubKeyCoins.Select(c => c.Amount).Sum(zero),
-										Coins = scriptPubKeyCoins.ToList()
-									}).OrderBy(c => c.Amount);
+			var groups = GroupByScriptPubKey ? coins.GroupBy(c => c.TxOut.ScriptPubKey)
+												.Select(scriptPubKeyCoins => new OutputGroup
+												(
+													amount: scriptPubKeyCoins.Select(c => c.Amount).Sum(zero),
+													coins: scriptPubKeyCoins.ToArray()
+												)).ToArray()
+											 : coins.Select(c => new OutputGroup(c.Amount, new ICoin[] { c })).ToArray();
 
 
-			var targetCoin = orderedCoinGroups
-							.FirstOrDefault(c => c.Amount.CompareTo(target) == 0);
-			//If any of your UTXO² matches the Target¹ it will be used.
-			if (targetCoin != null)
-				return targetCoin.Coins;
+			// List of values less than target
+			OutputGroup? lowest_larger = null;
+			List<OutputGroup> applicable_groups = new List<OutputGroup>();
+			var nTotalLower = zero;
+			var targetMinChange = target.Add(MinimumChange);
+			Utils.Shuffle(groups, _Rand);
 
-			foreach (var coinGroup in orderedCoinGroups)
+			foreach (var group in groups)
 			{
-				if (coinGroup.Amount.CompareTo(target) == -1 && total.CompareTo(target) == -1)
+				if (group.Amount.Equals(target))
 				{
-					total = total.Add(coinGroup.Amount);
-					result.AddRange(coinGroup.Coins);
-					//If the "sum of all your UTXO smaller than the Target" happens to match the Target, they will be used. (This is the case if you sweep a complete wallet.)
-					if (total.CompareTo(target) == 0)
-						return result;
-
+					setCoinsRet.Add(group);
+					return setCoinsRet.SelectMany(s => s.Coins);
 				}
-				else
+				else if (group.Amount.CompareTo(targetMinChange) < 0)
 				{
-					if (total.CompareTo(target) == -1 && coinGroup.Amount.CompareTo(target) == 1)
+					applicable_groups.Add(group);
+					nTotalLower = nTotalLower.Add(group.Amount);
+				}
+				else if (lowest_larger == null || group.Amount.CompareTo(lowest_larger.Amount) < 0)
+				{
+					lowest_larger = group;
+				}
+			}
+
+			if (nTotalLower.Equals(target))
+			{
+				foreach (var group in applicable_groups)
+				{
+					setCoinsRet.Add(group);
+				}
+				return setCoinsRet.SelectMany(s => s.Coins);
+			}
+
+			if (nTotalLower.CompareTo(target) < 0)
+			{
+				if (lowest_larger == null) return null;
+				setCoinsRet.Add(lowest_larger);
+				return setCoinsRet.SelectMany(s => s.Coins);
+			}
+
+			// Solve subset sum by stochastic approximation
+			applicable_groups = applicable_groups.OrderByDescending(g => g.Amount).ToList();
+			bool[] vfBest;
+			IMoney nBest;
+			ApproximateBestSubset(applicable_groups, nTotalLower, target, out vfBest, out nBest);
+			if (!nBest.Equals(target) && (nTotalLower.CompareTo(targetMinChange) is var v && (v == 0 || v > 0)))
+			{
+				ApproximateBestSubset(applicable_groups, nTotalLower, targetMinChange, out vfBest, out nBest);
+			}
+
+			// If we have a bigger coin and (either the stochastic approximation didn't find a good solution,
+			//                                   or the next bigger coin is closer), return the bigger coin
+			if (lowest_larger != null &&
+				((!nBest.Equals(target) && nBest.CompareTo(targetMinChange) < 0) ||
+				(lowest_larger.Amount.CompareTo(nBest) is var vv && (vv == 0 || vv < 0))))
+			{
+				setCoinsRet.Add(lowest_larger);
+			}
+			else
+			{
+				for (int i = 0; i < applicable_groups.Count; i++)
+				{
+					if (vfBest[i])
 					{
-						//If the "sum of all your UTXO smaller than the Target" doesn't surpass the target, the smallest UTXO greater than your Target will be used.
-						return coinGroup.Coins;
+						setCoinsRet.Add(applicable_groups[i]);
 					}
-					else
+				}
+			}
+
+			return setCoinsRet.SelectMany(s => s.Coins);
+		}
+		void ApproximateBestSubset(List<OutputGroup> groups, IMoney nTotalLower, IMoney nTargetValue,
+								  out bool[] vfBest, out IMoney nBest, int iterations = 1000)
+		{
+			var zero = nTargetValue.Sub(nTargetValue);
+			vfBest = new bool[groups.Count];
+			Array.Fill(vfBest, true);
+			bool[] vfIncluded = new bool[groups.Count];
+			nBest = nTotalLower;
+
+			for (int nRep = 0; nRep < iterations && nBest != nTargetValue; nRep++)
+			{
+				Array.Fill(vfIncluded, false);
+				var nTotal = zero;
+				bool fReachedTarget = false;
+				for (int nPass = 0; nPass < 2 && !fReachedTarget; nPass++)
+				{
+					for (int i = 0; i < groups.Count; i++)
 					{
-						//						Else Bitcoin Core does 1000 rounds of randomly combining unspent transaction outputs until their sum is greater than or equal to the Target. If it happens to find an exact match, it stops early and uses that.
-						//Otherwise it finally settles for the minimum of
-						//the smallest UTXO greater than the Target
-						//the smallest combination of UTXO it discovered in Step 4.
-						var allCoins = orderedCoinGroups.ToArray();
-						IMoney? minTotal = null;
-						for (int _ = 0; _ < 1000; _++)
+						//The solver here uses a randomized algorithm,
+						//the randomness serves no real security purpose but is just
+						//needed to prevent degenerate behavior and it is important
+						//that the rng is fast. We do not use a constant random sequence,
+						//because there may be some privacy improvement by making
+						//the selection random.
+						if (nPass == 0 ? _Rand.Next(0, 2) == 0 : !vfIncluded[i])
 						{
-							var selection = new List<ICoin>();
-							Utils.Shuffle(allCoins, _Rand);
-							total = zero;
-							for (int i = 0; i < allCoins.Length; i++)
+							nTotal = nTotal.Add(groups[i].Amount);
+							vfIncluded[i] = true;
+							if (nTotal.CompareTo(nTargetValue) is var v && (v == 0 || v > 0))
 							{
-								selection.AddRange(allCoins[i].Coins);
-								total = total.Add(allCoins[i].Amount);
-								if (total.CompareTo(target) == 0)
-									return selection;
-								if (total.CompareTo(target) == 1)
-									break;
-							}
-							if (total.CompareTo(target) == -1)
-							{
-								return null;
-							}
-							if (minTotal == null || total.CompareTo(minTotal) == -1)
-							{
-								minTotal = total;
+								fReachedTarget = true;
+								if (nTotal.CompareTo(nBest) < 0)
+								{
+									nBest = nTotal;
+									Array.Copy(vfIncluded, vfBest, groups.Count);
+								}
+								nTotal = nTotal.Sub(groups[i].Amount);
+								vfIncluded[i] = false;
 							}
 						}
 					}
 				}
 			}
-			if (total.CompareTo(target) == -1)
-				return null;
-			return result;
 		}
 
 		#endregion
@@ -1393,7 +1455,7 @@ namespace NBitcoin
 			BuilderGroup group,
 			List<Func<TransactionBuilder.TransactionBuildingContext, TMoney?>> builders,
 			IEnumerable<ICoin> coins,
-			TMoney zero) where TMoney: class, IMoney
+			TMoney zero) where TMoney : class, IMoney
 		{
 			ICoin[]? selection = null;
 		retry:

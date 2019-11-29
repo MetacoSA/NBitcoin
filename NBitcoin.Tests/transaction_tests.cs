@@ -228,6 +228,368 @@ namespace NBitcoin.Tests
 			///////
 		}
 
+		class Wallet
+		{
+			public class WalletCoin
+			{
+				public Money Value { get; internal set; }
+				public int Age { get; internal set; }
+				public bool IsFromMe { get; internal set; }
+				public int Input { get; internal set; }
+				public bool Spendable { get; internal set; }
+				Coin _Coin;
+				public Coin AsCoin()
+				{
+					if (_Coin != null)
+						return _Coin;
+					var txout = Network.RegTest.Consensus.ConsensusFactory.CreateTxOut();
+					txout.Value = Value;
+					txout.ScriptPubKey = Script.Empty;
+					_Coin = new Coin(OutPoint.Zero, txout);
+					return _Coin;
+				}
+			}
+			List<WalletCoin> _Coins = new List<WalletCoin>();
+			public void Empty()
+			{
+				_Coins.Clear();
+			}
+
+			public void AddCoin(Money nValue, int nAge = 6 * 24, bool fIsFromMe = false, int nInput = 0, bool spendable = false)
+			{
+				_Coins.Add(new WalletCoin()
+				{
+					Value = nValue,
+					Age = nAge,
+					IsFromMe = fIsFromMe,
+					Input = nInput,
+					Spendable = spendable
+				});
+			}
+
+			Random _Rand = new Random();
+			internal Money SelectCoinsMinConf(Money target, Func<WalletCoin, bool> filter, out List<Coin> setCoinsRet, out Money nValueRet)
+			{
+				var selector = new DefaultCoinSelector(_Rand) {  GroupByScriptPubKey = false };
+				var result = selector.Select(_Coins.Where(filter).Select(w => w.AsCoin()).ToList(), target);
+				if (result != null)
+				{
+					setCoinsRet = result.OfType<Coin>().ToList();
+					nValueRet = setCoinsRet.Sum(c => c.Amount);
+				}
+				else
+				{
+					setCoinsRet = null;
+					nValueRet = null;
+				}
+				return nValueRet;
+			}
+		}
+		const int RUN_TESTS = 10;
+		const int RANDOM_REPEATS = 5;
+		static Money MIN_CHANGE = new DefaultCoinSelector().MinimumChange;
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void KnapsackSolverTest()
+		{
+			Func<Wallet.WalletCoin, bool> filter_standard = w => w.Age >= 6 || (w.IsFromMe && w.Age >= 1);
+			Func<Wallet.WalletCoin, bool> filter_confirmed = w => w.Age > 0;
+			Func<Wallet.WalletCoin, bool> filter_standard_extra = w => w.Age >= 6;
+			List<Coin> setCoinsRet, setCoinsRet2 = null;
+			Money nValueRet = null;
+			var w = new Wallet();
+			// test multiple times to allow for differences in the shuffle order
+			for (int i = 0; i < RUN_TESTS; i++)
+			{
+				w.Empty();
+
+				// with an empty wallet we can't even pay one cent
+				Assert.Null(w.SelectCoinsMinConf(Money.Cents(1), filter_standard, out setCoinsRet, out nValueRet));
+
+				w.AddCoin(Money.Cents(1), 4);        // add a new 1 cent coin
+				
+				// with a new 1 cent coin, we still can't find a mature 1 cent
+				Assert.Null(w.SelectCoinsMinConf(Money.Cents(1), filter_standard, out setCoinsRet, out nValueRet));
+
+				// but we can find a new 1 cent
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(1), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Cents(1));
+
+				w.AddCoin(Money.Cents(2));           // add a mature 2 cent coin
+
+				// we can't make 3 cents of mature coins
+				Assert.Null(w.SelectCoinsMinConf(Money.Cents(3), filter_standard, out setCoinsRet, out nValueRet));
+
+				// we can make 3 cents of new coins
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(3), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Cents(3));
+
+				w.AddCoin(Money.Cents(5));           // add a mature 5 cent coin,
+				w.AddCoin(Money.Cents(10), 3, true); // a new 10 cent coin sent from one of our own addresses
+				w.AddCoin(Money.Cents(20));          // and a mature 20 cent coin
+
+				// now we have new: 1+10=11 (of which 10 was self-sent), and mature: 2+5+20=27.  total = 38
+
+				// we can't make 38 cents only if we disallow new coins:
+				Assert.Null(w.SelectCoinsMinConf(Money.Cents(38), filter_standard, out setCoinsRet, out nValueRet));
+				// we can't even make 37 cents if we don't allow new coins even if they're from us
+				Assert.Null(w.SelectCoinsMinConf(Money.Cents(38), filter_standard_extra, out setCoinsRet, out nValueRet));
+				// but we can make 37 cents if we accept new coins from ourself
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(37), filter_standard, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Cents(37));
+				// and we can make 38 cents if we accept all new coins
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(38), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Cents(38));
+
+				// try making 34 cents from 1,2,5,10,20 - we can't do it exactly
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(34), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Cents(35));       // but 35 cents is closest
+				Assert.Equal(3, setCoinsRet.Count);     // the best should be 20+10+5.  it's incredibly unlikely the 1 or 2 got included (but possible)
+
+				// when we try making 7 cents, the smaller coins (1,2,5) are enough.  We should see just 2+5
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(7), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Cents(7));
+				Assert.Equal(2, setCoinsRet.Count);
+
+				// when we try making 8 cents, the smaller coins (1,2,5) are exactly enough.
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(8), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(Money.Cents(8), nValueRet);
+				Assert.Equal(3, setCoinsRet.Count);
+
+				// when we try making 9 cents, no subset of smaller coins is enough, and we get the next bigger coin (10)
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(9), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Cents(10));
+				Assert.Single(setCoinsRet);
+
+				// now clear out the wallet and start again to test choosing between subsets of smaller coins and the next biggest coin
+				w.Empty();
+
+				w.AddCoin(Money.Cents(6));
+				w.AddCoin(Money.Cents(7));
+				w.AddCoin(Money.Cents(8));
+				w.AddCoin(Money.Cents(20));
+				w.AddCoin(Money.Cents(30)); // now we have 6+7+8+20+30 = 71 cents total
+
+				// check that we have 71 and not 72
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(71), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Null(w.SelectCoinsMinConf(Money.Cents(72), filter_confirmed, out setCoinsRet, out nValueRet));
+
+				// now try making 16 cents.  the best smaller coins can do is 6+7+8 = 21; not as good at the next biggest coin, 20
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(16), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Cents(20)); // we should get 20 in one coin
+				Assert.Single(setCoinsRet);
+
+				w.AddCoin(Money.Cents(5)); // now we have 5+6+7+8+20+30 = 75 cents total
+
+				// now if we try making 16 cents again, the smaller coins can make 5+6+7 = 18 cents, better than the next biggest coin, 20
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(16), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Cents(18)); // we should get 18 in 3 coins
+				Assert.Equal(3, setCoinsRet.Count);
+
+				w.AddCoin(Money.Cents(18)); // now we have 5+6+7+8+18+20+30
+
+				// and now if we try making 16 cents again, the smaller coins can make 5+6+7 = 18 cents, the same as the next biggest coin, 18
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(16), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Cents(18));  // we should get 18 in 1 coin
+				Assert.Single(setCoinsRet); // because in the event of a tie, the biggest coin wins
+
+				// now try making 11 cents.  we should get 5+6
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(11), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Cents(11));
+				Assert.Equal(2, setCoinsRet.Count);
+
+				// check that the smallest bigger coin is used
+				w.AddCoin(Money.Coins(1));
+				w.AddCoin(Money.Coins(2));
+				w.AddCoin(Money.Coins(3));
+				w.AddCoin(Money.Coins(4)); // now we have 5+6+7+8+18+20+30+100+200+300+400 = 1094 cents
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(95), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(Money.Coins(1), nValueRet);  // we should get 1 BTC in 1 coin
+				Assert.Single(setCoinsRet);
+
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(195), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Coins(2));  // we should get 2 BTC in 1 coin
+				Assert.Single(setCoinsRet);
+
+				// empty the wallet and start again, now with fractions of a cent, to test small change avoidance
+
+				w.Empty();
+				w.AddCoin(MIN_CHANGE * 1 / 10);
+				w.AddCoin(MIN_CHANGE * 2 / 10);
+				w.AddCoin(MIN_CHANGE * 3 / 10);
+				w.AddCoin(MIN_CHANGE * 4 / 10);
+				w.AddCoin(MIN_CHANGE * 5 / 10);
+
+				// try making 1 * MIN_CHANGE from the 1.5 * MIN_CHANGE
+				// we'll get change smaller than MIN_CHANGE whatever happens, so can expect MIN_CHANGE exactly
+				Assert.NotNull(w.SelectCoinsMinConf(MIN_CHANGE, filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, MIN_CHANGE);
+
+				// but if we add a bigger coin, small change is avoided
+				w.AddCoin(1111 * MIN_CHANGE);
+
+				// try making 1 from 0.1 + 0.2 + 0.3 + 0.4 + 0.5 + 1111 = 1112.5
+				Assert.NotNull(w.SelectCoinsMinConf(1 * MIN_CHANGE, filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, 1 * MIN_CHANGE); // we should get the exact amount
+
+				// if we add more small coins:
+				w.AddCoin(MIN_CHANGE * 6 / 10);
+				w.AddCoin(MIN_CHANGE * 7 / 10);
+
+				// and try again to make 1.0 * MIN_CHANGE
+				Assert.NotNull(w.SelectCoinsMinConf(1 * MIN_CHANGE, filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, 1 * MIN_CHANGE); // we should get the exact amount
+
+				// run the 'mtgox' test (see http://blockexplorer.com/tx/29a3efd3ef04f9153d47a990bd7b048a4b2d213daaa5fb8ed670fb85f13bdbcf)
+				// they tried to consolidate 10 50k coins into one 500k coin, and ended up with 50k in change
+				w.Empty();
+				for (int j = 0; j < 20; j++)
+					w.AddCoin(Money.Coins(50000));
+
+				Assert.NotNull(w.SelectCoinsMinConf(Money.Coins(500000), filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, Money.Coins(500000)); // we should get the exact amount
+				Assert.Equal(10, setCoinsRet.Count); // in ten coins
+
+				// if there's not enough in the smaller coins to make at least 1 * MIN_CHANGE change (0.5+0.6+0.7 < 1.0+1.0),
+				// we need to try finding an exact subset anyway
+
+				// sometimes it will fail, and so we use the next biggest coin:
+				w.Empty();
+				w.AddCoin(MIN_CHANGE * 5 / 10);
+				w.AddCoin(MIN_CHANGE * 6 / 10);
+				w.AddCoin(MIN_CHANGE * 7 / 10);
+				w.AddCoin(1111 * MIN_CHANGE);
+				Assert.NotNull(w.SelectCoinsMinConf(1 * MIN_CHANGE, filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, 1111 * MIN_CHANGE); // we get the bigger coin
+				Assert.Single(setCoinsRet);
+
+				// but sometimes it's possible, and we use an exact subset (0.4 + 0.6 = 1.0)
+				w.Empty();
+				w.AddCoin(MIN_CHANGE * 4 / 10);
+				w.AddCoin(MIN_CHANGE * 6 / 10);
+				w.AddCoin(MIN_CHANGE * 8 / 10);
+				w.AddCoin(1111 * MIN_CHANGE);
+				Assert.NotNull(w.SelectCoinsMinConf(MIN_CHANGE, filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, MIN_CHANGE);   // we should get the exact amount
+				Assert.Equal(2, setCoinsRet.Count); // in two coins 0.4+0.6
+
+				// test avoiding small change
+				w.Empty();
+				w.AddCoin(MIN_CHANGE * 5 / 100);
+				w.AddCoin(MIN_CHANGE * 1);
+				w.AddCoin(MIN_CHANGE * 100);
+
+				// trying to make 100.01 from these three coins
+				Assert.NotNull(w.SelectCoinsMinConf(MIN_CHANGE * 10001 / 100, filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, MIN_CHANGE * 10105 / 100); // we should get all coins
+				Assert.Equal(3, setCoinsRet.Count);
+
+				// but if we try to make 99.9, we should take the bigger of the two small coins to avoid small change
+				Assert.NotNull(w.SelectCoinsMinConf(MIN_CHANGE * 9990 / 100, filter_confirmed, out setCoinsRet, out nValueRet));
+				Assert.Equal(nValueRet, 101 * MIN_CHANGE);
+				Assert.Equal(2, setCoinsRet.Count);
+			}
+
+			// test with many inputs
+			for (Money amt = Money.Satoshis(1500); amt < Money.Coins(1); amt *= 10)
+			{
+				w.Empty();
+				// Create 676 inputs (=  (old MAX_STANDARD_TX_SIZE == 100000)  / 148 bytes per input)
+				for (var j = 0; j < 676; j++)
+					w.AddCoin(amt);
+
+				// We only create the wallet once to save time, but we still run the coin selection RUN_TESTS times.
+				for (int i = 0; i < RUN_TESTS; i++)
+				{
+					Assert.NotNull(w.SelectCoinsMinConf(Money.Satoshis(2000), filter_confirmed, out setCoinsRet, out nValueRet));
+
+					if (amt - Money.Satoshis(2000) < MIN_CHANGE)
+					{
+						// needs more than one input:
+						int returnSize = (int)Math.Ceiling((2000.0 + MIN_CHANGE.Satoshi) / amt.Satoshi);
+						Money returnValue = amt * returnSize;
+						Assert.Equal(nValueRet, returnValue);
+						Assert.Equal(setCoinsRet.Count, returnSize);
+					}
+					else
+					{
+						// one input is sufficient:
+						Assert.Equal(nValueRet, amt);
+						Assert.Single(setCoinsRet);
+					}
+				}
+			}
+
+			// test randomness
+			{
+				w.Empty();
+				for (int i2 = 0; i2 < 100; i2++)
+					w.AddCoin(Money.COIN);
+
+				// Again, we only create the wallet once to save time, but we still run the coin selection RUN_TESTS times.
+				for (int i = 0; i < RUN_TESTS; i++)
+				{
+					// picking 50 from 100 coins doesn't depend on the shuffle,
+					// but does depend on randomness in the stochastic approximation code
+					Assert.NotNull(w.SelectCoinsMinConf(Money.Coins(50), filter_standard, out setCoinsRet, out nValueRet));
+					Assert.NotNull(w.SelectCoinsMinConf(Money.Coins(50), filter_standard, out setCoinsRet2, out nValueRet));
+					Assert.False(equal_sets(setCoinsRet, setCoinsRet2));
+
+					int fails = 0;
+					for (int j = 0; j < RANDOM_REPEATS; j++)
+					{
+						// selecting 1 from 100 identical coins depends on the shuffle; this test will fail 1% of the time
+						// run the test RANDOM_REPEATS times and only complain if all of them fail
+						Assert.NotNull(w.SelectCoinsMinConf(Money.COIN, filter_standard, out setCoinsRet, out nValueRet));
+						Assert.NotNull(w.SelectCoinsMinConf(Money.COIN, filter_standard, out setCoinsRet2, out nValueRet));
+						if (equal_sets(setCoinsRet, setCoinsRet2))
+							fails++;
+					}
+					Assert.NotEqual(fails, RANDOM_REPEATS);
+				}
+
+				// add 75 cents in small change.  not enough to make 90 cents,
+				// then try making 90 cents.  there are multiple competing "smallest bigger" coins,
+				// one of which should be picked at random
+				w.AddCoin(Money.Cents(5));
+				w.AddCoin(Money.Cents(10));
+				w.AddCoin(Money.Cents(15));
+				w.AddCoin(Money.Cents(20));
+				w.AddCoin(Money.Cents(25));
+
+				for (int i = 0; i < RUN_TESTS; i++)
+				{
+					int fails = 0;
+					for (int j = 0; j < RANDOM_REPEATS; j++)
+					{
+						// selecting 1 from 100 identical coins depends on the shuffle; this test will fail 1% of the time
+						// run the test RANDOM_REPEATS times and only complain if all of them fail
+						Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(90), filter_standard, out setCoinsRet, out nValueRet));
+						Assert.NotNull(w.SelectCoinsMinConf(Money.Cents(90), filter_standard, out setCoinsRet2, out nValueRet));
+						if (equal_sets(setCoinsRet, setCoinsRet2))
+							fails++;
+					}
+					Assert.NotEqual(fails, RANDOM_REPEATS);
+				}
+			}
+
+			w.Empty();
+		}
+
+		private bool equal_sets(List<Coin> setCoinsRet, List<Coin> setCoinsRet2)
+		{
+			Assert.Equal(setCoinsRet.Count, setCoinsRet2.Count);
+			var s1 = setCoinsRet.OrderBy(o => o.Outpoint).ToArray();
+			var s2 = setCoinsRet2.OrderBy(o => o.Outpoint).ToArray();
+			for (int i = 0; i < s1.Length; i++)
+			{
+				if (s1[i] != s2[i])
+					return false;
+			}
+			return true;
+		}
+
 		private Coin CreateCoin(Money amount, Script scriptPubKey = null)
 		{
 			return new Coin(new OutPoint(Rand(), 0), new TxOut()
