@@ -1622,6 +1622,22 @@ namespace NBitcoin
 		/// <summary>
 		/// Sign a specific coin with the given secret
 		/// </summary>
+		/// <param name="keys">Private key</param>
+		/// <param name="coins">Coins to sign</param>
+		public void Sign(BitcoinSecret key, params ICoin[] coins)
+			=> Sign(key, coins as IEnumerable<ICoin>);
+
+		/// <summary>
+		/// Sign a specific coin with the given secret
+		/// </summary>
+		/// <param name="keys">Private key</param>
+		/// <param name="coins">Coins to sign</param>
+		public void Sign(BitcoinSecret key, IEnumerable<ICoin> coins)
+			=> Sign(new[] { key }, coins);
+
+		/// <summary>
+		/// Sign a specific coin with the given secret
+		/// </summary>
 		/// <param name="keys">Private keys</param>
 		/// <param name="coins">Coins to sign</param>
 		public void Sign(IEnumerable<BitcoinSecret> keys, IEnumerable<ICoin> coins)
