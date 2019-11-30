@@ -1402,7 +1402,7 @@ namespace NBitcoin.RPC
 			return TestMempoolAcceptAsync(transaction, allowHighFees).GetAwaiter().GetResult();
 		}
 
-        public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, bool allowHighFees = false)
+		public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, bool allowHighFees = false)
 		{
 			var absurdlyHighFee = new FeeRate(10_000);
 			var maxFeeRate = allowHighFees ?  absurdlyHighFee : null;
