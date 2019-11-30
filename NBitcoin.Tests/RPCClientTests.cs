@@ -363,6 +363,9 @@ namespace NBitcoin.Tests
 
 				Assert.Equal(builder.Network, response.Chain);
 				Assert.Equal(builder.Network.GetGenesis().GetHash(), response.BestBlockHash);
+
+				Assert.Contains(response.SoftForks, x => x.Bip == "segwit");
+				Assert.Contains(response.SoftForks, x => x.Bip == "csv");
 				Assert.Contains(response.SoftForks, x => x.Bip == "bip34");
 				Assert.Contains(response.SoftForks, x => x.Bip == "bip65");
 				Assert.Contains(response.SoftForks, x => x.Bip == "bip66");
@@ -1132,7 +1135,7 @@ namespace NBitcoin.Tests
 					Transaction = tx
 				});
 
-				result = rpc.TestMempoolAccept(signedTx.SignedTransaction);
+				result = rpc.TestMempoolAccept(signedTx.SignedTransaction, false);
 				Assert.True(result.IsAllowed);
 				Assert.Equal((Protocol.RejectCode)0, result.RejectCode);
 				Assert.Equal(string.Empty, result.RejectReason);
@@ -1495,8 +1498,7 @@ namespace NBitcoin.Tests
 				result.PSBT.Finalize();
 
 				var txResult = result.PSBT.ExtractTransaction();
-				var absurdlyHighFee = new FeeRate(10_000);
-				var acceptResult = client.TestMempoolAccept(txResult, absurdlyHighFee);
+				var acceptResult = client.TestMempoolAccept(txResult, true);
 				Assert.True(acceptResult.IsAllowed, acceptResult.RejectReason);
 			}
 		}
@@ -1616,7 +1618,7 @@ namespace NBitcoin.Tests
 
 				// Finally, anyone can finalize and broadcast the psbt.
 				var tx = psbtCombined.Finalize().ExtractTransaction();
-				var result = alice.TestMempoolAccept(tx);
+				var result = alice.TestMempoolAccept(tx, false);
 				Assert.True(result.IsAllowed, result.RejectReason);
 			}
 		}

@@ -674,7 +674,9 @@ namespace NBitcoin.RPC
 			var jobj = result.Result as JObject;
 			var amount = Money.Coins(jobj.Property("total_amount").Value.Value<decimal>());
 			var success = jobj.Property("success").Value.Value<bool>();
-			var searchedItems = (int)jobj.Property("txouts").Value.Value<long>();
+			//searched_items
+
+			var searchedItems = (int)(jobj.Property("txouts") ?? jobj.Property("searched_items")).Value.Value<long>();
 			var outputs = new List<ScanTxoutOutput>();
 			foreach (var unspent in (jobj.Property("unspents").Value as JArray).OfType<JObject>())
 			{
@@ -1374,27 +1376,40 @@ namespace NBitcoin.RPC
 			if (response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
 				return null;
 
+			var jobj = (JObject)response.Result;
 			return new MempoolEntry
 			{
 				TransactionId = txid,
-				VirtualSizeBytes = response.Result["vsize"].Value<int>(),
-				Time = Utils.UnixTimeToDateTime(response.Result["time"].Value<long>()),
-				Height = response.Result["height"].Value<int>(),
-				DescendantCount = response.Result["descendantcount"].Value<int>(),
-				DescendantVirtualSizeBytes = response.Result["descendantsize"].Value<int>(),
-				AncestorCount = response.Result["ancestorcount"].Value<int>(),
-				AncestorVirtualSizeBytes = response.Result["ancestorsize"].Value<int>(),
-				TransactionIdWithWitness = uint256.Parse((string)response.Result["wtxid"]),
-				BaseFee = new Money(response.Result["fees"]["base"].Value<decimal>(), MoneyUnit.BTC),
-				ModifiedFee = new Money(response.Result["fees"]["modified"].Value<decimal>(), MoneyUnit.BTC),
-				DescendantFees = new Money(response.Result["fees"]["descendant"].Value<decimal>(), MoneyUnit.BTC),
-				AncestorFees = new Money(response.Result["fees"]["ancestor"].Value<decimal>(), MoneyUnit.BTC),
-				Depends = response.Result["depends"]?.Select(x => uint256.Parse((string)x)).ToArray(),
-				SpentBy = response.Result["spentby"]?.Select(x => uint256.Parse((string)x)).ToArray()
+				VirtualSizeBytes = (jobj["size"] ?? jobj["vsize"]).Value<int>(),
+				Time = Utils.UnixTimeToDateTime(jobj["time"].Value<long>()),
+				Height = jobj["height"].Value<int>(),
+				DescendantCount = jobj["descendantcount"].Value<int>(),
+				DescendantVirtualSizeBytes = jobj["descendantsize"].Value<int>(),
+				AncestorCount = jobj["ancestorcount"].Value<int>(),
+				AncestorVirtualSizeBytes = jobj["ancestorsize"].Value<int>(),
+				TransactionIdWithWitness = uint256.Parse((string)jobj["wtxid"]),
+				BaseFee = new Money(jobj["fees"]["base"].Value<decimal>(), MoneyUnit.BTC),
+				ModifiedFee = new Money(jobj["fees"]["modified"].Value<decimal>(), MoneyUnit.BTC),
+				DescendantFees = new Money(jobj["fees"]["descendant"].Value<decimal>(), MoneyUnit.BTC),
+				AncestorFees = new Money(jobj["fees"]["ancestor"].Value<decimal>(), MoneyUnit.BTC),
+				Depends = jobj["depends"]?.Select(x => uint256.Parse((string)x)).ToArray(),
+				SpentBy = jobj["spentby"]?.Select(x => uint256.Parse((string)x)).ToArray()
 			};
 		}
 
-		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, FeeRate maxFeeRate = null)
+		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, bool allowHighFees = false)
+		{
+			return TestMempoolAcceptAsync(transaction, allowHighFees).GetAwaiter().GetResult();
+		}
+
+        public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, bool allowHighFees = false)
+		{
+			var absurdlyHighFee = new FeeRate(10_000);
+			var maxFeeRate = allowHighFees ?  absurdlyHighFee : null;
+			return await TestMempoolAcceptAsync(transaction, maxFeeRate);
+		}
+
+		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, FeeRate maxFeeRate)
 		{
 			return TestMempoolAcceptAsync(transaction, maxFeeRate).GetAwaiter().GetResult();
 		}
