@@ -56,7 +56,7 @@ namespace NBitcoin
 			get; set;
 		} = true;
 
-		public Money MinimumChange { get; set; } = Money.Coins(1.0m / 100);
+		public IMoney MinimumChange { get; set; } = Money.Coins(1.0m / 100);
 
 		#region ICoinSelector Members
 
@@ -88,7 +88,7 @@ namespace NBitcoin
 			OutputGroup? lowest_larger = null;
 			List<OutputGroup> applicable_groups = new List<OutputGroup>();
 			var nTotalLower = zero;
-			var targetMinChange = target.Add(MinimumChange);
+			var targetMinChange = target.IsCompatible(MinimumChange) ? target.Add(MinimumChange) : target;
 			Utils.Shuffle(groups, _Rand);
 
 			foreach (var group in groups)
