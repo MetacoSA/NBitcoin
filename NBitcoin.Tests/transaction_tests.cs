@@ -287,7 +287,7 @@ namespace NBitcoin.Tests
 		}
 		const int RUN_TESTS = 10;
 		const int RANDOM_REPEATS = 5;
-		static Money MIN_CHANGE = new DefaultCoinSelector().MinimumChange;
+		static Money MIN_CHANGE = (Money)new DefaultCoinSelector().MinimumChange;
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
