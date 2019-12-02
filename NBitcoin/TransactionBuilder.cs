@@ -166,9 +166,12 @@ namespace NBitcoin
 			}
 		}
 #endif
-
+		/// <summary>
+		/// Number of iterations in the knapsack algorithm (Default: 100)
+		/// </summary>
+		public int Iterations { get; set; } = 100;
 		void ApproximateBestSubset(List<OutputGroup> groups, IMoney nTotalLower, IMoney nTargetValue,
-								  out bool[] vfBest, out IMoney nBest, int iterations = 1000)
+								  out bool[] vfBest, out IMoney nBest)
 		{
 			var zero = nTargetValue.Sub(nTargetValue);
 			vfBest = new bool[groups.Count];
@@ -180,7 +183,7 @@ namespace NBitcoin
 			bool[] vfIncluded = new bool[groups.Count];
 			nBest = nTotalLower;
 
-			for (int nRep = 0; nRep < iterations && nBest != nTargetValue; nRep++)
+			for (int nRep = 0; nRep < Iterations && nBest != nTargetValue; nRep++)
 			{
 #if NO_ARRAY_FILL
 				ArrayFill(vfIncluded, false);

@@ -79,53 +79,38 @@ namespace NBitcoin.Tests
 
 				// Build the keys and addresses
 				var masterKeys = Enumerable.Range(0, 3).Select(_ => new ExtKey()).ToArray();
-				var keyRedeemAddresses = Enumerable.Range(0, 4)
-									  .Select(i => masterKeys.Select(m => m.Derive(i, false)).ToArray())
-									  .Select(keys =>
-									  (
-										Keys: keys.Select(k => k.PrivateKey).ToArray(),
-										Redeem: PayToMultiSigTemplate.Instance.GenerateScriptPubKey(keys.Length, keys.Select(k => k.PrivateKey.PubKey).ToArray()))
-									  ).Select(_ =>
-									  (
-										Keys: _.Keys,
-										Redeem: _.Redeem,
-										Address: _.Redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey.GetDestinationAddress(nodeBuilder.Network)
-									  ));
+				var keys = masterKeys.Select(mk => mk.Derive(0, false).PrivateKey).ToArray();
+				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(keys.Length, keys.Select(k => k.PubKey).ToArray());
+				var address = redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey.GetDestinationAddress(nodeBuilder.Network);
 
-
-				// Fund the addresses
-				var scriptCoins = keyRedeemAddresses.Select(async kra =>
-				{
-					var id = await rpc.SendToAddressAsync(kra.Address, Money.Coins(1));
-					var tx = await rpc.GetRawTransactionAsync(id);
-					return tx.Outputs.AsCoins().Where(o => o.ScriptPubKey == kra.Address.ScriptPubKey)
-									.Select(c => c.ToScriptCoin(kra.Redeem)).Single();
-				}).Select(t => t.Result).ToArray();
+				var id = rpc.SendToAddress(address, Money.Coins(1));
+				var tx = rpc.GetRawTransaction(id);
+				var scriptCoin = tx.Outputs.AsCoins()
+									.Where(o => o.ScriptPubKey == address.ScriptPubKey)
+									.Select(o => o.ToScriptCoin(redeem))
+									.Single();
 
 
 				var destination = new Key().ScriptPubKey;
 				var amount = new Money(1, MoneyUnit.BTC);
-				var redeemScripts = keyRedeemAddresses.Select(kra => kra.Redeem).ToArray();
-				var privateKeys = keyRedeemAddresses.SelectMany(kra => kra.Keys).ToArray();
 
 
 				var builder = Network.Main.CreateTransactionBuilder();
 				var rate = new FeeRate(Money.Satoshis(1), 1);
 				var partiallySignedTx = builder
-					.AddCoins(scriptCoins)
-					.AddKeys(privateKeys[0])
+					.AddCoins(scriptCoin)
+					.AddKeys(keys[0])
 					.Send(destination, amount)
 					.SubtractFees()
 					.SetChange(new Key().ScriptPubKey)
 					.SendEstimatedFees(rate)
 					.BuildPSBT(true);
-
 				Assert.True(partiallySignedTx.Inputs.All(i => i.PartialSigs.Count == 1));
 
 				partiallySignedTx = PSBT.Load(partiallySignedTx.ToBytes(), Network.Main);
 
 				Network.Main.CreateTransactionBuilder()
-						  .AddKeys(privateKeys[1], privateKeys[2])
+						  .AddKeys(keys[1], keys[2])
 						  .SignPSBT(partiallySignedTx);
 
 				Assert.True(partiallySignedTx.Inputs.All(i => i.PartialSigs.Count == 3));
