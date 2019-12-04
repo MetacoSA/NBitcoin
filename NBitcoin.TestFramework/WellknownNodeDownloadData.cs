@@ -1091,6 +1091,35 @@ namespace NBitcoin.Tests
 				AdditionalRegtestConfig = "defaultwalletname=default" + Environment.NewLine + "maxtipage=2147483647" + Environment.NewLine + "unlockdefaultwallet=1"
 			};
 		}
+		
+		public class DogeCashNodeDownloadData
+		{
+			public NodeDownloadData v5_1_1 = new NodeDownloadData()
+			{
+				Version = "5.1.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dogecash/dogecash/releases/download/v5.0.1/DogeCash-5.0.1-win32.zip",
+					Archive = "DogeCash-5.0.1-win32.zip",
+					Executable = "dogecashd.exe",
+					Hash = "d78968049874617b9703323bf9ca03a8d140ebf605fff415437693abe3ccc5a0"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dogecash/dogecash/releases/download/v5.0.1/DogeCash-5.0.1-x86_64-linux-gnu.tar.gz",
+					Archive = "DogeCash-5.0.1-x86_64-linux-gnu.tar.gz",
+					Executable = "dogecashd",
+					Hash = "D8738E8C3D97A3B776414278991EDCCD1E555756713911FDC21E77836D00A3F9"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dogecash/dogecash/releases/download/v5.0.1/DogeCash-5.0.1-osx-unsigned.dmg",
+					Archive = "DogeCash-5.0.1-osx-unsigned.dmg",
+					Executable = "DogeCash-5.0.1-osx-unsigned.dmg",
+					Hash = "13B0DBF2480EB47D2B8A5B82145FE2FC87AEF22CB5CDF78E01C27A41C8CD41D1"
+				}
+			};
+		}
 
 		public static GoByteNodeDownloadData GoByte
 		{
@@ -1220,6 +1249,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new ZCoinNodeDownloadData();
+		
+		public static DogeCashNodeDownloadData DogeCash
+		{
+			get; set;
+		} = new DogeCashNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
