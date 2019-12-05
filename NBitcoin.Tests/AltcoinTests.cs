@@ -150,6 +150,52 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void Slip21Tests()
+		{
+			var allMnemonic = new Mnemonic("all all all all all all all all all all all all");
+
+			var master = Slip21Node.NewMaster(allMnemonic.DeriveSeed());
+			Assert.Equal("dbf12b44133eaab506a740f6565cc117228cbf1dd70635cfa8ddfdc9af734756", master.Key.ToHex());
+
+			var child1 = master.DeriveChild("SLIP-0021");
+			Assert.Equal("1d065e3ac1bbe5c7fad32cf2305f7d709dc070d672044a19e610c77cdf33de0d", child1.Key.ToHex());
+
+			var child2 = child1.DeriveChild("Master encryption key");
+			Assert.Equal("ea163130e35bbafdf5ddee97a17b39cef2be4b4f390180d65b54cf05c6a82fde", child2.Key.ToHex());
+
+			var child3 = child1.DeriveChild("Authentication key");
+			Assert.Equal("47194e938ab24cc82bfa25f6486ed54bebe79c40ae2a5a32ea6db294d81861a6", child3.Key.ToHex());
+		}
+
+		[Fact]
+		public void Slip77Tests()
+		{
+			var allMnemonic = new Mnemonic("all all all all all all all all all all all all");
+			var master = Slip21Node.NewMaster(allMnemonic.DeriveSeed());
+			Assert.Equal("dbf12b44133eaab506a740f6565cc117228cbf1dd70635cfa8ddfdc9af734756", master.Key.ToHex());
+
+			var masterBlindingNode = master.DeriveChild("SLIP-0077");
+
+			var unconfidentialAddress = BitcoinAddress.Create("2dpWh6jbhAowNsQ5agtFzi7j6nKscj6UnEr",
+				Altcoins.Liquid.Instance.Regtest);
+
+			var script = unconfidentialAddress.ScriptPubKey.ToHex();
+			var privateBlindingKey = masterBlindingNode.DeriveChild(script);
+			var publicBlindingKey = privateBlindingKey.Key.PubKey;
+
+			Assert.Equal("CTEkf75DFff5ReB7juTg2oehrj41aMj21kvvJaQdWsEAQohz1EDhu7Ayh6goxpz3GZRVKidTtaXaXYEJ",
+				new BitcoinBlindedAddress(publicBlindingKey, unconfidentialAddress).ToString());
+
+			var seed = new Mnemonic("alcohol woman abuse must during monitor noble actual mixed trade anger aisle");
+
+			var masterBlindingNode2 = Slip21Node.GetSlip77MasterNode(seed.DeriveSeed());
+			var script2 = seed.DeriveExtKey().Derive(KeyPath.Parse("44'/1'/0'/0/0")).ScriptPubKey.ToHex();
+			var privateBlindingKey2 = masterBlindingNode2.DeriveChild(script2);
+			Assert.Equal("26f1dc2c52222394236d76e0809516255cfcca94069fd5187c0f090d18f42ad6",
+				privateBlindingKey2.Key.ToHex());
+		}
+
+		[Fact]
 		public void ElementsAddressTests()
 		{
 
