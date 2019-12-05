@@ -488,6 +488,8 @@ namespace NBitcoin.Tests
 			config.Add("rest", "1");
 			config.Add("server", "1");
 			config.Add("txindex", "1");
+			config.Add("peerbloomfilters", "1");
+			config.Add("blockfilterindex", "1");
 			if (!CookieAuth)
 			{
 				config.Add("rpcuser", creds.UserName);
