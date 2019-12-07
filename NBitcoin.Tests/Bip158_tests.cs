@@ -465,7 +465,7 @@ namespace NBitcoin.Tests
 				.Build();
 
 			var scriptPubKey = Encoders.Hex.DecodeData("D432CB07482718ECE932DA6914D1FDC1A8EACE3F127D");
-			var key = blockHash[0..16];
+			var key = blockHash.SafeSubarray(0, 16);
 			Assert.False(filter.Match(scriptPubKey, key));
 		}
 	}
