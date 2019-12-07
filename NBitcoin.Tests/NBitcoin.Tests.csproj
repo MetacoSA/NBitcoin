@@ -4,6 +4,7 @@
 		<Company>Metaco SA</Company>
 		<Copyright>Copyright © Metaco SA 2017</Copyright>
 		<Description>The C# Bitcoin Library</Description>
+		<LangVersion>8.0</LangVersion>
 	</PropertyGroup>
   <PropertyGroup>
 	  <TargetFrameworks>net461;netcoreapp3.0</TargetFrameworks>

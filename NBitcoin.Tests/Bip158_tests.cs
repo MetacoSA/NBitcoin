@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Xunit;
 using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 
 namespace NBitcoin.Tests
 {
@@ -173,7 +174,7 @@ namespace NBitcoin.Tests
 					falsePositiveCount++;
 			}
 
-			Assert.True(falsePositiveCount < 5);
+			Assert.True(falsePositiveCount <= 2);
 
 			// Filter has to mat existing values
 			var falseNegativeCount = 0;
@@ -184,6 +185,7 @@ namespace NBitcoin.Tests
 					falseNegativeCount++;
 			}
 
+			// False negatives have to be always zero.
 			Assert.Equal(0, falseNegativeCount);
 		}
 
@@ -448,6 +450,23 @@ namespace NBitcoin.Tests
 				var match = filter.MatchAny(new[] { script.ToBytes() }, keyMatch);
 				Assert.True(match);
 			}
+		}
+
+		[Fact]
+		public void EdgeCaseSipHashEqualZero()
+		{
+			var dummyScriptPubKey = Encoders.Hex.DecodeData("0009BBE4C2D17185643765C265819BF5261755247D");
+			var blockHash = Encoders.Hex.DecodeData("CB4D1D1ED725B888173BEF553BBE2BF4237B42364BC90638F0CB040F87B57CD4");
+			var filter = new GolombRiceFilterBuilder()
+				.SetKey(new uint256(blockHash))
+				.SetP(20)
+				.SetM(1 << 20)
+				.AddEntries(new[]{ dummyScriptPubKey })
+				.Build();
+
+			var scriptPubKey = Encoders.Hex.DecodeData("D432CB07482718ECE932DA6914D1FDC1A8EACE3F127D");
+			var key = blockHash.SafeSubarray(0, 16);
+			Assert.False(filter.Match(scriptPubKey, key));
 		}
 	}
 }
