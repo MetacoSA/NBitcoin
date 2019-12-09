@@ -470,30 +470,35 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
-				var nodeClient = builder.CreateNode(true).CreateNodeClient();
+				var nodeClients = new []
+				{
+					builder.CreateNode(true).CreateNodeClient(),
+					builder.CreateNode(true).CreateNodeClient()
+				};
 				builder.Nodes[0].Generate(300);
-				var rpc = builder.Nodes[0].CreateRPCClient();
-				var slimChain = nodeClient.GetSlimChain(rpc.GetBlockHash(200));
+				builder.Nodes[1].Generate(600);
+
+				var rpcs = new[]
+				{
+					builder.Nodes[0].CreateRPCClient(),
+					builder.Nodes[1].CreateRPCClient(),
+				};
+
+				var slimChain = nodeClients[0].GetSlimChain(rpcs[0].GetBlockHash(200));
 				Assert.True(slimChain.Height == 200);
 
-				var node2 = builder.CreateNode(true);
-				var nodeClient2 = node2.CreateNodeClient();
-				var rpc2 = node2.CreateRPCClient();
-				rpc2.Generate(600);
+				nodeClients[1].SynchronizeSlimChain(slimChain);
+				Assert.Equal(slimChain.Tip, rpcs[1].GetBestBlockHash());
 
-				nodeClient2.SynchronizeSlimChain(slimChain);
-				Assert.Equal(slimChain.Tip, rpc2.GetBestBlockHash());
-
-				nodeClient.Behaviors.Add(new SlimChainBehavior(slimChain));
-
+				nodeClients[0].Behaviors.Add(new SlimChainBehavior(slimChain));
 				Eventually(() =>
 				{
-					Assert.Equal(slimChain.Tip, rpc.GetBestBlockHash());
+					Assert.Equal(slimChain.Tip, rpcs[0].GetBestBlockHash());
 				});
-				node2.Sync(builder.Nodes[0]);
+				builder.Nodes[1].Sync(builder.Nodes[0]);
 				Eventually(() =>
 				{
-					Assert.Equal(slimChain.Tip, rpc2.GetBestBlockHash());
+					Assert.Equal(slimChain.Tip, rpcs[1].GetBestBlockHash());
 				});
 			}
 		}
