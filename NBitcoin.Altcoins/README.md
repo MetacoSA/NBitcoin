@@ -21,6 +21,7 @@ Currently supported altcoins are:
 * Bitcoinplus
 * Chaincoin
 * ZCoin
+* DogeCash
 
 ## How to use?
 

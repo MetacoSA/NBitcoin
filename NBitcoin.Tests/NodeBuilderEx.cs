@@ -55,7 +55,7 @@ namespace NBitcoin.Tests
 			//var builder = NodeBuilder.Create(NodeDownloadData.Chaincoin.v0_16_4 , Altcoins.AltNetworkSets.Chaincoin.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Stratis.v3_0_0, Altcoins.AltNetworkSets.Stratis.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.ZCoin.v0_13_8_3, Altcoins.ZCoin.Instance.Regtest, caller);
-
+			//var builder = NodeBuilder.Create(NodeDownloadData.DogeCash.v5_1_1, Altcoins.DogeCash.Instance.Regtest, caller);
 
 //			var builder = NodeBuilder.Create(NodeDownloadData.Elements.v0_18_1_1, Altcoins.AltNetworkSets.Liquid.Regtest, caller);
 			return builder;
