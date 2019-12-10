@@ -29,7 +29,7 @@ namespace NBitcoin.JsonConverters
 				if (objectType == typeof(Script))
 					return Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)reader.Value));
 				if (objectType == typeof(WitScript))
-					return new WitScript((string)reader.Value);
+					return new WitScript(Encoders.Hex.DecodeData((string)reader.Value));
 			}
 			catch (FormatException)
 			{
@@ -44,7 +44,7 @@ namespace NBitcoin.JsonConverters
 				if (value is Script)
 					writer.WriteValue(Encoders.Hex.EncodeData(((Script)value).ToBytes(false)));
 				if (value is WitScript)
-					writer.WriteValue(((WitScript)value).ToString());
+					writer.WriteValue(Encoders.Hex.EncodeData(((WitScript)value).ToBytes()));
 			}
 		}
 	}
