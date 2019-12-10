@@ -40,6 +40,7 @@ namespace NBitcoin.Tests
 			CanSerializeInJsonCore(k);
 			CanSerializeInJsonCore(k.PubKey);
 			CanSerializeInJsonCore(new WitScript(new Script(Op.GetPushOp(sig.ToDER()), Op.GetPushOp(sig.ToDER()))));
+			CanSerializeInJsonCore(new WitScript(OpcodeType.OP_0, OpcodeType.OP_0));
 			CanSerializeInJsonCore(new LockTime(1));
 			CanSerializeInJsonCore(new LockTime(130), out var str);
 			Assert.Equal("130", str);
