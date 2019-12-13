@@ -1417,6 +1417,10 @@ namespace NBitcoin.RPC
 		{
 			return TestMempoolAcceptAsync(transaction, null as FeeRate).GetAwaiter().GetResult();
 		}
+		public Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction)
+		{
+			return TestMempoolAcceptAsync(transaction, null as FeeRate);
+		}
 
 		public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, FeeRate maxFeeRate = null)
 		{
