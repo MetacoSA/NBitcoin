@@ -1,6 +1,7 @@
 ﻿using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace NBitcoin
