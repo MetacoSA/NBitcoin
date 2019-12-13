@@ -26,5 +26,5 @@ before_install:
   - if [ $TRAVIS_OS_NAME = osx ]; then ulimit -S -n 4096; EXTRA_CONSTANT=-p:BuildConstants=NOCONSENSUSLIB; fi
 
 script:
-  - dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj /p:TargetFrameworkOverride=$TargetFrameworkOverride -c Release -f netcoreapp3.0  $EXTRA_CONSTANT
-  - dotnet test --no-build -v n -c Release -f netcoreapp3.0 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false  < /dev/null
+  - dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj /p:TargetFrameworkOverride=$TargetFrameworkOverride -c Release -f netcoreapp3.1  $EXTRA_CONSTANT
+  - dotnet test --no-build -v n -c Release -f netcoreapp3.1 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false  < /dev/null
