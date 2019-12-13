@@ -568,6 +568,20 @@ namespace NBitcoin
 			}
 		}
 
+		bool _NeverNeedPreviousTxForSigning;
+		public bool NeverNeedPreviousTxForSigning
+		{
+			get
+			{
+				return _NeverNeedPreviousTxForSigning;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_NeverNeedPreviousTxForSigning = value;
+			}
+		}
+
 		public virtual Consensus Clone()
 		{
 			var consensus = new Consensus();
@@ -607,6 +621,7 @@ namespace NBitcoin
 			consensus._ConsensusFactory = _ConsensusFactory;
 			consensus._LitecoinWorkCalculation = _LitecoinWorkCalculation;
 			consensus._SupportSegwit = _SupportSegwit;
+			consensus._NeverNeedPreviousTxForSigning = _NeverNeedPreviousTxForSigning;
 		}
 	}
 	public partial class Network

@@ -302,7 +302,8 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				MinimumChainWork = new uint256("0000000000000000000000000000000000000000007e5dbf54c7f6b58a6853cd"),
 				ConsensusFactory = BCashConsensusFactory.Instance,
-				SupportSegwit = false
+				SupportSegwit = false,
+				NeverNeedPreviousTxForSigning = true
 			})
 			// See https://support.bitpay.com/hc/en-us/articles/115004671663-BitPay-s-Adopted-Conventions-for-Bitcoin-Cash-Addresses-URIs-and-Payment-Requests
 			// Note: This is not compatible with Bitcoin ABC

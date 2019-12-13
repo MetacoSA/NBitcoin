@@ -13,6 +13,7 @@ namespace NBitcoin
 		protected Script redeem_script;
 		protected Script witness_script;
 		protected readonly PSBT Parent;
+		public PSBT PSBT => Parent;
 		public PSBTCoin(PSBT parent)
 		{
 			hd_keypaths = new HDKeyPathKVMap(PubKeyComparer.Instance);

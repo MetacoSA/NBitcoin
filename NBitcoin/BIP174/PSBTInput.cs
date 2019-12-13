@@ -288,7 +288,8 @@ namespace NBitcoin
 				}
 			}
 
-			if (coin.GetHashVersion() == HashVersion.Witness || witness_script != null)
+			if (Parent.Network.Consensus.NeverNeedPreviousTxForSigning ||
+				coin.GetHashVersion() == HashVersion.Witness || witness_script != null)
 			{
 				witness_utxo = coin.TxOut;
 				non_witness_utxo = null;
@@ -833,7 +834,8 @@ namespace NBitcoin
 			if (coin == null)
 				return false;
 
-			if (coin.GetHashVersion() == HashVersion.Witness)
+			if (Parent.Network.Consensus.NeverNeedPreviousTxForSigning ||
+				coin.GetHashVersion() == HashVersion.Witness)
 			{
 				if (WitnessUtxo == null)
 				{
