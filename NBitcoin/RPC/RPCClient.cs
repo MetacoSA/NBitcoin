@@ -1413,10 +1413,22 @@ namespace NBitcoin.RPC
 		{
 			return TestMempoolAcceptAsync(transaction, maxFeeRate).GetAwaiter().GetResult();
 		}
+		public MempoolAcceptResult TestMempoolAccept(Transaction transaction)
+		{
+			return TestMempoolAcceptAsync(transaction, null as FeeRate).GetAwaiter().GetResult();
+		}
 
 		public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, FeeRate maxFeeRate = null)
 		{
-			var response = await SendCommandAsync("testmempoolaccept", new[] { transaction.ToHex() }, maxFeeRate?.FeePerK.ToDecimal(MoneyUnit.Satoshi)).ConfigureAwait(false);
+			RPCResponse response = null;
+			if (maxFeeRate?.FeePerK.ToDecimal(MoneyUnit.Satoshi) is decimal feeRate)
+			{
+				response = await SendCommandAsync("testmempoolaccept", new[] { transaction.ToHex() }, feeRate).ConfigureAwait(false);
+			}
+			else
+			{
+				response = await SendCommandAsync("testmempoolaccept", new[] { transaction.ToHex() }).ConfigureAwait(false);
+			}
 
 			var first = response.Result[0];
 			var allowed = first["allowed"].Value<bool>();
