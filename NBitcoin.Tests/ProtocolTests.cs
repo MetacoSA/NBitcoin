@@ -136,6 +136,12 @@ namespace NBitcoin.Tests
 	}
 	public class ProtocolTests
 	{
+		private readonly ITestOutputHelper logs;
+
+		public ProtocolTests(ITestOutputHelper testOutputHelper)
+		{
+			this.logs = testOutputHelper;
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -475,6 +481,7 @@ namespace NBitcoin.Tests
 					builder.CreateNode(true).CreateNodeClient(),
 					builder.CreateNode(true).CreateNodeClient()
 				};
+				logs.WriteLine("Creating node0 with 300 blocks and node1 with 600 blocks");
 				builder.Nodes[0].Generate(300);
 				builder.Nodes[1].Generate(600);
 
@@ -484,21 +491,33 @@ namespace NBitcoin.Tests
 					builder.Nodes[1].CreateRPCClient(),
 				};
 
+				logs.WriteLine("Let's check if we can get the slim chain from node0 up to 200");
 				var slimChain = nodeClients[0].GetSlimChain(rpcs[0].GetBlockHash(200));
 				Assert.True(slimChain.Height == 200);
 
+				logs.WriteLine("Let's check if we can now synchronize to tip of node1 (reorg of 200 blocks + 600 blocks)");
 				nodeClients[1].SynchronizeSlimChain(slimChain);
 				Assert.Equal(slimChain.Tip, rpcs[1].GetBestBlockHash());
 
+				logs.WriteLine("Let's now use a SlimChainBehavior to sync back to node0 (300 blocks)");
 				nodeClients[0].Behaviors.Add(new SlimChainBehavior(slimChain));
 				Eventually(() =>
 				{
 					Assert.Equal(slimChain.Tip, rpcs[0].GetBestBlockHash());
 				});
+				logs.WriteLine("Let's now reorg node0 to node1 (600 blocks) and see if the SlimChainBehavior can keep up");
 				builder.Nodes[1].Sync(builder.Nodes[0]);
 				Eventually(() =>
 				{
-					Assert.Equal(slimChain.Tip, rpcs[1].GetBestBlockHash());
+					try
+					{
+						Assert.Equal(slimChain.Tip, rpcs[1].GetBestBlockHash());
+					}
+					catch
+					{
+						logs.WriteLine("Chain tip is now at " + slimChain.Height);
+						throw;
+					}
 				});
 			}
 		}
