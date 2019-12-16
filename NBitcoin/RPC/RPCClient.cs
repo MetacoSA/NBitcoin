@@ -1406,7 +1406,7 @@ namespace NBitcoin.RPC
 		{
 			var absurdlyHighFee = new FeeRate(10_000L);
 			var maxFeeRate = allowHighFees ?  absurdlyHighFee : null;
-			return await TestMempoolAcceptAsync(transaction, maxFeeRate);
+			return await TestMempoolAcceptAsync(transaction, maxFeeRate).ConfigureAwait(false);
 		}
 
 		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, FeeRate maxFeeRate)
@@ -1431,7 +1431,7 @@ namespace NBitcoin.RPC
 			}
 			else
 			{
-				response = await SendCommandAsync("testmempoolaccept", new[] { transaction.ToHex() }).ConfigureAwait(false);
+				response = await SendCommandAsync("testmempoolaccept", new[] { new[] { transaction.ToHex() } }).ConfigureAwait(false);
 			}
 
 			var first = response.Result[0];
