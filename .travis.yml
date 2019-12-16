@@ -1,5 +1,11 @@
 language: csharp
+# ASF is based on .NET Core platform, we're not building with Mono
+dotnet: 3.1
 mono: none
+
+# We can save bandwidth by limiting git clone to only last 10 commits
+git:
+  depth: 10
 
 notifications:
   email: false
@@ -12,14 +18,12 @@ matrix:
   include:
     - os: linux 
       dist: bionic
-      dotnet: 3.1.100
     - os: linux
       dist: bionic
-      dotnet: 3.1.100
       env: TargetFrameworkOverride=netstandard2.0
     - os: osx
       dotnet: 3.1.100 # For OSX, we need absolute dotnet version until https://github.com/dotnet/core-setup/issues/4187 is resolved
-      osx_image: xcode11
+      osx_image: xcode11.2
 
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -qq update; EXTRA_CONSTANT=-p:BuildConstants=NOCONSENSUSLIB; fi
