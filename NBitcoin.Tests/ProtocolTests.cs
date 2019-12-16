@@ -503,7 +503,15 @@ namespace NBitcoin.Tests
 				nodeClients[0].Behaviors.Add(new SlimChainBehavior(slimChain));
 				Eventually(() =>
 				{
-					Assert.Equal(slimChain.Tip, rpcs[0].GetBestBlockHash());
+					try
+					{
+						Assert.Equal(slimChain.Tip, rpcs[0].GetBestBlockHash());
+					}
+					catch
+					{
+						logs.WriteLine("Chain tip is now at " + slimChain.Height);
+						throw;
+					}
 				});
 				logs.WriteLine("Let's now reorg node0 to node1 (600 blocks) and see if the SlimChainBehavior can keep up");
 				builder.Nodes[1].Sync(builder.Nodes[0]);
