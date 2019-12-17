@@ -49,6 +49,11 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 			AttachedNode.StateChanged += AttachedNode_StateChanged;
 			RegisterDisposable(AttachedNode.Filters.Add(Intercept));
+			if (AttachedNode.State == NodeState.HandShaked)
+			{
+				AttachedNode.SendMessageAsync(new SendHeadersPayload());
+				TrySync();
+			}
 		}
 
 		void Intercept(IncomingMessage message, Action act)
