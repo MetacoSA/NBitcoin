@@ -64,7 +64,6 @@ namespace NBitcoin.RPC
 		listsinceblock,
 		gettransaction,
 		backupwallet,
-		uptime,
 		keypoolrefill,
 		walletpassphrase,
 		walletpassphrasechange,
@@ -115,6 +114,7 @@ namespace NBitcoin.RPC
 		signrawtransactionwithkey,
 		scantxoutset,
 		getmempoolentry,
-		stop
+		stop,
+		uptime
 	}
 }

@@ -139,24 +139,6 @@ namespace NBitcoin.RPC
 			await SendCommandAsync(RPCOperations.backupwallet, path).ConfigureAwait(false);
 		}
 
-		/// <summary>
-		/// Returns the total uptime of the server.
-		/// </summary>
-		public TimeSpan Uptime()
-		{
-			return UptimeAsync().GetAwaiter().GetResult();
-		}
-
-		/// <summary>
-		/// Returns the total uptime of the server.
-		/// </summary>
-		public async Task<TimeSpan> UptimeAsync()
-		{
-			var res = await SendCommandAsync(RPCOperations.uptime).ConfigureAwait(false);
-			return TimeSpan.FromSeconds(res.Result.Value<double>());
-		}
-
-
 		// dumpprivkey
 
 		public BitcoinSecret DumpPrivKey(BitcoinAddress address)
