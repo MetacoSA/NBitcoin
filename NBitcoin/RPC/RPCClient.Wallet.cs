@@ -144,8 +144,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		public TimeSpan Uptime()
 		{
-			var res = SendCommand(RPCOperations.uptime);
-			return TimeSpan.FromSeconds(res.Result.Value<double>());
+			return UptimeAsync().GetAwaiter().GetResult();
 		}
 
 		/// <summary>
