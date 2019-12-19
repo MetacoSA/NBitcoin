@@ -1316,6 +1316,22 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public async Task CanQueryUptimeAsync()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				var rpc = node.CreateRPCClient();
+				var uptime1 = rpc.Uptime();
+				Assert.NotEqual(TimeSpan.Zero, uptime1);
+				await Task.Delay(1000);
+				var uptime2 = await rpc.UptimeAsync();
+				Assert.NotEqual(uptime1, uptime2);
+			}
+		}
+
+		[Fact]
 		public async Task CanGenerateBlocks()
 		{
 			using (var builder = NodeBuilderEx.Create())

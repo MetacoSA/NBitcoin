@@ -64,6 +64,7 @@ namespace NBitcoin.RPC
 		listsinceblock,
 		gettransaction,
 		backupwallet,
+		uptime,
 		keypoolrefill,
 		walletpassphrase,
 		walletpassphrasechange,
