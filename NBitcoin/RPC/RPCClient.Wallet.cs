@@ -139,6 +139,7 @@ namespace NBitcoin.RPC
 			await SendCommandAsync(RPCOperations.backupwallet, path).ConfigureAwait(false);
 		}
 
+
 		// dumpprivkey
 
 		public BitcoinSecret DumpPrivKey(BitcoinAddress address)
