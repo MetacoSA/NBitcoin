@@ -1324,10 +1324,10 @@ namespace NBitcoin.Tests
 				node.Start();
 				var rpc = node.CreateRPCClient();
 				var uptime1 = rpc.Uptime();
-				Assert.NotEqual(TimeSpan.Zero, uptime1);
-				await Task.Delay(1000);
 				var uptime2 = await rpc.UptimeAsync();
-				Assert.NotEqual(uptime1, uptime2);
+				Assert.NotEqual(TimeSpan.Zero, uptime1);
+				Assert.NotEqual(TimeSpan.Zero, uptime2);
+				Assert.Equal(uptime1.TotalSeconds, uptime2.TotalSeconds, 3);
 			}
 		}
 
