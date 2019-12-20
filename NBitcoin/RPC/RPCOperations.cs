@@ -114,6 +114,7 @@ namespace NBitcoin.RPC
 		signrawtransactionwithkey,
 		scantxoutset,
 		getmempoolentry,
-		stop
+		stop,
+		uptime
 	}
 }
