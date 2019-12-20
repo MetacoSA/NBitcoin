@@ -1325,8 +1325,6 @@ namespace NBitcoin.Tests
 				var rpc = node.CreateRPCClient();
 				var uptime1 = rpc.Uptime();
 				var uptime2 = await rpc.UptimeAsync();
-				Assert.NotEqual(TimeSpan.Zero, uptime1);
-				Assert.NotEqual(TimeSpan.Zero, uptime2);
 				Assert.Equal(uptime1.TotalSeconds, uptime2.TotalSeconds, 3);
 			}
 		}
