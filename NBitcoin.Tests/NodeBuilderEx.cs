@@ -10,11 +10,7 @@ namespace NBitcoin.Tests
 	{
 		public static NodeBuilder Create([CallerMemberName] string caller = null)
 		{
-			ServicePointManager.Expect100Continue = true;
-			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-
-//			var builder = NodeBuilder.Create(NodeDownloadData.Litecoin.v0_17_1, Altcoins.Litecoin.Instance.Regtest, caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.Litecoin.v0_17_1, Altcoins.Litecoin.Instance.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Viacoin.v0_15_1, Altcoins.Viacoin.Instance.Regtest, caller);
 
@@ -47,7 +43,6 @@ namespace NBitcoin.Tests
 			//var builder = NodeBuilder.Create(NodeDownloadData.Dystem.v1_0_9_9, Altcoins.Dystem.Instance.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Bitcoinplus.v2_7_0, Altcoins.AltNetworkSets.Bitcoinplus.Regtest, caller);
 
-			var builder = NodeBuilder.Create(NodeDownloadData.Bitcoin.v0_19_0_1, Altcoins.AltNetworkSets.Bitcoin.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Liquid.v3_14_1_21, Altcoins.AltNetworkSets.Liquid.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Bitcore.v0_15_2, Altcoins.Bitcore.Instance.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Gincoin.v1_1_0_0, Altcoins.Gincoin.Instance.Regtest, caller);
@@ -57,7 +52,16 @@ namespace NBitcoin.Tests
 			//var builder = NodeBuilder.Create(NodeDownloadData.ZCoin.v0_13_8_3, Altcoins.ZCoin.Instance.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.DogeCash.v5_1_1, Altcoins.DogeCash.Instance.Regtest, caller);
 
-//			var builder = NodeBuilder.Create(NodeDownloadData.Elements.v0_18_1_1, Altcoins.AltNetworkSets.Liquid.Regtest, caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.Elements.v0_18_1_1, Altcoins.AltNetworkSets.Liquid.Regtest, caller);
+
+			return Create(NodeDownloadData.Bitcoin.v0_19_0_1, caller);
+		}
+
+		public static NodeBuilder Create(NodeDownloadData nodeDownloadData, [CallerMemberName] string caller = null)
+		{
+			ServicePointManager.Expect100Continue = true;
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+			var builder = NodeBuilder.Create(nodeDownloadData, Altcoins.AltNetworkSets.Bitcoin.Regtest, caller);
 			return builder;
 		}
 	}
