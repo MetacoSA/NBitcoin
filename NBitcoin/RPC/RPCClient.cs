@@ -1454,6 +1454,8 @@ namespace NBitcoin.RPC
 			};
 		}
 
+		private FeeRate AbsurdlyHighFee { get; } = new FeeRate(10_000L);
+
 		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, bool allowHighFees = false)
 		{
 			return TestMempoolAcceptAsync(transaction, allowHighFees).GetAwaiter().GetResult();
@@ -1461,8 +1463,7 @@ namespace NBitcoin.RPC
 
 		public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, bool allowHighFees = false)
 		{
-			var absurdlyHighFee = new FeeRate(10_000L);
-			var maxFeeRate = allowHighFees ?  absurdlyHighFee : null;
+			var maxFeeRate = allowHighFees ? AbsurdlyHighFee : null;
 			return await TestMempoolAcceptAsync(transaction, maxFeeRate).ConfigureAwait(false);
 		}
 
@@ -1481,14 +1482,23 @@ namespace NBitcoin.RPC
 
 		public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, FeeRate maxFeeRate = null)
 		{
-			RPCResponse response = null;
-			if (maxFeeRate?.FeePerK.ToDecimal(MoneyUnit.Satoshi) is decimal feeRate)
+			RPCResponse response;
+			if (maxFeeRate is FeeRate feeRate)
 			{
-				response = await SendCommandAsync("testmempoolaccept", new[] { transaction.ToHex() }, feeRate).ConfigureAwait(false);
+				try
+				{
+					var feeRateDecimal = feeRate.FeePerK.ToDecimal(MoneyUnit.Satoshi);
+					response = await SendCommandAsync(RPCOperations.testmempoolaccept, new[] { transaction.ToHex() }, feeRateDecimal).ConfigureAwait(false);
+				}
+				catch (RPCException ex) when (ex.Message == "Expected type bool, got number")
+				{
+					var allowHighFees = feeRate >= AbsurdlyHighFee ? true : false;
+					response = await SendCommandAsync(RPCOperations.testmempoolaccept, new[] { transaction.ToHex() }, allowHighFees).ConfigureAwait(false);
+				}
 			}
 			else
 			{
-				response = await SendCommandAsync("testmempoolaccept", new[] { new[] { transaction.ToHex() } }).ConfigureAwait(false);
+				response = await SendCommandAsync(RPCOperations.testmempoolaccept, new[] { new[] { transaction.ToHex() } }).ConfigureAwait(false);
 			}
 
 			var first = response.Result[0];

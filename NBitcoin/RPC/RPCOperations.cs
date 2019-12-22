@@ -102,6 +102,7 @@ namespace NBitcoin.RPC
 		settxfee,
 		getmempoolinfo,
 		getrawmempool,
+		testmempoolaccept,
 		getblockhash,
 		getblock,
 		gettxoutsetinfo,
