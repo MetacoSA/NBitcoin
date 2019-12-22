@@ -16,6 +16,7 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static NBitcoin.RPC.BlockchainInfo;
 
 namespace NBitcoin.RPC
 {
@@ -1163,6 +1164,51 @@ namespace NBitcoin.RPC
 				}
 			});
 
+			JToken softForksToken = result["softforks"];
+			List<SoftFork> softForks;
+			List<Bip9SoftFork> bip9SoftForks;
+			try
+			{
+				softForks = softForksToken
+					?.Cast<JProperty>()
+					?.Select(x =>
+						new SoftFork
+						{
+							Bip = x.Name,
+							ForkType = x.Value.Value<string>("type"),
+							Activated = x.Value.Value<bool>("activated"),
+							Height = x.Value.Value<uint>("height")
+						})
+					?.ToList();
+
+				bip9SoftForks = Enumerable.Empty<Bip9SoftFork>().ToList();
+			}
+			catch (InvalidCastException)
+			{
+				// Then the client may be pre Biitcoin Core 19, so Ensure backwards compatibility.
+				softForks = softForksToken
+					?.Cast<JObject>()
+					?.Select(x =>
+						new SoftFork
+						{
+							Bip = x.Value<string>("id")
+						})
+					?.ToList();
+
+				bip9SoftForks = result["bip9_softforks"]
+					?.Cast<JProperty>()
+					?.Select(x =>
+						new Bip9SoftFork
+						{
+							Name = x.Name,
+							Status = x.Value.Value<string>("status"),
+							StartTime = epochToDtateTimeOffset(x.Value.Value<long>("startTime")),
+							Timeout = epochToDtateTimeOffset(x.Value.Value<long>("timeout")),
+							SinceHeight = x.Value.Value<ulong?>("since") ?? 0
+						})
+					?.ToList();
+			}
+
 			var blockchainInfo = new BlockchainInfo
 			{
 				Chain = Network.GetNetwork(result.Value<string>("chain")),
@@ -1176,14 +1222,8 @@ namespace NBitcoin.RPC
 				ChainWork = new uint256(result.Value<string>("chainwork")),
 				SizeOnDisk = result.Value<ulong?>("size_on_disk") ?? 0,
 				Pruned = result.Value<bool>("pruned"),
-				SoftForks = result["softforks"]?.Cast<JProperty>().Select(x =>
-					new BlockchainInfo.SoftFork
-					{
-						Bip = x.Name,
-						ForkType = x.Value.Value<string>("type"),
-						Activated = x.Value.Value<bool>("activated"),
-						Height = x.Value.Value<uint>("height"),
-					}).ToList()
+				SoftForks = softForks,
+				Bip9SoftForks = bip9SoftForks
 			};
 
 			return blockchainInfo;
