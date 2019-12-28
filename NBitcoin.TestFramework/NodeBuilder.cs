@@ -428,8 +428,9 @@ namespace NBitcoin.Tests
 
 		public RestClient CreateRESTClient()
 		{
-			return new RestClient(new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"));
+			return new RestClient(new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"), Network);
 		}
+		
 #if !NOSOCKET
 		public Node CreateNodeClient()
 		{

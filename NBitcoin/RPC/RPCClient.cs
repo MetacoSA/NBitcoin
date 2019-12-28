@@ -1216,9 +1216,9 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="blockId"></param>
 		/// <returns></returns>
-		public async Task<Block> GetBlockAsync(uint256 blockId)
+		public async Task<Block> GetBlockAsync(uint256 blockId, int verbosity = 0)
 		{
-			var resp = await SendCommandAsync(RPCOperations.getblock, blockId, false).ConfigureAwait(false);
+			var resp = await SendCommandAsync(RPCOperations.getblock, blockId, verbosity).ConfigureAwait(false);
 			return Block.Parse(resp.Result.ToString(), Network);
 		}
 
@@ -1227,9 +1227,9 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="blockId"></param>
 		/// <returns></returns>
-		public Block GetBlock(uint256 blockId)
+		public Block GetBlock(uint256 blockId, int verbosity = 0)
 		{
-			return GetBlockAsync(blockId).GetAwaiter().GetResult();
+			return GetBlockAsync(blockId, verbosity).GetAwaiter().GetResult();
 		}
 
 		public Block GetBlock(int height)
