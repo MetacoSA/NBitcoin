@@ -97,6 +97,7 @@ namespace NBitcoin.RPC
 		walletcreatefundedpsbt,
 
 		getblockcount,
+		getblockfilter,
 		getbestblockhash,
 		getdifficulty,
 		settxfee,
