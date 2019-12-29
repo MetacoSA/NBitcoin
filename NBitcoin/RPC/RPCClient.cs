@@ -1355,15 +1355,22 @@ namespace NBitcoin.RPC
 			return uint256.Parse(resp.Result.ToString());
 		}
 
+		/// <summary>
+		/// Retrieve a BIP 157 content filter for a particular block.
+		/// </summary>
+		/// <param name="blockHash">The hash of the block.</param>
 		public BlockFilter GetBlockFilter(uint256 blockHash)
 		{
-			var resp = SendCommand("getblockfilter", blockHash, "basic");
-			return ParseCompactFilter(resp);
+			return GetBlockFilterAsync(blockHash).GetAwaiter().GetResult();
 		}
 
+		/// <summary>
+		/// Retrieve a BIP 157 content filter for a particular block.
+		/// </summary>
+		/// <param name="blockHash">The hash of the block.</param>
 		public async Task<BlockFilter> GetBlockFilterAsync(uint256 blockHash)
 		{
-			var resp = await SendCommandAsync("getfilter", blockHash, "basic").ConfigureAwait(false);
+			var resp = await SendCommandAsync(RPCOperations.getblockfilter, blockHash, "basic").ConfigureAwait(false);
 			return ParseCompactFilter(resp);
 		}
 

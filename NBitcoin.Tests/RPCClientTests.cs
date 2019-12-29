@@ -1107,7 +1107,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void GetFilter()
+		public async Task GetBlockFilterAsync()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -1117,19 +1117,22 @@ namespace NBitcoin.Tests
 				node.Generate(101);
 
 				var prevFilterHeader = uint256.Zero;
-				for(var height = 0; height < 101; height++)
+				for (var height = 0; height < 101; height++)
 				{
 					var block = rpc.GetBlock(height);
 					var blockHash = block.GetHash();
 					var blockFilter = rpc.GetBlockFilter(blockHash);
+					var sameFilter = await rpc.GetBlockFilterAsync(blockHash);
+					Assert.Equal(blockFilter.Header, sameFilter.Header);
+					Assert.Equal(blockFilter.Filter.ToString(), sameFilter.Filter.ToString());
 
 					Assert.Equal(blockFilter.Header, blockFilter.Filter.GetHeader(prevFilterHeader));
 
 					byte[] FilterKey(uint256 hash) => hash.ToBytes().SafeSubarray(0, 16);
 					var coinbaseTx = block.Transactions[0];
 					var minerScriptPubKey = coinbaseTx.Outputs[0].ScriptPubKey;
-					Assert.True(blockFilter.Filter.MatchAny(new[] { minerScriptPubKey.ToBytes() }, FilterKey(blockHash) ));
-					Assert.False(blockFilter.Filter.MatchAny(new[] { RandomUtils.GetBytes(20) }, FilterKey(blockHash) ));
+					Assert.True(blockFilter.Filter.MatchAny(new[] { minerScriptPubKey.ToBytes() }, FilterKey(blockHash)));
+					Assert.False(blockFilter.Filter.MatchAny(new[] { RandomUtils.GetBytes(20) }, FilterKey(blockHash)));
 
 					prevFilterHeader = blockFilter.Header;
 				}
