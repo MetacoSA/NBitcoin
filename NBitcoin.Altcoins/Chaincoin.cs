@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using NBitcoin.Altcoins.HashX11;
 using NBitcoin.Crypto;
@@ -72,7 +73,35 @@ namespace NBitcoin.Altcoins
 		{
 			RegisterDefaultCookiePath("Chaincoin", new FolderName() { TestnetFolder = "testnet4" });
 		}
-
+		public class ChaincoinMainnetAddressStringParser : NetworkStringParser
+		{
+			public override bool TryParse(string str, Network network, Type targetType, out IBitcoinString result)
+			{
+				if (str.StartsWith("xprv", StringComparison.OrdinalIgnoreCase) && targetType.GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtKey).GetTypeInfo()))
+				{
+					try
+					{
+						result = new BitcoinExtKey(str, network);
+						return true;
+					}
+					catch
+					{
+					}
+				}
+				if (str.StartsWith("xpub", StringComparison.OrdinalIgnoreCase) && targetType.GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtPubKey).GetTypeInfo()))
+				{
+					try
+					{
+						result = new BitcoinExtPubKey(str, network);
+						return true;
+					}
+					catch
+					{
+					}
+				}
+				return base.TryParse(str, network, targetType, out result);
+			}
+		}
 		static uint256 GetPoWHash(BlockHeader header)
 		{
 			var headerBytes = header.ToBytes();
@@ -109,6 +138,7 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("chc"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("chc"))
+			.SetNetworkStringParser(new ChaincoinMainnetAddressStringParser())
 			.SetMagic(0x037AD2A3)
 			.SetPort(11994)
 			.SetRPCPort(11995)
