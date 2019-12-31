@@ -185,6 +185,11 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
+			//public override uint256 GetPoWHash()
+			//{
+				//throw new NotImplementedException();
+			//}
+
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				base.ReadWrite(stream);
@@ -198,6 +203,11 @@ namespace NBitcoin.Altcoins
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
+
+		//static uint256 GetPoWHash(BlockHeader header)
+		//{
+		//	throw new NotImplementedException();
+		//}
 
 		protected override void PostInit()
 		{
