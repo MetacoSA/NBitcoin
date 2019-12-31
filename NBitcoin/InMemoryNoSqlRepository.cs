@@ -8,13 +8,21 @@ namespace NBitcoin
 {
 	public class InMemoryNoSqlRepository : NoSqlRepository
 	{
+		public InMemoryNoSqlRepository(): base(Network.Main.Consensus.ConsensusFactory)
+		{
+
+		}
+		public InMemoryNoSqlRepository(ConsensusFactory consensusFactory): base(consensusFactory)
+		{
+
+		}
 		Dictionary<string, byte[]> _Table = new Dictionary<string, byte[]>();
 
 		protected override Task PutBytesBatch(IEnumerable<Tuple<string, byte[]>> enumerable)
 		{
-			foreach(var data in enumerable)
+			foreach (var data in enumerable)
 			{
-				if(data.Item2 == null)
+				if (data.Item2 == null)
 				{
 					_Table.Remove(data.Item1);
 				}

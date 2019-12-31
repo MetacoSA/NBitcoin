@@ -18,13 +18,13 @@ namespace NBitcoin.BouncyCastle.Asn1
 			int length)
 			: base(inStream, length)
 		{
-			if(length < 0)
+			if (length < 0)
 				throw new ArgumentException("negative lengths not allowed", "length");
 
 			this._originalLength = length;
 			this._remaining = length;
 
-			if(length == 0)
+			if (length == 0)
 			{
 				SetParentEofDetect(true);
 			}
@@ -40,15 +40,15 @@ namespace NBitcoin.BouncyCastle.Asn1
 
 		public override int ReadByte()
 		{
-			if(_remaining == 0)
+			if (_remaining == 0)
 				return -1;
 
 			int b = _in.ReadByte();
 
-			if(b < 0)
+			if (b < 0)
 				throw new EndOfStreamException("DEF length " + _originalLength + " object truncated by " + _remaining);
 
-			if(--_remaining == 0)
+			if (--_remaining == 0)
 			{
 				SetParentEofDetect(true);
 			}
@@ -61,16 +61,16 @@ namespace NBitcoin.BouncyCastle.Asn1
 			int off,
 			int len)
 		{
-			if(_remaining == 0)
+			if (_remaining == 0)
 				return 0;
 
 			int toRead = System.Math.Min(len, _remaining);
 			int numRead = _in.Read(buf, off, toRead);
 
-			if(numRead < 1)
+			if (numRead < 1)
 				throw new EndOfStreamException("DEF length " + _originalLength + " object truncated by " + _remaining);
 
-			if((_remaining -= numRead) == 0)
+			if ((_remaining -= numRead) == 0)
 			{
 				SetParentEofDetect(true);
 			}
@@ -80,21 +80,21 @@ namespace NBitcoin.BouncyCastle.Asn1
 
 		internal void ReadAllIntoByteArray(byte[] buf)
 		{
-			if(_remaining != buf.Length)
+			if (_remaining != buf.Length)
 				throw new ArgumentException("buffer length not right for data");
 
-			if((_remaining -= Streams.ReadFully(_in, buf)) != 0)
+			if ((_remaining -= Streams.ReadFully(_in, buf)) != 0)
 				throw new EndOfStreamException("DEF length " + _originalLength + " object truncated by " + _remaining);
 			SetParentEofDetect(true);
 		}
 
 		internal byte[] ToArray()
 		{
-			if(_remaining == 0)
+			if (_remaining == 0)
 				return EmptyBytes;
 
 			byte[] bytes = new byte[_remaining];
-			if((_remaining -= Streams.ReadFully(_in, bytes)) != 0)
+			if ((_remaining -= Streams.ReadFully(_in, bytes)) != 0)
 				throw new EndOfStreamException("DEF length " + _originalLength + " object truncated by " + _remaining);
 			SetParentEofDetect(true);
 			return bytes;

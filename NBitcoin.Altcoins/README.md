@@ -10,6 +10,7 @@ Currently supported altcoins are:
 * Dystem
 * Feathercoin
 * Groestlcoin
+* Liquid
 * Litecoin
 * Monacoin
 * Polis
@@ -17,6 +18,11 @@ Currently supported altcoins are:
 * UFO
 * Viacoin
 * Zclassic
+* Koto
+* Bitcoinplus
+* Chaincoin
+* ZCoin
+* DogeCash
 
 ## How to use?
 

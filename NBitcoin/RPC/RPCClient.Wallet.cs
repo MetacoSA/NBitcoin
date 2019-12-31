@@ -1,5 +1,6 @@
 ﻿#if !NOJSONNET
 using NBitcoin.DataEncoders;
+using NBitcoin.JsonConverters;
 using NBitcoin.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -85,6 +86,7 @@ namespace NBitcoin.RPC
 		wallet			 getaccountaddress			Yes
 		wallet			 getaccount
 		wallet			 getaddressesbyaccount		Yes
+		wallet			 getaddressesinfo
 		wallet			 getbalance
 		wallet			 getnewaddress
 		wallet			 getrawchangeaddress
@@ -116,6 +118,8 @@ namespace NBitcoin.RPC
 		wallet			 walletlock
 		wallet			 walletpassphrasechange
 		wallet			 walletpassphrase			yes
+		wallet			 walletprocesspsbt
+		wallet			 walletcreatefundedpsbt
 	*/
 	public partial class RPCClient
 	{
@@ -155,6 +159,21 @@ namespace NBitcoin.RPC
 			return FundRawTransactionAsync(transaction, options).GetAwaiter().GetResult();
 		}
 
+		/// <summary>
+		/// throws an error if an address is not from the wallet.
+		/// </summary>
+		/// <param name="address"></param>
+		/// <returns></returns>
+		public GetAddressInfoResponse GetAddressInfo(IDestination address) => GetAddressInfoAsync(address).GetAwaiter().GetResult();
+
+		public async Task<GetAddressInfoResponse> GetAddressInfoAsync(IDestination address)
+		{
+			var addrString = address.ScriptPubKey.GetDestinationAddress(Network).ToString();
+			var response = await SendCommandAsync(RPCOperations.getaddressinfo, addrString);
+
+			return GetAddressInfoResponse.FromJsonResponse((JObject)response.Result, Network);
+		}
+
 		public Money GetBalance(int minConf, bool includeWatchOnly)
 		{
 			return GetBalanceAsync(minConf, includeWatchOnly).GetAwaiter().GetResult();
@@ -184,26 +203,7 @@ namespace NBitcoin.RPC
 			RPCResponse response = null;
 			if (options != null)
 			{
-				var jOptions = new JObject();
-				if (options.ChangeAddress != null)
-					jOptions.Add(new JProperty("changeAddress", options.ChangeAddress.ToString()));
-				if (options.ChangePosition != null)
-					jOptions.Add(new JProperty("changePosition", options.ChangePosition.Value));
-				jOptions.Add(new JProperty("includeWatching", options.IncludeWatching));
-				jOptions.Add(new JProperty("lockUnspents", options.LockUnspents));
-				if (options.ReserveChangeKey != null)
-					jOptions.Add(new JProperty("reserveChangeKey", options.ReserveChangeKey));
-				if (options.FeeRate != null)
-					jOptions.Add(new JProperty("feeRate", options.FeeRate.GetFee(1000).ToDecimal(MoneyUnit.BTC)));
-				if (options.SubtractFeeFromOutputs != null)
-				{
-					JArray array = new JArray();
-					foreach (var v in options.SubtractFeeFromOutputs)
-					{
-						array.Add(new JValue(v));
-					}
-					jOptions.Add(new JProperty("subtractFeeFromOutputs", array));
-				}
+				var jOptions = FundRawTransactionOptionsToJson(options);
 				response = await SendCommandAsync("fundrawtransaction", ToHex(transaction), jOptions).ConfigureAwait(false);
 			}
 			else
@@ -217,6 +217,31 @@ namespace NBitcoin.RPC
 				Fee = Money.Coins(r["fee"].Value<decimal>()),
 				ChangePos = r["changepos"].Value<int>()
 			};
+		}
+
+		private JObject FundRawTransactionOptionsToJson(FundRawTransactionOptions options)
+		{
+			var jOptions = new JObject();
+			if (options.ChangeAddress != null)
+				jOptions.Add(new JProperty("changeAddress", options.ChangeAddress.ToString()));
+			if (options.ChangePosition != null)
+				jOptions.Add(new JProperty("changePosition", options.ChangePosition.Value));
+			jOptions.Add(new JProperty("includeWatching", options.IncludeWatching));
+			jOptions.Add(new JProperty("lockUnspents", options.LockUnspents));
+			if (options.ReserveChangeKey != null)
+				jOptions.Add(new JProperty("reserveChangeKey", options.ReserveChangeKey));
+			if (options.FeeRate != null)
+				jOptions.Add(new JProperty("feeRate", options.FeeRate.GetFee(1000).ToDecimal(MoneyUnit.BTC)));
+			if (options.SubtractFeeFromOutputs != null)
+			{
+				JArray array = new JArray();
+				foreach (var v in options.SubtractFeeFromOutputs)
+				{
+					array.Add(new JValue(v));
+				}
+				jOptions.Add(new JProperty("subtractFeeFromOutputs", array));
+			}
+			return jOptions;
 		}
 
 		//NBitcoin internally put a bit in the version number to make difference between transaction without input and transaction with witness.
@@ -253,7 +278,7 @@ namespace NBitcoin.RPC
 		public async Task<Money> GetReceivedByAddressAsync(BitcoinAddress address)
 		{
 			var response = await SendCommandAsync(RPCOperations.getreceivedbyaddress, address.ToString()).ConfigureAwait(false);
-			return Money.Coins(response.Result.Value<decimal>());
+			return GetMoney(response);
 		}
 
 		/// <summary>
@@ -271,7 +296,7 @@ namespace NBitcoin.RPC
 		public Money GetReceivedByAddress(BitcoinAddress address, int confirmations)
 		{
 			var response = SendCommand(RPCOperations.getreceivedbyaddress, address.ToString(), confirmations);
-			return Money.Coins(response.Result.Value<decimal>());
+			return GetMoney(response);
 		}
 
 		/// <summary>
@@ -289,7 +314,7 @@ namespace NBitcoin.RPC
 		public async Task<Money> GetReceivedByAddressAsync(BitcoinAddress address, int confirmations)
 		{
 			var response = await SendCommandAsync(RPCOperations.getreceivedbyaddress, address.ToString(), confirmations).ConfigureAwait(false);
-			return Money.Coins(response.Result.Value<decimal>());
+			return GetMoney(response);
 		}
 
 
@@ -366,16 +391,31 @@ namespace NBitcoin.RPC
 			ImportMultiAsync(addresses, rescan).GetAwaiter().GetResult();
 		}
 
+
+		JsonSerializerSettings _JsonSerializer;
+		JsonSerializerSettings JsonSerializerSettings
+		{
+			get
+			{
+				if (_JsonSerializer == null)
+				{
+					var seria = new JsonSerializerSettings();
+					Serializer.RegisterFrontConverters(seria, Network);
+					_JsonSerializer = seria;
+				}
+				return _JsonSerializer;
+			}
+		}
 		public async Task ImportMultiAsync(ImportMultiAddress[] addresses, bool rescan)
 		{
 			var parameters = new List<object>();
 
 			var array = new JArray();
 			parameters.Add(array);
-
+			var seria = JsonSerializer.CreateDefault(JsonSerializerSettings);
 			foreach (var addr in addresses)
 			{
-				var obj = JObject.FromObject(addr);
+				var obj = JObject.FromObject(addr, seria);
 				if (obj["timestamp"] == null || obj["timestamp"].Type == JTokenType.Null)
 					obj["timestamp"] = "now";
 				else
@@ -686,11 +726,10 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-		/// Sign a transaction
+		/// Sign a transaction, if RPCClient.Capabilities is set, will call SignRawTransactionWithWallet if available
 		/// </summary>
 		/// <param name="tx">The transaction to be signed</param>
 		/// <returns>The signed transaction</returns>
-		[Obsolete("signrawtransaction is deprecated and will be fully removed in v0.18. To use signrawtransaction in v0.17, restart bitcoind with -deprecatedrpc=signrawtransaction. Projects should transition to using signrawtransactionwithkey and signrawtransactionwithwallet before upgrading to v0.18")]
 		public Transaction SignRawTransaction(Transaction tx)
 		{
 			if (tx == null)
@@ -699,15 +738,26 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-		/// Sign a transaction
+		/// Sign a transaction, if RPCClient.Capabilities is set, will call SignRawTransactionWithWallet if available
 		/// </summary>
 		/// <param name="tx">The transaction to be signed</param>
 		/// <returns>The signed transaction</returns>
-		[Obsolete("signrawtransaction is deprecated and will be fully removed in v0.18. To use signrawtransaction in v0.17, restart bitcoind with -deprecatedrpc=signrawtransaction. Projects should transition to using signrawtransactionwithkey and signrawtransactionwithwallet before upgrading to v0.18")]
 		public async Task<Transaction> SignRawTransactionAsync(Transaction tx)
 		{
-			var result = await SendCommandAsync(RPCOperations.signrawtransaction, tx.ToHex()).ConfigureAwait(false);
-			return ParseTxHex(result.Result["hex"].Value<string>());
+			if (tx == null)
+				throw new ArgumentNullException(nameof(tx));
+			if (Capabilities != null && Capabilities.SupportSignRawTransactionWith)
+			{
+				return (await SignRawTransactionWithWalletAsync(new SignRawTransactionRequest()
+				{
+					Transaction = tx
+				}).ConfigureAwait(false)).SignedTransaction;
+			}
+			else
+			{
+				var result = await SendCommandAsync(RPCOperations.signrawtransaction, tx.ToHex()).ConfigureAwait(false);
+				return ParseTxHex(result.Result["hex"].Value<string>());
+			}
 		}
 
 		/// <summary>
@@ -766,9 +816,9 @@ namespace NBitcoin.RPC
 			response.Complete = result.Result["complete"].Value<bool>();
 			var errors = result.Result["errors"] as JArray;
 			var errorList = new List<SignRawTransactionResponse.ScriptError>();
-			if(errors != null)
+			if (errors != null)
 			{
-				foreach(var error in errors)
+				foreach (var error in errors)
 				{
 					var scriptError = new SignRawTransactionResponse.ScriptError();
 					scriptError.OutPoint = OutPoint.Parse($"{error["txid"].Value<string>()}-{(int)error["vout"].Value<long>()}");
@@ -848,6 +898,110 @@ namespace NBitcoin.RPC
 			return response;
 		}
 
+		public WalletProcessPSBTResponse WalletProcessPSBT(PSBT psbt, bool sign = true, SigHash hashType = SigHash.All, bool bip32derivs = false)
+			 => WalletProcessPSBTAsync(psbt, sign, hashType, bip32derivs).GetAwaiter().GetResult();
+		public async Task<WalletProcessPSBTResponse> WalletProcessPSBTAsync(PSBT psbt, bool sign = true, SigHash sighashType = SigHash.All, bool bip32derivs = false)
+		{
+			if (psbt == null)
+				throw new ArgumentNullException(nameof(psbt));
+
+			var response = await SendCommandAsync(RPCOperations.walletprocesspsbt, psbt.ToBase64(), sign, SigHashToString(sighashType), bip32derivs).ConfigureAwait(false);
+			var result = (JObject)response.Result;
+			var psbt2 = PSBT.Parse(result.Property("psbt").Value.Value<string>(), Network.Main);
+			var complete = result.Property("complete").Value.Value<bool>();
+
+			return new WalletProcessPSBTResponse(psbt2, complete);
+		}
+
+		public WalletCreateFundedPSBTResponse WalletCreateFundedPSBT(
+			TxIn[] inputs,
+			Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>> outputs,
+			LockTime locktime,
+			FundRawTransactionOptions options = null,
+			bool bip32derivs = false
+			)
+			=> WalletCreateFundedPSBTAsync(inputs, outputs, locktime, options, bip32derivs).GetAwaiter().GetResult();
+
+		public async Task<WalletCreateFundedPSBTResponse> WalletCreateFundedPSBTAsync(
+		TxIn[] inputs,
+		Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>> outputs,
+		LockTime locktime = default(LockTime),
+		FundRawTransactionOptions options = null,
+		bool bip32derivs = false
+		)
+		{
+			var values = new object[] { };
+			if (inputs == null)
+				inputs = new TxIn[] { };
+			if (outputs == null)
+				throw new ArgumentNullException(nameof(outputs));
+
+			var rpcInputs = inputs.Select(i => i.ToRPCInputs()).ToArray();
+
+			var outputToSend = new JObject { };
+			if (outputs.Item1 != null)
+			{
+				foreach (var kv in outputs.Item1)
+				{
+					outputToSend.Add(kv.Key.ToString(), kv.Value.ToUnit(MoneyUnit.BTC));
+				}
+			}
+			if (outputs.Item2 != null)
+			{
+				foreach (var kv in outputs.Item2)
+				{
+					outputToSend.Add(kv.Key, kv.Value);
+				}
+			}
+			JObject jOptions;
+			if (options != null)
+			{
+				jOptions = FundRawTransactionOptionsToJson(options);
+			}
+			else
+			{
+				jOptions = (JObject)"";
+			}
+			RPCResponse response = await SendCommandAsync(
+				"walletcreatefundedpsbt",
+				rpcInputs,
+				outputToSend,
+				locktime.Value,
+				jOptions,
+				bip32derivs).ConfigureAwait(false);
+			var result = (JObject)response.Result;
+			var psbt = PSBT.Parse(result.Property("psbt").Value.Value<string>(), Network.Main);
+			var fee = Money.Coins(result.Property("fee").Value.Value<decimal>());
+			var changePos = result.Property("changepos").Value.Value<int>();
+			var tmp = changePos == -1 ? (int?)null : (int?)changePos;
+			return new WalletCreateFundedPSBTResponse { PSBT = psbt, Fee = fee, ChangePos = tmp };
+		}
+		public WalletCreateFundedPSBTResponse WalletCreateFundedPSBT(
+			TxIn[] inputs,
+			Dictionary<BitcoinAddress, Money> outputs,
+			LockTime locktime,
+			FundRawTransactionOptions options = null,
+			bool bip32derivs = false
+		) => WalletCreateFundedPSBT(
+			inputs,
+			Tuple.Create<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>>(outputs, null),
+			locktime,
+			options,
+			bip32derivs);
+
+		public WalletCreateFundedPSBTResponse WalletCreateFundedPSBT(
+			TxIn[] inputs,
+			Dictionary<string, string> outputs,
+			LockTime locktime,
+			FundRawTransactionOptions options = null,
+			bool bip32derivs = false
+		) => WalletCreateFundedPSBT(
+			inputs,
+			Tuple.Create<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>>(null, outputs),
+			locktime,
+			options,
+			bip32derivs);
+
 		public string SigHashToString(SigHash value)
 		{
 			switch (value)
@@ -867,6 +1021,14 @@ namespace NBitcoin.RPC
 				default:
 					throw new NotSupportedException();
 			}
+		}
+
+		private Money GetMoney(RPCResponse response)
+		{
+			decimal coins = response.Result is JValue jVal
+							? Convert.ToDecimal(jVal.Value)
+							: response.Result.Value<decimal>();
+			return Money.Coins(coins);
 		}
 	}
 }

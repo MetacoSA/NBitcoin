@@ -24,7 +24,10 @@ namespace NBitcoin.JsonConverters
 		{
 			try
 			{
-				return reader.TokenType == JsonToken.Null ? null : Encoders.Hex.DecodeData((string)reader.Value);
+				if (reader.TokenType == JsonToken.Null)
+					return null;
+				reader.AssertJsonType(JsonToken.String);
+				return Encoders.Hex.DecodeData((string)reader.Value);
 			}
 			catch
 			{
@@ -34,7 +37,7 @@ namespace NBitcoin.JsonConverters
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			if(value != null)
+			if (value != null)
 			{
 				writer.WriteValue(Encoders.Hex.EncodeData((byte[])value));
 			}

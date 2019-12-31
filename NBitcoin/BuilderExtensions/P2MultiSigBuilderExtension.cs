@@ -33,27 +33,27 @@ namespace NBitcoin.BuilderExtensions
 			var para = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 			// Combine all the signatures we've got:
 			var aSigs = PayToMultiSigTemplate.Instance.ExtractScriptSigParameters(a);
-			if(aSigs == null)
+			if (aSigs == null)
 				return b;
 			var bSigs = PayToMultiSigTemplate.Instance.ExtractScriptSigParameters(b);
-			if(bSigs == null)
+			if (bSigs == null)
 				return a;
 			int sigCount = 0;
 			TransactionSignature[] sigs = new TransactionSignature[para.PubKeys.Length];
-			for(int i = 0; i < para.PubKeys.Length; i++)
+			for (int i = 0; i < para.PubKeys.Length; i++)
 			{
 				var aSig = i < aSigs.Length ? aSigs[i] : null;
 				var bSig = i < bSigs.Length ? bSigs[i] : null;
 				var sig = aSig ?? bSig;
-				if(sig != null)
+				if (sig != null)
 				{
 					sigs[i] = sig;
 					sigCount++;
 				}
-				if(sigCount == para.SignatureCount)
+				if (sigCount == para.SignatureCount)
 					break;
 			}
-			if(sigCount == para.SignatureCount)
+			if (sigCount == para.SignatureCount)
 				sigs = sigs.Where(s => s != null && s != TransactionSignature.Empty).ToArray();
 			return PayToMultiSigTemplate.Instance.GenerateScriptSig(sigs);
 		}
@@ -80,11 +80,11 @@ namespace NBitcoin.BuilderExtensions
 				.ToArray();
 
 			int sigCount = 0;
-			for(int i = 0; i < keys.Length; i++)
+			for (int i = 0; i < keys.Length; i++)
 			{
-				if(sigCount == multiSigParams.SignatureCount)
+				if (sigCount == multiSigParams.SignatureCount)
 					break;
-				if(keys[i] != null)
+				if (keys[i] != null)
 				{
 					var sig = signer.Sign(keys[i]);
 					signatures[i] = sig;
@@ -93,11 +93,19 @@ namespace NBitcoin.BuilderExtensions
 			}
 
 			IEnumerable<TransactionSignature> sigs = signatures;
-			if(sigCount == multiSigParams.SignatureCount)
+			if (sigCount == multiSigParams.SignatureCount)
 			{
 				sigs = sigs.Where(s => s != TransactionSignature.Empty && s != null);
 			}
 			return PayToMultiSigTemplate.Instance.GenerateScriptSig(sigs);
+		}
+
+		public override bool IsCompatibleKey(PubKey publicKey, Script scriptPubKey)
+		{
+			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			if (multiSigParams == null)
+				return false;
+			return multiSigParams.PubKeys.Any(p => p == publicKey);
 		}
 	}
 }

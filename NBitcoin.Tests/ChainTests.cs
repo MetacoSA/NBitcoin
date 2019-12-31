@@ -112,7 +112,7 @@ namespace NBitcoin.Tests
 
 
 
-			var chain2 = new ConcurrentChain(chain.ToBytes());
+			var chain2 = new ConcurrentChain(chain.ToBytes(), Network.Main);
 			Assert.True(chain.SameTip(chain2));
 		}
 
@@ -126,7 +126,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseRandomScripts()
 		{
-			for(int i = 0; i < 600; i++)
+			for (int i = 0; i < 600; i++)
 			{
 				var bytes = RandomUtils.GetBytes(120);
 				new Script(bytes).ToString();
@@ -147,13 +147,13 @@ namespace NBitcoin.Tests
 
 			var bytes = cchain.ToBytes();
 			cchain = new ConcurrentChain();
-			cchain.Load(bytes);
+			cchain.Load(bytes, Network.TestNet);
 
 			Assert.Equal(cchain.Tip, chain.Tip);
 			Assert.NotNull(cchain.GetBlock(0));
 
 			cchain = new ConcurrentChain(Network.TestNet);
-			cchain.Load(cchain.ToBytes());
+			cchain.Load(cchain.ToBytes(), Network.TestNet);
 			Assert.NotNull(cchain.GetBlock(0));
 		}
 		[Fact]
@@ -179,8 +179,8 @@ namespace NBitcoin.Tests
 			Assert.Equal(cchain.GetBlock(b5.HashBlock), chain.Tip);
 
 			Assert.Equal(cchain.SetTip(b1), b1);
-			Assert.Equal(cchain.GetBlock(b5.HashBlock), null);
-			Assert.Equal(cchain.GetBlock(b2.HashBlock), null);
+			Assert.Null(cchain.GetBlock(b5.HashBlock));
+			Assert.Null(cchain.GetBlock(b2.HashBlock));
 
 			Assert.Equal(cchain.SetTip(b5), b1);
 			Assert.Equal(cchain.GetBlock(b5.HashBlock), chain.Tip);
@@ -193,7 +193,7 @@ namespace NBitcoin.Tests
 
 			Assert.Equal(cchain.SetTip(b6b), b2);
 
-			Assert.Equal(cchain.GetBlock(b5.HashBlock), null);
+			Assert.Null(cchain.GetBlock(b5.HashBlock));
 			Assert.Equal(cchain.GetBlock(b2.HashBlock), b2);
 			Assert.Equal(cchain.GetBlock(6), b6b);
 			Assert.Equal(cchain.GetBlock(5), b5b);
@@ -201,7 +201,7 @@ namespace NBitcoin.Tests
 
 		private ChainedBlock AddBlock(ConcurrentChain chain)
 		{
-			BlockHeader header = new BlockHeader();
+			BlockHeader header = Network.Main.Consensus.ConsensusFactory.CreateBlockHeader();
 			header.Nonce = RandomUtils.GetUInt32();
 			header.HashPrevBlock = chain.Tip.HashBlock;
 			chain.SetTip(header);
@@ -216,12 +216,12 @@ namespace NBitcoin.Tests
 			AppendBlock(chain);
 			AppendBlock(chain);
 			AppendBlock(chain);
-			foreach(var b in chain.EnumerateAfter(chain.Genesis))
+			foreach (var b in chain.EnumerateAfter(chain.Genesis))
 			{
 				chain.GetBlock(0);
 			}
 
-			foreach(var b in chain.ToEnumerable(false))
+			foreach (var b in chain.ToEnumerable(false))
 			{
 				chain.GetBlock(0);
 			}
@@ -283,10 +283,10 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCalculateDifficulty()
 		{
-			var main = new ConcurrentChain(LoadMainChain());
+			var main = new ConcurrentChain(LoadMainChain(), Network.Main);
 			var histories = File.ReadAllText("data/targethistory.csv").Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
 
-			foreach(var history in histories)
+			foreach (var history in histories)
 			{
 				var height = int.Parse(history.Split(',')[0]);
 				var expectedTarget = new Target(new BouncyCastle.Math.BigInteger(history.Split(',')[1], 10));
@@ -303,8 +303,8 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanValidateChain()
 		{
-			var main = new ConcurrentChain(LoadMainChain());
-			foreach(var h in main.ToEnumerable(false))
+			var main = new ConcurrentChain(LoadMainChain(), Network.Main);
+			foreach (var h in main.ToEnumerable(false))
 			{
 				Assert.True(h.Validate(Network.Main));
 			}
@@ -314,9 +314,9 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanPersistMainchain()
 		{
-			var main = new ConcurrentChain(LoadMainChain());
+			var main = new ConcurrentChain(LoadMainChain(), Network.Main);
 			MemoryStream ms = new MemoryStream();
-			main.WriteTo(ms);	
+			main.WriteTo(ms);
 			ms.Position = 0;
 			main.SetTip(main.Genesis);
 			main.Load(ms);
@@ -324,7 +324,7 @@ namespace NBitcoin.Tests
 
 			var original = main;
 
-			foreach(var options in new[]{
+			foreach (var options in new[]{
 				new ConcurrentChain.ChainSerializationFormat()
 				{
 					SerializeBlockHeader = true,
@@ -348,9 +348,9 @@ namespace NBitcoin.Tests
 				main.WriteTo(ms, options);
 				ms.Position = 0;
 				main.SetTip(main.Genesis);
-				main.Load(ms, options);
+				main.Load(ms, Network.Main, options);
 				Assert.Equal(options.SerializeBlockHeader, main.Tip.HasHeader);
-				if(main.Tip.HasHeader)
+				if (main.Tip.HasHeader)
 				{
 					Assert.True(main.Tip.TryGetHeader(out var unused));
 				}
@@ -374,7 +374,7 @@ namespace NBitcoin.Tests
 
 		private byte[] LoadMainChain()
 		{
-			if(!File.Exists("MainChain1.dat"))
+			if (!File.Exists("MainChain1.dat"))
 			{
 				HttpClient client = new HttpClient();
 				var bytes = client.GetByteArrayAsync("https://aois.blob.core.windows.net/public/MainChain1.dat").GetAwaiter().GetResult();
@@ -571,7 +571,7 @@ namespace NBitcoin.Tests
 		private ConcurrentChain CreateChain(BlockHeader genesis, int height)
 		{
 			var chain = new ConcurrentChain(genesis);
-			for(int i = 0; i < height; i++)
+			for (int i = 0; i < height; i++)
 			{
 				var b = TestUtils.CreateFakeBlock();
 				b.Header.HashPrevBlock = chain.Tip.HashBlock;
@@ -585,12 +585,12 @@ namespace NBitcoin.Tests
 		{
 			ChainedBlock last = null;
 			var nonce = RandomUtils.GetUInt32();
-			foreach(var chain in chains)
+			foreach (var chain in chains)
 			{
-				var block = TestUtils.CreateFakeBlock(new Transaction());
+				var block = TestUtils.CreateFakeBlock(Network.Main.CreateTransaction());
 				block.Header.HashPrevBlock = previous == null ? chain.Tip.HashBlock : previous.HashBlock;
 				block.Header.Nonce = nonce;
-				if(!chain.TrySetTip(block.Header, out last))
+				if (!chain.TrySetTip(block.Header, out last))
 					throw new InvalidOperationException("Previous not existing");
 			}
 			return last;

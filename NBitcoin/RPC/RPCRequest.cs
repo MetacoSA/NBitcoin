@@ -71,19 +71,19 @@ namespace NBitcoin.RPC
 			writer.WritePropertyName("params");
 
 
-			if(Params != null)
+			if (Params != null)
 			{
 				writer.WriteStartArray();
-				for(int i = 0; i < Params.Length; i++)
+				for (int i = 0; i < Params.Length; i++)
 				{
 					WriteValue(writer, Params[i]);
 				}
 				writer.WriteEndArray();
 			}
-			else if(NamedParams != null)
+			else if (NamedParams != null)
 			{
 				writer.WriteStartObject();
-				foreach(var namedParam in NamedParams)
+				foreach (var namedParam in NamedParams)
 				{
 					writer.WritePropertyName(namedParam.Key);
 					WriteValue(writer, namedParam.Value);
@@ -95,26 +95,26 @@ namespace NBitcoin.RPC
 				writer.WriteStartArray();
 				writer.WriteEndArray();
 			}
-			
+
 			writer.WriteEndObject();
 		}
 
 		private void WriteValue(JsonTextWriter writer, object obj)
 		{
-			if(obj is JToken)
+			if (obj is JToken)
 			{
 				((JToken)obj).WriteTo(writer);
 			}
-			else if(obj is Array)
+			else if (obj is Array)
 			{
 				writer.WriteStartArray();
-				foreach(var x in (Array)obj)
+				foreach (var x in (Array)obj)
 				{
 					writer.WriteValue(x);
 				}
 				writer.WriteEndArray();
 			}
-			else if(obj is uint256)
+			else if (obj is uint256)
 			{
 				writer.WriteValue(obj.ToString());
 			}

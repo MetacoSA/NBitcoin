@@ -32,19 +32,19 @@ namespace NBitcoin.BouncyCastle.Asn1
 			Stream outStr,
 			int length)
 		{
-			if(length > 127)
+			if (length > 127)
 			{
 				int size = 1;
 				int val = length;
 
-				while((val >>= 8) != 0)
+				while ((val >>= 8) != 0)
 				{
 					size++;
 				}
 
 				outStr.WriteByte((byte)(size | 0x80));
 
-				for(int i = (size - 1) * 8; i >= 0; i -= 8)
+				for (int i = (size - 1) * 8; i >= 0; i -= 8)
 				{
 					outStr.WriteByte((byte)(length >> i));
 				}
@@ -69,11 +69,11 @@ namespace NBitcoin.BouncyCastle.Asn1
 			int tag,
 			byte[] bytes)
 		{
-			if(_tagged)
+			if (_tagged)
 			{
 				int tagNum = _tagNo | Asn1Tags.Tagged;
 
-				if(_isExplicit)
+				if (_isExplicit)
 				{
 					int newTag = _tagNo | Asn1Tags.Constructed | Asn1Tags.Tagged;
 					MemoryStream bOut = new MemoryStream();
@@ -82,7 +82,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 				}
 				else
 				{
-					if((tag & Asn1Tags.Constructed) != 0)
+					if ((tag & Asn1Tags.Constructed) != 0)
 					{
 						tagNum |= Asn1Tags.Constructed;
 					}

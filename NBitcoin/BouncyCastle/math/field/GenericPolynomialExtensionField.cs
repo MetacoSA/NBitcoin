@@ -56,12 +56,12 @@ namespace NBitcoin.BouncyCastle.Math.Field
 
 		public override bool Equals(object obj)
 		{
-			if(this == obj)
+			if (this == obj)
 			{
 				return true;
 			}
 			GenericPolynomialExtensionField other = obj as GenericPolynomialExtensionField;
-			if(null == other)
+			if (null == other)
 			{
 				return false;
 			}

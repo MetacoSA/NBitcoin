@@ -270,7 +270,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static bool Diff(uint[] x, int xOff, uint[] y, int yOff, uint[] z, int zOff)
 		{
 			bool pos = Gte(x, xOff, y, yOff);
-			if(pos)
+			if (pos)
 			{
 				Sub(x, xOff, y, yOff, z, zOff);
 			}
@@ -283,9 +283,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static bool Eq(uint[] x, uint[] y)
 		{
-			for(int i = 7; i >= 0; --i)
+			for (int i = 7; i >= 0; --i)
 			{
-				if(x[i] != y[i])
+				if (x[i] != y[i])
 					return false;
 			}
 			return true;
@@ -293,9 +293,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static bool Eq64(ulong[] x, ulong[] y)
 		{
-			for(int i = 3; i >= 0; --i)
+			for (int i = 3; i >= 0; --i)
 			{
-				if(x[i] != y[i])
+				if (x[i] != y[i])
 				{
 					return false;
 				}
@@ -305,12 +305,12 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static uint[] FromBigInteger(BigInteger x)
 		{
-			if(x.SignValue < 0 || x.BitLength > 256)
+			if (x.SignValue < 0 || x.BitLength > 256)
 				throw new ArgumentException();
 
 			uint[] z = Create();
 			int i = 0;
-			while(x.SignValue != 0)
+			while (x.SignValue != 0)
 			{
 				z[i++] = (uint)x.IntValue;
 				x = x.ShiftRight(32);
@@ -320,12 +320,12 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static ulong[] FromBigInteger64(BigInteger x)
 		{
-			if(x.SignValue < 0 || x.BitLength > 256)
+			if (x.SignValue < 0 || x.BitLength > 256)
 				throw new ArgumentException();
 
 			ulong[] z = Create64();
 			int i = 0;
-			while(x.SignValue != 0)
+			while (x.SignValue != 0)
 			{
 				z[i++] = (ulong)x.LongValue;
 				x = x.ShiftRight(64);
@@ -335,11 +335,11 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static uint GetBit(uint[] x, int bit)
 		{
-			if(bit == 0)
+			if (bit == 0)
 			{
 				return x[0] & 1;
 			}
-			if((bit & 255) != bit)
+			if ((bit & 255) != bit)
 			{
 				return 0;
 			}
@@ -350,12 +350,12 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static bool Gte(uint[] x, uint[] y)
 		{
-			for(int i = 7; i >= 0; --i)
+			for (int i = 7; i >= 0; --i)
 			{
 				uint x_i = x[i], y_i = y[i];
-				if(x_i < y_i)
+				if (x_i < y_i)
 					return false;
-				if(x_i > y_i)
+				if (x_i > y_i)
 					return true;
 			}
 			return true;
@@ -363,12 +363,12 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static bool Gte(uint[] x, int xOff, uint[] y, int yOff)
 		{
-			for(int i = 7; i >= 0; --i)
+			for (int i = 7; i >= 0; --i)
 			{
 				uint x_i = x[xOff + i], y_i = y[yOff + i];
-				if(x_i < y_i)
+				if (x_i < y_i)
 					return false;
-				if(x_i > y_i)
+				if (x_i > y_i)
 					return true;
 			}
 			return true;
@@ -376,13 +376,13 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static bool IsOne(uint[] x)
 		{
-			if(x[0] != 1)
+			if (x[0] != 1)
 			{
 				return false;
 			}
-			for(int i = 1; i < 8; ++i)
+			for (int i = 1; i < 8; ++i)
 			{
-				if(x[i] != 0)
+				if (x[i] != 0)
 				{
 					return false;
 				}
@@ -392,13 +392,13 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static bool IsOne64(ulong[] x)
 		{
-			if(x[0] != 1UL)
+			if (x[0] != 1UL)
 			{
 				return false;
 			}
-			for(int i = 1; i < 4; ++i)
+			for (int i = 1; i < 4; ++i)
 			{
-				if(x[i] != 0UL)
+				if (x[i] != 0UL)
 				{
 					return false;
 				}
@@ -408,9 +408,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static bool IsZero(uint[] x)
 		{
-			for(int i = 0; i < 8; ++i)
+			for (int i = 0; i < 8; ++i)
 			{
-				if(x[i] != 0)
+				if (x[i] != 0)
 				{
 					return false;
 				}
@@ -420,9 +420,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static bool IsZero64(ulong[] x)
 		{
-			for(int i = 0; i < 4; ++i)
+			for (int i = 0; i < 4; ++i)
 			{
-				if(x[i] != 0UL)
+				if (x[i] != 0UL)
 				{
 					return false;
 				}
@@ -470,7 +470,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 				zz[8] = (uint)c;
 			}
 
-			for(int i = 1; i < 8; ++i)
+			for (int i = 1; i < 8; ++i)
 			{
 				ulong c = 0, x_i = x[i];
 				c += x_i * y_0 + zz[i + 0];
@@ -541,7 +541,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 				zz[zzOff + 8] = (uint)c;
 			}
 
-			for(int i = 1; i < 8; ++i)
+			for (int i = 1; i < 8; ++i)
 			{
 				++zzOff;
 				ulong c = 0, x_i = x[xOff + i];
@@ -585,7 +585,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 			ulong y_7 = y[7];
 
 			ulong zc = 0;
-			for(int i = 0; i < 8; ++i)
+			for (int i = 0; i < 8; ++i)
 			{
 				ulong c = 0, x_i = x[i];
 				c += x_i * y_0 + zz[i + 0];
@@ -631,7 +631,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 			ulong y_7 = y[yOff + 7];
 
 			ulong zc = 0;
-			for(int i = 0; i < 8; ++i)
+			for (int i = 0; i < 8; ++i)
 			{
 				ulong c = 0, x_i = x[xOff + i];
 				c += x_i * y_0 + zz[zzOff + 0];
@@ -862,7 +862,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 				z[zOff + i] = (uint)c;
 				c >>= 32;
 			}
-			while(++i < 8);
+			while (++i < 8);
 			return (uint)c;
 		}
 
@@ -882,7 +882,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 					zz[--j] = (uint)(p >> 1);
 					c = (uint)p;
 				}
-				while(i > 0);
+				while (i > 0);
 
 				{
 					ulong p = x_0 * x_0;
@@ -1046,7 +1046,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 					zz[zzOff + --j] = (uint)(p >> 1);
 					c = (uint)p;
 				}
-				while(i > 0);
+				while (i > 0);
 
 				{
 					ulong p = x_0 * x_0;
@@ -1347,10 +1347,10 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static BigInteger ToBigInteger(uint[] x)
 		{
 			byte[] bs = new byte[32];
-			for(int i = 0; i < 8; ++i)
+			for (int i = 0; i < 8; ++i)
 			{
 				uint x_i = x[i];
-				if(x_i != 0)
+				if (x_i != 0)
 				{
 					Pack.UInt32_To_BE(x_i, bs, (7 - i) << 2);
 				}
@@ -1361,10 +1361,10 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static BigInteger ToBigInteger64(ulong[] x)
 		{
 			byte[] bs = new byte[32];
-			for(int i = 0; i < 4; ++i)
+			for (int i = 0; i < 4; ++i)
 			{
 				ulong x_i = x[i];
-				if(x_i != 0L)
+				if (x_i != 0L)
 				{
 					Pack.UInt64_To_BE(x_i, bs, (3 - i) << 3);
 				}

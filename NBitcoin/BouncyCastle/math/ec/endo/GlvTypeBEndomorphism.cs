@@ -49,7 +49,7 @@
 			BigInteger b = k.Multiply(g.Abs());
 			bool extra = b.TestBit(t - 1);
 			b = b.ShiftRight(t);
-			if(extra)
+			if (extra)
 			{
 				b = b.Add(BigInteger.One);
 			}

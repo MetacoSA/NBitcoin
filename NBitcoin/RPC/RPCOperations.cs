@@ -25,6 +25,8 @@ namespace NBitcoin.RPC
 		getgenerate,
 		setgenerate,
 		generate,
+		generatetoaddress,
+
 		getnetworkhashps,
 		gethashespersec,
 		getmininginfo,
@@ -46,6 +48,7 @@ namespace NBitcoin.RPC
 		verifymessage,
 		getreceivedbyaddress,
 		getreceivedbyaccount,
+		getaddressinfo,
 		getbalance,
 		getunconfirmedbalance,
 		movecmd,
@@ -85,12 +88,22 @@ namespace NBitcoin.RPC
 		gettxoutproof,
 		verifytxoutproof,
 
+		decodepsbt,
+		combinepsbt,
+		finalizepsbt,
+		createpsbt,
+		convertopsbt,
+		walletprocesspsbt,
+		walletcreatefundedpsbt,
+
 		getblockcount,
+		getblockfilter,
 		getbestblockhash,
 		getdifficulty,
 		settxfee,
 		getmempoolinfo,
 		getrawmempool,
+		testmempoolaccept,
 		getblockhash,
 		getblock,
 		gettxoutsetinfo,
@@ -101,6 +114,9 @@ namespace NBitcoin.RPC
 		bumpfee,
 		abandontransaction,
 		signrawtransactionwithkey,
-		scantxoutset
+		scantxoutset,
+		getmempoolentry,
+		stop,
+		uptime
 	}
 }

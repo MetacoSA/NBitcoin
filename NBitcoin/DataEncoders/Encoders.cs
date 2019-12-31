@@ -4,11 +4,11 @@ namespace NBitcoin.DataEncoders
 {
 	public abstract class DataEncoder
 	{
-		// char.IsWhiteSpace fits well but it match other whitespaces 
+		// char.IsWhiteSpace fits well but it match other whitespaces
 		// characters too and also works for unicode characters.
 		public static bool IsSpace(char c)
 		{
-			switch(c)
+			switch (c)
 			{
 				case ' ':
 				case '\t':
@@ -64,6 +64,15 @@ namespace NBitcoin.DataEncoders
 			}
 		}
 
+		static readonly Base32Encoder _Base32 = new Base32Encoder();
+		public static DataEncoder Base32
+		{
+			get
+			{
+				return _Base32;
+			}
+		}
+
 		private static readonly Base58CheckEncoder _Base58Check = new Base58CheckEncoder();
 		public static DataEncoder Base58Check
 		{
@@ -90,5 +99,6 @@ namespace NBitcoin.DataEncoders
 		{
 			return new Bech32Encoder(hrp);
 		}
+
 	}
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protobuf
 {
+	[Obsolete("BIP70 is obsolete")]
 	internal class ProtobufReaderWriter
 	{
 		internal const int PROTOBUF_VARINT = 0; // int32, int64, uint32, uint64, sint32, sint64, bool, enum
@@ -40,10 +41,10 @@ namespace NBitcoin.Protobuf
 			ulong varInt = 0;
 			byte b = 0x80;
 			int i = 0;
-			while((b & 0x80) != 0)
+			while ((b & 0x80) != 0)
 			{
 				var v = _Inner.ReadByte();
-				if(v < 0)
+				if (v < 0)
 					return false;
 				b = (byte)v;
 				Position++;
@@ -62,7 +63,7 @@ namespace NBitcoin.Protobuf
 			{
 				ioBuffer[ioIndex++] = (byte)((value & 0x7F) | 0x80);
 				count++;
-			} while((value >>= 7) != 0);
+			} while ((value >>= 7) != 0);
 			ioBuffer[ioIndex - 1] &= 0x7F;
 			_Inner.Write(ioBuffer, 0, ioIndex);
 			Position += ioIndex;
@@ -80,7 +81,7 @@ namespace NBitcoin.Protobuf
 		{
 			key = 0;
 			ulong lkey;
-			if(!TryReadULong(out lkey))
+			if (!TryReadULong(out lkey))
 				return false;
 			key = (int)lkey;
 			int dataType = (int)(key & 0x07);
@@ -121,7 +122,7 @@ namespace NBitcoin.Protobuf
 
 		private void AssertBounds(ulong len)
 		{
-			if((int)len > MaxLength)
+			if ((int)len > MaxLength)
 				throw new ArgumentOutOfRangeException("The deserialized message is too big");
 		}
 
@@ -142,7 +143,7 @@ namespace NBitcoin.Protobuf
 			private set
 			{
 				_Position = value;
-				if(Position > MaxLength)
+				if (Position > MaxLength)
 					throw new ArgumentOutOfRangeException("The deserialized message is too big");
 			}
 		}

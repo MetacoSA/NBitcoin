@@ -13,7 +13,7 @@ namespace NBitcoin.RPC
 	public enum RPCErrorCode
 	{
 		//! Standard JSON-RPC 2.0 errors
-		
+
 		/// <summary>
 		/// RPC_INVALID_REQUEST is internally mapped to HTTP_BAD_REQUEST (400).
 		/// It should not be used for application-layer errors. 
@@ -169,7 +169,7 @@ namespace NBitcoin.RPC
 		/// <summary>
 		/// No wallet specified (error when there are multiple wallets loaded)
 		/// </summary>
-		RPC_WALLET_NOT_SPECIFIED = -19 
+		RPC_WALLET_NOT_SPECIFIED = -19
 	}
 
 
@@ -195,7 +195,7 @@ namespace NBitcoin.RPC
 
 		private static string FindMessage(RPCErrorCode code)
 		{
-			switch(code)
+			switch (code)
 			{
 				case RPCErrorCode.RPC_MISC_ERROR:
 					return "std::exception thrown in command handling";

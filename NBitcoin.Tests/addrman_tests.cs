@@ -70,7 +70,7 @@ namespace NBitcoin.Tests
 			Exception exception = null;
 			var addrmanager = new AddressManager();
 			Random randl = new Random();
-			for(int i = 0; i < 30; i++)
+			for (int i = 0; i < 30; i++)
 			{
 				NetworkAddress address = RandomNetworkAddress(randl);
 				IPAddress addressSource = RandomAddress(randl);
@@ -87,12 +87,12 @@ namespace NBitcoin.Tests
 					try
 					{
 						Random rand = new Random(t);
-						for(int i = 0; i < 50; i++)
+						for (int i = 0; i < 50; i++)
 						{
 							NetworkAddress address = RandomNetworkAddress(rand);
 							IPAddress addressSource = RandomAddress(rand);
 							var operation = rand.Next(0, 7);
-							switch(operation)
+							switch (operation)
 							{
 								case 0:
 									addrmanager.Attempt(address);
@@ -124,15 +124,15 @@ namespace NBitcoin.Tests
 							}
 						}
 					}
-					catch(Exception ex)
+					catch (Exception ex)
 					{
 						exception = ex;
 						throw;
 					}
 				})).ToArray();
-			foreach(var t in threads)
+			foreach (var t in threads)
 				t.Start();
-			foreach(var t in threads)
+			foreach (var t in threads)
 				t.Join();
 
 			Assert.True(addrmanager.nNew != 0);
@@ -143,7 +143,7 @@ namespace NBitcoin.Tests
 
 		private IPAddress RandomAddress(Random rand)
 		{
-			if(rand.Next(0, 100) == 0)
+			if (rand.Next(0, 100) == 0)
 				return IPAddress.Parse("1.2.3.4"); //Simulate collision
 			var count = rand.Next(0, 2) % 2 == 0 ? 4 : 16;
 			return new IPAddress(RandomUtils.GetBytes(count));

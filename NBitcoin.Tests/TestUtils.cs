@@ -15,7 +15,7 @@ namespace NBitcoin.Tests
 		public static void Eventually(Func<bool> act)
 		{
 			var cancel = new CancellationTokenSource(20000);
-			while(!act())
+			while (!act())
 			{
 				cancel.Token.ThrowIfCancellationRequested();
 				Thread.Sleep(50);
@@ -25,7 +25,7 @@ namespace NBitcoin.Tests
 		public static byte[] ToBytes(string str)
 		{
 			byte[] result = new byte[str.Length];
-			for(int i = 0; i < str.Length; i++)
+			for (int i = 0; i < str.Length; i++)
 			{
 				result[i] = (byte)str[i];
 			}
@@ -39,7 +39,7 @@ namespace NBitcoin.Tests
 
 		public static Block CreateFakeBlock(Transaction tx)
 		{
-			var block = new Block();
+			Block block = Network.Main.Consensus.ConsensusFactory.CreateBlock();
 			block.AddTransaction(tx);
 			block.UpdateMerkleRoot();
 			return block;
@@ -47,7 +47,7 @@ namespace NBitcoin.Tests
 
 		public static Block CreateFakeBlock()
 		{
-			var block = TestUtils.CreateFakeBlock(new Transaction());
+			var block = TestUtils.CreateFakeBlock(Network.Main.CreateTransaction());
 			block.Header.HashPrevBlock = new uint256(RandomUtils.GetBytes(32));
 			block.Header.Nonce = RandomUtils.GetUInt32();
 			return block;
@@ -55,9 +55,9 @@ namespace NBitcoin.Tests
 
 		internal static void EnsureNew(string folderName)
 		{
-			if(Directory.Exists(folderName))
+			if (Directory.Exists(folderName))
 				Directory.Delete(folderName, true);
-			while(true)
+			while (true)
 			{
 				try
 				{

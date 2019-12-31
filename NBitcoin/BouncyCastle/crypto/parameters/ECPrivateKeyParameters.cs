@@ -22,7 +22,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 			ECDomainParameters parameters)
 			: base(algorithm, true, parameters)
 		{
-			if(d == null)
+			if (d == null)
 				throw new ArgumentNullException(nameof(d));
 
 			this.d = d;
@@ -39,12 +39,12 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 		public override bool Equals(
 			object obj)
 		{
-			if(obj == this)
+			if (obj == this)
 				return true;
 
 			ECPrivateKeyParameters other = obj as ECPrivateKeyParameters;
 
-			if(other == null)
+			if (other == null)
 				return false;
 
 			return Equals(other);

@@ -18,13 +18,6 @@ namespace NBitcoin.RPC
 			set;
 		}
 
-		[Obsolete("Do not parse JSON")]
-		public Transaction ParseJson(string str)
-		{
-			JObject obj = JObject.Parse(str);
-			return Parse(obj);
-		}
-
 		[Obsolete("Use RawFormatter.ParseJson method instead")]
 		public Transaction Parse(string str)
 		{

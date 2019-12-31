@@ -14,7 +14,7 @@ namespace NBitcoin
 		ReaderWriterLock @lock = new ReaderWriterLock();
 		public CachedTransactionRepository(ITransactionRepository inner)
 		{
-			if(inner == null)
+			if (inner == null)
 				throw new ArgumentNullException(nameof(inner));
 			ReadThrough = true;
 			WriteThrough = true;
@@ -30,7 +30,7 @@ namespace NBitcoin
 
 		public Transaction GetFromCache(uint256 txId)
 		{
-			using(@lock.LockRead())
+			using (@lock.LockRead())
 			{
 				return _Transactions.TryGet(txId);
 			}
@@ -42,16 +42,16 @@ namespace NBitcoin
 		{
 			bool found = false;
 			Transaction result = null;
-			using(@lock.LockRead())
+			using (@lock.LockRead())
 			{
 				found = _Transactions.TryGetValue(txId, out result);
 			}
-			if(!found)
+			if (!found)
 			{
 				result = await _Inner.GetAsync(txId).ConfigureAwait(false);
-				if(ReadThrough)
+				if (ReadThrough)
 				{
-					using(@lock.LockWrite())
+					using (@lock.LockWrite())
 					{
 
 						_Transactions.AddOrReplace(txId, result);
@@ -66,18 +66,18 @@ namespace NBitcoin
 		private void EvictIfNecessary(uint256 txId)
 		{
 			_EvictionQueue.Enqueue(txId);
-			while(_Transactions.Count > MaxCachedTransactions && _EvictionQueue.Count > 0)
+			while (_Transactions.Count > MaxCachedTransactions && _EvictionQueue.Count > 0)
 				_Transactions.Remove(_EvictionQueue.Dequeue());
 		}
 
 		public Task PutAsync(uint256 txId, Transaction tx)
 		{
-			if(WriteThrough)
+			if (WriteThrough)
 			{
-				using(@lock.LockWrite())
+				using (@lock.LockWrite())
 				{
 
-					if(!_Transactions.ContainsKey(txId))
+					if (!_Transactions.ContainsKey(txId))
 					{
 
 						_Transactions.AddOrReplace(txId, tx);

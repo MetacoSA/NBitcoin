@@ -42,7 +42,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Paddings
 		{
 			byte code = (byte)(input.Length - inOff);
 
-			while(inOff < input.Length)
+			while (inOff < input.Length)
 			{
 				input[inOff] = code;
 				inOff++;
@@ -60,12 +60,12 @@ namespace NBitcoin.BouncyCastle.Crypto.Paddings
 			byte countAsByte = input[input.Length - 1];
 			int count = countAsByte;
 
-			if(count < 1 || count > input.Length)
+			if (count < 1 || count > input.Length)
 				throw new InvalidCipherTextException("pad block corrupted");
 
-			for(int i = 2; i <= count; i++)
+			for (int i = 2; i <= count; i++)
 			{
-				if(input[input.Length - i] != countAsByte)
+				if (input[input.Length - i] != countAsByte)
 					throw new InvalidCipherTextException("pad block corrupted");
 			}
 

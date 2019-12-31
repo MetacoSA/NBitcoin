@@ -15,12 +15,10 @@ namespace NBitcoin.JsonConverters
 #endif
 	class BitcoinSerializableJsonConverter : JsonConverter
 	{
-		public BitcoinSerializableJsonConverter()
-		{
-
-		}
 		public BitcoinSerializableJsonConverter(Network network)
 		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
 			Network = network;
 		}
 
@@ -37,12 +35,12 @@ namespace NBitcoin.JsonConverters
 		{
 			if (reader.TokenType == JsonToken.Null)
 				return null;
-
+			reader.AssertJsonType(JsonToken.String);
 			try
 			{
 				IBitcoinSerializable obj = null;
 				var bytes = Encoders.Hex.DecodeData((string)reader.Value);
-				if (Network == null || !Network.Consensus.ConsensusFactory.TryCreateNew(objectType, out obj))
+				if (!Network.Consensus.ConsensusFactory.TryCreateNew(objectType, out obj))
 				{
 					if (objectType == typeof(PubKey))
 					{
@@ -53,7 +51,7 @@ namespace NBitcoin.JsonConverters
 						obj = (IBitcoinSerializable)Activator.CreateInstance(objectType);
 					}
 				}
-				obj.ReadWrite(bytes);
+				obj.ReadWrite(bytes, Network);
 				return obj;
 			}
 			catch (EndOfStreamException)

@@ -23,7 +23,7 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 		public SlimChainBehavior(SlimChain chain)
 		{
-			if(chain == null)
+			if (chain == null)
 				throw new ArgumentNullException(nameof(chain));
 			_Chain = chain;
 		}
@@ -43,26 +43,31 @@ namespace NBitcoin.Protocol.Behaviors
 				TrySync();
 			}, null, 0, (int)TimeSpan.FromMinutes(10).TotalMilliseconds);
 			RegisterDisposable(_Refresh);
-			if(AttachedNode.State == NodeState.Connected)
+			if (AttachedNode.State == NodeState.Connected)
 			{
 				AttachedNode.MyVersion.StartHeight = Chain.Height;
 			}
 			AttachedNode.StateChanged += AttachedNode_StateChanged;
 			RegisterDisposable(AttachedNode.Filters.Add(Intercept));
+			if (AttachedNode.State == NodeState.HandShaked)
+			{
+				AttachedNode.SendMessageAsync(new SendHeadersPayload());
+				TrySync();
+			}
 		}
 
 		void Intercept(IncomingMessage message, Action act)
 		{
-			if(message.Node.State == NodeState.HandShaked)
+			if (message.Node.State == NodeState.HandShaked)
 			{
 				message.Message.IfPayloadIs<HeadersPayload>(headers =>
 				{
 					bool updated = false;
-					foreach(var h in headers.Headers)
+					foreach (var h in headers.Headers)
 					{
 						updated |= AddToChain(h);
 					}
-					if(updated)
+					if (updated)
 					{
 						message.Node.SendMessageAsync(new GetHeadersPayload()
 						{
@@ -75,7 +80,7 @@ namespace NBitcoin.Protocol.Behaviors
 				{
 					var needSync = invs.Where(v => v.Type == InventoryType.MSG_BLOCK)
 						.Any(b => !_Chain.Contains(b.Hash));
-					if(needSync)
+					if (needSync)
 						TrySync();
 				});
 			}
@@ -90,9 +95,9 @@ namespace NBitcoin.Protocol.Behaviors
 		private void TrySync()
 		{
 			var node = AttachedNode;
-			if(node != null)
+			if (node != null)
 			{
-				if(node.State == NodeState.HandShaked)
+				if (node.State == NodeState.HandShaked)
 				{
 					node.SendMessageAsync(new GetHeadersPayload()
 					{
@@ -104,7 +109,7 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void AttachedNode_StateChanged(Node node, NodeState oldState)
 		{
-			if(node.State == NodeState.HandShaked)
+			if (node.State == NodeState.HandShaked)
 			{
 				node.SendMessageAsync(new SendHeadersPayload());
 				TrySync();

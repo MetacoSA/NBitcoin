@@ -24,7 +24,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
         */
 		protected override ECPoint MultiplyPositive(ECPoint point, BigInteger k)
 		{
-			if(!(point is AbstractF2mPoint))
+			if (!(point is AbstractF2mPoint))
 				throw new ArgumentException("Only AbstractF2mPoint can be used in WTauNafMultiplier");
 
 			AbstractF2mPoint p = (AbstractF2mPoint)point;
@@ -77,7 +77,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			sbyte a = (sbyte)curve.A.ToBigInteger().IntValue;
 
 			AbstractF2mPoint[] pu;
-			if((preCompInfo == null) || !(preCompInfo is WTauNafPreCompInfo))
+			if ((preCompInfo == null) || !(preCompInfo is WTauNafPreCompInfo))
 			{
 				pu = Tnaf.GetPreComp(p, a);
 
@@ -92,7 +92,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 
 			// TODO Include negations in precomp (optionally) and use from here
 			AbstractF2mPoint[] puNeg = new AbstractF2mPoint[pu.Length];
-			for(int i = 0; i < pu.Length; ++i)
+			for (int i = 0; i < pu.Length; ++i)
 			{
 				puNeg[i] = (AbstractF2mPoint)pu[i].Negate();
 			}
@@ -102,11 +102,11 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			AbstractF2mPoint q = (AbstractF2mPoint)p.Curve.Infinity;
 
 			int tauCount = 0;
-			for(int i = u.Length - 1; i >= 0; i--)
+			for (int i = u.Length - 1; i >= 0; i--)
 			{
 				++tauCount;
 				int ui = u[i];
-				if(ui != 0)
+				if (ui != 0)
 				{
 					q = q.TauPow(tauCount);
 					tauCount = 0;
@@ -115,7 +115,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 					q = (AbstractF2mPoint)q.Add(x);
 				}
 			}
-			if(tauCount > 0)
+			if (tauCount > 0)
 			{
 				q = q.TauPow(tauCount);
 			}

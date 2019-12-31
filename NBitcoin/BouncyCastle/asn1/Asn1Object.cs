@@ -18,11 +18,11 @@ namespace NBitcoin.BouncyCastle.Asn1
 				MemoryStream input = new MemoryStream(data, false);
 				Asn1InputStream asn1 = new Asn1InputStream(input, data.Length);
 				Asn1Object result = asn1.ReadObject();
-				if(input.Position != input.Length)
+				if (input.Position != input.Length)
 					throw new IOException("extra data found after object");
 				return result;
 			}
-			catch(InvalidCastException)
+			catch (InvalidCastException)
 			{
 				throw new IOException("cannot recognise object in byte array");
 			}
@@ -39,7 +39,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 			{
 				return new Asn1InputStream(inStr).ReadObject();
 			}
-			catch(InvalidCastException)
+			catch (InvalidCastException)
 			{
 				throw new IOException("cannot recognise object in stream");
 			}

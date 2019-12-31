@@ -37,7 +37,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void ShouldEncodeProperly()
 		{
-			foreach(var i in DataSet)
+			foreach (var i in DataSet)
 			{
 				string data = (string)i[0];
 				string encoded = (string)i[1];
@@ -55,7 +55,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void ShouldDecodeProperly()
 		{
-			foreach(var i in DataSet)
+			foreach (var i in DataSet)
 			{
 				string data = (string)i[0];
 				string encoded = (string)i[1];
@@ -84,10 +84,10 @@ namespace NBitcoin.Tests
 		{
 			var tests = TestCase.read_json("data/base58_keys_valid.json");
 			Network network;
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				string strTest = test.ToString();
-				if(test.Count < 3) // Allow for extra stuff (useful for comments)
+				if (test.Count < 3) // Allow for extra stuff (useful for comments)
 				{
 					Assert.True(false, "Bad test " + strTest);
 					continue;
@@ -98,12 +98,12 @@ namespace NBitcoin.Tests
 				//const Object &metadata = test[2].get_obj();
 				bool isPrivkey = (bool)test.GetDynamic(2).isPrivkey;
 				bool isTestnet = (bool)test.GetDynamic(2).isTestnet;
-				if(isTestnet)
+				if (isTestnet)
 					network = Network.TestNet;
 				else
 					network = Network.Main;
 
-				if(isPrivkey)
+				if (isPrivkey)
 				{
 					bool isCompressed = (bool)test.GetDynamic(2).isCompressed;
 
@@ -126,9 +126,9 @@ namespace NBitcoin.Tests
 					var addr = network.CreateBitcoinAddress(exp_base58string);
 					Assert.True((addr is BitcoinScriptAddress) == (exp_addrType == "script"), "isScript mismatch" + strTest);
 
-					if(exp_addrType == "script")
+					if (exp_addrType == "script")
 						Assert.True(addr.GetType() == typeof(BitcoinScriptAddress));
-					if(exp_addrType == "pubkey")
+					if (exp_addrType == "pubkey")
 						Assert.True(addr.GetType() == typeof(BitcoinPubKeyAddress));
 
 					Assert.Throws<FormatException>(() => network.CreateBitcoinSecret(exp_base58string));
@@ -146,10 +146,10 @@ namespace NBitcoin.Tests
 			tests = tests.Concat(TestCase.read_json("data/base58_keys_valid2.json")).ToArray();
 			Network network = null;
 
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				string strTest = test.ToString();
-				if(test.Count < 3) // Allow for extra stuff (useful for comments)
+				if (test.Count < 3) // Allow for extra stuff (useful for comments)
 				{
 					Assert.False(true, "Bad test: " + strTest);
 					continue;
@@ -160,11 +160,11 @@ namespace NBitcoin.Tests
 				bool isPrivkey = (bool)metadata.isPrivkey;
 				bool isTestnet = (bool)metadata.isTestnet;
 
-				if(isTestnet)
+				if (isTestnet)
 					network = Network.TestNet;
 				else
 					network = Network.Main;
-				if(isPrivkey)
+				if (isPrivkey)
 				{
 					bool isCompressed = metadata.isCompressed;
 					Key key = new Key(exp_payload, fCompressedIn: isCompressed);
@@ -175,23 +175,23 @@ namespace NBitcoin.Tests
 				{
 					string exp_addrType = (string)metadata.addrType;
 					TxDestination dest;
-					if(exp_addrType == "pubkey")
+					if (exp_addrType == "pubkey")
 					{
 						dest = new KeyId(new uint160(exp_payload));
 					}
-					else if(exp_addrType == "script")
+					else if (exp_addrType == "script")
 					{
 						dest = new ScriptId(new uint160(exp_payload));
 					}
-					else if(exp_addrType == "p2wpkh")
+					else if (exp_addrType == "p2wpkh")
 					{
 						dest = new WitKeyId(new uint160(exp_payload));
 					}
-					else if(exp_addrType == "p2wsh")
+					else if (exp_addrType == "p2wsh")
 					{
 						dest = new WitScriptId(exp_payload);
 					}
-					else if(exp_addrType == "none")
+					else if (exp_addrType == "none")
 					{
 						continue;
 					}
@@ -207,7 +207,7 @@ namespace NBitcoin.Tests
 						Assert.True(addrOut.ScriptPubKey == dest.ScriptPubKey);
 						Assert.True(dest.ScriptPubKey.GetDestination() == dest);
 					}
-					catch(ArgumentException)
+					catch (ArgumentException)
 					{
 						Assert.True(dest.GetType() == typeof(TxDestination));
 					}
@@ -228,7 +228,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void base58_keys_invalid()
 		{
-			foreach(var i in InvalidKeys)
+			foreach (var i in InvalidKeys)
 			{
 				string data = (string)i[0];
 				// must be invalid as public and as private key

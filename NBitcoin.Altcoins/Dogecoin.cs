@@ -37,6 +37,12 @@ namespace NBitcoin.Altcoins
 			{
 				return new DogecoinBlock(new DogecoinBlockHeader());
 			}
+			protected override TransactionBuilder CreateTransactionBuilderCore(Network network)
+			{
+				var txBuilder = base.CreateTransactionBuilderCore(network);
+				txBuilder.StandardTransactionPolicy.MinFee = Money.Coins(1m);
+				return txBuilder;
+			}
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -323,7 +329,7 @@ namespace NBitcoin.Altcoins
 				MajorityWindow = 1000,
 				PowLimit = new Target(new uint256("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				PowTargetTimespan = TimeSpan.FromSeconds(4 * 60 * 60),
-				PowTargetSpacing = TimeSpan.FromSeconds(1),
+				PowTargetSpacing = TimeSpan.FromSeconds(60),
 				PowAllowMinDifficultyBlocks = false,
 				CoinbaseMaturity = 60,
 				//  Not set in reference client, assuming false
@@ -356,9 +362,7 @@ namespace NBitcoin.Altcoins
 
 		protected override void PostInit()
 		{
-			RegisterDefaultCookiePath(Mainnet, ".cookie");
-			RegisterDefaultCookiePath(Testnet, "testnet3", ".cookie");
-			RegisterDefaultCookiePath(Regtest, "regtest", ".cookie");
+			RegisterDefaultCookiePath("Dogecoin");
 		}
 
 	}

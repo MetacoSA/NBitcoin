@@ -87,7 +87,7 @@ namespace NBitcoin.Tests
 				//},
 			};
 
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				var input = Encoding.UTF8.GetBytes(test.Input);
 				var encoded = test.Encoder.EncodeData(input);
@@ -98,7 +98,7 @@ namespace NBitcoin.Tests
 					var decoded = test.Encoder.DecodeData(encoded);
 					AssertEx.CollectionEquals(input, decoded);
 				}
-				catch(NotSupportedException)
+				catch (NotSupportedException)
 				{
 				}
 			}
@@ -110,7 +110,7 @@ namespace NBitcoin.Tests
 
 			var decoded1 = Encoders.Base58Check.DecodeData(encoded1);
 			byte[] arr = new byte[input1.Length - 6];
-			Array.Copy(input1,3, arr, 0, arr.Length);
+			Array.Copy(input1, 3, arr, 0, arr.Length);
 			AssertEx.CollectionEquals(input1.SafeSubarray(3, input1.Length - 6), decoded1);
 		}
 	}

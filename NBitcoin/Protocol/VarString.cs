@@ -23,7 +23,7 @@ namespace NBitcoin.Protocol
 		}
 		public VarString(byte[] bytes)
 		{
-			if(bytes == null)
+			if (bytes == null)
 				throw new ArgumentNullException(nameof(bytes));
 			_Bytes = bytes;
 		}
@@ -33,7 +33,7 @@ namespace NBitcoin.Protocol
 		}
 		public byte[] GetString(bool @unsafe)
 		{
-			if(@unsafe)
+			if (@unsafe)
 				return _Bytes;
 			return _Bytes.ToArray();
 		}
@@ -43,9 +43,9 @@ namespace NBitcoin.Protocol
 		{
 			var len = new VarInt((ulong)_Bytes.Length);
 			stream.ReadWrite(ref len);
-			if(!stream.Serializing)
+			if (!stream.Serializing)
 			{
-				if(len.ToLong() > (uint)stream.MaxArraySize)
+				if (len.ToLong() > (uint)stream.MaxArraySize)
 					throw new ArgumentOutOfRangeException("Array size not big");
 				_Bytes = new byte[len.ToLong()];
 			}
@@ -55,17 +55,17 @@ namespace NBitcoin.Protocol
 		internal static void StaticWrite(BitcoinStream bs, byte[] bytes)
 		{
 			var len = bytes == null ? 0 : (ulong)bytes.Length;
-			if(len > (uint)bs.MaxArraySize)
+			if (len > (uint)bs.MaxArraySize)
 				throw new ArgumentOutOfRangeException("Array size too big");
 			VarInt.StaticWrite(bs, len);
-			if(bytes != null)
+			if (bytes != null)
 				bs.ReadWrite(ref bytes);
 		}
 
 		internal static void StaticRead(BitcoinStream bs, ref byte[] bytes)
 		{
 			var len = VarInt.StaticRead(bs);
-			if(len > (uint)bs.MaxArraySize)
+			if (len > (uint)bs.MaxArraySize)
 				throw new ArgumentOutOfRangeException("Array size too big");
 			bytes = new byte[len];
 			bs.ReadWrite(ref bytes);

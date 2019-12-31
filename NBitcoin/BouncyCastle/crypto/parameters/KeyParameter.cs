@@ -10,7 +10,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 		public KeyParameter(
 			byte[] key)
 		{
-			if(key == null)
+			if (key == null)
 				throw new ArgumentNullException(nameof(key));
 
 			this.key = (byte[])key.Clone();
@@ -21,11 +21,11 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 			int keyOff,
 			int keyLen)
 		{
-			if(key == null)
+			if (key == null)
 				throw new ArgumentNullException(nameof(key));
-			if(keyOff < 0 || keyOff > key.Length)
+			if (keyOff < 0 || keyOff > key.Length)
 				throw new ArgumentOutOfRangeException("keyOff");
-			if(keyLen < 0 || (keyOff + keyLen) > key.Length)
+			if (keyLen < 0 || (keyOff + keyLen) > key.Length)
 				throw new ArgumentOutOfRangeException("keyLen");
 
 			this.key = new byte[keyLen];

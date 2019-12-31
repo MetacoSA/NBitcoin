@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
-    public enum EstimateSmartFeeMode
-    {
+	public enum EstimateSmartFeeMode
+	{
 		Economical,
 		Conservative
-    }
+	}
 }

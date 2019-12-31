@@ -55,7 +55,7 @@ namespace NBitcoin.Protocol
 		static string _NUserAgent;
 		public static string GetNBitcoinUserAgent()
 		{
-			if(_NUserAgent == null)
+			if (_NUserAgent == null)
 			{
 #if WINDOWS_UWP
 				// get the app version
@@ -197,27 +197,27 @@ namespace NBitcoin.Protocol
 		public override void ReadWriteCore(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref version);
-			using(stream.ProtocolVersionScope(version))
+			using (stream.ProtocolVersionScope(version))
 			{
 				stream.ReadWrite(ref services);
 				stream.ReadWrite(ref timestamp);
-				using(stream.SerializationTypeScope(SerializationType.Hash)) //No time field in version message
+				using (stream.SerializationTypeScope(SerializationType.Hash)) //No time field in version message
 				{
 					stream.ReadWrite(ref addr_recv);
 				}
-				if(version >= 106)
+				if (version >= 106)
 				{
-					using(stream.SerializationTypeScope(SerializationType.Hash)) //No time field in version message
+					using (stream.SerializationTypeScope(SerializationType.Hash)) //No time field in version message
 					{
 						stream.ReadWrite(ref addr_from);
 					}
 					stream.ReadWrite(ref nonce);
 					stream.ReadWrite(ref user_agent);
-					if(!stream.ProtocolCapabilities.SupportUserAgent)
-						if(user_agent.Length != 0)
+					if (!stream.ProtocolCapabilities.SupportUserAgent)
+						if (user_agent.Length != 0)
 							throw new FormatException("Should not find user agent for current version " + version);
 					stream.ReadWrite(ref start_height);
-					if(version >= 70001)
+					if (version >= 70001)
 						stream.ReadWrite(ref relay);
 				}
 			}

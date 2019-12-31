@@ -31,11 +31,11 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 		public static ECPoint SumOfMultiplies(ECPoint[] ps, BigInteger[] ks)
 		{
-			if(ps == null || ks == null || ps.Length != ks.Length || ps.Length < 1)
+			if (ps == null || ks == null || ps.Length != ks.Length || ps.Length < 1)
 				throw new ArgumentException("point and scalar arrays should be non-null, and of equal, non-zero, length");
 
 			int count = ps.Length;
-			switch(count)
+			switch (count)
 			{
 				case 1:
 					return ps[0].Multiply(ks[0]);
@@ -50,13 +50,13 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 			ECPoint[] imported = new ECPoint[count];
 			imported[0] = p;
-			for(int i = 1; i < count; ++i)
+			for (int i = 1; i < count; ++i)
 			{
 				imported[i] = ImportPoint(c, ps[i]);
 			}
 
 			GlvEndomorphism glvEndomorphism = c.GetEndomorphism() as GlvEndomorphism;
-			if(glvEndomorphism != null)
+			if (glvEndomorphism != null)
 			{
 				return ValidatePoint(ImplSumOfMultipliesGlv(imported, ks, glvEndomorphism));
 			}
@@ -72,14 +72,14 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			// Point multiplication for Koblitz curves (using WTNAF) beats Shamir's trick
 			{
 				AbstractF2mCurve f2mCurve = cp as AbstractF2mCurve;
-				if(f2mCurve != null && f2mCurve.IsKoblitz)
+				if (f2mCurve != null && f2mCurve.IsKoblitz)
 				{
 					return ValidatePoint(P.Multiply(a).Add(Q.Multiply(b)));
 				}
 			}
 
 			GlvEndomorphism glvEndomorphism = cp.GetEndomorphism() as GlvEndomorphism;
-			if(glvEndomorphism != null)
+			if (glvEndomorphism != null)
 			{
 				return ValidatePoint(
 					ImplSumOfMultipliesGlv(new ECPoint[] { P, Q }, new BigInteger[] { a, b }, glvEndomorphism));
@@ -117,7 +117,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		public static ECPoint ImportPoint(ECCurve c, ECPoint p)
 		{
 			ECCurve cp = p.Curve;
-			if(!c.Equals(cp))
+			if (!c.Equals(cp))
 				throw new ArgumentException("Point must be on the same curve");
 
 			return c.ImportPoint(p);
@@ -141,21 +141,21 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			c[0] = zs[off];
 
 			int i = 0;
-			while(++i < len)
+			while (++i < len)
 			{
 				c[i] = c[i - 1].Multiply(zs[off + i]);
 			}
 
 			--i;
 
-			if(scale != null)
+			if (scale != null)
 			{
 				c[i] = c[i].Multiply(scale);
 			}
 
 			ECFieldElement u = c[i].Invert();
 
-			while(i > 0)
+			while (i > 0)
 			{
 				int j = off + i--;
 				ECFieldElement tmp = zs[j];
@@ -181,16 +181,16 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			BigInteger x = k.Abs();
 			ECPoint q = p.Curve.Infinity;
 			int t = x.BitLength;
-			if(t > 0)
+			if (t > 0)
 			{
-				if(x.TestBit(0))
+				if (x.TestBit(0))
 				{
 					q = p;
 				}
-				for(int i = 1; i < t; i++)
+				for (int i = 1; i < t; i++)
 				{
 					p = p.Twice();
-					if(x.TestBit(i))
+					if (x.TestBit(i))
 					{
 						q = q.Add(p);
 					}
@@ -201,7 +201,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 		public static ECPoint ValidatePoint(ECPoint p)
 		{
-			if(!p.IsValid())
+			if (!p.IsValid())
 				throw new ArgumentException("Invalid point", "p");
 
 			return p;
@@ -229,7 +229,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			ECPoint R = infinity;
 
 			int i = jsf.Length;
-			while(--i >= 0)
+			while (--i >= 0)
 			{
 				int jsfi = jsf[i];
 
@@ -303,32 +303,32 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			ECPoint R = infinity;
 			int zeroes = 0;
 
-			for(int i = len - 1; i >= 0; --i)
+			for (int i = len - 1; i >= 0; --i)
 			{
 				int wiP = i < wnafP.Length ? (int)(sbyte)wnafP[i] : 0;
 				int wiQ = i < wnafQ.Length ? (int)(sbyte)wnafQ[i] : 0;
 
-				if((wiP | wiQ) == 0)
+				if ((wiP | wiQ) == 0)
 				{
 					++zeroes;
 					continue;
 				}
 
 				ECPoint r = infinity;
-				if(wiP != 0)
+				if (wiP != 0)
 				{
 					int nP = System.Math.Abs(wiP);
 					ECPoint[] tableP = wiP < 0 ? preCompNegP : preCompP;
 					r = r.Add(tableP[nP >> 1]);
 				}
-				if(wiQ != 0)
+				if (wiQ != 0)
 				{
 					int nQ = System.Math.Abs(wiQ);
 					ECPoint[] tableQ = wiQ < 0 ? preCompNegQ : preCompQ;
 					r = r.Add(tableQ[nQ >> 1]);
 				}
 
-				if(zeroes > 0)
+				if (zeroes > 0)
 				{
 					R = R.TimesPow2(zeroes);
 					zeroes = 0;
@@ -337,7 +337,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 				R = R.TwicePlus(r);
 			}
 
-			if(zeroes > 0)
+			if (zeroes > 0)
 			{
 				R = R.TimesPow2(zeroes);
 			}
@@ -352,7 +352,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			WNafPreCompInfo[] infos = new WNafPreCompInfo[count];
 			byte[][] wnafs = new byte[count][];
 
-			for(int i = 0; i < count; ++i)
+			for (int i = 0; i < count; ++i)
 			{
 				BigInteger ki = ks[i];
 				negs[i] = ki.SignValue < 0;
@@ -373,7 +373,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			int len = ps.Length;
 
 			BigInteger[] abs = new BigInteger[len << 1];
-			for(int i = 0, j = 0; i < len; ++i)
+			for (int i = 0, j = 0; i < len; ++i)
 			{
 				BigInteger[] ab = glvEndomorphism.DecomposeScalar(ks[i].Mod(n));
 				abs[j++] = ab[0];
@@ -381,13 +381,13 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			}
 
 			ECPointMap pointMap = glvEndomorphism.PointMap;
-			if(glvEndomorphism.HasEfficientPointMap)
+			if (glvEndomorphism.HasEfficientPointMap)
 			{
 				return ECAlgorithms.ImplSumOfMultiplies(ps, pointMap, abs);
 			}
 
 			ECPoint[] pqs = new ECPoint[len << 1];
-			for(int i = 0, j = 0; i < len; ++i)
+			for (int i = 0, j = 0; i < len; ++i)
 			{
 				ECPoint p = ps[i], q = pointMap.Map(p);
 				pqs[j++] = p;
@@ -405,7 +405,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			WNafPreCompInfo[] infos = new WNafPreCompInfo[fullCount];
 			byte[][] wnafs = new byte[fullCount][];
 
-			for(int i = 0; i < halfCount; ++i)
+			for (int i = 0; i < halfCount; ++i)
 			{
 				int j0 = i << 1, j1 = j0 + 1;
 
@@ -431,7 +431,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		private static ECPoint ImplSumOfMultiplies(bool[] negs, WNafPreCompInfo[] infos, byte[][] wnafs)
 		{
 			int len = 0, count = wnafs.Length;
-			for(int i = 0; i < count; ++i)
+			for (int i = 0; i < count; ++i)
 			{
 				len = System.Math.Max(len, wnafs[i].Length);
 			}
@@ -442,15 +442,15 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			ECPoint R = infinity;
 			int zeroes = 0;
 
-			for(int i = len - 1; i >= 0; --i)
+			for (int i = len - 1; i >= 0; --i)
 			{
 				ECPoint r = infinity;
 
-				for(int j = 0; j < count; ++j)
+				for (int j = 0; j < count; ++j)
 				{
 					byte[] wnaf = wnafs[j];
 					int wi = i < wnaf.Length ? (int)(sbyte)wnaf[i] : 0;
-					if(wi != 0)
+					if (wi != 0)
 					{
 						int n = System.Math.Abs(wi);
 						WNafPreCompInfo info = infos[j];
@@ -459,13 +459,13 @@ namespace NBitcoin.BouncyCastle.Math.EC
 					}
 				}
 
-				if(r == infinity)
+				if (r == infinity)
 				{
 					++zeroes;
 					continue;
 				}
 
-				if(zeroes > 0)
+				if (zeroes > 0)
 				{
 					R = R.TimesPow2(zeroes);
 					zeroes = 0;
@@ -474,7 +474,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 				R = R.TwicePlus(r);
 			}
 
-			if(zeroes > 0)
+			if (zeroes > 0)
 			{
 				R = R.TimesPow2(zeroes);
 			}

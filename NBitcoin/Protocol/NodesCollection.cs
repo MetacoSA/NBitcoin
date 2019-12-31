@@ -37,7 +37,7 @@ namespace NBitcoin.Protocol
 	}
 
 	public interface IReadOnlyNodesCollection : IEnumerable<Node>
-    {
+	{
 		event EventHandler<NodeEventArgs> Added;
 		event EventHandler<NodeEventArgs> Removed;
 
@@ -90,9 +90,9 @@ namespace NBitcoin.Protocol
 		}
 		public bool Add(Node node)
 		{
-			if(node == null)
+			if (node == null)
 				throw new ArgumentNullException(nameof(node));
-			if(_Nodes.TryAdd(node, node))
+			if (_Nodes.TryAdd(node, node))
 			{
 				node.MessageProducer.AddMessageListener(bridge);
 				OnNodeAdded(node);
@@ -104,7 +104,7 @@ namespace NBitcoin.Protocol
 		public bool Remove(Node node)
 		{
 			Node old;
-			if(_Nodes.TryRemove(node, out old))
+			if (_Nodes.TryRemove(node, out old))
 			{
 				node.MessageProducer.RemoveMessageListener(bridge);
 				OnNodeRemoved(old);
@@ -119,14 +119,14 @@ namespace NBitcoin.Protocol
 		private void OnNodeAdded(Node node)
 		{
 			var added = Added;
-			if(added != null)
+			if (added != null)
 				added(this, new NodeEventArgs(node, true));
 		}
 
 		private void OnNodeRemoved(Node node)
 		{
 			var removed = Removed;
-			if(removed != null)
+			if (removed != null)
 				removed(this, new NodeEventArgs(node, false));
 		}
 
@@ -152,7 +152,7 @@ namespace NBitcoin.Protocol
 
 		private static bool Match(IPAddress ip, int? port, Node n)
 		{
-			if(port.HasValue)
+			if (port.HasValue)
 			{
 				return (n.State > NodeState.Disconnecting && n.RemoteSocketAddress.Equals(ip) && n.RemoteSocketPort == port.Value) ||
 						(n.PeerVersion.AddressFrom.Address.Equals(ip) && n.PeerVersion.AddressFrom.Port == port.Value);
@@ -185,7 +185,7 @@ namespace NBitcoin.Protocol
 
 		public void DisconnectAll(CancellationToken cancellation = default(CancellationToken))
 		{
-			foreach(var node in _Nodes)
+			foreach (var node in _Nodes)
 				node.Key.DisconnectAsync();
 		}
 

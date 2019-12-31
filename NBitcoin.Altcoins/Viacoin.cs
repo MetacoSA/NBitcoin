@@ -338,7 +338,7 @@ namespace NBitcoin.Altcoins
 				MajorityWindow = 1000,
 				PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
-				PowTargetSpacing = TimeSpan.FromSeconds(2.5 * 60),
+				PowTargetSpacing = TimeSpan.FromSeconds(1 * 24),
 				PowAllowMinDifficultyBlocks = true,
 				MinimumChainWork = uint256.Zero,
 				PowNoRetargeting = true,

@@ -12,14 +12,22 @@ namespace NBitcoin.JsonConverters
 	{
 		public override bool CanConvert(Type objectType)
 		{
-			return objectType == typeof(LockTime);
+			return objectType == typeof(LockTime) || objectType == typeof(LockTime?);
 		}
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
 			try
 			{
-				return reader.TokenType == JsonToken.Null ? LockTime.Zero : new LockTime((uint)(long)reader.Value);
+				var nullable = objectType == typeof(LockTime?);
+				if (reader.TokenType == JsonToken.Null)
+				{
+					if (nullable)
+						return null;
+					return LockTime.Zero;
+				}
+				reader.AssertJsonType(JsonToken.Integer);
+				return new LockTime((uint)(long)reader.Value);
 			}
 			catch
 			{
@@ -29,7 +37,7 @@ namespace NBitcoin.JsonConverters
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			if(value != null)
+			if (value != null)
 			{
 				writer.WriteValue(((LockTime)value).Value);
 			}

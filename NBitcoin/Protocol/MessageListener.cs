@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using NBitcoin.Logging;
 
 namespace NBitcoin.Protocol
 {
@@ -31,7 +33,7 @@ namespace NBitcoin.Protocol
 		readonly Action<T> _Process;
 		public NewThreadMessageListener(Action<T> process)
 		{
-			if(process == null)
+			if (process == null)
 				throw new ArgumentNullException(nameof(process));
 			_Process = process;
 		}
@@ -39,16 +41,16 @@ namespace NBitcoin.Protocol
 
 		public void PushMessage(T message)
 		{
-			if(message != null)
+			if (message != null)
 				Task.Factory.StartNew(() =>
 				{
 					try
 					{
 						_Process(message);
 					}
-					catch(Exception ex)
+					catch (Exception ex)
 					{
-						NodeServerTrace.Error("Unexpected expected during message loop", ex);
+						Logs.NodeServer.LogError(default, ex, "Unexpected expected during message loop");
 					}
 				});
 		}
@@ -64,23 +66,23 @@ namespace NBitcoin.Protocol
 			{
 				try
 				{
-					while(!cancellationSource.IsCancellationRequested)
+					while (!cancellationSource.IsCancellationRequested)
 					{
 						var message = _MessageQueue.Take(cancellationSource.Token);
-						if(message != null)
+						if (message != null)
 						{
 							try
 							{
 								processMessage(message);
 							}
-							catch(Exception ex)
+							catch (Exception ex)
 							{
-								NodeServerTrace.Error("Unexpected expected during message loop", ex);
+								Logs.NodeServer.LogError(default, ex, "Unexpected expected during message loop");
 							}
 						}
 					}
 				}
-				catch(OperationCanceledException)
+				catch (OperationCanceledException)
 				{
 				}
 			})).Start();
@@ -109,7 +111,7 @@ namespace NBitcoin.Protocol
 		CancellationTokenSource cancellationSource = new CancellationTokenSource();
 		public void Dispose()
 		{
-			if(cancellationSource.IsCancellationRequested)
+			if (cancellationSource.IsCancellationRequested)
 				return;
 			cancellationSource.Cancel();
 		}

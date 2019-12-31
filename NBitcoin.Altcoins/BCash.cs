@@ -161,7 +161,7 @@ namespace NBitcoin.Altcoins
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xcf,0x9a,0xd2,0xde}, 10201),
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xda,0xf4,0x92,0x6f}, 18333)
 };
-		
+
 		class BCashConsensusFactory : ConsensusFactory
 		{
 			private BCashConsensusFactory()
@@ -224,27 +224,29 @@ namespace NBitcoin.Altcoins
 				_Prefix = prefix;
 			}
 
-			public override bool TryParse<T>(string str, Network network, out T result)
+			public override bool TryParse(string str, Network network, Type targetType, out IBitcoinString result)
 			{
-				if(typeof(BitcoinAddress).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()))
+				var prefix = _Prefix;
+				str = str.Trim();
+				if(str.StartsWith($"{prefix}:", StringComparison.OrdinalIgnoreCase))
 				{
-					var prefix = _Prefix;
-					str = str.Trim();
-					if(str.StartsWith($"{prefix}:", StringComparison.OrdinalIgnoreCase))
+					try
 					{
-						try
+						var addr = BCashAddr.BchAddr.DecodeAddress(str, prefix, network);
+						if (addr.Type == BCashAddr.BchAddr.CashType.P2PKH && targetType.GetTypeInfo().IsAssignableFrom(typeof(BTrashPubKeyAddress).GetTypeInfo()))
 						{
-							var addr = BCashAddr.BchAddr.DecodeAddress(str, prefix, network);
-							if(addr.Type == BCashAddr.BchAddr.CashType.P2PKH)
-								result = (T)(object)new BTrashPubKeyAddress(str, addr);
-							else
-								result = (T)(object)new BTrashScriptAddress(str, addr);
+							result = new BTrashPubKeyAddress(str, addr);
 							return true;
 						}
-						catch { }
+						else if (addr.Type == BCashAddr.BchAddr.CashType.P2SH && targetType.GetTypeInfo().IsAssignableFrom(typeof(BTrashScriptAddress).GetTypeInfo()))
+						{
+							result = new BTrashScriptAddress(str, addr);
+							return true;
+						}
 					}
+					catch { }
 				}
-				return base.TryParse(str, network, out result);
+				return base.TryParse(str, network, targetType, out result);
 			}
 
 			public override BitcoinPubKeyAddress CreateP2PKH(KeyId keyId, Network network)
@@ -300,7 +302,8 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				MinimumChainWork = new uint256("0000000000000000000000000000000000000000007e5dbf54c7f6b58a6853cd"),
 				ConsensusFactory = BCashConsensusFactory.Instance,
-				SupportSegwit = false
+				SupportSegwit = false,
+				NeverNeedPreviousTxForSigning = true
 			})
 			// See https://support.bitpay.com/hc/en-us/articles/115004671663-BitPay-s-Adopted-Conventions-for-Bitcoin-Cash-Addresses-URIs-and-Payment-Requests
 			// Note: This is not compatible with Bitcoin ABC
@@ -817,7 +820,7 @@ namespace BCashAddr
 		}
 
 		/// <summary>
-		/// Converts an array of 8-bit integers into an array of 5-bit integers, right-padding with zeroes if necessary
+		/// Converts an array of 8-bit integers into an array of 5-bit integers, right-padding with zeros if necessary
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
@@ -828,7 +831,7 @@ namespace BCashAddr
 
 		/// <summary>
 		/// Converts an array of 5-bit integers back into an array of 8-bit integers
-		/// removing extra zeroes left from padding if necessary.
+		/// removing extra zeros left from padding if necessary.
 		/// Throws a ValidationError if input is not a zero-padded array of 8-bit integers
 		/// </summary>
 		/// <param name="data"></param>
@@ -854,9 +857,9 @@ namespace BCashAddr
 		/// <returns></returns>
 		public static byte[] Convert(byte[] data, int from, int to, bool strictMode = false)
 		{
-			Validation.Validate(from > 0, "Invald 'from' parameter");
-			Validation.Validate(to > 0, "Invald 'to' parameter");
-			Validation.Validate(data.Length > 0, "Invald data");
+			Validation.Validate(from > 0, "Invalid 'from' parameter");
+			Validation.Validate(to > 0, "Invalid 'to' parameter");
+			Validation.Validate(data.Length > 0, "Invalid data");
 			var d = data.Length * from / (double)to;
 			var length = strictMode ? (int)Math.Floor(d) : (int)Math.Ceiling(d);
 			var mask = (1 << to) - 1;

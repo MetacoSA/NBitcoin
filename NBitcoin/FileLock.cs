@@ -19,9 +19,9 @@ namespace NBitcoin
 		FileStream _Fs = null;
 		public FileLock(string filePath, FileLockType lockType)
 		{
-			if(filePath == null)
+			if (filePath == null)
 				throw new ArgumentNullException(nameof(filePath));
-			if(!File.Exists(filePath))
+			if (!File.Exists(filePath))
 				try
 				{
 					File.Create(filePath).Dispose();
@@ -31,17 +31,17 @@ namespace NBitcoin
 				}
 			CancellationTokenSource source = new CancellationTokenSource();
 			source.CancelAfter(20000);
-			while(true)
+			while (true)
 			{
 				try
 				{
-					if(lockType == FileLockType.Read)
+					if (lockType == FileLockType.Read)
 						_Fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-					if(lockType == FileLockType.ReadWrite)
+					if (lockType == FileLockType.ReadWrite)
 						_Fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
 					break;
 				}
-				catch(IOException)
+				catch (IOException)
 				{
 					Thread.Sleep(50);
 					source.Token.ThrowIfCancellationRequested();

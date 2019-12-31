@@ -9,10 +9,12 @@ namespace NBitcoin
 		private byte[] _buffer;
 		private int _writePos;
 		private int _readPos;
+		private int _lengthInBits;
 
 		public BitStream()
 			: this(new byte[8 * 1024])
 		{
+			_lengthInBits = 0;
 		}
 
 		public BitStream(byte[] buffer)
@@ -20,8 +22,9 @@ namespace NBitcoin
 			var newBuffer = new byte[buffer.Length];
 			Buffer.BlockCopy(buffer, 0, newBuffer, 0, buffer.Length);
 			_buffer = newBuffer;
-			_writePos = 0;
 			_readPos = 0;
+			_writePos = 0;
+			_lengthInBits = buffer.Length * 8;
 		}
 
 		public void WriteBit(bool bit)
@@ -29,15 +32,16 @@ namespace NBitcoin
 			EnsureCapacity();
 			if (bit)
 			{
-				_buffer[_writePos / 8] |= (byte)(1 << ( 8 - (_writePos % 8) - 1));
+				_buffer[_writePos / 8] |= (byte)(1 << (8 - (_writePos % 8) - 1));
 			}
 			_writePos++;
+			_lengthInBits++;
 		}
 
-        public void WriteBits(ulong data, byte count)
-        {
+		public void WriteBits(ulong data, byte count)
+		{
 			data <<= (64 - count);
-			while(count >= 8)
+			while (count >= 8)
 			{
 				var b = (byte)(data >> (64 - 8));
 				WriteByte(b);
@@ -45,7 +49,7 @@ namespace NBitcoin
 				count -= 8;
 			}
 
-			while(count > 0)
+			while (count > 0)
 			{
 				var bit = data >> (64 - 1);
 				WriteBit(bit == 1);
@@ -62,27 +66,31 @@ namespace NBitcoin
 			var i = _writePos / 8;
 			_buffer[i] |= (byte)(b >> remainCount);
 
-			if(remainCount > 0)
+			var written = (8 - remainCount);
+			_writePos += written;
+			_lengthInBits += written;
+
+			if (remainCount > 0)
 			{
 				EnsureCapacity();
-				
-				_buffer[i+1] = (byte)(b << (8 - remainCount));
+
+				_buffer[i + 1] = (byte)(b << (8 - remainCount));
+				_writePos += remainCount;
+				_lengthInBits += remainCount;
 			}
-			_writePos+=8;
 		}
 
 		public bool TryReadBit(out bool bit)
 		{
 			bit = false;
-			var i = _readPos / 8;
-			if ( i == _buffer.Length)
+			if (_readPos == _lengthInBits)
 			{
 				return false;
 			}
 
-			var mask = 1 << (8 - (_readPos % 8) - 1); 
+			var mask = 1 << (8 - (_readPos % 8) - 1);
 
-			bit = (_buffer[i] & mask) == mask;
+			bit = (_buffer[_readPos / 8] & mask) == mask;
 			_readPos++;
 			return true;
 		}
@@ -90,10 +98,11 @@ namespace NBitcoin
 		public bool TryReadBits(int count, out ulong bits)
 		{
 			var val = 0UL;
-			while(count >= 8)
+			while (count >= 8)
 			{
 				val <<= 8;
-				if(!TryReadByte(out var readedByte)){
+				if (!TryReadByte(out var readedByte))
+				{
 					bits = 0U;
 					return false;
 				}
@@ -101,10 +110,11 @@ namespace NBitcoin
 				count -= 8;
 			}
 
-			while(count > 0)
+			while (count > 0)
 			{
 				val <<= 1;
-				if(TryReadBit(out var bit)){
+				if (TryReadBit(out var bit))
+				{
 					val |= bit ? 1UL : 0UL;
 					count--;
 				}
@@ -121,23 +131,23 @@ namespace NBitcoin
 		public bool TryReadByte(out byte b)
 		{
 			b = 0;
-			var i = _readPos / 8;
-			if ( i == _buffer.Length)
+			if (_readPos == _lengthInBits)
 			{
 				return false;
 			}
 
+			var i = _readPos / 8;
 			var remainCount = _readPos % 8;
 			b = (byte)(_buffer[i] << remainCount);
 
-			if(remainCount > 0)
+			if (remainCount > 0)
 			{
-				if(i+1 == _buffer.Length)
+				if (i + 1 == _buffer.Length)
 				{
 					b = 0;
 					return false;
 				}
-				b |= (byte)(_buffer[i+1] >> (8 - remainCount));
+				b |= (byte)(_buffer[i + 1] >> (8 - remainCount));
 			}
 			_readPos += 8;
 			return true;
@@ -153,9 +163,9 @@ namespace NBitcoin
 
 		private void EnsureCapacity()
 		{
-			if ( (_writePos / 8) == (_buffer.Length - 1))
+			if (_writePos / 8 == _buffer.Length)
 			{
-				Array.Resize(ref _buffer, _buffer.Length + ( 4 * 1024 ));
+				Array.Resize(ref _buffer, _buffer.Length + (4 * 1024));
 			}
 		}
 	}
@@ -211,7 +221,8 @@ namespace NBitcoin
 
 		public bool TryRead(out ulong value)
 		{
-			if(TryReadUInt64(out var readedValue)){
+			if (TryReadUInt64(out var readedValue))
+			{
 				var currentValue = _lastValue + readedValue;
 				_lastValue = currentValue;
 				value = currentValue;
@@ -226,17 +237,17 @@ namespace NBitcoin
 		{
 			value = 0U;
 			var count = 0UL;
-			if(!_stream.TryReadBit(out var bit))
+			if (!_stream.TryReadBit(out var bit))
 				return false;
 
 			while (bit)
 			{
 				count++;
-				if(!_stream.TryReadBit(out bit))
+				if (!_stream.TryReadBit(out bit))
 					return false;
 			}
 
-			if(_stream.TryReadBits(_p, out var remainder))
+			if (_stream.TryReadBits(_p, out var remainder))
 			{
 				value = (count * _modP) + remainder;
 				return true;

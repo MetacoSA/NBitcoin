@@ -54,9 +54,9 @@ namespace System.Web.NBitcoin
 
 		static void WriteCharBytes(IList buf, char ch, Encoding e)
 		{
-			if(ch > 255)
+			if (ch > 255)
 			{
-				foreach(byte b in e.GetBytes(new char[] { ch }))
+				foreach (byte b in e.GetBytes(new char[] { ch }))
 					buf.Add(b);
 			}
 			else
@@ -65,13 +65,13 @@ namespace System.Web.NBitcoin
 
 		public static string UrlDecode(string s, Encoding e)
 		{
-			if(null == s)
+			if (null == s)
 				return null;
 
-			if(s.IndexOf('%') == -1 && s.IndexOf('+') == -1)
+			if (s.IndexOf('%') == -1 && s.IndexOf('+') == -1)
 				return s;
 
-			if(e == null)
+			if (e == null)
 				e = Encoding.UTF8;
 
 			long len = s.Length;
@@ -79,16 +79,16 @@ namespace System.Web.NBitcoin
 			int xchar;
 			char ch;
 
-			for(int i = 0; i < len; i++)
+			for (int i = 0; i < len; i++)
 			{
 				ch = s[i];
-				if(ch == '%' && i + 2 < len && s[i + 1] != '%')
+				if (ch == '%' && i + 2 < len && s[i + 1] != '%')
 				{
-					if(s[i + 1] == 'u' && i + 5 < len)
+					if (s[i + 1] == 'u' && i + 5 < len)
 					{
 						// unicode hex sequence
 						xchar = GetChar(s, i + 2, 4);
-						if(xchar != -1)
+						if (xchar != -1)
 						{
 							WriteCharBytes(bytes, (char)xchar, e);
 							i += 5;
@@ -96,7 +96,7 @@ namespace System.Web.NBitcoin
 						else
 							WriteCharBytes(bytes, '%', e);
 					}
-					else if((xchar = GetChar(s, i + 1, 2)) != -1)
+					else if ((xchar = GetChar(s, i + 1, 2)) != -1)
 					{
 						WriteCharBytes(bytes, (char)xchar, e);
 						i += 2;
@@ -108,7 +108,7 @@ namespace System.Web.NBitcoin
 					continue;
 				}
 
-				if(ch == '+')
+				if (ch == '+')
 					WriteCharBytes(bytes, ' ', e);
 				else
 					WriteCharBytes(bytes, ch, e);
@@ -123,13 +123,13 @@ namespace System.Web.NBitcoin
 		static int GetInt(byte b)
 		{
 			char c = (char)b;
-			if(c >= '0' && c <= '9')
+			if (c >= '0' && c <= '9')
 				return c - '0';
 
-			if(c >= 'a' && c <= 'f')
+			if (c >= 'a' && c <= 'f')
 				return c - 'a' + 10;
 
-			if(c >= 'A' && c <= 'F')
+			if (c >= 'A' && c <= 'F')
 				return c - 'A' + 10;
 
 			return -1;
@@ -139,14 +139,14 @@ namespace System.Web.NBitcoin
 		{
 			int val = 0;
 			int end = length + offset;
-			for(int i = offset; i < end; i++)
+			for (int i = offset; i < end; i++)
 			{
 				char c = str[i];
-				if(c > 127)
+				if (c > 127)
 					return -1;
 
 				int current = GetInt((byte)c);
-				if(current == -1)
+				if (current == -1)
 					return -1;
 				val = (val << 4) + current;
 			}
@@ -161,20 +161,20 @@ namespace System.Web.NBitcoin
 
 		public static string UrlEncode(string s, Encoding Enc)
 		{
-			if(s == null)
+			if (s == null)
 				return null;
 
-			if(s == String.Empty)
+			if (s == String.Empty)
 				return String.Empty;
 
 			bool needEncode = false;
 			int len = s.Length;
-			for(int i = 0; i < len; i++)
+			for (int i = 0; i < len; i++)
 			{
 				char c = s[i];
-				if((c < '0') || (c < 'A' && c > '9') || (c > 'Z' && c < 'a') || (c > 'z'))
+				if ((c < '0') || (c < 'A' && c > '9') || (c > 'Z' && c < 'a') || (c > 'z'))
 				{
-					if(HttpEncoder.NotEncoded(c))
+					if (HttpEncoder.NotEncoded(c))
 						continue;
 
 					needEncode = true;
@@ -182,7 +182,7 @@ namespace System.Web.NBitcoin
 				}
 			}
 
-			if(!needEncode)
+			if (!needEncode)
 				return s;
 
 			// avoided GetByteCount call
@@ -193,7 +193,7 @@ namespace System.Web.NBitcoin
 
 		public static byte[] UrlEncodeToBytes(byte[] bytes, int offset, int count)
 		{
-			if(bytes == null)
+			if (bytes == null)
 				return null;
 #if NET_4_0
 			return HttpEncoder.Current.UrlEncode (bytes, offset, count);

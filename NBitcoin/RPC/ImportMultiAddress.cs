@@ -26,7 +26,6 @@ namespace NBitcoin.RPC
 			public Script ScriptPubKey { get; set; }
 
 			[JsonProperty("address", NullValueHandling = NullValueHandling.Ignore)]
-			[JsonConverter(typeof(NBitcoin.JsonConverters.BitcoinStringJsonConverter))]
 			public BitcoinAddress Address { get; set; }
 
 			/// <summary>
@@ -54,13 +53,13 @@ namespace NBitcoin.RPC
 		public DateTimeOffset? Timestamp { get; set; }
 
 		[JsonProperty("redeemscript", NullValueHandling = NullValueHandling.Ignore)]
-		public string RedeemScript { get; set; }
+		public Script RedeemScript { get; set; }
 
 		[JsonProperty("pubkeys", NullValueHandling = NullValueHandling.Ignore)]
-		public string[] PubKeys { get; set; }
+		public PubKey[] PubKeys { get; set; }
 
 		[JsonProperty("keys", NullValueHandling = NullValueHandling.Ignore)]
-		public string[] Keys { get; set; }
+		public BitcoinSecret[] Keys { get; set; }
 
 		[JsonProperty("internal", NullValueHandling = NullValueHandling.Ignore)]
 		public bool? Internal { get; set; }
@@ -90,13 +89,12 @@ namespace NBitcoin.RPC
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
 			ImportMultiAddress.ScriptPubKeyObject req = (ImportMultiAddress.ScriptPubKeyObject)value;
-			JToken t = JToken.FromObject(value);
-
 			if (req.IsAddress)
 			{
 				// Serialize as a complex object (i.e., { "address": "XYZasASDFASDasdfasdfasdfsd" } )
-				JObject jo = (JObject)t;
-				jo.WriteTo(writer);
+				var obj = new JObject();
+				obj.Add("address", req.Address.ToString());
+				obj.WriteTo(writer);
 			}
 			else
 			{

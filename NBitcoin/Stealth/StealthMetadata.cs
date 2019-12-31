@@ -12,10 +12,10 @@ namespace NBitcoin.Stealth
 	{
 		public static StealthMetadata CreateMetadata(Key ephemKey, BitField bitField = null)
 		{
-			for(uint nonce = 0; nonce < uint.MaxValue; nonce++)
+			for (uint nonce = 0; nonce < uint.MaxValue; nonce++)
 			{
 				var metadata = new StealthMetadata(ephemKey, nonce);
-				if(bitField == null || bitField.Match(metadata.BitField))
+				if (bitField == null || bitField.Match(metadata.BitField))
 					return metadata;
 			}
 			throw new ArgumentException("No nonce can satisfy the given bitfield, use another ephemKey");
@@ -25,10 +25,10 @@ namespace NBitcoin.Stealth
 			StealthMetadata result = new StealthMetadata();
 			try
 			{
-				if(!Fill(result, metadata))
+				if (!Fill(result, metadata))
 					return null;
 			}
-			catch(Exception)
+			catch (Exception)
 			{
 				return null;
 			}
@@ -39,7 +39,7 @@ namespace NBitcoin.Stealth
 		}
 		public StealthMetadata(Script metadata)
 		{
-			if(!Fill(this, metadata))
+			if (!Fill(this, metadata))
 				throw new ArgumentException("Invalid metadata script");
 		}
 
@@ -57,11 +57,11 @@ namespace NBitcoin.Stealth
 		private static bool Fill(StealthMetadata output, Script metadata)
 		{
 			var datas = _Template.ExtractScriptPubKeyParameters(metadata);
-			if(datas == null)
+			if (datas == null)
 				return false;
-			foreach(var data in datas)
+			foreach (var data in datas)
 			{
-				if(Fill(output, metadata, data))
+				if (Fill(output, metadata, data))
 					return true;
 			}
 			return false;
@@ -69,11 +69,11 @@ namespace NBitcoin.Stealth
 
 		private static bool Fill(StealthMetadata output, Script metadata, byte[] data)
 		{
-			if(data == null || data.Length != 1 + 4 + 33)
+			if (data == null || data.Length != 1 + 4 + 33)
 				return false;
 			MemoryStream ms = new MemoryStream(data);
 			output.Version = ms.ReadByte();
-			if(output.Version != 6)
+			if (output.Version != 6)
 				return false;
 			output.Nonce = ms.ReadBytes(4);
 			output.EphemKey = new PubKey(ms.ReadBytes(33));

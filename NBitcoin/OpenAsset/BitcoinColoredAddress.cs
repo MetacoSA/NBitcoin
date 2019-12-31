@@ -22,7 +22,7 @@ namespace NBitcoin
 
 		private static byte[] Build(BitcoinAddress address)
 		{
-			if(address is IBase58Data)
+			if (address is IBase58Data)
 			{
 				var b58 = (IBase58Data)address;
 				var version = address.Network.GetVersionBytes(b58.Type, true);
@@ -48,7 +48,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_Address == null)
+				if (_Address == null)
 				{
 					var base58 = Network.NetworkStringParser.GetBase58CheckEncoder().EncodeData(vchData);
 					_Address = BitcoinAddress.Create(base58, Network);

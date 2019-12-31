@@ -1,4 +1,6 @@
-﻿namespace NBitcoin
+﻿using System;
+
+namespace NBitcoin
 {
 	public abstract class BitcoinExtKeyBase : Base58Data, IDestination
 	{
@@ -25,7 +27,7 @@
 	/// <summary>
 	/// Base58 representation of an ExtKey, within a particular network.
 	/// </summary>
-	public class BitcoinExtKey : BitcoinExtKeyBase, ISecret
+	public class BitcoinExtKey : BitcoinExtKeyBase, ISecret, IHDKey
 	{
 		/// <summary>
 		/// Constructor. Creates an extended key from the Base58 representation, checking the expected network.
@@ -63,10 +65,10 @@
 		{
 			get
 			{
-				if(_Key == null)
+				if (_Key == null)
 				{
 					_Key = new ExtKey();
-					_Key.ReadWrite(vchData);
+					_Key.ReadWrite(new BitcoinStream(vchData));
 				}
 				return _Key;
 			}
@@ -103,6 +105,41 @@
 			return ExtKey.Neuter().GetWif(Network);
 		}
 
+		public BitcoinExtKey Derive(uint index)
+		{
+			return new BitcoinExtKey(ExtKey.Derive(index), Network);
+		}
+
+		IHDKey IHDKey.Derive(KeyPath keyPath)
+		{
+			return Derive(keyPath);
+		}
+
+		public BitcoinExtKey Derive(KeyPath keyPath)
+		{
+			if (keyPath == null)
+				throw new ArgumentNullException(nameof(keyPath));
+			return new BitcoinExtKey(ExtKey.Derive(keyPath), Network);
+		}
+		public ExtKey Derive(RootedKeyPath rootedKeyPath)
+		{
+			if (rootedKeyPath == null)
+				throw new ArgumentNullException(nameof(rootedKeyPath));
+			if (rootedKeyPath.MasterFingerprint != GetPublicKey().GetHDFingerPrint())
+				throw new ArgumentException(paramName: nameof(rootedKeyPath), message: "The rootedKeyPath's fingerprint does not match this ExtKey");
+			return Derive(rootedKeyPath.KeyPath);
+		}
+
+		public PubKey GetPublicKey()
+		{
+			return ExtKey.PrivateKey.PubKey;
+		}
+
+		bool IHDKey.CanDeriveHardenedPath()
+		{
+			return true;
+		}
+
 		#region ISecret Members
 
 		/// <summary>
@@ -123,7 +160,7 @@
 		/// </summary>
 		public static implicit operator ExtKey(BitcoinExtKey key)
 		{
-			if(key == null)
+			if (key == null)
 				return null;
 			return key.ExtKey;
 		}
@@ -132,7 +169,7 @@
 	/// <summary>
 	/// Base58 representation of an ExtPubKey, within a particular network.
 	/// </summary>
-	public class BitcoinExtPubKey : BitcoinExtKeyBase
+	public class BitcoinExtPubKey : BitcoinExtKeyBase, IHDKey
 	{
 		/// <summary>
 		/// Constructor. Creates an extended public key from the Base58 representation, checking the expected network.
@@ -159,10 +196,10 @@
 		{
 			get
 			{
-				if(_PubKey == null)
+				if (_PubKey == null)
 				{
 					_PubKey = new ExtPubKey();
-					_PubKey.ReadWrite(vchData);
+					_PubKey.ReadWrite(new BitcoinStream(vchData));
 				}
 				return _PubKey;
 			}
@@ -173,12 +210,12 @@
 			get
 			{
 				var baseSize = 1 + 4 + 4 + 32;
-				if(vchData.Length != baseSize + 33 && vchData.Length != baseSize + 65)
+				if (vchData.Length != baseSize + 33 && vchData.Length != baseSize + 65)
 					return false;
 				try
 				{
 					_PubKey = new ExtPubKey();
-					_PubKey.ReadWrite(vchData);
+					_PubKey.ReadWrite(new BitcoinStream(vchData));
 					return true;
 				}
 				catch { return false; }
@@ -212,9 +249,36 @@
 		/// </summary>
 		public static implicit operator ExtPubKey(BitcoinExtPubKey key)
 		{
-			if(key == null)
+			if (key == null)
 				return null;
 			return key.ExtPubKey;
+		}
+
+		IHDKey IHDKey.Derive(KeyPath keyPath)
+		{
+			return Derive(keyPath);
+		}
+
+		public BitcoinExtPubKey Derive(uint index)
+		{
+			return ExtPubKey.Derive(index).GetWif(Network);
+		}
+
+		public BitcoinExtPubKey Derive(KeyPath keyPath)
+		{
+			if (keyPath == null)
+				throw new ArgumentNullException(nameof(keyPath));
+			return new BitcoinExtPubKey(ExtPubKey.Derive(keyPath), Network);
+		}
+
+		public PubKey GetPublicKey()
+		{
+			return ExtPubKey.pubkey;
+		}
+
+		bool IHDKey.CanDeriveHardenedPath()
+		{
+			return false;
 		}
 	}
 }
