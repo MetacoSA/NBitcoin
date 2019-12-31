@@ -211,9 +211,7 @@ namespace NBitcoin.Altcoins
 
 		protected override void PostInit()
 		{
-			RegisterDefaultCookiePath(Mainnet, ".cookie");
-			RegisterDefaultCookiePath(Regtest, "regtest", ".cookie");
-			RegisterDefaultCookiePath(Testnet, "testnet3", ".cookie");
+			RegisterDefaultCookiePath("TerracoinCore");
 		}
 
 		protected override NetworkBuilder CreateMainnet()
