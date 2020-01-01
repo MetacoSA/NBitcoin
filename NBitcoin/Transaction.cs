@@ -10,7 +10,7 @@ using System.Linq;
 namespace NBitcoin
 {
 #nullable enable
-	public class OutPoint : IBitcoinSerializable
+	public class OutPoint : IBitcoinSerializable, IEquatable<OutPoint>
 	{
 		public bool IsNull
 		{
@@ -180,12 +180,15 @@ namespace NBitcoin
 		{
 			return !(a == b);
 		}
+
 		public override bool Equals(object? obj)
 		{
-			var item = obj as OutPoint;
-			if (object.ReferenceEquals(null, item))
-				return false;
-			return item == this;
+			return Equals(obj as OutPoint);
+		}
+
+		public bool Equals(OutPoint? other)
+		{
+			return other == this;
 		}
 
 		public override int GetHashCode()
