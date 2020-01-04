@@ -264,7 +264,7 @@ namespace NBitcoin.Altcoins
 		protected override NetworkBuilder CreateTestnet()
 		{
 			var builder = new NetworkBuilder();
-			var res = builder.SetConsensus(new Consensus()
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 1050000,
 				MajorityEnforceBlockUpgrade = 51,
