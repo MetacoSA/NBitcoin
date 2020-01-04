@@ -263,7 +263,7 @@ namespace NBitcoin.Altcoins
 
 		protected override NetworkBuilder CreateTestnet()
 		{
-			var builder = new NetworkBuilder();
+			NetworkBuilder builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 1050000,
@@ -309,7 +309,7 @@ namespace NBitcoin.Altcoins
 
 		protected override NetworkBuilder CreateRegtest()
 		{
-			var builder = new NetworkBuilder();
+			NetworkBuilder builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 150,
