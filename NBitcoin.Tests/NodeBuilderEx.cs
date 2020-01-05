@@ -53,8 +53,8 @@ namespace NBitcoin.Tests
 			//var builder = NodeBuilder.Create(NodeDownloadData.DogeCash.v5_1_1, Altcoins.DogeCash.Instance.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Elements.v0_18_1_1, Altcoins.AltNetworkSets.Liquid.Regtest, caller);
-
-			return Create(NodeDownloadData.Bitcoin.v0_19_0_1, caller);
+			var builder = Create(NodeDownloadData.Bitcoin.v0_19_0_1, caller);
+			return builder;
 		}
 
 		public static NodeBuilder Create(NodeDownloadData nodeDownloadData, [CallerMemberName] string caller = null)
