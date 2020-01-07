@@ -39,6 +39,12 @@ namespace NBitcoin.Altcoins
 			{
 				return new TerracoinBlock(new TerracoinBlockHeader());
 			}
+			protected override TransactionBuilder CreateTransactionBuilderCore(Network network)
+			{
+				var txBuilder = base.CreateTransactionBuilderCore(network);
+				txBuilder.StandardTransactionPolicy.MinFee = Money.Coins(0.0001m);
+				return txBuilder;
+			}
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -185,10 +191,16 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
-			//public override uint256 GetPoWHash()
-			//{
-				//throw new NotImplementedException();
-			//}
+			public override uint256 GetPoWHash()
+			{
+				if((Version & VERSION_AUXPOW) != 0)
+				{
+					// It's AuxPow we assume PoW is correct
+					return uint256.Zero;
+				} else {
+					return base.GetPoWHash();
+				}
+			}
 
 			public override void ReadWrite(BitcoinStream stream)
 			{
@@ -204,10 +216,11 @@ namespace NBitcoin.Altcoins
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
 
-		//static uint256 GetPoWHash(BlockHeader header)
-		//{
-		//	throw new NotImplementedException();
-		//}
+		//Format visual studio
+		//{({.*?}), (.*?)}
+		//Tuple.Create(new byte[]$1, $2)
+		//static Tuple<byte[], int>[] pnSeed6_main = null;
+		//static Tuple<byte[], int>[] pnSeed6_test = null;
 
 		protected override void PostInit()
 		{
@@ -318,7 +331,7 @@ namespace NBitcoin.Altcoins
 				MajorityWindow = 1000,
 				BIP34Hash = new uint256(),
 				PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
-				MinimumChainWork = new uint256(),
+				MinimumChainWork = uint256.Zero,
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2 * 60),
 				PowAllowMinDifficultyBlocks = true,
