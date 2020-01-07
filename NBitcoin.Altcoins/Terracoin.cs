@@ -22,7 +22,13 @@ namespace NBitcoin.Altcoins
 		{
 
 		}
+		//Format visual studio
+		//{({.*?}), (.*?)}
+		//Tuple.Create(new byte[]$1, $2)
+		//static Tuple<byte[], int>[] pnSeed6_main = null;
+		//static Tuple<byte[], int>[] pnSeed6_test = null;
 
+#pragma warning disable CS0618 // Type or member is obsolete
 		public class TerracoinConsensusFactory : ConsensusFactory
 		{
 			private TerracoinConsensusFactory()
@@ -191,13 +197,20 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
+			public bool IsAuxpow()
+			{
+				return ((Version & VERSION_AUXPOW) != 0);
+			}
+
 			public override uint256 GetPoWHash()
 			{
-				if((Version & VERSION_AUXPOW) != 0)
+				if(IsAuxpow())
 				{
 					// It's AuxPow we assume PoW is correct
 					return uint256.Zero;
-				} else {
+				}
+				else
+				{
 					return base.GetPoWHash();
 				}
 			}
@@ -205,7 +218,7 @@ namespace NBitcoin.Altcoins
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				base.ReadWrite(stream);
-				if((Version & VERSION_AUXPOW) != 0)
+				if(IsAuxpow())
 				{
 					if(!stream.Serializing)
 					{
@@ -215,12 +228,6 @@ namespace NBitcoin.Altcoins
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
-
-		//Format visual studio
-		//{({.*?}), (.*?)}
-		//Tuple.Create(new byte[]$1, $2)
-		//static Tuple<byte[], int>[] pnSeed6_main = null;
-		//static Tuple<byte[], int>[] pnSeed6_test = null;
 
 		protected override void PostInit()
 		{
