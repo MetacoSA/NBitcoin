@@ -732,7 +732,7 @@ namespace NBitcoin.RPC
 		/// <returns>The progress in %</returns>
 		public async Task<decimal?> GetStatusScanTxoutSetAsync()
 		{
-			var result = await SendCommandAsync(RPCOperations.scantxoutset, "status", new object[0]);
+			var result = await SendCommandAsync(RPCOperations.scantxoutset, "status", new object[0]).ConfigureAwait(false);
 			result.ThrowIfError();
 			return (result.Result as JObject)?.Property("progress")?.Value?.Value<decimal>();
 		}
