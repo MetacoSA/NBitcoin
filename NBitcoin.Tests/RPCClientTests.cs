@@ -1405,39 +1405,27 @@ namespace NBitcoin.Tests
 				var rpc = node.CreateRPCClient();
 				var capabilities = await rpc.ScanRPCCapabilitiesAsync();
 
-				BitcoinAddress address;
-				if (capabilities.SupportSegwit)
-					address = new Key().PubKey.GetSegwitAddress(node.Network);
-				else
-					address = new Key().PubKey.Hash.GetAddress(node.Network);
+				bool sendToAddress = capabilities.SupportGenerateToAddress;
 
-				Block block;
-				Script coinbaseScriptPubKey;
-				if (capabilities.SupportGenerateToAddress)
+				BitcoinAddress address = capabilities.SupportSegwit ? new Key().PubKey.GetSegwitAddress(node.Network) : new Key().PubKey.Hash.GetAddress(node.Network);
+
+				if (sendToAddress)
 				{
-					var blockHash1 = rpc.GenerateToAddress(1, address);
-					block = rpc.GetBlock(blockHash1[0]);
+					uint256[] blockHash1 = rpc.GenerateToAddress(1, address);
+					Block block = rpc.GetBlock(blockHash1[0]);
 
-					coinbaseScriptPubKey = block.Transactions[0].Outputs[0].ScriptPubKey;
+					Script coinbaseScriptPubKey = block.Transactions[0].Outputs[0].ScriptPubKey;
 					Assert.Equal(address, coinbaseScriptPubKey.GetDestinationAddress(node.Network));
 
 					rpc.Capabilities.SupportGenerateToAddress = true;
-					var blockHash2 = rpc.Generate(1);
+					rpc.Generate(1);
 				}
 
 				rpc.Capabilities.SupportGenerateToAddress = false;
-				var blockHash3 = rpc.Generate(1);
-				block = rpc.GetBlock(blockHash3[0]);
+				rpc.Generate(1);
 
-				if (capabilities.SupportGenerateToAddress)
-				{
-					coinbaseScriptPubKey = block.Transactions[0].Outputs[0].ScriptPubKey;
-
-					Assert.Equal(address, coinbaseScriptPubKey.GetDestinationAddress(node.Network));
-				}
-
-				var height = rpc.GetBlockCount();
-				Assert.Equal(capabilities.SupportGenerateToAddress ? 3 : 1, height);
+				int height = rpc.GetBlockCount();
+				Assert.Equal(sendToAddress ? 3 : 1, height);
 			}
 		}
 
