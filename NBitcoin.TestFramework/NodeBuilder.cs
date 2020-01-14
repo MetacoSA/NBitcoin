@@ -156,10 +156,11 @@ namespace NBitcoin.Tests
 
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
-				ZipFile.ExtractToDirectory(zip, extractDirectory);
+				ZipFile.ExtractToDirectory(zip, extractDirectory, true);
 			}
 			else
 			{
+				// tar overwrites by default
 				Process.Start("tar", "-zxvf " + zip + " -C " + extractDirectory).WaitForExit();
 			}
 			File.Delete(zip);

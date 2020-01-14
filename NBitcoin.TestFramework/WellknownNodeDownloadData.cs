@@ -1116,10 +1116,10 @@ namespace NBitcoin.Tests
 					Hash = "04C4F4EBCA494ABD6C29D834D86AFEA559BB8893A1E74BE849D050FEFC164C72"
 				},
 				SupportCookieFile = false,
-				AdditionalRegtestConfig = "defaultwalletname=default" + Environment.NewLine + "maxtipage=2147483647" + Environment.NewLine + "unlockdefaultwallet=1"
+				AdditionalRegtestConfig = "defaultwalletname=default" + Environment.NewLine + "maxtipage=2147483647" + Environment.NewLine + "unlockdefaultwallet=1" + Environment.NewLine + "rpcallowip=127.0.0.1"
 			};
 		}
-		
+
 		public class DogeCashNodeDownloadData
 		{
 			public NodeDownloadData v5_1_1 = new NodeDownloadData()
