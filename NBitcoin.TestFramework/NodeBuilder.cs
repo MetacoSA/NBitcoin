@@ -156,7 +156,7 @@ namespace NBitcoin.Tests
 
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
-				ZipFile.ExtractToDirectory(zip, extractDirectory, true);
+				ZipFile.ExtractToDirectory(zip, extractDirectory);
 			}
 			else
 			{
