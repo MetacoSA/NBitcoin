@@ -80,18 +80,25 @@ namespace NBitcoin.Tests
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
-				var address = rpc.GetNewAddress(new GetNewAddressRequest()
-				{
-					AddressType = AddressType.Bech32
-				});
-				Assert.IsType<BitcoinWitPubKeyAddress>(address);
 
-				address = rpc.GetNewAddress(new GetNewAddressRequest()
-				{
-					AddressType = AddressType.P2SHSegwit
-				});
+				var capabilities = rpc.ScanRPCCapabilities();
 
-				Assert.IsType<BitcoinScriptAddress>(address);
+				BitcoinAddress address;
+				if (capabilities.SupportSegwit)
+				{
+					address = rpc.GetNewAddress(new GetNewAddressRequest()
+					{
+						AddressType = AddressType.Bech32
+					});
+					Assert.IsType<BitcoinWitPubKeyAddress>(address);
+
+					address = rpc.GetNewAddress(new GetNewAddressRequest()
+					{
+						AddressType = AddressType.P2SHSegwit
+					});
+
+					Assert.IsType<BitcoinScriptAddress>(address);
+				}
 
 				address = rpc.GetNewAddress(new GetNewAddressRequest()
 				{
@@ -141,8 +148,8 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				var response = rpc.SendCommand(RPCOperations.getblockhash, 0);
 				var actualGenesis = (string)response.Result;
-				Assert.Equal(Network.RegTest.GetGenesis().GetHash().ToString(), actualGenesis);
-				Assert.Equal(Network.RegTest.GetGenesis().GetHash(), rpc.GetBestBlockHash());
+				Assert.Equal(builder.Network.GetGenesis().GetHash().ToString(), actualGenesis);
+				Assert.Equal(builder.Network.GetGenesis().GetHash(), rpc.GetBestBlockHash());
 			}
 		}
 
@@ -437,10 +444,10 @@ namespace NBitcoin.Tests
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
 				var response = rpc.GetBlockHeader(0);
-				AssertEx.CollectionEquals(Network.RegTest.GetGenesis().Header.ToBytes(), response.ToBytes());
+				AssertEx.CollectionEquals(builder.Network.GetGenesis().Header.ToBytes(), response.ToBytes());
 
 				response = rpc.GetBlockHeader(0);
-				Assert.Equal(Network.RegTest.GenesisHash, response.GetHash());
+				Assert.Equal(builder.Network.GenesisHash, response.GetHash());
 			}
 		}
 
@@ -1393,26 +1400,32 @@ namespace NBitcoin.Tests
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
-				node.CookieAuth = true;
+				node.CookieAuth = false;
 				node.Start();
 				var rpc = node.CreateRPCClient();
 				var capabilities = await rpc.ScanRPCCapabilitiesAsync();
 
-				var address = new Key().PubKey.GetSegwitAddress(Network.RegTest);
-				var blockHash1 = rpc.GenerateToAddress(1, address);
-				var block = rpc.GetBlock(blockHash1[0]);
+				bool sendToAddress = capabilities.SupportGenerateToAddress;
 
-				var coinbaseScriptPubKey = block.Transactions[0].Outputs[0].ScriptPubKey;
-				Assert.Equal(address, coinbaseScriptPubKey.GetDestinationAddress(Network.RegTest));
+				BitcoinAddress address = capabilities.SupportSegwit ? new Key().PubKey.GetSegwitAddress(node.Network) : new Key().PubKey.Hash.GetAddress(node.Network);
 
-				rpc.Capabilities.SupportGenerateToAddress = true;
-				var blockHash2 = rpc.Generate(1);
+				if (sendToAddress)
+				{
+					uint256[] blockHash1 = rpc.GenerateToAddress(1, address);
+					Block block = rpc.GetBlock(blockHash1[0]);
+
+					Script coinbaseScriptPubKey = block.Transactions[0].Outputs[0].ScriptPubKey;
+					Assert.Equal(address, coinbaseScriptPubKey.GetDestinationAddress(node.Network));
+
+					rpc.Capabilities.SupportGenerateToAddress = true;
+					rpc.Generate(1);
+				}
 
 				rpc.Capabilities.SupportGenerateToAddress = false;
-				var blockHash3 = rpc.Generate(1);
+				rpc.Generate(1);
 
-				var heigh = rpc.GetBlockCount();
-				Assert.Equal(3, heigh);
+				int height = rpc.GetBlockCount();
+				Assert.Equal(sendToAddress ? 3 : 1, height);
 			}
 		}
 
@@ -1708,9 +1721,16 @@ namespace NBitcoin.Tests
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var client = builder.CreateNode(true).CreateRPCClient();
+				var capabilities = client.ScanRPCCapabilities();
 				var addrLegacy = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Legacy });
-				var addrBech32 = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Bech32 });
-				var addrP2SHSegwit = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.P2SHSegwit });
+
+				BitcoinAddress addrBech32 = null;
+				BitcoinAddress addrP2SHSegwit = null;
+				if (capabilities.SupportSegwit)
+				{
+					addrBech32 = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Bech32 });
+					addrP2SHSegwit = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.P2SHSegwit });
+				}
 				var pubkeys = new PubKey[] { new Key().PubKey, new Key().PubKey, new Key().PubKey };
 				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, pubkeys);
 				client.ImportAddress(redeem.Hash);
@@ -1718,8 +1738,11 @@ namespace NBitcoin.Tests
 				client.ImportAddress(redeem.WitHash.ScriptPubKey.Hash);
 
 				Assert.NotNull(client.GetAddressInfo(addrLegacy));
-				Assert.NotNull(client.GetAddressInfo(addrBech32));
-				Assert.NotNull(client.GetAddressInfo(addrP2SHSegwit));
+				if (capabilities.SupportSegwit)
+				{
+					Assert.NotNull(client.GetAddressInfo(addrBech32));
+					Assert.NotNull(client.GetAddressInfo(addrP2SHSegwit));
+				}
 				Assert.NotNull(client.GetAddressInfo(redeem.Hash));
 				Assert.NotNull(client.GetAddressInfo(redeem.WitHash));
 				Assert.NotNull(client.GetAddressInfo(redeem.WitHash.ScriptPubKey.Hash));
