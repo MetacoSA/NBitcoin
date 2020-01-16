@@ -43,6 +43,7 @@ namespace NBitcoin.Tests
 			CanCheckBIP39TestVectorsCore("ja", Wordlist.Japanese);
 			CanCheckBIP39TestVectorsCore("es", Wordlist.Spanish);
 			CanCheckBIP39TestVectorsCore("en", Wordlist.English);
+			CanCheckBIP39TestVectorsCore("cz", Wordlist.Czech);
 			CanCheckBIP39TestVectorsCore("zh-CN", Wordlist.ChineseSimplified);
 			CanCheckBIP39TestVectorsCore("zh-TW", Wordlist.ChineseTraditional);
 		}
