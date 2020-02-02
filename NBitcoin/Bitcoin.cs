@@ -24,7 +24,7 @@ namespace NBitcoin
 
 		public Network GetNetwork(NetworkType networkType)
 		{
-			switch(networkType)
+			switch (networkType)
 			{
 				case NetworkType.Mainnet:
 					return Mainnet;

@@ -73,7 +73,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 		{
 			xBuf[xBufOff++] = input;
 
-			if(xBufOff == xBuf.Length)
+			if (xBufOff == xBuf.Length)
 			{
 				ProcessWord(xBuf, 0);
 				xBufOff = 0;
@@ -90,7 +90,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			//
 			// fill the current word
 			//
-			while((xBufOff != 0) && (length > 0))
+			while ((xBufOff != 0) && (length > 0))
 			{
 				Update(input[inOff]);
 
@@ -101,7 +101,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			//
 			// process whole words.
 			//
-			while(length > xBuf.Length)
+			while (length > xBuf.Length)
 			{
 				ProcessWord(input, inOff);
 
@@ -113,7 +113,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			//
 			// load in the remainder.
 			//
-			while(length > 0)
+			while (length > 0)
 			{
 				Update(input[inOff]);
 
@@ -134,7 +134,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			//
 			Update((byte)128);
 
-			while(xBufOff != 0)
+			while (xBufOff != 0)
 			{
 				Update((byte)0);
 			}
@@ -150,7 +150,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			byteCount2 = 0;
 
 			xBufOff = 0;
-			for(int i = 0; i < xBuf.Length; i++)
+			for (int i = 0; i < xBuf.Length; i++)
 			{
 				xBuf[i] = 0;
 			}
@@ -165,7 +165,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 		{
 			W[wOff] = Pack.BE_To_UInt64(input, inOff);
 
-			if(++wOff == 16)
+			if (++wOff == 16)
 			{
 				ProcessBlock();
 			}
@@ -177,7 +177,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
         */
 		private void AdjustByteCounts()
 		{
-			if(byteCount1 > 0x1fffffffffffffffL)
+			if (byteCount1 > 0x1fffffffffffffffL)
 			{
 				byteCount2 += (long)((ulong)byteCount1 >> 61);
 				byteCount1 &= 0x1fffffffffffffffL;
@@ -188,7 +188,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			long lowW,
 			long hiW)
 		{
-			if(wOff > 14)
+			if (wOff > 14)
 			{
 				ProcessBlock();
 			}
@@ -204,7 +204,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			//
 			// expand 16 word block into 80 word blocks.
 			//
-			for(int ti = 16; ti <= 79; ++ti)
+			for (int ti = 16; ti <= 79; ++ti)
 			{
 				W[ti] = Sigma1(W[ti - 2]) + W[ti - 7] + Sigma0(W[ti - 15]) + W[ti - 16];
 			}
@@ -222,7 +222,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			ulong h = H8;
 
 			int t = 0;
-			for(int i = 0; i < 10; i++)
+			for (int i = 0; i < 10; i++)
 			{
 				// t = 8 * i
 				h += Sum1(e) + Ch(e, f, g) + K[t] + W[t++];

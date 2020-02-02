@@ -10,20 +10,21 @@ using System.Net.Http;
 #endif
 using System.Text;
 using System.Text.RegularExpressions;
-#if WIN
+#if CLASSICDOTNET
 using System.Security.Cryptography.X509Certificates;
 #endif
 using System.Threading.Tasks;
 
 namespace NBitcoin.Payment
 {
+	[Obsolete("BIP70 is obsolete")]
 	public enum PKIType
 	{
 		None,
 		X509SHA256,
 		X509SHA1,
 	}
-
+	[Obsolete("BIP70 is obsolete")]
 	public class PaymentOutput
 	{
 		public PaymentOutput()
@@ -38,7 +39,7 @@ namespace NBitcoin.Payment
 		public PaymentOutput(Money amount, IDestination destination)
 		{
 			Amount = amount;
-			if(destination != null)
+			if (destination != null)
 				Script = destination.ScriptPubKey;
 		}
 		public PaymentOutput(TxOut txOut)
@@ -70,9 +71,9 @@ namespace NBitcoin.Payment
 			PaymentOutput output = new PaymentOutput();
 			int key;
 			var start = reader.Position;
-			while(reader.TryReadKey(out key))
+			while (reader.TryReadKey(out key))
 			{
-				switch(key)
+				switch (key)
 				{
 					case 1:
 						output.Amount = Money.Satoshis(reader.ReadULong());
@@ -96,7 +97,7 @@ namespace NBitcoin.Payment
 		internal void Write(Stream output)
 		{
 			var writer = new ProtobufReaderWriter(output);
-			if(_Amount != null)
+			if (_Amount != null)
 			{
 				writer.WriteKey(1, ProtobufReaderWriter.PROTOBUF_VARINT);
 				writer.WriteULong((ulong)_Amount.Satoshi);
@@ -105,6 +106,7 @@ namespace NBitcoin.Payment
 			writer.WriteBytes(Script == null ? new byte[0] : Script.ToBytes(true));
 		}
 	}
+	[Obsolete("BIP70 is obsolete")]
 	public class PaymentDetails
 	{
 		public PaymentDetails()
@@ -121,16 +123,16 @@ namespace NBitcoin.Payment
 			var reader = new Protobuf.ProtobufReaderWriter(source);
 			var result = new PaymentDetails();
 			int key;
-			while(reader.TryReadKey(out key))
+			while (reader.TryReadKey(out key))
 			{
-				switch(key)
+				switch (key)
 				{
 					case 1:
 						var network = reader.ReadString();
 						result.Network = network.Equals("main", StringComparison.OrdinalIgnoreCase) ? Network.Main :
 										 network.Equals("test", StringComparison.OrdinalIgnoreCase) ? Network.TestNet :
 										 network.Equals("regtest", StringComparison.OrdinalIgnoreCase) ? Network.RegTest : null;
-						if(result.Network == null)
+						if (result.Network == null)
 							throw new NotSupportedException("Invalid network");
 						break;
 					case 2:
@@ -161,18 +163,18 @@ namespace NBitcoin.Payment
 		public void WriteTo(Stream stream)
 		{
 			var writer = new ProtobufReaderWriter(stream);
-			if(_Network != null)
+			if (_Network != null)
 			{
 				var str = _Network == Network.Main ? "main" :
-					_Network == Network.TestNet ? "test" : 
+					_Network == Network.TestNet ? "test" :
 					_Network == Network.RegTest ? "regtest" : null;
-				if(str == null)
+				if (str == null)
 					throw new InvalidOperationException("Impossible to serialize a payment request on network " + _Network);
 				writer.WriteKey(1, ProtobufReaderWriter.PROTOBUF_LENDELIM);
 				writer.WriteString(str);
 			}
 
-			foreach(var txout in Outputs)
+			foreach (var txout in Outputs)
 			{
 				writer.WriteKey(2, ProtobufReaderWriter.PROTOBUF_LENDELIM);
 				writer.WriteBytes(txout.ToBytes());
@@ -181,25 +183,25 @@ namespace NBitcoin.Payment
 			writer.WriteKey(3, ProtobufReaderWriter.PROTOBUF_VARINT);
 			writer.WriteULong(Utils.DateTimeToUnixTime(Time));
 
-			if(Expires != null)
+			if (Expires != null)
 			{
 				writer.WriteKey(4, ProtobufReaderWriter.PROTOBUF_VARINT);
 				writer.WriteULong(Utils.DateTimeToUnixTime(Expires.Value));
 			}
 
-			if(Memo != null)
+			if (Memo != null)
 			{
 				writer.WriteKey(5, ProtobufReaderWriter.PROTOBUF_LENDELIM);
 				writer.WriteString(Memo);
 			}
 
-			if(PaymentUrl != null)
+			if (PaymentUrl != null)
 			{
 				writer.WriteKey(6, ProtobufReaderWriter.PROTOBUF_LENDELIM);
 				writer.WriteString(PaymentUrl.AbsoluteUri);
 			}
 
-			if(MerchantData != null)
+			if (MerchantData != null)
 			{
 				writer.WriteKey(7, ProtobufReaderWriter.PROTOBUF_LENDELIM);
 				writer.WriteBytes(MerchantData);
@@ -267,7 +269,7 @@ namespace NBitcoin.Payment
 			}
 		}
 	}
-
+	[Obsolete("BIP70 is obsolete")]
 	public class PaymentRequest
 	{
 		class RecorderStream : Stream
@@ -330,9 +332,9 @@ namespace NBitcoin.Payment
 			public override int Read(byte[] buffer, int offset, int count)
 			{
 				var read = _Inner.Read(buffer, offset, count);
-				if(read == -1)
+				if (read == -1)
 					return -1;
-				if(Activated)
+				if (Activated)
 				{
 					byte[] copy = new byte[count];
 					Array.Copy(buffer, offset, copy, 0, read);
@@ -346,7 +348,7 @@ namespace NBitcoin.Payment
 			{
 				byte[] result = new byte[buffers.Select(b => b.Length).Sum()];
 				int offset = 0;
-				foreach(var b in buffers)
+				foreach (var b in buffers)
 				{
 					Array.Copy(b, 0, result, offset, b.Length);
 					offset += b.Length;
@@ -412,7 +414,7 @@ namespace NBitcoin.Payment
 #if !NOFILEIO
 		public static PaymentRequest Load(string file)
 		{
-			using(var fs = File.OpenRead(file))
+			using (var fs = File.OpenRead(file))
 			{
 				return Load(fs);
 			}
@@ -435,9 +437,9 @@ namespace NBitcoin.Payment
 			bool signatureLoaded = false;
 			int key;
 			bool firstCert = true;
-			while(reader.TryReadKey(out key))
+			while (reader.TryReadKey(out key))
 			{
-				switch(key)
+				switch (key)
 				{
 					case 1:
 						req.DetailsVersion = (uint)reader.ReadULong();
@@ -449,9 +451,9 @@ namespace NBitcoin.Payment
 						var bytes = reader.ReadBytes();
 						ProtobufReaderWriter certs = new ProtobufReaderWriter(new MemoryStream(bytes));
 						int k;
-						while(certs.TryReadKey(out k))
+						while (certs.TryReadKey(out k))
 						{
-							if(firstCert)
+							if (firstCert)
 							{
 								req.MerchantCertificate = certs.ReadBytes();
 								firstCert = false;
@@ -505,7 +507,7 @@ namespace NBitcoin.Payment
 
 		void WriteTo(ProtobufReaderWriter writer)
 		{
-			if(_DetailsVersion != null)
+			if (_DetailsVersion != null)
 			{
 				writer.WriteKey(1, ProtobufReaderWriter.PROTOBUF_VARINT);
 				writer.WriteULong((uint)_DetailsVersion);
@@ -518,12 +520,12 @@ namespace NBitcoin.Payment
 			MemoryStream ms = new MemoryStream();
 			ProtobufReaderWriter certs = new ProtobufReaderWriter(ms);
 
-			if(this.MerchantCertificate != null)
+			if (this.MerchantCertificate != null)
 			{
 				certs.WriteKey(1, ProtobufReaderWriter.PROTOBUF_LENDELIM);
 				certs.WriteBytes(MerchantCertificate);
 			}
-			foreach(var cert in AdditionalCertificates)
+			foreach (var cert in AdditionalCertificates)
 			{
 				certs.WriteKey(1, ProtobufReaderWriter.PROTOBUF_LENDELIM);
 				certs.WriteBytes(cert);
@@ -541,7 +543,7 @@ namespace NBitcoin.Payment
 
 		private string ToPKITypeString(PKIType pkitype)
 		{
-			switch(pkitype)
+			switch (pkitype)
 			{
 				case Payment.PKIType.None:
 					return "none";
@@ -556,7 +558,7 @@ namespace NBitcoin.Payment
 
 		private static PKIType ToPKIType(string str)
 		{
-			switch(str)
+			switch (str)
 			{
 				case "none":
 					return PKIType.None;
@@ -620,9 +622,9 @@ namespace NBitcoin.Payment
 		public bool Verify()
 		{
 			bool valid = true;
-			if(this.PKIType != Payment.PKIType.None)
+			if (this.PKIType != Payment.PKIType.None)
 				valid = this.VerifyChain() && VerifySignature();
-			if(!valid)
+			if (!valid)
 				return false;
 
 			return Details.Expires < DateTimeOffset.UtcNow;
@@ -631,31 +633,31 @@ namespace NBitcoin.Payment
 		private ICertificateServiceProvider GetCertificateProvider()
 		{
 			var provider = CertificateServiceProvider = DefaultCertificateServiceProvider;
-			if(provider == null)
+			if (provider == null)
 				throw new InvalidOperationException("DefaultCertificateServiceProvider or CertificateServiceProvider must be set before calling this method.");
 			return provider;
 		}
 
 		public bool VerifyChain()
 		{
-			if(MerchantCertificate == null || PKIType == Payment.PKIType.None)
+			if (MerchantCertificate == null || PKIType == Payment.PKIType.None)
 				return false;
 			return GetCertificateProvider().GetChainChecker().VerifyChain(MerchantCertificate, AdditionalCertificates.ToArray());
 		}
 		public bool VerifySignature()
 		{
-			if(MerchantCertificate == null || PKIType == Payment.PKIType.None)
+			if (MerchantCertificate == null || PKIType == Payment.PKIType.None)
 				return false;
 			var data = GetSignedData();
 
 			byte[] hash = null;
 			string hashName = null;
-			if(PKIType == Payment.PKIType.X509SHA256)
+			if (PKIType == Payment.PKIType.X509SHA256)
 			{
 				hash = Hashes.SHA256(data);
 				hashName = "sha256";
 			}
-			else if(PKIType == Payment.PKIType.X509SHA1)
+			else if (PKIType == Payment.PKIType.X509SHA1)
 			{
 				hash = Hashes.SHA1(data, 0, data.Length);
 				hashName = "sha1";
@@ -674,7 +676,7 @@ namespace NBitcoin.Payment
 			return signed;
 		}
 
-#if WIN
+#if CLASSICDOTNET
 		public void Sign(X509Certificate2 certificate, Payment.PKIType type)
 		{
 			Sign((object)certificate, type);
@@ -686,9 +688,9 @@ namespace NBitcoin.Payment
 		}
 		public void Sign(object certificate, Payment.PKIType type)
 		{
-			if(certificate == null)
+			if (certificate == null)
 				throw new ArgumentNullException(nameof(certificate));
-			if(type == Payment.PKIType.None)
+			if (type == Payment.PKIType.None)
 				throw new ArgumentException("PKIType can't be none if signing");
 			var signer = GetCertificateProvider().GetSigner();
 			MerchantCertificate = signer.StripPrivateKey(certificate);
@@ -696,12 +698,12 @@ namespace NBitcoin.Payment
 			var data = GetSignedData();
 			byte[] hash = null;
 			string hashName = null;
-			if(type == Payment.PKIType.X509SHA256)
+			if (type == Payment.PKIType.X509SHA256)
 			{
 				hash = Hashes.SHA256(data);
 				hashName = "sha256";
 			}
-			else if(type == Payment.PKIType.X509SHA1)
+			else if (type == Payment.PKIType.X509SHA1)
 			{
 				hash = Hashes.SHA1(data, 0, data.Length);
 				hashName = "sha1";

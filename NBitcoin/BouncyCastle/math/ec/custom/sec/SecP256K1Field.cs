@@ -21,7 +21,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 		public static void Add(uint[] x, uint[] y, uint[] z)
 		{
 			uint c = Nat256.Add(x, y, z);
-			if(c != 0 || (z[7] == P7 && Nat256.Gte(z, P)))
+			if (c != 0 || (z[7] == P7 && Nat256.Gte(z, P)))
 			{
 				Nat.Add33To(8, PInv33, z);
 			}
@@ -30,9 +30,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 		public static void AddExt(uint[] xx, uint[] yy, uint[] zz)
 		{
 			uint c = Nat.Add(16, xx, yy, zz);
-			if(c != 0 || (zz[15] == PExt15 && Nat.Gte(16, zz, PExt)))
+			if (c != 0 || (zz[15] == PExt15 && Nat.Gte(16, zz, PExt)))
 			{
-				if(Nat.AddTo(PExtInv.Length, PExtInv, zz) != 0)
+				if (Nat.AddTo(PExtInv.Length, PExtInv, zz) != 0)
 				{
 					Nat.IncAt(16, zz, PExtInv.Length);
 				}
@@ -42,7 +42,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 		public static void AddOne(uint[] x, uint[] z)
 		{
 			uint c = Nat.Inc(8, x, z);
-			if(c != 0 || (z[7] == P7 && Nat256.Gte(z, P)))
+			if (c != 0 || (z[7] == P7 && Nat256.Gte(z, P)))
 			{
 				Nat.Add33To(8, PInv33, z);
 			}
@@ -51,7 +51,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 		public static uint[] FromBigInteger(BigInteger x)
 		{
 			uint[] z = Nat256.FromBigInteger(x);
-			if(z[7] == P7 && Nat256.Gte(z, P))
+			if (z[7] == P7 && Nat256.Gte(z, P))
 			{
 				Nat256.SubFrom(P, z);
 			}
@@ -60,7 +60,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 		public static void Half(uint[] x, uint[] z)
 		{
-			if((x[0] & 1) == 0)
+			if ((x[0] & 1) == 0)
 			{
 				Nat.ShiftDownBit(8, x, 0, z);
 			}
@@ -81,9 +81,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 		public static void MultiplyAddToExt(uint[] x, uint[] y, uint[] zz)
 		{
 			uint c = Nat256.MulAddTo(x, y, zz);
-			if(c != 0 || (zz[15] == PExt15 && Nat.Gte(16, zz, PExt)))
+			if (c != 0 || (zz[15] == PExt15 && Nat.Gte(16, zz, PExt)))
 			{
-				if(Nat.AddTo(PExtInv.Length, PExtInv, zz) != 0)
+				if (Nat.AddTo(PExtInv.Length, PExtInv, zz) != 0)
 				{
 					Nat.IncAt(16, zz, PExtInv.Length);
 				}
@@ -92,7 +92,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 		public static void Negate(uint[] x, uint[] z)
 		{
-			if(Nat256.IsZero(x))
+			if (Nat256.IsZero(x))
 			{
 				Nat256.Zero(z);
 			}
@@ -109,7 +109,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 			Debug.Assert(c == 0 || c == 1);
 
-			if(c != 0 || (z[7] == P7 && Nat256.Gte(z, P)))
+			if (c != 0 || (z[7] == P7 && Nat256.Gte(z, P)))
 			{
 				Nat.Add33To(8, PInv33, z);
 			}
@@ -117,7 +117,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 
 		public static void Reduce32(uint x, uint[] z)
 		{
-			if((x != 0 && Nat256.Mul33WordAdd(PInv33, x, z, 0) != 0)
+			if ((x != 0 && Nat256.Mul33WordAdd(PInv33, x, z, 0) != 0)
 				|| (z[7] == P7 && Nat256.Gte(z, P)))
 			{
 				Nat.Add33To(8, PInv33, z);
@@ -139,7 +139,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 			Nat256.Square(x, tt);
 			Reduce(tt, z);
 
-			while(--n > 0)
+			while (--n > 0)
 			{
 				Nat256.Square(z, tt);
 				Reduce(tt, z);
@@ -149,7 +149,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 		public static void Subtract(uint[] x, uint[] y, uint[] z)
 		{
 			int c = Nat256.Sub(x, y, z);
-			if(c != 0)
+			if (c != 0)
 			{
 				Nat.Sub33From(8, PInv33, z);
 			}
@@ -158,9 +158,9 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 		public static void SubtractExt(uint[] xx, uint[] yy, uint[] zz)
 		{
 			int c = Nat.Sub(16, xx, yy, zz);
-			if(c != 0)
+			if (c != 0)
 			{
-				if(Nat.SubFrom(PExtInv.Length, PExtInv, zz) != 0)
+				if (Nat.SubFrom(PExtInv.Length, PExtInv, zz) != 0)
 				{
 					Nat.DecAt(16, zz, PExtInv.Length);
 				}
@@ -170,7 +170,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 		public static void Twice(uint[] x, uint[] z)
 		{
 			uint c = Nat.ShiftUpBit(8, x, 0, z);
-			if(c != 0 || (z[7] == P7 && Nat256.Gte(z, P)))
+			if (c != 0 || (z[7] == P7 && Nat256.Gte(z, P)))
 			{
 				Nat.Add33To(8, PInv33, z);
 			}

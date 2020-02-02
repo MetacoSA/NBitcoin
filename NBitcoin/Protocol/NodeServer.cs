@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,7 +10,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using NBitcoin.BitcoinCore;
+using Microsoft.Extensions.Logging;
+using NBitcoin.Logging;
 
 namespace NBitcoin.Protocol
 {
@@ -64,7 +64,6 @@ namespace NBitcoin.Protocol
 			_ConnectedNodes.Added += _Nodes_NodeAdded;
 			_ConnectedNodes.Removed += _Nodes_NodeRemoved;
 			_ConnectedNodes.MessageProducer.AddMessageListener(listener);
-			_Trace = new TraceCorrelation(NodeServerTrace.Trace, "Node server listening on " + LocalEndpoint);
 		}
 
 
@@ -75,14 +74,14 @@ namespace NBitcoin.Protocol
 		void _Nodes_NodeRemoved(object sender, NodeEventArgs node)
 		{
 			var removed = NodeRemoved;
-			if(removed != null)
+			if (removed != null)
 				removed(this, node.Node);
 		}
 
 		void _Nodes_NodeAdded(object sender, NodeEventArgs node)
 		{
 			var added = NodeAdded;
-			if(added != null)
+			if (added != null)
 				added(this, node.Node);
 		}
 
@@ -113,7 +112,6 @@ namespace NBitcoin.Protocol
 		}
 
 		Socket socket;
-		TraceCorrelation _Trace;
 
 		public bool IsListening
 		{
@@ -125,9 +123,12 @@ namespace NBitcoin.Protocol
 
 		public void Listen(int maxIncoming = 8)
 		{
-			if(socket != null)
+			if (socket != null)
 				throw new InvalidOperationException("Already listening");
-			using(_Trace.Open())
+
+
+			using (Logs.NodeServer.BeginScope("Node server listening on {listeningOn}", LocalEndpoint))
+
 			{
 				try
 				{
@@ -136,12 +137,12 @@ namespace NBitcoin.Protocol
 
 					socket.Bind(LocalEndpoint);
 					socket.Listen(maxIncoming);
-					NodeServerTrace.Information("Listening...");
+					Logs.NodeServer.LogInformation("Listening...");
 					BeginAccept();
 				}
-				catch(Exception ex)
+				catch (Exception ex)
 				{
-					NodeServerTrace.Error("Error while opening the Protocol server", ex);
+					Logs.NodeServer.LogError(default, ex, "Error while opening the Protocol server");
 					throw;
 				}
 			}
@@ -149,15 +150,15 @@ namespace NBitcoin.Protocol
 
 		private void BeginAccept()
 		{
-			if(_Cancel.IsCancellationRequested)
+			if (_Cancel.IsCancellationRequested)
 			{
-				NodeServerTrace.Information("Stop accepting connection...");
+				Logs.NodeServer.LogInformation("Stop accepting connection...");
 				return;
 			}
-			NodeServerTrace.Information("Accepting connection...");
+			Logs.NodeServer.LogInformation("Accepting connection...");
 			var args = new SocketAsyncEventArgs();
 			args.Completed += Accept_Completed;
-			if(!socket.AcceptAsync(args))
+			if (!socket.AcceptAsync(args))
 				EndAccept(args);
 		}
 
@@ -168,26 +169,25 @@ namespace NBitcoin.Protocol
 
 		private void EndAccept(SocketAsyncEventArgs args)
 		{
-			using(_Trace.Open())
+			Socket client = null;
+			try
 			{
-				Socket client = null;
-				try
+				if (args.SocketError != SocketError.Success)
+					throw new SocketException((int)args.SocketError);
+				client = args.AcceptSocket;
+				if (_Cancel.IsCancellationRequested)
+					return;
+				Logs.NodeServer.LogInformation("Client connection accepted {remoteEndPoint}", client.RemoteEndPoint);
+				using (var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token))
 				{
-					if(args.SocketError != SocketError.Success)
-						throw new SocketException((int)args.SocketError);
-					client = args.AcceptSocket;
-					if(_Cancel.IsCancellationRequested)
-						return;
-					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
-					var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token);
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
 
 					var stream = new NetworkStream(client, false);
-					while(true)
+					while (true)
 					{
-						if(ConnectedNodes.Count >= MaxConnections)
+						if (ConnectedNodes.Count >= MaxConnections)
 						{
-							NodeServerTrace.Information("MaxConnections limit reached");
+							Logs.NodeServer.LogInformation("MaxConnections limit reached");
 							Utils.SafeCloseSocket(client);
 							break;
 						}
@@ -201,37 +201,37 @@ namespace NBitcoin.Protocol
 							Length = counter.ReadenBytes,
 							Node = null,
 						});
-						if(message.Payload is VersionPayload)
+						if (message.Payload is VersionPayload)
 							break;
 						else
-							NodeServerTrace.Error("The first message of the remote peer did not contained a Version payload", null);
+							Logs.NodeServer.LogError("The first message of the remote peer did not contained a Version payload");
 					}
 				}
-				catch(OperationCanceledException)
+			}
+			catch (OperationCanceledException)
+			{
+				Utils.SafeCloseSocket(client);
+				if (!_Cancel.Token.IsCancellationRequested)
+				{
+					Logs.NodeServer.LogError("The remote connecting failed to send a message within 10 seconds, dropping connection");
+				}
+			}
+			catch (Exception ex)
+			{
+				if (_Cancel.IsCancellationRequested)
+					return;
+				if (client == null)
+				{
+					Logs.NodeServer.LogError(default, ex, "Error while accepting connection");
+					Thread.Sleep(3000);
+				}
+				else
 				{
 					Utils.SafeCloseSocket(client);
-					if(!_Cancel.Token.IsCancellationRequested)
-					{
-						NodeServerTrace.Error("The remote connecting failed to send a message within 10 seconds, dropping connection", null);
-					}
+					Logs.NodeServer.LogError(default, ex, "Invalid message received from the remote connecting node");
 				}
-				catch(Exception ex)
-				{
-					if(_Cancel.IsCancellationRequested)
-						return;
-					if(client == null)
-					{
-						NodeServerTrace.Error("Error while accepting connection ", ex);
-						Thread.Sleep(3000);
-					}
-					else
-					{
-						Utils.SafeCloseSocket(client);
-						NodeServerTrace.Error("Invalid message received from the remote connecting node", ex);
-					}
-				}
-				BeginAccept();
 			}
+			BeginAccept();
 		}
 
 		internal readonly MessageProducer<IncomingMessage> _MessageProducer = new MessageProducer<IncomingMessage>();
@@ -262,9 +262,9 @@ namespace NBitcoin.Protocol
 
 		internal void ExternalAddressDetected(IPAddress iPAddress)
 		{
-			if(!ExternalEndpoint.Address.IsRoutable(AllowLocalPeers) && iPAddress.IsRoutable(AllowLocalPeers))
+			if (!ExternalEndpoint.Address.IsRoutable(AllowLocalPeers) && iPAddress.IsRoutable(AllowLocalPeers))
 			{
-				NodeServerTrace.Information("New externalAddress detected " + iPAddress);
+				Logs.NodeServer.LogInformation("New externalAddress detected {externalAddress}", iPAddress);
 				ExternalEndpoint = new IPEndPoint(iPAddress, ExternalEndpoint.Port);
 			}
 		}
@@ -272,16 +272,8 @@ namespace NBitcoin.Protocol
 		void ProcessMessage(IncomingMessage message)
 		{
 			AllMessages.PushMessage(message);
-			TraceCorrelation trace = null;
-			if(message.Node != null)
-			{
-				trace = message.Node.TraceCorrelation;
-			}
-			else
-			{
-				trace = new TraceCorrelation(NodeServerTrace.Trace, "Processing inbound message " + message.Message);
-			}
-			using(trace.Open(false))
+
+			using (Logs.NodeServer.BeginScope("Processing inbound message {message}", message.Message))
 			{
 				ProcessMessageCore(message);
 			}
@@ -289,21 +281,21 @@ namespace NBitcoin.Protocol
 
 		private void ProcessMessageCore(IncomingMessage message)
 		{
-			if(message.Message.Payload is VersionPayload)
+			if (message.Message.Payload is VersionPayload)
 			{
 				var version = message.AssertPayload<VersionPayload>();
 				var connectedToSelf = version.Nonce == Nonce;
-				if(message.Node != null && connectedToSelf)
+				if (message.Node != null && connectedToSelf)
 				{
-					NodeServerTrace.ConnectionToSelfDetected();
+					Logs.NodeServer.LogWarning("Connection to self detected, abort connection");
 					message.Node.DisconnectAsync();
 					return;
 				}
 
-				if(message.Node == null)
+				if (message.Node == null)
 				{
 					var remoteEndpoint = version.AddressFrom;
-					if(!remoteEndpoint.Address.IsRoutable(AllowLocalPeers))
+					if (!remoteEndpoint.Address.IsRoutable(AllowLocalPeers))
 					{
 						//Send his own endpoint
 						remoteEndpoint = new IPEndPoint(((IPEndPoint)message.Socket.RemoteEndPoint).Address, Network.DefaultPort);
@@ -316,10 +308,10 @@ namespace NBitcoin.Protocol
 					};
 					var node = new Node(peer, Network, CreateNodeConnectionParameters(), message.Socket, version);
 
-					if(connectedToSelf)
+					if (connectedToSelf)
 					{
 						node.SendMessage(CreateNodeConnectionParameters().CreateVersion(node.Peer.Endpoint, Network));
-						NodeServerTrace.ConnectionToSelfDetected();
+						Logs.NodeServer.LogWarning("Connection to self detected, abort connection");
 						node.Disconnect();
 						return;
 					}
@@ -332,13 +324,13 @@ namespace NBitcoin.Protocol
 						node.StateChanged += node_StateChanged;
 						node.RespondToHandShake(cancel.Token);
 					}
-					catch(OperationCanceledException ex)
+					catch (OperationCanceledException ex)
 					{
-						NodeServerTrace.Error("The remote node did not respond fast enough (10 seconds) to the handshake completion, dropping connection", ex);
+						Logs.NodeServer.LogError(default, ex, "The remote node did not respond fast enough (10 seconds) to the handshake completion, dropping connection");
 						node.DisconnectAsync();
 						throw;
 					}
-					catch(Exception)
+					catch (Exception)
 					{
 						node.DisconnectAsync();
 						throw;
@@ -347,13 +339,13 @@ namespace NBitcoin.Protocol
 			}
 
 			var messageReceived = MessageReceived;
-			if(messageReceived != null)
+			if (messageReceived != null)
 				messageReceived(this, message);
 		}
 
 		void node_StateChanged(Node node, NodeState oldState)
 		{
-			if(node.State == NodeState.Disconnecting ||
+			if (node.State == NodeState.Disconnecting ||
 				node.State == NodeState.Failed ||
 				node.State == NodeState.Offline)
 				ConnectedNodes.Remove(node);
@@ -372,20 +364,20 @@ namespace NBitcoin.Protocol
 		List<IDisposable> _Resources = new List<IDisposable>();
 		IDisposable OwnResource(IDisposable resource)
 		{
-			if(_Cancel.IsCancellationRequested)
+			if (_Cancel.IsCancellationRequested)
 			{
 				resource.Dispose();
 				return Scope.Nothing;
 			}
 			return new Scope(() =>
 			{
-				lock(_Resources)
+				lock (_Resources)
 				{
 					_Resources.Add(resource);
 				}
 			}, () =>
 			{
-				lock(_Resources)
+				lock (_Resources)
 				{
 					_Resources.Remove(resource);
 				}
@@ -396,13 +388,13 @@ namespace NBitcoin.Protocol
 		CancellationTokenSource _Cancel = new CancellationTokenSource();
 		public void Dispose()
 		{
-			if(!_Cancel.IsCancellationRequested)
+			if (!_Cancel.IsCancellationRequested)
 			{
 				_Cancel.Cancel();
-				_Trace.LogInside(() => NodeServerTrace.Information("Stopping node server..."));
-				lock(_Resources)
+				Logs.NodeServer.LogInformation("Stopping node server...");
+				lock (_Resources)
 				{
-					foreach(var resource in _Resources)
+					foreach (var resource in _Resources)
 						resource.Dispose();
 				}
 				try
@@ -411,7 +403,7 @@ namespace NBitcoin.Protocol
 				}
 				finally
 				{
-					if(socket != null)
+					if (socket != null)
 					{
 						Utils.SafeCloseSocket(socket);
 						socket = null;
@@ -437,7 +429,7 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				if(_Nonce == 0)
+				if (_Nonce == 0)
 				{
 					_Nonce = RandomUtils.GetUInt64();
 				}
@@ -458,14 +450,14 @@ namespace NBitcoin.Protocol
 
 		public Node FindOrConnect(IPEndPoint endpoint)
 		{
-			while(true)
+			while (true)
 			{
 				var node = _ConnectedNodes.FindByEndpoint(endpoint);
-				if(node != null)
+				if (node != null)
 					return node;
 				node = Node.Connect(Network, endpoint, CreateNodeConnectionParameters());
 				node.StateChanged += node_StateChanged;
-				if(!_ConnectedNodes.Add(node))
+				if (!_ConnectedNodes.Add(node))
 				{
 					node.DisconnectAsync();
 				}

@@ -39,7 +39,7 @@ namespace NBitcoin.Tests
 
 			CanGetNetworkFromName();
 
-			Assert.True(Network.GetNetworks().Contains(network));
+			Assert.Contains(network, Network.GetNetworks());
 		}
 
 		[Fact]
@@ -49,7 +49,7 @@ namespace NBitcoin.Tests
 			var bytes = Network.Main.MagicBytes.ToList();
 			bytes.Insert(0, bytes.First());
 
-			using(var memstrema = new MemoryStream(bytes.ToArray()))
+			using (var memstrema = new MemoryStream(bytes.ToArray()))
 			{
 				var found = Network.Main.ReadMagic(memstrema, new CancellationToken());
 				Assert.True(found);

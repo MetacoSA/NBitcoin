@@ -104,14 +104,14 @@ namespace NBitcoin.Tests
 				Compressed = false
 				}
 			};
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				//Can generate unencrypted key with password and encrypted key
 				var encryptedKey = new BitcoinEncryptedSecretEC(test.Encrypted, Network.Main);
 				Assert.Null(encryptedKey.LotSequence);
 				var actualKey = encryptedKey.GetKey(test.Passphrase);
 				Assert.Equal(test.Unencrypted, actualKey.GetBitcoinSecret(Network.Main).ToString());
-				Assert.Equal(test.Address, actualKey.PubKey.GetAddress(Network.Main).ToString());
+				Assert.Equal(test.Address, actualKey.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main).ToString());
 				Assert.Equal(test.Compressed, actualKey.IsCompressed);
 
 
@@ -156,14 +156,14 @@ namespace NBitcoin.Tests
 				}
 			};
 
-			foreach(var test in tests)
+			foreach (var test in tests)
 			{
 				//Can generate unencrypted key with password and encrypted key
 				var encryptedKey = new BitcoinEncryptedSecretEC(test.Encrypted, Network.Main);
 				AssertSequenceEquals(test.LotSequence, encryptedKey.LotSequence);
 				var actualKey = encryptedKey.GetKey(test.Passphrase);
 				Assert.Equal(test.Unencrypted, actualKey.GetBitcoinSecret(Network.Main).ToString());
-				Assert.Equal(test.Address, actualKey.PubKey.GetAddress(Network.Main).ToString());
+				Assert.Equal(test.Address, actualKey.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main).ToString());
 				Assert.Equal(test.Compressed, actualKey.IsCompressed);
 
 
@@ -207,17 +207,17 @@ namespace NBitcoin.Tests
 		public void EncryptedSecretECmultiplyNoLotSimple()
 		{
 			var compressedValues = new[] { false, true };
-			foreach(var compressed in compressedValues)
+			foreach (var compressed in compressedValues)
 			{
 				var code = new BitcoinPassphraseCode("test", Network.Main, null);
 				Assert.Null(code.LotSequence);
 				var result = code.GenerateEncryptedSecret(compressed);
 				Assert.True(result.ConfirmationCode.Check("test", result.GeneratedAddress));
 				Assert.False(result.ConfirmationCode.Check("toto", result.GeneratedAddress));
-				Assert.False(result.ConfirmationCode.Check("test", new Key().PubKey.GetAddress(Network.Main)));
+				Assert.False(result.ConfirmationCode.Check("test", new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main)));
 
 				var decryptedKey = result.EncryptedKey.GetKey("test");
-				Assert.Equal(result.GeneratedAddress.ToString(), decryptedKey.PubKey.GetAddress(Network.Main).ToString());
+				Assert.Equal(result.GeneratedAddress.ToString(), decryptedKey.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main).ToString());
 
 				Assert.Throws<SecurityException>(() => result.EncryptedKey.GetKey("wrong"));
 
@@ -240,14 +240,14 @@ namespace NBitcoin.Tests
 			Assert.Equal(seed, actualSeed);
 
 			//The real deal
-			for(int i = 0; i < 5; i++)
+			for (int i = 0; i < 5; i++)
 			{
 				seed = RandomUtils.GetBytes(24);
 				derived = RandomUtils.GetBytes(64);
 				encrypted = BitcoinEncryptedSecret.EncryptSeed(seed, derived);
 
 				var encryptedBefore = encrypted.ToArray();
-				for(int u = 8; u < 16; u++)
+				for (int u = 8; u < 16; u++)
 				{
 					encrypted[u] = 0;
 				}
@@ -269,7 +269,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(key, actualSeed);
 
 			//The real deal
-			for(int i = 0; i < 5; i++)
+			for (int i = 0; i < 5; i++)
 			{
 				key = RandomUtils.GetBytes(32);
 				derived = RandomUtils.GetBytes(64);

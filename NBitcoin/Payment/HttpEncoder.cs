@@ -133,22 +133,22 @@ namespace System.Web.Util
 
 		internal static byte[] UrlEncodeToBytes(byte[] bytes, int offset, int count)
 		{
-			if(bytes == null)
+			if (bytes == null)
 				throw new ArgumentNullException(nameof(bytes));
 
 			int blen = bytes.Length;
-			if(blen == 0)
+			if (blen == 0)
 				return new byte[0];
 
-			if(offset < 0 || offset >= blen)
+			if (offset < 0 || offset >= blen)
 				throw new ArgumentOutOfRangeException("offset");
 
-			if(count < 0 || count > blen - offset)
+			if (count < 0 || count > blen - offset)
 				throw new ArgumentOutOfRangeException("count");
 
 			MemoryStream result = new MemoryStream(count);
 			int end = offset + count;
-			for(int i = offset; i < end; i++)
+			for (int i = offset; i < end; i++)
 				UrlEncodeChar((char)bytes[i], result, false);
 
 			return result.ToArray();
@@ -168,7 +168,7 @@ namespace System.Web.Util
 
 		internal static void UrlEncodeChar(char c, Stream result, bool isUnicode)
 		{
-			if(c > 255)
+			if (c > 255)
 			{
 				//FIXME: what happens when there is an internal error?
 				//if (!isUnicode)
@@ -189,17 +189,17 @@ namespace System.Web.Util
 				return;
 			}
 
-			if(c > ' ' && NotEncoded(c))
+			if (c > ' ' && NotEncoded(c))
 			{
 				result.WriteByte((byte)c);
 				return;
 			}
-			if((c < '0') ||
+			if ((c < '0') ||
 				(c < 'A' && c > '9') ||
 				(c > 'Z' && c < 'a') ||
 				(c > 'z'))
 			{
-				if(isUnicode && c > 127)
+				if (isUnicode && c > 127)
 				{
 					result.WriteByte((byte)'%');
 					result.WriteByte((byte)'u');

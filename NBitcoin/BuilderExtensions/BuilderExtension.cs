@@ -9,11 +9,11 @@ namespace NBitcoin.BuilderExtensions
 {
 	public interface ISigner
 	{
-		TransactionSignature Sign(Key key);
+		TransactionSignature Sign(PubKey key);
 	}
 	public interface IKeyRepository
 	{
-		Key FindKey(Script scriptPubKey);
+		PubKey FindKey(Script scriptPubKey);
 	}
 
 	/// <summary>
@@ -36,5 +36,7 @@ namespace NBitcoin.BuilderExtensions
 		public abstract bool CanCombineScriptSig(Script scriptPubKey, Script a, Script b);
 
 		public abstract Script CombineScriptSig(Script scriptPubKey, Script a, Script b);
+
+		public abstract bool IsCompatibleKey(PubKey publicKey, Script scriptPubKey);
 	}
 }

@@ -10,8 +10,8 @@ namespace NBitcoin.RPC
 		P2SHSegwit,
 		Bech32
 	}
-    public class GetNewAddressRequest
-    {
+	public class GetNewAddressRequest
+	{
 		public string Label
 		{
 			get; set;

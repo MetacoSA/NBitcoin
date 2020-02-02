@@ -21,9 +21,9 @@ namespace NBitcoin.OpenAsset
 		}
 		public NoSqlColoredTransactionRepository(ITransactionRepository transactionRepository, NoSqlRepository repository)
 		{
-			if(transactionRepository == null)
+			if (transactionRepository == null)
 				transactionRepository = new NoSqlTransactionRepository();
-			if(repository == null)
+			if (repository == null)
 				repository = new InMemoryNoSqlRepository();
 			_Transactions = transactionRepository;
 			_Repository = repository;

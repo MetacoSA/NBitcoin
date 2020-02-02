@@ -24,22 +24,22 @@ namespace NBitcoin.JsonConverters
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			if(reader.TokenType == JsonToken.Null)
+			if (reader.TokenType == JsonToken.Null)
 				return null;
-
+			reader.AssertJsonType(JsonToken.String);
 			try
 			{
 
 				var bytes = Encoders.Hex.DecodeData((string)reader.Value);
-				if(objectType == typeof(Key))
+				if (objectType == typeof(Key))
 					return new Key(bytes);
 				else
 					return new PubKey(bytes);
 			}
-			catch(EndOfStreamException)
+			catch (EndOfStreamException)
 			{
 			}
-			catch(FormatException)
+			catch (FormatException)
 			{
 			}
 			throw new JsonObjectException("Invalid bitcoin object of type " + objectType.Name, reader);
@@ -48,13 +48,13 @@ namespace NBitcoin.JsonConverters
 		private static void InverseIfNeeded(Type type, byte[] bytes)
 		{
 			var inverse = type == typeof(uint256) || type == typeof(uint160);
-			if(inverse)
+			if (inverse)
 				Array.Reverse(bytes);
 		}
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			if(value != null)
+			if (value != null)
 			{
 				var bytes = ((IBitcoinSerializable)value).ToBytes();
 				writer.WriteValue(Encoders.Hex.EncodeData(bytes));

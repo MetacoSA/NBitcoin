@@ -30,14 +30,14 @@ namespace NBitcoin
 			open();
 		}
 
-#region IDisposable Members
+		#region IDisposable Members
 
 		public void Dispose()
 		{
 			close();
 		}
 
-#endregion
+		#endregion
 
 		public static IDisposable Nothing
 		{
@@ -113,10 +113,14 @@ namespace NBitcoin
 			: this(new MemoryStream(bytes), false)
 		{
 		}
+		public BitcoinStream(byte[] bytes, int offset, int length)
+			: this(new MemoryStream(bytes, offset, length), false)
+		{
+		}
 
 		public Script ReadWrite(Script data)
 		{
-			if(Serializing)
+			if (Serializing)
 			{
 				var bytes = data == null ? Script.Empty.ToBytes(true) : data.ToBytes(true);
 				ReadWriteAsVarString(ref bytes);
@@ -132,7 +136,7 @@ namespace NBitcoin
 
 		public void ReadWrite(ref Script script)
 		{
-			if(Serializing)
+			if (Serializing)
 				ReadWrite(script);
 			else
 				script = ReadWrite(script);
@@ -158,7 +162,7 @@ namespace NBitcoin
 			}
 			set
 			{
-				if(value == null)
+				if (value == null)
 					throw new ArgumentNullException(nameof(value));
 				_ConsensusFactory = value;
 			}
@@ -166,7 +170,7 @@ namespace NBitcoin
 
 		public void ReadWriteAsVarString(ref byte[] bytes)
 		{
-			if(Serializing)
+			if (Serializing)
 			{
 				VarString.StaticWrite(this, bytes);
 			}
@@ -184,7 +188,7 @@ namespace NBitcoin
 				_ReadWriteTyped.MakeGenericMethod(type).Invoke(this, parameters);
 				obj = parameters[0];
 			}
-			catch(TargetInvocationException ex)
+			catch (TargetInvocationException ex)
 			{
 				throw ex.InnerException;
 			}
@@ -219,17 +223,17 @@ namespace NBitcoin
 		public void ReadWrite<T>(ref T data) where T : IBitcoinSerializable
 		{
 			var obj = data;
-			if(obj == null)
+			if (obj == null)
 			{
-				if(!ConsensusFactory.TryCreateNew<T>(out obj))
+				if (!ConsensusFactory.TryCreateNew<T>(out obj))
 					obj = Activator.CreateInstance<T>();
 			}
 			obj.ReadWrite(this);
-			if(!Serializing)
+			if (!Serializing)
 				data = obj;
 		}
 
-		public void ReadWrite<T>(ref List<T> list) where T : IBitcoinSerializable, new()
+		public void ReadWrite<T>(ref List<T> list) where T : IBitcoinSerializable
 		{
 			ReadWriteList<List<T>, T>(ref list);
 		}
@@ -243,18 +247,36 @@ namespace NBitcoin
 
 		private void ReadWriteList<TList, TItem>(ref TList data)
 			where TList : List<TItem>, new()
-			where TItem : IBitcoinSerializable, new()
+			where TItem : IBitcoinSerializable
 		{
 			var dataArray = data == null ? null : data.ToArray();
-			if(Serializing && dataArray == null)
+			if (Serializing && dataArray == null)
 			{
 				dataArray = new TItem[0];
 			}
 			ReadWriteArray(ref dataArray);
-			if(!Serializing)
+			if (!Serializing)
 			{
-				if(data == null)
+				if (data == null)
 					data = new TList();
+				else
+					data.Clear();
+				data.AddRange(dataArray);
+			}
+		}
+
+		public  void ReadWriteListBytes(ref List<byte[]> data)
+		{
+			var dataArray = data?.ToArray();
+			if (Serializing && dataArray == null)
+			{
+				dataArray = new byte[0][];
+			}
+			ReadWriteArray(ref dataArray);
+			if (!Serializing)
+			{
+				if (data == null)
+					data = new List<byte[]>();
 				else
 					data.Clear();
 				data.AddRange(dataArray);
@@ -323,17 +345,17 @@ namespace NBitcoin
 		{
 			var bytes = new byte[size];
 
-			for(int i = 0; i < size; i++)
+			for (int i = 0; i < size; i++)
 			{
 				bytes[i] = (byte)(value >> i * 8);
 			}
-			if(IsBigEndian)
+			if (IsBigEndian)
 				Array.Reverse(bytes);
 			ReadWriteBytes(ref bytes);
-			if(IsBigEndian)
+			if (IsBigEndian)
 				Array.Reverse(bytes);
 			ulong valueTemp = 0;
-			for(int i = 0; i < bytes.Length; i++)
+			for (int i = 0; i < bytes.Length; i++)
 			{
 				var v = (ulong)bytes[i];
 				valueTemp += v << (i * 8);
@@ -373,18 +395,18 @@ namespace NBitcoin
 #else
 		private void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
 		{
-			if(data == null)
+			if (data == null)
 				throw new ArgumentNullException(nameof(data));
 
-			if(data.Length == 0)
+			if (data.Length == 0)
 				return;
 
 			count = count == -1 ? data.Length : count;
 
-			if(count == 0)
+			if (count == 0)
 				return;
 
-			if(Serializing)
+			if (Serializing)
 			{
 				Inner.Write(data, offset, count);
 				Counter.AddWritten(count);
@@ -392,7 +414,7 @@ namespace NBitcoin
 			else
 			{
 				var readen = Inner.ReadEx(data, offset, count, ReadCancellationToken);
-				if(readen == 0)
+				if (readen == 0)
 					throw new EndOfStreamException("No more byte to read");
 				Counter.AddReaden(readen);
 
@@ -404,14 +426,14 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_Counter == null)
+				if (_Counter == null)
 					_Counter = new PerformanceCounter();
 				return _Counter;
 			}
 		}
 		private void ReadWriteByte(ref byte data)
 		{
-			if(Serializing)
+			if (Serializing)
 			{
 				Inner.WriteByte(data);
 				Counter.AddWritten(1);
@@ -419,7 +441,7 @@ namespace NBitcoin
 			else
 			{
 				var readen = Inner.ReadByte();
-				if(readen == -1)
+				if (readen == -1)
 					throw new EndOfStreamException("No more byte to read");
 				data = (byte)readen;
 				Counter.AddReaden(1);
@@ -467,7 +489,7 @@ namespace NBitcoin
 			get
 			{
 				var capabilities = _ProtocolCapabilities;
-				if(capabilities == null)
+				if (capabilities == null)
 				{
 					capabilities = ProtocolVersion == null ? ProtocolCapabilities.CreateSupportAll() : ConsensusFactory.GetProtocolCapabilities(ProtocolVersion.Value);
 					_ProtocolCapabilities = capabilities;
@@ -506,7 +528,7 @@ namespace NBitcoin
 
 		public void CopyParameters(BitcoinStream from)
 		{
-			if(from == null)
+			if (from == null)
 				throw new ArgumentNullException(nameof(from));
 			ProtocolVersion = from.ProtocolVersion;
 			ConsensusFactory = from.ConsensusFactory;
@@ -555,14 +577,14 @@ namespace NBitcoin
 
 		public void ReadWriteAsVarInt(ref uint val)
 		{
-			if(Serializing)
+			if (Serializing)
 				VarInt.StaticWrite(this, val);
 			else
 				val = (uint)Math.Min(uint.MaxValue, VarInt.StaticRead(this));
 		}
 		public void ReadWriteAsVarInt(ref ulong val)
 		{
-			if(Serializing)
+			if (Serializing)
 				VarInt.StaticWrite(this, val);
 			else
 				val = VarInt.StaticRead(this);
@@ -572,14 +594,14 @@ namespace NBitcoin
 		{
 			var value = new CompactVarInt(val, sizeof(uint));
 			ReadWrite(ref value);
-			if(!Serializing)
+			if (!Serializing)
 				val = (uint)value.ToLong();
 		}
 		public void ReadWriteAsCompactVarInt(ref ulong val)
 		{
 			var value = new CompactVarInt(val, sizeof(ulong));
 			ReadWrite(ref value);
-			if(!Serializing)
+			if (!Serializing)
 				val = value.ToLong();
 		}
 	}

@@ -62,9 +62,7 @@ namespace NBitcoin.Altcoins
 
 		protected override void PostInit()
 		{
-			RegisterDefaultCookiePath(Mainnet, ".cookie");
-			RegisterDefaultCookiePath(Regtest, "regtest", ".cookie");
-			RegisterDefaultCookiePath(Testnet, "testnet3", ".cookie");
+			RegisterDefaultCookiePath("MogwaiCore");
 		}
 
 		static uint256 GetPoWHash(BlockHeader header)

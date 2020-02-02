@@ -22,13 +22,13 @@ namespace NBitcoin.OpenAsset
 		public AssetId(IDestination assetScriptPubKey)
 			: this(assetScriptPubKey.ScriptPubKey)
 		{
-			if(assetScriptPubKey == null)
+			if (assetScriptPubKey == null)
 				throw new ArgumentNullException(nameof(assetScriptPubKey));
 		}
 
 		public AssetId(BitcoinAssetId assetId)
 		{
-			if(assetId == null)
+			if (assetId == null)
 				throw new ArgumentNullException(nameof(assetId));
 			_Bytes = assetId.AssetId._Bytes;
 		}
@@ -36,20 +36,20 @@ namespace NBitcoin.OpenAsset
 		public AssetId(Script assetScriptPubKey)
 			: this(assetScriptPubKey.Hash)
 		{
-			if(assetScriptPubKey == null)
+			if (assetScriptPubKey == null)
 				throw new ArgumentNullException(nameof(assetScriptPubKey));
 		}
 
 		public AssetId(ScriptId scriptId)
 		{
-			if(scriptId == null)
+			if (scriptId == null)
 				throw new ArgumentNullException(nameof(scriptId));
 			_Bytes = scriptId.ToBytes(true);
 		}
 
 		public AssetId(byte[] value)
 		{
-			if(value == null)
+			if (value == null)
 				throw new ArgumentNullException(nameof(value));
 			_Bytes = value;
 		}
@@ -66,7 +66,7 @@ namespace NBitcoin.OpenAsset
 
 		public BitcoinAssetId GetWif(Network network)
 		{
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			return new BitcoinAssetId(this, network);
 		}
@@ -77,7 +77,7 @@ namespace NBitcoin.OpenAsset
 		}
 		public byte[] ToBytes(bool @unsafe)
 		{
-			if(@unsafe)
+			if (@unsafe)
 				return _Bytes;
 			var array = new byte[_Bytes.Length];
 			Array.Copy(_Bytes, array, _Bytes.Length);
@@ -87,15 +87,15 @@ namespace NBitcoin.OpenAsset
 		public override bool Equals(object obj)
 		{
 			AssetId item = obj as AssetId;
-			if(item == null)
+			if (item == null)
 				return false;
 			return Utils.ArrayEqual(_Bytes, item._Bytes);
 		}
 		public static bool operator ==(AssetId a, AssetId b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 			return Utils.ArrayEqual(a._Bytes, b._Bytes);
 		}
@@ -113,14 +113,14 @@ namespace NBitcoin.OpenAsset
 		string _Str;
 		public override string ToString()
 		{
-			if(_Str == null)
+			if (_Str == null)
 				_Str = Encoders.Hex.EncodeData(_Bytes);
 			return _Str;
 		}
 
 		public string ToString(Network network)
 		{
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			return new BitcoinAssetId(this, network).ToString();
 		}

@@ -20,17 +20,18 @@ namespace NBitcoin.JsonConverters
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			if(reader.TokenType == JsonToken.Null)
+			if (reader.TokenType == JsonToken.Null)
 				return null;
+			reader.AssertJsonType(new[] { JsonToken.Integer, JsonToken.Float });
 			try
 			{
-				if(reader.TokenType == JsonToken.Integer)
+				if (reader.TokenType == JsonToken.Integer)
 					return new FeeRate((long)reader.Value);
-				if(reader.TokenType == JsonToken.Float)
+				if (reader.TokenType == JsonToken.Float)
 					return new FeeRate((decimal)(double)reader.Value);
 				throw new JsonObjectException("Fee rate amount should be in satoshi", reader);
 			}
-			catch(InvalidCastException)
+			catch (InvalidCastException)
 			{
 				throw new JsonObjectException("Fee rate should be in satoshi", reader);
 			}

@@ -9,13 +9,13 @@ namespace NBitcoin.BouncyCastle.Math.Field
 
 		public static IPolynomialExtensionField GetBinaryExtensionField(int[] exponents)
 		{
-			if(exponents[0] != 0)
+			if (exponents[0] != 0)
 			{
 				throw new ArgumentException("Irreducible polynomials in GF(2) must have constant term", "exponents");
 			}
-			for(int i = 1; i < exponents.Length; ++i)
+			for (int i = 1; i < exponents.Length; ++i)
 			{
-				if(exponents[i] <= exponents[i - 1])
+				if (exponents[i] <= exponents[i - 1])
 				{
 					throw new ArgumentException("Polynomial exponents must be montonically increasing", "exponents");
 				}
@@ -32,14 +32,14 @@ namespace NBitcoin.BouncyCastle.Math.Field
 		public static IFiniteField GetPrimeField(BigInteger characteristic)
 		{
 			int bitLength = characteristic.BitLength;
-			if(characteristic.SignValue <= 0 || bitLength < 2)
+			if (characteristic.SignValue <= 0 || bitLength < 2)
 			{
 				throw new ArgumentException("Must be >= 2", "characteristic");
 			}
 
-			if(bitLength < 3)
+			if (bitLength < 3)
 			{
-				switch(characteristic.IntValue)
+				switch (characteristic.IntValue)
 				{
 					case 2:
 						return GF_2;

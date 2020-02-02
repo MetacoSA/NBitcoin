@@ -19,7 +19,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_Japanese == null)
+				if (_Japanese == null)
 					_Japanese = LoadWordList(Language.Japanese).Result;
 				return _Japanese;
 			}
@@ -30,7 +30,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_ChineseSimplified == null)
+				if (_ChineseSimplified == null)
 					_ChineseSimplified = LoadWordList(Language.ChineseSimplified).Result;
 				return _ChineseSimplified;
 			}
@@ -41,7 +41,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_ChineseTraditional == null)
+				if (_ChineseTraditional == null)
 					_ChineseTraditional = LoadWordList(Language.ChineseTraditional).Result;
 				return _ChineseTraditional;
 			}
@@ -52,7 +52,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_Spanish == null)
+				if (_Spanish == null)
 					_Spanish = LoadWordList(Language.Spanish).Result;
 				return _Spanish;
 			}
@@ -63,7 +63,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_English == null)
+				if (_English == null)
 					_English = LoadWordList(Language.English).Result;
 				return _English;
 			}
@@ -74,7 +74,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_French == null)
+				if (_French == null)
 					_French = LoadWordList(Language.French).Result;
 				return _French;
 			}
@@ -91,6 +91,17 @@ namespace NBitcoin
 			}
 		}
 
+		private static Wordlist _Czech;
+		public static Wordlist Czech
+		{
+			get
+			{
+				if (_Czech == null)
+					_Czech = LoadWordList(Language.Czech).Result;
+				return _Czech;
+			}
+		}
+
 		public static Task<Wordlist> LoadWordList(Language language)
 		{
 			string name = GetLanguageFileName(language);
@@ -100,7 +111,7 @@ namespace NBitcoin
 		internal static string GetLanguageFileName(Language language)
 		{
 			string name = null;
-			switch(language)
+			switch (language)
 			{
 				case Language.ChineseTraditional:
 					name = "chinese_traditional";
@@ -123,6 +134,9 @@ namespace NBitcoin
 				case Language.PortugueseBrazil:
 					name = "portuguese_brazil";
 					break;
+				case Language.Czech:
+					name = "czech";
+					break;
 				default:
 					throw new NotSupportedException(language.ToString());
 			}
@@ -132,22 +146,22 @@ namespace NBitcoin
 		static Dictionary<string, Wordlist> _LoadedLists = new Dictionary<string, Wordlist>();
 		public static async Task<Wordlist> LoadWordList(string name)
 		{
-			if(name == null)
+			if (name == null)
 				throw new ArgumentNullException(nameof(name));
 			Wordlist result = null;
-			lock(_LoadedLists)
+			lock (_LoadedLists)
 			{
 				_LoadedLists.TryGetValue(name, out result);
 			}
-			if(result != null)
+			if (result != null)
 				return await Task.FromResult<Wordlist>(result).ConfigureAwait(false);
 
 
-			if(WordlistSource == null)
+			if (WordlistSource == null)
 				throw new InvalidOperationException("Wordlist.WordlistSource is not set, impossible to fetch word list.");
 			result = await WordlistSource.Load(name).ConfigureAwait(false);
-			if(result != null)
-				lock(_LoadedLists)
+			if (result != null)
+				lock (_LoadedLists)
 				{
 					_LoadedLists.AddOrReplace(name, result);
 				}
@@ -200,7 +214,7 @@ namespace NBitcoin
 		public bool WordExists(string word, out int index)
 		{
 			word = Mnemonic.NormalizeString(word);
-			if(_words.Contains(word))
+			if (_words.Contains(word))
 			{
 				index = Array.IndexOf(_words, word);
 				return true;
@@ -243,41 +257,41 @@ namespace NBitcoin
 		}
 		public static Language AutoDetectLanguage(string[] words)
 		{
-			List<int> languageCount = new List<int>(new int[] { 0, 0, 0, 0, 0, 0, 0 });
+			List<int> languageCount = new List<int>(new int[] { 0, 0, 0, 0, 0, 0, 0, 0 });
 			int index;
 
-			foreach(string s in words)
+			foreach (string s in words)
 			{
-				if(Wordlist.English.WordExists(s, out index))
+				if (Wordlist.English.WordExists(s, out index))
 				{
 					//english is at 0
 					languageCount[0]++;
 				}
 
-				if(Wordlist.Japanese.WordExists(s, out index))
+				if (Wordlist.Japanese.WordExists(s, out index))
 				{
 					//japanese is at 1
 					languageCount[1]++;
 				}
 
-				if(Wordlist.Spanish.WordExists(s, out index))
+				if (Wordlist.Spanish.WordExists(s, out index))
 				{
 					//spanish is at 2
 					languageCount[2]++;
 				}
 
-				if(Wordlist.ChineseSimplified.WordExists(s, out index))
+				if (Wordlist.ChineseSimplified.WordExists(s, out index))
 				{
 					//chinese simplified is at 3
 					languageCount[3]++;
 				}
 
-				if(Wordlist.ChineseTraditional.WordExists(s, out index) && !Wordlist.ChineseSimplified.WordExists(s, out index))
+				if (Wordlist.ChineseTraditional.WordExists(s, out index) && !Wordlist.ChineseSimplified.WordExists(s, out index))
 				{
 					//chinese traditional is at 4
 					languageCount[4]++;
 				}
-				if(Wordlist.French.WordExists(s, out index))
+				if (Wordlist.French.WordExists(s, out index))
 				{
 					languageCount[5]++;
 				}
@@ -287,29 +301,35 @@ namespace NBitcoin
 					//portuguese_brazil is at 6
 					languageCount[6]++;
 				}
+
+				if (Wordlist.Czech.WordExists(s, out index))
+				{
+					//czech is at 7
+					languageCount[7]++;
+				}
 			}
 
 			//no hits found for any language unknown
-			if(languageCount.Max() == 0)
+			if (languageCount.Max() == 0)
 			{
 				return Language.Unknown;
 			}
 
-			if(languageCount.IndexOf(languageCount.Max()) == 0)
+			if (languageCount.IndexOf(languageCount.Max()) == 0)
 			{
 				return Language.English;
 			}
-			else if(languageCount.IndexOf(languageCount.Max()) == 1)
+			else if (languageCount.IndexOf(languageCount.Max()) == 1)
 			{
 				return Language.Japanese;
 			}
-			else if(languageCount.IndexOf(languageCount.Max()) == 2)
+			else if (languageCount.IndexOf(languageCount.Max()) == 2)
 			{
 				return Language.Spanish;
 			}
-			else if(languageCount.IndexOf(languageCount.Max()) == 3)
+			else if (languageCount.IndexOf(languageCount.Max()) == 3)
 			{
-				if(languageCount[4] > 0)
+				if (languageCount[4] > 0)
 				{
 					//has traditional characters so not simplified but instead traditional
 					return Language.ChineseTraditional;
@@ -317,17 +337,21 @@ namespace NBitcoin
 
 				return Language.ChineseSimplified;
 			}
-			else if(languageCount.IndexOf(languageCount.Max()) == 4)
+			else if (languageCount.IndexOf(languageCount.Max()) == 4)
 			{
 				return Language.ChineseTraditional;
 			}
-			else if(languageCount.IndexOf(languageCount.Max()) == 5)
+			else if (languageCount.IndexOf(languageCount.Max()) == 5)
 			{
 				return Language.French;
 			}
 			else if (languageCount.IndexOf(languageCount.Max()) == 6)
 			{
 				return Language.PortugueseBrazil;
+			}
+			else if (languageCount.IndexOf(languageCount.Max()) == 7)
+			{
+				return Language.Czech;
 			}
 			return Language.Unknown;
 		}
@@ -370,11 +394,11 @@ namespace NBitcoin
 		public int[] ToIndices(string[] words)
 		{
 			var indices = new int[words.Length];
-			for(int i = 0; i < words.Length; i++)
+			for (int i = 0; i < words.Length; i++)
 			{
 				int idx = -1;
 
-				if(!WordExists(words[i], out idx))
+				if (!WordExists(words[i], out idx))
 				{
 					throw new FormatException("Word " + words[i] + " is not in the wordlist for this language, cannot continue to rebuild entropy from wordlist");
 				}
@@ -390,13 +414,13 @@ namespace NBitcoin
 
 		public static BitArray ToBits(int[] values)
 		{
-			if(values.Any(v => v >= 2048))
+			if (values.Any(v => v >= 2048))
 				throw new ArgumentException("values should be between 0 and 2048", "values");
 			BitArray result = new BitArray(values.Length * 11);
 			int i = 0;
-			foreach(var val in values)
+			foreach (var val in values)
 			{
-				for(int p = 0; p < 11; p++)
+				for (int p = 0; p < 11; p++)
 				{
 					var v = (val & (1 << (10 - p))) != 0;
 					result.Set(i, v);

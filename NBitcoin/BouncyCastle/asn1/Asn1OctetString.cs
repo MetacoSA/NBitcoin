@@ -16,7 +16,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 		internal Asn1OctetString(
 			byte[] str)
 		{
-			if(str == null)
+			if (str == null)
 				throw new ArgumentNullException(nameof(str));
 
 			this.str = str;
@@ -50,7 +50,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 		{
 			DerOctetString other = asn1Object as DerOctetString;
 
-			if(other == null)
+			if (other == null)
 				return false;
 
 			return Arrays.AreEqual(GetOctets(), other.GetOctets());

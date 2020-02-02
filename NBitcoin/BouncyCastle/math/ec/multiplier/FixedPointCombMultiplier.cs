@@ -10,7 +10,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			ECCurve c = p.Curve;
 			int size = FixedPointUtilities.GetCombSize(c);
 
-			if(k.BitLength > size)
+			if (k.BitLength > size)
 			{
 				/*
                  * TODO The comb works best when the scalars are less than the (possibly unknown) order.
@@ -32,14 +32,14 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			ECPoint R = c.Infinity;
 
 			int top = d * width - 1;
-			for(int i = 0; i < d; ++i)
+			for (int i = 0; i < d; ++i)
 			{
 				int index = 0;
 
-				for(int j = top - i; j >= 0; j -= d)
+				for (int j = top - i; j >= 0; j -= d)
 				{
 					index <<= 1;
-					if(k.TestBit(j))
+					if (k.TestBit(j))
 					{
 						index |= 1;
 					}

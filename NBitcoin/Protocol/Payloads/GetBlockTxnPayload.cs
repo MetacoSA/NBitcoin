@@ -39,27 +39,27 @@ namespace NBitcoin.Protocol
 			stream.ReadWrite(ref _BlockId);
 			ulong indexes_size = (ulong)_Indices.Count;
 			stream.ReadWriteAsVarInt(ref indexes_size);
-			if(!stream.Serializing)
+			if (!stream.Serializing)
 			{
 				ulong i = 0;
 				ulong indicesCount = 0;
-				while((ulong)_Indices.Count < indexes_size)
+				while ((ulong)_Indices.Count < indexes_size)
 				{
 					indicesCount = Math.Min(1000UL + (ulong)indicesCount, (ulong)indexes_size);
-					for(; i < indicesCount; i++)
+					for (; i < indicesCount; i++)
 					{
 						ulong index = 0;
 						stream.ReadWriteAsVarInt(ref index);
-						if(index > Int32.MaxValue)
+						if (index > Int32.MaxValue)
 							throw new FormatException("indexes overflowed 31-bits");
 						_Indices.Add((int)index);
 					}
 				}
 
 				int offset = 0;
-				for(var ii = 0; ii < _Indices.Count; ii++)
+				for (var ii = 0; ii < _Indices.Count; ii++)
 				{
-					if((ulong)(_Indices[ii]) + (ulong)(offset) > Int32.MaxValue)
+					if ((ulong)(_Indices[ii]) + (ulong)(offset) > Int32.MaxValue)
 						throw new FormatException("indexes overflowed 31-bits");
 					_Indices[ii] = _Indices[ii] + offset;
 					offset = _Indices[ii] + 1;
@@ -67,9 +67,9 @@ namespace NBitcoin.Protocol
 			}
 			else
 			{
-				for(var i = 0; i < _Indices.Count; i++)
+				for (var i = 0; i < _Indices.Count; i++)
 				{
-					int index = _Indices[i] - (i == 0 ? 0 : (_Indices[i - 1] + 1));					
+					int index = _Indices[i] - (i == 0 ? 0 : (_Indices[i - 1] + 1));
 					stream.ReadWrite(ref index);
 				}
 			}

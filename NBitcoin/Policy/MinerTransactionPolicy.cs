@@ -24,7 +24,7 @@ namespace NBitcoin.Policy
 		{
 			StringBuilder builder = new StringBuilder();
 			builder.Append(message);
-			if(missing != null)
+			if (missing != null)
 				builder.Append(" with missing amount " + missing);
 			return builder.ToString();
 		}
@@ -71,43 +71,43 @@ namespace NBitcoin.Policy
 			spentCoins = spentCoins ?? new ICoin[0];
 			List<TransactionPolicyError> errors = new List<TransactionPolicyError>();
 
-			if(transaction.Version > Transaction.CURRENT_VERSION || transaction.Version < 1)
+			if (transaction.Version > Transaction.CURRENT_VERSION || transaction.Version < 1)
 			{
 				errors.Add(new TransactionPolicyError("Invalid transaction version, expected " + Transaction.CURRENT_VERSION));
 			}
 
 			var dups = transaction.Inputs.AsIndexedInputs().GroupBy(i => i.PrevOut);
-			foreach(var dup in dups)
+			foreach (var dup in dups)
 			{
 				var duplicates = dup.ToArray();
-				if(duplicates.Length != 1)
+				if (duplicates.Length != 1)
 					errors.Add(new DuplicateInputPolicyError(duplicates));
 			}
 
-			foreach(var input in transaction.Inputs.AsIndexedInputs())
+			foreach (var input in transaction.Inputs.AsIndexedInputs())
 			{
 				var coin = spentCoins.FirstOrDefault(s => s.Outpoint == input.PrevOut);
-				if(coin == null)
+				if (coin == null)
 				{
 					errors.Add(new CoinNotFoundPolicyError(input));
 				}
 			}
 
-			foreach(var output in transaction.Outputs.AsCoins())
+			foreach (var output in transaction.Outputs.AsCoins())
 			{
-				if(output.Amount < Money.Zero)
+				if (output.Amount < Money.Zero)
 					errors.Add(new OutputPolicyError("Output value should not be less than zero", (int)output.Outpoint.N));
 			}
 
 			var fees = transaction.GetFee(spentCoins);
-			if(fees != null)
+			if (fees != null)
 			{
-				if(fees < Money.Zero)
+				if (fees < Money.Zero)
 					errors.Add(new NotEnoughFundsPolicyError("Not enough funds in this transaction", -fees));
 			}
 
 			var check = transaction.Check();
-			if(check != TransactionCheckResult.Success)
+			if (check != TransactionCheckResult.Success)
 			{
 				errors.Add(new TransactionPolicyError("Context free check of the transaction failed " + check));
 			}

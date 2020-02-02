@@ -17,7 +17,7 @@ namespace NBitcoin.Protocol.Behaviors
 		State _State;
 		public ChainBehavior(ConcurrentChain chain)
 		{
-			if(chain == null)
+			if (chain == null)
 				throw new ArgumentNullException(nameof(chain));
 			_State = new ChainBehavior.State();
 			_Chain = chain;
@@ -97,11 +97,11 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			_Refresh = new Timer(o =>
 			{
-				if(AutoSync)
+				if (AutoSync)
 					TrySync();
 			}, null, 0, (int)TimeSpan.FromMinutes(10).TotalMilliseconds);
 			RegisterDisposable(_Refresh);
-			if(AttachedNode.State == NodeState.Connected)
+			if (AttachedNode.State == NodeState.Connected)
 			{
 				var highPoW = SharedState.HighestValidatedPoW;
 				AttachedNode.MyVersion.StartHeight = highPoW == null ? Chain.Height : highPoW.Height;
@@ -113,37 +113,37 @@ namespace NBitcoin.Protocol.Behaviors
 		void Intercept(IncomingMessage message, Action act)
 		{
 			var inv = message.Message.Payload as InvPayload;
-			if(inv != null)
+			if (inv != null)
 			{
-				if(inv.Inventory.Any(i => ((i.Type & InventoryType.MSG_BLOCK) != 0) && !Chain.Contains(i.Hash)))
+				if (inv.Inventory.Any(i => ((i.Type & InventoryType.MSG_BLOCK) != 0) && !Chain.Contains(i.Hash)))
 				{
 					_Refresh.Dispose(); //No need of periodical refresh, the peer is notifying us
-					if(AutoSync)
+					if (AutoSync)
 						TrySync();
 				}
 			}
 
 			var getheaders = message.Message.Payload as GetHeadersPayload;
-			if(getheaders != null && CanRespondToGetHeaders && !StripHeader)
+			if (getheaders != null && CanRespondToGetHeaders && !StripHeader)
 			{
 				HeadersPayload headers = new HeadersPayload();
 				var highestPow = SharedState.HighestValidatedPoW;
 				highestPow = highestPow == null ? null : Chain.GetBlock(highestPow.HashBlock);
 				var fork = Chain.FindFork(getheaders.BlockLocators);
-				if(fork != null)
+				if (fork != null)
 				{
-					if(highestPow != null && fork.Height > highestPow.Height)
+					if (highestPow != null && fork.Height > highestPow.Height)
 					{
 						fork = null; //fork not yet validated
 					}
-					if(fork != null)
+					if (fork != null)
 					{
-						foreach(var header in Chain.EnumerateToTip(fork).Skip(1))
+						foreach (var header in Chain.EnumerateToTip(fork).Skip(1))
 						{
-							if(highestPow != null && header.Height > highestPow.Height)
+							if (highestPow != null && header.Height > highestPow.Height)
 								break;
 							headers.Headers.Add(header.Header);
-							if(header.HashBlock == getheaders.HashStop || headers.Headers.Count == 2000)
+							if (header.HashBlock == getheaders.HashStop || headers.Headers.Count == 2000)
 								break;
 						}
 					}
@@ -153,18 +153,18 @@ namespace NBitcoin.Protocol.Behaviors
 
 			var newheaders = message.Message.Payload as HeadersPayload;
 			var pendingTipBefore = GetPendingTipOrChainTip();
-			if(newheaders != null && CanSync)
+			if (newheaders != null && CanSync)
 			{
 				var tip = GetPendingTipOrChainTip();
-				foreach(var header in newheaders.Headers)
+				foreach (var header in newheaders.Headers)
 				{
 					var prev = tip.FindAncestorOrSelf(header.HashPrevBlock);
-					if(prev == null)
+					if (prev == null)
 						break;
 					tip = new ChainedBlock(header, header.GetHash(), prev);
 					var validated = Chain.GetBlock(tip.HashBlock) != null || (SkipPoWCheck || tip.Validate(AttachedNode.Network));
 					validated &= !SharedState.IsMarkedInvalid(tip.HashBlock);
-					if(!validated)
+					if (!validated)
 					{
 						invalidHeaderReceived = true;
 						break;
@@ -173,24 +173,24 @@ namespace NBitcoin.Protocol.Behaviors
 				}
 
 				bool isHigherBlock = false;
-				if(SkipPoWCheck)
+				if (SkipPoWCheck)
 					isHigherBlock = _PendingTip.Height > Chain.Tip.Height;
 				else
 					isHigherBlock = _PendingTip.GetChainWork(true) > Chain.Tip.GetChainWork(true);
 
-				if(isHigherBlock)
+				if (isHigherBlock)
 				{
 					Chain.SetTip(_PendingTip);
-					if(StripHeader)
+					if (StripHeader)
 						_PendingTip.StripHeader();
 				}
 
 				var chainedPendingTip = Chain.GetBlock(_PendingTip.HashBlock);
-				if(chainedPendingTip != null)
+				if (chainedPendingTip != null)
 				{
 					_PendingTip = chainedPendingTip; //This allows garbage collection to collect the duplicated pendingtip and ancestors
 				}
-				if(newheaders.Headers.Count != 0 && pendingTipBefore.HashBlock != GetPendingTipOrChainTip().HashBlock)
+				if (newheaders.Headers.Count != 0 && pendingTipBefore.HashBlock != GetPendingTipOrChainTip().HashBlock)
 					TrySync();
 				Interlocked.Decrement(ref _SynchingCount);
 			}
@@ -205,16 +205,16 @@ namespace NBitcoin.Protocol.Behaviors
 		public bool CheckAnnouncedBlocks()
 		{
 			var tip = _PendingTip;
-			if(tip != null && !invalidHeaderReceived)
+			if (tip != null && !invalidHeaderReceived)
 			{
 				try
 				{
 					_State._InvalidBlocksLock.EnterReadLock();
-					if(_State._InvalidBlocks.Count != 0)
+					if (_State._InvalidBlocks.Count != 0)
 					{
-						foreach(var header in tip.EnumerateToGenesis())
+						foreach (var header in tip.EnumerateToGenesis())
 						{
-							if(invalidHeaderReceived)
+							if (invalidHeaderReceived)
 								break;
 							invalidHeaderReceived |= _State._InvalidBlocks.Contains(header.HashBlock);
 						}
@@ -259,9 +259,9 @@ namespace NBitcoin.Protocol.Behaviors
 		public void TrySync()
 		{
 			var node = AttachedNode;
-			if(node != null)
+			if (node != null)
 			{
-				if(node.State == NodeState.HandShaked && CanSync && !invalidHeaderReceived)
+				if (node.State == NodeState.HandShaked && CanSync && !invalidHeaderReceived)
 				{
 					Interlocked.Increment(ref _SynchingCount);
 					node.SendMessageAsync(new GetHeadersPayload()
@@ -283,7 +283,7 @@ namespace NBitcoin.Protocol.Behaviors
 			get
 			{
 				var tip = _PendingTip;
-				if(tip == null)
+				if (tip == null)
 					return null;
 				//Prevent memory leak by returning a block from the chain instead of real pending tip of possible
 				return Chain.GetBlock(tip.HashBlock) ?? tip;

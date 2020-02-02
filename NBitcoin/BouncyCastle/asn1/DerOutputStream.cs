@@ -16,19 +16,19 @@ namespace NBitcoin.BouncyCastle.Asn1
 		private void WriteLength(
 			int length)
 		{
-			if(length > 127)
+			if (length > 127)
 			{
 				int size = 1;
 				uint val = (uint)length;
 
-				while((val >>= 8) != 0)
+				while ((val >>= 8) != 0)
 				{
 					size++;
 				}
 
 				WriteByte((byte)(size | 0x80));
 
-				for(int i = (size - 1) * 8; i >= 0; i -= 8)
+				for (int i = (size - 1) * 8; i >= 0; i -= 8)
 				{
 					WriteByte((byte)(length >> i));
 				}
@@ -74,14 +74,14 @@ namespace NBitcoin.BouncyCastle.Asn1
 			int flags,
 			int tagNo)
 		{
-			if(tagNo < 31)
+			if (tagNo < 31)
 			{
 				WriteByte((byte)(flags | tagNo));
 			}
 			else
 			{
 				WriteByte((byte)(flags | 0x1f));
-				if(tagNo < 128)
+				if (tagNo < 128)
 				{
 					WriteByte((byte)tagNo);
 				}
@@ -97,7 +97,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 						tagNo >>= 7;
 						stack[--pos] = (byte)(tagNo & 0x7F | 0x80);
 					}
-					while(tagNo > 127);
+					while (tagNo > 127);
 
 					Write(stack, pos, stack.Length - pos);
 				}
@@ -124,15 +124,15 @@ namespace NBitcoin.BouncyCastle.Asn1
 		public virtual void WriteObject(
 			object obj)
 		{
-			if(obj == null)
+			if (obj == null)
 			{
 				WriteNull();
 			}
-			else if(obj is Asn1Object)
+			else if (obj is Asn1Object)
 			{
 				((Asn1Object)obj).Encode(this);
 			}
-			else if(obj is Asn1Encodable)
+			else if (obj is Asn1Encodable)
 			{
 				((Asn1Encodable)obj).ToAsn1Object().Encode(this);
 			}
@@ -145,7 +145,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 		public virtual void WriteObject(
 			Asn1Encodable obj)
 		{
-			if(obj == null)
+			if (obj == null)
 			{
 				WriteNull();
 			}
@@ -158,7 +158,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 		public virtual void WriteObject(
 			Asn1Object obj)
 		{
-			if(obj == null)
+			if (obj == null)
 			{
 				WriteNull();
 			}

@@ -13,12 +13,10 @@ namespace NBitcoin.JsonConverters
 #endif
 	class BitcoinStringJsonConverter : JsonConverter
 	{
-		public BitcoinStringJsonConverter()
-		{
-
-		}
 		public BitcoinStringJsonConverter(Network network)
 		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
 			Network = network;
 		}
 		public override bool CanConvert(Type objectType)
@@ -30,44 +28,33 @@ namespace NBitcoin.JsonConverters
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			if(reader.TokenType == JsonToken.Null)
+			if (reader.TokenType == JsonToken.Null)
 				return null;
-
+			reader.AssertJsonType(JsonToken.String);
 			try
 			{
-				IBitcoinString result = null;
-				if(Network != null)
+				IBitcoinString result = Network.Parse(reader.Value.ToString(), objectType);
+				if (result == null)
 				{
-					result = Network.Parse(reader.Value.ToString());
-					if(result == null)
-					{
-						throw new JsonObjectException("Invalid BitcoinString network", reader);
-					}
+					throw new JsonObjectException("Invalid BitcoinString network", reader);
 				}
-				else
-				{
-					result = Network.Parse(reader.Value.ToString(), null);
-					if(result == null)
-					{
-						throw new JsonObjectException("Invalid BitcoinString data", reader);
-					}
-				}
-				if(!objectType.GetTypeInfo().IsAssignableFrom(result.GetType().GetTypeInfo()))
+
+				if (!objectType.GetTypeInfo().IsAssignableFrom(result.GetType().GetTypeInfo()))
 				{
 					throw new JsonObjectException("Invalid BitcoinString type expected " + objectType.Name + ", actual " + result.GetType().Name, reader);
 				}
 				return result;
 			}
-			catch(FormatException)
+			catch (FormatException ex)
 			{
-				throw new JsonObjectException("Invalid Base58Check data", reader);
+				throw new JsonObjectException(ex.Message, reader);
 			}
 		}
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
 			var base58 = value as IBitcoinString;
-			if(base58 != null)
+			if (base58 != null)
 			{
 				writer.WriteValue(value.ToString());
 			}

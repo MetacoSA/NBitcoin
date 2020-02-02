@@ -17,7 +17,7 @@ namespace NBitcoin
 		private static byte[] ToBytes(Key key)
 		{
 			var keyBytes = key.ToBytes();
-			if(!key.IsCompressed)
+			if (!key.IsCompressed)
 				return keyBytes;
 			else
 				return keyBytes.Concat(new byte[] { 0x01 }).ToArray();
@@ -27,11 +27,15 @@ namespace NBitcoin
 			Init<BitcoinSecret>(base58, expectedAddress);
 		}
 
-		private BitcoinPubKeyAddress _address;
+		public BitcoinAddress GetAddress(ScriptPubKeyType type)
+		{
+			return PrivateKey.PubKey.GetAddress(type, Network);
+		}
 
+		[Obsolete("Use GetAddress(ScriptPubKeyType.Legacy) instead")]
 		public BitcoinPubKeyAddress GetAddress()
 		{
-			return _address ?? (_address = PrivateKey.PubKey.GetAddress(Network));
+			return (BitcoinPubKeyAddress)GetAddress(ScriptPubKeyType.Legacy);
 		}
 
 		public BitcoinWitPubKeyAddress GetSegwitAddress()
@@ -70,12 +74,12 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(vchData.Length != 33 && vchData.Length != 32)
+				if (vchData.Length != 33 && vchData.Length != 32)
 					return false;
 
-				if(vchData.Length == 33 && IsCompressed)
+				if (vchData.Length == 33 && IsCompressed)
 					return true;
-				if(vchData.Length == 32 && !IsCompressed)
+				if (vchData.Length == 32 && !IsCompressed)
 					return true;
 				return false;
 			}
@@ -89,10 +93,10 @@ namespace NBitcoin
 
 		public BitcoinSecret Copy(bool? compressed)
 		{
-			if(compressed == null)
+			if (compressed == null)
 				compressed = IsCompressed;
 
-			if(compressed.Value && IsCompressed)
+			if (compressed.Value && IsCompressed)
 			{
 				return new BitcoinSecret(wifData, Network);
 			}
@@ -102,7 +106,7 @@ namespace NBitcoin
 				byte[] result = enc.DecodeData(wifData);
 				var resultList = result.ToList();
 
-				if(compressed.Value)
+				if (compressed.Value)
 				{
 					resultList.Insert(resultList.Count, 0x1);
 				}
@@ -132,6 +136,7 @@ namespace NBitcoin
 
 		#region IDestination Members
 
+		[Obsolete("Use GetAddress(ScriptPubKeyType.Legacy) instead")]
 		public Script ScriptPubKey
 		{
 			get

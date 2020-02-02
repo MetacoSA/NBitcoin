@@ -24,14 +24,15 @@ namespace NBitcoin.JsonConverters
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			if(reader.TokenType == JsonToken.Null)
+			if (reader.TokenType == JsonToken.Null)
 				return null;
+			reader.AssertJsonType(JsonToken.String);
 			try
 			{
-				if(objectType == typeof(ECDSASignature))
+				if (objectType == typeof(ECDSASignature))
 					return new ECDSASignature(Encoders.Hex.DecodeData((string)reader.Value));
 
-				if(objectType == typeof(TransactionSignature))
+				if (objectType == typeof(TransactionSignature))
 					return new TransactionSignature(Encoders.Hex.DecodeData((string)reader.Value));
 			}
 			catch
@@ -42,11 +43,11 @@ namespace NBitcoin.JsonConverters
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			if(value != null)
+			if (value != null)
 			{
-				if(value is ECDSASignature)
+				if (value is ECDSASignature)
 					writer.WriteValue(Encoders.Hex.EncodeData(((ECDSASignature)value).ToDER()));
-				if(value is TransactionSignature)
+				if (value is TransactionSignature)
 					writer.WriteValue(Encoders.Hex.EncodeData(((TransactionSignature)value).ToBytes()));
 			}
 		}

@@ -8,9 +8,9 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 		{
 			get
 			{
-				lock(this)
+				lock (this)
 				{
-					if(parameters == null)
+					if (parameters == null)
 					{
 						parameters = CreateParameters();
 					}

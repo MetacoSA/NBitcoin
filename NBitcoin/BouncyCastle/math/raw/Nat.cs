@@ -12,7 +12,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint Add(int len, uint[] x, uint[] y, uint[] z)
 		{
 			ulong c = 0;
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				c += (ulong)x[i] + y[i];
 				z[i] = (uint)c;
@@ -70,7 +70,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint AddBothTo(int len, uint[] x, uint[] y, uint[] z)
 		{
 			ulong c = 0;
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				c += (ulong)x[i] + y[i] + z[i];
 				z[i] = (uint)c;
@@ -82,7 +82,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint AddBothTo(int len, uint[] x, int xOff, uint[] y, int yOff, uint[] z, int zOff)
 		{
 			ulong c = 0;
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				c += (ulong)x[xOff + i] + y[yOff + i] + z[zOff + i];
 				z[zOff + i] = (uint)c;
@@ -140,7 +140,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint AddTo(int len, uint[] x, uint[] z)
 		{
 			ulong c = 0;
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				c += (ulong)x[i] + z[i];
 				z[i] = (uint)c;
@@ -152,7 +152,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint AddTo(int len, uint[] x, int xOff, uint[] z, int zOff)
 		{
 			ulong c = 0;
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				c += (ulong)x[xOff + i] + z[zOff + i];
 				z[zOff + i] = (uint)c;
@@ -219,9 +219,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static int Dec(int len, uint[] z)
 		{
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
-				if(--z[i] != uint.MaxValue)
+				if (--z[i] != uint.MaxValue)
 				{
 					return 0;
 				}
@@ -232,14 +232,14 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static int Dec(int len, uint[] x, uint[] z)
 		{
 			int i = 0;
-			while(i < len)
+			while (i < len)
 			{
 				uint c = x[i] - 1;
 				z[i] = c;
 				++i;
-				if(c != uint.MaxValue)
+				if (c != uint.MaxValue)
 				{
-					while(i < len)
+					while (i < len)
 					{
 						z[i] = x[i];
 						++i;
@@ -253,9 +253,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static int DecAt(int len, uint[] z, int zPos)
 		{
 			Debug.Assert(zPos <= len);
-			for(int i = zPos; i < len; ++i)
+			for (int i = zPos; i < len; ++i)
 			{
-				if(--z[i] != uint.MaxValue)
+				if (--z[i] != uint.MaxValue)
 				{
 					return 0;
 				}
@@ -266,9 +266,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static int DecAt(int len, uint[] z, int zOff, int zPos)
 		{
 			Debug.Assert(zPos <= len);
-			for(int i = zPos; i < len; ++i)
+			for (int i = zPos; i < len; ++i)
 			{
-				if(--z[zOff + i] != uint.MaxValue)
+				if (--z[zOff + i] != uint.MaxValue)
 				{
 					return 0;
 				}
@@ -278,9 +278,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static bool Eq(int len, uint[] x, uint[] y)
 		{
-			for(int i = len - 1; i >= 0; --i)
+			for (int i = len - 1; i >= 0; --i)
 			{
-				if(x[i] != y[i])
+				if (x[i] != y[i])
 				{
 					return false;
 				}
@@ -290,13 +290,13 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static uint[] FromBigInteger(int bits, BigInteger x)
 		{
-			if(x.SignValue < 0 || x.BitLength > bits)
+			if (x.SignValue < 0 || x.BitLength > bits)
 				throw new ArgumentException();
 
 			int len = (bits + 31) >> 5;
 			uint[] z = Create(len);
 			int i = 0;
-			while(x.SignValue != 0)
+			while (x.SignValue != 0)
 			{
 				z[i++] = (uint)x.IntValue;
 				x = x.ShiftRight(32);
@@ -306,12 +306,12 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static uint GetBit(uint[] x, int bit)
 		{
-			if(bit == 0)
+			if (bit == 0)
 			{
 				return x[0] & 1;
 			}
 			int w = bit >> 5;
-			if(w < 0 || w >= x.Length)
+			if (w < 0 || w >= x.Length)
 			{
 				return 0;
 			}
@@ -321,12 +321,12 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static bool Gte(int len, uint[] x, uint[] y)
 		{
-			for(int i = len - 1; i >= 0; --i)
+			for (int i = len - 1; i >= 0; --i)
 			{
 				uint x_i = x[i], y_i = y[i];
-				if(x_i < y_i)
+				if (x_i < y_i)
 					return false;
-				if(x_i > y_i)
+				if (x_i > y_i)
 					return true;
 			}
 			return true;
@@ -334,9 +334,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static uint Inc(int len, uint[] z)
 		{
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
-				if(++z[i] != uint.MinValue)
+				if (++z[i] != uint.MinValue)
 				{
 					return 0;
 				}
@@ -347,14 +347,14 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint Inc(int len, uint[] x, uint[] z)
 		{
 			int i = 0;
-			while(i < len)
+			while (i < len)
 			{
 				uint c = x[i] + 1;
 				z[i] = c;
 				++i;
-				if(c != 0)
+				if (c != 0)
 				{
-					while(i < len)
+					while (i < len)
 					{
 						z[i] = x[i];
 						++i;
@@ -368,9 +368,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint IncAt(int len, uint[] z, int zPos)
 		{
 			Debug.Assert(zPos <= len);
-			for(int i = zPos; i < len; ++i)
+			for (int i = zPos; i < len; ++i)
 			{
-				if(++z[i] != uint.MinValue)
+				if (++z[i] != uint.MinValue)
 				{
 					return 0;
 				}
@@ -381,9 +381,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint IncAt(int len, uint[] z, int zOff, int zPos)
 		{
 			Debug.Assert(zPos <= len);
-			for(int i = zPos; i < len; ++i)
+			for (int i = zPos; i < len; ++i)
 			{
-				if(++z[zOff + i] != uint.MinValue)
+				if (++z[zOff + i] != uint.MinValue)
 				{
 					return 0;
 				}
@@ -393,13 +393,13 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static bool IsOne(int len, uint[] x)
 		{
-			if(x[0] != 1)
+			if (x[0] != 1)
 			{
 				return false;
 			}
-			for(int i = 1; i < len; ++i)
+			for (int i = 1; i < len; ++i)
 			{
-				if(x[i] != 0)
+				if (x[i] != 0)
 				{
 					return false;
 				}
@@ -409,13 +409,13 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static bool IsZero(int len, uint[] x)
 		{
-			if(x[0] != 0)
+			if (x[0] != 0)
 			{
 				return false;
 			}
-			for(int i = 1; i < len; ++i)
+			for (int i = 1; i < len; ++i)
 			{
-				if(x[i] != 0)
+				if (x[i] != 0)
 				{
 					return false;
 				}
@@ -427,7 +427,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		{
 			zz[len] = (uint)MulWord(len, x[0], y, zz);
 
-			for(int i = 1; i < len; ++i)
+			for (int i = 1; i < len; ++i)
 			{
 				zz[i + len] = (uint)MulWordAddTo(len, x[i], y, 0, zz, i);
 			}
@@ -437,7 +437,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		{
 			zz[zzOff + len] = (uint)MulWord(len, x[xOff], y, yOff, zz, zzOff);
 
-			for(int i = 1; i < len; ++i)
+			for (int i = 1; i < len; ++i)
 			{
 				zz[zzOff + i + len] = (uint)MulWordAddTo(len, x[xOff + i], y, yOff, zz, zzOff + i);
 			}
@@ -453,7 +453,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 				z[zOff + i] = (uint)c;
 				c >>= 32;
 			}
-			while(++i < len);
+			while (++i < len);
 			return (uint)c;
 		}
 
@@ -467,7 +467,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 				z[i] = (uint)c;
 				c >>= 32;
 			}
-			while(++i < len);
+			while (++i < len);
 			return (uint)c;
 		}
 
@@ -481,7 +481,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 				z[zOff + i] = (uint)c;
 				c >>= 32;
 			}
-			while(++i < len);
+			while (++i < len);
 			return (uint)c;
 		}
 
@@ -495,7 +495,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 				z[zOff + i] = (uint)c;
 				c >>= 32;
 			}
-			while(++i < len);
+			while (++i < len);
 			return (uint)c;
 		}
 
@@ -518,7 +518,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint ShiftDownBit(int len, uint[] z, uint c)
 		{
 			int i = len;
-			while(--i >= 0)
+			while (--i >= 0)
 			{
 				uint next = z[i];
 				z[i] = (next >> 1) | (c << 31);
@@ -530,7 +530,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint ShiftDownBit(int len, uint[] z, int zOff, uint c)
 		{
 			int i = len;
-			while(--i >= 0)
+			while (--i >= 0)
 			{
 				uint next = z[zOff + i];
 				z[zOff + i] = (next >> 1) | (c << 31);
@@ -542,7 +542,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint ShiftDownBit(int len, uint[] x, uint c, uint[] z)
 		{
 			int i = len;
-			while(--i >= 0)
+			while (--i >= 0)
 			{
 				uint next = x[i];
 				z[i] = (next >> 1) | (c << 31);
@@ -554,7 +554,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint ShiftDownBit(int len, uint[] x, int xOff, uint c, uint[] z, int zOff)
 		{
 			int i = len;
-			while(--i >= 0)
+			while (--i >= 0)
 			{
 				uint next = x[xOff + i];
 				z[zOff + i] = (next >> 1) | (c << 31);
@@ -567,7 +567,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		{
 			Debug.Assert(bits > 0 && bits < 32);
 			int i = len;
-			while(--i >= 0)
+			while (--i >= 0)
 			{
 				uint next = z[i];
 				z[i] = (next >> bits) | (c << -bits);
@@ -580,7 +580,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		{
 			Debug.Assert(bits > 0 && bits < 32);
 			int i = len;
-			while(--i >= 0)
+			while (--i >= 0)
 			{
 				uint next = z[zOff + i];
 				z[zOff + i] = (next >> bits) | (c << -bits);
@@ -593,7 +593,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		{
 			Debug.Assert(bits > 0 && bits < 32);
 			int i = len;
-			while(--i >= 0)
+			while (--i >= 0)
 			{
 				uint next = x[i];
 				z[i] = (next >> bits) | (c << -bits);
@@ -606,7 +606,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		{
 			Debug.Assert(bits > 0 && bits < 32);
 			int i = len;
-			while(--i >= 0)
+			while (--i >= 0)
 			{
 				uint next = x[xOff + i];
 				z[zOff + i] = (next >> bits) | (c << -bits);
@@ -618,7 +618,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint ShiftDownWord(int len, uint[] z, uint c)
 		{
 			int i = len;
-			while(--i >= 0)
+			while (--i >= 0)
 			{
 				uint next = z[i];
 				z[i] = c;
@@ -629,7 +629,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static uint ShiftUpBit(int len, uint[] z, uint c)
 		{
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				uint next = z[i];
 				z[i] = (next << 1) | (c >> 31);
@@ -640,7 +640,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static uint ShiftUpBit(int len, uint[] z, int zOff, uint c)
 		{
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				uint next = z[zOff + i];
 				z[zOff + i] = (next << 1) | (c >> 31);
@@ -651,7 +651,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static uint ShiftUpBit(int len, uint[] x, uint c, uint[] z)
 		{
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				uint next = x[i];
 				z[i] = (next << 1) | (c >> 31);
@@ -662,7 +662,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static uint ShiftUpBit(int len, uint[] x, int xOff, uint c, uint[] z, int zOff)
 		{
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				uint next = x[xOff + i];
 				z[zOff + i] = (next << 1) | (c >> 31);
@@ -673,7 +673,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static ulong ShiftUpBit64(int len, ulong[] x, int xOff, ulong c, ulong[] z, int zOff)
 		{
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				ulong next = x[xOff + i];
 				z[zOff + i] = (next << 1) | (c >> 63);
@@ -685,7 +685,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint ShiftUpBits(int len, uint[] z, int bits, uint c)
 		{
 			Debug.Assert(bits > 0 && bits < 32);
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				uint next = z[i];
 				z[i] = (next << bits) | (c >> -bits);
@@ -697,7 +697,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint ShiftUpBits(int len, uint[] z, int zOff, int bits, uint c)
 		{
 			Debug.Assert(bits > 0 && bits < 32);
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				uint next = z[zOff + i];
 				z[zOff + i] = (next << bits) | (c >> -bits);
@@ -709,7 +709,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static ulong ShiftUpBits64(int len, ulong[] z, int zOff, int bits, ulong c)
 		{
 			Debug.Assert(bits > 0 && bits < 64);
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				ulong next = z[zOff + i];
 				z[zOff + i] = (next << bits) | (c >> -bits);
@@ -721,7 +721,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint ShiftUpBits(int len, uint[] x, int bits, uint c, uint[] z)
 		{
 			Debug.Assert(bits > 0 && bits < 32);
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				uint next = x[i];
 				z[i] = (next << bits) | (c >> -bits);
@@ -733,7 +733,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static uint ShiftUpBits(int len, uint[] x, int xOff, int bits, uint c, uint[] z, int zOff)
 		{
 			Debug.Assert(bits > 0 && bits < 32);
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				uint next = x[xOff + i];
 				z[zOff + i] = (next << bits) | (c >> -bits);
@@ -745,7 +745,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static ulong ShiftUpBits64(int len, ulong[] x, int xOff, int bits, ulong c, ulong[] z, int zOff)
 		{
 			Debug.Assert(bits > 0 && bits < 64);
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				ulong next = x[xOff + i];
 				z[zOff + i] = (next << bits) | (c >> -bits);
@@ -767,9 +767,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 				zz[--k] = (uint)(p >> 1);
 				c = (uint)p;
 			}
-			while(j > 0);
+			while (j > 0);
 
-			for(int i = 1; i < len; ++i)
+			for (int i = 1; i < len; ++i)
 			{
 				c = SquareWordAdd(x, i, zz);
 				AddWordAt(extLen, c, zz, i << 1);
@@ -791,9 +791,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 				zz[zzOff + --k] = (uint)(p >> 1);
 				c = (uint)p;
 			}
-			while(j > 0);
+			while (j > 0);
 
-			for(int i = 1; i < len; ++i)
+			for (int i = 1; i < len; ++i)
 			{
 				c = SquareWordAdd(x, xOff, i, zz, zzOff);
 				AddWordAt(extLen, c, zz, zzOff, i << 1);
@@ -812,7 +812,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 				z[xPos + i] = (uint)c;
 				c >>= 32;
 			}
-			while(++i < xPos);
+			while (++i < xPos);
 			return (uint)c;
 		}
 
@@ -827,14 +827,14 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 				c >>= 32;
 				++zOff;
 			}
-			while(++i < xPos);
+			while (++i < xPos);
 			return (uint)c;
 		}
 
 		public static int Sub(int len, uint[] x, uint[] y, uint[] z)
 		{
 			long c = 0;
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				c += (long)x[i] - y[i];
 				z[i] = (uint)c;
@@ -846,7 +846,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static int Sub(int len, uint[] x, int xOff, uint[] y, int yOff, uint[] z, int zOff)
 		{
 			long c = 0;
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				c += (long)x[xOff + i] - y[yOff + i];
 				z[zOff + i] = (uint)c;
@@ -903,7 +903,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static int SubBothFrom(int len, uint[] x, uint[] y, uint[] z)
 		{
 			long c = 0;
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				c += (long)z[i] - x[i] - y[i];
 				z[i] = (uint)c;
@@ -915,7 +915,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static int SubBothFrom(int len, uint[] x, int xOff, uint[] y, int yOff, uint[] z, int zOff)
 		{
 			long c = 0;
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				c += (long)z[zOff + i] - x[xOff + i] - y[yOff + i];
 				z[zOff + i] = (uint)c;
@@ -973,7 +973,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static int SubFrom(int len, uint[] x, uint[] z)
 		{
 			long c = 0;
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				c += (long)z[i] - x[i];
 				z[i] = (uint)c;
@@ -985,7 +985,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static int SubFrom(int len, uint[] x, int xOff, uint[] z, int zOff)
 		{
 			long c = 0;
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				c += (long)z[zOff + i] - x[xOff + i];
 				z[zOff + i] = (uint)c;
@@ -1031,10 +1031,10 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static BigInteger ToBigInteger(int len, uint[] x)
 		{
 			byte[] bs = new byte[len << 2];
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				uint x_i = x[i];
-				if(x_i != 0)
+				if (x_i != 0)
 				{
 					Pack.UInt32_To_BE(x_i, bs, (len - 1 - i) << 2);
 				}
@@ -1044,7 +1044,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		public static void Zero(int len, uint[] z)
 		{
-			for(int i = 0; i < len; ++i)
+			for (int i = 0; i < len; ++i)
 			{
 				z[i] = 0;
 			}

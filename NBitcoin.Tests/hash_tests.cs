@@ -6,7 +6,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NBitcoin.Altcoins.HashX11;
 using Xunit;
+using System.IO;
 
 namespace NBitcoin.Tests
 {
@@ -78,41 +80,41 @@ namespace NBitcoin.Tests
 		public void siphash()
 		{
 			Hashes.SipHasher hasher = new Hashes.SipHasher(0x0706050403020100UL, 0x0F0E0D0C0B0A0908UL);
-			Assert.Equal(hasher.Finalize(), 0x726fdb47dd0e0e31UL);
-			byte[] t0 = new byte[]{ 0 };
+			Assert.Equal(0x726fdb47dd0e0e31UL, hasher.Finalize());
+			byte[] t0 = new byte[] { 0 };
 			hasher.Write(t0);
-			Assert.Equal(hasher.Finalize(), 0x74f839c593dc67fdUL);
+			Assert.Equal(0x74f839c593dc67fdUL, hasher.Finalize());
 			byte[] t1 = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
 			hasher.Write(t1);
-			Assert.Equal(hasher.Finalize(), 0x93f5f5799a932462UL);
+			Assert.Equal(0x93f5f5799a932462UL, hasher.Finalize());
 			hasher.Write(0x0F0E0D0C0B0A0908UL);
-			Assert.Equal(hasher.Finalize(), 0x3f2acc7f57c29bdbUL);
+			Assert.Equal(0x3f2acc7f57c29bdbUL, hasher.Finalize());
 			byte[] t2 = new byte[] { 16, 17 };
 			hasher.Write(t2);
-			Assert.Equal(hasher.Finalize(), 0x4bc1b3f0968dd39cUL);
+			Assert.Equal(0x4bc1b3f0968dd39cUL, hasher.Finalize());
 			byte[] t3 = new byte[] { 18, 19, 20, 21, 22, 23, 24, 25, 26 };
 			hasher.Write(t3);
-			Assert.Equal(hasher.Finalize(), 0x2f2e6163076bcfadUL);
-			byte[] t4 = new byte[]{ 27, 28, 29, 30, 31 };
+			Assert.Equal(0x2f2e6163076bcfadUL, hasher.Finalize());
+			byte[] t4 = new byte[] { 27, 28, 29, 30, 31 };
 			hasher.Write(t4);
-			Assert.Equal(hasher.Finalize(), 0x7127512f72f27cceUL);
+			Assert.Equal(0x7127512f72f27cceUL, hasher.Finalize());
 			hasher.Write(0x2726252423222120UL);
-			Assert.Equal(hasher.Finalize(), 0x0e3ea96b5304a7d0UL);
+			Assert.Equal(0x0e3ea96b5304a7d0UL, hasher.Finalize());
 			hasher.Write(0x2F2E2D2C2B2A2928UL);
-			Assert.Equal(hasher.Finalize(), 0xe612a3cb9ecba951UL);
+			Assert.Equal(0xe612a3cb9ecba951UL, hasher.Finalize());
 
-			Assert.Equal(Hashes.SipHash(0x0706050403020100UL, 0x0F0E0D0C0B0A0908UL, new uint256("1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100")), 0x7127512f72f27cceUL);
+			Assert.Equal(0x7127512f72f27cceUL, Hashes.SipHash(0x0706050403020100UL, 0x0F0E0D0C0B0A0908UL, new uint256("1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100")));
 
 			// Check test vectors from spec, one byte at a time
 			Hashes.SipHasher hasher2 = new Hashes.SipHasher(0x0706050403020100UL, 0x0F0E0D0C0B0A0908UL);
-			for(byte x = 0; x < siphash_4_2_testvec.Length; ++x)
+			for (byte x = 0; x < siphash_4_2_testvec.Length; ++x)
 			{
 				Assert.Equal(hasher2.Finalize(), siphash_4_2_testvec[x]);
 				hasher2.Write(new byte[] { x });
 			}
 			// Check test vectors from spec, eight bytes at a time
 			Hashes.SipHasher hasher3 = new Hashes.SipHasher(0x0706050403020100UL, 0x0F0E0D0C0B0A0908UL);
-			for(var x = 0; x < siphash_4_2_testvec.Length; x += 8)
+			for (var x = 0; x < siphash_4_2_testvec.Length; x += 8)
 			{
 				Assert.Equal(hasher3.Finalize(), siphash_4_2_testvec[x]);
 				hasher3.Write(uint64_t(x) | (uint64_t(x + 1) << 8) | (uint64_t(x + 2) << 16) | (uint64_t(x + 3) << 24) |
@@ -145,6 +147,39 @@ namespace NBitcoin.Tests
 		private void T(uint expected, uint seed, string data)
 		{
 			Assert.Equal(Hashes.MurmurHash3(seed, Encoders.Hex.DecodeData(data)), expected);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void quark()
+		{
+			var bytes = Encoders.Hex.DecodeData("01000000000000000000000000000000000000000000000000000000000000000000000027cc0d8f6a20e41f445b1045d1c73ba4b068ee60b5fd4aa34027cbbe5c2e161e1546db5af0ff0f1e18cb3f01");
+			var hashBytes = new Quark().ComputeBytes(bytes).ToArray();
+
+			var hash = Encoders.Hex.EncodeData(hashBytes.Reverse().ToArray());
+			Assert.Equal("00000f4fb42644a07735beea3647155995ab01cf49d05fdc082c08eb673433f9", hash);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void x11()
+		{
+			var bytes = Encoders.Hex.DecodeData("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0022ddb52f0ff0f1ec23fb901");
+
+			var hashBytes = new X11().ComputeBytes(bytes).ToArray();
+
+			var hash = Encoders.Hex.EncodeData(hashBytes.Reverse().ToArray());
+
+			Assert.Equal("00000ffd590b1485b3caadc19b22e6379c733355108f107a430458cdf3407ab6", hash);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCalculateMerkleRoot()
+		{
+			Block block = Network.Main.Consensus.ConsensusFactory.CreateBlock();
+			block.ReadWrite(Encoders.Hex.DecodeData(File.ReadAllText(@"data/block169482.txt")), Network.Main);
+			Assert.Equal(block.Header.HashMerkleRoot, block.GetMerkleRoot().Hash);
 		}
 	}
 }

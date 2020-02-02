@@ -29,16 +29,16 @@ namespace NBitcoin.BouncyCastle.Utilities
          *
          * @param length desired length of result array.
          * @param n value to be converted.
-         * @return a byte array of specified length, with leading zeroes as necessary given the size of n.
+         * @return a byte array of specified length, with leading zeros as necessary given the size of n.
          */
 		public static byte[] AsUnsignedByteArray(int length, BigInteger n)
 		{
 			byte[] bytes = n.ToByteArrayUnsigned();
 
-			if(bytes.Length > length)
+			if (bytes.Length > length)
 				throw new ArgumentException("standard length exceeded", "n");
 
-			if(bytes.Length == length)
+			if (bytes.Length == length)
 				return bytes;
 
 			byte[] tmp = new byte[length];
@@ -61,23 +61,23 @@ namespace NBitcoin.BouncyCastle.Utilities
 			SecureRandom random)
 		{
 			int cmp = min.CompareTo(max);
-			if(cmp >= 0)
+			if (cmp >= 0)
 			{
-				if(cmp > 0)
+				if (cmp > 0)
 					throw new ArgumentException("'min' may not be greater than 'max'");
 
 				return min;
 			}
 
-			if(min.BitLength > max.BitLength / 2)
+			if (min.BitLength > max.BitLength / 2)
 			{
 				return CreateRandomInRange(BigInteger.Zero, max.Subtract(min), random).Add(min);
 			}
 
-			for(int i = 0; i < MaxIterations; ++i)
+			for (int i = 0; i < MaxIterations; ++i)
 			{
 				BigInteger x = new BigInteger(max.BitLength, random);
-				if(x.CompareTo(min) >= 0 && x.CompareTo(max) <= 0)
+				if (x.CompareTo(min) >= 0 && x.CompareTo(max) <= 0)
 				{
 					return x;
 				}

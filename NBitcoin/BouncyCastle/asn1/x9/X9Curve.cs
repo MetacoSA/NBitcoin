@@ -27,17 +27,17 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 			ECCurve curve,
 			byte[] seed)
 		{
-			if(curve == null)
+			if (curve == null)
 				throw new ArgumentNullException(nameof(curve));
 
 			this.curve = curve;
 			this.seed = Arrays.Clone(seed);
 
-			if(ECAlgorithms.IsFpCurve(curve))
+			if (ECAlgorithms.IsFpCurve(curve))
 			{
 				this.fieldIdentifier = X9ObjectIdentifiers.PrimeField;
 			}
-			else if(ECAlgorithms.IsF2mCurve(curve))
+			else if (ECAlgorithms.IsF2mCurve(curve))
 			{
 				this.fieldIdentifier = X9ObjectIdentifiers.CharacteristicTwoField;
 			}
@@ -51,14 +51,14 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 			X9FieldID fieldID,
 			Asn1Sequence seq)
 		{
-			if(fieldID == null)
+			if (fieldID == null)
 				throw new ArgumentNullException(nameof(fieldID));
-			if(seq == null)
+			if (seq == null)
 				throw new ArgumentNullException(nameof(seq));
 
 			this.fieldIdentifier = fieldID.Identifier;
 
-			if(fieldIdentifier.Equals(X9ObjectIdentifiers.PrimeField))
+			if (fieldIdentifier.Equals(X9ObjectIdentifiers.PrimeField))
 			{
 				BigInteger q = ((DerInteger)fieldID.Parameters).Value;
 				X9FieldElement x9A = new X9FieldElement(q, (Asn1OctetString)seq[0]);
@@ -67,7 +67,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 			}
 			else
 			{
-				if(fieldIdentifier.Equals(X9ObjectIdentifiers.CharacteristicTwoField))
+				if (fieldIdentifier.Equals(X9ObjectIdentifiers.CharacteristicTwoField))
 				{
 					// Characteristic two field
 					DerSequence parameters = (DerSequence)fieldID.Parameters;
@@ -78,7 +78,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 					int k1 = 0;
 					int k2 = 0;
 					int k3 = 0;
-					if(representation.Equals(X9ObjectIdentifiers.TPBasis))
+					if (representation.Equals(X9ObjectIdentifiers.TPBasis))
 					{
 						// Trinomial basis representation
 						k1 = ((DerInteger)parameters[2]).Value.IntValue;
@@ -126,7 +126,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 		{
 			Asn1EncodableVector v = new Asn1EncodableVector();
 
-			if(fieldIdentifier.Equals(X9ObjectIdentifiers.PrimeField)
+			if (fieldIdentifier.Equals(X9ObjectIdentifiers.PrimeField)
 				|| fieldIdentifier.Equals(X9ObjectIdentifiers.CharacteristicTwoField))
 			{
 				v.Add(new X9FieldElement(curve.A).ToAsn1Object());

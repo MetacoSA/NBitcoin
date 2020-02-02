@@ -18,7 +18,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 		public static DerInteger GetInstance(
 			object obj)
 		{
-			if(obj == null || obj is DerInteger)
+			if (obj == null || obj is DerInteger)
 			{
 				return (DerInteger)obj;
 			}
@@ -35,7 +35,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 		public DerInteger(
 			BigInteger value)
 		{
-			if(value == null)
+			if (value == null)
 				throw new ArgumentNullException(nameof(value));
 
 			bytes = value.ToByteArray();
@@ -83,7 +83,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 		{
 			DerInteger other = asn1Object as DerInteger;
 
-			if(other == null)
+			if (other == null)
 				return false;
 
 			return Arrays.AreEqual(this.bytes, other.bytes);

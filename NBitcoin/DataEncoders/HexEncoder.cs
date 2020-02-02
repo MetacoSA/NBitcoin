@@ -16,36 +16,56 @@ namespace NBitcoin.DataEncoders
 
 		public override string EncodeData(byte[] data, int offset, int count)
 		{
-			if(data == null)
+			if (data == null)
 				throw new ArgumentNullException(nameof(data));
 
-			int pos = 0;
 			var spaces = (Space ? Math.Max((count - 1), 0) : 0);
+
+#if !HAS_SPAN
+			int pos = 0;
 			var s = new char[2 * count + spaces];
-			for(var i = offset; i < offset + count; i++)
+			for (var i = offset; i < offset + count; i++)
 			{
-				if(Space && i != 0)
+				if (Space && i != 0)
 					s[pos++] = ' ';
 				var c = HexTbl[data[i]];
 				s[pos++] = c[0];
 				s[pos++] = c[1];
 			}
 			return new string(s);
+#else
+			return string.Create(2 * count + spaces, (offset, count, data), CreateHexString);
+#endif
 		}
+
+#if HAS_SPAN
+		void CreateHexString(Span<char> s, (int offset, int count, byte[] data) state)
+		{
+			int pos = 0;
+			for (var i = state.offset; i < state.offset + state.count; i++)
+			{
+				if (Space && i != 0)
+					s[pos++] = ' ';
+				var c = HexTbl[state.data[i]];
+				s[pos++] = c[0];
+				s[pos++] = c[1];
+			}
+		}
+#endif
 
 		public override byte[] DecodeData(string encoded)
 		{
-			if(encoded == null)
+			if (encoded == null)
 				throw new ArgumentNullException(nameof(encoded));
-			if(encoded.Length % 2 == 1)
+			if (encoded.Length % 2 == 1)
 				throw new FormatException("Invalid Hex String");
 
 			var result = new byte[encoded.Length / 2];
-			for(int i = 0, j = 0; i < encoded.Length; i += 2, j++)
+			for (int i = 0, j = 0; i < encoded.Length; i += 2, j++)
 			{
 				var a = IsDigit(encoded[i]);
 				var b = IsDigit(encoded[i + 1]);
-				if(a == -1 || b == -1)
+				if (a == -1 || b == -1)
 					throw new FormatException("Invalid Hex String");
 				result[j] = (byte)(((uint)a << 4) | (uint)b);
 			}
@@ -61,11 +81,11 @@ namespace NBitcoin.DataEncoders
 
 			var max = hexDigits.Max();
 			hexValueArray = new int[max + 1];
-			for(int i = 0; i < hexValueArray.Length; i++)
+			for (int i = 0; i < hexValueArray.Length; i++)
 			{
 				var idx = Array.IndexOf(hexDigits, (char)i);
 				var value = -1;
-				if(idx != -1)
+				if (idx != -1)
 					value = hexValues[idx];
 				hexValueArray[i] = value;
 			}
@@ -87,15 +107,7 @@ namespace NBitcoin.DataEncoders
 
 		public static bool IsWellFormed(string str)
 		{
-			try
-			{
-				Encoders.Hex.DecodeData(str);
-				return true;
-			}
-			catch(FormatException)
-			{
-				return false;
-			}
+			return ((HexEncoder)Encoders.Hex).IsValid(str);
 		}
 	}
 }

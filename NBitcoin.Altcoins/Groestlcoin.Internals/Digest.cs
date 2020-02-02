@@ -17,7 +17,7 @@ namespace NBitcoin.Altcoins.GroestlcoinInternals
  * function computation. Data is inserted with {@code update()} calls;
  * the result is obtained from a {@code digest()} method (where some
  * final data can be inserted as well). When a digest output has been
- * produced, the objet is automatically resetted, and can be used
+ * produced, the object is automatically reset, and can be used
  * immediately for another digest operation. The state of a computation
  * can be cloned with the {@link #copy} method; this can be used to get
  * a partial hash result without interrupting the complete
@@ -131,7 +131,7 @@ internal interface Digest {
   void reset();
 
   /**
-   * Clone the current state. The returned object evolves independantly
+   * Clone the current state. The returned object evolves independently
    * of this object.
    *
    * @return  the clone

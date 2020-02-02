@@ -82,10 +82,7 @@ namespace NBitcoin.Altcoins
 
 		protected override void PostInit()
 		{
-			//RegisterDefaultCookiePath("Bitcore", new FolderName() { TestnetFolder = "testnet3" });
-			RegisterDefaultCookiePath(Mainnet, ".cookie");
-                        RegisterDefaultCookiePath(Testnet, "testnet3", ".cookie");
-                        RegisterDefaultCookiePath(Regtest, "regtest", ".cookie");
+			RegisterDefaultCookiePath("Bitcore");
 		}
 
 		protected override NetworkBuilder CreateMainnet()
@@ -115,7 +112,7 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("btx"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("btx"))
-			.SetMagic(0xD9B4BeF9) //defined in inverted direction, 0xF9BEB4D9
+			.SetMagic(0xD9B4BEF9) //defined in inverted direction, 0xF9BEB4D9
 			.SetPort(8555) 
 			.SetRPCPort(8556)
 			.SetMaxP2PVersion(80000)
@@ -125,13 +122,14 @@ namespace NBitcoin.Altcoins
 			.AddAlias("bitcore-main")
 			.AddDNSSeeds(new[]
 			{
+				new DNSSeedData("bitcore.biz", "seed.bitcore.biz"),
 				new DNSSeedData("37.120.190.76", "37.120.190.76"),
 				new DNSSeedData("37.120.186.85", "37.120.186.85"),
 				new DNSSeedData("185.194.140.60", "185.194.140.60"),
 				new DNSSeedData("188.71.223.206", "188.71.223.206")
 			})
 			.AddSeeds(ToSeed(pnSeed6_main)) 
-			.SetGenesis("01000000000000000000000000000000000000000000000000000000000000000000000000522753002939c78659b4fdc6ed56c6b6aacdc7586facf2f6ada2012ed31703842cc153ffff1f1e110304000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff5704ffff001d01044c4e426c6f636b20233331303337393a30303030303030303030303030303030323431323532613762623237626539376265666539323138633132393064666633366331666631323965633732313161ffffffff01000000000000000043410459934a6a228ce9716fa0b13aa1cdc01593fca5f8599473c803a5109ff834dfdaf4c9ee35f2218c9ee3e7cf7db734e1179524b9d6ae8ebbeba883d4cb89b6c7bfac00000000");
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c787795041016d5ee652e55e3a6aeff6c8019cf0c525887337e0b4206552691613f7fc58f0ff0f1ea12400000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4004ffff001d010438506f77657264652062792042697473656e642d4575726f7065636f696e2d4469616d6f6e642d4d41432d42332032332f4170722f32303137ffffffff010000000000000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
 			return builder;
 		}
 
@@ -171,6 +169,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("bitcore-testnet")
 			.AddDNSSeeds(new[]
 			{
+				new DNSSeedData("51.15.84.165", "51.15.84.165"),
 				new DNSSeedData("188.68.52.172", "188.68.52.172"),
 				new DNSSeedData("37.120.186.85", "37.120.186.85"),
 				new DNSSeedData("188.71.223.206", "188.71.223.206")
@@ -191,7 +190,7 @@ namespace NBitcoin.Altcoins
 				MajorityWindow = 144,
 				PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60),
-				PowTargetSpacing = TimeSpan.FromSeconds(10 * 60),
+				PowTargetSpacing = TimeSpan.FromSeconds(2.5 * 60),
 				PowAllowMinDifficultyBlocks = true,
 				MinimumChainWork = uint256.Zero,
 				PowNoRetargeting = true,

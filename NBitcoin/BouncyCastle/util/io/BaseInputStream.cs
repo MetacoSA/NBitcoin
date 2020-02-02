@@ -29,7 +29,7 @@ namespace NBitcoin.BouncyCastle.Utilities.IO
 			}
 		}
 
-#if PORTABLE || NETCORE
+#if NETSTANDARD1X
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -74,17 +74,17 @@ namespace NBitcoin.BouncyCastle.Utilities.IO
 			try
 			{
 				int end = offset + count;
-				while(pos < end)
+				while (pos < end)
 				{
 					int b = ReadByte();
-					if(b == -1)
+					if (b == -1)
 						break;
 					buffer[pos++] = (byte)b;
 				}
 			}
-			catch(IOException)
+			catch (IOException)
 			{
-				if(pos == offset)
+				if (pos == offset)
 					throw;
 			}
 			return pos - offset;

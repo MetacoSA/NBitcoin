@@ -38,13 +38,13 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 			BigInteger h,
 			byte[] seed)
 		{
-			if(curve == null)
+			if (curve == null)
 				throw new ArgumentNullException(nameof(curve));
-			if(g == null)
+			if (g == null)
 				throw new ArgumentNullException(nameof(g));
-			if(n == null)
+			if (n == null)
 				throw new ArgumentNullException(nameof(n));
-			if(h == null)
+			if (h == null)
 				throw new ArgumentNullException(nameof(h));
 
 			this.curve = curve;
@@ -94,12 +94,12 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 		public override bool Equals(
 			object obj)
 		{
-			if(obj == this)
+			if (obj == this)
 				return true;
 
 			ECDomainParameters other = obj as ECDomainParameters;
 
-			if(other == null)
+			if (other == null)
 				return false;
 
 			return Equals(other);

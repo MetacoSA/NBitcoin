@@ -35,23 +35,23 @@ namespace NBitcoin
 
 		public IEnumerable<ChainedBlock> ToEnumerable(bool fromTip)
 		{
-			if(fromTip)
+			if (fromTip)
 			{
-				foreach(var b in Tip.EnumerateToGenesis())
+				foreach (var b in Tip.EnumerateToGenesis())
 				{
 					yield return b;
 				}
 			}
 			else
 			{
-				foreach(var b in EnumerateFromStart())
+				foreach (var b in EnumerateFromStart())
 					yield return b;
 			}
 		}
 
 		public ChainedBlock SetTip(ChainBase otherChain)
 		{
-			if(otherChain == null)
+			if (otherChain == null)
 				throw new ArgumentNullException(nameof(otherChain));
 			return SetTip(otherChain.Tip);
 		}
@@ -64,11 +64,11 @@ namespace NBitcoin
 
 		public bool TrySetTip(BlockHeader header, out ChainedBlock chainedHeader)
 		{
-			if(header == null)
+			if (header == null)
 				throw new ArgumentNullException(nameof(header));
 			chainedHeader = null;
 			var prev = GetBlock(header.HashPrevBlock);
-			if(prev == null)
+			if (prev == null)
 				return false;
 			chainedHeader = new ChainedBlock(header, header.GetHash(), GetBlock(header.HashPrevBlock));
 			SetTip(chainedHeader);
@@ -79,14 +79,14 @@ namespace NBitcoin
 
 		public bool Contains(ChainedBlock blockIndex)
 		{
-			if(blockIndex == null)
+			if (blockIndex == null)
 				throw new ArgumentNullException(nameof(blockIndex));
 			return GetBlock(blockIndex.Height) != null;
 		}
 
 		public bool SameTip(ChainBase chain)
 		{
-			if(chain == null)
+			if (chain == null)
 				throw new ArgumentNullException(nameof(chain));
 			return Tip.HashBlock == chain.Tip.HashBlock;
 		}
@@ -100,15 +100,15 @@ namespace NBitcoin
 		public bool Validate(Network network, bool fullChain = true)
 		{
 			var tip = Tip;
-			if(tip == null)
+			if (tip == null)
 				return false;
-			if(!fullChain)
+			if (!fullChain)
 				return tip.Validate(network);
 			else
 			{
-				foreach(var block in tip.EnumerateToGenesis())
+				foreach (var block in tip.EnumerateToGenesis())
 				{
-					if(!block.Validate(network))
+					if (!block.Validate(network))
 						return false;
 				}
 				return true;
@@ -123,7 +123,7 @@ namespace NBitcoin
 		/// <returns>First common block or null</returns>
 		public ChainedBlock FindFork(ChainBase chain)
 		{
-			if(chain == null)
+			if (chain == null)
 				throw new ArgumentNullException(nameof(chain));
 			return FindFork(chain.Tip.EnumerateToGenesis().Select(o => o.HashBlock));
 		}
@@ -135,13 +135,13 @@ namespace NBitcoin
 		/// <returns>First found block or null</returns>
 		public ChainedBlock FindFork(IEnumerable<uint256> hashes)
 		{
-			if(hashes == null)
+			if (hashes == null)
 				throw new ArgumentNullException(nameof(hashes));
 			// Find the first block the caller has in the main chain
-			foreach(uint256 hash in hashes)
+			foreach (uint256 hash in hashes)
 			{
 				ChainedBlock mi = GetBlock(hash);
-				if(mi != null)
+				if (mi != null)
 				{
 					return mi;
 				}
@@ -151,7 +151,7 @@ namespace NBitcoin
 
 		public ChainedBlock FindFork(BlockLocator locator)
 		{
-			if(locator == null)
+			if (locator == null)
 				throw new ArgumentNullException(nameof(locator));
 			return FindFork(locator.Blocks);
 		}
@@ -159,14 +159,14 @@ namespace NBitcoin
 		public IEnumerable<ChainedBlock> EnumerateAfter(uint256 blockHash)
 		{
 			var block = GetBlock(blockHash);
-			if(block == null)
+			if (block == null)
 				return new ChainedBlock[0];
 			return EnumerateAfter(block);
 		}
 
 		public IEnumerable<ChainedBlock> EnumerateToTip(ChainedBlock block)
 		{
-			if(block == null)
+			if (block == null)
 				throw new ArgumentNullException(nameof(block));
 			return EnumerateToTip(block.HashBlock);
 		}
@@ -174,10 +174,10 @@ namespace NBitcoin
 		public IEnumerable<ChainedBlock> EnumerateToTip(uint256 blockHash)
 		{
 			var block = GetBlock(blockHash);
-			if(block == null)
+			if (block == null)
 				yield break;
 			yield return block;
-			foreach(var r in EnumerateAfter(blockHash))
+			foreach (var r in EnumerateAfter(blockHash))
 				yield return r;
 		}
 
@@ -185,10 +185,10 @@ namespace NBitcoin
 		{
 			int i = block.Height + 1;
 			var prev = block;
-			while(true)
+			while (true)
 			{
 				var b = GetBlock(i);
-				if(b == null || b.Previous != prev)
+				if (b == null || b.Previous != prev)
 					yield break;
 				yield return b;
 				i++;

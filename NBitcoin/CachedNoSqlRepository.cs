@@ -39,7 +39,7 @@ namespace NBitcoin
 			#endregion
 		}
 
-		public CachedNoSqlRepository(NoSqlRepository inner)
+		public CachedNoSqlRepository(NoSqlRepository inner): base(Network.Main.Consensus.ConsensusFactory)
 		{
 			_InnerRepository = inner;
 		}
@@ -64,11 +64,11 @@ namespace NBitcoin
 
 		protected override Task PutBytesBatch(IEnumerable<Tuple<string, byte[]>> enumerable)
 		{
-			using(@lock.LockWrite())
+			using (@lock.LockWrite())
 			{
-				foreach(var data in enumerable)
+				foreach (var data in enumerable)
 				{
-					if(data.Item2 == null)
+					if (data.Item2 == null)
 					{
 						_Table.Remove(data.Item1);
 						_Removed.Add(data.Item1);
@@ -89,17 +89,17 @@ namespace NBitcoin
 		{
 			byte[] result = null;
 			bool found;
-			using(@lock.LockRead())
+			using (@lock.LockRead())
 			{
 				found = _Table.TryGetValue(key, out result);
 			}
-			if(!found)
+			if (!found)
 			{
 				var raw = await InnerRepository.GetAsync<Raw>(key).ConfigureAwait(false);
-				if(raw != null)
+				if (raw != null)
 				{
 					result = raw.Data;
-					using(@lock.LockWrite())
+					using (@lock.LockWrite())
 					{
 						_Table.AddOrReplace(key, raw.Data);
 					}
@@ -110,7 +110,7 @@ namespace NBitcoin
 
 		public void Flush()
 		{
-			using(@lock.LockWrite())
+			using (@lock.LockWrite())
 			{
 				InnerRepository
 					.PutBatch(_Removed.Select(k => Tuple.Create<string, IBitcoinSerializable>(k, null))

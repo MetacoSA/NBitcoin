@@ -17,7 +17,7 @@ namespace NBitcoin.Protocol
 		{
 			_NameToType = new Dictionary<string, Type>();
 			_TypeToName = new Dictionary<Type, string>();
-			foreach(var pair in
+			foreach (var pair in
 				GetLoadableTypes(typeof(PayloadAttribute).GetTypeInfo().Assembly)
 				.Where(t => t.Namespace == typeof(PayloadAttribute).Namespace)
 				.Where(t => t.IsDefined(typeof(PayloadAttribute), true))
@@ -39,7 +39,7 @@ namespace NBitcoin.Protocol
 			{
 				return assembly.DefinedTypes;
 			}
-			catch(ReflectionTypeLoadException e)
+			catch (ReflectionTypeLoadException e)
 			{
 				return e.Types.Where(t => t != null).Select(t => t.GetTypeInfo());
 			}
@@ -52,7 +52,7 @@ namespace NBitcoin.Protocol
 		public static Type GetCommandType(string commandName)
 		{
 			Type result;
-			if(!_NameToType.TryGetValue(commandName, out result))
+			if (!_NameToType.TryGetValue(commandName, out result))
 				return typeof(UnknowPayload);
 			return result;
 		}
@@ -69,8 +69,13 @@ namespace NBitcoin.Protocol
 		internal static string GetCommandName(Type type)
 		{
 			string result;
-			if(!_TypeToName.TryGetValue(type, out result))
-				throw new ArgumentException(type.FullName + " is not a payload");
+			if (!_TypeToName.TryGetValue(type, out result))
+			{
+				// try base type too
+				if (!_TypeToName.TryGetValue(type.GetTypeInfo().BaseType, out result))
+					throw new ArgumentException(type.FullName + " is not a payload");
+			}
+
 			return result;
 		}
 	}

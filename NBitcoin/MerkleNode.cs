@@ -11,12 +11,12 @@ namespace NBitcoin
 		public static MerkleNode GetRoot(IEnumerable<uint256> leafs)
 		{
 			var row = leafs.Select(l => new MerkleNode(l)).ToList();
-			if(row.Count == 0)
+			if (row.Count == 0)
 				return new MerkleNode(uint256.Zero);
-			while(row.Count != 1)
+			while (row.Count != 1)
 			{
 				var parentRow = new List<MerkleNode>();
-				for(int i = 0; i < row.Count; i += 2)
+				for (int i = 0; i < row.Count; i += 2)
 				{
 					var left = row[i];
 					var right = i + 1 < row.Count ? row[i + 1] : null;
@@ -29,7 +29,7 @@ namespace NBitcoin
 		}
 		public static MerkleNode GetRoot(int leafCount)
 		{
-			if(leafCount > 1024 * 1024)
+			if (leafCount > 1024 * 1024)
 				throw new ArgumentOutOfRangeException("leafCount", "To prevent DDOS attacks, NBitcoin does not support more than 1024*1024 transactions for the creation of a MerkleNode, if this case is legitimate, contact us.");
 			return GetRoot(Enumerable.Range(0, leafCount).Select(i => null as uint256));
 		}
@@ -45,9 +45,9 @@ namespace NBitcoin
 		{
 			Left = left;
 			Right = right;
-			if(left != null)
+			if (left != null)
 				left.Parent = this;
-			if(right != null)
+			if (right != null)
 				right.Parent = this;
 			UpdateHash();
 		}
@@ -67,7 +67,7 @@ namespace NBitcoin
 		public void UpdateHash()
 		{
 			var right = Right ?? Left;
-			if(Left != null && Left.Hash != null && right.Hash != null)
+			if (Left != null && Left.Hash != null && right.Hash != null)
 				_Hash = Hashes.Hash256(Left.Hash.ToBytes().Concat(right.Hash.ToBytes()).ToArray());
 		}
 
@@ -96,9 +96,9 @@ namespace NBitcoin
 		public IEnumerable<MerkleNode> EnumerateDescendants()
 		{
 			IEnumerable<MerkleNode> result = new MerkleNode[] { this };
-			if(Right != null)
+			if (Right != null)
 				result = Right.EnumerateDescendants().Concat(result);
-			if(Left != null)
+			if (Left != null)
 				result = Left.EnumerateDescendants().Concat(result);
 			return result;
 		}
@@ -122,7 +122,7 @@ namespace NBitcoin
 		public IEnumerable<MerkleNode> Ancestors()
 		{
 			var n = Parent;
-			while(n != null)
+			while (n != null)
 			{
 				yield return n;
 				n = n.Parent;
@@ -136,7 +136,7 @@ namespace NBitcoin
 
 		public string ToString(bool hierachy)
 		{
-			if(!hierachy)
+			if (!hierachy)
 				return ToString();
 			StringBuilder builder = new StringBuilder();
 			ToString(builder, 0);
@@ -148,9 +148,9 @@ namespace NBitcoin
 			var tabs = new String(Enumerable.Range(0, indent).Select(_ => '\t').ToArray());
 			builder.Append(tabs);
 			builder.AppendLine(ToString());
-			if(Left != null)
+			if (Left != null)
 				Left.ToString(builder, indent + 1);
-			if(Right != null)
+			if (Right != null)
 				Right.ToString(builder, indent + 1);
 		}
 	}

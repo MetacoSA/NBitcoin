@@ -1,4 +1,4 @@
-﻿#if WIN
+﻿#if CLASSICDOTNET
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,14 +15,14 @@ namespace NBitcoin
 		{
 			_Instance = new RNGCryptoServiceProvider();
 		}
-		#region IRandom Members
+#region IRandom Members
 
 		public void GetBytes(byte[] output)
 		{
 			_Instance.GetBytes(output);
 		}
 
-		#endregion
+#endregion
 	}
 
 	public partial class RandomUtils
@@ -37,7 +37,7 @@ namespace NBitcoin
 }
 #endif
 
-#if !WIN && !NODEFAULTRNG
+#if !CLASSICDOTNET && !NODEFAULTRNG
 using System;
 using System.Collections.Generic;
 using System.Linq;

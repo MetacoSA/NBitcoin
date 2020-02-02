@@ -13,9 +13,9 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		public static void Invert(uint[] p, uint[] x, uint[] z)
 		{
 			int len = p.Length;
-			if(Nat.IsZero(len, x))
+			if (Nat.IsZero(len, x))
 				throw new ArgumentException("cannot be 0", "x");
-			if(Nat.IsOne(len, x))
+			if (Nat.IsOne(len, x))
 			{
 				Array.Copy(x, 0, z, 0, len);
 				return;
@@ -26,11 +26,11 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 			a[0] = 1;
 			int ac = 0;
 
-			if((u[0] & 1) == 0)
+			if ((u[0] & 1) == 0)
 			{
 				InversionStep(p, u, len, a, ref ac);
 			}
-			if(Nat.IsOne(len, u))
+			if (Nat.IsOne(len, u))
 			{
 				InversionResult(p, ac, a, z);
 				return;
@@ -42,20 +42,20 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 			int uvLen = len;
 
-			for(;;)
+			for (; ; )
 			{
-				while(u[uvLen - 1] == 0 && v[uvLen - 1] == 0)
+				while (u[uvLen - 1] == 0 && v[uvLen - 1] == 0)
 				{
 					--uvLen;
 				}
 
-				if(Nat.Gte(len, u, v))
+				if (Nat.Gte(len, u, v))
 				{
 					Nat.SubFrom(len, v, u);
 					Debug.Assert((u[0] & 1) == 0);
 					ac += Nat.SubFrom(len, b, a) - bc;
 					InversionStep(p, u, uvLen, a, ref ac);
-					if(Nat.IsOne(len, u))
+					if (Nat.IsOne(len, u))
 					{
 						InversionResult(p, ac, a, z);
 						return;
@@ -67,7 +67,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 					Debug.Assert((v[0] & 1) == 0);
 					bc += Nat.SubFrom(len, a, b) - ac;
 					InversionStep(p, v, uvLen, b, ref bc);
-					if(Nat.IsOne(len, v))
+					if (Nat.IsOne(len, v))
 					{
 						InversionResult(p, bc, b, z);
 						return;
@@ -95,7 +95,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 				Pack.BE_To_UInt32(bytes, 0, s);
 				s[len - 1] &= m;
 			}
-			while(Nat.Gte(len, s, p));
+			while (Nat.Gte(len, s, p));
 
 			return s;
 		}
@@ -104,7 +104,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		{
 			int len = p.Length;
 			uint c = Nat.Add(len, x, y, z);
-			if(c != 0)
+			if (c != 0)
 			{
 				Nat.SubFrom(len, p, z);
 			}
@@ -114,7 +114,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		{
 			int len = p.Length;
 			int c = Nat.Sub(len, x, y, z);
-			if(c != 0)
+			if (c != 0)
 			{
 				Nat.AddTo(len, p, z);
 			}
@@ -122,7 +122,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 		private static void InversionResult(uint[] p, int ac, uint[] a, uint[] z)
 		{
-			if(ac < 0)
+			if (ac < 0)
 			{
 				Nat.Add(p.Length, a, p, z);
 			}
@@ -136,7 +136,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		{
 			int len = p.Length;
 			int count = 0;
-			while(u[0] == 0)
+			while (u[0] == 0)
 			{
 				Nat.ShiftDownWord(uLen, u, 0);
 				count += 32;
@@ -144,18 +144,18 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 
 			{
 				int zeroes = GetTrailingZeroes(u[0]);
-				if(zeroes > 0)
+				if (zeroes > 0)
 				{
 					Nat.ShiftDownBits(uLen, u, zeroes, 0);
 					count += zeroes;
 				}
 			}
 
-			for(int i = 0; i < count; ++i)
+			for (int i = 0; i < count; ++i)
 			{
-				if((x[0] & 1) != 0)
+				if ((x[0] & 1) != 0)
 				{
-					if(xc < 0)
+					if (xc < 0)
 					{
 						xc += (int)Nat.AddTo(len, p, x);
 					}
@@ -174,7 +174,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 		{
 			Debug.Assert(x != 0);
 			int count = 0;
-			while((x & 1) == 0)
+			while ((x & 1) == 0)
 			{
 				x >>= 1;
 				++count;

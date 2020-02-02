@@ -6,28 +6,65 @@ using System.Linq;
 
 namespace NBitcoin
 {
+	public class HDKeyScriptPubKey : IHDScriptPubKey
+	{
+		private readonly IHDKey hdKey;
+		private readonly ScriptPubKeyType type;
+
+		public IHDKey HDKey
+		{
+			get
+			{
+				return hdKey;
+			}
+		}
+
+		public HDKeyScriptPubKey(IHDKey hdKey, ScriptPubKeyType type)
+		{
+			if (hdKey == null)
+				throw new ArgumentNullException(nameof(hdKey));
+			this.hdKey = hdKey;
+			this.type = type;
+		}
+		Script _ScriptPubKey;
+		public Script ScriptPubKey => _ScriptPubKey = _ScriptPubKey ?? hdKey.GetPublicKey().GetScriptPubKey(type);
+
+		public IHDScriptPubKey Derive(KeyPath keyPath)
+		{
+			return new HDKeyScriptPubKey(this.hdKey.Derive(keyPath), type);
+		}
+
+		public bool CanDeriveHardenedPath()
+		{
+			return this.hdKey.CanDeriveHardenedPath();
+		}
+	}
+
 	/// <summary>
 	/// A private Hierarchical Deterministic key
 	/// </summary>
-	public class ExtKey : IBitcoinSerializable, IDestination, ISecret
+	public class ExtKey : IBitcoinSerializable, IDestination, ISecret, IEquatable<ExtKey>, IHDKey
 	{
 		/// <summary>
 		/// Parses the Base58 data (checking the network if specified), checks it represents the
 		/// correct type of item, and then returns the corresponding ExtKey.
 		/// </summary>
-		public static ExtKey Parse(string wif, Network expectedNetwork = null)
+		public static ExtKey Parse(string wif, Network expectedNetwork)
 		{
-			return Network.Parse<BitcoinExtKey>(wif, expectedNetwork).ExtKey;
+			if (expectedNetwork == null)
+				throw new ArgumentNullException(nameof(expectedNetwork));
+			if (wif == null)
+				throw new ArgumentNullException(nameof(wif));
+			return expectedNetwork.Parse<BitcoinExtKey>(wif).ExtKey;
 		}
 
-		private const int FingerprintLength = 4;
 		private const int ChainCodeLength = 32;
 
 		Key key;
 		byte[] vchChainCode = new byte[ChainCodeLength];
 		uint nChild;
 		byte nDepth;
-		byte[] vchFingerprint = new byte[FingerprintLength];
+		HDFingerprint parentFingerprint = default;
 
 		static readonly byte[] hashkey = Encoders.ASCII.DecodeData("Bitcoin seed");
 
@@ -83,14 +120,14 @@ namespace NBitcoin
 		/// </remarks>
 		public ExtKey(ExtPubKey extPubKey, Key privateKey)
 		{
-			if(extPubKey == null)
+			if (extPubKey == null)
 				throw new ArgumentNullException(nameof(extPubKey));
-			if(privateKey == null)
+			if (privateKey == null)
 				throw new ArgumentNullException(nameof(privateKey));
 			this.nChild = extPubKey.nChild;
 			this.nDepth = extPubKey.nDepth;
 			this.vchChainCode = extPubKey.vchChainCode;
-			this.vchFingerprint = extPubKey.vchFingerprint;
+			this.parentFingerprint = extPubKey.parentFingerprint;
 			this.key = privateKey;
 		}
 
@@ -98,22 +135,44 @@ namespace NBitcoin
 		/// Constructor. Creates an extended key from the private key, and specified values for
 		/// chain code, depth, fingerprint, and child number.
 		/// </summary>
-		public ExtKey(Key key, byte[] chainCode, byte depth, byte[] fingerprint, uint child)
+		public ExtKey(Key key, byte[] chainCode, byte depth, HDFingerprint fingerprint, uint child)
 		{
-			if(key == null)
+			if (key == null)
 				throw new ArgumentNullException(nameof(key));
-			if(chainCode == null)
+			if (chainCode == null)
 				throw new ArgumentNullException(nameof(chainCode));
-			if(fingerprint == null)
+			if (fingerprint == null)
 				throw new ArgumentNullException(nameof(fingerprint));
-			if(fingerprint.Length != FingerprintLength)
-				throw new ArgumentException(string.Format("The fingerprint must be {0} bytes.", FingerprintLength), "fingerprint");
-			if(chainCode.Length != ChainCodeLength)
+			if (chainCode.Length != ChainCodeLength)
 				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", ChainCodeLength), "chainCode");
 			this.key = key;
 			this.nDepth = depth;
 			this.nChild = child;
-			Buffer.BlockCopy(fingerprint, 0, vchFingerprint, 0, FingerprintLength);
+			parentFingerprint = fingerprint;
+			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, ChainCodeLength);
+		}
+
+		/// <summary>
+		/// Constructor. Creates an extended key from the private key, and specified values for
+		/// chain code, depth, fingerprint, and child number.
+		/// </summary>
+		[Obsolete("Use ExtKey(PubKey pubkey, byte[] chainCode, byte depth, HDFingerPrint fingerprint, uint child) instead")]
+		public ExtKey(Key key, byte[] chainCode, byte depth, byte[] fingerprint, uint child)
+		{
+			if (key == null)
+				throw new ArgumentNullException(nameof(key));
+			if (chainCode == null)
+				throw new ArgumentNullException(nameof(chainCode));
+			if (fingerprint == null)
+				throw new ArgumentNullException(nameof(fingerprint));
+			if (fingerprint.Length != 4)
+				throw new ArgumentException(string.Format("The fingerprint must be {0} bytes.", 4), "fingerprint");
+			if (chainCode.Length != ChainCodeLength)
+				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", ChainCodeLength), "chainCode");
+			this.key = key;
+			this.nDepth = depth;
+			this.nChild = child;
+			parentFingerprint = new HDFingerprint(fingerprint);
 			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, ChainCodeLength);
 		}
 
@@ -123,11 +182,11 @@ namespace NBitcoin
 		/// </summary>
 		public ExtKey(Key masterKey, byte[] chainCode)
 		{
-			if(masterKey == null)
+			if (masterKey == null)
 				throw new ArgumentNullException(nameof(masterKey));
-			if(chainCode == null)
+			if (chainCode == null)
 				throw new ArgumentNullException(nameof(chainCode));
-			if(chainCode.Length != ChainCodeLength)
+			if (chainCode.Length != ChainCodeLength)
 				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", ChainCodeLength), "chainCode");
 			this.key = masterKey;
 			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, ChainCodeLength);
@@ -140,6 +199,15 @@ namespace NBitcoin
 		{
 			byte[] seed = RandomUtils.GetBytes(64);
 			SetMaster(seed);
+		}
+
+		public ExtKey Derive(RootedKeyPath rootedKeyPath)
+		{
+			if (rootedKeyPath == null)
+				throw new ArgumentNullException(nameof(rootedKeyPath));
+			if (rootedKeyPath.MasterFingerprint != GetPublicKey().GetHDFingerPrint())
+				throw new ArgumentException(paramName: nameof(rootedKeyPath), message: "The rootedKeyPath's fingerprint does not match this ExtKey");
+			return Derive(rootedKeyPath.KeyPath);
 		}
 
 		/// <summary>
@@ -185,7 +253,7 @@ namespace NBitcoin
 			ExtPubKey ret = new ExtPubKey
 			{
 				nDepth = nDepth,
-				vchFingerprint = vchFingerprint.ToArray(),
+				parentFingerprint = parentFingerprint,
 				nChild = nChild,
 				pubkey = key.PubKey,
 				vchChainCode = vchChainCode.ToArray()
@@ -195,24 +263,20 @@ namespace NBitcoin
 
 		public bool IsChildOf(ExtKey parentKey)
 		{
-			if(Depth != parentKey.Depth + 1)
+			if (Depth != parentKey.Depth + 1)
 				return false;
-			return parentKey.CalculateChildFingerprint().SequenceEqual(Fingerprint);
+			return parentKey.PrivateKey.PubKey.GetHDFingerPrint() == ParentFingerprint;
 		}
 		public bool IsParentOf(ExtKey childKey)
 		{
 			return childKey.IsChildOf(this);
 		}
-		private byte[] CalculateChildFingerprint()
-		{
-			return key.PubKey.Hash.ToBytes().SafeSubarray(0, FingerprintLength);
-		}
 
-		public byte[] Fingerprint
+		public HDFingerprint ParentFingerprint
 		{
 			get
 			{
-				return vchFingerprint;
+				return parentFingerprint;
 			}
 		}
 
@@ -224,7 +288,7 @@ namespace NBitcoin
 			var result = new ExtKey
 			{
 				nDepth = (byte)(nDepth + 1),
-				vchFingerprint = CalculateChildFingerprint(),
+				parentFingerprint = this.key.PubKey.GetHDFingerPrint(),
 				nChild = index
 			};
 			result.key = key.Derivate(this.vchChainCode, index, out result.vchChainCode);
@@ -237,7 +301,7 @@ namespace NBitcoin
 		/// </summary>
 		public ExtKey Derive(int index, bool hardened)
 		{
-			if(index < 0)
+			if (index < 0)
 				throw new ArgumentOutOfRangeException("index", "the index can't be negative");
 			uint realIndex = (uint)index;
 			realIndex = hardened ? realIndex | 0x80000000u : realIndex;
@@ -248,10 +312,12 @@ namespace NBitcoin
 		/// Derives a new extended key in the hierarchy at the given path below the current key,
 		/// by deriving the specified child at each step.
 		/// </summary>
-		public ExtKey Derive(KeyPath derivation)
+		public ExtKey Derive(KeyPath keyPath)
 		{
+			if (keyPath == null)
+				throw new ArgumentNullException(nameof(keyPath));
 			ExtKey result = this;
-			return derivation.Indexes.Aggregate(result, (current, index) => current.Derive(index));
+			return keyPath.Indexes.Aggregate(result, (current, index) => current.Derive(index));
 		}
 
 		/// <summary>
@@ -266,10 +332,10 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			using(stream.BigEndianScope())
+			using (stream.BigEndianScope())
 			{
 				stream.ReadWrite(ref nDepth);
-				stream.ReadWrite(ref vchFingerprint);
+				stream.ReadWrite(ref parentFingerprint);
 				stream.ReadWrite(ref nChild);
 				stream.ReadWrite(ref vchChainCode);
 				byte b = 0;
@@ -321,14 +387,14 @@ namespace NBitcoin
 		/// </summary>
 		public ExtKey GetParentExtKey(ExtPubKey parent)
 		{
-			if(parent == null)
+			if (parent == null)
 				throw new ArgumentNullException(nameof(parent));
-			if(Depth == 0)
+			if (Depth == 0)
 				throw new InvalidOperationException("This ExtKey is the root key of the HD tree");
-			if(IsHardened)
+			if (IsHardened)
 				throw new InvalidOperationException("This private key is hardened, so you can't get its parent");
-			var expectedFingerPrint = parent.CalculateChildFingerprint();
-			if(parent.Depth != this.Depth - 1 || !expectedFingerPrint.SequenceEqual(vchFingerprint))
+			var expectedFingerPrint = parent.PubKey.GetHDFingerPrint();
+			if (parent.Depth != this.Depth - 1 || expectedFingerPrint != parentFingerprint)
 				throw new ArgumentException("The parent ExtPubKey is not the immediate parent of this ExtKey", "parent");
 
 			byte[] l = null;
@@ -344,7 +410,7 @@ namespace NBitcoin
 			BigInteger parse256LL = new BigInteger(1, ll);
 			BigInteger N = ECKey.CURVE.N;
 
-			if(!ccChild.SequenceEqual(vchChainCode))
+			if (!ccChild.SequenceEqual(vchChainCode))
 				throw new InvalidOperationException("The derived chain code of the parent is not equal to this child chain code");
 
 			var keyBytes = PrivateKey.ToBytes();
@@ -352,19 +418,42 @@ namespace NBitcoin
 
 			BigInteger kPar = key.Add(parse256LL.Negate()).Mod(N);
 			var keyParentBytes = kPar.ToByteArrayUnsigned();
-			if(keyParentBytes.Length < 32)
+			if (keyParentBytes.Length < 32)
 				keyParentBytes = new byte[32 - keyParentBytes.Length].Concat(keyParentBytes).ToArray();
 
 			var parentExtKey = new ExtKey
 			{
 				vchChainCode = parent.vchChainCode,
 				nDepth = parent.Depth,
-				vchFingerprint = parent.Fingerprint,
+				parentFingerprint = parent.ParentFingerprint,
 				nChild = parent.nChild,
 				key = new Key(keyParentBytes)
 			};
 			return parentExtKey;
 		}
 
+		public bool Equals(ExtKey other)
+		{
+			return nChild == other.nChild &&
+				nDepth == other.nDepth &&
+				vchChainCode.SequenceEqual(other.vchChainCode) &&
+				parentFingerprint == other.parentFingerprint &&
+				key.Equals(other.key);
+		}
+
+		IHDKey IHDKey.Derive(KeyPath keyPath)
+		{
+			return this.Derive(keyPath);
+		}
+
+		public PubKey GetPublicKey()
+		{
+			return PrivateKey.PubKey;
+		}
+
+		bool IHDKey.CanDeriveHardenedPath()
+		{
+			return true;
+		}
 	}
 }

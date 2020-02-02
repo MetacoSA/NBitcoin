@@ -78,7 +78,7 @@ namespace NBitcoin.Protocol.Behaviors
 						.Select(n => n.Key.Behaviors.Find<BroadcastHubBehavior>())
 						.Where(n => n != null)
 						.ToArray();
-			foreach(var node in nodes)
+			foreach (var node in nodes)
 			{
 				node.BroadcastTransactionCore(transaction);
 			}
@@ -87,14 +87,14 @@ namespace NBitcoin.Protocol.Behaviors
 		internal void OnTransactionRejected(Transaction tx, RejectPayload reject)
 		{
 			var evt = TransactionRejected;
-			if(evt != null)
+			if (evt != null)
 				evt(tx, reject);
 		}
 
 		internal void OnTransactionBroadcasted(Transaction tx)
 		{
 			var evt = TransactionBroadcasted;
-			if(evt != null)
+			if (evt != null)
 				evt(tx);
 		}
 
@@ -105,18 +105,21 @@ namespace NBitcoin.Protocol.Behaviors
 		/// <returns>The cause of the rejection or null</returns>
 		public Task<RejectPayload> BroadcastTransactionAsync(Transaction transaction)
 		{
-			if(transaction == null)
+			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
-
+#if NO_RCA
 			TaskCompletionSource<RejectPayload> completion = new TaskCompletionSource<RejectPayload>();
+#else
+			TaskCompletionSource<RejectPayload> completion = new TaskCompletionSource<RejectPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+#endif
 			var hash = transaction.GetHash();
-			if(BroadcastedTransaction.TryAdd(hash, transaction))
+			if (BroadcastedTransaction.TryAdd(hash, transaction))
 			{
 				TransactionBroadcastedDelegate broadcasted = null;
 				TransactionRejectedDelegate rejected = null;
 				broadcasted = (t) =>
 				{
-					if(t.GetHash() == hash)
+					if (t.GetHash() == hash)
 					{
 						completion.SetResult(null);
 						TransactionRejected -= rejected;
@@ -126,7 +129,7 @@ namespace NBitcoin.Protocol.Behaviors
 				TransactionBroadcasted += broadcasted;
 				rejected = (t, r) =>
 				{
-					if(r.Hash == hash)
+					if (r.Hash == hash)
 					{
 						completion.SetResult(r);
 						TransactionRejected -= rejected;
@@ -152,13 +155,13 @@ namespace NBitcoin.Protocol.Behaviors
 		/// </summary>
 		public void BroadcastTransactions()
 		{
-			if(!ManualBroadcast)
+			if (!ManualBroadcast)
 				throw new InvalidOperationException("ManualBroadcast should be true to call this method");
 			var nodes = Nodes
 						.Select(n => n.Key.Behaviors.Find<BroadcastHubBehavior>())
 						.Where(n => n != null)
 						.ToArray();
-			foreach(var node in nodes)
+			foreach (var node in nodes)
 			{
 				node.AnnounceAll(true);
 			}
@@ -182,7 +185,7 @@ namespace NBitcoin.Protocol.Behaviors
 		public BroadcastHubBehavior(BroadcastHub hub)
 		{
 			_BroadcastHub = hub ?? new BroadcastHub();
-			foreach(var tx in _BroadcastHub.BroadcastedTransaction)
+			foreach (var tx in _BroadcastHub.BroadcastedTransaction)
 			{
 				_HashToTransaction.TryAdd(tx.Key, new TransactionBroadcast()
 				{
@@ -205,9 +208,9 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			TransactionBroadcast result;
 
-			if(remove)
+			if (remove)
 			{
-				if(_HashToTransaction.TryRemove(hash, out result))
+				if (_HashToTransaction.TryRemove(hash, out result))
 				{
 					TransactionBroadcast unused;
 					_PingToTransaction.TryRemove(result.PingValue, out unused);
@@ -223,9 +226,9 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			TransactionBroadcast result;
 
-			if(remove)
+			if (remove)
 			{
-				if(_PingToTransaction.TryRemove(pingValue, out result))
+				if (_PingToTransaction.TryRemove(pingValue, out result))
 				{
 					TransactionBroadcast unused;
 					_HashToTransaction.TryRemove(result.Transaction.GetHash(), out unused);
@@ -239,7 +242,7 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 		void AttachedNode_StateChanged(Node node, NodeState oldState)
 		{
-			if(node.State == NodeState.HandShaked)
+			if (node.State == NodeState.HandShaked)
 			{
 				_BroadcastHub.Nodes.TryAdd(node, node);
 				AnnounceAll();
@@ -248,9 +251,9 @@ namespace NBitcoin.Protocol.Behaviors
 
 		internal void AnnounceAll(bool force = false)
 		{
-			foreach(var broadcasted in _HashToTransaction)
+			foreach (var broadcasted in _HashToTransaction)
 			{
-				if(broadcasted.Value.State == BroadcastState.NotSent ||
+				if (broadcasted.Value.State == BroadcastState.NotSent ||
 				   (DateTime.UtcNow - broadcasted.Value.AnnouncedTime) < TimeSpan.FromMinutes(5.0))
 					Announce(broadcasted.Value, broadcasted.Key, force);
 			}
@@ -259,13 +262,13 @@ namespace NBitcoin.Protocol.Behaviors
 
 		internal void BroadcastTransactionCore(Transaction transaction)
 		{
-			if(transaction == null)
+			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
 			var tx = new TransactionBroadcast();
 			tx.Transaction = transaction;
 			tx.State = BroadcastState.NotSent;
 			var hash = transaction.GetHash();
-			if(_HashToTransaction.TryAdd(hash, tx))
+			if (_HashToTransaction.TryAdd(hash, tx))
 			{
 				Announce(tx, hash);
 			}
@@ -273,10 +276,10 @@ namespace NBitcoin.Protocol.Behaviors
 
 		internal void Announce(TransactionBroadcast tx, uint256 hash, bool force = false)
 		{
-			if(!force && BroadcastHub.ManualBroadcast)
+			if (!force && BroadcastHub.ManualBroadcast)
 				return;
 			var node = AttachedNode;
-			if(node != null && node.State == NodeState.HandShaked)
+			if (node != null && node.State == NodeState.HandShaked)
 			{
 				tx.State = BroadcastState.Announced;
 				tx.AnnouncedTime = DateTime.UtcNow;
@@ -308,29 +311,29 @@ namespace NBitcoin.Protocol.Behaviors
 		void AttachedNode_MessageReceived(Node node, IncomingMessage message)
 		{
 			InvPayload invPayload = message.Message.Payload as InvPayload;
-			if(invPayload != null)
+			if (invPayload != null)
 			{
 
-				foreach(var hash in invPayload.Where(i => i.Type == InventoryType.MSG_TX).Select(i => i.Hash))
+				foreach (var hash in invPayload.Where(i => i.Type == InventoryType.MSG_TX).Select(i => i.Hash))
 				{
 					var tx = GetTransaction(hash, true);
-					if(tx != null)
+					if (tx != null)
 						tx.State = BroadcastState.Accepted;
 					Transaction unused;
-					if(_BroadcastHub.BroadcastedTransaction.TryRemove(hash, out unused))
+					if (_BroadcastHub.BroadcastedTransaction.TryRemove(hash, out unused))
 					{
 						_BroadcastHub.OnTransactionBroadcasted(tx.Transaction);
 					}
 				}
 			}
 			RejectPayload reject = message.Message.Payload as RejectPayload;
-			if(reject != null && reject.Message == "tx")
+			if (reject != null && reject.Message == "tx")
 			{
 				var tx = GetTransaction(reject.Hash, true);
-				if(tx != null)
+				if (tx != null)
 					tx.State = BroadcastState.Rejected;
 				Transaction tx2;
-				if(_BroadcastHub.BroadcastedTransaction.TryRemove(reject.Hash, out tx2))
+				if (_BroadcastHub.BroadcastedTransaction.TryRemove(reject.Hash, out tx2))
 				{
 					_BroadcastHub.OnTransactionRejected(tx2, reject);
 				}
@@ -338,12 +341,12 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 
 			GetDataPayload getData = message.Message.Payload as GetDataPayload;
-			if(getData != null)
+			if (getData != null)
 			{
-				foreach(var inventory in getData.Inventory.Where(i => i.Type == InventoryType.MSG_TX))
+				foreach (var inventory in getData.Inventory.Where(i => i.Type == InventoryType.MSG_TX))
 				{
 					var tx = GetTransaction(inventory.Hash, false);
-					if(tx != null)
+					if (tx != null)
 					{
 						tx.State = BroadcastState.Broadcasted;
 						var ping = new PingPayload();
@@ -356,14 +359,14 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 
 			PongPayload pong = message.Message.Payload as PongPayload;
-			if(pong != null)
+			if (pong != null)
 			{
 				var tx = GetTransaction(pong.Nonce, true);
-				if(tx != null)
+				if (tx != null)
 				{
 					tx.State = BroadcastState.Accepted;
 					Transaction unused;
-					if(_BroadcastHub.BroadcastedTransaction.TryRemove(tx.Transaction.GetHash(), out unused))
+					if (_BroadcastHub.BroadcastedTransaction.TryRemove(tx.Transaction.GetHash(), out unused))
 					{
 						_BroadcastHub.OnTransactionBroadcasted(tx.Transaction);
 					}
