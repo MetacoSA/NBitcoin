@@ -99,7 +99,8 @@ namespace NBitcoin.RPC
 			{
 				writer.WriteStartObject();
 				writer.WritePropertyName("value");
-				writer.WriteRawValue(ValueFromAmount(txout.Value));
+				//writer.WriteRawValue(ValueFromAmount(txout.Value));
+				writer.WriteRawValue(txout.Value.ToString(false,false));
 				WritePropertyValue(writer, "n", i);
 
 				writer.WritePropertyName("scriptPubKey");
@@ -149,6 +150,7 @@ namespace NBitcoin.RPC
 			writer.WriteEndArray();
 		}
 
+		//这个特么有问题，如果是0.0001就会变成1E-04.0，实际上应该是1E-04
 		private string ValueFromAmount(Money money)
 		{
 			var satoshis = (decimal)money.Satoshi;
