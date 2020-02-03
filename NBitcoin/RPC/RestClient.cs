@@ -30,7 +30,6 @@ namespace NBitcoin.RPC
 		private readonly Uri _address;
 		private readonly Network _network;
 
-
 		/// <summary>
 		/// Gets the <see cref="Network"/> instance for the client.
 		/// </summary>
@@ -78,7 +77,7 @@ namespace NBitcoin.RPC
 		/// <exception cref="System.ArgumentNullException">blockId cannot be null.</exception>
 		public async Task<Block> GetBlockAsync(uint256 blockId)
 		{
-			var result = await GetBlockAsync(blockId, (int)RestResponseFormat.Hex).ConfigureAwait(false);
+			var result = await GetBlockAsync(blockId, (int)RestResponseFormat.Bin).ConfigureAwait(false);
 			return result;
 		}
 
@@ -91,8 +90,11 @@ namespace NBitcoin.RPC
 		/// <exception cref="System.ArgumentNullException">blockId cannot be null.</exception>
 		public async Task<Block> GetBlockAsync(uint256 blockId, int verbosity)
 		{
-			var result = await GetBlockAsync(blockId, verbosity).ConfigureAwait(false);
-			return result;
+			if (blockId == null)
+				throw new ArgumentNullException(nameof(blockId));
+
+			var result = await SendRequestAsync("block", (RestResponseFormat)verbosity, blockId.ToString()).ConfigureAwait(false);
+			return Block.Load(result, Network);
 		}
 
 		/// <summary>
