@@ -76,24 +76,22 @@ namespace NBitcoin.RPC
 		/// <param name="blockId">The block identifier.</param>
 		/// <returns>Given a block hash (id) returns the requested block object.</returns>
 		/// <exception cref="System.ArgumentNullException">blockId cannot be null.</exception>
-		public async Task<Block> GetBlockAsync(uint256 blockId, RestResponseFormat verbosity = RestResponseFormat.Bin)
+		public async Task<Block> GetBlockAsync(uint256 blockId)
 		{
-			if (blockId == null)
-				throw new ArgumentNullException(nameof(blockId));
-
-			var result = await SendRequestAsync("block", verbosity, blockId.ToString()).ConfigureAwait(false);
-			return Block.Load(result, Network);
+			var result = await GetBlockAsync(blockId, (int)RestResponseFormat.Hex).ConfigureAwait(false);
+			return result;
 		}
 
 		/// <summary>
 		/// Gets the block.
 		/// </summary>
 		/// <param name="blockId">The block identifier.</param>
+		/// <param name="verbosity">0 = bin, 1 = hex, 2 = json</param>
 		/// <returns>Given a block hash (id) returns the requested block object.</returns>
 		/// <exception cref="System.ArgumentNullException">blockId cannot be null.</exception>
 		public async Task<Block> GetBlockAsync(uint256 blockId, int verbosity)
 		{
-			var result = await GetBlockAsync(blockId, (RestResponseFormat)verbosity).ConfigureAwait(false);
+			var result = await GetBlockAsync(blockId, verbosity).ConfigureAwait(false);
 			return result;
 		}
 
