@@ -12,11 +12,13 @@ namespace NBitcoin.Protocol
 	{
 		static Dictionary<string, Type> _NameToType;
 		static Dictionary<Type, string> _TypeToName;
+		static object _lockObject;
 
 		static PayloadAttribute()
 		{
 			_NameToType = new Dictionary<string, Type>();
 			_TypeToName = new Dictionary<Type, string>();
+			_lockObject = new object();
 			foreach (var pair in
 				GetLoadableTypes(typeof(PayloadAttribute).GetTypeInfo().Assembly)
 				.Where(t => t.Namespace == typeof(PayloadAttribute).Namespace)
@@ -28,17 +30,23 @@ namespace NBitcoin.Protocol
 						Type = t
 					}))
 			{
-				_NameToType.Add(pair.Attr.Name, pair.Type.AsType());
-				_TypeToName.Add(pair.Type.AsType(), pair.Attr.Name);
+				lock (_lockObject)
+				{
+					_NameToType.Add(pair.Attr.Name, pair.Type.AsType());
+					_TypeToName.Add(pair.Type.AsType(), pair.Attr.Name);
+				}
 			}
 		}
 
 		public static void Add(string name, Type type)
 		{
-			if (!_NameToType.ContainsKey(name))
+			lock (_lockObject)
 			{
-				_NameToType.Add(name, type);
-				_TypeToName.Add(type, name);
+				if (!_NameToType.ContainsKey(name))
+				{
+					_NameToType.Add(name, type);
+					_TypeToName.Add(type, name);
+				}
 			}
 		}
 
@@ -61,8 +69,12 @@ namespace NBitcoin.Protocol
 		public static Type GetCommandType(string commandName)
 		{
 			Type result;
-			if (!_NameToType.TryGetValue(commandName, out result))
-				return typeof(UnknowPayload);
+			lock (_lockObject)
+			{
+				if (!_NameToType.TryGetValue(commandName, out result))
+					return typeof(UnknowPayload);
+			}
+
 			return result;
 		}
 		public PayloadAttribute(string commandName)
@@ -78,11 +90,14 @@ namespace NBitcoin.Protocol
 		internal static string GetCommandName(Type type)
 		{
 			string result;
-			if (!_TypeToName.TryGetValue(type, out result))
+			lock (_lockObject)
 			{
-				// try base type too
-				if (!_TypeToName.TryGetValue(type.GetTypeInfo().BaseType, out result))
-					throw new ArgumentException(type.FullName + " is not a payload");
+				if (!_TypeToName.TryGetValue(type, out result))
+				{
+					// try base type too
+					if (!_TypeToName.TryGetValue(type.GetTypeInfo().BaseType, out result))
+						throw new ArgumentException(type.FullName + " is not a payload");
+				}
 			}
 
 			return result;

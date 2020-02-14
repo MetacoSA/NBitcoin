@@ -77,8 +77,11 @@ namespace NBitcoin.RPC
 		/// <exception cref="System.ArgumentNullException">blockId cannot be null.</exception>
 		public async Task<Block> GetBlockAsync(uint256 blockId)
 		{
-			var result = await GetBlockAsync(blockId, (int)RestResponseFormat.Bin).ConfigureAwait(false);
-			return result;
+			if (blockId == null)
+				throw new ArgumentNullException(nameof(blockId));
+
+			var result = await SendRequestAsync("block", RestResponseFormat.Bin, blockId.ToString()).ConfigureAwait(false);
+			return Block.Load(result, Network);
 		}
 
 		/// <summary>
