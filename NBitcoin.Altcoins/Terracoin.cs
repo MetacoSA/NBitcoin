@@ -37,13 +37,19 @@ namespace NBitcoin.Altcoins
 
 			public static TerracoinConsensusFactory Instance { get; } = new TerracoinConsensusFactory();
 
+			public override ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)
+			{
+				var capabilities = base.GetProtocolCapabilities(protocolVersion);
+				capabilities.SupportWitness = false;
+				return capabilities;
+			}
 			public override BlockHeader CreateBlockHeader()
 			{
-				return new TerracoinBlockHeader();
+				return new PureBlockHeader();
 			}
 			public override Block CreateBlock()
 			{
-				return new TerracoinBlock(new TerracoinBlockHeader());
+				return new TerracoinBlock(new PureBlockHeader());
 			}
 			protected override TransactionBuilder CreateTransactionBuilderCore(Network network)
 			{
@@ -156,6 +162,8 @@ namespace NBitcoin.Altcoins
 
 			public void ReadWrite(BitcoinStream stream)
 			{
+				//stream.TransactionOptions = TransactionOptions.Witness;
+
 				stream.ReadWrite(ref tx);
 				stream.ReadWrite(ref hashBlock);
 				stream.ReadWrite(ref vMerkelBranch);
@@ -168,7 +176,7 @@ namespace NBitcoin.Altcoins
 
 		public class TerracoinBlock : Block
 		{
-			public TerracoinBlock(TerracoinBlockHeader h) : base(h)
+			public TerracoinBlock(PureBlockHeader h) : base(h)
 			{
 
 			}
@@ -179,7 +187,7 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
-		public class TerracoinBlockHeader : BlockHeader
+		public class PureBlockHeader : BlockHeader
 		{
 			const int VERSION_AUXPOW = (1 << 8);
 
@@ -217,13 +225,12 @@ namespace NBitcoin.Altcoins
 
 			public override void ReadWrite(BitcoinStream stream)
 			{
+				//stream.TransactionOptions = TransactionOptions.None;
+
 				base.ReadWrite(stream);
-				if(IsAuxpow())
+				if(IsAuxpow() && !stream.Serializing)
 				{
-					if(!stream.Serializing)
-					{
-						stream.ReadWrite(ref auxPow);
-					}
+					stream.ReadWrite(ref auxPow);
 				}
 			}
 		}
