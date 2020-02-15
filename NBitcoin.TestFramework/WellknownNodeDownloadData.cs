@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace NBitcoin.Tests
 {
@@ -477,6 +477,35 @@ namespace NBitcoin.Tests
 			//		Hash = "51faffb422fbd3c659ef4b34e7e708174389d8493f2368db4d6c909b52db9115"
 			//	}
 			//};
+		}
+
+		public class TerracoinNodeDownloadData
+		{
+			public NodeDownloadData v0_12_2 = new NodeDownloadData()
+			{
+				Version = "0.12.2.4",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://terracoin.io/bin/terracoin-core-{0}/terracoin-0.12.2-win64.zip",
+					Archive = "terracoin-0.12.2-win64.zip",
+					Executable = "terracoin-0.12.2/bin/terracoind.exe",
+					Hash = "fea9e8c5593d306862213c450fb3ad9c94a4ddb413b5e3b755e510995625e5dc"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://terracoin.io/bin/terracoin-core-{0}/terracoin-0.12.2-x86_64-linux-gnu.tar.gz",
+					Archive = "terracoin-0.12.2-x86_64-linux-gnu.tar.gz",
+					Executable = "terracoin-0.12.2/bin/terracoind",
+					Hash = "34e15021be98c50c21fa9ceb704c7f580e1fba0d44b173bb88b5aea70a71e697"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://terracoin.io/bin/terracoin-core-{0}/terracoin-0.12.2-osx64.tar.gz",
+					Archive = "terracoin-0.12.2-osx64.tar.gz",
+					Executable = "terracoin-0.12.2/bin/terracoind",
+					Hash = "132e078efcb0d5cd4d65dead44adc3d4128b3aea45a48e36a1690a7a2681473e"
+				}
+			};
 		}
 
 		public class DystemNodeDownloadData
@@ -1207,6 +1236,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new DashNodeDownloadData();
+
+		public static TerracoinNodeDownloadData Terracoin
+		{
+			get; set;
+		} = new TerracoinNodeDownloadData();
 
 		public static BGoldNodeDownloadData BGold
 		{
