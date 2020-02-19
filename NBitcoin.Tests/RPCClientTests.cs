@@ -941,7 +941,7 @@ namespace NBitcoin.Tests
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
-				var tx = Network.TestNet.GetGenesis().Transactions[0];
+				var tx = builder.Network.GetGenesis().Transactions[0];
 
 				var tx2 = rpc.DecodeRawTransaction(tx.ToBytes());
 				AssertJsonEquals(tx.ToString(RawFormat.Satoshi), tx2.ToString(RawFormat.Satoshi));
