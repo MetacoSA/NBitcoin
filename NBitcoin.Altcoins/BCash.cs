@@ -162,9 +162,9 @@ namespace NBitcoin.Altcoins
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xda,0xf4,0x92,0x6f}, 18333)
 };
 
-		class BCashConsensusFactory : ConsensusFactory
+		public class BCashConsensusFactory : ConsensusFactory
 		{
-			private BCashConsensusFactory()
+			protected BCashConsensusFactory()
 			{
 
 			}
@@ -216,7 +216,7 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
-		class BCashStringParser : NetworkStringParser
+		public class BCashStringParser : NetworkStringParser
 		{
 			string _Prefix;
 			public BCashStringParser(string prefix)
