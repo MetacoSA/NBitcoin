@@ -342,6 +342,13 @@ namespace NBitcoin.RPC
 #if !NETSTANDARD1X
 			Thread.MemoryBarrier();
 #endif
+			if (!capabilities.SupportGetNetworkInfo)
+			{
+#pragma warning disable CS0618 // Type or member is obsolete
+				var getInfo = await SendCommandAsync(RPCOperations.getinfo);
+#pragma warning restore CS0618 // Type or member is obsolete
+				capabilities.Version = ((JObject)getInfo.Result)["version"].Value<int>();
+			}
 			Capabilities = capabilities;
 			return capabilities;
 		}
@@ -358,13 +365,6 @@ namespace NBitcoin.RPC
 			catch (RPCException ex) when (ex.RPCCode == RPCErrorCode.RPC_METHOD_NOT_FOUND || ex.RPCCode == RPCErrorCode.RPC_METHOD_DEPRECATED)
 			{
 				capabilities.SupportGetNetworkInfo = false;
-			}
-
-			{
-#pragma warning disable CS0618 // Type or member is obsolete
-				var getInfo = await SendCommandAsync(RPCOperations.getinfo);
-#pragma warning restore CS0618 // Type or member is obsolete
-				capabilities.Version = ((JObject)getInfo.Result)["version"].Value<int>();
 			}
 		}
 
@@ -395,6 +395,10 @@ namespace NBitcoin.RPC
 			{
 				setResult(ex.RPCCode == RPCErrorCode.RPC_TYPE_ERROR);
 			}
+			catch
+			{
+				setResult(false);
+			}
 		}
 
 		private static async Task CheckCapabilities(Func<Task> command, Action<bool> setResult)
@@ -411,6 +415,10 @@ namespace NBitcoin.RPC
 			catch (RPCException)
 			{
 				setResult(true);
+			}
+			catch
+			{
+				setResult(false);
 			}
 		}
 		private static Task CheckCapabilities(RPCClient rpc, string command, Action<bool> setResult)

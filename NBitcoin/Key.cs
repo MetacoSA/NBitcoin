@@ -1,4 +1,5 @@
-﻿using NBitcoin.Crypto;
+﻿#nullable enable
+using NBitcoin.Crypto;
 using NBitcoin.BouncyCastle.Math;
 using System;
 using System.Linq;
@@ -12,13 +13,17 @@ namespace NBitcoin
 		private const int KEY_SIZE = 32;
 		private readonly static uint256 N = uint256.Parse("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141");
 
-		public static Key Parse(string wif, Network network = null)
+		public static Key Parse(string wif, Network network)
 		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
 			return Network.Parse<BitcoinSecret>(wif, network).PrivateKey;
 		}
 
-		public static Key Parse(string wif, string password, Network network = null)
+		public static Key Parse(string wif, string password, Network network)
 		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
 			return Network.Parse<BitcoinEncryptedSecret>(wif, network).GetKey(password);
 		}
 
@@ -44,7 +49,9 @@ namespace NBitcoin
 				RandomUtils.GetBytes(data);
 			} while (!Check(data));
 
-			SetBytes(data, data.Length, fCompressedIn);
+			vch = data.SafeSubarray(0, data.Length);
+			IsCompressed = fCompressedIn;
+			_ECKey = new ECKey(vch, true);
 		}
 		public Key(byte[] data, int count = -1, bool fCompressedIn = true)
 		{
@@ -56,17 +63,12 @@ namespace NBitcoin
 			}
 			if (Check(data))
 			{
-				SetBytes(data, count, fCompressedIn);
+				vch = data.SafeSubarray(0, count);
+				IsCompressed = fCompressedIn;
+				_ECKey = new ECKey(vch, true);
 			}
 			else
 				throw new ArgumentException(paramName: "data", message: "Invalid EC key");
-		}
-
-		private void SetBytes(byte[] data, int count, bool fCompressedIn)
-		{
-			vch = data.SafeSubarray(0, count);
-			IsCompressed = fCompressedIn;
-			_ECKey = new ECKey(vch, true);
 		}
 
 		private static bool Check(byte[] vch)
@@ -75,18 +77,18 @@ namespace NBitcoin
 			return candidateKey > 0 && candidateKey < N;
 		}
 
-		PubKey _PubKey;
+		PubKey? _PubKey;
 
 		public PubKey PubKey
 		{
 			get
 			{
-				if (_PubKey == null)
-				{
-					ECKey key = new ECKey(vch, true);
-					_PubKey = key.GetPubKey(IsCompressed);
-				}
-				return _PubKey;
+				if (_PubKey is PubKey pubkey)
+					return pubkey;
+				ECKey key = new ECKey(vch, true);
+				pubkey = key.GetPubKey(IsCompressed);
+				_PubKey = pubkey;
+				return pubkey;
 			}
 		}
 
@@ -216,7 +218,7 @@ namespace NBitcoin
 
 		public Key Derivate(byte[] cc, uint nChild, out byte[] ccChild)
 		{
-			byte[] l = null;
+			byte[]? l = null;
 			if ((nChild >> 31) == 0)
 			{
 				var pubKey = PubKey.ToBytes();
@@ -307,10 +309,9 @@ namespace NBitcoin
 
 		public override bool Equals(object obj)
 		{
-			Key item = obj as Key;
-			if (item == null)
-				return false;
-			return PubKey.Equals(item.PubKey);
+			if (obj is Key item)
+				return PubKey.Equals(item.PubKey);
+			return false;
 		}
 		public static bool operator ==(Key a, Key b)
 		{
@@ -337,3 +338,4 @@ namespace NBitcoin
 		}
 	}
 }
+#nullable disable

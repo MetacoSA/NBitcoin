@@ -99,7 +99,8 @@ namespace NBitcoin.RPC
 			{
 				writer.WriteStartObject();
 				writer.WritePropertyName("value");
-				writer.WriteRawValue(ValueFromAmount(txout.Value));
+				//writer.WriteRawValue(ValueFromAmount(txout.Value));--->not use ValueFromAmount
+				writer.WriteRawValue(txout.Value.ToString(false,false));
 				WritePropertyValue(writer, "n", i);
 
 				writer.WritePropertyName("scriptPubKey");
@@ -149,6 +150,7 @@ namespace NBitcoin.RPC
 			writer.WriteEndArray();
 		}
 
+		//err:if money is 0.0001(double code is 1E-04) btc,the result is "1E-04.0".this result can't jsonformart to double or decimal
 		private string ValueFromAmount(Money money)
 		{
 			var satoshis = (decimal)money.Satoshi;
