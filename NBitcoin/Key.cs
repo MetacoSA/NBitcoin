@@ -15,11 +15,15 @@ namespace NBitcoin
 
 		public static Key Parse(string wif, Network network)
 		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
 			return Network.Parse<BitcoinSecret>(wif, network).PrivateKey;
 		}
 
 		public static Key Parse(string wif, string password, Network network)
 		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
 			return Network.Parse<BitcoinEncryptedSecret>(wif, network).GetKey(password);
 		}
 
