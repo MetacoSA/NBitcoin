@@ -20,6 +20,7 @@ namespace NBitcoin.Tests
 {
 	public class DeterministicSignatureTests
 	{
+#if !HAS_SPAN
 		static DeterministicSignatureTests()
 		{
 			curves = new Dictionary<string, DerObjectIdentifier>();
@@ -42,11 +43,6 @@ namespace NBitcoin.Tests
 		}
 
 		static Dictionary<string, DerObjectIdentifier> curves;
-		public DeterministicSignatureTests()
-		{
-
-
-		}
 
 		class DeterministicSigTest
 		{
@@ -250,7 +246,7 @@ namespace NBitcoin.Tests
 
 			return key;
 		}
-
+#endif
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void BlindingSignature()
@@ -261,15 +257,16 @@ namespace NBitcoin.Tests
 			var key = new Key(Encoders.Hex.DecodeData("B7E151628AED2A6ABF7158809CF4F3C762E7160F38B4DA56A784D9045190CFEF"));
 			var signer = new SchnorrBlinding.Signer(key, r);
 
-			var message = new uint256(Encoders.Hex.DecodeData("243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89"), false);
+			var message = new uint256(Encoders.Hex.DecodeData("243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89"));
 			var blindedMessage = requester.BlindMessage(message, r.PubKey, key.PubKey);
-
 			var blindSignature = signer.Sign(blindedMessage);
 			var unblindedSignature = requester.UnblindSignature(blindSignature);
 
 			Assert.True(SchnorrBlinding.VerifySignature(message, unblindedSignature, key.PubKey));
 			Assert.False(SchnorrBlinding.VerifySignature(uint256.Zero, unblindedSignature, key.PubKey));
 			Assert.False(SchnorrBlinding.VerifySignature(uint256.One, unblindedSignature, key.PubKey));
+#if !HAS_SPAN
+			// With span unblinded sigs can't have negative scalar
 			Assert.False(SchnorrBlinding.VerifySignature(
 				message,
 				new UnblindedSignature(unblindedSignature.C, BigInteger.Zero.Subtract(unblindedSignature.S)),
@@ -282,7 +279,7 @@ namespace NBitcoin.Tests
 				message,
 				new UnblindedSignature(BigInteger.Zero.Subtract(unblindedSignature.C), unblindedSignature.S),
 				new Key().PubKey));
-
+#endif
 			// Test with unknown values 
 			requester = new SchnorrBlinding.Requester();
 			signer = new SchnorrBlinding.Signer(new Key(), new Key());
@@ -292,10 +289,11 @@ namespace NBitcoin.Tests
 
 			blindSignature = signer.Sign(blindedMessage);
 			unblindedSignature = requester.UnblindSignature(blindSignature);
-
 			Assert.True(SchnorrBlinding.VerifySignature(message, unblindedSignature, signer.Key.PubKey));
 			Assert.False(SchnorrBlinding.VerifySignature(uint256.One, unblindedSignature, signer.Key.PubKey));
 			Assert.False(SchnorrBlinding.VerifySignature(uint256.One, unblindedSignature, signer.Key.PubKey));
+#if !HAS_SPAN
+			// With span unblinded sigs can't have negative scalar
 			Assert.False(SchnorrBlinding.VerifySignature(
 				message,
 				new UnblindedSignature(BigInteger.Zero, unblindedSignature.S),
@@ -329,7 +327,7 @@ namespace NBitcoin.Tests
 				new UnblindedSignature(BigInteger.Zero.Subtract(unblindedSignature.C), unblindedSignature.S),
 				new Key().PubKey));
 
-
+#endif
 			var newMessage = Encoders.ASCII.DecodeData("Hello, World!");
 			for (var i = 0; i < 1_000; i++)
 			{
@@ -346,7 +344,6 @@ namespace NBitcoin.Tests
 			var ex = Assert.Throws<ArgumentException>(() => signer.Sign(uint256.Zero));
 			Assert.StartsWith("Invalid blinded message.", ex.Message);
 		}
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void Signatures_use_low_R()
@@ -360,7 +357,8 @@ namespace NBitcoin.Tests
 				rnd.NextBytes(msg);
 
 				var sig = key.Sign(Hashes.Hash256(msg));
-				Assert.True(sig.IsLowR && sig.ToDER().Length <= 70);
+				Assert.True(sig.IsLowR);
+				Assert.True(sig.ToDER().Length <= 70);
 			}
 		}
 	}

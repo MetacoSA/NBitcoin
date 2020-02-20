@@ -32,6 +32,13 @@ namespace NBitcoin.DataEncoders
 
 		public abstract string EncodeData(byte[] data, int offset, int count);
 
+#if HAS_SPAN
+		public virtual string EncodeData(ReadOnlySpan<byte> data)
+		{
+			return this.EncodeData(data.ToArray());
+		}
+#endif
+
 		public abstract byte[] DecodeData(string encoded);
 	}
 

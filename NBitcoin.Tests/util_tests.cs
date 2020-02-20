@@ -866,12 +866,12 @@ namespace NBitcoin.Tests
 		{
 			var bytes = Encoding.UTF8.GetBytes(password);
 #pragma warning disable CS0618 // Type or member is obsolete
-#if USEBC || WINDOWS_UWP || NETSTANDARD1X
+#if NO_NATIVE_HMACSHA512
 			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest());
 			mac.Init(new NBitcoin.BouncyCastle.Crypto.Parameters.KeyParameter(bytes));
 			var secret = Pbkdf2.ComputeDerivedKey(mac, new byte[0], 1024, 32);
 #else
-			var secret = Pbkdf2.ComputeDerivedKey(new HMACSHA512(bytes), new byte[0], 1024, 32);
+			var secret = NBitcoin.Crypto.Pbkdf2.ComputeDerivedKey(new System.Security.Cryptography.HMACSHA512(bytes), new byte[0], 1024, 32);
 #endif
 #pragma warning restore CS0618
 			return new Key(secret);

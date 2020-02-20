@@ -157,7 +157,6 @@ namespace NBitcoin
 			}
 			return (byte)(value >> (byteIndex * 8));
 		}
-
 		public override string ToString()
 		{
 			var bytes = ToBytes();

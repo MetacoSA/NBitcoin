@@ -19,8 +19,13 @@ namespace NBitcoin
 				_Rand.NextBytes(output);
 			}
 		}
-
-		#endregion
+#if HAS_SPAN
+		public void GetBytes(Span<byte> output)
+		{
+			_Rand.NextBytes(output);
+		}
+#endif
+#endregion
 
 	}
 
@@ -28,6 +33,9 @@ namespace NBitcoin
 	public interface IRandom
 	{
 		void GetBytes(byte[] output);
+#if HAS_SPAN
+		void GetBytes(Span<byte> output);
+#endif
 	}
 
 	public partial class RandomUtils
@@ -47,6 +55,15 @@ namespace NBitcoin
 			PushEntropy(data);
 			return data;
 		}
+
+#if HAS_SPAN
+		public static void GetBytes(Span<byte> span)
+		{
+			if (Random == null)
+				throw new InvalidOperationException("You must set the RNG (RandomUtils.Random) before generating random numbers");
+			Random.GetBytes(span);
+		}
+#endif
 
 		private static void PushEntropy(byte[] data)
 		{

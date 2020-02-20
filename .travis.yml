@@ -18,6 +18,7 @@ matrix:
   include:
     - os: linux 
       dist: bionic
+      env: AdditionalDefineConstants=SECP256K1_VERIFY
     - os: linux
       dist: bionic
       env: TargetFrameworkOverride=netstandard2.0
@@ -26,9 +27,9 @@ matrix:
       osx_image: xcode11.2
 
 before_install:
-  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -qq update; EXTRA_CONSTANT=-p:BuildConstants=NOCONSENSUSLIB; fi
-  - if [ $TRAVIS_OS_NAME = osx ]; then ulimit -S -n 4096; EXTRA_CONSTANT=-p:BuildConstants=NOCONSENSUSLIB; fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -qq update; fi
+  - if [ $TRAVIS_OS_NAME = osx ]; then ulimit -S -n 4096; fi
 
 script:
-  - dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj /p:TargetFrameworkOverride=$TargetFrameworkOverride -c Release -f netcoreapp3.1  $EXTRA_CONSTANT
+  - dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj /p:TargetFrameworkOverride=$TargetFrameworkOverride /p:AdditionalDefineConstants=$AdditionalDefineConstants -c Release -f netcoreapp3.1
   - dotnet test --no-build -v n -c Release -f netcoreapp3.1 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false  < /dev/null

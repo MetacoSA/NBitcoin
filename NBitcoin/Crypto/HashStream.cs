@@ -125,7 +125,7 @@ namespace NBitcoin.Crypto
 #if NONATIVEHASH
 		byte[] _Buffer = new byte[32];
 #else
-		byte[] _Buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(32 * 10);
+		byte[] _Buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(32);
 #endif
 
 		int _Pos;
@@ -183,6 +183,19 @@ namespace NBitcoin.Crypto
 			var hash2 = sha.Hash;
 			return new uint256(hash2);
 		}
+#if HAS_SPAN
+		public void GetHash(Span<byte> output)
+		{
+			ProcessBlock();
+			sha.TransformFinalBlock(Empty, 0, 0);
+			var hash1 = sha.Hash;
+			Buffer.BlockCopy(sha.Hash, 0, _Buffer, 0, 32);
+			sha.Initialize();
+			sha.TransformFinalBlock(_Buffer, 0, 32);
+			var hash2 = sha.Hash;
+			hash2.AsSpan().CopyTo(output);
+		}
+#endif
 
 		protected override void Dispose(bool disposing)
 		{

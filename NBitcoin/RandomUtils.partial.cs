@@ -59,8 +59,13 @@ namespace NBitcoin
 		{
 			_Instance.GetBytes(output);
 		}
-
-		#endregion
+#if HAS_SPAN
+		public void GetBytes(Span<byte> output)
+		{
+			_Instance.GetBytes(output);
+		}
+#endif
+#endregion
 	}
 
 	public partial class RandomUtils
