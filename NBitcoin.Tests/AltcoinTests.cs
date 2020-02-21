@@ -145,11 +145,13 @@ namespace NBitcoin.Tests
 				txBuilder.Send(address2, new AssetMoney(issueAsset.Asset, 1000));
 				txBuilder.Send(address2, new Money(1000, MoneyUnit.Satoshi));
 				txBuilder.SendAsset(address2, new AssetMoney(issueAsset.Asset, 1000));
-				txBuilder.SendEstimatedFees(new FeeRate(100m));
 				txBuilder.SetChange(address);
+				txBuilder.SendEstimatedFees(new FeeRate(100m));
+
 				txBuilder.AddKeys(key, key2);
 				var tx = txBuilder.BuildTransaction(true);
-
+				Assert.NotNull(tx);
+				//there should be...7 outputs?
 			}
 		}
 

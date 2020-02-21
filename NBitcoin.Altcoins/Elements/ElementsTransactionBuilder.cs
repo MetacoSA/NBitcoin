@@ -18,7 +18,7 @@ namespace NBitcoin.Altcoins.Elements
 			var eligibleCoins = coins.Where(coin =>
 				(coin is AssetCoin assetCoin && assetCoin.Money.AssetId == assetId) ||
 				(coin.TxOut is ElementsTxOut<TNetwork> elementsTxOut && elementsTxOut?.Asset?.AssetId == assetId));
-			return base.Select(eligibleCoins, target);
+			return base.Select(eligibleCoins.Select(coin => coin as Coin?? new Coin(coin.Outpoint, coin.TxOut)), target as AssetMoney == null?target: new Money(((AssetMoney)target).Quantity));
 		}
 	}
 
