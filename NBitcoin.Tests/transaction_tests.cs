@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Encoders = NBitcoin.DataEncoders.Encoders;
+using AssetMoney = NBitcoin.OpenAsset.AssetMoney;
 
 namespace NBitcoin.Tests
 {
@@ -308,7 +309,7 @@ namespace NBitcoin.Tests
 				Assert.Null(wallet.SelectCoinsMinConf(Money.Cents(1), filter_standard, out setCoinsRet, out nValueRet));
 
 				wallet.AddCoin(Money.Cents(1), 4);        // add a new 1 cent coin
-				
+
 				// with a new 1 cent coin, we still can't find a mature 1 cent
 				Assert.Null(wallet.SelectCoinsMinConf(Money.Cents(1), filter_standard, out setCoinsRet, out nValueRet));
 

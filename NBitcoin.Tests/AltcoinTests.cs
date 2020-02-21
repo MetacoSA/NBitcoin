@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using NBitcoin.Altcoins;
 using NBitcoin.JsonConverters;
 using Newtonsoft.Json;
 using Xunit;
@@ -107,6 +108,51 @@ namespace NBitcoin.Tests
 				new ConcurrentChain(builder.Network);
 			}
 		}
+
+		[Fact]
+		public async Task CanHandleElementsAssets()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				if (!IsElements(builder.Network))
+				{
+					return;
+				}
+
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+
+				var balances = await rpc.GetBalancesAsync();
+
+				var issueAsset = await rpc.IssueAsset(new Money(10, MoneyUnit.BTC), Money.Zero, false);
+				var key = new Key();
+				var address = key.PubKey.GetAddress(ScriptPubKeyType.Segwit, rpc.Network);
+				var txId1 = (await rpc.GenerateToAddressAsync(1,address)).First();
+				var txId2 = await rpc.SendToAddressAsync(address, new Money(0.5m, MoneyUnit.BTC), null, null, false,false, issueAsset.Asset);
+
+				var txwithPeggedAsset = rpc.GetTransactions(txId1).First();
+				var txwithIssuedAsset =await
+					rpc.UnblindRawTransaction((await rpc.GetRawTransactionAsync(txId2)).ToHex(), rpc.Network);
+
+				var key2 = new Key();
+				var address2 = key2.PubKey.GetAddress(ScriptPubKeyType.Segwit, rpc.Network);
+
+				var txBuilder = Assert.IsAssignableFrom<ElementsTransactionBuilder>( builder.Network.CreateTransactionBuilder());
+				txBuilder.AddCoins(txwithPeggedAsset);
+				txBuilder.AddCoins(txwithIssuedAsset);
+
+				txBuilder.Send(address2, new AssetMoney(ElementsParams<Liquid.LiquidRegtest>.PeggedAssetId, 1000));
+				txBuilder.Send(address2, new AssetMoney(issueAsset.Asset, 1000));
+				txBuilder.Send(address2, new Money(1000, MoneyUnit.Satoshi));
+				txBuilder.SendAsset(address2, new AssetMoney(issueAsset.Asset, 1000));
+				txBuilder.SendEstimatedFees(new FeeRate(100m));
+				txBuilder.SetChange(address);
+				txBuilder.AddKeys(key, key2);
+				var tx = txBuilder.BuildTransaction(true);
+
+			}
+		}
+
 		[Fact]
 		public void ElementsAddressSerializationTest()
 		{

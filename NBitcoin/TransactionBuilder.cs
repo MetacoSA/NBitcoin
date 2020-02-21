@@ -70,7 +70,7 @@ namespace NBitcoin
 			public IMoney Amount { get; set; }
 			public ICoin[] Coins { get; set; }
 		}
-		public IEnumerable<ICoin>? Select(IEnumerable<ICoin> coins, IMoney target)
+		public virtual IEnumerable<ICoin>? Select(IEnumerable<ICoin> coins, IMoney target)
 		{
 			List<OutputGroup> setCoinsRet = new List<OutputGroup>();
 			var zero = target.Sub(target);
@@ -431,7 +431,7 @@ namespace NBitcoin
 			public List<SignatureEvent> SignatureEvents { get; set; } = new List<SignatureEvent>();
 			public uint? InputIndex { get; internal set; }
 		}
-		internal class TransactionBuildingContext
+		protected internal class TransactionBuildingContext
 		{
 			public TransactionBuildingContext(TransactionBuilder builder)
 			{
@@ -562,7 +562,7 @@ namespace NBitcoin
 			}
 		}
 
-		internal class BuilderGroup
+		protected internal class BuilderGroup
 		{
 			TransactionBuilder _Parent;
 			public BuilderGroup(TransactionBuilder parent)
@@ -891,7 +891,7 @@ namespace NBitcoin
 			return this;
 		}
 
-		readonly static TxNullDataTemplate _OpReturnTemplate = new TxNullDataTemplate(1024 * 1024);
+		protected readonly static TxNullDataTemplate _OpReturnTemplate = new TxNullDataTemplate(1024 * 1024);
 
 		/// <summary>
 		/// Send bitcoins to a destination
@@ -899,7 +899,7 @@ namespace NBitcoin
 		/// <param name="scriptPubKey">The destination</param>
 		/// <param name="amount">The amount</param>
 		/// <returns></returns>
-		public TransactionBuilder Send(Script scriptPubKey, Money amount)
+		public virtual TransactionBuilder Send(Script scriptPubKey, Money amount)
 		{
 			if (amount < Money.Zero)
 				throw new ArgumentOutOfRangeException(nameof(amount), "amount can't be negative");
@@ -916,10 +916,10 @@ namespace NBitcoin
 			return this;
 		}
 
-		SendBuilder? _LastSendBuilder;
+		protected SendBuilder? _LastSendBuilder;
 		SendBuilder? _SubstractFeeBuilder;
 
-		class SendBuilder
+		protected class SendBuilder
 		{
 			internal TxOut _TxOut;
 
@@ -965,7 +965,7 @@ namespace NBitcoin
 		/// <param name="amount">The amount (supported : Money, AssetMoney, MoneyBag)</param>
 		/// <returns></returns>
 		/// <exception cref="System.NotSupportedException">The coin type is not supported</exception>
-		public TransactionBuilder Send(Script scriptPubKey, IMoney amount)
+		public virtual TransactionBuilder Send(Script scriptPubKey, IMoney amount)
 		{
 			if (amount is MoneyBag bag)
 			{
@@ -1434,7 +1434,7 @@ namespace NBitcoin
 				var builderList = group.Builders.ToList();
 				ModifyBuildersForSubstractFees(ctx, group, builderList);
 				builderList.Add(ctxx => ctxx.AdditionalFees);
-				BuildTransaction(ctx, group, builderList, group.Coins.Values.OfType<Coin>().Where(IsEconomical), Money.Zero);
+				BuildTransaction(ctx, group, builderList, GetSupportedCoins(group.Coins.Values).Where(IsEconomical), Money.Zero);
 			}
 			ctx.Finish();
 
@@ -1461,7 +1461,12 @@ namespace NBitcoin
 			return ctx.Transaction;
 		}
 
-		bool IsEconomical(Coin c)
+		protected virtual IEnumerable<ICoin> GetSupportedCoins(IEnumerable<ICoin> coins)
+		{
+			return coins.OfType<Coin>();
+		}
+
+		bool IsEconomical(ICoin c)
 		{
 			if (!FilterUneconomicalCoins || FilterUneconomicalCoinsRate == null)
 				return true;
@@ -1469,7 +1474,7 @@ namespace NBitcoin
 			int baseSize = 0;
 			EstimateScriptSigSize(c, ref witSize, ref baseSize);
 			var vSize = witSize / Transaction.WITNESS_SCALE_FACTOR + baseSize;
-			return c.Amount >= FilterUneconomicalCoinsRate.GetFee(vSize);
+			return GetValue(c.Amount) >= FilterUneconomicalCoinsRate.GetFee(vSize);
 		}
 
 		private IEnumerable<ICoin> BuildTransaction<TMoney>(
@@ -1887,15 +1892,25 @@ namespace NBitcoin
 			}
 		}
 
-		private TxOut CreateTxOut(Money? amount = null, Script? script = null)
+		protected virtual TxOut CreateTxOut(IMoney? money, Script? script = null)
 		{
 			if (!this.Network.Consensus.ConsensusFactory.TryCreateNew<TxOut>(out var txOut))
 				txOut = new TxOut();
-			if (amount != null)
-				txOut.Value = amount;
+			if (money != null)
+				txOut.Value = GetValue(money);
 			if (script != null)
 				txOut.ScriptPubKey = script;
 			return txOut;
+		}
+
+		protected virtual Money GetValue(IMoney money)
+		{
+			return money switch
+			{
+				Money m => m,
+				MoneyBag mb => mb.Select(money => GetValue(money)).Sum(),
+				_ => throw new NotSupportedException("IMoney type not supported")
+			};
 		}
 
 		private void EstimateScriptSigSize(ICoin coin, ref int witSize, ref int baseSize)
@@ -2228,8 +2243,7 @@ namespace NBitcoin
 
 		public TransactionBuilder AddCoins(Transaction transaction)
 		{
-			var txId = transaction.GetHash();
-			AddCoins(transaction.Outputs.Select((o, i) => new Coin(txId, (uint)i, o.Value, o.ScriptPubKey)).ToArray());
+			AddCoins(transaction.Outputs.AsICoins());
 			return this;
 		}
 

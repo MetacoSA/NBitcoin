@@ -943,6 +943,12 @@ namespace NBitcoin
 				yield return new Coin(new OutPoint(txId, i), this[i]);
 			}
 		}
+
+		public virtual IEnumerable<ICoin> AsICoins()
+		{
+			return AsCoins();
+		}
+
 		public TxOut CreateNewTxOut()
 		{
 			return CreateNewTxOut(null, null as Script);
