@@ -911,7 +911,7 @@ namespace NBitcoin
 			}
 
 			var builder = new SendBuilder(CreateTxOut(amount, scriptPubKey));
-			CurrentGroup.Builders.Add(builder.Build);
+			CurrentGroup.Builders.Add(ctx => builder.Build(ctx));
 			_LastSendBuilder = builder;
 			return this;
 		}
@@ -928,7 +928,7 @@ namespace NBitcoin
 				_TxOut = txout;
 			}
 
-			public Money Build(TransactionBuildingContext ctx)
+			public virtual IMoney Build(TransactionBuildingContext ctx)
 			{
 				ctx.Transaction.Outputs.Add(_TxOut);
 				return _TxOut.Value;
@@ -1434,7 +1434,7 @@ namespace NBitcoin
 				var builderList = group.Builders.ToList();
 				ModifyBuildersForSubstractFees(ctx, group, builderList);
 				builderList.Add(ctxx => ctxx.AdditionalFees);
-				BuildTransaction(ctx, group, builderList, GetSupportedCoins(group.Coins.Values).Where(IsEconomical), Money.Zero);
+				BuildTransaction(ctx, group, builderList, GetSupportedCoins(group.Coins.Values).Where(IsEconomical), GetBaseMoneyForTx());
 			}
 			ctx.Finish();
 
@@ -1461,6 +1461,10 @@ namespace NBitcoin
 			return ctx.Transaction;
 		}
 
+		protected virtual IMoney GetBaseMoneyForTx()
+		{
+			return Money.Zero;
+		}
 		protected virtual IEnumerable<ICoin> GetSupportedCoins(IEnumerable<ICoin> coins)
 		{
 			return coins.OfType<Coin>();
@@ -1587,7 +1591,7 @@ namespace NBitcoin
 						);
 					}
 					if (newTxOut.Value >= minimumTxOutValue)
-						builders.Insert(i, new SendBuilder(newTxOut).Build);
+						builders.Insert(i, ctx1 => new SendBuilder(newTxOut).Build(ctx1));
 					else
 					{
 						ctx.AdditionalFees += newTxOut.Value;

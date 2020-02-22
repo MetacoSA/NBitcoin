@@ -139,11 +139,10 @@ namespace NBitcoin.Tests
 
 				var txBuilder = Assert.IsAssignableFrom<ElementsTransactionBuilder>( builder.Network.CreateTransactionBuilder());
 				txBuilder.AddCoins(txwithPeggedAsset);
-				txBuilder.AddCoins(txwithIssuedAsset);
-
 				txBuilder.Send(address2, new AssetMoney(ElementsParams<Liquid.LiquidRegtest>.PeggedAssetId, 1000));
-				txBuilder.Send(address2, new AssetMoney(issueAsset.Asset, 1000));
 				txBuilder.Send(address2, new Money(1000, MoneyUnit.Satoshi));
+				// txBuilder.Then("asset");
+				txBuilder.Send(address2, new AssetMoney(issueAsset.Asset, 1000));
 				txBuilder.SendAsset(address2, new AssetMoney(issueAsset.Asset, 1000));
 				txBuilder.SetChange(address);
 				txBuilder.SendEstimatedFees(new FeeRate(100m));
