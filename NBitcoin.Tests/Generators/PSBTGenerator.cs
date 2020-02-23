@@ -47,7 +47,7 @@ namespace NBitcoin.Tests.Generators
 			from locktime in PrimitiveGenerator.UInt32()
 			let tx = LegacyTransactionGenerators.ComposeTx(network.CreateTransaction(), txins.ToList(), txOuts.ToList(), locktime)
 			from TxsToAdd in Gen.SubListOf(prevTxs)
-			from CoinsToAdd in Gen.SubListOf(prevTxs.SelectMany(tx => tx.Outputs.AsCoins()))
+			from CoinsToAdd in Gen.SubListOf(prevTxs.SelectMany(t => t.Outputs.AsCoins()))
 			from scriptsToAdd in Gen.SubListOf<Script>(scripts)
 			let psbt = tx.CreatePSBT(network)
 				.AddTransactions(prevTxs.ToArray())

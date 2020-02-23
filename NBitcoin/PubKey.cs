@@ -6,8 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using NBitcoin.BouncyCastle.Math.EC;
+using NBitcoin.BouncyCastle.Utilities.Encoders;
+using NBitcoin.Scripting.Miniscript;
 
 namespace NBitcoin
 {
@@ -29,7 +30,7 @@ namespace NBitcoin
 		/// </summary>
 		SegwitP2SH
 	}
-	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>
+	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>, IMiniscriptKey<uint160>
 	{
 		/// <summary>
 		/// Create a new Public key from string
@@ -40,6 +41,8 @@ namespace NBitcoin
 
 		}
 
+		public PubKey() {}
+
 		/// <summary>
 		/// Create a new Public key from byte array
 		/// </summary>
@@ -48,11 +51,29 @@ namespace NBitcoin
 		{
 		}
 
+		public static bool TryParse(string hex, out PubKey result)
+		{
+			result = null;
+			if (hex == null) throw new ArgumentNullException(nameof(hex));
+			var v = Hex.Decode(hex);
+			if (!Check(v, true))
+				return false;
+			try
+			{
+				result = new PubKey(v);
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
 		/// <summary>
 		/// Create a new Public key from byte array
 		/// </summary>
 		/// <param name="bytes">byte array</param>
-		/// <param name="unsafe">If false, make internal copy of bytes and does perform only a costly check for PubKey format. If true, the bytes array is used as is and only PubKey.Check is used for validating the format. </param>	 
+		/// <param name="unsafe">If false, make internal copy of bytes and does perform only a costly check for PubKey format. If true, the bytes array is used as is and only PubKey.Check is used for validating the format. </param>
 		public PubKey(byte[] bytes, bool @unsafe)
 		{
 			if (bytes == null)
@@ -237,6 +258,9 @@ namespace NBitcoin
 		{
 			return Encoders.Hex.EncodeData(vch);
 		}
+
+		public bool Equals(IMiniscriptKey<uint160> other)
+			=> Equals(other as PubKey);
 
 		#region IBitcoinSerializable Members
 
@@ -555,5 +579,12 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public uint160 ToPubKeyHash()
+			=> new uint160(Hash._DestBytes);
+		public PubKey ToPublicKey() => this;
+
+		public int SerializedLength() =>
+			this.ToBytes().Length;
 	}
 }
