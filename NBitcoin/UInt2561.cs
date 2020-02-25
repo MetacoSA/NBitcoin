@@ -121,6 +121,8 @@ namespace NBitcoin
 		internal readonly UInt32 pn6;
 		internal readonly UInt32 pn7;
 
+		public int HashCode { get; }
+
 		public byte GetByte(int index)
 		{
 			var uintIndex = index / sizeof(uint);
@@ -175,6 +177,8 @@ namespace NBitcoin
 			pn5 = 0;
 			pn6 = 0;
 			pn7 = 0;
+
+			HashCode = CalculateHashCode();
 		}
 
 		public uint256(byte[] vch, bool lendian = true) : this(vch, 0, vch.Length, lendian)
@@ -205,6 +209,7 @@ namespace NBitcoin
 			pn6 = Utils.ToUInt32(vch, offset + 4 * 6, true);
 			pn7 = Utils.ToUInt32(vch, offset + 4 * 7, true);
 
+			HashCode = CalculateHashCode();
 		}
 
 #if HAS_SPAN
@@ -223,6 +228,8 @@ namespace NBitcoin
 			pn5 = Utils.ToUInt32(bytes.Slice(4 * 5), true);
 			pn6 = Utils.ToUInt32(bytes.Slice(4 * 6), true);
 			pn7 = Utils.ToUInt32(bytes.Slice(4 * 7), true);
+
+			HashCode = CalculateHashCode();
 		}
 #endif
 
@@ -254,6 +261,7 @@ namespace NBitcoin
 			pn6 = Utils.ToUInt32(bytes, 4 * 6, true);
 			pn7 = Utils.ToUInt32(bytes, 4 * 7, true);
 
+			HashCode = CalculateHashCode();
 		}
 
 		public uint256(byte[] vch)
@@ -299,21 +307,34 @@ namespace NBitcoin
 
 		public static bool operator ==(uint256 a, uint256 b)
 		{
-			if (System.Object.ReferenceEquals(a, b))
+			if (ReferenceEquals(a, b))
+			{
 				return true;
-			if (((object)a == null) || ((object)b == null))
+			}
+			else if (a is null || b is null)
+			{
 				return false;
-
-			bool equals = true;
-			equals &= a.pn0 == b.pn0;
-			equals &= a.pn1 == b.pn1;
-			equals &= a.pn2 == b.pn2;
-			equals &= a.pn3 == b.pn3;
-			equals &= a.pn4 == b.pn4;
-			equals &= a.pn5 == b.pn5;
-			equals &= a.pn6 == b.pn6;
-			equals &= a.pn7 == b.pn7;
-			return equals;
+			}
+			else
+			{
+				if (a.HashCode == b.HashCode)
+				{
+					bool equals = true;
+					equals &= a.pn0 == b.pn0;
+					equals &= a.pn1 == b.pn1;
+					equals &= a.pn2 == b.pn2;
+					equals &= a.pn3 == b.pn3;
+					equals &= a.pn4 == b.pn4;
+					equals &= a.pn5 == b.pn5;
+					equals &= a.pn6 == b.pn6;
+					equals &= a.pn7 == b.pn7;
+					return equals;
+				}
+				else
+				{
+					return false;
+				}			
+			}
 		}
 
 		public static bool operator <(uint256 a, uint256 b)
@@ -476,7 +497,8 @@ namespace NBitcoin
 			return pn0;
 		}
 
-		public override int GetHashCode()
+		public override int GetHashCode() => HashCode;
+		public int CalculateHashCode()
 		{
 			int hash = 17;
 			unchecked
