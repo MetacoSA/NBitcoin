@@ -956,7 +956,7 @@ namespace NBitcoin.RPC
 							else if (await IsWorkQueueFull(httpResponse))
 							{
 								await Task.Delay(retryTimeout, cts.Token);
-								retryTimeout *= 2;
+								retryTimeout = TimeSpan.FromTicks(retryTimeout.Ticks * 2);
 								if (retryTimeout > maxRetryTimeout)
 									retryTimeout = maxRetryTimeout;
 								goto retry;
