@@ -897,6 +897,7 @@ namespace NBitcoin.RPC
 			throw new NotSupportedException("Cookie authentication is not supported for this platform");
 #endif
 		}
+
 		static Encoding NoBOMUTF8 = new UTF8Encoding(false);
 		async Task<RPCResponse> SendCommandAsyncCore(RPCRequest request, bool throwIfRPCError)
 		{
@@ -920,6 +921,9 @@ namespace NBitcoin.RPC
 				var writer = new StringWriter();
 				request.WriteJSON(writer);
 				writer.Flush();
+				bool renewedCookie = false;
+				TimeSpan retryTimeout = TimeSpan.FromSeconds(1.0);
+				TimeSpan maxRetryTimeout = TimeSpan.FromSeconds(10.0);
 			retry:
 				var webRequest = CreateWebRequest(writer.ToString());
 				using (var cts = new CancellationTokenSource(RequestTimeout))
@@ -936,24 +940,48 @@ namespace NBitcoin.RPC
 						{
 							if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
 							{
-								if (TryRenewCookie())
+								if (!renewedCookie && TryRenewCookie())
+								{
+									renewedCookie = true;
 									goto retry;
+								}
 								httpResponse.EnsureSuccessStatusCode(); // Let's throw
 							}
-							if (httpResponse.Content == null ||
-								(httpResponse.Content.Headers.ContentLength == null || httpResponse.Content.Headers.ContentLength.Value == 0) ||
-								!httpResponse.Content.Headers.ContentType.MediaType.Equals("application/json", StringComparison.Ordinal))
+							if (IsJson(httpResponse))
+							{
+								response = RPCResponse.Load(await httpResponse.Content.ReadAsStreamAsync());
+								if (throwIfRPCError)
+									response.ThrowIfError();
+							}
+							else if (await IsWorkQueueFull(httpResponse))
+							{
+								await Task.Delay(retryTimeout, cts.Token);
+								retryTimeout *= 2;
+								if (retryTimeout > maxRetryTimeout)
+									retryTimeout = maxRetryTimeout;
+								goto retry;
+							}
+							else
 							{
 								httpResponse.EnsureSuccessStatusCode(); // Let's throw
 							}
-							response = RPCResponse.Load(await httpResponse.Content.ReadAsStreamAsync());
-							if (throwIfRPCError)
-								response.ThrowIfError();
 						}
 					}
 				}
 			}
 			return response;
+		}
+
+		private bool IsJson(HttpResponseMessage httpResponse)
+		{
+			return httpResponse.Content?.Headers?.ContentType?.MediaType?.Equals("application/json", StringComparison.Ordinal) is true;
+		}
+
+		private async Task<bool> IsWorkQueueFull(HttpResponseMessage httpResponse)
+		{
+			if (httpResponse.StatusCode != HttpStatusCode.InternalServerError)
+				return false;
+			return (await httpResponse.Content?.ReadAsStringAsync())?.Equals("Work queue depth exceeded", StringComparison.Ordinal) is true;
 		}
 
 		private HttpRequestMessage CreateWebRequest(string json)
