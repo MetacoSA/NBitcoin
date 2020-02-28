@@ -1,13 +1,15 @@
-﻿using NBitcoin.Altcoins.HashX11;
+﻿using Microsoft.Extensions.Logging;
+using NBitcoin.Altcoins.HashX11;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+using NBitcoin.Logging;
 using NBitcoin.Protocol;
+using NBitcoin.Protocol.Behaviors;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 
 namespace NBitcoin.Altcoins
 {
@@ -27,10 +29,6 @@ namespace NBitcoin.Altcoins
 #pragma warning disable CS0618 // Type or member is obsolete
 		public class StratisConsensusFactory : ConsensusFactory
 		{
-			private StratisConsensusFactory()
-			{
-			}
-
 			public static StratisConsensusFactory Instance { get; } = new StratisConsensusFactory();
 
 			public override BlockHeader CreateBlockHeader()
@@ -45,7 +43,7 @@ namespace NBitcoin.Altcoins
 
 			public override Transaction CreateTransaction()
 			{
-				return new StratisTransaction(this);
+				return new StratisTransaction();
 			}
 
 			protected bool IsHeadersPayload(Type type)
@@ -70,11 +68,165 @@ namespace NBitcoin.Altcoins
 			{
 				return new StratisHeadersPayload();
 			}
+
+			public override IEnumerable<NodeBehavior> GetCustomBehaviors()
+			{
+				PayloadAttribute.Add("provhdr", typeof(StratisProvenHeadersPayload));
+
+				StratisProvenHeaderBehavior[] customBehaviors = new[] { new StratisProvenHeaderBehavior() };
+				return customBehaviors;
+			}
+		}
+
+		public class StratisProvenBlockHeader : StratisBlockHeader
+		{
+			/// <summary>
+			/// Coinstake transaction.
+			/// </summary>
+			private StratisTransaction coinstake;
+
+			/// <summary>
+			/// Gets coinstake transaction.
+			/// </summary>
+			public StratisTransaction Coinstake => this.coinstake;
+
+			/// <summary>
+			/// Merkle proof that proves the coinstake tx is included in a block that is being represented by the provided header.
+			/// </summary>
+			private PartialMerkleTree merkleProof;
+
+			/// <summary>
+			/// Gets merkle proof that proves the coinstake tx is included in a block that is being represented by the provided header.
+			/// </summary>
+			public PartialMerkleTree MerkleProof => this.merkleProof;
+
+			/// <summary>
+			/// Block header signature which is signed with the private key which corresponds to
+			/// coinstake's second output's public key.
+			/// </summary>
+			private StratisBlockSignature signature;
+
+			/// <summary>
+			/// Gets block header signature which is signed with the private key which corresponds to
+			/// coinstake's second output's public key.
+			/// </summary>
+			public StratisBlockSignature Signature => this.signature;
+
+			/// <summary>Gets the size of the merkle proof in bytes, the header must be serialized or deserialized for this property to be set.</summary>
+			public long MerkleProofSize { get; protected set; }
+
+			/// <summary>Gets the size of the signature in bytes, the header must be serialized or deserialized for this property to be set.</summary>
+			public long SignatureSize { get; protected set; }
+
+			/// <summary>Gets the size of the coinstake in bytes, the header must be serialized or deserialized for this property to be set.</summary>
+			public long CoinstakeSize { get; protected set; }
+
+			/// <summary>Gets the total header size - including the <see cref="BlockHeader.Size"/> - in bytes. <see cref="StratisProvenBlockHeader"/> must be serialized or deserialized for this property to be set.</summary>
+			public long HeaderSize => Size + this.MerkleProofSize + this.SignatureSize + this.CoinstakeSize;
+
+			/// <summary>
+			/// Gets or sets the stake modifier v2.
+			/// </summary>
+			/// <value>
+			/// The stake modifier v2.
+			/// </value>
+			/// <remarks>This property is used only in memory, it is not persisted to disk not sent over any Payloads.</remarks>
+			public uint256 StakeModifierV2 { get; set; }
+
+			public StratisProvenBlockHeader()
+			{
+			}
+
+			public StratisProvenBlockHeader(StratisBlock block)
+			{
+				if (block == null) throw new ArgumentNullException(nameof(block));
+
+				// Copy block header properties.
+				this.HashPrevBlock = block.Header.HashPrevBlock;
+				this.HashMerkleRoot = block.Header.HashMerkleRoot;
+				this.nTime = block.Header.Time;
+				this.Bits = block.Header.Bits;
+				this.Nonce = block.Header.Nonce;
+				this.Version = block.Header.Version;
+
+				this.signature = block.BlockSignature;
+				this.coinstake = block.GetProtocolTransaction();
+				this.merkleProof = new MerkleBlock(block, new[] { this.coinstake.GetHash() }).PartialMerkleTree;
+			}
+
+			/// <inheritdoc />
+			public override void ReadWrite(BitcoinStream stream)
+			{
+				long processedBytes = stream.Serializing ? stream.Counter.WrittenBytes : stream.Counter.ReadenBytes;
+
+				base.ReadWrite(stream);
+				long prev = processedBytes;
+
+				stream.ReadWrite(ref this.merkleProof);
+				this.MerkleProofSize = processedBytes - prev;
+
+				prev = processedBytes;
+				stream.ReadWrite(ref this.signature);
+				this.SignatureSize = processedBytes - prev;
+
+				prev = processedBytes;
+				stream.ReadWrite(ref this.coinstake);
+				this.CoinstakeSize = processedBytes - prev;
+			}
+
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return this.GetHash().ToString();
+			}
+		}
+
+		public class StratisProvenHeaderConsensusFactory : StratisConsensusFactory
+		{
+			public StratisProvenBlockHeader CreateProvenBlockHeader()
+			{
+				return new StratisProvenBlockHeader();
+			}
+
+			public override BlockHeader CreateBlockHeader()
+			{
+				return this.CreateProvenBlockHeader();
+			}
+		}
+
+		[Payload("provhdr")]
+		public class StratisProvenHeadersPayload : Payload
+		{
+			/// <summary>
+			/// <see cref="Headers"/>
+			/// </summary>
+			private List<StratisProvenBlockHeader> headers = new List<StratisProvenBlockHeader>();
+
+			/// <summary>
+			/// Gets a list of up to 2,000 proven headers.
+			/// </summary>
+			public List<StratisProvenBlockHeader> Headers => this.headers;
+
+			public StratisProvenHeadersPayload()
+			{
+			}
+
+			public StratisProvenHeadersPayload(params StratisProvenBlockHeader[] headers)
+			{
+				this.Headers.AddRange(headers);
+			}
+
+			/// <inheritdoc />
+			public override void ReadWriteCore(BitcoinStream stream)
+			{
+				stream.ConsensusFactory = new StratisProvenHeaderConsensusFactory();
+				stream.ReadWrite(ref this.headers);
+			}
 		}
 
 		public class StratisHeadersPayload : HeadersPayload
 		{
-			class BlockHeaderWithTxCount : IBitcoinSerializable
+			internal class BlockHeaderWithTxCount : IBitcoinSerializable
 			{
 				public BlockHeaderWithTxCount()
 				{
@@ -100,12 +252,16 @@ namespace NBitcoin.Altcoins
 				#endregion
 			}
 
+			public StratisHeadersPayload(params StratisBlockHeader[] headers) : base(headers)
+			{
+			}
+
 			public override void ReadWriteCore(BitcoinStream stream)
 			{
 				if (stream.Serializing)
 				{
-					var heardersOff = Headers.Select(h => new BlockHeaderWithTxCount(h)).ToList();
-					stream.ReadWrite(ref heardersOff);
+					var headersOff = Headers.Select(h => new BlockHeaderWithTxCount(h)).ToList();
+					stream.ReadWrite(ref headersOff);
 				}
 				else
 				{
@@ -218,6 +374,8 @@ namespace NBitcoin.Altcoins
 				nNonce = 0;
 			}
 
+			public uint Time { get { return this.nTime; } set { this.nTime = value; } }
+
 			private byte[] CalculateHash(byte[] data, int offset, int count)
 			{
 				byte[] hashData = data.SafeSubarray(offset, count);
@@ -239,7 +397,7 @@ namespace NBitcoin.Altcoins
 
 			public override uint256 GetPoWHash()
 			{
-				
+
 				return new uint256(this.x13.ComputeBytes(this.ToBytes()));
 			}
 		}
@@ -280,8 +438,24 @@ namespace NBitcoin.Altcoins
 				base.ReadWrite(stream);
 				stream.ReadWrite(ref this.blockSignature);
 			}
+
+			public new StratisBlockHeader Header => base.Header as StratisBlockHeader;
+
+			/// <summary>
+			/// Gets the block's coinstake transaction or returns the coinbase transaction if there is no coinstake.
+			/// </summary>
+			/// <returns>Coinstake transaction or coinbase transaction.</returns>
+			/// <remarks>
+			/// <para>In PoS blocks, coinstake transaction is the second transaction in the block.</para>
+			/// <para>In PoW there isn't a coinstake transaction, return coinbase instead to be able to compute stake modifier for the next eventual PoS block.</para>
+			/// </remarks>
+			public StratisTransaction GetProtocolTransaction()
+			{
+				return (this.Transactions.Count > 1 && (this.Transactions[1] as StratisTransaction).IsCoinStake) ? this.Transactions[1] as StratisTransaction : this.Transactions[0] as StratisTransaction;
+			}
+
 		}
-		
+
 		private class StratisWitness
 		{
 			private TxInList _Inputs;
@@ -318,15 +492,9 @@ namespace NBitcoin.Altcoins
 
 		public class StratisTransaction : Transaction
 		{
-			public StratisTransaction(ConsensusFactory consensusFactory)
-			{
-				_Factory = consensusFactory;
-			}
-
-			ConsensusFactory _Factory;
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return _Factory;
+				return StratisConsensusFactory.Instance;
 			}
 
 			/// <summary>
@@ -335,7 +503,7 @@ namespace NBitcoin.Altcoins
 			public uint Time { get; set; } = Utils.DateTimeToUnixTime(DateTime.UtcNow);
 
 			public override void ReadWrite(BitcoinStream stream)
-			{		
+			{
 				var witSupported = stream.TransactionOptions.HasFlag(TransactionOptions.Witness) && stream.ProtocolCapabilities.SupportWitness;
 
 				if (stream.Serializing)
@@ -455,7 +623,7 @@ namespace NBitcoin.Altcoins
 			public static StratisTransaction ParseJson(string tx)
 			{
 				JObject obj = JObject.Parse(tx);
-				StratisTransaction stratTx = new StratisTransaction(Stratis.StratisConsensusFactory.Instance);
+				StratisTransaction stratTx = new StratisTransaction();
 				DeserializeFromJson(obj, ref stratTx);
 
 				return stratTx;
@@ -502,6 +670,59 @@ namespace NBitcoin.Altcoins
 					txout.ScriptPubKey = new Script(Encoders.Hex.DecodeData(script.Value<string>("hex")));
 				}
 			}
+
+			public bool IsCoinStake
+			{
+				get
+				{
+					// ppcoin: the coin stake transaction is marked with the first output empty
+					return this.Inputs.Any()
+						&& !this.Inputs.First().PrevOut.IsNull
+						&& this.Outputs.Count() >= 2
+						// First().IsEmpty
+						&& this.Outputs.First().Value == 0
+						&& this.Outputs.First().ScriptPubKey.Length == 0;
+				}
+			}
+		}
+
+		public class StratisProvenHeaderBehavior : NodeBehavior
+		{
+			public override object Clone()
+			{
+				return new StratisProvenHeaderBehavior();
+			}
+
+			protected override void AttachCore()
+			{
+				AttachedNode.MessageReceived += AttachedNode_MessageReceived;
+			}
+
+			void AttachedNode_MessageReceived(Node node, IncomingMessage message)
+			{
+				var provHeadersPayload = message.Message.Payload as StratisProvenHeadersPayload;
+				if (provHeadersPayload != null)
+				{
+					// When get "provhdr" ask node for normal headers instead.
+					var headersPayload = new GetHeadersPayload();
+					var prevHash = provHeadersPayload?.Headers?.FirstOrDefault()?.HashPrevBlock;
+					if (prevHash != null)
+					{
+						headersPayload.BlockLocators = new BlockLocator
+						{
+							Blocks = new List<uint256> { prevHash }
+						};
+					}
+
+					Logs.NodeServer.LogTrace("Received message {command} ({payload}) => sending {command} {payload})", provHeadersPayload.Command, provHeadersPayload, headersPayload.Command, headersPayload);
+					node.SendMessageAsync(headersPayload);
+				}
+			}
+
+			protected override void DetachCore()
+			{
+				AttachedNode.MessageReceived -= AttachedNode_MessageReceived;
+			}
 		}
 
 		protected override NetworkBuilder CreateMainnet()
@@ -540,10 +761,8 @@ namespace NBitcoin.Altcoins
 			.SetName("StratisMain")
 			.AddDNSSeeds(new[]
 			{
-					new DNSSeedData("seednode1.stratisplatform.com", "seednode1.stratisplatform.com"),
-					new DNSSeedData("seednode2.stratis.cloud", "seednode2.stratis.cloud"),
-					new DNSSeedData("seednode3.stratisplatform.com", "seednode3.stratisplatform.com"),
-					new DNSSeedData("seednode4.stratis.cloud", "seednode4.stratis.cloud")
+				new DNSSeedData("mainnet1.stratisnetwork.com", "mainnet1.stratisnetwork.com"),
+				new DNSSeedData("mainnet2.stratisnetwork.com", "mainnet2.stratisnetwork.com")
 			})
 			.SetGenesis("01000000000000000000000000000000000000000000000000000000000000000000000018157f44917c2514c1f339346200f8b27d8ffaae9d8205bfae51030bc26ba265b88ba557ffff0f1eddf21b000101000000b88ba557010000000000000000000000000000000000000000000000000000000000000000ffffffff5d00012a4c58687474703a2f2f7777772e7468656f6e696f6e2e636f6d2f61727469636c652f6f6c796d706963732d686561642d7072696573746573732d736c6974732d7468726f61742d6f6666696369616c2d72696f2d2d3533343636ffffffff010000000000000000000000000000");
 
@@ -583,10 +802,8 @@ namespace NBitcoin.Altcoins
 			.SetName("StratisTest")
 			.AddDNSSeeds(new[]
 			{
-					new DNSSeedData("testnet1.stratisplatform.com", "testnet1.stratisplatform.com"),
-					new DNSSeedData("testnet2.stratisplatform.com", "testnet2.stratisplatform.com"),
-					new DNSSeedData("testnet3.stratisplatform.com", "testnet3.stratisplatform.com"),
-					new DNSSeedData("testnet4.stratisplatform.com", "testnet4.stratisplatform.com")
+				new DNSSeedData("testnet1.stratisnetwork.com", "testnet1.stratisnetwork.com"),
+				new DNSSeedData("testnet2.stratisnetwork.com", "testnet2.stratisnetwork.com")
 			})
 			.SetGenesis("01000000000000000000000000000000000000000000000000000000000000000000000018157f44917c2514c1f339346200f8b27d8ffaae9d8205bfae51030bc26ba265db3e0b59ffff001fdf2225000101000000b88ba557010000000000000000000000000000000000000000000000000000000000000000ffffffff5d00012a4c58687474703a2f2f7777772e7468656f6e696f6e2e636f6d2f61727469636c652f6f6c796d706963732d686561642d7072696573746573732d736c6974732d7468726f61742d6f6666696369616c2d72696f2d2d3533343636ffffffff010000000000000000000000000000");
 

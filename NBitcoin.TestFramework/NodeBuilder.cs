@@ -156,10 +156,12 @@ namespace NBitcoin.Tests
 
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
+				// Passing the overwrite bool here causes a compilation error on other platforms
 				ZipFile.ExtractToDirectory(zip, extractDirectory);
 			}
 			else
 			{
+				// tar overwrites by default
 				Process.Start("tar", "-zxvf " + zip + " -C " + extractDirectory).WaitForExit();
 			}
 			File.Delete(zip);
@@ -428,7 +430,7 @@ namespace NBitcoin.Tests
 
 		public RestClient CreateRESTClient()
 		{
-			return new RestClient(new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"));
+			return new RestClient(new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"), Network);
 		}
 #if !NOSOCKET
 		public Node CreateNodeClient()

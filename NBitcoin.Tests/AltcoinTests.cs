@@ -24,6 +24,10 @@ namespace NBitcoin.Tests
 			{
 				if (network == Altcoins.AltNetworkSets.Liquid) // No testnet
 					continue;
+
+				if (network == Altcoins.AltNetworkSets.DogeCash) // Invalid hex data in network
+					continue;
+
 				Assert.True(coins.Add(network.CryptoCode.ToLowerInvariant()));
 				Assert.NotEqual(network.Mainnet, network.Regtest);
 				Assert.NotEqual(network.Regtest, network.Testnet);
@@ -44,7 +48,6 @@ namespace NBitcoin.Tests
 				}
 			}
 		}
-
 
 		[Fact]
 		public async Task CanCalculateTransactionHash()
@@ -110,6 +113,8 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void ElementsAddressSerializationTest()
 		{
+			if (NodeBuilderEx.GetNetwork().NetworkSet != Altcoins.AltNetworkSets.Liquid)
+				return;
 
 			var network = Altcoins.Liquid.Instance.Regtest;
 			var address =
@@ -145,6 +150,8 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void ElementsAddressTests()
 		{
+			if (NodeBuilderEx.GetNetwork().NetworkSet != Altcoins.AltNetworkSets.Liquid)
+				return;
 
 			var network = Altcoins.Liquid.Instance.Mainnet;
 			//p2sh-segwit blidned addresses mainnet
@@ -209,6 +216,9 @@ namespace NBitcoin.Tests
 				rpc.SendRawTransaction(signed);
 
 				// Let's try P2SH with 2 coins
+				// Generate some more blocks to ensure we have 2 blocks worth of matured coins available.
+				// This gives some safety margin, because not every network has the same size block reward.
+				rpc.Generate(2);
 				aliceAddress = alice.PubKey.ScriptPubKey.GetScriptAddress(builder.Network);
 				txid = rpc.SendToAddress(aliceAddress, Money.Coins(1.0m));
 				tx = rpc.GetRawTransaction(txid);
@@ -288,6 +298,8 @@ namespace NBitcoin.Tests
 					if (rpc.Capabilities.SupportSegwit)
 					{
 						Assert.True(builder.Network.Consensus.SupportSegwit, "The node RPC support segwit, but Network.Consensus.SupportSegwit is set to false");
+						// Ensure some funds are available to attempt to send
+						node.Generate(rpc.Network.Consensus.CoinbaseMaturity + 1);
 						rpc.SendToAddress(address, Money.Coins(1.0m));
 					}
 					else

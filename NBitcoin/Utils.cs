@@ -131,7 +131,7 @@ namespace NBitcoin
 
 		public static Block GetBlock(this IBlockRepository repository, uint256 blockId)
 		{
-			return repository.GetBlockAsync(blockId).GetAwaiter().GetResult();
+			return repository.GetBlockAsync(blockId, 0).GetAwaiter().GetResult();
 		}
 
 		public static T ToNetwork<T>(this T obj, NetworkType networkType) where T : IBitcoinString

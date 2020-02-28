@@ -1305,24 +1305,43 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-		/// Get the a whole block
+		/// Get a whole block
 		/// </summary>
 		/// <param name="blockId"></param>
-		/// <returns></returns>
 		public async Task<Block> GetBlockAsync(uint256 blockId)
 		{
-			var resp = await SendCommandAsync(RPCOperations.getblock, blockId, false).ConfigureAwait(false);
+			var resp = await SendCommandAsync(RPCOperations.getblock, blockId, 0).ConfigureAwait(false);
 			return Block.Parse(resp.Result.ToString(), Network);
 		}
 
 		/// <summary>
-		/// Get the a whole block
+		/// Get a whole block
+		/// </summary>
+		/// <param name="blockId">The hash of the block to be retrieved</param>
+		/// /// <param name="verbosity">0 = hex only, 1 = json including transaction id list, 2 = json including parsed transactions</param>
+		public async Task<Block> GetBlockAsync(uint256 blockId, int verbosity)
+		{
+			var resp = await SendCommandAsync(RPCOperations.getblock, blockId, verbosity).ConfigureAwait(false);
+			return Block.Parse(resp.Result.ToString(), Network);
+		}
+
+		/// <summary>
+		/// Get a whole block
 		/// </summary>
 		/// <param name="blockId"></param>
-		/// <returns></returns>
 		public Block GetBlock(uint256 blockId)
 		{
-			return GetBlockAsync(blockId).GetAwaiter().GetResult();
+			return GetBlockAsync(blockId, 0).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// Get a whole block
+		/// </summary>
+		/// <param name="blockId">The hash of the block to be retrieved</param>
+		/// <param name="verbosity">0 = hex only, 1 = json including transaction id list, 2 = json including parsed transactions</param>
+		public Block GetBlock(uint256 blockId, int verbosity)
+		{
+			return GetBlockAsync(blockId, verbosity).GetAwaiter().GetResult();
 		}
 
 		public Block GetBlock(int height)
