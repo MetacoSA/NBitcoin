@@ -313,16 +313,16 @@ namespace NBitcoin
 				return PubKey.Equals(item.PubKey);
 			return false;
 		}
-		public static bool operator ==(Key a, Key b)
+		public static bool operator ==(Key? a, Key? b)
 		{
-			if (System.Object.ReferenceEquals(a, b))
-				return true;
-			if (((object)a == null) || ((object)b == null))
-				return false;
-			return a.PubKey == b.PubKey;
+			if (a?.PubKey is PubKey apk && b?.PubKey is PubKey bpk)
+			{
+				return a.PubKey == b.PubKey;
+			}
+			return a is null && b is null;
 		}
 
-		public static bool operator !=(Key a, Key b)
+		public static bool operator !=(Key? a, Key? b)
 		{
 			return !(a == b);
 		}

@@ -413,11 +413,11 @@ namespace NBitcoin
 		public bool Equals(PubKey pk) => pk != null && Utils.ArrayEqual(vch, pk.vch);
 		public static bool operator ==(PubKey a, PubKey b)
 		{
-			if (System.Object.ReferenceEquals(a, b))
-				return true;
-			if (((object)a == null) || ((object)b == null))
-				return false;
-			return a.ToHex() == b.ToHex();
+			if (a?.vch is byte[] avch && b?.vch is byte[] bvch)
+			{
+				return Utils.ArrayEqual(avch, bvch);
+			}
+			return a is null && b is null;
 		}
 
 		public static bool operator !=(PubKey a, PubKey b)

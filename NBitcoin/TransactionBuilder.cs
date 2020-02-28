@@ -396,10 +396,10 @@ namespace NBitcoin
 
 			internal Key? FindKey(Script scriptPubKey)
 			{
-				var key = Builder._Keys
+				Key? key = Builder._Keys
 					.Concat(AdditionalKeys)
 					.FirstOrDefault(k => Builder.IsCompatibleKeyFromScriptCode(k.PubKey, scriptPubKey));
-				if (key == null && Builder.KeyFinder != null)
+				if (key is null && Builder.KeyFinder != null)
 				{
 					key = Builder.KeyFinder(scriptPubKey);
 				}
@@ -2009,9 +2009,9 @@ namespace NBitcoin
 			if (coin is StealthCoin stealthCoin)
 			{
 				var scanKey = ctx.FindKey(stealthCoin.Address.ScanPubKey.ScriptPubKey);
-				if (scanKey == null)
+				if (scanKey is null)
 					throw new KeyNotFoundException("Scan key for decrypting StealthCoin not found");
-				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => ctx.FindKey(p.ScriptPubKey)).Where(p => p != null).ToArray();
+				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => ctx.FindKey(p.ScriptPubKey)).Where(p => !(p is null)).ToArray();
 				ctx.AdditionalKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey));
 				var normalCoin = new Coin(coin.Outpoint, coin.TxOut);
 				if (stealthCoin.Redeem != null)
