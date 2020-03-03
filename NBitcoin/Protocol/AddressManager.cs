@@ -1266,7 +1266,7 @@ namespace NBitcoin.Protocol
 						return new NetworkAddress[0];
 					}
 				})
-				.ToArray());
+				.ToArray()).ConfigureAwait(false);
 
 				peers.AddRange(result.SelectMany(x => x));
 		}
