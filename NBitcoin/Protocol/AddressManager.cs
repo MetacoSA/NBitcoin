@@ -1,4 +1,4 @@
-﻿#if !NOSOCKET
+#if !NOSOCKET
 using NBitcoin.Crypto;
 using NBitcoin.Protocol.Behaviors;
 using System;
@@ -1252,9 +1252,9 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		private static Task PopulateTableWithDNSNodes(Network network, List<NetworkAddress> peers)
+		private async static Task PopulateTableWithDNSNodes(Network network, List<NetworkAddress> peers)
 		{
-			return Task.WhenAll(network.DNSSeeds
+			var result = await Task.WhenAll(network.DNSSeeds
 				.Select(async dns =>
 				{
 					try
@@ -1267,6 +1267,8 @@ namespace NBitcoin.Protocol
 					}
 				})
 				.ToArray());
+
+				peers.AddRange(result.SelectMany(x => x));
 		}
 
 		private static void PopulateTableWithHardNodes(Network network, List<NetworkAddress> peers)
