@@ -507,6 +507,35 @@ namespace NBitcoin.Tests
 				}
 			};
 		}
+		
+		public class VergeNodeDownloadData
+		{
+			public NodeDownloadData v6_0_2 = new NodeDownloadData()
+			{
+				Version = "6.0.2",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/vergecurrency/verge/releases/download/v6.0.2/verge-6.0.2-win64.zip",
+					Archive = "verge-6.0.2-win64.zip",
+					Executable = "verge-6.0.2/bin/verged.exe",
+					Hash = "6334d5222309337271b47ccf6129a282144c81682c691d9624c35219769e5fb4"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/vergecurrency/verge/releases/download/v6.0.2/verge-6.0.2-x86_64-linux-gnu.tar.gz",
+					Archive = "verge-6.0.2-x86_64-linux-gnu.tar.gz",
+					Executable = "verge-6.0.2/bin/verged",
+					Hash = "cdcb797d9bb11e9fe8062acd9ca46c5bafb02c4868f3c02fd417037584efd721"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/vergecurrency/verge/releases/download/v6.0.2/verge-6.0.2-osx64.tar.gz",
+					Archive = "verge-6.0.2-osx64.tar.gz",
+					Executable = "verge-6.0.2/bin/verged",
+					Hash = "bb3ef22d6e589162c3ff8a3de72a6bd0a80ec0000aa2573960865d3d0f8703c2"
+				}
+			};
+		}
 
 		public class DystemNodeDownloadData
 		{
