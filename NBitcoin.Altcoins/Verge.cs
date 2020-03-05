@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Altcoins
 {
-	// Reference: https://github.com/vergecurrency/verge/blob/master/src/chainparams.cpp
 	public class Verge : NetworkSetBase
 	{
 		public static Verge Instance { get; } = new Verge();
@@ -22,11 +21,28 @@ namespace NBitcoin.Altcoins
 		{
 
 		}
+		//Format visual studio
+		//{({.*?}), (.*?)}
+		//Tuple.Create(new byte[]$1, $2)
+		static Tuple<byte[], int>[] pnSeed6_main = {
+	Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0x05,0x65,0x6a,0x35}, 21102),
+	Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0x52,0xc4,0x0b,0xc9}, 21102),
+	Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0x6b,0xaa,0xad,0x9d}, 21102),
+	Tuple.Create(new byte[]{0xfd,0x87,0xd8,0x7e,0xeb,0x43,0x8c,0x14,0xde,0x2c,0x7d,0x6b,0xc0,0xa3,0xdc,0xf7}, 21102),
+	Tuple.Create(new byte[]{0xfd,0x87,0xd8,0x7e,0xeb,0x43,0x9b,0x65,0xda,0xa4,0x3d,0xf5,0x2f,0x21,0x89,0xd5}, 21102),
+	Tuple.Create(new byte[]{0xfd,0x87,0xd8,0x7e,0xeb,0x43,0x0d,0xfd,0x43,0xe6,0xeb,0xbc,0xc3,0xe4,0xf4,0x02}, 21102)
+};
+		static Tuple<byte[], int>[] pnSeed6_test = {
+	Tuple.Create(new byte[]{0xfd,0x87,0xd8,0x7e,0xeb,0x43,0x8c,0x95,0x7f,0x9b,0x49,0x18,0xd4,0xca,0x06,0x11}, 21104),
+};
+
+#pragma warning disable CS0618 // Type or member is obsolete
 		public class VergeConsensusFactory : ConsensusFactory
 		{
 			private VergeConsensusFactory()
 			{
 			}
+
 			public static VergeConsensusFactory Instance { get; } = new VergeConsensusFactory();
 
 			public override BlockHeader CreateBlockHeader()
@@ -36,12 +52,6 @@ namespace NBitcoin.Altcoins
 			public override Block CreateBlock()
 			{
 				return new VergeBlock(new VergeBlockHeader());
-			}
-			protected override TransactionBuilder CreateTransactionBuilderCore(Network network)
-			{
-				var txBuilder = base.CreateTransactionBuilderCore(network);
-				txBuilder.StandardTransactionPolicy.MinFee = Money.Coins(1m);
-				return txBuilder;
 			}
 		}
 
@@ -198,9 +208,9 @@ namespace NBitcoin.Altcoins
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				base.ReadWrite(stream);
-				if ((Version & VERSION_AUXPOW) != 0)
+				if((Version & VERSION_AUXPOW) != 0)
 				{
-					if (!stream.Serializing)
+					if(!stream.Serializing)
 					{
 						stream.ReadWrite(ref auxPow);
 					}
@@ -213,9 +223,7 @@ namespace NBitcoin.Altcoins
 		//{({.*?}), (.*?)}
 		//Tuple.Create(new byte[]$1, $2)
 		//static Tuple<byte[], int>[] pnSeed6_main = null;
-		//static Tuple<byte[], int>[] pnSeed6_test = null;
-		// Not used in DOGE: https://github.com/dogecoin/dogecoin/blob/10a5e93a055ab5f239c5447a5fe05283af09e293/src/chainparams.cpp#L135
-
+		//static Tuple<byte[], int>[] pnSeed6_test = null;		
 
 		static uint256 GetPoWHash(BlockHeader header)
 		{
