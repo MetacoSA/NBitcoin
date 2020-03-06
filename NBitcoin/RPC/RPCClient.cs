@@ -154,7 +154,7 @@ namespace NBitcoin.RPC
 
 		private static Lazy<HttpClient> _Shared = new Lazy<HttpClient>(() => new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan });
 
-		HttpClient _HttpClient;
+		protected HttpClient _HttpClient;
 		public HttpClient HttpClient
 		{
 			get
@@ -509,9 +509,9 @@ namespace NBitcoin.RPC
 			}
 		}
 
-		ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> _BatchedRequests;
+		protected ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> _BatchedRequests;
 
-		public RPCClient PrepareBatch()
+		public virtual RPCClient PrepareBatch()
 		{
 			return new RPCClient(CredentialString, Address, Network)
 			{
@@ -521,7 +521,7 @@ namespace NBitcoin.RPC
 				_HttpClient = _HttpClient
 			};
 		}
-		public RPCClient Clone()
+		public virtual RPCClient Clone()
 		{
 			return new RPCClient(CredentialString, Address, Network)
 			{
@@ -984,7 +984,7 @@ namespace NBitcoin.RPC
 			return (await httpResponse.Content?.ReadAsStringAsync())?.Equals("Work queue depth exceeded", StringComparison.Ordinal) is true;
 		}
 
-		private HttpRequestMessage CreateWebRequest(string json)
+		protected virtual HttpRequestMessage CreateWebRequest(string json)
 		{
 			var address = Address.AbsoluteUri;
 			if (!string.IsNullOrEmpty(CredentialString.WalletName))
