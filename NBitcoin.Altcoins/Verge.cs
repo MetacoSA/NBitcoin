@@ -241,9 +241,9 @@ namespace NBitcoin.Altcoins
 				MajorityEnforceBlockUpgrade = 1500,
 				MajorityRejectBlockOutdated = 1900,
 				MajorityWindow = 200,
-				PowLimit = new Target(new uint256("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
-				PowTargetTimespan = TimeSpan.FromSeconds(4 * 60 * 60),
-				PowTargetSpacing = TimeSpan.FromSeconds(60),
+				PowLimit = new Target(new uint256("00000fffff000000000000000000000000000000000000000000000000000000")),
+				PowTargetTimespan = TimeSpan.FromSeconds(30),
+				PowTargetSpacing = TimeSpan.FromSeconds(30),
 				PowAllowMinDifficultyBlocks = false,
 				CoinbaseMaturity = 30,
 				//  Not set in reference client, assuming false
@@ -289,10 +289,10 @@ namespace NBitcoin.Altcoins
 				MajorityEnforceBlockUpgrade = 501,
 				MajorityRejectBlockOutdated = 750,
 				MajorityWindow = 1000,
-				PowLimit = new Target(new uint256("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
+				PowLimit = new Target(new uint256("00000fffff000000000000000000000000000000000000000000000000000000")),
 				// pre-post-digishield https://github.com/dogecoin/dogecoin/blob/10a5e93a055ab5f239c5447a5fe05283af09e293/src/chainparams.cpp#L45
-				PowTargetTimespan = TimeSpan.FromSeconds(60),
-				PowTargetSpacing = TimeSpan.FromSeconds(60),
+				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
+				PowTargetSpacing = TimeSpan.FromSeconds(45),
 				PowAllowMinDifficultyBlocks = true,
 				CoinbaseMaturity = 240,
 				//  Not set in reference client, assuming false
