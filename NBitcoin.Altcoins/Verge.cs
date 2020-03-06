@@ -237,10 +237,10 @@ namespace NBitcoin.Altcoins
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
 			{
-				SubsidyHalvingInterval = 100000,
+				SubsidyHalvingInterval = 500000,
 				MajorityEnforceBlockUpgrade = 1500,
 				MajorityRejectBlockOutdated = 1900,
-				MajorityWindow = 2000,
+				MajorityWindow = 200,
 				PowLimit = new Target(new uint256("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				PowTargetTimespan = TimeSpan.FromSeconds(4 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(60),
@@ -285,7 +285,7 @@ namespace NBitcoin.Altcoins
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
 			{
-				SubsidyHalvingInterval = 100000,
+				SubsidyHalvingInterval = 210000,
 				MajorityEnforceBlockUpgrade = 501,
 				MajorityRejectBlockOutdated = 750,
 				MajorityWindow = 1000,
@@ -303,16 +303,16 @@ namespace NBitcoin.Altcoins
 				ConsensusFactory = VergeConsensusFactory.Instance,
 				SupportSegwit = false
 			})
-			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 113 })
-			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
-			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 241 })
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 115 })
+			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 198 })
+			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 243 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("vt"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("vt"))
-			.SetMagic(0xdcb7c1fc)
-			.SetPort(44556)
-			.SetRPCPort(22555)
+			.SetMagic(0xcdf2c0ef)
+			.SetPort(21104)
+			.SetRPCPort(21102)
 		   .SetName("verge-test")
 		   .AddAlias("verge-testnet")
 		   .AddAlias("verge-test")
@@ -334,7 +334,7 @@ namespace NBitcoin.Altcoins
 				SubsidyHalvingInterval = 150,
 				MajorityEnforceBlockUpgrade = 750,
 				MajorityRejectBlockOutdated = 950,
-				MajorityWindow = 1000,
+				MajorityWindow = 144,
 				PowLimit = new Target(new uint256("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				PowTargetTimespan = TimeSpan.FromSeconds(4 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(60),
@@ -348,15 +348,15 @@ namespace NBitcoin.Altcoins
 				ConsensusFactory = VergeConsensusFactory.Instance,
 				SupportSegwit = false
 			})
-			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 113 })
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
-			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 241 })
+			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("vgrt"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("vgrt "))
-			.SetMagic(0xdab5bffa)
-			.SetPort(18444)
+			.SetMagic(0xfabfb5da)
+			.SetPort(31102)
 			.SetRPCPort(44555) // by default this is assigned dynamically, adding port I got for testing
 			.SetName("verge-reg")
 			.AddAlias("verge-regtest")
