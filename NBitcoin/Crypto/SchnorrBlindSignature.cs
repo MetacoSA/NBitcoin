@@ -16,7 +16,7 @@ namespace NBitcoin.Crypto
 		internal Secp256k1.Scalar C { get; }
 		internal Secp256k1.Scalar S { get; }
 
-		internal UnblindedSignature(in Secp256k1.Scalar c, in Secp256k1.Scalar s)
+		public UnblindedSignature(in Secp256k1.Scalar c, in Secp256k1.Scalar s)
 		{
 			C = c;
 			S = s;
