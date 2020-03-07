@@ -483,7 +483,7 @@ namespace NBitcoin.Tests
 		{
 			public NodeDownloadData v0_12_2 = new NodeDownloadData()
 			{
-				Version = "0.12.2.4",
+				Version = "0.12.2.5",
 				Windows = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://terracoin.io/bin/terracoin-core-{0}/terracoin-0.12.2-win64.zip",
