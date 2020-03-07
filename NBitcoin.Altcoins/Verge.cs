@@ -1,5 +1,6 @@
 using NBitcoin;
 using NBitcoin.DataEncoders;
+using System.Reflection;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
 using System;
@@ -7,7 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace NBitcoin.Altcoins
 {
@@ -42,9 +42,9 @@ namespace NBitcoin.Altcoins
 			private VergeConsensusFactory()
 			{
 			}
-
+			
 			public static VergeConsensusFactory Instance { get; } = new VergeConsensusFactory();
-
+			
 			public override BlockHeader CreateBlockHeader()
 			{
 				return new VergeBlockHeader();
@@ -54,117 +54,14 @@ namespace NBitcoin.Altcoins
 				return new VergeBlock(new VergeBlockHeader());
 			}
 		}
-
-#pragma warning disable CS0618 // Type or member is obsolete
-		public class AuxPow : IBitcoinSerializable
+		
+		public class VergeBlockHeader : BlockHeader
 		{
-			Transaction tx = new Transaction();
-
-			public Transaction Transactions
+			public override uint256 GetPoWHash()
 			{
-				get
-				{
-					return tx;
-				}
-				set
-				{
-					tx = value;
-				}
-			}
-
-			uint nIndex = 0;
-
-			public uint Index
-			{
-				get
-				{
-					return nIndex;
-				}
-				set
-				{
-					nIndex = value;
-				}
-			}
-
-			uint256 hashBlock = new uint256();
-
-			public uint256 HashBlock
-			{
-				get
-				{
-					return hashBlock;
-				}
-				set
-				{
-					hashBlock = value;
-				}
-			}
-
-			List<uint256> vMerkelBranch = new List<uint256>();
-
-			public List<uint256> MerkelBranch
-			{
-				get
-				{
-					return vMerkelBranch;
-				}
-				set
-				{
-					vMerkelBranch = value;
-				}
-			}
-
-			List<uint256> vChainMerkleBranch = new List<uint256>();
-
-			public List<uint256> ChainMerkleBranch
-			{
-				get
-				{
-					return vChainMerkleBranch;
-				}
-				set
-				{
-					vChainMerkleBranch = value;
-				}
-			}
-
-			uint nChainIndex = 0;
-
-			public uint ChainIndex
-			{
-				get
-				{
-					return nChainIndex;
-				}
-				set
-				{
-					nChainIndex = value;
-				}
-			}
-
-			BlockHeader parentBlock = new BlockHeader();
-
-			public BlockHeader ParentBlock
-			{
-				get
-				{
-					return parentBlock;
-				}
-				set
-				{
-					parentBlock = value;
-				}
-			}
-
-			public void ReadWrite(BitcoinStream stream)
-			{
-				stream.ReadWrite(ref tx);
-				stream.ReadWrite(ref hashBlock);
-				stream.ReadWrite(ref vMerkelBranch);
-				stream.ReadWrite(ref nIndex);
-				stream.ReadWrite(ref vChainMerkleBranch);
-				stream.ReadWrite(ref nChainIndex);
-				stream.ReadWrite(ref parentBlock);
+				var headerBytes = this.ToBytes();
+				var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
+				return new uint256(h);
 			}
 		}
 
@@ -180,23 +77,6 @@ namespace NBitcoin.Altcoins
 				return VergeConsensusFactory.Instance;
 			}
 		}
-		public class VergeBlockHeader : BlockHeader
-		{
-			const int VERSION_AUXPOW = (1 << 8);
-
-			AuxPow auxPow = new AuxPow();
-
-			public AuxPow AuxPow
-			{
-				get
-				{
-					return auxPow;
-				}
-				set
-				{
-					auxPow = value;
-				}
-			}
 
 			public override uint256 GetPoWHash()
 			{
@@ -219,17 +99,9 @@ namespace NBitcoin.Altcoins
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
 
-		//Format visual studio
-		//{({.*?}), (.*?)}
-		//Tuple.Create(new byte[]$1, $2)
-		//static Tuple<byte[], int>[] pnSeed6_main = null;
-		//static Tuple<byte[], int>[] pnSeed6_test = null;		
-
-		static uint256 GetPoWHash(BlockHeader header)
+		protected override void PostInit()
 		{
-			var headerBytes = header.ToBytes();
-			var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
-			return new uint256(h);
+			RegisterDefaultCookiePath("Verge", new FolderName() { TestnetFolder = "testnet3" });
 		}
 
 		protected override NetworkBuilder CreateMainnet()
@@ -245,7 +117,7 @@ namespace NBitcoin.Altcoins
 				PowTargetTimespan = TimeSpan.FromSeconds(30),
 				PowTargetSpacing = TimeSpan.FromSeconds(30),
 				PowAllowMinDifficultyBlocks = false,
-				CoinbaseMaturity = 30,
+				CoinbaseMaturity = 120,
 				//  Not set in reference client, assuming false
 				PowNoRetargeting = false,
 				//RuleChangeActivationThreshold = 6048,
