@@ -247,6 +247,35 @@ namespace NBitcoin.Tests
 			return key;
 		}
 #endif
+
+#if HAS_SPAN
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanParseUnblindedSignature()
+		{
+			var requester = new SchnorrBlinding.Requester();
+			var r = new Key(Encoders.Hex.DecodeData("31E151628AED2A6ABF7155809CF4F3C762E7160F38B4DA56B784D9045190CFA0"));
+			var key = new Key(Encoders.Hex.DecodeData("B7E151628AED2A6ABF7158809CF4F3C762E7160F38B4DA56A784D9045190CFEF"));
+			var signer = new SchnorrBlinding.Signer(key, r);
+
+			var message = new uint256(Encoders.Hex.DecodeData("243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89"));
+			var blindedMessage = requester.BlindMessage(message, r.PubKey, key.PubKey);
+			var blindSignature = signer.Sign(blindedMessage);
+			var unblindedSignature = requester.UnblindSignature(blindSignature);
+
+			var str = unblindedSignature.ToString();
+			Assert.True(UnblindedSignature.TryParse(str, out var unblindedSignature2));
+			Assert.Equal(unblindedSignature.C, unblindedSignature2.C);
+			Assert.Equal(unblindedSignature.S, unblindedSignature2.S);
+			str += "o";
+			Assert.False(UnblindedSignature.TryParse(str, out _));
+			Assert.Throws<FormatException>(() => UnblindedSignature.Parse(str));
+			byte[] overflow = new byte[64];
+			overflow.AsSpan().Fill(255);
+			Assert.False(UnblindedSignature.TryParse(overflow, out _));
+			Assert.Throws<FormatException>(() => UnblindedSignature.Parse(overflow));
+		}
+#endif
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void BlindingSignature()
