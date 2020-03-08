@@ -58,9 +58,11 @@ namespace NBitcoin
 
 		public Target(BigInteger target)
 		{
+			// signed (can be with either endian)
 			var bytes = target.ToByteArray();
 			var exp = bytes.Length;
-
+			if (exp < 3 || exp > 255)
+				throw new ArgumentOutOfRangeException(paramName:nameof(target), message: "target is too low or too high");
 			var value = (uint)target.ShiftRight(8 * (exp - 3)).LongValue;
 			_Target = (uint)exp << 24 | value & 0x00ffffff;
 			if ((value & 0x00ffffff) == 0)
@@ -184,14 +186,13 @@ namespace NBitcoin
 
 		internal static uint256 ToUInt256(BigInteger input)
 		{
-			var array = input.ToByteArray();
-
-			var missingZero = 32 - array.Length;
-			if (missingZero < 0)
-				throw new InvalidOperationException("Awful bug, this should never happen");
-			if (missingZero != 0)
+			// Big endian
+			var array = input.ToByteArrayUnsigned();
+			if (array.Length != 32)
 			{
-				array = new byte[missingZero].Concat(array).ToArray();
+				var newArray = new byte[32];
+				array.CopyTo(newArray, 32 - array.Length);
+				array = newArray;
 			}
 			return new uint256(array, false);
 		}
