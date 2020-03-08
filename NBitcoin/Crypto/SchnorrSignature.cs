@@ -15,37 +15,69 @@ namespace NBitcoin.Crypto
 {
 	public class SchnorrSignature
 	{
+#if HAS_SPAN
+		internal Secp256k1.SecpSchnorrSignature secpShnorr;
+#else
 		public BigInteger R { get; }
 		public BigInteger S { get; }
-
+#endif
 		public static SchnorrSignature Parse(string hex)
 		{
 			var bytes = Encoders.Hex.DecodeData(hex);
 			return new SchnorrSignature(bytes);
 		}
+#if HAS_SPAN
+		public static bool TryParse(ReadOnlySpan<byte> in64, out SchnorrSignature sig)
+		{
+			sig = null;
+			if (in64.Length != 64)
+				return false;
+			if (!Secp256k1.SecpSchnorrSignature.TryCreate(in64, out var secpShnorr) || secpShnorr is null)
+				return false;
+			sig = new SchnorrSignature(secpShnorr);
+			return true;
+		}
+#endif
 
 		public SchnorrSignature(byte[] bytes)
 		{
 			if (bytes.Length != 64)
-				throw new ArgumentException("Invalid schnorr signature length.");
-
+				throw new ArgumentException(paramName: nameof(bytes), message:"Invalid schnorr signature length.");
+#if HAS_SPAN
+			if (!Secp256k1.SecpSchnorrSignature.TryCreate(bytes, out secpShnorr) || secpShnorr is null)
+				throw new ArgumentException(paramName: nameof(bytes), message: "Invalid schnorr signature.");
+#else
 			R = new BigInteger(1, bytes, 0, 32);
 			S = new BigInteger(1, bytes, 32, 32);
+#endif
 		}
 
+#if HAS_SPAN
+		internal SchnorrSignature(Secp256k1.SecpSchnorrSignature secpShnorr)
+		{
+			this.secpShnorr = secpShnorr;
+		}
+		public byte[] ToBytes()
+		{
+			var buf = new byte[64];
+			this.secpShnorr.WriteToSpan(buf);
+			return buf;
+		}
+#else
 		public SchnorrSignature(BigInteger r, BigInteger s)
 		{
 			R = r;
 			S = s;
 		}
-
 		public byte[] ToBytes()
 		{
 			return Utils.BigIntegerToBytes(R, 32).Concat(Utils.BigIntegerToBytes(S, 32));
 		}
+#endif
 	}
 
-	public class SchnorrSigner
+#if !HAS_SPAN
+	class SchnorrSigner
 	{
 		private static X9ECParameters Secp256k1 = NBitcoin.BouncyCastle.Crypto.EC.CustomNamedCurves.Secp256k1;
 		private static BigInteger PP = ((SecP256K1Curve)Secp256k1.Curve).QQ;
@@ -57,7 +89,7 @@ namespace NBitcoin.Crypto
 
 		public SchnorrSignature Sign(uint256 m, BigInteger secret)
 		{
-			var k = new BigInteger(1, Hashes.SHA256(Utils.BigIntegerToBytes(secret, 32).Concat(m.ToBytes(false))));
+			var k = new BigInteger(1, Hashes.SHA256(Utils.BigIntegerToBytes(secret, 32).Concat(m.ToBytes())));
 			var R = Secp256k1.G.Multiply(k).Normalize();
 			var Xr = R.XCoord.ToBigInteger();
 			var Yr = R.YCoord.ToBigInteger();
@@ -65,7 +97,7 @@ namespace NBitcoin.Crypto
 				k = Secp256k1.N.Subtract(k);
 
 			var P = Secp256k1.G.Multiply(secret);
-			var keyPrefixedM = Utils.BigIntegerToBytes(Xr, 32).Concat(P.GetEncoded(true), m.ToBytes(false));
+			var keyPrefixedM = Utils.BigIntegerToBytes(Xr, 32).Concat(P.GetEncoded(true), m.ToBytes());
 			var e = new BigInteger(1, Hashes.SHA256(keyPrefixedM));
 
 			var s = k.Add(e.Multiply(secret)).Mod(Secp256k1.N);
@@ -76,8 +108,7 @@ namespace NBitcoin.Crypto
 		{
 			if (sig.R.CompareTo(PP) >= 0 || sig.S.CompareTo(Secp256k1.N) >= 0)
 				return false;
-
-			var e = new BigInteger(1, Hashes.SHA256(Utils.BigIntegerToBytes(sig.R, 32).Concat(pubkey.ToBytes(), m.ToBytes(false)))).Mod(Secp256k1.N);
+			var e = new BigInteger(1, Hashes.SHA256(Utils.BigIntegerToBytes(sig.R, 32).Concat(pubkey.ToBytes(), m.ToBytes()))).Mod(Secp256k1.N);
 			var q = pubkey.ECKey.GetPublicKeyParameters().Q.Normalize();
 			var P = Secp256k1.Curve.CreatePoint(q.XCoord.ToBigInteger(), q.YCoord.ToBigInteger());
 
@@ -97,7 +128,6 @@ namespace NBitcoin.Crypto
 				throw new ArgumentException("Invalid array lengths");
 			if (rnds.Any(r => r.CompareTo(BigInteger.Zero) <= 0 || r.CompareTo(Secp256k1.N) >= 0))
 				throw new ArgumentException("Random numbers are out of range");
-
 			var s = BigInteger.Zero;
 			var r1 = Secp256k1.Curve.Infinity;
 			var r2 = Secp256k1.Curve.Infinity;
@@ -107,7 +137,7 @@ namespace NBitcoin.Crypto
 				if (sig.R.CompareTo(PP) >= 0 || sig.S.CompareTo(Secp256k1.N) >= 0)
 					return false;
 
-				var e = new BigInteger(1, Hashes.SHA256(Utils.BigIntegerToBytes(sig.R, 32).Concat(pubkeys[i].ToBytes(), m[i].ToBytes(false)))).Mod(Secp256k1.N);
+				var e = new BigInteger(1, Hashes.SHA256(Utils.BigIntegerToBytes(sig.R, 32).Concat(pubkeys[i].ToBytes(), m[i].ToBytes()))).Mod(Secp256k1.N);
 				var c = sig.R.Pow(3).Add(BigInteger.ValueOf(7)).Mod(PP);
 				var y = c.ModPow(PP.Add(BigInteger.One).Divide(BigInteger.ValueOf(4)), PP);
 				if (!y.ModPow(BigInteger.Two, PP).Equals(c))
@@ -125,4 +155,5 @@ namespace NBitcoin.Crypto
 			return Secp256k1.G.Multiply(s).Equals(r1.Add(r2));
 		}
 	}
+#endif
 }

@@ -23,7 +23,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-#if !WINDOWS_UWP && !USEBC
+#if !NO_NATIVE_HMACSHA512 || NETSTANDARD13
 using System.Security.Cryptography;
 #endif
 
@@ -56,7 +56,7 @@ namespace NBitcoin.Crypto
 		#region PBKDF2
 		byte[] _saltBuffer, _digest, _digestT1;
 
-#if USEBC || WINDOWS_UWP || NETSTANDARD1X
+#if NO_NATIVE_HMACSHA512
 		IMac _hmacAlgorithm;
 #else
 		KeyedHashAlgorithm _hmacAlgorithm;
@@ -74,7 +74,7 @@ namespace NBitcoin.Crypto
 		///     A unique salt means a unique PBKDF2 stream, even if the original key is identical.
 		/// </param>
 		/// <param name="iterations">The number of iterations to apply.</param>
-#if USEBC || WINDOWS_UWP || NETSTANDARD1X
+#if NO_NATIVE_HMACSHA512
 		internal Pbkdf2(IMac hmacAlgorithm, byte[] salt, int iterations)
 		{
 			NBitcoin.Crypto.Internal.Check.Null("hmacAlgorithm", hmacAlgorithm);
@@ -141,7 +141,7 @@ namespace NBitcoin.Crypto
 		/// <param name="iterations">The number of iterations to apply.</param>
 		/// <param name="derivedKeyLength">The desired length of the derived key.</param>
 		/// <returns>The derived key.</returns>
-#if USEBC || WINDOWS_UWP || NETSTANDARD1X
+#if NO_NATIVE_HMACSHA512
 		internal static byte[] ComputeDerivedKey(IMac hmacAlgorithm, byte[] salt, int iterations,
 											   int derivedKeyLength)
 		{
@@ -169,7 +169,7 @@ namespace NBitcoin.Crypto
 		/// <summary>
 		/// Closes the stream, clearing memory and disposing of the HMAC algorithm.
 		/// </summary>
-#if USEBC || WINDOWS_UWP || NETSTANDARD1X
+#if NO_NATIVE_HMACSHA512 || NETSTANDARD13
 		protected override void Dispose(bool disposing)
 		{
 			Security.Clear(_saltBuffer);
@@ -191,10 +191,10 @@ namespace NBitcoin.Crypto
 
 		private void DisposeHmac()
 		{
-#if USEBC || WINDOWS_UWP || NETSTANDARD1X
+#if NO_NATIVE_HMACSHA512
 			_hmacAlgorithm.Reset();
 #else
-			_hmacAlgorithm.Clear();
+			_hmacAlgorithm.Dispose();
 #endif
 		}
 
@@ -216,13 +216,20 @@ namespace NBitcoin.Crypto
 			NBitcoin.Crypto.Internal.Security.Clear(_digestT1);
 		}
 
-#if USEBC || WINDOWS_UWP || NETSTANDARD1X
+#if NO_NATIVE_HMACSHA512
 		void ComputeHmac(byte[] input, byte[] output)
 		{
 			var hash = new byte[_hmacAlgorithm.GetMacSize()];
 			_hmacAlgorithm.BlockUpdate(input, 0, input.Length);
 			_hmacAlgorithm.DoFinal(hash, 0);
 			Array.Copy(hash, output, output.Length);
+		}
+#elif NETSTANDARD13
+		void ComputeHmac(byte[] input, byte[] output)
+		{
+			_hmacAlgorithm.Initialize();
+			var hash = _hmacAlgorithm.ComputeHash(input);
+			Array.Copy(hash, output, hash.Length);
 		}
 #else
 		void ComputeHmac(byte[] input, byte[] output)

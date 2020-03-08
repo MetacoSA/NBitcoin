@@ -1,4 +1,5 @@
-﻿using NBitcoin.BouncyCastle.Asn1.X9;
+﻿#if !HAS_SPAN
+using NBitcoin.BouncyCastle.Asn1.X9;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Crypto.Signers;
 using NBitcoin.BouncyCastle.Math;
@@ -89,7 +90,6 @@ namespace NBitcoin.Crypto
 			return signer.VerifySignature(hash.ToBytes(), sig.R, sig.S);
 		}
 
-
 		public PubKey GetPubKey(bool isCompressed)
 		{
 			var q = GetPublicKeyParameters().Q;
@@ -111,7 +111,6 @@ namespace NBitcoin.Crypto
 				return new ECPublicKeyParameters("EC", q, DomainParameter);
 			}
 		}
-
 
 		public static ECKey RecoverFromSignature(int recId, ECDSASignature sig, uint256 message, bool compressed)
 		{
@@ -181,7 +180,6 @@ namespace NBitcoin.Crypto
 			}
 			return new ECKey(q.GetEncoded(), false);
 		}
-
 		private static ECPoint DecompressKey(NBitcoin.BouncyCastle.Math.BigInteger xBN, bool yBit)
 		{
 			var curve = ECKey.Secp256k1.Curve;
@@ -192,3 +190,23 @@ namespace NBitcoin.Crypto
 
 	}
 }
+#else
+namespace NBitcoin.Crypto
+{
+	internal class ECKey
+	{
+		public static readonly BouncyCastle.Asn1.X9.X9ECParameters _Secp256k1;
+		public static BouncyCastle.Asn1.X9.X9ECParameters Secp256k1
+		{
+			get
+			{
+				return _Secp256k1;
+			}
+		}
+		static ECKey()
+		{
+			_Secp256k1 = NBitcoin.BouncyCastle.Crypto.EC.CustomNamedCurves.Secp256k1;
+		}
+	}
+}
+#endif

@@ -917,8 +917,8 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 			}
 
 			ulong x_3 = x[3];
-			ulong zz_5 = zz[5];
-			ulong zz_6 = zz[6];
+			ulong zz_5 = zz[5] + (zz_4 >> 32); zz_4 &= M;
+			ulong zz_6 = zz[6] + (zz_5 >> 32); zz_5 &= M;
 			{
 				zz_3 += x_3 * x_0;
 				w = (uint)zz_3;
@@ -932,8 +932,8 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 			}
 
 			ulong x_4 = x[4];
-			ulong zz_7 = zz[7];
-			ulong zz_8 = zz[8];
+			ulong zz_7 = zz[7] + (zz_6 >> 32); zz_6 &= M;
+			ulong zz_8 = zz[8] + (zz_7 >> 32); zz_7 &= M;
 			{
 				zz_4 += x_4 * x_0;
 				w = (uint)zz_4;
@@ -949,8 +949,8 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 			}
 
 			ulong x_5 = x[5];
-			ulong zz_9 = zz[9];
-			ulong zz_10 = zz[10];
+			ulong zz_9 = zz[9] + (zz_8 >> 32); zz_8 &= M;
+			ulong zz_10 = zz[10] + (zz_9 >> 32); zz_9 &= M;
 			{
 				zz_5 += x_5 * x_0;
 				w = (uint)zz_5;
@@ -968,8 +968,8 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 			}
 
 			ulong x_6 = x[6];
-			ulong zz_11 = zz[11];
-			ulong zz_12 = zz[12];
+			ulong zz_11 = zz[11] + (zz_10 >> 32); zz_10 &= M;
+			ulong zz_12 = zz[12] + (zz_11 >> 32); zz_11 &= M;
 			{
 				zz_6 += x_6 * x_0;
 				w = (uint)zz_6;
@@ -989,8 +989,8 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 			}
 
 			ulong x_7 = x[7];
-			ulong zz_13 = zz[13];
-			ulong zz_14 = zz[14];
+			ulong zz_13 = zz[13] + (zz_12 >> 32); zz_12 &= M;
+			ulong zz_14 = zz[14] + (zz_13 >> 32); zz_13 &= M;
 			{
 				zz_7 += x_7 * x_0;
 				w = (uint)zz_7;

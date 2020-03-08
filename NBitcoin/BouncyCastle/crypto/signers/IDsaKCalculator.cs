@@ -1,4 +1,5 @@
-﻿using NBitcoin.BouncyCastle.Math;
+﻿#if !HAS_SPAN
+using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Security;
 
 namespace NBitcoin.BouncyCastle.Crypto.Signers
@@ -43,3 +44,4 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
 		BigInteger NextK();
 	}
 }
+#endif

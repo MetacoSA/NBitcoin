@@ -1,4 +1,5 @@
-﻿using NBitcoin.BouncyCastle.Crypto;
+﻿#if !HAS_SPAN
+using NBitcoin.BouncyCastle.Crypto;
 using NBitcoin.BouncyCastle.Crypto.Digests;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Crypto.Signers;
@@ -80,3 +81,4 @@ namespace NBitcoin.Crypto
 		}
 	}
 }
+#endif
