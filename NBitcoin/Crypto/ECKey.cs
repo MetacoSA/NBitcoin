@@ -190,23 +190,4 @@ namespace NBitcoin.Crypto
 
 	}
 }
-#else
-namespace NBitcoin.Crypto
-{
-	internal class ECKey
-	{
-		public static readonly BouncyCastle.Asn1.X9.X9ECParameters _Secp256k1;
-		public static BouncyCastle.Asn1.X9.X9ECParameters Secp256k1
-		{
-			get
-			{
-				return _Secp256k1;
-			}
-		}
-		static ECKey()
-		{
-			_Secp256k1 = NBitcoin.BouncyCastle.Crypto.EC.CustomNamedCurves.Secp256k1;
-		}
-	}
-}
 #endif

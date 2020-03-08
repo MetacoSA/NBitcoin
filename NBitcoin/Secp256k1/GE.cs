@@ -218,6 +218,40 @@ namespace NBitcoin.Secp256k1
 			ry = ry.Negate(1);
 			return new GE(x, ry, infinity);
 		}
+		public static bool TryParse(ReadOnlySpan<byte> pub, out GE elem)
+		{
+			return TryParse(pub, out _, out elem);
+		}
+		public static bool TryParse(ReadOnlySpan<byte> pub, out bool compressed, out GE elem)
+		{
+			compressed = false;
+			elem = default;
+			if (pub.Length == 33 && (pub[0] == SECP256K1_TAG_PUBKEY_EVEN || pub[0] == SECP256K1_TAG_PUBKEY_ODD))
+			{
+				compressed = true;
+				return
+					FE.TryCreate(pub.Slice(1), out var x) &&
+					GE.TryCreateXOVariable(x, pub[0] == SECP256K1_TAG_PUBKEY_ODD, out elem);
+			}
+			else if (pub.Length == 65 && (pub[0] == SECP256K1_TAG_PUBKEY_UNCOMPRESSED || pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_EVEN || pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_ODD))
+			{
+				if (!FE.TryCreate(pub.Slice(1), out var x) || !FE.TryCreate(pub.Slice(33), out var y))
+				{
+					return false;
+				}
+				elem = new GE(x, y);
+				if ((pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_EVEN || pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_ODD) &&
+					y.IsOdd != (pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_ODD))
+				{
+					return false;
+				}
+				return elem.IsValidVariable;
+			}
+			else
+			{
+				return false;
+			}
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public readonly GEJ ToGroupElementJacobian()

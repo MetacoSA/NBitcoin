@@ -2449,7 +2449,7 @@ namespace NBitcoin.Tests
 				ss = new Scalar(1);
 				msg = new Scalar(0);
 				sr = new Scalar(0);
-				Assert.True(EC.Pubkey_parse(pubkey_mods_zero, out key));
+				Assert.True(GE.TryParse(pubkey_mods_zero, out key));
 				Assert.False(ECPubKey.secp256k1_ecdsa_sig_verify(ctx.EcMultContext, sr, ss, key, msg));
 			}
 
@@ -2468,7 +2468,7 @@ namespace NBitcoin.Tests
 				ss = new Scalar(0);
 				msg = new Scalar(0);
 				sr = new Scalar(1);
-				Assert.True(EC.Pubkey_parse(pubkey, out key));
+				Assert.True(GE.TryParse(pubkey, out key));
 				Assert.False(ECPubKey.secp256k1_ecdsa_sig_verify(ctx.EcMultContext, sr, ss, key, msg));
 			}
 
@@ -2495,8 +2495,8 @@ namespace NBitcoin.Tests
 				ss = new Scalar(2);
 				msg = new Scalar(0);
 				sr = new Scalar(2);
-				Assert.True(EC.Pubkey_parse(pubkey, out key));
-				Assert.True(EC.Pubkey_parse(pubkey2, out key2));
+				Assert.True(GE.TryParse(pubkey, out key));
+				Assert.True(GE.TryParse(pubkey2, out key2));
 				Assert.True(ECPubKey.secp256k1_ecdsa_sig_verify(ctx.EcMultContext, sr, ss, key, msg));
 				Assert.True(ECPubKey.secp256k1_ecdsa_sig_verify(ctx.EcMultContext, sr, ss, key2, msg));
 				ss = ss.Negate();
@@ -2536,8 +2536,8 @@ namespace NBitcoin.Tests
 				ss = new Scalar(1);
 				msg = new Scalar(1);
 				sr = new Scalar(csr, out _);
-				Assert.True(EC.Pubkey_parse(pubkey, out key));
-				Assert.True(EC.Pubkey_parse(pubkey2, out key2));
+				Assert.True(GE.TryParse(pubkey, out key));
+				Assert.True(GE.TryParse(pubkey2, out key2));
 				Assert.True(ECPubKey.secp256k1_ecdsa_sig_verify(ctx.EcMultContext, sr, ss, key, msg));
 				Assert.True(ECPubKey.secp256k1_ecdsa_sig_verify(ctx.EcMultContext, sr, ss, key2, msg));
 				ss = ss.Negate();
@@ -2571,7 +2571,7 @@ namespace NBitcoin.Tests
 				msg = new Scalar(1);
 				msg = msg.Negate();
 				sr = new Scalar(csr, out _);
-				Assert.True(EC.Pubkey_parse(pubkey, out key));
+				Assert.True(GE.TryParse(pubkey, out key));
 				Assert.True(ECPubKey.secp256k1_ecdsa_sig_verify(ctx.EcMultContext, sr, ss, key, msg));
 				ss = ss.Negate();
 				Assert.True(ECPubKey.secp256k1_ecdsa_sig_verify(ctx.EcMultContext, sr, ss, key, msg));
