@@ -11,43 +11,46 @@ namespace NBitcoin
 	/// </summary>
 	public class Target
 	{
-		static Target _Difficulty1 = new Target(new byte[] { 0x1d, 0x00, 0xff, 0xff });
+		static Target _Difficulty1;
+		static BigInteger _Difficulty1BigInteger;
 		public static Target Difficulty1
 		{
 			get
 			{
+				if (_Difficulty1 == null)
+				{
+					_Difficulty1 = new Target(0x1d00ffff);
+				}
 				return _Difficulty1;
 			}
 		}
 
-		public Target(uint compact)
-			: this(ToBytes(compact))
+		private static BigInteger Difficulty1BigInteger
 		{
-
-		}
-
-		private static byte[] ToBytes(uint bits)
-		{
-			return new byte[]
+			get
 			{
-				(byte)(bits >> 24),
-				(byte)(bits >> 16),
-				(byte)(bits >> 8),
-				(byte)(bits)
-			};
+				if (_Difficulty1BigInteger == null)
+				{
+					_Difficulty1BigInteger = Difficulty1.ToBigInteger();
+				}
+				return _Difficulty1BigInteger;
+			}
+		}
+
+		public Target(uint compact)
+		{
+			_Target = compact;
 		}
 
 
 
-		BigInteger _Target;
+		uint _Target;
 
 		public Target(byte[] compact)
 		{
 			if (compact.Length == 4)
 			{
-				var exp = compact[0];
-				var val = new BigInteger(compact.SafeSubarray(1, 3));
-				_Target = val.ShiftLeft(8 * (exp - 3));
+				_Target = Utils.ToUInt32(compact, false);
 			}
 			else
 				throw new FormatException("Invalid number of bytes");
@@ -55,13 +58,34 @@ namespace NBitcoin
 
 		public Target(BigInteger target)
 		{
-			_Target = target;
-			_Target = new Target(this.ToCompact())._Target;
+			var bytes = target.ToByteArray();
+			var exp = bytes.Length;
+
+			var value = (uint)target.ShiftRight(8 * (exp - 3)).LongValue;
+			_Target = (uint)exp << 24 | value & 0x00ffffff;
+			if ((value & 0x00ffffff) == 0)
+			{
+				_Target = 0x03000000;
+			}
+			else
+			{
+				while ((_Target & 0x000000ff) == 0)
+				{
+					exp++;
+					value = value >> 8;
+					_Target = (uint)exp << 24 | value & 0x00ffffff;
+				}
+			}
 		}
-		public Target(uint256 target)
+		public Target(uint256 target) : this(ToBigInteger(target))
 		{
-			_Target = new BigInteger(target.ToBytes(false));
-			_Target = new Target(this.ToCompact())._Target;
+		}
+
+		private static BigInteger ToBigInteger(uint256 target)
+		{
+			if (target == null)
+				throw new ArgumentNullException(nameof(target));
+			return new BigInteger(1, target.ToBytes(false));
 		}
 
 		public static implicit operator Target(uint a)
@@ -70,18 +94,9 @@ namespace NBitcoin
 		}
 		public static implicit operator uint(Target a)
 		{
-			var bytes = a._Target.ToByteArray();
-			var val = bytes.SafeSubarray(0, Math.Min(bytes.Length, 3));
-			Array.Reverse(val);
-			var exp = (byte)(bytes.Length);
-			if (exp == 1 && bytes[0] == 0)
-				exp = 0;
-			var missing = 4 - val.Length;
-			if (missing > 0)
-				val = val.Concat(new byte[missing]).ToArray();
-			if (missing < 0)
-				val = val.Take(-missing).ToArray();
-			return (uint)val[0] + (uint)(val[1] << 8) + (uint)(val[2] << 16) + (uint)(exp << 24);
+			if (a == null)
+				throw new ArgumentNullException(nameof(a));
+			return a._Target;
 		}
 
 		double? _Difficulty;
@@ -92,7 +107,8 @@ namespace NBitcoin
 			{
 				if (_Difficulty == null)
 				{
-					var qr = Difficulty1._Target.DivideAndRemainder(_Target);
+					var target = this.ToBigInteger();
+					var qr = Difficulty1BigInteger.DivideAndRemainder(target);
 					var quotient = qr[0];
 					var remainder = qr[1];
 					var decimalPart = BigInteger.Zero;
@@ -104,11 +120,11 @@ namespace NBitcoin
 					builder.Append('.');
 					for (int i = 0; i < precision; i++)
 					{
-						var div = (remainder.Multiply(BigInteger.Ten)).Divide(_Target);
+						var div = (remainder.Multiply(BigInteger.Ten)).Divide(target);
 						decimalPart = decimalPart.Multiply(BigInteger.Ten);
 						decimalPart = decimalPart.Add(div);
 
-						remainder = remainder.Multiply(BigInteger.Ten).Subtract(div.Multiply(_Target));
+						remainder = remainder.Multiply(BigInteger.Ten).Subtract(div.Multiply(target));
 					}
 					builder.Append(decimalPart.ToString().PadLeft(precision, '0'));
 					_Difficulty = double.Parse(builder.ToString(), new NumberFormatInfo()
@@ -132,11 +148,11 @@ namespace NBitcoin
 		}
 		public static bool operator ==(Target a, Target b)
 		{
-			if (System.Object.ReferenceEquals(a, b))
-				return true;
-			if (((object)a == null) || ((object)b == null))
-				return false;
-			return a._Target.Equals(b._Target);
+			if (a is Target aa && b is Target bb)
+			{
+				return a._Target == bb._Target;
+			}
+			return a is null && b is null;
 		}
 
 		public static bool operator !=(Target a, Target b)
@@ -151,17 +167,19 @@ namespace NBitcoin
 
 		public BigInteger ToBigInteger()
 		{
-			return _Target;
+			var exp = _Target >> 24;
+			var value = _Target & 0x00FFFFFF;
+			return BigInteger.ValueOf(value).ShiftLeft(8 * ((int)exp - 3));
 		}
 
 		public uint ToCompact()
 		{
-			return (uint)this;
+			return _Target;
 		}
 
 		public uint256 ToUInt256()
 		{
-			return ToUInt256(_Target);
+			return ToUInt256(ToBigInteger());
 		}
 
 		internal static uint256 ToUInt256(BigInteger input)

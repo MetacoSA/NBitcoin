@@ -260,6 +260,8 @@ namespace NBitcoin.Tests
 		//https://en.bitcoin.it/wiki/Difficulty
 		public void CanReadConvertTargetToDifficulty()
 		{
+			var limit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+			Assert.Equal(0x1D00FFFFU, (uint)limit);
 			var packed = new Target(TestUtils.ParseHex("1b0404cb"));
 			var unpacked = new Target(uint256.Parse("00000000000404CB000000000000000000000000000000000000000000000000"));
 
@@ -267,10 +269,11 @@ namespace NBitcoin.Tests
 			Assert.Equal(packed, new Target(0x1b0404cb));
 
 			packed = new Target(TestUtils.ParseHex("1b8404cb"));
-			Assert.True(packed.ToBigInteger().CompareTo(BigInteger.Zero) < 0);
+			Assert.True(packed.ToBigInteger().CompareTo(BigInteger.Zero) > 0);
 			Assert.Equal(packed, new Target(0x1b8404cb));
 
 			packed = new Target(TestUtils.ParseHex("1d00ffff"));
+			Assert.Equal(packed, limit);
 			Assert.Equal(1, packed.Difficulty);
 			Assert.Equal(Target.Difficulty1, packed);
 
