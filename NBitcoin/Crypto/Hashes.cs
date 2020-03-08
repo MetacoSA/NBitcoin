@@ -1,6 +1,8 @@
-﻿using NBitcoin.BouncyCastle.Crypto.Digests;
+﻿#if !NO_BC
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Security;
+#endif
+using NBitcoin.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -89,7 +91,7 @@ namespace NBitcoin.Crypto
 
 		public static byte[] RIPEMD160(byte[] data, int offset, int count)
 		{
-#if NONATIVEHASH || NETCORE || NETSTANDARD
+#if NO_NATIVERIPEMD160
 			RipeMD160Digest ripemd = new RipeMD160Digest();
 			ripemd.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[20];
@@ -101,6 +103,14 @@ namespace NBitcoin.Crypto
 				return ripm.ComputeHash(data, offset, count);
 			}
 #endif
+		}
+		public static byte[] SHA1(byte[] data, int offset, int count)
+		{
+			var sha1 = new Sha1Digest();
+			sha1.BlockUpdate(data, offset, count);
+			byte[] rv = new byte[20];
+			sha1.DoFinal(rv, 0);
+			return rv;
 		}
 
 		#endregion
@@ -614,15 +624,6 @@ namespace NBitcoin.Crypto
 		public static ulong SipHash(ulong k0, ulong k1, uint256 val)
 		{
 			return SipHasher.SipHashUint256(k0, k1, val);
-		}
-
-		public static byte[] SHA1(byte[] data, int offset, int count)
-		{
-			var sha1 = new Sha1Digest();
-			sha1.BlockUpdate(data, offset, count);
-			byte[] rv = new byte[20];
-			sha1.DoFinal(rv, 0);
-			return rv;
 		}
 
 		public static byte[] SHA256(byte[] data)

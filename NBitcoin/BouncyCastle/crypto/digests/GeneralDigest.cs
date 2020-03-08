@@ -9,7 +9,9 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
     * "Handbook of Applied Cryptography", pages 344 - 347.
     */
 	internal abstract class GeneralDigest
+#if !NO_BC
 		: IDigest, IMemoable
+#endif
 	{
 		private const int BYTE_LENGTH = 64;
 
@@ -131,7 +133,9 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 		}
 		public abstract int GetDigestSize();
 		public abstract int DoFinal(byte[] output, int outOff);
+#if !NO_BC
 		public abstract IMemoable Copy();
 		public abstract void Reset(IMemoable t);
+#endif
 	}
 }

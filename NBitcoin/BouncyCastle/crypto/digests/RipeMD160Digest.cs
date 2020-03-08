@@ -590,7 +590,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 				X[i] = 0;
 			}
 		}
-
+#if !NO_BC
 		public override IMemoable Copy()
 		{
 			return new RipeMD160Digest(this);
@@ -602,7 +602,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 
 			CopyIn(d);
 		}
-
+#endif
 	}
 
 }

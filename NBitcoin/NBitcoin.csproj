@@ -38,19 +38,20 @@
 		<DefineConstants>$(DefineConstants);NO_RCA;CLASSICDOTNET;LEGACY_X509;NO_ARRAY_FILL;NO_NATIVE_RFC2898_HMACSHA512</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'netstandard2.0' ">
-		<DefineConstants>$(DefineConstants);NOCUSTOMSSLVALIDATION</DefineConstants>
+		<DefineConstants>$(DefineConstants);NOCUSTOMSSLVALIDATION;NO_NATIVERIPEMD160</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netstandard2.1'">
-		<DefineConstants>$(DefineConstants);NETCORE;HAS_SPAN</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETCORE;HAS_SPAN;NO_BC</DefineConstants>
+    <RemoveBC>true</RemoveBC>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-		<DefineConstants>$(DefineConstants);NETSTANDARD;NO_ARRAY_FILL;NO_NATIVE_RFC2898_HMACSHA512</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETSTANDARD;NO_ARRAY_FILL;NO_NATIVE_RFC2898_HMACSHA512;NO_NATIVERIPEMD160</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH;NO_BEGINCONNECT;NO_ARRAY_FILL;NO_NATIVE_RFC2898_HMACSHA512;NETSTANDARD13</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH;NO_BEGINCONNECT;NO_ARRAY_FILL;NO_NATIVE_RFC2898_HMACSHA512;NETSTANDARD13;NO_NATIVERIPEMD160</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-		<DefineConstants>$(DefineConstants);NO_RCA;NOPARALLEL;NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH;NO_ARRAY_FILL;NO_NATIVE_HMACSHA512;NO_THREAD</DefineConstants>
+		<DefineConstants>$(DefineConstants);NO_RCA;NOPARALLEL;NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH;NO_ARRAY_FILL;NO_NATIVE_HMACSHA512;NO_THREAD;NO_NATIVERIPEMD160</DefineConstants>
 	</PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
 		<DefineConstants>$(DefineConstants);SECP256K1_VERIFY</DefineConstants>
@@ -79,6 +80,16 @@
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All" />
 	</ItemGroup>
 
+  <ItemGroup Condition=" '$(RemoveBC)' == 'true' ">
+    <Compile Remove="BouncyCastle\**\*.cs"></Compile>
+    <Compile Include="BouncyCastle\math\BigInteger.cs"></Compile>
+    <Compile Include="BouncyCastle\util\Arrays.cs"></Compile>
+    <Compile Include="BouncyCastle\util\Platform.cs"></Compile>
+    <Compile Include="BouncyCastle\crypto\digests\RipeMD160Digest.cs"></Compile>
+    <Compile Include="BouncyCastle\crypto\digests\Sha1Digest.cs"></Compile>
+    <Compile Include="BouncyCastle\crypto\digests\GeneralDigest.cs"></Compile>
+		<Compile Include="BouncyCastle\crypto\util\Pack.cs"></Compile>
+  </ItemGroup>
 	<ItemGroup>
     <None Include="..\icon.png" Pack="true" PackagePath="\" />
 		<None Update="BitcoinStream.Partial.tt">

@@ -1,5 +1,4 @@
 using System;
-
 using NBitcoin.BouncyCastle.Crypto.Utilities;
 using NBitcoin.BouncyCastle.Utilities;
 
@@ -270,7 +269,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			xOff = 0;
 			Array.Clear(X, 0, 16);
 		}
-
+#if !NO_BC
 		public override IMemoable Copy()
 		{
 			return new Sha1Digest(this);
@@ -282,6 +281,6 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 
 			CopyIn(d);
 		}
-
+#endif
 	}
 }

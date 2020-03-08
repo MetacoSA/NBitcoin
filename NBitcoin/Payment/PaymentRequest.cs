@@ -657,11 +657,6 @@ namespace NBitcoin.Payment
 				hash = Hashes.SHA256(data);
 				hashName = "sha256";
 			}
-			else if (PKIType == Payment.PKIType.X509SHA1)
-			{
-				hash = Hashes.SHA1(data, 0, data.Length);
-				hashName = "sha1";
-			}
 			else
 				throw new NotSupportedException(PKIType.ToString());
 
