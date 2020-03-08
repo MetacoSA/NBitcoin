@@ -1,6 +1,5 @@
 using NBitcoin;
 using NBitcoin.DataEncoders;
-using System.Reflection;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
 using System;
@@ -78,30 +77,11 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
-			public override uint256 GetPoWHash()
-			{
-				var headerBytes = this.ToBytes();
-				var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
-				return new uint256(h);
-			}
-
-			public override void ReadWrite(BitcoinStream stream)
-			{
-				base.ReadWrite(stream);
-				if((Version & VERSION_AUXPOW) != 0)
-				{
-					if(!stream.Serializing)
-					{
-						stream.ReadWrite(ref auxPow);
-					}
-				}
-			}
-		}
 #pragma warning restore CS0618 // Type or member is obsolete
 
 		protected override void PostInit()
 		{
-			RegisterDefaultCookiePath("Verge", new FolderName() { TestnetFolder = "testnet3" });
+			RegisterDefaultCookiePath("Verge");
 		}
 
 		protected override NetworkBuilder CreateMainnet()
