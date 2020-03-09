@@ -1,3 +1,4 @@
+#if NO_NATIVESHA1
 using System;
 using NBitcoin.BouncyCastle.Crypto.Utilities;
 using NBitcoin.BouncyCastle.Utilities;
@@ -284,3 +285,4 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 #endif
 	}
 }
+#endif
