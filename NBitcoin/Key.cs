@@ -4,7 +4,9 @@ using System;
 using System.Linq;
 using System.Text;
 using NBitcoin.DataEncoders;
-
+#if !HAS_SPAN
+using NBitcoin.BouncyCastle.Math;
+#endif
 namespace NBitcoin
 {
 	public class Key : IDestination, IDisposable, IBitcoinSerializable
