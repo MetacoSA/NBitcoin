@@ -484,13 +484,6 @@ namespace NBitcoin.BouncyCastle.Utilities
 			return tmp;
 		}
 
-		public static BigInteger[] CopyOf(BigInteger[] data, int newLength)
-		{
-			BigInteger[] tmp = new BigInteger[newLength];
-			Array.Copy(data, 0, tmp, 0, System.Math.Min(newLength, data.Length));
-			return tmp;
-		}
-
 		/**
          * Make a copy of a range of bytes from the passed in data array. The range can
          * extend beyond the end of the input array, in which case the return array will
@@ -522,14 +515,6 @@ namespace NBitcoin.BouncyCastle.Utilities
 		{
 			int newLength = GetLength(from, to);
 			long[] tmp = new long[newLength];
-			Array.Copy(data, from, tmp, 0, System.Math.Min(newLength, data.Length - from));
-			return tmp;
-		}
-
-		public static BigInteger[] CopyOfRange(BigInteger[] data, int from, int to)
-		{
-			int newLength = GetLength(from, to);
-			BigInteger[] tmp = new BigInteger[newLength];
 			Array.Copy(data, from, tmp, 0, System.Math.Min(newLength, data.Length - from));
 			return tmp;
 		}

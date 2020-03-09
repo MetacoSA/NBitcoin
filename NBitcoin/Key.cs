@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using NBitcoin.Crypto;
-using NBitcoin.BouncyCastle.Math;
 using System;
 using System.Linq;
 using System.Text;

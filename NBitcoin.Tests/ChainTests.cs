@@ -1,5 +1,4 @@
-﻿using NBitcoin.BouncyCastle.Math;
-using NBitcoin.Protocol;
+﻿using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
 using System.IO;
