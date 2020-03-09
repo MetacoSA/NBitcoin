@@ -57,7 +57,7 @@ namespace NBitcoin.DataEncoders
 
 	public class Base58Encoder : DataEncoder
 	{
-		const string pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+		static readonly char[] pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".ToCharArray();
 		static readonly int[] mapBase58 = new int[]{
 	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
@@ -144,7 +144,11 @@ namespace NBitcoin.DataEncoders
 			str.Slice(0, zeroes).Fill('1');
 #else
 			var str = new char[zeroes + size - it2];
+#if NO_ARRAY_FILL
+			ArrayFill<char>(str, '1', 0, zeroes);
+#else
 			Array.Fill<char>(str, '1', 0, zeroes);
+#endif
 #endif
 			int i2 = zeroes;
 			while (it2 != size)
@@ -152,6 +156,15 @@ namespace NBitcoin.DataEncoders
 			return new string(str);
 		}
 
+#if NO_ARRAY_FILL
+		static void ArrayFill<T>(T[] array, T value, int index, int count)
+		{
+			for (int i = index; i < index + count; i++)
+			{
+				array[i] = value;
+			}
+		}
+#endif
 
 
 		public override byte[] DecodeData(string encoded)
@@ -203,7 +216,11 @@ namespace NBitcoin.DataEncoders
 			var it2 = size - length;
 			// Copy result into output vector.
 			var vch = new byte[zeroes + size - it2];
+#if NO_ARRAY_FILL
+			ArrayFill<byte>(vch, 0, 0, zeroes);
+#else
 			Array.Fill<byte>(vch, 0, 0, zeroes);
+#endif
 			int i2 = zeroes;
 			while (it2 != size)
 				vch[i2++] = (b256[it2++]);
