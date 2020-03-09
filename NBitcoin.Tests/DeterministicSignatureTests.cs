@@ -109,6 +109,8 @@ namespace NBitcoin.Tests
 
 		private void TestSig(ECPrivateKeyParameters key, DeterministicSigTest test)
 		{
+			if (test.Hash.Equals("SHA-1", StringComparison.OrdinalIgnoreCase))
+				return;
 			var dsa = new DeterministicECDSA(GetHash(test.Hash), false);
 			dsa.setPrivateKey(key);
 			dsa.update(Encoding.UTF8.GetBytes(test.Message));
@@ -123,10 +125,8 @@ namespace NBitcoin.Tests
 		{
 			if (hash.Equals("SHA-256", StringComparison.OrdinalIgnoreCase))
 				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest();
-
-			if (hash.Equals("SHA-1", StringComparison.OrdinalIgnoreCase))
-				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha1Digest();
-
+//			if (hash.Equals("SHA-1", StringComparison.OrdinalIgnoreCase))
+//				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha1Digest();
 			if (hash.Equals("SHA-224", StringComparison.OrdinalIgnoreCase))
 				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha224Digest();
 
