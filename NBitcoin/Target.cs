@@ -1,4 +1,8 @@
-﻿using NBitcoin.BouncyCastle.Math;
+﻿#if NO_NATIVE_BIGNUM
+using NBitcoin.BouncyCastle.Math;
+#else
+using System.Numerics;
+#endif
 using System;
 using System.Globalization;
 using System.Linq;
@@ -17,11 +21,17 @@ namespace NBitcoin
 		{
 			get
 			{
-				if (_Difficulty1 == null)
-				{
-					_Difficulty1 = new Target(0x1d00ffff);
-				}
+				InitDifficulty1();
 				return _Difficulty1;
+			}
+		}
+
+		private static void InitDifficulty1()
+		{
+			if (_Difficulty1 == null)
+			{
+				_Difficulty1 = new Target(0x1d00ffff);
+				_Difficulty1BigInteger = Difficulty1.ToBigInteger();
 			}
 		}
 
@@ -29,10 +39,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if (_Difficulty1BigInteger == null)
-				{
-					_Difficulty1BigInteger = Difficulty1.ToBigInteger();
-				}
+				InitDifficulty1();
 				return _Difficulty1BigInteger;
 			}
 		}
@@ -56,38 +63,59 @@ namespace NBitcoin
 				throw new FormatException("Invalid number of bytes");
 		}
 
-		public Target(BigInteger target)
+		public Target(BigInteger target) : this(ToUInt256(target))
 		{
-			// signed (can be with either endian)
-			var bytes = target.ToByteArray();
-			var exp = bytes.Length;
-			if (exp < 3 || exp > 255)
-				throw new ArgumentOutOfRangeException(paramName:nameof(target), message: "target is too low or too high");
-			var value = (uint)target.ShiftRight(8 * (exp - 3)).LongValue;
-			_Target = (uint)exp << 24 | value & 0x00ffffff;
-			if ((value & 0x00ffffff) == 0)
+		}
+		public Target(uint256 target)
+		{
+			int nSize = (target.GetBisCount() + 7) / 8;
+			uint nCompact = 0;
+			if (nSize <= 3)
 			{
-				_Target = 0x03000000;
+				nCompact = (uint)(target.GetLow64() << 8 * (3 - nSize));
 			}
 			else
 			{
-				while ((_Target & 0x000000ff) == 0)
-				{
-					exp++;
-					value = value >> 8;
-					_Target = (uint)exp << 24 | value & 0x00ffffff;
-				}
+				BigInteger bn = ToBigInteger(target) >> 8 * (nSize - 3);
+				nCompact = (uint)(ulong)bn;
 			}
-		}
-		public Target(uint256 target) : this(ToBigInteger(target))
-		{
+			// The 0x00800000 bit denotes the sign.
+			// Thus, if it is already set, divide the mantissa by 256 and increase the exponent.
+			if ((nCompact & 0x00800000) != 0)
+			{
+				nCompact >>= 8;
+				nSize++;
+			}
+			System.Diagnostics.Debug.Assert((nCompact & ~0x007fffff) == 0);
+			System.Diagnostics.Debug.Assert(nSize < 256);
+			nCompact |= (uint)(nSize << 24);
+			//nCompact |= (fNegative && (nCompact & 0x007fffff) ? 0x00800000 : 0);
+			_Target = nCompact;
 		}
 
-		private static BigInteger ToBigInteger(uint256 target)
+		internal static BigInteger ToBigInteger(uint256 target)
 		{
 			if (target == null)
 				throw new ArgumentNullException(nameof(target));
+#if NO_NATIVE_BIGNUM
 			return new BigInteger(1, target.ToBytes(false));
+#else
+#if HAS_SPAN
+			Span<byte> array = stackalloc byte[33];
+			array[32] = 0;
+			target.ToBytes(array, true);
+#else
+			var bytes = target.ToBytes(true);
+			var array = bytes;
+			if ((bytes[31] & 0x80) != 0)
+			{
+				array = new byte[33];
+				array[32] = 0;
+				Array.Copy(bytes, 0, array, 0, 32);
+			}
+#endif
+			return new BigInteger(array);
+#endif
 		}
 
 		public static implicit operator Target(uint a)
@@ -100,9 +128,13 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(a));
 			return a._Target;
 		}
+#if NO_NATIVE_BIGNUM
+		static BigInteger Ten = BigInteger.Ten;
+#else
+		static BigInteger Ten = new BigInteger(10);
+#endif
 
 		double? _Difficulty;
-
 		public double Difficulty
 		{
 			get
@@ -110,9 +142,13 @@ namespace NBitcoin
 				if (_Difficulty == null)
 				{
 					var target = this.ToBigInteger();
+#if NO_NATIVE_BIGNUM
 					var qr = Difficulty1BigInteger.DivideAndRemainder(target);
 					var quotient = qr[0];
 					var remainder = qr[1];
+#else
+					var quotient = BigInteger.DivRem(Difficulty1BigInteger, target, out var remainder);
+#endif
 					var decimalPart = BigInteger.Zero;
 
 					var quotientStr = quotient.ToString();
@@ -122,11 +158,17 @@ namespace NBitcoin
 					builder.Append('.');
 					for (int i = 0; i < precision; i++)
 					{
-						var div = (remainder.Multiply(BigInteger.Ten)).Divide(target);
-						decimalPart = decimalPart.Multiply(BigInteger.Ten);
+#if NO_NATIVE_BIGNUM
+						var div = (remainder.Multiply(Ten)).Divide(target);
+						decimalPart = decimalPart.Multiply(Ten);
 						decimalPart = decimalPart.Add(div);
-
-						remainder = remainder.Multiply(BigInteger.Ten).Subtract(div.Multiply(target));
+						remainder = remainder.Multiply(Ten).Subtract(div.Multiply(target));
+#else
+						var div = (remainder * Ten) / target;
+						decimalPart = decimalPart * Ten;
+						decimalPart = decimalPart + div;
+						remainder = (remainder * Ten) - (div * target);
+#endif
 					}
 					builder.Append(decimalPart.ToString().PadLeft(precision, '0'));
 					_Difficulty = double.Parse(builder.ToString(), new NumberFormatInfo()
@@ -171,7 +213,11 @@ namespace NBitcoin
 		{
 			var exp = _Target >> 24;
 			var value = _Target & 0x00FFFFFF;
+#if NO_NATIVE_BIGNUM
 			return BigInteger.ValueOf(value).ShiftLeft(8 * ((int)exp - 3));
+#else
+			return new BigInteger(value) << (8 * ((int)exp - 3));
+#endif
 		}
 
 		public uint ToCompact()
@@ -186,15 +232,36 @@ namespace NBitcoin
 
 		internal static uint256 ToUInt256(BigInteger input)
 		{
+			if (input.Sign < 1)
+				throw new ArgumentException(paramName: nameof(input), message: "input should not be negative");
 			// Big endian
+#if NO_NATIVE_BIGNUM
 			var array = input.ToByteArrayUnsigned();
-			if (array.Length != 32)
-			{
-				var newArray = new byte[32];
-				array.CopyTo(newArray, 32 - array.Length);
-				array = newArray;
-			}
-			return new uint256(array, false);
+			int len = array.Length;
+			Array.Reverse(array);
+#else
+			// We are little endian + 1 bit sign
+			var array = input.ToByteArray();
+			int len = array.Length;
+			// Strip sign
+			if (array[array.Length - 1] == 0)
+				len--;
+#endif
+			if (len > 32)
+				throw new ArgumentException(paramName: nameof(input), message: "input is too big");
+			if (len == 32)
+				return new uint256(array, 0, len);
+
+#if HAS_SPAN
+			Span<byte> tmp = stackalloc byte[32];
+			tmp.Clear();
+			array.AsSpan().Slice(0, len).CopyTo(tmp);
+#else
+			byte[] tmp = new byte[32];
+			Array.Copy(array, 0, tmp, 0, len);
+#endif
+			return new uint256(tmp);
+
 		}
 
 		public override string ToString()

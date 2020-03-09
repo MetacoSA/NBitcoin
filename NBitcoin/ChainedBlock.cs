@@ -1,4 +1,8 @@
-﻿using NBitcoin.BouncyCastle.Math;
+﻿#if NO_NATIVE_BIGNUM
+using NBitcoin.BouncyCastle.Math;
+#else
+using System.Numerics;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -107,8 +111,12 @@ namespace NBitcoin
 				return header;
 			}
 		}
-
+#if NO_NATIVE_BIGNUM
 		BigInteger _ChainWork;
+#else
+		// Not a nullable because it takes more space than a pointer
+		object _ChainWork;
+#endif
 
 		// Might be computationally intense
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -136,13 +144,14 @@ namespace NBitcoin
 		private BigInteger GetChainWorkValue(bool cacheResult)
 		{
 			var chainWork = _ChainWork;
-			if (chainWork == null)
+			if (chainWork is BigInteger w)
 			{
-				chainWork = CalculateChainWork();
-				if (cacheResult)
-					_ChainWork = chainWork;
+				return w;
 			}
-			return chainWork;
+			var work = CalculateChainWork();
+			if (cacheResult)
+				_ChainWork = work;
+			return work;
 		}
 
 		private BigInteger CalculateChainWork()
@@ -152,21 +161,29 @@ namespace NBitcoin
 			foreach (var header in this.EnumerateToGenesis().Skip(1))
 			{
 				var value = header._ChainWork;
-				if (value == null)
+				if (value is BigInteger v)
 				{
-					previous.Push(header);
+					aggregate = v;
+					break;
 				}
 				else
 				{
-					aggregate = value;
-					break;
+					previous.Push(header);
 				}
 			}
 			while (previous.Count != 0)
 			{
+#if NO_NATIVE_BIGNUM
 				aggregate = aggregate.Add(previous.Pop().GetBlockProof());
+#else
+				aggregate = aggregate + previous.Pop().GetBlockProof();
+#endif
 			}
+#if NO_NATIVE_BIGNUM
 			return aggregate.Add(GetBlockProof());
+#else
+			return aggregate + GetBlockProof();
+#endif
 		}
 
 		public ChainedBlock(BlockHeader header, uint256 headerHash, ChainedBlock previous)
@@ -198,8 +215,11 @@ namespace NBitcoin
 				}
 			}
 		}
-
+#if NO_NATIVE_BIGNUM
 		static BigInteger Pow256 = BigInteger.ValueOf(2).Pow(256);
+#else
+		static BigInteger Pow256 = BigInteger.Pow(new BigInteger(2), 256);
+#endif
 		private BigInteger GetBlockProof()
 		{
 			AssertHasHeader();
@@ -210,7 +230,11 @@ namespace NBitcoin
 			// as it's too large for a arith_uint256. However, as 2**256 is at least as large
 			// as bnTarget+1, it is equal to ((2**256 - bnTarget - 1) / (bnTarget+1)) + 1,
 			// or ~bnTarget / (nTarget+1) + 1.
+#if NO_NATIVE_BIGNUM
 			return ((Pow256.Subtract(bnTarget).Subtract(BigInteger.One)).Divide(bnTarget.Add(BigInteger.One))).Add(BigInteger.One);
+#else
+			return ((Pow256 - bnTarget - 1) / (bnTarget + 1)) + 1;
+#endif
 		}
 
 		public ChainedBlock(BlockHeader header, int height)
@@ -408,8 +432,13 @@ namespace NBitcoin
 
 			// Retarget
 			var bnNew = pindexLast.Header.Bits.ToBigInteger();
+#if NO_NATIVE_BIGNUM
 			bnNew = bnNew.Multiply(BigInteger.ValueOf((long)nActualTimespan.TotalSeconds));
 			bnNew = bnNew.Divide(BigInteger.ValueOf((long)consensus.PowTargetTimespan.TotalSeconds));
+#else
+			bnNew = bnNew * (new BigInteger((long)nActualTimespan.TotalSeconds));
+			bnNew = bnNew / (new BigInteger((long)consensus.PowTargetTimespan.TotalSeconds));
+#endif
 			var newTarget = new Target(bnNew);
 			if (newTarget > nProofOfWorkLimit)
 				newTarget = nProofOfWorkLimit;
