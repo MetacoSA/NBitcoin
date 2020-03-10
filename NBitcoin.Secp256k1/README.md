@@ -45,6 +45,10 @@ You can also just use the `Manage NuGet Package` window on your project in Visua
 
 Go on the [NuGet website](https://www.nuget.org/packages/NBitcoin.Secp256k1/) for more information.
 
+## Where is the code?
+
+[In a folder under NBitcoin's project](../NBitcoin/Secp256k1).
+
 ## Where is the documentation?
 
 If you have to ask the question, please do not use this library.
