@@ -159,6 +159,7 @@ NBitcoin notably includes:
 * Hierarchical Deterministic Wallets ([BIP 32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki))
 * Payment URLs ([BIP 21](https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki))
 * Full Bitcoin P2P implementation with SOCKS5 support for connecting through Tor
+* [A C# implementation of secp256k1](NBitcoin.Secp256k1/README.md)
 
 Please read our [ebook](https://programmingblockchain.gitbooks.io/programmingblockchain/content/) to understand the capabilities.
 

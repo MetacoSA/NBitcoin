@@ -8,6 +8,9 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	static class EC
 	{
 		public static readonly GE G = GE.CONST(

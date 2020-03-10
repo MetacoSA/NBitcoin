@@ -7,6 +7,11 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#else
+	internal
+#endif
 	partial class ECPubKey
 	{
 		public bool SigVerify(SecpSchnorrSignature signature, ReadOnlySpan<byte> msg32)

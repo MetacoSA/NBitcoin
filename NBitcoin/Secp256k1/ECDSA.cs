@@ -6,6 +6,9 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	class ECDSA
 	{
 		static readonly Lazy<ECDSA> _Instance = new Lazy<ECDSA>(CreateInstance, true);

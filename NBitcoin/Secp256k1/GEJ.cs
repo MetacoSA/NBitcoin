@@ -8,12 +8,25 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#else
+	internal
+#endif
 	readonly struct GEJ
 	{
-		internal readonly FE x; /* actual X: x/z^2 */
-		internal readonly FE y;  /* actual Y: y/z^3 */
-		internal readonly FE z;
-		internal readonly bool infinity; /* whether this represents the point at infinity */
+#if SECP256K1_LIB
+		public
+#else
+		internal
+# endif
+		readonly FE x, y, z;
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly bool infinity; /* whether this represents the point at infinity */
 		static readonly GEJ _Infinity = new GEJ(FE.Zero, FE.Zero, FE.Zero, true);
 		public static ref readonly GEJ Infinity => ref _Infinity;
 

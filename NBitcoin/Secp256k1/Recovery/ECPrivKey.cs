@@ -6,6 +6,11 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+
+	
+#if SECP256K1_LIB
+	public
+#endif
 	partial class ECPrivKey
 	{
 		public bool TrySignRecoverable(ReadOnlySpan<byte> msg32, out SecpRecoverableECDSASignature? recoverableSignature)

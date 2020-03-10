@@ -29,7 +29,9 @@ namespace NBitcoin.Secp256k1
 			}
 			else
 			{
-				Crypto.Hashes.SHA256(key).AsSpan().CopyTo(rkey);
+				using var sha = new NBitcoin.Secp256k1.SHA256();
+				sha.Write(key);
+				sha.GetHash(rkey);
 			}
 			outer = new Secp256k1.SHA256();
 			for (n = 0; n < 64; n++)

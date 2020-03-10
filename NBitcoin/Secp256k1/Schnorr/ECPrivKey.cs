@@ -7,8 +7,14 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
-	/* This nonce function is described in BIP-schnorr
- * (https://github.com/sipa/bips/blob/bip-schnorr/bip-schnorr.mediawiki) */
+	/// <summary>
+	/// This nonce function is described in BIP-schnorr (https://github.com/sipa/bips/blob/bip-schnorr/bip-schnorr.mediawiki)
+	/// </summary>
+#if SECP256K1_LIB
+	public
+#else
+	internal
+#endif
 	class SchnorrNonceFunction : INonceFunction
 	{
 		byte[]? data = null;
@@ -37,6 +43,11 @@ namespace NBitcoin.Secp256k1
 			return true;
 		}
 	}
+#if SECP256K1_LIB
+	public
+#else
+	internal
+#endif
 	partial class ECPrivKey
 	{
 		public SecpSchnorrSignature SignSchnorr(ReadOnlySpan<byte> msg32)

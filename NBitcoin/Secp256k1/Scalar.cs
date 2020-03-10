@@ -8,6 +8,9 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	readonly struct Scalar : IEquatable<Scalar>
 	{
 		// We ported secp256k1 code via the following regex
@@ -56,6 +59,11 @@ namespace NBitcoin.Secp256k1
 		internal const uint SECP256K1_N_H_6 = (0xFFFFFFFFU);
 		internal const uint SECP256K1_N_H_7 = (0x7FFFFFFFU);
 
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
 		readonly uint d0, d1, d2, d3, d4, d5, d6, d7;
 		public Scalar(uint d0, uint d1, uint d2, uint d3, uint d4, uint d5, uint d6, uint d7)
 		{

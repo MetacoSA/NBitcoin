@@ -9,6 +9,9 @@ using System.Runtime.CompilerServices;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	class ECMultGenContext
 	{
 		static readonly Lazy<ECMultGenContext> _Instance = new Lazy<ECMultGenContext>(CreateInstance, true);

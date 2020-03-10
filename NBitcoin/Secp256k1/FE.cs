@@ -8,11 +8,29 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	readonly struct FE : IEquatable<FE>
 	{
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
 		readonly uint n0, n1, n2, n3, n4, n5, n6, n7, n8, n9;
-		internal readonly int magnitude;
-		internal readonly bool normalized;
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly int magnitude;
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly bool normalized;
 
 		static readonly FE _Zero = new FE(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, true);
 

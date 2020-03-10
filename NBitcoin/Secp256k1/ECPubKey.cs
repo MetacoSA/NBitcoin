@@ -6,10 +6,25 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	partial class ECPubKey
 	{
-		internal readonly GE Q;
-		internal readonly Context ctx;
+
+#if SECP256K1_LIB
+		public
+#else
+		internal
+# endif
+		readonly GE Q;
+
+#if SECP256K1_LIB
+		public
+#else
+		internal
+# endif
+		readonly Context ctx;
 		public ECPubKey(in GE groupElement, Context context)
 		{
 			if (groupElement.IsInfinity)
