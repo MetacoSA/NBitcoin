@@ -10,14 +10,16 @@ This project IS NOT C# PInvoke bindings to the native secp256k1 library.
 This project has been created for NBitcoin to replace cryptographic part previously implemented on top of BouncyCastle.
 We decided to move out from BouncyCastle as Bitcoin's cryptographers are generally building their work on top of secp256k1. This will us to easily reimplement their algorithms in C#.
 
+DO NOT USE THIS PROJECT IF:
+* You don't know what it is about (this mean you don't need it)
+* Only need to use standard Bitcoin feature (use NBitcoin directly instead of this library)
+
 ## Why are you not using C# bindings to the C library?
 
 We decided to not use native bindings to the C library to keep NBitcoin fully managed.
 As NBitcoin is used by multiple projects, moving out of a fully managed environment is not without pitfalls.
 
-If we chose to use C# bindings then:
-
-First, our users update NBitcoin's version, they would start running an unauditable dynamic C library.
+If we chose to use C# bindings then as soon as our users update NBitcoin's version, they would start running an unauditable dynamic C library.
 The solution to this, is to have a deterministic build of Secp256k1 C codebase for each platforms NBitcoin was previously supporting.
 This is a huge amount of work, and nobody in the community has been willing to do it, even for a single platform as popular as linux x64.
 
