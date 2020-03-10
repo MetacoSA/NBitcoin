@@ -222,16 +222,17 @@ namespace NBitcoin
 			byte[] sigData = new byte[65];  // 1 header + 32 bytes for R + 32 bytes for S
 
 			sigData[0] = (byte)headerByte;
-
+#pragma warning disable 618
 			Array.Copy(Utils.BigIntegerToBytes(sig.R, 32), 0, sigData, 1, 32);
 			Array.Copy(Utils.BigIntegerToBytes(sig.S, 32), 0, sigData, 33, 32);
+#pragma warning restore 618
 			return sigData;
 #endif
 		}
 
 
 
-#region IBitcoinSerializable Members
+		#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
 		{

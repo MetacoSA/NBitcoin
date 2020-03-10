@@ -9,7 +9,9 @@ namespace NBitcoin
 #if HAS_SPAN
 		static readonly TransactionSignature _Empty = new TransactionSignature(new ECDSASignature(Secp256k1.Scalar.Zero, Secp256k1.Scalar.Zero), SigHash.All);
 #else
+#pragma warning disable 618
 		static readonly TransactionSignature _Empty = new TransactionSignature(new ECDSASignature(NBitcoin.BouncyCastle.Math.BigInteger.ValueOf(0), NBitcoin.BouncyCastle.Math.BigInteger.ValueOf(0)), SigHash.All);
+#pragma warning restore 618
 #endif
 		public static TransactionSignature Empty
 		{

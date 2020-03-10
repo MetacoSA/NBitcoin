@@ -210,6 +210,7 @@ namespace NBitcoin.Crypto
 		}
 #else
 		private readonly BigInteger _R;
+		[Obsolete("This member is not available on .netstandard2.1 and will soon be removed")]
 		public BigInteger R
 		{
 			get
@@ -218,6 +219,7 @@ namespace NBitcoin.Crypto
 			}
 		}
 		private BigInteger _S;
+		[Obsolete("This member is not available on .netstandard2.1 and will soon be removed")]
 		public BigInteger S
 		{
 			get
@@ -225,6 +227,7 @@ namespace NBitcoin.Crypto
 				return _S;
 			}
 		}
+		[Obsolete("This member is not available on .netstandard2.1 and will soon be removed")]
 		public ECDSASignature(BigInteger r, BigInteger s)
 		{
 			if (r == null)
@@ -234,10 +237,25 @@ namespace NBitcoin.Crypto
 			_R = r;
 			_S = s;
 		}
+		[Obsolete("This member is not available on .netstandard2.1 and will soon be removed")]
 		public ECDSASignature(BigInteger[] rs)
 		{
 			_R = rs[0];
 			_S = rs[1];
+		}
+		public static bool TryParseFromCompact(byte[] compactFormat, out ECDSASignature signature)
+		{
+			if (compactFormat == null)
+				throw new ArgumentNullException(nameof(compactFormat));
+			signature = null;
+			if (compactFormat.Length != 64)
+				return false;
+#pragma warning disable 618
+			signature = new ECDSASignature(
+                new NBitcoin.BouncyCastle.Math.BigInteger(1, compactFormat, 0, 32),
+                new NBitcoin.BouncyCastle.Math.BigInteger(1, compactFormat, 32, 32));
+#pragma warning restore 618
+			return true;
 		}
 #endif
 
@@ -246,6 +264,32 @@ namespace NBitcoin.Crypto
 		{
 			r = sig.r;
 			s = sig.s;
+		}
+		public static bool TryParseFromCompact(byte[] compactFormat, out ECDSASignature signature)
+		{
+			if (compactFormat == null)
+				throw new ArgumentNullException(nameof(compactFormat));
+			signature = null;
+			if (compactFormat.Length != 64)
+				return false;
+			if (Secp256k1.SecpECDSASignature.TryCreateFromCompact(compactFormat, out var s) && s is Secp256k1.SecpECDSASignature)
+			{
+				signature = new ECDSASignature(s);
+				return true;
+			}
+			return false;
+		}
+		public static bool TryParseFromCompact(ReadOnlySpan<byte> compactFormat, out ECDSASignature signature)
+		{
+			signature = null;
+			if (compactFormat.Length != 64)
+				return false;
+			if (Secp256k1.SecpECDSASignature.TryCreateFromCompact(compactFormat, out var s) && s is Secp256k1.SecpECDSASignature)
+			{
+				signature = new ECDSASignature(s);
+				return true;
+			}
+			return false;
 		}
 		public ECDSASignature(byte[] derSig) : this(derSig.AsSpan())
 		{
@@ -315,8 +359,10 @@ namespace NBitcoin.Crypto
 			// Usually 70-72 bytes.
 			MemoryStream bos = new MemoryStream(72);
 			DerSequenceGenerator seq = new DerSequenceGenerator(bos);
+#pragma warning disable 618
 			seq.AddObject(new DerInteger(R));
 			seq.AddObject(new DerInteger(S));
+#pragma warning restore 618
 			seq.Close();
 			return bos.ToArray();
 		}
@@ -385,7 +431,9 @@ namespace NBitcoin.Crypto
 		{
 			if (!IsLowS)
 			{
+#pragma warning disable 618
 				return new ECDSASignature(this.R, ECKey.CURVE_ORDER.Subtract(this.S));
+#pragma warning restore 618
 			}
 			else
 				return this;
@@ -395,7 +443,9 @@ namespace NBitcoin.Crypto
 		{
 			get
 			{
+#pragma warning disable 618
 				return this.S.CompareTo(ECKey.HALF_CURVE_ORDER) <= 0;
+#pragma warning restore 618
 			}
 		}
 
@@ -403,7 +453,9 @@ namespace NBitcoin.Crypto
 		{
 			get
 			{
+#pragma warning disable 618
 				var rBytes = this.R.ToByteArrayUnsigned();
+#pragma warning restore 618
 				return rBytes.Length < 32 || rBytes[0] < 0x80;
 			}
 		}

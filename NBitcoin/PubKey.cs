@@ -492,7 +492,9 @@ namespace NBitcoin
 		{
 			BigInteger r = new BigInteger(1, signatureEncoded.SafeSubarray(1, 32));
 			BigInteger s = new BigInteger(1, signatureEncoded.SafeSubarray(33, 32));
+#pragma warning disable 618
 			var sig = new ECDSASignature(r, s);
+#pragma warning restore 618
 			return sig;
 		}
 #endif

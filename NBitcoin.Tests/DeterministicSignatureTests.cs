@@ -117,8 +117,10 @@ namespace NBitcoin.Tests
 			var result = dsa.sign();
 
 			var signature = ECDSASignature.FromDER(result);
+#pragma warning disable 618
 			Assert.Equal(test.S, signature.S);
 			Assert.Equal(test.R, signature.R);
+#pragma warning restore 618
 		}
 
 		private Func<BouncyCastle.Crypto.IDigest> GetHash(string hash)
