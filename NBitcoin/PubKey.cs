@@ -103,7 +103,7 @@ namespace NBitcoin
 
 #if HAS_SPAN
 		Secp256k1.ECPubKey _ECKey;
-		internal readonly ref Secp256k1.ECPubKey ECKey => ref _ECKey;
+		internal ref readonly Secp256k1.ECPubKey ECKey => ref _ECKey;
 #else
 		ECKey _ECKey;
 		internal ECKey ECKey
