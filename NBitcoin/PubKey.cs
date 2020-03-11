@@ -103,7 +103,7 @@ namespace NBitcoin
 
 #if HAS_SPAN
 		Secp256k1.ECPubKey _ECKey;
-		internal Secp256k1.ECPubKey ECKey => _ECKey;
+		internal readonly ref Secp256k1.ECPubKey ECKey => ref _ECKey;
 #else
 		ECKey _ECKey;
 		internal ECKey ECKey
@@ -644,7 +644,16 @@ namespace NBitcoin
 
 		public override int GetHashCode()
 		{
+#if HAS_SPAN
+			unchecked
+			{
+				var hash = this._ECKey.GetHashCode();
+				hash = hash * 23 + (compressed ? 0 : 1);
+				return hash;
+			}
+#else
 			return ToHex().GetHashCode();
+#endif
 		}
 
 		public PubKey UncoverSender(Key ephem, PubKey scan)

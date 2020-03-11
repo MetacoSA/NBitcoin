@@ -449,7 +449,7 @@ namespace NBitcoin
 		{
 			if (a?.PubKey is PubKey apk && b?.PubKey is PubKey bpk)
 			{
-				return a.PubKey == b.PubKey;
+				return apk == bpk;
 			}
 			return a is null && b is null;
 		}
