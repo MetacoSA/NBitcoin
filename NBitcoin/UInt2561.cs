@@ -209,7 +209,7 @@ namespace NBitcoin
 #if HAS_SPAN
 		public uint256(ReadOnlySpan<byte> bytes)
 		{
-			if(bytes.Length != WIDTH_BYTE)
+			if (bytes.Length != WIDTH_BYTE)
 			{
 				throw new FormatException("the byte array should be 32 bytes long");
 			}
@@ -253,6 +253,83 @@ namespace NBitcoin
 			pn6 = Utils.ToUInt32(bytes, 4 * 6, true);
 			pn7 = Utils.ToUInt32(bytes, 4 * 7, true);
 
+		}
+
+		public int GetBisCount()
+		{
+			if (pn7 != 0)
+			{
+				for (int nbits = 31; nbits > 0; nbits--)
+				{
+					if ((pn7 & 1U << nbits) != 0)
+						return 32 * 7 + nbits + 1;
+				}
+				return 32 * 7 + 1;
+			}
+			if (pn6 != 0)
+			{
+				for (int nbits = 31; nbits > 0; nbits--)
+				{
+					if ((pn6 & 1U << nbits) != 0)
+						return 32 * 6 + nbits + 1;
+				}
+				return 32 * 6 + 1;
+			}
+			if (pn5 != 0)
+			{
+				for (int nbits = 31; nbits > 0; nbits--)
+				{
+					if ((pn5 & 1U << nbits) != 0)
+						return 32 * 5 + nbits + 1;
+				}
+				return 32 * 5 + 1;
+			}
+			if (pn4 != 0)
+			{
+				for (int nbits = 31; nbits > 0; nbits--)
+				{
+					if ((pn4 & 1U << nbits) != 0)
+						return 32 * 4 + nbits + 1;
+				}
+				return 32 * 4 + 1;
+			}
+			if (pn3 != 0)
+			{
+				for (int nbits = 31; nbits > 0; nbits--)
+				{
+					if ((pn3 & 1U << nbits) != 0)
+						return 32 * 3 + nbits + 1;
+				}
+				return 32 * 3 + 1;
+			}
+			if (pn2 != 0)
+			{
+				for (int nbits = 31; nbits > 0; nbits--)
+				{
+					if ((pn2 & 1U << nbits) != 0)
+						return 32 * 2 + nbits + 1;
+				}
+				return 32 * 2 + 1;
+			}
+			if (pn1 != 0)
+			{
+				for (int nbits = 31; nbits > 0; nbits--)
+				{
+					if ((pn1 & 1U << nbits) != 0)
+						return 32 * 1 + nbits + 1;
+				}
+				return 32 * 1 + 1;
+			}
+			if (pn0 != 0)
+			{
+				for (int nbits = 31; nbits > 0; nbits--)
+				{
+					if ((pn0 & 1U << nbits) != 0)
+						return 32 * 0 + nbits + 1;
+				}
+				return 32 * 0 + 1;
+			}
+			return 0;
 		}
 
 		public uint256(byte[] vch)
@@ -423,7 +500,7 @@ namespace NBitcoin
 #if HAS_SPAN
 		public void ToBytes(Span<byte> output, bool lendian = true)
 		{
-			if(output.Length < WIDTH_BYTE)
+			if (output.Length < WIDTH_BYTE)
 				throw new ArgumentException(message: $"The array should be at least of size {WIDTH_BYTE}", paramName: nameof(output));
 
 			var initial = output;
@@ -443,7 +520,7 @@ namespace NBitcoin
 			output = output.Slice(4);
 			Utils.ToBytes(pn7, true, output);
 
-			if(!lendian)
+			if (!lendian)
 				initial.Reverse();
 		}
 #endif

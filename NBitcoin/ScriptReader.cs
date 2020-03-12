@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ooo = NBitcoin.BouncyCastle.Math;
 using System.Reflection;
 
 namespace NBitcoin
@@ -309,7 +308,7 @@ namespace NBitcoin
 
 		public static Op GetPushOp(long value)
 		{
-			return GetPushOp(Utils.BigIntegerToBytes(ooo.BigInteger.ValueOf(value)));
+			return GetPushOp(Utils.BigIntegerToBytes(BouncyCastle.Math.BigInteger.ValueOf(value)));
 		}
 		public static Op GetPushOp(byte[] data)
 		{

@@ -1,5 +1,4 @@
-﻿using NBitcoin.BouncyCastle.Math;
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using System;
 using System.Linq;
 using System.Text;
@@ -58,6 +57,25 @@ namespace NBitcoin.DataEncoders
 
 	public class Base58Encoder : DataEncoder
 	{
+		static readonly char[] pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".ToCharArray();
+		static readonly int[] mapBase58 = new int[]{
+	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+	-1, 0, 1, 2, 3, 4, 5, 6,  7, 8,-1,-1,-1,-1,-1,-1,
+	-1, 9,10,11,12,13,14,15, 16,-1,17,18,19,20,21,-1,
+	22,23,24,25,26,27,28,29, 30,31,32,-1,-1,-1,-1,-1,
+	-1,33,34,35,36,37,38,39, 40,41,42,43,-1,44,45,46,
+	47,48,49,50,51,52,53,54, 55,56,57,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+};
 		/// <summary>
 		/// Fast check if the string to know if base58 str
 		/// </summary>
@@ -70,7 +88,7 @@ namespace NBitcoin.DataEncoders
 			{
 				for (int i = 0; i < str.Length; i++)
 				{
-					if (!Base58Encoder.pszBase58Chars.Contains(str[i]))
+					if (!Base58Encoder.pszBase58.Contains(str[i]))
 					{
 						maybeb58 = false;
 						break;
@@ -80,106 +98,133 @@ namespace NBitcoin.DataEncoders
 			return maybeb58 && str.Length > 0;
 		}
 
-		static readonly BigInteger bn58 = BigInteger.ValueOf(58);
 		public override string EncodeData(byte[] data, int offset, int count)
 		{
-
-			BigInteger bn0 = BigInteger.Zero;
-
-			// Convert big endian data to little endian
-			// Extra zero at the end make sure bignum will interpret as a positive number
-			var vchTmp = data.SafeSubarray(offset, count);
-
-			// Convert little endian data to bignum
-			var bn = new BigInteger(1, vchTmp);
-
-			// Convert bignum to std::string
-			StringBuilder builder = new StringBuilder();
-			// Expected size increase from base58 conversion is approximately 137%
-			// use 138% to be safe
-
-			while (bn.CompareTo(bn0) > 0)
+			if (data == null)
+				throw new ArgumentNullException(nameof(data));
+			// Skip & count leading zeroes.
+			int zeroes = 0;
+			int length = 0;
+			while (offset != count && data[offset] == 0)
 			{
-				var r = bn.DivideAndRemainder(bn58);
-				var dv = r[0];
-				BigInteger rem = r[1];
-				bn = dv;
-				var c = rem.IntValue;
-				builder.Append(pszBase58[c]);
+				offset++;
+				zeroes++;
 			}
+			// Allocate enough space in big-endian base58 representation.
+			int size = (count - offset) * 138 / 100 + 1; // log(256) / log(58), rounded up.
+#if HAS_SPAN
+			Span<byte> b58 = size <= 128 ? stackalloc byte[size] : new byte[size];
+#else
+			byte[] b58 = new byte[size];
+#endif
+			// Process the bytes.
+			while (offset != count)
+			{
+				int carry = data[offset];
+				int i = 0;
+				// Apply "b58 = b58 * 256 + ch".
+				for (int it = size - 1; (carry != 0 || i < length) && it >= 0; i++, it--)
+				{
+					carry += 256 * b58[it];
+					b58[it] = (byte)(carry % 58);
+					carry /= 58;
+				}
 
-			// Leading zeros encoded as base58 zeros
-			for (int i = offset; i < offset + count && data[i] == 0; i++)
-				builder.Append(pszBase58[0]);
-
-			// Convert little endian std::string to big endian
-			var chars = builder.ToString().ToCharArray();
-			Array.Reverse(chars);
-			var str = new String(chars); //keep that way to be portable
-			return str;
+				length = i;
+				offset++;
+			}
+			// Skip leading zeroes in base58 result.
+			int it2 = (size - length);
+			while (it2 != size && b58[it2] == 0)
+				it2++;
+			// Translate the result into a string.
+#if HAS_SPAN
+			var s = zeroes + size - it2;
+			Span<char> str = s <= 128 ? stackalloc char[s] : new char[s];
+			str.Slice(0, zeroes).Fill('1');
+#else
+			var str = new char[zeroes + size - it2];
+#if NO_ARRAY_FILL
+			ArrayFill<char>(str, '1', 0, zeroes);
+#else
+			Array.Fill<char>(str, '1', 0, zeroes);
+#endif
+#endif
+			int i2 = zeroes;
+			while (it2 != size)
+				str[i2++] = pszBase58[b58[it2++]];
+			return new string(str);
 		}
 
-
-		internal const string pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-		internal static readonly char[] pszBase58Chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".ToCharArray();
+#if NO_ARRAY_FILL
+		static void ArrayFill<T>(T[] array, T value, int index, int count)
+		{
+			for (int i = index; i < index + count; i++)
+			{
+				array[i] = value;
+			}
+		}
+#endif
 
 
 		public override byte[] DecodeData(string encoded)
 		{
 			if (encoded == null)
 				throw new ArgumentNullException(nameof(encoded));
-
-			var result = new byte[0];
-			if (encoded.Length == 0)
-				return result;
-			BigInteger bn = BigInteger.Zero;
-			int i = 0;
-			while (IsSpace(encoded[i]))
+			int psz = 0;
+			// Skip leading spaces.
+			while (psz < encoded.Length && IsSpace(encoded[psz]))
+				psz++;
+			// Skip and count leading '1's.
+			int zeroes = 0;
+			int length = 0;
+			while (psz < encoded.Length && encoded[psz] == '1')
 			{
-				i++;
-				if (i >= encoded.Length)
-					return result;
+				zeroes++;
+				psz++;
 			}
-
-			for (int y = i; y < encoded.Length; y++)
+			// Allocate enough space in big-endian base256 representation.
+			int size = (encoded.Length - psz) * 733 / 1000 + 1; // log(58) / log(256), rounded up.
+#if HAS_SPAN
+			Span<byte> b256 = size <= 128 ? stackalloc byte[size] : new byte[size];
+#else
+			byte[] b256 = new byte[size];
+#endif
+			// Process the characters.
+			while (psz < encoded.Length && !IsSpace(encoded[psz]))
 			{
-				var p1 = pszBase58.IndexOf(encoded[y]);
-				if (p1 == -1)
+				// Decode base58 character
+				int carry = mapBase58[(byte)encoded[psz]];
+				if (carry == -1)  // Invalid b58 character
+					throw new FormatException("Invalid base58 data");
+				int i = 0;
+				for (int it = size - 1; (carry != 0 || i < length) && it >= 0; i++, it--)
 				{
-					while (IsSpace(encoded[y]))
-					{
-						y++;
-						if (y >= encoded.Length)
-							break;
-					}
-					if (y != encoded.Length)
-						throw new FormatException("Invalid base 58 string");
-					break;
+					carry += 58 * b256[it];
+					b256[it] = (byte)(carry % 256);
+					carry /= 256;
 				}
-				var bnChar = BigInteger.ValueOf(p1);
-				bn = bn.Multiply(bn58);
-				bn = bn.Add(bnChar);
+				length = i;
+				psz++;
 			}
-
-			// Get bignum as little endian data
-			var vchTmp = bn.ToByteArrayUnsigned();
-			Array.Reverse(vchTmp);
-			if (vchTmp.All(b => b == 0))
-				vchTmp = new byte[0];
-
-			// Trim off sign byte if present
-			if (vchTmp.Length >= 2 && vchTmp[vchTmp.Length - 1] == 0 && vchTmp[vchTmp.Length - 2] >= 0x80)
-				vchTmp = vchTmp.SafeSubarray(0, vchTmp.Length - 1);
-
-			// Restore leading zeros
-			int nLeadingZeros = 0;
-			for (int y = i; y < encoded.Length && encoded[y] == pszBase58[0]; y++)
-				nLeadingZeros++;
-
-
-			result = new byte[nLeadingZeros + vchTmp.Length];
-			Array.Copy(vchTmp.Reverse().ToArray(), 0, result, nLeadingZeros, vchTmp.Length);
-			return result;
+			// Skip trailing spaces.
+			while (psz < encoded.Length && IsSpace(encoded[psz]))
+				psz++;
+			if (psz != encoded.Length)
+				throw new FormatException("Invalid base58 data");
+			// Skip leading zeroes in b256.
+			var it2 = size - length;
+			// Copy result into output vector.
+			var vch = new byte[zeroes + size - it2];
+#if NO_ARRAY_FILL
+			ArrayFill<byte>(vch, 0, 0, zeroes);
+#else
+			Array.Fill<byte>(vch, 0, 0, zeroes);
+#endif
+			int i2 = zeroes;
+			while (it2 != size)
+				vch[i2++] = (b256[it2++]);
+			return vch;
 		}
 	}
 }

@@ -1,15 +1,17 @@
-using NBitcoin.BouncyCastle.Asn1;
-using NBitcoin.BouncyCastle.Math;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if !NO_BC
 using NBitcoin.BouncyCastle.Asn1.X9;
 using NBitcoin.BouncyCastle.Math.EC.Custom.Sec;
-using NBitcoin.DataEncoders;
 using NBitcoin.BouncyCastle.Math.EC;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Math;
+#endif
+using NBitcoin.DataEncoders;
 
 namespace NBitcoin.Crypto
 {

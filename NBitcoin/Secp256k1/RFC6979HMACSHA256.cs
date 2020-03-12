@@ -6,7 +6,12 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
-	public class RFC6979HMACSHA256 : IDisposable
+#if SECP256K1_LIB
+	public
+#else
+	internal
+#endif
+	class RFC6979HMACSHA256 : IDisposable
 	{
 		byte[]? v;
 		byte[]? k;

@@ -8,13 +8,21 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	readonly struct FEStorage
 	{
 		public static FEStorage CONST(uint d7, uint d6, uint d5, uint d4, uint d3, uint d2, uint d1, uint d0)
 		{
 			return new FEStorage(d0, d1, d2, d3, d4, d5, d6, d7);
 		}
-		internal readonly uint n0, n1, n2, n3, n4, n5, n6, n7;
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly uint n0, n1, n2, n3, n4, n5, n6, n7;
 
 		public FEStorage(uint n0, uint n1, uint n2, uint n3, uint n4, uint n5, uint n6, uint n7)
 		{

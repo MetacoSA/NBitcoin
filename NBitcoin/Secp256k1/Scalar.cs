@@ -8,6 +8,9 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	readonly struct Scalar : IEquatable<Scalar>
 	{
 		// We ported secp256k1 code via the following regex
@@ -56,6 +59,11 @@ namespace NBitcoin.Secp256k1
 		internal const uint SECP256K1_N_H_6 = (0xFFFFFFFFU);
 		internal const uint SECP256K1_N_H_7 = (0x7FFFFFFFU);
 
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
 		readonly uint d0, d1, d2, d3, d4, d5, d6, d7;
 		public Scalar(uint d0, uint d1, uint d2, uint d3, uint d4, uint d5, uint d6, uint d7)
 		{
@@ -80,15 +88,30 @@ namespace NBitcoin.Secp256k1
 			this.d7 = d[7];
 			VERIFY_CHECK(CheckOverflow() == 0);
 		}
-		internal Scalar(uint value)
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		Scalar(uint value)
 		{
 			d0 = d1 = d2 = d3 = d4 = d5 = d6 = d7 = 0;
 			d0 = value;
 		}
-		internal Scalar(ReadOnlySpan<byte> b32) : this(b32, out _)
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		Scalar(ReadOnlySpan<byte> b32) : this(b32, out _)
 		{
 		}
-		internal Scalar(ReadOnlySpan<byte> b32, out int overflow)
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		Scalar(ReadOnlySpan<byte> b32, out int overflow)
 		{
 			d0 = (uint)b32[31] | (uint)b32[30] << 8 | (uint)b32[29] << 16 | (uint)b32[28] << 24;
 			d1 = (uint)b32[27] | (uint)b32[26] << 8 | (uint)b32[25] << 16 | (uint)b32[24] << 24;
@@ -126,7 +149,12 @@ namespace NBitcoin.Secp256k1
 			s = Scalar.Zero;
 		}
 
-		internal readonly Scalar CAddBit(uint bit, int flag)
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly Scalar CAddBit(uint bit, int flag)
 		{
 			Span<uint> d = stackalloc uint[DCount];
 			ulong t;
@@ -322,7 +350,12 @@ namespace NBitcoin.Secp256k1
 			Reduce(d, (int)c + CheckOverflow(d));
 		}
 
-		internal int CondNegate(int flag, out Scalar r)
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		int CondNegate(int flag, out Scalar r)
 		{
 			Span<uint> rd = stackalloc uint[DCount];
 			Deconstruct(ref rd);
@@ -609,7 +642,12 @@ namespace NBitcoin.Secp256k1
 		}
 
 		[MethodImpl(MethodImplOptions.NoOptimization)]
-		internal readonly uint GetBits(int offset, int count)
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly uint GetBits(int offset, int count)
 		{
 			if (offset < 0)
 				throw new ArgumentOutOfRangeException(nameof(offset), "Offset should be more than 0");
@@ -618,7 +656,12 @@ namespace NBitcoin.Secp256k1
 			VERIFY_CHECK((offset + count - 1) >> 5 == offset >> 5);
 			return (uint)((At(offset >> 5) >> (offset & 0x1F)) & ((1 << count) - 1));
 		}
-		internal readonly uint GetBitsVariable(int offset, int count)
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly uint GetBitsVariable(int offset, int count)
 		{
 			if (offset < 0)
 				throw new ArgumentOutOfRangeException(nameof(offset), "Offset should be more than 0");
@@ -639,7 +682,12 @@ namespace NBitcoin.Secp256k1
 			}
 		}
 
-		internal uint At(int index)
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		uint At(int index)
 		{
 			switch (index)
 			{

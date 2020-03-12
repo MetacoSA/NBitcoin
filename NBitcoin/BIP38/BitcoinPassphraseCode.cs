@@ -1,6 +1,8 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+#if !NO_BC
 using NBitcoin.BouncyCastle.Math;
+#endif
 using System;
 using System.Linq;
 using System.Text;
@@ -221,16 +223,21 @@ namespace NBitcoin
 			var factorb = Hashes.Hash256(seedb).ToBytes();
 
 			//ECMultiply passpoint by factorb.
+#if HAS_SPAN
+			if (!NBitcoinContext.Instance.TryCreatePubKey(Passpoint, out var eckey) || eckey is null)
+				throw new InvalidOperationException("Invalid Passpoint");
+			var pubKey = new PubKey(eckey.MultTweak(factorb), isCompressed);
+#else
 			var curve = ECKey.Secp256k1;
 			var passpoint = curve.Curve.DecodePoint(Passpoint);
 			var pubPoint = passpoint.Multiply(new BigInteger(1, factorb));
 
 			//Use the resulting EC point as a public key
 			var pubKey = new PubKey(pubPoint.GetEncoded());
-
 			//and hash it into a Bitcoin address using either compressed or uncompressed public key
 			//This is the generated Bitcoin address, call it generatedaddress.
 			pubKey = isCompressed ? pubKey.Compress() : pubKey.Decompress();
+#endif
 
 			//call it generatedaddress.
 			var generatedaddress = pubKey.GetAddress(ScriptPubKeyType.Legacy, Network);

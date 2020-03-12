@@ -6,6 +6,9 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	class Context
 	{
 		static readonly Lazy<Context> _Instance = new Lazy<Context>(CreateInstance, true);
@@ -16,7 +19,7 @@ namespace NBitcoin.Secp256k1
 		public static Context Instance => _Instance.Value;
 
 		public ECMultContext EcMultContext { get; }
-		internal ECMultGenContext EcMultGenContext { get; }
+		public ECMultGenContext EcMultGenContext { get; }
 
 		public Context() : this(null, null)
 		{

@@ -7,6 +7,9 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	partial class ECPubKey
 	{
 		public static bool TryRecover(Context ctx, Secp256k1.SecpRecoverableECDSASignature recoverableSig, ReadOnlySpan<byte> msg32, out ECPubKey? pubkey)

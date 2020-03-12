@@ -489,21 +489,50 @@ namespace NBitcoin.Tests
 					DownloadLink = "https://terracoin.io/bin/terracoin-core-{0}/terracoin-0.12.2-win64.zip",
 					Archive = "terracoin-0.12.2-win64.zip",
 					Executable = "terracoin-0.12.2/bin/terracoind.exe",
-					Hash = "fea9e8c5593d306862213c450fb3ad9c94a4ddb413b5e3b755e510995625e5dc"
+					Hash = "5d87ede8097557aa02380c6d0b1f15af7e9b3edb0ba31ff6809a33b41051bbef"
 				},
 				Linux = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://terracoin.io/bin/terracoin-core-{0}/terracoin-0.12.2-x86_64-linux-gnu.tar.gz",
 					Archive = "terracoin-0.12.2-x86_64-linux-gnu.tar.gz",
 					Executable = "terracoin-0.12.2/bin/terracoind",
-					Hash = "34e15021be98c50c21fa9ceb704c7f580e1fba0d44b173bb88b5aea70a71e697"
+					Hash = "a983cb9ca990b77566017fbccfaf70b42cf8947a6f82f247bace19a332ce18e3"
 				},
 				Mac = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://terracoin.io/bin/terracoin-core-{0}/terracoin-0.12.2-osx64.tar.gz",
 					Archive = "terracoin-0.12.2-osx64.tar.gz",
 					Executable = "terracoin-0.12.2/bin/terracoind",
-					Hash = "132e078efcb0d5cd4d65dead44adc3d4128b3aea45a48e36a1690a7a2681473e"
+					Hash = "51ae932f276be131c5b938e4d7dd710e8a0af3ea8a5ca46aaac8366eafc22c49"
+				}
+			};
+		}
+		
+		public class VergeNodeDownloadData
+		{
+			public NodeDownloadData v6_0_2 = new NodeDownloadData()
+			{
+				Version = "6.0.2",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/vergecurrency/verge/releases/download/v6.0.2/verge-6.0.2-win64.zip",
+					Archive = "verge-6.0.2-win64.zip",
+					Executable = "verge-6.0.2/bin/verged.exe",
+					Hash = "6334d5222309337271b47ccf6129a282144c81682c691d9624c35219769e5fb4"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/vergecurrency/verge/releases/download/v6.0.2/verge-6.0.2-x86_64-linux-gnu.tar.gz",
+					Archive = "verge-6.0.2-x86_64-linux-gnu.tar.gz",
+					Executable = "verge-6.0.2/bin/verged",
+					Hash = "cdcb797d9bb11e9fe8062acd9ca46c5bafb02c4868f3c02fd417037584efd721"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/vergecurrency/verge/releases/download/v6.0.2/verge-6.0.2-osx64.tar.gz",
+					Archive = "verge-6.0.2-osx64.tar.gz",
+					Executable = "verge-6.0.2/bin/verged",
+					Hash = "bb3ef22d6e589162c3ff8a3de72a6bd0a80ec0000aa2573960865d3d0f8703c2"
 				}
 			};
 		}

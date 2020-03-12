@@ -1,12 +1,14 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
-using NBitcoin.BouncyCastle.Math;
 using System.Linq;
 using System.Security;
 using System.Text;
+#if !NO_BC
+using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Crypto.Paddings;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Crypto.Engines;
+#endif
 #if !WINDOWS_UWP && !USEBC
 using System.Security.Cryptography;
 #endif
@@ -188,7 +190,10 @@ namespace NBitcoin
 			//Decrypt encryptedpart1 to yield the remainder of seedb.
 			var seedb = DecryptSeed(encrypted, derived);
 			var factorb = Hashes.Hash256(seedb).ToBytes();
-
+#if HAS_SPAN
+			var eckey = NBitcoinContext.Instance.CreateECPrivKey(passfactor).TweakMul(factorb);
+			var key = new Key(eckey, IsCompressed);
+#else
 			var curve = ECKey.Secp256k1;
 
 			//Multiply passfactor by factorb mod N to yield the private key associated with generatedaddress.
@@ -198,7 +203,7 @@ namespace NBitcoin
 				keyBytes = new byte[32 - keyBytes.Length].Concat(keyBytes).ToArray();
 
 			var key = new Key(keyBytes, fCompressedIn: IsCompressed);
-
+#endif
 			var generatedaddress = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network);
 			var addresshash = HashAddress(generatedaddress);
 

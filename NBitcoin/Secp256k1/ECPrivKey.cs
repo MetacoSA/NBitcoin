@@ -24,10 +24,16 @@ namespace NBitcoin.Secp256k1
 	* Except for test cases, this function should compute some cryptographic hash of
 	* the message, the algorithm, the key and the attempt.
 	*/
+#if SECP256K1_LIB
+	public
+#endif
 	interface INonceFunction
 	{
 		bool TryGetNonce(Span<byte> nonce32, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> algo16, uint counter);
 	}
+#if SECP256K1_LIB
+	public
+#endif
 	class PrecomputedNonceFunction : INonceFunction
 	{
 		private readonly byte[] nonce;
@@ -41,6 +47,9 @@ namespace NBitcoin.Secp256k1
 			return counter == 0;
 		}
 	}
+#if SECP256K1_LIB
+	public
+#endif
 	class RFC6979NonceFunction : INonceFunction
 	{
 		byte[]? data = null;
@@ -92,11 +101,24 @@ namespace NBitcoin.Secp256k1
 			return true;
 		}
 	}
+#if SECP256K1_LIB
+	public
+#endif
 	partial class ECPrivKey : IDisposable
 	{
 		internal bool cleared = false;
-		internal Scalar sec;
-		internal readonly Context ctx;
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		Scalar sec;
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly Context ctx;
 
 		internal static bool TryCreateFromDer(ReadOnlySpan<byte> privkey, Context ctx, out ECPrivKey? result)
 		{

@@ -6,10 +6,25 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	partial class ECPubKey
 	{
-		internal readonly GE Q;
-		internal readonly Context ctx;
+
+#if SECP256K1_LIB
+		public
+#else
+		internal
+# endif
+		readonly GE Q;
+
+#if SECP256K1_LIB
+		public
+#else
+		internal
+# endif
+		readonly Context ctx;
 		public ECPubKey(in GE groupElement, Context context)
 		{
 			if (groupElement.IsInfinity)
@@ -37,12 +52,12 @@ namespace NBitcoin.Secp256k1
 			if (compressed)
 			{
 				length = 33;
-				output[0] = Q.y.IsOdd ? EC.SECP256K1_TAG_PUBKEY_ODD : EC.SECP256K1_TAG_PUBKEY_EVEN;
+				output[0] = Q.y.IsOdd ? GE.SECP256K1_TAG_PUBKEY_ODD : GE.SECP256K1_TAG_PUBKEY_EVEN;
 			}
 			else
 			{
 				length = 65;
-				output[0] = EC.SECP256K1_TAG_PUBKEY_UNCOMPRESSED;
+				output[0] = GE.SECP256K1_TAG_PUBKEY_UNCOMPRESSED;
 				Q.y.WriteToSpan(output.Slice(33));
 			}
 		}
@@ -61,12 +76,12 @@ namespace NBitcoin.Secp256k1
 			if (compressed)
 			{
 				length = 33;
-				output[0] = elemy.IsOdd ? EC.SECP256K1_TAG_PUBKEY_ODD : EC.SECP256K1_TAG_PUBKEY_EVEN;
+				output[0] = elemy.IsOdd ? GE.SECP256K1_TAG_PUBKEY_ODD : GE.SECP256K1_TAG_PUBKEY_EVEN;
 			}
 			else
 			{
 				length = 65;
-				output[0] = EC.SECP256K1_TAG_PUBKEY_UNCOMPRESSED;
+				output[0] = GE.SECP256K1_TAG_PUBKEY_UNCOMPRESSED;
 				elemy.WriteToSpan(output.Slice(33));
 			}
 		}
@@ -75,7 +90,7 @@ namespace NBitcoin.Secp256k1
 		{
 			GE Q;
 			pubkey = null;
-			if (!EC.Pubkey_parse(input, out compressed, out Q))
+			if (!GE.TryParse(input, out compressed, out Q))
 				return false;
 			pubkey = new ECPubKey(Q, ctx);
 			GE.Clear(ref Q);

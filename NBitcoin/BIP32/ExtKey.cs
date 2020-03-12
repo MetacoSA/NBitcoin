@@ -1,6 +1,8 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+#if !NO_BC
 using NBitcoin.BouncyCastle.Math;
+#endif
 using System;
 using System.Linq;
 
@@ -358,7 +360,7 @@ namespace NBitcoin
 			return new BitcoinExtKey(this, network);
 		}
 
-		#region IBitcoinSerializable Members
+#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
 		{
@@ -374,7 +376,7 @@ namespace NBitcoin
 			}
 		}
 
-		#endregion
+#endregion
 
 		/// <summary>
 		/// Converts the extended key to the base58 representation, as a string, within the specified network.
@@ -384,7 +386,7 @@ namespace NBitcoin
 			return new BitcoinExtKey(this, network).ToString();
 		}
 
-		#region IDestination Members
+#region IDestination Members
 
 		/// <summary>
 		/// Gets the script of the hash of the public key corresponding to the private key.
@@ -397,7 +399,7 @@ namespace NBitcoin
 			}
 		}
 
-		#endregion
+#endregion
 
 		/// <summary>
 		/// Gets whether or not this extended key is a hardened child.

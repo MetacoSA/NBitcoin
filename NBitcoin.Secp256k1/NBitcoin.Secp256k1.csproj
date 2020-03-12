@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<Company>Nicolas Dorier</Company>
+		<Copyright>Copyright © Nicolas Dorier 2020</Copyright>
+		<Description>A port of the Secp256k1 project written in C#</Description>
+    <PackageIcon>icon.png</PackageIcon>
+		<PackageTags>bitcoin,secp256k1</PackageTags>
+		<PackageProjectUrl>https://github.com/MetacoSA/NBitcoin/NBitcoin.Secp256k1</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/MetacoSA/NBitcoin</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;netcoreapp2.1</TargetFrameworks>
+    <Version Condition=" '$(Version)' == '' ">1.0.1</Version>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);SECP256K1_LIB;HAS_SPAN</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\icon.png" Pack="true" PackagePath="\" />
+    <Compile Include="../NBitcoin/Secp256k1/**/*.cs"></Compile>
+  </ItemGroup>
+</Project>

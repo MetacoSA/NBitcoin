@@ -327,7 +327,7 @@ namespace NBitcoin.RPC
 
 		public void ImportPrivKey(BitcoinSecret secret, string label, bool rescan)
 		{
-			SendCommand(RPCOperations.importprivkey, secret.ToWif(), label, rescan);
+			ImportPrivKeyAsync(secret, label, rescan).GetAwaiter().GetResult();
 		}
 
 		public async Task ImportPrivKeyAsync(BitcoinSecret secret)
@@ -337,7 +337,15 @@ namespace NBitcoin.RPC
 
 		public async Task ImportPrivKeyAsync(BitcoinSecret secret, string label, bool rescan)
 		{
-			await SendCommandAsync(RPCOperations.importprivkey, secret.ToWif(), label, rescan).ConfigureAwait(false);
+			try
+			{
+				await SendCommandAsync(RPCOperations.importprivkey, secret.ToWif(), label, rescan).ConfigureAwait(false);
+			}
+			catch (RPCException ex) when (label is null && ex.RPCCode == RPCErrorCode.RPC_MISC_ERROR)
+			{
+				// Some old node (like dogecoin) don't support null label
+				await SendCommandAsync(RPCOperations.importprivkey, secret.ToWif(), "*", rescan).ConfigureAwait(false);
+			}
 		}
 
 

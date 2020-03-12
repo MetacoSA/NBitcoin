@@ -1,7 +1,9 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+#if !NO_BC
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
+#endif
 using System;
 using System.Linq;
 
@@ -103,6 +105,12 @@ namespace NBitcoin
 			pointb = new byte[] { pointbprefix }.Concat(pointb).ToArray();
 
 			//4.ECMultiply pointb by passfactor. Use the resulting EC point as a public key
+
+#if HAS_SPAN
+			if (!NBitcoinContext.Instance.TryCreatePubKey(pointb, out var pk) || pk is null)
+				return false;
+			PubKey pubkey = new PubKey(pk.MultTweak(passfactor), true);
+#else
 			var curve = ECKey.Secp256k1;
 			ECPoint pointbec;
 			try
@@ -118,7 +126,7 @@ namespace NBitcoin
 				return false;
 			}
 			PubKey pubkey = new PubKey(pointbec.Multiply(new BigInteger(1, passfactor)).GetEncoded());
-
+#endif
 			//and hash it into address using either compressed or uncompressed public key methodology as specifid in flagbyte.
 			pubkey = IsCompressed ? pubkey.Compress() : pubkey.Decompress();
 

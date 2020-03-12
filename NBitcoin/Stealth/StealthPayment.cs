@@ -1,5 +1,7 @@
 ﻿using NBitcoin.Crypto;
+#if !NO_BC
 using NBitcoin.BouncyCastle.Math;
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;

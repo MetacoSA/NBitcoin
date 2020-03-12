@@ -77,7 +77,9 @@ namespace NBitcoin.Crypto
 
 		public byte[] signHash(byte[] hash)
 		{
+#pragma warning disable 618
 			return new ECDSASignature(GenerateSignature(hash)).ToDER();
+#pragma warning restore 618
 		}
 	}
 }

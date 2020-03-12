@@ -9,6 +9,9 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	class ECMultContext
 	{
 

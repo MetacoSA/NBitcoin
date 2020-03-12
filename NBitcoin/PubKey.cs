@@ -1,13 +1,15 @@
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Stealth;
+#if !NO_BC
 using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math.EC;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NBitcoin.BouncyCastle.Math.EC;
 
 namespace NBitcoin
 {
@@ -101,7 +103,7 @@ namespace NBitcoin
 
 #if HAS_SPAN
 		Secp256k1.ECPubKey _ECKey;
-		internal Secp256k1.ECPubKey ECKey => _ECKey;
+		internal ref readonly Secp256k1.ECPubKey ECKey => ref _ECKey;
 #else
 		ECKey _ECKey;
 		internal ECKey ECKey
@@ -490,7 +492,9 @@ namespace NBitcoin
 		{
 			BigInteger r = new BigInteger(1, signatureEncoded.SafeSubarray(1, 32));
 			BigInteger s = new BigInteger(1, signatureEncoded.SafeSubarray(33, 32));
+#pragma warning disable 618
 			var sig = new ECDSASignature(r, s);
+#pragma warning restore 618
 			return sig;
 		}
 #endif
@@ -640,7 +644,16 @@ namespace NBitcoin
 
 		public override int GetHashCode()
 		{
+#if HAS_SPAN
+			unchecked
+			{
+				var hash = this._ECKey.GetHashCode();
+				hash = hash * 23 + (compressed ? 0 : 1);
+				return hash;
+			}
+#else
 			return ToHex().GetHashCode();
+#endif
 		}
 
 		public PubKey UncoverSender(Key ephem, PubKey scan)

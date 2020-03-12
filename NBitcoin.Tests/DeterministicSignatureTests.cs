@@ -1,10 +1,13 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+#if !NO_BC
 using NBitcoin.BouncyCastle.Asn1.Sec;
 using NBitcoin.BouncyCastle.Asn1.X9;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
+using NBitcoin.BouncyCastle.Asn1;
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +16,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xunit;
-using NBitcoin.BouncyCastle.Asn1;
 using System.Security;
 
 namespace NBitcoin.Tests
@@ -107,24 +109,26 @@ namespace NBitcoin.Tests
 
 		private void TestSig(ECPrivateKeyParameters key, DeterministicSigTest test)
 		{
+			if (test.Hash.Equals("SHA-1", StringComparison.OrdinalIgnoreCase))
+				return;
 			var dsa = new DeterministicECDSA(GetHash(test.Hash), false);
 			dsa.setPrivateKey(key);
 			dsa.update(Encoding.UTF8.GetBytes(test.Message));
 			var result = dsa.sign();
 
 			var signature = ECDSASignature.FromDER(result);
+#pragma warning disable 618
 			Assert.Equal(test.S, signature.S);
 			Assert.Equal(test.R, signature.R);
+#pragma warning restore 618
 		}
 
 		private Func<BouncyCastle.Crypto.IDigest> GetHash(string hash)
 		{
 			if (hash.Equals("SHA-256", StringComparison.OrdinalIgnoreCase))
 				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest();
-
-			if (hash.Equals("SHA-1", StringComparison.OrdinalIgnoreCase))
-				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha1Digest();
-
+//			if (hash.Equals("SHA-1", StringComparison.OrdinalIgnoreCase))
+//				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha1Digest();
 			if (hash.Equals("SHA-224", StringComparison.OrdinalIgnoreCase))
 				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha224Digest();
 

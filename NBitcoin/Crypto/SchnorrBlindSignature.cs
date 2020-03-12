@@ -1,11 +1,11 @@
 using System;
 using System.Security;
-using NBitcoin.BouncyCastle.Asn1.X9;
 #if !HAS_SPAN
 using NBitcoin.BouncyCastle.Crypto.Signers;
-#endif
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Asn1.X9;
+#endif
 using NBitcoin.DataEncoders;
 
 namespace NBitcoin.Crypto

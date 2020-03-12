@@ -8,6 +8,9 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#endif
 	readonly struct GE
 	{
 		/** Prefix byte used to tag various encoded curvepoints for specific purposes */
@@ -17,9 +20,18 @@ namespace NBitcoin.Secp256k1
 		public const byte SECP256K1_TAG_PUBKEY_HYBRID_EVEN = 0x06;
 		public const byte SECP256K1_TAG_PUBKEY_HYBRID_ODD = 0x07;
 
-		internal readonly FE x;
-		internal readonly FE y;
-		internal readonly bool infinity; /* whether this represents the point at infinity */
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly FE x,y;
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly bool infinity; /* whether this represents the point at infinity */
 		static readonly GE _Infinity = new GE(FE.Zero, FE.Zero, true);
 		/** Generator for secp256k1, value 'g' defined in
  *  "Standards for Efficient Cryptography" (SEC2) 2.7.1.
@@ -217,6 +229,40 @@ namespace NBitcoin.Secp256k1
 			var ry = y.NormalizeWeak();
 			ry = ry.Negate(1);
 			return new GE(x, ry, infinity);
+		}
+		public static bool TryParse(ReadOnlySpan<byte> pub, out GE elem)
+		{
+			return TryParse(pub, out _, out elem);
+		}
+		public static bool TryParse(ReadOnlySpan<byte> pub, out bool compressed, out GE elem)
+		{
+			compressed = false;
+			elem = default;
+			if (pub.Length == 33 && (pub[0] == SECP256K1_TAG_PUBKEY_EVEN || pub[0] == SECP256K1_TAG_PUBKEY_ODD))
+			{
+				compressed = true;
+				return
+					FE.TryCreate(pub.Slice(1), out var x) &&
+					GE.TryCreateXOVariable(x, pub[0] == SECP256K1_TAG_PUBKEY_ODD, out elem);
+			}
+			else if (pub.Length == 65 && (pub[0] == SECP256K1_TAG_PUBKEY_UNCOMPRESSED || pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_EVEN || pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_ODD))
+			{
+				if (!FE.TryCreate(pub.Slice(1), out var x) || !FE.TryCreate(pub.Slice(33), out var y))
+				{
+					return false;
+				}
+				elem = new GE(x, y);
+				if ((pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_EVEN || pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_ODD) &&
+					y.IsOdd != (pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_ODD))
+				{
+					return false;
+				}
+				return elem.IsValidVariable;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

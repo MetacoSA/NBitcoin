@@ -6,14 +6,24 @@ using System.Text;
 
 namespace NBitcoin.Secp256k1
 {
+#if SECP256K1_LIB
+	public
+#else
+	internal
+#endif
 	readonly struct GEStorage
 	{
 		public static GEStorage CONST(uint a, uint b, uint c, uint d, uint e, uint f, uint g, uint h, uint i, uint j, uint k, uint l, uint m, uint n, uint o, uint p)
 		{
 			return new GEStorage(FE.CONST(a, b, c, d, e, f, g, h), FE.CONST(i, j, k, l, m, n, o, p));
 		}
-		internal readonly FEStorage x;
-		internal readonly FEStorage y;
+
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly FEStorage x, y;
 		public GEStorage(in FE x, in FE y)
 		{
 			this.x = x.Normalize().ToStorage();
