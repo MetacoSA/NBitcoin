@@ -50,7 +50,7 @@ namespace NBitcoin.Altcoins
 			yield return Polis;
 			yield return Monacoin;
 			yield return Dash;
-			yield return Verge;
+			//yield return Verge;
 			yield return Terracoin;
 			yield return Mogwai;
 			yield return Ufo;
@@ -64,7 +64,7 @@ namespace NBitcoin.Altcoins
 			yield return Bitcoinplus;
 			yield return Chaincoin;
 			yield return ZCoin;
-			yield return DogeCash;
+			//yield return DogeCash;
 		}
 	}
 }

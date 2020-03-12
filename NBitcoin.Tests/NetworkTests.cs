@@ -23,6 +23,15 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanGetAllShitcoins()
+		{
+			NBitcoin.Altcoins.AltNetworkSets.GetAll().Select(c => c.Regtest).ToList();
+			NBitcoin.Altcoins.AltNetworkSets.GetAll().Select(c => c.Testnet).ToList();
+			NBitcoin.Altcoins.AltNetworkSets.GetAll().Select(c => c.Mainnet).ToList();
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCreateNetwork()
 		{
 			NetworkBuilder builder = new NetworkBuilder();
