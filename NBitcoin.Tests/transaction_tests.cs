@@ -1376,7 +1376,7 @@ namespace NBitcoin.Tests
 					.ContinueToBuild(tx)
 					.AddCoins(tokenCoin)
 					.AddCoins(coins)
-					.CoverTheRest()
+					.CoverAll()
 					.SetChange(tokenBuyerScriptPubKey)
 					.SendEstimatedFees(feeRate)
 					.BuildTransaction(false);

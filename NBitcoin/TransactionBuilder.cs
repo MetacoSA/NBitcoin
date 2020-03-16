@@ -2196,6 +2196,29 @@ namespace NBitcoin
 		}
 
 		/// <summary>
+		/// Will cover the amount of all TxOuts of a partially built transaction (to call after ContinueToBuild)
+		/// </summary>
+		/// <returns></returns>
+		public TransactionBuilder CoverAll()
+		{
+			if (_CompletedTransaction == null)
+				throw new InvalidOperationException("A partially built transaction should be specified by calling ContinueToBuild");
+
+			var illegalTxin = _CompletedTransaction.Inputs.AsIndexedInputs().FirstOrDefault(txin => FindCoin(txin.PrevOut) == null);
+			if(illegalTxin != null) throw CoinNotFound(illegalTxin);
+
+			var toComplete = _CompletedTransaction.TotalOut;
+			CurrentGroup.Builders.Add(ctx =>
+			{
+				if (toComplete < Money.Zero)
+					return Money.Zero;
+				return toComplete;
+			});
+
+			return this;
+		}
+
+		/// <summary>
 		/// Will cover the remaining amount of TxOut of a partially built transaction (to call after ContinueToBuild)
 		/// </summary>
 		/// <returns></returns>
