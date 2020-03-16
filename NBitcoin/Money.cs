@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,8 +60,8 @@ namespace NBitcoin
 
 	public enum MoneyUnit : int
 	{
-		BTC = 100000000,
-		MilliBTC = 100000,
+		BTC = 100_000_000,
+		MilliBTC = 100_000,
 		Bit = 100,
 		Satoshi = 1
 	}
