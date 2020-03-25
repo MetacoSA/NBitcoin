@@ -1384,8 +1384,6 @@ namespace NBitcoin.Tests
 
 				var estimatedFees = txbuilder.EstimateFees(feeRate);
 				var fee = signed.GetFee(txbuilder.FindSpentCoins(signed));
-				System.Console.WriteLine("fee: " + fee.Satoshi + "; estimatedFees" + estimatedFees.Satoshi);
-				System.Console.WriteLine(signed.ToString());
 				Assert.Equal(tokenAnyoneCanPayScript, signed.Inputs[0].ScriptSig);
 				Assert.Equal(estimatedFees, fee);
 
