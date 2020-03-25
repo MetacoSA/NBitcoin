@@ -534,7 +534,7 @@ namespace NBitcoin
 				_Marker = memento._Marker == null ? null : new ColorMarker(memento._Marker.GetScript());
 				Transaction = memento.Transaction.Clone();
 				AdditionalFees = memento.AdditionalFees;
-				_ConsumedOutpoints = memento.ConsumedOutpoints.ToHashSet();
+				_ConsumedOutpoints = new HashSet<OutPoint>(memento.ConsumedOutpoints);
 			}
 
 			public bool NonFinalSequenceSet
