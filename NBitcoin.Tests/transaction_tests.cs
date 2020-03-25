@@ -1359,39 +1359,37 @@ namespace NBitcoin.Tests
 
 			// another key tries to consume this token
 			{
-				var tx = network.Consensus.ConsensusFactory.CreateTransaction();
+				var toComplete = network.Consensus.ConsensusFactory.CreateTransaction();
 				TxIn in0 = new TxIn(tokenOutpoint, tokenAnyoneCanPayScript);
 				TxOut out0 = new TxOut(Money.FromUnit(tokenPrice, MoneyUnit.Satoshi), tokenOwnerScriptPubKey);
-				tx.Inputs.Add(in0);
-				tx.Outputs.Add(out0);
+				toComplete.Inputs.Add(in0);
+				toComplete.Outputs.Add(out0);
 
 				var privateKey = new Key();
 				var tokenBuyerScriptPubKey = privateKey.PubKey.Hash.ScriptPubKey;
-
 				var tokenCoin = new Coin(tokenOutpoint, new TxOut(tokenValue, tokenOwnerScriptPubKey));
 				var coins = new ICoin[] { CreateCoin(5_500L, tokenBuyerScriptPubKey) };
 				var txbuilder = new TransactionBuilder(network);
-
-				tx = txbuilder
-					.ContinueToBuild(tx)
+				var signed = txbuilder
+					.ContinueToBuild(toComplete)
 					.AddCoins(tokenCoin)
 					.AddCoins(coins)
-					.CoverAll()
+					.CoverTheRest()
 					.SetChange(tokenBuyerScriptPubKey)
 					.SendEstimatedFees(feeRate)
 					.BuildTransaction(false);
 
 				// sign and verify
-				tx = txbuilder.AddKeys(new Key[] { privateKey }).SignTransaction(tx);
+				signed = txbuilder.AddKeys(new Key[] { privateKey }).SignTransaction(signed);
 
 				var estimatedFees = txbuilder.EstimateFees(feeRate);
-				var fee = tx.GetFee(txbuilder.FindSpentCoins(tx));
+				var fee = signed.GetFee(txbuilder.FindSpentCoins(signed));
 				System.Console.WriteLine("fee: " + fee.Satoshi + "; estimatedFees" + estimatedFees.Satoshi);
-				System.Console.WriteLine(tx.ToString());
-				Assert.Equal(tokenAnyoneCanPayScript, tx.Inputs[0].ScriptSig);
+				System.Console.WriteLine(signed.ToString());
+				Assert.Equal(tokenAnyoneCanPayScript, signed.Inputs[0].ScriptSig);
 				Assert.Equal(estimatedFees, fee);
 
-				bool result = txbuilder.Verify(tx,out TransactionPolicyError[] errors);
+				bool result = txbuilder.Verify(signed, out TransactionPolicyError[] errors);
 				Assert.True(result);
 
 			}

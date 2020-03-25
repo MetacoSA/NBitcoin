@@ -447,12 +447,12 @@ namespace NBitcoin
 				set;
 			}
 
-			private List<ICoin> _ConsumedCoins = new List<ICoin>();
-			public List<ICoin> ConsumedCoins
+			private HashSet<OutPoint> _ConsumedOutpoints = new HashSet<OutPoint>();
+			public HashSet<OutPoint> ConsumedOutpoints
 			{
 				get
 				{
-					return _ConsumedCoins;
+					return _ConsumedOutpoints;
 				}
 			}
 			public TransactionBuilder Builder
@@ -534,7 +534,7 @@ namespace NBitcoin
 				_Marker = memento._Marker == null ? null : new ColorMarker(memento._Marker.GetScript());
 				Transaction = memento.Transaction.Clone();
 				AdditionalFees = memento.AdditionalFees;
-				_ConsumedCoins = memento.ConsumedCoins.ToList();
+				_ConsumedOutpoints = memento.ConsumedOutpoints.ToHashSet();
 			}
 
 			public bool NonFinalSequenceSet
@@ -1401,7 +1401,11 @@ namespace NBitcoin
 		retry:
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
 			if (_CompletedTransaction != null)
+			{
 				ctx.Transaction = _CompletedTransaction.Clone();
+				foreach (var input in ctx.Transaction.Inputs)
+					ctx.ConsumedOutpoints.Add(input.PrevOut);
+			}
 			if (_LockTime != null)
 				ctx.Transaction.LockTime = _LockTime.Value;
 			foreach (var group in _BuilderGroups)
@@ -1446,7 +1450,7 @@ namespace NBitcoin
 			// Make some adjustments if we need to send more fees
 			if (StandardTransactionPolicy.MinFee != null)
 			{
-				var consumed = ctx.ConsumedCoins.ToArray();
+				var consumed = ctx.ConsumedOutpoints.Select(c => FindCoin(c)).Where(c => c != null).ToArray();
 				var fee = ctx.Transaction.GetFee(consumed);
 				if (fee != null && fee < StandardTransactionPolicy.MinFee)
 				{
@@ -1489,7 +1493,7 @@ namespace NBitcoin
 				target = ctx.CoverOnly.Add(ctx.ChangeAmount);
 			}
 
-			var unconsumed = coins.Where(c => ctx.ConsumedCoins.All(cc => cc.Outpoint != c.Outpoint)).ToArray();
+			var unconsumed = coins.Where(c => !ctx.ConsumedOutpoints.Contains(c.Outpoint)).ToArray();
 			if (selection == null)
 			{
 				if (group.sendAllToChange)
@@ -1532,7 +1536,7 @@ namespace NBitcoin
 			}
 			foreach (var coin in selection)
 			{
-				ctx.ConsumedCoins.Add(coin);
+				ctx.ConsumedOutpoints.Add(coin.Outpoint);
 				var input = ctx.Transaction.Inputs.FirstOrDefault(i => i.PrevOut == coin.Outpoint);
 				if (input == null)
 					input = ctx.Transaction.Inputs.Add(coin.Outpoint);
@@ -2192,29 +2196,6 @@ namespace NBitcoin
 			if (_CompletedTransaction != null)
 				throw new InvalidOperationException("Transaction to complete already set");
 			_CompletedTransaction = transaction.Clone();
-			return this;
-		}
-
-		/// <summary>
-		/// Will cover the amount of all TxOuts of a partially built transaction (to call after ContinueToBuild)
-		/// </summary>
-		/// <returns></returns>
-		public TransactionBuilder CoverAll()
-		{
-			if (_CompletedTransaction == null)
-				throw new InvalidOperationException("A partially built transaction should be specified by calling ContinueToBuild");
-
-			var illegalTxin = _CompletedTransaction.Inputs.AsIndexedInputs().FirstOrDefault(txin => FindCoin(txin.PrevOut) == null);
-			if(illegalTxin != null) throw CoinNotFound(illegalTxin);
-
-			var toComplete = _CompletedTransaction.TotalOut;
-			CurrentGroup.Builders.Add(ctx =>
-			{
-				if (toComplete < Money.Zero)
-					return Money.Zero;
-				return toComplete;
-			});
-
 			return this;
 		}
 
