@@ -307,7 +307,7 @@ namespace NBitcoin.Tests
 				Assert.Null(wallet.SelectCoinsMinConf(Money.Cents(1), filter_standard, out setCoinsRet, out nValueRet));
 
 				wallet.AddCoin(Money.Cents(1), 4);        // add a new 1 cent coin
-				
+
 				// with a new 1 cent coin, we still can't find a mature 1 cent
 				Assert.Null(wallet.SelectCoinsMinConf(Money.Cents(1), filter_standard, out setCoinsRet, out nValueRet));
 
@@ -1319,6 +1319,80 @@ namespace NBitcoin.Tests
 			Assert.True(entry.Asset.Quantity == quantity);
 			if (destination != null)
 				Assert.True(txout.ScriptPubKey == destination.ScriptPubKey);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CorrectFeeAfterAnyoneCanPay()
+		{
+			var network = Network.Main;
+			var feeRate = new FeeRate(1_000L);
+			var tokenValue = 5_500L;
+			var tokenPrice = 10_000L;
+
+			OutPoint tokenOutpoint = null;
+			Script tokenOwnerScriptPubKey = null;
+			Script tokenAnyoneCanPayScript = null;
+
+			// create token with anyone can pay signature
+			{
+				var privateKey = new Key();
+				tokenOwnerScriptPubKey = privateKey.PubKey.Hash.ScriptPubKey;
+
+				Coin token = CreateCoin(tokenValue, tokenOwnerScriptPubKey);
+				tokenOutpoint = token.Outpoint;
+
+				var txbuilder = new TransactionBuilder(network);
+
+				txbuilder
+					.AddCoins(token)
+					.CoverOnly(token.Amount)
+					.Send(tokenOwnerScriptPubKey, new Money(tokenPrice));
+				Transaction tx = txbuilder.BuildTransaction(false);
+
+				// sign with anyone can pay
+				tx = txbuilder.AddKeys(privateKey).SignTransaction(tx, SigHash.AnyoneCanPay | SigHash.Single);
+
+				// extract signature
+				tokenAnyoneCanPayScript = tx.Inputs[0].ScriptSig;
+			}
+
+			// another key tries to consume this token
+			{
+				var toComplete = network.Consensus.ConsensusFactory.CreateTransaction();
+				TxIn in0 = new TxIn(tokenOutpoint, tokenAnyoneCanPayScript);
+				TxOut out0 = new TxOut(Money.FromUnit(tokenPrice, MoneyUnit.Satoshi), tokenOwnerScriptPubKey);
+				toComplete.Inputs.Add(in0);
+				toComplete.Outputs.Add(out0);
+
+				var privateKey = new Key();
+				var tokenBuyerScriptPubKey = privateKey.PubKey.Hash.ScriptPubKey;
+				var tokenCoin = new Coin(tokenOutpoint, new TxOut(tokenValue, tokenOwnerScriptPubKey));
+				var coins = new ICoin[] { CreateCoin(5_500L, tokenBuyerScriptPubKey) };
+				var txbuilder = new TransactionBuilder(network);
+				var signed = txbuilder
+					.ContinueToBuild(toComplete)
+					.AddCoins(tokenCoin)
+					.AddCoins(coins)
+					.CoverTheRest()
+					.SetChange(tokenBuyerScriptPubKey)
+					.SendEstimatedFees(feeRate)
+					.BuildTransaction(false);
+
+				// sign and verify
+				signed = txbuilder.AddKeys(new Key[] { privateKey }).SignTransaction(signed);
+
+				var estimatedFees = txbuilder.EstimateFees(feeRate);
+				var fee = signed.GetFee(txbuilder.FindSpentCoins(signed));
+				System.Console.WriteLine("fee: " + fee.Satoshi + "; estimatedFees" + estimatedFees.Satoshi);
+				System.Console.WriteLine(signed.ToString());
+				Assert.Equal(tokenAnyoneCanPayScript, signed.Inputs[0].ScriptSig);
+				Assert.Equal(estimatedFees, fee);
+
+				bool result = txbuilder.Verify(signed, out TransactionPolicyError[] errors);
+				Assert.True(result);
+
+			}
 		}
 
 		[Fact]
