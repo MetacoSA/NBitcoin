@@ -647,8 +647,16 @@ namespace NBitcoin
 		{
 			if (minRelayTxFee == null)
 				throw new ArgumentNullException("minRelayTxFee");
-			int nSize = this.GetSerializedSize() + 148;
-			return 3 * minRelayTxFee.GetFee(nSize);
+
+			// OutPoint (32 + 4) + script_size (1) + sequence (4)
+			int inputSize = 32 + 4 + 1 + 4;
+			inputSize += ScriptPubKey.IsScriptType(ScriptType.Witness)
+				? 107 / Transaction.WITNESS_SCALE_FACTOR
+				: 107;
+
+			int outputSize = this.GetSerializedSize();
+
+			return 3 * minRelayTxFee.GetFee(inputSize + outputSize);
 		}
 
 		#region IBitcoinSerializable Members
