@@ -250,7 +250,27 @@ namespace NBitcoin.Tests
 
 			return key;
 		}
+#endif
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void Signatures_use_low_R()
+		{
+			var rnd = new Random();
+			for (var i = 0; i < 100; i++)
+			{
+				var key = new Key();
+				var msgLen = rnd.Next(10, 1000);
+				var msg = new byte[msgLen];
+				rnd.NextBytes(msg);
+
+				var sig = key.Sign(Hashes.Hash256(msg));
+				Assert.True(sig.IsLowR);
+				Assert.True(sig.ToDER().Length <= 70);
+			}
+		}
+
+#if HAS_SPAN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void ECDSASignatureIsOnlyBip66DER()
@@ -281,23 +301,5 @@ namespace NBitcoin.Tests
 			return bytes;
 		}
 #endif
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void Signatures_use_low_R()
-		{
-			var rnd = new Random();
-			for (var i = 0; i < 100; i++)
-			{
-				var key = new Key();
-				var msgLen = rnd.Next(10, 1000);
-				var msg = new byte[msgLen];
-				rnd.NextBytes(msg);
-
-				var sig = key.Sign(Hashes.Hash256(msg));
-				Assert.True(sig.IsLowR);
-				Assert.True(sig.ToDER().Length <= 70);
-			}
-		}
 	}
 }
