@@ -388,8 +388,6 @@ namespace NBitcoin
 			{
 				throw new ArgumentNullException(nameof(other));
 			}
-			if (other.tx.GetHash() != this.tx.GetHash())
-				throw new ArgumentException(paramName: nameof(other), message: "Can not Combine PSBT with different global tx.");
 
 			foreach (var xpub in other.GlobalXPubs)
 				this.GlobalXPubs.TryAdd(xpub.Key, xpub.Value);
