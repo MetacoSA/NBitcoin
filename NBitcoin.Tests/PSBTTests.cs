@@ -240,8 +240,10 @@ namespace NBitcoin.Tests
 
 			clonedPSBT.SignWithKeys(keys[0]);
 			psbtWithTXs.SignWithKeys(keys[1], keys[2]);
-
-			var whollySignedPSBT = clonedPSBT.Combine(psbtWithTXs);
+			var originalClonedPSBT = clonedPSBT.Clone();
+			bool useCombine = true;
+		retry:
+			var whollySignedPSBT = useCombine ? clonedPSBT.Combine(psbtWithTXs) : clonedPSBT.UpdateFrom(psbtWithTXs);
 
 			// must sign only once for whole kinds of non-multisig tx.
 			Assert.Single(whollySignedPSBT.Inputs[0].PartialSigs);
@@ -269,6 +271,12 @@ namespace NBitcoin.Tests
 			builder.AddCoins(coins).AddKeys(keys);
 			if (!builder.Verify(finalTX, (Money)null, out var errors))
 				throw new InvalidOperationException(errors.Aggregate(string.Empty, (a, b) => a + ";\n" + b));
+			if (useCombine)
+			{
+				useCombine = false;
+				clonedPSBT = originalClonedPSBT;
+				goto retry;
+			}
 		}
 
 		[Fact]

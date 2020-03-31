@@ -94,8 +94,15 @@ namespace NBitcoin
 				stream.ReadWriteAsVarString(ref k);
 			}
 		}
-		internal void Combine(PSBTOutput other)
+
+		/// <summary>
+		/// Import informations contained by <paramref name="other"/> into this instance.
+		/// </summary>
+		/// <param name="other"></param>
+		public void UpdateFrom(PSBTOutput other)
 		{
+			if (other == null)
+				throw new ArgumentNullException(nameof(other));
 			if (redeem_script == null && other.redeem_script != null)
 				redeem_script = other.redeem_script;
 

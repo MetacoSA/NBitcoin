@@ -301,8 +301,14 @@ namespace NBitcoin
 			}
 		}
 
-		internal void Combine(PSBTInput other)
+		/// <summary>
+		/// Import informations contained by <paramref name="other"/> into this instance.
+		/// </summary>
+		/// <param name="other"></param>
+		public void UpdateFrom(PSBTInput other)
 		{
+			if (other == null)
+				throw new ArgumentNullException(nameof(other));
 			if (this.IsFinalized())
 				return;
 
