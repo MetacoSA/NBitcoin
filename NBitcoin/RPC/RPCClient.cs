@@ -334,6 +334,7 @@ namespace NBitcoin.RPC
 			SetVersion(capabilities),
 			CheckCapabilities(rpc, "scantxoutset", v => capabilities.SupportScanUTXOSet = v),
 			CheckCapabilities(rpc, "signrawtransactionwithkey", v => capabilities.SupportSignRawTransactionWith = v),
+			CheckCapabilities(rpc, "testmempoolaccept", v => capabilities.SupportTestMempoolAccept = v),
 			CheckCapabilities(rpc, "estimatesmartfee", v => capabilities.SupportEstimateSmartFee = v),
 			CheckCapabilities(rpc, "generatetoaddress", v => capabilities.SupportGenerateToAddress = v),
 			CheckSegwitCapabilities(rpc, v => capabilities.SupportSegwit = v));

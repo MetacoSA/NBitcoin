@@ -15,6 +15,7 @@ namespace NBitcoin.RPC
 		public bool SupportGetNetworkInfo { get; set; }
 		public bool SupportEstimateSmartFee { get; set; }
 		public bool SupportGenerateToAddress { get; set; }
+		public bool SupportTestMempoolAccept { get; set; }
 
 		public RPCCapabilities Clone(int newVersion)
 		{
