@@ -377,7 +377,7 @@ namespace NBitcoin
 		/// <summary>
 		/// If an other PSBT has a specific field and this does not have it, then inject that field to this.
 		/// otherwise leave it as it is.
-		/// 
+		///
 		/// Contrary to <see cref="PSBT.Combine(PSBT)"/>, it can be called on PSBT with a different global transaction.
 		/// </summary>
 		/// <param name="other">Another PSBT to takes information from</param>
@@ -609,6 +609,32 @@ namespace NBitcoin
 			catch
 			{
 				estimatedFeeRate = null;
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Returns the virtual transaction size of the transaction. If the PSBT is finalized, then the exact virtual size.
+		/// </summary>
+		/// <param name="vsize">The calculated virtual size</param>
+		/// <returns>True if could get the virtual size could get estimated</returns>
+		public bool TryGetVirtualSize(out int vsize)
+		{
+			if (IsAllFinalized())
+			{
+				vsize = ExtractTransaction().GetVirtualSize();
+				return true;
+			}
+			var transactionBuilder = CreateTransactionBuilder();
+			transactionBuilder.AddCoins(GetAllCoins());
+			try
+			{
+				 vsize = transactionBuilder.EstimateSize(this.tx, true);
+				 return true;
+			}
+			catch
+			{
+				vsize = -1;
 				return false;
 			}
 		}
