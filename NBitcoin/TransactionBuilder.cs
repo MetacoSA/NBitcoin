@@ -1517,12 +1517,16 @@ namespace NBitcoin
 					group.Name,
 					change.Negate()
 				);
-			if (change.CompareTo(ctx.Dust) == 1)
+
+			var changeScript = group.ChangeScript[(int)ctx.ChangeType];
+			var dust = ctx.Dust;
+			if (changeScript != null && dust is Money)
+				dust = GetDust(changeScript);
+			if (change.CompareTo(dust) >= 0)
 			{
-				var changeScript = group.ChangeScript[(int)ctx.ChangeType];
 				if (changeScript == null)
 					throw new InvalidOperationException("A change address should be specified (" + ctx.ChangeType + ")");
-				if (!(ctx.Dust is Money) || change.CompareTo(GetDust(changeScript)) == 1)
+				if (!(dust is Money) || change.CompareTo(dust) >= 0)
 				{
 					ctx.RestoreMemento(originalCtx);
 					ctx.ChangeAmount = change;

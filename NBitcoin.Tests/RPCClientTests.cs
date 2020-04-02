@@ -607,6 +607,32 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanSendLowValueTransactionFromRPC()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				rpc.Generate(101);
+				var receiver = new Key();
+				var receiverAddress = receiver.PubKey.WitHash.GetAddress(builder.Network);
+				var txid = rpc.SendToAddress(receiverAddress, Money.Satoshis(1000));
+				var tx = rpc.GetRawTransaction(txid);
+				var coin = tx.Outputs.AsCoins().Where(c => c.ScriptPubKey == receiverAddress.ScriptPubKey);
+				var txBuilder = builder.Network.CreateTransactionBuilder();
+				txBuilder.AddCoins(coin);
+				txBuilder.AddKeys(receiver);
+				txBuilder.Send(new Key().ScriptPubKey, Money.Satoshis(600));
+				txBuilder.SetChange(new Key().PubKey.WitHash);
+				// The dust should be 294, so should have 2 outputs
+				txBuilder.SendFees(Money.Satoshis(400 - 294));
+				var signed = txBuilder.BuildTransaction(true);
+				Assert.Equal(2, signed.Outputs.Count);
+				Assert.NotNull(rpc.SendRawTransaction(tx));
+			}
+		}
+
+		[Fact]
 		public void CanImportMultiAddresses()
 		{
 			// Test cases borrowed from: https://github.com/bitcoin/bitcoin/blob/master/test/functional/wallet_importmulti.py

@@ -2112,6 +2112,30 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void AssertCanSendBackSmallSegwitChange()
+		{
+			var k = new Key();
+			var txBuilder = Bitcoin.Instance.Regtest.CreateTransactionBuilder();
+			txBuilder.AddCoins(RandomCoin(Money.Satoshis(1000), k.PubKey.WitHash));
+			txBuilder.Send(new Key().ScriptPubKey, Money.Satoshis(600));
+			txBuilder.SetChange(new Key().PubKey.WitHash);
+			// The dust should be 294, so should have 2 outputs
+			txBuilder.SendFees(Money.Satoshis(400 - 294));
+			var signed = txBuilder.BuildPSBT(false);
+			Assert.Equal(2, signed.Outputs.Count);
+
+			txBuilder = Bitcoin.Instance.Regtest.CreateTransactionBuilder();
+			txBuilder.AddCoins(RandomCoin(Money.Satoshis(1000), k.PubKey.WitHash));
+			txBuilder.Send(new Key().ScriptPubKey, Money.Satoshis(600));
+			txBuilder.SetChange(new Key().PubKey.WitHash);
+			// The dust should be 294, so should have 1 outputs
+			txBuilder.SendFees(Money.Satoshis(400 - 293));
+			signed = txBuilder.BuildPSBT(false);
+			Assert.Single(signed.Outputs);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildTransaction()
 		{
 			var keys = Enumerable.Range(0, 5).Select(i => new Key()).ToArray();
