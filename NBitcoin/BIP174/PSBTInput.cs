@@ -380,10 +380,14 @@ namespace NBitcoin
 		}
 
 		/// <summary>
+		/// Delete superflous information from a finalized input.
 		/// This will not clear utxos since tx extractor might want to check the validity
 		/// </summary>
-		internal void ClearForFinalize()
+		/// <exception cref="System.InvalidOperationException">The input need to be finalized</exception>
+		public void ClearForFinalize()
 		{
+			if (!IsFinalized())
+				throw new InvalidOperationException("The input need to be finalized");
 			this.redeem_script = null;
 			this.witness_script = null;
 			this.partial_sigs.Clear();
