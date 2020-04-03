@@ -1522,7 +1522,7 @@ namespace NBitcoin
 			var dust = ctx.Dust;
 			if (changeScript != null && dust is Money)
 				dust = GetDust(changeScript);
-			if (change.CompareTo(dust) >= 0)
+			if (change.CompareTo(dust) >= 0 && change.CompareTo(zero) != 0)
 			{
 				if (changeScript == null)
 					throw new InvalidOperationException("A change address should be specified (" + ctx.ChangeType + ")");

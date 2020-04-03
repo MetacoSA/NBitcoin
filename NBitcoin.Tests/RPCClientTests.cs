@@ -1221,7 +1221,7 @@ namespace NBitcoin.Tests
 
 				result = rpc.TestMempoolAccept(signedTx.SignedTransaction, false);
 				Assert.True(result.IsAllowed);
-				Assert.Equal((Protocol.RejectCode)0, result.RejectCode);
+				Assert.Equal(Protocol.RejectCode.INVALID, result.RejectCode);
 				Assert.Equal(string.Empty, result.RejectReason);
 			}
 		}
