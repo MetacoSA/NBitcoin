@@ -796,6 +796,8 @@ namespace NBitcoin
 		}
 		public TransactionSignature Sign(Key key, SigHash sigHash)
 		{
+			if (this.IsFinalized())
+				return null;
 			CheckCompatibleSigHash(sigHash);
 			if (PartialSigs.ContainsKey(key.PubKey))
 			{
