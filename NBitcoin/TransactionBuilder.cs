@@ -1526,12 +1526,10 @@ namespace NBitcoin
 			{
 				if (changeScript == null)
 					throw new InvalidOperationException("A change address should be specified (" + ctx.ChangeType + ")");
-				if (!(dust is Money) || change.CompareTo(dust) >= 0)
-				{
-					ctx.RestoreMemento(originalCtx);
-					ctx.ChangeAmount = change;
-					goto retry;
-				}
+
+				ctx.RestoreMemento(originalCtx);
+				ctx.ChangeAmount = change;
+				goto retry;
 			}
 			ctx.ChangeAmount = zero;
 			if (ShuffleRandom != null)

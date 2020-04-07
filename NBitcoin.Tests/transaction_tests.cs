@@ -2128,7 +2128,7 @@ namespace NBitcoin.Tests
 			txBuilder.AddCoins(RandomCoin(Money.Satoshis(1000), k.PubKey.WitHash));
 			txBuilder.Send(new Key().ScriptPubKey, Money.Satoshis(600));
 			txBuilder.SetChange(new Key().PubKey.WitHash);
-			// The dust should be 294, so should have 1 outputs
+			// The dust should be 293, so should have 1 outputs
 			txBuilder.SendFees(Money.Satoshis(400 - 293));
 			signed = txBuilder.BuildPSBT(false);
 			Assert.Single(signed.Outputs);
