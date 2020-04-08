@@ -1157,16 +1157,22 @@ namespace NBitcoin
 					continue;
 				foreach (var keyPath in o)
 				{
-					o.Key.HDKeyPaths.Remove(keyPath.PubKey);
-					o.Key.HDKeyPaths.Add(keyPath.PubKey, newRoot.Derive(keyPath.RootedKeyPath.KeyPath));
+					if (keyPath.RootedKeyPath.MasterFingerprint != newRoot.MasterFingerprint)
+					{
+						o.Key.HDKeyPaths.Remove(keyPath.PubKey);
+						o.Key.HDKeyPaths.Add(keyPath.PubKey, newRoot.Derive(keyPath.RootedKeyPath.KeyPath));
+					}
 				}
 			}
 			foreach (var xpub in GlobalXPubs.ToList())
 			{
 				if (xpub.Key.ExtPubKey.PubKey == accountKey.GetPublicKey())
 				{
-					GlobalXPubs.Remove(xpub.Key);
-					GlobalXPubs.Add(xpub.Key, newRoot.Derive(xpub.Value.KeyPath));
+					if (xpub.Value.MasterFingerprint != newRoot.MasterFingerprint)
+					{
+						GlobalXPubs.Remove(xpub.Key);
+						GlobalXPubs.Add(xpub.Key, newRoot.Derive(xpub.Value.KeyPath));
+					}
 				}
 			}
 			return this;
