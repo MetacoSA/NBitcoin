@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Encoders = NBitcoin.DataEncoders.Encoders;
+using AssetMoney = NBitcoin.OpenAsset.AssetMoney;
 
 namespace NBitcoin.Tests
 {

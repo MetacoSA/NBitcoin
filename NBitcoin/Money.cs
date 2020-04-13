@@ -323,7 +323,7 @@ namespace NBitcoin
 			{
 				return _Satoshis;
 			}
-			// used as a central point where long.MinValue checking can be enforced 
+			// used as a central point where long.MinValue checking can be enforced
 			private set
 			{
 				CheckLongMinValue(value);
@@ -362,7 +362,7 @@ namespace NBitcoin
 
 		public Money(ulong satoshis)
 		{
-			// overflow check. 
+			// overflow check.
 			// ulong.MaxValue is greater than long.MaxValue
 			checked
 			{
@@ -441,7 +441,7 @@ namespace NBitcoin
 		public decimal ToUnit(MoneyUnit unit)
 		{
 			CheckMoneyUnit(unit, nameof(unit));
-			// overflow safe because (long / int) always fit in decimal 
+			// overflow safe because (long / int) always fit in decimal
 			// decimal operations are checked by default
 			return (decimal)Satoshi / (int)unit;
 		}
