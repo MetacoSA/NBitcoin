@@ -331,7 +331,7 @@ namespace NBitcoin
 				non_witness_utxo = other.non_witness_utxo;
 
 			if (witness_utxo == null && other.witness_utxo != null)
-				non_witness_utxo = other.non_witness_utxo;
+				witness_utxo = other.witness_utxo;
 
 			if (sighash_type == 0 && other.sighash_type > 0)
 				sighash_type = other.sighash_type;
