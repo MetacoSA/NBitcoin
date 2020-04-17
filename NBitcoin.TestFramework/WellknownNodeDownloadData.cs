@@ -1261,6 +1261,38 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class ArgoneumNodeDownloadData
+		{
+			// Note that Argoneum has mining disabled by default in offical Windows and Mac binaries as per
+			// https://github.com/dashpay/dash/pull/2778 and https://github.com/dashpay/dash/issues/2998.
+			// Without generate or generatetoaddress RPC calls the ability to run automated tests is very limited.
+			public NodeDownloadData v1_4_1 = new NodeDownloadData()
+			{
+				Version = "1.4.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Argoneum/argoneum/releases/download/v{0}.0/argoneum-{0}-win64.zip",
+					Archive = "argoneum-{0}-win64.zip",
+					Executable = "argoneum-1.4.1/bin/argoneumd.exe",
+					Hash = "06ed74f14135b7fc5d7c6618723cf7e385ac36303e5f83c632241dba9a095248"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Argoneum/argoneum/releases/download/v{0}.0/argoneum-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "argoneum-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "argoneum-1.4.1/bin/argoneumd",
+					Hash = "821e98b2af5c8f12ca39dd399925bdffed400ff702940f45ddf5ad375987d3f6"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Argoneum/argoneum/releases/download/v{0}.0/argoneum-{0}-osx64.tar.gz",
+					Archive = "argoneum-{0}-osx64.tar.gz",
+					Executable = "argoneum-1.4.1/bin/argoneumd",
+					Hash = "7c6dd15bd87042d57ce73c6b124586d33f014ae74b66299e29b926f7a361e5be"
+				}
+			};
+		}
+
 		public static GoByteNodeDownloadData GoByte
 		{
 			get; set;
@@ -1399,6 +1431,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new DogeCashNodeDownloadData();
+
+		public static ArgoneumNodeDownloadData Argoneum
+		{
+			get; set;
+		} = new ArgoneumNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }

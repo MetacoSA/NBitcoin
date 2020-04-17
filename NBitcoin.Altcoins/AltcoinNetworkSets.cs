@@ -8,6 +8,7 @@ namespace NBitcoin.Altcoins
 {
 	public class AltNetworkSets
 	{
+		public static Argoneum Argoneum { get; } = Argoneum.Instance;
 		public static BCash BCash { get; } = BCash.Instance;
 		public static BGold BGold { get; } = BGold.Instance;
 		public static Dash Dash { get; } = Dash.Instance;
@@ -38,6 +39,7 @@ namespace NBitcoin.Altcoins
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
+			yield return Argoneum;
 			yield return Bitcoin;
 			yield return Bitcore;
 			yield return Litecoin;
