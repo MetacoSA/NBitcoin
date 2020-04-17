@@ -971,6 +971,10 @@ namespace NBitcoin
 			set;
 		}
 
+		/// <summary>
+		/// Check if this program represent P2WSH
+		/// </summary>
+		/// <returns>True if P2WSH</returns>
 		public bool NeedWitnessRedeemScript()
 		{
 			return Version == OpcodeType.OP_0 && Program?.Length is 32;

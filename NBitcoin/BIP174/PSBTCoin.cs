@@ -99,45 +99,47 @@ namespace NBitcoin
 			}
 			if (PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey) is ScriptId scriptId)
 			{
-				if (RedeemScript == null)
+				var redeemScript = GetRedeemScript();
+				if (redeemScript == null)
 				{
 					error = "Spending p2sh output but redeem_script is not set";
 					return null;
 				}
 
-				if (RedeemScript.Hash != scriptId)
+				if (redeemScript.Hash != scriptId)
 				{
 					error = "Spending p2sh output but redeem_script is not matching the utxo scriptPubKey";
 					return null;
 				}
 
-				if (PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(RedeemScript) is WitProgramParameters prog
+				if (PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(redeemScript) is WitProgramParameters prog
 					&& prog.NeedWitnessRedeemScript())
 				{
-					if (WitnessScript == null)
+					var witnessScript = GetWitnessScript();
+					if (witnessScript == null)
 					{
 						error = "Spending p2sh-p2wsh output but witness_script is not set";
 						return null;
 					}
-					if (!prog.VerifyWitnessRedeemScript(WitnessScript))
+					if (!prog.VerifyWitnessRedeemScript(witnessScript))
 					{
 						error = "Spending p2sh-p2wsh output but witness_script does not match redeem_script";
 						return null;
 					}
-					coin = coin.ToScriptCoin(WitnessScript);
+					coin = coin.ToScriptCoin(witnessScript);
 					error = null;
 					return coin;
 				}
 				else
 				{
-					coin = coin.ToScriptCoin(RedeemScript);
+					coin = coin.ToScriptCoin(redeemScript);
 					error = null;
 					return coin;
 				}
 			}
 			else
 			{
-				if (RedeemScript != null)
+				if (GetRedeemScript() != null)
 				{
 					error = "Spending non p2sh output but redeem_script is set";
 					return null;
@@ -145,17 +147,18 @@ namespace NBitcoin
 				if (PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(coin.ScriptPubKey) is WitProgramParameters prog
 					&& prog.NeedWitnessRedeemScript())
 				{
-					if (WitnessScript == null)
+					var witnessScript = GetWitnessScript();
+					if (witnessScript == null)
 					{
 						error = "Spending p2wsh output but witness_script is not set";
 						return null;
 					}
-					if (!prog.VerifyWitnessRedeemScript(WitnessScript))
+					if (!prog.VerifyWitnessRedeemScript(witnessScript))
 					{
 						error = "Spending p2wsh output but witness_script does not match the scriptPubKey";
 						return null;
 					}
-					coin = coin.ToScriptCoin(WitnessScript);
+					coin = coin.ToScriptCoin(witnessScript);
 					error = null;
 					return coin;
 				}
@@ -166,8 +169,19 @@ namespace NBitcoin
 				}
 			}
 		}
+
+
+		internal virtual Script GetRedeemScript()
+		{
+			return RedeemScript;
+		}
+		internal virtual Script GetWitnessScript()
+		{
+			return WitnessScript;
+		}
+
 		/// <summary>
-		/// Filter the keys which contains the <paramref name="accountKey"/> and <paramref name="accountKeyPath"/> in the HDKeys and whose input/output 
+		/// Filter the keys which contains the <paramref name="accountKey"/> and <paramref name="accountKeyPath"/> in the HDKeys and whose input/output
 		/// the same scriptPubKeys as <paramref name="accountHDScriptPubKey"/>.
 		/// </summary>
 		/// <param name="accountHDScriptPubKey">The accountHDScriptPubKey used to generate addresses</param>

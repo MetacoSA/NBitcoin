@@ -115,6 +115,7 @@ namespace NBitcoin.Tests
 
 				Assert.True(partiallySignedTx.Inputs.All(i => i.PartialSigs.Count == 3));
 				partiallySignedTx.Finalize();
+				Assert.DoesNotContain(partiallySignedTx.Inputs.Select(i => i.GetSignableCoin()), o => o is null);
 
 				var signedTx = partiallySignedTx.ExtractTransaction();
 				rpc.SendRawTransaction(signedTx);

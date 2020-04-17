@@ -405,6 +405,53 @@ namespace NBitcoin
 			return base.GetSignableCoin(out error);
 		}
 
+		internal override Script GetRedeemScript()
+		{
+			var redeemScript = base.GetRedeemScript();
+			if (redeemScript != null)
+				return redeem_script;
+			if (FinalScriptSig is null)
+				return null;
+			var coin = GetCoin();
+			if (coin is null)
+				return null;
+			var scriptId = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
+			if (scriptId is null)
+				return null;
+			return PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(FinalScriptSig, scriptId)?.RedeemScript;
+		}
+
+		internal override Script GetWitnessScript()
+		{
+			var witnessScript = base.GetWitnessScript();
+			if (witnessScript != null)
+				return witness_script;
+			if (FinalScriptWitness is null)
+				return null;
+			var coin = GetCoin();
+			if (coin is null)
+				return null;
+			var witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
+			if (witScriptId != null)
+			{
+				return PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(FinalScriptWitness, witScriptId);
+			}
+			// Maybe wrapped P2SH
+			if (FinalScriptSig is null)
+				return null;
+			var scriptId = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
+			if (scriptId is null)
+				return null;
+			var p2shRedeem = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(FinalScriptSig, scriptId)
+				?.RedeemScript;
+			if (p2shRedeem is null)
+				return null;
+			witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(p2shRedeem);
+			if (witScriptId is null)
+				return null;
+			return PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(FinalScriptWitness, witScriptId);
+		}
+
 		public IList<PSBTError> CheckSanity()
 		{
 			List<PSBTError> errors = new List<PSBTError>();
