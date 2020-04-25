@@ -234,8 +234,6 @@ namespace NBitcoin
 		{
 			if (coin == null)
 				throw new ArgumentNullException(nameof(coin));
-			if (IsFinalized())
-				throw new InvalidOperationException("Impossible to modify the PSBTInput if it has been finalized");
 			if (coin.Outpoint != PrevOut)
 				throw new ArgumentException("This coin does not match the input", nameof(coin));
 			if (IsFinalized())
