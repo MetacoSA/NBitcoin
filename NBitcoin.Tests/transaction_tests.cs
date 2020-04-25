@@ -1699,6 +1699,56 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanGetFinalizedHashFromPSBT()
+		{
+			var tx = Network.Main.CreateTransaction();
+			Key alice = new Key();
+			var sw = alice.PubKey.GetScriptPubKey(ScriptPubKeyType.Segwit);
+			var p2sh = alice.PubKey.GetScriptPubKey(ScriptPubKeyType.SegwitP2SH);
+			var leg = alice.PubKey.GetScriptPubKey(ScriptPubKeyType.Legacy);
+			var swc = new Coin(RandOutpoint(), new TxOut(Money.Coins(1.0m), sw));
+			var p2shc = new Coin(RandOutpoint(), new TxOut(Money.Coins(1.1m), p2sh)).ToScriptCoin(sw);
+
+			var prevTx = Network.Main.CreateTransaction();
+			prevTx.Inputs.Add(RandOutpoint());
+			prevTx.Outputs.Add(Money.Coins(1.2m), leg);
+			var legc = prevTx.Outputs.AsCoins().First();
+			tx.Inputs.Add(swc.Outpoint);
+			tx.Inputs.Add(p2shc.Outpoint);
+			tx.Outputs.Add(new TxOut(Money.Coins(1.0m), new Key().PubKey.ScriptPubKey));
+			var psbt = PSBT.FromTransaction(tx, Network.Main);
+			psbt.AddCoins(swc, p2shc);
+
+			// Missing redeem script for p2shc
+			psbt.Inputs[1].RedeemScript = null;
+			uint256 expectedHash = null;
+			Assert.False(psbt.TryGetFinalizedHash(out expectedHash));
+			Assert.Null(expectedHash);
+			psbt.Inputs[1].RedeemScript = p2shc.GetP2SHRedeem();
+			Assert.True(psbt.TryGetFinalizedHash(out expectedHash));
+			Assert.NotNull(expectedHash);
+			psbt.SignWithKeys(alice);
+			psbt.Finalize();
+			Assert.Equal(expectedHash, psbt.ExtractTransaction().GetHash());
+
+			// Missing the signature of the legacy
+			tx.Inputs.Add(legc.Outpoint);
+			psbt = PSBT.FromTransaction(tx, Network.Main);
+			psbt.AddCoins(swc, p2shc);
+			psbt.AddTransactions(prevTx);
+			Assert.False(psbt.TryGetFinalizedHash(out expectedHash));
+			Assert.Null(expectedHash);
+			psbt.Inputs[2].Sign(alice);
+			psbt.Inputs[2].FinalizeInput();
+			Assert.True(psbt.TryGetFinalizedHash(out expectedHash));
+			Assert.NotNull(expectedHash);
+			psbt.SignWithKeys(alice);
+			psbt.Finalize();
+			Assert.Equal(expectedHash, psbt.ExtractTransaction().GetHash());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void BigUIntCoverage()
 		{
 			Assert.True(new uint160("0102030405060708090102030405060708090102") == new uint160("0102030405060708090102030405060708090102"));

@@ -651,6 +651,10 @@ namespace NBitcoin
 		}
 
 
+		/// <summary>
+		/// Get the P2SH redeem script
+		/// </summary>
+		/// <returns>The P2SH redeem script or null if this coin is not P2SH.</returns>
 		public Script GetP2SHRedeem()
 		{
 			if (!IsP2SH)
