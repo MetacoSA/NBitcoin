@@ -236,8 +236,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(coin));
 			if (coin.Outpoint != PrevOut)
 				throw new ArgumentException("This coin does not match the input", nameof(coin));
-			if (IsFinalized())
-				return;
+			
 			if (coin is ScriptCoin scriptCoin)
 			{
 				if (scriptCoin.RedeemType == RedeemType.P2SH)
@@ -285,7 +284,6 @@ namespace NBitcoin
 					}
 				}
 			}
-
 			if (Parent.Network.Consensus.NeverNeedPreviousTxForSigning ||
 				coin.GetHashVersion() == HashVersion.Witness || witness_script != null)
 			{
@@ -297,6 +295,8 @@ namespace NBitcoin
 				orphanTxOut = coin.TxOut;
 				witness_utxo = null;
 			}
+			if (IsFinalized())
+				ClearForFinalize();
 		}
 
 		/// <summary>
@@ -307,8 +307,6 @@ namespace NBitcoin
 		{
 			if (other == null)
 				throw new ArgumentNullException(nameof(other));
-			if (this.IsFinalized())
-				return;
 
 			foreach (var uk in other.unknown)
 				unknown.TryAdd(uk.Key, uk.Value);
@@ -319,11 +317,6 @@ namespace NBitcoin
 
 			if (other.final_script_witness != null)
 				final_script_witness = other.final_script_witness;
-			if (IsFinalized())
-			{
-				ClearForFinalize();
-				return;
-			}
 
 			if (non_witness_utxo == null && other.non_witness_utxo != null)
 				non_witness_utxo = other.non_witness_utxo;
@@ -346,6 +339,8 @@ namespace NBitcoin
 			foreach (var keyPath in other.hd_keypaths)
 				hd_keypaths.TryAdd(keyPath.Key, keyPath.Value);
 
+			if (IsFinalized())
+				ClearForFinalize();
 		}
 
 		public bool IsFinalized() => final_script_sig != null || final_script_witness != null;
