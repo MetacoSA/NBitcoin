@@ -761,6 +761,11 @@ namespace NBitcoin
 			return this;
 		}
 
+		public TransactionBuilder SetOptInRBF(bool rbf)
+		{
+			OptInRBF = rbf;
+			return this;
+		}
 		public TransactionBuilder AddKnownSignature(PubKey pubKey, ECDSASignature signature, OutPoint signedOutpoint)
 		{
 			if (pubKey == null)
