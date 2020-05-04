@@ -26,6 +26,14 @@ namespace NBitcoin
 			}
 		}
 
+		public static Sequence FeeSnipping
+		{
+			get
+			{
+				return new Sequence(SEQUENCE_FINAL - 1);
+			}
+		}
+
 		/// <summary>
 		/// If this flag set, CTxIn::nSequence is NOT interpreted as a
 		/// relative lock-time. 

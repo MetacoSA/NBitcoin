@@ -537,12 +537,6 @@ namespace NBitcoin
 				_ConsumedOutpoints = new HashSet<OutPoint>(memento.ConsumedOutpoints);
 			}
 
-			public bool NonFinalSequenceSet
-			{
-				get;
-				set;
-			}
-
 			public IMoney? CoverOnly
 			{
 				get;
@@ -1548,12 +1542,10 @@ namespace NBitcoin
 				if (OptInRBF)
 				{
 					input.Sequence = Sequence.OptInRBF;
-					ctx.NonFinalSequenceSet = true;
 				}
-				if (_LockTime != null && !ctx.NonFinalSequenceSet)
+				else (_LockTime is LockTime)
 				{
-					input.Sequence = 0;
-					ctx.NonFinalSequenceSet = true;
+					input.Sequence = Sequence.FeeSnipping;
 				}
 			}
 			if (MergeOutputs && !hasColoredCoins)
