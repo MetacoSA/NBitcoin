@@ -1543,7 +1543,7 @@ namespace NBitcoin
 				{
 					input.Sequence = Sequence.OptInRBF;
 				}
-				else (_LockTime is LockTime)
+				else if (_LockTime is LockTime)
 				{
 					input.Sequence = Sequence.FeeSnipping;
 				}
