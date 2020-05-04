@@ -1536,13 +1536,15 @@ namespace NBitcoin
 			{
 				Utils.Shuffle(selection, ShuffleRandom);
 			}
+			var inputsPerOutpoints = ctx.Transaction.Inputs.ToDictionary(o => o.PrevOut);
 			foreach (var coin in selection)
 			{
 				ctx.ConsumedOutpoints.Add(coin.Outpoint);
-				var input = ctx.Transaction.Inputs.FirstOrDefault(i => i.PrevOut == coin.Outpoint);
-				if (input == null)
+				if (!inputsPerOutpoints.TryGetValue(coin.Outpoint, out var input))
+				{
 					input = ctx.Transaction.Inputs.Add(coin.Outpoint);
-
+					inputsPerOutpoints.Add(coin.Outpoint, input);
+				}
 				if (OptInRBF)
 				{
 					input.Sequence = Sequence.OptInRBF;
