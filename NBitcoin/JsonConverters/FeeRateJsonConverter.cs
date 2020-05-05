@@ -26,7 +26,7 @@ namespace NBitcoin.JsonConverters
 			try
 			{
 				if (reader.TokenType == JsonToken.Integer)
-					return new FeeRate((long)reader.Value);
+					return new FeeRate(Money.Satoshis((long)reader.Value), 1);
 				if (reader.TokenType == JsonToken.Float)
 					return new FeeRate((decimal)(double)reader.Value);
 				throw new JsonObjectException("Fee rate amount should be in satoshi", reader);
