@@ -722,7 +722,7 @@ namespace NBitcoin
 			set;
 		}
 
-		LockTime? _LockTime;
+		LockTime _LockTime;
 		public TransactionBuilder SetLockTime(LockTime lockTime)
 		{
 			_LockTime = lockTime;
@@ -1548,7 +1548,7 @@ namespace NBitcoin
 				{
 					input.Sequence = Sequence.OptInRBF;
 				}
-				else if (_LockTime is LockTime)
+				else if (_LockTime != LockTime.Zero)
 				{
 					input.Sequence = Sequence.FeeSnipping;
 				}
