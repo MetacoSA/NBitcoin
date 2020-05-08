@@ -13,7 +13,20 @@ namespace NBitcoin.DataEncoders
 		{
 			if (String.IsNullOrEmpty(encoded))
 				return new byte[0];
-			return encoded.ToCharArray().Select(o => (byte)o).ToArray();
+#if HAS_SPAN
+			Span<byte> r = encoded.Length is int v && v > 256 ? new byte[v] : stackalloc byte[v];
+#else
+			var r = new byte[encoded.Length];
+#endif
+			for (int i = 0; i < r.Length; i++)
+			{
+				r[i] = (byte)encoded[i];
+			}
+#if HA_SPAN
+			return r;
+#else
+			return r.ToArray();
+#endif
 		}
 
 		public override string EncodeData(byte[] data, int offset, int count)

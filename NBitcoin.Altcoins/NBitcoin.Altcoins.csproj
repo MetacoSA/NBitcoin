@@ -21,6 +21,10 @@
 	<ItemGroup>
 		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
 	</ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netstandard2.1'">
+    <DefineConstants>$(DefineConstants);HAS_SPAN</DefineConstants>
+    <RemoveBC>true</RemoveBC>
+  </PropertyGroup>
   <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
