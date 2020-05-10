@@ -18,5 +18,10 @@ namespace NBitcoin.Bench
 		{
 			BitcoinAddress.Create("bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq", Network.Main);
 		}
+		[Benchmark]
+		public void DeserializeXPub()
+		{
+			new BitcoinExtPubKey("tpubDDtSBgfc8peQPRWaSUfPC6k3QosE6QWv1P3ZBXbmCBQehxd4KdZLpsLJGe4qML2AcgbxZNHdi87929AXeFD2tENmLZD2DWFPGXBDcQzeQ3d", Network.TestNet);
+		}
 	}
 }

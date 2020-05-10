@@ -282,15 +282,7 @@ namespace NBitcoin
 		/// </summary>
 		public ExtPubKey Neuter()
 		{
-			ExtPubKey ret = new ExtPubKey
-			{
-				nDepth = nDepth,
-				parentFingerprint = parentFingerprint,
-				nChild = nChild,
-				pubkey = key.PubKey,
-				vchChainCode = vchChainCode.ToArray()
-			};
-			return ret;
+			return new ExtPubKey(key.PubKey, vchChainCode.ToArray(), nDepth, parentFingerprint, nChild);
 		}
 
 		public bool IsChildOf(ExtKey parentKey)

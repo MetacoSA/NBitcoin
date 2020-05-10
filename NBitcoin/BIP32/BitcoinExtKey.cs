@@ -198,8 +198,7 @@ namespace NBitcoin
 			{
 				if (_PubKey == null)
 				{
-					_PubKey = new ExtPubKey();
-					_PubKey.ReadWrite(new BitcoinStream(vchData));
+					_PubKey = new ExtPubKey(new BitcoinStream(vchData));
 				}
 				return _PubKey;
 			}
@@ -214,7 +213,7 @@ namespace NBitcoin
 					return false;
 				try
 				{
-					_PubKey = new ExtPubKey();
+					_PubKey = new ExtPubKey(new BitcoinStream(vchData));
 					_PubKey.ReadWrite(new BitcoinStream(vchData));
 					return true;
 				}
