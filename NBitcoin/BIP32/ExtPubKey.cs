@@ -21,12 +21,11 @@ namespace NBitcoin
 
 		private const int ChainCodeLength = 32;
 
-		static readonly byte[] validPubKey = Encoders.Hex.DecodeData("0374ef3990e387b5a2992797f14c031a64efd80e5cb843d7c1d4a0274a9bc75e55");
 		internal byte nDepth;
 		internal HDFingerprint parentFingerprint;
 		internal uint nChild;
 
-		internal PubKey pubkey = new PubKey(validPubKey);
+		internal PubKey pubkey;
 		internal byte[] vchChainCode = new byte[ChainCodeLength];
 
 		public byte Depth
@@ -70,8 +69,17 @@ namespace NBitcoin
 			}
 		}
 
-		internal ExtPubKey()
+		internal ExtPubKey(BitcoinStream stream)
 		{
+			if (stream == null)
+				throw new ArgumentNullException(nameof(stream));
+			stream.ReadWrite(ref nDepth);
+			stream.ReadWrite(ref parentFingerprint);
+			stream.ReadWrite(ref nChild);
+			stream.ReadWrite(ref vchChainCode);
+			var pubkeyBytes = new byte[33];
+			stream.ReadWrite(ref pubkeyBytes);
+			pubkey = new PubKey(pubkeyBytes);
 		}
 
 		/// <summary>
@@ -151,13 +159,8 @@ namespace NBitcoin
 
 		public ExtPubKey Derive(uint index)
 		{
-			var result = new ExtPubKey
-			{
-				nDepth = (byte)(nDepth + 1),
-				parentFingerprint = PubKey.GetHDFingerPrint(),
-				nChild = index
-			};
-			result.pubkey = pubkey.Derivate(this.vchChainCode, index, out result.vchChainCode);
+			var childPubKey = pubkey.Derivate(this.vchChainCode, index, out var chainCode);
+			var result = new ExtPubKey(childPubKey, chainCode, (byte)(nDepth + 1), PubKey.GetHDFingerPrint(), index);
 			return result;
 		}
 
@@ -191,7 +194,17 @@ namespace NBitcoin
 				stream.ReadWrite(ref parentFingerprint);
 				stream.ReadWrite(ref nChild);
 				stream.ReadWrite(ref vchChainCode);
-				stream.ReadWrite(ref pubkey);
+				if (pubkey is null)
+				{
+					var pubkeyBytes = new byte[33];
+					stream.ReadWrite(ref pubkeyBytes);
+					if (!stream.Serializing)
+						pubkey = new PubKey(pubkeyBytes);
+				}
+				else
+				{
+					stream.ReadWrite(ref pubkey);
+				}
 			}
 		}
 
