@@ -312,7 +312,7 @@ namespace NBitcoin
 #if HAS_SPAN
 			Span<byte> msg = stackalloc byte[32];
 			hash.ToBytes(msg);
-			return _ECKey.SigVerify(sig.ToSecpECDSASignature(), msg);
+			return _ECKey.SigVerify(sig.r, sig.s, msg);
 #else
 			return ECKey.Verify(hash, sig);
 #endif
@@ -450,7 +450,7 @@ namespace NBitcoin
 			var hash = Hashes.Hash256(messageToSign);
 			Span<byte> msg = stackalloc byte[32];
 			hash.ToBytes(msg);
-			return _ECKey.SigVerify(signature.ToSecpECDSASignature(), msg);
+			return _ECKey.SigVerify(signature.r, signature.s, msg);
 #else
 			var messageToSign = Utils.FormatMessageForSigning(message);
 			var hash = Hashes.Hash256(messageToSign);

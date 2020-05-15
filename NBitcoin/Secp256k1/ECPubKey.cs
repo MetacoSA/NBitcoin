@@ -115,15 +115,15 @@ namespace NBitcoin.Secp256k1
 
 		public bool SigVerify(SecpECDSASignature signature, ReadOnlySpan<byte> msg32)
 		{
-			if (msg32.Length != 32)
-				return false;
 			if (signature is null)
 				return false;
-			Scalar m;
-
-			m = new Scalar(msg32);
-
-			var (r, s) = signature;
+			return SigVerify(signature.r, signature.s, msg32);
+		}
+		public bool SigVerify(in Scalar r, in Scalar s, ReadOnlySpan<byte> msg32)
+		{
+			if (msg32.Length != 32)
+				return false;
+			var m = new Scalar(msg32);
 			return (!s.IsHigh &&
 					secp256k1_ecdsa_sig_verify(ctx.EcMultContext, r, s, Q, m));
 		}
