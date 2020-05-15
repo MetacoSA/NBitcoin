@@ -1907,7 +1907,19 @@ namespace NBitcoin.RPC
 			}
 			else
 			{
-				var response = await SendCommandAsync(RPCOperations.estimatefee, confirmationTarget).ConfigureAwait(false);
+				RPCResponse response = await SendCommandAsync(new RPCRequest(RPCOperations.estimatefee, new object[] { confirmationTarget }), false).ConfigureAwait(false);
+				if (response.Error != null)
+				{
+					if (response.Error.Code is RPCErrorCode.RPC_MISC_ERROR)
+					{
+						// Some shitcoins do not require a parameter to estimatefee anymore
+						response = await SendCommandAsync(RPCOperations.estimatefee).ConfigureAwait(false);
+					}
+					else
+					{
+						response.ThrowIfError();
+					}
+				}
 				var result = response.Result.Value<decimal>();
 				var money = Money.Coins(result);
 				if (money.Satoshi < 0)
