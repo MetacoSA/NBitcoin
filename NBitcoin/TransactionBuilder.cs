@@ -850,7 +850,7 @@ namespace NBitcoin
 				_UseLowR = value;
 			}
 		}
-		bool _UseLowR;
+		bool? _UseLowR;
 
 		/// <summary>
 		/// Send bitcoins to a destination

@@ -71,7 +71,18 @@ namespace NBitcoin
 		/// ref: https://github.com/bitcoin/bitcoin/pull/13666
 		/// </summary>
 		[Obsolete("Pass SigningOptions with SigningOptions.EnforceLowR set when signing instead")]
-		public bool UseLowR { get; set; } = true;
+		public bool UseLowR
+		{
+			get
+			{
+				return _UseLowR is bool v ? v : true;
+			}
+			set
+			{
+				_UseLowR = value;
+			}
+		}
+		internal bool? _UseLowR;
 
 		/// <summary>
 		/// Use custom builder extensions to customize finalization
@@ -669,7 +680,18 @@ namespace NBitcoin
 
 		public PSBT SignWithKeys(SigHash sigHash, params Key[] keys)
 		{
-			return SignWithKeys(new SigningOptions(sigHash), keys);
+			return SignWithKeys(Normalize(new SigningOptions(sigHash)), keys);
+		}
+
+		internal SigningOptions Normalize(SigningOptions signingOptions)
+		{
+			// Handle legacy
+			if (Settings._UseLowR is bool v)
+			{
+				signingOptions = signingOptions.Clone();
+				signingOptions.EnforceLowR = v;
+			}
+			return signingOptions;
 		}
 
 		public PSBT SignWithKeys(SigningOptions signingOptions, params Key[] keys)

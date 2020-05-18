@@ -867,7 +867,7 @@ namespace NBitcoin
 		}
 		public TransactionSignature Sign(Key key, SigHash sigHash)
 		{
-			return Sign(key, new SigningOptions(sigHash));
+			return Sign(key, Parent.Normalize(new SigningOptions(sigHash)));
 		}
 
 		private void CheckCompatibleSigHash(SigHash sigHash)
