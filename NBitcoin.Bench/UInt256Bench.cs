@@ -27,10 +27,12 @@ namespace NBitcoin.Bench
 		{
 			Value.ToBytes(EmptyArray);
 		}
+#if HAS_SPAN
 		[Benchmark]
 		public void WriteToSpan()
 		{
 			Value.ToBytes(EmptyArray.AsSpan());
 		}
+#endif
 	}
 }
