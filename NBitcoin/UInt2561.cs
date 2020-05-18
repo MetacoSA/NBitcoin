@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using NBitcoin.DataEncoders;
 
 namespace NBitcoin
@@ -168,12 +169,6 @@ namespace NBitcoin
 		{
 			pn0 = (uint)b;
 			pn1 = (uint)(b >> 32);
-			pn2 = 0;
-			pn3 = 0;
-			pn4 = 0;
-			pn5 = 0;
-			pn6 = 0;
-			pn7 = 0;
 		}
 
 		public uint256(byte[] vch, bool lendian = true) : this(vch, 0, vch.Length, lendian)
@@ -187,6 +182,21 @@ namespace NBitcoin
 			{
 				throw new FormatException("the byte array should be 32 bytes long");
 			}
+#if HAS_SPAN
+			if (BitConverter.IsLittleEndian && lendian)
+			{
+				var uints = MemoryMarshal.Cast<byte, uint>(vch.AsSpan().Slice(offset, length));
+				pn0 = uints[0];
+				pn1 = uints[1];
+				pn2 = uints[2];
+				pn3 = uints[3];
+				pn4 = uints[4];
+				pn5 = uints[5];
+				pn6 = uints[6];
+				pn7 = uints[7];
+				return;
+			}
+#endif
 
 			if (!lendian)
 			{
@@ -213,7 +223,19 @@ namespace NBitcoin
 			{
 				throw new FormatException("the byte array should be 32 bytes long");
 			}
-
+			if (BitConverter.IsLittleEndian)
+			{
+				var uints = MemoryMarshal.Cast<byte, uint>(bytes);
+				pn0 = uints[0];
+				pn1 = uints[1];
+				pn2 = uints[2];
+				pn3 = uints[3];
+				pn4 = uints[4];
+				pn5 = uints[5];
+				pn6 = uints[6];
+				pn7 = uints[7];
+				return;
+			}
 			pn0 = Utils.ToUInt32(bytes.Slice(0), true);
 			pn1 = Utils.ToUInt32(bytes.Slice(4 * 1), true);
 			pn2 = Utils.ToUInt32(bytes.Slice(4 * 2), true);
@@ -224,17 +246,12 @@ namespace NBitcoin
 			pn7 = Utils.ToUInt32(bytes.Slice(4 * 7), true);
 		}
 #endif
-
+		/// <summary>
+		/// Create a uint256 from a string in big endian
+		/// </summary>
+		/// <param name="str"></param>
 		public uint256(string str)
 		{
-			pn0 = 0;
-			pn1 = 0;
-			pn2 = 0;
-			pn3 = 0;
-			pn4 = 0;
-			pn5 = 0;
-			pn6 = 0;
-			pn7 = 0;
 			str = str.Trim();
 
 			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
@@ -244,6 +261,21 @@ namespace NBitcoin
 			Array.Reverse(bytes);
 			if (bytes.Length != WIDTH_BYTE)
 				throw new FormatException("Invalid hex length");
+#if HAS_SPAN
+			if (BitConverter.IsLittleEndian)
+			{
+				Span<uint> uints = MemoryMarshal.Cast<byte, uint>(bytes.AsSpan());
+				pn0 = uints[0];
+				pn1 = uints[1];
+				pn2 = uints[2];
+				pn3 = uints[3];
+				pn4 = uints[4];
+				pn5 = uints[5];
+				pn6 = uints[6];
+				pn7 = uints[7];
+				return;
+			}
+#endif
 			pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
 			pn1 = Utils.ToUInt32(bytes, 4 * 1, true);
 			pn2 = Utils.ToUInt32(bytes, 4 * 2, true);
@@ -252,7 +284,6 @@ namespace NBitcoin
 			pn5 = Utils.ToUInt32(bytes, 4 * 5, true);
 			pn6 = Utils.ToUInt32(bytes, 4 * 6, true);
 			pn7 = Utils.ToUInt32(bytes, 4 * 7, true);
-
 		}
 
 		public int GetBisCount()
@@ -485,16 +516,47 @@ namespace NBitcoin
 			return arr;
 		}
 
+		/// <summary>
+		/// Write this instance to the output in little endian
+		/// </summary>
+		/// <param name="output"></param>
 		public void ToBytes(byte[] output)
 		{
-			Buffer.BlockCopy(Utils.ToBytes(pn0, true), 0, output, 4 * 0, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn1, true), 0, output, 4 * 1, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn2, true), 0, output, 4 * 2, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn3, true), 0, output, 4 * 3, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn4, true), 0, output, 4 * 4, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn5, true), 0, output, 4 * 5, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn6, true), 0, output, 4 * 6, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn7, true), 0, output, 4 * 7, 4);
+			ToBytes(output, true);
+		}
+		/// <summary>
+		/// Write this instance to the output
+		/// </summary>
+		/// <param name="output"></param>
+		/// <param name="lendian"></param>
+		public void ToBytes(byte[] output, bool lendian)
+		{
+#if HAS_SPAN
+			ToBytes(output.AsSpan(), lendian);
+#else
+			if (lendian)
+			{
+				Buffer.BlockCopy(Utils.ToBytes(pn0, true), 0, output, 4 * 0, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn1, true), 0, output, 4 * 1, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn2, true), 0, output, 4 * 2, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn3, true), 0, output, 4 * 3, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn4, true), 0, output, 4 * 4, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn5, true), 0, output, 4 * 5, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn6, true), 0, output, 4 * 6, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn7, true), 0, output, 4 * 7, 4);
+			}
+			else
+			{
+				Buffer.BlockCopy(Utils.ToBytes(pn7, false), 0, output, 4 * 0, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn6, false), 0, output, 4 * 1, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn5, false), 0, output, 4 * 2, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn4, false), 0, output, 4 * 3, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn3, false), 0, output, 4 * 4, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn2, false), 0, output, 4 * 5, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn1, false), 0, output, 4 * 6, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn0, false), 0, output, 4 * 7, 4);
+			}
+#endif
 		}
 
 #if HAS_SPAN
@@ -503,6 +565,23 @@ namespace NBitcoin
 			if (output.Length < WIDTH_BYTE)
 				throw new ArgumentException(message: $"The array should be at least of size {WIDTH_BYTE}", paramName: nameof(output));
 
+			if (BitConverter.IsLittleEndian)
+			{
+				Span<uint> temp = stackalloc uint[8];
+				temp[0] = pn0;
+				temp[1] = pn1;
+				temp[2] = pn2;
+				temp[3] = pn3;
+				temp[4] = pn4;
+				temp[5] = pn5;
+				temp[6] = pn6;
+				temp[7] = pn7;
+				var tempBytes = MemoryMarshal.Cast<uint, byte>(temp);
+				if (!lendian)
+					tempBytes.Reverse();
+				tempBytes.CopyTo(output);
+				return;
+			}
 			var initial = output;
 			Utils.ToBytes(pn0, true, output);
 			output = output.Slice(4);
