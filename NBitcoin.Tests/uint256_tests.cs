@@ -104,6 +104,34 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void uitnSerializationTests2()
+		{
+			var v = new uint256("0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20");
+			var vr = new uint256("201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201");
+			var bytes = v.ToBytes();
+			Assert.Equal(0x20, bytes[0]);
+			Assert.Equal(0x01, bytes[31]);
+
+			var v2 = new uint256(bytes);
+			Assert.Equal(v, v2);
+
+			Assert.Equal("0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20", v2.ToString());
+
+			var bytes2 = new byte[32];
+			v2.ToBytes(bytes2);
+			var v3 = new uint256(bytes2, 0, 32);
+			Assert.Equal(v2, v3);
+
+			Assert.Equal(vr, new uint256(v.ToBytes(false)));
+			v.ToBytes(bytes, false);
+			Assert.Equal(vr, new uint256(bytes));
+
+			v.ToBytes(bytes);
+			Assert.Equal(vr, new uint256(bytes, false));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void uitnSerializationTests()
 		{
 			MemoryStream ms = new MemoryStream();
