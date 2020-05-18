@@ -70,6 +70,7 @@ namespace NBitcoin
 		/// This should be turned false only in the test.
 		/// ref: https://github.com/bitcoin/bitcoin/pull/13666
 		/// </summary>
+		[Obsolete("Pass SigningOptions with SigningOptions.EnforceLowR set when signing instead")]
 		public bool UseLowR { get; set; } = true;
 
 		/// <summary>
@@ -86,7 +87,9 @@ namespace NBitcoin
 		{
 			return new PSBTSettings()
 			{
+#pragma warning disable CS0618 // Type or member is obsolete
 				UseLowR = UseLowR,
+#pragma warning restore CS0618 // Type or member is obsolete
 				CustomBuilderExtensions = CustomBuilderExtensions?.ToArray(),
 				IsSmart = IsSmart
 			};
@@ -659,15 +662,24 @@ namespace NBitcoin
 		{
 			return SignWithKeys(SigHash.All, keys.Select(k => k.PrivateKey).ToArray());
 		}
+		public PSBT SignWithKeys(SigningOptions signingOptions, params ISecret[] keys)
+		{
+			return SignWithKeys(signingOptions, keys.Select(k => k.PrivateKey).ToArray());
+		}
 
 		public PSBT SignWithKeys(SigHash sigHash, params Key[] keys)
+		{
+			return SignWithKeys(new SigningOptions(sigHash), keys);
+		}
+
+		public PSBT SignWithKeys(SigningOptions signingOptions, params Key[] keys)
 		{
 			AssertSanity();
 			foreach (var key in keys)
 			{
 				foreach (var input in this.Inputs)
 				{
-					input.Sign(key, sigHash);
+					input.Sign(key, signingOptions);
 				}
 			}
 			return this;
@@ -681,7 +693,9 @@ namespace NBitcoin
 				transactionBuilder.Extensions.Clear();
 				transactionBuilder.Extensions.AddRange(Settings.CustomBuilderExtensions);
 			}
+#pragma warning disable CS0618 // Type or member is obsolete
 			transactionBuilder.UseLowR = Settings.UseLowR;
+#pragma warning restore CS0618 // Type or member is obsolete
 			return transactionBuilder;
 		}
 

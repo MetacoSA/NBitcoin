@@ -838,15 +838,16 @@ namespace NBitcoin
 		{
 			return Sign(key, SigHash.All);
 		}
-		public TransactionSignature Sign(Key key, SigHash sigHash)
+		public TransactionSignature Sign(Key key, SigningOptions signingOptions)
 		{
 			if (this.IsFinalized())
 				return null;
-			CheckCompatibleSigHash(sigHash);
+			signingOptions ??= new SigningOptions();
+			CheckCompatibleSigHash(signingOptions.SigHash);
 			if (PartialSigs.ContainsKey(key.PubKey))
 			{
 				var signature = PartialSigs[key.PubKey];
-				if (sigHash != signature.SigHash)
+				if (signingOptions.SigHash != signature.SigHash)
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
 				return signature;
 			}
@@ -858,11 +859,15 @@ namespace NBitcoin
 			var builder = Parent.CreateTransactionBuilder();
 			builder.AddCoins(coin);
 			builder.AddKeys(key);
-			if (builder.TrySignInput(Transaction, Index, sigHash, out var signature2))
+			if (builder.TrySignInput(Transaction, Index, signingOptions, out var signature2))
 			{
 				this.PartialSigs.TryAdd(key.PubKey, signature2);
 			}
 			return signature2;
+		}
+		public TransactionSignature Sign(Key key, SigHash sigHash)
+		{
+			return Sign(key, new SigningOptions(sigHash));
 		}
 
 		private void CheckCompatibleSigHash(SigHash sigHash)

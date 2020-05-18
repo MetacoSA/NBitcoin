@@ -93,10 +93,6 @@
   </ItemGroup>
 	<ItemGroup>
     <None Include="..\icon.png" Pack="true" PackagePath="\" />
-		<None Update="BitcoinStream.Partial.tt">
-			<Generator>TextTemplatingFileGenerator</Generator>
-			<LastGenOutput>BitcoinStream.Partial.cs</LastGenOutput>
-		</None>
 		<None Update="UInt2561.tt">
 			<Generator>TextTemplatingFileGenerator</Generator>
 			<LastGenOutput>UInt2561.cs</LastGenOutput>
