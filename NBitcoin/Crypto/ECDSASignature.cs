@@ -202,7 +202,7 @@ namespace NBitcoin.Crypto
 			}
 			return true;
 		}
-		internal readonly Secp256k1.Scalar r, s;
+		private readonly Secp256k1.Scalar r, s;
 		internal ECDSASignature(in Secp256k1.Scalar r, in Secp256k1.Scalar s)
 		{
 			this.r = r;
