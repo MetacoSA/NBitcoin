@@ -810,6 +810,7 @@ namespace NBitcoin
 
 		public TransactionBuilder AddCoins(IEnumerable<ICoin> coins)
 		{
+			_PinnedSelectedCoins = null;
 			foreach (var coin in coins)
 			{
 				CurrentGroup.Coins.AddOrReplace(coin.Outpoint, coin);
@@ -1252,7 +1253,7 @@ namespace NBitcoin
 		public TransactionBuilder SendEstimatedFees(FeeRate feeRate)
 		{
 			FilterUneconomicalCoinsRate = feeRate;
-			var fee = EstimateFees(feeRate);
+			var fee = EstimateFeesCore(feeRate, true);
 			SendFees(fee);
 			return this;
 		}
@@ -1265,7 +1266,7 @@ namespace NBitcoin
 		public TransactionBuilder SendEstimatedFeesSplit(FeeRate feeRate)
 		{
 			FilterUneconomicalCoinsRate = feeRate;
-			var fee = EstimateFees(feeRate);
+			var fee = EstimateFeesCore(feeRate, true);
 			SendFeesSplit(fee);
 			return this;
 		}
@@ -1578,7 +1579,7 @@ namespace NBitcoin
 			var vSize = witSize / Transaction.WITNESS_SCALE_FACTOR + baseSize;
 			return c.Amount >= FilterUneconomicalCoinsRate.GetFee(vSize);
 		}
-
+		ICoin[]? _PinnedSelectedCoins;
 		private IEnumerable<ICoin> BuildTransaction<TMoney>(
 			TransactionBuildingContext ctx,
 			BuilderGroup group,
@@ -1605,7 +1606,7 @@ namespace NBitcoin
 				}
 				else
 				{
-					selection = CoinSelector.Select(unconsumed, target)?.ToArray();
+					selection = _PinnedSelectedCoins ?? CoinSelector.Select(unconsumed, target)?.ToArray();
 				}
 			}
 			if (selection == null)
@@ -2070,11 +2071,16 @@ namespace NBitcoin
 		/// <returns></returns>
 		public Money EstimateFees(FeeRate feeRate)
 		{
+			return EstimateFeesCore(feeRate, false);
+		}
+		Money EstimateFeesCore(FeeRate feeRate, bool pinSelectedCoins)
+		{
 			if (feeRate == null)
 				throw new ArgumentNullException(nameof(feeRate));
 
 			List<Builder> feeBuilders = new List<Builder>();
 			Money feeSent = Money.Zero;
+			Money overPaid = Money.Zero;
 			try
 			{
 				while (true)
@@ -2083,7 +2089,18 @@ namespace NBitcoin
 					var shouldSend = EstimateFees(tx, feeRate);
 					var delta = shouldSend - feeSent;
 					if (delta <= Money.Zero)
+					{
+						overPaid = -delta;
+						if (pinSelectedCoins)
+						{
+							// We calculated the exact fees based on this
+							// particular coin selection. If by any chance, different
+							// coin get selected when calling BuildTransaction, the estimated
+							// fee would be different
+							_PinnedSelectedCoins = this.FindSpentCoins(tx);
+						}
 						break;
+					}
 					SendFees(delta);
 					feeBuilders.Add(CurrentGroup.Builders[CurrentGroup.Builders.Count - 1]);
 					feeSent += delta;
@@ -2097,7 +2114,7 @@ namespace NBitcoin
 				}
 				_TotalFee -= feeSent;
 			}
-			return feeSent;
+			return feeSent - overPaid;
 		}
 
 		/// <summary>
