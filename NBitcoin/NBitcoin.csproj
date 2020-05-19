@@ -92,9 +92,9 @@
   </ItemGroup>
 	<ItemGroup>
     <None Include="..\icon.png" Pack="true" PackagePath="\" />
-		<None Update="UInt2561.tt">
+		<None Update="UInt256.tt">
 			<Generator>TextTemplatingFileGenerator</Generator>
-			<LastGenOutput>UInt2561.cs</LastGenOutput>
+			<LastGenOutput>UInt256.cs</LastGenOutput>
 		</None>
 	</ItemGroup>
 
