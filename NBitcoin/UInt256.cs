@@ -232,6 +232,10 @@ namespace NBitcoin
 		/// <param name="str"></param>
 		public uint256(string str)
 		{
+			if (str == null)
+				throw new ArgumentNullException(nameof(str));
+			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+				str = str.Substring(2);
 			if (str.Length != 64)
 				throw new FormatException("A uint256 must be 64 characters");
 #if HAS_SPAN

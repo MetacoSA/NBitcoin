@@ -85,8 +85,8 @@ namespace NBitcoin.DataEncoders
 			{
 				for (int i = 0, j = 0; i < encoded.Length; i += 2, j++)
 				{
-					var a = hexValueArray[encoded[i]];
-					var b = hexValueArray[encoded[i + 1]];
+					var a = IsDigit(encoded[i]);
+					var b = IsDigit(encoded[i + 1]);
 					if (a == -1 || b == -1)
 						throw new FormatException("Invalid Hex String");
 					output[j] = (byte)(((uint)a << 4) | (uint)b);
@@ -117,7 +117,14 @@ namespace NBitcoin.DataEncoders
 
 		public bool IsValid(string str)
 		{
-			return str.ToCharArray().All(c => IsDigit(c) != -1) && str.Length % 2 == 0;
+			if (str.Length % 2 != 0)
+				return false;
+			for (int i = 0; i < str.Length; i++)
+			{
+				if (IsDigit(str[i]) == -1)
+					return false;
+			}
+			return true;
 		}
 
 		static readonly int[] hexValueArray;
@@ -125,9 +132,22 @@ namespace NBitcoin.DataEncoders
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int IsDigit(char c)
 		{
-			return c < hexValueArray.Length
-				? hexValueArray[c]
-				: -1;
+			if ('0' <= c && c <= '9')
+			{
+				return c - '0';
+			}
+			else if ('a' <= c && c <= 'f')
+			{
+				return c - 'a' + 10;
+			}
+			else if ('A' <= c && c <= 'F')
+			{
+				return c - 'A' + 10;
+			}
+			else
+			{
+				return -1;
+			}
 		}
 
 		public static bool IsWellFormed(string str)
