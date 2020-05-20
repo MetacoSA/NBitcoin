@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace NBitcoin.DataEncoders
@@ -71,6 +72,29 @@ namespace NBitcoin.DataEncoders
 			}
 			return result;
 		}
+#if HAS_SPAN
+		public void DecodeData(string encoded, Span<byte> output)
+		{
+			if (encoded == null)
+				throw new ArgumentNullException(nameof(encoded));
+			if (encoded.Length % 2 == 1)
+				throw new FormatException("Invalid Hex String");
+			if (output.Length < (encoded.Length >> 1))
+				throw new ArgumentException("output should be bigger", nameof(output));
+			try
+			{
+				for (int i = 0, j = 0; i < encoded.Length; i += 2, j++)
+				{
+					var a = hexValueArray[encoded[i]];
+					var b = hexValueArray[encoded[i + 1]];
+					if (a == -1 || b == -1)
+						throw new FormatException("Invalid Hex String");
+					output[j] = (byte)(((uint)a << 4) | (uint)b);
+				}
+			}
+			catch(IndexOutOfRangeException) { throw new FormatException("Invalid Hex String"); }
+		}
+#endif
 
 		static HexEncoder()
 		{
@@ -98,9 +122,10 @@ namespace NBitcoin.DataEncoders
 
 		static readonly int[] hexValueArray;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int IsDigit(char c)
 		{
-			return c + 1 <= hexValueArray.Length
+			return c < hexValueArray.Length
 				? hexValueArray[c]
 				: -1;
 		}

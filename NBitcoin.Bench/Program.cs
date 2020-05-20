@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Running;
 
 namespace NBitcoin.Bench
 {
@@ -6,7 +7,7 @@ namespace NBitcoin.Bench
 	{
 		public static void Main(string[] args)
 		{
-			BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
+			BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, new DebugInProcessConfig());
 
 			//var s = new Serialization();
 			//s.Setup();

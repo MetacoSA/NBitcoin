@@ -232,19 +232,15 @@ namespace NBitcoin
 		/// <param name="str"></param>
 		public uint256(string str)
 		{
-			str = str.Trim();
-
-			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
-				str = str.Substring(2);
-
-			var bytes = Encoder.DecodeData(str);
-			Array.Reverse(bytes);
-			if (bytes.Length != WIDTH_BYTE)
-				throw new FormatException("Invalid hex length");
+			if (str.Length != 64)
+				throw new FormatException("A uint256 must be 64 characters");
 #if HAS_SPAN
 			if (BitConverter.IsLittleEndian)
 			{
-				Span<ulong> uints = MemoryMarshal.Cast<byte, ulong>(bytes.AsSpan());
+				Span<byte> tmp = stackalloc byte[32];
+				Encoder.DecodeData(str, tmp);
+				tmp.Reverse();
+				Span<ulong> uints = MemoryMarshal.Cast<byte, ulong>(tmp);
 				pn0 = uints[0];
 				pn1 = uints[1];
 				pn2 = uints[2];
@@ -252,6 +248,8 @@ namespace NBitcoin
 				return;
 			}
 #endif
+			var bytes = Encoder.DecodeData(str);
+			Array.Reverse(bytes);
 			pn0 = Utils.ToUInt64(bytes, 8 * 0, true);
 			pn1 = Utils.ToUInt64(bytes, 8 * 1, true);
 			pn2 = Utils.ToUInt64(bytes, 8 * 2, true);

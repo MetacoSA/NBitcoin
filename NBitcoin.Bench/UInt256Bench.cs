@@ -10,10 +10,12 @@ namespace NBitcoin.Bench
 		uint256 Value;
 		byte[] Bytes;
 		byte[] EmptyArray;
+		string ValueStr;
 		[GlobalSetup]
 		public void Setup()
 		{
 			Value = RandomUtils.GetUInt256();
+			ValueStr = Value.ToString();
 			Bytes = Value.ToBytes();
 			EmptyArray = new byte[32];
 		}
@@ -21,6 +23,11 @@ namespace NBitcoin.Bench
 		public void Read()
 		{
 			new uint256(Bytes);
+		}
+		[Benchmark]
+		public void ReadString()
+		{
+			new uint256(ValueStr);
 		}
 		[Benchmark]
 		public void WriteToArray()
