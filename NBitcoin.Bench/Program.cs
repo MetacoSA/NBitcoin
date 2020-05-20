@@ -7,7 +7,7 @@ namespace NBitcoin.Bench
 	{
 		public static void Main(string[] args)
 		{
-			BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, new DebugInProcessConfig());
+			BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
 
 			//var s = new Serialization();
 			//s.Setup();

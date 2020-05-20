@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,10 +21,21 @@ namespace NBitcoin.Bench
 			EmptyArray = new byte[32];
 		}
 		[Benchmark]
+		public void WriteToString()
+		{
+			Value.ToString();
+		}
+		[Benchmark]
 		public void Read()
 		{
 			new uint256(Bytes);
 		}
+		[Benchmark]
+		public void IsValid()
+		{
+			((HexEncoder)Encoders.Hex).IsValid(ValueStr);
+		}
+
 		[Benchmark]
 		public void ReadString()
 		{
