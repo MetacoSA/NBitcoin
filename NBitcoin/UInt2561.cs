@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections;
 using System.Linq;
 using System.Runtime.InteropServices;
 using NBitcoin.DataEncoders;
@@ -124,6 +125,23 @@ namespace NBitcoin
 
 		public byte GetByte(int index)
 		{
+#if HAS_SPAN
+			if (BitConverter.IsLittleEndian)
+			{
+				Span<uint> temp = stackalloc uint[8];
+				temp[0] = pn0;
+				temp[1] = pn1;
+				temp[2] = pn2;
+				temp[3] = pn3;
+				temp[4] = pn4;
+				temp[5] = pn5;
+				temp[6] = pn6;
+				temp[7] = pn7;
+				Span<byte> temp2 = MemoryMarshal.Cast<uint, byte>(temp);
+				return temp2[index];
+			}
+#endif
+
 			var uintIndex = index / sizeof(uint);
 			var byteIndex = index % sizeof(uint);
 			UInt32 value;

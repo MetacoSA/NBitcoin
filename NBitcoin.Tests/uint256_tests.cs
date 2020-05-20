@@ -128,6 +128,10 @@ namespace NBitcoin.Tests
 
 			v.ToBytes(bytes);
 			Assert.Equal(vr, new uint256(bytes, false));
+
+			Assert.Equal(v, new uint256(Enumerable.Range(0, 32).Select(i => v.GetByte(i)).ToArray()));
+			Assert.Equal(0x1d1e1f20U, v.GetLow32());
+			Assert.Equal(0x191a1b1c1d1e1f20U, v.GetLow64());
 		}
 
 		[Fact]
