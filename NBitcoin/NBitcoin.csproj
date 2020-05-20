@@ -92,10 +92,6 @@
   </ItemGroup>
 	<ItemGroup>
     <None Include="..\icon.png" Pack="true" PackagePath="\" />
-		<None Update="UInt256.tt">
-			<Generator>TextTemplatingFileGenerator</Generator>
-			<LastGenOutput>UInt256.cs</LastGenOutput>
-		</None>
 	</ItemGroup>
 
 	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
