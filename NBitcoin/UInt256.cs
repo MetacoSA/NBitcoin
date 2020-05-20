@@ -234,10 +234,15 @@ namespace NBitcoin
 		{
 			if (str == null)
 				throw new ArgumentNullException(nameof(str));
-			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
-				str = str.Substring(2);
 			if (str.Length != 64)
-				throw new FormatException("A uint256 must be 64 characters");
+			{
+				if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+					str = str.Substring(2);
+				str = str.Trim();
+				if (str.Length != 64)
+					throw new FormatException("A uint256 must be 64 characters");
+			}
+
 #if HAS_SPAN
 			if (BitConverter.IsLittleEndian)
 			{
