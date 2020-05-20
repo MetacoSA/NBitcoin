@@ -739,20 +739,24 @@ namespace NBitcoin
 				arr[fromIndex] = to;
 			}
 		}
-		public static void Shuffle<T>(List<T> arr, Random rand)
+		public static void Shuffle<T>(List<T> arr, int start, Random rand)
 		{
 			rand = rand ?? new Random();
-			for (int i = 0; i < arr.Count; i++)
+			for (int i = start; i < arr.Count; i++)
 			{
-				var fromIndex = rand.Next(arr.Count);
+				var fromIndex = rand.Next(start, arr.Count - start);
 				var from = arr[fromIndex];
 
-				var toIndex = rand.Next(arr.Count);
+				var toIndex = rand.Next(start, arr.Count - start);
 				var to = arr[toIndex];
 
 				arr[toIndex] = from;
 				arr[fromIndex] = to;
 			}
+		}
+		public static void Shuffle<T>(List<T> arr, Random rand)
+		{
+			Shuffle(arr, 0, rand);
 		}
 		public static void Shuffle<T>(T[] arr, int seed)
 		{

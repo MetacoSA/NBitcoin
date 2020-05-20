@@ -1,4 +1,5 @@
-﻿using NBitcoin.Altcoins.Elements;
+﻿using NBitcoin;
+using NBitcoin.Altcoins.Elements;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
@@ -11,16 +12,22 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 using Encoders = NBitcoin.DataEncoders.Encoders;
 
 namespace NBitcoin.Tests
 {
 	public class transaction_tests
 	{
+		public transaction_tests(ITestOutputHelper log)
+		{
+			this.log = log;
+		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseExtKey()
@@ -269,7 +276,7 @@ namespace NBitcoin.Tests
 			Random _Rand = new Random();
 			internal Money SelectCoinsMinConf(Money target, Func<WalletCoin, bool> filter, out List<Coin> setCoinsRet, out Money nValueRet)
 			{
-				var selector = new DefaultCoinSelector(_Rand) {  GroupByScriptPubKey = false };
+				var selector = new DefaultCoinSelector(_Rand) { GroupByScriptPubKey = false };
 				var result = selector.Select(_Coins.Where(filter).Select(w => w.AsCoin()).ToList(), target);
 				if (result != null)
 				{
@@ -286,6 +293,7 @@ namespace NBitcoin.Tests
 		}
 		const int RUN_TESTS = 10;
 		const int RANDOM_REPEATS = 5;
+		private readonly ITestOutputHelper log;
 		static Money MIN_CHANGE = (Money)new DefaultCoinSelector().MinimumChange;
 
 		[Fact]
@@ -746,21 +754,64 @@ namespace NBitcoin.Tests
 			var scriptCoin2 = RandomCoin(Money.Coins(0.0001m), k.PubKey.ScriptPubKey, true);
 
 			var dust = builder.GetDust(scriptCoin2.ScriptPubKey);
-			foreach (var dustPrevention in new[] { true, false })
-			{
-				builder = Network.CreateTransactionBuilder();
-				builder.DustPrevention = dustPrevention;
-				var tx = builder
-				.AddCoins(scriptCoin1, scriptCoin2)
-				.Send(new Key(), scriptCoin1.Amount)
-				.Send(new Key(), scriptCoin2.Amount)
-				.SubtractFees()
-				.SetChange(new Key())
-				.SendFees(scriptCoin2.Amount - dust - Money.Satoshis(1))
-				.BuildTransaction(false);
-				// The txout must be kicked out because of dust rule
-				Assert.Equal(dustPrevention ? 1 : 2, tx.Outputs.Count);
-			}
+			foreach (var segwitChange in new[] { true, false })
+				foreach (var dustPrevention in new[] { true, false })
+				{
+					builder = Network.CreateTransactionBuilder();
+					builder.DustPrevention = dustPrevention;
+					var substracted = new Key().ScriptPubKey;
+					var change = new Key().PubKey.GetScriptPubKey(segwitChange ? ScriptPubKeyType.Segwit : ScriptPubKeyType.Legacy);
+					var feeAmount = scriptCoin2.Amount - dust - Money.Satoshis(1);
+					var remainingOfCoin2 = scriptCoin2.Amount - feeAmount;
+					var tx = builder
+					.AddCoins(scriptCoin1, scriptCoin2)
+					.Send(new Key(), scriptCoin1.Amount)
+					.Send(substracted, scriptCoin2.Amount)
+					.SubtractFees()
+					.SetChange(change)
+					.SendFees(feeAmount)
+					.BuildTransaction(false);
+					// The txout must be kicked out because of dust rule
+					var substractedExists = tx.Outputs.Any(o => o.ScriptPubKey == substracted);
+					var totalFee = tx.GetFee(builder.FindSpentCoins(tx));
+					var changeOutput = tx.Outputs.FirstOrDefault(o => o.ScriptPubKey == change);
+
+					// The substracted destination should be removed as it is below dust!
+					// But not the change (which is 541 bytes, ie, the overhead of removing subtracted destination)
+					// so above the segwit dust.
+					if (segwitChange && dustPrevention)
+						Assert.NotNull(changeOutput);
+
+					// The substracted destination is below dust, but not removed
+					// as a result, there is no change to send for the overhead
+					if (segwitChange && !dustPrevention)
+						Assert.Null(changeOutput);
+
+					// The change would be 540 satoshi, which is less than dust!
+					// or there would be no change if no dust prevention.
+					if (!segwitChange)
+						Assert.Null(changeOutput);
+
+					if (dustPrevention)
+					{
+						if (changeOutput != null)
+							Assert.Equal(remainingOfCoin2, changeOutput.Value);
+						Assert.False(substractedExists);
+					}
+					else
+					{
+						if (changeOutput != null)
+							Assert.Equal(feeAmount, changeOutput.Value);
+						Assert.True(substractedExists);
+					}
+
+					// In this case, the substracted output should not exists nor does the change
+					// because both are below dust. The overhead should be added to fee.
+					if (!segwitChange && dustPrevention)
+						Assert.Equal(scriptCoin2.Amount, totalFee);
+					else
+						Assert.Equal(feeAmount, totalFee);
+				}
 		}
 
 		[Fact]
@@ -793,6 +844,7 @@ namespace NBitcoin.Tests
 			// first Bob constructs the TX
 			txBuilder = Network.CreateTransactionBuilder();
 			txBuilder.ShuffleRandom = null;
+#pragma warning disable CS0618 // Type or member is obsolete
 			var unsigned = txBuilder
 				// spend from the Alice+Bob wallet to Carla
 				.AddCoins(aliceBobCoins)
@@ -800,21 +852,22 @@ namespace NBitcoin.Tests
 				//and Carla pays Alice
 				.Send(aliceKey.PubKey.Hash, "0.02")
 				.CoverOnly("0.01")
+#pragma warning restore CS0618 // Type or member is obsolete
 				.SetChange(aliceBobRedeemScript.Hash)
 				// Bob does not sign anything yet
 				.BuildTransaction(false);
 
-			Assert.True(unsigned.Outputs.Count == 3);
-			Assert.True(unsigned.Outputs[0].IsTo(aliceBobRedeemScript.Hash));
+			Assert.Equal(3, unsigned.Outputs.Count);
+			Assert.True(unsigned.Outputs[2].IsTo(aliceBobRedeemScript.Hash));
 			//Only 0.01 should be covered, not 0.03 so 0.49 goes back to Alice+Bob
-			Assert.True(unsigned.Outputs[0].Value == Money.Parse("0.49"));
+			Assert.True(unsigned.Outputs[2].Value == Money.Parse("0.49"));
 
 
-			Assert.True(unsigned.Outputs[1].IsTo(carlaKey.PubKey.Hash));
-			Assert.True(unsigned.Outputs[1].Value == Money.Parse("0.01"));
+			Assert.True(unsigned.Outputs[0].IsTo(carlaKey.PubKey.Hash));
+			Assert.True(unsigned.Outputs[0].Value == Money.Parse("0.01"));
 
-			Assert.True(unsigned.Outputs[2].IsTo(aliceKey.PubKey.Hash));
-			Assert.True(unsigned.Outputs[2].Value == Money.Parse("0.02"));
+			Assert.True(unsigned.Outputs[1].IsTo(aliceKey.PubKey.Hash));
+			Assert.True(unsigned.Outputs[1].Value == Money.Parse("0.02"));
 
 			//Alice signs
 			txBuilder = Network.CreateTransactionBuilder();
@@ -856,12 +909,14 @@ namespace NBitcoin.Tests
 			//Carla fills and signs
 			txBuilder = Network.CreateTransactionBuilder();
 			((DefaultCoinSelector)txBuilder.CoinSelector).GroupByScriptPubKey = false;
+#pragma warning disable CS0618 // Type or member is obsolete
 			carlaSigned = txBuilder
 				.AddKeys(carlaKey)
-				.AddCoins(carlaCoins)
+				.AddCoins(carlaCoins.Concat(aliceBobCoins).ToArray())
 				//Carla should complete 0.02, but with 0.03 of fees, she should have a coins of 0.05
 				.ContinueToBuild(aliceSigned)
 				.CoverOnly("0.05")
+#pragma warning restore CS0618 // Type or member is obsolete
 				.BuildTransaction(true);
 
 
@@ -1031,6 +1086,209 @@ namespace NBitcoin.Tests
 			}
 		}
 
+
+		class SpyCoinSelector : ICoinSelector
+		{
+			List<ICoin[]> coins = new List<ICoin[]>();
+			public void AddSelections(ICoin[] coins)
+			{
+				this.coins.Add(coins);
+			}
+			int index = 0;
+			public IEnumerable<ICoin> Select(IEnumerable<ICoin> coins, IMoney target)
+			{
+				return this.coins[index++];
+			}
+		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TransactionBuilderFeeRateSideCase()
+		{
+			var bobKey = new Key();
+			var bob = bobKey.PubKey.GetScriptPubKey(ScriptPubKeyType.Segwit);
+			var alice = new Key().ScriptPubKey;
+			var c1 = new Coin(new OutPoint(uint256.Zero, 0), new TxOut(Money.Coins(1.0m), bob));
+			var c2 = new Coin(new OutPoint(uint256.Zero, 1), new TxOut(Money.Coins(2.0m), bob));
+
+			// We test what happen when a coin selector is different UTXOs count
+			foreach (bool substractFee in new[] { true, false })
+			{
+				var selector = new SpyCoinSelector();
+				var txbuilder = Network.Main.CreateTransactionBuilder();
+				txbuilder.AddCoins(new[] { c1, c2 });
+				txbuilder.CoinSelector = selector;
+				txbuilder.Send(alice, Money.Coins(0.5m));
+				if (substractFee)
+					txbuilder.SubtractFees();
+				txbuilder.SendEstimatedFees(new FeeRate(5.0m));
+				txbuilder.SetChange(new Key());
+				selector.AddSelections(new[] { c1, c2 });
+				selector.AddSelections(new[] { c1 });
+				var tx = txbuilder.BuildTransaction(false);
+				var vsize = txbuilder.EstimateSize(tx, true);
+				var actualfee = tx.GetFee(new[] { c1, c2 });
+				var actualFeeRate = new FeeRate(actualfee, vsize);
+				Assert.Equal(new FeeRate(5.0m), actualFeeRate);
+				if (substractFee)
+					Assert.Equal(Money.Coins(0.5m) - actualfee, tx.Outputs.First(o => o.ScriptPubKey == alice).Value);
+				else
+					Assert.Equal(Money.Coins(0.5m), tx.Outputs.First(o => o.ScriptPubKey == alice).Value);
+			}
+
+			// We test what happen if the substracted output is cleaned via dust prevention
+			// and that the build sweep the dust prevention
+			{
+				var change = new Key().ScriptPubKey;
+				var txbuilder = Network.Main.CreateTransactionBuilder();
+				txbuilder.AddCoins(new[] { c1 });
+				txbuilder.Send(alice, Money.Coins(0.6m));
+				txbuilder.Send(bob, Money.Satoshis(500));
+				txbuilder.SubtractFees();
+				txbuilder.SendFees(Money.Satoshis(300));
+				txbuilder.SetChange(change);
+				var tx = txbuilder.BuildTransaction(false);
+				Assert.Equal(2, tx.Outputs.Count);
+				Assert.DoesNotContain(tx.Outputs, o => o.ScriptPubKey == bob);
+				var txout = tx.Outputs.First(o => o.ScriptPubKey == change);
+				Assert.Equal(Money.Coins(1.0m) - Money.Coins(0.6m) - Money.Satoshis(300), txout.Value);
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TransactionBuilderFuzzying()
+		{
+			var seed = RandomUtils.GetInt32();
+			log.WriteLine("Seed " + seed);
+			var r = new Random(seed);
+			int iterations = 10000;
+			byte[] bytes = new byte[32];
+			r.NextBytes(bytes);
+			var alice = new Key(bytes);
+			var aliceScript = alice.PubKey.GetScriptPubKey(ScriptPubKeyType.Legacy);
+			r.NextBytes(bytes);
+			var bob = new Key(bytes);
+			r.NextBytes(bytes);
+			var bobScript = bob.PubKey.GetScriptPubKey(ScriptPubKeyType.Segwit);
+			var carol = new Key(bytes);
+			var carolScript = carol.PubKey.GetScriptPubKey(ScriptPubKeyType.Segwit);
+			var dust = Money.Satoshis(550);
+			for (int i = 0; i < iterations; i++)
+			{
+				reroll:
+				var builder = Network.Main.CreateTransactionBuilder();
+				var bobCoins = GetRandomCoins(bobScript, r);
+				builder.ShuffleRandom = r;
+				builder.CoinSelector = new DefaultCoinSelector(r)
+				{
+					Iterations = r.Next() % 20 == 0 ? 100 : 1,
+					MinimumChange = r.Next() % 2 == 0 ? Money.Zero : GetRandomAmount(r, 7)
+				};
+
+				builder.AddCoins(bobCoins);
+				var maxAmount = bobCoins.Select(c => c.TxOut.Value).Sum();
+				var amount = dust + GetRandomAmount(r, 6);
+				if (amount > maxAmount)
+					goto reroll;
+				builder.Send(aliceScript, amount);
+				var substractFee = r.Next() % 2 == 0;
+				if (substractFee)
+				{
+					builder.SubtractFees();
+				}
+				builder.SetChange(carolScript);
+				Money fee = null;
+				FeeRate feeRate = null;
+				if (r.Next() % 2 == 0)
+				{
+					fee = GetRandomAmount(r, 5);
+					if (fee + amount > maxAmount)
+						goto reroll;
+					if (substractFee && amount < fee + dust)
+						goto reroll;
+				}
+				else
+				{
+					feeRate = new FeeRate(GetRandomAmount(r, 1, 3), 1);
+					if (feeRate.SatoshiPerByte == 0.0m)
+						goto reroll;
+					if (substractFee)
+					{
+						if (feeRate.GetFee(1000) > amount)
+							goto reroll;
+					}
+				}
+				if (fee != null)
+				{
+					if (r.Next() % 2 == 0)
+					{
+						builder.SendFees(fee);
+					}
+					else
+					{
+						builder.StandardTransactionPolicy.MinFee = fee;
+					}
+				}
+				if (feeRate != null)
+				{
+					builder.SendEstimatedFees(feeRate);
+				}
+				try
+				{
+					var tx = builder.BuildTransaction(false);
+					var actualFee = tx.GetFee(builder.FindSpentCoins(tx));
+					if (fee != null)
+					{
+						Assert.Equal(fee, actualFee);
+					}
+					if (feeRate != null)
+					{
+						var actualFeeRate = new FeeRate(actualFee, builder.EstimateSize(tx, true));
+						Assert.Equal(feeRate, actualFeeRate);
+					}
+				}
+				catch(NotEnoughFundsException)
+				{
+					goto reroll;
+				}
+			}
+		}
+
+		private Money GetRandomAmount(Random r, int lowOrder, int order)
+		{
+			var n = r.Next(0, int.MaxValue);
+			var highOrder = n % order;
+			var sats = (long)Math.Pow(10, lowOrder + highOrder);
+			byte[] s = new byte[8];
+			r.NextBytes(s);
+			var v = unchecked((long)Utils.ToUInt64(s, true));
+			if (v < 0)
+				v = -v;
+			sats += v % sats;
+			return Money.Satoshis(sats);
+		}
+		private Money GetRandomAmount(Random r, int order)
+		{
+			return GetRandomAmount(r, 4, order);
+		}
+
+		private ICoin[] GetRandomCoins(Script owner, Random r)
+		{
+			var coinsCount = r.Next(4, 10);
+			var coins = new ICoin[coinsCount];
+			var bytes = new byte[32];
+			for (int i = 0; i < coinsCount; i++)
+			{
+				r.NextBytes(bytes);
+				var outpoint = new OutPoint(new uint256(bytes), 0);
+				var txout = Network.Main.Consensus.ConsensusFactory.CreateTxOut();
+				txout.ScriptPubKey = owner;
+				txout.Value = GetRandomAmount(r, 7);
+				coins[i] = new Coin(outpoint, txout);
+			}
+			return coins;
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildColoredTransaction()
@@ -1080,8 +1338,8 @@ namespace NBitcoin.Tests
 			Assert.True(txBuilder.Verify(tx, "0.1"));
 
 			//Ensure BTC from the IssuanceCoin are returned
-			Assert.Equal(Money.Parse("0.89994240"), tx.Outputs[2].Value);
 			Assert.Equal(gold.PubKey.ScriptPubKey, tx.Outputs[2].ScriptPubKey);
+			Assert.Equal(Money.Parse("0.89994240"), tx.Outputs[2].Value);
 
 			repo.Transactions.Put(tx);
 
@@ -1114,8 +1372,8 @@ namespace NBitcoin.Tests
 			Assert.Equal(500, colored.Inputs[0].Asset.Quantity);
 			Assert.Single(colored.Issuances);
 			Assert.Equal(2, colored.Transfers.Count);
-			AssertHasAsset(tx, colored, colored.Transfers[0], goldId, 470, bob.PubKey);
-			AssertHasAsset(tx, colored, colored.Transfers[1], goldId, 30, satoshi.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[0], goldId, 30, satoshi.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[1], goldId, 470, bob.PubKey);
 
 			repo.Transactions.Put(tx);
 
@@ -1137,6 +1395,8 @@ namespace NBitcoin.Tests
 			Assert.True(txBuilder.Verify(tx));
 			repo.Transactions.Put(tx);
 			var satoshiCoin = ColoredCoin.Find(tx, repo).First();
+			Assert.Equal(satoshiCoin.Amount, new AssetMoney(goldId, 1000UL));
+			Assert.Equal(satoshi.PubKey.ScriptPubKey, satoshiCoin.TxOut.ScriptPubKey);
 
 
 			//Gold receive 2.5 BTC
@@ -1161,7 +1421,7 @@ namespace NBitcoin.Tests
 			repo.Transactions.Put(tx);
 
 			var bobSilverCoin = ColoredCoin.Find(tx, repo).First();
-			var bobBitcoin = new Coin(new OutPoint(tx.GetHash(), 2), tx.Outputs[2]);
+			var bobBitcoin = new Coin(new OutPoint(tx.GetHash(), 1), tx.Outputs[1]);
 
 			//Bob receive gold
 			txBuilder = Network.CreateTransactionBuilder();
@@ -1201,21 +1461,25 @@ namespace NBitcoin.Tests
 			AssertHasAsset(tx, colored, colored.Inputs[0], goldId, 1000, null);
 			AssertHasAsset(tx, colored, colored.Inputs[1], silverId, 300, null);
 
-			AssertHasAsset(tx, colored, colored.Transfers[0], goldId, 900, satoshi.PubKey);
-			AssertHasAsset(tx, colored, colored.Transfers[1], goldId, 100, bob.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[0], goldId, 100, bob.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[1], goldId, 900, satoshi.PubKey);
 
-			AssertHasAsset(tx, colored, colored.Transfers[2], silverId, 100, bob.PubKey);
-			AssertHasAsset(tx, colored, colored.Transfers[3], silverId, 200, satoshi.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[2], silverId, 200, satoshi.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[3], silverId, 100, bob.PubKey);
 
-			AssertHasAsset(tx, colored, colored.Transfers[4], goldId, 45, bob.PubKey);
-			AssertHasAsset(tx, colored, colored.Transfers[5], goldId, 5, satoshi.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[4], goldId, 5, satoshi.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[5], goldId, 45, bob.PubKey);
 
-			Assert.True(tx.Outputs[8].Value == Money.Parse("1.0999424"));
-			Assert.True(tx.Outputs[8].ScriptPubKey == bob.PubKey.ScriptPubKey);
-			Assert.True(tx.Outputs[9].Value == Money.Parse("0.9"));
-			Assert.True(tx.Outputs[9].ScriptPubKey == satoshi.PubKey.ScriptPubKey);
+			Assert.True(tx.Outputs[8].Value == Money.Parse("0.9"));
+			Assert.True(tx.Outputs[8].ScriptPubKey == satoshi.PubKey.ScriptPubKey);
+			Assert.True(tx.Outputs[9].Value == Money.Parse("1.0999424"));
+			Assert.True(tx.Outputs[9].ScriptPubKey == bob.PubKey.ScriptPubKey);
 
 			tx = txBuilder.AddKeys(satoshi, bob).SignTransaction(tx);
+			if (!txBuilder.Verify(tx, out var oei))
+			{
+
+			}
 			Assert.True(txBuilder.Verify(tx));
 
 
@@ -1271,11 +1535,12 @@ namespace NBitcoin.Tests
 				repo.Transactions.Put(funding.GetHash(), funding);
 
 				colored = ColoredTransaction.FetchColors(transfer, repo);
-				AssertHasAsset(transfer, colored, colored.Transfers[0], goldId, 60, bob.PubKey);
-				AssertHasAsset(transfer, colored, colored.Transfers[1], goldId, 40, alice.PubKey);
+				AssertHasAsset(transfer, colored, colored.Transfers[0], goldId, 40, alice.PubKey);
+				AssertHasAsset(transfer, colored, colored.Transfers[1], goldId, 60, bob.PubKey);
 
 				var change = transfer.Outputs.Last(o => o.ScriptPubKey == gold.PubKey.Hash.ScriptPubKey);
 				Assert.Equal(Money.Coins(0.99980450m), change.Value);
+				Assert.Equal(rate, txBuilder.EstimateFeeRate(transfer));
 
 				Assert.Equal(gold.PubKey.Hash, change.ScriptPubKey.GetDestination());
 
@@ -1344,9 +1609,11 @@ namespace NBitcoin.Tests
 
 				var txbuilder = new TransactionBuilder(network);
 
+#pragma warning disable CS0618 // Type or member is obsolete
 				txbuilder
 					.AddCoins(token)
 					.CoverOnly(token.Amount)
+#pragma warning restore CS0618 // Type or member is obsolete
 					.Send(tokenOwnerScriptPubKey, new Money(tokenPrice));
 				Transaction tx = txbuilder.BuildTransaction(false);
 
@@ -2059,10 +2326,10 @@ namespace NBitcoin.Tests
 
 			foreach (int pushSize in new[] { 2, 10, 20, 32 })
 			{
-				a = new Script("1 " + String.Concat(Enumerable.Range(0, pushSize * 2).Select(_ => "0").ToArray()));
+				a = new Script("1 " + string.Concat(Enumerable.Range(0, pushSize * 2).Select(_ => "0").ToArray()));
 				Assert.True(PayToWitTemplate.Instance.CheckScriptPubKey(a));
 			}
-			a = new Script("1 " + String.Concat(Enumerable.Range(0, 33 * 2).Select(_ => "0").ToArray()));
+			a = new Script("1 " + string.Concat(Enumerable.Range(0, 33 * 2).Select(_ => "0").ToArray()));
 			Assert.False(PayToWitTemplate.Instance.CheckScriptPubKey(a));
 		}
 
@@ -2429,6 +2696,18 @@ namespace NBitcoin.Tests
 					.BuildTransaction(true);
 				Assert.True(txBuilder.Verify(tx));
 			}
+
+			// Does MinFee works?
+			txBuilder = Network.CreateTransactionBuilder();
+			txBuilder.StandardTransactionPolicy = EasyPolicy.Clone();
+			txBuilder.StandardTransactionPolicy.MinFee = Money.Coins(1.0m);
+			tx = txBuilder
+				.AddCoins(allCoins)
+				.AddKeys(keys)
+				.Send(destinations[0], Money.Parse("0.5"))
+				.SetChange(new Key())
+				.BuildTransaction(false);
+			Assert.Equal(Money.Coins(1.0m), tx.GetFee(txBuilder.FindSpentCoins(tx)));
 		}
 
 		private uint256 Rand()
@@ -2966,7 +3245,7 @@ namespace NBitcoin.Tests
 			spending.Sign(new[] { bob }, new[] { coin });
 			ScriptError error;
 			Assert.True(spending.Inputs.AsIndexedInputs().First().VerifyScript(coin, out error));
-			spending.Inputs[0].WitScript = new WitScript(new[] { new byte[521] }.Concat(spending.Inputs[0].WitScript.Pushes).ToArray());
+			spending.Inputs[0].WitScript = new WitScript((new[] { new byte[521] }).Concat(spending.Inputs[0].WitScript.Pushes).ToArray());
 			Assert.False(spending.Inputs.AsIndexedInputs().First().VerifyScript(coin, out error));
 			Assert.Equal(ScriptError.PushSize, error);
 		}

@@ -262,6 +262,11 @@ namespace NBitcoin
 			return Split(parts);
 		}
 
+		public TMoney GetAmount<TMoney>(TMoney zero) where TMoney : IMoney
+		{
+			return _bag.Where(m => m.IsCompatible(zero)).OfType<TMoney>().FirstOrDefault() ?? zero;
+		}
+
 		#endregion
 	}
 
