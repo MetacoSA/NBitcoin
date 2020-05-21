@@ -471,15 +471,14 @@ namespace NBitcoin
 
 			if (BitConverter.IsLittleEndian)
 			{
-				Span<ulong> temp = stackalloc ulong[4];
+				Span<ulong> temp = new ulong[4];
 				temp[0] = pn0;
 				temp[1] = pn1;
 				temp[2] = pn2;
 				temp[3] = pn3;
-				var tempBytes = MemoryMarshal.Cast<ulong, byte>(temp);
+				output = MemoryMarshal.Cast<ulong, byte>(temp);
 				if (!lendian)
-					tempBytes.Reverse();
-				tempBytes.CopyTo(output);
+					output.Reverse();
 				return;
 			}
 			var initial = output;
