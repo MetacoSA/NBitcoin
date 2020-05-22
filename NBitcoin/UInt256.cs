@@ -478,15 +478,26 @@ namespace NBitcoin
 
 			if (BitConverter.IsLittleEndian)
 			{
-				Span<ulong> temp = stackalloc ulong[4];
-				temp[0] = pn0;
-				temp[1] = pn1;
-				temp[2] = pn2;
-				temp[3] = pn3;
-				var tempBytes = MemoryMarshal.Cast<ulong, byte>(temp);
-				if (!lendian)
-					tempBytes.Reverse();
-				tempBytes.CopyTo(output);
+				if (lendian)
+				{
+					var ulongOutput = MemoryMarshal.Cast<byte, ulong>(output);
+					ulongOutput[0] = pn0;
+					ulongOutput[1] = pn1;
+					ulongOutput[2] = pn2;
+					ulongOutput[3] = pn3;
+				}
+				else
+				{
+					Span<ulong> temp = stackalloc ulong[4];
+					temp[0] = pn0;
+					temp[1] = pn1;
+					temp[2] = pn2;
+					temp[3] = pn3;
+					var tempBytes = MemoryMarshal.Cast<ulong, byte>(temp);
+					if (!lendian)
+						tempBytes.Reverse();
+					tempBytes.CopyTo(output);
+				}
 				return;
 			}
 			var initial = output;
