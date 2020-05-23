@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 namespace NBitcoin
 {
@@ -39,22 +40,44 @@ namespace NBitcoin
 			}
 		}
 
-		protected Base58Data(byte[] rawBytes, Network network)
+		protected Base58Data(string wif, Network network) : this(wif, DecodeData(wif, network), network)
 		{
-			if (network == null)
-				throw new ArgumentNullException(nameof(network));
-			_Network = network;
-			SetData(rawBytes);
+
 		}
 
-		protected Base58Data(string wif, Network network)
+		private static byte[] DecodeData(string wif, Network network)
 		{
 			if (wif is null)
 				throw new ArgumentNullException(nameof(wif));
 			if (network is null)
 				throw new ArgumentNullException(nameof(network));
+			return network.NetworkStringParser.GetBase58CheckEncoder().DecodeData(wif);
+		}
 
-			byte[] vchTemp = _Network.NetworkStringParser.GetBase58CheckEncoder().DecodeData(wif);
+		protected Base58Data(byte[] rawBytes, Network network) : this(EncodeData(rawBytes, network), rawBytes, network)
+		{
+
+		}
+
+		private static string EncodeData(byte[] rawBytes, Network network)
+		{
+			if (rawBytes is null)
+				throw new ArgumentNullException(nameof(rawBytes));
+			if (network is null)
+				throw new ArgumentNullException(nameof(network));
+			return network.NetworkStringParser.GetBase58CheckEncoder().EncodeData(rawBytes);
+		}
+
+		protected Base58Data(string wif, byte[] rawBytes, Network network)
+		{
+			if (wif == null)
+				throw new ArgumentNullException(nameof(wif));
+			if (rawBytes is null)
+				throw new ArgumentNullException(nameof(rawBytes));
+			if (network is null)
+				throw new ArgumentNullException(nameof(network));
+			_Network = network;
+			byte[] vchTemp = rawBytes;
 #if HAS_SPAN
 			if (!(_Network.GetVersionMemory(Type, false) is ReadOnlyMemory<byte> expectedVersion))
 				throw new FormatException("Invalid " + this.GetType().Name);
