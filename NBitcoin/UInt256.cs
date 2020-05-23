@@ -494,8 +494,7 @@ namespace NBitcoin
 					temp[2] = pn2;
 					temp[3] = pn3;
 					var tempBytes = MemoryMarshal.Cast<ulong, byte>(temp);
-					if (!lendian)
-						tempBytes.Reverse();
+					tempBytes.Reverse();
 					tempBytes.CopyTo(output);
 				}
 				return;
