@@ -46,10 +46,7 @@ namespace NBitcoin
 			_Network = network;
 			SetData(rawBytes);
 		}
-		public Base58Data()
-		{
 
-		}
 		protected Base58Data(string wif, Network network)
 		{
 			if (wif is null)
