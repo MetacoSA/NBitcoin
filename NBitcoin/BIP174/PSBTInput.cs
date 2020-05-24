@@ -515,7 +515,7 @@ namespace NBitcoin
 			return errors;
 		}
 
-		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
+		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath, SigningOptions signingOptions)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
@@ -528,10 +528,14 @@ namespace NBitcoin
 			foreach (var hdk in this.HDKeysFor(accountHDScriptPubKey, cache, accountKeyPath))
 			{
 				if (((HDKeyCache)cache.Derive(hdk.AddressKeyPath)).Inner is ISecret k)
-					Sign(k.PrivateKey, sigHash);
+					Sign(k.PrivateKey, signingOptions);
 				else
 					throw new ArgumentException(paramName: nameof(accountKey), message: "This should be a private key");
 			}
+		}
+		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
+		{
+			TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, Parent.Normalize(new SigningOptions(sigHash)));
 		}
 
 		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, SigHash sigHash = SigHash.All)

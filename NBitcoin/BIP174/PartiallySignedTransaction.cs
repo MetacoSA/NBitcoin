@@ -554,9 +554,9 @@ namespace NBitcoin
 		/// <param name="accountHDScriptPubKey">The address generator</param>
 		/// <param name="accountKey">The account key with which to sign</param>
 		/// <param name="accountKeyPath">The account key path (eg. [masterFP]/49'/0'/0')</param>
-		/// <param name="sigHash">The SigHash</param>
+		/// <param name="signingOptions">The signature options to use</param>
 		/// <returns>This PSBT</returns>
-		public PSBT SignAll(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
+		public PSBT SignAll(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath, SigningOptions signingOptions)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
@@ -567,9 +567,21 @@ namespace NBitcoin
 			Money total = Money.Zero;
 			foreach (var o in Inputs.CoinsFor(accountHDScriptPubKey, accountKey, accountKeyPath))
 			{
-				o.TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, sigHash);
+				o.TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, signingOptions);
 			}
 			return this;
+		}
+		/// <summary>
+		/// Sign all inputs which derive addresses from <paramref name="accountHDScriptPubKey"/> and that need to be signed by <paramref name="accountKey"/>.
+		/// </summary>
+		/// <param name="accountHDScriptPubKey">The address generator</param>
+		/// <param name="accountKey">The account key with which to sign</param>
+		/// <param name="accountKeyPath">The account key path (eg. [masterFP]/49'/0'/0')</param>
+		/// <param name="sigHash">The SigHash</param>
+		/// <returns>This PSBT</returns>
+		public PSBT SignAll(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
+		{
+			return SignAll(accountHDScriptPubKey, accountKey, accountKeyPath, Normalize(new SigningOptions(sigHash)));
 		}
 
 		/// <summary>
