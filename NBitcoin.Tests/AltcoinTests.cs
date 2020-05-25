@@ -108,6 +108,7 @@ namespace NBitcoin.Tests
 			}
 		}
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void ElementsAddressSerializationTest()
 		{
 
@@ -133,7 +134,7 @@ namespace NBitcoin.Tests
 					 {
 						 Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<IDestination>(textReader));
 					 });
-					 Assert.Throws<ArgumentNullException>(() =>
+					 Assert.Throws<JsonObjectException>(() =>
 					 {
 						 Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<IBitcoinString>(textReader));
 					 });
@@ -268,6 +269,7 @@ namespace NBitcoin.Tests
 			{
 				var node = builder.CreateNode();
 				builder.StartAll();
+				node.Generate(node.Network.Consensus.CoinbaseMaturity + 1);
 				var rpc = node.CreateRPCClient();
 				rpc.ScanRPCCapabilities();
 				Assert.NotNull(rpc.Capabilities);
