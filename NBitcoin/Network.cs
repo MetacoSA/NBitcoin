@@ -2388,7 +2388,10 @@ namespace NBitcoin
 
 		private Base58Type? GetBase58Type(string base58)
 		{
-			var bytes = NetworkStringParser.GetBase58CheckEncoder().DecodeData(base58);
+			return GetBase58Type(NetworkStringParser.GetBase58CheckEncoder().DecodeData(base58), out _);
+		}
+		private Base58Type? GetBase58Type(byte[] bytes, out int prefixLength)
+		{
 			for (int i = 0; i < base58Prefixes.Length; i++)
 			{
 				var prefix = base58Prefixes[i];
@@ -2397,8 +2400,12 @@ namespace NBitcoin
 				if (bytes.Length < prefix.Length)
 					continue;
 				if (Utils.ArrayEqual(bytes, 0, prefix, 0, prefix.Length))
+				{
+					prefixLength = prefix.Length;
 					return (Base58Type)i;
+				}
 			}
+			prefixLength = 0;
 			return null;
 		}
 
@@ -2448,14 +2455,15 @@ namespace NBitcoin
 			var maybeb58 = base58Encoder.IsMaybeEncoded(str);
 			if (maybeb58)
 			{
+				byte[]? decoded = null;
 				try
 				{
-					base58Encoder.DecodeData(str);
+					decoded = base58Encoder.DecodeData(str);
 				}
 				catch (FormatException) { maybeb58 = false; }
 				if (maybeb58)
 				{
-					var candidate = GetCandidate(str);
+					var candidate = GetCandidate(str, decoded!);
 					if (candidate!= null && targetType.GetTypeInfo().IsAssignableFrom((candidate.GetType().GetTypeInfo())))
 						return candidate;
 					throw new FormatException("Invalid base58 string");
@@ -2475,16 +2483,16 @@ namespace NBitcoin
 					var bytes = encoder.Decode(str, out witVersion);
 					IBitcoinString? candidate = null;
 					if (witVersion == 0 && bytes.Length == 20 && type == Bech32Type.WITNESS_PUBKEY_ADDRESS)
-						candidate = new BitcoinWitPubKeyAddress(str, this);
+						candidate = new BitcoinWitPubKeyAddress(str.ToLowerInvariant(), bytes, this);
 					if (witVersion == 0 && bytes.Length == 32 && type == Bech32Type.WITNESS_SCRIPT_ADDRESS)
-						candidate = new BitcoinWitScriptAddress(str, this);
+						candidate = new BitcoinWitScriptAddress(str.ToLowerInvariant(), bytes, this);
 
 					if (candidate != null && targetType.GetTypeInfo().IsAssignableFrom((candidate.GetType().GetTypeInfo())))
 						return candidate;
 				}
 				catch (Bech32FormatException) { throw; }
 				catch (FormatException) { continue; }
-			}
+		}
 			throw new FormatException("Invalid string");
 		}
 
@@ -2506,11 +2514,11 @@ namespace NBitcoin
 			return expectedNetwork.Parse<T>(str);
 		}
 
-		private IBase58Data? GetCandidate(string base58)
+		private IBase58Data? GetCandidate(string base58, byte[] decoded)
 		{
 			if (base58 == null)
 				throw new ArgumentNullException(nameof(base58));
-			var maybeType = GetBase58Type(base58);
+			var maybeType = GetBase58Type(decoded, out var prefixLength);
 			if (maybeType is Base58Type type)
 			{
 				if (type == Base58Type.COLORED_ADDRESS)
@@ -2529,6 +2537,10 @@ namespace NBitcoin
 				}
 				try
 				{
+					if (type is Base58Type.PUBKEY_ADDRESS && decoded.Length == 20 + prefixLength)
+						return new BitcoinPubKeyAddress(new KeyId(decoded.Skip(prefixLength).ToArray()), this);
+					if (type is Base58Type.SCRIPT_ADDRESS && decoded.Length == 20 + prefixLength)
+						return new BitcoinScriptAddress(new ScriptId(decoded.Skip(prefixLength).ToArray()), this);
 					return CreateBase58Data(type, base58);
 				}
 				catch (FormatException) { }

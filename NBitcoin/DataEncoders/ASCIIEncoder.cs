@@ -22,12 +22,22 @@ namespace NBitcoin.DataEncoders
 			{
 				r[i] = (byte)encoded[i];
 			}
-#if HA_SPAN
-			return r;
-#else
+#if HAS_SPAN
 			return r.ToArray();
+#else
+			return r;
 #endif
 		}
+#if HAS_SPAN
+		public void DecodeData(string encoded, Span<byte> output)
+		{
+			var l = encoded.Length;
+			for (int i = 0; i < l; i++)
+			{
+				output[i] = (byte)encoded[i];
+			}
+		}
+#endif
 
 		public override string EncodeData(byte[] data, int offset, int count)
 		{
