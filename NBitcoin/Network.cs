@@ -112,6 +112,15 @@ namespace NBitcoin
 				throw Base58NotSupported(type);
 			return prefix?.ToArray();
 		}
+#if HAS_SPAN
+		public ReadOnlyMemory<byte>? GetVersionMemory(Base58Type type, bool throws)
+		{
+			var prefix = base58Prefixes[(int)type];
+			if (prefix == null && throws)
+				throw Base58NotSupported(type);
+			return prefix?.AsMemory();
+		}
+#endif
 
 		internal NotSupportedException Base58NotSupported(Base58Type type)
 		{
