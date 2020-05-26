@@ -32,6 +32,10 @@ namespace NBitcoin.Altcoins.Elements
 		}
 
 #if HAS_SPAN
+		protected override bool VerifyChecksum(byte[] data, int bechStringLen, out int[] errorPosition)
+		{
+			return VerifyChecksum(data.AsSpan(), bechStringLen, out errorPosition);
+		}
 		protected override bool VerifyChecksum(ReadOnlySpan<byte> data, int bechStringLen, out int[] errorPosition)
 #else
 		protected override bool VerifyChecksum(byte[] data, int bechStringLen, out int[] errorPosition)
@@ -131,7 +135,11 @@ namespace NBitcoin.Altcoins.Elements
 			{
 				throw new FormatException("Mismatching human readable part");
 			}
+#if HAS_SPAN
+			Span<byte> data = encoded.Length - pos - 1 is int l && l > 256 ? new byte[l] : stackalloc byte[l];
+#else
 			var data = new byte[encoded.Length - pos - 1];
+#endif
 			for (int j = 0, i = pos + 1; i < encoded.Length; i++, j++)
 			{
 				data[j] = (byte)Array.IndexOf(Byteset, buffer[i]);
@@ -141,7 +149,11 @@ namespace NBitcoin.Altcoins.Elements
 			{
 				throw new FormatException("Error while verifying Blech32 checksum");
 			}
+#if HAS_SPAN
+			return data.Slice(0, data.Length - 12).ToArray();
+#else
 			return data.Take(data.Length - 12).ToArray();
+#endif
 		}
 
 		protected override byte[] ConvertBits(IEnumerable<byte> data, int fromBits, int toBits, bool pad = true)

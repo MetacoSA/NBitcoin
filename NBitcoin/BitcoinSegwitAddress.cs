@@ -22,6 +22,10 @@ namespace NBitcoin
 			else
 				throw expectedNetwork.Bech32NotSupported(Bech32Type.WITNESS_PUBKEY_ADDRESS);
 		}
+		internal BitcoinWitPubKeyAddress(string str, byte[] key, Network network) : base(str, network)
+		{
+			_Hash = new WitKeyId(key);
+		}
 
 		private static string Validate(string bech32, Network expectedNetwork)
 		{
@@ -113,6 +117,11 @@ namespace NBitcoin
 			}
 			else
 				throw expectedNetwork.Bech32NotSupported(Bech32Type.WITNESS_SCRIPT_ADDRESS);
+		}
+
+		internal BitcoinWitScriptAddress(string str, byte[] keyId, Network network) : base(str, network)
+		{
+			_Hash = new WitScriptId(keyId);
 		}
 
 		private static string Validate(string bech32, Network expectedNetwork)

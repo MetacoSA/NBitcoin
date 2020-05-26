@@ -313,6 +313,10 @@ namespace NBitcoin.DataEncoders
 			return chk;
 		}
 #if HAS_SPAN
+		protected virtual bool VerifyChecksum(byte[] data, int bechStringLen, out int[] errorPosition)
+		{
+			return VerifyChecksum(data.AsSpan(), bechStringLen, out errorPosition);
+		}
 		protected virtual bool VerifyChecksum(ReadOnlySpan<byte> data, int bechStringLen, out int[] errorPosition)
 #else
 		protected virtual bool VerifyChecksum(byte[] data, int bechStringLen, out int[] errorPosition)
@@ -434,11 +438,14 @@ namespace NBitcoin.DataEncoders
 
 		protected virtual void CheckCase(string hrp)
 		{
-			if (hrp.ToLowerInvariant().Equals(hrp))
+			if (hrp.Length is 0)
 				return;
-			if (hrp.ToUpperInvariant().Equals(hrp))
-				return;
-			throw new FormatException("Invalid bech32 string, mixed case detected");
+			bool isLowercase = char.IsUpper(hrp[0]);
+			for (int i = 1; i < hrp.Length; i++)
+			{
+				if (isLowercase != char.IsUpper(hrp[i]) && !char.IsDigit(hrp[i]))
+					throw new FormatException("Invalid bech32 string, mixed case detected");
+			}
 		}
 		public override byte[] DecodeData(string encoded)
 		{
@@ -450,7 +457,12 @@ namespace NBitcoin.DataEncoders
 				throw new ArgumentNullException(nameof(encoded));
 			CheckCase(encoded);
 			encoded = encoded.ToLowerInvariant();
+#if HAS_SPAN
+			Span<byte> buffer = encoded.Length > 256 ? new byte[encoded.Length] : stackalloc byte[encoded.Length];
+			((ASCIIEncoder)Encoders.ASCII).DecodeData(encoded, buffer);
+#else
 			var buffer = Encoders.ASCII.DecodeData(encoded);
+#endif
 			var pos = encoded.LastIndexOf("1", StringComparison.OrdinalIgnoreCase);
 			if (pos < 1 || pos + 7 > encoded.Length || encoded.Length > 90)
 			{
