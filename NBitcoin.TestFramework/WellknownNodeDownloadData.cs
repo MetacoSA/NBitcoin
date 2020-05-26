@@ -1320,6 +1320,36 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class QtumNodeDownloadData
+		{
+			public NodeDownloadData v0_18_3 = new NodeDownloadData()
+			{
+				Version = "0.18.3",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/qtumproject/qtum/releases/download/mainnet-ignition-v{0}/qtum-{0}-win64.zip",
+					Archive = "qtum-{0}-win64.zip",
+					Executable = "qtum-{0}/bin/qtumd.exe",
+					Hash = "e328fb5768d573ccca52c8021497f356781c08af80ed87d478627ff311d8996e"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/qtumproject/qtum/releases/download/mainnet-ignition-v{0}/qtum-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "qtum-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "qtum-{0}/bin/qtumd",
+					Hash = "f70b21da2ff3e0e7aecfe3a9861df20c6be8d67e5be758f70e6b05c3c9afc951"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/qtumproject/qtum/releases/download/mainnet-ignition-v{0}/qtum-{0}-osx64.tar.gz",
+					Archive = "qtum-{0}-osx64.tar.gz",
+					Executable = "qtum-{0}/bin/qtumd",
+					Hash = "91f5e07fae24c282cb74babb158ce7fe70d6b80ce58f134722d5e7d70f835886"
+				},
+				UseSectionInConfigFile = true
+			};
+		}
+
 		public static GoByteNodeDownloadData GoByte
 		{
 			get; set;
@@ -1463,6 +1493,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new ArgoneumNodeDownloadData();
+
+		public static QtumNodeDownloadData Qtum
+		{
+			get; set;
+		} = new QtumNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
