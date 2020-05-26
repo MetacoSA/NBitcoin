@@ -36,6 +36,7 @@ namespace NBitcoin.Altcoins
 		public static Stratis Stratis { get; } = Stratis.Instance;
 		public static ZCoin ZCoin { get; } = ZCoin.Instance;
 		public static DogeCash DogeCash { get; } = DogeCash.Instance;
+		public static Qtum Qtum { get; } = Qtum.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
@@ -67,6 +68,7 @@ namespace NBitcoin.Altcoins
 			yield return Chaincoin;
 			yield return ZCoin;
 			//yield return DogeCash;
+			yield return Qtum;
 		}
 	}
 }

@@ -25,6 +25,7 @@ Currently supported altcoins are:
 * Chaincoin
 * ZCoin
 * DogeCash
+* Qtum
 
 ## How to use?
 
