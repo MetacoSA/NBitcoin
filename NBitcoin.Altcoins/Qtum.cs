@@ -37,12 +37,6 @@ namespace NBitcoin.Altcoins
 			{
 				return new QtumBlock(new QtumBlockHeader());
 			}
-			protected override TransactionBuilder CreateTransactionBuilderCore(Network network)
-			{
-				var txBuilder = base.CreateTransactionBuilderCore(network);
-				txBuilder.StandardTransactionPolicy.MinFee = Money.Satoshis(136800m);
-				return txBuilder;
-			}
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
