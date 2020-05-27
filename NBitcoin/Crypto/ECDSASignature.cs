@@ -257,6 +257,18 @@ namespace NBitcoin.Crypto
 #pragma warning restore 618
 			return true;
 		}
+
+		public byte[] ToCompact()
+		{
+			var result = new byte[64];
+#pragma warning disable 618
+			var rBytes = this.R.ToByteArrayUnsigned();
+			var sBytes = this.S.ToByteArrayUnsigned();
+			rBytes.CopyTo(result, 32 - rBytes.Length);
+			sBytes.CopyTo(result, 64 - sBytes.Length);
+#pragma warning restore 618
+			return result;
+		}
 #endif
 
 #if HAS_SPAN
