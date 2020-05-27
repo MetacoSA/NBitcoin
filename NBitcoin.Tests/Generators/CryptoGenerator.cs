@@ -22,7 +22,8 @@ namespace NBitcoin.Tests.Generators
 
 		public static Arbitrary<KeyPath> ExtPathArb() =>
 			Arb.From(KeyPath());
-
+		public static Arbitrary<ECDSASignature> ECDSASignatureArb() =>
+			Arb.From(ECDSA());
 		public static Gen<Key> PrivateKey() => Gen.Fresh(() => new Key());
 
 		public static Gen<List<Key>> PrivateKeys(int n) =>

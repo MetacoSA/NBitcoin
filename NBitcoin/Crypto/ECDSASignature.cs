@@ -294,6 +294,14 @@ namespace NBitcoin.Crypto
 		public ECDSASignature(byte[] derSig) : this(derSig.AsSpan())
 		{
 		}
+
+		public byte[] ToCompact()
+		{
+			var result = new byte[64];
+			ToSecpECDSASignature().WriteCompactToSpan(result.AsSpan());
+			return result;
+		}
+
 		public ECDSASignature(ReadOnlySpan<byte> derSig)
 		{
 			if (ecdsa_signature_parse_der_lax(derSig, out var sig) && sig is Secp256k1.SecpECDSASignature)
