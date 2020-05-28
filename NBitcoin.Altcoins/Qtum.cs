@@ -258,7 +258,7 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("qcrt"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("qcrt"))
 			.SetMagic(0xe1c6ddfd)
-			.SetPort(13888)
+			.SetPort(23888)
 			.SetRPCPort(13889)
 			.SetMaxP2PVersion(70017)
 			.SetName("qtum-reg")
