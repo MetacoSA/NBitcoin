@@ -991,6 +991,23 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		public async Task CanBatchRequestPartiallySucceed()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var nodeA = builder.CreateNode();
+				builder.StartAll();
+				var rpc = nodeA.CreateRPCClient();
+				var batch = rpc.PrepareBatch();
+				var generating = batch.GenerateAsync(10);
+				var garbaging = batch.SendCommandAsync("ofwifwu");
+				await batch.SendBatchAsync();
+				await generating;
+				var err = await Assert.ThrowsAsync<RPCException>(async () => await garbaging);
+				Assert.Equal(RPCErrorCode.RPC_METHOD_NOT_FOUND, err.RPCCode);
+			}
+		}
+		[Fact]
 		public void CanUseBatchedRequests()
 		{
 			using (var builder = NodeBuilderEx.Create())
