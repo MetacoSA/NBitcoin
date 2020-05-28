@@ -50,6 +50,30 @@ namespace NBitcoin.Tests
 				Assert.Equal(50, RandomUtils.GetBytes(50).Length);
 			}
 		}
+
+		public class MyRandom : IRandom
+		{
+			private Random rnd = new Random(123456);
+			public void GetBytes(byte[] output) => rnd.NextBytes(output);
+#if HAS_SPAN
+			public void GetBytes(Span<byte> output) => rnd.NextBytes(output);
+#endif
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanDisableAdditionalEntropy()
+		{
+			RandomUtils.UseAdditionalEntropy = false;
+			RandomUtils.Random = new MyRandom();
+			var r1 = RandomUtils.GetUInt32();
+
+			RandomUtils.Random = new MyRandom();
+			var r2 = RandomUtils.GetUInt32();
+
+			Assert.Equal(r1, r2);
+		}
+
 		[Fact]
 		[Trait("Core", "Core")]
 		public void util_HexStr()
@@ -206,7 +230,7 @@ namespace NBitcoin.Tests
 			Assert.Equal("bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3", addressScript.Hash.GetAddress(addressScript.Network).ToString());
 			Assert.Equal("bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3", addressScript.ScriptPubKey.GetDestinationAddress(addressScript.Network).ToString());
 
-			//Example of the BIP		
+			//Example of the BIP
 			pubkey = new PubKey("0450863AD64A87AE8A2FE83C1AF1A8403CB53F53E486D8511DAD8A04887E5B23522CD470243453A299FA9E77237716103ABC11A1DF38855ED6F2EE187E9C582BA6");
 			Assert.Equal(new Script("OP_0 010966776006953D5567439E5E39F86A0D273BEE"), pubkey.GetSegwitAddress(Network.Main).ScriptPubKey);
 
