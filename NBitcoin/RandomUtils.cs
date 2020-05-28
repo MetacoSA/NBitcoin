@@ -40,6 +40,8 @@ namespace NBitcoin
 
 	public partial class RandomUtils
 	{
+		public static bool UseAdditionalEntropy { get; set; } = true;
+
 		public static IRandom Random
 		{
 			get;
@@ -67,7 +69,7 @@ namespace NBitcoin
 
 		private static void PushEntropy(byte[] data)
 		{
-			if (additionalEntropy == null || data.Length == 0)
+			if (!UseAdditionalEntropy || additionalEntropy == null || data.Length == 0)
 				return;
 			int pos = entropyIndex;
 			var entropy = additionalEntropy;
