@@ -128,6 +128,18 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanDerivateUncompressedKeys()
+		{
+			var key = new BitcoinSecret("5KWgYMDuc4QyWcA6kX1LDm79bbyshFWU9ZKrTK8p29YR2MF5Zdq", Network.Main);
+			var chaincode = new byte[32];
+			var extKey = new ExtKey(key.PrivateKey, chaincode);
+			var derivedKey = extKey.Derive(100).PrivateKey;
+			Assert.False(derivedKey.IsCompressed);
+			Assert.Equal("5J3Horfpw8sZpdx1FjAM8iP3G7TN5jR8WY8zxjKXJfTK1mMMmEH", derivedKey.GetWif(Network.Main).ToString());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanGeneratePubKeysAndAddress()
 		{
 			//Took from http://brainwallet.org/ and http://procbits.com/2013/08/27/generating-a-bitcoin-address-with-javascript

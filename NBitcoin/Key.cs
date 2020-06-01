@@ -311,13 +311,11 @@ namespace NBitcoin
 		{
 			AssertNotDiposed();
 #if HAS_SPAN
-			if (!IsCompressed)
-				throw new InvalidOperationException("The key must be compressed");
 			Span<byte> vout = stackalloc byte[64];
 			vout.Clear();
 			if ((nChild >> 31) == 0)
 			{
-				Span<byte> pubkey = stackalloc byte[33];
+				Span<byte> pubkey = stackalloc byte[IsCompressed ? 33 : 65];
 				this.PubKey.ToBytes(pubkey, out _);
 				Hashes.BIP32Hash(cc, nChild, pubkey[0], pubkey.Slice(1), vout);
 			}
@@ -332,7 +330,7 @@ namespace NBitcoin
 			vout.Slice(32, 32).CopyTo(ccChild);
 			Secp256k1.ECPrivKey keyChild = _ECKey.TweakAdd(vout.Slice(0, 32));
 			vout.Clear();
-			return new Key(keyChild, true);
+			return new Key(keyChild, IsCompressed);
 #else
 			byte[]? l = null;
 			if ((nChild >> 31) == 0)
