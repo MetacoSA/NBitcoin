@@ -129,7 +129,7 @@ namespace NBitcoin.OpenAsset
 			if (txId == null)
 			{
 				if (tx == null)
-					throw new ArgumentException("txId or tx should be different of null");
+					throw new ArgumentException("txId or tx should be different than null");
 				txId = tx.GetHash();
 			}
 			//The following code is to prevent recursion of FetchColors that would fire a StackOverflow if the origin of traded asset were deep in the transaction dependency tree
