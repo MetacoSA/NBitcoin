@@ -1066,7 +1066,7 @@ namespace NBitcoin
 			foreach (var op in scriptSig.ToOps())
 			{
 				if (op.PushData == null)
-					throw new ArgumentException("A WitScript can only contains push operations", "script");
+					throw new ArgumentException("A WitScript can only contain push operations", "script");
 				pushes.Add(op.PushData);
 			}
 			_Pushes = pushes.ToArray();
