@@ -312,10 +312,11 @@ namespace NBitcoin.Secp256k1
 		{
 			if (pubkeys == null)
 				throw new ArgumentNullException(nameof(pubkeys));
-			combinedPubKey = null;
+
 			var count = pubkeys.Count();
 			if (count == 0)
 			{
+				combinedPubKey = null;
 				return false;
 			}
 			var ptj = GEJ.Infinity;
@@ -323,8 +324,7 @@ namespace NBitcoin.Secp256k1
 			{
 				ptj = ptj.Add(in p.Q);
 			}
-			var pt = ptj.ToGroupElement();
-			combinedPubKey = new ECPubKey(new GE(pt.x.Normalize(), pt.y.Normalize()), ctx);
+			combinedPubKey = new ECPubKey(ptj.ToGroupElement(), ctx);
 			return true;
 		}
 
