@@ -308,23 +308,26 @@ namespace NBitcoin.Secp256k1
 		/// <summary>
 		/// The original function name is `secp256k1_ec_pubkey_combine`
 		/// </summary>
-		public static bool TryCombine(Context ctx, IEnumerable<ECPubKey> pubkeys, out ECPubKey? combinedPubKey)
+		public static bool TryCombine(Context ctx, ECPubKey[] pubkeys, out ECPubKey? combinedPubKey)
 		{
 			if (pubkeys == null)
 				throw new ArgumentNullException(nameof(pubkeys));
 
-			var count = pubkeys.Count();
-			if (count == 0)
+			combinedPubKey = null;
+			var n = pubkeys.Count();
+			if (n == 0)
 			{
-				combinedPubKey = null;
 				return false;
 			}
-			var ptj = GEJ.Infinity;
+			var qj = GEJ.Infinity;
 			foreach (var p in pubkeys)
 			{
-				ptj = ptj.Add(in p.Q);
+				qj = qj.Add(in p.Q);
 			}
-			combinedPubKey = new ECPubKey(ptj.ToGroupElement(), ctx);
+			if (qj.IsInfinity)
+				return false;
+
+			combinedPubKey = new ECPubKey(qj.ToGroupElement(), ctx);
 			return true;
 		}
 
