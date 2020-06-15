@@ -3114,6 +3114,31 @@ namespace NBitcoin.Tests
 				Assert.False(pubkeyc.SigVerify(sig, msg32));
 			}
 		}
+
+		/// https://github.com/bitcoin-core/secp256k1/blob/2ed54da18add295668ec71c91534b640d2cc029b/src/tests.c#L2378
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void test_ec_combine()
+		{
+			var d = new ECPubKey[6];
+			var sum = Scalar.Zero;
+			var ctx = Context.Instance;
+			for (int i = 1; i <= 6; i++)
+			{
+				Scalar s = random_scalar_order_test();
+				sum = sum.Add(s);
+				GEJ qj = ctx.EcMultGenContext.MultGen(in s);
+				GE q = qj.ToGroupElementVariable();
+
+				d[i - 1] = new ECPubKey(in q, ctx);
+
+				qj = ctx.EcMultGenContext.MultGen(in sum);
+				q = qj.ToGroupElementVariable();
+				ECPubKey sd = new ECPubKey(in q, ctx);
+				Assert.True(ECPubKey.TryCombine(Context.Instance, d[0..i], out var sd2));
+				Assert.Equal(sd, sd2);
+			}
+		}
 	}
 }
 #endif

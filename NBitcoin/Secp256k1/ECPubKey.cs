@@ -1,6 +1,7 @@
 ﻿#if HAS_SPAN
 #nullable enable
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 
@@ -301,6 +302,27 @@ namespace NBitcoin.Secp256k1
 				return false;
 			}
 			key = pt.ToGroupElement();
+			return true;
+		}
+
+		/// <summary>
+		/// The original function name is `secp256k1_ec_pubkey_combine`
+		/// </summary>
+		public static bool TryCombine(Context ctx, IEnumerable<ECPubKey> pubkeys, out ECPubKey? combinedPubKey)
+		{
+			if (pubkeys == null)
+				throw new ArgumentNullException(nameof(pubkeys));
+
+			combinedPubKey = null;
+			var qj = GEJ.Infinity;
+			foreach (var p in pubkeys)
+			{
+				qj = qj.Add(in p.Q);
+			}
+			if (qj.IsInfinity)
+				return false;
+
+			combinedPubKey = new ECPubKey(qj.ToGroupElement(), ctx);
 			return true;
 		}
 
