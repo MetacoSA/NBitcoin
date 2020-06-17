@@ -1717,7 +1717,7 @@ namespace NBitcoin
 
 			if (sign)
 			{
-				SignTransactionInPlace(ctx.Transaction, signingOptions.SigHash);
+				SignTransactionInPlace(ctx.Transaction, signingOptions);
 			}
 
 			_built = true;
