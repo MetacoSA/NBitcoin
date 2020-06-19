@@ -70,7 +70,7 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
-			OutPoint prevoutStake = OutPoint.Zero;
+			OutPoint prevoutStake = new OutPoint(uint256.Zero, uint.MaxValue);
 
 			public OutPoint PrevoutStake
 			{
