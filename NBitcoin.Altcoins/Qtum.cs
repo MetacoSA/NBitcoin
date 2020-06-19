@@ -84,9 +84,9 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
-			Script blockSignature = Script.Empty;
+			byte[] blockSignature = null;
 
-			public Script BlockSignature
+			public byte[] BlockSignature
 			{
 				get
 				{
@@ -103,7 +103,7 @@ namespace NBitcoin.Altcoins
 				stream.ReadWrite(ref hashStateRoot);
 				stream.ReadWrite(ref hashUtxoRoot);
 				stream.ReadWrite(ref prevoutStake);
-				stream.ReadWrite(ref blockSignature);
+				stream.ReadWriteAsVarString(ref blockSignature);
 			}
 		}
 
