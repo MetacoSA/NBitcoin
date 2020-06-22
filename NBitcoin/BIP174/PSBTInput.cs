@@ -462,9 +462,6 @@ namespace NBitcoin
 					errors.Add(new PSBTError(Index, "Input finalized, but witness script is not null"));
 			}
 
-			if (witness_utxo != null && non_witness_utxo != null)
-				errors.Add(new PSBTError(Index, "witness utxo and non witness utxo simultaneously present"));
-
 			if (witness_script != null && witness_utxo == null)
 				errors.Add(new PSBTError(Index, "witness script present but no witness utxo"));
 
