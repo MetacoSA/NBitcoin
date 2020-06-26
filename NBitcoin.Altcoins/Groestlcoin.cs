@@ -236,11 +236,10 @@ namespace NBitcoin.Altcoins
 			.AddAlias("groestlcoin-main")
 			.AddDNSSeeds(new[]
 			{
-				new DNSSeedData("groestlcoin.org", "groestlcoin.org"),
-				new DNSSeedData("electrum1.groestlcoin.org", "electrum1.groestlcoin.org"),
-				new DNSSeedData("electrum2.groestlcoin.org", "electrum2.groestlcoin.org"),
-				new DNSSeedData("jswallet.groestlcoin.org", "jswallet.groestlcoin.org"),
-				new DNSSeedData("groestlsight.groestlcoin.org", "groestlsight.groestlcoin.org"),
+				new DNSSeedData("dnsseed1.groestlcoin.org", "dnsseed1.groestlcoin.org"),
+				new DNSSeedData("dnsseed2.groestlcoin.org", "dnsseed2.groestlcoin.org"),
+				new DNSSeedData("dnsseed3.groestlcoin.org", "dnsseed3.groestlcoin.org"),
+				new DNSSeedData("dnsseed4.groestlcoin.org", "dnsseed4.groestlcoin.org"),
 			})
 			.AddSeeds(ToSeed(pnSeed6_main))
 			.SetGenesis("700000000000000000000000000000000000000000000000000000000000000000000000bb2866aaca46c4428ad08b57bc9d1493abaf64724b6c3052a7c8f958df68e93ced3d2b53ffff0f1e835b03000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff3a04ffff001d0104325072657373757265206d75737420626520707574206f6e20566c6164696d697220507574696e206f766572204372696d6561ffffffff010000000000000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
@@ -284,10 +283,8 @@ namespace NBitcoin.Altcoins
 			.AddAlias("groestlcoin-testnet")
 			.AddDNSSeeds(new[]
 			{
-				new DNSSeedData("testnet1.groestlcoin.org", "testnet1.groestlcoin.org"),
-				new DNSSeedData("testnet2.groestlcoin.org", "testnet2.groestlcoin.org"),
-				new DNSSeedData("testp2pool.groestlcoin.org", "testp2pool.groestlcoin.org"),
-				new DNSSeedData("testp2pool2.groestlcoin.org", "testp2pool2.groestlcoin.org"),
+				new DNSSeedData("testnet-seed1.groestlcoin.org", "testnet-seed1.groestlcoin.org"),
+				new DNSSeedData("testnet-seed2.groestlcoin.org", "testnet-seed2.groestlcoin.org"),
 			})
 			.AddSeeds(ToSeed(pnSeed6_test))
 			.SetGenesis("030000000000000000000000000000000000000000000000000000000000000000000000bb2866aaca46c4428ad08b57bc9d1493abaf64724b6c3052a7c8f958df68e93c02a8d455ffff001e950a64000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff3a04ffff001d0104325072657373757265206d75737420626520707574206f6e20566c6164696d697220507574696e206f766572204372696d6561ffffffff010000000000000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
