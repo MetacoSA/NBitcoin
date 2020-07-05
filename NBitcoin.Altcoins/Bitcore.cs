@@ -115,7 +115,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xD9B4BEF9) //defined in inverted direction, 0xF9BEB4D9
 			.SetPort(8555) 
 			.SetRPCPort(8556)
-			.SetMaxP2PVersion(80000)
+			.SetMaxP2PVersion(80008)
 			.SetName("btx-main")
 			.AddAlias("btx-mainnet")
 			.AddAlias("bitcore-mainnet")
