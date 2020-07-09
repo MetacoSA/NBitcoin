@@ -1907,24 +1907,37 @@ namespace NBitcoin.RPC
 			}
 			else
 			{
-				RPCResponse response = await SendCommandAsync(new RPCRequest(RPCOperations.estimatefee, new object[] { confirmationTarget }), false).ConfigureAwait(false);
-				if (response.Error != null)
+				// BCH removed estimatesmartfee and removed arguments to estimatefee so special case for them...
+				if (Network.NetworkSet.CryptoCode == "BCH")
 				{
-					if (response.Error.Code is RPCErrorCode.RPC_MISC_ERROR)
-					{
-						// Some shitcoins do not require a parameter to estimatefee anymore
-						response = await SendCommandAsync(RPCOperations.estimatefee).ConfigureAwait(false);
-					}
-					else
-					{
-						response.ThrowIfError();
-					}
+					var response = await SendCommandAsync(RPCOperations.estimatefee).ConfigureAwait(false);
+					var result = response.Result.Value<decimal>();
+					var money = Money.Coins(result);
+					if (money.Satoshi < 0)
+						return null;
+					return new EstimateSmartFeeResponse() { FeeRate = new FeeRate(money), Blocks = confirmationTarget };
 				}
-				var result = response.Result.Value<decimal>();
-				var money = Money.Coins(result);
-				if (money.Satoshi < 0)
-					return null;
-				return new EstimateSmartFeeResponse() { FeeRate = new FeeRate(money), Blocks = confirmationTarget };
+				else
+				{
+					RPCResponse response = await SendCommandAsync(new RPCRequest(RPCOperations.estimatefee, new object[] { confirmationTarget }), false).ConfigureAwait(false);
+					if (response.Error != null)
+					{
+						if (response.Error.Code is RPCErrorCode.RPC_MISC_ERROR)
+						{
+							// Some shitcoins do not require a parameter to estimatefee anymore
+							response = await SendCommandAsync(RPCOperations.estimatefee).ConfigureAwait(false);
+						}
+						else
+						{
+							response.ThrowIfError();
+						}
+					}
+					var result = response.Result.Value<decimal>();
+					var money = Money.Coins(result);
+					if (money.Satoshi < 0)
+						return null;
+					return new EstimateSmartFeeResponse() { FeeRate = new FeeRate(money), Blocks = confirmationTarget };
+				}
 			}
 		}
 
