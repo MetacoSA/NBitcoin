@@ -468,8 +468,11 @@ namespace NBitcoin.DataEncoders
 			{
 				throw new FormatException("bech missing separator, separator misplaced or too long input");
 			}
-			if (buffer.Length < _Hrp.Length)
+			if (pos != _Hrp.Length)
+			{
 				throw new FormatException("Mismatching human readable part");
+			}
+
 			for (int i = 0; i < _Hrp.Length; i++)
 			{
 				if (buffer[i] != _Hrp[i])

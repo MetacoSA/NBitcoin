@@ -71,6 +71,9 @@ namespace NBitcoin.Tests
 			Assert.Equal(2, ex.ErrorIndexes.Length);
 			Assert.Equal(8, ex.ErrorIndexes[0]);
 			Assert.Equal(12, ex.ErrorIndexes[1]);
+
+			var bech2 = Encoders.Bech32("tb");
+			Assert.Throws<FormatException>(() => bech2.Decode("tb1qdtpzu24mlyz3k0vrqxyntq0xqdqva7zxm7r485tb1qdtpzu24mlyz3k0vrqxyntq0xqdqva7zxm7r485", out wit));
 		}
 
 		[Fact]
