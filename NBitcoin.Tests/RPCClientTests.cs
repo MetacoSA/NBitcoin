@@ -1144,6 +1144,40 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void DoubleSpendThrows()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+				var network = node.Network;
+
+				var key = new Key();
+				var blockId = rpc.GenerateToAddress(1, key.PubKey.WitHash.GetAddress(network));
+				var block = rpc.GetBlock(blockId[0]);
+				var coinBaseTx = block.Transactions[0];
+
+				var tx = Transaction.Create(network);
+				tx.Inputs.Add(coinBaseTx, 0);
+				tx.Outputs.Add(Money.Coins(49.9999m), new Key().PubKey.WitHash.GetAddress(network));
+				tx.Sign(key.GetBitcoinSecret(network), coinBaseTx.Outputs.AsCoins().First());
+				var valid = tx.Check();
+
+				var doubleSpend = Transaction.Create(network);
+				doubleSpend.Inputs.Add(coinBaseTx, 0);
+				doubleSpend.Outputs.Add(Money.Coins(49.998m), new Key().PubKey.WitHash.GetAddress(network));
+				doubleSpend.Sign(key.GetBitcoinSecret(network), coinBaseTx.Outputs.AsCoins().First());
+				valid = doubleSpend.Check();
+
+				rpc.Generate(101);
+
+				var txId = rpc.SendRawTransaction(tx);
+				Assert.Throws<RPCException>(() => rpc.SendRawTransaction(doubleSpend));
+			}
+		}
+
+		[Fact]
 		public async Task GetBlockFilterAsync()
 		{
 			using (var builder = NodeBuilderEx.Create())
