@@ -1195,8 +1195,8 @@ namespace NBitcoin.Tests
 
 				var result = rpc.TestMempoolAccept(tx, new FeeRate(1.0m));
 				Assert.False(result.IsAllowed);
-				Assert.Equal(Protocol.RejectCode.NONSTANDARD, result.RejectCode);
-				Assert.Equal("bad-txns-nonstandard-inputs", result.RejectReason);
+				Assert.Equal(Protocol.RejectCode.INVALID, result.RejectCode);
+				Assert.Equal("non-mandatory-script-verify-flag (Witness program hash mismatch)", result.RejectReason);
 
 				var signedTx = rpc.SignRawTransactionWithWallet(new SignRawTransactionRequest()
 				{
