@@ -485,7 +485,8 @@ namespace NBitcoin.Tests
 				Assert.Equal(getTxOutResponse.Confirmations, blocksToGenerate);
 				Assert.Equal(Money.Coins(50), getTxOutResponse.TxOut.Value);
 				Assert.NotNull(getTxOutResponse.TxOut.ScriptPubKey);
-				Assert.True(getTxOutResponse.ScriptPubKeyType == "pubkey" || getTxOutResponse.ScriptPubKeyType == "scripthash");
+				string scriptPubKeyType = getTxOutResponse.ScriptPubKeyType;
+				Assert.True(scriptPubKeyType == "pubkey" || scriptPubKeyType == "scripthash" || scriptPubKeyType == "witness_v0_keyhash");
 				Assert.True(getTxOutResponse.IsCoinBase);
 
 				// 2. Spend the first coin
@@ -516,7 +517,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(0, getTxOutResponse.Confirmations);
 				Assert.Equal(Money.Coins(49), getTxOutResponse.TxOut.Value);
 				Assert.NotNull(getTxOutResponse.TxOut.ScriptPubKey);
-				Assert.Equal("pubkeyhash", getTxOutResponse.ScriptPubKeyType);
+				Assert.Equal("witness_v0_keyhash", scriptPubKeyType);
 				Assert.False(getTxOutResponse.IsCoinBase);
 			}
 		}
