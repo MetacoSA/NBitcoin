@@ -815,7 +815,7 @@ namespace NBitcoin.RPC
 			JArray response;
 			try
 			{
-			retry:
+				retry:
 				var webRequest = CreateWebRequest(writer.ToString());
 				using (var cts = new CancellationTokenSource(RequestTimeout))
 				{
@@ -925,7 +925,7 @@ namespace NBitcoin.RPC
 				bool renewedCookie = false;
 				TimeSpan retryTimeout = TimeSpan.FromSeconds(1.0);
 				TimeSpan maxRetryTimeout = TimeSpan.FromSeconds(10.0);
-			retry:
+				retry:
 				var webRequest = CreateWebRequest(writer.ToString());
 				using (var cts = new CancellationTokenSource(RequestTimeout))
 				{
@@ -1471,7 +1471,8 @@ namespace NBitcoin.RPC
 
 		public async Task<MempoolEntry> GetMempoolEntryAsync(uint256 txid, bool throwIfNotFound = true)
 		{
-			var response = await SendCommandAsync(RPCOperations.getmempoolentry, txid).ConfigureAwait(false);
+			var request = new RPCRequest(RPCOperations.getmempoolentry, new[] { txid });
+			var response = await SendCommandAsync(request, throwIfRPCError: throwIfNotFound).ConfigureAwait(false);
 			if (throwIfNotFound)
 				response.ThrowIfError();
 			if (response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
