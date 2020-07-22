@@ -62,7 +62,9 @@ namespace NBitcoin.Tests
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Qtum.v0_18_3, Altcoins.Qtum.Instance.Regtest, caller);
 
-			var builder = Create(NodeDownloadData.Bitcoin.v0_19_0_1, caller);
+			//var builder = Create(NodeDownloadData.Bitcoin.v0_19_0_1, caller);
+
+			var builder = Create(NodeDownloadData.Bitcoin.v0_20_0, caller);
 			return builder;
 		}
 
