@@ -815,7 +815,7 @@ namespace NBitcoin.RPC
 			JArray response;
 			try
 			{
-				retry:
+			retry:
 				var webRequest = CreateWebRequest(writer.ToString());
 				using (var cts = new CancellationTokenSource(RequestTimeout))
 				{
@@ -925,7 +925,7 @@ namespace NBitcoin.RPC
 				bool renewedCookie = false;
 				TimeSpan retryTimeout = TimeSpan.FromSeconds(1.0);
 				TimeSpan maxRetryTimeout = TimeSpan.FromSeconds(10.0);
-				retry:
+			retry:
 				var webRequest = CreateWebRequest(writer.ToString());
 				using (var cts = new CancellationTokenSource(RequestTimeout))
 				{
