@@ -20,6 +20,8 @@ namespace NBitcoin.RPC
 		public KeyPath HDKeyPath { get; private set; }
 		public uint160 HDSeedID { get; private set; }
 		public uint160 HDMasterKeyID { get; private set; }
+
+		[Obsolete("Bitcoin Core 0.20.0 obsolated this.")]
 		public List<Dictionary<string, string>> Labels { get; private set; } = new List<Dictionary<string, string>>();
 
 		public bool? IsCompressed { get; private set; }
@@ -58,9 +60,14 @@ namespace NBitcoin.RPC
 			if (jlabels != null)
 			{
 				var labelObjects = jlabels.Value.Value<JArray>();
-				foreach (var jObj in labelObjects)
+				foreach (var jToken in labelObjects)
 				{
-					Labels.Add(((JObject)jObj).ToObject<Dictionary<string, string>>());
+					if (jToken is JObject jObject) // Before Bitcoin Core 0.20.0
+					{
+#pragma warning disable CS0618 // Type or member is obsolete.
+						Labels.Add(jToken.ToObject<Dictionary<string, string>>());
+#pragma warning restore CS0618 // Type or member is obsolete
+					}
 				}
 			}
 

@@ -485,7 +485,8 @@ namespace NBitcoin.Tests
 				Assert.Equal(getTxOutResponse.Confirmations, blocksToGenerate);
 				Assert.Equal(Money.Coins(50), getTxOutResponse.TxOut.Value);
 				Assert.NotNull(getTxOutResponse.TxOut.ScriptPubKey);
-				Assert.True(getTxOutResponse.ScriptPubKeyType == "pubkey" || getTxOutResponse.ScriptPubKeyType == "scripthash");
+				string scriptPubKeyType = getTxOutResponse.ScriptPubKeyType;
+				Assert.True(scriptPubKeyType == "pubkey" || scriptPubKeyType == "scripthash" || scriptPubKeyType == "witness_v0_keyhash");
 				Assert.True(getTxOutResponse.IsCoinBase);
 
 				// 2. Spend the first coin
@@ -516,7 +517,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(0, getTxOutResponse.Confirmations);
 				Assert.Equal(Money.Coins(49), getTxOutResponse.TxOut.Value);
 				Assert.NotNull(getTxOutResponse.TxOut.ScriptPubKey);
-				Assert.Equal("pubkeyhash", getTxOutResponse.ScriptPubKeyType);
+				Assert.Equal("witness_v0_keyhash", scriptPubKeyType);
 				Assert.False(getTxOutResponse.IsCoinBase);
 			}
 		}
@@ -1194,8 +1195,8 @@ namespace NBitcoin.Tests
 
 				var result = rpc.TestMempoolAccept(tx, new FeeRate(1.0m));
 				Assert.False(result.IsAllowed);
-				Assert.Equal(Protocol.RejectCode.NONSTANDARD, result.RejectCode);
-				Assert.Equal("bad-txns-nonstandard-inputs", result.RejectReason);
+				Assert.Equal(Protocol.RejectCode.INVALID, result.RejectCode);
+				Assert.Equal("non-mandatory-script-verify-flag (Witness program hash mismatch)", result.RejectReason);
 
 				var signedTx = rpc.SignRawTransactionWithWallet(new SignRawTransactionRequest()
 				{
@@ -1623,10 +1624,22 @@ namespace NBitcoin.Tests
 		// 1. one user (David) do not use bitcoin core (only NBitcoin)
 		// 2. 4-of-4 instead of 2-of-3
 		// 3. In version 0.17, `importmulti` can not handle witness script so only p2sh are considered here. TODO: fix
-		[Fact]
-		public void ShouldPerformMultisigProcessingWithCore()
+		[Theory]
+		[InlineData("latest")]
+		[InlineData("v0_19_0_1")]
+		public void ShouldPerformMultisigProcessingWithCore(string version)
 		{
-			using (var builder = NodeBuilderEx.Create())
+			NodeBuilder builder;
+			if (version == "latest")
+			{
+				builder = NodeBuilderEx.Create();
+			}
+			else // if (version == "v0_19_0_1")
+			{
+				builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.v0_19_0_1);
+			}
+
+			using (builder)
 			{
 				var nodeAlice = builder.CreateNode();
 				var nodeBob = builder.CreateNode();
@@ -1739,16 +1752,28 @@ namespace NBitcoin.Tests
 		}
 
 
-		[Fact]
+		[Theory]
+		[InlineData("latest")]
+		[InlineData("v0_19_0_1")]
 		/// <summary>
 		/// For p2sh, p2wsh, p2sh-p2wsh, we must also test the case for `solvable` to the wallet.
 		/// For that, both script and the address must be imported by `importmulti`.
 		/// but importmulti can not handle witness script(in v0.17).
 		/// TODO: add test for solvable scripts.
 		/// </summary>
-		public void ShouldGetAddressInfo()
+		public void ShouldGetAddressInfo(string version)
 		{
-			using (var builder = NodeBuilderEx.Create())
+			NodeBuilder builder;
+			if (version == "latest")
+			{
+				builder = NodeBuilderEx.Create();
+			}
+			else // if (version == "v0_19_0_1")
+			{
+				builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.v0_19_0_1);
+			}
+
+			using (builder)
 			{
 				var client = builder.CreateNode(true).CreateRPCClient();
 				var addrLegacy = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Legacy });
