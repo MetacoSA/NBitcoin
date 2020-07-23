@@ -23,6 +23,7 @@ namespace NBitcoin.Tests
 			testdata = JObject.Parse(File.ReadAllText("data/psbt.json"));
 			ComparerInstance = new PSBTComparer();
 		}
+
 		public PSBTTests(ITestOutputHelper output)
 		{
 			Output = output;
@@ -118,6 +119,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(psbt, psbt2, ComparerInstance);
 			}
 		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void ShouldPreserveOriginalTxPropertyAsPossible()
@@ -242,7 +244,7 @@ namespace NBitcoin.Tests
 			psbtWithTXs.SignWithKeys(keys[1], keys[2]);
 			var originalClonedPSBT = clonedPSBT.Clone();
 			bool useCombine = true;
-		retry:
+			retry:
 			var whollySignedPSBT = useCombine ? clonedPSBT.Combine(psbtWithTXs) : clonedPSBT.UpdateFrom(psbtWithTXs);
 
 			// must sign only once for whole kinds of non-multisig tx.
@@ -490,6 +492,7 @@ namespace NBitcoin.Tests
 			var expected = PSBT.Parse((string)testdata["psbtUnknown2"], Network.Main);
 			Assert.Equal(data1, expected, ComparerInstance);
 		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRebaseKeypathInPSBT()
@@ -499,7 +502,7 @@ namespace NBitcoin.Tests
 			var accountExtKey = masterExtkey.Derive(new KeyPath("0'/0'/0'"));
 			var accountRootedKeyPath = new KeyPath("0'/0'/0'").ToRootedKeyPath(masterExtkey);
 			uint hardenedFlag = 0x80000000U;
-		retry:
+			retry:
 			Transaction funding = masterExtkey.Network.CreateTransaction();
 			funding.Outputs.Add(Money.Coins(2.0m), accountExtKey.Derive(0 | hardenedFlag).ScriptPubKey);
 			funding.Outputs.Add(Money.Coins(2.0m), accountExtKey.Derive(1 | hardenedFlag).ScriptPubKey);
@@ -730,5 +733,17 @@ namespace NBitcoin.Tests
 			return new Transaction[] { tx1, tx2, tx3, tx4, tx5 };
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public static void CoinJoinInputs()
+		{
+			var signed = PSBT.Parse((string)testdata["psbtCoinJoinInputs"], Network.TestNet);
+
+			var finalized = signed.Finalize();
+
+			var finalTX = finalized.ExtractTransaction();
+			var result = finalTX.Check();
+			Assert.Equal(TransactionCheckResult.Success, result);
+		}
 	}
 }
