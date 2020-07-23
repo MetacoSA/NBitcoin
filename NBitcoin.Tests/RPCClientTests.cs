@@ -1144,6 +1144,33 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void GetMemPoolEntryThrows()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+
+				Assert.Throws<RPCException>(() => rpc.GetMempoolEntry(uint256.One, throwIfNotFound: true));
+			}
+		}
+
+		[Fact]
+		public void GetMemPoolEntryDoesntThrow()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+
+				var mempoolEntry = rpc.GetMempoolEntry(uint256.One, throwIfNotFound: false);
+				Assert.Null(mempoolEntry);
+			}
+		}
+
+		[Fact]
 		public void DoubleSpendThrows()
 		{
 			using (var builder = NodeBuilderEx.Create())
