@@ -23,7 +23,6 @@ namespace NBitcoin.Tests
 			testdata = JObject.Parse(File.ReadAllText("data/psbt.json"));
 			ComparerInstance = new PSBTComparer();
 		}
-
 		public PSBTTests(ITestOutputHelper output)
 		{
 			Output = output;
@@ -119,7 +118,6 @@ namespace NBitcoin.Tests
 				Assert.Equal(psbt, psbt2, ComparerInstance);
 			}
 		}
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void ShouldPreserveOriginalTxPropertyAsPossible()
@@ -492,7 +490,6 @@ namespace NBitcoin.Tests
 			var expected = PSBT.Parse((string)testdata["psbtUnknown2"], Network.Main);
 			Assert.Equal(data1, expected, ComparerInstance);
 		}
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRebaseKeypathInPSBT()
@@ -745,5 +742,6 @@ namespace NBitcoin.Tests
 			var result = finalTX.Check();
 			Assert.Equal(TransactionCheckResult.Success, result);
 		}
+
 	}
 }
