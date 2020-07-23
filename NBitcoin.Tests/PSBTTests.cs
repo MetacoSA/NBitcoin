@@ -242,7 +242,7 @@ namespace NBitcoin.Tests
 			psbtWithTXs.SignWithKeys(keys[1], keys[2]);
 			var originalClonedPSBT = clonedPSBT.Clone();
 			bool useCombine = true;
-			retry:
+		retry:
 			var whollySignedPSBT = useCombine ? clonedPSBT.Combine(psbtWithTXs) : clonedPSBT.UpdateFrom(psbtWithTXs);
 
 			// must sign only once for whole kinds of non-multisig tx.
@@ -499,7 +499,7 @@ namespace NBitcoin.Tests
 			var accountExtKey = masterExtkey.Derive(new KeyPath("0'/0'/0'"));
 			var accountRootedKeyPath = new KeyPath("0'/0'/0'").ToRootedKeyPath(masterExtkey);
 			uint hardenedFlag = 0x80000000U;
-			retry:
+		retry:
 			Transaction funding = masterExtkey.Network.CreateTransaction();
 			funding.Outputs.Add(Money.Coins(2.0m), accountExtKey.Derive(0 | hardenedFlag).ScriptPubKey);
 			funding.Outputs.Add(Money.Coins(2.0m), accountExtKey.Derive(1 | hardenedFlag).ScriptPubKey);
