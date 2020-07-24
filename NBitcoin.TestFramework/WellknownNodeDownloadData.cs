@@ -1368,6 +1368,35 @@ namespace NBitcoin.Tests
 				UseSectionInConfigFile = true
 			};
 		}
+		
+		public class MonetaryUnitNodeDownloadData
+		{
+			public NodeDownloadData v2_1_6 = new NodeDownloadData()
+			{
+				Version = "2.1.6",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/muecoin/MUE/releases/download/v2.1.6/mon-2.1.6-win64.zip",
+					Archive = "mon-2.1.6-win64.zip",
+					Executable = "mon/bin/monetaryunitd.exe",
+					Hash = "32ff392d34396e3b5c123ee629a72aef1bc9380afd9630bb98c0d8a3eaa9ea22"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/muecoin/MUE/releases/download/v2.1.6/mon-2.1.6-x86_64-linux-gnu.tar.gz",
+					Archive = "mon-2.1.6-x86_64-linux-gnu.tar.gz",
+					Executable = "mon/bin/monetaryunitd",
+					Hash = "87aee9fd607af80fded5c8495fbb978f646cd7e7020be071ca3868840c42d62f"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/muecoin/MUE/releases/download/v2.1.6/mon-2.1.6-osx64.tar.gz",
+					Archive = "mon-2.1.6-osx64.tar.gz",
+					Executable = "mon/bin/monetaryunitd",
+					Hash = "af3712f4d6a526d8003198bb8c80d8fbbb97d97249ed9737a829527f8fab1e74"
+				}
+			};
+		}
 
 		public static GoByteNodeDownloadData GoByte
 		{
@@ -1517,6 +1546,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new QtumNodeDownloadData();
+		
+		public static MonetaryUnitNodeDownloadData MonetaryUnit
+		{
+			get; set;
+		} = new MonetaryUnitNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
