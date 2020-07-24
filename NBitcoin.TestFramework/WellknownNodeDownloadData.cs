@@ -1545,6 +1545,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new QtumNodeDownloadData();
+		
+		public static MonetaryUnitNodeDownloadData MonetaryUnit
+		{
+			get; set;
+		} = new MonetaryUnitNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
