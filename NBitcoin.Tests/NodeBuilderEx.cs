@@ -61,6 +61,8 @@ namespace NBitcoin.Tests
 			//var builder = NodeBuilder.Create(NodeDownloadData.Argoneum.v1_4_1, Altcoins.Argoneum.Instance.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Qtum.v0_18_3, Altcoins.Qtum.Instance.Regtest, caller);
+			
+			//var builder = NodeBuilder.Create(NodeDownloadData.MonetaryUnit.v2_1_6, Altcoins.MonetaryUnit.Instance.Regtest, caller);
 
 			//var builder = Create(NodeDownloadData.Bitcoin.v0_19_0_1, caller);
 
