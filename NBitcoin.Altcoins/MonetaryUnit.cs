@@ -3,7 +3,6 @@ using System.Linq;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.Secp256k1;
 
 namespace NBitcoin.Altcoins
 {
