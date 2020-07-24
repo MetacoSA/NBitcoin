@@ -40,7 +40,7 @@ namespace NBitcoin
 			//Compute the Bitcoin address (ASCII),
 			var addressBytes = Encoders.ASCII.DecodeData(key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network).ToString());
 			// and take the first four bytes of SHA256(SHA256()) of it. Let's call this "addresshash".
-			var addresshash = Hashes.Hash256(addressBytes).ToBytes().SafeSubarray(0, 4);
+			var addresshash = Hashes.DoubleSHA256(addressBytes).ToBytes().SafeSubarray(0, 4);
 
 			var derived = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), addresshash);
 
@@ -94,7 +94,7 @@ namespace NBitcoin
 			var key = new Key(bitcoinprivkey, fCompressedIn: IsCompressed);
 
 			var addressBytes = Encoders.ASCII.DecodeData(key.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network).ToString());
-			var salt = Hashes.Hash256(addressBytes).ToBytes().SafeSubarray(0, 4);
+			var salt = Hashes.DoubleSHA256(addressBytes).ToBytes().SafeSubarray(0, 4);
 
 			if (!Utils.ArrayEqual(salt, AddressHash))
 				throw new SecurityException("Invalid password (or invalid Network)");
@@ -189,7 +189,7 @@ namespace NBitcoin
 
 			//Decrypt encryptedpart1 to yield the remainder of seedb.
 			var seedb = DecryptSeed(encrypted, derived);
-			var factorb = Hashes.Hash256(seedb).ToBytes();
+			var factorb = Hashes.DoubleSHA256(seedb).ToBytes();
 #if HAS_SPAN
 			var eckey = NBitcoinContext.Instance.CreateECPrivKey(passfactor).TweakMul(factorb);
 			var key = new Key(eckey, IsCompressed);
@@ -220,7 +220,7 @@ namespace NBitcoin
 		/// <returns></returns>
 		internal static byte[] HashAddress(BitcoinAddress address)
 		{
-			return Hashes.Hash256(Encoders.ASCII.DecodeData(address.ToString())).ToBytes().Take(4).ToArray();
+			return Hashes.DoubleSHA256(Encoders.ASCII.DecodeData(address.ToString())).ToBytes().Take(4).ToArray();
 		}
 
 		internal static byte[] CalculatePassPoint(byte[] passfactor)
@@ -239,7 +239,7 @@ namespace NBitcoin
 			{
 				var ownersalt = ownerEntropy.SafeSubarray(0, 4);
 				var prefactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), ownersalt, 32);
-				passfactor = Hashes.Hash256(prefactor.Concat(ownerEntropy).ToArray()).ToBytes();
+				passfactor = Hashes.DoubleSHA256(prefactor.Concat(ownerEntropy).ToArray()).ToBytes();
 			}
 			return passfactor;
 		}

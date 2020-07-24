@@ -281,7 +281,7 @@ namespace NBitcoin.Tests
 			_State = CoreNodeState.Stopped;
 
 			dataDir = Path.Combine(folder, "data");
-			var pass = Hashes.Hash256(Encoding.UTF8.GetBytes(folder)).ToString();
+			var pass = Hashes.DoubleSHA256(Encoding.UTF8.GetBytes(folder)).ToString();
 			creds = new NetworkCredential(pass, pass);
 			_Config = Path.Combine(dataDir, "bitcoin.conf");
 			ConfigParameters.Import(builder.ConfigParameters, true);

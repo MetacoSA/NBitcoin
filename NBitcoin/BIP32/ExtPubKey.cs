@@ -213,7 +213,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return Hashes.Hash256(this.ToBytes());
+				return Hashes.DoubleSHA256(this.ToBytes());
 			}
 		}
 

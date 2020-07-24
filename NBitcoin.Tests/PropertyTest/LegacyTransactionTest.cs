@@ -31,7 +31,7 @@ namespace NBitcoin.Tests.PropertyTest
 		[Trait("UnitTest", "UnitTest")]
 		public bool TxIdMustMatchHexSha256(Transaction tx)
 		{
-			return tx.GetHash() == Hashes.Hash256(tx.ToBytes());
+			return tx.GetHash() == Hashes.DoubleSHA256(tx.ToBytes());
 		}
 
 	}

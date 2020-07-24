@@ -55,7 +55,7 @@ namespace NBitcoin.Tests
 			var byteArray2 = new byte[] { 1, 2, 3, 4 };
 
 			var filter = new GolombRiceFilterBuilder()
-				.SetKey(Hashes.Hash256(new byte[] { 99, 99, 99, 99 }))
+				.SetKey(Hashes.DoubleSHA256(new byte[] { 99, 99, 99, 99 }))
 				.AddEntries(new[] { byteArray0, byteArray1, byteArray2 })
 				.AddScriptPubkey(Script.FromBytesUnsafe(byteArray0))
 				.AddScriptPubkey(Script.FromBytesUnsafe(byteArray1))
@@ -71,7 +71,7 @@ namespace NBitcoin.Tests
 			var names = from name in new[] { "New York", "Amsterdam", "Paris", "Buenos Aires", "La Habana" }
 						select Encoding.ASCII.GetBytes(name);
 
-			var key = Hashes.Hash256(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
+			var key = Hashes.DoubleSHA256(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
 			var filter = new GolombRiceFilterBuilder()
 				.SetKey(key)
 				.AddEntries(names)
@@ -130,7 +130,7 @@ namespace NBitcoin.Tests
 			const int avgTxoutPushDataSize = 20;        // P2PKH scripts has 20 bytes.
 			const int walletAddressCount = 1_000;       // We estimate that our user will have 1000 addresses.
 
-			var key = Hashes.Hash256(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
+			var key = Hashes.DoubleSHA256(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
 			var testKey = key.ToBytes().SafeSubarray(0, 16);
 
 			// Generation of data to be added into the filter
@@ -197,7 +197,7 @@ namespace NBitcoin.Tests
 			var byteArray1 = new byte[] { 2, 3, 4 };
 			var byteArray2 = new byte[] { 3, 4 };
 
-			var key = Hashes.Hash256(new byte[] { 99, 99, 99, 99 });
+			var key = Hashes.DoubleSHA256(new byte[] { 99, 99, 99, 99 });
 			var testKey = key.ToBytes().SafeSubarray(0, 16);
 
 			var filter = new GolombRiceFilterBuilder()
@@ -432,7 +432,7 @@ namespace NBitcoin.Tests
 				scripts.Add(script);
 			}
 
-			var key = Hashes.Hash256(Encoding.ASCII.GetBytes("A key for testing"));
+			var key = Hashes.DoubleSHA256(Encoding.ASCII.GetBytes("A key for testing"));
 			var builder = new GolombRiceFilterBuilder()
 				.SetKey(key)
 				.SetP(0x20);

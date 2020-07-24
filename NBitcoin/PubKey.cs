@@ -447,13 +447,13 @@ namespace NBitcoin
 		{
 #if HAS_SPAN
 			var messageToSign = Utils.FormatMessageForSigning(message);
-			var hash = Hashes.Hash256(messageToSign);
+			var hash = Hashes.DoubleSHA256(messageToSign);
 			Span<byte> msg = stackalloc byte[32];
 			hash.ToBytes(msg);
 			return _ECKey.SigVerify(signature.ToSecpECDSASignature(), msg);
 #else
 			var messageToSign = Utils.FormatMessageForSigning(message);
-			var hash = Hashes.Hash256(messageToSign);
+			var hash = Hashes.DoubleSHA256(messageToSign);
 			return ECKey.Verify(hash, signature);
 #endif
 		}
@@ -509,14 +509,14 @@ namespace NBitcoin
 		{
 			var signatureEncoded = Encoders.Base64.DecodeData(signatureText);
 			var message = Utils.FormatMessageForSigning(messageBytes);
-			var hash = Hashes.Hash256(message);
+			var hash = Hashes.DoubleSHA256(message);
 			return RecoverCompact(hash, signatureEncoded);
 		}
 
 		public static PubKey RecoverFromMessage(byte[] messageBytes, byte[] signatureEncoded)
 		{
 			var message = Utils.FormatMessageForSigning(messageBytes);
-			var hash = Hashes.Hash256(message);
+			var hash = Hashes.DoubleSHA256(message);
 			return RecoverCompact(hash, signatureEncoded);
 		}
 

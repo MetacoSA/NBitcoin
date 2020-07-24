@@ -51,7 +51,7 @@ namespace NBitcoin.DataEncoders
 
 		protected virtual byte[] CalculateHash(byte[] bytes, int offset, int length)
 		{
-			return Hashes.Hash256RawBytes(bytes, offset, length);
+			return Hashes.DoubleSHA256RawBytes(bytes, offset, length);
 		}
 	}
 

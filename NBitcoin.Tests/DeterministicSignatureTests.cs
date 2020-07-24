@@ -264,7 +264,7 @@ namespace NBitcoin.Tests
 				var msg = new byte[msgLen];
 				rnd.NextBytes(msg);
 
-				var sig = key.Sign(Hashes.Hash256(msg));
+				var sig = key.Sign(Hashes.DoubleSHA256(msg));
 				Assert.True(sig.IsLowR);
 				Assert.True(sig.ToDER().Length <= 70);
 			}
