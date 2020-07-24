@@ -144,9 +144,9 @@ namespace NBitcoin
 		/// <returns>The filter header.</returns>
 		public uint256 GetHeader(uint256 previousHeader)
 		{
-			var curFilterHashBytes = Hashes.Hash256(ToBytes()).ToBytes();
+			var curFilterHashBytes = Hashes.DoubleSHA256(ToBytes()).ToBytes();
 			var prvFilterHashBytes = previousHeader.ToBytes();
-			return Hashes.Hash256(curFilterHashBytes.Concat(prvFilterHashBytes));
+			return Hashes.DoubleSHA256(curFilterHashBytes.Concat(prvFilterHashBytes));
 		}
 
 		/// <summary>

@@ -178,7 +178,7 @@ namespace NBitcoin
 			var passfactor = prefactor;
 			if (hasLotSequence)
 			{
-				passfactor = Hashes.Hash256(prefactor.Concat(ownerEntropy).ToArray()).ToBytes();
+				passfactor = Hashes.DoubleSHA256(prefactor.Concat(ownerEntropy).ToArray()).ToBytes();
 			}
 
 			var passpoint = new Key(passfactor, fCompressedIn: true).PubKey.ToBytes();
@@ -220,7 +220,7 @@ namespace NBitcoin
 			//Generate 24 random bytes, call this seedb. Take SHA256(SHA256(seedb)) to yield 32 bytes, call this factorb.
 			seedb = seedb ?? RandomUtils.GetBytes(24);
 
-			var factorb = Hashes.Hash256(seedb).ToBytes();
+			var factorb = Hashes.DoubleSHA256(seedb).ToBytes();
 
 			//ECMultiply passpoint by factorb.
 #if HAS_SPAN

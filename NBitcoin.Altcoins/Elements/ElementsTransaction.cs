@@ -257,7 +257,7 @@ namespace NBitcoin.Altcoins.Elements
 			if (AssetIssuance?.BlindingNonce != uint256.Zero)
 				return null;
 			var assetEntropy = new MerkleNode(
-				new MerkleNode(Hashes.Hash256(PrevOut.ToBytes())),
+				new MerkleNode(Hashes.DoubleSHA256(PrevOut.ToBytes())),
 				new MerkleNode(new uint256(AssetIssuance.Entropy.ToBytes())));
 			UpdateFastHash(assetEntropy);
 

@@ -178,7 +178,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(messageBytes));
 			AssertNotDiposed();
 			byte[] data = Utils.FormatMessageForSigning(messageBytes);
-			var hash = Hashes.Hash256(data);
+			var hash = Hashes.DoubleSHA256(data);
 			return Convert.ToBase64String(SignCompact(hash, forceLowR));
 		}
 

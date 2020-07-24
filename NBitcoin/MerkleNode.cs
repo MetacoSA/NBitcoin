@@ -68,7 +68,7 @@ namespace NBitcoin
 		{
 			var right = Right ?? Left;
 			if (Left != null && Left.Hash != null && right.Hash != null)
-				_Hash = Hashes.Hash256(Left.Hash.ToBytes().Concat(right.Hash.ToBytes()).ToArray());
+				_Hash = Hashes.DoubleSHA256(Left.Hash.ToBytes().Concat(right.Hash.ToBytes()).ToArray());
 		}
 
 		public bool IsLeaf

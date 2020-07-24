@@ -20,7 +20,7 @@ namespace NBitcoin.Tests.PropertyTest
 		public void WitnessTxIdProp(Tuple<Transaction, Network> testcase)
 		{
 			var tx = testcase.Item1;
-			Assert.Equal(tx.GetWitHash(), Hashes.Hash256(tx.ToBytes()));
+			Assert.Equal(tx.GetWitHash(), Hashes.DoubleSHA256(tx.ToBytes()));
 			Assert.NotEqual(tx.GetHash(), tx.GetWitHash());
 			var tx2 = Transaction.Parse(tx.ToHex(), testcase.Item2);
 			Assert.Equal(tx, tx2, new TransactionComparer());

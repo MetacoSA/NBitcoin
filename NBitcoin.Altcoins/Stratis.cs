@@ -223,7 +223,7 @@ namespace NBitcoin.Altcoins
 				byte[] hashData = data.SafeSubarray(offset, count);
 				uint256 hash = null;
 				if (this.nVersion > 6)
-					hash = Hashes.Hash256(hashData);
+					hash = Hashes.DoubleSHA256(hashData);
 				else
 				{
 					var x13 = new X13();

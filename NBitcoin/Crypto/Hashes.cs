@@ -18,24 +18,48 @@ namespace NBitcoin.Crypto
 {
 	public static class Hashes
 	{
-		#region Hash256
+		#region DoubleSHA256
+		[Obsolete("Method name changed to DoubleSHA256(byte[]) to make it clearer what the implementation does.")]
 		public static uint256 Hash256(byte[] data)
 		{
 			return Hash256(data, 0, data.Length);
 		}
 
+		[Obsolete("Method name changed to DoubleSHA256(byte[], int ) to make it clearer what the implementation does.")]
 		public static uint256 Hash256(byte[] data, int count)
 		{
 			return Hash256(data, 0, count);
 		}
 
+		[Obsolete("Method name changed to DoubleSHA256(byte[], int, int) to make it clearer what the implementation does.")]
 		public static uint256 Hash256(byte[] data, int offset, int count)
 		{
-			return new uint256(Hash256RawBytes(data, offset, count));
+			return new uint256(DoubleSHA256RawBytes(data, offset, count));
+		}
+
+		[Obsolete("Method name changed to DoubleSHA256RawBytes(byte[], int, int) to make it clearer what the implementation does.")]
+		public static byte[] Hash256RawBytes(byte[] data, int offset, int count)
+		{
+			return DoubleSHA256RawBytes(data, offset, count);
+		}
+
+		public static uint256 DoubleSHA256(byte[] data)
+		{
+			return DoubleSHA256(data, 0, data.Length);
+		}
+
+		public static uint256 DoubleSHA256(byte[] data, int count)
+		{
+			return DoubleSHA256(data, 0, count);
+		}
+
+		public static uint256 DoubleSHA256(byte[] data, int offset, int count)
+		{
+			return new uint256(DoubleSHA256RawBytes(data, offset, count));
 		}
 		#endregion
 
-		public static byte[] Hash256RawBytes(byte[] data, int offset, int count)
+		public static byte[] DoubleSHA256RawBytes(byte[] data, int offset, int count)
 		{
 #if NONATIVEHASH
 			Sha256Digest sha256 = new Sha256Digest();

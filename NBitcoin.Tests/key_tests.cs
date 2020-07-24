@@ -24,7 +24,7 @@ namespace NBitcoin.Tests
 
 
 		BitcoinAddress addrLocal = Network.Main.CreateBitcoinAddress("1Q1wVsNNiUo68caU7BfyFFQ8fVBqxC2DSc");
-		uint256 msgLocal = Hashes.Hash256(TestUtils.ToBytes("Localbitcoins.com will change the world"));
+		uint256 msgLocal = Hashes.DoubleSHA256(TestUtils.ToBytes("Localbitcoins.com will change the world"));
 		byte[] signatureLocal = Convert.FromBase64String("IJ/17TjGGUqmEppAliYBUesKHoHzfY4gR4DW0Yg7QzrHUB5FwX1uTJ/H21CF8ncY8HHNB5/lh8kPAOeD5QxV8Xc=");
 
 
@@ -225,7 +225,7 @@ namespace NBitcoin.Tests
 					//Test one long message
 					strMsg = String.Join(",", Enumerable.Range(0, 2000).Select(i => i.ToString()).ToArray());
 				}
-				uint256 hashMsg = Hashes.Hash256(TestUtils.ToBytes(strMsg));
+				uint256 hashMsg = Hashes.DoubleSHA256(TestUtils.ToBytes(strMsg));
 
 				// normal signatures
 

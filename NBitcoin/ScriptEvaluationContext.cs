@@ -1306,7 +1306,7 @@ namespace NBitcoin
 									else if (opcode.Code == OpcodeType.OP_HASH160)
 										vchHash = Hashes.Hash160(vch, 0, vch.Length).ToBytes();
 									else if (opcode.Code == OpcodeType.OP_HASH256)
-										vchHash = Hashes.Hash256(vch, 0, vch.Length).ToBytes();
+										vchHash = Hashes.DoubleSHA256(vch, 0, vch.Length).ToBytes();
 									_stack.Pop();
 									_stack.Push(vchHash);
 									break;

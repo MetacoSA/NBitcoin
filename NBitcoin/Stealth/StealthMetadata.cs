@@ -78,7 +78,7 @@ namespace NBitcoin.Stealth
 			output.Nonce = ms.ReadBytes(4);
 			output.EphemKey = new PubKey(ms.ReadBytes(33));
 			output.Script = metadata;
-			output.Hash = Hashes.Hash256(data);
+			output.Hash = Hashes.DoubleSHA256(data);
 			var msprefix = new MemoryStream(output.Hash.ToBytes(false));
 			output.BitField = Utils.ToUInt32(msprefix.ReadBytes(4), true);
 			return true;
