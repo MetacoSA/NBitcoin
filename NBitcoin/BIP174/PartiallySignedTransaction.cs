@@ -1025,27 +1025,29 @@ namespace NBitcoin
 			var unused = new OutPoint(uint256.Zero, 0);
 			foreach (var redeem in redeems)
 			{
-				var p2sh = redeem.Hash.ScriptPubKey;
-				var p2wsh = redeem.WitHash.ScriptPubKey;
-				var p2shp2wsh = redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey;
+				var p2sh = new Lazy<Script>(()=> redeem.Hash.ScriptPubKey);
+				var p2wsh = new Lazy<Script>(() => redeem.WitHash.ScriptPubKey);
+				var p2shp2wsh = new Lazy<Script>(() => redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey);
 				foreach (var o in this.Inputs.OfType<PSBTCoin>().Concat(this.Outputs))
 				{
 					if (o is PSBTInput ii && ii.IsFinalized())
 						continue;
+					if (o.RedeemScript is Script)
+						continue;
 					var txout = o.GetCoin()?.TxOut;
 					if (txout == null)
 						continue;
-					if (txout.ScriptPubKey == p2sh)
+					if (txout.ScriptPubKey == p2sh.Value)
 					{
 						o.RedeemScript = redeem;
 					}
-					else if (txout.ScriptPubKey == p2wsh)
+					else if (txout.ScriptPubKey == p2wsh.Value)
 					{
 						o.WitnessScript = redeem;
 						if (o is PSBTInput i)
 							i.TrySlimUTXO();
 					}
-					else if (txout.ScriptPubKey == p2shp2wsh)
+					else if (txout.ScriptPubKey == p2shp2wsh.Value)
 					{
 						o.WitnessScript = redeem;
 						o.RedeemScript = redeem.WitHash.ScriptPubKey;
