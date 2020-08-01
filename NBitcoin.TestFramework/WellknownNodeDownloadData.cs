@@ -176,7 +176,7 @@ namespace NBitcoin.Tests
 					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
 					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
 					Executable = "bitcoin-{0}/bin/bitcoind",
-					Hash = "081b30b0f1af95656242c83eef30bbf7216b1a30fa8e8f29b3b160fe520d28f6"
+					Hash = "35ec10f87b6bc1e44fd9cd1157e5dfa483eaf14d7d9a9c274774539e7824c427"
 				},
 				Mac = new NodeOSDownloadData()
 				{
