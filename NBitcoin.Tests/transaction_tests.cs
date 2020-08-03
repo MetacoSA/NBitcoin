@@ -2453,6 +2453,41 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		// Due to knapsack algorithm, transaction builder will attempt to create
+		// a big transaction with all the small inputs.
+		// Because it would be above 100K, this would fail to pass policy rules of bitcoin.
+		// This test check that if this is the case, the transaction builder is correctly excluding
+		// small inputs from the selection in an attempt to keep transaction small.
+		public void DoNotBuildTooBigTransaction()
+		{
+			var k = new Key();
+			var addr = k.PubKey.GetAddress(ScriptPubKeyType.Segwit, Network.Main);
+			int coinsCount = 5000;
+			var coins = Enumerable.Range(0, coinsCount)
+					  .Select(i => new Coin(new OutPoint(uint256.Zero, i), new TxOut(Money.Satoshis(1000), addr)))
+					  .ToArray();
+			var totalToSend = coins.Select(c => c.Amount).Sum();
+			var feeCoin = new Coin(new OutPoint(uint256.Zero, coinsCount), new TxOut(Money.Coins(0.004m), addr));
+			var bigCoin = new Coin(new OutPoint(uint256.Zero, coinsCount + 1), new TxOut(Money.Coins(1.0m), addr));
+			var builder = Network.Main.CreateTransactionBuilder();
+			((DefaultCoinSelector)(builder.CoinSelector)).GroupByScriptPubKey = false;
+			builder.AddCoins(coins);
+			builder.AddCoins(feeCoin);
+			builder.AddCoins(bigCoin);
+			builder.Send(addr, totalToSend);
+			builder.SendEstimatedFees(new FeeRate(1.0m));
+			builder.SetChange(addr);
+			var tx = builder.BuildTransaction(false);
+			var input = Assert.Single(tx.Inputs);
+			Assert.Equal(bigCoin.Outpoint, input.PrevOut);
+			builder.AddKeys(k);
+			builder.SignTransactionInPlace(tx);
+			var rate = tx.GetFeeRate(builder.FindSpentCoins(tx));
+			Assert.Equal(new FeeRate(1.0m), rate);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildTransaction()
 		{
 			var keys = Enumerable.Range(0, 5).Select(i => new Key()).ToArray();
