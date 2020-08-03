@@ -1855,6 +1855,57 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		public async Task GetBlockVerboseTests()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				await node.StartAsync();
+				var cli = node.CreateRPCClient();
+
+				// case 1: genesis block
+				var verboseGenesis = await cli.GetBlockAsync(Network.RegTest.GenesisHash, GetBlockVerbosity.WithFullTx);
+				Assert.True(verboseGenesis.Block.ToBytes().SequenceEqual(Network.RegTest.GetGenesis().ToBytes()));
+				Assert.Equal(0, verboseGenesis.Height);
+				var height = await cli.GetBlockCountAsync();
+				Assert.Equal(height + 1, verboseGenesis.Confirmations);
+				Assert.Equal(285, verboseGenesis.StrippedSize);
+				Assert.Equal(285, verboseGenesis.Size);
+				Assert.Equal(1140, verboseGenesis.Weight);
+				Assert.Equal(0, verboseGenesis.Height);
+				Assert.Equal("00000001", verboseGenesis.VersionHex);
+				Assert.Equal(1, verboseGenesis.Block.Header.Version);
+				Assert.Equal(Network.RegTest.GenesisHash, verboseGenesis.Block.GetHash());
+				Assert.Equal(uint256.Parse("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"), verboseGenesis.Block.Transactions.First().GetHash());
+				Assert.Single(verboseGenesis.Block.Transactions);
+				Assert.Equal(verboseGenesis.MedianTime, verboseGenesis.Block.Header.BlockTime);
+				Assert.Equal(2u, verboseGenesis.Block.Header.Nonce);
+				Assert.Equal(new Target(0x207fffff), verboseGenesis.Block.Header.Bits);
+				Assert.Equal(4.656542373906925e-10, verboseGenesis.Difficulty);
+				Assert.Equal(uint256.Parse("0000000000000000000000000000000000000000000000000000000000000002"), verboseGenesis.ChainWork);
+
+				// NextBlockHash must be included iff the block is not on the tip.
+				Assert.Null(verboseGenesis.NextBlockHash);
+				var addr = await cli.GetNewAddressAsync();
+				await cli.GenerateToAddressAsync(1, addr);
+				verboseGenesis = await cli.GetBlockAsync(Network.RegTest.GenesisHash, GetBlockVerbosity.WithOnlyTxId);
+				Assert.NotNull(verboseGenesis.NextBlockHash);
+				Assert.Null(verboseGenesis.Block); // there will be no Block if we specify false to second argument.
+				Assert.NotNull(verboseGenesis.TxIds); // But txids are still there.
+				Assert.Single(verboseGenesis.TxIds);
+
+				// case 2: next block.
+				var secondBlockHash = await cli.GetBestBlockHashAsync();
+				var verboseBestBlock = await cli.GetBlockAsync(secondBlockHash, GetBlockVerbosity.WithOnlyTxId);
+				Assert.Equal(Network.RegTest.GenesisHash, verboseBestBlock.Header.HashPrevBlock);
+				Assert.Null(verboseBestBlock.NextBlockHash);
+
+				await cli.GenerateToAddressAsync(1, addr);
+				verboseBestBlock = await cli.GetBlockAsync(secondBlockHash, GetBlockVerbosity.WithOnlyTxId);
+				Assert.NotNull(verboseBestBlock.NextBlockHash);
+			}
+		}
 
 		private void AssertJsonEquals(string json1, string json2)
 		{

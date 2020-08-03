@@ -537,6 +537,10 @@ namespace NBitcoin
 			{
 				return header;
 			}
+			set
+			{
+				header = value;
+			}
 		}
 		public uint256 GetHash()
 		{
