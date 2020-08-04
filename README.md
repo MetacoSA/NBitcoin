@@ -209,7 +209,7 @@ node.VersionHandshake();
 
 * [BreezeProject](http://github.com/BreezeHub/BreezeProject): Breeze Masternode and Wallet with Breeze Privacy Protocol 
 
-* [Geewallet](https://github.com/diginex/geewallet): a minimalistic and pragmatist lightweight wallet for people that want to hold the most important cryptocurrencies in the same application without hassle
+* [geewallet](https://gitlab.com/nblockchain/geewallet/): Non-custodial, minimalistic & pragmatist opensource crossplatform lightweight brainwallet to hold the most important cryptoassets in the same application with ease & peace of mind
 
 ## Useful doc :
 
