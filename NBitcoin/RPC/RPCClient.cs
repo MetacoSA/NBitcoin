@@ -1368,6 +1368,97 @@ namespace NBitcoin.RPC
 			return header;
 		}
 
+		public GetBlockRPCResponse GetBlock(uint256 blockHash, GetBlockVerbosity verbosity)
+		{
+			return GetBlockAsync(blockHash, verbosity).GetAwaiter().GetResult();
+		}
+
+		public async Task<GetBlockRPCResponse> GetBlockAsync(uint256 blockHash, GetBlockVerbosity verbosity)
+		{
+			var resp = await SendCommandAsync("getblock", blockHash, (int)verbosity).ConfigureAwait(false);
+			return ParseVerboseBlock(resp, (int)verbosity);
+		}
+
+		private GetBlockRPCResponse ParseVerboseBlock(RPCResponse resp, int verbosity)
+		{
+			var json = (JObject)resp.Result;
+			var blockHeader = Network.Consensus.ConsensusFactory.CreateBlockHeader();
+			blockHeader.Bits = new Target(Encoders.Hex.DecodeData(json.Value<string>("bits")));
+			blockHeader.Version = json.Value<int>("version");
+			blockHeader.HashMerkleRoot = new uint256(json.Value<string>("merkleroot"));
+			blockHeader.BlockTime = Utils.UnixTimeToDateTime(json.Value<uint>("time"));
+			blockHeader.Nonce = json.Value<uint>("nonce");
+
+			// prevblock field does not exist for the genesis.
+			if (json.TryGetValue("previousblockhash", StringComparison.Ordinal, out var prevBlockHash))
+			{
+				blockHeader.HashPrevBlock = uint256.Parse(prevBlockHash.ToString());
+			}
+			else
+			{
+				blockHeader.HashPrevBlock = null;
+			}
+			// nextblockhash field does not exist for the chain tip.
+			uint256 nextBlockHash = null;
+			if (json.TryGetValue("nextblockhash", StringComparison.Ordinal, out var nextBlockHashHex))
+			{
+				nextBlockHash = uint256.Parse(nextBlockHashHex.ToString());
+			}
+
+			Block block = null;
+			var txids = new List<uint256>();
+			if (verbosity == 2)
+			{
+				var txs = new List<Transaction>();
+				foreach (var txInfo in json.Value<JArray>("tx"))
+				{
+
+					var tx = ParseTxHex(txInfo.Value<string>("hex"));
+					txs.Add(tx);
+					txids.Add(tx.GetHash());
+				}
+				block = Network.Consensus.ConsensusFactory.CreateBlock();
+				block.Header = blockHeader;
+				block.Transactions = txs;
+				if (!block.GetMerkleRoot().Hash.Equals(blockHeader.HashMerkleRoot))
+				{
+					throw new FormatException($"Bogus GetBlockRPCResponse! merkle root mistmach (expected: {blockHeader.HashMerkleRoot}. actual: {block.GetMerkleRoot().Hash})");
+				}
+			}
+			else if (verbosity == 1)
+			{
+				foreach (var tx in json.Value<JArray>("tx"))
+				{
+					txids.Add(uint256.Parse(tx.ToString()));
+				}
+			}
+			else
+			{
+				throw new Exception("Unreachable!");
+			}
+
+			var nTx = json.Value<int>("nTx");
+			if (nTx != txids.Count)
+			{
+				throw new FormatException($"Bogus GetBlockRPCResponse! nTx mismatch (expected: {nTx}. actual: {txids.Count})");
+			}
+			return new GetBlockRPCResponse() {
+				Confirmations = json.Value<int>("confirmations"),
+				Size = json.Value<int>("size"),
+				StrippedSize = json.Value<int>("strippedsize"),
+				Weight = json.Value<int>("weight"),
+				Height = json.Value<int>("height"),
+				VersionHex = json.Value<string>("versionHex"),
+				MedianTimeUnix = json.Value<uint>("mediantime"),
+				Difficulty = json.Value<double>("difficulty"),
+				ChainWork = uint256.Parse(json.Value<string>("chainwork")),
+				NextBlockHash = nextBlockHash,
+				Block = block,
+				Header = blockHeader,
+				TxIds = txids,
+			};
+		}
+
 		public uint256 GetBlockHash(int height)
 		{
 			var resp = SendCommand(RPCOperations.getblockhash, height);
