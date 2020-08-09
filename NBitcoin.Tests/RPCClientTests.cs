@@ -19,6 +19,7 @@ using FsCheck.Xunit;
 using FsCheck;
 using NBitcoin.Tests.Generators;
 using static NBitcoin.Tests.Comparer;
+using System.Net.Http;
 
 namespace NBitcoin.Tests
 {
@@ -191,6 +192,32 @@ namespace NBitcoin.Tests
 				var memPoolInfo = rpc.GetMemPool();
 				Assert.NotNull(memPoolInfo);
 				Assert.Equal(1, memPoolInfo.Size);
+			}
+		}
+
+		[Fact]
+		public async Task RPCBatchingCanFallbackIfAccessForbidden()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				node.CookieAuth = false;
+				node.ConfigParameters.Add("rpcwhitelist", $"{node.RPCCredentials.UserName}:getnetworkinfo,getblock,getblockhash");
+				builder.StartAll();
+
+				var rpc = node.CreateRPCClient();
+				rpc.AllowBatchFallback = true;
+				rpc = rpc.PrepareBatch();
+				// Should be denied
+				var sending = rpc.SendToAddressAsync(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), "hello", "world");
+				// Should give network info
+				var gettingNetworkInfo = rpc.SendCommandAsync(RPCOperations.getnetworkinfo);
+				await rpc.SendBatchAsync();
+
+				await Assert.ThrowsAsync<HttpRequestException>(async () => await sending);
+				var resp = await gettingNetworkInfo;
+				// Should not throw
+				resp.ThrowIfError();
 			}
 		}
 

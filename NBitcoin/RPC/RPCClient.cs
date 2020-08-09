@@ -519,7 +519,8 @@ namespace NBitcoin.RPC
 				_BatchedRequests = new ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>(),
 				Capabilities = Capabilities,
 				RequestTimeout = RequestTimeout,
-				_HttpClient = _HttpClient
+				_HttpClient = _HttpClient,
+				AllowBatchFallback = AllowBatchFallback
 			};
 		}
 		public RPCClient Clone()
@@ -529,7 +530,8 @@ namespace NBitcoin.RPC
 				_BatchedRequests = _BatchedRequests,
 				Capabilities = Capabilities,
 				RequestTimeout = RequestTimeout,
-				_HttpClient = _HttpClient
+				_HttpClient = _HttpClient,
+				AllowBatchFallback = AllowBatchFallback
 			};
 		}
 
@@ -794,6 +796,20 @@ namespace NBitcoin.RPC
 				return;
 			await SendBatchAsyncCore(requests).ConfigureAwait(false);
 		}
+
+		/// <summary>
+		/// Since bitcoin core 0.20, if a RPC batch request is made, and one of the request fails due
+		/// to permission issue (whitelisting feature), the whole RPC Batch would fail, throwing a
+		/// HttpRequestException.
+		///
+		/// If we set AllowBatchFallback to true, we will fallback by sending all requests in the batch
+		/// one by one.
+		/// However, only use this for idempotent operations.
+		/// When a batch operation fails because of permission issue, some of the requests in the batch
+		/// may nevertheless have succeed without Bitcoin Core giving a clue about which one.
+		/// </summary>
+		public bool AllowBatchFallback { get; set; }
+
 		private async Task SendBatchAsyncCore(List<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> requests)
 		{
 			var writer = new StringWriter();
@@ -846,6 +862,25 @@ namespace NBitcoin.RPC
 								if (TryRenewCookie())
 									goto retry;
 								httpResponse.EnsureSuccessStatusCode(); // Let's throw
+							}
+							// Bitcoin RPC 0.20 whitelisting feature throw a forbidden status
+							// code if one of the message fail. So we fall back to un-batched
+							// request. However, this might result in some requests being executed twice...
+							if (AllowBatchFallback && httpResponse.StatusCode == HttpStatusCode.Forbidden)
+							{
+								foreach (var req in requests)
+								{
+									try
+									{
+										var resp = await SendCommandAsync(req.Item1);
+										req.Item2.TrySetResult(resp);
+									}
+									catch (Exception ex)
+									{
+										req.Item2.TrySetException(ex);
+									}
+								}
+								return;
 							}
 							if (httpResponse.Content == null ||
 								(httpResponse.Content.Headers.ContentLength == null || httpResponse.Content.Headers.ContentLength.Value == 0) ||

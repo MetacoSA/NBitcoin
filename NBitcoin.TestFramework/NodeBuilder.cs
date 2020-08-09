@@ -404,7 +404,22 @@ namespace NBitcoin.Tests
 			StartAsync().Wait();
 		}
 
-		readonly NetworkCredential creds;
+		NetworkCredential creds;
+		public NetworkCredential RPCCredentials
+		{
+			get
+			{
+				if (CookieAuth)
+					throw new InvalidOperationException("CookieAuth should be false");
+				return creds;
+			}
+			set
+			{
+				if (CookieAuth)
+					throw new InvalidOperationException("CookieAuth should be false");
+				creds = value;
+			}
+		}
 		public RPCClient CreateRPCClient()
 		{
 			return new RPCClient(GetRPCAuth(), RPCUri, Network);
