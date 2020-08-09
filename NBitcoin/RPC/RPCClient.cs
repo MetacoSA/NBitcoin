@@ -330,6 +330,7 @@ namespace NBitcoin.RPC
 		{
 			var capabilities = new RPCCapabilities();
 			var rpc = this.PrepareBatch();
+			rpc.AllowBatchFallback = true;
 			var waiting = Task.WhenAll(
 			SetVersion(capabilities),
 			CheckCapabilities(rpc, "scantxoutset", v => capabilities.SupportScanUTXOSet = v),

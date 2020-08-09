@@ -206,6 +206,7 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 
 				var rpc = node.CreateRPCClient();
+				var orig = rpc;
 				rpc.AllowBatchFallback = true;
 				rpc = rpc.PrepareBatch();
 				// Should be denied
@@ -218,6 +219,8 @@ namespace NBitcoin.Tests
 				var resp = await gettingNetworkInfo;
 				// Should not throw
 				resp.ThrowIfError();
+				orig.AllowBatchFallback = false;
+				await orig.ScanRPCCapabilitiesAsync();
 			}
 		}
 
