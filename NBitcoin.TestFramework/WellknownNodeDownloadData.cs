@@ -1556,3 +1556,4 @@ namespace NBitcoin.Tests
 		public string AdditionalRegtestConfig { get; private set; }
 	}
 }
+
