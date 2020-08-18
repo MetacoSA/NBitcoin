@@ -1566,6 +1566,21 @@ namespace NBitcoin.RPC
 		{
 			var response = await SendCommandAsync(RPCOperations.getmempoolinfo);
 
+			static IEnumerable<FeeRateGroup> ExtractFeeRateGroups(JToken jt) =>
+				jt switch {
+					JObject jo => jo.Properties()
+						.Where(p => p.Name != "total_fees")
+						.Select( p => new FeeRateGroup
+						{
+							Group = int.Parse(p.Name),
+							Sizes = p.Value<ulong>("size"),
+							Count = p.Value<uint>("count"),
+							Fees = Money.Satoshis(p.Value<ulong>("fees")),
+							From = new FeeRate(Money.Satoshis(p.Value<ulong>("from_feerate"))),
+							To = new FeeRate(Money.Satoshis(p.Value<ulong>("to_feerate")))
+						}),
+					_ => Enumerable.Empty<FeeRateGroup>() };
+
 			return new MemPoolInfo()
 			{
 				Size = Int32.Parse((string)response.Result["size"], CultureInfo.InvariantCulture),
@@ -1573,7 +1588,8 @@ namespace NBitcoin.RPC
 				Usage = Int32.Parse((string)response.Result["usage"], CultureInfo.InvariantCulture),
 				MaxMemPool = Double.Parse((string)response.Result["maxmempool"], CultureInfo.InvariantCulture),
 				MemPoolMinFee = Double.Parse((string)response.Result["mempoolminfee"], CultureInfo.InvariantCulture),
-				MinRelayTxFee = Double.Parse((string)response.Result["minrelaytxfee"], CultureInfo.InvariantCulture)
+				MinRelayTxFee = Double.Parse((string)response.Result["minrelaytxfee"], CultureInfo.InvariantCulture),
+				Hisotgram = ExtractFeeRateGroups(response.Result["fee_histogram"]) 
 			};
 		}
 
