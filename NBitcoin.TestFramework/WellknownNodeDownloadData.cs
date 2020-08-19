@@ -698,6 +698,25 @@ namespace NBitcoin.Tests
 					Hash = "7dc0f84799d025e7acbf13a985d69c2069f8e401b7d493766632a5339c1db8f8"
 				}
 			};
+
+			public NodeDownloadData v0_90_9_5 = new NodeDownloadData()
+			{
+				Version = "0.90.9.5",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/bitcore-win64-daemon.zip",
+					Archive = "bitcore-win64-daemon.zip",
+					Executable = "bitcored.exe",
+					Hash = "5c492b741aceb47e430378d3027ed371f341fed25b11a293a363044ab891e1aa"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/bitcore-x86_64-linux-gnu_no-wallet.tar.gz",
+					Archive = "bitcore-x86_64-linux-gnu_no-wallet.tar.gz",
+					Executable = "bin/bitcored",
+					Hash = "60545a5733ab79a2a9c699295572475aefc0164e74da487b2857a961356ec787"
+				}
+			};
 		}
 
 		public class MonacoinNodeDownloadData
