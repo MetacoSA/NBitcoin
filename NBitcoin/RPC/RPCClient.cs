@@ -2011,7 +2011,13 @@ namespace NBitcoin.RPC
 		{
 			if (Capabilities == null || Capabilities.SupportEstimateSmartFee)
 			{
-				var request = new RPCRequest(RPCOperations.estimatesmartfee.ToString(), new object[] { confirmationTarget, estimateMode.ToString().ToUpperInvariant() });
+				var parameters = new List<object>() { confirmationTarget };
+				if (estimateMode != EstimateSmartFeeMode.Conservative)
+				{
+					parameters.Add(estimateMode.ToString().ToUpperInvariant());
+				}
+
+				var request = new RPCRequest(RPCOperations.estimatesmartfee.ToString(), parameters.ToArray());
 
 				var response = await SendCommandAsync(request, throwIfRPCError: false).ConfigureAwait(false);
 
