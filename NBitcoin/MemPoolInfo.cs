@@ -17,7 +17,7 @@ namespace NBitcoin
 
 		public double MinRelayTxFee { get; set; }
 
-		public IEnumerable<FeeRateGroup> Hisotgram { get; set; }
+		public IEnumerable<FeeRateGroup> Histogram { get; set; }
 
 		public MemPoolInfo() { }
 	}

@@ -1573,11 +1573,11 @@ namespace NBitcoin.RPC
 						.Select( p => new FeeRateGroup
 						{
 							Group = int.Parse(p.Name),
-							Sizes = p.Value<ulong>("size"),
-							Count = p.Value<uint>("count"),
-							Fees = Money.Satoshis(p.Value<ulong>("fees")),
-							From = new FeeRate(Money.Satoshis(p.Value<ulong>("from_feerate"))),
-							To = new FeeRate(Money.Satoshis(p.Value<ulong>("to_feerate")))
+							Sizes = p.Value.Value<ulong>("sizes"),
+							Count = p.Value.Value<uint>("count"),
+							Fees = Money.Satoshis(p.Value.Value<ulong>("fees")),
+							From = new FeeRate(Money.Satoshis(p.Value.Value<ulong>("from_feerate"))),
+							To = new FeeRate(Money.Satoshis(p.Value.Value<ulong>("to_feerate")))
 						}),
 					_ => Enumerable.Empty<FeeRateGroup>() };
 
@@ -1589,7 +1589,7 @@ namespace NBitcoin.RPC
 				MaxMemPool = Double.Parse((string)response.Result["maxmempool"], CultureInfo.InvariantCulture),
 				MemPoolMinFee = Double.Parse((string)response.Result["mempoolminfee"], CultureInfo.InvariantCulture),
 				MinRelayTxFee = Double.Parse((string)response.Result["minrelaytxfee"], CultureInfo.InvariantCulture),
-				Hisotgram = ExtractFeeRateGroups(response.Result["fee_histogram"]) 
+				Histogram = ExtractFeeRateGroups(response.Result["fee_histogram"]).ToList()
 			};
 		}
 
