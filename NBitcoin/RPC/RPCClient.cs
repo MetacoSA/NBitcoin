@@ -1589,7 +1589,7 @@ namespace NBitcoin.RPC
 				MaxMemPool = Double.Parse((string)response.Result["maxmempool"], CultureInfo.InvariantCulture),
 				MemPoolMinFee = Double.Parse((string)response.Result["mempoolminfee"], CultureInfo.InvariantCulture),
 				MinRelayTxFee = Double.Parse((string)response.Result["minrelaytxfee"], CultureInfo.InvariantCulture),
-				Histogram = ExtractFeeRateGroups(response.Result["fee_histogram"]).ToList()
+				Histogram = ExtractFeeRateGroups(response.Result["fee_histogram"]).ToArray()
 			};
 		}
 
