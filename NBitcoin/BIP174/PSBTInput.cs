@@ -138,6 +138,12 @@ namespace NBitcoin
 			}
 		}
 
+		/// <summary>
+		/// Changes the nSequence field of the corresponding TxIn.
+		/// You should not call this method if any PSBTInput in the same PSBT has a signature.
+		/// Because the siagnature usually commits to the old nSequence value.
+		/// </summary>
+		/// <exception cref="InvalidOperationException">When at least one signature exists in any other inputs in the PSBT</exception>
 		public void SetSequence(ushort sequence)
 		{
 			for (int i = 0; i < this.Parent.Inputs.Count; i++)
