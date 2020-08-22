@@ -138,6 +138,25 @@ namespace NBitcoin
 			}
 		}
 
+		/// <summary>
+		/// Changes the nSequence field of the corresponding TxIn.
+		/// You should not call this method if any PSBTInput in the same PSBT has a signature.
+		/// Because the siagnature usually commits to the old nSequence value.
+		/// </summary>
+		/// <exception cref="InvalidOperationException">When at least one signature exists in any other inputs in the PSBT</exception>
+		public void SetSequence(ushort sequence)
+		{
+			for (int i = 0; i < this.Parent.Inputs.Count; i++)
+			{
+				var txIn = this.Parent.Inputs[i];
+				if (txIn.partial_sigs.Count > 0 || txIn.final_script_sig != null || txIn.final_script_witness != null)
+				{
+					throw new InvalidOperationException($"You should not change the transaction's input nSequence after signing. In case of particular type of SIGHASH, this will make your signature invalid. PSBTInput in index {i} had signature");
+				}
+			}
+			Transaction.Inputs[this.Index].Sequence = sequence;
+		}
+
 		internal TxIn TxIn { get; }
 
 		public OutPoint PrevOut => TxIn.PrevOut;
