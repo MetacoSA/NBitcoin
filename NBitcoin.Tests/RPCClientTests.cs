@@ -1200,6 +1200,68 @@ namespace NBitcoin.Tests
 			}
 		}
 
+
+		class HardcodedResponseClientHandler : HttpMessageHandler
+		{
+			private readonly string _content;
+
+			public HardcodedResponseClientHandler(string content)
+			{
+				_content = content;
+			}
+
+			protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+			{
+				return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+				{
+					Content = new StringContent(_content)
+				});
+			}
+		}
+
+		[Fact]
+		public void MempoolInfoWithHistogram()
+		{
+			using var httpClient = new HttpClient(new HardcodedResponseClientHandler(
+				"{" +
+				"	\"result\": {" +
+				"	  \"loaded\": true," +
+				"	  \"size\": 2184," +
+				"	  \"bytes\": 4529888," +
+				"	  \"usage\": 17260240," +
+				"	  \"maxmempool\": 300000000," +
+				"	  \"mempoolminfee\": 0.00001000," +
+				"	  \"minrelaytxfee\": 0.00001000," +
+				"	  \"fee_histogram\": {" +
+				"	    \"1\": {" +
+				"	      \"sizes\": 2184356," +
+				"	      \"count\": 400," +
+				"	      \"fees\": 2277259," +
+				"	      \"from_feerate\": 1," +
+				"	      \"to_feerate\": 2" +
+				"	    }," +
+				"	    \"200\": {" +
+				"	      \"sizes\": 17065," +
+				"	      \"count\": 67," +
+				"	      \"fees\": 3841448," +
+				"	      \"from_feerate\": 200," +
+				"	      \"to_feerate\": 250" +
+				"	    }," +
+				"	    \"total_fees\": 61420473" +
+				"	  }" +
+				"	}" + 
+				"}"
+			));
+			var rpcClient = new RPCClient(Network.Main);
+			rpcClient.HttpClient = httpClient;
+			var mempool = rpcClient.GetMemPool();
+			var histogram = mempool.Histogram;
+
+			Assert.Equal(2, histogram.Count());
+			Assert.Equal(1, histogram.First().Group);
+			Assert.Equal(200, histogram.Last().Group);
+		}
+
 		[Fact]
 		public void DoubleSpendThrows()
 		{
@@ -1441,8 +1503,6 @@ namespace NBitcoin.Tests
 			}
 #endif
 		}
-
-
 
 		[Fact]
 		public void RPCSendRPCException()
