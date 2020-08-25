@@ -69,10 +69,10 @@ namespace NBitcoin.Scripting
 			public HDPubKeyProvider(BitcoinExtPubKey extkey, KeyPath path, DeriveType derive) : base(Tags.HDPubKeyProvider)
 			{
 				if (extkey == null)
-					throw new System.ArgumentNullException(nameof(extkey));
+					throw new ArgumentNullException(nameof(extkey));
 
 				if (path == null)
-					throw new System.ArgumentNullException(nameof(path));
+					throw new ArgumentNullException(nameof(path));
 
 				Extkey = extkey;
 				Path = path;
@@ -85,7 +85,7 @@ namespace NBitcoin.Scripting
 
 			internal string GetPathString()
 			{
-				var path = Path == KeyPath.Empty ? "" : $"/{Path.ToString()}";
+				var path = Path == KeyPath.Empty ? "" : $"/{Path}";
 				if (IsRange())
 					path += "/*";
 				if (Derive == DeriveType.HARDENED)
@@ -212,7 +212,7 @@ namespace NBitcoin.Scripting
 				(this) switch
 				{
 					OriginPubKeyProvider self => self.Inner.IsRange(),
-					ConstPubKeyProvider self => false,
+					ConstPubKeyProvider _ => false,
 					HDPubKeyProvider self => self.Derive != DeriveType.NO,
 					_ => throw new Exception("Unreachable!"),
 				};

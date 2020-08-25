@@ -16,13 +16,12 @@ namespace NBitcoin.Scripting
 			public const int AddressDescriptor = 0;
 			public const int RawDescriptor = 1;
 			public const int PKDescriptor = 2;
-			public const int ExtPubKeyOutputDescriptor = 3;
-			public const int PKHDescriptor = 4;
-			public const int WPKHDescriptor = 5;
-			public const int ComboDescriptor = 6;
-			public const int MultisigDescriptor = 7;
-			public const int SHDescriptor = 8;
-			public const int WSHDescriptor = 9;
+			public const int PKHDescriptor = 3;
+			public const int WPKHDescriptor = 4;
+			public const int ComboDescriptor = 5;
+			public const int MultisigDescriptor = 6;
+			public const int SHDescriptor = 7;
+			public const int WSHDescriptor = 8;
 		}
 
 		public class AddressDescriptor : OutputDescriptor

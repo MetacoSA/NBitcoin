@@ -20,6 +20,7 @@ using FsCheck;
 using NBitcoin.Tests.Generators;
 using static NBitcoin.Tests.Comparer;
 using System.Net.Http;
+using NBitcoin.Scripting;
 
 namespace NBitcoin.Tests
 {
@@ -294,7 +295,12 @@ namespace NBitcoin.Tests
 				var funding = rpc.GetRawTransaction(txid);
 				var coin = funding.Outputs.AsCoins().Single(o => o.ScriptPubKey == dest.ScriptPubKey);
 
+#pragma warning disable 618
 				var result = rpc.StartScanTxoutSet(new ScanTxoutSetObject(ScanTxoutDescriptor.Addr(dest)));
+#pragma warning restore 618
+
+				var resultWithOD = rpc.StartScanTxoutSet(OutputDescriptor.NewAddr(dest));
+				Assert.Equal(resultWithOD.TotalAmount, result.TotalAmount);
 
 				Assert.Equal(101, result.SearchedItems);
 				Assert.True(result.Success);
@@ -306,7 +312,9 @@ namespace NBitcoin.Tests
 
 				rpc.Generate(1);
 
+#pragma warning disable 618
 				result = rpc.StartScanTxoutSet(new ScanTxoutSetObject(ScanTxoutDescriptor.Addr(dest)));
+#pragma warning restore 618
 
 				Assert.True(result.SearchedItems > 100);
 				Assert.True(result.Success);
@@ -1249,7 +1257,7 @@ namespace NBitcoin.Tests
 				"	    }," +
 				"	    \"total_fees\": 61420473" +
 				"	  }" +
-				"	}" + 
+				"	}" +
 				"}"
 			));
 			var rpcClient = new RPCClient(Network.Main);

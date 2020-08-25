@@ -16,6 +16,7 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NBitcoin.Scripting;
 using static NBitcoin.RPC.BlockchainInfo;
 
 namespace NBitcoin.RPC
@@ -676,11 +677,74 @@ namespace NBitcoin.RPC
 			return TimeSpan.FromSeconds(res.Result.Value<double>());
 		}
 
+
+		public ScanTxoutSetResponse StartScanTxoutSet(OutputDescriptor descriptor, uint rangeStart = 0,
+			uint rangeEnd = 1000) => StartScanTxoutSetAsync(new[] {descriptor}.AsEnumerable(), rangeStart, rangeEnd).GetAwaiter().GetResult();
+
+		public ScanTxoutSetResponse StartScanTxoutSet(IEnumerable<OutputDescriptor> descriptor,
+			uint rangeStart = 0, uint rangeEnd = 1000)
+			=> StartScanTxoutSetAsync(descriptor, rangeStart, rangeEnd).GetAwaiter().GetResult();
+
+		public Task<ScanTxoutSetResponse> StartScanTxoutSetAsync(OutputDescriptor descriptor, uint rangeStart = 0,
+			uint rangeEnd = 1000) => StartScanTxoutSetAsync(new[] {descriptor}.AsEnumerable(), rangeStart, rangeEnd);
+		public async Task<ScanTxoutSetResponse> StartScanTxoutSetAsync(IEnumerable<OutputDescriptor> descriptor, uint rangeStart = 0, uint rangeEnd = 1000)
+		{
+			if (descriptor == null)
+				throw new ArgumentNullException(nameof(descriptor));
+
+			JArray descriptorsJson = new JArray();
+			foreach (var descObj in descriptor)
+			{
+				JObject descJson = new JObject();
+				descJson.Add(new JProperty("desc", descObj.ToString()));
+				if (descObj.IsRange())
+				{
+					var r = new JArray();
+					r.Add(rangeStart);
+					r.Add(rangeEnd);
+					descJson.Add(new JProperty("range", r));
+				}
+				descriptorsJson.Add(descJson);
+			}
+
+			var result = await SendCommandAsync(RPCOperations.scantxoutset, "start", descriptorsJson);
+			result.ThrowIfError();
+
+			var jobj = result.Result as JObject;
+			var amount = Money.Coins(jobj.Property("total_amount").Value.Value<decimal>());
+			var success = jobj.Property("success").Value.Value<bool>();
+			//searched_items
+
+			var searchedItems = (int)(jobj.Property("txouts") ?? jobj.Property("searched_items")).Value.Value<long>();
+			var outputs = new List<ScanTxoutOutput>();
+			foreach (var unspent in (jobj.Property("unspents").Value as JArray).OfType<JObject>())
+			{
+				OutPoint outpoint = OutPoint.Parse($"{unspent.Property("txid").Value.Value<string>()}-{(int)unspent.Property("vout").Value.Value<long>()}");
+				var a = Money.Coins(unspent.Property("amount").Value.Value<decimal>());
+				int height = (int)unspent.Property("height").Value.Value<long>();
+				var scriptPubKey = Script.FromBytesUnsafe(Encoders.Hex.DecodeData(unspent.Property("scriptPubKey").Value.Value<string>()));
+				outputs.Add(new ScanTxoutOutput()
+				{
+					Coin = new Coin(outpoint, new TxOut(a, scriptPubKey)),
+					Height = height
+				});
+			}
+
+			return new ScanTxoutSetResponse()
+			{
+				Outputs = outputs.ToArray(),
+				TotalAmount = amount,
+				Success = success,
+				SearchedItems = searchedItems
+			};
+		}
+
 		/// <summary>
 		/// Scans the unspent transaction output set for entries that match certain output descriptors.
 		/// </summary>
 		/// <param name="descriptorObjects"></param>
 		/// <returns></returns>
+		[Obsolete("Pass OutputDescriptor[] instead")]
 		public async Task<ScanTxoutSetResponse> StartScanTxoutSetAsync(params ScanTxoutSetObject[] descriptorObjects)
 		{
 			if (descriptorObjects == null)
@@ -733,6 +797,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="descriptorObjects"></param>
 		/// <returns></returns>
+		[Obsolete("Pass OutputDescriptor[] instead")]
 		public ScanTxoutSetResponse StartScanTxoutSet(params ScanTxoutSetObject[] descriptorObjects)
 		{
 			return StartScanTxoutSetAsync(descriptorObjects).GetAwaiter().GetResult();
@@ -1642,7 +1707,7 @@ namespace NBitcoin.RPC
 			};
 		}
 
-		private FeeRate AbsurdlyHighFee { get; } = new FeeRate(10_000L);
+		private FeeRate AbsurdlyHighFee { get; } = new FeeRate(10_000M);
 
 		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, bool allowHighFees = false)
 		{
