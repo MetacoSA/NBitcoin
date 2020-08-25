@@ -292,47 +292,42 @@ namespace NBitcoin.Scripting
 			throw new Exception("Unreachable");
 		}
 
-		public bool IsSolvable()
-		{
-			switch (this.Tag)
+		public bool IsSolvable() => (this.Tag) switch
 			{
-				case Tags.AddressDescriptor:
-				case Tags.RawDescriptor:
-					return false;
-				case Tags.SHDescriptor:
-					return ((SHDescriptor)this).Inner.IsSolvable();
-				case Tags.WSHDescriptor:
-					return ((WSHDescriptor)this).Inner.IsSolvable();
-				default:
-					return true;
-			}
-		}
+				Tags.AddressDescriptor => false,
+				Tags.RawDescriptor => false,
+				Tags.SHDescriptor =>
+					((SHDescriptor)this).Inner.IsSolvable(),
+				Tags.WSHDescriptor =>
+					((WSHDescriptor)this).Inner.IsSolvable(),
+				_ =>
+					true,
+			};
 
-		public bool IsRange()
-		{
-			switch (this)
+		public bool IsRange() =>
+			(this) switch
 			{
-				case AddressDescriptor _:
-					return false;
-				case RawDescriptor _:
-					return false;
-				case PKDescriptor self:
-					return self.PkProvider.IsRange();
-				case PKHDescriptor self:
-					return self.PkProvider.IsRange();
-				case WPKHDescriptor self:
-					return self.PkProvider.IsRange();
-				case ComboDescriptor self:
-					return self.PkProvider.IsRange();
-				case MultisigDescriptor self:
-					return self.PkProviders.Any(pk => pk.IsRange());
-				case SHDescriptor self:
-					return self.Inner.IsRange();
-				case WSHDescriptor self:
-					return self.Inner.IsRange();
-			}
-			throw new Exception("Unreachable");
-		}
+				AddressDescriptor _ =>
+					false,
+				RawDescriptor _ =>
+					false,
+				PKDescriptor self =>
+					self.PkProvider.IsRange(),
+				PKHDescriptor self =>
+					self.PkProvider.IsRange(),
+				WPKHDescriptor self =>
+					self.PkProvider.IsRange(),
+				ComboDescriptor self =>
+					self.PkProvider.IsRange(),
+				MultisigDescriptor self =>
+					self.PkProviders.Any(pk => pk.IsRange()),
+				SHDescriptor self =>
+					self.Inner.IsRange(),
+				WSHDescriptor self =>
+					self.Inner.IsRange(),
+				_ =>
+					throw new Exception("Unreachable"),
+			};
 
 		public enum ScriptContext
 		{
@@ -403,7 +398,7 @@ namespace NBitcoin.Scripting
 				}
 			}
 
-			// Incase of unknown witness Output, we recover it to AddressDescriptor, 
+			// Incase of unknown witness Output, we recover it to AddressDescriptor,
 			// Otherwise, RawDescriptor.
 			if (template is PayToWitTemplate unknownWitnessTemplate)
 			{
@@ -531,29 +526,30 @@ namespace NBitcoin.Scripting
 			if (other == null || this.Tag != other.Tag)
 				return false;
 
-			switch (this)
-			{
-				case AddressDescriptor self:
-					return self.Address.Equals(((AddressDescriptor)other).Address);
-				case RawDescriptor self:
-					return self.Script.Equals(((RawDescriptor)other).Script);
-				case PKDescriptor self:
-					return self.PkProvider.Equals(((PKDescriptor)other).PkProvider);
-				case PKHDescriptor self:
-					return self.PkProvider.Equals(((PKHDescriptor)other).PkProvider);
-				case WPKHDescriptor self:
-					return self.PkProvider.Equals(((WPKHDescriptor)other).PkProvider);
-				case ComboDescriptor self:
-					return self.PkProvider.Equals(((ComboDescriptor)other).PkProvider);
-				case MultisigDescriptor self:
-					var otherM = (MultisigDescriptor)other;
-					return self.Threshold == otherM.Threshold && self.PkProviders.SequenceEqual(otherM.PkProviders);
-				case SHDescriptor self:
-					return self.Inner.Equals(((SHDescriptor)other).Inner);
-				case WSHDescriptor self:
-					return self.Inner.Equals(((WSHDescriptor)other).Inner);
-			}
-			throw new Exception("Unreachable!");
+			return
+				(this) switch
+				{
+					AddressDescriptor self =>
+						self.Address.Equals(((AddressDescriptor)other).Address),
+					RawDescriptor self =>
+						self.Script.Equals(((RawDescriptor)other).Script),
+					PKDescriptor self =>
+						self.PkProvider.Equals(((PKDescriptor)other).PkProvider),
+					PKHDescriptor self =>
+						self.PkProvider.Equals(((PKHDescriptor)other).PkProvider),
+					WPKHDescriptor self =>
+						self.PkProvider.Equals(((WPKHDescriptor)other).PkProvider),
+					ComboDescriptor self =>
+						self.PkProvider.Equals(((ComboDescriptor)other).PkProvider),
+					MultisigDescriptor self =>
+						self.Threshold == ((MultisigDescriptor)other).Threshold && self.PkProviders.SequenceEqual(((MultisigDescriptor)other).PkProviders),
+					SHDescriptor self =>
+						self.Inner.Equals(((SHDescriptor)other).Inner),
+					WSHDescriptor self =>
+						self.Inner.Equals(((WSHDescriptor)other).Inner),
+					_ =>
+						throw new Exception("Unreachable!"),
+				};
 		}
 
 		public override int GetHashCode()

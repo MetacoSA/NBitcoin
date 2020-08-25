@@ -136,7 +136,7 @@ namespace NBitcoin.Scripting
 		}
 
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="pos"></param>
 		/// <param name="privateKeyProvider">In case of the hardend derivation.
@@ -208,46 +208,36 @@ namespace NBitcoin.Scripting
 			throw new Exception("Unreachable!");
 		}
 		public bool IsRange()
-		{
-			switch (this)
+			=>
+				(this) switch
+				{
+					OriginPubKeyProvider self => self.Inner.IsRange(),
+					ConstPubKeyProvider self => false,
+					HDPubKeyProvider self => self.Derive != DeriveType.NO,
+					_ => throw new Exception("Unreachable!"),
+				};
+		public bool IsCompressed() => (this) switch
 			{
-				case OriginPubKeyProvider self:
-					return self.Inner.IsRange();
-				case ConstPubKeyProvider self:
-					return false;
-				case HDPubKeyProvider self:
-					return self.Derive != DeriveType.NO;
+				OriginPubKeyProvider self =>
+					self.Inner.IsCompressed(),
+				ConstPubKeyProvider self =>
+					self.Pk.IsCompressed,
+				HDPubKeyProvider self =>
+					false,
+				_ => throw new Exception("Unreachable!"),
+			};
 
-			}
-			throw new Exception("Unreachable!");
-		}
-		public bool IsCompressed()
-		{
-			switch (this)
+		public override string ToString() => (this) switch
 			{
-				case OriginPubKeyProvider self:
-					return self.Inner.IsCompressed();
-				case ConstPubKeyProvider self:
-					return self.Pk.IsCompressed;
-				case HDPubKeyProvider self:
-					return false;
-			}
-			throw new Exception("Unreachable!");
-		}
-
-		public override string ToString()
-		{
-			switch (this)
-			{
-				case OriginPubKeyProvider self:
-					return $"[{self.KeyOriginInfo.ToString()}]{self.Inner.ToString()}";
-				case ConstPubKeyProvider self:
-					return self.Pk.ToHex();
-				case HDPubKeyProvider self:
-					return $"{self.Extkey.ToWif()}{self.GetPathString()}";
-			}
-			throw new Exception("Unreachable!");
-		}
+				OriginPubKeyProvider self =>
+					$"[{self.KeyOriginInfo}]{self.Inner}",
+				ConstPubKeyProvider self =>
+					self.Pk.ToHex(),
+				HDPubKeyProvider self =>
+					$"{self.Extkey.ToWif()}{self.GetPathString()}",
+				_ =>
+					throw new Exception("Unreachable!"),
+			};
 
 		/// <summary>
 		/// Get the descriptor string form including the private data (If available in arg).
@@ -267,7 +257,7 @@ namespace NBitcoin.Scripting
 				case OriginPubKeyProvider self:
 					if (!self.Inner.TryGetPrivateString(secretProvider, out ret))
 						return false;
-					ret = $"[{self.KeyOriginInfo.ToString()}]{ret}";
+					ret = $"[{self.KeyOriginInfo}]{ret}";
 					return true;
 				case ConstPubKeyProvider self:
 					if (!secretProvider.TryGetSecret(self.Pk.Hash, out var secretConst))
@@ -277,7 +267,7 @@ namespace NBitcoin.Scripting
 				case HDPubKeyProvider self:
 					if (!secretProvider.TryGetSecret(self.Extkey.ExtPubKey.PubKey.Hash, out var secretHD))
 						return false;
-					ret = $"{secretHD.ToString()}{self.GetPathString()}";
+					ret = $"{secretHD}{self.GetPathString()}";
 					return true;
 			}
 			throw new Exception("Unreachable!");

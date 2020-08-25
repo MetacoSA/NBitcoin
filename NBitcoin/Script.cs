@@ -679,7 +679,6 @@ namespace NBitcoin
 			}
 		}
 
-
 		public BitcoinScriptAddress GetScriptAddress(Network network)
 		{
 			return (BitcoinScriptAddress)Hash.GetAddress(network);
