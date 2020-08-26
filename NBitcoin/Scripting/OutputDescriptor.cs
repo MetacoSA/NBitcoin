@@ -173,12 +173,11 @@ namespace NBitcoin.Scripting
 		public bool TryExpand(
 			uint pos,
 			Func<KeyId, Key> privateKeyProvider,
-			out FlatSigningRepository repo,
+			ISigningRepository repo,
 			out List<Script> outputScripts
 			)
 		{
 			outputScripts = new List<Script>();
-			repo = new FlatSigningRepository();
 			return TryExpand(pos, privateKeyProvider, repo, outputScripts);
 		}
 
@@ -186,7 +185,7 @@ namespace NBitcoin.Scripting
 			PubKeyProvider pkP,
 			Func<KeyId, Key> privateKeyProvider,
 			uint pos,
-			FlatSigningRepository repo,
+			ISigningRepository repo,
 			List<Script> outSc)
 		{
 			if (!pkP.TryGetPubKey(pos, privateKeyProvider, out var keyOrigin1, out var pubkey1))
@@ -200,15 +199,15 @@ namespace NBitcoin.Scripting
 		private bool TryExpand(
 			uint pos,
 			Func<KeyId, Key> privateKeyProvider,
-			FlatSigningRepository repo,
+			ISigningRepository repo,
 			List<Script> outputScripts
 			)
 		{
 			switch (this)
 			{
-				case AddressDescriptor self:
+				case AddressDescriptor _:
 					return false;
-				case RawDescriptor self:
+				case RawDescriptor _:
 					return false;
 				case PKDescriptor self:
 					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
@@ -242,9 +241,10 @@ namespace NBitcoin.Scripting
 					outputScripts.Add(PayToMultiSigTemplate.Instance.GenerateScriptPubKey((int)self.Threshold, keys));
 					return true;
 				case SHDescriptor self:
-					if (!self.Inner.TryExpand(pos, privateKeyProvider, out var subRepo1, out var shInnerResult))
+					var subRepo1 = new FlatSigningRepository();
+					if (!self.Inner.TryExpand(pos, privateKeyProvider, subRepo1, out var shInnerResult))
 						return false;
-					repo = repo.Merge(subRepo1);
+					repo.Merge(subRepo1);
 					foreach (var inner in shInnerResult)
 					{
 						repo.SetScript(inner.Hash, inner);
@@ -252,9 +252,10 @@ namespace NBitcoin.Scripting
 					}
 					return true;
 				case WSHDescriptor self:
-					if (!self.Inner.TryExpand(pos, privateKeyProvider, out var subRepo2, out var wshInnerResult))
+					var subRepo2 = new FlatSigningRepository();
+					if (!self.Inner.TryExpand(pos, privateKeyProvider, subRepo2, out var wshInnerResult))
 						return false;
-					repo = repo.Merge(subRepo2);
+					repo.Merge(subRepo2);
 					foreach (var inner in wshInnerResult)
 					{
 						repo.SetScript(inner.Hash, inner);
@@ -364,7 +365,8 @@ namespace NBitcoin.Scripting
 		/// <summary>
 		/// Infer the address type for that descriptor.
 		/// When it is impossible, just return null.
-		/// In case of descriptors which can not be on the top level (e.g. "multi") also just return null.
+		/// e.g. In case of descriptors those are agnostic to the actual scriptpubkey format (e.g. "multi"),
+		/// it just returns null.
 		/// </summary>
 		/// <returns></returns>
 		public ScriptPubKeyType? GetScriptPubKeyType() => this switch
@@ -455,7 +457,7 @@ namespace NBitcoin.Scripting
 		public override string ToString()
 		{
 			var inner = ToStringHelper();
-			return $"{inner}#{OutputDescriptor.GetCheckSum(inner)}";
+			return $"{inner}#{GetCheckSum(inner)}";
 		}
 
 		public bool TryGetPrivateString(ISigningRepository secretProvider, out string result)

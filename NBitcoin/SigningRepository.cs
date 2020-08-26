@@ -95,6 +95,7 @@ namespace NBitcoin
 		public abstract void SetPubKey(KeyId keyId, PubKey pubkey);
 		public abstract void SetSecret(KeyId keyId, ISecret secret);
 		public abstract void SetKeyOrigin(KeyId keyId, RootedKeyPath keyOrigin);
+		public abstract ISigningRepository Merge(ISigningRepository other);
 	}
 	public class FlatSigningRepository : ISigningRepository
 	{
@@ -189,12 +190,18 @@ namespace NBitcoin
 			KeyOrigins.AddOrReplace(keyId, keyOrigin);
 		}
 
-		public FlatSigningRepository Merge(FlatSigningRepository other)
+		public override ISigningRepository Merge(ISigningRepository other)
 		{
-			MergeDict(Secrets, other.Secrets);
-			MergeDict(Pubkeys, other.Pubkeys);
-			MergeDict(Scripts, other.Scripts);
-			MergeDict(KeyOrigins, other.KeyOrigins);
+			if (!(other is FlatSigningRepository))
+			{
+				throw new NotSupportedException($"{nameof(FlatSigningRepository)} can be merged only with the same type");
+			}
+
+			var otherRepo = (FlatSigningRepository) other;
+			MergeDict(Secrets, otherRepo.Secrets);
+			MergeDict(Pubkeys, otherRepo.Pubkeys);
+			MergeDict(Scripts, otherRepo.Scripts);
+			MergeDict(KeyOrigins, otherRepo.KeyOrigins);
 			return this;
 		}
 

@@ -38,7 +38,8 @@ namespace NBitcoin.Tests
 			od.IsRange();
 			for (uint i = 0; i < 4; i++)
 			{
-				od.TryExpand(i, (keyId) => null, out var repo, out var scripts);
+				var repo = new FlatSigningRepository();
+				od.TryExpand(i, (keyId) => null, repo, out var scripts);
 				foreach (var sc in scripts)
 				{
 					OutputDescriptor.InferFromScript(sc, repo);
@@ -240,17 +241,22 @@ namespace NBitcoin.Tests
 					bool isHardend = (flags & HARDENED) != 0;
 					var keyProvider = isHardend ? keysPriv : keysPub;
 
-					Assert.True((t != 0 ? parsePriv : parsePub).TryExpand((uint)i, keyProvider.GetPrivateKey, out var scriptProvider, out var spks));
+					var scriptProvider = new FlatSigningRepository();
+					Assert.True((t != 0 ? parsePriv : parsePub).TryExpand((uint)i, keyProvider.GetPrivateKey, scriptProvider, out var spks));
 					Assert.Equal(spks.Count, expectedScript.Length);
+
+					// --- cache ---
+
+					// ---  ---
 
 					for (int n = 0; n < spks.Count; ++n)
 					{
 						Assert.Equal(expectedScript[n], spks[n].ToHex());
-						var merged = keysPriv.Merge(scriptProvider);
+						keysPriv.Merge(scriptProvider);
 						if ((flags & UNSOLVABLE) == 0)
-							Assert.True(merged.IsSolvable(spks[n]), $"{spks[n]}\nMust be solvable");
+							Assert.True(keysPriv.IsSolvable(spks[n]), $"{spks[n]}\nMust be solvable");
 						else
-							Assert.False(merged.IsSolvable(spks[n]), $"{spks[n]}\nMust be unsolvable");
+							Assert.False(keysPriv.IsSolvable(spks[n]), $"{spks[n]}\nMust be unsolvable");
 
 						// Check that the information necessary to sign tx has been set to repository.
 						if ((flags & SIGNABLE) != 0)
@@ -260,8 +266,8 @@ namespace NBitcoin.Tests
 							b.AddCoins(coin);
 							b.SendFees(Money.Coins(0.0001m));
 							b.SendAll(DummyKey);
-							b.AddKeys(merged.Secrets.Values.Select(s => s.PrivateKey).ToArray());
-							b.AddKnownRedeems(merged.Scripts.Values.ToArray());
+							b.AddKeys(keysPriv.Secrets.Values.Select(s => s.PrivateKey).ToArray());
+							b.AddKnownRedeems(keysPriv.Scripts.Values.ToArray());
 							var tx = b.BuildTransaction(true);
 							Assert.Empty(b.Check(tx));
 						}
@@ -269,7 +275,8 @@ namespace NBitcoin.Tests
 						var inferred = OutputDescriptor.InferFromScript(spks[n], scriptProvider);
 						Assert.Equal(((flags & UNSOLVABLE) == 0), inferred.IsSolvable());
 						Func<KeyId, Key> dummyKeyProvider = (keyId) => null;
-						Assert.True(inferred.TryExpand(0, dummyKeyProvider, out var providerInferred, out var spksInferred));
+						var providerInferred = new FlatSigningRepository();
+						Assert.True(inferred.TryExpand(0, dummyKeyProvider, providerInferred, out var spksInferred));
 						Assert.Single(spksInferred);
 						Assert.Equal(spksInferred[0], spks[n]);
 						Assert.Equal(((flags & UNSOLVABLE) == 0), providerInferred.IsSolvable(spksInferred[0]));
