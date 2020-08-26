@@ -208,15 +208,17 @@ namespace NBitcoin.Scripting
 			PPKHelper("combo", OutputDescriptor.NewCombo, repo, onlyCompressed);
 
 		internal static P PMulti(ISigningRepository repo, bool onlyCompressed, uint? maxN = null) =>
-			from _name in Parse.String("multi")
+			from name in Parse.String("sortedmulti").XOr(Parse.String("multi")).Text()
+			let isSorted = name.StartsWith("sorted")
 			from _l in Parse.Char('(')
 			from m in Parse.Digit.XMany().Text().Then(d => Parse.TryConvert(d, UInt32.Parse))
+			where m != 0
 			from _c in Parse.Char(',')
-			from pkProviders in PPubKeyProvider(repo, false).DelimitedBy(Parse.Char(',').Token())
+			from pkProviders in PPubKeyProvider(repo, onlyCompressed).DelimitedBy(Parse.Char(',').Token())
+			where m <= pkProviders.Count()
 			from _r in Parse.Char(')')
 			where !maxN.HasValue || pkProviders.Count() <= maxN
-			select OutputDescriptor.NewMulti(m, pkProviders);
-
+			select OutputDescriptor.NewMulti(m, pkProviders, isSorted);
 
 		internal static P PWSHInner(ISigningRepository repo, bool onlyCompressed = false, uint? maxMultisigKeyN = null) =>
 			PPK(repo, onlyCompressed)
@@ -279,6 +281,11 @@ namespace NBitcoin.Scripting
 				return false;
 			}
 			result = res.Value;
+			if (result is OutputDescriptor.MultisigDescriptor multi && multi.PkProviders.Count > 3)
+			{
+				whyFailure = "You can not have more than 3 pubkeys in top level multisig.";
+				return false;
+			}
 			return true;
 		}
 		internal static OutputDescriptor ParseOD(string str, bool requireCheckSum = false, ISigningRepository repo = null)

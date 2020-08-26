@@ -207,22 +207,20 @@ namespace NBitcoin.Scripting
 			}
 			throw new Exception("Unreachable!");
 		}
-		public bool IsRange()
-			=>
-				(this) switch
-				{
-					OriginPubKeyProvider self => self.Inner.IsRange(),
-					ConstPubKeyProvider _ => false,
-					HDPubKeyProvider self => self.Derive != DeriveType.NO,
-					_ => throw new Exception("Unreachable!"),
-				};
+		public bool IsRange() => (this) switch
+			{
+				OriginPubKeyProvider self => self.Inner.IsRange(),
+				ConstPubKeyProvider _ => false,
+				HDPubKeyProvider self => self.Derive != DeriveType.NO,
+				_ => throw new Exception("Unreachable!"),
+			};
 		public bool IsCompressed() => (this) switch
 			{
 				OriginPubKeyProvider self =>
 					self.Inner.IsCompressed(),
 				ConstPubKeyProvider self =>
 					self.Pk.IsCompressed,
-				HDPubKeyProvider self =>
+				HDPubKeyProvider _ =>
 					false,
 				_ => throw new Exception("Unreachable!"),
 			};

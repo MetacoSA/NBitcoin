@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FsCheck;
+using NBitcoin.Altcoins;
 using NBitcoin.Scripting;
 
 namespace NBitcoin.Tests.Generators
@@ -26,11 +27,11 @@ namespace NBitcoin.Tests.Generators
 							yield return OutputDescriptor.NewWPKH(prov);
 						}
 						if (p.PkProviders.Count > 2)
-							yield return OutputDescriptor.NewMulti(2, p.PkProviders.Take(2).ToArray());
+							yield return OutputDescriptor.NewMulti(2, p.PkProviders.Take(2).ToArray(), p.IsSorted);
 						foreach (var i in Arb.Shrink(p.PkProviders))
 						{
 							if (i.Count > 2)
-								yield return OutputDescriptor.NewMulti(2, i.ToList());
+								yield return OutputDescriptor.NewMulti(2, i.ToList(), p.IsSorted);
 						}
 						yield break;
 					default:
@@ -47,7 +48,7 @@ namespace NBitcoin.Tests.Generators
 				PKHOutputDescriptorGen(),
 				WPKHOutputDescriptorGen(),
 				ComboOutputDescriptorGen(),
-				MultisigOutputDescriptorGen(20),
+				MultisigOutputDescriptorGen(3), // top level multisig can not have more than 3 pubkeys.
 				SHOutputDescriptorGen(),
 				WSHOutputDescriptorGen()
 				);
@@ -78,7 +79,8 @@ namespace NBitcoin.Tests.Generators
 			from n in Gen.Choose(2, maxN)
 			from m in Gen.Choose(2, n).Select(i => (uint)i)
 			from pkProviders in Gen.ArrayOf(n, PubKeyProviderGen())
-			select OutputDescriptor.NewMulti(m, pkProviders);
+			from isSorted in Arb.Generate<bool>()
+			select OutputDescriptor.NewMulti(m, pkProviders, isSorted);
 
 		private static Gen<OutputDescriptor> WSHInnerGen(int maxMultisigN) =>
 			Gen.OneOf(

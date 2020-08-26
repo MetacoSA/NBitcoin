@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using NBitcoin.Crypto;
+using NBitcoin.RPC;
 using NBitcoin.Scripting.Parser;
 
 namespace NBitcoin.Scripting
@@ -88,7 +89,7 @@ namespace NBitcoin.Scripting
 		public class MultisigDescriptor : OutputDescriptor
 		{
 			public List<PubKeyProvider> PkProviders;
-			internal MultisigDescriptor(uint threshold, IEnumerable<PubKeyProvider> pkProviders) : base(Tags.MultisigDescriptor)
+			internal MultisigDescriptor(uint threshold, IEnumerable<PubKeyProvider> pkProviders, bool isSorted) : base(Tags.MultisigDescriptor)
 			{
 				if (pkProviders == null)
 					throw new ArgumentNullException(nameof(pkProviders));
@@ -96,9 +97,11 @@ namespace NBitcoin.Scripting
 				if (PkProviders.Count == 0)
 					throw new ArgumentException("Multisig Descriptor can not have empty pubkey providers");
 				Threshold = threshold;
+				IsSorted = isSorted;
 			}
 
 			public uint Threshold { get; }
+			public bool IsSorted { get; }
 		}
 
 		public class SHDescriptor : OutputDescriptor
@@ -139,8 +142,7 @@ namespace NBitcoin.Scripting
 		public static OutputDescriptor NewPKH(PubKeyProvider pk) => new PKHDescriptor(pk);
 		public static OutputDescriptor NewWPKH(PubKeyProvider pk) => new WPKHDescriptor(pk);
 		public static OutputDescriptor NewCombo(PubKeyProvider pk) => new ComboDescriptor(pk);
-		public static OutputDescriptor NewMulti(uint m, IEnumerable<PubKeyProvider> pks) => new MultisigDescriptor(m, pks);
-
+		public static OutputDescriptor NewMulti(uint m, IEnumerable<PubKeyProvider> pks, bool isSorted) => new MultisigDescriptor(m, pks, isSorted);
 		public static OutputDescriptor NewSH(OutputDescriptor inner) => new SHDescriptor(inner);
 		public static OutputDescriptor NewWSH(OutputDescriptor inner) => new WSHDescriptor(inner);
 
@@ -231,7 +233,12 @@ namespace NBitcoin.Scripting
 						tmpRepo.SetPubKey(pubkey1.Hash, pubkey1);
 						keys[i] = pubkey1;
 					}
-					repo = repo.Merge(tmpRepo);
+
+					if (self.IsSorted)
+					{
+						keys = keys.OrderBy(x => x).ToArray();
+					}
+					repo.Merge(tmpRepo);
 					outputScripts.Add(PayToMultiSigTemplate.Instance.GenerateScriptPubKey((int)self.Threshold, keys));
 					return true;
 				case SHDescriptor self:
@@ -264,17 +271,17 @@ namespace NBitcoin.Scripting
 			switch (this)
 			{
 				case AddressDescriptor self:
-					return new List<Script>() { self.Address.ScriptPubKey };
+					return new List<Script> { self.Address.ScriptPubKey };
 				case RawDescriptor self:
-					return new List<Script>() { self.Script };
-				case PKDescriptor self:
-					return new List<Script>() { key.ScriptPubKey };
-				case PKHDescriptor self:
-					return new List<Script>() { key.Hash.ScriptPubKey };
-				case WPKHDescriptor self:
-					return new List<Script>() { key.WitHash.ScriptPubKey };
-				case ComboDescriptor self:
-					var res = new List<Script>()
+					return new List<Script> { self.Script };
+				case PKDescriptor _:
+					return new List<Script> { key.ScriptPubKey };
+				case PKHDescriptor _:
+					return new List<Script> { key.Hash.ScriptPubKey };
+				case WPKHDescriptor _:
+					return new List<Script> { key.WitHash.ScriptPubKey };
+				case ComboDescriptor _:
+					var res = new List<Script>
 					{
 						key.ScriptPubKey,
 						key.Hash.ScriptPubKey,
@@ -345,6 +352,40 @@ namespace NBitcoin.Scripting
 			return keyProvider;
 		}
 
+		private ScriptPubKeyType? InferTemplate(ScriptTemplate template) => template switch
+		{
+			PayToPubkeyHashTemplate _ => ScriptPubKeyType.Legacy,
+			PayToPubkeyTemplate _ => ScriptPubKeyType.Legacy,
+			PayToWitTemplate _ => ScriptPubKeyType.Segwit,
+			// in the case of p2sh, we don't know if it is p2sh or p2sh-p2[wsh|wpkh], so just return null
+			_ => null
+		};
+
+		/// <summary>
+		/// Infer the address type for that descriptor.
+		/// When it is impossible, just return null.
+		/// In case of descriptors which can not be on the top level (e.g. "multi") also just return null.
+		/// </summary>
+		/// <returns></returns>
+		public ScriptPubKeyType? GetScriptPubKeyType() => this switch
+		{
+			AddressDescriptor self =>
+				InferTemplate(self.Address.ScriptPubKey.FindTemplate()),
+			RawDescriptor self =>
+				InferTemplate(self.Script.FindTemplate()),
+			PKDescriptor _ => null,
+			PKHDescriptor _ => ScriptPubKeyType.Legacy,
+			WPKHDescriptor _ => ScriptPubKeyType.Segwit,
+			SHDescriptor self =>
+				self.Inner.GetScriptPubKeyType() switch
+				{
+					ScriptPubKeyType.Segwit => ScriptPubKeyType.SegwitP2SH,
+					_ => ScriptPubKeyType.Legacy,
+				},
+			WSHDescriptor _ => ScriptPubKeyType.Segwit,
+			_ => null
+		};
+
 		public static OutputDescriptor InferFromScript(Script sc, ISigningRepository repo, ScriptContext ctx = ScriptContext.TOP)
 		{
 			var template = sc.FindTemplate();
@@ -361,13 +402,12 @@ namespace NBitcoin.Scripting
 			}
 			if (template is PayToMultiSigTemplate p2MultiSigTemplate)
 			{
-				var providers = new List<PubKeyProvider>();
 				var data = p2MultiSigTemplate.ExtractScriptPubKeyParameters(sc);
-				foreach (var pk in data.PubKeys)
-				{
-					providers.Add(InferPubKey(pk, repo, ctx));
-				}
-				return OutputDescriptor.NewMulti((uint)data.SignatureCount, providers);
+				var pks = data.PubKeys;
+				var orderedPks = pks.OrderBy(pk => pk);
+				var isOrdered = orderedPks.SequenceEqual(pks);
+				var providers = pks.Select(pk => InferPubKey(pk, repo, ctx));
+				return OutputDescriptor.NewMulti((uint)data.SignatureCount, providers, isOrdered);
 			}
 			if (template is PayToScriptHashTemplate p2shTemplate && ctx == ScriptContext.TOP)
 			{
@@ -465,7 +505,7 @@ namespace NBitcoin.Scripting
 							return false;
 						subKeyList.Add(tmp);
 					}
-					result = $"multi({multi.Threshold},{String.Join(",", subKeyList)})";
+					result = $"{(multi.IsSorted ? "sortedmulti" : "multi")}({multi.Threshold},{String.Join(",", subKeyList)})";
 					return true;
 				case Tags.SHDescriptor:
 					if (!((SHDescriptor)this).Inner.TryGetPrivateStringHelper(secretProvider, out var shInner))
@@ -481,32 +521,30 @@ namespace NBitcoin.Scripting
 			throw new Exception("Unreachable");
 		}
 
-		private string ToStringHelper()
+		private string ToStringHelper() => this switch
 		{
-			switch (this)
-			{
-				case AddressDescriptor self:
-					return $"addr({self.Address})";
-				case RawDescriptor self:
-					return $"raw({self.Script})";
-				case PKDescriptor self:
-					return $"pk({self.PkProvider})";
-				case PKHDescriptor self:
-					return $"pkh({self.PkProvider})";
-				case WPKHDescriptor self:
-					return $"wpkh({self.PkProvider})";
-				case ComboDescriptor self:
-					return $"combo({self.PkProvider})";
-				case MultisigDescriptor self:
-					var pksStr = String.Join(",", self.PkProviders);
-					return $"multi({self.Threshold},{pksStr})";
-				case SHDescriptor self:
-					return $"sh({self.Inner.ToStringHelper()})";
-				case WSHDescriptor self:
-					return $"wsh({self.Inner.ToStringHelper()})";
-			}
-			throw new Exception("unreachable");
-		}
+			AddressDescriptor self =>
+				$"addr({self.Address})",
+			RawDescriptor self =>
+				$"raw({self.Script})",
+			PKDescriptor self =>
+				$"pk({self.PkProvider})",
+			PKHDescriptor self =>
+				$"pkh({self.PkProvider})",
+			WPKHDescriptor self =>
+				$"wpkh({self.PkProvider})",
+			ComboDescriptor self =>
+				$"combo({self.PkProvider})",
+			MultisigDescriptor self =>
+				$"{(self.IsSorted ? "sortedmulti" : "multi")}({self.Threshold},{String.Join(",", self.PkProviders)})",
+			SHDescriptor self =>
+				$"sh({self.Inner.ToStringHelper()})",
+			WSHDescriptor self =>
+				$"wsh({self.Inner.ToStringHelper()})",
+			_ =>
+				throw new Exception("unreachable")
+		};
+
 		public static OutputDescriptor Parse(string desc, bool requireCheckSum = false, ISigningRepository repo = null)
 			=> OutputDescriptorParser.ParseOD(desc, requireCheckSum, repo);
 
@@ -541,7 +579,9 @@ namespace NBitcoin.Scripting
 					ComboDescriptor self =>
 						self.PkProvider.Equals(((ComboDescriptor)other).PkProvider),
 					MultisigDescriptor self =>
-						self.Threshold == ((MultisigDescriptor)other).Threshold && self.PkProviders.SequenceEqual(((MultisigDescriptor)other).PkProviders),
+						self.Threshold == ((MultisigDescriptor)other).Threshold &&
+						self.PkProviders.SequenceEqual(((MultisigDescriptor)other).PkProviders) &&
+						self.IsSorted == ((MultisigDescriptor)other).IsSorted,
 					SHDescriptor self =>
 						self.Inner.Equals(((SHDescriptor)other).Inner),
 					WSHDescriptor self =>
