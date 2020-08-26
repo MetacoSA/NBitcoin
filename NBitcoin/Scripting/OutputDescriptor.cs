@@ -162,23 +162,45 @@ namespace NBitcoin.Scripting
 		#endregion
 
 		#region Descriptor specific things
+
+		/// <summary>
+		/// Expand descriptor into actual scriptPubKeys.
+		/// </summary>
+		/// <param name="pos">position index to expand</param>
+		/// <param name="privateKeyProvider">provider to inject private keys in case of hardened derivation</param>
+		/// <param name="repo">repository to which to put resulted information.</param>
+		/// <param name="outputScripts">resulted scriptPubKey</param>
+		/// <returns></returns>
+		public bool TryExpand(
+			uint pos,
+			ISigningRepository privateKeyProvider,
+			ISigningRepository repo,
+			out List<Script> outputScripts,
+			IDictionary<uint, ExtPubKey>? cache = null
+			)
+		{
+			return TryExpand(pos, privateKeyProvider.GetPrivateKey, repo, out outputScripts, cache);
+		}
+
 		/// <summary>
 		/// Expand descriptor into actual scriptPubKeys.
 		/// TODO: cache
 		/// </summary>
 		/// <param name="pos">position index to expand</param>
 		/// <param name="privateKeyProvider">provider to inject private keys in case of hardened derivation</param>
+		/// <param name="repo">repository to which to put resulted information.</param>
 		/// <param name="outputScripts">resulted scriptPubKey</param>
 		/// <returns></returns>
 		public bool TryExpand(
 			uint pos,
 			Func<KeyId, Key> privateKeyProvider,
 			ISigningRepository repo,
-			out List<Script> outputScripts
+			out List<Script> outputScripts,
+			IDictionary<uint, ExtPubKey>? cache = null
 			)
 		{
 			outputScripts = new List<Script>();
-			return TryExpand(pos, privateKeyProvider, repo, outputScripts);
+			return TryExpand(pos, privateKeyProvider, repo, outputScripts, cache);
 		}
 
 		private bool ExpandPkHelper(
@@ -186,7 +208,8 @@ namespace NBitcoin.Scripting
 			Func<KeyId, Key> privateKeyProvider,
 			uint pos,
 			ISigningRepository repo,
-			List<Script> outSc)
+			List<Script> outSc,
+			IDictionary<uint, ExtPubKey>? cache = null)
 		{
 			if (!pkP.TryGetPubKey(pos, privateKeyProvider, out var keyOrigin1, out var pubkey1))
 				return false;
@@ -200,7 +223,8 @@ namespace NBitcoin.Scripting
 			uint pos,
 			Func<KeyId, Key> privateKeyProvider,
 			ISigningRepository repo,
-			List<Script> outputScripts
+			List<Script> outputScripts,
+			IDictionary<uint, ExtPubKey>? cache = null
 			)
 		{
 			switch (this)

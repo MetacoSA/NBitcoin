@@ -9,7 +9,7 @@ namespace NBitcoin
 	/// This is equivalent to `SigningProvider` class in bitcoin core.
 	/// Currently used in OutputDescriptor to safely inject private key information
 	/// </summary>
-	public abstract class ISigningRepository
+	public interface ISigningRepository
 	{
 		/// <summary>
 		/// In case of Witness Script, use HashForLookup Property as a key.
@@ -17,25 +17,42 @@ namespace NBitcoin
 		/// <param name="scriptId"></param>
 		/// <param name="script"></param>
 		/// <returns></returns>
-		public abstract bool TryGetScript(ScriptId scriptId, out Script script);
-		public abstract bool TryGetPubKey(KeyId keyId, out PubKey pubkey);
-		public abstract bool TryGetKeyOrigin(KeyId keyId, out RootedKeyPath keyorigin);
-		public abstract bool TryGetSecret(KeyId keyId, out ISecret secret);
+		bool TryGetScript(ScriptId scriptId, out Script script);
+		bool TryGetPubKey(KeyId keyId, out PubKey pubkey);
+		bool TryGetKeyOrigin(KeyId keyId, out RootedKeyPath keyorigin);
+		bool TryGetSecret(KeyId keyId, out ISecret secret);
 
-		public virtual bool IsSolvable(Script scriptPubKey)
+
+		/// <summary>
+		/// In case of Witness Script, use HashForLookup property as a key.
+		/// </summary>
+		/// <param name="scriptId"></param>
+		/// <param name="script"></param>
+		/// <returns></returns>
+		void SetScript(ScriptId scriptId, Script script);
+		void SetPubKey(KeyId keyId, PubKey pubkey);
+		void SetSecret(KeyId keyId, ISecret secret);
+		void SetKeyOrigin(KeyId keyId, RootedKeyPath keyOrigin);
+		void Merge(ISigningRepository other);
+	}
+
+	public static class ISigningRepositoryExtensions
+	{
+
+		public static bool IsSolvable(this ISigningRepository repo, Script scriptPubKey)
 		{
 			var temp = scriptPubKey.FindTemplate();
 			if (temp is PayToPubkeyTemplate p2pkT)
 			{
 				var pk = p2pkT.ExtractScriptPubKeyParameters(scriptPubKey);
-				if (TryGetPubKey(pk.Hash, out var _))
+				if (repo.TryGetPubKey(pk.Hash, out var _))
 					return true;
 			}
 
 			if (temp is PayToPubkeyHashTemplate p2pkhT)
 			{
 				var keyId = p2pkhT.ExtractScriptPubKeyParameters(scriptPubKey);
-				if (TryGetPubKey(keyId, out var _))
+				if (repo.TryGetPubKey(keyId, out var _))
 					return true;
 			}
 			PubKey[] pks = null;
@@ -48,7 +65,7 @@ namespace NBitcoin
 			{
 				var scriptId = p2shT.ExtractScriptPubKeyParameters(scriptPubKey);
 				// This will give us witness script directly in case of p2sh-p2wsh
-				if (TryGetScript(scriptId, out var sc))
+				if (repo.TryGetScript(scriptId, out var sc))
 				{
 					scriptPubKey = sc;
 					pks = sc.GetAllPubKeys();
@@ -60,14 +77,14 @@ namespace NBitcoin
 				var witId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 				if (witId != null)
 				{
-					if (TryGetScript(witId.HashForLookUp, out var sc))
+					if (repo.TryGetScript(witId.HashForLookUp, out var sc))
 						pks = sc.GetAllPubKeys();
 				}
 				var wpkh = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 				if (wpkh != null)
 				{
 					var witKeyId = wpkh.AsKeyId();
-					if (TryGetPubKey(witKeyId, out var _))
+					if (repo.TryGetPubKey(witKeyId, out var _))
 						return true;
 				}
 			}
@@ -76,7 +93,7 @@ namespace NBitcoin
 			{
 				foreach (var pk in pks)
 				{
-					if (!TryGetPubKey(pk.Hash, out var _))
+					if (!repo.TryGetPubKey(pk.Hash, out var _))
 						return false;
 				}
 				return true;
@@ -84,19 +101,15 @@ namespace NBitcoin
 			return false;
 		}
 
+		public static Key? GetPrivateKey(this ISigningRepository repo, KeyId id)
+		{
+			if (!repo.TryGetSecret(id, out var res))
+				return null;
+			return res.PrivateKey;
+		}
 
-		/// <summary>
-		/// In case of Witness Script, use HashForLookup property as a key.
-		/// </summary>
-		/// <param name="scriptId"></param>
-		/// <param name="script"></param>
-		/// <returns></returns>
-		public abstract void SetScript(ScriptId scriptId, Script script);
-		public abstract void SetPubKey(KeyId keyId, PubKey pubkey);
-		public abstract void SetSecret(KeyId keyId, ISecret secret);
-		public abstract void SetKeyOrigin(KeyId keyId, RootedKeyPath keyOrigin);
-		public abstract ISigningRepository Merge(ISigningRepository other);
 	}
+
 	public class FlatSigningRepository : ISigningRepository
 	{
 		public ConcurrentDictionary<KeyId, ISecret> Secrets {get;}
@@ -112,25 +125,18 @@ namespace NBitcoin
 			Scripts = new ConcurrentDictionary<ScriptId, Script>();
 		}
 
-		public override bool TryGetScript(ScriptId scriptId, out Script script)
+		public bool TryGetScript(ScriptId scriptId, out Script script)
 			=> Scripts.TryGetValue(scriptId, out script);
 
-		public override bool TryGetPubKey(KeyId keyId, out PubKey pubkey)
+		public bool TryGetPubKey(KeyId keyId, out PubKey pubkey)
 			=> Pubkeys.TryGetValue(keyId, out pubkey);
 
-		public override bool TryGetKeyOrigin(KeyId keyId, out RootedKeyPath keyOrigin)
+		public bool TryGetKeyOrigin(KeyId keyId, out RootedKeyPath keyOrigin)
 			=> KeyOrigins.TryGetValue(keyId, out keyOrigin);
 
-		public override bool TryGetSecret(KeyId keyId, out ISecret key)
+		public bool TryGetSecret(KeyId keyId, out ISecret key)
 			=> Secrets.TryGetValue(keyId, out key);
-
-		public Key GetPrivateKey(KeyId id)
-		{
-			if (!TryGetSecret(id, out var res))
-				return null;
-			return res.PrivateKey;
-		}
-		public override void SetScript(ScriptId scriptId, Script script)
+		public void SetScript(ScriptId scriptId, Script script)
 		{
 			if (scriptId == null)
 			{
@@ -145,7 +151,7 @@ namespace NBitcoin
 			Scripts.AddOrReplace(scriptId, script);
 		}
 
-		public override void SetPubKey(KeyId keyId, PubKey pubkey)
+		public void SetPubKey(KeyId keyId, PubKey pubkey)
 		{
 			if (keyId == null)
 			{
@@ -160,7 +166,7 @@ namespace NBitcoin
 			Pubkeys.AddOrReplace(keyId, pubkey);
 		}
 
-		public override void SetSecret(KeyId keyId, ISecret secret)
+		public void SetSecret(KeyId keyId, ISecret secret)
 		{
 			if (keyId == null)
 			{
@@ -175,7 +181,7 @@ namespace NBitcoin
 			Secrets.AddOrReplace(keyId, secret);
 		}
 
-		public override void SetKeyOrigin(KeyId keyId, RootedKeyPath keyOrigin)
+		public void SetKeyOrigin(KeyId keyId, RootedKeyPath keyOrigin)
 		{
 			if (keyId == null)
 			{
@@ -190,7 +196,7 @@ namespace NBitcoin
 			KeyOrigins.AddOrReplace(keyId, keyOrigin);
 		}
 
-		public override ISigningRepository Merge(ISigningRepository other)
+		public void Merge(ISigningRepository other)
 		{
 			if (!(other is FlatSigningRepository))
 			{
@@ -202,7 +208,6 @@ namespace NBitcoin
 			MergeDict(Pubkeys, otherRepo.Pubkeys);
 			MergeDict(Scripts, otherRepo.Scripts);
 			MergeDict(KeyOrigins, otherRepo.KeyOrigins);
-			return this;
 		}
 
 		private void MergeDict<U, T>(ConcurrentDictionary<U, T> a, ConcurrentDictionary<U, T> b)
