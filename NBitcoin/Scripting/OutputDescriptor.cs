@@ -657,7 +657,13 @@ namespace NBitcoin.Scripting
 					case MultisigDescriptor self:
 						{
 							num = 6;
-							return -1640531527 + self.PkProviders.GetHashCode() + ((num << 6) + (num >> 2));
+							num = self.Threshold.GetHashCode() + ((num << 6) + (num >> 2));
+							num = self.IsSorted.GetHashCode() + ((num << 6) + (num >> 2));
+							foreach (var pk in self.PkProviders)
+							{
+								num = -1640531527 + pk.GetHashCode() + ((num << 6) + (num >> 2));
+							}
+							return num;
 						}
 					case SHDescriptor self:
 						{
@@ -669,6 +675,8 @@ namespace NBitcoin.Scripting
 							num = 8;
 							return -1640531527 + self.Inner.GetHashCode() + ((num << 6) + (num >> 2));
 						}
+					default:
+						throw new Exception("Unreachable!");
 				}
 			}
 			return 0;
