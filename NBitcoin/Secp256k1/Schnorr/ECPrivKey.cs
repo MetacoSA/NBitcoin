@@ -15,6 +15,90 @@ namespace NBitcoin.Secp256k1
 #else
 	internal
 #endif
+	class BIP340NonceFunction : INonceFunctionHardened
+	{
+		static RandomNumberGenerator rand = new RNGCryptoServiceProvider();
+		ReadOnlyMemory<byte> data32;
+		public BIP340NonceFunction(ReadOnlyMemory<byte> auxData32)
+		{
+			if (auxData32.Length != 0 && auxData32.Length != 32)
+				throw new ArgumentException("auxData32 should be 0 or 32 bytes", nameof(auxData32));
+			this.data32 = auxData32;
+		}
+		public BIP340NonceFunction(bool random)
+		{
+			if (random)
+			{
+				var a = new byte[32];
+				rand.GetBytes(a);
+				this.data32 = a;
+			}
+		}
+
+		static byte[] TAG_BIP0340AUX = ASCIIEncoding.ASCII.GetBytes("BIP0340/aux");
+		public readonly static byte[] ALGO_BIP340 = ASCIIEncoding.ASCII.GetBytes("BIP0340/nonce\0\0\0");
+		public readonly static byte[] TAG_BIP340 = ASCIIEncoding.ASCII.GetBytes("BIP0340/nonce");
+		public bool TryGetNonce(Span<byte> nonce32, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> xonly_pk32, ReadOnlySpan<byte> algo16)
+		{
+			int i = 0;
+			Span<byte> masked_key = stackalloc byte[32];
+			using SHA256 sha = new SHA256();
+			if (algo16.Length != 16)
+				return false;
+
+			if (data32.Length == 32)
+			{
+				sha.InitializeTagged(TAG_BIP0340AUX);
+				sha.Write(data32.Span);
+				sha.GetHash(masked_key);
+				for (i = 0; i < 32; i++)
+				{
+					masked_key[i] ^= key32[i];
+				}
+			}
+
+			// * Tag the hash with algo16 which is important to avoid nonce reuse across
+			// * algorithms. If this nonce function is used in BIP-340 signing as defined
+			// * in the spec, an optimized tagging implementation is used. */
+
+			if (algo16.SequenceCompareTo(ALGO_BIP340) == 0)
+			{
+				sha.InitializeTagged(TAG_BIP340);
+			}
+			else
+			{
+				int algo16_len = 16;
+				/* Remove terminating null bytes */
+				while (algo16_len > 0 && algo16[algo16_len - 1] == 0)
+				{
+					algo16_len--;
+				}
+				sha.InitializeTagged(algo16.Slice(0, algo16_len));
+			}
+
+			//* Hash (masked-)key||pk||msg using the tagged hash as per the spec */
+			if (data32.Length == 32)
+			{
+				sha.Write(masked_key);
+			}
+			else
+			{
+				sha.Write(key32);
+			}
+			sha.Write(xonly_pk32);
+			sha.Write(msg32);
+			sha.GetHash(nonce32);
+			return true;
+		}
+	}
+
+
+
+#if SECP256K1_LIB
+	public
+#else
+	internal
+#endif
 	class SchnorrNonceFunction : INonceFunction
 	{
 		byte[]? data = null;
@@ -55,6 +139,94 @@ namespace NBitcoin.Secp256k1
 			if (TrySignSchnorr(msg32, null, out _, out var sig) && sig is SecpSchnorrSignature)
 				return sig;
 			throw new InvalidOperationException("Schnorr signature failed, this should never happen");
+		}
+		/// <summary>
+		/// Create a non deterministic BIP140 schnorr signature. With Auxiliary random data taken from secure RNG.
+		/// </summary>
+		/// <param name="msg32">32 bytes message to sign</param>
+		/// <returns>A schnorr signature</returns>
+		public SecpSchnorrSignature SignBIP140(ReadOnlySpan<byte> msg32)
+		{
+			return SignBIP140(msg32, new BIP340NonceFunction(true));
+		}
+		/// <summary>
+		/// Create a deterministic BIP140 schnorr signature. With auxiliary random data passed in parameter.
+		/// </summary>
+		/// <param name="msg32">32 bytes message to sign</param>
+		/// <param name="auxData32">Auxiliary random data</param>
+		/// <returns>A schnorr signature</returns>
+		public SecpSchnorrSignature SignBIP140(ReadOnlySpan<byte> msg32, ReadOnlyMemory<byte> auxData32)
+		{
+			return SignBIP140(msg32, new BIP340NonceFunction(auxData32));
+		}
+		public SecpSchnorrSignature SignBIP140(ReadOnlySpan<byte> msg32, INonceFunctionHardened? nonceFunction)
+		{
+			if (TrySignBIP140(msg32, nonceFunction, out var sig) && sig is SecpSchnorrSignature)
+				return sig;
+			throw new InvalidOperationException("Schnorr signature failed, this should never happen");
+		}
+
+		public bool TrySignBIP140(ReadOnlySpan<byte> msg32, INonceFunctionHardened? nonceFunction, out SecpSchnorrSignature? signature)
+		{
+			signature = null;
+			if (msg32.Length != 32)
+				return false;
+			using var sha = new Secp256k1.SHA256();
+			Span<byte> buf = stackalloc byte[32];
+			Span<byte> sig64 = stackalloc byte[64];
+			Span<byte> pk_buf = stackalloc byte[32];
+			Span<byte> sec_key = stackalloc byte[32];
+
+			if (nonceFunction == null)
+			{
+				nonceFunction = new BIP340NonceFunction(true);
+			}
+
+			var pk = CreatePubKey().Q;
+			var sk = this.sec;
+			/* Because we are signing for a x-only pubkey, the secret key is negated
+	* before signing if the point corresponding to the secret key does not
+	* have an even Y. */
+			if (pk.y.IsOdd)
+			{
+				sk = sk.Negate();
+			}
+			sk.WriteToSpan(sec_key);
+			pk.x.WriteToSpan(pk_buf);
+			var ret = nonceFunction.TryGetNonce(buf, msg32, sec_key, pk_buf, BIP340NonceFunction.ALGO_BIP340);
+			var k = new Scalar(buf, out _);
+			ret &= !k.IsZero;
+			Scalar.CMov(ref k, Scalar.One, ret ? 0 : 1);
+			var rj = ctx.EcMultGenContext.MultGen(k);
+			var r = rj.ToGroupElement();
+			var ry = r.y.NormalizeVariable();
+			if (ry.IsOdd)
+				k = k.Negate();
+			var rx = r.x.NormalizeVariable();
+			rx.WriteToSpan(sig64);
+			/* tagged hash(r.x, pk.x, msg32) */
+			sha.InitializeTagged(ECXOnlyPubKey.TAG_BIP0340Challenge);
+			sha.Write(sig64.Slice(0, 32));
+			sha.Write(pk_buf);
+			sha.Write(msg32);
+			sha.GetHash(buf);
+
+			/* Set scalar e to the challenge hash modulo the curve order as per
+     * BIP340. */
+			var e = new Scalar(buf, out _);
+			e = e * sk;
+			e = e + k;
+			e.WriteToSpan(sig64.Slice(32));
+
+			ret &= SecpSchnorrSignature.TryCreate(sig64, out signature);
+			
+			k = default;
+			sk = default;
+			sec_key.Fill(0);
+			sig64.Fill(0);
+			if (!ret)
+				signature = null;
+			return ret;
 		}
 		public bool TrySignSchnorr(ReadOnlySpan<byte> msg32, INonceFunction? nonceFunction, out bool nonceIsNegated, out SecpSchnorrSignature? signature)
 		{
@@ -123,6 +295,11 @@ namespace NBitcoin.Secp256k1
 			e.WriteToSpan(sig.Slice(32, 32));
 			Scalar.Clear(ref k);
 			return SecpSchnorrSignature.TryCreate(sig, out signature);
+		}
+
+		public ECXOnlyPubKey CreateXOnlyPubKey()
+		{
+			return CreatePubKey().ToXOnlyPubKey(out _);
 		}
 	}
 }

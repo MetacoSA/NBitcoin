@@ -144,6 +144,23 @@ namespace NBitcoin.Secp256k1
 			VERIFY_CHECK(CheckOverflow() == 0);
 		}
 
+		[MethodImpl(MethodImplOptions.NoOptimization)]
+		public static void CMov(ref Scalar r, Scalar a, int flag)
+		{
+			uint mask0, mask1;
+			mask0 = (uint)flag + ~((uint)0);
+			mask1 = ~mask0;
+			r = new Scalar(
+				(r.d0 & mask0) | (a.d0 & mask1),
+				(r.d1 & mask0) | (a.d1 & mask1),
+				(r.d2 & mask0) | (a.d2 & mask1),
+				(r.d3 & mask0) | (a.d3 & mask1),
+				(r.d4 & mask0) | (a.d4 & mask1),
+				(r.d5 & mask0) | (a.d5 & mask1),
+				(r.d6 & mask0) | (a.d6 & mask1),
+				(r.d7 & mask0) | (a.d7 & mask1));
+		}
+
 		public static void Clear(ref Scalar s)
 		{
 			s = Scalar.Zero;

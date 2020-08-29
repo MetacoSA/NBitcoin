@@ -2929,7 +2929,7 @@ namespace NBitcoin.Tests
 			//msg_arr[0] = msg32;
 			//pk_arr[0] = &pk;
 
-			Assert.Equal(expected, pk.SigVerify(sig, msg32));
+			Assert.Equal(expected, pk.SigVerifySchnorr(sig, msg32));
 			//CHECK(expected == secp256k1_schnorrsig_verify_batch(ctx, scratch, sig_arr, msg_arr, pk_arr, 1));
 		}
 

@@ -296,7 +296,7 @@ namespace NBitcoin
 #if HAS_SPAN
 			Span<byte> msg = stackalloc byte[32];
 			hash.ToBytes(msg);
-			return ECKey.SigVerify(sig.secpShnorr, msg);
+			return ECKey.SigVerifySchnorr(sig.secpShnorr, msg);
 #else
 			SchnorrSigner signer = new SchnorrSigner();
 			return signer.Verify(hash, this, sig);

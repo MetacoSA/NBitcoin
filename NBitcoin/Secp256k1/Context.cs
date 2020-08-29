@@ -51,6 +51,18 @@ namespace NBitcoin.Secp256k1
 			return true;
 		}
 
+		public bool TryCreateXOnlyPubKey(ReadOnlySpan<byte> input32, out ECXOnlyPubKey? pubkey)
+		{
+			return ECXOnlyPubKey.TryCreate(input32, this, out pubkey);
+		}
+
+		public ECXOnlyPubKey CreateXOnlyPubKey(ReadOnlySpan<byte> input32)
+		{
+			if (!TryCreateXOnlyPubKey(input32, out var pubkey) || pubkey is null)
+				throw new FormatException("Invalid xonly pubkey");
+			return pubkey;
+		}
+
 		public bool TryCreatePubKey(ReadOnlySpan<byte> input, out ECPubKey? pubkey)
 		{
 			return ECPubKey.TryCreate(input, this, out _, out pubkey);

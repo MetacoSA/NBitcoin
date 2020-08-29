@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+#if HAS_SPAN
+using NBitcoin.Secp256k1;
+#endif
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -11,6 +15,53 @@ namespace NBitcoin.Tests
 	[Trait("UnitTest", "UnitTest")]
 	public class SchnorrSignerTests
 	{
+#if HAS_SPAN
+		[Fact]
+		public void BIP140Tests()
+		{
+			var content = File.ReadAllText("data\\bip340_vectors.csv");
+			var lines = content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries).Skip(1).ToArray();
+			foreach (var line in lines)
+			{
+				var fields = line.Split(',');
+				if (fields[0] == "5" || fields[0] == "14") // pubkey not on the field
+				{
+					Assert.False(Context.Instance.TryCreateXOnlyPubKey(Encoders.Hex.DecodeData(fields[2]), out _));
+					continue;
+				}
+				var expectedPubKey = Context.Instance.CreateXOnlyPubKey(Encoders.Hex.DecodeData(fields[2]));
+				if (fields[1] != "")
+				{
+					var key = Context.Instance.CreateECPrivKey(Encoders.Hex.DecodeData(fields[1]));
+					var actualPubKey = key.CreateXOnlyPubKey();
+					Assert.Equal(expectedPubKey, actualPubKey);
+				}
+				var msg = Encoders.Hex.DecodeData(fields[4]);
+				if (fields[0] == "12" || fields[0] == "13") // invalid sig
+				{
+					Assert.False(SecpSchnorrSignature.TryCreate(Encoders.Hex.DecodeData(fields[5]), out _));
+					continue;
+				}
+				Assert.True(SecpSchnorrSignature.TryCreate(Encoders.Hex.DecodeData(fields[5]), out var sig));
+				var actual = expectedPubKey.SigVerifyBIP340(sig, msg);
+				var expectedGoodSig = fields[6] == "TRUE";
+				Assert.Equal(expectedGoodSig, actual);
+				if (fields[1] != "")
+				{
+					var aux = Encoders.Hex.DecodeData(fields[3]);
+					var key = Context.Instance.CreateECPrivKey(Encoders.Hex.DecodeData(fields[1]));
+					var actualSig = key.SignBIP140(msg, aux);
+					Assert.True(expectedPubKey.SigVerifyBIP340(actualSig, msg));
+					if (expectedGoodSig)
+					{
+						var buf = new byte[64];
+						actualSig.WriteToSpan(buf);
+						Assert.Equal(fields[5].ToLowerInvariant(), Encoders.Hex.EncodeData(buf));
+					}
+				}
+			}
+		}
+#endif
 		[Fact]
 		public void SingningTest()
 		{

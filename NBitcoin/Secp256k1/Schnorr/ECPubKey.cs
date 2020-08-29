@@ -14,7 +14,13 @@ namespace NBitcoin.Secp256k1
 #endif
 	partial class ECPubKey
 	{
+		[Obsolete("Use SigVerifySchnorr instead")]
 		public bool SigVerify(SecpSchnorrSignature signature, ReadOnlySpan<byte> msg32)
+		{
+			return SigVerifySchnorr(signature, msg32);
+		}
+
+		public bool SigVerifySchnorr(SecpSchnorrSignature signature, ReadOnlySpan<byte> msg32)
 		{
 			if (msg32.Length != 32)
 				return false;

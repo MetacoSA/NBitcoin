@@ -38,6 +38,17 @@ namespace NBitcoin.Secp256k1
 			this.ctx = context ?? Context.Instance;
 		}
 
+		public virtual ECXOnlyPubKey ToXOnlyPubKey(out bool parity)
+		{
+			if (!Q.y.IsOdd)
+			{
+				parity = false;
+				return new ECXOnlyPubKey(Q, ctx);
+			}
+			parity = true;
+			return new ECXOnlyPubKey(new GE(Q.x, Q.y.Negate(1)), ctx);
+		}
+
 		public void WriteToSpan(bool compressed, Span<byte> output, out int length)
 		{
 			length = 0;
