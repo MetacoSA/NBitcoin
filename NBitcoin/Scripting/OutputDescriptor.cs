@@ -1,10 +1,6 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using NBitcoin.Crypto;
-using NBitcoin.RPC;
-using NBitcoin.Scripting.Parser;
 
 namespace NBitcoin.Scripting
 {
@@ -552,7 +548,7 @@ namespace NBitcoin.Scripting
 			AddressDescriptor self =>
 				$"addr({self.Address})",
 			RawDescriptor self =>
-				$"raw({self.Script})",
+				$"raw({self.Script.ToHex()})",
 			PKDescriptor self =>
 				$"pk({self.PkProvider})",
 			PKHDescriptor self =>

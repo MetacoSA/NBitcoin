@@ -9,6 +9,7 @@ using NBitcoin.Scripting.Parser;
 using NBitcoin.Tests.Generators;
 using static NBitcoin.Tests.Helpers.PrimitiveUtils;
 using Xunit;
+using Random = System.Random;
 
 namespace NBitcoin.Tests
 {
@@ -20,12 +21,28 @@ namespace NBitcoin.Tests
 			DummyKey = new Key();
 		}
 
+		private string MaybeInsertSpaces(string s)
+		{
+			var shouldReplaceComma = RandomUtils.GetBytes(1)[0] < 128;
+			if (shouldReplaceComma)
+				s = s.Replace(",", " , ");
+			var shouldReplaceLParen = RandomUtils.GetBytes(1)[0] < 128;
+			if (shouldReplaceLParen)
+				s = s.Replace("(", " ( ");
+			var shouldReplaceRParen = RandomUtils.GetBytes(1)[0] < 128;
+			if (shouldReplaceRParen)
+				s = s.Replace(")", " ) ");
+			var shouldAddTopLevelSpaces = RandomUtils.GetBytes(1)[0] < 128;
+			if (shouldAddTopLevelSpaces)
+				s = $" {s} ";
+			return s;
+		}
 
 		[Property(MaxTest=500)]
 		[Trait("PropertyTest", "BidirectionalConversion")]
 		public void ShouldConvertToStringBidirectionally(OutputDescriptor desc)
 		{
-			var afterConversion = OutputDescriptor.Parse(desc.ToString());
+			var afterConversion = OutputDescriptor.Parse(MaybeInsertSpaces(desc.ToString()));
 			Assert.Equal(desc, afterConversion);
 			Assert.Equal(desc.ToString(), afterConversion.ToString());
 			Assert.Equal(desc.GetHashCode(), afterConversion.GetHashCode());
@@ -74,11 +91,15 @@ namespace NBitcoin.Tests
 				"pkh([d34db33f/44'/0'/0']xpub6ERApfZwUNrhLCkDtcHTcxd75RbzS1ed54G1LkBUHQVHQKqhMkhgbmJbZRkrgZw4koxb5JaHWkY4ALHY2grBGRjaDMzQLcgJvLJuZZvRcEL/1/*)",
 				"wsh(multi(1,xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB/1/0/*,xpub69H7F5d8KSRgmmdJg2KhpAK8SR3DjMwAdkxj3ZuxV27CprR9LgpeyGmXUbC6wb7ERfvrnKZjXoUmmDznezpbZb7ap6r1D3tgFxHmwMkQTPH/0/0/*))",
 				// same with above except that is has hardend derivation
-				"wsh(multi(1,xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB/1/0/*,xpub69H7F5d8KSRgmmdJg2KhpAK8SR3DjMwAdkxj3ZuxV27CprR9LgpeyGmXUbC6wb7ERfvrnKZjXoUmmDznezpbZb7ap6r1D3tgFxHmwMkQTPH/0/0/*'))"
+				"wsh(multi(1,xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB/1/0/*,xpub69H7F5d8KSRgmmdJg2KhpAK8SR3DjMwAdkxj3ZuxV27CprR9LgpeyGmXUbC6wb7ERfvrnKZjXoUmmDznezpbZb7ap6r1D3tgFxHmwMkQTPH/0/0/*'))",
+
+				// tests find by property test
+				"sh(wsh(pk(tpubD6NzVbkrYhZ4XGbCzpyPa9n4DDwStrqKMrpVn4zfmYJ8yWxUbobjAXfpNeeLAYVBU6G9x7aNF8RXrFtLb2QpNzwQ1gJYmqpaE6HbEmKEXaa/472145637'/* )))#u7qwhqhh",
+				"raw(04bd9d509ca881)#7sr5k80j"
 			};
 			foreach (var i in testVectors)
 			{
-				var od = OutputDescriptor.Parse(i);
+				var od = OutputDescriptor.Parse(MaybeInsertSpaces(i));
 				Assert.Equal(od, OutputDescriptor.Parse(od.ToString()));
 			}
 		}
@@ -199,8 +220,8 @@ namespace NBitcoin.Tests
 			var keysPub = new FlatSigningRepository();
 			var leftPath = pathIndex;
 
-			var parsePriv = OutputDescriptor.Parse(MaybeUseHInsteadOfApostrophe(priv), false, keysPriv);
-			var parsePub = OutputDescriptor.Parse(MaybeUseHInsteadOfApostrophe(pub), false, keysPub);
+			var parsePriv = OutputDescriptor.Parse(MaybeInsertSpaces(MaybeUseHInsteadOfApostrophe(priv)), false, keysPriv);
+			var parsePub = OutputDescriptor.Parse(MaybeInsertSpaces(MaybeUseHInsteadOfApostrophe(pub)), false, keysPub);
 
 			// Check that correct output type is inferred
 			Assert.Equal(parsePriv.GetScriptPubKeyType(), spkType);

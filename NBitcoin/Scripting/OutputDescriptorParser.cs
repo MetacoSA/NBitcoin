@@ -73,10 +73,10 @@ namespace NBitcoin.Scripting
 			 from x in Parse.TryConvert((magic + base58Str), c => new BitcoinExtPubKey(c))
 			 select x).InjectRepository(repo);
 		private static Parser<char, RootedKeyPath> PRootedKeyPath(ISigningRepository repo) =>
-			(from _l in Parse.Char('[').Token()
-			 from x in (Parse.CharExcept(']').XMany().Text().Token())
+			(from _l in Parse.Char('[')
+			 from x in (Parse.CharExcept(']').XMany().Text())
 				 .Then(inner => Parse.TryConvert(inner, RootedKeyPath.Parse))
-			 from _r in Parse.Char(']').Token()
+			 from _r in Parse.Char(']')
 			 select x).InjectRepository(repo);
 
 		private static Parser<char, KeyPath> PKeyPath(ISigningRepository repo) =>
@@ -175,7 +175,7 @@ namespace NBitcoin.Scripting
 				(
 					from _n in Parse.String("raw")
 					from inner in SurroundedByBrackets
-					from sc in Parse.TryConvert(inner, str => new Script(str))
+					from sc in Parse.TryConvert(inner, str => Script.FromHex(str))
 					select sc
 				).InjectRepository(repo);
 			return PScript.Select(s => OutputDescriptor.NewRaw(s));
@@ -211,10 +211,10 @@ namespace NBitcoin.Scripting
 			from name in Parse.String("sortedmulti").XOr(Parse.String("multi")).Text()
 			let isSorted = name.StartsWith("sorted")
 			from _l in Parse.Char('(')
-			from m in Parse.Digit.XMany().Text().Then(d => Parse.TryConvert(d, UInt32.Parse))
+			from m in Parse.Digit.XMany().Text().Then(d => Parse.TryConvert(d.Trim(), UInt32.Parse))
 			where m != 0
 			from _c in Parse.Char(',')
-			from pkProviders in PPubKeyProvider(repo, onlyCompressed).DelimitedBy(Parse.Char(',').Token())
+			from pkProviders in PPubKeyProvider(repo, onlyCompressed).DelimitedBy(Parse.Char(','))
 			where m <= pkProviders.Count()
 			from _r in Parse.Char(')')
 			where !maxN.HasValue || pkProviders.Count() <= maxN
@@ -245,6 +245,7 @@ namespace NBitcoin.Scripting
 			=> TryParseOD(str, out var _, out result,requireCheckSum, repo);
 		private static bool TryParseOD(string str, out string whyFailure,  out OutputDescriptor result, bool requireCheckSum = false, ISigningRepository repo = null)
 		{
+			str = str.Replace(" ", "");
 			result = null;
 			whyFailure = null;
 			var checkSplit = str.Split('#');
