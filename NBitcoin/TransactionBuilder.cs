@@ -756,6 +756,22 @@ namespace NBitcoin
 		}
 
 		/// <summary>
+		/// If true, the transaction builder tries to shuffle inputs
+		/// </summary>
+		public bool ShuffleInputs
+		{
+			get; set;
+		} = true;
+
+		/// <summary>
+		/// If true, the transaction builder tries to shuffles outputs
+		/// </summary>
+		public bool ShuffleOutputs
+		{
+			get; set;
+		} = true;
+
+		/// <summary>
 		/// If true and the transaction has two outputs sending to the same scriptPubKey, those will be merged into a single output. (Default: true)
 		/// </summary>
 		public bool MergeOutputs
@@ -1642,11 +1658,11 @@ namespace NBitcoin
 
 			if (ShuffleRandom != null)
 			{
-				if (ctx.CanShuffleInputs)
+				if (ShuffleInputs && ctx.CanShuffleInputs)
 					Utils.Shuffle(ctx.Transaction.Inputs,
 								_CompletedTransaction is null ? 0 : _CompletedTransaction.Inputs.Count,
 								ShuffleRandom);
-				if (ctx.CanShuffleOutputs)
+				if (ShuffleOutputs && ctx.CanShuffleOutputs)
 					Utils.Shuffle(ctx.Transaction.Outputs,
 								_CompletedTransaction is null ? 0 : _CompletedTransaction.Outputs.Count,
 								ShuffleRandom);
