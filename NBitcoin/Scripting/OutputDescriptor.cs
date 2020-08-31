@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+#nullable enable
 
 namespace NBitcoin.Scripting
 {
@@ -8,23 +9,10 @@ namespace NBitcoin.Scripting
 	public abstract class OutputDescriptor : IEquatable<OutputDescriptor>
 	{
 		# region subtypes
-		public static class Tags
-		{
-			public const int AddressDescriptor = 0;
-			public const int RawDescriptor = 1;
-			public const int PKDescriptor = 2;
-			public const int PKHDescriptor = 3;
-			public const int WPKHDescriptor = 4;
-			public const int ComboDescriptor = 5;
-			public const int MultisigDescriptor = 6;
-			public const int SHDescriptor = 7;
-			public const int WSHDescriptor = 8;
-		}
-
 		public class AddressDescriptor : OutputDescriptor
 		{
 			public IDestination Address { get; }
-			public AddressDescriptor(IDestination address) : base(Tags.AddressDescriptor)
+			public AddressDescriptor(IDestination address)
 			{
 				if (address == null)
 					throw new ArgumentNullException(nameof(address));
@@ -36,13 +24,13 @@ namespace NBitcoin.Scripting
 		{
 			public Script Script;
 
-			internal RawDescriptor(Script script) : base(Tags.RawDescriptor) => Script = script ?? throw new ArgumentNullException(nameof(script));
+			internal RawDescriptor(Script script) => Script = script ?? throw new ArgumentNullException(nameof(script));
 		}
 
 		public class PKDescriptor : OutputDescriptor
 		{
 			public PubKeyProvider PkProvider;
-			internal PKDescriptor(PubKeyProvider pkProvider) : base(Tags.PKDescriptor)
+			internal PKDescriptor(PubKeyProvider pkProvider)
 			{
 				if (pkProvider == null)
 					throw new ArgumentNullException(nameof(pkProvider));
@@ -53,7 +41,7 @@ namespace NBitcoin.Scripting
 		public class PKHDescriptor : OutputDescriptor
 		{
 			public PubKeyProvider PkProvider;
-			internal PKHDescriptor(PubKeyProvider pkProvider) : base(Tags.PKHDescriptor)
+			internal PKHDescriptor(PubKeyProvider pkProvider)
 			{
 				if (pkProvider == null)
 					throw new ArgumentNullException(nameof(pkProvider));
@@ -64,7 +52,7 @@ namespace NBitcoin.Scripting
 		public class WPKHDescriptor : OutputDescriptor
 		{
 			public PubKeyProvider PkProvider;
-			internal WPKHDescriptor(PubKeyProvider pkProvider) : base(Tags.WPKHDescriptor)
+			internal WPKHDescriptor(PubKeyProvider pkProvider)
 			{
 				if (pkProvider == null)
 					throw new ArgumentNullException(nameof(pkProvider));
@@ -74,7 +62,7 @@ namespace NBitcoin.Scripting
 		public class ComboDescriptor : OutputDescriptor
 		{
 			public PubKeyProvider PkProvider;
-			internal ComboDescriptor(PubKeyProvider pkProvider) : base(Tags.ComboDescriptor)
+			internal ComboDescriptor(PubKeyProvider pkProvider)
 			{
 				if (pkProvider == null)
 					throw new ArgumentNullException(nameof(pkProvider));
@@ -85,7 +73,7 @@ namespace NBitcoin.Scripting
 		public class MultisigDescriptor : OutputDescriptor
 		{
 			public List<PubKeyProvider> PkProviders;
-			internal MultisigDescriptor(uint threshold, IEnumerable<PubKeyProvider> pkProviders, bool isSorted) : base(Tags.MultisigDescriptor)
+			internal MultisigDescriptor(uint threshold, IEnumerable<PubKeyProvider> pkProviders, bool isSorted)
 			{
 				if (pkProviders == null)
 					throw new ArgumentNullException(nameof(pkProviders));
@@ -103,7 +91,7 @@ namespace NBitcoin.Scripting
 		public class SHDescriptor : OutputDescriptor
 		{
 			public OutputDescriptor Inner;
-			internal SHDescriptor(OutputDescriptor inner) : base(Tags.SHDescriptor)
+			internal SHDescriptor(OutputDescriptor inner)
 			{
 				if (inner == null)
 					throw new ArgumentNullException(nameof(inner));
@@ -116,20 +104,18 @@ namespace NBitcoin.Scripting
 		public class WSHDescriptor : OutputDescriptor
 		{
 			public OutputDescriptor Inner;
-			internal WSHDescriptor(OutputDescriptor inner) : base(Tags.WSHDescriptor)
+			internal WSHDescriptor(OutputDescriptor inner)
 			{
 				if (inner == null)
 					throw new ArgumentNullException(nameof(inner));
-				if (inner.IsTopLevelOnly() || inner.IsWSH())
+				if (inner.IsTopLevelOnly() || inner is WSHDescriptor)
 					throw new ArgumentException($"{inner} can not be inner element for WSHDescriptor");
 				Inner = inner;
 			}
 		}
 
-		internal int Tag { get; }
-		private OutputDescriptor(int tag)
+		private OutputDescriptor()
 		{
-			Tag = tag;
 		}
 
 		public static OutputDescriptor NewAddr(IDestination dest) => new AddressDescriptor(dest);
@@ -142,18 +128,14 @@ namespace NBitcoin.Scripting
 		public static OutputDescriptor NewSH(OutputDescriptor inner) => new SHDescriptor(inner);
 		public static OutputDescriptor NewWSH(OutputDescriptor inner) => new WSHDescriptor(inner);
 
-		public bool IsAddr() => Tag == Tags.AddressDescriptor;
-		public bool IsRaw() => Tag == Tags.RawDescriptor;
-		public bool IsPK() => Tag == Tags.PKDescriptor;
-		public bool IsPKH() => Tag == Tags.PKHDescriptor;
-		public bool IsWPKH() => Tag == Tags.WPKHDescriptor;
-		public bool IsCombo() => Tag == Tags.ComboDescriptor;
-		public bool IsMulti() => Tag == Tags.MultisigDescriptor;
-		public bool IsSH() => Tag == Tags.SHDescriptor;
-		public bool IsWSH() => Tag == Tags.WSHDescriptor;
-
-		public bool IsTopLevelOnly() =>
-			IsAddr() || IsRaw() || IsCombo() || IsSH();
+		public bool IsTopLevelOnly() => this switch
+		{
+			AddressDescriptor _ => true,
+			RawDescriptor _ => true,
+			ComboDescriptor _ => true,
+			SHDescriptor _ => true,
+			_ => false
+		};
 
 		#endregion
 
@@ -319,42 +301,41 @@ namespace NBitcoin.Scripting
 			throw new Exception("Unreachable");
 		}
 
-		public bool IsSolvable() => (this.Tag) switch
-			{
-				Tags.AddressDescriptor => false,
-				Tags.RawDescriptor => false,
-				Tags.SHDescriptor =>
-					((SHDescriptor)this).Inner.IsSolvable(),
-				Tags.WSHDescriptor =>
-					((WSHDescriptor)this).Inner.IsSolvable(),
-				_ =>
-					true,
-			};
+		public bool IsSolvable() => (this) switch
+		{
+			AddressDescriptor _ => false,
+			RawDescriptor _ => false,
+			SHDescriptor self =>
+				self.Inner.IsSolvable(),
+			WSHDescriptor self =>
+				self.Inner.IsSolvable(),
+			_ =>
+				true,
+		};
 
-		public bool IsRange() =>
-			(this) switch
-			{
-				AddressDescriptor _ =>
-					false,
-				RawDescriptor _ =>
-					false,
-				PKDescriptor self =>
-					self.PkProvider.IsRange(),
-				PKHDescriptor self =>
-					self.PkProvider.IsRange(),
-				WPKHDescriptor self =>
-					self.PkProvider.IsRange(),
-				ComboDescriptor self =>
-					self.PkProvider.IsRange(),
-				MultisigDescriptor self =>
-					self.PkProviders.Any(pk => pk.IsRange()),
-				SHDescriptor self =>
-					self.Inner.IsRange(),
-				WSHDescriptor self =>
-					self.Inner.IsRange(),
-				_ =>
-					throw new Exception("Unreachable"),
-			};
+		public bool IsRange() => (this) switch
+		{
+			AddressDescriptor _ =>
+				false,
+			RawDescriptor _ =>
+				false,
+			PKDescriptor self =>
+				self.PkProvider.IsRange(),
+			PKHDescriptor self =>
+				self.PkProvider.IsRange(),
+			WPKHDescriptor self =>
+				self.PkProvider.IsRange(),
+			ComboDescriptor self =>
+				self.PkProvider.IsRange(),
+			MultisigDescriptor self =>
+				self.PkProviders.Any(pk => pk.IsRange()),
+			SHDescriptor self =>
+				self.Inner.IsRange(),
+			WSHDescriptor self =>
+				self.Inner.IsRange(),
+			_ =>
+				throw new Exception("Unreachable"),
+		};
 
 		public enum ScriptContext
 		{
@@ -492,50 +473,49 @@ namespace NBitcoin.Scripting
 		private bool TryGetPrivateStringHelper(ISigningRepository secretProvider, out string result)
 		{
 			result = null;
-			switch (this.Tag)
+			switch (this)
 			{
-				case Tags.AddressDescriptor:
-				case Tags.RawDescriptor:
+				case AddressDescriptor _:
+				case RawDescriptor _:
 					result = this.ToStringHelper();
 					return true;
-				case Tags.PKDescriptor:
-					if (!((PKDescriptor)this).PkProvider.TryGetPrivateString(secretProvider, out var privStr1))
+				case PKDescriptor self:
+					if (!self.PkProvider.TryGetPrivateString(secretProvider, out var privStr1))
 						return false;
 					result = $"pk({privStr1})";
 					return true;
-				case Tags.PKHDescriptor:
-					if (!((PKHDescriptor)this).PkProvider.TryGetPrivateString(secretProvider, out var privStr2))
+				case PKHDescriptor self:
+					if (!self.PkProvider.TryGetPrivateString(secretProvider, out var privStr2))
 						return false;
 					result = $"pkh({privStr2})";
 					return true;
-				case Tags.WPKHDescriptor:
-					if (!((WPKHDescriptor)this).PkProvider.TryGetPrivateString(secretProvider, out var privStr3))
+				case WPKHDescriptor self:
+					if (!self.PkProvider.TryGetPrivateString(secretProvider, out var privStr3))
 						return false;
 					result = $"wpkh({privStr3})";
 					return true;
-				case Tags.ComboDescriptor:
-					if (!((ComboDescriptor)this).PkProvider.TryGetPrivateString(secretProvider, out var privStr4))
+				case ComboDescriptor self:
+					if (!self.PkProvider.TryGetPrivateString(secretProvider, out var privStr4))
 						return false;
 					result = $"combo({privStr4})";
 					return true;
-				case Tags.MultisigDescriptor:
+				case MultisigDescriptor self:
 					var subKeyList = new List<string>();
-					var multi = (MultisigDescriptor)this;
-					foreach (var prov in (multi.PkProviders))
+					foreach (var prov in (self.PkProviders))
 					{
 						if (!prov.TryGetPrivateString(secretProvider, out var tmp))
 							return false;
 						subKeyList.Add(tmp);
 					}
-					result = $"{(multi.IsSorted ? "sortedmulti" : "multi")}({multi.Threshold},{String.Join(",", subKeyList)})";
+					result = $"{(self.IsSorted ? "sortedmulti" : "multi")}({self.Threshold},{String.Join(",", subKeyList)})";
 					return true;
-				case Tags.SHDescriptor:
-					if (!((SHDescriptor)this).Inner.TryGetPrivateStringHelper(secretProvider, out var shInner))
+				case SHDescriptor self:
+					if (!self.Inner.TryGetPrivateStringHelper(secretProvider, out var shInner))
 						return false;
 					result = $"sh({shInner})";
 					return true;
-				case Tags.WSHDescriptor:
-					if (!((WSHDescriptor)this).Inner.TryGetPrivateStringHelper(secretProvider, out var wshInner))
+				case WSHDescriptor self:
+					if (!self.Inner.TryGetPrivateStringHelper(secretProvider, out var wshInner))
 						return false;
 					result = $"wsh({wshInner})";
 					return true;
@@ -580,102 +560,92 @@ namespace NBitcoin.Scripting
 		public sealed override bool Equals(object obj)
 			=> Equals(obj as OutputDescriptor);
 
-		public bool Equals(OutputDescriptor other)
+		public bool Equals(OutputDescriptor other) => (other != null) && (this) switch
 		{
-			if (other == null || this.Tag != other.Tag)
-				return false;
-
-			return
-				(this) switch
-				{
-					AddressDescriptor self =>
-						self.Address.Equals(((AddressDescriptor)other).Address),
-					RawDescriptor self =>
-						self.Script.Equals(((RawDescriptor)other).Script),
-					PKDescriptor self =>
-						self.PkProvider.Equals(((PKDescriptor)other).PkProvider),
-					PKHDescriptor self =>
-						self.PkProvider.Equals(((PKHDescriptor)other).PkProvider),
-					WPKHDescriptor self =>
-						self.PkProvider.Equals(((WPKHDescriptor)other).PkProvider),
-					ComboDescriptor self =>
-						self.PkProvider.Equals(((ComboDescriptor)other).PkProvider),
-					MultisigDescriptor self =>
-						self.Threshold == ((MultisigDescriptor)other).Threshold &&
-						self.PkProviders.SequenceEqual(((MultisigDescriptor)other).PkProviders) &&
-						self.IsSorted == ((MultisigDescriptor)other).IsSorted,
-					SHDescriptor self =>
-						self.Inner.Equals(((SHDescriptor)other).Inner),
-					WSHDescriptor self =>
-						self.Inner.Equals(((WSHDescriptor)other).Inner),
-					_ =>
-						throw new Exception("Unreachable!"),
-				};
-		}
+			AddressDescriptor self =>
+				other is AddressDescriptor o && self.Address.Equals(o.Address),
+			RawDescriptor self =>
+				other is RawDescriptor o && self.Script.Equals(o.Script),
+			PKDescriptor self =>
+				other is PKDescriptor o && self.PkProvider.Equals(o.PkProvider),
+			PKHDescriptor self =>
+				other is PKHDescriptor o && self.PkProvider.Equals(o.PkProvider),
+			WPKHDescriptor self =>
+				other is WPKHDescriptor o && self.PkProvider.Equals(o.PkProvider),
+			ComboDescriptor self =>
+				other is ComboDescriptor o && self.PkProvider.Equals(o.PkProvider),
+			MultisigDescriptor self =>
+				other is MultisigDescriptor o &&
+				self.Threshold == o.Threshold &&
+				self.PkProviders.SequenceEqual(o.PkProviders) &&
+				self.IsSorted == o.IsSorted,
+			SHDescriptor self =>
+				other is SHDescriptor o && self.Inner.Equals(o.Inner),
+			WSHDescriptor self =>
+				other is WSHDescriptor o && self.Inner.Equals(o.Inner),
+			_ =>
+				throw new Exception("Unreachable!"),
+		};
 
 		public override int GetHashCode()
 		{
-			if (this != null)
+			int num;
+			switch (this)
 			{
-				int num = 0;
-				switch (this)
-				{
-					case AddressDescriptor self:
+				case AddressDescriptor self:
+					{
+						num = 0;
+						return -1640531527 + self.Address.GetHashCode() + ((num << 6) + (num >> 2));
+					}
+				case RawDescriptor self:
+					{
+						num = 1;
+						return -1640531527 + self.Script.GetHashCode() + ((num << 6) + (num >> 2));
+					}
+				case PKDescriptor self:
+					{
+						num = 2;
+						return -1640531527 + self.PkProvider.GetHashCode() + ((num << 6) + (num >> 2));
+					}
+				case PKHDescriptor self:
+					{
+						num = 3;
+						return -1640531527 + self.PkProvider.GetHashCode() + ((num << 6) + (num >> 2));
+					}
+				case WPKHDescriptor self:
+					{
+						num = 4;
+						return -1640531527 + self.PkProvider.GetHashCode() + ((num << 6) + (num >> 2));
+					}
+				case ComboDescriptor self:
+					{
+						num = 5;
+						return -1640531527 + self.PkProvider.GetHashCode() + ((num << 6) + (num >> 2));
+					}
+				case MultisigDescriptor self:
+					{
+						num = 6;
+						num = self.Threshold.GetHashCode() + ((num << 6) + (num >> 2));
+						num = self.IsSorted.GetHashCode() + ((num << 6) + (num >> 2));
+						foreach (var pk in self.PkProviders)
 						{
-							num = 0;
-							return -1640531527 + self.Address.GetHashCode() + ((num << 6) + (num >> 2));
+							num = -1640531527 + pk.GetHashCode() + ((num << 6) + (num >> 2));
 						}
-					case RawDescriptor self:
-						{
-							num = 1;
-							return -1640531527 + self.Script.GetHashCode() + ((num << 6) + (num >> 2));
-						}
-					case PKDescriptor self:
-						{
-							num = 2;
-							return -1640531527 + self.PkProvider.GetHashCode() + ((num << 6) + (num >> 2));
-						}
-					case PKHDescriptor self:
-						{
-							num = 3;
-							return -1640531527 + self.PkProvider.GetHashCode() + ((num << 6) + (num >> 2));
-						}
-					case WPKHDescriptor self:
-						{
-							num = 4;
-							return -1640531527 + self.PkProvider.GetHashCode() + ((num << 6) + (num >> 2));
-						}
-					case ComboDescriptor self:
-						{
-							num = 5;
-							return -1640531527 + self.PkProvider.GetHashCode() + ((num << 6) + (num >> 2));
-						}
-					case MultisigDescriptor self:
-						{
-							num = 6;
-							num = self.Threshold.GetHashCode() + ((num << 6) + (num >> 2));
-							num = self.IsSorted.GetHashCode() + ((num << 6) + (num >> 2));
-							foreach (var pk in self.PkProviders)
-							{
-								num = -1640531527 + pk.GetHashCode() + ((num << 6) + (num >> 2));
-							}
-							return num;
-						}
-					case SHDescriptor self:
-						{
-							num = 7;
-							return -1640531527 + self.Inner.GetHashCode() + ((num << 6) + (num >> 2));
-						}
-					case WSHDescriptor self:
-						{
-							num = 8;
-							return -1640531527 + self.Inner.GetHashCode() + ((num << 6) + (num >> 2));
-						}
-					default:
-						throw new Exception("Unreachable!");
-				}
+						return num;
+					}
+				case SHDescriptor self:
+					{
+						num = 7;
+						return -1640531527 + self.Inner.GetHashCode() + ((num << 6) + (num >> 2));
+					}
+				case WSHDescriptor self:
+					{
+						num = 8;
+						return -1640531527 + self.Inner.GetHashCode() + ((num << 6) + (num >> 2));
+					}
+				default:
+					throw new Exception("Unreachable!");
 			}
-			return 0;
 		}
 
 		#endregion
@@ -734,3 +704,4 @@ namespace NBitcoin.Scripting
 		#endregion
 	}
 }
+#nullable disable

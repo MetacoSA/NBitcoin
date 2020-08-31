@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using NBitcoin.BuilderExtensions;
 
 namespace NBitcoin.Scripting
 {
@@ -13,28 +12,21 @@ namespace NBitcoin.Scripting
 	{
 
 		# region subtypes and constructors
-		internal static class Tags
-		{
-			public const int OriginPubKeyProvider = 0;
-			public const int ConstPubKeyProvider = 1;
-			public const int HDPubKeyProvider = 2;
-		}
-		internal int Tag { get; private set; }
 
-		private PubKeyProvider(int tag) => Tag = tag;
+		private PubKeyProvider() {}
 
 		/// <summary>
 		/// Wrapper for other pubkey provider which contains (parent key finger print + relative derivation path to inner Pubkey provider)
 		/// </summary>
 		public class OriginPubKeyProvider : PubKeyProvider
 		{
-			internal OriginPubKeyProvider(RootedKeyPath keyOriginInfo, PubKeyProvider inner) : base(Tags.OriginPubKeyProvider)
+			internal OriginPubKeyProvider(RootedKeyPath keyOriginInfo, PubKeyProvider inner)
 			{
 				if (keyOriginInfo == null)
 					throw new ArgumentNullException(nameof(keyOriginInfo));
 				if (inner == null)
 					throw new ArgumentNullException(nameof(inner));
-				if (inner.IsOrigin())
+				if (inner is OriginPubKeyProvider)
 					throw new ArgumentException($"OriginPubKeyProvider can not have {inner} as inner value");
 				KeyOriginInfo = keyOriginInfo;
 				Inner = inner;
@@ -48,10 +40,10 @@ namespace NBitcoin.Scripting
 
 		public class ConstPubKeyProvider : PubKeyProvider
 		{
-			internal ConstPubKeyProvider(PubKey pk) : base(Tags.ConstPubKeyProvider)
+			internal ConstPubKeyProvider(PubKey pk)
 			{
 				if (pk == null)
-					throw new System.ArgumentNullException(nameof(pk));
+					throw new ArgumentNullException(nameof(pk));
 				Pk = pk;
 			}
 
@@ -66,7 +58,7 @@ namespace NBitcoin.Scripting
 		}
 		public class HDPubKeyProvider : PubKeyProvider
 		{
-			public HDPubKeyProvider(BitcoinExtPubKey extkey, KeyPath path, DeriveType derive) : base(Tags.HDPubKeyProvider)
+			public HDPubKeyProvider(BitcoinExtPubKey extkey, KeyPath path, DeriveType derive)
 			{
 				if (extkey == null)
 					throw new ArgumentNullException(nameof(extkey));
@@ -119,10 +111,6 @@ namespace NBitcoin.Scripting
 
 		public static PubKeyProvider NewHD(BitcoinExtPubKey extPubKey, KeyPath kp, DeriveType t) =>
 			new HDPubKeyProvider(extPubKey, kp, t);
-
-		public bool IsOrigin() => Tag == Tags.OriginPubKeyProvider;
-		public bool IsConst() => Tag == Tags.ConstPubKeyProvider;
-		public bool IsHD() => Tag == Tags.HDPubKeyProvider;
 
 		#endregion
 
@@ -275,57 +263,47 @@ namespace NBitcoin.Scripting
 			=> Equals(obj as PubKeyProvider);
 
 
-		public bool Equals(PubKeyProvider other)
+		public bool Equals(PubKeyProvider other) => other != null && (this) switch
 		{
-			if (other is null || Tag != other.Tag)
-				return false;
-
-			switch (this.Tag)
-			{
-				case Tags.ConstPubKeyProvider:
-					var s1 = (ConstPubKeyProvider)this;
-					return s1.Pk.Equals(((ConstPubKeyProvider)other).Pk);
-				case Tags.HDPubKeyProvider:
-					var s2 = (HDPubKeyProvider)this;
-					var o2 = (HDPubKeyProvider)other;
-					return s2.Derive == o2.Derive &&
-						s2.Path.Equals(o2.Path) &&
-						s2.Extkey.Equals(o2.Extkey);
-				case Tags.OriginPubKeyProvider:
-					var s3 = (OriginPubKeyProvider)this;
-					var o3 = (OriginPubKeyProvider)other;
-					return s3.KeyOriginInfo.Equals(o3.KeyOriginInfo) &&
-						s3.Inner.Equals(o3.Inner);
-			}
-			throw new Exception("Unreachable");
-		}
+			ConstPubKeyProvider self =>
+				other is ConstPubKeyProvider o &&
+				self.Pk.Equals(o.Pk),
+			HDPubKeyProvider self =>
+				other is HDPubKeyProvider o &&
+				self.Derive == o.Derive &&
+				self.Path.Equals(o.Path) &&
+				self.Extkey.Equals(o.Extkey),
+			OriginPubKeyProvider self =>
+				other is OriginPubKeyProvider o &&
+				self.KeyOriginInfo.Equals(o.KeyOriginInfo) &&
+				self.Inner.Equals(o.Inner),
+			_ =>
+				throw new Exception("Unreachable"),
+		};
 
 		public override int GetHashCode()
 		{
-			if (this != null)
+			int num;
+			switch (this)
 			{
-				int num = 0;
-				switch (this)
-				{
-					case ConstPubKeyProvider self:
-						{
-							num = 0;
-							return -1640531527 + self.Pk.GetHashCode() + ((num << 6) + (num >> 2));
-						}
-					case HDPubKeyProvider self:
-						{
-							num = 1;
-							num = -1640531527 + self.Extkey.GetHashCode() + ((num << 6) + (num >> 2));
-							num = -1640531527 + self.Path.GetHashCode() + ((num << 6) + (num >> 2));
-							return -1640531527 + self.Derive.GetHashCode() + ((num << 6) + (num >> 2));
-						}
-					case OriginPubKeyProvider self:
-						{
-							num = 2;
-							num = -1640531527 + self.Inner.GetHashCode() + ((num << 6) + (num >> 2));
-							return -1640531527 + self.KeyOriginInfo.GetHashCode() + ((num << 6) + (num >> 2));
-						}
-				}
+				case ConstPubKeyProvider self:
+					{
+						num = 0;
+						return -1640531527 + self.Pk.GetHashCode() + ((num << 6) + (num >> 2));
+					}
+				case HDPubKeyProvider self:
+					{
+						num = 1;
+						num = -1640531527 + self.Extkey.GetHashCode() + ((num << 6) + (num >> 2));
+						num = -1640531527 + self.Path.GetHashCode() + ((num << 6) + (num >> 2));
+						return -1640531527 + self.Derive.GetHashCode() + ((num << 6) + (num >> 2));
+					}
+				case OriginPubKeyProvider self:
+					{
+						num = 2;
+						num = -1640531527 + self.Inner.GetHashCode() + ((num << 6) + (num >> 2));
+						return -1640531527 + self.KeyOriginInfo.GetHashCode() + ((num << 6) + (num >> 2));
+					}
 			}
 			return 0;
 		}
