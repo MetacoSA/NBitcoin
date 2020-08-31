@@ -1444,6 +1444,43 @@ namespace NBitcoin.Tests
 			};
 		}
 
+
+		public class LBRYCreditsNodeDownloadData
+		{
+			public NodeDownloadData v2_1_6 = new NodeDownloadData()
+			{
+				Version = "2.1.6",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/lbryio/lbrycrd/releases/download/v0.17.3.2/lbrycrd-windows-1732.zip",
+					Archive = "lbrycrd-windows-1732.zip",
+					Executable = "lbrycrdd.exe",
+					Hash = "272bed01b1d62a51f8586c600c2be59f052236760b8f08c9b012ecf64edd726b"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/lbryio/lbrycrd/releases/download/v0.17.3.2/lbrycrd-linux-1732.zip",
+					Archive = "lbrycrd-windows-1732.zip",
+					Executable = "lbrycrdd",
+					Hash = "7d0de93a178553a5832b6c560ceb1c270047a124b834d875a772d4dcebac9056"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/lbryio/lbrycrd/releases/download/v0.17.3.2/lbrycrd-darwin-1732.zip",
+					Archive = "lbrycrd-darwin-1732.zip",
+					Executable = "mon/bin/monetaryunitd",
+					Hash = "65cd5c79c51758def40c723b532760381662c5439ae07f313761446475b73afc"
+				}
+			};
+		}
+
+
+
+		public static LBRYCreditsNodeDownloadData LBRYCredits
+		{
+			get; set;
+		} = new LBRYCreditsNodeDownloadData();
+
 		public static GoByteNodeDownloadData GoByte
 		{
 			get; set;
