@@ -19,7 +19,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void BIP140Tests()
 		{
-			var content = File.ReadAllText("data\\bip340_vectors.csv");
+			var content = File.ReadAllText("data/bip340_vectors.csv");
 			var lines = content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries).Skip(1).ToArray();
 			foreach (var line in lines)
 			{
