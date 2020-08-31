@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
+#nullable enable
 
 namespace NBitcoin
 {
@@ -55,7 +55,7 @@ namespace NBitcoin
 				if (repo.TryGetPubKey(keyId, out var _))
 					return true;
 			}
-			PubKey[] pks = null;
+			PubKey[]? pks = null;
 			if (temp is PayToMultiSigTemplate p2multiT)
 			{
 				pks = p2multiT.ExtractScriptPubKeyParameters(scriptPubKey).PubKeys;
@@ -219,3 +219,4 @@ namespace NBitcoin
 		}
 	}
 }
+#nullable disable

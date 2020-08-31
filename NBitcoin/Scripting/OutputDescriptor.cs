@@ -171,7 +171,7 @@ namespace NBitcoin.Scripting
 		/// <returns></returns>
 		public bool TryExpand(
 			uint pos,
-			Func<KeyId, Key> privateKeyProvider,
+			Func<KeyId, Key?> privateKeyProvider,
 			ISigningRepository repo,
 			out List<Script> outputScripts,
 			IDictionary<uint, ExtPubKey>? cache = null
@@ -183,7 +183,7 @@ namespace NBitcoin.Scripting
 
 		private bool ExpandPkHelper(
 			PubKeyProvider pkP,
-			Func<KeyId, Key> privateKeyProvider,
+			Func<KeyId, Key?> privateKeyProvider,
 			uint pos,
 			ISigningRepository repo,
 			List<Script> outSc,
@@ -199,7 +199,7 @@ namespace NBitcoin.Scripting
 		}
 		private bool TryExpand(
 			uint pos,
-			Func<KeyId, Key> privateKeyProvider,
+			Func<KeyId, Key?> privateKeyProvider,
 			ISigningRepository repo,
 			List<Script> outputScripts,
 			IDictionary<uint, ExtPubKey>? cache = null
@@ -461,16 +461,16 @@ namespace NBitcoin.Scripting
 			return $"{inner}#{GetCheckSum(inner)}";
 		}
 
-		public bool TryGetPrivateString(ISigningRepository secretProvider, out string result)
+		public bool TryGetPrivateString(ISigningRepository secretProvider, out string? result)
 		{
 			result = null;
-			if (!TryGetPrivateStringHelper(secretProvider, out var inner))
+			if (!TryGetPrivateStringHelper(secretProvider, out var inner) || inner is null)
 				return false;
-			result = $"{inner}#{OutputDescriptor.GetCheckSum(inner)}";
+			result = $"{inner}#{GetCheckSum(inner)}";
 			return true;
 		}
 
-		private bool TryGetPrivateStringHelper(ISigningRepository secretProvider, out string result)
+		private bool TryGetPrivateStringHelper(ISigningRepository secretProvider, out string? result)
 		{
 			result = null;
 			switch (this)
@@ -547,10 +547,10 @@ namespace NBitcoin.Scripting
 				throw new Exception("unreachable")
 		};
 
-		public static OutputDescriptor Parse(string desc, bool requireCheckSum = false, ISigningRepository repo = null)
+		public static OutputDescriptor Parse(string desc, bool requireCheckSum = false, ISigningRepository? repo = null)
 			=> OutputDescriptorParser.ParseOD(desc, requireCheckSum, repo);
 
-		public static bool TryParse(string desc, out OutputDescriptor result, bool requireCheckSum = false, ISigningRepository repo = null)
+		public static bool TryParse(string desc, out OutputDescriptor? result, bool requireCheckSum = false, ISigningRepository? repo = null)
 			=> OutputDescriptorParser.TryParseOD(desc, out result, requireCheckSum, repo);
 
 		#endregion
@@ -560,7 +560,7 @@ namespace NBitcoin.Scripting
 		public sealed override bool Equals(object obj)
 			=> Equals(obj as OutputDescriptor);
 
-		public bool Equals(OutputDescriptor other) => (other != null) && (this) switch
+		public bool Equals(OutputDescriptor? other) => (other != null) && (this) switch
 		{
 			AddressDescriptor self =>
 				other is AddressDescriptor o && self.Address.Equals(o.Address),

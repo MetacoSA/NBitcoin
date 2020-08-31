@@ -5,12 +5,14 @@ using static NBitcoin.Scripting.ParserUtil;
 using System.Linq;
 using P = NBitcoin.Scripting.Parser.Parser<char, NBitcoin.Scripting.OutputDescriptor>;
 
+#nullable enable
+
 namespace NBitcoin.Scripting
 {
 	internal static class OutputDescriptorParser
 	{
 		#region Utils
-		private static Parser<char, T> InjectRepository<T>(this Parser<char, T> subParser, ISigningRepository repo)
+		private static Parser<char, T> InjectRepository<T>(this Parser<char, T> subParser, ISigningRepository? repo)
 		{
 			return i =>
 			{
@@ -55,7 +57,7 @@ namespace NBitcoin.Scripting
 		#endregion
 
 		#region pubkey
-		private static Parser<char, PubKey> PPubKeyCompressed(ISigningRepository repo) =>
+		private static Parser<char, PubKey> PPubKeyCompressed(ISigningRepository? repo) =>
 			(from x in Parse.Hex.Repeat(66).Text().Then(s => Parse.TryConvert(s, c => new PubKey(c)))
 			select x).InjectRepository(repo);
 
@@ -63,23 +65,23 @@ namespace NBitcoin.Scripting
 			from x in Parse.Hex.Repeat(130).Text().Then(s => Parse.TryConvert(s, c => new PubKey(c)))
 			select x;
 
-		private static Parser<char, PubKey> PPubKey(ISigningRepository repo) =>
+		private static Parser<char, PubKey> PPubKey(ISigningRepository? repo) =>
 			(PPubKeyCompressed(repo).Or(PPubKeyUncompressed)).InjectRepository(repo);
 
-		private static Parser<char, BitcoinExtPubKey> PRawXPub(ISigningRepository repo) =>
+		private static Parser<char, BitcoinExtPubKey> PRawXPub(ISigningRepository? repo) =>
 			(from magic in Parse.String("xpub").Or(Parse.String("tpub")).Text()
 			 from base58Str in Parse.Base58.XMany().Text()
 
 			 from x in Parse.TryConvert((magic + base58Str), c => new BitcoinExtPubKey(c))
 			 select x).InjectRepository(repo);
-		private static Parser<char, RootedKeyPath> PRootedKeyPath(ISigningRepository repo) =>
+		private static Parser<char, RootedKeyPath> PRootedKeyPath(ISigningRepository? repo) =>
 			(from _l in Parse.Char('[')
 			 from x in (Parse.CharExcept(']').XMany().Text())
 				 .Then(inner => Parse.TryConvert(inner, RootedKeyPath.Parse))
 			 from _r in Parse.Char(']')
 			 select x).InjectRepository(repo);
 
-		private static Parser<char, KeyPath> PKeyPath(ISigningRepository repo) =>
+		private static Parser<char, KeyPath> PKeyPath(ISigningRepository? repo) =>
 			(from x in (Parse.Digit.Or(Parse.Chars("/\'h")).XMany()).Text()
 				.Then(s => Parse.TryConvert(s, KeyPath.Parse))
 			 select x).InjectRepository(repo);
@@ -92,13 +94,13 @@ namespace NBitcoin.Scripting
 			Parse.TryConvert(secretStr, i => new BitcoinSecret(i, Network.Main))
 				.Or(Parse.TryConvert(secretStr, i => new BitcoinSecret(i, Network.TestNet)))
 				.Or(Parse.TryConvert(secretStr, i => new BitcoinSecret(i, Network.RegTest)));
-		private static Parser<char, PubKey> PWIF(ISigningRepository repo, bool onlyCompressed) =>
+		private static Parser<char, PubKey> PWIF(ISigningRepository? repo, bool onlyCompressed) =>
 			(from xStr in Parse.Base58.XMany().Text()
 			 from x in PTryConvertSecret(xStr)
 			 where !onlyCompressed || x.PubKey.IsCompressed
 			 select x).InjectRepository(repo)
 			 	.Select(secret => secret.PubKey);
-		private static Parser<char, BitcoinExtPubKey> PExtKey(ISigningRepository repo) =>
+		private static Parser<char, BitcoinExtPubKey> PExtKey(ISigningRepository? repo) =>
 			// why not just read base58 string first? A. Because failing fast improves speed.
 			(from magic in Parse.String("xprv").Or(Parse.String("tprv")).Text()
 			 from base58Str in Parse.Base58.XMany().Text()
@@ -109,7 +111,7 @@ namespace NBitcoin.Scripting
 
 		#region PubKeyProvider
 
-		private static Parser<char, PubKeyProvider> PConstPubKeyProvider(ISigningRepository repo, bool onlyCompressed)
+		private static Parser<char, PubKeyProvider> PConstPubKeyProvider(ISigningRepository? repo, bool onlyCompressed)
 		{
 			if (onlyCompressed)
 			{
@@ -120,41 +122,41 @@ namespace NBitcoin.Scripting
 				select PubKeyProvider.NewConst(pk);
 		}
 
-		private static Parser<char, Tuple<BitcoinExtPubKey, KeyPath>> PHDPkProviderNoPath(ISigningRepository repo) =>
+		private static Parser<char, Tuple<BitcoinExtPubKey, KeyPath>> PHDPkProviderNoPath(ISigningRepository? repo) =>
 			from extKey in PRawXPub(repo).Or(PExtKey(repo))
 			select Tuple.Create(extKey, KeyPath.Empty);
-		private static Parser<char, Tuple<BitcoinExtPubKey, KeyPath>> PHDPkProviderWithpath(ISigningRepository repo) =>
+		private static Parser<char, Tuple<BitcoinExtPubKey, KeyPath>> PHDPkProviderWithpath(ISigningRepository? repo) =>
 			from extKey in PRawXPub(repo).Or(PExtKey(repo))
 			from keyPath in PKeyPath(repo)
 			select Tuple.Create(extKey, keyPath);
-		private static Parser<char, Tuple<BitcoinExtPubKey, KeyPath>> PHDPkProviderCommon(ISigningRepository repo) =>
+		private static Parser<char, Tuple<BitcoinExtPubKey, KeyPath>> PHDPkProviderCommon(ISigningRepository? repo) =>
 			PHDPkProviderWithpath(repo).Or(PHDPkProviderNoPath(repo));
-		private static Parser<char, PubKeyProvider> PHardendedHDPubKeyProvider(ISigningRepository repo) =>
+		private static Parser<char, PubKeyProvider> PHardendedHDPubKeyProvider(ISigningRepository? repo) =>
 			from items in PHDPkProviderCommon(repo)
 			from prefix in Parse.Char('*')
 			from isHardened in Parse.Char('\'').Or(Parse.Char('h'))
 			select PubKeyProvider.NewHD(items.Item1, items.Item2, DeriveType.HARDENED);
 
-		private static Parser<char, PubKeyProvider> PUnHardendedHDPubKeyProvider(ISigningRepository repo) =>
+		private static Parser<char, PubKeyProvider> PUnHardendedHDPubKeyProvider(ISigningRepository? repo) =>
 			from items in PHDPkProviderCommon(repo)
 			from prefix in Parse.Char('*')
 			select PubKeyProvider.NewHD(items.Item1, items.Item2, DeriveType.UNHARDENED);
 
-		private static Parser<char, PubKeyProvider> PStaticHDPubKeyProvider(ISigningRepository repo) =>
+		private static Parser<char, PubKeyProvider> PStaticHDPubKeyProvider(ISigningRepository? repo) =>
 			from items in PHDPkProviderCommon(repo)
 			select PubKeyProvider.NewHD(items.Item1, items.Item2, DeriveType.NO);
 
-		private static Parser<char, PubKeyProvider> PHDPubKeyProvider(ISigningRepository repo) =>
+		private static Parser<char, PubKeyProvider> PHDPubKeyProvider(ISigningRepository? repo) =>
 			// The order is important here.
 			PHardendedHDPubKeyProvider(repo)
 				.Or(PUnHardendedHDPubKeyProvider(repo))
 				.Or(PStaticHDPubKeyProvider(repo));
-		private static Parser<char, PubKeyProvider> POriginPubkeyProvider(ISigningRepository repo) =>
+		private static Parser<char, PubKeyProvider> POriginPubkeyProvider(ISigningRepository? repo) =>
 			from rootedKeyPath in PRootedKeyPath(repo)
 			from inner in PConstPubKeyProvider(repo, false).Or(PHDPubKeyProvider(repo))
 			select PubKeyProvider.NewOrigin(rootedKeyPath, inner);
 
-		internal static Parser<char, PubKeyProvider> PPubKeyProvider(ISigningRepository repo, bool onlyCompressed) =>
+		internal static Parser<char, PubKeyProvider> PPubKeyProvider(ISigningRepository? repo, bool onlyCompressed) =>
 			PConstPubKeyProvider(repo, onlyCompressed).Or(PHDPubKeyProvider(repo)).Or(POriginPubkeyProvider(repo));
 		#endregion
 
@@ -169,7 +171,7 @@ namespace NBitcoin.Scripting
 			from addr in PTryConvertAddr(inner)
 			select OutputDescriptor.NewAddr(addr);
 
-		internal static P PRaw(ISigningRepository repo)
+		internal static P PRaw(ISigningRepository? repo)
 		{
 			var PScript =
 				(
@@ -192,22 +194,22 @@ namespace NBitcoin.Scripting
 			from _r in Parse.Char(')')
 			select constructor(item);
 
-		private static P PPKHelper(string name, Func<PubKeyProvider, OutputDescriptor> constructor, ISigningRepository repo, bool onlyCompressed) =>
+		private static P PPKHelper(string name, Func<PubKeyProvider, OutputDescriptor> constructor, ISigningRepository? repo, bool onlyCompressed) =>
 			PExprHelper<PubKeyProvider>(Parse.String(name).Text(), PPubKeyProvider(repo, onlyCompressed), constructor);
 
-		internal static P PPK(ISigningRepository repo, bool onlyCompressed = false) =>
+		internal static P PPK(ISigningRepository? repo, bool onlyCompressed = false) =>
 			PPKHelper("pk", OutputDescriptor.NewPK, repo, onlyCompressed);
 
-		internal static P PPKH(ISigningRepository repo, bool onlyCompressed = false) =>
+		internal static P PPKH(ISigningRepository? repo, bool onlyCompressed = false) =>
 			PPKHelper("pkh", OutputDescriptor.NewPKH, repo, onlyCompressed);
 
-		internal static P PWPKH(ISigningRepository repo) =>
+		internal static P PWPKH(ISigningRepository? repo) =>
 			PPKHelper("wpkh", OutputDescriptor.NewWPKH, repo, true);
 
-		internal static P PCombo(ISigningRepository repo, bool onlyCompressed = false) =>
+		internal static P PCombo(ISigningRepository? repo, bool onlyCompressed = false) =>
 			PPKHelper("combo", OutputDescriptor.NewCombo, repo, onlyCompressed);
 
-		internal static P PMulti(ISigningRepository repo, bool onlyCompressed, uint? maxN = null) =>
+		internal static P PMulti(ISigningRepository? repo, bool onlyCompressed, uint? maxN = null) =>
 			from name in Parse.String("sortedmulti").XOr(Parse.String("multi")).Text()
 			let isSorted = name.StartsWith("sorted")
 			from _l in Parse.Char('(')
@@ -220,20 +222,20 @@ namespace NBitcoin.Scripting
 			where !maxN.HasValue || pkProviders.Count() <= maxN
 			select OutputDescriptor.NewMulti(m, pkProviders, isSorted);
 
-		internal static P PWSHInner(ISigningRepository repo, bool onlyCompressed = false, uint? maxMultisigKeyN = null) =>
+		internal static P PWSHInner(ISigningRepository? repo, bool onlyCompressed = false, uint? maxMultisigKeyN = null) =>
 			PPK(repo, onlyCompressed)
 				.Or(PPKH(repo, onlyCompressed))
 				.Or(PMulti(repo, onlyCompressed, maxMultisigKeyN));
-		internal static P PInner(ISigningRepository repo, bool onlyCompressed = false, uint? maxMultisigKeyN = null) =>
+		internal static P PInner(ISigningRepository? repo, bool onlyCompressed = false, uint? maxMultisigKeyN = null) =>
 			PWSHInner(repo, onlyCompressed, maxMultisigKeyN)
 				.Or(PWPKH(repo));
 
-		internal static P PWSH(ISigningRepository repo) =>
+		internal static P PWSH(ISigningRepository? repo) =>
 			PExprHelper(Parse.String("wsh").Text(), PWSHInner(repo, true), OutputDescriptor.NewWSH);
-		internal static P PSH(ISigningRepository repo) =>
+		internal static P PSH(ISigningRepository? repo) =>
 			PExprHelper((Parse.String("sh").Text()).Except(Parse.String("wsh")), PInner(repo, false, 15).Or(PWSH(repo)), OutputDescriptor.NewSH);
 
-		internal static P POutputDescriptor(ISigningRepository repo) =>
+		internal static P POutputDescriptor(ISigningRepository? repo) =>
 			PAddr
 				.Or(PRaw(repo))
 				.Or(PCombo(repo))
@@ -241,9 +243,9 @@ namespace NBitcoin.Scripting
 				.Or(PWSH(repo))
 				.Or(PSH(repo)).End();
 
-		internal static bool TryParseOD(string str, out OutputDescriptor result, bool requireCheckSum = false, ISigningRepository repo = null)
-			=> TryParseOD(str, out var _, out result,requireCheckSum, repo);
-		private static bool TryParseOD(string str, out string whyFailure,  out OutputDescriptor result, bool requireCheckSum = false, ISigningRepository repo = null)
+		internal static bool TryParseOD(string str, out OutputDescriptor? result, bool requireCheckSum = false, ISigningRepository? repo = null)
+			=> TryParseOD(str, out _, out result,requireCheckSum, repo);
+		private static bool TryParseOD(string str, out string? whyFailure, out OutputDescriptor? result, bool requireCheckSum = false, ISigningRepository? repo = null)
 		{
 			str = str.Replace(" ", "");
 			result = null;
@@ -289,12 +291,13 @@ namespace NBitcoin.Scripting
 			}
 			return true;
 		}
-		internal static OutputDescriptor ParseOD(string str, bool requireCheckSum = false, ISigningRepository repo = null)
+		internal static OutputDescriptor ParseOD(string str, bool requireCheckSum = false, ISigningRepository? repo = null)
 		{
-			if (!TryParseOD(str, out var whyFailure, out var result, requireCheckSum, repo))
+			if (!TryParseOD(str, out var whyFailure, out var result, requireCheckSum, repo) || result is null)
 				throw new ParsingException(whyFailure);
 			return result;
 		}
 
 	}
 }
+#nullable disable
