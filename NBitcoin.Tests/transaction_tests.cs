@@ -4490,5 +4490,48 @@ namespace NBitcoin.Tests
 			Assert.Single(tx.Outputs);
 			Assert.Equal(Money.Coins(1.0m) - fee, tx.Outputs.First(o => o.ScriptPubKey == dest2.ScriptPubKey).Value);
 		}
+
+		[Fact]
+		public void ShuffleAfterContinueBuild()
+		{
+			var k1 = new Key();
+			var k2 = new Key();
+			var k3 = new Key();
+			var dest1 = k1.PubKey.Hash;
+			var dest2 = k2.PubKey.Hash;
+			var dest3 = k3.PubKey.Hash;
+
+			var coin1_1 = RandomCoin(Money.Coins(0.1m), k1);
+			var coin1_2 = RandomCoin(Money.Coins(0.2m), k1);
+			var coin2 = RandomCoin(Money.Coins(0.3m), k2);
+
+			var rate = new FeeRate(Money.Coins(0.0004m));
+			var builder = Network
+				.CreateTransactionBuilder();
+			builder
+				.AddCoins(coin1_1)
+				.AddCoins(coin1_2)
+				.AddKeys(k1)
+				.Send(dest3, Money.Coins(0.1m))
+				.SendEstimatedFees(rate)
+				.SendAllRemaining(dest1);
+
+			var tx = builder.BuildTransaction(false);
+			builder = Network
+				.CreateTransactionBuilder();
+			builder
+				.ContinueToBuild(tx)
+				.AddCoins(coin1_1)
+				.AddCoins(coin1_2)
+				.AddCoins(coin2)
+				.AddKeys(k2)
+				.SendEstimatedFees(rate)
+				.SendAllRemaining(dest2);
+
+			tx = builder.BuildTransaction(false);
+
+			Assert.Equal(3, tx.Inputs.Count);
+			Assert.Equal(3, tx.Outputs.Count);
+		}
 	}
 }

@@ -744,10 +744,10 @@ namespace NBitcoin
 			rand = rand ?? new Random();
 			for (int i = start; i < arr.Count; i++)
 			{
-				var fromIndex = rand.Next(start, arr.Count - start);
+				var fromIndex = rand.Next(start, arr.Count);
 				var from = arr[fromIndex];
 
-				var toIndex = rand.Next(start, arr.Count - start);
+				var toIndex = rand.Next(start, arr.Count);
 				var to = arr[toIndex];
 
 				arr[toIndex] = from;
