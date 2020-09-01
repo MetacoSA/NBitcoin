@@ -2624,7 +2624,7 @@ namespace NBitcoin.Tests
 				//Assert.True(ecount == 2);
 				var emptykey = key.Clone();
 				emptykey.Clear();
-				
+
 				Assert.Throws<ObjectDisposedException>(() => emptykey.TrySignECDSA(msg, new PrecomputedNonceFunction(nonce2), out sig));
 				//Assert.True(ecount == 3);
 				Assert.True(key.TrySignECDSA(msg, new PrecomputedNonceFunction(nonce2), out sig));
@@ -3137,6 +3137,76 @@ namespace NBitcoin.Tests
 				ECPubKey sd = new ECPubKey(in q, ctx);
 				Assert.True(ECPubKey.TryCombine(Context.Instance, d[0..i], out var sd2));
 				Assert.Equal(sd, sd2);
+			}
+		}
+
+		[Fact]
+		public void test_xonly_pubkey_tweak()
+		{
+			var tweak = new byte[32];
+			var sk = new byte[32];
+			var zero64 = new byte[64];
+			var overflow = new byte[64];
+			overflow.AsSpan().Fill(0xff);
+			secp256k1_rand256(tweak);
+			secp256k1_rand256(sk);
+			var internal_pk = Context.Instance.CreateECPrivKey(sk).CreatePubKey();
+			var internal_xonly_pk = internal_pk.ToXOnlyPubKey(out var pk_parity);
+
+			// We don't port that
+			//ecount = 0;
+			//CHECK(secp256k1_xonly_pubkey_tweak_add(none, &output_pk, &internal_xonly_pk, tweak) == 0);
+			//CHECK(ecount == 1);
+			//CHECK(secp256k1_xonly_pubkey_tweak_add(sign, &output_pk, &internal_xonly_pk, tweak) == 0);
+			//CHECK(ecount == 2);
+			var output_pk = internal_xonly_pk.AddTweak(tweak);
+			/* Invalid tweak zeroes the output_pk */
+			Assert.False(internal_xonly_pk.TryAddTweak(overflow, out _));
+			/* A zero tweak is fine */
+			Assert.True(internal_xonly_pk.TryAddTweak(zero64, out _));
+
+			/* Fails if the resulting key was infinity */
+			for (var i = 0; i < count; i++)
+			{
+				/* Because sk may be negated before adding, we need to try with tweak =
+				 * sk as well as tweak = -sk. */
+				Scalar scalar_tweak = new Scalar(sk, out _);
+				scalar_tweak = scalar_tweak.Negate();
+				scalar_tweak.WriteToSpan(tweak);
+
+				Assert.True(!internal_xonly_pk.TryAddTweak(sk, out output_pk) ||
+					!internal_xonly_pk.TryAddTweak(tweak, out output_pk));
+				Assert.Null(output_pk);
+			}
+		}
+
+		/* Starts with an initial pubkey and recursively creates N_PUBKEYS - 1
+		* additional pubkeys by calling tweak_add. Then verifies every tweak starting
+		* from the last pubkey. */
+		[Fact]
+		public void test_xonly_pubkey_tweak_recursive()
+		{
+			var N_PUBKEYS = 32;
+			var sk = new byte[32];
+			var pk_serialized = new byte[32];
+			var tweak = new byte[N_PUBKEYS - 1][];
+			ECPubKey[] pk = new ECPubKey[N_PUBKEYS];
+			secp256k1_rand256(sk);
+			pk[0] = Context.Instance.CreateECPrivKey(sk).CreatePubKey();
+			for (var i = 0; i < N_PUBKEYS - 1; i++)
+			{
+				tweak[i] = new byte[32];
+				tweak[i].AsSpan().Fill((byte)(i + 1));
+				var xonly_pk = pk[i].ToXOnlyPubKey(out _);
+				pk[i + 1] = xonly_pk.AddTweak(tweak[i]);
+			}
+
+			/* Verify tweaks */
+			for (var i = N_PUBKEYS - 1; i > 0; i--)
+			{
+				var tweaked = pk[i].ToXOnlyPubKey(out var pk_parity);
+				var xonly_pk = pk[i - 1].ToXOnlyPubKey(out _);
+				Assert.True(tweaked.CheckIsTweakedWith(xonly_pk, tweak[i - 1], pk_parity));
 			}
 		}
 	}

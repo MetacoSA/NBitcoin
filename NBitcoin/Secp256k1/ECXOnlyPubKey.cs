@@ -80,6 +80,21 @@ namespace NBitcoin.Secp256k1
 		{
 			Q.x.WriteToSpan(output32);
 		}
+
+		/// <summary>
+		/// Checks that a tweaked pubkey is the result of calling AddTweak on internalPubKey and tweak32
+		/// </summary>
+		/// <param name="internalPubKey">The internal PubKey</param>
+		/// <param name="tweak32">The tweak to add to internalPubKey</param>
+		/// <param name="expectedParity">The expected parity</param>
+		/// <returns></returns>
+		public bool CheckIsTweakedWith(ECXOnlyPubKey internalPubKey, ReadOnlySpan<byte> tweak32, bool expectedParity)
+		{
+			if (!internalPubKey.TryAddTweak(tweak32, out var actualTweakedPubKey) || actualTweakedPubKey is null)
+				return false;
+			var actualTweakedKey = actualTweakedPubKey.ToXOnlyPubKey(out var actualParity);
+			return actualParity == expectedParity && actualTweakedKey == this;
+		}
 	}
 }
 #nullable restore
