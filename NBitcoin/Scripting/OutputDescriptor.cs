@@ -9,10 +9,10 @@ namespace NBitcoin.Scripting
 	public abstract class OutputDescriptor : IEquatable<OutputDescriptor>
 	{
 		# region subtypes
-		public class AddressDescriptor : OutputDescriptor
+		public class Addr : OutputDescriptor
 		{
 			public IDestination Address { get; }
-			public AddressDescriptor(IDestination address)
+			public Addr(IDestination address)
 			{
 				if (address == null)
 					throw new ArgumentNullException(nameof(address));
@@ -20,17 +20,17 @@ namespace NBitcoin.Scripting
 			}
 		}
 
-		public class RawDescriptor : OutputDescriptor
+		public class Raw : OutputDescriptor
 		{
 			public Script Script;
 
-			internal RawDescriptor(Script script) => Script = script ?? throw new ArgumentNullException(nameof(script));
+			internal Raw(Script script) => Script = script ?? throw new ArgumentNullException(nameof(script));
 		}
 
-		public class PKDescriptor : OutputDescriptor
+		public class PK : OutputDescriptor
 		{
 			public PubKeyProvider PkProvider;
-			internal PKDescriptor(PubKeyProvider pkProvider)
+			internal PK(PubKeyProvider pkProvider)
 			{
 				if (pkProvider == null)
 					throw new ArgumentNullException(nameof(pkProvider));
@@ -38,10 +38,10 @@ namespace NBitcoin.Scripting
 			}
 		}
 
-		public class PKHDescriptor : OutputDescriptor
+		public class PKH : OutputDescriptor
 		{
 			public PubKeyProvider PkProvider;
-			internal PKHDescriptor(PubKeyProvider pkProvider)
+			internal PKH(PubKeyProvider pkProvider)
 			{
 				if (pkProvider == null)
 					throw new ArgumentNullException(nameof(pkProvider));
@@ -49,20 +49,20 @@ namespace NBitcoin.Scripting
 			}
 		}
 
-		public class WPKHDescriptor : OutputDescriptor
+		public class WPKH : OutputDescriptor
 		{
 			public PubKeyProvider PkProvider;
-			internal WPKHDescriptor(PubKeyProvider pkProvider)
+			internal WPKH(PubKeyProvider pkProvider)
 			{
 				if (pkProvider == null)
 					throw new ArgumentNullException(nameof(pkProvider));
 				PkProvider = pkProvider;
 			}
 		}
-		public class ComboDescriptor : OutputDescriptor
+		public class Combo : OutputDescriptor
 		{
 			public PubKeyProvider PkProvider;
-			internal ComboDescriptor(PubKeyProvider pkProvider)
+			internal Combo(PubKeyProvider pkProvider)
 			{
 				if (pkProvider == null)
 					throw new ArgumentNullException(nameof(pkProvider));
@@ -70,10 +70,10 @@ namespace NBitcoin.Scripting
 			}
 		}
 
-		public class MultisigDescriptor : OutputDescriptor
+		public class Multi : OutputDescriptor
 		{
 			public List<PubKeyProvider> PkProviders;
-			internal MultisigDescriptor(uint threshold, IEnumerable<PubKeyProvider> pkProviders, bool isSorted)
+			internal Multi(uint threshold, IEnumerable<PubKeyProvider> pkProviders, bool isSorted)
 			{
 				if (pkProviders == null)
 					throw new ArgumentNullException(nameof(pkProviders));
@@ -88,28 +88,28 @@ namespace NBitcoin.Scripting
 			public bool IsSorted { get; }
 		}
 
-		public class SHDescriptor : OutputDescriptor
+		public class SH : OutputDescriptor
 		{
 			public OutputDescriptor Inner;
-			internal SHDescriptor(OutputDescriptor inner)
+			internal SH(OutputDescriptor inner)
 			{
 				if (inner == null)
 					throw new ArgumentNullException(nameof(inner));
 				if (inner.IsTopLevelOnly())
-					throw new ArgumentException($"{inner} can not be inner element for SHDescriptor");
+					throw new ArgumentException($"{inner} can not be inner element for SH");
 				Inner = inner;
 			}
 		}
 
-		public class WSHDescriptor : OutputDescriptor
+		public class WSH : OutputDescriptor
 		{
 			public OutputDescriptor Inner;
-			internal WSHDescriptor(OutputDescriptor inner)
+			internal WSH(OutputDescriptor inner)
 			{
 				if (inner == null)
 					throw new ArgumentNullException(nameof(inner));
-				if (inner.IsTopLevelOnly() || inner is WSHDescriptor)
-					throw new ArgumentException($"{inner} can not be inner element for WSHDescriptor");
+				if (inner.IsTopLevelOnly() || inner is WSH)
+					throw new ArgumentException($"{inner} can not be inner element for WSH");
 				Inner = inner;
 			}
 		}
@@ -118,22 +118,22 @@ namespace NBitcoin.Scripting
 		{
 		}
 
-		public static OutputDescriptor NewAddr(IDestination dest) => new AddressDescriptor(dest);
-		public static OutputDescriptor NewRaw(Script sc) => new RawDescriptor(sc);
-		public static OutputDescriptor NewPK(PubKeyProvider pk) => new PKDescriptor(pk);
-		public static OutputDescriptor NewPKH(PubKeyProvider pk) => new PKHDescriptor(pk);
-		public static OutputDescriptor NewWPKH(PubKeyProvider pk) => new WPKHDescriptor(pk);
-		public static OutputDescriptor NewCombo(PubKeyProvider pk) => new ComboDescriptor(pk);
-		public static OutputDescriptor NewMulti(uint m, IEnumerable<PubKeyProvider> pks, bool isSorted) => new MultisigDescriptor(m, pks, isSorted);
-		public static OutputDescriptor NewSH(OutputDescriptor inner) => new SHDescriptor(inner);
-		public static OutputDescriptor NewWSH(OutputDescriptor inner) => new WSHDescriptor(inner);
+		public static OutputDescriptor NewAddr(IDestination dest) => new Addr(dest);
+		public static OutputDescriptor NewRaw(Script sc) => new Raw(sc);
+		public static OutputDescriptor NewPK(PubKeyProvider pk) => new PK(pk);
+		public static OutputDescriptor NewPKH(PubKeyProvider pk) => new PKH(pk);
+		public static OutputDescriptor NewWPKH(PubKeyProvider pk) => new WPKH(pk);
+		public static OutputDescriptor NewCombo(PubKeyProvider pk) => new Combo(pk);
+		public static OutputDescriptor NewMulti(uint m, IEnumerable<PubKeyProvider> pks, bool isSorted) => new Multi(m, pks, isSorted);
+		public static OutputDescriptor NewSH(OutputDescriptor inner) => new SH(inner);
+		public static OutputDescriptor NewWSH(OutputDescriptor inner) => new WSH(inner);
 
 		public bool IsTopLevelOnly() => this switch
 		{
-			AddressDescriptor _ => true,
-			RawDescriptor _ => true,
-			ComboDescriptor _ => true,
-			SHDescriptor _ => true,
+			Addr _ => true,
+			Raw _ => true,
+			Combo _ => true,
+			SH _ => true,
 			_ => false
 		};
 
@@ -207,19 +207,19 @@ namespace NBitcoin.Scripting
 		{
 			switch (this)
 			{
-				case AddressDescriptor _:
+				case Addr _:
 					return false;
-				case RawDescriptor _:
+				case Raw _:
 					return false;
-				case PKDescriptor self:
+				case PK self:
 					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
-				case PKHDescriptor self:
+				case PKH self:
 					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
-				case WPKHDescriptor self:
+				case WPKH self:
 					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
-				case ComboDescriptor self:
+				case Combo self:
 					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
-				case MultisigDescriptor self:
+				case Multi self:
 					// prepare temporary objects so that it won't affect the result in case
 					// it fails in the middle.
 					var tmpRepo = new FlatSigningRepository();
@@ -242,7 +242,7 @@ namespace NBitcoin.Scripting
 					repo.Merge(tmpRepo);
 					outputScripts.Add(PayToMultiSigTemplate.Instance.GenerateScriptPubKey((int)self.Threshold, keys));
 					return true;
-				case SHDescriptor self:
+				case SH self:
 					var subRepo1 = new FlatSigningRepository();
 					if (!self.Inner.TryExpand(pos, privateKeyProvider, subRepo1, out var shInnerResult))
 						return false;
@@ -253,7 +253,7 @@ namespace NBitcoin.Scripting
 						outputScripts.Add(inner.Hash.ScriptPubKey);
 					}
 					return true;
-				case WSHDescriptor self:
+				case WSH self:
 					var subRepo2 = new FlatSigningRepository();
 					if (!self.Inner.TryExpand(pos, privateKeyProvider, subRepo2, out var wshInnerResult))
 						return false;
@@ -273,17 +273,17 @@ namespace NBitcoin.Scripting
 		{
 			switch (this)
 			{
-				case AddressDescriptor self:
+				case Addr self:
 					return new List<Script> { self.Address.ScriptPubKey };
-				case RawDescriptor self:
+				case Raw self:
 					return new List<Script> { self.Script };
-				case PKDescriptor _:
+				case PK _:
 					return new List<Script> { key.ScriptPubKey };
-				case PKHDescriptor _:
+				case PKH _:
 					return new List<Script> { key.Hash.ScriptPubKey };
-				case WPKHDescriptor _:
+				case WPKH _:
 					return new List<Script> { key.WitHash.ScriptPubKey };
-				case ComboDescriptor _:
+				case Combo _:
 					var res = new List<Script>
 					{
 						key.ScriptPubKey,
@@ -296,6 +296,7 @@ namespace NBitcoin.Scripting
 						repo.SetScript(key.WitHash.ScriptPubKey.Hash, key.WitHash.ScriptPubKey);
 					}
 					return res;
+				// Other cases never calls this function. Because this method is just a helper for expanding above cases
 			}
 
 			throw new Exception("Unreachable");
@@ -303,11 +304,11 @@ namespace NBitcoin.Scripting
 
 		public bool IsSolvable() => (this) switch
 		{
-			AddressDescriptor _ => false,
-			RawDescriptor _ => false,
-			SHDescriptor self =>
+			Addr _ => false,
+			Raw _ => false,
+			SH self =>
 				self.Inner.IsSolvable(),
-			WSHDescriptor self =>
+			WSH self =>
 				self.Inner.IsSolvable(),
 			_ =>
 				true,
@@ -315,23 +316,23 @@ namespace NBitcoin.Scripting
 
 		public bool IsRange() => (this) switch
 		{
-			AddressDescriptor _ =>
+			Addr _ =>
 				false,
-			RawDescriptor _ =>
+			Raw _ =>
 				false,
-			PKDescriptor self =>
+			PK self =>
 				self.PkProvider.IsRange(),
-			PKHDescriptor self =>
+			PKH self =>
 				self.PkProvider.IsRange(),
-			WPKHDescriptor self =>
+			WPKH self =>
 				self.PkProvider.IsRange(),
-			ComboDescriptor self =>
+			Combo self =>
 				self.PkProvider.IsRange(),
-			MultisigDescriptor self =>
+			Multi self =>
 				self.PkProviders.Any(pk => pk.IsRange()),
-			SHDescriptor self =>
+			SH self =>
 				self.Inner.IsRange(),
-			WSHDescriptor self =>
+			WSH self =>
 				self.Inner.IsRange(),
 			_ =>
 				throw new Exception("Unreachable"),
@@ -372,20 +373,20 @@ namespace NBitcoin.Scripting
 		/// <returns></returns>
 		public ScriptPubKeyType? GetScriptPubKeyType() => this switch
 		{
-			AddressDescriptor self =>
+			Addr self =>
 				InferTemplate(self.Address.ScriptPubKey.FindTemplate()),
-			RawDescriptor self =>
+			Raw self =>
 				InferTemplate(self.Script.FindTemplate()),
-			PKDescriptor _ => null,
-			PKHDescriptor _ => ScriptPubKeyType.Legacy,
-			WPKHDescriptor _ => ScriptPubKeyType.Segwit,
-			SHDescriptor self =>
+			PK _ => null,
+			PKH _ => ScriptPubKeyType.Legacy,
+			WPKH _ => ScriptPubKeyType.Segwit,
+			SH self =>
 				self.Inner.GetScriptPubKeyType() switch
 				{
 					ScriptPubKeyType.Segwit => ScriptPubKeyType.SegwitP2SH,
 					_ => ScriptPubKeyType.Legacy,
 				},
-			WSHDescriptor _ => ScriptPubKeyType.Segwit,
+			WSH _ => ScriptPubKeyType.Segwit,
 			_ => null
 		};
 
@@ -440,8 +441,8 @@ namespace NBitcoin.Scripting
 				}
 			}
 
-			// Incase of unknown witness Output, we recover it to AddressDescriptor,
-			// Otherwise, RawDescriptor.
+			// Incase of unknown witness Output, we recover it to Addr,
+			// Otherwise, Raw.
 			if (template is PayToWitTemplate unknownWitnessTemplate)
 			{
 				var dest = unknownWitnessTemplate.ExtractScriptPubKeyParameters(sc);
@@ -475,31 +476,31 @@ namespace NBitcoin.Scripting
 			result = null;
 			switch (this)
 			{
-				case AddressDescriptor _:
-				case RawDescriptor _:
+				case Addr _:
+				case Raw _:
 					result = this.ToStringHelper();
 					return true;
-				case PKDescriptor self:
+				case PK self:
 					if (!self.PkProvider.TryGetPrivateString(secretProvider, out var privStr1))
 						return false;
 					result = $"pk({privStr1})";
 					return true;
-				case PKHDescriptor self:
+				case PKH self:
 					if (!self.PkProvider.TryGetPrivateString(secretProvider, out var privStr2))
 						return false;
 					result = $"pkh({privStr2})";
 					return true;
-				case WPKHDescriptor self:
+				case WPKH self:
 					if (!self.PkProvider.TryGetPrivateString(secretProvider, out var privStr3))
 						return false;
 					result = $"wpkh({privStr3})";
 					return true;
-				case ComboDescriptor self:
+				case Combo self:
 					if (!self.PkProvider.TryGetPrivateString(secretProvider, out var privStr4))
 						return false;
 					result = $"combo({privStr4})";
 					return true;
-				case MultisigDescriptor self:
+				case Multi self:
 					var subKeyList = new List<string>();
 					foreach (var prov in (self.PkProviders))
 					{
@@ -509,12 +510,12 @@ namespace NBitcoin.Scripting
 					}
 					result = $"{(self.IsSorted ? "sortedmulti" : "multi")}({self.Threshold},{String.Join(",", subKeyList)})";
 					return true;
-				case SHDescriptor self:
+				case SH self:
 					if (!self.Inner.TryGetPrivateStringHelper(secretProvider, out var shInner))
 						return false;
 					result = $"sh({shInner})";
 					return true;
-				case WSHDescriptor self:
+				case WSH self:
 					if (!self.Inner.TryGetPrivateStringHelper(secretProvider, out var wshInner))
 						return false;
 					result = $"wsh({wshInner})";
@@ -525,23 +526,23 @@ namespace NBitcoin.Scripting
 
 		private string ToStringHelper() => this switch
 		{
-			AddressDescriptor self =>
+			Addr self =>
 				$"addr({self.Address})",
-			RawDescriptor self =>
+			Raw self =>
 				$"raw({self.Script.ToHex()})",
-			PKDescriptor self =>
+			PK self =>
 				$"pk({self.PkProvider})",
-			PKHDescriptor self =>
+			PKH self =>
 				$"pkh({self.PkProvider})",
-			WPKHDescriptor self =>
+			WPKH self =>
 				$"wpkh({self.PkProvider})",
-			ComboDescriptor self =>
+			Combo self =>
 				$"combo({self.PkProvider})",
-			MultisigDescriptor self =>
+			Multi self =>
 				$"{(self.IsSorted ? "sortedmulti" : "multi")}({self.Threshold},{String.Join(",", self.PkProviders)})",
-			SHDescriptor self =>
+			SH self =>
 				$"sh({self.Inner.ToStringHelper()})",
-			WSHDescriptor self =>
+			WSH self =>
 				$"wsh({self.Inner.ToStringHelper()})",
 			_ =>
 				throw new Exception("unreachable")
@@ -562,27 +563,27 @@ namespace NBitcoin.Scripting
 
 		public bool Equals(OutputDescriptor? other) => (other != null) && (this) switch
 		{
-			AddressDescriptor self =>
-				other is AddressDescriptor o && self.Address.Equals(o.Address),
-			RawDescriptor self =>
-				other is RawDescriptor o && self.Script.Equals(o.Script),
-			PKDescriptor self =>
-				other is PKDescriptor o && self.PkProvider.Equals(o.PkProvider),
-			PKHDescriptor self =>
-				other is PKHDescriptor o && self.PkProvider.Equals(o.PkProvider),
-			WPKHDescriptor self =>
-				other is WPKHDescriptor o && self.PkProvider.Equals(o.PkProvider),
-			ComboDescriptor self =>
-				other is ComboDescriptor o && self.PkProvider.Equals(o.PkProvider),
-			MultisigDescriptor self =>
-				other is MultisigDescriptor o &&
+			Addr self =>
+				other is Addr o && self.Address.Equals(o.Address),
+			Raw self =>
+				other is Raw o && self.Script.Equals(o.Script),
+			PK self =>
+				other is PK o && self.PkProvider.Equals(o.PkProvider),
+			PKH self =>
+				other is PKH o && self.PkProvider.Equals(o.PkProvider),
+			WPKH self =>
+				other is WPKH o && self.PkProvider.Equals(o.PkProvider),
+			Combo self =>
+				other is Combo o && self.PkProvider.Equals(o.PkProvider),
+			Multi self =>
+				other is Multi o &&
 				self.Threshold == o.Threshold &&
 				self.PkProviders.SequenceEqual(o.PkProviders) &&
 				self.IsSorted == o.IsSorted,
-			SHDescriptor self =>
-				other is SHDescriptor o && self.Inner.Equals(o.Inner),
-			WSHDescriptor self =>
-				other is WSHDescriptor o && self.Inner.Equals(o.Inner),
+			SH self =>
+				other is SH o && self.Inner.Equals(o.Inner),
+			WSH self =>
+				other is WSH o && self.Inner.Equals(o.Inner),
 			_ =>
 				throw new Exception("Unreachable!"),
 		};
@@ -592,37 +593,37 @@ namespace NBitcoin.Scripting
 			int num;
 			switch (this)
 			{
-				case AddressDescriptor self:
+				case Addr self:
 					{
 						num = 0;
 						return -1640531527 + self.Address.GetHashCode() + ((num << 6) + (num >> 2));
 					}
-				case RawDescriptor self:
+				case Raw self:
 					{
 						num = 1;
 						return -1640531527 + self.Script.GetHashCode() + ((num << 6) + (num >> 2));
 					}
-				case PKDescriptor self:
+				case PK self:
 					{
 						num = 2;
 						return -1640531527 + self.PkProvider.GetHashCode() + ((num << 6) + (num >> 2));
 					}
-				case PKHDescriptor self:
+				case PKH self:
 					{
 						num = 3;
 						return -1640531527 + self.PkProvider.GetHashCode() + ((num << 6) + (num >> 2));
 					}
-				case WPKHDescriptor self:
+				case WPKH self:
 					{
 						num = 4;
 						return -1640531527 + self.PkProvider.GetHashCode() + ((num << 6) + (num >> 2));
 					}
-				case ComboDescriptor self:
+				case Combo self:
 					{
 						num = 5;
 						return -1640531527 + self.PkProvider.GetHashCode() + ((num << 6) + (num >> 2));
 					}
-				case MultisigDescriptor self:
+				case Multi self:
 					{
 						num = 6;
 						num = self.Threshold.GetHashCode() + ((num << 6) + (num >> 2));
@@ -633,12 +634,12 @@ namespace NBitcoin.Scripting
 						}
 						return num;
 					}
-				case SHDescriptor self:
+				case SH self:
 					{
 						num = 7;
 						return -1640531527 + self.Inner.GetHashCode() + ((num << 6) + (num >> 2));
 					}
-				case WSHDescriptor self:
+				case WSH self:
 					{
 						num = 8;
 						return -1640531527 + self.Inner.GetHashCode() + ((num << 6) + (num >> 2));

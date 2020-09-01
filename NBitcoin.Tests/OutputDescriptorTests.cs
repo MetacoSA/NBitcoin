@@ -335,7 +335,7 @@ namespace NBitcoin.Tests
 			var keysPrv = new FlatSigningRepository();
 			var keysPub = new FlatSigningRepository();
 			var isSuccessPriv = OutputDescriptor.TryParse(prv, out var resultPrv, false, keysPrv);
-			var isSuccessPub = OutputDescriptor.TryParse(prv, out var resultPub, false, keysPrv);
+			var isSuccessPub = OutputDescriptor.TryParse(prv, out var resultPub, false, keysPub);
 			Assert.False(isSuccessPriv, prv);
 			Assert.False(isSuccessPub, pub);
 

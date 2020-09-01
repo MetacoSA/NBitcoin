@@ -18,16 +18,16 @@ namespace NBitcoin.Scripting
 		/// <summary>
 		/// Wrapper for other pubkey provider which contains (parent key finger print + relative derivation path to inner Pubkey provider)
 		/// </summary>
-		public class OriginPubKeyProvider : PubKeyProvider
+		public class Origin : PubKeyProvider
 		{
-			internal OriginPubKeyProvider(RootedKeyPath keyOriginInfo, PubKeyProvider inner)
+			internal Origin(RootedKeyPath keyOriginInfo, PubKeyProvider inner)
 			{
 				if (keyOriginInfo == null)
 					throw new ArgumentNullException(nameof(keyOriginInfo));
 				if (inner == null)
 					throw new ArgumentNullException(nameof(inner));
-				if (inner is OriginPubKeyProvider)
-					throw new ArgumentException($"OriginPubKeyProvider can not have {inner} as inner value");
+				if (inner is Origin)
+					throw new ArgumentException($"Origin can not have {inner} as inner value");
 				KeyOriginInfo = keyOriginInfo;
 				Inner = inner;
 			}
@@ -38,9 +38,9 @@ namespace NBitcoin.Scripting
 		}
 
 
-		public class ConstPubKeyProvider : PubKeyProvider
+		public class Const : PubKeyProvider
 		{
-			internal ConstPubKeyProvider(PubKey pk)
+			internal Const(PubKey pk)
 			{
 				if (pk == null)
 					throw new ArgumentNullException(nameof(pk));
@@ -56,9 +56,9 @@ namespace NBitcoin.Scripting
 			UNHARDENED,
 			HARDENED
 		}
-		public class HDPubKeyProvider : PubKeyProvider
+		public class HD : PubKeyProvider
 		{
-			public HDPubKeyProvider(BitcoinExtPubKey extkey, KeyPath path, DeriveType derive)
+			public HD(BitcoinExtPubKey extkey, KeyPath path, DeriveType derive)
 			{
 				if (extkey == null)
 					throw new ArgumentNullException(nameof(extkey));
@@ -105,12 +105,12 @@ namespace NBitcoin.Scripting
 		}
 
 		public static PubKeyProvider NewOrigin(RootedKeyPath keyOrigin, PubKeyProvider inner) =>
-			new OriginPubKeyProvider(keyOrigin, inner);
+			new Origin(keyOrigin, inner);
 		public static PubKeyProvider NewConst(PubKey pk) =>
-			new ConstPubKeyProvider(pk);
+			new Const(pk);
 
 		public static PubKeyProvider NewHD(BitcoinExtPubKey extPubKey, KeyPath kp, DeriveType t) =>
-			new HDPubKeyProvider(extPubKey, kp, t);
+			new HD(extPubKey, kp, t);
 
 		#endregion
 
@@ -138,7 +138,7 @@ namespace NBitcoin.Scripting
 			keyOriginInfo = null;
 			switch (this)
 			{
-				case OriginPubKeyProvider self:
+				case Origin self:
 					if (!self.Inner.TryGetPubKey(pos, privateKeyProvider, out var subKeyOriginInfo, out pubkey))
 						return false;
 					if (subKeyOriginInfo != null)
@@ -153,10 +153,10 @@ namespace NBitcoin.Scripting
 						keyOriginInfo = self.KeyOriginInfo;
 					}
 					return true;
-				case ConstPubKeyProvider self:
+				case Const self:
 					pubkey = self.Pk;
 					return true;
-				case HDPubKeyProvider self:
+				case HD self:
 					// 1. Derive PublicKey
 					if (self.IsHardened())
 					{
@@ -197,29 +197,29 @@ namespace NBitcoin.Scripting
 		}
 		public bool IsRange() => (this) switch
 			{
-				OriginPubKeyProvider self => self.Inner.IsRange(),
-				ConstPubKeyProvider _ => false,
-				HDPubKeyProvider self => self.Derive != DeriveType.NO,
+				Origin self => self.Inner.IsRange(),
+				Const _ => false,
+				HD self => self.Derive != DeriveType.NO,
 				_ => throw new Exception("Unreachable!"),
 			};
 		public bool IsCompressed() => (this) switch
 			{
-				OriginPubKeyProvider self =>
+				Origin self =>
 					self.Inner.IsCompressed(),
-				ConstPubKeyProvider self =>
+				Const self =>
 					self.Pk.IsCompressed,
-				HDPubKeyProvider _ =>
+				HD _ =>
 					false,
 				_ => throw new Exception("Unreachable!"),
 			};
 
 		public override string ToString() => (this) switch
 			{
-				OriginPubKeyProvider self =>
+				Origin self =>
 					$"[{self.KeyOriginInfo}]{self.Inner}",
-				ConstPubKeyProvider self =>
+				Const self =>
 					self.Pk.ToHex(),
-				HDPubKeyProvider self =>
+				HD self =>
 					$"{self.Extkey.ToWif()}{self.GetPathString()}",
 				_ =>
 					throw new Exception("Unreachable!"),
@@ -240,17 +240,17 @@ namespace NBitcoin.Scripting
 			ret = null;
 			switch (this)
 			{
-				case OriginPubKeyProvider self:
+				case Origin self:
 					if (!self.Inner.TryGetPrivateString(secretProvider, out ret))
 						return false;
 					ret = $"[{self.KeyOriginInfo}]{ret}";
 					return true;
-				case ConstPubKeyProvider self:
+				case Const self:
 					if (!secretProvider.TryGetSecret(self.Pk.Hash, out var secretConst))
 						return false;
 					ret = secretConst.ToString();
 					return true;
-				case HDPubKeyProvider self:
+				case HD self:
 					if (!secretProvider.TryGetSecret(self.Extkey.ExtPubKey.PubKey.Hash, out var secretHD))
 						return false;
 					ret = $"{secretHD}{self.GetPathString()}";
@@ -265,16 +265,16 @@ namespace NBitcoin.Scripting
 
 		public bool Equals(PubKeyProvider other) => other != null && (this) switch
 		{
-			ConstPubKeyProvider self =>
-				other is ConstPubKeyProvider o &&
+			Const self =>
+				other is Const o &&
 				self.Pk.Equals(o.Pk),
-			HDPubKeyProvider self =>
-				other is HDPubKeyProvider o &&
+			HD self =>
+				other is HD o &&
 				self.Derive == o.Derive &&
 				self.Path.Equals(o.Path) &&
 				self.Extkey.Equals(o.Extkey),
-			OriginPubKeyProvider self =>
-				other is OriginPubKeyProvider o &&
+			Origin self =>
+				other is Origin o &&
 				self.KeyOriginInfo.Equals(o.KeyOriginInfo) &&
 				self.Inner.Equals(o.Inner),
 			_ =>
@@ -286,19 +286,19 @@ namespace NBitcoin.Scripting
 			int num;
 			switch (this)
 			{
-				case ConstPubKeyProvider self:
+				case Const self:
 					{
 						num = 0;
 						return -1640531527 + self.Pk.GetHashCode() + ((num << 6) + (num >> 2));
 					}
-				case HDPubKeyProvider self:
+				case HD self:
 					{
 						num = 1;
 						num = -1640531527 + self.Extkey.GetHashCode() + ((num << 6) + (num >> 2));
 						num = -1640531527 + self.Path.GetHashCode() + ((num << 6) + (num >> 2));
 						return -1640531527 + self.Derive.GetHashCode() + ((num << 6) + (num >> 2));
 					}
-				case OriginPubKeyProvider self:
+				case Origin self:
 					{
 						num = 2;
 						num = -1640531527 + self.Inner.GetHashCode() + ((num << 6) + (num >> 2));

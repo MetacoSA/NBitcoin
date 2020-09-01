@@ -39,13 +39,13 @@ namespace NBitcoin.Scripting
 					{
 						repo.SetScript(scV.Hash, scV);
 					}
-					if (r.Value is OriginPubKeyProvider pkpV)
+					if (r.Value is Origin pkpV)
 					{
-						if (pkpV.Inner is HDPubKeyProvider hdPkPV)
+						if (pkpV.Inner is HD hdPkPV)
 						{
 							repo.SetKeyOrigin(hdPkPV.Extkey.GetPublicKey().Hash, pkpV.KeyOriginInfo);
 						}
-						if (pkpV.Inner is ConstPubKeyProvider constPkPV)
+						if (pkpV.Inner is Const constPkPV)
 						{
 							repo.SetKeyOrigin(constPkPV.Pk.Hash, pkpV.KeyOriginInfo);
 						}
@@ -284,7 +284,7 @@ namespace NBitcoin.Scripting
 				return false;
 			}
 			result = res.Value;
-			if (result is OutputDescriptor.MultisigDescriptor multi && multi.PkProviders.Count > 3)
+			if (result is OutputDescriptor.Multi multi && multi.PkProviders.Count > 3)
 			{
 				whyFailure = "You can not have more than 3 pubkeys in top level multisig.";
 				return false;

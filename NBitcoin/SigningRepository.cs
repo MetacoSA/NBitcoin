@@ -33,6 +33,12 @@ namespace NBitcoin
 		void SetPubKey(KeyId keyId, PubKey pubkey);
 		void SetSecret(KeyId keyId, ISecret secret);
 		void SetKeyOrigin(KeyId keyId, RootedKeyPath keyOrigin);
+
+		/// <summary>
+		/// Consume the argument and take everything it holds.
+		/// This method should at least support consuming `FlatSigningRepository`.
+		/// </summary>
+		/// <param name="other"></param>
 		void Merge(ISigningRepository other);
 	}
 
