@@ -1468,7 +1468,7 @@ namespace NBitcoin.Tests
 				{
 					DownloadLink = "https://github.com/lbryio/lbrycrd/releases/download/v0.17.3.2/lbrycrd-darwin-1732.zip",
 					Archive = "lbrycrd-darwin-1732.zip",
-					Executable = "mon/bin/monetaryunitd",
+					Executable = "lbrycrdd",
 					Hash = "65cd5c79c51758def40c723b532760381662c5439ae07f313761446475b73afc"
 				}
 			};
