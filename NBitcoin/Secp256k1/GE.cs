@@ -375,7 +375,7 @@ namespace NBitcoin.Secp256k1
 				int j;
 				for (j = 0; j < ECMultContext.WINDOW_A - 1; ++j)
 				{
-					r = r.DoubleNonZero();
+					r = r.Double();
 				}
 
 				n = wnaf_1[i];

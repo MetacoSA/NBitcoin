@@ -339,7 +339,7 @@ namespace NBitcoin.Secp256k1
 			{
 				return GEJ.Infinity;
 			}
-			return this.DoubleNonZero();
+			return this.Double();
 		}
 		public readonly GEJ DoubleVariable(out FE rzr)
 		{
@@ -366,7 +366,7 @@ namespace NBitcoin.Secp256k1
 			rzr = rzr.NormalizeWeak();
 			rzr = rzr.Multiply(2U);
 
-			return a.DoubleNonZero();
+			return a.Double();
 		}
 		[Conditional("SECP256K1_VERIFY")]
 		private static void VERIFY_CHECK(bool value)
@@ -375,7 +375,7 @@ namespace NBitcoin.Secp256k1
 				throw new InvalidOperationException("VERIFY_CHECK failed (bug in C# secp256k1)");
 		}
 		[MethodImpl(MethodImplOptions.NoOptimization)]
-		public readonly GEJ DoubleNonZero()
+		public readonly GEJ Double()
 		{
 			ref readonly GEJ a = ref this;
 			/* Operations: 3 mul, 4 sqr, 0 normalize, 12 mul_int/add/negate.
@@ -389,8 +389,7 @@ namespace NBitcoin.Secp256k1
 			bool rinfinity;
 			FE t1, t2, t3, t4;
 
-			VERIFY_CHECK(!a.IsInfinity);
-			rinfinity = false;
+			rinfinity = a.infinity;
 
 			rz = a.z * a.y;
 			rz *= 2U;      /* Z' = 2*Y*Z (2) */
