@@ -13,8 +13,8 @@ namespace NBitcoin.Secp256k1
 #endif
 	class SecpSchnorrSignature
 	{
-		internal readonly FE rx;
-		internal readonly Scalar s;
+		public readonly FE rx;
+		public readonly Scalar s;
 
 		internal SecpSchnorrSignature(FE rx, Scalar s)
 		{

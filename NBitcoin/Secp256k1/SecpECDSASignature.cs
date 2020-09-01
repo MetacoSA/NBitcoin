@@ -12,8 +12,8 @@ namespace NBitcoin.Secp256k1
 #endif
 	class SecpECDSASignature
 	{
-		internal readonly Scalar r;
-		internal readonly Scalar s;
+		public readonly Scalar r;
+		public readonly Scalar s;
 
 		/// <summary>
 		/// Create a signature from r and s
