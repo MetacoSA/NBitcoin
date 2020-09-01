@@ -95,6 +95,7 @@ namespace NBitcoin.Tests.Generators
 			select NBitcoin.KeyPath.FromBytes(flattenBytes);
 
 		public static Gen<ExtPubKey> ExtPubKey() => ExtKey().Select(ek => ek.Neuter());
+
 		public static Gen<BitcoinExtPubKey> BitcoinExtPubKey() =>
 			from extKey in ExtPubKey()
 			from network in ChainParamsGenerator.NetworkGen()
