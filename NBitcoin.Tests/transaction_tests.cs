@@ -4533,5 +4533,43 @@ namespace NBitcoin.Tests
 			Assert.Equal(3, tx.Inputs.Count);
 			Assert.Equal(3, tx.Outputs.Count);
 		}
+
+		[Fact]
+		public void CanDisableShuffle()
+		{
+			var builder = Network
+				.CreateTransactionBuilder(42);
+
+			builder.ShuffleInputs = false;
+			builder.ShuffleOutputs = false;
+
+			var k1 = new Key();
+			var k2 = new Key();
+			var dest1 = k1.PubKey.Hash;
+			var dest2 = k2.PubKey.Hash;
+
+			var coin1 = RandomCoin(Money.Coins(0.1m), k1);
+			var coin2 = RandomCoin(Money.Coins(0.2m), k1);
+
+			var rate = new FeeRate(Money.Coins(0.0004m));
+			builder
+				.AddCoins(coin1)
+				.AddCoins(coin2)
+				.AddKeys(k1)
+				.SendEstimatedFees(rate)
+				.Send(dest2, coin2.Amount)
+				.SendAllRemaining(dest1);
+
+			var tx = builder.BuildTransaction(true);
+			if (!builder.Verify(tx, out var errors))
+				throw new AggregateException(errors.Select(e => new Exception(e.ToString())));
+
+			Assert.Equal(2, tx.Inputs.Count);
+			Assert.Equal(coin1.Outpoint, tx.Inputs[0].PrevOut);
+			Assert.Equal(coin2.Outpoint, tx.Inputs[1].PrevOut);
+
+			Assert.Equal(2, tx.Outputs.Count);
+			Assert.Equal(coin2.Amount, tx.Outputs[0].Value);
+		}
 	}
 }
