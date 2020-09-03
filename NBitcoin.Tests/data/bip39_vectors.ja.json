@@ -313,5 +313,12 @@
 		"passphrase": "nullius　à　nym.zone ¹teſts² 日本語",
 		"seed": "093dcb95119b38bf717bd2d90ff3679033a8193913d0c1c9ad9b7312d0cc765a954da765eea14c6c25197a62f2fdbc14a792dc42dc52f4fb52f1addadf2c2155",
 		"bip32_xprv": "xprv9s21ZrQH143K4PokGcq3gjhrwZsXskueq1vrKPDppF2fQ7f3gBDY581QHkKqF5NVmuwoLHrVXpmGHdmkPvakG3KxG4dSAh6x3yZKCHae5Vo"
+	},
+	{
+		"entropy": "437dd688276ceb711cda3a126eab879a188a30b097b769a931bea6fe",
+		"mnemonic": "げすと やおや        てらす　こくとう　ひめじし　ねっしん　せあぶら　けむり　うえる　せたけ　まもる　きつね　たおれる　うらぐち　はしご　らたい　しゃたい　けんとう　すすむ　こえる　もんだい",
+		"passphrase": "nullius　à　nym.zone ¹teſts² 日本語",
+		"seed": "093dcb95119b38bf717bd2d90ff3679033a8193913d0c1c9ad9b7312d0cc765a954da765eea14c6c25197a62f2fdbc14a792dc42dc52f4fb52f1addadf2c2155",
+		"bip32_xprv": "xprv9s21ZrQH143K4PokGcq3gjhrwZsXskueq1vrKPDppF2fQ7f3gBDY581QHkKqF5NVmuwoLHrVXpmGHdmkPvakG3KxG4dSAh6x3yZKCHae5Vo"
 	}
 ]

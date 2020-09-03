@@ -44,11 +44,12 @@ namespace NBitcoin.Tests
 			Assert.Equal(mnemonic.ToString(), mnemonic2.ToString());
 		}
 
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCheckBIP39TestVectors()
 		{
+			var mnemo = new Mnemonic("げすと やおや        てらす　こくとう　ひめじし　ねっしん　せあぶら　けむり　うえる　せたけ　まもる　きつね　たおれる　うらぐち　はしご　らたい　しゃたい　けんとう　すすむ　こえる　もんだい");
+			Assert.Equal("げすと　やおや　てらす　こくとう　ひめじし　ねっしん　せあぶら　けむり　うえる　せたけ　まもる　きつね　たおれる　うらぐち　はしご　らたい　しゃたい　けんとう　すすむ　こえる　もんだい", mnemo.ToString());
 			CanCheckBIP39TestVectorsCore("fr", Wordlist.French);
 			CanCheckBIP39TestVectorsCore("ja", Wordlist.Japanese);
 			CanCheckBIP39TestVectorsCore("es", Wordlist.Spanish);
