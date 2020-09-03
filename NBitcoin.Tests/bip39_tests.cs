@@ -34,6 +34,16 @@ namespace NBitcoin.Tests
 			Assert.False(mnemonic.IsValidChecksum);
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanNormalizeMnemonicString()
+		{
+			var mnemonic = new Mnemonic("turtle front uncle idea crush write shrug there lottery flower risk shell", Wordlist.English);
+			var mnemonic2 = new Mnemonic("turtle    front	uncle　 idea crush write shrug there lottery flower risk shell", Wordlist.English);
+			Assert.Equal(mnemonic.DeriveExtKey().ScriptPubKey, mnemonic2.DeriveExtKey().ScriptPubKey);
+			Assert.Equal(mnemonic.ToString(), mnemonic2.ToString());
+		}
+
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
