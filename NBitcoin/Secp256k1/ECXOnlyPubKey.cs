@@ -76,7 +76,11 @@ namespace NBitcoin.Secp256k1
 			return this;
 		}
 
-		public void WriteXToSpan(Span<byte> output32)
+		/// <summary>
+		/// Write the 32 bytes of the X value of the public key to output32
+		/// </summary>
+		/// <param name="output32"></param>
+		public void WriteToSpan(Span<byte> output32)
 		{
 			Q.x.WriteToSpan(output32);
 		}
@@ -94,6 +98,13 @@ namespace NBitcoin.Secp256k1
 				return false;
 			var actualTweakedKey = actualTweakedPubKey.ToXOnlyPubKey(out var actualParity);
 			return actualParity == expectedParity && actualTweakedKey == this;
+		}
+
+		public new byte[] ToBytes()
+		{
+			byte[] buf = new byte[32];
+			WriteToSpan(buf);
+			return buf;
 		}
 	}
 }
