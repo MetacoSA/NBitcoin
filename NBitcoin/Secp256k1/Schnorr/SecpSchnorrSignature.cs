@@ -16,12 +16,19 @@ namespace NBitcoin.Secp256k1
 		public readonly FE rx;
 		public readonly Scalar s;
 
-		internal SecpSchnorrSignature(FE rx, Scalar s)
+		internal SecpSchnorrSignature(in FE rx, in Scalar s)
 		{
 			this.rx = rx;
 			this.s = s;
 		}
-
+		public static bool TryCreate(in FE rx, in Scalar s, out SecpSchnorrSignature? signature)
+		{
+			signature = null;
+			if (s.IsOverflow)
+				return false;
+			signature = new SecpSchnorrSignature(rx, s);
+			return true;
+		}
 		public static bool TryCreate(ReadOnlySpan<byte> in64, out SecpSchnorrSignature? signature)
 		{
 			signature = null;

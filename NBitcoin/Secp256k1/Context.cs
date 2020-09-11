@@ -50,6 +50,16 @@ namespace NBitcoin.Secp256k1
 			key = new ECPrivKey(s, this, false);
 			return true;
 		}
+		public bool TryCreateECPrivKey(in Scalar s, out ECPrivKey? key)
+		{
+			if (s.IsOverflow || s.IsZero)
+			{
+				key = null;
+				return false;
+			}
+			key = new ECPrivKey(s, this, false);
+			return true;
+		}
 
 		public bool TryCreateXOnlyPubKey(ReadOnlySpan<byte> input32, out ECXOnlyPubKey? pubkey)
 		{
