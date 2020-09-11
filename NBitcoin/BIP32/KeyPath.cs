@@ -197,10 +197,10 @@ namespace NBitcoin
 			}
 		}
 
-		public KeyPath? Increment()
+		public KeyPath Increment()
 		{
 			if (_Indexes.Length == 0)
-				return null;
+				throw new InvalidOperationException("Cannot increment an empty keypath");
 			var indices = _Indexes.ToArray();
 			indices[indices.Length - 1]++;
 			return new KeyPath(indices);

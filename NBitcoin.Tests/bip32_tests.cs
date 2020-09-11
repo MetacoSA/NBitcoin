@@ -197,7 +197,7 @@ namespace NBitcoin.Tests
 			Assert.Equal("44'", keyPath.Parent.ToString());
 			Assert.Equal("", keyPath.Parent.Parent.ToString());
 			Assert.Null(keyPath.Parent.Parent.Parent);
-			Assert.Null(keyPath.Parent.Parent.Increment());
+			Assert.Throws<InvalidOperationException>(() => keyPath.Parent.Parent.Increment());
 			Assert.Equal(key.Derive(keyPath).ToString(Network.Main), key.Derive(44, true).Derive(1, false).ToString(Network.Main));
 
 			Assert.True(key.Derive(44, true).IsHardened);
