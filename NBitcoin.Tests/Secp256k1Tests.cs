@@ -3141,6 +3141,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void test_xonly_pubkey_tweak()
 		{
 			var tweak = new byte[32];
@@ -3163,7 +3164,7 @@ namespace NBitcoin.Tests
 			/* Invalid tweak zeroes the output_pk */
 			Assert.False(internal_xonly_pk.TryAddTweak(overflow, out _));
 			/* A zero tweak is fine */
-			Assert.True(internal_xonly_pk.TryAddTweak(zero64, out _));
+			Assert.True(internal_xonly_pk.TryAddTweak(zero64.AsSpan().Slice(0, 32), out _));
 
 			/* Fails if the resulting key was infinity */
 			for (var i = 0; i < count; i++)
