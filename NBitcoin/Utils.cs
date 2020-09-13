@@ -915,11 +915,12 @@ namespace NBitcoin
 			{
 				output[0] = (byte)(value >> 56);
 				output[1] = (byte)(value >> 48);
-				output[2] = (byte)(value >> 32);
-				output[3] = (byte)(value >> 24);
-				output[4] = (byte)(value >> 16);
-				output[5] = (byte)(value >> 8);
-				output[6] = (byte)value;
+				output[2] = (byte)(value >> 40);
+				output[3] = (byte)(value >> 32);
+				output[4] = (byte)(value >> 24);
+				output[5] = (byte)(value >> 16);
+				output[6] = (byte)(value >> 8);
+				output[7] = (byte)value;
 			}
 		}
 #endif
