@@ -102,12 +102,6 @@ namespace NBitcoin.Altcoins
 				return base.TryParse(str, network, targetType, out result);
 			}
 		}
-		static uint256 GetPoWHash(BlockHeader header)
-		{
-			var headerBytes = header.ToBytes();
-			var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
-			return new uint256(h);
-		}
 
 		protected override NetworkBuilder CreateMainnet()
 		{

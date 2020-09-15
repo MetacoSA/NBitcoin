@@ -223,14 +223,7 @@ namespace NBitcoin.Altcoins
 		//{({.*?}), (.*?)}
 		//Tuple.Create(new byte[]$1, $2)
 		//static Tuple<byte[], int>[] pnSeed6_main = null;
-		//static Tuple<byte[], int>[] pnSeed6_test = null;		
-
-		static uint256 GetPoWHash(BlockHeader header)
-		{
-			var headerBytes = header.ToBytes();
-			var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
-			return new uint256(h);
-		}
+		//static Tuple<byte[], int>[] pnSeed6_test = null;
 
 		protected override void PostInit()
 		{

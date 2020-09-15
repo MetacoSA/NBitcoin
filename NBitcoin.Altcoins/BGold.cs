@@ -62,8 +62,6 @@ namespace NBitcoin.Altcoins
 		}
 		public class BitcoinGoldBlockHeader : BlockHeader
 		{
-			const int SERIALIZE_BLOCK_LEGACY = 0x04000000;
-
 			uint nHeight = 0;
 
 			public uint Height

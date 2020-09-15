@@ -215,14 +215,6 @@ namespace NBitcoin.Altcoins
 		//static Tuple<byte[], int>[] pnSeed6_main = null;
 		//static Tuple<byte[], int>[] pnSeed6_test = null;
 		// Not used in DOGE: https://github.com/dogecoin/dogecoin/blob/10a5e93a055ab5f239c5447a5fe05283af09e293/src/chainparams.cpp#L135
-		
-
-		static uint256 GetPoWHash(BlockHeader header)
-		{
-			var headerBytes = header.ToBytes();
-			var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
-			return new uint256(h);
-		}
 
 		protected override NetworkBuilder CreateMainnet()
 		{
