@@ -98,6 +98,14 @@ namespace NBitcoin.Secp256k1
 			d0 = d1 = d2 = d3 = d4 = d5 = d6 = d7 = 0;
 			d0 = value;
 		}
+		
+		Scalar(ulong value)
+		{
+			d0 = d1 = d2 = d3 = d4 = d5 = d6 = d7 = 0;
+			d0 = (uint)(value & uint.MaxValue);
+			d1 = (uint)((value >> 32) & uint.MaxValue);
+		}
+	
 #if SECP256K1_LIB
 		public
 #else
