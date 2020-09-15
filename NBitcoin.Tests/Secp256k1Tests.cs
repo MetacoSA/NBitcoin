@@ -2142,14 +2142,12 @@ namespace NBitcoin.Tests
 			Scalar neg1 = number;
 			Scalar neg2 = number;
 			int sign1 = 1;
-			int sign2 = 1;
-
 			if (neg1.GetBits(0, 1) == 0)
 			{
 				neg1 = neg1.Negate();
 				sign1 = -1;
 			}
-			sign2 = neg2.CondNegate(neg2.IsEven ? 1 : 0, out neg2);
+			int sign2 = neg2.CondNegate(neg2.IsEven ? 1 : 0, out neg2);
 			Assert.True(sign1 == sign2);
 			Assert.Equal(neg1, neg2);
 		}

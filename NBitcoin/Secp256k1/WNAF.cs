@@ -27,7 +27,6 @@ namespace NBitcoin.Secp256k1
 		public static int Const(Span<int> wnaf, Scalar s, int w, int size)
 		{
 			int global_sign;
-			int skew = 0;
 			int word = 0;
 
 			/* 1 2 3 */
@@ -67,7 +66,7 @@ namespace NBitcoin.Secp256k1
 			 * our flags to claim that we only skewed. */
 			global_sign = s.CondNegate(flip, out s);
 			global_sign *= not_neg_one * 2 - 1;
-			skew = 1 << bit;
+			int skew = 1 << bit;
 
 			/* 4 */
 			u_last = s.ShrInt(w, out s);

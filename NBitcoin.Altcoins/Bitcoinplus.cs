@@ -61,7 +61,6 @@ namespace NBitcoin.Altcoins
 
             public override bool TryCreateNew(Type type, out IBitcoinSerializable result)
             {
-                result = null;
                 if (IsHeadersPayload(type))
                 {
                     result = CreateHeadersPayload();

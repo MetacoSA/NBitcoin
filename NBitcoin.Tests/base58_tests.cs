@@ -144,8 +144,6 @@ namespace NBitcoin.Tests
 		{
 			var tests = TestCase.read_json("data/base58_keys_valid.json");
 			tests = tests.Concat(TestCase.read_json("data/base58_keys_valid2.json")).ToArray();
-			Network network = null;
-
 			foreach (var test in tests)
 			{
 				string strTest = test.ToString();
@@ -160,6 +158,7 @@ namespace NBitcoin.Tests
 				bool isPrivkey = (bool)metadata.isPrivkey;
 				bool isTestnet = (bool)metadata.isTestnet;
 
+				Network network;
 				if (isTestnet)
 					network = Network.TestNet;
 				else

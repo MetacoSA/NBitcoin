@@ -56,7 +56,6 @@ namespace NBitcoin.Altcoins
 
 			public override bool TryCreateNew(Type type, out IBitcoinSerializable result)
 			{
-				result = null;
 				if (IsHeadersPayload(type))
 				{
 					result = CreateHeadersPayload();
@@ -221,7 +220,7 @@ namespace NBitcoin.Altcoins
 			private byte[] CalculateHash(byte[] data, int offset, int count)
 			{
 				byte[] hashData = data.SafeSubarray(offset, count);
-				uint256 hash = null;
+				uint256 hash;
 				if (this.nVersion > 6)
 					hash = Hashes.DoubleSHA256(hashData);
 				else

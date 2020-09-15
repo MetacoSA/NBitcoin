@@ -280,10 +280,9 @@ namespace NBitcoin.Secp256k1
 			if (tweak.Length != 32)
 				return false;
 			Scalar term;
-			bool ret = false;
-			int overflow = 0;
+			int overflow;
 			term = new Scalar(tweak, out overflow);
-			ret = overflow == 0;
+			bool ret = overflow == 0;
 			var p = Q;
 			if (ret)
 			{
@@ -349,11 +348,9 @@ namespace NBitcoin.Secp256k1
 			if (tweak.Length != 32)
 				return false;
 			Scalar factor;
-			bool ret = false;
-			int overflow = 0;
-
+			int overflow;
 			factor = new Scalar(tweak, out overflow);
-			ret = overflow == 0;
+			bool ret = overflow == 0;
 			var p = Q;
 			if (ret)
 			{

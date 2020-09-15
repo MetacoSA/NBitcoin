@@ -264,7 +264,7 @@ namespace NBitcoin.Secp256k1
 			Scalar term;
 			ECPrivKey seckey;
 			bool ret;
-			int overflow = 0;
+			int overflow;
 			term = new Scalar(tweak, out overflow);
 
 			Scalar sec = this.sec;
@@ -821,11 +821,10 @@ namespace NBitcoin.Secp256k1
 			if (tweak.Length != 32)
 				return false;
 			Scalar factor;
-			bool ret = false;
-			int overflow = 0;
+			int overflow;
 			factor = new Scalar(tweak, out overflow);
 			var sec = this.sec;
-			ret = overflow == 0 && secp256k1_eckey_privkey_tweak_mul(ref sec, factor);
+			bool ret = overflow == 0 && secp256k1_eckey_privkey_tweak_mul(ref sec, factor);
 			if (ret)
 			{
 				tweakedPrivkey = new ECPrivKey(sec, ctx, false);

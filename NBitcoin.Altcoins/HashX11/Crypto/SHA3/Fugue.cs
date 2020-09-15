@@ -3039,8 +3039,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                             state[((-3 * (2 * 3 + 2)) + 2 + 60) % 30] = (uint)(col_02 >> 32);
                             state[((-3 * (2 * 3 + 2)) + 1 + 60) % 30] = (uint)col_13;
                             state[((-3 * (2 * 3 + 2)) + 3 + 60) % 30] = (uint)(col_13 >> 32);
-
-                            j++;
                         }
                     }
                 }
@@ -3280,8 +3278,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[((-3 * (3 * ((j1 + j) % 4) + 1)) + 18 + 36) % 36] ^= m_state[((-3 * (3 * ((j1 + j) % 4) + 1)) + 4 + 36) % 36];
                 m_state[((-3 * (3 * ((j1 + j) % 4) + 1)) + 19 + 36) % 36] ^= m_state[((-3 * (3 * ((j1 + j) % 4) + 1)) + 5 + 36) % 36];
                 m_state[((-3 * (3 * ((j1 + j) % 4) + 1)) + 20 + 36) % 36] ^= m_state[((-3 * (3 * ((j1 + j) % 4) + 1)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[((-3 * (3 * ((j1 + j) % 4) + 1)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[((-3 * (3 * ((j1 + j) % 4) + 1)) + 36) % 36] >> 8)];
@@ -3348,8 +3344,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[((-3 * (3 * ((j1 + j) % 4) + 2)) + 18 + 36) % 36] ^= m_state[((-3 * (3 * ((j1 + j) % 4) + 2)) + 4 + 36) % 36];
                 m_state[((-3 * (3 * ((j1 + j) % 4) + 2)) + 19 + 36) % 36] ^= m_state[((-3 * (3 * ((j1 + j) % 4) + 2)) + 5 + 36) % 36];
                 m_state[((-3 * (3 * ((j1 + j) % 4) + 2)) + 20 + 36) % 36] ^= m_state[((-3 * (3 * ((j1 + j) % 4) + 2)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[((-3 * (3 * ((j1 + j) % 4) + 2)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[((-3 * (3 * ((j1 + j) % 4) + 2)) + 36) % 36] >> 8)];
@@ -3416,8 +3410,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[((-3 * (3 * ((j1 + j) % 4) + 3)) + 18 + 36) % 36] ^= m_state[((-3 * (3 * ((j1 + j) % 4) + 3)) + 4 + 36) % 36];
                 m_state[((-3 * (3 * ((j1 + j) % 4) + 3)) + 19 + 36) % 36] ^= m_state[((-3 * (3 * ((j1 + j) % 4) + 3)) + 5 + 36) % 36];
                 m_state[((-3 * (3 * ((j1 + j) % 4) + 3)) + 20 + 36) % 36] ^= m_state[((-3 * (3 * ((j1 + j) % 4) + 3)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[((-3 * (3 * ((j1 + j) % 4) + 3)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[((-3 * (3 * ((j1 + j) % 4) + 3)) + 36) % 36] >> 8)];
@@ -3488,8 +3480,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[(ptr + 12 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 m_state[(ptr + 24 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 ptr = ((ptr - 12 + 36) % 36);
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[(ptr + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[(ptr + 36) % 36] >> 8)];
@@ -3554,8 +3544,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[(ptr + 13 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 m_state[(ptr + 24 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 ptr = ((ptr - 12 + 36) % 36);
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[(ptr + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[(ptr + 36) % 36] >> 8)];
@@ -3620,8 +3608,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[(ptr + 13 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 m_state[(ptr + 25 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 ptr = ((ptr - 11 + 36) % 36);
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[(ptr + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[(ptr + 36) % 36] >> 8)];
@@ -3729,8 +3715,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (3 * 1 + 1)) + 18 + 36) % 36] ^= state[((-3 * (3 * 1 + 1)) + 4 + 36) % 36];
                     state[((-3 * (3 * 1 + 1)) + 19 + 36) % 36] ^= state[((-3 * (3 * 1 + 1)) + 5 + 36) % 36];
                     state[((-3 * (3 * 1 + 1)) + 20 + 36) % 36] ^= state[((-3 * (3 * 1 + 1)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 1 + 1)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 1 + 1)) + 36) % 36] >> 8)];
@@ -3797,8 +3781,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (3 * 1 + 2)) + 18 + 36) % 36] ^= state[((-3 * (3 * 1 + 2)) + 4 + 36) % 36];
                     state[((-3 * (3 * 1 + 2)) + 19 + 36) % 36] ^= state[((-3 * (3 * 1 + 2)) + 5 + 36) % 36];
                     state[((-3 * (3 * 1 + 2)) + 20 + 36) % 36] ^= state[((-3 * (3 * 1 + 2)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 1 + 2)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 1 + 2)) + 36) % 36] >> 8)];
@@ -3865,8 +3847,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (3 * 1 + 3)) + 18 + 36) % 36] ^= state[((-3 * (3 * 1 + 3)) + 4 + 36) % 36];
                     state[((-3 * (3 * 1 + 3)) + 19 + 36) % 36] ^= state[((-3 * (3 * 1 + 3)) + 5 + 36) % 36];
                     state[((-3 * (3 * 1 + 3)) + 20 + 36) % 36] ^= state[((-3 * (3 * 1 + 3)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 1 + 3)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 1 + 3)) + 36) % 36] >> 8)];
@@ -3947,8 +3927,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (3 * 2 + 1)) + 18 + 36) % 36] ^= state[((-3 * (3 * 2 + 1)) + 4 + 36) % 36];
                     state[((-3 * (3 * 2 + 1)) + 19 + 36) % 36] ^= state[((-3 * (3 * 2 + 1)) + 5 + 36) % 36];
                     state[((-3 * (3 * 2 + 1)) + 20 + 36) % 36] ^= state[((-3 * (3 * 2 + 1)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 2 + 1)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 2 + 1)) + 36) % 36] >> 8)];
@@ -4015,8 +3993,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (3 * 2 + 2)) + 18 + 36) % 36] ^= state[((-3 * (3 * 2 + 2)) + 4 + 36) % 36];
                     state[((-3 * (3 * 2 + 2)) + 19 + 36) % 36] ^= state[((-3 * (3 * 2 + 2)) + 5 + 36) % 36];
                     state[((-3 * (3 * 2 + 2)) + 20 + 36) % 36] ^= state[((-3 * (3 * 2 + 2)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 2 + 2)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 2 + 2)) + 36) % 36] >> 8)];
@@ -4083,8 +4059,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (3 * 2 + 3)) + 18 + 36) % 36] ^= state[((-3 * (3 * 2 + 3)) + 4 + 36) % 36];
                     state[((-3 * (3 * 2 + 3)) + 19 + 36) % 36] ^= state[((-3 * (3 * 2 + 3)) + 5 + 36) % 36];
                     state[((-3 * (3 * 2 + 3)) + 20 + 36) % 36] ^= state[((-3 * (3 * 2 + 3)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 2 + 3)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 2 + 3)) + 36) % 36] >> 8)];
@@ -4164,8 +4138,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (3 * 3 + 1)) + 18 + 36) % 36] ^= state[((-3 * (3 * 3 + 1)) + 4 + 36) % 36];
                     state[((-3 * (3 * 3 + 1)) + 19 + 36) % 36] ^= state[((-3 * (3 * 3 + 1)) + 5 + 36) % 36];
                     state[((-3 * (3 * 3 + 1)) + 20 + 36) % 36] ^= state[((-3 * (3 * 3 + 1)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 3 + 1)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 3 + 1)) + 36) % 36] >> 8)];
@@ -4232,8 +4204,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (3 * 3 + 2)) + 18 + 36) % 36] ^= state[((-3 * (3 * 3 + 2)) + 4 + 36) % 36];
                     state[((-3 * (3 * 3 + 2)) + 19 + 36) % 36] ^= state[((-3 * (3 * 3 + 2)) + 5 + 36) % 36];
                     state[((-3 * (3 * 3 + 2)) + 20 + 36) % 36] ^= state[((-3 * (3 * 3 + 2)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 3 + 2)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 3 + 2)) + 36) % 36] >> 8)];
@@ -4300,8 +4270,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (3 * 3 + 3)) + 18 + 36) % 36] ^= state[((-3 * (3 * 3 + 3)) + 4 + 36) % 36];
                     state[((-3 * (3 * 3 + 3)) + 19 + 36) % 36] ^= state[((-3 * (3 * 3 + 3)) + 5 + 36) % 36];
                     state[((-3 * (3 * 3 + 3)) + 20 + 36) % 36] ^= state[((-3 * (3 * 3 + 3)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 3 + 3)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 3 + 3)) + 36) % 36] >> 8)];
@@ -4385,8 +4353,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 0 + 1)) + 18 + 36) % 36] ^= state[((-3 * (3 * 0 + 1)) + 4 + 36) % 36];
                 state[((-3 * (3 * 0 + 1)) + 19 + 36) % 36] ^= state[((-3 * (3 * 0 + 1)) + 5 + 36) % 36];
                 state[((-3 * (3 * 0 + 1)) + 20 + 36) % 36] ^= state[((-3 * (3 * 0 + 1)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 0 + 1)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 0 + 1)) + 36) % 36] >> 8)];
@@ -4453,8 +4419,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 0 + 2)) + 18 + 36) % 36] ^= state[((-3 * (3 * 0 + 2)) + 4 + 36) % 36];
                 state[((-3 * (3 * 0 + 2)) + 19 + 36) % 36] ^= state[((-3 * (3 * 0 + 2)) + 5 + 36) % 36];
                 state[((-3 * (3 * 0 + 2)) + 20 + 36) % 36] ^= state[((-3 * (3 * 0 + 2)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 0 + 2)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 0 + 2)) + 36) % 36] >> 8)];
@@ -4521,8 +4485,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 0 + 3)) + 18 + 36) % 36] ^= state[((-3 * (3 * 0 + 3)) + 4 + 36) % 36];
                 state[((-3 * (3 * 0 + 3)) + 19 + 36) % 36] ^= state[((-3 * (3 * 0 + 3)) + 5 + 36) % 36];
                 state[((-3 * (3 * 0 + 3)) + 20 + 36) % 36] ^= state[((-3 * (3 * 0 + 3)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 0 + 3)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 0 + 3)) + 36) % 36] >> 8)];
@@ -4597,8 +4559,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 1 + 1)) + 18 + 36) % 36] ^= state[((-3 * (3 * 1 + 1)) + 4 + 36) % 36];
                 state[((-3 * (3 * 1 + 1)) + 19 + 36) % 36] ^= state[((-3 * (3 * 1 + 1)) + 5 + 36) % 36];
                 state[((-3 * (3 * 1 + 1)) + 20 + 36) % 36] ^= state[((-3 * (3 * 1 + 1)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 1 + 1)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 1 + 1)) + 36) % 36] >> 8)];
@@ -4665,8 +4625,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 1 + 2)) + 18 + 36) % 36] ^= state[((-3 * (3 * 1 + 2)) + 4 + 36) % 36];
                 state[((-3 * (3 * 1 + 2)) + 19 + 36) % 36] ^= state[((-3 * (3 * 1 + 2)) + 5 + 36) % 36];
                 state[((-3 * (3 * 1 + 2)) + 20 + 36) % 36] ^= state[((-3 * (3 * 1 + 2)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 1 + 2)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 1 + 2)) + 36) % 36] >> 8)];
@@ -4733,8 +4691,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 1 + 3)) + 18 + 36) % 36] ^= state[((-3 * (3 * 1 + 3)) + 4 + 36) % 36];
                 state[((-3 * (3 * 1 + 3)) + 19 + 36) % 36] ^= state[((-3 * (3 * 1 + 3)) + 5 + 36) % 36];
                 state[((-3 * (3 * 1 + 3)) + 20 + 36) % 36] ^= state[((-3 * (3 * 1 + 3)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 1 + 3)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 1 + 3)) + 36) % 36] >> 8)];
@@ -4809,8 +4765,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 2 + 1)) + 18 + 36) % 36] ^= state[((-3 * (3 * 2 + 1)) + 4 + 36) % 36];
                 state[((-3 * (3 * 2 + 1)) + 19 + 36) % 36] ^= state[((-3 * (3 * 2 + 1)) + 5 + 36) % 36];
                 state[((-3 * (3 * 2 + 1)) + 20 + 36) % 36] ^= state[((-3 * (3 * 2 + 1)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 2 + 1)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 2 + 1)) + 36) % 36] >> 8)];
@@ -4877,8 +4831,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 2 + 2)) + 18 + 36) % 36] ^= state[((-3 * (3 * 2 + 2)) + 4 + 36) % 36];
                 state[((-3 * (3 * 2 + 2)) + 19 + 36) % 36] ^= state[((-3 * (3 * 2 + 2)) + 5 + 36) % 36];
                 state[((-3 * (3 * 2 + 2)) + 20 + 36) % 36] ^= state[((-3 * (3 * 2 + 2)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 2 + 2)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 2 + 2)) + 36) % 36] >> 8)];
@@ -4945,8 +4897,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 2 + 3)) + 18 + 36) % 36] ^= state[((-3 * (3 * 2 + 3)) + 4 + 36) % 36];
                 state[((-3 * (3 * 2 + 3)) + 19 + 36) % 36] ^= state[((-3 * (3 * 2 + 3)) + 5 + 36) % 36];
                 state[((-3 * (3 * 2 + 3)) + 20 + 36) % 36] ^= state[((-3 * (3 * 2 + 3)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 2 + 3)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 2 + 3)) + 36) % 36] >> 8)];
@@ -5021,8 +4971,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 3 + 1)) + 18 + 36) % 36] ^= state[((-3 * (3 * 3 + 1)) + 4 + 36) % 36];
                 state[((-3 * (3 * 3 + 1)) + 19 + 36) % 36] ^= state[((-3 * (3 * 3 + 1)) + 5 + 36) % 36];
                 state[((-3 * (3 * 3 + 1)) + 20 + 36) % 36] ^= state[((-3 * (3 * 3 + 1)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 3 + 1)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 3 + 1)) + 36) % 36] >> 8)];
@@ -5089,8 +5037,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 3 + 2)) + 18 + 36) % 36] ^= state[((-3 * (3 * 3 + 2)) + 4 + 36) % 36];
                 state[((-3 * (3 * 3 + 2)) + 19 + 36) % 36] ^= state[((-3 * (3 * 3 + 2)) + 5 + 36) % 36];
                 state[((-3 * (3 * 3 + 2)) + 20 + 36) % 36] ^= state[((-3 * (3 * 3 + 2)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 3 + 2)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 3 + 2)) + 36) % 36] >> 8)];
@@ -5157,8 +5103,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 3 + 3)) + 18 + 36) % 36] ^= state[((-3 * (3 * 3 + 3)) + 4 + 36) % 36];
                 state[((-3 * (3 * 3 + 3)) + 19 + 36) % 36] ^= state[((-3 * (3 * 3 + 3)) + 5 + 36) % 36];
                 state[((-3 * (3 * 3 + 3)) + 20 + 36) % 36] ^= state[((-3 * (3 * 3 + 3)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 3 + 3)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 3 + 3)) + 36) % 36] >> 8)];
@@ -5236,8 +5180,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 0 + 1)) + 18 + 36) % 36] ^= state[((-3 * (3 * 0 + 1)) + 4 + 36) % 36];
                 state[((-3 * (3 * 0 + 1)) + 19 + 36) % 36] ^= state[((-3 * (3 * 0 + 1)) + 5 + 36) % 36];
                 state[((-3 * (3 * 0 + 1)) + 20 + 36) % 36] ^= state[((-3 * (3 * 0 + 1)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 0 + 1)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 0 + 1)) + 36) % 36] >> 8)];
@@ -5304,8 +5246,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 0 + 2)) + 18 + 36) % 36] ^= state[((-3 * (3 * 0 + 2)) + 4 + 36) % 36];
                 state[((-3 * (3 * 0 + 2)) + 19 + 36) % 36] ^= state[((-3 * (3 * 0 + 2)) + 5 + 36) % 36];
                 state[((-3 * (3 * 0 + 2)) + 20 + 36) % 36] ^= state[((-3 * (3 * 0 + 2)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 0 + 2)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 0 + 2)) + 36) % 36] >> 8)];
@@ -5372,8 +5312,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (3 * 0 + 3)) + 18 + 36) % 36] ^= state[((-3 * (3 * 0 + 3)) + 4 + 36) % 36];
                 state[((-3 * (3 * 0 + 3)) + 19 + 36) % 36] ^= state[((-3 * (3 * 0 + 3)) + 5 + 36) % 36];
                 state[((-3 * (3 * 0 + 3)) + 20 + 36) % 36] ^= state[((-3 * (3 * 0 + 3)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 0 + 3)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 0 + 3)) + 36) % 36] >> 8)];
@@ -5449,8 +5387,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (3 * 1 + 1)) + 18 + 36) % 36] ^= state[((-3 * (3 * 1 + 1)) + 4 + 36) % 36];
                     state[((-3 * (3 * 1 + 1)) + 19 + 36) % 36] ^= state[((-3 * (3 * 1 + 1)) + 5 + 36) % 36];
                     state[((-3 * (3 * 1 + 1)) + 20 + 36) % 36] ^= state[((-3 * (3 * 1 + 1)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 1 + 1)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 1 + 1)) + 36) % 36] >> 8)];
@@ -5517,8 +5453,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (3 * 1 + 2)) + 18 + 36) % 36] ^= state[((-3 * (3 * 1 + 2)) + 4 + 36) % 36];
                     state[((-3 * (3 * 1 + 2)) + 19 + 36) % 36] ^= state[((-3 * (3 * 1 + 2)) + 5 + 36) % 36];
                     state[((-3 * (3 * 1 + 2)) + 20 + 36) % 36] ^= state[((-3 * (3 * 1 + 2)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 1 + 2)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 1 + 2)) + 36) % 36] >> 8)];
@@ -5585,8 +5519,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (3 * 1 + 3)) + 18 + 36) % 36] ^= state[((-3 * (3 * 1 + 3)) + 4 + 36) % 36];
                     state[((-3 * (3 * 1 + 3)) + 19 + 36) % 36] ^= state[((-3 * (3 * 1 + 3)) + 5 + 36) % 36];
                     state[((-3 * (3 * 1 + 3)) + 20 + 36) % 36] ^= state[((-3 * (3 * 1 + 3)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 1 + 3)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 1 + 3)) + 36) % 36] >> 8)];
@@ -5663,8 +5595,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                         state[((-3 * (3 * 2 + 1)) + 18 + 36) % 36] ^= state[((-3 * (3 * 2 + 1)) + 4 + 36) % 36];
                         state[((-3 * (3 * 2 + 1)) + 19 + 36) % 36] ^= state[((-3 * (3 * 2 + 1)) + 5 + 36) % 36];
                         state[((-3 * (3 * 2 + 1)) + 20 + 36) % 36] ^= state[((-3 * (3 * 2 + 1)) + 6 + 36) % 36];
-                        col0 = col1 = col2 = col3 = 0;
-                        row0 = row1 = row2 = row3 = 0;
                         tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 2 + 1)) + 36) % 36])];
                         col0 = tmp;
                         tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 2 + 1)) + 36) % 36] >> 8)];
@@ -5731,8 +5661,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                         state[((-3 * (3 * 2 + 2)) + 18 + 36) % 36] ^= state[((-3 * (3 * 2 + 2)) + 4 + 36) % 36];
                         state[((-3 * (3 * 2 + 2)) + 19 + 36) % 36] ^= state[((-3 * (3 * 2 + 2)) + 5 + 36) % 36];
                         state[((-3 * (3 * 2 + 2)) + 20 + 36) % 36] ^= state[((-3 * (3 * 2 + 2)) + 6 + 36) % 36];
-                        col0 = col1 = col2 = col3 = 0;
-                        row0 = row1 = row2 = row3 = 0;
                         tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 2 + 2)) + 36) % 36])];
                         col0 = tmp;
                         tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 2 + 2)) + 36) % 36] >> 8)];
@@ -5799,8 +5727,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                         state[((-3 * (3 * 2 + 3)) + 18 + 36) % 36] ^= state[((-3 * (3 * 2 + 3)) + 4 + 36) % 36];
                         state[((-3 * (3 * 2 + 3)) + 19 + 36) % 36] ^= state[((-3 * (3 * 2 + 3)) + 5 + 36) % 36];
                         state[((-3 * (3 * 2 + 3)) + 20 + 36) % 36] ^= state[((-3 * (3 * 2 + 3)) + 6 + 36) % 36];
-                        col0 = col1 = col2 = col3 = 0;
-                        row0 = row1 = row2 = row3 = 0;
                         tmp = s_aes_style_table0[(byte)(state[((-3 * (3 * 2 + 3)) + 36) % 36])];
                         col0 = tmp;
                         tmp = s_aes_style_table1[(byte)(state[((-3 * (3 * 2 + 3)) + 36) % 36] >> 8)];
@@ -5861,8 +5787,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                         row2 = ((row2 << 24) | (row2 >> 8));
                         row3 = ((row3 << 24) | (row3 >> 8));
                         state[((-3 * (3 * 2 + 3)) + 3 + 36) % 36] = ((row0 ^ col3) & 0x000000ff) ^ ((row1 ^ col0) & 0x0000ff00) ^ ((row2 ^ col1) & 0x00ff0000) ^ ((row3 ^ col2) & 0xff000000);
-
-                        j++;
                     }
                 }
             }
@@ -5913,8 +5837,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[((-3 * (4 * ((j1 + j) % 3) + 1)) + 18 + 36) % 36] ^= m_state[((-3 * (4 * ((j1 + j) % 3) + 1)) + 4 + 36) % 36];
                 m_state[((-3 * (4 * ((j1 + j) % 3) + 1)) + 19 + 36) % 36] ^= m_state[((-3 * (4 * ((j1 + j) % 3) + 1)) + 5 + 36) % 36];
                 m_state[((-3 * (4 * ((j1 + j) % 3) + 1)) + 20 + 36) % 36] ^= m_state[((-3 * (4 * ((j1 + j) % 3) + 1)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[((-3 * (4 * ((j1 + j) % 3) + 1)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[((-3 * (4 * ((j1 + j) % 3) + 1)) + 36) % 36] >> 8)];
@@ -5981,8 +5903,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[((-3 * (4 * ((j1 + j) % 3) + 2)) + 18 + 36) % 36] ^= m_state[((-3 * (4 * ((j1 + j) % 3) + 2)) + 4 + 36) % 36];
                 m_state[((-3 * (4 * ((j1 + j) % 3) + 2)) + 19 + 36) % 36] ^= m_state[((-3 * (4 * ((j1 + j) % 3) + 2)) + 5 + 36) % 36];
                 m_state[((-3 * (4 * ((j1 + j) % 3) + 2)) + 20 + 36) % 36] ^= m_state[((-3 * (4 * ((j1 + j) % 3) + 2)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[((-3 * (4 * ((j1 + j) % 3) + 2)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[((-3 * (4 * ((j1 + j) % 3) + 2)) + 36) % 36] >> 8)];
@@ -6049,8 +5969,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[((-3 * (4 * ((j1 + j) % 3) + 3)) + 18 + 36) % 36] ^= m_state[((-3 * (4 * ((j1 + j) % 3) + 3)) + 4 + 36) % 36];
                 m_state[((-3 * (4 * ((j1 + j) % 3) + 3)) + 19 + 36) % 36] ^= m_state[((-3 * (4 * ((j1 + j) % 3) + 3)) + 5 + 36) % 36];
                 m_state[((-3 * (4 * ((j1 + j) % 3) + 3)) + 20 + 36) % 36] ^= m_state[((-3 * (4 * ((j1 + j) % 3) + 3)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[((-3 * (4 * ((j1 + j) % 3) + 3)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[((-3 * (4 * ((j1 + j) % 3) + 3)) + 36) % 36] >> 8)];
@@ -6117,8 +6035,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[((-3 * (4 * ((j1 + j) % 3) + 4)) + 18 + 36) % 36] ^= m_state[((-3 * (4 * ((j1 + j) % 3) + 4)) + 4 + 36) % 36];
                 m_state[((-3 * (4 * ((j1 + j) % 3) + 4)) + 19 + 36) % 36] ^= m_state[((-3 * (4 * ((j1 + j) % 3) + 4)) + 5 + 36) % 36];
                 m_state[((-3 * (4 * ((j1 + j) % 3) + 4)) + 20 + 36) % 36] ^= m_state[((-3 * (4 * ((j1 + j) % 3) + 4)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[((-3 * (4 * ((j1 + j) % 3) + 4)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[((-3 * (4 * ((j1 + j) % 3) + 4)) + 36) % 36] >> 8)];
@@ -6190,8 +6106,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[(ptr + 18 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 m_state[(ptr + 27 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 ptr = ((ptr - 9 + 36) % 36);
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[(ptr + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[(ptr + 36) % 36] >> 8)];
@@ -6257,8 +6171,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[(ptr + 18 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 m_state[(ptr + 27 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 ptr = ((ptr - 9 + 36) % 36);
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[(ptr + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[(ptr + 36) % 36] >> 8)];
@@ -6324,8 +6236,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[(ptr + 19 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 m_state[(ptr + 27 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 ptr = ((ptr - 9 + 36) % 36);
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[(ptr + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[(ptr + 36) % 36] >> 8)];
@@ -6391,8 +6301,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 m_state[(ptr + 19 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 m_state[(ptr + 28 + 36) % 36] ^= m_state[(ptr + 36) % 36];
                 ptr = ((ptr - 8 + 36) % 36);
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(m_state[(ptr + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(m_state[(ptr + 36) % 36] >> 8)];
@@ -6503,8 +6411,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (4 * 1 + 1)) + 18 + 36) % 36] ^= state[((-3 * (4 * 1 + 1)) + 4 + 36) % 36];
                     state[((-3 * (4 * 1 + 1)) + 19 + 36) % 36] ^= state[((-3 * (4 * 1 + 1)) + 5 + 36) % 36];
                     state[((-3 * (4 * 1 + 1)) + 20 + 36) % 36] ^= state[((-3 * (4 * 1 + 1)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 1 + 1)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 1 + 1)) + 36) % 36] >> 8)];
@@ -6571,8 +6477,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (4 * 1 + 2)) + 18 + 36) % 36] ^= state[((-3 * (4 * 1 + 2)) + 4 + 36) % 36];
                     state[((-3 * (4 * 1 + 2)) + 19 + 36) % 36] ^= state[((-3 * (4 * 1 + 2)) + 5 + 36) % 36];
                     state[((-3 * (4 * 1 + 2)) + 20 + 36) % 36] ^= state[((-3 * (4 * 1 + 2)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 1 + 2)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 1 + 2)) + 36) % 36] >> 8)];
@@ -6639,8 +6543,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (4 * 1 + 3)) + 18 + 36) % 36] ^= state[((-3 * (4 * 1 + 3)) + 4 + 36) % 36];
                     state[((-3 * (4 * 1 + 3)) + 19 + 36) % 36] ^= state[((-3 * (4 * 1 + 3)) + 5 + 36) % 36];
                     state[((-3 * (4 * 1 + 3)) + 20 + 36) % 36] ^= state[((-3 * (4 * 1 + 3)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 1 + 3)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 1 + 3)) + 36) % 36] >> 8)];
@@ -6707,8 +6609,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (4 * 1 + 4)) + 18 + 36) % 36] ^= state[((-3 * (4 * 1 + 4)) + 4 + 36) % 36];
                     state[((-3 * (4 * 1 + 4)) + 19 + 36) % 36] ^= state[((-3 * (4 * 1 + 4)) + 5 + 36) % 36];
                     state[((-3 * (4 * 1 + 4)) + 20 + 36) % 36] ^= state[((-3 * (4 * 1 + 4)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 1 + 4)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 1 + 4)) + 36) % 36] >> 8)];
@@ -6789,8 +6689,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (4 * 2 + 1)) + 18 + 36) % 36] ^= state[((-3 * (4 * 2 + 1)) + 4 + 36) % 36];
                     state[((-3 * (4 * 2 + 1)) + 19 + 36) % 36] ^= state[((-3 * (4 * 2 + 1)) + 5 + 36) % 36];
                     state[((-3 * (4 * 2 + 1)) + 20 + 36) % 36] ^= state[((-3 * (4 * 2 + 1)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 2 + 1)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 2 + 1)) + 36) % 36] >> 8)];
@@ -6857,8 +6755,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (4 * 2 + 2)) + 18 + 36) % 36] ^= state[((-3 * (4 * 2 + 2)) + 4 + 36) % 36];
                     state[((-3 * (4 * 2 + 2)) + 19 + 36) % 36] ^= state[((-3 * (4 * 2 + 2)) + 5 + 36) % 36];
                     state[((-3 * (4 * 2 + 2)) + 20 + 36) % 36] ^= state[((-3 * (4 * 2 + 2)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 2 + 2)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 2 + 2)) + 36) % 36] >> 8)];
@@ -6925,8 +6821,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (4 * 2 + 3)) + 18 + 36) % 36] ^= state[((-3 * (4 * 2 + 3)) + 4 + 36) % 36];
                     state[((-3 * (4 * 2 + 3)) + 19 + 36) % 36] ^= state[((-3 * (4 * 2 + 3)) + 5 + 36) % 36];
                     state[((-3 * (4 * 2 + 3)) + 20 + 36) % 36] ^= state[((-3 * (4 * 2 + 3)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 2 + 3)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 2 + 3)) + 36) % 36] >> 8)];
@@ -6993,8 +6887,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (4 * 2 + 4)) + 18 + 36) % 36] ^= state[((-3 * (4 * 2 + 4)) + 4 + 36) % 36];
                     state[((-3 * (4 * 2 + 4)) + 19 + 36) % 36] ^= state[((-3 * (4 * 2 + 4)) + 5 + 36) % 36];
                     state[((-3 * (4 * 2 + 4)) + 20 + 36) % 36] ^= state[((-3 * (4 * 2 + 4)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 2 + 4)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 2 + 4)) + 36) % 36] >> 8)];
@@ -7079,8 +6971,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 0 + 1)) + 18 + 36) % 36] ^= state[((-3 * (4 * 0 + 1)) + 4 + 36) % 36];
                 state[((-3 * (4 * 0 + 1)) + 19 + 36) % 36] ^= state[((-3 * (4 * 0 + 1)) + 5 + 36) % 36];
                 state[((-3 * (4 * 0 + 1)) + 20 + 36) % 36] ^= state[((-3 * (4 * 0 + 1)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 0 + 1)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 0 + 1)) + 36) % 36] >> 8)];
@@ -7147,8 +7037,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 0 + 2)) + 18 + 36) % 36] ^= state[((-3 * (4 * 0 + 2)) + 4 + 36) % 36];
                 state[((-3 * (4 * 0 + 2)) + 19 + 36) % 36] ^= state[((-3 * (4 * 0 + 2)) + 5 + 36) % 36];
                 state[((-3 * (4 * 0 + 2)) + 20 + 36) % 36] ^= state[((-3 * (4 * 0 + 2)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 0 + 2)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 0 + 2)) + 36) % 36] >> 8)];
@@ -7208,8 +7096,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 0 + 3)) + 18 + 36) % 36] ^= state[((-3 * (4 * 0 + 3)) + 4 + 36) % 36];
                 state[((-3 * (4 * 0 + 3)) + 19 + 36) % 36] ^= state[((-3 * (4 * 0 + 3)) + 5 + 36) % 36];
                 state[((-3 * (4 * 0 + 3)) + 20 + 36) % 36] ^= state[((-3 * (4 * 0 + 3)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 0 + 3)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 0 + 3)) + 36) % 36] >> 8)];
@@ -7276,8 +7162,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 0 + 4)) + 18 + 36) % 36] ^= state[((-3 * (4 * 0 + 4)) + 4 + 36) % 36];
                 state[((-3 * (4 * 0 + 4)) + 19 + 36) % 36] ^= state[((-3 * (4 * 0 + 4)) + 5 + 36) % 36];
                 state[((-3 * (4 * 0 + 4)) + 20 + 36) % 36] ^= state[((-3 * (4 * 0 + 4)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 0 + 4)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 0 + 4)) + 36) % 36] >> 8)];
@@ -7353,8 +7237,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 1 + 1)) + 18 + 36) % 36] ^= state[((-3 * (4 * 1 + 1)) + 4 + 36) % 36];
                 state[((-3 * (4 * 1 + 1)) + 19 + 36) % 36] ^= state[((-3 * (4 * 1 + 1)) + 5 + 36) % 36];
                 state[((-3 * (4 * 1 + 1)) + 20 + 36) % 36] ^= state[((-3 * (4 * 1 + 1)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 1 + 1)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 1 + 1)) + 36) % 36] >> 8)];
@@ -7421,8 +7303,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 1 + 2)) + 18 + 36) % 36] ^= state[((-3 * (4 * 1 + 2)) + 4 + 36) % 36];
                 state[((-3 * (4 * 1 + 2)) + 19 + 36) % 36] ^= state[((-3 * (4 * 1 + 2)) + 5 + 36) % 36];
                 state[((-3 * (4 * 1 + 2)) + 20 + 36) % 36] ^= state[((-3 * (4 * 1 + 2)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 1 + 2)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 1 + 2)) + 36) % 36] >> 8)];
@@ -7489,8 +7369,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 1 + 3)) + 18 + 36) % 36] ^= state[((-3 * (4 * 1 + 3)) + 4 + 36) % 36];
                 state[((-3 * (4 * 1 + 3)) + 19 + 36) % 36] ^= state[((-3 * (4 * 1 + 3)) + 5 + 36) % 36];
                 state[((-3 * (4 * 1 + 3)) + 20 + 36) % 36] ^= state[((-3 * (4 * 1 + 3)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 1 + 3)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 1 + 3)) + 36) % 36] >> 8)];
@@ -7557,8 +7435,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 1 + 4)) + 18 + 36) % 36] ^= state[((-3 * (4 * 1 + 4)) + 4 + 36) % 36];
                 state[((-3 * (4 * 1 + 4)) + 19 + 36) % 36] ^= state[((-3 * (4 * 1 + 4)) + 5 + 36) % 36];
                 state[((-3 * (4 * 1 + 4)) + 20 + 36) % 36] ^= state[((-3 * (4 * 1 + 4)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 1 + 4)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 1 + 4)) + 36) % 36] >> 8)];
@@ -7634,8 +7510,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 2 + 1)) + 18 + 36) % 36] ^= state[((-3 * (4 * 2 + 1)) + 4 + 36) % 36];
                 state[((-3 * (4 * 2 + 1)) + 19 + 36) % 36] ^= state[((-3 * (4 * 2 + 1)) + 5 + 36) % 36];
                 state[((-3 * (4 * 2 + 1)) + 20 + 36) % 36] ^= state[((-3 * (4 * 2 + 1)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 2 + 1)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 2 + 1)) + 36) % 36] >> 8)];
@@ -7702,8 +7576,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 2 + 2)) + 18 + 36) % 36] ^= state[((-3 * (4 * 2 + 2)) + 4 + 36) % 36];
                 state[((-3 * (4 * 2 + 2)) + 19 + 36) % 36] ^= state[((-3 * (4 * 2 + 2)) + 5 + 36) % 36];
                 state[((-3 * (4 * 2 + 2)) + 20 + 36) % 36] ^= state[((-3 * (4 * 2 + 2)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 2 + 2)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 2 + 2)) + 36) % 36] >> 8)];
@@ -7770,8 +7642,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 2 + 3)) + 18 + 36) % 36] ^= state[((-3 * (4 * 2 + 3)) + 4 + 36) % 36];
                 state[((-3 * (4 * 2 + 3)) + 19 + 36) % 36] ^= state[((-3 * (4 * 2 + 3)) + 5 + 36) % 36];
                 state[((-3 * (4 * 2 + 3)) + 20 + 36) % 36] ^= state[((-3 * (4 * 2 + 3)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 2 + 3)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 2 + 3)) + 36) % 36] >> 8)];
@@ -7838,8 +7708,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 2 + 4)) + 18 + 36) % 36] ^= state[((-3 * (4 * 2 + 4)) + 4 + 36) % 36];
                 state[((-3 * (4 * 2 + 4)) + 19 + 36) % 36] ^= state[((-3 * (4 * 2 + 4)) + 5 + 36) % 36];
                 state[((-3 * (4 * 2 + 4)) + 20 + 36) % 36] ^= state[((-3 * (4 * 2 + 4)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 2 + 4)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 2 + 4)) + 36) % 36] >> 8)];
@@ -7918,8 +7786,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 0 + 1)) + 18 + 36) % 36] ^= state[((-3 * (4 * 0 + 1)) + 4 + 36) % 36];
                 state[((-3 * (4 * 0 + 1)) + 19 + 36) % 36] ^= state[((-3 * (4 * 0 + 1)) + 5 + 36) % 36];
                 state[((-3 * (4 * 0 + 1)) + 20 + 36) % 36] ^= state[((-3 * (4 * 0 + 1)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 0 + 1)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 0 + 1)) + 36) % 36] >> 8)];
@@ -7986,8 +7852,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 0 + 2)) + 18 + 36) % 36] ^= state[((-3 * (4 * 0 + 2)) + 4 + 36) % 36];
                 state[((-3 * (4 * 0 + 2)) + 19 + 36) % 36] ^= state[((-3 * (4 * 0 + 2)) + 5 + 36) % 36];
                 state[((-3 * (4 * 0 + 2)) + 20 + 36) % 36] ^= state[((-3 * (4 * 0 + 2)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 0 + 2)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 0 + 2)) + 36) % 36] >> 8)];
@@ -8054,8 +7918,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 0 + 3)) + 18 + 36) % 36] ^= state[((-3 * (4 * 0 + 3)) + 4 + 36) % 36];
                 state[((-3 * (4 * 0 + 3)) + 19 + 36) % 36] ^= state[((-3 * (4 * 0 + 3)) + 5 + 36) % 36];
                 state[((-3 * (4 * 0 + 3)) + 20 + 36) % 36] ^= state[((-3 * (4 * 0 + 3)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 0 + 3)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 0 + 3)) + 36) % 36] >> 8)];
@@ -8122,8 +7984,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 state[((-3 * (4 * 0 + 4)) + 18 + 36) % 36] ^= state[((-3 * (4 * 0 + 4)) + 4 + 36) % 36];
                 state[((-3 * (4 * 0 + 4)) + 19 + 36) % 36] ^= state[((-3 * (4 * 0 + 4)) + 5 + 36) % 36];
                 state[((-3 * (4 * 0 + 4)) + 20 + 36) % 36] ^= state[((-3 * (4 * 0 + 4)) + 6 + 36) % 36];
-                col0 = col1 = col2 = col3 = 0;
-                row0 = row1 = row2 = row3 = 0;
                 tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 0 + 4)) + 36) % 36])];
                 col0 = tmp;
                 tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 0 + 4)) + 36) % 36] >> 8)];
@@ -8201,8 +8061,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (4 * 1 + 1)) + 18 + 36) % 36] ^= state[((-3 * (4 * 1 + 1)) + 4 + 36) % 36];
                     state[((-3 * (4 * 1 + 1)) + 19 + 36) % 36] ^= state[((-3 * (4 * 1 + 1)) + 5 + 36) % 36];
                     state[((-3 * (4 * 1 + 1)) + 20 + 36) % 36] ^= state[((-3 * (4 * 1 + 1)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 1 + 1)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 1 + 1)) + 36) % 36] >> 8)];
@@ -8269,8 +8127,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (4 * 1 + 2)) + 18 + 36) % 36] ^= state[((-3 * (4 * 1 + 2)) + 4 + 36) % 36];
                     state[((-3 * (4 * 1 + 2)) + 19 + 36) % 36] ^= state[((-3 * (4 * 1 + 2)) + 5 + 36) % 36];
                     state[((-3 * (4 * 1 + 2)) + 20 + 36) % 36] ^= state[((-3 * (4 * 1 + 2)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 1 + 2)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 1 + 2)) + 36) % 36] >> 8)];
@@ -8337,8 +8193,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (4 * 1 + 3)) + 18 + 36) % 36] ^= state[((-3 * (4 * 1 + 3)) + 4 + 36) % 36];
                     state[((-3 * (4 * 1 + 3)) + 19 + 36) % 36] ^= state[((-3 * (4 * 1 + 3)) + 5 + 36) % 36];
                     state[((-3 * (4 * 1 + 3)) + 20 + 36) % 36] ^= state[((-3 * (4 * 1 + 3)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 1 + 3)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 1 + 3)) + 36) % 36] >> 8)];
@@ -8405,8 +8259,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     state[((-3 * (4 * 1 + 4)) + 18 + 36) % 36] ^= state[((-3 * (4 * 1 + 4)) + 4 + 36) % 36];
                     state[((-3 * (4 * 1 + 4)) + 19 + 36) % 36] ^= state[((-3 * (4 * 1 + 4)) + 5 + 36) % 36];
                     state[((-3 * (4 * 1 + 4)) + 20 + 36) % 36] ^= state[((-3 * (4 * 1 + 4)) + 6 + 36) % 36];
-                    col0 = col1 = col2 = col3 = 0;
-                    row0 = row1 = row2 = row3 = 0;
                     tmp = s_aes_style_table0[(byte)(state[((-3 * (4 * 1 + 4)) + 36) % 36])];
                     col0 = tmp;
                     tmp = s_aes_style_table1[(byte)(state[((-3 * (4 * 1 + 4)) + 36) % 36] >> 8)];
@@ -8467,8 +8319,6 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     row2 = ((row2 << 24) | (row2 >> 8));
                     row3 = ((row3 << 24) | (row3 >> 8));
                     state[((-3 * (4 * 1 + 4)) + 3 + 36) % 36] = ((row0 ^ col3) & 0x000000ff) ^ ((row1 ^ col0) & 0x0000ff00) ^ ((row2 ^ col1) & 0x00ff0000) ^ ((row3 ^ col2) & 0xff000000);
-
-                    j++;
                 }
             }
 

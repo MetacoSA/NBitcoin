@@ -109,7 +109,7 @@ namespace NBitcoin.Altcoins.Elements
 				byte witVer;
 				byte[] witProg;
 				var blech32Encoder = address.Network.GetBech32Encoder(Bech32Type.BLINDED_ADDRESS, true);
-				Bech32Encoder bech32Encoder = null;
+				Bech32Encoder bech32Encoder;
 				switch (address)
 				{
 					case BitcoinWitPubKeyAddress _:
