@@ -796,7 +796,7 @@ namespace NBitcoin.Altcoins.Elements
 				Inputs[nIn].PrevOut.ReadWrite(sss);
 				sss.ReadWrite(scriptCode);
 				sss.ReadWrite(spentOutputElem.ConfidentialValue);
-				sss.ReadWrite((uint)Inputs[nIn].Sequence);
+				sss.ReadWrite(Inputs[nIn].Sequence);
 				if(this.Inputs[nIn] is ElementsTxIn elemInput && elemInput.HasAssetIssuance)
 				{
 					elemInput.AssetIssuance.ReadWrite(sss);
@@ -848,7 +848,7 @@ namespace NBitcoin.Altcoins.Elements
 				if (nInput != nIn && (fHashSingle || fHashNone))
 					stream.ReadWrite((uint)0);
 				else
-					stream.ReadWrite((uint)Inputs[nInput].Sequence);
+					stream.ReadWrite(Inputs[nInput].Sequence);
 				// Serialize the asset issuance object
 				if (Inputs[nInput] is ElementsTxIn elemInput && elemInput.HasAssetIssuance)
 				{

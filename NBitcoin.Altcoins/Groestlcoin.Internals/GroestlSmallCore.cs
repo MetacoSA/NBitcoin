@@ -250,7 +250,7 @@ internal abstract class GroestlSmallCore : DigestEngine {
   {
     byte[] buf = getBlockBuffer();
     int ptr = flush();
-    buf[ptr ++] = (byte)0x80;
+    buf[ptr ++] = 0x80;
     ulong count = getBlockCount();
     if (ptr <= 56) {
       for (int i = ptr; i < 56; i ++)
@@ -315,14 +315,14 @@ internal abstract class GroestlSmallCore : DigestEngine {
    */
   private static  ulong decodeBELong(byte[] buf, uint off)
   {
-    return ((((ulong)(buf[(int)off])) & 0xFFUL) << 56)
-      | ((((ulong)(buf[(int)off + 1])) & 0xFFUL) << 48)
-      | ((((ulong)(buf[(int)off + 2])) & 0xFFUL) << 40)
-      | ((((ulong)(buf[(int)off + 3])) & 0xFFUL) << 32)
-      | ((((ulong)(buf[(int)off + 4])) & 0xFFUL) << 24)
-      | ((((ulong)(buf[(int)off + 5])) & 0xFFUL) << 16)
-      | ((((ulong)(buf[(int)off + 6])) & 0xFFUL) << 8)
-      | (((ulong)(buf[(int)off + 7])) & 0xFFUL);
+    return ((buf[(int)off] & 0xFFUL) << 56)
+      | ((buf[(int)off + 1] & 0xFFUL) << 48)
+      | ((buf[(int)off + 2] & 0xFFUL) << 40)
+      | ((buf[(int)off + 3] & 0xFFUL) << 32)
+      | ((buf[(int)off + 4] & 0xFFUL) << 24)
+      | ((buf[(int)off + 5] & 0xFFUL) << 16)
+      | ((buf[(int)off + 6] & 0xFFUL) << 8)
+      | (buf[(int)off + 7] & 0xFFUL);
   }
 
   /**
@@ -336,7 +336,7 @@ internal abstract class GroestlSmallCore : DigestEngine {
   */
   static private ulong circularLeft(ulong x, uint n)
   {
-    return (x << (int)n) | (((ulong)x) >> (64 - (int)n));
+    return (x << (int)n) | (x >> (64 - (int)n));
   }
 
   private void doPermP(ulong[] x)
@@ -492,14 +492,14 @@ internal abstract class GroestlSmallCore : DigestEngine {
   private void doPermQ(ulong[] x)
   {
     for (uint r = 0; r < 10; r += 2) {
-      x[0] ^= (ulong)r ^ unchecked((ulong)-0x01L);
-      x[1] ^= (ulong)r ^ unchecked((ulong)-0x11L);
-      x[2] ^= (ulong)r ^ unchecked((ulong)-0x21L);
-      x[3] ^= (ulong)r ^ unchecked((ulong)-0x31L);
-      x[4] ^= (ulong)r ^ unchecked((ulong)-0x41L);
-      x[5] ^= (ulong)r ^ unchecked((ulong)-0x51L);
-      x[6] ^= (ulong)r ^ unchecked((ulong)-0x61L);
-      x[7] ^= (ulong)r ^ unchecked((ulong)-0x71L);
+      x[0] ^= r ^ unchecked((ulong)-0x01L);
+      x[1] ^= r ^ unchecked((ulong)-0x11L);
+      x[2] ^= r ^ unchecked((ulong)-0x21L);
+      x[3] ^= r ^ unchecked((ulong)-0x31L);
+      x[4] ^= r ^ unchecked((ulong)-0x41L);
+      x[5] ^= r ^ unchecked((ulong)-0x51L);
+      x[6] ^= r ^ unchecked((ulong)-0x61L);
+      x[7] ^= r ^ unchecked((ulong)-0x71L);
       ulong t0 = T0[(uint)(x[1] >> 56)]
         ^ T1[(uint)(x[3] >> 48) & 0xFF]
         ^ T2[(uint)(x[5] >> 40) & 0xFF]
@@ -564,14 +564,14 @@ internal abstract class GroestlSmallCore : DigestEngine {
         ^ T5[((uint)x[1] >> 16) & 0xFF]
         ^ T6[((uint)x[3] >> 8) & 0xFF]
         ^ T7[(uint)x[5] & 0xFF];
-      t0 ^= (ulong)(r + 1) ^ unchecked((ulong)-0x01L);
-      t1 ^= (ulong)(r + 1) ^ unchecked((ulong)-0x11L);
-      t2 ^= (ulong)(r + 1) ^ unchecked((ulong)-0x21L);
-      t3 ^= (ulong)(r + 1) ^ unchecked((ulong)-0x31L);
-      t4 ^= (ulong)(r + 1) ^ unchecked((ulong)-0x41L);
-      t5 ^= (ulong)(r + 1) ^ unchecked((ulong)-0x51L);
-      t6 ^= (ulong)(r + 1) ^ unchecked((ulong)-0x61L);
-      t7 ^= (ulong)(r + 1) ^ unchecked((ulong)-0x71L);
+      t0 ^= r + 1 ^ unchecked((ulong)-0x01L);
+      t1 ^= r + 1 ^ unchecked((ulong)-0x11L);
+      t2 ^= r + 1 ^ unchecked((ulong)-0x21L);
+      t3 ^= r + 1 ^ unchecked((ulong)-0x31L);
+      t4 ^= r + 1 ^ unchecked((ulong)-0x41L);
+      t5 ^= r + 1 ^ unchecked((ulong)-0x51L);
+      t6 ^= r + 1 ^ unchecked((ulong)-0x61L);
+      t7 ^= r + 1 ^ unchecked((ulong)-0x71L);
       x[0] = T0[(uint)(t1 >> 56)]
         ^ T1[(uint)(t3 >> 48) & 0xFF]
         ^ T2[(uint)(t5 >> 40) & 0xFF]

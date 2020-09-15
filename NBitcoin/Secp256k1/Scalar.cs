@@ -113,14 +113,14 @@ namespace NBitcoin.Secp256k1
 #endif
 		Scalar(ReadOnlySpan<byte> b32, out int overflow)
 		{
-			d0 = (uint)b32[31] | (uint)b32[30] << 8 | (uint)b32[29] << 16 | (uint)b32[28] << 24;
-			d1 = (uint)b32[27] | (uint)b32[26] << 8 | (uint)b32[25] << 16 | (uint)b32[24] << 24;
-			d2 = (uint)b32[23] | (uint)b32[22] << 8 | (uint)b32[21] << 16 | (uint)b32[20] << 24;
-			d3 = (uint)b32[19] | (uint)b32[18] << 8 | (uint)b32[17] << 16 | (uint)b32[16] << 24;
-			d4 = (uint)b32[15] | (uint)b32[14] << 8 | (uint)b32[13] << 16 | (uint)b32[12] << 24;
-			d5 = (uint)b32[11] | (uint)b32[10] << 8 | (uint)b32[9] << 16 | (uint)b32[8] << 24;
-			d6 = (uint)b32[7] | (uint)b32[6] << 8 | (uint)b32[5] << 16 | (uint)b32[4] << 24;
-			d7 = (uint)b32[3] | (uint)b32[2] << 8 | (uint)b32[1] << 16 | (uint)b32[0] << 24;
+			d0 = b32[31] | (uint)b32[30] << 8 | (uint)b32[29] << 16 | (uint)b32[28] << 24;
+			d1 = b32[27] | (uint)b32[26] << 8 | (uint)b32[25] << 16 | (uint)b32[24] << 24;
+			d2 = b32[23] | (uint)b32[22] << 8 | (uint)b32[21] << 16 | (uint)b32[20] << 24;
+			d3 = b32[19] | (uint)b32[18] << 8 | (uint)b32[17] << 16 | (uint)b32[16] << 24;
+			d4 = b32[15] | (uint)b32[14] << 8 | (uint)b32[13] << 16 | (uint)b32[12] << 24;
+			d5 = b32[11] | (uint)b32[10] << 8 | (uint)b32[9] << 16 | (uint)b32[8] << 24;
+			d6 = b32[7] | (uint)b32[6] << 8 | (uint)b32[5] << 16 | (uint)b32[4] << 24;
+			d7 = b32[3] | (uint)b32[2] << 8 | (uint)b32[1] << 16 | (uint)b32[0] << 24;
 			overflow = CheckOverflow();
 			// Reduce(ref d0, ref d1, ref d2, ref d3, ref d4, ref d5, ref d6, ref d7, overflow);
 			ulong t;
@@ -135,11 +135,11 @@ namespace NBitcoin.Secp256k1
 			d3 = (uint)t; t >>= 32;
 			t += (ulong)d4 + (uint)overflow * SECP256K1_N_C_4;
 			d4 = (uint)t; t >>= 32;
-			t += (ulong)d5;
+			t += d5;
 			d5 = (uint)t; t >>= 32;
-			t += (ulong)d6;
+			t += d6;
 			d6 = (uint)t; t >>= 32;
-			t += (ulong)d7;
+			t += d7;
 			d7 = (uint)t;
 			VERIFY_CHECK(CheckOverflow() == 0);
 		}
@@ -213,11 +213,11 @@ namespace NBitcoin.Secp256k1
 			d[3] = (uint)t; t >>= 32;
 			t += (ulong)d[4] + (uint)overflow * SECP256K1_N_C_4;
 			d[4] = (uint)t; t >>= 32;
-			t += (ulong)d[5];
+			t += d[5];
 			d[5] = (uint)t; t >>= 32;
-			t += (ulong)d[6];
+			t += d[6];
 			d[6] = (uint)t; t >>= 32;
-			t += (ulong)d[7];
+			t += d[7];
 			d[7] = (uint)t;
 			return overflow;
 		}

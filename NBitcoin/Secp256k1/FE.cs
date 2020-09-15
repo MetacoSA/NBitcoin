@@ -63,15 +63,15 @@ namespace NBitcoin.Secp256k1
 		}
 		FE(ReadOnlySpan<byte> bytes, bool throws, out bool isValid)
 		{
-			n0 = (uint)bytes[31] | ((uint)bytes[30] << 8) | ((uint)bytes[29] << 16) | ((uint)(bytes[28] & 0x3) << 24);
+			n0 = bytes[31] | ((uint)bytes[30] << 8) | ((uint)bytes[29] << 16) | ((uint)(bytes[28] & 0x3) << 24);
 			n1 = (uint)((bytes[28] >> 2) & 0x3f) | ((uint)bytes[27] << 6) | ((uint)bytes[26] << 14) | ((uint)(bytes[25] & 0xf) << 22);
 			n2 = (uint)((bytes[25] >> 4) & 0xf) | ((uint)bytes[24] << 4) | ((uint)bytes[23] << 12) | ((uint)(bytes[22] & 0x3f) << 20);
 			n3 = (uint)((bytes[22] >> 6) & 0x3) | ((uint)bytes[21] << 2) | ((uint)bytes[20] << 10) | ((uint)bytes[19] << 18);
-			n4 = (uint)bytes[18] | ((uint)bytes[17] << 8) | ((uint)bytes[16] << 16) | ((uint)(bytes[15] & 0x3) << 24);
+			n4 = bytes[18] | ((uint)bytes[17] << 8) | ((uint)bytes[16] << 16) | ((uint)(bytes[15] & 0x3) << 24);
 			n5 = (uint)((bytes[15] >> 2) & 0x3f) | ((uint)bytes[14] << 6) | ((uint)bytes[13] << 14) | ((uint)(bytes[12] & 0xf) << 22);
 			n6 = (uint)((bytes[12] >> 4) & 0xf) | ((uint)bytes[11] << 4) | ((uint)bytes[10] << 12) | ((uint)(bytes[9] & 0x3f) << 20);
 			n7 = (uint)((bytes[9] >> 6) & 0x3) | ((uint)bytes[8] << 2) | ((uint)bytes[7] << 10) | ((uint)bytes[6] << 18);
-			n8 = (uint)bytes[5] | ((uint)bytes[4] << 8) | ((uint)bytes[3] << 16) | ((uint)(bytes[2] & 0x3) << 24);
+			n8 = bytes[5] | ((uint)bytes[4] << 8) | ((uint)bytes[3] << 16) | ((uint)(bytes[2] & 0x3) << 24);
 			n9 = (uint)((bytes[2] >> 2) & 0x3f) | ((uint)bytes[1] << 6) | ((uint)bytes[0] << 14);
 			if (n9 == 0x3FFFFFUL && (n8 & n7 & n6 & n5 & n4 & n3 & n2) == 0x3FFFFFFUL && (n1 + 0x40UL + ((n0 + 0x3D1UL) >> 26)) > 0x3FFFFFFUL)
 			{
@@ -106,15 +106,15 @@ namespace NBitcoin.Secp256k1
 		public static FE CONST(uint d7, uint d6, uint d5, uint d4, uint d3, uint d2, uint d1, uint d0)
 		{
 			return new FE((d0) & 0x3FFFFFFU,
-	(((uint)d0) >> 26) | (((uint)(d1) & 0xFFFFFU) << 6),
-	(((uint)d1) >> 20) | (((uint)(d2) & 0x3FFFU) << 12),
-	(((uint)d2) >> 14) | (((uint)(d3) & 0xFFU) << 18),
-	(((uint)d3) >> 8) | (((uint)(d4) & 0x3U) << 24),
-	(((uint)d4) >> 2) & 0x3FFFFFFU,
-	(((uint)d4) >> 28) | (((uint)(d5) & 0x3FFFFFU) << 4),
-	(((uint)d5) >> 22) | (((uint)(d6) & 0xFFFFU) << 10),
-	(((uint)d6) >> 16) | (((uint)(d7) & 0x3FFU) << 16),
-	(((uint)d7) >> 10), 1, true);
+	(d0 >> 26) | ((d1 & 0xFFFFFU) << 6),
+	(d1 >> 20) | ((d2 & 0x3FFFU) << 12),
+	(d2 >> 14) | ((d3 & 0xFFU) << 18),
+	(d3 >> 8) | ((d4 & 0x3U) << 24),
+	(d4 >> 2) & 0x3FFFFFFU,
+	(d4 >> 28) | ((d5 & 0x3FFFFFU) << 4),
+	(d5 >> 22) | ((d6 & 0xFFFFU) << 10),
+	(d6 >> 16) | ((d7 & 0x3FFU) << 16),
+	(d7 >> 10), 1, true);
 		}
 
 

@@ -154,7 +154,7 @@ namespace NBitcoin.Altcoins.HashX11
             Debug.Assert(a_index >= 0);
             Debug.Assert(a_index + 4 <= a_in.Length);
 
-            return (uint)a_in[a_index++] |
+            return a_in[a_index++] |
                    ((uint)a_in[a_index++] << 8) |
                    ((uint)a_in[a_index++] << 16) |
                    ((uint)a_in[a_index] << 24);
@@ -183,7 +183,7 @@ namespace NBitcoin.Altcoins.HashX11
                     ((ulong)a_in[a_index++] << 24) |
                     ((ulong)a_in[a_index++] << 16) |
                     ((ulong)a_in[a_index++] << 8) |
-                    ((ulong)a_in[a_index++]));
+					a_in[a_index++]);
             }
         }
 

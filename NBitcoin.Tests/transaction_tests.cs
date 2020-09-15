@@ -3956,7 +3956,7 @@ namespace NBitcoin.Tests
 			Assert.Throws<ArgumentOutOfRangeException>(() => new Sequence(-1));
 
 			var time = TimeSpan.FromSeconds(512 * 0xFF);
-			Assert.True(new Sequence(time) == (uint)(0xFF | 1 << 22));
+			Assert.True(new Sequence(time) == (0xFF | 1 << 22));
 			Assert.True(new Sequence(time).IsRelativeLock);
 			Assert.True(new Sequence(time).IsRBF);
 			Assert.Throws<ArgumentOutOfRangeException>(() => new Sequence(TimeSpan.FromSeconds(512 * (0xFFFF + 1))));

@@ -246,7 +246,7 @@ namespace NBitcoin.Tests
 				var addr2 = BitcoinAddress.Create(addr, builder.Network).ToString();
 				Assert.Equal(addr, addr2);
 
-				var address = (BitcoinAddress)new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, builder.Network);
+				var address = new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, builder.Network);
 
 				// Test normal address
 				var isValid = ((JObject)node.CreateRPCClient().SendCommand("validateaddress", address.ToString()).Result)["isvalid"].Value<bool>();

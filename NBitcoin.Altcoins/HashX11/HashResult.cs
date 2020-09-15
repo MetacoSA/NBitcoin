@@ -65,7 +65,7 @@ namespace NBitcoin.Altcoins.HashX11
         public override bool Equals(Object a_obj)
         {
             HashResult hash_result = a_obj as HashResult;
-            if ((HashResult)hash_result == null)
+            if (hash_result == null)
                 return false;
 
             return Equals(hash_result);

@@ -66,13 +66,13 @@ namespace NBitcoin.Tests
 			Assert.Equal(uint256.One, values.Skip(1).First().Key);
 			Assert.Equal(-1, ((IComparable<uint256>)uint256.Zero).CompareTo(uint256.One));
 			Assert.Equal(1, ((IComparable<uint256>)uint256.One).CompareTo(uint256.Zero));
-			Assert.Equal(1, ((IComparable)uint256.One).CompareTo(null as object));
-			Assert.Equal(1, ((IComparable)uint256.Zero).CompareTo(null as object));
+			Assert.Equal(1, ((IComparable)uint256.One).CompareTo(null));
+			Assert.Equal(1, ((IComparable)uint256.Zero).CompareTo(null));
 
-			Assert.True((null as uint256) < uint256.Zero);
-			Assert.True(uint256.Zero > (null as uint256));
-			Assert.True((null as uint256) >= (null as uint256));
-			Assert.True((null as uint256) == (null as uint256));
+			Assert.True(null < uint256.Zero);
+			Assert.True(uint256.Zero > null);
+			Assert.True(null >= (null as uint256));
+			Assert.True(null == (null as uint256));
 
 			SortedDictionary<uint160, uint160> values2 = new SortedDictionary<uint160, uint160>();
 			values2.Add(uint160.Zero, uint160.Zero);
@@ -82,13 +82,13 @@ namespace NBitcoin.Tests
 
 			Assert.Equal(-1, ((IComparable<uint160>)uint160.Zero).CompareTo(uint160.One));
 			Assert.Equal(1, ((IComparable<uint160>)uint160.One).CompareTo(uint160.Zero));
-			Assert.Equal(1, ((IComparable)uint160.One).CompareTo(null as object));
-			Assert.Equal(1, ((IComparable)uint160.Zero).CompareTo(null as object));
+			Assert.Equal(1, ((IComparable)uint160.One).CompareTo(null));
+			Assert.Equal(1, ((IComparable)uint160.Zero).CompareTo(null));
 
-			Assert.True((null as uint160) < uint160.Zero);
-			Assert.True(uint160.Zero > (null as uint160));
-			Assert.True((null as uint160) >= (null as uint160));
-			Assert.True((null as uint160) == (null as uint160));
+			Assert.True(null < uint160.Zero);
+			Assert.True(uint160.Zero > null);
+			Assert.True(null >= (null as uint160));
+			Assert.True(null == (null as uint160));
 		}
 
 		[Fact]
