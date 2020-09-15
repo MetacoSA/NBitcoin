@@ -592,7 +592,6 @@ namespace NBitcoin.Altcoins.Elements
 			return Asset;
 		}
 	}
-#pragma warning disable CS0618 // Type or member is obsolete
 
 	public class ElementsTransaction<TNetwork> : ElementsTransaction
 	{
@@ -927,5 +926,4 @@ namespace NBitcoin.Altcoins.Elements
 			return preimage;
 		}
 	}
-#pragma warning restore CS0618 // Type or member is obsolete
 }

@@ -66,11 +66,8 @@ namespace NBitcoin.Altcoins
 
 		public class GincoinBlock : Block
 		{
-#pragma warning disable CS0612 // Type or member is obsolete
 			public GincoinBlock(GincoinBlockHeader h) : base(h)
-#pragma warning restore CS0612 // Type or member is obsolete
 			{
-
 			}
 			public override ConsensusFactory GetConsensusFactory()
 			{

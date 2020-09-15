@@ -355,11 +355,8 @@ namespace NBitcoin.Altcoins
 
 		public class DashBlock : Block
 		{
-#pragma warning disable CS0612 // Type or member is obsolete
 			public DashBlock(DashBlockHeader h) : base(h)
-#pragma warning restore CS0612 // Type or member is obsolete
 			{
-
 			}
 			public override ConsensusFactory GetConsensusFactory()
 			{

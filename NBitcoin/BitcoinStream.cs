@@ -467,7 +467,6 @@ namespace NBitcoin
 			});
 		}
 
-#pragma warning disable CS0618 // Type or member is obsolete
 		uint? _ProtocolVersion = null;
 		public uint? ProtocolVersion
 		{
@@ -481,7 +480,6 @@ namespace NBitcoin
 				_ProtocolCapabilities = null;
 			}
 		}
-
 
 		ProtocolCapabilities _ProtocolCapabilities;
 		public ProtocolCapabilities ProtocolCapabilities
@@ -497,7 +495,6 @@ namespace NBitcoin
 				return capabilities;
 			}
 		}
-#pragma warning restore CS0618 // Type or member is obsolete
 
 		TransactionOptions _TransactionSupportedOptions = TransactionOptions.All;
 		public TransactionOptions TransactionOptions
@@ -511,7 +508,6 @@ namespace NBitcoin
 				_TransactionSupportedOptions = value;
 			}
 		}
-
 
 		public IDisposable ProtocolVersionScope(uint? version)
 		{
@@ -537,7 +533,6 @@ namespace NBitcoin
 			MaxArraySize = from.MaxArraySize;
 			Type = from.Type;
 		}
-
 
 		public SerializationType Type
 		{

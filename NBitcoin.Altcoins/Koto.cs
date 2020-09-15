@@ -36,8 +36,8 @@ namespace NBitcoin.Altcoins
 			public override Block CreateBlock()
 			{
 				return new KotoBlock(new KotoBlockHeader());
-				}
-	}
+			}
+		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
@@ -53,11 +53,12 @@ namespace NBitcoin.Altcoins
 			return KotoConsensusFactory.Instance;
 			}
         }
-	public class KotoBlockHeader : BlockHeader
-	{
-		public override uint256 GetPoWHash()
+
+		public class KotoBlockHeader : BlockHeader
+		{
+			public override uint256 GetPoWHash()
 			{
-			throw new NotImplementedException();
+				throw new NotImplementedException();
 			}
 
 			public override void ReadWrite(BitcoinStream stream)
@@ -99,26 +100,26 @@ namespace NBitcoin.Altcoins
 				MinimumChainWork = new uint256("0x0000000000000000000000000000000000000000000000000000923084b2fcff"),
 				ConsensusFactory = KotoConsensusFactory.Instance,
 				SupportSegwit = false
-				})
-				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 0x18, 0x36 })
-				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 0x18, 0x3B })
-				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 0x80 })
-				.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
-				.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
-				.SetMagic(0x4b6f746f)
-				.SetPort(8433)
-				.SetRPCPort(8432)
-				.SetMaxP2PVersion(170007)
-				.SetName("koto-main")
-				.AddAlias("koto-mainnet")
-				.AddDNSSeeds(new[]
-				{
+			})
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 0x18, 0x36 })
+			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 0x18, 0x3B })
+			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 0x80 })
+			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
+			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
+			.SetMagic(0x4b6f746f)
+			.SetPort(8433)
+			.SetRPCPort(8432)
+			.SetMaxP2PVersion(170007)
+			.SetName("koto-main")
+			.AddAlias("koto-mainnet")
+			.AddDNSSeeds(new[]
+			{
 				new DNSSeedData("ko-to.org", "dnsseed.ko-to.org")
-				})
+			})
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("04000000000000000000000000000000000000000000000000000000000000000000000072bb817c4c07ab244baca568f5f465db3a87520fa165e9a9e68adaa820eb8de1ceb32c5affff071fcc0a00000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff2504ffff071f01041d4b6f746f3a4a6170616e6573652063727970746f2d63757272656e6379ffffffff010000000000000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
 			return builder;
-			}
+		}
 
 		//For TestNet v3
 
@@ -162,13 +163,13 @@ namespace NBitcoin.Altcoins
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("04000000000000000000000000000000000000000000000000000000000000000000000072bb817c4c07ab244baca568f5f465db3a87520fa165e9a9e68adaa820eb8de1cfb32c5affff07201c0000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff2504ffff071f01041d4b6f746f3a4a6170616e6573652063727970746f2d63757272656e6379ffffffff010000000000000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
 			return builder;
-			}
+		}
 
-			protected override NetworkBuilder CreateRegtest()
+		protected override NetworkBuilder CreateRegtest()
+		{
+			var builder = new NetworkBuilder();
+			builder.SetConsensus(new Consensus()
 			{
-				var builder = new NetworkBuilder();
-				builder.SetConsensus(new Consensus()
-				{
 				SubsidyHalvingInterval = 200,
 				MajorityEnforceBlockUpgrade = 750,
 				MajorityRejectBlockOutdated = 950,
@@ -185,7 +186,7 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				ConsensusFactory = KotoConsensusFactory.Instance,
 				SupportSegwit = false
-				})
+			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 0x18, 0xA4 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 0x18, 0x39 })
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 0xEF })
@@ -201,4 +202,4 @@ namespace NBitcoin.Altcoins
 			return builder;
 		}
 	}
-	}
+}
