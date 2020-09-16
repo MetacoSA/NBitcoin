@@ -288,8 +288,6 @@ namespace NBitcoin
 		{
 			if (coins == null)
 				return this;
-			if (IsAllFinalized())
-				return this;
 			foreach (var coin in coins)
 			{
 				var indexedInput = this.Inputs.FindIndexedInput(coin.Outpoint);
@@ -332,8 +330,6 @@ namespace NBitcoin
 				txsById.TryAdd(tx.GetHash(), tx);
 			foreach (var input in Inputs)
 			{
-				if (input.IsFinalized())
-					continue;
 				if (input.WitnessUtxo == null && txsById.TryGetValue(input.TxIn.PrevOut.Hash, out var tx))
 				{
 					if (input.TxIn.PrevOut.N >= tx.Outputs.Count)
