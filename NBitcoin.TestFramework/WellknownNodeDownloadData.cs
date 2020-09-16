@@ -1328,27 +1328,27 @@ namespace NBitcoin.Tests
 		{
 			public NodeDownloadData v5_1_1 = new NodeDownloadData()
 			{
-				Version = "5.1.1",
+				Version = "5.2.2",
 				Windows = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/dogecash/dogecash/releases/download/v5.0.1/DogeCash-5.0.1-win32.zip",
-					Archive = "DogeCash-5.0.1-win32.zip",
+					DownloadLink = "https://github.com/dogecash/dogecash/releases/download/v5.2.2/DogeCash-5.2.2-win32.zip",
+					Archive = "DogeCash-5.2.2-win32.zip",
 					Executable = "dogecashd.exe",
-					Hash = "d78968049874617b9703323bf9ca03a8d140ebf605fff415437693abe3ccc5a0"
+					Hash = "ca9bb0d8e8dc9733b839ba71e626f8e1d20f4869d7105e2145193a793294acdf"
 				},
 				Linux = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/dogecash/dogecash/releases/download/v5.0.1/DogeCash-5.0.1-x86_64-linux-gnu.tar.gz",
-					Archive = "DogeCash-5.0.1-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://github.com/dogecash/dogecash/releases/download/v5.2.2/DogeCash-5.2.2-x86_64-linux-gnu.tar.gz",
+					Archive = "DogeCash-5.2.2-x86_64-linux-gnu.tar.gz",
 					Executable = "dogecashd",
-					Hash = "D8738E8C3D97A3B776414278991EDCCD1E555756713911FDC21E77836D00A3F9"
+					Hash = "95b5bd3155f5bed6f91aa8a240f525f8f75ff7a6e7e276aa0a1acfa016ddfaae"
 				},
 				Mac = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/dogecash/dogecash/releases/download/v5.0.1/DogeCash-5.0.1-osx-unsigned.dmg",
-					Archive = "DogeCash-5.0.1-osx-unsigned.dmg",
-					Executable = "DogeCash-5.0.1-osx-unsigned.dmg",
-					Hash = "13B0DBF2480EB47D2B8A5B82145FE2FC87AEF22CB5CDF78E01C27A41C8CD41D1"
+					DownloadLink = "https://github.com/dogecash/dogecash/releases/download/v5.2.2/DogeCash-5.2.2-osx-unsigned.dmg",
+					Archive = "DogeCash-5.2.2-osx-unsigned.dmg",
+					Executable = "DogeCash-5.2.2-osx-unsigned.dmg",
+					Hash = "559ce13c257ed4378ae017d8b9b862d1e5a4a83e8fbe33ce1c51eea2fc088d56"
 				}
 			};
 		}
