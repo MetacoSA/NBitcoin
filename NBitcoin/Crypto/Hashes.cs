@@ -110,6 +110,7 @@ namespace NBitcoin.Crypto
 
 		public static byte[] RIPEMD160(byte[] data, int count)
 		{
+			if (data == null) throw new ArgumentNullException(nameof(data));
 			return RIPEMD160(data, 0, count);
 		}
 

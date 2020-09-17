@@ -66,6 +66,9 @@ namespace NBitcoin.Scripting
 				if (path == null)
 					throw new ArgumentNullException(nameof(path));
 
+				if (!Enum.IsDefined(typeof(DeriveType), derive))
+					throw new ArgumentException($"Invalid value for DeriveType {derive}", nameof(derive));
+
 				Extkey = extkey;
 				Path = path;
 				Derive = derive;
@@ -85,11 +88,7 @@ namespace NBitcoin.Scripting
 				return path;
 			}
 
-			internal bool IsHardened()
-			{
-				if (Derive == DeriveType.HARDENED) return true;
-				return Path.IsHardenedPath;
-			}
+			internal bool IsHardened() => Derive == DeriveType.HARDENED || Path.IsHardenedPath;
 
 			internal bool TryGetExtKey(Func<KeyId, Key> privateKeyProvider, out BitcoinExtKey extKey)
 			{
@@ -115,7 +114,7 @@ namespace NBitcoin.Scripting
 		#endregion
 
 		public PubKey GetPubKey(uint pos, Func<KeyId, Key> privateKeyProvider)
-			=> GetPubKey(pos, privateKeyProvider, out var _);
+			=> GetPubKey(pos, privateKeyProvider, out _);
 		public PubKey GetPubKey(uint pos, Func<KeyId, Key> privateKeyProvider, out RootedKeyPath keyOriginInfo)
 		{
 			if (!this.TryGetPubKey(pos, privateKeyProvider, out keyOriginInfo, out var result))
@@ -134,6 +133,7 @@ namespace NBitcoin.Scripting
 		/// <returns></returns>
 		public bool TryGetPubKey(uint pos, Func<KeyId, Key> privateKeyProvider, out RootedKeyPath keyOriginInfo, out PubKey pubkey)
 		{
+			if (privateKeyProvider == null) throw new ArgumentNullException(nameof(privateKeyProvider));
 			pubkey = null;
 			keyOriginInfo = null;
 			switch (this)
@@ -196,34 +196,34 @@ namespace NBitcoin.Scripting
 			throw new Exception("Unreachable!");
 		}
 		public bool IsRange() => (this) switch
-			{
-				Origin self => self.Inner.IsRange(),
-				Const _ => false,
-				HD self => self.Derive != DeriveType.NO,
-				_ => throw new Exception("Unreachable!"),
-			};
+		{
+			Origin self => self.Inner.IsRange(),
+			Const _ => false,
+			HD self => self.Derive != DeriveType.NO,
+			_ => throw new Exception("Unreachable!"),
+		};
 		public bool IsCompressed() => (this) switch
-			{
-				Origin self =>
-					self.Inner.IsCompressed(),
-				Const self =>
-					self.Pk.IsCompressed,
-				HD _ =>
-					false,
-				_ => throw new Exception("Unreachable!"),
-			};
+		{
+			Origin self =>
+				self.Inner.IsCompressed(),
+			Const self =>
+				self.Pk.IsCompressed,
+			HD _ =>
+				false,
+			_ => throw new Exception("Unreachable!"),
+		};
 
 		public override string ToString() => (this) switch
-			{
-				Origin self =>
-					$"[{self.KeyOriginInfo}]{self.Inner}",
-				Const self =>
-					self.Pk.ToHex(),
-				HD self =>
-					$"{self.Extkey.ToWif()}{self.GetPathString()}",
-				_ =>
-					throw new Exception("Unreachable!"),
-			};
+		{
+			Origin self =>
+				$"[{self.KeyOriginInfo}]{self.Inner}",
+			Const self =>
+				self.Pk.ToHex(),
+			HD self =>
+				$"{self.Extkey.ToWif()}{self.GetPathString()}",
+			_ =>
+				throw new Exception("Unreachable!"),
+		};
 
 		/// <summary>
 		/// Get the descriptor string form including the private data (If available in arg).

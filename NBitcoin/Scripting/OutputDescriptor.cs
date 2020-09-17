@@ -177,6 +177,8 @@ namespace NBitcoin.Scripting
 			IDictionary<uint, ExtPubKey>? cache = null
 			)
 		{
+			if (privateKeyProvider == null) throw new ArgumentNullException(nameof(privateKeyProvider));
+			if (repo == null) throw new ArgumentNullException(nameof(repo));
 			outputScripts = new List<Script>();
 			return TryExpand(pos, privateKeyProvider, repo, outputScripts, cache);
 		}
@@ -392,6 +394,8 @@ namespace NBitcoin.Scripting
 
 		public static OutputDescriptor InferFromScript(Script sc, ISigningRepository repo, ScriptContext ctx = ScriptContext.TOP)
 		{
+			if (sc == null) throw new ArgumentNullException(nameof(sc));
+			if (repo == null) throw new ArgumentNullException(nameof(repo));
 			var template = sc.FindTemplate();
 			if (template is PayToPubkeyTemplate p2pkTemplate)
 			{
@@ -464,6 +468,7 @@ namespace NBitcoin.Scripting
 
 		public bool TryGetPrivateString(ISigningRepository secretProvider, out string? result)
 		{
+			if (secretProvider == null) throw new ArgumentNullException(nameof(secretProvider));
 			result = null;
 			if (!TryGetPrivateStringHelper(secretProvider, out var inner) || inner is null)
 				return false;

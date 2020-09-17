@@ -247,6 +247,7 @@ namespace NBitcoin.Scripting
 			=> TryParseOD(str, out _, out result,requireCheckSum, repo);
 		private static bool TryParseOD(string str, out string? whyFailure, out OutputDescriptor? result, bool requireCheckSum = false, ISigningRepository? repo = null)
 		{
+			if (str == null) throw new ArgumentNullException(nameof(str));
 			str = str.Replace(" ", "");
 			result = null;
 			whyFailure = null;
