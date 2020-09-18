@@ -65,13 +65,6 @@ namespace NBitcoin.Altcoins
 			RegisterDefaultCookiePath("MogwaiCore");
 		}
 
-		static uint256 GetPoWHash(BlockHeader header)
-		{
-			var headerBytes = header.ToBytes();
-			var h = SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
-			return new uint256(h);
-		}
-
 		protected override NetworkBuilder CreateMainnet()
 		{
 			var builder = new NetworkBuilder();

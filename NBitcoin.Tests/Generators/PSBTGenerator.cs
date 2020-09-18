@@ -54,16 +54,6 @@ namespace NBitcoin.Tests.Generators
 				.AddCoins(CoinsToAdd.ToArray())
 				.AddScripts(scriptsToAdd.ToArray())
 			select psbt;
-
-		private static Gen<TxOut> OutputFromRedeemOrKey(Script sc, PubKey key) =>
-			sc != null ? OutputFromRedeem(sc) : OutputFromKey(key);
-
-		private static Gen<TxOut> OutputFromKey(PubKey key) =>
-			from money in MoneyGenerator.Money()
-			from isP2WPKH in PrimitiveGenerator.Bool()
-			from isP2SH in PrimitiveGenerator.Bool()
-			let scriptPubKey = (isP2SH && isP2WPKH) ? key.WitHash.ScriptPubKey.Hash.ScriptPubKey : isP2WPKH ? key.WitHash.ScriptPubKey : key.Hash.ScriptPubKey
-			select new TxOut(money, scriptPubKey);
 		private static Gen<TxOut> OutputFromRedeem(Script sc) =>
 			from money in MoneyGenerator.Money()
 			from isP2WSH in PrimitiveGenerator.Bool()

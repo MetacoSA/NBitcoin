@@ -295,13 +295,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		private CharRangeT CharRange(char[] chars)
-		{
-			var min = chars.Select(c => (int)c).Min();
-			var max = chars.Select(c => (int)c).Max();
-			return CharRange(min, max);
-		}
-
 		private CharRangeT CharRange(int from, int to)
 		{
 			var result = new CharRangeT();

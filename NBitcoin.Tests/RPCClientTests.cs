@@ -29,8 +29,6 @@ namespace NBitcoin.Tests
 	[Trait("RPCClient", "RPCClient")]
 	public class RPCClientTests
 	{
-		const string TestAccount = "NBitcoin.RPCClientTests";
-
 		public PSBTComparer PSBTComparerInstance { get; }
 		public ITestOutputHelper Output { get; }
 
@@ -1523,24 +1521,6 @@ namespace NBitcoin.Tests
 					{
 						Assert.False(true, "Should have thrown RPC_METHOD_NOT_FOUND");
 					}
-				}
-			}
-		}
-
-		void WaitAssert(Action act)
-		{
-			int totalTry = 30;
-			while (totalTry > 0)
-			{
-				try
-				{
-					act();
-					return;
-				}
-				catch (AssertActualExpectedException)
-				{
-					Thread.Sleep(100);
-					totalTry--;
 				}
 			}
 		}
