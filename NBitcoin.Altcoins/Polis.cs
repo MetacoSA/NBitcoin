@@ -48,7 +48,6 @@ namespace NBitcoin.Altcoins
 #pragma warning disable CS0618 // Type or member is obsolete
 		public class PolisBlockHeader : BlockHeader
 		{
-
 			static byte[] CalculateHash(byte[] data, int offset, int count)
 			{
 				return new HashX11.X11().ComputeBytes(data.Skip(offset).Take(count).ToArray());
@@ -356,11 +355,8 @@ namespace NBitcoin.Altcoins
 
 		public class PolisBlock : Block
 		{
-#pragma warning disable CS0612 // Type or member is obsolete
 			public PolisBlock(PolisBlockHeader h) : base(h)
-#pragma warning restore CS0612 // Type or member is obsolete
 			{
-
 			}
 			public override ConsensusFactory GetConsensusFactory()
 			{
@@ -373,7 +369,6 @@ namespace NBitcoin.Altcoins
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
-
 
 		protected override void PostInit()
 		{

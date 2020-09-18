@@ -35,7 +35,6 @@ namespace NBitcoin.Altcoins
 			Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0x34,0xaf,0xf4,0x16}, 18168)
 		};
 
-#pragma warning disable CS0618 // Type or member is obsolete
 		public class ZCoinConsensusFactory : ConsensusFactory
 		{
 			private ZCoinConsensusFactory()
@@ -54,6 +53,7 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
+#pragma warning disable CS0618 // Type or member is obsolete
 		public class ZCoinBlockHeader : BlockHeader
 		{
 			public override uint256 GetPoWHash()
@@ -74,7 +74,6 @@ namespace NBitcoin.Altcoins
 				return ZCoinConsensusFactory.Instance;
 			}
 		}
-
 #pragma warning restore CS0618 // Type or member is obsolete
 
 		protected override void PostInit()

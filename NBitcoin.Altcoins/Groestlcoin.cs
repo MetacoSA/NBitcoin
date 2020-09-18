@@ -152,11 +152,8 @@ namespace NBitcoin.Altcoins
 
 			public class GroestlcoinBlock : Block
 			{
-#pragma warning disable CS0612 // Type or member is obsolete
 				public GroestlcoinBlock(GroestlcoinBlockHeader h) : base(h)
-#pragma warning restore CS0612 // Type or member is obsolete
 				{
-
 				}
 				public override ConsensusFactory GetConsensusFactory()
 				{

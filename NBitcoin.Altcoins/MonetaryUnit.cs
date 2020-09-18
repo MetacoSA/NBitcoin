@@ -48,9 +48,7 @@ namespace NBitcoin.Altcoins
 
 		public class MonetaryUnitBlock : Block
 		{
-#pragma warning disable CS0612 // Type or member is obsolete
 			public MonetaryUnitBlock(MonetaryUnitBlockHeader h) : base(h)
-#pragma warning restore CS0612 // Type or member is obsolete
 			{
 			}
 

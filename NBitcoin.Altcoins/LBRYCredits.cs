@@ -48,9 +48,7 @@ namespace NBitcoin.Altcoins
 
 		public class LBRYCreditsBlock : Block
 		{
-#pragma warning disable CS0612 // Type or member is obsolete
 			public LBRYCreditsBlock(LBRYCreditsBlockHeader h) : base(h)
-#pragma warning restore CS0612 // Type or member is obsolete
 			{
 			}
 
@@ -170,22 +168,22 @@ namespace NBitcoin.Altcoins
 				ConsensusFactory = LBRYCreditsConsensusFactory.Instance,
 				SupportSegwit = false
 			})
-				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
-				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
-				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
-				.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
-				.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
-				.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("rtLBC"))
-				.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("rtLBC"))
-				.SetMagic(0xfae4aad1)
-				.SetPort(29246)
-				.SetRPCPort(29245)
-				.SetMaxP2PVersion(70800)
-				.SetName("LBRYCredits-reg")
-				.AddAlias("LBRYCredits-regtest")
-				.AddDNSSeeds(new DNSSeedData[0])
-				.AddSeeds(new NetworkAddress[0])
-				.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000cc59e59ff97ac092b55e423aa5495151ed6fb80570a5bb78cd5bd1c3821c21b8010000000000000000000000000000000000000000000000000000000000000033193156ffff7f20010000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f04ffff001d010417696e736572742074696d657374616d7020737472696e67ffffffff01000004bfc91b8e001976a914345991dbf57bfb014b87006acdfafbfc5fe8292f88ac0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
+			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
+			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
+			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
+			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("rtLBC"))
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("rtLBC"))
+			.SetMagic(0xfae4aad1)
+			.SetPort(29246)
+			.SetRPCPort(29245)
+			.SetMaxP2PVersion(70800)
+			.SetName("LBRYCredits-reg")
+			.AddAlias("LBRYCredits-regtest")
+			.AddDNSSeeds(new DNSSeedData[0])
+			.AddSeeds(new NetworkAddress[0])
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000cc59e59ff97ac092b55e423aa5495151ed6fb80570a5bb78cd5bd1c3821c21b8010000000000000000000000000000000000000000000000000000000000000033193156ffff7f20010000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f04ffff001d010417696e736572742074696d657374616d7020737472696e67ffffffff01000004bfc91b8e001976a914345991dbf57bfb014b87006acdfafbfc5fe8292f88ac0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
 
 			return builder;
 		}

@@ -86,7 +86,6 @@ namespace NBitcoin.Protocol
 			return capabilities.IsSupersetOf(MinProtocolCapabilities);
 		}
 
-#pragma warning disable CS0618 // Type or member is obsolete
 		[Obsolete("Use Check(VersionPayload, ProtocolCapabilities capabilities) instead")]
 		public virtual bool Check(VersionPayload version)
 		{
@@ -101,7 +100,6 @@ namespace NBitcoin.Protocol
 			}
 			return true;
 		}
-#pragma warning restore CS0618 // Type or member is obsolete
 	}
 
 	public class SynchronizeChainOptions

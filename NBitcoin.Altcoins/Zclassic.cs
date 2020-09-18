@@ -39,14 +39,12 @@ namespace NBitcoin.Altcoins
             }
         }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-
         public class ZclassicBlock : Block
         {
-            public ZclassicBlock(ZclassicBlockHeader header) : base(header)
-            {
-
-            }
+#pragma warning disable CS0618 // Type or member is obsolete
+			public ZclassicBlock(ZclassicBlockHeader header) : base(header)
+			{
+			}
 
             public override ConsensusFactory GetConsensusFactory()
             {
@@ -65,8 +63,9 @@ namespace NBitcoin.Altcoins
                 base.ReadWrite(stream);
             }
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
-        protected override void PostInit()
+		protected override void PostInit()
         {
             RegisterDefaultCookiePath("Zclassic");
             // Alternatively,
