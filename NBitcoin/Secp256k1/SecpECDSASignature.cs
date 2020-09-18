@@ -191,7 +191,6 @@ namespace NBitcoin.Secp256k1
 			int rlen;
 			Scalar rr, rs;
 			output = null;
-			rr = rs = default;
 			if (sig.Length == 0 || sig[0] != 0x30)
 			{
 				/* The encoding doesn't start with a constructed sequence (X.690-0207 8.9.1). */
@@ -234,8 +233,7 @@ namespace NBitcoin.Secp256k1
 				return false;
 			Scalar r, s;
 			bool ret = true;
-			int overflow = 0;
-
+			int overflow;
 			r = new Scalar(in64, out overflow);
 			ret &= overflow == 0;
 			s = new Scalar(in64.Slice(32), out overflow);

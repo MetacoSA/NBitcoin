@@ -200,7 +200,7 @@ namespace NBitcoin.Secp256k1
 				add = adds.ToGroupElement();
 				r += add;
 			}
-			bits = 0;
+
 			GE.Clear(ref add);
 			Scalar.Clear(ref gnb);
 			return r;

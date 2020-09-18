@@ -59,7 +59,6 @@ namespace NBitcoin.Altcoins.Elements
 			Array.Copy(_HrpExpand, 0, values, valuesOffset, _HrpExpand.Length);
 			valuesOffset += _HrpExpand.Length;
 			Array.Copy(data, offset, values, valuesOffset, count);
-			valuesOffset += count;
 			var polymod = Polymod(values) ^ 1;
 			var ret = new byte[12];
 			foreach (var i in Enumerable.Range(0, 12))

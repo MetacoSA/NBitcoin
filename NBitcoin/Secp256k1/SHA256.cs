@@ -47,11 +47,10 @@ namespace NBitcoin.Secp256k1
 		public void Write(ReadOnlySpan<byte> buffer)
 		{
 			int copied = 0;
-			int toCopy = 0;
 			var innerSpan = new Span<byte>(_Buffer, _Pos, _Buffer.Length - _Pos);
 			while (!buffer.IsEmpty)
 			{
-				toCopy = Math.Min(innerSpan.Length, buffer.Length);
+				int toCopy = Math.Min(innerSpan.Length, buffer.Length);
 				buffer.Slice(0, toCopy).CopyTo(innerSpan.Slice(0, toCopy));
 				buffer = buffer.Slice(toCopy);
 				innerSpan = innerSpan.Slice(toCopy);

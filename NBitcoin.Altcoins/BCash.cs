@@ -885,7 +885,6 @@ namespace BCashAddr
 				if(bits > 0)
 				{
 					result[index] = (byte)((accumulator << (to - bits)) & mask);
-					++index;
 				}
 			}
 			else
