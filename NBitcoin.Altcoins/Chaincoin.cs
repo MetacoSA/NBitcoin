@@ -56,11 +56,8 @@ namespace NBitcoin.Altcoins
 
 		public class ChaincoinBlock : Block
 		{
-#pragma warning disable CS0612 // Type or member is obsolete
 			public ChaincoinBlock(ChaincoinBlockHeader h) : base(h)
-#pragma warning restore CS0612 // Type or member is obsolete
 			{
-
 			}
 			public override ConsensusFactory GetConsensusFactory()
 			{

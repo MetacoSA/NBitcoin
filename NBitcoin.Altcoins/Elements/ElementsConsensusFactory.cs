@@ -42,7 +42,7 @@ namespace NBitcoin.Altcoins.Elements
 			builder.StandardTransactionPolicy.Strategy = new StandardElementsTransactionPolicyStrategy();
 			return builder;
 		}
-#pragma warning disable CS0618 // Type or member is obsolete
+
 		class ElementsTransactionBuilder : TransactionBuilder
 		{
 			public ElementsTransactionBuilder(Network network): base(network)
@@ -72,7 +72,7 @@ namespace NBitcoin.Altcoins.Elements
 				}
 			}
 		}
-#pragma warning restore CS0618 // Type or member is obsolete
+
 		class StandardElementsTransactionPolicyStrategy : StandardTransactionPolicyStrategy
 		{
 			public override bool IsStandardOutput(TxOut txout)

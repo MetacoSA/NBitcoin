@@ -56,9 +56,7 @@ namespace NBitcoin.Altcoins
 
 		public class DogeCashBlock : Block
 		{
-#pragma warning disable CS0612 // Type or member is obsolete
 			public DogeCashBlock(DogeCashBlockHeader h) : base(h)
-#pragma warning restore CS0612 // Type or member is obsolete
 			{
 			}
 

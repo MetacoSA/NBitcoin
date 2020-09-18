@@ -56,9 +56,7 @@ namespace NBitcoin.Altcoins
 
 		public class ColossusBlock : Block
 		{
-#pragma warning disable CS0612 // Type or member is obsolete
 			public ColossusBlock(ColossusBlockHeader h) : base(h)
-#pragma warning restore CS0612 // Type or member is obsolete
 			{
 			}
 

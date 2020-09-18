@@ -36,7 +36,6 @@ namespace NBitcoin.Altcoins
 	Tuple.Create(new byte[]{0xfd,0x87,0xd8,0x7e,0xeb,0x43,0x8c,0x95,0x7f,0x9b,0x49,0x18,0xd4,0xca,0x06,0x11}, 25223),
 };
 
-#pragma warning disable CS0618 // Type or member is obsolete
 		public class ViacoinConsensusFactory : ConsensusFactory
 		{
 			private ViacoinConsensusFactory()
