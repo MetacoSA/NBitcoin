@@ -26,7 +26,7 @@ namespace NBitcoin.Tests.Generators
 
 		// 2. p2sh scriptSig
 		public static Gen<Script> MultiSignatureScriptSig() =>
-			from N in Gen.Choose(1, (int)20)
+			from N in Gen.Choose(1, 20)
 			from hash in Hash256()
 			from M in Gen.Choose(1, N)
 			from pks in PrivateKeys(M)
@@ -86,7 +86,7 @@ namespace NBitcoin.Tests.Generators
 			select pk.Hash.ScriptPubKey;
 
 		public static Gen<Script> P2MultisigScriptPubKey() =>
-			from t in PublicKey().Zip(Gen.Choose(0, (int)16))
+			from t in PublicKey().Zip(Gen.Choose(0, 16))
 			select PayToMultiSigTemplate.Instance.GenerateScriptPubKey(t.Item2, t.Item1);
 
 		public static Gen<Script> LegacyScriptPubKey() =>

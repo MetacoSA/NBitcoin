@@ -330,10 +330,10 @@ namespace NBitcoin.Tests
 			packed = new Target(TestUtils.ParseHex("1b0404cb"));
 			Assert.Equal(16307.420938523983D, packed.Difficulty, "420938523983".Length);
 
-			Assert.Equal(packed, new Target((uint)0x1b0404cb));
+			Assert.Equal(packed, new Target(0x1b0404cb));
 			Assert.Equal((uint)packed, (uint)0x1b0404cb);
 
-			packed = new Target((uint)0x1b0404d1);
+			packed = new Target(0x1b0404d1);
 			Assert.Equal(16307.04943863739, packed.Difficulty, "420938523983".Length);
 
 			packed = new Target(0x1d00ffff);
@@ -430,7 +430,7 @@ namespace NBitcoin.Tests
 			long data = 5;
 			Assert.Equal(Money.Coins(5), data * Money.Coins(1.0m));
 			Assert.Equal(Money.Coins(5), Money.Coins(1.0m) * data);
-			Assert.Equal(500000000L, (long)Money.Coins(5).Satoshi);
+			Assert.Equal(500000000L, Money.Coins(5).Satoshi);
 			Assert.Equal(500000000U, (uint)Money.Coins(5).Satoshi);
 			Assert.Equal("5.00000000", Money.Coins(5).ToString());
 		}
@@ -741,9 +741,9 @@ namespace NBitcoin.Tests
 			Assert.False(a.Equals(o));
 			Assert.True(b == bb);
 			Assert.True(b != aa);
-			Assert.True(b != (null as FeeRate));
-			Assert.True((null as FeeRate) == (null as FeeRate));
-			Assert.False((null as FeeRate) != (null as FeeRate));
+			Assert.True(b != null);
+			Assert.True(null == (null as FeeRate));
+			Assert.False(null != (null as FeeRate));
 			Assert.False(a.Equals(b));
 			Assert.True(aa == a);
 			Assert.True(bb == b);

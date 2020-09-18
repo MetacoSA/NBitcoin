@@ -531,7 +531,7 @@ namespace NBitcoin.Altcoins
 					sss.ReadWrite(Inputs[nIn].PrevOut);
 					sss.ReadWrite(scriptCode);
 					sss.ReadWrite(spentOutput.Value.Satoshi);
-					sss.ReadWrite((uint)Inputs[nIn].Sequence);
+					sss.ReadWrite(Inputs[nIn].Sequence);
 					// Outputs (none/one/all, depending on flags)
 					sss.ReadWrite(hashOutputs);
 					// Locktime
@@ -580,7 +580,7 @@ namespace NBitcoin.Altcoins
 					if (nInput != nIn && (fHashSingle || fHashNone))
 						stream.ReadWrite((uint)0);
 					else
-						stream.ReadWrite((uint)Inputs[nInput].Sequence);
+						stream.ReadWrite(Inputs[nInput].Sequence);
 				}
 
 				uint nOutputs = (uint)(fHashNone ? 0 : (fHashSingle ? nIn + 1 : Outputs.Count));

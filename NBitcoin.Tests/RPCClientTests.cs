@@ -1130,8 +1130,8 @@ namespace NBitcoin.Tests
 				var mempoolEntry = rpc.GetMempoolEntry(txs[3]);
 				Assert.Equal(4, mempoolEntry.AncestorCount);
 				Assert.Equal(7, mempoolEntry.DescendantCount);
-				Assert.Equal(1, (int)mempoolEntry.SpentBy.Length);
-				Assert.Equal(1, (int)mempoolEntry.Depends.Length);
+				Assert.Equal(1, mempoolEntry.SpentBy.Length);
+				Assert.Equal(1, mempoolEntry.Depends.Length);
 
 				// Here we spend the change of the second transaction
 				var funding = rpc.GetRawTransaction(txs[1]);
@@ -1154,20 +1154,20 @@ namespace NBitcoin.Tests
 				mempoolEntry = rpc.GetMempoolEntry(txs[1]);
 				Assert.Equal(2, mempoolEntry.AncestorCount);
 				Assert.Equal(10, mempoolEntry.DescendantCount);
-				Assert.Equal(2, (int)mempoolEntry.SpentBy.Length);
-				Assert.Equal(1, (int)mempoolEntry.Depends.Length);
+				Assert.Equal(2, mempoolEntry.SpentBy.Length);
+				Assert.Equal(1, mempoolEntry.Depends.Length);
 
 				mempoolEntry = rpc.GetMempoolEntry(txx);
 				Assert.Equal(3, mempoolEntry.AncestorCount);
 				Assert.Equal(1, mempoolEntry.DescendantCount);
-				Assert.Equal(0, (int)mempoolEntry.SpentBy.Length);
-				Assert.Equal(1, (int)mempoolEntry.Depends.Length);
+				Assert.Equal(0, mempoolEntry.SpentBy.Length);
+				Assert.Equal(1, mempoolEntry.Depends.Length);
 
 				mempoolEntry = rpc.GetMempoolEntry(txs[3]);
 				Assert.Equal(4, mempoolEntry.AncestorCount);
 				Assert.Equal(7, mempoolEntry.DescendantCount);
-				Assert.Equal(1, (int)mempoolEntry.SpentBy.Length);
-				Assert.Equal(1, (int)mempoolEntry.Depends.Length);
+				Assert.Equal(1, mempoolEntry.SpentBy.Length);
+				Assert.Equal(1, mempoolEntry.Depends.Length);
 			}
 		}
 

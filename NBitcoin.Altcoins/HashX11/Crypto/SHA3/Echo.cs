@@ -309,9 +309,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH0)] ^ s_T1[(byte)(WH0 >> 40)] ^ s_T2[(byte)(WL0 >> 16)] ^ s_T3[(byte)(WL0 >> 56)];
                 WD = s_T0[(byte)(WH0 >> 32)] ^ s_T1[(byte)(WL0 >> 8)] ^ s_T2[(byte)(WL0 >> 48)] ^ s_T3[(byte)(WH0 >> 24)];
                 cnt++;
-                WL0 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL0 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL0 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH0 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH0 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH0 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL1)] ^ s_T1[(byte)(WL1 >> 40)] ^ s_T2[(byte)(WH1 >> 16)] ^ s_T3[(byte)(WH1 >> 56)] ^ (uint)cnt;
@@ -319,9 +319,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH1)] ^ s_T1[(byte)(WH1 >> 40)] ^ s_T2[(byte)(WL1 >> 16)] ^ s_T3[(byte)(WL1 >> 56)];
                 WD = s_T0[(byte)(WH1 >> 32)] ^ s_T1[(byte)(WL1 >> 8)] ^ s_T2[(byte)(WL1 >> 48)] ^ s_T3[(byte)(WH1 >> 24)];
                 cnt++;
-                WL1 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL1 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL1 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH1 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH1 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH1 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL2)] ^ s_T1[(byte)(WL2 >> 40)] ^ s_T2[(byte)(WH2 >> 16)] ^ s_T3[(byte)(WH2 >> 56)] ^ (uint)cnt;
@@ -329,9 +329,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH2)] ^ s_T1[(byte)(WH2 >> 40)] ^ s_T2[(byte)(WL2 >> 16)] ^ s_T3[(byte)(WL2 >> 56)];
                 WD = s_T0[(byte)(WH2 >> 32)] ^ s_T1[(byte)(WL2 >> 8)] ^ s_T2[(byte)(WL2 >> 48)] ^ s_T3[(byte)(WH2 >> 24)];
                 cnt++;
-                WL2 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL2 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL2 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH2 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH2 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH2 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL3)] ^ s_T1[(byte)(WL3 >> 40)] ^ s_T2[(byte)(WH3 >> 16)] ^ s_T3[(byte)(WH3 >> 56)] ^ (uint)cnt;
@@ -339,9 +339,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH3)] ^ s_T1[(byte)(WH3 >> 40)] ^ s_T2[(byte)(WL3 >> 16)] ^ s_T3[(byte)(WL3 >> 56)];
                 WD = s_T0[(byte)(WH3 >> 32)] ^ s_T1[(byte)(WL3 >> 8)] ^ s_T2[(byte)(WL3 >> 48)] ^ s_T3[(byte)(WH3 >> 24)];
                 cnt++;
-                WL3 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL3 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL3 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH3 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH3 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH3 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL4)] ^ s_T1[(byte)(WL4 >> 40)] ^ s_T2[(byte)(WH4 >> 16)] ^ s_T3[(byte)(WH4 >> 56)] ^ (uint)cnt;
@@ -349,9 +349,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH4)] ^ s_T1[(byte)(WH4 >> 40)] ^ s_T2[(byte)(WL4 >> 16)] ^ s_T3[(byte)(WL4 >> 56)];
                 WD = s_T0[(byte)(WH4 >> 32)] ^ s_T1[(byte)(WL4 >> 8)] ^ s_T2[(byte)(WL4 >> 48)] ^ s_T3[(byte)(WH4 >> 24)];
                 cnt++;
-                WL4 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL4 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL4 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH4 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH4 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH4 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL5)] ^ s_T1[(byte)(WL5 >> 40)] ^ s_T2[(byte)(WH5 >> 16)] ^ s_T3[(byte)(WH5 >> 56)] ^ (uint)cnt;
@@ -359,9 +359,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH5)] ^ s_T1[(byte)(WH5 >> 40)] ^ s_T2[(byte)(WL5 >> 16)] ^ s_T3[(byte)(WL5 >> 56)];
                 WD = s_T0[(byte)(WH5 >> 32)] ^ s_T1[(byte)(WL5 >> 8)] ^ s_T2[(byte)(WL5 >> 48)] ^ s_T3[(byte)(WH5 >> 24)];
                 cnt++;
-                WL5 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL5 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL5 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH5 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH5 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH5 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL6)] ^ s_T1[(byte)(WL6 >> 40)] ^ s_T2[(byte)(WH6 >> 16)] ^ s_T3[(byte)(WH6 >> 56)] ^ (uint)cnt;
@@ -369,9 +369,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH6)] ^ s_T1[(byte)(WH6 >> 40)] ^ s_T2[(byte)(WL6 >> 16)] ^ s_T3[(byte)(WL6 >> 56)];
                 WD = s_T0[(byte)(WH6 >> 32)] ^ s_T1[(byte)(WL6 >> 8)] ^ s_T2[(byte)(WL6 >> 48)] ^ s_T3[(byte)(WH6 >> 24)];
                 cnt++;
-                WL6 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL6 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL6 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH6 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH6 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH6 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL7)] ^ s_T1[(byte)(WL7 >> 40)] ^ s_T2[(byte)(WH7 >> 16)] ^ s_T3[(byte)(WH7 >> 56)] ^ (uint)cnt;
@@ -379,9 +379,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH7)] ^ s_T1[(byte)(WH7 >> 40)] ^ s_T2[(byte)(WL7 >> 16)] ^ s_T3[(byte)(WL7 >> 56)];
                 WD = s_T0[(byte)(WH7 >> 32)] ^ s_T1[(byte)(WL7 >> 8)] ^ s_T2[(byte)(WL7 >> 48)] ^ s_T3[(byte)(WH7 >> 24)];
                 cnt++;
-                WL7 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL7 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL7 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH7 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH7 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH7 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL8)] ^ s_T1[(byte)(WL8 >> 40)] ^ s_T2[(byte)(WH8 >> 16)] ^ s_T3[(byte)(WH8 >> 56)] ^ (uint)cnt;
@@ -389,9 +389,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH8)] ^ s_T1[(byte)(WH8 >> 40)] ^ s_T2[(byte)(WL8 >> 16)] ^ s_T3[(byte)(WL8 >> 56)];
                 WD = s_T0[(byte)(WH8 >> 32)] ^ s_T1[(byte)(WL8 >> 8)] ^ s_T2[(byte)(WL8 >> 48)] ^ s_T3[(byte)(WH8 >> 24)];
                 cnt++;
-                WL8 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL8 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL8 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH8 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH8 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH8 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL9)] ^ s_T1[(byte)(WL9 >> 40)] ^ s_T2[(byte)(WH9 >> 16)] ^ s_T3[(byte)(WH9 >> 56)] ^ (uint)cnt;
@@ -399,9 +399,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH9)] ^ s_T1[(byte)(WH9 >> 40)] ^ s_T2[(byte)(WL9 >> 16)] ^ s_T3[(byte)(WL9 >> 56)];
                 WD = s_T0[(byte)(WH9 >> 32)] ^ s_T1[(byte)(WL9 >> 8)] ^ s_T2[(byte)(WL9 >> 48)] ^ s_T3[(byte)(WH9 >> 24)];
                 cnt++;
-                WL9 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL9 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL9 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH9 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH9 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH9 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL10)] ^ s_T1[(byte)(WL10 >> 40)] ^ s_T2[(byte)(WH10 >> 16)] ^ s_T3[(byte)(WH10 >> 56)] ^ (uint)cnt;
@@ -409,9 +409,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH10)] ^ s_T1[(byte)(WH10 >> 40)] ^ s_T2[(byte)(WL10 >> 16)] ^ s_T3[(byte)(WL10 >> 56)];
                 WD = s_T0[(byte)(WH10 >> 32)] ^ s_T1[(byte)(WL10 >> 8)] ^ s_T2[(byte)(WL10 >> 48)] ^ s_T3[(byte)(WH10 >> 24)];
                 cnt++;
-                WL10 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL10 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL10 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH10 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH10 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH10 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL11)] ^ s_T1[(byte)(WL11 >> 40)] ^ s_T2[(byte)(WH11 >> 16)] ^ s_T3[(byte)(WH11 >> 56)] ^ (uint)cnt;
@@ -419,9 +419,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH11)] ^ s_T1[(byte)(WH11 >> 40)] ^ s_T2[(byte)(WL11 >> 16)] ^ s_T3[(byte)(WL11 >> 56)];
                 WD = s_T0[(byte)(WH11 >> 32)] ^ s_T1[(byte)(WL11 >> 8)] ^ s_T2[(byte)(WL11 >> 48)] ^ s_T3[(byte)(WH11 >> 24)];
                 cnt++;
-                WL11 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL11 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL11 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH11 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH11 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH11 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL12)] ^ s_T1[(byte)(WL12 >> 40)] ^ s_T2[(byte)(WH12 >> 16)] ^ s_T3[(byte)(WH12 >> 56)] ^ (uint)cnt;
@@ -429,9 +429,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH12)] ^ s_T1[(byte)(WH12 >> 40)] ^ s_T2[(byte)(WL12 >> 16)] ^ s_T3[(byte)(WL12 >> 56)];
                 WD = s_T0[(byte)(WH12 >> 32)] ^ s_T1[(byte)(WL12 >> 8)] ^ s_T2[(byte)(WL12 >> 48)] ^ s_T3[(byte)(WH12 >> 24)];
                 cnt++;
-                WL12 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL12 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL12 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH12 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH12 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH12 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL13)] ^ s_T1[(byte)(WL13 >> 40)] ^ s_T2[(byte)(WH13 >> 16)] ^ s_T3[(byte)(WH13 >> 56)] ^ (uint)cnt;
@@ -439,9 +439,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH13)] ^ s_T1[(byte)(WH13 >> 40)] ^ s_T2[(byte)(WL13 >> 16)] ^ s_T3[(byte)(WL13 >> 56)];
                 WD = s_T0[(byte)(WH13 >> 32)] ^ s_T1[(byte)(WL13 >> 8)] ^ s_T2[(byte)(WL13 >> 48)] ^ s_T3[(byte)(WH13 >> 24)];
                 cnt++;
-                WL13 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL13 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL13 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH13 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH13 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH13 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL14)] ^ s_T1[(byte)(WL14 >> 40)] ^ s_T2[(byte)(WH14 >> 16)] ^ s_T3[(byte)(WH14 >> 56)] ^ (uint)cnt;
@@ -449,9 +449,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH14)] ^ s_T1[(byte)(WH14 >> 40)] ^ s_T2[(byte)(WL14 >> 16)] ^ s_T3[(byte)(WL14 >> 56)];
                 WD = s_T0[(byte)(WH14 >> 32)] ^ s_T1[(byte)(WL14 >> 8)] ^ s_T2[(byte)(WL14 >> 48)] ^ s_T3[(byte)(WH14 >> 24)];
                 cnt++;
-                WL14 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL14 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL14 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH14 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH14 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH14 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL15)] ^ s_T1[(byte)(WL15 >> 40)] ^ s_T2[(byte)(WH15 >> 16)] ^ s_T3[(byte)(WH15 >> 56)] ^ (uint)cnt;
@@ -459,9 +459,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH15)] ^ s_T1[(byte)(WH15 >> 40)] ^ s_T2[(byte)(WL15 >> 16)] ^ s_T3[(byte)(WL15 >> 56)];
                 WD = s_T0[(byte)(WH15 >> 32)] ^ s_T1[(byte)(WL15 >> 8)] ^ s_T2[(byte)(WL15 >> 48)] ^ s_T3[(byte)(WH15 >> 24)];
                 cnt++;
-                WL15 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL15 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL15 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH15 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH15 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH15 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 ulong WT0 = WL2;
@@ -741,9 +741,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH0)] ^ s_T1[(byte)(WH0 >> 40)] ^ s_T2[(byte)(WL0 >> 16)] ^ s_T3[(byte)(WL0 >> 56)];
                 WD = s_T0[(byte)(WH0 >> 32)] ^ s_T1[(byte)(WL0 >> 8)] ^ s_T2[(byte)(WL0 >> 48)] ^ s_T3[(byte)(WH0 >> 24)];
                 cnt++;
-                WL0 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL0 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL0 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH0 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH0 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH0 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL1)] ^ s_T1[(byte)(WL1 >> 40)] ^ s_T2[(byte)(WH1 >> 16)] ^ s_T3[(byte)(WH1 >> 56)] ^ (uint)cnt;
@@ -751,9 +751,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH1)] ^ s_T1[(byte)(WH1 >> 40)] ^ s_T2[(byte)(WL1 >> 16)] ^ s_T3[(byte)(WL1 >> 56)];
                 WD = s_T0[(byte)(WH1 >> 32)] ^ s_T1[(byte)(WL1 >> 8)] ^ s_T2[(byte)(WL1 >> 48)] ^ s_T3[(byte)(WH1 >> 24)];
                 cnt++;
-                WL1 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL1 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL1 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH1 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH1 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH1 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL2)] ^ s_T1[(byte)(WL2 >> 40)] ^ s_T2[(byte)(WH2 >> 16)] ^ s_T3[(byte)(WH2 >> 56)] ^ (uint)cnt;
@@ -761,9 +761,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH2)] ^ s_T1[(byte)(WH2 >> 40)] ^ s_T2[(byte)(WL2 >> 16)] ^ s_T3[(byte)(WL2 >> 56)];
                 WD = s_T0[(byte)(WH2 >> 32)] ^ s_T1[(byte)(WL2 >> 8)] ^ s_T2[(byte)(WL2 >> 48)] ^ s_T3[(byte)(WH2 >> 24)];
                 cnt++;
-                WL2 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL2 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL2 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH2 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH2 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH2 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL3)] ^ s_T1[(byte)(WL3 >> 40)] ^ s_T2[(byte)(WH3 >> 16)] ^ s_T3[(byte)(WH3 >> 56)] ^ (uint)cnt;
@@ -771,9 +771,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH3)] ^ s_T1[(byte)(WH3 >> 40)] ^ s_T2[(byte)(WL3 >> 16)] ^ s_T3[(byte)(WL3 >> 56)];
                 WD = s_T0[(byte)(WH3 >> 32)] ^ s_T1[(byte)(WL3 >> 8)] ^ s_T2[(byte)(WL3 >> 48)] ^ s_T3[(byte)(WH3 >> 24)];
                 cnt++;
-                WL3 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL3 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL3 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH3 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH3 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH3 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL4)] ^ s_T1[(byte)(WL4 >> 40)] ^ s_T2[(byte)(WH4 >> 16)] ^ s_T3[(byte)(WH4 >> 56)] ^ (uint)cnt;
@@ -781,9 +781,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH4)] ^ s_T1[(byte)(WH4 >> 40)] ^ s_T2[(byte)(WL4 >> 16)] ^ s_T3[(byte)(WL4 >> 56)];
                 WD = s_T0[(byte)(WH4 >> 32)] ^ s_T1[(byte)(WL4 >> 8)] ^ s_T2[(byte)(WL4 >> 48)] ^ s_T3[(byte)(WH4 >> 24)];
                 cnt++;
-                WL4 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL4 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL4 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH4 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH4 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH4 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL5)] ^ s_T1[(byte)(WL5 >> 40)] ^ s_T2[(byte)(WH5 >> 16)] ^ s_T3[(byte)(WH5 >> 56)] ^ (uint)cnt;
@@ -791,9 +791,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH5)] ^ s_T1[(byte)(WH5 >> 40)] ^ s_T2[(byte)(WL5 >> 16)] ^ s_T3[(byte)(WL5 >> 56)];
                 WD = s_T0[(byte)(WH5 >> 32)] ^ s_T1[(byte)(WL5 >> 8)] ^ s_T2[(byte)(WL5 >> 48)] ^ s_T3[(byte)(WH5 >> 24)];
                 cnt++;
-                WL5 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL5 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL5 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH5 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH5 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH5 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL6)] ^ s_T1[(byte)(WL6 >> 40)] ^ s_T2[(byte)(WH6 >> 16)] ^ s_T3[(byte)(WH6 >> 56)] ^ (uint)cnt;
@@ -801,9 +801,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH6)] ^ s_T1[(byte)(WH6 >> 40)] ^ s_T2[(byte)(WL6 >> 16)] ^ s_T3[(byte)(WL6 >> 56)];
                 WD = s_T0[(byte)(WH6 >> 32)] ^ s_T1[(byte)(WL6 >> 8)] ^ s_T2[(byte)(WL6 >> 48)] ^ s_T3[(byte)(WH6 >> 24)];
                 cnt++;
-                WL6 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL6 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL6 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH6 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH6 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH6 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL7)] ^ s_T1[(byte)(WL7 >> 40)] ^ s_T2[(byte)(WH7 >> 16)] ^ s_T3[(byte)(WH7 >> 56)] ^ (uint)cnt;
@@ -811,9 +811,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH7)] ^ s_T1[(byte)(WH7 >> 40)] ^ s_T2[(byte)(WL7 >> 16)] ^ s_T3[(byte)(WL7 >> 56)];
                 WD = s_T0[(byte)(WH7 >> 32)] ^ s_T1[(byte)(WL7 >> 8)] ^ s_T2[(byte)(WL7 >> 48)] ^ s_T3[(byte)(WH7 >> 24)];
                 cnt++;
-                WL7 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL7 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL7 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH7 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH7 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH7 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL8)] ^ s_T1[(byte)(WL8 >> 40)] ^ s_T2[(byte)(WH8 >> 16)] ^ s_T3[(byte)(WH8 >> 56)] ^ (uint)cnt;
@@ -821,9 +821,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH8)] ^ s_T1[(byte)(WH8 >> 40)] ^ s_T2[(byte)(WL8 >> 16)] ^ s_T3[(byte)(WL8 >> 56)];
                 WD = s_T0[(byte)(WH8 >> 32)] ^ s_T1[(byte)(WL8 >> 8)] ^ s_T2[(byte)(WL8 >> 48)] ^ s_T3[(byte)(WH8 >> 24)];
                 cnt++;
-                WL8 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL8 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL8 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH8 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH8 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH8 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL9)] ^ s_T1[(byte)(WL9 >> 40)] ^ s_T2[(byte)(WH9 >> 16)] ^ s_T3[(byte)(WH9 >> 56)] ^ (uint)cnt;
@@ -831,9 +831,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH9)] ^ s_T1[(byte)(WH9 >> 40)] ^ s_T2[(byte)(WL9 >> 16)] ^ s_T3[(byte)(WL9 >> 56)];
                 WD = s_T0[(byte)(WH9 >> 32)] ^ s_T1[(byte)(WL9 >> 8)] ^ s_T2[(byte)(WL9 >> 48)] ^ s_T3[(byte)(WH9 >> 24)];
                 cnt++;
-                WL9 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL9 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL9 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH9 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH9 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH9 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL10)] ^ s_T1[(byte)(WL10 >> 40)] ^ s_T2[(byte)(WH10 >> 16)] ^ s_T3[(byte)(WH10 >> 56)] ^ (uint)cnt;
@@ -841,9 +841,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH10)] ^ s_T1[(byte)(WH10 >> 40)] ^ s_T2[(byte)(WL10 >> 16)] ^ s_T3[(byte)(WL10 >> 56)];
                 WD = s_T0[(byte)(WH10 >> 32)] ^ s_T1[(byte)(WL10 >> 8)] ^ s_T2[(byte)(WL10 >> 48)] ^ s_T3[(byte)(WH10 >> 24)];
                 cnt++;
-                WL10 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL10 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL10 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH10 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH10 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH10 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL11)] ^ s_T1[(byte)(WL11 >> 40)] ^ s_T2[(byte)(WH11 >> 16)] ^ s_T3[(byte)(WH11 >> 56)] ^ (uint)cnt;
@@ -851,9 +851,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH11)] ^ s_T1[(byte)(WH11 >> 40)] ^ s_T2[(byte)(WL11 >> 16)] ^ s_T3[(byte)(WL11 >> 56)];
                 WD = s_T0[(byte)(WH11 >> 32)] ^ s_T1[(byte)(WL11 >> 8)] ^ s_T2[(byte)(WL11 >> 48)] ^ s_T3[(byte)(WH11 >> 24)];
                 cnt++;
-                WL11 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL11 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL11 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH11 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH11 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH11 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL12)] ^ s_T1[(byte)(WL12 >> 40)] ^ s_T2[(byte)(WH12 >> 16)] ^ s_T3[(byte)(WH12 >> 56)] ^ (uint)cnt;
@@ -861,9 +861,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH12)] ^ s_T1[(byte)(WH12 >> 40)] ^ s_T2[(byte)(WL12 >> 16)] ^ s_T3[(byte)(WL12 >> 56)];
                 WD = s_T0[(byte)(WH12 >> 32)] ^ s_T1[(byte)(WL12 >> 8)] ^ s_T2[(byte)(WL12 >> 48)] ^ s_T3[(byte)(WH12 >> 24)];
                 cnt++;
-                WL12 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL12 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL12 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH12 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH12 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH12 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL13)] ^ s_T1[(byte)(WL13 >> 40)] ^ s_T2[(byte)(WH13 >> 16)] ^ s_T3[(byte)(WH13 >> 56)] ^ (uint)cnt;
@@ -871,9 +871,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH13)] ^ s_T1[(byte)(WH13 >> 40)] ^ s_T2[(byte)(WL13 >> 16)] ^ s_T3[(byte)(WL13 >> 56)];
                 WD = s_T0[(byte)(WH13 >> 32)] ^ s_T1[(byte)(WL13 >> 8)] ^ s_T2[(byte)(WL13 >> 48)] ^ s_T3[(byte)(WH13 >> 24)];
                 cnt++;
-                WL13 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL13 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL13 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH13 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH13 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH13 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL14)] ^ s_T1[(byte)(WL14 >> 40)] ^ s_T2[(byte)(WH14 >> 16)] ^ s_T3[(byte)(WH14 >> 56)] ^ (uint)cnt;
@@ -881,9 +881,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH14)] ^ s_T1[(byte)(WH14 >> 40)] ^ s_T2[(byte)(WL14 >> 16)] ^ s_T3[(byte)(WL14 >> 56)];
                 WD = s_T0[(byte)(WH14 >> 32)] ^ s_T1[(byte)(WL14 >> 8)] ^ s_T2[(byte)(WL14 >> 48)] ^ s_T3[(byte)(WH14 >> 24)];
                 cnt++;
-                WL14 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL14 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL14 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH14 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH14 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH14 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 WA = s_T0[(byte)(WL15)] ^ s_T1[(byte)(WL15 >> 40)] ^ s_T2[(byte)(WH15 >> 16)] ^ s_T3[(byte)(WH15 >> 56)] ^ (uint)cnt;
@@ -891,9 +891,9 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 WC = s_T0[(byte)(WH15)] ^ s_T1[(byte)(WH15 >> 40)] ^ s_T2[(byte)(WL15 >> 16)] ^ s_T3[(byte)(WL15 >> 56)];
                 WD = s_T0[(byte)(WH15 >> 32)] ^ s_T1[(byte)(WL15 >> 8)] ^ s_T2[(byte)(WL15 >> 48)] ^ s_T3[(byte)(WH15 >> 24)];
                 cnt++;
-                WL15 = (ulong)(s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)]);
+                WL15 = s_T0[(byte)(WA)] ^ s_T1[(byte)(WB >> 8)] ^ s_T2[(byte)(WC >> 16)] ^ s_T3[(byte)(WD >> 24)];
                 WL15 ^= (ulong)(s_T0[(byte)(WB)] ^ s_T1[(byte)(WC >> 8)] ^ s_T2[(byte)(WD >> 16)] ^ s_T3[(byte)(WA >> 24)]) << 32;
-                WH15 = (ulong)(s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)]);
+                WH15 = s_T0[(byte)(WC)] ^ s_T1[(byte)(WD >> 8)] ^ s_T2[(byte)(WA >> 16)] ^ s_T3[(byte)(WB >> 24)];
                 WH15 ^= (ulong)(s_T0[(byte)(WD)] ^ s_T1[(byte)(WA >> 8)] ^ s_T2[(byte)(WB >> 16)] ^ s_T3[(byte)(WC >> 24)]) << 32;
 
                 ulong WT0 = WL2;

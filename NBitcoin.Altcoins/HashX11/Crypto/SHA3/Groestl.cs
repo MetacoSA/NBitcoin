@@ -635,66 +635,66 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
             w6 = m_state[6] ^ m[6];
             w7 = m_state[7] ^ m[7];
 
-            z0 = (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z0 = ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000000 << 8) | ((ulong)0x0000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000000 << 24) | ((ulong)0x0000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000000 << 40) | ((ulong)0x0000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000000 << 56) | ((ulong)0x0000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ m[0];
-            z1 = (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z1 = ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000000 << 8) | ((ulong)0x0000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000000 << 24) | ((ulong)0x0000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000000 << 40) | ((ulong)0x0000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000000 << 56) | ((ulong)0x0000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ m[1];
-            z2 = (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z2 = ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000000 << 8) | ((ulong)0x0000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000000 << 24) | ((ulong)0x0000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000000 << 40) | ((ulong)0x0000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000000 << 56) | ((ulong)0x0000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ m[2];
-            z3 = (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z3 = ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000000 << 8) | ((ulong)0x0000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000000 << 24) | ((ulong)0x0000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000000 << 40) | ((ulong)0x0000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000000 << 56) | ((ulong)0x0000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ m[3];
-            z4 = (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z4 = ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000000 << 8) | ((ulong)0x0000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000000 << 24) | ((ulong)0x0000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000000 << 40) | ((ulong)0x0000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000000 << 56) | ((ulong)0x0000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ m[4];
-            z5 = (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z5 = ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000000 << 8) | ((ulong)0x0000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000000 << 24) | ((ulong)0x0000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000000 << 40) | ((ulong)0x0000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000000 << 56) | ((ulong)0x0000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ m[5];
-            z6 = (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z6 = ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000000 << 8) | ((ulong)0x0000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000000 << 24) | ((ulong)0x0000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000000 << 40) | ((ulong)0x0000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000000 << 56) | ((ulong)0x0000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ m[6];
-            z7 = (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z7 = ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000000 << 8) | ((ulong)0x0000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000000 << 24) | ((ulong)0x0000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000000 << 40) | ((ulong)0x0000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
@@ -733,72 +733,72 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 s_T[4 * 256 + (byte)(z7 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(z1 >> (8 * 5))] ^
                 s_T[6 * 256 + (byte)(z3 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(z5 >> (8 * 7))];
 
-            y0 ^= (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y0 ^= ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000001 << 8) | ((ulong)0x0000000000000001 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000001 << 24) | ((ulong)0x0000000000000001 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000001 << 40) | ((ulong)0x0000000000000001 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000001 << 56) | ((ulong)0x0000000000000001 >> (64 - 56))) & (0xFF000000FF000000)));
-            y1 ^= (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y1 ^= ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000001 << 8) |
                 ((ulong)0x0000000000000001 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000001 << 24) |
                 ((ulong)0x0000000000000001 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000001 << 40) |
                 ((ulong)0x0000000000000001 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000001 << 56) |
                 ((ulong)0x0000000000000001 >> (64 - 56))) & (0xFF000000FF000000)));
-            y2 ^= (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y2 ^= ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000001 << 8) |
                 ((ulong)0x0000000000000001 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000001 << 24) |
                 ((ulong)0x0000000000000001 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000001 << 40) |
                 ((ulong)0x0000000000000001 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000001 << 56) |
                 ((ulong)0x0000000000000001 >> (64 - 56))) & (0xFF000000FF000000)));
-            y3 ^= (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y3 ^= ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000001 << 8) |
                 ((ulong)0x0000000000000001 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000001 << 24) |
                 ((ulong)0x0000000000000001 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000001 << 40) |
                 ((ulong)0x0000000000000001 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000001 << 56) |
                 ((ulong)0x0000000000000001 >> (64 - 56))) & (0xFF000000FF000000)));
-            y4 ^= (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y4 ^= ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000001 << 8) |
                 ((ulong)0x0000000000000001 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000001 << 24) |
                 ((ulong)0x0000000000000001 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000001 << 40) |
                 ((ulong)0x0000000000000001 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000001 << 56) |
                 ((ulong)0x0000000000000001 >> (64 - 56))) & (0xFF000000FF000000)));
-            y5 ^= (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y5 ^= ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000001 << 8) |
                 ((ulong)0x0000000000000001 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000001 << 24) |
                 ((ulong)0x0000000000000001 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000001 << 40) |
                 ((ulong)0x0000000000000001 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000001 << 56) |
                 ((ulong)0x0000000000000001 >> (64 - 56))) & (0xFF000000FF000000)));
-            y6 ^= (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y6 ^= ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000001 << 8) |
                 ((ulong)0x0000000000000001 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000001 << 24) |
                 ((ulong)0x0000000000000001 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000001 << 40) |
                 ((ulong)0x0000000000000001 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000001 << 56) |
                 ((ulong)0x0000000000000001 >> (64 - 56))) & (0xFF000000FF000000)));
-            y7 ^= (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y7 ^= ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000001 << 8) |
                 ((ulong)0x0000000000000001 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000001 << 24) |
                 ((ulong)0x0000000000000001 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000001 << 40) |
@@ -814,73 +814,73 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
             z6 = s_T[0 * 256 + (byte)(y7 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(y1 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(y3 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(y5 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(y6 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(y0 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(y2 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(y4 >> (8 * 7))];
             z7 = s_T[0 * 256 + (byte)(y0 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(y2 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(y4 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(y6 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(y7 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(y1 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(y3 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(y5 >> (8 * 7))];
 
-            z0 ^= (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z0 ^= ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000002 << 8) |
                 ((ulong)0x0000000000000002 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000002 << 24) |
                 ((ulong)0x0000000000000002 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000002 << 40) |
                 ((ulong)0x0000000000000002 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000002 << 56) |
                 ((ulong)0x0000000000000002 >> (64 - 56))) & (0xFF000000FF000000)));
-            z1 ^= (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z1 ^= ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000002 << 8) |
                 ((ulong)0x0000000000000002 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000002 << 24) |
                 ((ulong)0x0000000000000002 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000002 << 40) |
                 ((ulong)0x0000000000000002 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000002 << 56) |
                 ((ulong)0x0000000000000002 >> (64 - 56))) & (0xFF000000FF000000)));
-            z2 ^= (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z2 ^= ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000002 << 8) |
                 ((ulong)0x0000000000000002 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000002 << 24) |
                 ((ulong)0x0000000000000002 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000002 << 40) |
                 ((ulong)0x0000000000000002 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000002 << 56) |
                 ((ulong)0x0000000000000002 >> (64 - 56))) & (0xFF000000FF000000)));
-            z3 ^= (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z3 ^= ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000002 << 8) |
                 ((ulong)0x0000000000000002 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000002 << 24) |
                 ((ulong)0x0000000000000002 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000002 << 40) |
                 ((ulong)0x0000000000000002 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000002 << 56) |
                 ((ulong)0x0000000000000002 >> (64 - 56))) & (0xFF000000FF000000)));
-            z4 ^= (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z4 ^= ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000002 << 8) |
                 ((ulong)0x0000000000000002 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000002 << 24) |
                 ((ulong)0x0000000000000002 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000002 << 40) |
                 ((ulong)0x0000000000000002 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000002 << 56) |
                 ((ulong)0x0000000000000002 >> (64 - 56))) & (0xFF000000FF000000)));
-            z5 ^= (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z5 ^= ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000002 << 8) |
                 ((ulong)0x0000000000000002 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000002 << 24) |
                 ((ulong)0x0000000000000002 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000002 << 40) |
                 ((ulong)0x0000000000000002 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000002 << 56) |
                 ((ulong)0x0000000000000002 >> (64 - 56))) & (0xFF000000FF000000)));
-            z6 ^= (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z6 ^= ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000002 << 8) |
                 ((ulong)0x0000000000000002 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000002 << 24) |
                 ((ulong)0x0000000000000002 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000002 << 40) |
                 ((ulong)0x0000000000000002 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000002 << 56) |
                 ((ulong)0x0000000000000002 >> (64 - 56))) & (0xFF000000FF000000)));
-            z7 ^= (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z7 ^= ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000002 << 8) |
                 ((ulong)0x0000000000000002 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000002 << 24) |
                 ((ulong)0x0000000000000002 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000002 << 40) |
@@ -896,73 +896,73 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
             y6 = s_T[0 * 256 + (byte)(z7 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(z1 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(z3 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(z5 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(z6 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(z0 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(z2 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(z4 >> (8 * 7))];
             y7 = s_T[0 * 256 + (byte)(z0 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(z2 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(z4 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(z6 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(z7 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(z1 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(z3 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(z5 >> (8 * 7))];
 
-            y0 ^= (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y0 ^= ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000003 << 8) |
                 ((ulong)0x0000000000000003 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000003 << 24) |
                 ((ulong)0x0000000000000003 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000003 << 40) |
                 ((ulong)0x0000000000000003 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000003 << 56) |
                 ((ulong)0x0000000000000003 >> (64 - 56))) & (0xFF000000FF000000)));
-            y1 ^= (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y1 ^= ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000003 << 8) |
                 ((ulong)0x0000000000000003 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000003 << 24) |
                 ((ulong)0x0000000000000003 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000003 << 40) |
                 ((ulong)0x0000000000000003 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000003 << 56) |
                 ((ulong)0x0000000000000003 >> (64 - 56))) & (0xFF000000FF000000)));
-            y2 ^= (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y2 ^= ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000003 << 8) |
                 ((ulong)0x0000000000000003 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000003 << 24) |
                 ((ulong)0x0000000000000003 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000003 << 40) |
                 ((ulong)0x0000000000000003 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000003 << 56) |
                 ((ulong)0x0000000000000003 >> (64 - 56))) & (0xFF000000FF000000)));
-            y3 ^= (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y3 ^= ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000003 << 8) |
                 ((ulong)0x0000000000000003 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000003 << 24) |
                 ((ulong)0x0000000000000003 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000003 << 40) |
                 ((ulong)0x0000000000000003 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000003 << 56) |
                 ((ulong)0x0000000000000003 >> (64 - 56))) & (0xFF000000FF000000)));
-            y4 ^= (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y4 ^= ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000003 << 8) |
                 ((ulong)0x0000000000000003 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000003 << 24) |
                 ((ulong)0x0000000000000003 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000003 << 40) |
                 ((ulong)0x0000000000000003 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000003 << 56) |
                 ((ulong)0x0000000000000003 >> (64 - 56))) & (0xFF000000FF000000)));
-            y5 ^= (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y5 ^= ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000003 << 8) |
                 ((ulong)0x0000000000000003 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000003 << 24) |
                 ((ulong)0x0000000000000003 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000003 << 40) |
                 ((ulong)0x0000000000000003 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000003 << 56) |
                 ((ulong)0x0000000000000003 >> (64 - 56))) & (0xFF000000FF000000)));
-            y6 ^= (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y6 ^= ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000003 << 8) |
                 ((ulong)0x0000000000000003 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000003 << 24) |
                 ((ulong)0x0000000000000003 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000003 << 40) |
                 ((ulong)0x0000000000000003 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000003 << 56) |
                 ((ulong)0x0000000000000003 >> (64 - 56))) & (0xFF000000FF000000)));
-            y7 ^= (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y7 ^= ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000003 << 8) |
                 ((ulong)0x0000000000000003 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000003 << 24) |
                 ((ulong)0x0000000000000003 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000003 << 40) |
@@ -978,73 +978,73 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
             z6 = s_T[0 * 256 + (byte)(y7 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(y1 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(y3 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(y5 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(y6 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(y0 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(y2 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(y4 >> (8 * 7))];
             z7 = s_T[0 * 256 + (byte)(y0 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(y2 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(y4 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(y6 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(y7 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(y1 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(y3 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(y5 >> (8 * 7))];
 
-            z0 ^= (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z0 ^= ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000004 << 8) |
                 ((ulong)0x0000000000000004 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000004 << 24) |
                 ((ulong)0x0000000000000004 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000004 << 40) |
                 ((ulong)0x0000000000000004 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000004 << 56) |
                 ((ulong)0x0000000000000004 >> (64 - 56))) & (0xFF000000FF000000)));
-            z1 ^= (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z1 ^= ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000004 << 8) |
                 ((ulong)0x0000000000000004 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000004 << 24) |
                 ((ulong)0x0000000000000004 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000004 << 40) |
                 ((ulong)0x0000000000000004 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000004 << 56) |
                 ((ulong)0x0000000000000004 >> (64 - 56))) & (0xFF000000FF000000)));
-            z2 ^= (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z2 ^= ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000004 << 8) |
                 ((ulong)0x0000000000000004 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000004 << 24) |
                 ((ulong)0x0000000000000004 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000004 << 40) |
                 ((ulong)0x0000000000000004 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000004 << 56) |
                 ((ulong)0x0000000000000004 >> (64 - 56))) & (0xFF000000FF000000)));
-            z3 ^= (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z3 ^= ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000004 << 8) |
                 ((ulong)0x0000000000000004 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000004 << 24) |
                 ((ulong)0x0000000000000004 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000004 << 40) |
                 ((ulong)0x0000000000000004 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000004 << 56) |
                 ((ulong)0x0000000000000004 >> (64 - 56))) & (0xFF000000FF000000)));
-            z4 ^= (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z4 ^= ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000004 << 8) |
                 ((ulong)0x0000000000000004 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000004 << 24) |
                 ((ulong)0x0000000000000004 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000004 << 40) |
                 ((ulong)0x0000000000000004 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000004 << 56) |
                 ((ulong)0x0000000000000004 >> (64 - 56))) & (0xFF000000FF000000)));
-            z5 ^= (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z5 ^= ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000004 << 8) |
                 ((ulong)0x0000000000000004 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000004 << 24) |
                 ((ulong)0x0000000000000004 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000004 << 40) |
                 ((ulong)0x0000000000000004 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000004 << 56) |
                 ((ulong)0x0000000000000004 >> (64 - 56))) & (0xFF000000FF000000)));
-            z6 ^= (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z6 ^= ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000004 << 8) |
                 ((ulong)0x0000000000000004 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000004 << 24) |
                 ((ulong)0x0000000000000004 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000004 << 40) |
                 ((ulong)0x0000000000000004 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000004 << 56) |
                 ((ulong)0x0000000000000004 >> (64 - 56))) & (0xFF000000FF000000)));
-            z7 ^= (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z7 ^= ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000004 << 8) |
                 ((ulong)0x0000000000000004 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000004 << 24) |
                 ((ulong)0x0000000000000004 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000004 << 40) |
@@ -1060,73 +1060,73 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
             y6 = s_T[0 * 256 + (byte)(z7 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(z1 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(z3 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(z5 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(z6 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(z0 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(z2 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(z4 >> (8 * 7))];
             y7 = s_T[0 * 256 + (byte)(z0 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(z2 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(z4 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(z6 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(z7 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(z1 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(z3 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(z5 >> (8 * 7))];
 
-            y0 ^= (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y0 ^= ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000005 << 8) |
                 ((ulong)0x0000000000000005 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000005 << 24) |
                 ((ulong)0x0000000000000005 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000005 << 40) |
                 ((ulong)0x0000000000000005 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000005 << 56) |
                 ((ulong)0x0000000000000005 >> (64 - 56))) & (0xFF000000FF000000)));
-            y1 ^= (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y1 ^= ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000005 << 8) |
                 ((ulong)0x0000000000000005 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000005 << 24) |
                 ((ulong)0x0000000000000005 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000005 << 40) |
                 ((ulong)0x0000000000000005 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000005 << 56) |
                 ((ulong)0x0000000000000005 >> (64 - 56))) & (0xFF000000FF000000)));
-            y2 ^= (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y2 ^= ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000005 << 8) |
                 ((ulong)0x0000000000000005 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000005 << 24) |
                 ((ulong)0x0000000000000005 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000005 << 40) |
                 ((ulong)0x0000000000000005 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000005 << 56) |
                 ((ulong)0x0000000000000005 >> (64 - 56))) & (0xFF000000FF000000)));
-            y3 ^= (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y3 ^= ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000005 << 8) |
                 ((ulong)0x0000000000000005 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000005 << 24) |
                 ((ulong)0x0000000000000005 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000005 << 40) |
                 ((ulong)0x0000000000000005 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000005 << 56) |
                 ((ulong)0x0000000000000005 >> (64 - 56))) & (0xFF000000FF000000)));
-            y4 ^= (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y4 ^= ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000005 << 8) |
                 ((ulong)0x0000000000000005 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000005 << 24) |
                 ((ulong)0x0000000000000005 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000005 << 40) |
                 ((ulong)0x0000000000000005 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000005 << 56) |
                 ((ulong)0x0000000000000005 >> (64 - 56))) & (0xFF000000FF000000)));
-            y5 ^= (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y5 ^= ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000005 << 8) |
                 ((ulong)0x0000000000000005 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000005 << 24) |
                 ((ulong)0x0000000000000005 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000005 << 40) |
                 ((ulong)0x0000000000000005 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000005 << 56) |
                 ((ulong)0x0000000000000005 >> (64 - 56))) & (0xFF000000FF000000)));
-            y6 ^= (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y6 ^= ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000005 << 8) |
                 ((ulong)0x0000000000000005 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000005 << 24) |
                 ((ulong)0x0000000000000005 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000005 << 40) |
                 ((ulong)0x0000000000000005 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000005 << 56) |
                 ((ulong)0x0000000000000005 >> (64 - 56))) & (0xFF000000FF000000)));
-            y7 ^= (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y7 ^= ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000005 << 8) |
                 ((ulong)0x0000000000000005 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000005 << 24) |
                 ((ulong)0x0000000000000005 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000005 << 40) |
@@ -1142,73 +1142,73 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
             z6 = s_T[0 * 256 + (byte)(y7 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(y1 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(y3 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(y5 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(y6 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(y0 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(y2 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(y4 >> (8 * 7))];
             z7 = s_T[0 * 256 + (byte)(y0 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(y2 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(y4 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(y6 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(y7 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(y1 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(y3 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(y5 >> (8 * 7))];
 
-            z0 ^= (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z0 ^= ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000006 << 8) |
                 ((ulong)0x0000000000000006 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000006 << 24) |
                 ((ulong)0x0000000000000006 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000006 << 40) |
                 ((ulong)0x0000000000000006 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000006 << 56) |
                 ((ulong)0x0000000000000006 >> (64 - 56))) & (0xFF000000FF000000)));
-            z1 ^= (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z1 ^= ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000006 << 8) |
                 ((ulong)0x0000000000000006 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000006 << 24) |
                 ((ulong)0x0000000000000006 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000006 << 40) |
                 ((ulong)0x0000000000000006 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000006 << 56) |
                 ((ulong)0x0000000000000006 >> (64 - 56))) & (0xFF000000FF000000)));
-            z2 ^= (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z2 ^= ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000006 << 8) |
                 ((ulong)0x0000000000000006 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000006 << 24) |
                 ((ulong)0x0000000000000006 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000006 << 40) |
                 ((ulong)0x0000000000000006 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000006 << 56) |
                 ((ulong)0x0000000000000006 >> (64 - 56))) & (0xFF000000FF000000)));
-            z3 ^= (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z3 ^= ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000006 << 8) |
                 ((ulong)0x0000000000000006 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000006 << 24) |
                 ((ulong)0x0000000000000006 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000006 << 40) |
                 ((ulong)0x0000000000000006 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000006 << 56) |
                 ((ulong)0x0000000000000006 >> (64 - 56))) & (0xFF000000FF000000)));
-            z4 ^= (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z4 ^= ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000006 << 8) |
                 ((ulong)0x0000000000000006 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000006 << 24) |
                 ((ulong)0x0000000000000006 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000006 << 40) |
                 ((ulong)0x0000000000000006 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000006 << 56) |
                 ((ulong)0x0000000000000006 >> (64 - 56))) & (0xFF000000FF000000)));
-            z5 ^= (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z5 ^= ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000006 << 8) |
                 ((ulong)0x0000000000000006 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000006 << 24) |
                 ((ulong)0x0000000000000006 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000006 << 40) |
                 ((ulong)0x0000000000000006 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000006 << 56) |
                 ((ulong)0x0000000000000006 >> (64 - 56))) & (0xFF000000FF000000)));
-            z6 ^= (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z6 ^= ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000006 << 8) |
                 ((ulong)0x0000000000000006 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000006 << 24) |
                 ((ulong)0x0000000000000006 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000006 << 40) |
                 ((ulong)0x0000000000000006 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000006 << 56) |
                 ((ulong)0x0000000000000006 >> (64 - 56))) & (0xFF000000FF000000)));
-            z7 ^= (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z7 ^= ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000006 << 8) |
                 ((ulong)0x0000000000000006 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000006 << 24) |
                 ((ulong)0x0000000000000006 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000006 << 40) |
@@ -1224,73 +1224,73 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
             y6 = s_T[0 * 256 + (byte)(z7 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(z1 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(z3 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(z5 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(z6 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(z0 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(z2 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(z4 >> (8 * 7))];
             y7 = s_T[0 * 256 + (byte)(z0 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(z2 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(z4 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(z6 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(z7 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(z1 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(z3 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(z5 >> (8 * 7))];
 
-            y0 ^= (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y0 ^= ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000007 << 8) |
                 ((ulong)0x0000000000000007 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000007 << 24) |
                 ((ulong)0x0000000000000007 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000007 << 40) |
                 ((ulong)0x0000000000000007 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000007 << 56) |
                 ((ulong)0x0000000000000007 >> (64 - 56))) & (0xFF000000FF000000)));
-            y1 ^= (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y1 ^= ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000007 << 8) |
                 ((ulong)0x0000000000000007 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000007 << 24) |
                 ((ulong)0x0000000000000007 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000007 << 40) |
                 ((ulong)0x0000000000000007 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000007 << 56) |
                 ((ulong)0x0000000000000007 >> (64 - 56))) & (0xFF000000FF000000)));
-            y2 ^= (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y2 ^= ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000007 << 8) |
                 ((ulong)0x0000000000000007 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000007 << 24) |
                 ((ulong)0x0000000000000007 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000007 << 40) |
                 ((ulong)0x0000000000000007 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000007 << 56) |
                 ((ulong)0x0000000000000007 >> (64 - 56))) & (0xFF000000FF000000)));
-            y3 ^= (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y3 ^= ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000007 << 8) |
                 ((ulong)0x0000000000000007 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000007 << 24) |
                 ((ulong)0x0000000000000007 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000007 << 40) |
                 ((ulong)0x0000000000000007 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000007 << 56) |
                 ((ulong)0x0000000000000007 >> (64 - 56))) & (0xFF000000FF000000)));
-            y4 ^= (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y4 ^= ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000007 << 8) |
                 ((ulong)0x0000000000000007 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000007 << 24) |
                 ((ulong)0x0000000000000007 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000007 << 40) |
                 ((ulong)0x0000000000000007 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000007 << 56) |
                 ((ulong)0x0000000000000007 >> (64 - 56))) & (0xFF000000FF000000)));
-            y5 ^= (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y5 ^= ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000007 << 8) |
                 ((ulong)0x0000000000000007 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000007 << 24) |
                 ((ulong)0x0000000000000007 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000007 << 40) |
                 ((ulong)0x0000000000000007 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000007 << 56) |
                 ((ulong)0x0000000000000007 >> (64 - 56))) & (0xFF000000FF000000)));
-            y6 ^= (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y6 ^= ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000007 << 8) |
                 ((ulong)0x0000000000000007 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000007 << 24) |
                 ((ulong)0x0000000000000007 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000007 << 40) |
                 ((ulong)0x0000000000000007 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000007 << 56) |
                 ((ulong)0x0000000000000007 >> (64 - 56))) & (0xFF000000FF000000)));
-            y7 ^= (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y7 ^= ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000007 << 8) |
                 ((ulong)0x0000000000000007 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000007 << 24) |
                 ((ulong)0x0000000000000007 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000007 << 40) |
@@ -1306,73 +1306,73 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
             z6 = s_T[0 * 256 + (byte)(y7 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(y1 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(y3 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(y5 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(y6 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(y0 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(y2 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(y4 >> (8 * 7))];
             z7 = s_T[0 * 256 + (byte)(y0 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(y2 >> (8 * 1))] ^ s_T[2 * 256 + (byte)(y4 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(y6 >> (8 * 3))] ^ s_T[4 * 256 + (byte)(y7 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(y1 >> (8 * 5))] ^ s_T[6 * 256 + (byte)(y3 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(y5 >> (8 * 7))];
 
-            z0 ^= (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z0 ^= ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000008 << 8) |
                 ((ulong)0x0000000000000008 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000008 << 24) |
                 ((ulong)0x0000000000000008 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000008 << 40) |
                 ((ulong)0x0000000000000008 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000008 << 56) |
                 ((ulong)0x0000000000000008 >> (64 - 56))) & (0xFF000000FF000000)));
-            z1 ^= (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z1 ^= ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000008 << 8) |
                 ((ulong)0x0000000000000008 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000008 << 24) |
                 ((ulong)0x0000000000000008 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000008 << 40) |
                 ((ulong)0x0000000000000008 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000008 << 56) |
                 ((ulong)0x0000000000000008 >> (64 - 56))) & (0xFF000000FF000000)));
-            z2 ^= (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z2 ^= ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000008 << 8) |
                 ((ulong)0x0000000000000008 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000008 << 24) |
                 ((ulong)0x0000000000000008 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000008 << 40) |
                 ((ulong)0x0000000000000008 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000008 << 56) |
                 ((ulong)0x0000000000000008 >> (64 - 56))) & (0xFF000000FF000000)));
-            z3 ^= (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z3 ^= ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000008 << 8) |
                 ((ulong)0x0000000000000008 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000008 << 24) |
                 ((ulong)0x0000000000000008 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000008 << 40) |
                 ((ulong)0x0000000000000008 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000008 << 56) |
                 ((ulong)0x0000000000000008 >> (64 - 56))) & (0xFF000000FF000000)));
-            z4 ^= (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z4 ^= ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000008 << 8) |
                 ((ulong)0x0000000000000008 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000008 << 24) |
                 ((ulong)0x0000000000000008 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000008 << 40) |
                 ((ulong)0x0000000000000008 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000008 << 56) |
                 ((ulong)0x0000000000000008 >> (64 - 56))) & (0xFF000000FF000000)));
-            z5 ^= (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z5 ^= ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000008 << 8) |
                 ((ulong)0x0000000000000008 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000008 << 24) |
                 ((ulong)0x0000000000000008 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000008 << 40) |
                 ((ulong)0x0000000000000008 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000008 << 56) |
                 ((ulong)0x0000000000000008 >> (64 - 56))) & (0xFF000000FF000000)));
-            z6 ^= (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z6 ^= ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000008 << 8) |
                 ((ulong)0x0000000000000008 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000008 << 24) |
                 ((ulong)0x0000000000000008 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000008 << 40) |
                 ((ulong)0x0000000000000008 >> (64 - 40))) & (0x00FF000000FF0000)) | ((((ulong)0x0000000000000008 << 56) |
                 ((ulong)0x0000000000000008 >> (64 - 56))) & (0xFF000000FF000000)));
-            z7 ^= (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z7 ^= ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000008 << 8) |
                 ((ulong)0x0000000000000008 >> (64 - 8))) & (0x000000FF000000FF)) | ((((ulong)0x0000000000000008 << 24) |
                 ((ulong)0x0000000000000008 >> (64 - 24))) & (0x0000FF000000FF00)) | ((((ulong)0x0000000000000008 << 40) |
@@ -1412,66 +1412,66 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 s_T[4 * 256 + (byte)(z7 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(z1 >> (8 * 5))] ^
                 s_T[6 * 256 + (byte)(z3 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(z5 >> (8 * 7))];
 
-            y0 ^= (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y0 ^= ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000009 << 8) | ((ulong)0x0000000000000009 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000009 << 24) | ((ulong)0x0000000000000009 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000009 << 40) | ((ulong)0x0000000000000009 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000009 << 56) | ((ulong)0x0000000000000009 >> (64 - 56))) & (0xFF000000FF000000)));
-            y1 ^= (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y1 ^= ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000009 << 8) | ((ulong)0x0000000000000009 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000009 << 24) | ((ulong)0x0000000000000009 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000009 << 40) | ((ulong)0x0000000000000009 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000009 << 56) | ((ulong)0x0000000000000009 >> (64 - 56))) & (0xFF000000FF000000)));
-            y2 ^= (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y2 ^= ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000009 << 8) | ((ulong)0x0000000000000009 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000009 << 24) | ((ulong)0x0000000000000009 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000009 << 40) | ((ulong)0x0000000000000009 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000009 << 56) | ((ulong)0x0000000000000009 >> (64 - 56))) & (0xFF000000FF000000)));
-            y3 ^= (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y3 ^= ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000009 << 8) | ((ulong)0x0000000000000009 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000009 << 24) | ((ulong)0x0000000000000009 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000009 << 40) | ((ulong)0x0000000000000009 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000009 << 56) | ((ulong)0x0000000000000009 >> (64 - 56))) & (0xFF000000FF000000)));
-            y4 ^= (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y4 ^= ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000009 << 8) | ((ulong)0x0000000000000009 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000009 << 24) | ((ulong)0x0000000000000009 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000009 << 40) | ((ulong)0x0000000000000009 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000009 << 56) | ((ulong)0x0000000000000009 >> (64 - 56))) & (0xFF000000FF000000)));
-            y5 ^= (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y5 ^= ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000009 << 8) | ((ulong)0x0000000000000009 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000009 << 24) | ((ulong)0x0000000000000009 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000009 << 40) | ((ulong)0x0000000000000009 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000009 << 56) | ((ulong)0x0000000000000009 >> (64 - 56))) & (0xFF000000FF000000)));
-            y6 ^= (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y6 ^= ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000009 << 8) | ((ulong)0x0000000000000009 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000009 << 24) | ((ulong)0x0000000000000009 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000009 << 40) | ((ulong)0x0000000000000009 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x0000000000000009 << 56) | ((ulong)0x0000000000000009 >> (64 - 56))) & (0xFF000000FF000000)));
-            y7 ^= (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y7 ^= ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)0x0000000000000009 << 8) | ((ulong)0x0000000000000009 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)0x0000000000000009 << 24) | ((ulong)0x0000000000000009 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x0000000000000009 << 40) | ((ulong)0x0000000000000009 >> (64 - 40))) & (0x00FF000000FF0000)) |
@@ -3551,70 +3551,70 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
             w14 = m_state[14] ^ m[14];
             w15 = m_state[15] ^ m[15];
 
-            z0 = (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^ m[0];
-            z1 = (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^ m[1];
-            z2 = (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^ m[2];
-            z3 = (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^ m[3];
-            z4 = (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^ m[4];
-            z5 = (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^ m[5];
-            z6 = (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[6];
-            z7 = (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[7];
-            z8 = (((((ulong)0xffffffffffffff7f << 8) | ((ulong)0xffffffffffffff7f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff7f << 24) | ((ulong)0xffffffffffffff7f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff7f << 40) | ((ulong)0xffffffffffffff7f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff7f << 56) | ((ulong)0xffffffffffffff7f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[8];
-            z9 = (((((ulong)0xffffffffffffff6f << 8) | ((ulong)0xffffffffffffff6f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff6f << 24) | ((ulong)0xffffffffffffff6f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff6f << 40) | ((ulong)0xffffffffffffff6f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff6f << 56) | ((ulong)0xffffffffffffff6f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[9];
-            z10 = (((((ulong)0xffffffffffffff5f << 8) | ((ulong)0xffffffffffffff5f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff5f << 24) | ((ulong)0xffffffffffffff5f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff5f << 40) | ((ulong)0xffffffffffffff5f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff5f << 56) | ((ulong)0xffffffffffffff5f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[10];
-            z11 = (((((ulong)0xffffffffffffff4f << 8) | ((ulong)0xffffffffffffff4f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff4f << 24) | ((ulong)0xffffffffffffff4f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff4f << 40) | ((ulong)0xffffffffffffff4f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff4f << 56) | ((ulong)0xffffffffffffff4f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[11];
-            z12 = (((((ulong)0xffffffffffffff3f << 8) | ((ulong)0xffffffffffffff3f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff3f << 24) | ((ulong)0xffffffffffffff3f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff3f << 40) | ((ulong)0xffffffffffffff3f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff3f << 56) | ((ulong)0xffffffffffffff3f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[12];
-            z13 = (((((ulong)0xffffffffffffff2f << 8) | ((ulong)0xffffffffffffff2f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff2f << 24) | ((ulong)0xffffffffffffff2f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff2f << 40) | ((ulong)0xffffffffffffff2f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff2f << 56) | ((ulong)0xffffffffffffff2f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[13];
-            z14 = (((((ulong)0xffffffffffffff1f << 8) | ((ulong)0xffffffffffffff1f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff1f << 24) | ((ulong)0xffffffffffffff1f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff1f << 40) | ((ulong)0xffffffffffffff1f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff1f << 56) | ((ulong)0xffffffffffffff1f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[14];
-            z15 = (((((ulong)0xffffffffffffff0f << 8) | ((ulong)0xffffffffffffff0f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff0f << 24) | ((ulong)0xffffffffffffff0f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff0f << 40) | ((ulong)0xffffffffffffff0f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff0f << 56) | ((ulong)0xffffffffffffff0f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[15];
+            z0 = ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^ m[0];
+            z1 = ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^ m[1];
+            z2 = ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^ m[2];
+            z3 = ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^ m[3];
+            z4 = ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^ m[4];
+            z5 = ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^ m[5];
+            z6 = ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[6];
+            z7 = ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[7];
+            z8 = ((((0xffffffffffffff7f << 8) | (0xffffffffffffff7f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff7f << 24) | (0xffffffffffffff7f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff7f << 40) | (0xffffffffffffff7f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff7f << 56) | (0xffffffffffffff7f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[8];
+            z9 = ((((0xffffffffffffff6f << 8) | (0xffffffffffffff6f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff6f << 24) | (0xffffffffffffff6f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff6f << 40) | (0xffffffffffffff6f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff6f << 56) | (0xffffffffffffff6f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[9];
+            z10 = ((((0xffffffffffffff5f << 8) | (0xffffffffffffff5f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff5f << 24) | (0xffffffffffffff5f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff5f << 40) | (0xffffffffffffff5f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff5f << 56) | (0xffffffffffffff5f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[10];
+            z11 = ((((0xffffffffffffff4f << 8) | (0xffffffffffffff4f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff4f << 24) | (0xffffffffffffff4f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff4f << 40) | (0xffffffffffffff4f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff4f << 56) | (0xffffffffffffff4f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[11];
+            z12 = ((((0xffffffffffffff3f << 8) | (0xffffffffffffff3f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff3f << 24) | (0xffffffffffffff3f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff3f << 40) | (0xffffffffffffff3f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff3f << 56) | (0xffffffffffffff3f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[12];
+            z13 = ((((0xffffffffffffff2f << 8) | (0xffffffffffffff2f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff2f << 24) | (0xffffffffffffff2f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff2f << 40) | (0xffffffffffffff2f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff2f << 56) | (0xffffffffffffff2f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[13];
+            z14 = ((((0xffffffffffffff1f << 8) | (0xffffffffffffff1f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff1f << 24) | (0xffffffffffffff1f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff1f << 40) | (0xffffffffffffff1f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff1f << 56) | (0xffffffffffffff1f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[14];
+            z15 = ((((0xffffffffffffff0f << 8) | (0xffffffffffffff0f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff0f << 24) | (0xffffffffffffff0f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff0f << 40) | (0xffffffffffffff0f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff0f << 56) | (0xffffffffffffff0f >> (64 - 56))) & (0xFF000000FF000000))) ^ m[15];
 
             y15 = s_T[0 * 256 + (byte)(z0 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(z2 >> (8 * 1))] ^
                 s_T[2 * 256 + (byte)(z4 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(z10 >> (8 * 3))] ^
@@ -3683,130 +3683,130 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
 
             for (int i = 1; i < 14 - 1; i += 2)
             {
-                y0 ^= (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y0 ^= ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y1 ^= (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y1 ^= ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y2 ^= (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y2 ^= ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y3 ^= (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y3 ^= ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y4 ^= (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y4 ^= ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y5 ^= (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y5 ^= ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y6 ^= (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y6 ^= ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y7 ^= (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y7 ^= ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y8 ^= (((((ulong)0xffffffffffffff7f << 8) | ((ulong)0xffffffffffffff7f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff7f << 24) | ((ulong)0xffffffffffffff7f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff7f << 40) | ((ulong)0xffffffffffffff7f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff7f << 56) | ((ulong)0xffffffffffffff7f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y8 ^= ((((0xffffffffffffff7f << 8) | (0xffffffffffffff7f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff7f << 24) | (0xffffffffffffff7f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff7f << 40) | (0xffffffffffffff7f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff7f << 56) | (0xffffffffffffff7f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y9 ^= (((((ulong)0xffffffffffffff6f << 8) | ((ulong)0xffffffffffffff6f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff6f << 24) | ((ulong)0xffffffffffffff6f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff6f << 40) | ((ulong)0xffffffffffffff6f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff6f << 56) | ((ulong)0xffffffffffffff6f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y9 ^= ((((0xffffffffffffff6f << 8) | (0xffffffffffffff6f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff6f << 24) | (0xffffffffffffff6f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff6f << 40) | (0xffffffffffffff6f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff6f << 56) | (0xffffffffffffff6f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y10 ^= (((((ulong)0xffffffffffffff5f << 8) | ((ulong)0xffffffffffffff5f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff5f << 24) | ((ulong)0xffffffffffffff5f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff5f << 40) | ((ulong)0xffffffffffffff5f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff5f << 56) | ((ulong)0xffffffffffffff5f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y10 ^= ((((0xffffffffffffff5f << 8) | (0xffffffffffffff5f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff5f << 24) | (0xffffffffffffff5f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff5f << 40) | (0xffffffffffffff5f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff5f << 56) | (0xffffffffffffff5f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y11 ^= (((((ulong)0xffffffffffffff4f << 8) | ((ulong)0xffffffffffffff4f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff4f << 24) | ((ulong)0xffffffffffffff4f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff4f << 40) | ((ulong)0xffffffffffffff4f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff4f << 56) | ((ulong)0xffffffffffffff4f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y11 ^= ((((0xffffffffffffff4f << 8) | (0xffffffffffffff4f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff4f << 24) | (0xffffffffffffff4f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff4f << 40) | (0xffffffffffffff4f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff4f << 56) | (0xffffffffffffff4f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y12 ^= (((((ulong)0xffffffffffffff3f << 8) | ((ulong)0xffffffffffffff3f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff3f << 24) | ((ulong)0xffffffffffffff3f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff3f << 40) | ((ulong)0xffffffffffffff3f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff3f << 56) | ((ulong)0xffffffffffffff3f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y12 ^= ((((0xffffffffffffff3f << 8) | (0xffffffffffffff3f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff3f << 24) | (0xffffffffffffff3f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff3f << 40) | (0xffffffffffffff3f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff3f << 56) | (0xffffffffffffff3f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y13 ^= (((((ulong)0xffffffffffffff2f << 8) | ((ulong)0xffffffffffffff2f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff2f << 24) | ((ulong)0xffffffffffffff2f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff2f << 40) | ((ulong)0xffffffffffffff2f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff2f << 56) | ((ulong)0xffffffffffffff2f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y13 ^= ((((0xffffffffffffff2f << 8) | (0xffffffffffffff2f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff2f << 24) | (0xffffffffffffff2f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff2f << 40) | (0xffffffffffffff2f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff2f << 56) | (0xffffffffffffff2f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y14 ^= (((((ulong)0xffffffffffffff1f << 8) | ((ulong)0xffffffffffffff1f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff1f << 24) | ((ulong)0xffffffffffffff1f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff1f << 40) | ((ulong)0xffffffffffffff1f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff1f << 56) | ((ulong)0xffffffffffffff1f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y14 ^= ((((0xffffffffffffff1f << 8) | (0xffffffffffffff1f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff1f << 24) | (0xffffffffffffff1f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff1f << 40) | (0xffffffffffffff1f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff1f << 56) | (0xffffffffffffff1f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56) | ((ulong)i >> (64 - 56))) & (0xFF000000FF000000)));
-                y15 ^= (((((ulong)0xffffffffffffff0f << 8) | ((ulong)0xffffffffffffff0f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff0f << 24) | ((ulong)0xffffffffffffff0f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff0f << 40) | ((ulong)0xffffffffffffff0f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff0f << 56) | ((ulong)0xffffffffffffff0f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y15 ^= ((((0xffffffffffffff0f << 8) | (0xffffffffffffff0f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff0f << 24) | (0xffffffffffffff0f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff0f << 40) | (0xffffffffffffff0f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff0f << 56) | (0xffffffffffffff0f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 8) | ((ulong)i >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 24) | ((ulong)i >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 40) | ((ulong)i >> (64 - 40))) & (0x00FF000000FF0000)) |
@@ -3877,130 +3877,130 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     s_T[4 * 256 + (byte)(y0 >> (8 * 4))] ^ s_T[5 * 256 + (byte)(y2 >> (8 * 5))] ^
                     s_T[6 * 256 + (byte)(y4 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(y6 >> (8 * 7))];
 
-                z0 ^= (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z0 ^= ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z1 ^= (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z1 ^= ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z2 ^= (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z2 ^= ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z3 ^= (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z3 ^= ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z4 ^= (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z4 ^= ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z5 ^= (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z5 ^= ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z6 ^= (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z6 ^= ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z7 ^= (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z7 ^= ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z8 ^= (((((ulong)0xffffffffffffff7f << 8) | ((ulong)0xffffffffffffff7f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff7f << 24) | ((ulong)0xffffffffffffff7f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff7f << 40) | ((ulong)0xffffffffffffff7f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff7f << 56) | ((ulong)0xffffffffffffff7f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z8 ^= ((((0xffffffffffffff7f << 8) | (0xffffffffffffff7f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff7f << 24) | (0xffffffffffffff7f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff7f << 40) | (0xffffffffffffff7f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff7f << 56) | (0xffffffffffffff7f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z9 ^= (((((ulong)0xffffffffffffff6f << 8) | ((ulong)0xffffffffffffff6f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff6f << 24) | ((ulong)0xffffffffffffff6f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff6f << 40) | ((ulong)0xffffffffffffff6f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff6f << 56) | ((ulong)0xffffffffffffff6f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z9 ^= ((((0xffffffffffffff6f << 8) | (0xffffffffffffff6f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff6f << 24) | (0xffffffffffffff6f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff6f << 40) | (0xffffffffffffff6f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff6f << 56) | (0xffffffffffffff6f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z10 ^= (((((ulong)0xffffffffffffff5f << 8) | ((ulong)0xffffffffffffff5f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff5f << 24) | ((ulong)0xffffffffffffff5f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff5f << 40) | ((ulong)0xffffffffffffff5f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff5f << 56) | ((ulong)0xffffffffffffff5f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z10 ^= ((((0xffffffffffffff5f << 8) | (0xffffffffffffff5f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff5f << 24) | (0xffffffffffffff5f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff5f << 40) | (0xffffffffffffff5f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff5f << 56) | (0xffffffffffffff5f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z11 ^= (((((ulong)0xffffffffffffff4f << 8) | ((ulong)0xffffffffffffff4f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff4f << 24) | ((ulong)0xffffffffffffff4f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff4f << 40) | ((ulong)0xffffffffffffff4f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff4f << 56) | ((ulong)0xffffffffffffff4f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z11 ^= ((((0xffffffffffffff4f << 8) | (0xffffffffffffff4f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff4f << 24) | (0xffffffffffffff4f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff4f << 40) | (0xffffffffffffff4f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff4f << 56) | (0xffffffffffffff4f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z12 ^= (((((ulong)0xffffffffffffff3f << 8) | ((ulong)0xffffffffffffff3f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff3f << 24) | ((ulong)0xffffffffffffff3f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff3f << 40) | ((ulong)0xffffffffffffff3f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff3f << 56) | ((ulong)0xffffffffffffff3f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z12 ^= ((((0xffffffffffffff3f << 8) | (0xffffffffffffff3f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff3f << 24) | (0xffffffffffffff3f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff3f << 40) | (0xffffffffffffff3f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff3f << 56) | (0xffffffffffffff3f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z13 ^= (((((ulong)0xffffffffffffff2f << 8) | ((ulong)0xffffffffffffff2f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff2f << 24) | ((ulong)0xffffffffffffff2f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff2f << 40) | ((ulong)0xffffffffffffff2f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff2f << 56) | ((ulong)0xffffffffffffff2f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z13 ^= ((((0xffffffffffffff2f << 8) | (0xffffffffffffff2f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff2f << 24) | (0xffffffffffffff2f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff2f << 40) | (0xffffffffffffff2f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff2f << 56) | (0xffffffffffffff2f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z14 ^= (((((ulong)0xffffffffffffff1f << 8) | ((ulong)0xffffffffffffff1f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff1f << 24) | ((ulong)0xffffffffffffff1f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff1f << 40) | ((ulong)0xffffffffffffff1f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff1f << 56) | ((ulong)0xffffffffffffff1f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z14 ^= ((((0xffffffffffffff1f << 8) | (0xffffffffffffff1f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff1f << 24) | (0xffffffffffffff1f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff1f << 40) | (0xffffffffffffff1f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff1f << 56) | (0xffffffffffffff1f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56) | ((ulong)(i + 1) >> (64 - 56))) & (0xFF000000FF000000)));
-                z15 ^= (((((ulong)0xffffffffffffff0f << 8) | ((ulong)0xffffffffffffff0f >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xffffffffffffff0f << 24) | ((ulong)0xffffffffffffff0f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xffffffffffffff0f << 40) | ((ulong)0xffffffffffffff0f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xffffffffffffff0f << 56) | ((ulong)0xffffffffffffff0f >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z15 ^= ((((0xffffffffffffff0f << 8) | (0xffffffffffffff0f >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xffffffffffffff0f << 24) | (0xffffffffffffff0f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xffffffffffffff0f << 40) | (0xffffffffffffff0f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xffffffffffffff0f << 56) | (0xffffffffffffff0f >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 8) | ((ulong)(i + 1) >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 24) | ((ulong)(i + 1) >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 40) | ((ulong)(i + 1) >> (64 - 40))) & (0x00FF000000FF0000)) |
@@ -4072,130 +4072,130 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     s_T[6 * 256 + (byte)(z4 >> (8 * 6))] ^ s_T[7 * 256 + (byte)(z6 >> (8 * 7))];
             }
 
-            y0 ^= (((((ulong)0xffffffffffffffff << 8) | ((ulong)0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffff << 24) | ((ulong)0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffff << 40) | ((ulong)0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffff << 56) | ((ulong)0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y0 ^= ((((0xffffffffffffffff << 8) | (0xffffffffffffffff >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffff << 24) | (0xffffffffffffffff >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffff << 40) | (0xffffffffffffffff >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffff << 56) | (0xffffffffffffffff >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y1 ^= (((((ulong)0xffffffffffffffef << 8) | ((ulong)0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffef << 24) | ((ulong)0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffef << 40) | ((ulong)0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffef << 56) | ((ulong)0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y1 ^= ((((0xffffffffffffffef << 8) | (0xffffffffffffffef >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffef << 24) | (0xffffffffffffffef >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffef << 40) | (0xffffffffffffffef >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffef << 56) | (0xffffffffffffffef >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y2 ^= (((((ulong)0xffffffffffffffdf << 8) | ((ulong)0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffdf << 24) | ((ulong)0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffdf << 40) | ((ulong)0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffdf << 56) | ((ulong)0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y2 ^= ((((0xffffffffffffffdf << 8) | (0xffffffffffffffdf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffdf << 24) | (0xffffffffffffffdf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffdf << 40) | (0xffffffffffffffdf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffdf << 56) | (0xffffffffffffffdf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y3 ^= (((((ulong)0xffffffffffffffcf << 8) | ((ulong)0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffcf << 24) | ((ulong)0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffcf << 40) | ((ulong)0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffcf << 56) | ((ulong)0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y3 ^= ((((0xffffffffffffffcf << 8) | (0xffffffffffffffcf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffcf << 24) | (0xffffffffffffffcf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffcf << 40) | (0xffffffffffffffcf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffcf << 56) | (0xffffffffffffffcf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y4 ^= (((((ulong)0xffffffffffffffbf << 8) | ((ulong)0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffbf << 24) | ((ulong)0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffbf << 40) | ((ulong)0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffbf << 56) | ((ulong)0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y4 ^= ((((0xffffffffffffffbf << 8) | (0xffffffffffffffbf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffbf << 24) | (0xffffffffffffffbf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffbf << 40) | (0xffffffffffffffbf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffbf << 56) | (0xffffffffffffffbf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y5 ^= (((((ulong)0xffffffffffffffaf << 8) | ((ulong)0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffffaf << 24) | ((ulong)0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffffaf << 40) | ((ulong)0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffffaf << 56) | ((ulong)0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y5 ^= ((((0xffffffffffffffaf << 8) | (0xffffffffffffffaf >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffffaf << 24) | (0xffffffffffffffaf >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffffaf << 40) | (0xffffffffffffffaf >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffffaf << 56) | (0xffffffffffffffaf >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y6 ^= (((((ulong)0xffffffffffffff9f << 8) | ((ulong)0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff9f << 24) | ((ulong)0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff9f << 40) | ((ulong)0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff9f << 56) | ((ulong)0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y6 ^= ((((0xffffffffffffff9f << 8) | (0xffffffffffffff9f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff9f << 24) | (0xffffffffffffff9f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff9f << 40) | (0xffffffffffffff9f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff9f << 56) | (0xffffffffffffff9f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y7 ^= (((((ulong)0xffffffffffffff8f << 8) | ((ulong)0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff8f << 24) | ((ulong)0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff8f << 40) | ((ulong)0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff8f << 56) | ((ulong)0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y7 ^= ((((0xffffffffffffff8f << 8) | (0xffffffffffffff8f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff8f << 24) | (0xffffffffffffff8f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff8f << 40) | (0xffffffffffffff8f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff8f << 56) | (0xffffffffffffff8f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y8 ^= (((((ulong)0xffffffffffffff7f << 8) | ((ulong)0xffffffffffffff7f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff7f << 24) | ((ulong)0xffffffffffffff7f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff7f << 40) | ((ulong)0xffffffffffffff7f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff7f << 56) | ((ulong)0xffffffffffffff7f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y8 ^= ((((0xffffffffffffff7f << 8) | (0xffffffffffffff7f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff7f << 24) | (0xffffffffffffff7f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff7f << 40) | (0xffffffffffffff7f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff7f << 56) | (0xffffffffffffff7f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y9 ^= (((((ulong)0xffffffffffffff6f << 8) | ((ulong)0xffffffffffffff6f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff6f << 24) | ((ulong)0xffffffffffffff6f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff6f << 40) | ((ulong)0xffffffffffffff6f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff6f << 56) | ((ulong)0xffffffffffffff6f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y9 ^= ((((0xffffffffffffff6f << 8) | (0xffffffffffffff6f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff6f << 24) | (0xffffffffffffff6f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff6f << 40) | (0xffffffffffffff6f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff6f << 56) | (0xffffffffffffff6f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y10 ^= (((((ulong)0xffffffffffffff5f << 8) | ((ulong)0xffffffffffffff5f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff5f << 24) | ((ulong)0xffffffffffffff5f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff5f << 40) | ((ulong)0xffffffffffffff5f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff5f << 56) | ((ulong)0xffffffffffffff5f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y10 ^= ((((0xffffffffffffff5f << 8) | (0xffffffffffffff5f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff5f << 24) | (0xffffffffffffff5f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff5f << 40) | (0xffffffffffffff5f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff5f << 56) | (0xffffffffffffff5f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y11 ^= (((((ulong)0xffffffffffffff4f << 8) | ((ulong)0xffffffffffffff4f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff4f << 24) | ((ulong)0xffffffffffffff4f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff4f << 40) | ((ulong)0xffffffffffffff4f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff4f << 56) | ((ulong)0xffffffffffffff4f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y11 ^= ((((0xffffffffffffff4f << 8) | (0xffffffffffffff4f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff4f << 24) | (0xffffffffffffff4f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff4f << 40) | (0xffffffffffffff4f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff4f << 56) | (0xffffffffffffff4f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y12 ^= (((((ulong)0xffffffffffffff3f << 8) | ((ulong)0xffffffffffffff3f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff3f << 24) | ((ulong)0xffffffffffffff3f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff3f << 40) | ((ulong)0xffffffffffffff3f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff3f << 56) | ((ulong)0xffffffffffffff3f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y12 ^= ((((0xffffffffffffff3f << 8) | (0xffffffffffffff3f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff3f << 24) | (0xffffffffffffff3f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff3f << 40) | (0xffffffffffffff3f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff3f << 56) | (0xffffffffffffff3f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y13 ^= (((((ulong)0xffffffffffffff2f << 8) | ((ulong)0xffffffffffffff2f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff2f << 24) | ((ulong)0xffffffffffffff2f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff2f << 40) | ((ulong)0xffffffffffffff2f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff2f << 56) | ((ulong)0xffffffffffffff2f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y13 ^= ((((0xffffffffffffff2f << 8) | (0xffffffffffffff2f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff2f << 24) | (0xffffffffffffff2f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff2f << 40) | (0xffffffffffffff2f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff2f << 56) | (0xffffffffffffff2f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y14 ^= (((((ulong)0xffffffffffffff1f << 8) | ((ulong)0xffffffffffffff1f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff1f << 24) | ((ulong)0xffffffffffffff1f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff1f << 40) | ((ulong)0xffffffffffffff1f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff1f << 56) | ((ulong)0xffffffffffffff1f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y14 ^= ((((0xffffffffffffff1f << 8) | (0xffffffffffffff1f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff1f << 24) | (0xffffffffffffff1f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff1f << 40) | (0xffffffffffffff1f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff1f << 56) | (0xffffffffffffff1f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56) | ((ulong)13 >> (64 - 56))) & (0xFF000000FF000000)));
-            y15 ^= (((((ulong)0xffffffffffffff0f << 8) | ((ulong)0xffffffffffffff0f >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xffffffffffffff0f << 24) | ((ulong)0xffffffffffffff0f >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xffffffffffffff0f << 40) | ((ulong)0xffffffffffffff0f >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xffffffffffffff0f << 56) | ((ulong)0xffffffffffffff0f >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y15 ^= ((((0xffffffffffffff0f << 8) | (0xffffffffffffff0f >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xffffffffffffff0f << 24) | (0xffffffffffffff0f >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xffffffffffffff0f << 40) | (0xffffffffffffff0f >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xffffffffffffff0f << 56) | (0xffffffffffffff0f >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 8) | ((ulong)13 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 24) | ((ulong)13 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 40) | ((ulong)13 >> (64 - 40))) & (0x00FF000000FF0000)) |
@@ -4298,38 +4298,38 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 ((((ulong)0x7000000000000000 << 24) | ((ulong)0x7000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x7000000000000000 << 40) | ((ulong)0x7000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x7000000000000000 << 56) | ((ulong)0x7000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w8 ^= (((((ulong)0x8000000000000000 << 8) | ((ulong)0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0x8000000000000000 << 24) | ((ulong)0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0x8000000000000000 << 40) | ((ulong)0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0x8000000000000000 << 56) | ((ulong)0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w9 ^= (((((ulong)0x9000000000000000 << 8) | ((ulong)0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0x9000000000000000 << 24) | ((ulong)0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0x9000000000000000 << 40) | ((ulong)0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0x9000000000000000 << 56) | ((ulong)0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w10 ^= (((((ulong)0xa000000000000000 << 8) | ((ulong)0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xa000000000000000 << 24) | ((ulong)0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xa000000000000000 << 40) | ((ulong)0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xa000000000000000 << 56) | ((ulong)0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w11 ^= (((((ulong)0xb000000000000000 << 8) | ((ulong)0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xb000000000000000 << 24) | ((ulong)0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xb000000000000000 << 40) | ((ulong)0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xb000000000000000 << 56) | ((ulong)0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w12 ^= (((((ulong)0xc000000000000000 << 8) | ((ulong)0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xc000000000000000 << 24) | ((ulong)0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xc000000000000000 << 40) | ((ulong)0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xc000000000000000 << 56) | ((ulong)0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w13 ^= (((((ulong)0xd000000000000000 << 8) | ((ulong)0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xd000000000000000 << 24) | ((ulong)0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xd000000000000000 << 40) | ((ulong)0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xd000000000000000 << 56) | ((ulong)0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w14 ^= (((((ulong)0xe000000000000000 << 8) | ((ulong)0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xe000000000000000 << 24) | ((ulong)0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xe000000000000000 << 40) | ((ulong)0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xe000000000000000 << 56) | ((ulong)0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w15 ^= (((((ulong)0xf000000000000000 << 8) | ((ulong)0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xf000000000000000 << 24) | ((ulong)0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xf000000000000000 << 40) | ((ulong)0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xf000000000000000 << 56) | ((ulong)0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w8 ^= ((((0x8000000000000000 << 8) | (0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0x8000000000000000 << 24) | (0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0x8000000000000000 << 40) | (0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0x8000000000000000 << 56) | (0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w9 ^= ((((0x9000000000000000 << 8) | (0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0x9000000000000000 << 24) | (0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0x9000000000000000 << 40) | (0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0x9000000000000000 << 56) | (0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w10 ^= ((((0xa000000000000000 << 8) | (0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xa000000000000000 << 24) | (0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xa000000000000000 << 40) | (0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xa000000000000000 << 56) | (0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w11 ^= ((((0xb000000000000000 << 8) | (0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xb000000000000000 << 24) | (0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xb000000000000000 << 40) | (0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xb000000000000000 << 56) | (0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w12 ^= ((((0xc000000000000000 << 8) | (0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xc000000000000000 << 24) | (0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xc000000000000000 << 40) | (0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xc000000000000000 << 56) | (0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w13 ^= ((((0xd000000000000000 << 8) | (0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xd000000000000000 << 24) | (0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xd000000000000000 << 40) | (0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xd000000000000000 << 56) | (0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w14 ^= ((((0xe000000000000000 << 8) | (0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xe000000000000000 << 24) | (0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xe000000000000000 << 40) | (0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xe000000000000000 << 56) | (0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w15 ^= ((((0xf000000000000000 << 8) | (0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xf000000000000000 << 24) | (0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xf000000000000000 << 40) | (0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xf000000000000000 << 56) | (0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
 
             z15 = s_T[0 * 256 + (byte)(w15 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(w0 >> (8 * 1))] ^
                 s_T[2 * 256 + (byte)(w1 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(w2 >> (8 * 3))] ^
@@ -4462,66 +4462,66 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     ((((ulong)i << 56 << 24) | ((ulong)i << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 56 << 40) | ((ulong)i << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56 << 56) | ((ulong)i << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z8 ^= (((((ulong)0x8000000000000000 << 8) | ((ulong)0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0x8000000000000000 << 24) | ((ulong)0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0x8000000000000000 << 40) | ((ulong)0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0x8000000000000000 << 56) | ((ulong)0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z8 ^= ((((0x8000000000000000 << 8) | (0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0x8000000000000000 << 24) | (0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0x8000000000000000 << 40) | (0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0x8000000000000000 << 56) | (0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 56 << 8) | ((ulong)i << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 56 << 24) | ((ulong)i << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 56 << 40) | ((ulong)i << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56 << 56) | ((ulong)i << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z9 ^= (((((ulong)0x9000000000000000 << 8) | ((ulong)0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0x9000000000000000 << 24) | ((ulong)0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0x9000000000000000 << 40) | ((ulong)0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0x9000000000000000 << 56) | ((ulong)0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z9 ^= ((((0x9000000000000000 << 8) | (0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0x9000000000000000 << 24) | (0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0x9000000000000000 << 40) | (0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0x9000000000000000 << 56) | (0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 56 << 8) | ((ulong)i << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 56 << 24) | ((ulong)i << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 56 << 40) | ((ulong)i << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56 << 56) | ((ulong)i << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z10 ^= (((((ulong)0xa000000000000000 << 8) | ((ulong)0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xa000000000000000 << 24) | ((ulong)0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xa000000000000000 << 40) | ((ulong)0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xa000000000000000 << 56) | ((ulong)0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z10 ^= ((((0xa000000000000000 << 8) | (0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xa000000000000000 << 24) | (0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xa000000000000000 << 40) | (0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xa000000000000000 << 56) | (0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 56 << 8) | ((ulong)i << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 56 << 24) | ((ulong)i << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 56 << 40) | ((ulong)i << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56 << 56) | ((ulong)i << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z11 ^= (((((ulong)0xb000000000000000 << 8) | ((ulong)0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xb000000000000000 << 24) | ((ulong)0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xb000000000000000 << 40) | ((ulong)0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xb000000000000000 << 56) | ((ulong)0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z11 ^= ((((0xb000000000000000 << 8) | (0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xb000000000000000 << 24) | (0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xb000000000000000 << 40) | (0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xb000000000000000 << 56) | (0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 56 << 8) | ((ulong)i << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 56 << 24) | ((ulong)i << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 56 << 40) | ((ulong)i << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56 << 56) | ((ulong)i << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z12 ^= (((((ulong)0xc000000000000000 << 8) | ((ulong)0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xc000000000000000 << 24) | ((ulong)0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xc000000000000000 << 40) | ((ulong)0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xc000000000000000 << 56) | ((ulong)0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z12 ^= ((((0xc000000000000000 << 8) | (0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xc000000000000000 << 24) | (0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xc000000000000000 << 40) | (0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xc000000000000000 << 56) | (0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 56 << 8) | ((ulong)i << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 56 << 24) | ((ulong)i << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 56 << 40) | ((ulong)i << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56 << 56) | ((ulong)i << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z13 ^= (((((ulong)0xd000000000000000 << 8) | ((ulong)0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xd000000000000000 << 24) | ((ulong)0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xd000000000000000 << 40) | ((ulong)0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xd000000000000000 << 56) | ((ulong)0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z13 ^= ((((0xd000000000000000 << 8) | (0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xd000000000000000 << 24) | (0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xd000000000000000 << 40) | (0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xd000000000000000 << 56) | (0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 56 << 8) | ((ulong)i << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 56 << 24) | ((ulong)i << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 56 << 40) | ((ulong)i << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56 << 56) | ((ulong)i << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z14 ^= (((((ulong)0xe000000000000000 << 8) | ((ulong)0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xe000000000000000 << 24) | ((ulong)0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xe000000000000000 << 40) | ((ulong)0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xe000000000000000 << 56) | ((ulong)0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z14 ^= ((((0xe000000000000000 << 8) | (0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xe000000000000000 << 24) | (0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xe000000000000000 << 40) | (0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xe000000000000000 << 56) | (0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 56 << 8) | ((ulong)i << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 56 << 24) | ((ulong)i << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 56 << 40) | ((ulong)i << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)i << 56 << 56) | ((ulong)i << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z15 ^= (((((ulong)0xf000000000000000 << 8) | ((ulong)0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xf000000000000000 << 24) | ((ulong)0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xf000000000000000 << 40) | ((ulong)0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xf000000000000000 << 56) | ((ulong)0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z15 ^= ((((0xf000000000000000 << 8) | (0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xf000000000000000 << 24) | (0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xf000000000000000 << 40) | (0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xf000000000000000 << 56) | (0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)i << 56 << 8) | ((ulong)i << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)i << 56 << 24) | ((ulong)i << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)i << 56 << 40) | ((ulong)i << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
@@ -4656,66 +4656,66 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     ((((ulong)(i + 1) << 56 << 24) | ((ulong)(i + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 56 << 40) | ((ulong)(i + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56 << 56) | ((ulong)(i + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y8 ^= (((((ulong)0x8000000000000000 << 8) | ((ulong)0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0x8000000000000000 << 24) | ((ulong)0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0x8000000000000000 << 40) | ((ulong)0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0x8000000000000000 << 56) | ((ulong)0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y8 ^= ((((0x8000000000000000 << 8) | (0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0x8000000000000000 << 24) | (0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0x8000000000000000 << 40) | (0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0x8000000000000000 << 56) | (0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 56 << 8) | ((ulong)(i + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 56 << 24) | ((ulong)(i + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 56 << 40) | ((ulong)(i + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56 << 56) | ((ulong)(i + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y9 ^= (((((ulong)0x9000000000000000 << 8) | ((ulong)0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0x9000000000000000 << 24) | ((ulong)0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0x9000000000000000 << 40) | ((ulong)0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0x9000000000000000 << 56) | ((ulong)0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y9 ^= ((((0x9000000000000000 << 8) | (0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0x9000000000000000 << 24) | (0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0x9000000000000000 << 40) | (0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0x9000000000000000 << 56) | (0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 56 << 8) | ((ulong)(i + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 56 << 24) | ((ulong)(i + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 56 << 40) | ((ulong)(i + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56 << 56) | ((ulong)(i + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y10 ^= (((((ulong)0xa000000000000000 << 8) | ((ulong)0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xa000000000000000 << 24) | ((ulong)0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xa000000000000000 << 40) | ((ulong)0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xa000000000000000 << 56) | ((ulong)0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y10 ^= ((((0xa000000000000000 << 8) | (0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xa000000000000000 << 24) | (0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xa000000000000000 << 40) | (0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xa000000000000000 << 56) | (0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 56 << 8) | ((ulong)(i + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 56 << 24) | ((ulong)(i + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 56 << 40) | ((ulong)(i + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56 << 56) | ((ulong)(i + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y11 ^= (((((ulong)0xb000000000000000 << 8) | ((ulong)0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xb000000000000000 << 24) | ((ulong)0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xb000000000000000 << 40) | ((ulong)0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xb000000000000000 << 56) | ((ulong)0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y11 ^= ((((0xb000000000000000 << 8) | (0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xb000000000000000 << 24) | (0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xb000000000000000 << 40) | (0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xb000000000000000 << 56) | (0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 56 << 8) | ((ulong)(i + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 56 << 24) | ((ulong)(i + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 56 << 40) | ((ulong)(i + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56 << 56) | ((ulong)(i + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y12 ^= (((((ulong)0xc000000000000000 << 8) | ((ulong)0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xc000000000000000 << 24) | ((ulong)0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xc000000000000000 << 40) | ((ulong)0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xc000000000000000 << 56) | ((ulong)0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y12 ^= ((((0xc000000000000000 << 8) | (0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xc000000000000000 << 24) | (0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xc000000000000000 << 40) | (0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xc000000000000000 << 56) | (0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 56 << 8) | ((ulong)(i + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 56 << 24) | ((ulong)(i + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 56 << 40) | ((ulong)(i + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56 << 56) | ((ulong)(i + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y13 ^= (((((ulong)0xd000000000000000 << 8) | ((ulong)0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xd000000000000000 << 24) | ((ulong)0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xd000000000000000 << 40) | ((ulong)0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xd000000000000000 << 56) | ((ulong)0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y13 ^= ((((0xd000000000000000 << 8) | (0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xd000000000000000 << 24) | (0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xd000000000000000 << 40) | (0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xd000000000000000 << 56) | (0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 56 << 8) | ((ulong)(i + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 56 << 24) | ((ulong)(i + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 56 << 40) | ((ulong)(i + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56 << 56) | ((ulong)(i + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y14 ^= (((((ulong)0xe000000000000000 << 8) | ((ulong)0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xe000000000000000 << 24) | ((ulong)0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xe000000000000000 << 40) | ((ulong)0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xe000000000000000 << 56) | ((ulong)0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y14 ^= ((((0xe000000000000000 << 8) | (0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xe000000000000000 << 24) | (0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xe000000000000000 << 40) | (0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xe000000000000000 << 56) | (0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 56 << 8) | ((ulong)(i + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 56 << 24) | ((ulong)(i + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 56 << 40) | ((ulong)(i + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(i + 1) << 56 << 56) | ((ulong)(i + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y15 ^= (((((ulong)0xf000000000000000 << 8) | ((ulong)0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xf000000000000000 << 24) | ((ulong)0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xf000000000000000 << 40) | ((ulong)0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xf000000000000000 << 56) | ((ulong)0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y15 ^= ((((0xf000000000000000 << 8) | (0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xf000000000000000 << 24) | (0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xf000000000000000 << 40) | (0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xf000000000000000 << 56) | (0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(i + 1) << 56 << 8) | ((ulong)(i + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(i + 1) << 56 << 24) | ((ulong)(i + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(i + 1) << 56 << 40) | ((ulong)(i + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
@@ -4851,66 +4851,66 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            z8 ^= (((((ulong)0x8000000000000000 << 8) | ((ulong)0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0x8000000000000000 << 24) | ((ulong)0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0x8000000000000000 << 40) | ((ulong)0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0x8000000000000000 << 56) | ((ulong)0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z8 ^= ((((0x8000000000000000 << 8) | (0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0x8000000000000000 << 24) | (0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0x8000000000000000 << 40) | (0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0x8000000000000000 << 56) | (0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            z9 ^= (((((ulong)0x9000000000000000 << 8) | ((ulong)0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0x9000000000000000 << 24) | ((ulong)0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0x9000000000000000 << 40) | ((ulong)0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0x9000000000000000 << 56) | ((ulong)0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z9 ^= ((((0x9000000000000000 << 8) | (0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0x9000000000000000 << 24) | (0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0x9000000000000000 << 40) | (0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0x9000000000000000 << 56) | (0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            z10 ^= (((((ulong)0xa000000000000000 << 8) | ((ulong)0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xa000000000000000 << 24) | ((ulong)0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xa000000000000000 << 40) | ((ulong)0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xa000000000000000 << 56) | ((ulong)0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z10 ^= ((((0xa000000000000000 << 8) | (0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xa000000000000000 << 24) | (0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xa000000000000000 << 40) | (0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xa000000000000000 << 56) | (0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            z11 ^= (((((ulong)0xb000000000000000 << 8) | ((ulong)0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xb000000000000000 << 24) | ((ulong)0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xb000000000000000 << 40) | ((ulong)0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xb000000000000000 << 56) | ((ulong)0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z11 ^= ((((0xb000000000000000 << 8) | (0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xb000000000000000 << 24) | (0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xb000000000000000 << 40) | (0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xb000000000000000 << 56) | (0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            z12 ^= (((((ulong)0xc000000000000000 << 8) | ((ulong)0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xc000000000000000 << 24) | ((ulong)0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xc000000000000000 << 40) | ((ulong)0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xc000000000000000 << 56) | ((ulong)0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z12 ^= ((((0xc000000000000000 << 8) | (0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xc000000000000000 << 24) | (0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xc000000000000000 << 40) | (0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xc000000000000000 << 56) | (0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            z13 ^= (((((ulong)0xd000000000000000 << 8) | ((ulong)0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xd000000000000000 << 24) | ((ulong)0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xd000000000000000 << 40) | ((ulong)0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xd000000000000000 << 56) | ((ulong)0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z13 ^= ((((0xd000000000000000 << 8) | (0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xd000000000000000 << 24) | (0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xd000000000000000 << 40) | (0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xd000000000000000 << 56) | (0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            z14 ^= (((((ulong)0xe000000000000000 << 8) | ((ulong)0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xe000000000000000 << 24) | ((ulong)0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xe000000000000000 << 40) | ((ulong)0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xe000000000000000 << 56) | ((ulong)0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z14 ^= ((((0xe000000000000000 << 8) | (0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xe000000000000000 << 24) | (0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xe000000000000000 << 40) | (0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xe000000000000000 << 56) | (0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            z15 ^= (((((ulong)0xf000000000000000 << 8) | ((ulong)0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xf000000000000000 << 24) | ((ulong)0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xf000000000000000 << 40) | ((ulong)0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xf000000000000000 << 56) | ((ulong)0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            z15 ^= ((((0xf000000000000000 << 8) | (0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xf000000000000000 << 24) | (0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xf000000000000000 << 40) | (0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xf000000000000000 << 56) | (0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
@@ -5054,38 +5054,38 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 ((((ulong)0x7000000000000000 << 24) | ((ulong)0x7000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)0x7000000000000000 << 40) | ((ulong)0x7000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)0x7000000000000000 << 56) | ((ulong)0x7000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w8 ^= (((((ulong)0x8000000000000000 << 8) | ((ulong)0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0x8000000000000000 << 24) | ((ulong)0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0x8000000000000000 << 40) | ((ulong)0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0x8000000000000000 << 56) | ((ulong)0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w9 ^= (((((ulong)0x9000000000000000 << 8) | ((ulong)0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0x9000000000000000 << 24) | ((ulong)0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0x9000000000000000 << 40) | ((ulong)0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0x9000000000000000 << 56) | ((ulong)0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w10 ^= (((((ulong)0xa000000000000000 << 8) | ((ulong)0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xa000000000000000 << 24) | ((ulong)0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xa000000000000000 << 40) | ((ulong)0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xa000000000000000 << 56) | ((ulong)0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w11 ^= (((((ulong)0xb000000000000000 << 8) | ((ulong)0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xb000000000000000 << 24) | ((ulong)0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xb000000000000000 << 40) | ((ulong)0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xb000000000000000 << 56) | ((ulong)0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w12 ^= (((((ulong)0xc000000000000000 << 8) | ((ulong)0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xc000000000000000 << 24) | ((ulong)0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xc000000000000000 << 40) | ((ulong)0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xc000000000000000 << 56) | ((ulong)0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w13 ^= (((((ulong)0xd000000000000000 << 8) | ((ulong)0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xd000000000000000 << 24) | ((ulong)0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xd000000000000000 << 40) | ((ulong)0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xd000000000000000 << 56) | ((ulong)0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w14 ^= (((((ulong)0xe000000000000000 << 8) | ((ulong)0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xe000000000000000 << 24) | ((ulong)0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xe000000000000000 << 40) | ((ulong)0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xe000000000000000 << 56) | ((ulong)0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
-            w15 ^= (((((ulong)0xf000000000000000 << 8) | ((ulong)0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xf000000000000000 << 24) | ((ulong)0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xf000000000000000 << 40) | ((ulong)0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xf000000000000000 << 56) | ((ulong)0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w8 ^= ((((0x8000000000000000 << 8) | (0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0x8000000000000000 << 24) | (0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0x8000000000000000 << 40) | (0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0x8000000000000000 << 56) | (0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w9 ^= ((((0x9000000000000000 << 8) | (0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0x9000000000000000 << 24) | (0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0x9000000000000000 << 40) | (0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0x9000000000000000 << 56) | (0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w10 ^= ((((0xa000000000000000 << 8) | (0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xa000000000000000 << 24) | (0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xa000000000000000 << 40) | (0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xa000000000000000 << 56) | (0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w11 ^= ((((0xb000000000000000 << 8) | (0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xb000000000000000 << 24) | (0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xb000000000000000 << 40) | (0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xb000000000000000 << 56) | (0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w12 ^= ((((0xc000000000000000 << 8) | (0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xc000000000000000 << 24) | (0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xc000000000000000 << 40) | (0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xc000000000000000 << 56) | (0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w13 ^= ((((0xd000000000000000 << 8) | (0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xd000000000000000 << 24) | (0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xd000000000000000 << 40) | (0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xd000000000000000 << 56) | (0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w14 ^= ((((0xe000000000000000 << 8) | (0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xe000000000000000 << 24) | (0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xe000000000000000 << 40) | (0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xe000000000000000 << 56) | (0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
+            w15 ^= ((((0xf000000000000000 << 8) | (0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xf000000000000000 << 24) | (0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xf000000000000000 << 40) | (0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xf000000000000000 << 56) | (0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^ 0;
 
             y15 = s_T[0 * 256 + (byte)(w15 >> (8 * 0))] ^ s_T[1 * 256 + (byte)(w0 >> (8 * 1))] ^
                 s_T[2 * 256 + (byte)(w1 >> (8 * 2))] ^ s_T[3 * 256 + (byte)(w2 >> (8 * 3))] ^
@@ -5218,66 +5218,66 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     ((((ulong)j << 56 << 24) | ((ulong)j << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)j << 56 << 40) | ((ulong)j << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)j << 56 << 56) | ((ulong)j << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y8 ^= (((((ulong)0x8000000000000000 << 8) | ((ulong)0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0x8000000000000000 << 24) | ((ulong)0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0x8000000000000000 << 40) | ((ulong)0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0x8000000000000000 << 56) | ((ulong)0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y8 ^= ((((0x8000000000000000 << 8) | (0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0x8000000000000000 << 24) | (0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0x8000000000000000 << 40) | (0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0x8000000000000000 << 56) | (0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)j << 56 << 8) | ((ulong)j << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)j << 56 << 24) | ((ulong)j << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)j << 56 << 40) | ((ulong)j << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)j << 56 << 56) | ((ulong)j << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y9 ^= (((((ulong)0x9000000000000000 << 8) | ((ulong)0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0x9000000000000000 << 24) | ((ulong)0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0x9000000000000000 << 40) | ((ulong)0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0x9000000000000000 << 56) | ((ulong)0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y9 ^= ((((0x9000000000000000 << 8) | (0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0x9000000000000000 << 24) | (0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0x9000000000000000 << 40) | (0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0x9000000000000000 << 56) | (0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)j << 56 << 8) | ((ulong)j << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)j << 56 << 24) | ((ulong)j << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)j << 56 << 40) | ((ulong)j << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)j << 56 << 56) | ((ulong)j << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y10 ^= (((((ulong)0xa000000000000000 << 8) | ((ulong)0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xa000000000000000 << 24) | ((ulong)0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xa000000000000000 << 40) | ((ulong)0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xa000000000000000 << 56) | ((ulong)0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y10 ^= ((((0xa000000000000000 << 8) | (0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xa000000000000000 << 24) | (0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xa000000000000000 << 40) | (0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xa000000000000000 << 56) | (0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)j << 56 << 8) | ((ulong)j << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)j << 56 << 24) | ((ulong)j << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)j << 56 << 40) | ((ulong)j << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)j << 56 << 56) | ((ulong)j << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y11 ^= (((((ulong)0xb000000000000000 << 8) | ((ulong)0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xb000000000000000 << 24) | ((ulong)0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xb000000000000000 << 40) | ((ulong)0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xb000000000000000 << 56) | ((ulong)0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y11 ^= ((((0xb000000000000000 << 8) | (0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xb000000000000000 << 24) | (0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xb000000000000000 << 40) | (0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xb000000000000000 << 56) | (0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)j << 56 << 8) | ((ulong)j << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)j << 56 << 24) | ((ulong)j << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)j << 56 << 40) | ((ulong)j << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)j << 56 << 56) | ((ulong)j << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y12 ^= (((((ulong)0xc000000000000000 << 8) | ((ulong)0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xc000000000000000 << 24) | ((ulong)0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xc000000000000000 << 40) | ((ulong)0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xc000000000000000 << 56) | ((ulong)0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y12 ^= ((((0xc000000000000000 << 8) | (0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xc000000000000000 << 24) | (0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xc000000000000000 << 40) | (0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xc000000000000000 << 56) | (0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)j << 56 << 8) | ((ulong)j << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)j << 56 << 24) | ((ulong)j << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)j << 56 << 40) | ((ulong)j << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)j << 56 << 56) | ((ulong)j << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y13 ^= (((((ulong)0xd000000000000000 << 8) | ((ulong)0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xd000000000000000 << 24) | ((ulong)0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xd000000000000000 << 40) | ((ulong)0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xd000000000000000 << 56) | ((ulong)0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y13 ^= ((((0xd000000000000000 << 8) | (0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xd000000000000000 << 24) | (0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xd000000000000000 << 40) | (0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xd000000000000000 << 56) | (0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)j << 56 << 8) | ((ulong)j << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)j << 56 << 24) | ((ulong)j << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)j << 56 << 40) | ((ulong)j << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)j << 56 << 56) | ((ulong)j << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y14 ^= (((((ulong)0xe000000000000000 << 8) | ((ulong)0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xe000000000000000 << 24) | ((ulong)0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xe000000000000000 << 40) | ((ulong)0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xe000000000000000 << 56) | ((ulong)0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y14 ^= ((((0xe000000000000000 << 8) | (0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xe000000000000000 << 24) | (0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xe000000000000000 << 40) | (0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xe000000000000000 << 56) | (0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)j << 56 << 8) | ((ulong)j << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)j << 56 << 24) | ((ulong)j << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)j << 56 << 40) | ((ulong)j << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)j << 56 << 56) | ((ulong)j << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                y15 ^= (((((ulong)0xf000000000000000 << 8) | ((ulong)0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xf000000000000000 << 24) | ((ulong)0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xf000000000000000 << 40) | ((ulong)0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xf000000000000000 << 56) | ((ulong)0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                y15 ^= ((((0xf000000000000000 << 8) | (0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xf000000000000000 << 24) | (0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xf000000000000000 << 40) | (0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xf000000000000000 << 56) | (0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)j << 56 << 8) | ((ulong)j << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)j << 56 << 24) | ((ulong)j << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)j << 56 << 40) | ((ulong)j << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
@@ -5412,66 +5412,66 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                     ((((ulong)(j + 1) << 56 << 24) | ((ulong)(j + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(j + 1) << 56 << 40) | ((ulong)(j + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(j + 1) << 56 << 56) | ((ulong)(j + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z8 ^= (((((ulong)0x8000000000000000 << 8) | ((ulong)0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0x8000000000000000 << 24) | ((ulong)0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0x8000000000000000 << 40) | ((ulong)0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0x8000000000000000 << 56) | ((ulong)0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z8 ^= ((((0x8000000000000000 << 8) | (0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0x8000000000000000 << 24) | (0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0x8000000000000000 << 40) | (0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0x8000000000000000 << 56) | (0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(j + 1) << 56 << 8) | ((ulong)(j + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(j + 1) << 56 << 24) | ((ulong)(j + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(j + 1) << 56 << 40) | ((ulong)(j + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(j + 1) << 56 << 56) | ((ulong)(j + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z9 ^= (((((ulong)0x9000000000000000 << 8) | ((ulong)0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0x9000000000000000 << 24) | ((ulong)0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0x9000000000000000 << 40) | ((ulong)0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0x9000000000000000 << 56) | ((ulong)0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z9 ^= ((((0x9000000000000000 << 8) | (0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0x9000000000000000 << 24) | (0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0x9000000000000000 << 40) | (0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0x9000000000000000 << 56) | (0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(j + 1) << 56 << 8) | ((ulong)(j + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(j + 1) << 56 << 24) | ((ulong)(j + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(j + 1) << 56 << 40) | ((ulong)(j + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(j + 1) << 56 << 56) | ((ulong)(j + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z10 ^= (((((ulong)0xa000000000000000 << 8) | ((ulong)0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xa000000000000000 << 24) | ((ulong)0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xa000000000000000 << 40) | ((ulong)0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xa000000000000000 << 56) | ((ulong)0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z10 ^= ((((0xa000000000000000 << 8) | (0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xa000000000000000 << 24) | (0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xa000000000000000 << 40) | (0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xa000000000000000 << 56) | (0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(j + 1) << 56 << 8) | ((ulong)(j + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(j + 1) << 56 << 24) | ((ulong)(j + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(j + 1) << 56 << 40) | ((ulong)(j + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(j + 1) << 56 << 56) | ((ulong)(j + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z11 ^= (((((ulong)0xb000000000000000 << 8) | ((ulong)0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xb000000000000000 << 24) | ((ulong)0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xb000000000000000 << 40) | ((ulong)0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xb000000000000000 << 56) | ((ulong)0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z11 ^= ((((0xb000000000000000 << 8) | (0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xb000000000000000 << 24) | (0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xb000000000000000 << 40) | (0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xb000000000000000 << 56) | (0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(j + 1) << 56 << 8) | ((ulong)(j + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(j + 1) << 56 << 24) | ((ulong)(j + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(j + 1) << 56 << 40) | ((ulong)(j + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(j + 1) << 56 << 56) | ((ulong)(j + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z12 ^= (((((ulong)0xc000000000000000 << 8) | ((ulong)0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xc000000000000000 << 24) | ((ulong)0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xc000000000000000 << 40) | ((ulong)0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xc000000000000000 << 56) | ((ulong)0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z12 ^= ((((0xc000000000000000 << 8) | (0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xc000000000000000 << 24) | (0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xc000000000000000 << 40) | (0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xc000000000000000 << 56) | (0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(j + 1) << 56 << 8) | ((ulong)(j + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(j + 1) << 56 << 24) | ((ulong)(j + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(j + 1) << 56 << 40) | ((ulong)(j + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(j + 1) << 56 << 56) | ((ulong)(j + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z13 ^= (((((ulong)0xd000000000000000 << 8) | ((ulong)0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xd000000000000000 << 24) | ((ulong)0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xd000000000000000 << 40) | ((ulong)0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xd000000000000000 << 56) | ((ulong)0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z13 ^= ((((0xd000000000000000 << 8) | (0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xd000000000000000 << 24) | (0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xd000000000000000 << 40) | (0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xd000000000000000 << 56) | (0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(j + 1) << 56 << 8) | ((ulong)(j + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(j + 1) << 56 << 24) | ((ulong)(j + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(j + 1) << 56 << 40) | ((ulong)(j + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(j + 1) << 56 << 56) | ((ulong)(j + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z14 ^= (((((ulong)0xe000000000000000 << 8) | ((ulong)0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xe000000000000000 << 24) | ((ulong)0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xe000000000000000 << 40) | ((ulong)0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xe000000000000000 << 56) | ((ulong)0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z14 ^= ((((0xe000000000000000 << 8) | (0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xe000000000000000 << 24) | (0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xe000000000000000 << 40) | (0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xe000000000000000 << 56) | (0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(j + 1) << 56 << 8) | ((ulong)(j + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(j + 1) << 56 << 24) | ((ulong)(j + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(j + 1) << 56 << 40) | ((ulong)(j + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                     ((((ulong)(j + 1) << 56 << 56) | ((ulong)(j + 1) << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-                z15 ^= (((((ulong)0xf000000000000000 << 8) | ((ulong)0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                    ((((ulong)0xf000000000000000 << 24) | ((ulong)0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                    ((((ulong)0xf000000000000000 << 40) | ((ulong)0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                    ((((ulong)0xf000000000000000 << 56) | ((ulong)0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+                z15 ^= ((((0xf000000000000000 << 8) | (0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                    (((0xf000000000000000 << 24) | (0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                    (((0xf000000000000000 << 40) | (0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                    (((0xf000000000000000 << 56) | (0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                     (((((ulong)(j + 1) << 56 << 8) | ((ulong)(j + 1) << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                     ((((ulong)(j + 1) << 56 << 24) | ((ulong)(j + 1) << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                     ((((ulong)(j + 1) << 56 << 40) | ((ulong)(j + 1) << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
@@ -5607,66 +5607,66 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            y8 ^= (((((ulong)0x8000000000000000 << 8) | ((ulong)0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0x8000000000000000 << 24) | ((ulong)0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0x8000000000000000 << 40) | ((ulong)0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0x8000000000000000 << 56) | ((ulong)0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y8 ^= ((((0x8000000000000000 << 8) | (0x8000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0x8000000000000000 << 24) | (0x8000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0x8000000000000000 << 40) | (0x8000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0x8000000000000000 << 56) | (0x8000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            y9 ^= (((((ulong)0x9000000000000000 << 8) | ((ulong)0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0x9000000000000000 << 24) | ((ulong)0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0x9000000000000000 << 40) | ((ulong)0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0x9000000000000000 << 56) | ((ulong)0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y9 ^= ((((0x9000000000000000 << 8) | (0x9000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0x9000000000000000 << 24) | (0x9000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0x9000000000000000 << 40) | (0x9000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0x9000000000000000 << 56) | (0x9000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            y10 ^= (((((ulong)0xa000000000000000 << 8) | ((ulong)0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xa000000000000000 << 24) | ((ulong)0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xa000000000000000 << 40) | ((ulong)0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xa000000000000000 << 56) | ((ulong)0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y10 ^= ((((0xa000000000000000 << 8) | (0xa000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xa000000000000000 << 24) | (0xa000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xa000000000000000 << 40) | (0xa000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xa000000000000000 << 56) | (0xa000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            y11 ^= (((((ulong)0xb000000000000000 << 8) | ((ulong)0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xb000000000000000 << 24) | ((ulong)0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xb000000000000000 << 40) | ((ulong)0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xb000000000000000 << 56) | ((ulong)0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y11 ^= ((((0xb000000000000000 << 8) | (0xb000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xb000000000000000 << 24) | (0xb000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xb000000000000000 << 40) | (0xb000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xb000000000000000 << 56) | (0xb000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            y12 ^= (((((ulong)0xc000000000000000 << 8) | ((ulong)0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xc000000000000000 << 24) | ((ulong)0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xc000000000000000 << 40) | ((ulong)0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xc000000000000000 << 56) | ((ulong)0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y12 ^= ((((0xc000000000000000 << 8) | (0xc000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xc000000000000000 << 24) | (0xc000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xc000000000000000 << 40) | (0xc000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xc000000000000000 << 56) | (0xc000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            y13 ^= (((((ulong)0xd000000000000000 << 8) | ((ulong)0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xd000000000000000 << 24) | ((ulong)0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xd000000000000000 << 40) | ((ulong)0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xd000000000000000 << 56) | ((ulong)0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y13 ^= ((((0xd000000000000000 << 8) | (0xd000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xd000000000000000 << 24) | (0xd000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xd000000000000000 << 40) | (0xd000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xd000000000000000 << 56) | (0xd000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            y14 ^= (((((ulong)0xe000000000000000 << 8) | ((ulong)0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xe000000000000000 << 24) | ((ulong)0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xe000000000000000 << 40) | ((ulong)0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xe000000000000000 << 56) | ((ulong)0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y14 ^= ((((0xe000000000000000 << 8) | (0xe000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xe000000000000000 << 24) | (0xe000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xe000000000000000 << 40) | (0xe000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xe000000000000000 << 56) | (0xe000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |
                 ((((ulong)13 << 56 << 56) | ((ulong)13 << 56 >> (64 - 56))) & (0xFF000000FF000000)));
-            y15 ^= (((((ulong)0xf000000000000000 << 8) | ((ulong)0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
-                ((((ulong)0xf000000000000000 << 24) | ((ulong)0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
-                ((((ulong)0xf000000000000000 << 40) | ((ulong)0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
-                ((((ulong)0xf000000000000000 << 56) | ((ulong)0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
+            y15 ^= ((((0xf000000000000000 << 8) | (0xf000000000000000 >> (64 - 8))) & (0x000000FF000000FF)) |
+                (((0xf000000000000000 << 24) | (0xf000000000000000 >> (64 - 24))) & (0x0000FF000000FF00)) |
+                (((0xf000000000000000 << 40) | (0xf000000000000000 >> (64 - 40))) & (0x00FF000000FF0000)) |
+                (((0xf000000000000000 << 56) | (0xf000000000000000 >> (64 - 56))) & (0xFF000000FF000000))) ^
                 (((((ulong)13 << 56 << 8) | ((ulong)13 << 56 >> (64 - 8))) & (0x000000FF000000FF)) |
                 ((((ulong)13 << 56 << 24) | ((ulong)13 << 56 >> (64 - 24))) & (0x0000FF000000FF00)) |
                 ((((ulong)13 << 56 << 40) | ((ulong)13 << 56 >> (64 - 40))) & (0x00FF000000FF0000)) |

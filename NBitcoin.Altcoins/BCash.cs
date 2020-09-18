@@ -624,8 +624,8 @@ namespace BCashAddr
 			var payloadData = FromByte5Array(data);
 			var versionByte = payloadData[0];
 			var hash = payloadData.Skip(1).ToArray();
-			Validation.Validate(GetHashSize((byte)versionByte) == hash.Length * 8, $"Invalid hash size: {address}");
-			var type = GetType((byte)versionByte);
+			Validation.Validate(GetHashSize(versionByte) == hash.Length * 8, $"Invalid hash size: {address}");
+			var type = GetType(versionByte);
 			return new CashAddrData
 			{
 				Prefix = prefix,

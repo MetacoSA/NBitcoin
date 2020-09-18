@@ -120,7 +120,7 @@ namespace NBitcoin.Altcoins.GincoinInternals.Lyra2
 
 		private void RunSetupPhase(int nBlocksInput, ulong nCols, ulong nRows)
 		{
-			for (i = 0; i < (int)nBlocksInput; i++)
+			for (i = 0; i < nBlocksInput; i++)
 			{
 				var arrayPassed = wholeMatrix.Skip((int)(i * (int)BLOCK_LEN_BLAKE2_SAFE_INT64 * (int)LyraConstants.UINT64_SIZE)).ToArray();
 				sponge.AbsorbBlockBlake2Safe(arrayPassed);

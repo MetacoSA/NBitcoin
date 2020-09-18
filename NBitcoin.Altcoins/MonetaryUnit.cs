@@ -114,7 +114,7 @@ namespace NBitcoin.Altcoins
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus
 			{
-				SubsidyHalvingInterval = unchecked((int)1000000000),
+				SubsidyHalvingInterval = unchecked(1000000000),
 				MajorityEnforceBlockUpgrade = 51,
 				MajorityRejectBlockOutdated = 75,
 				MajorityWindow = 100,

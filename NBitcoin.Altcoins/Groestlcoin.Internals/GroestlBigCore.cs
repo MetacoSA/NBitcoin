@@ -250,7 +250,7 @@ internal abstract class GroestlBigCore : DigestEngine {
   {
     byte[] buf = getBlockBuffer();
     int ptr = flush();
-    buf[ptr ++] = (byte)0x80;
+    buf[ptr ++] = 0x80;
     ulong count = getBlockCount();
     if (ptr <= 120) {
       for (int i = ptr; i < 120; i ++)
@@ -315,14 +315,14 @@ internal abstract class GroestlBigCore : DigestEngine {
    */
   private static  ulong decodeBELong(byte[] buf, uint off)
   {
-    return ((((ulong)(buf[(int)off])) & 0xFFUL) << 56)
-      | ((((ulong)(buf[(int)off + 1])) & 0xFFUL) << 48)
-      | ((((ulong)(buf[(int)off + 2])) & 0xFFUL) << 40)
-      | ((((ulong)(buf[(int)off + 3])) & 0xFFUL) << 32)
-      | ((((ulong)(buf[(int)off + 4])) & 0xFFUL) << 24)
-      | ((((ulong)(buf[(int)off + 5])) & 0xFFUL) << 16)
-      | ((((ulong)(buf[(int)off + 6])) & 0xFFUL) << 8)
-      | (((ulong)(buf[(int)off + 7])) & 0xFFUL);
+    return ((buf[(int)off] & 0xFFUL) << 56)
+      | ((buf[(int)off + 1] & 0xFFUL) << 48)
+      | ((buf[(int)off + 2] & 0xFFUL) << 40)
+      | ((buf[(int)off + 3] & 0xFFUL) << 32)
+      | ((buf[(int)off + 4] & 0xFFUL) << 24)
+      | ((buf[(int)off + 5] & 0xFFUL) << 16)
+      | ((buf[(int)off + 6] & 0xFFUL) << 8)
+      | (buf[(int)off + 7] & 0xFFUL);
   }
 
   /**
@@ -336,7 +336,7 @@ internal abstract class GroestlBigCore : DigestEngine {
   */
   static private ulong circularLeft(ulong x, uint n)
   {
-    return (x << (int)n) | (((ulong)x) >> (64 - (int)n));
+    return (x << (int)n) | (x >> (64 - (int)n));
   }
 
   private void doPermP(ulong[] x)
@@ -508,22 +508,22 @@ internal abstract class GroestlBigCore : DigestEngine {
   private void doPermQ(ulong[] x)
   {
     for (uint r = 0; r < 14; r ++) {
-      x[0x0] ^= (ulong)r ^ unchecked((ulong)-0x01L);
-      x[0x1] ^= (ulong)r ^ unchecked((ulong)-0x11L);
-      x[0x2] ^= (ulong)r ^ unchecked((ulong)-0x21L);
-      x[0x3] ^= (ulong)r ^ unchecked((ulong)-0x31L);
-      x[0x4] ^= (ulong)r ^ unchecked((ulong)-0x41L);
-      x[0x5] ^= (ulong)r ^ unchecked((ulong)-0x51L);
-      x[0x6] ^= (ulong)r ^ unchecked((ulong)-0x61L);
-      x[0x7] ^= (ulong)r ^ unchecked((ulong)-0x71L);
-      x[0x8] ^= (ulong)r ^ unchecked((ulong)-0x81L);
-      x[0x9] ^= (ulong)r ^ unchecked((ulong)-0x91L);
-      x[0xA] ^= (ulong)r ^ unchecked((ulong)-0xA1L);
-      x[0xB] ^= (ulong)r ^ unchecked((ulong)-0xB1L);
-      x[0xC] ^= (ulong)r ^ unchecked((ulong)-0xC1L);
-      x[0xD] ^= (ulong)r ^ unchecked((ulong)-0xD1L);
-      x[0xE] ^= (ulong)r ^ unchecked((ulong)-0xE1L);
-      x[0xF] ^= (ulong)r ^ unchecked((ulong)-0xF1L);
+      x[0x0] ^= r ^ unchecked((ulong)-0x01L);
+      x[0x1] ^= r ^ unchecked((ulong)-0x11L);
+      x[0x2] ^= r ^ unchecked((ulong)-0x21L);
+      x[0x3] ^= r ^ unchecked((ulong)-0x31L);
+      x[0x4] ^= r ^ unchecked((ulong)-0x41L);
+      x[0x5] ^= r ^ unchecked((ulong)-0x51L);
+      x[0x6] ^= r ^ unchecked((ulong)-0x61L);
+      x[0x7] ^= r ^ unchecked((ulong)-0x71L);
+      x[0x8] ^= r ^ unchecked((ulong)-0x81L);
+      x[0x9] ^= r ^ unchecked((ulong)-0x91L);
+      x[0xA] ^= r ^ unchecked((ulong)-0xA1L);
+      x[0xB] ^= r ^ unchecked((ulong)-0xB1L);
+      x[0xC] ^= r ^ unchecked((ulong)-0xC1L);
+      x[0xD] ^= r ^ unchecked((ulong)-0xD1L);
+      x[0xE] ^= r ^ unchecked((ulong)-0xE1L);
+      x[0xF] ^= r ^ unchecked((ulong)-0xF1L);
       ulong t0 = T0[(uint)(x[0x1] >> 56)]
         ^ T1[(uint)(x[0x3] >> 48) & 0xFF]
         ^ T2[(uint)(x[0x5] >> 40) & 0xFF]
