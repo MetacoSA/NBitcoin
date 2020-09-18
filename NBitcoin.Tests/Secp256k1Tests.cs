@@ -1319,6 +1319,22 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanCreateScalarFromULong()
+		{
+			var fromUInt = new Scalar(uint.MaxValue);
+			fromUInt = fromUInt.Multiply(new Scalar(17));
+
+			var fromULong = new Scalar(17UL * uint.MaxValue);
+			Assert.Equal(fromULong, fromUInt);
+
+			var two = Scalar.One + Scalar.One;
+			var max = two.Sqr(6) + two.Negate();
+			var maxULong = new Scalar(ulong.MaxValue-1);
+			Assert.Equal(maxULong, max);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanSerializeScalar()
 		{
 			Span<byte> output = stackalloc byte[32];

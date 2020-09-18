@@ -99,6 +99,11 @@ namespace NBitcoin.Secp256k1
 			d0 = value;
 		}
 		
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
 		Scalar(ulong value)
 		{
 			d0 = d1 = d2 = d3 = d4 = d5 = d6 = d7 = 0;
