@@ -15,6 +15,7 @@ using Builder = System.Action<NBitcoin.TransactionBuilder.TransactionBuildingCon
 using AssetBuilder = System.Action<NBitcoin.TransactionBuilder.TransactionBuildingContext>;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NBitcoin
 {
@@ -869,15 +870,17 @@ namespace NBitcoin
 			return this;
 		}
 
-		public TransactionBuilder AddCoins(params ICoin[] coins)
+		public TransactionBuilder AddCoins(params ICoin?[] coins)
 		{
-			return AddCoins((IEnumerable<ICoin>)coins);
+			return AddCoins((IEnumerable<ICoin?>)coins);
 		}
 
-		public TransactionBuilder AddCoins(IEnumerable<ICoin> coins)
+		public TransactionBuilder AddCoins(IEnumerable<ICoin?> coins)
 		{
 			foreach (var coin in coins)
 			{
+				if (coin is null)
+					continue;
 				if (coin.TxOut.ScriptPubKey.IsUnspendable)
 					throw new InvalidOperationException("You cannot add an unspendable coin");
 				CurrentGroup.Coins.AddOrReplace(coin.Outpoint, coin);
@@ -1309,7 +1312,7 @@ namespace NBitcoin
 			return this;
 		}
 
-		public bool TrySignInput(Transaction transaction, uint index, SigningOptions? signingOptions, out TransactionSignature? signature)
+		public bool TrySignInput(Transaction transaction, uint index, SigningOptions? signingOptions, [MaybeNullWhen(false)] out TransactionSignature signature)
 		{
 			signingOptions ??= new SigningOptions();
 			if (transaction == null)
@@ -1578,7 +1581,6 @@ namespace NBitcoin
 			var tx = psbt.GetOriginalTransaction();
 			psbt.AddCoins(tx.Inputs.AsIndexedInputs()
 				.Select(i => this.FindSignableCoin(i) ?? this.FindCoin(i.PrevOut))
-				.Where(c => c != null)
 				.ToArray());
 
 			psbt.AddScripts(_ScriptPubKeyToRedeem.Values.ToArray());

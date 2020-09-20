@@ -1,10 +1,12 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
 using NBitcoin.DataEncoders;
 using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.TransactionSignature>;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NBitcoin
 {
@@ -13,7 +15,7 @@ namespace NBitcoin
 		// Those fields are not saved, but can be used as hint to solve more info for the PSBT
 		internal Script originalScriptSig = Script.Empty;
 		internal WitScript originalWitScript = Script.Empty;
-		internal TxOut orphanTxOut = null; // When this input is not segwit, but we don't have the previous tx
+		internal TxOut? orphanTxOut = null; // When this input is not segwit, but we don't have the previous tx
 
 		internal PSBTInput(PSBT parent, uint index, TxIn input) : base(parent)
 		{
@@ -164,15 +166,15 @@ namespace NBitcoin
 		public uint Index { get; }
 		internal Transaction Transaction => Parent.tx;
 
-		private Transaction non_witness_utxo;
-		private TxOut witness_utxo;
-		private Script final_script_sig;
-		private WitScript final_script_witness;
+		private Transaction? non_witness_utxo;
+		private TxOut? witness_utxo;
+		private Script? final_script_sig;
+		private WitScript? final_script_witness;
 		private PartialSigKVMap partial_sigs = new PartialSigKVMap(PubKeyComparer.Instance);
 
 		SigHash? sighash_type;
 
-		public Transaction NonWitnessUtxo
+		public Transaction? NonWitnessUtxo
 		{
 			get
 			{
@@ -184,7 +186,7 @@ namespace NBitcoin
 			}
 		}
 
-		public TxOut WitnessUtxo
+		public TxOut? WitnessUtxo
 		{
 			get
 			{
@@ -208,7 +210,7 @@ namespace NBitcoin
 			}
 		}
 
-		public Script FinalScriptSig
+		public Script? FinalScriptSig
 		{
 			get
 			{
@@ -220,7 +222,7 @@ namespace NBitcoin
 			}
 		}
 
-		public WitScript FinalScriptWitness
+		public WitScript? FinalScriptWitness
 		{
 			get
 			{
@@ -407,7 +409,7 @@ namespace NBitcoin
 			this.sighash_type = null;
 		}
 
-		public override Coin GetSignableCoin(out string error)
+		public override Coin? GetSignableCoin(out string? error)
 		{
 			if (witness_utxo == null && non_witness_utxo == null)
 			{
@@ -417,7 +419,7 @@ namespace NBitcoin
 			return base.GetSignableCoin(out error);
 		}
 
-		internal override Script GetRedeemScript()
+		internal override Script? GetRedeemScript()
 		{
 			var redeemScript = base.GetRedeemScript();
 			if (redeemScript != null)
@@ -433,7 +435,7 @@ namespace NBitcoin
 			return PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(FinalScriptSig, scriptId)?.RedeemScript;
 		}
 
-		internal override Script GetWitnessScript()
+		internal override Script? GetWitnessScript()
 		{
 			var witnessScript = base.GetWitnessScript();
 			if (witnessScript != null)
@@ -531,7 +533,7 @@ namespace NBitcoin
 			return errors;
 		}
 
-		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath, SigningOptions signingOptions)
+		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, SigningOptions signingOptions)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
@@ -549,7 +551,7 @@ namespace NBitcoin
 					throw new ArgumentException(paramName: nameof(accountKey), message: "This should be a private key");
 			}
 		}
-		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
+		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, SigHash sigHash = SigHash.All)
 		{
 			TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, Parent.Normalize(new SigningOptions(sigHash)));
 		}
@@ -779,7 +781,7 @@ namespace NBitcoin
 					return sighashType.ToString();
 			}
 		}
-		public TxOut GetTxOut()
+		public TxOut? GetTxOut()
 		{
 			if (WitnessUtxo != null)
 				return WitnessUtxo;
@@ -793,7 +795,7 @@ namespace NBitcoin
 				return orphanTxOut;
 			return null;
 		}
-		public bool TryFinalizeInput(out IList<PSBTError> errors)
+		public bool TryFinalizeInput([MaybeNullWhen(true)] out IList<PSBTError> errors)
 		{
 			errors = null;
 			if (IsFinalized())
@@ -810,13 +812,15 @@ namespace NBitcoin
 				return false;
 			}
 			var coin = this.GetSignableCoin(out var getSignableCoinError) ?? this.GetCoin(); // GetCoin can't be null at this stage.
+			if (coin is null)
+				throw new InvalidOperationException("Bug in NBitcoin during TryFinalizeInput: Please report it");
 			TransactionBuilder transactionBuilder = Parent.CreateTransactionBuilder();
 			transactionBuilder.AddCoins(coin);
 			foreach (var sig in PartialSigs)
 			{
 				transactionBuilder.AddKnownSignature(sig.Key, sig.Value, coin.Outpoint);
 			}
-			Transaction signed = null;
+			Transaction? signed = null;
 			try
 			{
 				var signedTx = Parent.Settings.IsSmart ? Parent.GetOriginalTransaction() : Transaction.Clone();
@@ -854,11 +858,11 @@ namespace NBitcoin
 				throw new PSBTException(errors);
 		}
 
-		public TransactionSignature Sign(Key key)
+		public TransactionSignature? Sign(Key key)
 		{
 			return Sign(key, SigHash.All);
 		}
-		public TransactionSignature Sign(Key key, SigningOptions signingOptions)
+		public TransactionSignature? Sign(Key key, SigningOptions signingOptions)
 		{
 			if (this.IsFinalized())
 				return null;
@@ -885,7 +889,7 @@ namespace NBitcoin
 			}
 			return signature2;
 		}
-		public TransactionSignature Sign(Key key, SigHash sigHash)
+		public TransactionSignature? Sign(Key key, SigHash sigHash)
 		{
 			return Sign(key, Parent.Normalize(new SigningOptions(sigHash)));
 		}
@@ -925,7 +929,7 @@ namespace NBitcoin
 			return false;
 		}
 
-		public override Coin GetCoin()
+		public override Coin? GetCoin()
 		{
 			var txout = GetTxOut();
 			if (txout == null)
@@ -970,3 +974,4 @@ namespace NBitcoin
 	}
 
 }
+#nullable disable

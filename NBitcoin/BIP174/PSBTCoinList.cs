@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -105,7 +106,7 @@ namespace NBitcoin
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
 		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>Inputs with HD keys matching masterFingerprint and account key</returns>
-		public IEnumerable<T> CoinsFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		public IEnumerable<T> CoinsFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
 		{
 			return GetPSBTCoins(accountHDScriptPubKey, accountKey, accountKeyPath);
 		}
@@ -118,7 +119,7 @@ namespace NBitcoin
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
 		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>HD Keys matching master root key</returns>
-		public IEnumerable<PSBTHDKeyMatch<T>> HDKeysFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		public IEnumerable<PSBTHDKeyMatch<T>> HDKeysFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
 		{
 			return GetHDKeys(accountHDScriptPubKey, accountKey, accountKeyPath);
 		}
@@ -129,19 +130,19 @@ namespace NBitcoin
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
 		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>HD Keys matching master root key</returns>
-		public IEnumerable<PSBTHDKeyMatch<T>> HDKeysFor(IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		public IEnumerable<PSBTHDKeyMatch<T>> HDKeysFor(IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
 		{
 			return GetHDKeys(null, accountKey, accountKeyPath);
 		}
 
-		internal IEnumerable<T> GetPSBTCoins(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		internal IEnumerable<T> GetPSBTCoins(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
 		{
 			return GetHDKeys(accountHDScriptPubKey, accountKey, accountKeyPath)
 							.Select(c => c.Coin)
 							.Distinct();
 		}
 
-		internal IEnumerable<PSBTHDKeyMatch<T>> GetHDKeys(IHDScriptPubKey hdScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		internal IEnumerable<PSBTHDKeyMatch<T>> GetHDKeys(IHDScriptPubKey? hdScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
@@ -173,3 +174,4 @@ namespace NBitcoin
 		}
 	}
 }
+#nullable disable

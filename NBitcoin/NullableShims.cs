@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP2_1
+﻿#if NULLABLE_SHIMS
 using System;
 using System.Collections.Generic;
 using System.Linq;

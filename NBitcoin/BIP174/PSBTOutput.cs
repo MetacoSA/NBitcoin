@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
@@ -258,3 +259,4 @@ namespace NBitcoin
 		}
 	}
 }
+#nullable disable

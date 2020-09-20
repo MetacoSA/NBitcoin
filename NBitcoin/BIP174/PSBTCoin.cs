@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
@@ -10,8 +11,8 @@ namespace NBitcoin
 	{
 		protected HDKeyPathKVMap hd_keypaths = new HDKeyPathKVMap(PubKeyComparer.Instance);
 		protected UnKnownKVMap unknown = new SortedDictionary<byte[], byte[]>(BytesComparer.Instance);
-		protected Script redeem_script;
-		protected Script witness_script;
+		protected Script? redeem_script;
+		protected Script? witness_script;
 		protected readonly PSBT Parent;
 		public PSBT PSBT => Parent;
 		public PSBTCoin(PSBT parent)
@@ -37,7 +38,7 @@ namespace NBitcoin
 			}
 		}
 
-		public Script RedeemScript
+		public Script? RedeemScript
 		{
 			get
 			{
@@ -49,7 +50,7 @@ namespace NBitcoin
 			}
 		}
 
-		public Script WitnessScript
+		public Script? WitnessScript
 		{
 			get
 			{
@@ -83,13 +84,13 @@ namespace NBitcoin
 			}
 		}
 
-		public abstract Coin GetCoin();
+		public abstract Coin? GetCoin();
 
-		public Coin GetSignableCoin()
+		public Coin? GetSignableCoin()
 		{
 			return GetSignableCoin(out _);
 		}
-		public virtual Coin GetSignableCoin(out string error)
+		public virtual Coin? GetSignableCoin(out string? error)
 		{
 			var coin = GetCoin();
 			if (coin == null)
@@ -171,11 +172,11 @@ namespace NBitcoin
 		}
 
 
-		internal virtual Script GetRedeemScript()
+		internal virtual Script? GetRedeemScript()
 		{
 			return RedeemScript;
 		}
-		internal virtual Script GetWitnessScript()
+		internal virtual Script? GetWitnessScript()
 		{
 			return WitnessScript;
 		}
@@ -188,7 +189,7 @@ namespace NBitcoin
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
 		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>HD Keys matching master root key</returns>
-		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath = null)
+		public IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
@@ -196,7 +197,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(accountHDScriptPubKey));
 			return HDKeysFor(accountHDScriptPubKey, accountKey, accountKeyPath, accountKey.GetPublicKey().GetHDFingerPrint());
 		}
-		internal IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath accountKeyPath, HDFingerprint accountFingerprint)
+		internal IEnumerable<PSBTHDKeyMatch> HDKeysFor(IHDScriptPubKey? accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, HDFingerprint accountFingerprint)
 		{
 			accountKey = accountKey.AsHDKeyCache();
 			accountHDScriptPubKey = accountHDScriptPubKey?.AsHDKeyCache();
@@ -262,3 +263,4 @@ namespace NBitcoin
 		protected abstract PSBTHDKeyMatch CreateHDKeyMatch(IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<PubKey, RootedKeyPath> kv);
 	}
 }
+#nullable disable

@@ -105,7 +105,7 @@ namespace NBitcoin
 			return new NotSupportedException("The network " + this + " does not have any prefix for bech32 " + Enum.GetName(typeof(Bech32Type), type));
 		}
 
-		public byte[]? GetVersionBytes(Base58Type type, bool throws)
+		public byte[]? GetVersionBytes(Base58Type type,  bool throws)
 		{
 			var prefix = base58Prefixes[(int)type];
 			if (prefix == null && throws)
