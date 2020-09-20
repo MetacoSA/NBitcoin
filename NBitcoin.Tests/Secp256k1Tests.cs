@@ -1331,6 +1331,10 @@ namespace NBitcoin.Tests
 			var max = two.Sqr(6) + two.Negate();
 			var maxULong = new Scalar(ulong.MaxValue-1);
 			Assert.Equal(maxULong, max);
+
+			Assert.Equal(new Scalar(17) + new Scalar(10), new Scalar(27));
+			Assert.Equal(new Scalar(0xabcdef00_abcdef00UL) + new Scalar(0x00000001_00000000UL), new Scalar(0xabcdef01_abcdef00UL));
+			Assert.Equal(new Scalar(0x00000001_00000000UL), new Scalar(0xffffffff) + new Scalar(1));
 		}
 
 		[Fact]
