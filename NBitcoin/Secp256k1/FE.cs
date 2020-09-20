@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -45,7 +46,7 @@ namespace NBitcoin.Secp256k1
 			VERIFY();
 		}
 
-		public static bool TryCreate(ReadOnlySpan<byte> bytes, out FE fieldElement)
+		public static bool TryCreate(ReadOnlySpan<byte> bytes, [MaybeNullWhen(false)] out FE fieldElement)
 		{
 			var fe = new FE(bytes, false, out var isValid);
 			if (isValid)

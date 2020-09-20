@@ -2,10 +2,12 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace NBitcoin.Secp256k1
 {
@@ -16,7 +18,12 @@ namespace NBitcoin.Secp256k1
 	class ECXOnlyPubKey : ECPubKey
 	{
 		internal static byte[] TAG_BIP0340Challenge = ASCIIEncoding.ASCII.GetBytes("BIP0340/challenge");
-		public static bool TryCreate(ReadOnlySpan<byte> input32, Context context, out ECXOnlyPubKey? pubkey)
+
+		public static bool TryCreate(ReadOnlySpan<byte> input32, [MaybeNullWhen(false)] out ECXOnlyPubKey pubkey)
+		{
+			return TryCreate(input32, null, out pubkey);
+		}
+		public static bool TryCreate(ReadOnlySpan<byte> input32, Context? context, [MaybeNullWhen(false)] out ECXOnlyPubKey pubkey)
 		{
 			pubkey = null;
 			if (input32.Length != 32)
@@ -25,10 +32,13 @@ namespace NBitcoin.Secp256k1
 				return false;
 			return TryCreate(x, context, out pubkey);
 		}
-		public static bool TryCreate(in FE x, Context context, out ECXOnlyPubKey? pubkey)
+
+		public static bool TryCreate(in FE x, [MaybeNullWhen(false)] out ECXOnlyPubKey pubkey)
 		{
-			if (context == null)
-				throw new ArgumentNullException(nameof(context));
+			return TryCreate(x, null, out pubkey);
+		}
+		public static bool TryCreate(in FE x, Context? context, [MaybeNullWhen(false)] out ECXOnlyPubKey pubkey)
+		{
 			if (!GE.TryCreateXOVariable(x, false, out var ge))
 			{
 				pubkey = null;
@@ -37,7 +47,7 @@ namespace NBitcoin.Secp256k1
 			pubkey = new ECXOnlyPubKey(ge, context);
 			return true;
 		}
-		internal ECXOnlyPubKey(in GE ge, Context context) : base(ge, context)
+		internal ECXOnlyPubKey(in GE ge, Context? context) : base(ge, context)
 		{
 		}
 

@@ -2,6 +2,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace NBitcoin.Secp256k1
@@ -21,15 +22,7 @@ namespace NBitcoin.Secp256k1
 			this.rx = rx;
 			this.s = s;
 		}
-		public static bool TryCreate(in FE rx, in Scalar s, out SecpSchnorrSignature? signature)
-		{
-			signature = null;
-			if (s.IsOverflow)
-				return false;
-			signature = new SecpSchnorrSignature(rx, s);
-			return true;
-		}
-		public static bool TryCreate(ReadOnlySpan<byte> in64, out SecpSchnorrSignature? signature)
+		public static bool TryCreate(ReadOnlySpan<byte> in64, [MaybeNullWhen(false)] out SecpSchnorrSignature signature)
 		{
 			signature = null;
 			if (in64.Length != 64)
@@ -41,6 +34,14 @@ namespace NBitcoin.Secp256k1
 				return true;
 			}
 			return false;
+		}
+		public static bool TryCreate(in FE rx, in Scalar s, [MaybeNullWhen(false)] out SecpSchnorrSignature signature)
+		{
+			signature = null;
+			if (s.IsOverflow)
+				return false;
+			signature = new SecpSchnorrSignature(rx, s);
+			return true;
 		}
 
 		public void WriteToSpan(Span<byte> out64)

@@ -2,6 +2,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace NBitcoin.Secp256k1
@@ -39,29 +40,16 @@ namespace NBitcoin.Secp256k1
 		{
 			return new ECPrivKey(b32, this);
 		}
-		public bool TryCreateECPrivKey(ReadOnlySpan<byte> b32, out ECPrivKey? key)
+		public bool TryCreateECPrivKey(ReadOnlySpan<byte> b32, [MaybeNullWhen(false)] out ECPrivKey key)
 		{
-			var s = new Scalar(b32, out var overflow);
-			if (overflow != 0 || s.IsZero)
-			{
-				key = null;
-				return false;
-			}
-			key = new ECPrivKey(s, this, false);
-			return true;
+			return ECPrivKey.TryCreate(b32, this, out key);
 		}
-		public bool TryCreateECPrivKey(in Scalar s, out ECPrivKey? key)
+		public bool TryCreateECPrivKey(in Scalar s, [MaybeNullWhen(false)] out ECPrivKey key)
 		{
-			if (s.IsOverflow || s.IsZero)
-			{
-				key = null;
-				return false;
-			}
-			key = new ECPrivKey(s, this, false);
-			return true;
+			return ECPrivKey.TryCreate(s, this, out key);
 		}
 
-		public bool TryCreateXOnlyPubKey(ReadOnlySpan<byte> input32, out ECXOnlyPubKey? pubkey)
+		public bool TryCreateXOnlyPubKey(ReadOnlySpan<byte> input32, [MaybeNullWhen(false)] out ECXOnlyPubKey pubkey)
 		{
 			return ECXOnlyPubKey.TryCreate(input32, this, out pubkey);
 		}
@@ -73,15 +61,15 @@ namespace NBitcoin.Secp256k1
 			return pubkey;
 		}
 
-		public bool TryCreatePubKey(ReadOnlySpan<byte> input, out ECPubKey? pubkey)
+		public bool TryCreatePubKey(ReadOnlySpan<byte> input, [MaybeNullWhen(false)] out ECPubKey pubkey)
 		{
 			return ECPubKey.TryCreate(input, this, out _, out pubkey);
 		}
-		public bool TryCreatePubKey(ReadOnlySpan<byte> input, out bool compressed, out ECPubKey? pubkey)
+		public bool TryCreatePubKey(ReadOnlySpan<byte> input, out bool compressed, [MaybeNullWhen(false)] out ECPubKey pubkey)
 		{
 			return ECPubKey.TryCreate(input, this, out compressed, out pubkey);
 		}
-		public bool TryCreatePrivKeyFromDer(ReadOnlySpan<byte> input, out ECPrivKey? privkey)
+		public bool TryCreatePrivKeyFromDer(ReadOnlySpan<byte> input, [MaybeNullWhen(false)] out ECPrivKey privkey)
 		{
 			return ECPrivKey.TryCreateFromDer(input, this, out privkey);
 		}

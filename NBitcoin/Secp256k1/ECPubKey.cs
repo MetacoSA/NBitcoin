@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NBitcoin.Secp256k1
 {
@@ -26,7 +27,7 @@ namespace NBitcoin.Secp256k1
 		internal
 # endif
 		readonly Context ctx;
-		public ECPubKey(in GE groupElement, Context context)
+		public ECPubKey(in GE groupElement, Context? context)
 		{
 			if (groupElement.IsInfinity)
 			{
@@ -38,6 +39,10 @@ namespace NBitcoin.Secp256k1
 			this.ctx = context ?? Context.Instance;
 		}
 
+		public virtual ECXOnlyPubKey ToXOnlyPubKey()
+		{
+			return ToXOnlyPubKey(out _);
+		}
 		public virtual ECXOnlyPubKey ToXOnlyPubKey(out bool parity)
 		{
 			if (!Q.y.IsOdd)
@@ -98,7 +103,7 @@ namespace NBitcoin.Secp256k1
 			}
 		}
 
-		public static bool TryCreate(ReadOnlySpan<byte> input, Context ctx, out bool compressed, out ECPubKey? pubkey)
+		public static bool TryCreate(ReadOnlySpan<byte> input, Context ctx, out bool compressed, [MaybeNullWhen(false)] out ECPubKey pubkey)
 		{
 			GE Q;
 			pubkey = null;
@@ -108,7 +113,7 @@ namespace NBitcoin.Secp256k1
 			GE.Clear(ref Q);
 			return true;
 		}
-		public static bool TryCreateRawFormat(ReadOnlySpan<byte> input, Context ctx, out ECPubKey? pubkey)
+		public static bool TryCreateRawFormat(ReadOnlySpan<byte> input, Context ctx, [MaybeNullWhen(false)] out ECPubKey pubkey)
 		{
 			if (input.Length != 64)
 			{

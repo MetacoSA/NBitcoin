@@ -33,5 +33,6 @@
   <ItemGroup>
     <None Include="..\icon.png" Pack="true" PackagePath="\" />
     <Compile Include="../NBitcoin/Secp256k1/**/*.cs"></Compile>
+    <Compile Include="../NBitcoin/NullableShims.cs"></Compile>
   </ItemGroup>
 </Project>

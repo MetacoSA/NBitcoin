@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -131,7 +132,11 @@ namespace NBitcoin.Secp256k1
 #endif
 		readonly Context ctx;
 
-		internal static bool TryCreateFromDer(ReadOnlySpan<byte> privkey, Context ctx, out ECPrivKey? result)
+		public static bool TryCreateFromDer(ReadOnlySpan<byte> privkey, [MaybeNullWhen(false)] out ECPrivKey result)
+		{
+			return TryCreateFromDer(privkey, null, out result);
+		}
+		public static bool TryCreateFromDer(ReadOnlySpan<byte> privkey, Context? ctx, [MaybeNullWhen(false)] out ECPrivKey result)
 		{
 			result = null;
 			Span<byte> out32 = stackalloc byte[32];
@@ -188,7 +193,39 @@ namespace NBitcoin.Secp256k1
 			result = new ECPrivKey(s, ctx, false);
 			return true;
 		}
-		internal ECPrivKey(in Scalar scalar, Context ctx, bool enforceCheck)
+
+		public static bool TryCreate(ReadOnlySpan<byte> b32, [MaybeNullWhen(false)] out ECPrivKey key)
+		{
+			return TryCreate(b32, null, out key);
+		}
+		public static bool TryCreate(ReadOnlySpan<byte> b32, Context? context, [MaybeNullWhen(false)] out ECPrivKey key)
+		{
+			var s = new Scalar(b32, out var overflow);
+			if (overflow != 0 || s.IsZero)
+			{
+				key = null;
+				return false;
+			}
+			key = new ECPrivKey(s, context, false);
+			return true;
+		}
+
+		public static bool TryCreate(in Scalar s, [MaybeNullWhen(false)] out ECPrivKey key)
+		{
+			return TryCreate(s, null, out key);
+		}
+		public static bool TryCreate(in Scalar s, Context? context, [MaybeNullWhen(false)] out ECPrivKey key)
+		{
+			if (s.IsOverflow || s.IsZero)
+			{
+				key = null;
+				return false;
+			}
+			key = new ECPrivKey(s, context, false);
+			return true;
+		}
+
+		internal ECPrivKey(in Scalar scalar, Context? ctx, bool enforceCheck)
 		{
 			if (enforceCheck)
 			{
