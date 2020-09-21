@@ -409,6 +409,24 @@ namespace NBitcoin
 			this.sighash_type = null;
 		}
 
+		/// <summary>
+		/// Represent this this input as a coin that can be used for signing operations.
+		/// Returns null if <see cref="WitnessUtxo"/>, <see cref="NonWitnessUtxo"/> is not set
+		/// or if <see cref="PSBTCoin.WitnessScript"/> or <see cref="PSBTCoin.RedeemScript"/> are missing but needed.
+		/// </summary>
+		/// <returns>The input as a signable coin</returns>
+		public new Coin? GetSignableCoin()
+		{
+			return base.GetSignableCoin();
+		}
+
+		/// <summary>
+		/// Represent this this input as a coin that can be used for signing operations.
+		/// Returns null if <see cref="WitnessUtxo"/>, <see cref="NonWitnessUtxo"/> is not set
+		/// or if <see cref="PSBTCoin.WitnessScript"/> or <see cref="PSBTCoin.RedeemScript"/> are missing but needed.
+		/// </summary>
+		/// <param name="error">If it is not possible to retrieve the signable coin, a human readable reason.</param>
+		/// <returns>The input as a signable coin</returns>
 		public override Coin? GetSignableCoin(out string? error)
 		{
 			if (witness_utxo == null && non_witness_utxo == null)
@@ -929,6 +947,11 @@ namespace NBitcoin
 			return false;
 		}
 
+		/// <summary>
+		/// Represent this this input as a coin.
+		/// Returns null if <see cref="WitnessUtxo"/> or <see cref="NonWitnessUtxo"/> is not set.
+		/// </summary>
+		/// <returns>The input as a coin</returns>
 		public override Coin? GetCoin()
 		{
 			var txout = GetTxOut();
