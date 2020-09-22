@@ -410,8 +410,8 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Represent this this input as a coin that can be used for signing operations.
-		/// Returns null if <see cref="WitnessUtxo"/>, <see cref="NonWitnessUtxo"/> is not set
+		/// Represent this input as a coin that can be used for signing operations.
+		/// Returns null if <see cref="WitnessUtxo"/>, <see cref="NonWitnessUtxo"/> are not set
 		/// or if <see cref="PSBTCoin.WitnessScript"/> or <see cref="PSBTCoin.RedeemScript"/> are missing but needed.
 		/// </summary>
 		/// <returns>The input as a signable coin</returns>
@@ -421,8 +421,8 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Represent this this input as a coin that can be used for signing operations.
-		/// Returns null if <see cref="WitnessUtxo"/>, <see cref="NonWitnessUtxo"/> is not set
+		/// Represent this input as a coin that can be used for signing operations.
+		/// Returns null if <see cref="WitnessUtxo"/>, <see cref="NonWitnessUtxo"/> are not set
 		/// or if <see cref="PSBTCoin.WitnessScript"/> or <see cref="PSBTCoin.RedeemScript"/> are missing but needed.
 		/// </summary>
 		/// <param name="error">If it is not possible to retrieve the signable coin, a human readable reason.</param>
@@ -948,7 +948,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Represent this this input as a coin.
+		/// Represent this input as a coin.
 		/// Returns null if <see cref="WitnessUtxo"/> or <see cref="NonWitnessUtxo"/> is not set.
 		/// </summary>
 		/// <returns>The input as a coin</returns>
