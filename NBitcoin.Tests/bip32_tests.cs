@@ -330,7 +330,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(rKeyPath.KeyPath, KeyPath.Empty);
 			Assert.Equal("", KeyPath.Empty.ToString());
 			Assert.Equal(new byte[0], KeyPath.Empty.ToBytes());
-			Assert.Equal("01234567", rKeyPath.ToString());
+			Assert.Equal("01234567", rKeyPath.ToStringWithEmptyKeyPathAware());
 		}
 
 		[Fact]
