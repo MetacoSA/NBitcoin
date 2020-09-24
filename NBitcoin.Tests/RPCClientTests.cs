@@ -1592,6 +1592,30 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public async Task UpdatePSBTInRPCShouldIncludePreviousTX()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				var client = node.CreateRPCClient();
+				var address = await client.GetNewAddressAsync();
+				await client.GenerateToAddressAsync(102, address);
+				var coin = (await client.ListUnspentAsync())[0].AsCoin();
+				var txbuilder = builder.Network.CreateTransactionBuilder();
+				txbuilder.AddCoins(coin);
+				txbuilder.SetChange(await client.GetNewAddressAsync());
+				txbuilder.SendFees(Money.Satoshis(1000));
+				txbuilder.Send(new Key().PubKey.GetScriptPubKey(ScriptPubKeyType.Legacy), Money.Coins(1.0m));
+				var psbt = txbuilder.BuildPSBT(false);
+
+				var resp = await client.WalletProcessPSBTAsync(psbt, false);
+				Assert.NotNull(resp.PSBT.Inputs[0].NonWitnessUtxo);
+				Assert.NotNull(resp.PSBT.Inputs[0].WitnessUtxo);
+			}
+		}
+
+		[Fact]
 		public void ShouldCreatePSBTAcceptableByRPCAsExpected()
 		{
 			using (var builder = NodeBuilderEx.Create())
