@@ -24,7 +24,14 @@ namespace NBitcoin.Scripting
 		{
 			public Script Script;
 
-			internal Raw(Script script) => Script = script ?? throw new ArgumentNullException(nameof(script));
+			internal Raw(Script script)
+			{
+				if (script is null)
+					throw new ArgumentNullException(nameof(script));
+				if (script.Length == 0)
+					throw new ArgumentException($"{nameof(script)} must not be empty!");
+				Script = script;
+			}
 		}
 
 		public class PK : OutputDescriptor
