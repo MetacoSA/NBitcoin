@@ -38,7 +38,7 @@ namespace NBitcoin.Tests
 			return s;
 		}
 
-		[Property(MaxTest=500)]
+		[Property(MaxTest=10)]
 		[Trait("PropertyTest", "BidirectionalConversion")]
 		public void ShouldConvertToStringBidirectionally(OutputDescriptor desc)
 		{

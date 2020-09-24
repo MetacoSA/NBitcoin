@@ -216,7 +216,7 @@ namespace NBitcoin.Scripting
 		public override string ToString() => (this) switch
 		{
 			Origin self =>
-				$"[{self.KeyOriginInfo}]{self.Inner}",
+				$"[{self.KeyOriginInfo.ToStringWithEmptyKeyPathAware()}]{self.Inner}",
 			Const self =>
 				self.Pk.ToHex(),
 			HD self =>
@@ -243,7 +243,7 @@ namespace NBitcoin.Scripting
 				case Origin self:
 					if (!self.Inner.TryGetPrivateString(secretProvider, out ret))
 						return false;
-					ret = $"[{self.KeyOriginInfo}]{ret}";
+					ret = $"[{self.KeyOriginInfo.ToStringWithEmptyKeyPathAware()}]{ret}";
 					return true;
 				case Const self:
 					if (!secretProvider.TryGetSecret(self.Pk.Hash, out var secretConst))

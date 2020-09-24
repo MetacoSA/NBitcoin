@@ -93,12 +93,14 @@ namespace NBitcoin
 			return new RootedKeyPath(MasterFingerprint, KeyPath.GetAccountKeyPath());
 		}
 
-		public override string ToString()
-		{
-			return KeyPath == KeyPath.Empty ? $"{MasterFingerprint}" : $"{MasterFingerprint}/{KeyPath}";
-		}
+		public override string ToString() => $"{MasterFingerprint}/{KeyPath}";
 
-
+		/// <summary>
+		/// Mostly works same with `ToString()`, but if the `KeyPath` is empty, it just returns master finger print
+		/// without `/` in the suffix
+		/// </summary>
+		/// <returns></returns>
+		public string ToStringWithEmptyKeyPathAware() => KeyPath == KeyPath.Empty ? MasterFingerprint.ToString() : ToString();
 		public override bool Equals(object obj)
 		{
 			RootedKeyPath item = obj as RootedKeyPath;
