@@ -211,6 +211,8 @@ node.VersionHandshake();
 
 * [geewallet](https://gitlab.com/nblockchain/geewallet/): Non-custodial, minimalistic & pragmatist opensource crossplatform lightweight brainwallet to hold the most important cryptoassets in the same application with ease & peace of mind
 
+* [blockcore](https://github.com/block-core/blockcore): Modular Bitcoin fullnode implementation. https://www.blockcore.net/
+
 ## Useful doc :
 
 * **Ebook** [Programming The Blockchain in C#](https://www.gitbook.com/book/programmingblockchain/programmingblockchain/details)
