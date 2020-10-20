@@ -1280,6 +1280,7 @@ namespace NBitcoin
 
 	//https://en.bitcoin.it/wiki/Transactions
 	//https://en.bitcoin.it/wiki/Protocol_specification
+	[Obsolete("Use Network.CreateTransactionBuilder() for a better API to create transactions")]
 	public class Transaction : IBitcoinSerializable
 	{
 		public bool RBF
