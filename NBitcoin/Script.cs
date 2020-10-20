@@ -715,6 +715,13 @@ namespace NBitcoin
 			return StandardScripts.GetTemplateFromScriptPubKey(this);
 		}
 
+		public bool IsMalleable
+		{
+			get
+			{
+				return !IsScriptType(ScriptType.Witness);
+			}
+		}
 		public bool IsScriptType(ScriptType type)
 		{
 			switch (type)

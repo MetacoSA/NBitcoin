@@ -120,6 +120,14 @@ namespace NBitcoin.Tests
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void AddCoinsShouldNotRemoveInfoFromPSBT()
+		{
+			var psbt = PSBT.Parse("cHNidP8BAMUCAAAAAjm0TK7iZu3RS16BLuYL/CR9HY2eRlQGVx1xewU1T6xAAAAAAAD/////PihXS4IEUUJG1EFDdW5EFGD5OzzgIw6rEhOqlpqitZwAAAAAAP////8DUsXrCwAAAAAiACBVmZAFkOU/PQ6UIMllsbJV7/ifdH/k6CcJKv1Gl9YgiOHc9QUAAAAAFgAUIGAQWuW00fyrWEvq9QZQ7AlcoTQt3PUFAAAAABYAFO4+pJ5Q9U7MVK33/5A1rt6OUFzxAAAAAAABAR8AwusLAAAAABYAFGqIBjv6pJ8EyEQk21oyoAyCYPu4AAEBIADC6wsAAAAAF6kUL7E4PUEaMOH84KTEW0txEy9hSw2HAQQiACANm5rxqXLoh2DLZbduH7R6USCVuyMAEqh+2x3OYLp7gQAAAAA=", Network.Main);
+			Assert.True(psbt.TryGetFinalizedHash(out var actualHash));
+			Assert.Equal(new uint256("5d7bd33c258e0d7a1ac806304d9ab1b518cd0ab194f01248be9b52c704cc5fb7"), actualHash);
+		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void ShouldPreserveOriginalTxPropertyAsPossible()
 		{
 			var keys = new Key[] { new Key(), new Key(), new Key() }.Select(k => k.GetWif(Network.RegTest)).ToArray();

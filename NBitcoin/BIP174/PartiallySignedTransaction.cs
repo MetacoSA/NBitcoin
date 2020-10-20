@@ -799,30 +799,25 @@ namespace NBitcoin
 			var tx = GetGlobalTransaction();
 			for (int i = 0; i < Inputs.Count; i++)
 			{
+				var utxo = Inputs[i].GetTxOut();
 				if (Inputs[i].IsFinalized())
 				{
 					tx.Inputs[i].ScriptSig = Inputs[i].FinalScriptSig ?? Script.Empty;
 					tx.Inputs[i].WitScript = Inputs[i].WitnessScript ?? Script.Empty;
 				}
-				else if (Inputs[i].NonWitnessUtxo != null)
+				else if (utxo is null ||
+						!Network.Consensus.SupportSegwit)
 				{
 					hash = null;
 					return false;
 				}
-				else if (Network.Consensus.SupportSegwit &&
-					Inputs[i].WitnessUtxo is TxOut utxo &&
-					utxo.ScriptPubKey.IsScriptType(ScriptType.P2SH) &&
-					Inputs[i].GetSignableCoin() is ScriptCoin sc &&
-					sc.GetP2SHRedeem() is Script p2shRedeem)
+				else if (utxo.ScriptPubKey.IsScriptType(ScriptType.P2SH) &&
+					Inputs[i].RedeemScript is Script p2shRedeem &&
+					!p2shRedeem.IsMalleable)
 				{
 					tx.Inputs[i].ScriptSig = PayToScriptHashTemplate.Instance.GenerateScriptSig(null as byte[][], p2shRedeem);
 				}
-				else if (Network.Consensus.SupportSegwit &&
-					Inputs[i].WitnessUtxo is TxOut utxo2 &&
-					!utxo2.ScriptPubKey.IsScriptType(ScriptType.P2SH))
-				{
-				}
-				else
+				else if (utxo.ScriptPubKey.IsMalleable)
 				{
 					hash = null;
 					return false;
