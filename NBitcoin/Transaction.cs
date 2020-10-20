@@ -1291,7 +1291,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return Inputs.Any(i => i.Sequence < 0xffffffff - 1);
+				return Inputs.Any(i => i.Sequence < Sequence.UINT_MAX_VALUE - 1);
 			}
 		}
 
