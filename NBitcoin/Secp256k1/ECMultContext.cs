@@ -234,19 +234,26 @@ namespace NBitcoin.Secp256k1
 			var n = @as.Length;
 			unsafe
 			{
-				GEJ* prej = stackalloc GEJ[n * ArraySize_A];
-				FE* zr = stackalloc FE[n * ArraySize_A];
-				GE* pre_a = stackalloc GE[n * ArraySize_A];
-				GE* pre_a_lam = stackalloc GE[n * ArraySize_A];
-				StraussPointState* ps = stackalloc StraussPointState[n];
+				GEJ[] prej = new GEJ[n * ArraySize_A];
+				FE[] zr = new FE[n * ArraySize_A];
+				GE[] pre_a = new GE[n * ArraySize_A];
+				GE[] pre_a_lam = new GE[n * ArraySize_A];
+				StraussPointState[] ps = new StraussPointState[n];
 
-				StraussState state = default;
-				state.prej = prej;
-				state.zr = zr;
-				state.pre_a = pre_a;
-				state.pre_a_lam = pre_a_lam;
-				state.ps = ps;
-				return ECMultiply(state, @as, nas, null, n);
+				fixed (GEJ* fixed_prej = &prej[0])
+				fixed (FE* fixed_zr = &zr[0])
+				fixed (GE* fixed_pre_a = &pre_a[0])
+				fixed (GE* fixed_pre_a_lam = &pre_a_lam[0])
+				fixed (StraussPointState* fixed_ps = &ps[0])
+				{
+					StraussState state = default;
+					state.prej = fixed_prej;
+					state.zr = fixed_zr;
+					state.pre_a = fixed_pre_a;
+					state.pre_a_lam = fixed_pre_a_lam;
+					state.ps = fixed_ps;
+					return ECMultiply(state, @as, nas, null, n);
+				}
 			}
 		}
 
