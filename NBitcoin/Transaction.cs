@@ -791,8 +791,13 @@ namespace NBitcoin
 
 		public TransactionSignature Sign(Key key, ICoin coin, SigHash sigHash, bool useLowR = true)
 		{
-			var hash = GetSignatureHash(coin, sigHash);
-			return key.Sign(hash, sigHash, useLowR);
+			return Sign(key, coin, new SigningOptions(sigHash, useLowR));
+		}
+		public TransactionSignature Sign(Key key, ICoin coin, SigningOptions signingOptions)
+		{
+			signingOptions ??= new SigningOptions();
+			var hash = GetSignatureHash(coin, signingOptions.SigHash);
+			return key.Sign(hash, signingOptions);
 		}
 
 		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash = SigHash.All)
@@ -1583,6 +1588,10 @@ namespace NBitcoin
 				hashes[1] = h;
 			}
 			return h;
+		}
+		public TransactionSignature SignInput(Key key, ICoin coin, SigningOptions signingOptions)
+		{
+			return GetIndexedInput(coin).Sign(key, coin, signingOptions);
 		}
 		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash = SigHash.All)
 		{

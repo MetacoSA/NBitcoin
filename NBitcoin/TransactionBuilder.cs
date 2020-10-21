@@ -43,6 +43,11 @@ namespace NBitcoin
 			SigHash = sigHash;
 			EnforceLowR = true;
 		}
+		public SigningOptions(SigHash sigHash, bool useLowR)
+		{
+			SigHash = sigHash;
+			EnforceLowR = useLowR;
+		}
 
 		/// <summary>
 		/// What are we signing (default: SigHash.All)
@@ -339,7 +344,7 @@ namespace NBitcoin
 			public TransactionSignature Sign(PubKey pubKey)
 			{
 				var key = ctx.FindKey(pubKey);
-				var sig = txIn.Sign(key, coin, signingOptions.SigHash, signingOptions.EnforceLowR);
+				var sig = txIn.Sign(key, coin, signingOptions);
 				EmittedSignatures.Add(new SignatureEvent(key.PubKey, sig, txIn));
 				return sig;
 			}

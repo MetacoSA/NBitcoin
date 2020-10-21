@@ -434,8 +434,15 @@ namespace NBitcoin
 
 		public TransactionSignature Sign(uint256 hash, SigHash sigHash, bool useLowR = true)
 		{
+			return Sign(hash, new SigningOptions(sigHash, useLowR));
+		}
+		public TransactionSignature Sign(uint256 hash, SigningOptions signingOptions)
+		{
+			if (hash == null)
+				throw new ArgumentNullException(nameof(hash));
 			AssertNotDiposed();
-			return new TransactionSignature(Sign(hash, useLowR), sigHash);
+			signingOptions ??= new SigningOptions();
+			return new TransactionSignature(Sign(hash, signingOptions.EnforceLowR), signingOptions.SigHash);
 		}
 
 
