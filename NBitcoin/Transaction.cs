@@ -1988,7 +1988,7 @@ namespace NBitcoin
 
 		public virtual uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 		{
-			if (sigversion == HashVersion.Witness)
+			if (sigversion == HashVersion.WitnessV0)
 			{
 				if (spentOutput?.Value == null || spentOutput.Value == TxOut.NullMoney)
 					throw new ArgumentException("The output being signed with the amount must be provided", nameof(spentOutput));
@@ -2146,7 +2146,7 @@ namespace NBitcoin
 		internal virtual uint256 GetHashOutputs()
 		{
 			uint256 hashOutputs;
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+			BitcoinStream ss = CreateHashWriter(HashVersion.WitnessV0);
 			foreach (var txout in Outputs)
 			{
 				txout.ReadWrite(ss);
@@ -2158,7 +2158,7 @@ namespace NBitcoin
 		internal virtual uint256 GetHashSequence()
 		{
 			uint256 hashSequence;
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+			BitcoinStream ss = CreateHashWriter(HashVersion.WitnessV0);
 			foreach (var input in Inputs)
 			{
 				ss.ReadWrite((uint)input.Sequence);
@@ -2170,7 +2170,7 @@ namespace NBitcoin
 		internal virtual uint256 GetHashPrevouts()
 		{
 			uint256 hashPrevouts;
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+			BitcoinStream ss = CreateHashWriter(HashVersion.WitnessV0);
 			foreach (var input in Inputs)
 			{
 				ss.ReadWrite(input.PrevOut);

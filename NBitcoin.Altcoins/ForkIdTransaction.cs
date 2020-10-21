@@ -45,7 +45,7 @@ namespace NBitcoin.Altcoins
 			if(UsesForkId(nHashType))
 				nForkHashType |= ForkId << 8;
 
-			if((SupportSegwit && sigversion == HashVersion.Witness) || UsesForkId(nHashType))
+			if((SupportSegwit && sigversion == HashVersion.WitnessV0) || UsesForkId(nHashType))
 			{
 				if (spentOutput?.Value == null || spentOutput.Value == TxOut.NullMoney)
 					throw new ArgumentException("The output being signed with the amount must be provided", nameof(spentOutput));
@@ -191,7 +191,7 @@ namespace NBitcoin.Altcoins
 		internal override uint256 GetHashOutputs()
 		{
 			uint256 hashOutputs;
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+			BitcoinStream ss = CreateHashWriter(HashVersion.WitnessV0);
 			foreach(var txout in Outputs)
 			{
 				ss.ReadWrite(txout);
@@ -203,7 +203,7 @@ namespace NBitcoin.Altcoins
 		internal override uint256 GetHashSequence()
 		{
 			uint256 hashSequence;
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+			BitcoinStream ss = CreateHashWriter(HashVersion.WitnessV0);
 			foreach(var input in Inputs)
 			{
 				ss.ReadWrite(input.Sequence);
@@ -215,7 +215,7 @@ namespace NBitcoin.Altcoins
 		internal override uint256 GetHashPrevouts()
 		{
 			uint256 hashPrevouts;
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+			BitcoinStream ss = CreateHashWriter(HashVersion.WitnessV0);
 			foreach(var input in Inputs)
 			{
 				ss.ReadWrite(input.PrevOut);

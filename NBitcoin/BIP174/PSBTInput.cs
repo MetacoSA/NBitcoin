@@ -306,7 +306,7 @@ namespace NBitcoin
 				}
 			}
 			if (Parent.Network.Consensus.NeverNeedPreviousTxForSigning ||
-				coin.GetHashVersion() == HashVersion.Witness || witness_script != null)
+				!coin.IsMalleable || witness_script != null)
 			{
 				witness_utxo = coin.TxOut;
 				non_witness_utxo = null;
@@ -934,7 +934,7 @@ namespace NBitcoin
 				return false;
 
 			if (Parent.Network.Consensus.NeverNeedPreviousTxForSigning ||
-				coin.GetHashVersion() == HashVersion.Witness)
+				!coin.IsMalleable)
 			{
 				if (WitnessUtxo == null)
 				{

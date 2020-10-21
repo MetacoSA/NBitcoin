@@ -2194,7 +2194,7 @@ namespace NBitcoin
 				var coin = FindSignableCoin(txin) ?? FindCoin(txin.PrevOut);
 				if (coin == null)
 					throw CoinNotFound(txin);
-				if (coin.GetHashVersion() == HashVersion.Witness)
+				if (!coin.IsMalleable)
 					hasWitness = true;
 				else
 					nonWitnessCount++;
@@ -2263,7 +2263,7 @@ namespace NBitcoin
 
 			if (scriptSigSize == -1)
 				scriptSigSize += coin.TxOut.ScriptPubKey.Length; //Using heurestic to approximate size of unknown scriptPubKey
-			if (coin.GetHashVersion() == HashVersion.Witness)
+			if (!coin.IsMalleable)
 			{
 				baseSize += new Protocol.VarInt((ulong)p2shPushRedeemSize).GetSerializedSize();
 				witSize += scriptSigSize + new Protocol.VarInt((ulong)(scriptSigSize + segwitPushRedeemSize)).GetSerializedSize();
@@ -2341,7 +2341,7 @@ namespace NBitcoin
 			ScriptCoin? scriptCoin = coin as ScriptCoin;
 
 			Script? signatures = null;
-			if (coin.GetHashVersion() == HashVersion.Witness)
+			if (!coin.IsMalleable)
 			{
 				signatures = txIn.WitScript;
 				if (scriptCoin != null)
@@ -2362,7 +2362,7 @@ namespace NBitcoin
 
 			signatures = CombineScriptSigs(coin, scriptSig, signatures);
 
-			if (coin.GetHashVersion() == HashVersion.Witness)
+			if (!coin.IsMalleable)
 			{
 				txIn.WitScript = signatures;
 				if (scriptCoin != null)

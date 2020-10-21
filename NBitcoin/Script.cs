@@ -335,7 +335,9 @@ namespace NBitcoin
 	public enum HashVersion
 	{
 		Original = 0,
-		Witness = 1
+		[Obsolete("Use HashVersion.WitnessV0 instead")]
+		Witness = 1,
+		WitnessV0 = 1
 	}
 
 	public enum ScriptType
@@ -1095,7 +1097,7 @@ namespace NBitcoin
 			{
 				scriptSig1 = input1.WitSig.ToScript();
 				scriptSig2 = input2.WitSig.ToScript();
-				hashVersion = HashVersion.Witness;
+				hashVersion = HashVersion.WitnessV0;
 			}
 
 			var context = new ScriptEvaluationContext();

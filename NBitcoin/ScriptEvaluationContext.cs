@@ -855,7 +855,7 @@ namespace NBitcoin
 
 										var vch = _stack.Top(-1);
 
-										if (hashversion == (int)HashVersion.Witness && (ScriptVerify & ScriptVerify.MinimalIf) != 0)
+										if (hashversion == (int)HashVersion.WitnessV0 && (ScriptVerify & ScriptVerify.MinimalIf) != 0)
 										{
 											if (vch.Length > 1)
 												return SetError(ScriptError.MinimalIf);
@@ -1655,7 +1655,7 @@ namespace NBitcoin
 				Error = ScriptError.PubKeyType;
 				return false;
 			}
-			if ((ScriptVerify & ScriptVerify.WitnessPubkeyType) != 0 && sigversion == (int)HashVersion.Witness && !IsCompressedPubKey(vchPubKey))
+			if ((ScriptVerify & ScriptVerify.WitnessPubkeyType) != 0 && sigversion == (int)HashVersion.WitnessV0 && !IsCompressedPubKey(vchPubKey))
 			{
 				return SetError(ScriptError.WitnessPubkeyType);
 			}

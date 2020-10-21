@@ -44,6 +44,10 @@ namespace NBitcoin
 			get;
 		}
 		HashVersion GetHashVersion();
+		bool IsMalleable
+		{
+			get;
+		}
 	}
 
 	public class IssuanceCoin : IColoredCoin
@@ -62,7 +66,7 @@ namespace NBitcoin
 			Bearer = new Coin(outpoint, txout);
 		}
 
-
+		public bool IsMalleable => Bearer.IsMalleable;
 		public AssetId AssetId
 		{
 			get
@@ -235,7 +239,7 @@ namespace NBitcoin
 				return Amount.Id;
 			}
 		}
-
+		public bool IsMalleable => Bearer.IsMalleable;
 		public AssetMoney Amount
 		{
 			get;
@@ -444,7 +448,7 @@ namespace NBitcoin
 				return key.AsKeyId().ScriptPubKey;
 			return ScriptPubKey;
 		}
-
+		public bool IsMalleable => GetHashVersion() != HashVersion.WitnessV0;
 		public virtual bool CanGetScriptCode
 		{
 			get
@@ -456,7 +460,7 @@ namespace NBitcoin
 		public virtual HashVersion GetHashVersion()
 		{
 			if (PayToWitTemplate.Instance.CheckScriptPubKey(ScriptPubKey))
-				return HashVersion.Witness;
+				return HashVersion.WitnessV0;
 			return HashVersion.Original;
 		}
 
@@ -769,7 +773,7 @@ namespace NBitcoin
 			var isWitness = PayToWitTemplate.Instance.CheckScriptPubKey(ScriptPubKey) ||
 							PayToWitTemplate.Instance.CheckScriptPubKey(Redeem) ||
 							RedeemType == NBitcoin.RedeemType.WitnessV0;
-			return isWitness ? HashVersion.Witness : HashVersion.Original;
+			return isWitness ? HashVersion.WitnessV0 : HashVersion.Original;
 		}
 
 		/// <summary>

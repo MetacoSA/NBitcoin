@@ -111,7 +111,7 @@ namespace NBitcoin.Policy
 				foreach (var input in transaction.Inputs.AsIndexedInputs())
 				{
 					var coin = spentCoins.FirstOrDefault(s => s.Outpoint == input.PrevOut);
-					if (coin != null && coin.GetHashVersion() != HashVersion.Witness)
+					if (coin != null && coin.IsMalleable)
 						errors.Add(new InputPolicyError("Malleable input detected", input));
 				}
 			}

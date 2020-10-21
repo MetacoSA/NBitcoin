@@ -743,7 +743,7 @@ namespace NBitcoin.Altcoins.Elements
 
 		public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 		{
-			if (sigversion == HashVersion.Witness)
+			if (sigversion == HashVersion.WitnessV0)
 			{
 				var spentOutputElem = spentOutput as ElementsTxOut;
 				if (spentOutputElem == null)
@@ -905,7 +905,7 @@ namespace NBitcoin.Altcoins.Elements
 
 		private uint256 GetIssuanceHash()
 		{
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+			BitcoinStream ss = CreateHashWriter(HashVersion.WitnessV0);
 			for (int i = 0; i < this.Inputs.Count; i++)
 			{
 				if (Inputs[i] is ElementsTxIn elemInput && elemInput.HasAssetIssuance)
