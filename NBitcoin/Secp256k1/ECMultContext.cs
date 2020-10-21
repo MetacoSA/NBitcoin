@@ -224,7 +224,12 @@ namespace NBitcoin.Secp256k1
 		}
 
 #if SECP256K1_LIB
-		public GEJ Mult(in Span<GEJ> @as, in Span<Scalar> nas)
+		public
+#else
+		internal
+#endif
+
+		GEJ Mult(in Span<GEJ> @as, in Span<Scalar> nas)
 		{
 			var n = @as.Length;
 			unsafe
@@ -244,7 +249,6 @@ namespace NBitcoin.Secp256k1
 				return ECMultiply(state, @as, nas, null, n);
 			}
 		}
-#endif
 
 		unsafe GEJ ECMultiply(in StraussState state, in Span<GEJ> a, in Span<Scalar> na, in Scalar? ng, int num)
 		{
