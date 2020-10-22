@@ -301,6 +301,45 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void OutputKeyPathCorrect()
+		{
+			var keys = Enumerable.Range(0, 5).Select(_ => new ExtKey()).ToArray();
+
+			var accountKey = new KeyPath("84'/0'/0'");
+			var accountKeys = keys.Select(k => k.Derive(accountKey).Neuter()).ToArray();
+			var depositPath = new KeyPath("0/0");
+			var changePath = new KeyPath("1/0");
+			var depositRedeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, accountKeys.Select(k => k.Derive(depositPath).PubKey).ToArray());
+			var changeRedeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, accountKeys.Select(k => k.Derive(changePath).PubKey).ToArray());
+
+			var c1 = CreateCoin(depositRedeem);
+
+			var builder = Network.RegTest.CreateTransactionBuilder();
+			builder.ShuffleOutputs = false;
+			builder.AddCoins(c1);
+			builder.SendEstimatedFees(new FeeRate(1.0m));
+			builder.Send(BitcoinAddress.Create("bc1qeef3jecqytj8j2xnjzduf5mu9c6jsqwd4hmvyv2zw8hzpf7a47nqrws5sn", Network.Main), Money.Coins(0.2m));
+			builder.SetChange(changeRedeem.WitHash.ScriptPubKey);
+			var psbt = builder.BuildPSBT(false);
+			foreach (var k in accountKeys)
+			{
+				psbt.AddKeyPath(k, depositPath);
+				psbt.AddKeyPath(k, changePath);
+			}
+			Assert.Empty(psbt.Outputs[0].HDKeyPaths);
+			Assert.NotEmpty(psbt.Outputs[1].HDKeyPaths);
+		}
+
+		int i = 0;
+		private ScriptCoin CreateCoin(Script redeem)
+		{
+			var outpoint = new OutPoint(uint256.Zero, i++);
+			var txout = new TxOut(Money.Coins(1.0m), redeem.WitHash.ScriptPubKey);
+			return new ScriptCoin(outpoint, txout, redeem);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void ShouldCaptureExceptionInFinalization()
 		{
 			var keys = new Key[] { new Key(), new Key(), new Key() }.Select(k => k.GetWif(Network.RegTest)).ToArray();

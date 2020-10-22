@@ -717,6 +717,7 @@ namespace NBitcoin
 				if (expectedDestination.ScriptPubKey != redeem.WitHash.ScriptPubKey)
 				{
 					error = "The redeem provided does not match the scriptPubKey of the coin";
+					return false;
 				}
 			}
 			else
