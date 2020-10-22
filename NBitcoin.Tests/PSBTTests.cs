@@ -321,6 +321,7 @@ namespace NBitcoin.Tests
 			builder.Send(BitcoinAddress.Create("bc1qeef3jecqytj8j2xnjzduf5mu9c6jsqwd4hmvyv2zw8hzpf7a47nqrws5sn", Network.Main), Money.Coins(0.2m));
 			builder.SetChange(changeRedeem.WitHash.ScriptPubKey);
 			var psbt = builder.BuildPSBT(false);
+			psbt.AddScripts(changeRedeem);
 			foreach (var k in accountKeys)
 			{
 				psbt.AddKeyPath(k, depositPath);
