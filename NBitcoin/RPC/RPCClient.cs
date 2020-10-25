@@ -1478,7 +1478,8 @@ namespace NBitcoin.RPC
 			{
 				throw new FormatException($"Bogus GetBlockRPCResponse! nTx mismatch (expected: {nTx}. actual: {txids.Count})");
 			}
-			return new GetBlockRPCResponse() {
+			return new GetBlockRPCResponse()
+			{
 				Confirmations = json.Value<int>("confirmations"),
 				Size = json.Value<int>("size"),
 				StrippedSize = json.Value<int>("strippedsize"),

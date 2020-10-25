@@ -230,10 +230,12 @@ namespace System.Web.NBitcoin
 			int len = value.Length;
 			bool needEncode = false;
 			char c;
-			for (int i = 0; i < len; i++) {
+			for (int i = 0; i < len; i++)
+			{
 				c = value [i];
 
-				if (c >= 0 && c <= 31 || c == 34 || c == 39 || c == 60 || c == 62 || c == 92) {
+				if (c >= 0 && c <= 31 || c == 34 || c == 39 || c == 60 || c == 62 || c == 92)
+				{
 					needEncode = true;
 					break;
 				}
@@ -246,11 +248,13 @@ namespace System.Web.NBitcoin
 			if (addDoubleQuotes)
 				sb.Append ('"');
 
-			for (int i = 0; i < len; i++) {
+			for (int i = 0; i < len; i++)
+			{
 				c = value [i];
 				if (c >= 0 && c <= 7 || c == 11 || c >= 14 && c <= 31 || c == 39 || c == 60 || c == 62)
 					sb.AppendFormat ("\\u{0:x4}", (int)c);
-				else switch ((int)c) {
+				else switch ((int)c)
+				{
 						case 8:
 							sb.Append ("\\b");
 							break;
