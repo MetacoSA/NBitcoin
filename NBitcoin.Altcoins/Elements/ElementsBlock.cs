@@ -128,7 +128,7 @@ namespace NBitcoin.Altcoins.Elements
 				}
 
 				if (ElementsParams<TNetwork>.SignedBlocks)
-                {
+				{
 					stream.ReadWrite(ref _Proof);
 				}
 				else
