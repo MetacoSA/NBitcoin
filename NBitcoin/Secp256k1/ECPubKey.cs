@@ -36,7 +36,7 @@ namespace NBitcoin.Secp256k1
 			var x = groupElement.x.NormalizeVariable();
 			var y = groupElement.y.NormalizeVariable();
 			Q = new GE(x, y);
-			this.ctx = context ?? Context.Instance;
+			ctx = context ?? Context.Instance;
 		}
 
 		public virtual ECXOnlyPubKey ToXOnlyPubKey()
@@ -403,7 +403,7 @@ namespace NBitcoin.Secp256k1
 			if (key == null)
 				throw new ArgumentNullException(nameof(key));
 			Secp256k1.GEJ res;
-			Secp256k1.GE pt = this.Q;
+			Secp256k1.GE pt = Q;
 			ref readonly Secp256k1.Scalar s = ref key.sec;
 			key.AssertNotDiposed();
 			// Can't happen, NBitcoin enforces invariants.

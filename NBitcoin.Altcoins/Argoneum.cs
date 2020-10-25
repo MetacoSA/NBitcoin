@@ -53,7 +53,7 @@ namespace NBitcoin.Altcoins
 			// Reference: https://github.com/Argoneum/argoneum/blob/master/src/primitives/block.cpp#L13
 			byte[] CalculateHash(byte[] data, int offset, int count)
 			{
-				if (this.nTime < PHI2_HARDFORK_TIME) {
+				if (nTime < PHI2_HARDFORK_TIME) {
 					return new Skein().ComputeBytes(data.Skip(offset).Take(count).ToArray());
 				}
 				return new Phi2().ComputeHash(data.Skip(offset).Take(count).ToArray());

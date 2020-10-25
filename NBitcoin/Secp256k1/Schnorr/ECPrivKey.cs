@@ -23,7 +23,7 @@ namespace NBitcoin.Secp256k1
 		{
 			if (auxData32.Length != 0 && auxData32.Length != 32)
 				throw new ArgumentException("auxData32 should be 0 or 32 bytes", nameof(auxData32));
-			this.data32 = auxData32;
+			data32 = auxData32;
 		}
 		public BIP340NonceFunction(bool random)
 		{
@@ -31,7 +31,7 @@ namespace NBitcoin.Secp256k1
 			{
 				var a = new byte[32];
 				rand.GetBytes(a);
-				this.data32 = a;
+				data32 = a;
 			}
 		}
 
@@ -104,7 +104,7 @@ namespace NBitcoin.Secp256k1
 		byte[]? data = null;
 		public SchnorrNonceFunction(byte[]? nonceData = null)
 		{
-			this.data = nonceData;
+			data = nonceData;
 		}
 		public static SchnorrNonceFunction Instance { get; } = new SchnorrNonceFunction();
 		public bool TryGetNonce(Span<byte> nonce32, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> algo16, uint counter)
@@ -183,7 +183,7 @@ namespace NBitcoin.Secp256k1
 			}
 
 			var pk = CreatePubKey().Q;
-			var sk = this.sec;
+			var sk = sec;
 			/* Because we are signing for a x-only pubkey, the secret key is negated
 	* before signing if the point corresponding to the secret key does not
 	* have an even Y. */

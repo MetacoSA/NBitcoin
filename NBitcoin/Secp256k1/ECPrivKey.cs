@@ -67,7 +67,7 @@ namespace NBitcoin.Secp256k1
 		byte[]? data = null;
 		public RFC6979NonceFunction(byte[]? nonceData = null)
 		{
-			this.data = nonceData;
+			data = nonceData;
 		}
 		public static RFC6979NonceFunction Instance { get; } = new RFC6979NonceFunction();
 		public bool TryGetNonce(Span<byte> nonce32, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> algo16, uint counter)
@@ -293,7 +293,7 @@ namespace NBitcoin.Secp256k1
 		{
 			AssertNotDiposed();
 			tweakedPrivKey = null;
-			if (this.cleared)
+			if (cleared)
 				return false;
 			tweakedPrivKey = null;
 			if (tweak.Length != 32)
@@ -675,7 +675,7 @@ namespace NBitcoin.Secp256k1
 		public void WriteToSpan(Span<byte> span)
 		{
 			AssertNotDiposed();
-			this.sec.WriteToSpan(span);
+			sec.WriteToSpan(span);
 		}
 
 		public SecpECDSASignature SignECDSARFC6979(ReadOnlySpan<byte> msg32)
@@ -887,16 +887,16 @@ namespace NBitcoin.Secp256k1
 		public void Clear()
 		{
 			Scalar.Clear(ref sec);
-			this.cleared = true;
+			cleared = true;
 		}
 		public ECPrivKey Clone()
 		{
 			AssertNotDiposed();
-			return new ECPrivKey(this.sec, this.ctx, false);
+			return new ECPrivKey(sec, ctx, false);
 		}
 		public void AssertNotDiposed()
 		{
-			if (this.cleared)
+			if (cleared)
 				throw new ObjectDisposedException(nameof(ECPrivKey));
 		}
 	}

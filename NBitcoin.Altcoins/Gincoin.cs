@@ -41,7 +41,7 @@ namespace NBitcoin.Altcoins
 			byte[] CalculateHash(byte[] data, int offset, int count)
 			{
 				byte[] thash;
-				if (this.nTime <= 1525651200) //7 May 2018 @ midnight UTC
+				if (nTime <= 1525651200) //7 May 2018 @ midnight UTC
 				{
 					var output = new byte[32];
 					// reference https://github.com/mogwaicoin/NeoScryptCSharp for correct neoscrypt native c# hashing

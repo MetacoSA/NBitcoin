@@ -37,14 +37,14 @@ namespace NBitcoin.Secp256k1
 		}
 		public FEStorage(ReadOnlySpan<uint> n)
 		{
-			this.n0 = n[0];
-			this.n1 = n[1];
-			this.n2 = n[2];
-			this.n3 = n[3];
-			this.n4 = n[4];
-			this.n5 = n[5];
-			this.n6 = n[6];
-			this.n7 = n[7];
+			n0 = n[0];
+			n1 = n[1];
+			n2 = n[2];
+			n3 = n[3];
+			n4 = n[4];
+			n5 = n[5];
+			n6 = n[6];
+			n7 = n[7];
 		}
 
 		public readonly void Deconstruct(

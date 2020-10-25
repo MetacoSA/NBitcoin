@@ -37,7 +37,7 @@ namespace NBitcoin.Secp256k1
 
 		public readonly GE ToGroupElement()
 		{
-			return new GE(this.x.ToFieldElement(), this.y.ToFieldElement(), false);
+			return new GE(x.ToFieldElement(), y.ToFieldElement(), false);
 		}
 		public void Deconstruct(out FEStorage x, out FEStorage y)
 		{

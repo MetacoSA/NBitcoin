@@ -127,18 +127,18 @@ namespace NBitcoin.Altcoins
 			{
 				if (ReferenceEquals(null, obj)) return false;
 				if (ReferenceEquals(this, obj)) return true;
-				if (obj.GetType() != this.GetType()) return false;
+				if (obj.GetType() != GetType()) return false;
 				return Equals((StratisBlockSignature)obj);
 			}
 
 			public override int GetHashCode()
 			{
-				return (this.signature?.GetHashCode() ?? 0);
+				return (signature?.GetHashCode() ?? 0);
 			}
 
 			public StratisBlockSignature()
 			{
-				this.signature = new byte[0];
+				signature = new byte[0];
 			}
 
 			private byte[] signature;
@@ -162,7 +162,7 @@ namespace NBitcoin.Altcoins
 
 			public bool IsEmpty()
 			{
-				return !this.signature?.Any() ?? true;
+				return !signature?.Any() ?? true;
 			}
 
 			public static bool operator ==(StratisBlockSignature a, StratisBlockSignature b)
@@ -189,7 +189,7 @@ namespace NBitcoin.Altcoins
 
 			public override string ToString()
 			{
-				return this.signature != null ? Encoders.Hex.EncodeData(this.signature) : null;
+				return signature != null ? Encoders.Hex.EncodeData(signature) : null;
 			}
 		}
 
@@ -204,7 +204,7 @@ namespace NBitcoin.Altcoins
 
 			public StratisBlockHeader() : base()
 			{
-				this.x13 = new X13();
+				x13 = new X13();
 			}
 
 			protected internal override void SetNull()
@@ -221,7 +221,7 @@ namespace NBitcoin.Altcoins
 			{
 				byte[] hashData = data.SafeSubarray(offset, count);
 				uint256 hash;
-				if (this.nVersion > 6)
+				if (nVersion > 6)
 					hash = Hashes.DoubleSHA256(hashData);
 				else
 				{
@@ -239,7 +239,7 @@ namespace NBitcoin.Altcoins
 			public override uint256 GetPoWHash()
 			{
 				
-				return new uint256(this.x13.ComputeBytes(this.ToBytes()));
+				return new uint256(x13.ComputeBytes(this.ToBytes()));
 			}
 		}
 
@@ -267,8 +267,8 @@ namespace NBitcoin.Altcoins
 			/// </summary>
 			public StratisBlockSignature BlockSignature
 			{
-				get { return this.blockSignature; }
-				set { this.blockSignature = value; }
+				get { return blockSignature; }
+				set { blockSignature = value; }
 			}
 
 			/// <summary>
@@ -277,7 +277,7 @@ namespace NBitcoin.Altcoins
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				base.ReadWrite(stream);
-				stream.ReadWrite(ref this.blockSignature);
+				stream.ReadWrite(ref blockSignature);
 			}
 		}
 		
@@ -404,21 +404,21 @@ namespace NBitcoin.Altcoins
 				LockTime lockTimeTemp = LockTime.Zero;
 				stream.ReadWriteStruct(ref lockTimeTemp);
 
-				this.Version = nVersionTemp;
-				this.Time = nTimeTemp; // POS Timestamp
-				vinTemp.ForEach(i => this.Inputs.Add(i));
-				voutTemp.ForEach(i => this.Outputs.Add(i));
-				this.LockTime = lockTimeTemp;
+				Version = nVersionTemp;
+				Time = nTimeTemp; // POS Timestamp
+				vinTemp.ForEach(i => Inputs.Add(i));
+				voutTemp.ForEach(i => Outputs.Add(i));
+				LockTime = lockTimeTemp;
 			}
 
 			private void SerializeTxn(BitcoinStream stream, bool witSupported)
 			{
 				byte flags = 0;
-				var version = (witSupported && (this.Inputs.Count == 0 && this.Outputs.Count > 0)) ? this.Version | NoDummyInput : this.Version;
+				var version = (witSupported && (Inputs.Count == 0 && Outputs.Count > 0)) ? Version | NoDummyInput : Version;
 				stream.ReadWrite(ref version);
 
 				// POS Timestamp
-				var time = this.Time;
+				var time = Time;
 				stream.ReadWrite(ref time);
 
 				if (witSupported)
@@ -436,18 +436,18 @@ namespace NBitcoin.Altcoins
 					stream.ReadWrite<TxInList, TxIn>(ref vinDummy);
 					stream.ReadWrite(ref flags);
 				}
-				TxInList vin = this.Inputs;
+				TxInList vin = Inputs;
 				stream.ReadWrite<TxInList, TxIn>(ref vin);
 				vin.Transaction = this;
-				TxOutList vout = this.Outputs;
+				TxOutList vout = Outputs;
 				stream.ReadWrite<TxOutList, TxOut>(ref vout);
 				vout.Transaction = this;
 				if ((flags & 1) != 0)
 				{
-					StratisWitness wit = new StratisWitness(this.Inputs);
+					StratisWitness wit = new StratisWitness(Inputs);
 					wit.ReadWrite(stream);
 				}
-				LockTime lockTime = this.LockTime;
+				LockTime lockTime = LockTime;
 				stream.ReadWriteStruct(ref lockTime);
 			}
 

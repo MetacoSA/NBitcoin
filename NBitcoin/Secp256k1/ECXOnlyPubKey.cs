@@ -71,7 +71,7 @@ namespace NBitcoin.Secp256k1
 
 			/* Compute rj =  s*G + (-e)*pkj */
 			e = e.Negate();
-			var pkj = this.Q.ToGroupElementJacobian();
+			var pkj = Q.ToGroupElementJacobian();
 			var rj = ctx.EcMultContext.Mult(pkj, e, signature.s);
 
 			var r = rj.ToGroupElementVariable();

@@ -52,7 +52,7 @@ namespace NBitcoin.Secp256k1
 			this.x = x;
 			this.y = y;
 			this.z = z;
-			this.infinity = false;
+			infinity = false;
 		}
 
 		public readonly bool IsInfinity
@@ -339,7 +339,7 @@ namespace NBitcoin.Secp256k1
 			{
 				return GEJ.Infinity;
 			}
-			return this.Double();
+			return Double();
 		}
 		public readonly GEJ DoubleVariable(out FE rzr)
 		{

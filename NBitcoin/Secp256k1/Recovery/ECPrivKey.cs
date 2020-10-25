@@ -21,7 +21,7 @@ namespace NBitcoin.Secp256k1
 		{
 			if (msg32.Length != 32)
 				throw new ArgumentException(paramName: nameof(msg32), message: "msg32 should be 32 bytes");
-			if (this.TrySignECDSA(msg32, nonceFunction, out int recid, out SecpECDSASignature? sig) && sig is SecpECDSASignature)
+			if (TrySignECDSA(msg32, nonceFunction, out int recid, out SecpECDSASignature? sig) && sig is SecpECDSASignature)
 			{
 				recoverableSignature = new SecpRecoverableECDSASignature(sig, recid);
 				return true;

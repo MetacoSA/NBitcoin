@@ -70,16 +70,16 @@ namespace NBitcoin.Altcoins
 					hashOutputs = precomputedTransactionData == null ?
 									GetHashOutputs() : precomputedTransactionData.HashOutputs;
 				}
-				else if(((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < this.Outputs.Count)
+				else if(((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < Outputs.Count)
 				{
 					BitcoinStream ss = CreateHashWriter(sigversion);
-					ss.ReadWrite(this.Outputs[nIn]);
+					ss.ReadWrite(Outputs[nIn]);
 					hashOutputs = GetHash(ss);
 				}
 
 				BitcoinStream sss = CreateHashWriter(sigversion);
 				// Version
-				sss.ReadWrite(this.Version);
+				sss.ReadWrite(Version);
 				// Input prevouts/nSequence (none/all, depending on flags)
 				sss.ReadWrite(hashPrevouts);
 				sss.ReadWrite(hashSequence);

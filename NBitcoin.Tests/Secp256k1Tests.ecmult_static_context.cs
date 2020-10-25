@@ -1180,8 +1180,8 @@ namespace NBitcoin.Tests
 			{
 				for (int i = 0; i < 16; i++)
 				{
-					Assert.Equal(this.expectedPrec[j, i].x, ctx.prec[j, i].x);
-					Assert.Equal(this.expectedPrec[j, i].y, ctx.prec[j, i].y);
+					Assert.Equal(expectedPrec[j, i].x, ctx.prec[j, i].x);
+					Assert.Equal(expectedPrec[j, i].y, ctx.prec[j, i].y);
 				}
 			}
 

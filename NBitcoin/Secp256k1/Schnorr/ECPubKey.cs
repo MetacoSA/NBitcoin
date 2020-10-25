@@ -35,14 +35,14 @@ namespace NBitcoin.Secp256k1
 			Span<byte> buf = stackalloc byte[33];
 			signature.rx.WriteToSpan(buf);
 			sha.Write(buf.Slice(0, 32));
-			this.WriteToSpan(true, buf, out _);
+			WriteToSpan(true, buf, out _);
 			sha.Write(buf);
 			msg32.CopyTo(buf);
 			sha.Write(buf.Slice(0, 32));
 			sha.GetHash(buf);
 			e = new Scalar(buf, out _);
 
-			if (!secp256k1_schnorrsig_real_verify(ctx, s, e, this.Q, out rj)
+			if (!secp256k1_schnorrsig_real_verify(ctx, s, e, Q, out rj)
 				|| !rj.HasQuadYVariable /* fails if rj is infinity */
 				|| !rx.EqualsXVariable(rj))
 			{

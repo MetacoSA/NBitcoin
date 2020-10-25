@@ -40,7 +40,7 @@ namespace NBitcoin.Secp256k1
 			//secp256k1_ecmult_context_build
 			/* get the generator */
 			GEJ gj = EC.G.ToGroupElementJacobian();
-			this.pre_g = new GEStorage[ArraySize];
+			pre_g = new GEStorage[ArraySize];
 
 			/* precompute the tables with odd multiples */
 			secp256k1_ecmult_odd_multiples_table_storage_var(ArraySize, pre_g, gj);
@@ -49,7 +49,7 @@ namespace NBitcoin.Secp256k1
 				GEJ g_128j;
 				int i;
 
-				this.pre_g_128 = new GEStorage[ArraySize];
+				pre_g_128 = new GEStorage[ArraySize];
 
 				/* calculate 2^128*generator */
 				g_128j = gj;

@@ -54,7 +54,7 @@ namespace NBitcoin.Altcoins.Elements
 				if (transaction.Outputs.OfType<ElementsTxOut>().All(o => !o.IsFee))
 				{
 					var totalInput =
-						this.FindSpentCoins(transaction)
+						FindSpentCoins(transaction)
 						.Select(c => c.TxOut)
 						.OfType<ElementsTxOut>()
 						.Where(o => o.IsPeggedAsset == true)

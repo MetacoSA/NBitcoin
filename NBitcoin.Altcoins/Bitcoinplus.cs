@@ -132,7 +132,7 @@ namespace NBitcoin.Altcoins
             {
                 if (ReferenceEquals(null, obj)) return false;
                 if (ReferenceEquals(this, obj)) return true;
-                if (obj.GetType() != this.GetType()) return false;
+                if (obj.GetType() != GetType()) return false;
                 return Equals((BitcoinplusBlockSignature)obj);
             }
 
@@ -143,7 +143,7 @@ namespace NBitcoin.Altcoins
 
             public BitcoinplusBlockSignature()
             {
-                this.signature = new byte[0];
+                signature = new byte[0];
             }
 
             private byte[] signature;
@@ -167,7 +167,7 @@ namespace NBitcoin.Altcoins
 
             public bool IsEmpty()
             {
-                return !this.signature.Any();
+                return !signature.Any();
             }
 
             public static bool operator ==(BitcoinplusBlockSignature a, BitcoinplusBlockSignature b)
@@ -197,7 +197,7 @@ namespace NBitcoin.Altcoins
 
             public override string ToString()
             {
-                return Encoders.Hex.EncodeData(this.signature);
+                return Encoders.Hex.EncodeData(signature);
             }
         }
 
@@ -241,8 +241,8 @@ namespace NBitcoin.Altcoins
             /// </summary>
             public BitcoinplusBlockSignature BlockSignature
             {
-                get { return this.blockSignature; }
-                set { this.blockSignature = value; }
+                get { return blockSignature; }
+                set { blockSignature = value; }
             }
 
             /// <summary>
@@ -251,7 +251,7 @@ namespace NBitcoin.Altcoins
             public override void ReadWrite(BitcoinStream stream)
             {
                 base.ReadWrite(stream);
-                stream.ReadWrite(ref this.blockSignature);
+                stream.ReadWrite(ref blockSignature);
 
                 //this.BlockSize = stream.Serializing ? stream.Counter.WrittenBytes : stream.Counter.ReadBytes;
             }
@@ -381,21 +381,21 @@ namespace NBitcoin.Altcoins
                 LockTime lockTimeTemp = 0;
                 stream.ReadWriteStruct(ref lockTimeTemp);
 
-                this.Version = nVersionTemp;
-                this.Time = nTimeTemp; // POS Timestamp
-                vinTemp.ForEach(i => this.Inputs.Add(i));
-                voutTemp.ForEach(i => this.Outputs.Add(i));
-                this.LockTime = lockTimeTemp;
+                Version = nVersionTemp;
+                Time = nTimeTemp; // POS Timestamp
+                vinTemp.ForEach(i => Inputs.Add(i));
+                voutTemp.ForEach(i => Outputs.Add(i));
+                LockTime = lockTimeTemp;
             }
 
             private void SerializeTxn(BitcoinStream stream, bool witSupported)
             {
                 byte flags = 0;
-                var version = (witSupported && (this.Inputs.Count == 0 && this.Outputs.Count > 0)) ? this.Version | NoDummyInput : this.Version;
+                var version = (witSupported && (Inputs.Count == 0 && Outputs.Count > 0)) ? Version | NoDummyInput : Version;
                 stream.ReadWrite(ref version);
 
                 // POS Timestamp
-                var time = this.Time;
+                var time = Time;
                 stream.ReadWrite(ref time);
 
                 if (witSupported)
@@ -413,18 +413,18 @@ namespace NBitcoin.Altcoins
                     stream.ReadWrite<TxInList, TxIn>(ref vinDummy);
                     stream.ReadWrite(ref flags);
                 }
-                TxInList vin = this.Inputs;
+                TxInList vin = Inputs;
                 stream.ReadWrite<TxInList, TxIn>(ref vin);
                 vin.Transaction = this;
-                TxOutList vout = this.Outputs;
+                TxOutList vout = Outputs;
                 stream.ReadWrite<TxOutList, TxOut>(ref vout);
                 vout.Transaction = this;
                 if ((flags & 1) != 0)
                 {
-                    BitcoinplusWitness wit = new BitcoinplusWitness(this.Inputs);
+                    BitcoinplusWitness wit = new BitcoinplusWitness(Inputs);
                     wit.ReadWrite(stream);
                 }
-                LockTime lockTime = this.LockTime;
+                LockTime lockTime = LockTime;
                 stream.ReadWriteStruct(ref lockTime);
             }
 
@@ -510,18 +510,18 @@ namespace NBitcoin.Altcoins
 						hashOutputs = precomputedTransactionData == null ?
 										GetHashOutputs() : precomputedTransactionData.HashOutputs;
 					}
-					else if (((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < this.Outputs.Count)
+					else if (((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < Outputs.Count)
 					{
 						BitcoinStream ss = CreateHashWriter(sigversion);
-						ss.ReadWrite(this.Outputs[nIn]);
+						ss.ReadWrite(Outputs[nIn]);
 						hashOutputs = GetHash(ss);
 					}
 
 					BitcoinStream sss = CreateHashWriter(sigversion);
 					// Version
-					sss.ReadWrite(this.Version);
+					sss.ReadWrite(Version);
 					// PoS Time
-					sss.ReadWrite(this.Time);
+					sss.ReadWrite(Time);
 					// Input prevouts/nSequence (none/all, depending on flags)
 					sss.ReadWrite(hashPrevouts);
 					sss.ReadWrite(hashSequence);
@@ -589,7 +589,7 @@ namespace NBitcoin.Altcoins
 				{
 					if (fHashSingle && nOutput != nIn)
 					{
-						this.Outputs.CreateNewTxOut().ReadWrite(stream);
+						Outputs.CreateNewTxOut().ReadWrite(stream);
 					}
 					else
 					{

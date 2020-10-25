@@ -78,14 +78,14 @@ namespace NBitcoin.Secp256k1
 		}
 		public Scalar(Span<uint> d)
 		{
-			this.d0 = d[0];
-			this.d1 = d[1];
-			this.d2 = d[2];
-			this.d3 = d[3];
-			this.d4 = d[4];
-			this.d5 = d[5];
-			this.d6 = d[6];
-			this.d7 = d[7];
+			d0 = d[0];
+			d1 = d[1];
+			d2 = d[2];
+			d3 = d[3];
+			d4 = d[4];
+			d5 = d[5];
+			d6 = d[6];
+			d7 = d[7];
 			VERIFY_CHECK(CheckOverflow() == 0);
 		}
 #if SECP256K1_LIB
@@ -190,21 +190,21 @@ namespace NBitcoin.Secp256k1
 			ulong t;
 			VERIFY_CHECK(bit < 256);
 			bit += ((uint)flag - 1) & 0x100;  /* forcing (bit >> 5) > 7 makes this a noop */
-			t = (ulong)this.d0 + (((bit >> 5) == 0 ? 1U : 0) << (int)(bit & 0x1F));
+			t = (ulong)d0 + (((bit >> 5) == 0 ? 1U : 0) << (int)(bit & 0x1F));
 			d[0] = (uint)t; t >>= 32;
-			t += (ulong)this.d1 + (((bit >> 5) == 1 ? 1U : 0) << (int)(bit & 0x1F));
+			t += (ulong)d1 + (((bit >> 5) == 1 ? 1U : 0) << (int)(bit & 0x1F));
 			d[1] = (uint)t; t >>= 32;
-			t += (ulong)this.d2 + (((bit >> 5) == 2 ? 1U : 0) << (int)(bit & 0x1F));
+			t += (ulong)d2 + (((bit >> 5) == 2 ? 1U : 0) << (int)(bit & 0x1F));
 			d[2] = (uint)t; t >>= 32;
-			t += (ulong)this.d3 + (((bit >> 5) == 3 ? 1U : 0) << (int)(bit & 0x1F));
+			t += (ulong)d3 + (((bit >> 5) == 3 ? 1U : 0) << (int)(bit & 0x1F));
 			d[3] = (uint)t; t >>= 32;
-			t += (ulong)this.d4 + (((bit >> 5) == 4 ? 1U : 0) << (int)(bit & 0x1F));
+			t += (ulong)d4 + (((bit >> 5) == 4 ? 1U : 0) << (int)(bit & 0x1F));
 			d[4] = (uint)t; t >>= 32;
-			t += (ulong)this.d5 + (((bit >> 5) == 5 ? 1U : 0) << (int)(bit & 0x1F));
+			t += (ulong)d5 + (((bit >> 5) == 5 ? 1U : 0) << (int)(bit & 0x1F));
 			d[5] = (uint)t; t >>= 32;
-			t += (ulong)this.d6 + (((bit >> 5) == 6 ? 1U : 0) << (int)(bit & 0x1F));
+			t += (ulong)d6 + (((bit >> 5) == 6 ? 1U : 0) << (int)(bit & 0x1F));
 			d[6] = (uint)t; t >>= 32;
-			t += (ulong)this.d7 + (((bit >> 5) == 7 ? 1U : 0) << (int)(bit & 0x1F));
+			t += (ulong)d7 + (((bit >> 5) == 7 ? 1U : 0) << (int)(bit & 0x1F));
 			d[7] = (uint)t;
 			VERIFY_CHECK((t >> 32) == 0);
 			var r = new Scalar(d);
@@ -845,8 +845,8 @@ namespace NBitcoin.Secp256k1
 		public readonly void SplitLambda(out Scalar r1, out Scalar r2)
 		{
 			/* these _var calls are constant time since the shift amount is constant */
-			Scalar c1 = this.MultiplyShiftVariable(g1, 272);
-			Scalar c2 = this.MultiplyShiftVariable(g2, 272);
+			Scalar c1 = MultiplyShiftVariable(g1, 272);
+			Scalar c2 = MultiplyShiftVariable(g2, 272);
 			c1 = c1 * minus_b1;
 			c2 = c2 * minus_b2;
 			r2 = c1 + c2;
@@ -1022,7 +1022,7 @@ namespace NBitcoin.Secp256k1
 		public readonly Scalar Multiply(in Scalar b)
 		{
 			Span<uint> d = stackalloc uint[DCount];
-			this.Deconstruct(ref d);
+			Deconstruct(ref d);
 			Span<uint> l = stackalloc uint[16];
 			mul_512(l, this, b);
 			reduce_512(d, l);
@@ -1110,14 +1110,14 @@ namespace NBitcoin.Secp256k1
 		public readonly void Deconstruct(
 				ref Span<uint> d)
 		{
-			d[0] = this.d0;
-			d[1] = this.d1;
-			d[2] = this.d2;
-			d[3] = this.d3;
-			d[4] = this.d4;
-			d[5] = this.d5;
-			d[6] = this.d6;
-			d[7] = this.d7;
+			d[0] = d0;
+			d[1] = d1;
+			d[2] = d2;
+			d[3] = d3;
+			d[4] = d4;
+			d[5] = d5;
+			d[6] = d6;
+			d[7] = d7;
 		}
 
 

@@ -189,8 +189,8 @@ namespace NBitcoin.Tests
 
 		public NodeBuilder(string root, string bitcoindPath)
 		{
-			this._Root = root;
-			this.BitcoinD = bitcoindPath;
+			_Root = root;
+			BitcoinD = bitcoindPath;
 		}
 
 		public bool CleanBeforeStartingNode
@@ -276,8 +276,8 @@ namespace NBitcoin.Tests
 
 		public CoreNode(string folder, NodeBuilder builder)
 		{
-			this._Builder = builder;
-			this._Folder = folder;
+			_Builder = builder;
+			_Folder = folder;
 			_State = CoreNodeState.Stopped;
 
 			dataDir = Path.Combine(folder, "data");
@@ -296,7 +296,7 @@ namespace NBitcoin.Tests
 				try
 				{
 
-					this.CreateRPCClient().Stop();
+					CreateRPCClient().Stop();
 				}
 				catch
 				{
@@ -336,7 +336,7 @@ namespace NBitcoin.Tests
 			if (!CookieAuth)
 				return creds.UserName + ":" + creds.Password;
 			else
-				return "cookiefile=" + Path.Combine(dataDir, this._Builder.NodeImplementation.RegtestFolderName ?? "regtest", ".cookie");
+				return "cookiefile=" + Path.Combine(dataDir, _Builder.NodeImplementation.RegtestFolderName ?? "regtest", ".cookie");
 		}
 
 		private void ExtractPorts(int[] ports, string config)
@@ -469,7 +469,7 @@ namespace NBitcoin.Tests
 		{
 			get
 			{
-				return _NodeImplementation ?? this._Builder.NodeImplementation;
+				return _NodeImplementation ?? _Builder.NodeImplementation;
 			}
 			set
 			{
@@ -530,7 +530,7 @@ namespace NBitcoin.Tests
 		{
 			lock (l)
 			{
-				string appPath = new FileInfo(this._Builder.BitcoinD).FullName;
+				string appPath = new FileInfo(_Builder.BitcoinD).FullName;
 				string args = "-conf=bitcoin.conf" + " -datadir=" + dataDir + " -debug=net";
 
 				if (_Builder.ShowNodeConsole)

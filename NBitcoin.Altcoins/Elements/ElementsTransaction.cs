@@ -30,7 +30,7 @@ namespace NBitcoin.Altcoins.Elements
 
 		public bool IsNull()
 		{
-			return this.Commitment == null || this.Commitment.Length == 0;
+			return Commitment == null || Commitment.Length == 0;
 		}
 
 		private static byte[] ToCommitment(Money amount)
@@ -466,7 +466,7 @@ namespace NBitcoin.Altcoins.Elements
 		{
 			get
 			{
-				return this.ScriptPubKey == Script.Empty && _ConfidentialValue.IsExplicit && Asset.IsExplicit;
+				return ScriptPubKey == Script.Empty && _ConfidentialValue.IsExplicit && Asset.IsExplicit;
 			}
 		}
 
@@ -775,16 +775,16 @@ namespace NBitcoin.Altcoins.Elements
 					hashOutputs = precomputedTransactionData == null ?
 									GetHashOutputs() : precomputedTransactionData.HashOutputs;
 				}
-				else if (((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < this.Outputs.Count)
+				else if (((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < Outputs.Count)
 				{
 					BitcoinStream ss = CreateHashWriter(sigversion);
-					ss.ReadWrite(this.Outputs[nIn]);
+					ss.ReadWrite(Outputs[nIn]);
 					hashOutputs = GetHash(ss);
 				}
 
 				BitcoinStream sss = CreateHashWriter(sigversion);
 				// Version
-				sss.ReadWrite(this.Version);
+				sss.ReadWrite(Version);
 				// Input prevouts/nSequence (none/all, depending on flags)
 				sss.ReadWrite(hashPrevouts);
 				sss.ReadWrite(hashSequence);
@@ -796,7 +796,7 @@ namespace NBitcoin.Altcoins.Elements
 				sss.ReadWrite(scriptCode);
 				sss.ReadWrite(spentOutputElem.ConfidentialValue);
 				sss.ReadWrite(Inputs[nIn].Sequence);
-				if(this.Inputs[nIn] is ElementsTxIn elemInput && elemInput.HasAssetIssuance)
+				if(Inputs[nIn] is ElementsTxIn elemInput && elemInput.HasAssetIssuance)
 				{
 					elemInput.AssetIssuance.ReadWrite(sss);
 				}
@@ -861,7 +861,7 @@ namespace NBitcoin.Altcoins.Elements
 			{
 				if (fHashSingle && nOutput != nIn)
 				{
-					this.Outputs.CreateNewTxOut().ReadWrite(stream);
+					Outputs.CreateNewTxOut().ReadWrite(stream);
 				}
 				else
 				{
@@ -906,7 +906,7 @@ namespace NBitcoin.Altcoins.Elements
 		private uint256 GetIssuanceHash()
 		{
 			BitcoinStream ss = CreateHashWriter(HashVersion.WitnessV0);
-			for (int i = 0; i < this.Inputs.Count; i++)
+			for (int i = 0; i < Inputs.Count; i++)
 			{
 				if (Inputs[i] is ElementsTxIn elemInput && elemInput.HasAssetIssuance)
 				{

@@ -18,8 +18,8 @@ namespace NBitcoin.Secp256k1
 		{
 			if (sig == null)
 				throw new ArgumentNullException(nameof(sig));
-			this.r = sig.r;
-			this.s = sig.s;
+			r = sig.r;
+			s = sig.s;
 			this.recid = recid;
 		}
 

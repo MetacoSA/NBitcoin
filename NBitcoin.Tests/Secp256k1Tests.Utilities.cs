@@ -16,7 +16,7 @@ namespace NBitcoin.Tests
 		private readonly ITestOutputHelper Logs;
 		public Secp256k1Tests(ITestOutputHelper output)
 		{
-			this.Logs = output;
+			Logs = output;
 		}
 		private void secp256k1_rand256(Span<byte> output)
 		{

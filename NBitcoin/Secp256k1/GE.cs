@@ -191,7 +191,7 @@ namespace NBitcoin.Secp256k1
 		{
 			this.x = x;
 			this.y = y;
-			this.infinity = false;
+			infinity = false;
 		}
 
 		public readonly void Deconstruct(out FE x, out FE y, out bool infinity)
@@ -215,12 +215,12 @@ namespace NBitcoin.Secp256k1
 		[MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.AggressiveInlining)]
 		public readonly GE NormalizeY()
 		{
-			return new GE(x, this.y.Normalize(), infinity);
+			return new GE(x, y.Normalize(), infinity);
 		}
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public readonly GE NormalizeYVariable()
 		{
-			return new GE(x, this.y.NormalizeVariable(), infinity);
+			return new GE(x, y.NormalizeVariable(), infinity);
 		}
 
 		[MethodImpl(MethodImplOptions.NoOptimization)]
@@ -340,7 +340,7 @@ namespace NBitcoin.Secp256k1
      * that the Z coordinate was 1, use affine addition formulae, and correct
      * the Z coordinate of the result once at the end.
      */
-			GEJ r = this.ToGroupElementJacobian();
+			GEJ r = ToGroupElementJacobian();
 			ECMultContext.secp256k1_ecmult_odd_multiples_table_globalz_windowa(pre_a, ref Z, r);
 			for (i = 0; i < ECMultContext.ArraySize_A; i++)
 			{
@@ -402,10 +402,10 @@ namespace NBitcoin.Secp256k1
 				GEJ tmpj = correction.ToGroupElementJacobian();
 				tmpj = tmpj.DoubleVariable();
 				correction = tmpj.ToGroupElement();
-				correction_1_stor = this.ToStorage();
+				correction_1_stor = ToStorage();
 				if (bits > 128)
 				{
-					correction_lam_stor = this.ToStorage();
+					correction_lam_stor = ToStorage();
 				}
 				a2_stor = correction.ToStorage();
 

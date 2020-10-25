@@ -192,7 +192,7 @@ namespace NBitcoin.Secp256k1
 
 		public readonly FE InverseVariable()
 		{
-			return this.Inverse();
+			return Inverse();
 		}
 
 		public FE(uint n0, uint n1, uint n2, uint n3, uint n4, uint n5, uint n6, uint n7, uint n8, uint n9)
@@ -432,7 +432,7 @@ namespace NBitcoin.Secp256k1
 		}
 		public readonly FE Sqr(int times)
 		{
-			VERIFY_CHECK(this.magnitude <= 8);
+			VERIFY_CHECK(magnitude <= 8);
 			VERIFY();
 			var r = secp256k1_fe_sqr_inner(times, 1, false);
 			r.VERIFY();
@@ -473,7 +473,7 @@ namespace NBitcoin.Secp256k1
 		private readonly FE secp256k1_fe_sqr_inner(int times, int magnitude, bool normalized)
 		{
 			Span<uint> n = stackalloc uint[NCount];
-			this.Deconstruct(ref n, out _, out _);
+			Deconstruct(ref n, out _, out _);
 			ulong c, d;
 			ulong u0, u1, u2, u3, u4, u5, u6, u7, u8;
 			uint t9, t0, t1, t2, t3, t4, t5, t6, t7;
@@ -757,7 +757,7 @@ namespace NBitcoin.Secp256k1
 
 		public readonly FE Multiply(in FE b)
 		{
-			VERIFY_CHECK(this.magnitude <= 8);
+			VERIFY_CHECK(magnitude <= 8);
 			VERIFY();
 			VERIFY_CHECK(b.magnitude <= 8);
 			b.VERIFY();
@@ -1177,16 +1177,16 @@ namespace NBitcoin.Secp256k1
 
 		public FE(ReadOnlySpan<uint> n, int magnitude, bool normalized) : this()
 		{
-			this.n0 = n[0];
-			this.n1 = n[1];
-			this.n2 = n[2];
-			this.n3 = n[3];
-			this.n4 = n[4];
-			this.n5 = n[5];
-			this.n6 = n[6];
-			this.n7 = n[7];
-			this.n8 = n[8];
-			this.n9 = n[9];
+			n0 = n[0];
+			n1 = n[1];
+			n2 = n[2];
+			n3 = n[3];
+			n4 = n[4];
+			n5 = n[5];
+			n6 = n[6];
+			n7 = n[7];
+			n8 = n[8];
+			n9 = n[9];
 			this.magnitude = magnitude;
 			this.normalized = normalized;
 		}
@@ -1197,16 +1197,16 @@ namespace NBitcoin.Secp256k1
 			out bool normalized
 			)
 		{
-			n[0] = this.n0;
-			n[1] = this.n1;
-			n[2] = this.n2;
-			n[3] = this.n3;
-			n[4] = this.n4;
-			n[5] = this.n5;
-			n[6] = this.n6;
-			n[7] = this.n7;
-			n[8] = this.n8;
-			n[9] = this.n9;
+			n[0] = n0;
+			n[1] = n1;
+			n[2] = n2;
+			n[3] = n3;
+			n[4] = n4;
+			n[5] = n5;
+			n[6] = n6;
+			n[7] = n7;
+			n[8] = n8;
+			n[9] = n9;
 			magnitude = this.magnitude;
 			normalized = this.normalized;
 		}
@@ -1238,13 +1238,13 @@ namespace NBitcoin.Secp256k1
 		{
 			get
 			{
-				return this.Sqrt(out _);
+				return Sqrt(out _);
 			}
 		}
 
 		public readonly FE Negate(int m)
 		{
-			VERIFY_CHECK(this.magnitude <= m);
+			VERIFY_CHECK(magnitude <= m);
 			VERIFY();
 			var result = new FE(
 				(uint)(0x3FFFC2FUL * 2 * (uint)(m + 1) - n0),
@@ -1269,7 +1269,7 @@ namespace NBitcoin.Secp256k1
 			Span<uint> t = stackalloc uint[NCount];
 			int magnitude;
 			bool normalized;
-			this.Deconstruct(ref t, out magnitude, out normalized);
+			Deconstruct(ref t, out magnitude, out normalized);
 
 			/* Reduce t9 at the start so there will be at most a single carry from the first pass */
 			uint x = t[9] >> 22; t[9] &= 0x03FFFFFU;
@@ -1304,7 +1304,7 @@ namespace NBitcoin.Secp256k1
 			Span<uint> t = stackalloc uint[NCount];
 			int magnitude;
 			bool normalized;
-			this.Deconstruct(ref t, out magnitude, out normalized);
+			Deconstruct(ref t, out magnitude, out normalized);
 
 			/* Reduce t9 at the start so there will be at most a single carry from the first pass */
 			uint m;
@@ -1362,7 +1362,7 @@ namespace NBitcoin.Secp256k1
 			Span<uint> t = stackalloc uint[NCount];
 			int magnitude;
 			bool normalized;
-			this.Deconstruct(ref t, out magnitude, out normalized);
+			Deconstruct(ref t, out magnitude, out normalized);
 
 			/* Reduce t9 at the start so there will be at most a single carry from the first pass */
 			uint m;
@@ -1414,7 +1414,7 @@ namespace NBitcoin.Secp256k1
 
 		public readonly void WriteToSpan(Span<byte> r)
 		{
-			this.VERIFY();
+			VERIFY();
 			VERIFY_CHECK(normalized);
 			r[0] = (byte)((n9 >> 14) & 0xff);
 			r[1] = (byte)((n9 >> 6) & 0xff);
@@ -1506,7 +1506,7 @@ namespace NBitcoin.Secp256k1
 		public readonly bool NormalizesToZero()
 		{
 			Span<uint> t = stackalloc uint[NCount];
-			this.Deconstruct(ref t, out _, out _);
+			Deconstruct(ref t, out _, out _);
 
 			/* z0 tracks a possible raw value of 0, z1 tracks a possible raw value of P */
 			uint z0, z1;
@@ -1578,7 +1578,7 @@ namespace NBitcoin.Secp256k1
 		{
 			if (obj is FE other)
 			{
-				return this.Equals(other);
+				return Equals(other);
 			}
 			return false;
 		}

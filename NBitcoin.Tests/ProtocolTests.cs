@@ -140,7 +140,7 @@ namespace NBitcoin.Tests
 
 		public ProtocolTests(ITestOutputHelper testOutputHelper)
 		{
-			this.logs = testOutputHelper;
+			logs = testOutputHelper;
 		}
 
 		[Fact]

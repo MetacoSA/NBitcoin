@@ -193,12 +193,12 @@ namespace NBitcoin.Altcoins
 
 			public BitcoinPubKeyAddress AsBitpay()
 			{
-				return new BitcoinPubKeyAddress(new KeyId(this.addr.Hash), Network);
+				return new BitcoinPubKeyAddress(new KeyId(addr.Hash), Network);
 			}
 
 			protected override Script GeneratePaymentScript()
 			{
-				return new KeyId(this.addr.Hash).ScriptPubKey;
+				return new KeyId(addr.Hash).ScriptPubKey;
 			}
 		}
 
@@ -212,7 +212,7 @@ namespace NBitcoin.Altcoins
 
 			public BitcoinScriptAddress AsBitpay()
 			{
-				return new BitcoinScriptAddress(new ScriptId(this.addr.Hash), Network);
+				return new BitcoinScriptAddress(new ScriptId(addr.Hash), Network);
 			}
 		}
 

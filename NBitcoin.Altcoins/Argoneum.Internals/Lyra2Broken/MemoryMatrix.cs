@@ -26,7 +26,7 @@ namespace NBitcoin.Altcoins.ArgoneumInternals.Lyra2Broken
 			this.matrix = matrix;
 			this.nRows = nRows;
 			this.nCols = nCols;
-			this.bytesRowLength = LyraConstants.CalculateBytesLowLength(nCols);
+			bytesRowLength = LyraConstants.CalculateBytesLowLength(nCols);
 		}
 
 		public void SetByteArrayCellWithValue(ulong row, ulong column, ulong value)

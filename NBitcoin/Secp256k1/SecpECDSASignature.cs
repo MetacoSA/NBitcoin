@@ -284,8 +284,8 @@ namespace NBitcoin.Secp256k1
 		{
 			if (out64.Length != 64)
 				throw new ArgumentException(paramName: nameof(out64), message: "out64 should be 64 bytes");
-			this.r.WriteToSpan(out64.Slice(0, 32));
-			this.s.WriteToSpan(out64.Slice(32));
+			r.WriteToSpan(out64.Slice(0, 32));
+			s.WriteToSpan(out64.Slice(32));
 		}
 
 		public override bool Equals(object obj)
