@@ -626,7 +626,8 @@ namespace NBitcoin.Altcoins.ArgoneumInternals
 
         private void AddXor512(byte[] a, byte[] b, byte[] c)
         {
-            for (int i = 0; i < 64; i += 8) {
+            for (int i = 0; i < 64; i += 8)
+            {
                 ulong A = BitConverter.ToUInt64(a, i);
                 ulong B = BitConverter.ToUInt64(b, i);
                 byte[] C = BitConverter.GetBytes(A ^ B);

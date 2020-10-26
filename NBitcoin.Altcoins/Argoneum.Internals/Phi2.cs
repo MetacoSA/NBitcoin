@@ -37,9 +37,12 @@ namespace NBitcoin.Altcoins.ArgoneumInternals
 
             hash = jh512.ComputeBytes(hash).GetBytes();
 
-            if ((hash[0] & 1) == 1) {
+            if ((hash[0] & 1) == 1)
+            {
                 hash = gost.ComputeHash512(hash);
-            } else {
+            }
+            else
+            {
                 hash = echo512.ComputeBytes(hash).GetBytes();
                 hash = echo512.ComputeBytes(hash).GetBytes();
             }
