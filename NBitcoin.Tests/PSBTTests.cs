@@ -126,6 +126,21 @@ namespace NBitcoin.Tests
 			Assert.True(psbt.TryGetFinalizedHash(out var actualHash));
 			Assert.Equal(new uint256("5d7bd33c258e0d7a1ac806304d9ab1b518cd0ab194f01248be9b52c704cc5fb7"), actualHash);
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CalculateFinalizedHashCorrectly()
+		{
+			var psbt = PSBT.Parse("cHNidP8BAMUCAAAAAjm0TK7iZu3RS16BLuYL/CR9HY2eRlQGVx1xewU1T6xAAAAAAAD/////PihXS4IEUUJG1EFDdW5EFGD5OzzgIw6rEhOqlpqitZwAAAAAAP////8DUsXrCwAAAAAiACBVmZAFkOU/PQ6UIMllsbJV7/ifdH/k6CcJKv1Gl9YgiOHc9QUAAAAAFgAUIGAQWuW00fyrWEvq9QZQ7AlcoTSm2/UFAAAAABYAFO4+pJ5Q9U7MVK33/5A1rt6OUFzxAAAAAAABAFICAAAAAbNOQ0W2oHIm8aqR8lFQlldP1gme7xzZiFyNBp5RmM92AAAAAAAAAAAAAQDC6wsAAAAAFgAUaogGO/qknwTIRCTbWjKgDIJg+7gAAAAAAAEBIADC6wsAAAAAF6kUL7E4PUEaMOH84KTEW0txEy9hSw2HAQBTAgAAAAGzTkNFtqByJvGqkfJRUJZXT9YJnu8c2YhcjQaeUZjPdgAAAAAAAAAAAAEAwusLAAAAABepFC+xOD1BGjDh/OCkxFtLcRMvYUsNhwAAAAABBCIAIA2bmvGpcuiHYMtlt24ftHpRIJW7IwASqH7bHc5gunuBAAAAAA==", Network.Main);
+			psbt.AssertSanity();
+			Assert.True(psbt.TryGetFinalizedHash(out var actualHash));
+			Assert.Equal(new uint256("de509e9a6873ca54953a1e69df66bdda3a9e9b296cb3bbeddaffad61a2a25721"), actualHash);
+
+			// This PSBT is finalized, but missing the FinalScriptSig while being P2SH, so there must be something missing
+			psbt = PSBT.Parse("cHNidP8BAMUCAAAAAjm0TK7iZu3RS16BLuYL/CR9HY2eRlQGVx1xewU1T6xAAAAAAAD/////PihXS4IEUUJG1EFDdW5EFGD5OzzgIw6rEhOqlpqitZwAAAAAAP////8DUsXrCwAAAAAiACBVmZAFkOU/PQ6UIMllsbJV7/ifdH/k6CcJKv1Gl9YgiOHc9QUAAAAAFgAUIGAQWuW00fyrWEvq9QZQ7AlcoTSm2/UFAAAAABYAFO4+pJ5Q9U7MVK33/5A1rt6OUFzxAAAAAAABAFICAAAAAbNOQ0W2oHIm8aqR8lFQlldP1gme7xzZiFyNBp5RmM92AAAAAAAAAAAAAQDC6wsAAAAAFgAUaogGO/qknwTIRCTbWjKgDIJg+7gAAAAAAQhrAkcwRAIgTtzpX90hQU00ur2DPXOZkBMXjNrEW+76cQkr6k1kntkCIE2RVauwzntgDCIjD8oiy3Aa3vd+G1POBgxKHTbLxaYoASECAclP4nUttStBOIr13akOh+b4PaX1mtGAjNLCNZmv/AsAAQBTAgAAAAGzTkNFtqByJvGqkfJRUJZXT9YJnu8c2YhcjQaeUZjPdgAAAAAAAAAAAAEAwusLAAAAABepFC+xOD1BGjDh/OCkxFtLcRMvYUsNhwAAAAABCNoEAEcwRAIgAn6VAAmlfVenn81OzH5bTQvqsWGmgDLNFOmDNiPU668CIB2lAu7gf2vXOuHARm1XOVRn9ApmwXHUWk2VnpI4qarGAUcwRAIgYbF54sTODDXxyu1hgFeDgFnj8vIiT32QIO5wYfM4KK8CIA2vIMATbqXK14uL00cX7VOgizSraeDvnPHnMKU1M72oAUdSIQJX9gQalUVw7G/bOOig6t7gy8aZrhPkuqDXVYOI6urtgCECKpV4nSq48v2Ruf+0l87cbH9aWBEsHUcO9U6QL5Q7iH9SrgAAAAA=", Network.Main);
+			Assert.False(psbt.TryGetFinalizedHash(out actualHash));
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void ShouldPreserveOriginalTxPropertyAsPossible()

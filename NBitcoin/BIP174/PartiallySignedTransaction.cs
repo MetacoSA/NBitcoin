@@ -803,7 +803,13 @@ namespace NBitcoin
 				if (Inputs[i].IsFinalized())
 				{
 					tx.Inputs[i].ScriptSig = Inputs[i].FinalScriptSig ?? Script.Empty;
-					tx.Inputs[i].WitScript = Inputs[i].WitnessScript ?? Script.Empty;
+					tx.Inputs[i].WitScript = Inputs[i].FinalScriptWitness ?? Script.Empty;
+					if (tx.Inputs[i].ScriptSig == Script.Empty
+						&& (utxo is null || utxo.ScriptPubKey.IsScriptType(ScriptType.P2SH)))
+					{
+						hash = null;
+						return false;
+					}
 				}
 				else if (utxo is null ||
 						!Network.Consensus.SupportSegwit)
@@ -813,7 +819,8 @@ namespace NBitcoin
 				}
 				else if (utxo.ScriptPubKey.IsScriptType(ScriptType.P2SH) &&
 					Inputs[i].RedeemScript is Script p2shRedeem &&
-					!p2shRedeem.IsMalleable)
+					(p2shRedeem.IsScriptType(ScriptType.P2WSH) ||
+					 p2shRedeem.IsScriptType(ScriptType.P2WPKH)))
 				{
 					tx.Inputs[i].ScriptSig = PayToScriptHashTemplate.Instance.GenerateScriptSig(null as byte[][], p2shRedeem);
 				}
