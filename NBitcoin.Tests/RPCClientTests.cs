@@ -977,7 +977,9 @@ namespace NBitcoin.Tests
 					"bcrt1qrd3n235cj2czsfmsuvqqpr3lu6lg0ju7scl8gn", "bcrt1qfqeppuvj0ww98r6qghmdkj70tv8qpchehegrg8"
 				}); // wpkh subscripts corresponding to the above addresses
 
-				var desc = OutputDescriptor.Parse($"sh(wpkh({xpriv}/0'/0'/*'))");
+				// keyRepo to store xpriv
+				var keyRepo = new FlatSigningRepository();
+				var desc = OutputDescriptor.Parse($"sh(wpkh({xpriv}/0'/0'/*'))", false, keyRepo);
 				multiAddresses = new List<ImportMultiAddress>
 				{
 					new ImportMultiAddress
@@ -987,6 +989,8 @@ namespace NBitcoin.Tests
 				};
 				// Must fail without range
 				Assert.Throws<RPCException>(() => rpc.ImportMulti(multiAddresses.ToArray(), false));
+
+				// Successful case
 				multiAddresses = new List<ImportMultiAddress>
 				{
 					new ImportMultiAddress
@@ -995,7 +999,12 @@ namespace NBitcoin.Tests
 						Range = 1
 					}
 				};
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
+				rpc.ImportMulti(multiAddresses.ToArray(), false, keyRepo);
+				foreach (var addr in addresses)
+				{
+					TestAddress(rpc, addr, solvable: true, isMine:true);
+				}
+
 				# endregion
 				# region Test importing a descriptor containing a WIF private key
 
@@ -1014,6 +1023,7 @@ namespace NBitcoin.Tests
 				TestAddress(rpc, address, true, true);
 
 				# endregion
+
 			}
 		}
 
