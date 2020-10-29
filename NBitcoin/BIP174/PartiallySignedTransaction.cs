@@ -340,21 +340,11 @@ namespace NBitcoin
 				txsById.TryAdd(tx.GetHash(), tx);
 			foreach (var input in Inputs)
 			{
-				if (input.WitnessUtxo == null && txsById.TryGetValue(input.TxIn.PrevOut.Hash, out var tx))
+				if (txsById.TryGetValue(input.TxIn.PrevOut.Hash, out var tx))
 				{
 					if (input.TxIn.PrevOut.N >= tx.Outputs.Count)
 						continue;
-					var output = tx.Outputs[input.TxIn.PrevOut.N];
-					if (output.ScriptPubKey.IsScriptType(ScriptType.Witness) || input.RedeemScript?.IsScriptType(ScriptType.Witness) is true)
-					{
-						input.WitnessUtxo = output;
-						input.NonWitnessUtxo = null;
-					}
-					else
-					{
-						input.WitnessUtxo = null;
-						input.NonWitnessUtxo = tx;
-					}
+					input.NonWitnessUtxo = tx;
 				}
 			}
 			return this;
