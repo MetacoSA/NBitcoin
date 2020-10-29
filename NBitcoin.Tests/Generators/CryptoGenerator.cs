@@ -95,5 +95,24 @@ namespace NBitcoin.Tests.Generators
 			select NBitcoin.KeyPath.FromBytes(flattenBytes);
 
 		public static Gen<ExtPubKey> ExtPubKey() => ExtKey().Select(ek => ek.Neuter());
+
+		public static Gen<BitcoinExtPubKey> BitcoinExtPubKey() =>
+			from extKey in ExtPubKey()
+			from network in ChainParamsGenerator.NetworkGen()
+			select new BitcoinExtPubKey(extKey, network);
+
+		public static Gen<BitcoinExtKey> BitcoinExtKey() =>
+			from extKey in ExtKey()
+			from network in ChainParamsGenerator.NetworkGen()
+			select new BitcoinExtKey(extKey, network);
+
+		public static Gen<RootedKeyPath> RootedKeyPath() =>
+			from parentFingerPrint in HDFingerPrint()
+			from kp in KeyPath()
+			select new RootedKeyPath(parentFingerPrint, kp);
+
+		public static Gen<HDFingerprint> HDFingerPrint() =>
+			from x in PrimitiveGenerator.UInt32()
+			select new HDFingerprint(x);
 	}
 }

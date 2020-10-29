@@ -23,12 +23,19 @@ namespace NBitcoin
 			result = null;
 			var separator = str.IndexOf('/');
 			if (separator == -1)
-				return false;
-			if (!HDFingerprint.TryParse(str.Substring(0, separator), out var fp))
-				return false;
-			if (!NBitcoin.KeyPath.TryParse(str.Substring(separator + 1), out var keyPath))
-				return false;
-			result = new RootedKeyPath(fp, keyPath);
+			{
+				if (!HDFingerprint.TryParse(str, out var fp))
+					return false;
+				result = new RootedKeyPath(fp, KeyPath.Empty);
+			}
+			else
+			{
+				if (!HDFingerprint.TryParse(str.Substring(0, separator), out var fp))
+					return false;
+				if (!NBitcoin.KeyPath.TryParse(str.Substring(separator + 1), out var keyPath))
+					return false;
+				result = new RootedKeyPath(fp, keyPath);
+			}
 			return true;
 		}
 		public RootedKeyPath(HDFingerprint masterFingerprint, KeyPath keyPath)
@@ -86,12 +93,14 @@ namespace NBitcoin
 			return new RootedKeyPath(MasterFingerprint, KeyPath.GetAccountKeyPath());
 		}
 
-		public override string ToString()
-		{
-			return $"{MasterFingerprint}/{KeyPath}";
-		}
+		public override string ToString() => $"{MasterFingerprint}/{KeyPath}";
 
-
+		/// <summary>
+		/// Mostly works same with `ToString()`, but if the `KeyPath` is empty, it just returns master finger print
+		/// without `/` in the suffix
+		/// </summary>
+		/// <returns></returns>
+		public string ToStringWithEmptyKeyPathAware() => KeyPath == KeyPath.Empty ? MasterFingerprint.ToString() : ToString();
 		public override bool Equals(object obj)
 		{
 			RootedKeyPath item = obj as RootedKeyPath;

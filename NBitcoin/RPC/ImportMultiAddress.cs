@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using NBitcoin.JsonConverters;
+using NBitcoin.Scripting;
 
 namespace NBitcoin.RPC
 {
@@ -69,6 +71,22 @@ namespace NBitcoin.RPC
 
 		[JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
 		public string Label { get; set; }
+
+		[JsonProperty("desc", NullValueHandling = NullValueHandling.Ignore)]
+		public OutputDescriptor Desc { get; set; }
+
+		[JsonProperty("range", NullValueHandling = NullValueHandling.Ignore)]
+		public int[] Ranges { get; set; }
+
+		[JsonIgnore]
+		public int Range
+		{
+			set
+			{
+				Ranges ??= new[] {0, 0};
+				Ranges[1] = value;
+			}
+		}
 	}
 
 	/// <summary>

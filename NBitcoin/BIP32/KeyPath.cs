@@ -112,19 +112,31 @@ namespace NBitcoin
 			var nonhardened = hardened ? i.Substring(0, i.Length - 1) : i;
 			if (!uint.TryParse(nonhardened, out index))
 				return false;
+
+			// when parsing, number equals or greater than 0x80000000 (= 2147483648) should not be allowed.
+			if (index >= 0x80000000u)
+			{
+				index = 0;
+				return false;
+			}
 			if (hardened)
 			{
-				if (index >= 0x80000000u)
-				{
-					index = 0;
-					return false;
-				}
 				index = index | 0x80000000u;
 				return true;
 			}
 			else
 			{
 				return true;
+			}
+		}
+
+		static KeyPath _Empty = new KeyPath(new uint[0]);
+
+		public static KeyPath Empty
+		{
+			get
+			{
+				return _Empty;
 			}
 		}
 

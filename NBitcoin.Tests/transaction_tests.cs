@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Encoders = NBitcoin.DataEncoders.Encoders;
+using static NBitcoin.Tests.Helpers.PrimitiveUtils;
 
 namespace NBitcoin.Tests
 {
@@ -1732,10 +1733,6 @@ namespace NBitcoin.Tests
 			Assert.True(builder.Verify(tx)); //Fully signed !
 		}
 
-		private OutPoint RandOutpoint()
-		{
-			return new OutPoint(Rand(), 0);
-		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -2734,10 +2731,6 @@ namespace NBitcoin.Tests
 			Assert.Equal(Money.Coins(1.0m), tx.GetFee(txBuilder.FindSpentCoins(tx)));
 		}
 
-		private uint256 Rand()
-		{
-			return new uint256(RandomUtils.GetBytes(32));
-		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -4388,6 +4381,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void ShouldSendAll()
 		{
 			var builder = Network

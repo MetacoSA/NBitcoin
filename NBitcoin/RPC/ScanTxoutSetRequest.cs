@@ -5,6 +5,7 @@ using System.Text;
 
 namespace NBitcoin.RPC
 {
+	[Obsolete("Use PubKeyProvider instead")]
 	public class ScanTxoutPubkey
 	{
 		/// <summary>
@@ -98,6 +99,8 @@ namespace NBitcoin.RPC
 			return Value;
 		}
 	}
+
+	[Obsolete("Use OutputDescriptor instead")]
 	public class ScanTxoutDescriptor
 	{
 		/// <summary>
@@ -225,6 +228,8 @@ namespace NBitcoin.RPC
 			return Value;
 		}
 	}
+
+	[Obsolete("Use OutputDescriptor instead")]
 	public class ScanTxoutSetObject
 	{
 		public ScanTxoutSetObject(ScanTxoutDescriptor descriptor, int? range = null)
