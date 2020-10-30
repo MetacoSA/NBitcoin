@@ -344,7 +344,10 @@ namespace NBitcoin
 				{
 					if (input.TxIn.PrevOut.N >= tx.Outputs.Count)
 						continue;
+					var output = tx.Outputs[input.TxIn.PrevOut.N];
 					input.NonWitnessUtxo = tx;
+					if (input.GetCoin()?.IsMalleable is false)
+						input.WitnessUtxo = output;
 				}
 			}
 			return this;
