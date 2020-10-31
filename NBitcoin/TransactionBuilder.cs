@@ -1153,7 +1153,7 @@ namespace NBitcoin
 
 		private void DoShuffle()
 		{
-			if (ShuffleRandom != null)
+			if (ShuffleRandom != null && ShuffleOutputs)
 			{
 				Utils.Shuffle(_BuilderGroups, ShuffleRandom);
 				foreach (var group in _BuilderGroups)
