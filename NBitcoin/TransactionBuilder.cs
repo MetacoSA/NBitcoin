@@ -1147,11 +1147,11 @@ namespace NBitcoin
 		[Obsolete("Transaction builder is automatically shuffled")]
 		public TransactionBuilder Shuffle()
 		{
-			DoShuffle();
+			DoShuffleGroups();
 			return this;
 		}
 
-		private void DoShuffle()
+		private void DoShuffleGroups()
 		{
 			if (ShuffleRandom != null && ShuffleOutputs)
 			{
@@ -1623,7 +1623,7 @@ namespace NBitcoin
 		public Transaction BuildTransaction(bool sign, SigningOptions signingOptions)
 		{
 			int totalRepass = 5;
-			DoShuffle();
+			DoShuffleGroups();
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
 			retry:
 			if (_CompletedTransaction != null)
