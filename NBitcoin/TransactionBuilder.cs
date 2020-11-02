@@ -1144,11 +1144,27 @@ namespace NBitcoin
 			return SendAsset(destination, new AssetMoney(assetId, quantity));
 		}
 
-		[Obsolete("Transaction builder is automatically shuffled")]
+		[Obsolete("Transaction builder is automatically shuffled if its Shuffle* properties are true")]
 		public TransactionBuilder Shuffle()
 		{
-			DoShuffleGroups();
+			DoShuffle();
 			return this;
+		}
+
+		private void DoShuffle(TransactionBuildingContext ctx)
+		{
+			DoShuffleGroups();
+			if (ShuffleRandom != null)
+			{
+				if (ShuffleInputs && ctx.CanShuffleInputs)
+					Utils.Shuffle(ctx.Transaction.Inputs,
+								_CompletedTransaction is null ? 0 : _CompletedTransaction.Inputs.Count,
+								ShuffleRandom);
+				if (ShuffleOutputs && ctx.CanShuffleOutputs)
+					Utils.Shuffle(ctx.Transaction.Outputs,
+								_CompletedTransaction is null ? 0 : _CompletedTransaction.Outputs.Count,
+								ShuffleRandom);
+			}
 		}
 
 		private void DoShuffleGroups()
@@ -1623,7 +1639,6 @@ namespace NBitcoin
 		public Transaction BuildTransaction(bool sign, SigningOptions signingOptions)
 		{
 			int totalRepass = 5;
-			DoShuffleGroups();
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
 			retry:
 			if (_CompletedTransaction != null)
@@ -1663,17 +1678,7 @@ namespace NBitcoin
 																			.Where(IsEconomical));
 			}
 
-			if (ShuffleRandom != null)
-			{
-				if (ShuffleInputs && ctx.CanShuffleInputs)
-					Utils.Shuffle(ctx.Transaction.Inputs,
-								_CompletedTransaction is null ? 0 : _CompletedTransaction.Inputs.Count,
-								ShuffleRandom);
-				if (ShuffleOutputs && ctx.CanShuffleOutputs)
-					Utils.Shuffle(ctx.Transaction.Outputs,
-								_CompletedTransaction is null ? 0 : _CompletedTransaction.Outputs.Count,
-								ShuffleRandom);
-			}
+			DoShuffle(ctx);
 			if (MergeOutputs && ctx.CanMergeOutputs)
 			{
 				var collapsedOutputs = ctx.Transaction.Outputs
