@@ -1424,6 +1424,7 @@ namespace NBitcoin.Tests
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
+				node.ConfigParameters.Add("blockfilterindex", "1");
 				var rpc = node.CreateRPCClient();
 				builder.StartAll();
 				node.Generate(101);
