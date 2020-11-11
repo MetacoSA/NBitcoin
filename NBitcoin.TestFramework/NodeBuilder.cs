@@ -504,10 +504,8 @@ namespace NBitcoin.Tests
 			config.Add("server", "1");
 			config.Add("txindex", "1");
 			config.Add("peerbloomfilters", "1");
-			if (Network.NetworkSet == Bitcoin.Instance)
-			{
-				config.Add("blockfilterindex", "1");
-			}
+			// Somehow got problems on windows with it time to time...
+			//config.Add("blockfilterindex", "1");
 			if (!CookieAuth)
 			{
 				config.Add("rpcuser", creds.UserName);
