@@ -49,5 +49,14 @@ namespace NBitcoin.Protocol
 			return Addresses.Length + " address(es)";
 		}
 	}
+
+	/// <summary>
+	/// An available peer address in the bitcoin network is announce (unsolicited or after a getaddrv2)
+	/// </summary>
+	[Payload("addrv2")]
+	public class AddrV2Payload : AddrPayload
+	{
+
+	}
 }
 #endif
