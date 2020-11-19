@@ -109,38 +109,48 @@ namespace NBitcoin.Protocol
 			{
 				network = (byte)BIP155Network.TorV2;
 				addr = bytes;
+				return true;
 			}
-			else if(bytes.Length == GetSize(BIP155Network.TorV3))
+			else if(bytes.Length == GetSize(BIP155Network.TorV3) + 3)
 			{
-				var pubkey = bytes.SafeSubarray( 0, 32);
-				var chksum = bytes.SafeSubarray(32,  2);
 				var version = bytes[34];
 
-				var calculatedChecksum = CalculateChecksum(pubkey);
-
-				if (!Utils.ArrayEqual(chksum, calculatedChecksum) || version != 3)
+				if (version != 3)
 				{
 					return false;
 				}
+
+				var pubkey = bytes.SafeSubarray( 0, 32);
+				var chksum = bytes.SafeSubarray(32,  2);
+
+				var calculatedChecksum = CalculateChecksum(pubkey);
+
+				if (!Utils.ArrayEqual(chksum, calculatedChecksum) )
+				{
+					return false;
+				}
+
+				network = (byte)BIP155Network.TorV3;
+				addr = pubkey;
+				return true;
 			}
-			return true;
+			return false;
 		}
 
 		private static byte[] CalculateChecksum(byte[] pubkey)
 		{
 			// TORv3 CHECKSUM = H(".onion checksum" | PUBKEY | VERSION)[:2]
-			var prefix = Encoding.ASCII.GetBytes(".onion checksum");
-			var prefixWithLength = prefix.Prepend((byte)prefix.Length).ToArray();
+			var prefix = Encoding.UTF8.GetBytes(".onion checksum");
 
-			var hasher = new KeccakDigest(256);
+			var hasher = new Sha3Digest(256);
 
-			hasher.BlockUpdate(prefixWithLength, 0, prefixWithLength.Length);
+			hasher.BlockUpdate(prefix, 0, prefix.Length);
 			hasher.BlockUpdate(pubkey, 0, pubkey.Length);
-			hasher.BlockUpdate(new byte[]{ 3 }, 0, 1);
+			hasher.BlockUpdate(new byte[]{3}, 0, 1);
 
 			var fullChecksum = new byte[32];
-			hasher.DoFinal(fullChecksum, 0);
-			return fullChecksum;
+			var size = hasher.DoFinal(fullChecksum, 0);
+			return fullChecksum.SafeSubarray(0,2);
 		}
 
 		public ulong Service
@@ -286,6 +296,27 @@ namespace NBitcoin.Protocol
 		public byte[] GetAddressBytes() =>
 			IsAddrV1Compatible ? SerializeV1Array() : addr;
 
+        public override string ToString()
+        {
+			switch ((BIP155Network)network)
+			{
+				case BIP155Network.IPV4:
+				case BIP155Network.IPV6:
+				case BIP155Network.Cjdns:
+					return new IPAddress(addr).ToString();
+				case BIP155Network.TorV2:
+					return Encoders.Base32.EncodeData(addr) + ".onion";
+				case BIP155Network.TorV3:
+					var chksum = CalculateChecksum(addr);
+					var data = addr.Concat(chksum, new byte[]{ 3 });
+					return Encoders.Base32.EncodeData(data) + ".onion";
+				case BIP155Network.I2P:
+					return Encoders.Base32.EncodeData(addr) + ".b32.i2p";
+				default:
+					throw new InvalidOperationException($"{network} is unknown");					
+			}
+        }
+        
 		internal byte[] GetKey()
 		{
 			var buffer = GetAddressBytes();
