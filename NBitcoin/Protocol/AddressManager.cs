@@ -48,7 +48,7 @@ namespace NBitcoin.Protocol
 			public void ReadWrite(BitcoinStream stream)
 			{
 				stream.ReadWrite(ref _Address);
-				stream.ReadWrite(ref source);
+				stream.ReadWrite(ref sourceAddress);
 				stream.ReadWrite(ref nLastSuccess);
 				stream.ReadWrite(ref nAttempts);
 
@@ -57,6 +57,7 @@ namespace NBitcoin.Protocol
 			internal int nAttempts;
 			internal long nLastSuccess;
 			byte[] source = new byte[16];
+			NetworkAddress sourceAddress;
 
 			public DateTimeOffset LastSuccess
 			{
@@ -70,6 +71,20 @@ namespace NBitcoin.Protocol
 				}
 			}
 
+			public NetworkAddress SourceAddress
+			{
+				get
+				{
+					return sourceAddress;
+				}
+				set
+				{
+					sourceAddress = value;
+					source = sourceAddress.GetAddressBytes();
+				}
+			}
+
+			[Obsolete("Use SourceAddress property instead.")]
 			public IPAddress Source
 			{
 				get
@@ -118,10 +133,16 @@ namespace NBitcoin.Protocol
 			{
 
 			}
+			[Obsolete("Use AddressInfo(NetworkAddress addr, NetworkAddress addrSource) instead.")]
 			public AddressInfo(NetworkAddress addr, IPAddress addrSource)
+				: this(addr, new NetworkAddress(addrSource))
+			{
+			}
+
+			public AddressInfo(NetworkAddress addr, NetworkAddress addrSource)
 			{
 				Address = addr;
-				Source = addrSource;
+				SourceAddress = addrSource;
 			}
 
 			public bool IsTerrible
@@ -160,15 +181,15 @@ namespace NBitcoin.Protocol
 
 			internal int GetNewBucket(uint256 nKey)
 			{
-				return GetNewBucket(nKey, Source);
+				return GetNewBucket(nKey, SourceAddress);
 			}
 
-			internal int GetNewBucket(uint256 nKey, IPAddress src)
+			internal int GetNewBucket(uint256 nKey, NetworkAddress src)
 			{
 				byte[] vchSourceGroupKey = src.GetGroup();
 				UInt64 hash1 = Cheap(Hashes.DoubleSHA256(
 					nKey.ToBytes(true)
-					.Concat(Address.Endpoint.Address.GetGroup())
+					.Concat(Address.GetGroup())
 					.Concat(vchSourceGroupKey)
 					.ToArray()));
 
@@ -200,7 +221,7 @@ namespace NBitcoin.Protocol
 			internal int GetTriedBucket(uint256 nKey)
 			{
 				UInt64 hash1 = Cheap(Hashes.DoubleSHA256(nKey.ToBytes().Concat(Address.GetKey()).ToArray()));
-				UInt64 hash2 = Cheap(Hashes.DoubleSHA256(nKey.ToBytes().Concat(Address.Endpoint.Address.GetGroup()).Concat(Utils.ToBytes(hash1 % AddressManager.ADDRMAN_TRIED_BUCKETS_PER_GROUP, true)).ToArray()));
+				UInt64 hash2 = Cheap(Hashes.DoubleSHA256(nKey.ToBytes().Concat(Address.GetGroup()).Concat(Utils.ToBytes(hash1 % AddressManager.ADDRMAN_TRIED_BUCKETS_PER_GROUP, true)).ToArray()));
 				return (int)(hash2 % ADDRMAN_TRIED_BUCKET_COUNT);
 			}
 
@@ -352,12 +373,11 @@ namespace NBitcoin.Protocol
 		}
 #endif
 
-		AddressInfo Find(IPAddress addr)
+		AddressInfo Find(NetworkAddress addr)
 		{
-			int unused;
-			return Find(addr, out unused);
+			return Find(addr, out _);
 		}
-		AddressInfo Find(IPAddress addr, out int pnId)
+		AddressInfo Find(NetworkAddress addr, out int pnId)
 		{
 			if (!mapAddr.TryGetValue(addr, out pnId))
 				return null;
@@ -403,7 +423,7 @@ namespace NBitcoin.Protocol
 		public int NeededPeers { get; private set; }
 
 		Dictionary<int, AddressInfo> mapInfo = new Dictionary<int, AddressInfo>();
-		Dictionary<IPAddress, int> mapAddr = new Dictionary<IPAddress, int>();
+		Dictionary<NetworkAddress, int> mapAddr = new Dictionary<NetworkAddress, int>();
 		private int nIdCount;
 
 		#region IBitcoinSerializable Members
@@ -437,7 +457,7 @@ namespace NBitcoin.Protocol
 						AddressInfo info = new AddressInfo();
 						info.ReadWrite(stream);
 						mapInfo.Add(n, info);
-						mapAddr[info.Address.Endpoint.Address] = n;
+						mapAddr[info.Address] = n;
 						info.nRandomPos = vRandom.Count;
 						vRandom.Add(n);
 						if (nVersion != 1 || nUBuckets != ADDRMAN_NEW_BUCKET_COUNT)
@@ -470,7 +490,7 @@ namespace NBitcoin.Protocol
 							info.fInTried = true;
 							vRandom.Add(nIdCount);
 							mapInfo[nIdCount] = info;
-							mapAddr[info.Address.Endpoint.Address] = nIdCount;
+							mapAddr[info.Address] = nIdCount;
 							vvTried[nKBucket, nKBucketPos] = nIdCount;
 							nIdCount++;
 						}
@@ -578,7 +598,14 @@ namespace NBitcoin.Protocol
 		{
 			return Add(addr, IPAddress.Loopback);
 		}
+
+		[Obsolete("Use Add(NetworkAddress, NetworkAddress, TimeSpan) instead")]
 		public bool Add(NetworkAddress addr, IPAddress source, TimeSpan nTimePenalty)
+		{
+			return Add(addr, new NetworkAddress(source), nTimePenalty);
+		}
+
+		public bool Add(NetworkAddress addr, NetworkAddress source, TimeSpan nTimePenalty)
 		{
 			bool fRet = false;
 			lock (cs)
@@ -589,11 +616,25 @@ namespace NBitcoin.Protocol
 			}
 			return fRet;
 		}
+
+		[Obsolete("Use Add(IEnumerable<NetworkAddress> vAddr, NetworkAddress) instead")]
 		public bool Add(IEnumerable<NetworkAddress> vAddr, IPAddress source)
+		{
+			return Add(vAddr, new NetworkAddress(source));
+		}
+
+		public bool Add(IEnumerable<NetworkAddress> vAddr, NetworkAddress source)
 		{
 			return Add(vAddr, source, TimeSpan.FromSeconds(0));
 		}
+
+		[Obsolete("Use Add(IEnumerable<NetworkAddress>, NetworkAddress, TimeSpan) instead")]
 		public bool Add(IEnumerable<NetworkAddress> vAddr, IPAddress source, TimeSpan nTimePenalty)
+		{
+			return Add(vAddr, new NetworkAddress(source), nTimePenalty);
+		}
+
+		public bool Add(IEnumerable<NetworkAddress> vAddr, NetworkAddress source, TimeSpan nTimePenalty)
 		{
 			int nAdd = 0;
 			lock (cs)
@@ -606,9 +647,9 @@ namespace NBitcoin.Protocol
 			return nAdd > 0;
 		}
 
-		private bool Add_(NetworkAddress addr, IPAddress source, TimeSpan nTimePenalty)
+		private bool Add_(NetworkAddress addr, NetworkAddress source, TimeSpan nTimePenalty)
 		{
-			if (!addr.Endpoint.Address.IsRoutable(true))
+			if (!addr.IsRoutable(true))
 				return false;
 
 			bool fNew = false;
@@ -710,7 +751,7 @@ namespace NBitcoin.Protocol
 
 			SwapRandom(info.nRandomPos, vRandom.Count - 1);
 			vRandom.RemoveAt(vRandom.Count - 1);
-			mapAddr.Remove(info.Address.Endpoint.Address);
+			mapAddr.Remove(info.Address);
 			mapInfo.Remove(nId);
 			nNew--;
 
@@ -737,20 +778,15 @@ namespace NBitcoin.Protocol
 			vRandom[nRndPos2] = nId1;
 		}
 
-		private AddressInfo Create(NetworkAddress addr, IPAddress addrSource, out int pnId)
+		private AddressInfo Create(NetworkAddress addr, NetworkAddress addrSource, out int pnId)
 		{
 			int nId = nIdCount++;
 			mapInfo[nId] = new AddressInfo(addr, addrSource);
-			mapAddr[addr.Endpoint.Address] = nId;
+			mapAddr[addr] = nId;
 			mapInfo[nId].nRandomPos = vRandom.Count;
 			vRandom.Add(nId);
 			pnId = nId;
 			return mapInfo[nId];
-		}
-
-		private AddressInfo Find(NetworkAddress addr, out int nId)
-		{
-			return Find(addr.Endpoint.Address, out nId);
 		}
 
 		internal bool DebugMode
@@ -796,7 +832,7 @@ namespace NBitcoin.Protocol
 						return -4;
 					mapNew[n] = info.nRefCount;
 				}
-				if (mapAddr[info.Address.Endpoint.Address] != n)
+				if (mapAddr[info.Address] != n)
 					return -5;
 				if (info.nRandomPos < 0 || info.nRandomPos >= vRandom.Count || vRandom[info.nRandomPos] != n)
 					return -14;
@@ -992,7 +1028,7 @@ namespace NBitcoin.Protocol
 
 		private void Attempt_(NetworkAddress addr, DateTimeOffset nTime)
 		{
-			AddressInfo pinfo = Find(addr.Endpoint.Address);
+			AddressInfo pinfo = Find(addr);
 
 			// if not found, bail out
 			if (pinfo == null)

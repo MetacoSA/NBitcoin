@@ -64,6 +64,10 @@ namespace NBitcoin.Protocol
 		public NetworkAddress()
 		{
 		}
+		public NetworkAddress(IPAddress ip)
+		{
+			Endpoint = new IPEndPoint(ip, 0);
+		}
 		public NetworkAddress(IPEndPoint endpoint)
 		{
 			Endpoint = endpoint;
@@ -80,9 +84,99 @@ namespace NBitcoin.Protocol
 
 		public bool IsIPv4 => (BIP155Network)network == BIP155Network.IPV4;
 		public bool IsIPv6 => (BIP155Network)network == BIP155Network.IPV6;
-		public bool IsOnion => (BIP155Network)network == BIP155Network.TorV2 || (BIP155Network)network == BIP155Network.TorV3;
+		public bool IsTORv2 => (BIP155Network)network == BIP155Network.TorV2;
+		public bool IsTORv3 => (BIP155Network)network == BIP155Network.TorV3;
+		public bool IsOnion => IsTORv2 || IsTORv3;
 		public bool IsI2P => (BIP155Network)network == BIP155Network.I2P;
 		public bool IsCjdns => (BIP155Network)network == BIP155Network.Cjdns;
+
+		public bool IsLocal 
+		{
+			get
+			{
+			    // IPv4 loopback (127.0.0.0/8 or 0.0.0.0/8)
+				if (IsIPv4 && (addr[0] == 127 || addr[0] == 0))
+				{
+					return true;
+				}
+			    // IPv6 loopback (::1/128)
+    			if (IsIPv6 && Utils.ArrayEqual(addr, new byte[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1}))
+				{
+			        return true;
+    			}
+
+    			return false;
+			}
+		}
+
+		public bool IsRFC1918 =>
+			IsIPv4 && (
+				addr[0] == 10 ||
+				(addr[0] == 192 && addr[1] == 168) ||
+				(addr[0] == 172 && (addr[1] >= 16 && addr[1] <= 31)));
+
+		public bool IsRFC3927 =>
+			IsIPv4 && (addr[0] == 169 && addr[1] == 254);
+
+		public bool IsRFC3849 =>
+			IsIPv6 && addr[0] == 0x20 && addr[1] == 0x01 && addr[2] == 0x0D && addr[3] == 0xB8;
+
+		public bool IsRFC3964 =>
+			IsIPv6 && (addr[0] == 0x20 && addr[1] == 0x02);
+
+		readonly static byte[] pchRFC6052 = new byte[] { 0, 0x64, 0xFF, 0x9B, 0, 0, 0, 0, 0, 0, 0, 0 };
+		public bool IsRFC6052 =>
+			IsIPv6 && ((Utils.ArrayEqual(addr, 0, pchRFC6052, 0, pchRFC6052.Length) ? 0 : 1) == 0);
+
+		public bool IsRFC4380 =>
+			IsIPv6 && (addr[0] == 0x20 && addr[1] == 0x01 && addr[2] == 0 && addr[3] == 0);
+
+		readonly static byte[] pchRFC4862 = new byte[] { 0xFE, 0x80, 0, 0, 0, 0, 0, 0 };
+		public bool IsRFC4862 =>
+			IsIPv6 && ((Utils.ArrayEqual(addr, 0, pchRFC4862, 0, pchRFC4862.Length) ? 0 : 1) == 0);
+
+		public bool IsRFC4193 =>
+			IsIPv6 && ((addr[0] & 0xFE) == 0xFC);
+
+		readonly static byte[] pchRFC6145 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF, 0, 0 };
+		public bool IsRFC6145 =>
+			IsIPv6 && ((Utils.ArrayEqual(addr, 0, pchRFC6145, 0, pchRFC6145.Length) ? 0 : 1) == 0);
+
+		public bool IsRFC4843 =>
+			IsIPv6 && (addr[0] == 0x20 && addr[1] == 0x01 && addr[2] == 0x00 && (addr[3] & 0xF0) == 0x10);
+
+
+/*
+		static readonly byte[] pchOnionCat = new byte[] { 0xFD, 0x87, 0xD8, 0x7E, 0xEB, 0x43 };
+		public static bool IsTor(this IPAddress address)
+		{
+			var bytes = address.GetAddressBytes();
+			return ((Utils.ArrayEqual(bytes, 0, pchOnionCat, 0, pchOnionCat.Length) ? 0 : 1) == 0);
+		}
+		public static bool IsTor(this EndPoint endpoint)
+		{
+			if (endpoint == null)
+				throw new ArgumentNullException(nameof(endpoint));
+			if (endpoint is IPEndPoint ip)
+				return ip.IsTor();
+			else if (endpoint is DnsEndPoint dns)
+				return dns.IsTor();
+			else
+				return false;
+		}
+		public static bool IsTor(this DnsEndPoint dnsEndPoint)
+		{
+			if (dnsEndPoint == null)
+				throw new ArgumentNullException(nameof(dnsEndPoint));
+			return dnsEndPoint.Host.EndsWith(".onion", StringComparison.OrdinalIgnoreCase);
+		}
+		public static bool IsTor(this IPEndPoint iPEndPoint)
+		{
+			if (iPEndPoint == null)
+				throw new ArgumentNullException(nameof(iPEndPoint));
+			return iPEndPoint.Address.IsTor();
+		}
+*/
 
 		ulong service = 1;
 		byte[] addr = new byte[16];
@@ -197,6 +291,7 @@ namespace NBitcoin.Protocol
 				if (ipBytes.Length == 16)
 				{
 					addr = ipBytes;
+					network = (byte)BIP155Network.IPV6;
 				}
 				else if (ipBytes.Length == 4)
 				{
@@ -205,6 +300,7 @@ namespace NBitcoin.Protocol
 					addr = new byte[16];
 					Array.Copy(ipBytes, 0, addr, 12, 4);
 					Array.Copy(new byte[] { 0xFF, 0xFF }, 0, addr, 10, 2);
+					network = (byte)BIP155Network.IPV4;
 				}
 				else
 					throw new NotSupportedException("Invalid IP address type");
@@ -296,6 +392,118 @@ namespace NBitcoin.Protocol
 		public byte[] GetAddressBytes() =>
 			IsAddrV1Compatible ? SerializeV1Array() : addr;
 
+		static readonly byte[] ipNone = new byte[16];
+		static readonly byte[] inadddr_none = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
+		static readonly byte[] inadddr_any = new byte[4];
+
+		public bool IsValid 
+		{
+			get
+			{
+				// unspecified IPv6 address (::/128)
+				if (IsIPv6 && (Utils.ArrayEqual(addr, 0, ipNone, 0, 16) ? 0 : 1) == 0)
+				{
+					return false;
+				}
+
+				// documentation IPv6 address
+				if (IsRFC3849)
+				{
+					return false;
+				}
+
+				if (IsIPv4)
+				{
+					//// INADDR_NONE
+					if (Utils.ArrayEqual(addr, inadddr_none))
+						return false;
+
+					//// INADDR_ANY
+					if (Utils.ArrayEqual(addr, inadddr_any))
+						return false;
+				}
+
+				return true;
+			}
+		}
+
+		public bool IsRoutable( bool allowLocal) =>
+			IsValid && !(
+				(!allowLocal && IsRFC1918) || IsRFC3927 || IsRFC4862 ||	(IsRFC4193 && !IsOnion) || IsRFC4843 || (!allowLocal && IsLocal));
+
+		public byte[] GetGroup()
+		{
+			List<byte> vchRet = new List<byte>();
+			int nClass = 2;
+			int nStartByte = 0;
+			int nBits = 16;
+
+			// all local addresses belong to the same group
+			if (IsLocal)
+			{
+				nClass = 255;
+				nBits = 0;
+			}
+
+			// all unroutable addresses belong to the same group
+			if (!IsRoutable(true))
+			{
+				nClass = 0;
+				nBits = 0;
+			}
+			// for IPv4 addresses, '1' + the 16 higher-order bits of the IP
+			// includes mapped IPv4, SIIT translated IPv4, and the well-known prefix
+			else if (IsIPv4 || IsRFC6145 || IsRFC6052)
+			{
+				nClass = 1;
+				nStartByte = 12;
+			}
+			// for 6to4 tunnelled addresses, use the encapsulated IPv4 address
+			else if (IsRFC3964)
+			{
+				nClass = 1;
+				nStartByte = 2;
+			}
+			// for Teredo-tunnelled IPv6 addresses, use the encapsulated IPv4 address
+
+			else if (IsRFC4380)
+			{
+				vchRet.Add(1);
+				vchRet.Add((byte)(addr[12] ^ 0xFF));
+				vchRet.Add((byte)(addr[13] ^ 0xFF));
+				return vchRet.ToArray();
+			}
+			else if (IsOnion)
+			{
+				nClass = 3;
+				nStartByte = 6;
+				nBits = 4;
+			}
+			// for he.net, use /36 groups
+			else if (addr[0] == 0x20 && addr[1] == 0x01 && addr[2] == 0x04 && addr[3] == 0x70)
+			{
+				nBits = 36;
+			}
+			// for the rest of the IPv6 network, use /32 groups
+			else
+			{
+				nBits = 32;
+			}
+
+			vchRet.Add((byte)nClass);
+			while (nBits >= 8)
+			{
+				vchRet.Add(addr[nStartByte]);
+				nStartByte++;
+				nBits -= 8;
+			}
+			if (nBits > 0)
+			{
+				vchRet.Add((byte)(addr[nStartByte] | ((1 << nBits) - 1)));
+			}
+			return vchRet.ToArray();
+		}
+
         public override string ToString()
         {
 			switch ((BIP155Network)network)
@@ -325,6 +533,22 @@ namespace NBitcoin.Protocol
 			vKey[buffer.Length - 2] = (byte)(port / 0x100);
 			vKey[buffer.Length - 1] = (byte)(port & 0x0FF);
 			return vKey;
+		}
+
+		internal byte[] EnsureIPv6()
+		{
+			if (IsIPv6 || IsTORv2)
+			{
+				return addr;
+			}
+			else if (IsIPv4)
+			{
+				return new byte[16] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF, addr[0], addr[1], addr[2], addr[3] };
+			}
+			else
+			{
+				throw new Exception("Only IP addresses can be converted to IPv6");
+			}
 		}
 	}
 }

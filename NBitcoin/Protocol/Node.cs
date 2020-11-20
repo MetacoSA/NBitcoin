@@ -588,7 +588,7 @@ namespace NBitcoin.Protocol
 						parameters.ConnectCancellation.WaitHandle.WaitOne(1000);
 						break;
 					}
-					if (!addr.Endpoint.Address.IsValid())
+					if (!addr.IsValid)
 						continue;
 					var groupExist = connectedEndpoints.Any(a => getGroup(a).SequenceEqual(getGroup(addr.Endpoint)));
 					if (groupExist)
