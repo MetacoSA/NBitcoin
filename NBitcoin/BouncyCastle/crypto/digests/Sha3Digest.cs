@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics;
-
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Crypto.Digests
 {

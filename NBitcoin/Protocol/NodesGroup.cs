@@ -13,12 +13,12 @@ namespace NBitcoin.Protocol
 	public class WellKnownGroupSelectors
 	{
 		static Random _Rand = new Random();
-		static Func<IPEndPoint, byte[]> _GroupByRandom;
-		public static Func<IPEndPoint, byte[]> ByRandom
+		static Func<NetworkAddress, byte[]> _GroupByRandom;
+		public static Func<NetworkAddress, byte[]> ByRandom
 		{
 			get
 			{
-				return _GroupByRandom = _GroupByRandom ?? new Func<IPEndPoint, byte[]>((ip) =>
+				return _GroupByRandom = _GroupByRandom ?? new Func<NetworkAddress, byte[]>((ip) =>
 				{
 
 					var group = new byte[20];
@@ -29,43 +29,38 @@ namespace NBitcoin.Protocol
 		}
 
 
-		static Func<IPEndPoint, byte[]> _GroupByIp;
-		public static Func<IPEndPoint, byte[]> ByIp
+		static Func<NetworkAddress, byte[]> _GroupByIp;
+		public static Func<NetworkAddress, byte[]> ByIp
 		{
 			get
 			{
-				return _GroupByIp = _GroupByIp ?? new Func<IPEndPoint, byte[]>((ip) =>
+				return _GroupByIp = _GroupByIp ?? new Func<NetworkAddress, byte[]>((address) =>
 				{
-					return ip.Address.GetAddressBytes();
+					return address.GetAddressBytes();
 				});
 			}
 		}
 
-		static Func<IPEndPoint, byte[]> _GroupByEndpoint;
-		public static Func<IPEndPoint, byte[]> ByEndpoint
+		static Func<NetworkAddress, byte[]> _GroupByEndpoint;
+		public static Func<NetworkAddress, byte[]> ByEndpoint
 		{
 			get
 			{
-				return _GroupByEndpoint = _GroupByEndpoint ?? new Func<IPEndPoint, byte[]>((endpoint) =>
+				return _GroupByEndpoint = _GroupByEndpoint ?? new Func<NetworkAddress, byte[]>((address) =>
 				{
-					var bytes = endpoint.Address.GetAddressBytes();
-					var port = Utils.ToBytes((uint)endpoint.Port, true);
-					var result = new byte[bytes.Length + port.Length];
-					Array.Copy(bytes, result, bytes.Length);
-					Array.Copy(port, 0, result, bytes.Length, port.Length);
-					return result;
+					return address.GetAddressBytes();
 				});
 			}
 		}
 
-		static Func<IPEndPoint, byte[]> _GroupByNetwork;
-		public static Func<IPEndPoint, byte[]> ByNetwork
+		static Func<NetworkAddress, byte[]> _GroupByNetwork;
+		public static Func<NetworkAddress, byte[]> ByNetwork
 		{
 			get
 			{
-				return _GroupByNetwork = _GroupByNetwork ?? new Func<IPEndPoint, byte[]>((ip) =>
+				return _GroupByNetwork = _GroupByNetwork ?? new Func<NetworkAddress, byte[]>((address) =>
 				{
-					return IpExtensions.GetGroup(ip.Address);
+					return address.GetGroup();
 				});
 			}
 		}
@@ -162,7 +157,9 @@ namespace NBitcoin.Protocol
 							{
 								var groupSelector = CustomGroupSelector != null ? CustomGroupSelector :
 									AllowSameGroup ? WellKnownGroupSelectors.ByRandom : null;
-								node = Node.Connect(_Network, parameters, _ConnectedNodes.Select(n => n.RemoteSocketEndpoint as IPEndPoint).Where(e => e != null).ToArray(), groupSelector);
+
+								var connectedPeers = _ConnectedNodes.Select(n => n.Peer).Where(e => e != null).ToArray();
+								node = Node.ConnectNode(_Network, parameters, connectedPeers, groupSelector);
 								using (var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token))
 								{
 									timeout.CancelAfter(5000);
@@ -272,7 +269,7 @@ namespace NBitcoin.Protocol
 		/// How to calculate a group of an ip, by default using NBitcoin.IpExtensions.GetGroup.
 		/// Overrides AllowSameGroup.
 		/// </summary>
-		public Func<IPEndPoint, byte[]> CustomGroupSelector
+		public Func<NetworkAddress, byte[]> CustomGroupSelector
 		{
 			get; set;
 		}

@@ -48,7 +48,16 @@ namespace NBitcoin.Protocol
 			public void ReadWrite(BitcoinStream stream)
 			{
 				stream.ReadWrite(ref _Address);
-				stream.ReadWrite(ref sourceAddress);
+
+				var useV2Format = stream.ProtocolVersion is {} protcocolVersion && (protcocolVersion &  NetworkAddress.AddrV2Format) != 0;
+				if (useV2Format)
+				{
+					stream.ReadWrite(ref sourceAddress);
+				}
+				else
+				{
+					stream.ReadWrite(ref source);
+				}
 				stream.ReadWrite(ref nLastSuccess);
 				stream.ReadWrite(ref nAttempts);
 
@@ -349,7 +358,7 @@ namespace NBitcoin.Protocol
 			addrman.ReadWrite(stream);
 			return addrman;
 		}
-		public void SavePeerFile(string filePath, Network network)
+		public void SavePeerFile(string filePath, Network network, uint? version = null)
 		{
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
@@ -359,6 +368,7 @@ namespace NBitcoin.Protocol
 			MemoryStream ms = new MemoryStream();
 			BitcoinStream stream = new BitcoinStream(ms, true);
 			stream.Type = SerializationType.Disk;
+			stream.ProtocolVersion = version;
 			stream.ReadWrite(network.Magic);
 			stream.ReadWrite(this);
 			var hash = Hashes.DoubleSHA256(ms.ToArray());
@@ -590,7 +600,7 @@ namespace NBitcoin.Protocol
 		//! Add a single address.
 		public bool Add(NetworkAddress addr, IPAddress source)
 		{
-			return Add(addr, source, TimeSpan.Zero);
+			return Add(addr, new NetworkAddress(source), TimeSpan.Zero);
 		}
 
 		object cs = new object();

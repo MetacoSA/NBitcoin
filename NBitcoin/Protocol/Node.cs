@@ -553,14 +553,49 @@ namespace NBitcoin.Protocol
 		/// Connect to a random node on the network
 		/// </summary>
 		/// <param name="network">The network to connect to</param>
+		/// <param name="addrman">The addrman used for finding peers</param>
+		/// <param name="parameters">The parameters used by the found node</param>
+		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
+		/// <returns></returns>
+		public static Node ConnectNode(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, NetworkAddress[] connectedEndpoints = null)
+		{
+			parameters = parameters ?? new NodeConnectionParameters();
+			AddressManagerBehavior.SetAddrman(parameters, addrman);
+			return ConnectNode(network, parameters, connectedEndpoints);
+		}
+
+		/// <summary>
+		/// Connect to a random node on the network
+		/// </summary>
+		/// <param name="network">The network to connect to</param>
 		/// <param name="parameters">The parameters used by the found node, use AddressManagerBehavior.GetAddrman for finding peers</param>
 		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
 		/// <param name="getGroup">Group selector, by default NBicoin.IpExtensions.GetGroup</param>
 		/// <returns></returns>
 		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null, Func<IPEndPoint, byte[]> getGroup = null)
 		{
-			getGroup = getGroup ?? new Func<IPEndPoint, byte[]>((a) => IpExtensions.GetGroup(a.Address));
-			connectedEndpoints = connectedEndpoints ?? new IPEndPoint[0];
+			connectedEndpoints ??= new IPEndPoint[0];
+			var connectedNetworkAddresses = connectedEndpoints.Select(x => new NetworkAddress(x)).ToArray();  
+
+			getGroup ??= new Func<IPEndPoint, byte[]>(a => new NetworkAddress(a).GetGroup());
+
+			var getNetworkAddressGroup = new Func<NetworkAddress, byte[]>(a => getGroup(a.Endpoint));
+
+			return ConnectNode(network, parameters, connectedNetworkAddresses, getNetworkAddressGroup);
+		}
+
+		/// <summary>
+		/// Connect to a random node on the network
+		/// </summary>
+		/// <param name="network">The network to connect to</param>
+		/// <param name="parameters">The parameters used by the found node, use AddressManagerBehavior.GetAddrman for finding peers</param>
+		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
+		/// <param name="getGroup">Group selector, by default NBicoin.IpExtensions.GetGroup</param>
+		/// <returns></returns>
+		public static Node ConnectNode(Network network, NodeConnectionParameters parameters = null, NetworkAddress[] connectedEndpoints = null, Func<NetworkAddress, byte[]> getGroup = null)
+		{
+			getGroup ??= new Func<NetworkAddress, byte[]>(a => a.GetGroup());
+			connectedEndpoints ??= new NetworkAddress[0];
 			parameters = parameters ?? new NodeConnectionParameters();
 			var addrmanBehavior = parameters.TemplateBehaviors.FindOrCreate(() => new AddressManagerBehavior(new AddressManager()));
 			var addrman = AddressManagerBehavior.GetAddrman(parameters);
@@ -590,7 +625,7 @@ namespace NBitcoin.Protocol
 					}
 					if (!addr.IsValid)
 						continue;
-					var groupExist = connectedEndpoints.Any(a => getGroup(a).SequenceEqual(getGroup(addr.Endpoint)));
+					var groupExist = connectedEndpoints.Any(a => getGroup(a).SequenceEqual(getGroup(addr)));
 					if (groupExist)
 					{
 						groupFail++;

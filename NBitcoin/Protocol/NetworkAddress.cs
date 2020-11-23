@@ -12,7 +12,7 @@ namespace NBitcoin.Protocol
 {	
 	public class NetworkAddress : IBitcoinSerializable
 	{
-		static readonly uint AddrV2Format = 0x20000000;
+		public static readonly uint AddrV2Format = 0x20000000;
 
 		public enum BIP155Network : byte
 		{
@@ -24,23 +24,37 @@ namespace NBitcoin.Protocol
 			Cjdns, // 0x06 len: 16 bytes - Cjdns overlay network address
 		}
 
-		private static int GetSize(BIP155Network network)
-		{
-			return network switch 
-			{
-				BIP155Network.IPV4  =>  4,
-				BIP155Network.IPV6  => 16,
-				BIP155Network.TorV2 => 10,
-				BIP155Network.TorV3 => 32,
-				BIP155Network.I2P   => 32,
-				BIP155Network.Cjdns => 16,
-				_ => throw new ArgumentOutOfRangeException(nameof(network))
-			};
-		}
+		/// Size of IPv4 address (in bytes).
+		static readonly int ADDR_IPV4_SIZE = 4;
+
+		/// Size of IPv6 address (in bytes).
+		static readonly int ADDR_IPV6_SIZE = 16;
+
+		/// Size of TORv2 address (in bytes).
+		static readonly int ADDR_TORV2_SIZE = 10;
+
+		/// Size of TORv3 address (in bytes). This is the length of just the address
+		/// as used in BIP155, without the checksum and the version byte.
+		static readonly int ADDR_TORV3_SIZE = 32;
+
+		/// Size of I2P address (in bytes).
+		static readonly int ADDR_I2P_SIZE = 32;
+
+		/// Size of CJDNS address (in bytes).
+		static readonly int ADDR_CJDNS_SIZE = 16;
+
+		/// Size of "internal" (NET_INTERNAL) address (in bytes).
+		static readonly int ADDR_INTERNAL_SIZE = 10;
+
+		/// Size of the TORv3 address checksum (in bytes)
+		static readonly int TORV3_ADDR_CHECKSUM_LEN = 2;
+
+		/// Size of the TORv3 address version number (in bytes)
+		static readonly int TORV3_ADDR_VERSION_LEN = 1;
 
 		/// Prefix of an IPv6 address when it contains an embedded IPv4 address.
 		/// Used when (un)serializing addresses in ADDRv1 format (pre-BIP155).
-		static byte[] IPV4_IN_IPV6_PREFIX = new byte[]{
+		static readonly byte[] IPV4_IN_IPV6_PREFIX = new byte[]{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF
 		};
 
@@ -48,7 +62,7 @@ namespace NBitcoin.Protocol
 		/// Used when (un)serializing addresses in ADDRv1 format (pre-BIP155).
 		/// Such dummy IPv6 addresses are guaranteed to not be publicly routable as they
 		/// fall under RFC4193's fc00::/7 subnet allocated to unique-local addresses.
-		static byte[] TORV2_IN_IPV6_PREFIX = new byte[]{
+		static readonly byte[] TORV2_IN_IPV6_PREFIX = new byte[]{
 			0xFD, 0x87, 0xD8, 0x7E, 0xEB, 0x43
 		};
 
@@ -57,9 +71,21 @@ namespace NBitcoin.Protocol
 		/// The prefix comes from 0xFD + SHA256("bitcoin")[0:5].
 		/// Such dummy IPv6 addresses are guaranteed to not be publicly routable as they
 		/// fall under RFC4193's fc00::/7 subnet allocated to unique-local addresses.
-		static byte[] INTERNAL_IN_IPV6_PREFIX = new byte[]{
+		static readonly byte[] INTERNAL_IN_IPV6_PREFIX = new byte[]{
 			0xFD, 0x6B, 0x88, 0xC0, 0x87, 0x24 // 0xFD + sha256("bitcoin")[0:5].
 		};
+
+        /**
+         * Maximum size of an address as defined in BIP155 (in bytes).
+         * This is only the size of the address, not the entire CNetAddr object
+         * when serialized.
+         */
+        static readonly int MAX_ADDRV2_SIZE = 512;
+
+		static readonly byte[] IPV6_NONE = new byte[ADDR_IPV6_SIZE];
+		static readonly byte[] IPV4_NONE = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
+		static readonly byte[] IPV4_ANY = new byte[ADDR_IPV4_SIZE];
+
 
 		public NetworkAddress()
 		{
@@ -179,8 +205,42 @@ namespace NBitcoin.Protocol
 */
 
 		ulong service = 1;
-		byte[] addr = new byte[16];
+		byte[] addr = new byte[ADDR_IPV6_SIZE];
 		ushort port;
+
+		public void SetLegacyIpv6(byte[] ipv6)
+		{
+			if (ipv6.Length != ADDR_IPV6_SIZE)
+			{
+				throw new ArgumentException("The received value is not a valid IPv6 byte array.", nameof(ipv6));
+			}
+
+			var skip = 0;
+			if (HasPrefix(ipv6, IPV4_IN_IPV6_PREFIX))
+			{
+				network = (byte)BIP155Network.IPV4;
+				skip = IPV4_IN_IPV6_PREFIX.Length;
+			}
+			else if(HasPrefix(ipv6, TORV2_IN_IPV6_PREFIX))
+			{
+				// TORv2-in-IPv6
+				network = (byte)BIP155Network.TorV2;
+				skip = TORV2_IN_IPV6_PREFIX.Length;
+			} 
+			else if (HasPrefix(ipv6, INTERNAL_IN_IPV6_PREFIX))
+			{
+				// Internal-in-IPv6
+				//network = NET_INTERNAL;
+				skip = INTERNAL_IN_IPV6_PREFIX.Length;
+			} 
+			else
+			{
+				// IPv6
+				network = (byte)BIP155Network.IPV6;
+    		}	
+
+			addr = ipv6;
+		}
 
 		public bool SetSpecial(string address)
 		{
@@ -199,23 +259,23 @@ namespace NBitcoin.Protocol
 				return false;
 			}
 
-			if (bytes.Length == GetSize(BIP155Network.TorV2))
+			if (bytes.Length == ADDR_TORV2_SIZE)
 			{
 				network = (byte)BIP155Network.TorV2;
 				addr = bytes;
 				return true;
 			}
-			else if(bytes.Length == GetSize(BIP155Network.TorV3) + 3)
+			else if(bytes.Length == ADDR_TORV3_SIZE  + TORV3_ADDR_CHECKSUM_LEN + TORV3_ADDR_VERSION_LEN)
 			{
-				var version = bytes[34];
+				var version = bytes[bytes.Length - 1];
 
 				if (version != 3)
 				{
 					return false;
 				}
 
-				var pubkey = bytes.SafeSubarray( 0, 32);
-				var chksum = bytes.SafeSubarray(32,  2);
+				var pubkey = bytes.SafeSubarray( 0, ADDR_TORV3_SIZE);
+				var chksum = bytes.SafeSubarray(ADDR_TORV3_SIZE,  TORV3_ADDR_CHECKSUM_LEN);
 
 				var calculatedChecksum = CalculateChecksum(pubkey);
 
@@ -242,9 +302,9 @@ namespace NBitcoin.Protocol
 			hasher.BlockUpdate(pubkey, 0, pubkey.Length);
 			hasher.BlockUpdate(new byte[]{3}, 0, 1);
 
-			var fullChecksum = new byte[32];
+			var fullChecksum = new byte[hasher.GetByteLength()];
 			var size = hasher.DoFinal(fullChecksum, 0);
-			return fullChecksum.SafeSubarray(0,2);
+			return fullChecksum.SafeSubarray(0, TORV3_ADDR_CHECKSUM_LEN);
 		}
 
 		public ulong Service
@@ -288,18 +348,18 @@ namespace NBitcoin.Protocol
 			{
 				port = (ushort)value.Port;
 				var ipBytes = value.Address.GetAddressBytes();
-				if (ipBytes.Length == 16)
+				if (ipBytes.Length == ADDR_IPV6_SIZE)
 				{
 					addr = ipBytes;
 					network = (byte)BIP155Network.IPV6;
 				}
-				else if (ipBytes.Length == 4)
+				else if (ipBytes.Length == ADDR_IPV4_SIZE)
 				{
 					//Convert to ipv4 mapped to ipv6
 					//In these addresses, the first 80 bits are zero, the next 16 bits are one, and the remaining 32 bits are the IPv4 address
-					addr = new byte[16];
-					Array.Copy(ipBytes, 0, addr, 12, 4);
-					Array.Copy(new byte[] { 0xFF, 0xFF }, 0, addr, 10, 2);
+					addr = new byte[ADDR_IPV6_SIZE];
+					Array.Copy(ipBytes, 0, addr, ADDR_IPV6_SIZE - ADDR_IPV4_SIZE, ADDR_IPV4_SIZE);
+					Array.Copy(new byte[] { 0xFF, 0xFF }, 0, addr, ADDR_IPV6_SIZE - ADDR_IPV4_SIZE - 2, 2);
 					network = (byte)BIP155Network.IPV4;
 				}
 				else
@@ -327,11 +387,12 @@ namespace NBitcoin.Protocol
 			{
 				stream.ReadWrite(ref version);
 			}
+			var useV2Format = stream.ProtocolVersion is {} protcocolVersion && (protcocolVersion & AddrV2Format) != 0;
 			if (
 				stream.Type == SerializationType.Disk ||
 				(stream.ProtocolCapabilities.SupportTimeAddress && stream.Type != SerializationType.Hash))
 			{
-				if ((version & AddrV2Format) != 0)
+				if (useV2Format)
 				{
 					stream.ReadWriteAsVarInt(ref ntime);
 				}
@@ -341,16 +402,25 @@ namespace NBitcoin.Protocol
 				}
 			}
 
-			if ((version & AddrV2Format) != 0)
+			if (useV2Format)
 			{
 				stream.ReadWriteAsVarInt(ref service);
 				stream.ReadWrite(ref network);
-				stream.ReadWrite(ref addr);
+				stream.ReadWriteAsVarString(ref addr);
 			}
 			else
 			{
 				stream.ReadWrite(ref service);
-				stream.ReadWrite(ref addr);
+				if (stream.Serializing)
+				{
+					stream.ReadWrite(ref addr);
+				}
+				else
+				{
+					var localAddr = new byte[ADDR_IPV6_SIZE];
+					stream.ReadWrite(ref localAddr);
+					SetLegacyIpv6(localAddr);
+				}
 			}
 			using (stream.BigEndianScope())
 			{
@@ -368,9 +438,9 @@ namespace NBitcoin.Protocol
 				BIP155Network.IPV6  => addr,
 				BIP155Network.IPV4  => IPV4_IN_IPV6_PREFIX.Concat(addr),
 				BIP155Network.TorV2 => TORV2_IN_IPV6_PREFIX.Concat(addr),
-				BIP155Network.TorV3 => new byte[GetSize(BIP155Network.IPV6)],
-				BIP155Network.I2P   => new byte[GetSize(BIP155Network.IPV6)],
-				BIP155Network.Cjdns => new byte[GetSize(BIP155Network.IPV6)],
+				BIP155Network.TorV3 => new byte[ADDR_TORV3_SIZE],
+				BIP155Network.I2P   => new byte[ADDR_I2P_SIZE],
+				BIP155Network.Cjdns => new byte[ADDR_CJDNS_SIZE],
 			}).ToArray();
 
 		public void ZeroTime()
@@ -386,22 +456,19 @@ namespace NBitcoin.Protocol
 				BIP155Network.TorV2 => true,
 				BIP155Network.TorV3 => false,
 				BIP155Network.I2P => false,
-				BIP155Network.Cjdns => false
+				BIP155Network.Cjdns => false,
+				_ => throw new InvalidOperationException("Unknown Address network.")
 			};
 
 		public byte[] GetAddressBytes() =>
 			IsAddrV1Compatible ? SerializeV1Array() : addr;
-
-		static readonly byte[] ipNone = new byte[16];
-		static readonly byte[] inadddr_none = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
-		static readonly byte[] inadddr_any = new byte[4];
 
 		public bool IsValid 
 		{
 			get
 			{
 				// unspecified IPv6 address (::/128)
-				if (IsIPv6 && (Utils.ArrayEqual(addr, 0, ipNone, 0, 16) ? 0 : 1) == 0)
+				if (IsIPv6 && !Utils.ArrayEqual(addr, 0, IPV6_NONE, 0, 16))
 				{
 					return false;
 				}
@@ -415,11 +482,11 @@ namespace NBitcoin.Protocol
 				if (IsIPv4)
 				{
 					//// INADDR_NONE
-					if (Utils.ArrayEqual(addr, inadddr_none))
+					if (Utils.ArrayEqual(addr, IPV4_NONE))
 						return false;
 
 					//// INADDR_ANY
-					if (Utils.ArrayEqual(addr, inadddr_any))
+					if (Utils.ArrayEqual(addr, IPV4_ANY))
 						return false;
 				}
 
@@ -550,6 +617,9 @@ namespace NBitcoin.Protocol
 				throw new Exception("Only IP addresses can be converted to IPv6");
 			}
 		}
+
+		private bool HasPrefix(byte[] arr, byte[] prefix) =>
+			Utils.ArrayEqual(arr, 0, prefix, 0, prefix.Length);
 	}
 }
 #endif
