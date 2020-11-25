@@ -150,7 +150,7 @@ namespace NBitcoin.Protocol.Behaviors
 				var addr = message.Message.Payload as AddrPayload;
 				if (addr != null)
 				{
-					AddressManager.Add(addr.Addresses, node.RemoteSocketAddress);
+					AddressManager.Add(addr.Addresses, new NetworkAddress(node.RemoteSocketAddress));
 				}
 			}
 		}

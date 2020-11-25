@@ -301,7 +301,7 @@ namespace NBitcoin.Protocol
 						remoteEndpoint = new IPEndPoint(((IPEndPoint)message.Socket.RemoteEndPoint).Address, Network.DefaultPort);
 					}
 
-					var peer = new NetworkAddress()
+					var peer = new Address()
 					{
 						Endpoint = remoteEndpoint,
 						Time = DateTimeOffset.UtcNow

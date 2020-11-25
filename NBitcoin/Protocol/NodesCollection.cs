@@ -137,7 +137,7 @@ namespace NBitcoin.Protocol
 
 		public Node FindByIp(IPAddress ip)
 		{
-			ip = ip.EnsureIPv6();
+			//ip = ip.EnsureIPv6();
 			return _Nodes.Where(n => Match(ip, null, n.Key)).Select(s => s.Key).FirstOrDefault();
 		}
 

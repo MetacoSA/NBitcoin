@@ -557,7 +557,7 @@ namespace NBitcoin.Protocol
 		/// <param name="parameters">The parameters used by the found node</param>
 		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
 		/// <returns></returns>
-		public static Node ConnectNode(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, NetworkAddress[] connectedEndpoints = null)
+		public static Node ConnectNode(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, Address[] connectedEndpoints = null)
 		{
 			parameters = parameters ?? new NodeConnectionParameters();
 			AddressManagerBehavior.SetAddrman(parameters, addrman);
@@ -575,11 +575,11 @@ namespace NBitcoin.Protocol
 		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null, Func<IPEndPoint, byte[]> getGroup = null)
 		{
 			connectedEndpoints ??= new IPEndPoint[0];
-			var connectedNetworkAddresses = connectedEndpoints.Select(x => new NetworkAddress(x)).ToArray();  
+			var connectedNetworkAddresses = connectedEndpoints.Select(x => new Address(x)).ToArray();  
 
-			getGroup ??= new Func<IPEndPoint, byte[]>(a => new NetworkAddress(a).GetGroup());
+			getGroup ??= new Func<IPEndPoint, byte[]>(a => new Address(a).GetGroup());
 
-			var getNetworkAddressGroup = new Func<NetworkAddress, byte[]>(a => getGroup(a.Endpoint));
+			var getNetworkAddressGroup = new Func<Address, byte[]>(a => getGroup(a.Endpoint));
 
 			return ConnectNode(network, parameters, connectedNetworkAddresses, getNetworkAddressGroup);
 		}
@@ -592,10 +592,10 @@ namespace NBitcoin.Protocol
 		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
 		/// <param name="getGroup">Group selector, by default NBicoin.IpExtensions.GetGroup</param>
 		/// <returns></returns>
-		public static Node ConnectNode(Network network, NodeConnectionParameters parameters = null, NetworkAddress[] connectedEndpoints = null, Func<NetworkAddress, byte[]> getGroup = null)
+		public static Node ConnectNode(Network network, NodeConnectionParameters parameters = null, Address[] connectedEndpoints = null, Func<Address, byte[]> getGroup = null)
 		{
-			getGroup ??= new Func<NetworkAddress, byte[]>(a => a.GetGroup());
-			connectedEndpoints ??= new NetworkAddress[0];
+			getGroup ??= new Func<Address, byte[]>(a => a.GetGroup());
+			connectedEndpoints ??= new Address[0];
 			parameters = parameters ?? new NodeConnectionParameters();
 			var addrmanBehavior = parameters.TemplateBehaviors.FindOrCreate(() => new AddressManagerBehavior(new AddressManager()));
 			var addrman = AddressManagerBehavior.GetAddrman(parameters);
@@ -608,7 +608,7 @@ namespace NBitcoin.Protocol
 					addrmanBehavior.DiscoverPeers(network, parameters);
 					start = DateTimeOffset.UtcNow;
 				}
-				NetworkAddress addr = null;
+				Address addr = null;
 				int groupFail = 0;
 				while (true)
 				{
@@ -699,7 +699,7 @@ namespace NBitcoin.Protocol
 		}
 
 		public static Node Connect(Network network,
-							 NetworkAddress endpoint,
+							 Service endpoint,
 							 NodeConnectionParameters parameters)
 		{
 			return ConnectAsync(network, endpoint?.Endpoint, endpoint, parameters).GetAwaiter().GetResult();
@@ -723,7 +723,7 @@ namespace NBitcoin.Protocol
 			return ConnectAsync(network, Utils.ParseEndpoint(endpoint, network.DefaultPort), null, parameters);
 		}
 
-		public static async Task<Node> ConnectAsync(Network network, EndPoint endpoint, NetworkAddress peer, NodeConnectionParameters parameters)
+		public static async Task<Node> ConnectAsync(Network network, EndPoint endpoint, Service peer, NodeConnectionParameters parameters)
 		{
 			if (endpoint is null && peer is null)
 				throw new ArgumentNullException(nameof(endpoint));
@@ -748,12 +748,7 @@ namespace NBitcoin.Protocol
 				var expectedPeerEndpoint = (endpoint as IPEndPoint) ?? endpoint.AsOnionCatIPEndpoint() ?? (socket.RemoteEndPoint as IPEndPoint);
 				if (peer is null)
 				{
-					peer = new NetworkAddress()
-					{
-						Time = DateTimeOffset.UtcNow,
-						Endpoint = expectedPeerEndpoint
-					};
-					peer.Endpoint = expectedPeerEndpoint;
+					peer = new Service(expectedPeerEndpoint);
 				}
 				else if (!expectedPeerEndpoint.MapToIPv6Ex().Equals(peer.Endpoint))
 				{
@@ -778,7 +773,7 @@ namespace NBitcoin.Protocol
 			}
 
 			var destinationEndpoint = endpoint.AsOnionCatIPEndpoint() ?? ((IPEndPoint)socket.RemoteEndPoint);
-			Node node = new Node(peer, network, parameters, socket, null);
+			Node node = new Node(new Address(peer), network, parameters, socket, null);
 			return node;
 		}
 
@@ -803,9 +798,9 @@ namespace NBitcoin.Protocol
 			ProtocolCapabilities = Network.Consensus.ConsensusFactory.GetProtocolCapabilities(version);
 		}
 
-		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters, Socket socket, VersionPayload peerVersion)
+		internal Node(Address peer, Network network, NodeConnectionParameters parameters, Socket socket, VersionPayload peerVersion)
 		{
-			_RemoteSocketAddress = peer.Endpoint.Address;
+			_RemoteSocketAddress = peer.Endpoint.Address.EnsureIPv6();
 			_RemoteSocketEndpoint = peer.Endpoint;
 			_RemoteSocketPort = peer.Endpoint.Port;
 			_Peer = peer;
@@ -885,8 +880,8 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		private readonly NetworkAddress _Peer;
-		public NetworkAddress Peer
+		private readonly Address _Peer;
+		public Address Peer
 		{
 			get
 			{
@@ -1092,7 +1087,7 @@ namespace NBitcoin.Protocol
 				State = NodeState.HandShaked;
 				if (Advertize && MyVersion.AddressFrom.Address.IsRoutable(true))
 				{
-					SendMessageAsync(new AddrPayload(new NetworkAddress(MyVersion.AddressFrom)
+					SendMessageAsync(new AddrPayload(new Address(MyVersion.AddressFrom)
 					{
 						Time = DateTimeOffset.UtcNow
 					}));

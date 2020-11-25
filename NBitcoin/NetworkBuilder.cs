@@ -24,7 +24,7 @@ namespace NBitcoin
 		internal Consensus _Consensus;
 #if !NOSOCKET
 		internal List<DNSSeedData> vSeeds = new List<DNSSeedData>();
-		internal List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
+		internal List<Service> vFixedSeeds = new List<Service>();
 #endif
 		internal byte[] _Genesis;
 		internal uint? _MaxP2PVersion;
@@ -108,7 +108,7 @@ namespace NBitcoin
 			vSeeds.AddRange(seeds);
 			return this;
 		}
-		public NetworkBuilder AddSeeds(IEnumerable<NetworkAddress> seeds)
+		public NetworkBuilder AddSeeds(IEnumerable<Service> seeds)
 		{
 			vFixedSeeds.AddRange(seeds);
 			return this;

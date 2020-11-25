@@ -45,7 +45,7 @@ namespace NBitcoin.Tests
 		{
 			AddressManager addrman = new AddressManager();
 			addrman.DebugMode = true;
-			var localhost = new NetworkAddress(IPAddress.Parse("127.0.0.1"), 8333);
+			var localhost = new Address(IPAddress.Parse("127.0.0.1"), 8333);
 			addrman.Add(localhost, localhost.Endpoint.Address);
 			Assert.NotNull(addrman.nKey);
 			Assert.True(addrman.nKey != new uint256(0));
@@ -72,7 +72,7 @@ namespace NBitcoin.Tests
 			Random randl = new Random();
 			for (int i = 0; i < 30; i++)
 			{
-				NetworkAddress address = RandomNetworkAddress(randl);
+				Address address = RandomNetworkAddress(randl);
 				IPAddress addressSource = RandomAddress(randl);
 				address.Ago = TimeSpan.FromMinutes(5.0);
 				addrmanager.Add(address, addressSource);
@@ -89,7 +89,7 @@ namespace NBitcoin.Tests
 						Random rand = new Random(t);
 						for (int i = 0; i < 50; i++)
 						{
-							NetworkAddress address = RandomNetworkAddress(rand);
+							Address address = RandomNetworkAddress(rand);
 							IPAddress addressSource = RandomAddress(rand);
 							var operation = rand.Next(0, 7);
 							switch (operation)
@@ -149,11 +149,11 @@ namespace NBitcoin.Tests
 			return new IPAddress(RandomUtils.GetBytes(count));
 		}
 
-		private NetworkAddress RandomNetworkAddress(Random rand)
+		private Address RandomNetworkAddress(Random rand)
 		{
 			var addr = RandomAddress(rand);
 			var p = rand.Next(0, ushort.MaxValue);
-			return new NetworkAddress(new IPEndPoint(addr, p));
+			return new Address(new IPEndPoint(addr, p));
 		}
 	}
 }

@@ -13,8 +13,8 @@ namespace NBitcoin.Protocol
 	[Payload("addr")]
 	public class AddrPayload : Payload, IBitcoinSerializable
 	{
-		NetworkAddress[] addr_list = new NetworkAddress[0];
-		public NetworkAddress[] Addresses
+		Address[] addr_list = new Address[0];
+		public Address[] Addresses
 		{
 			get
 			{
@@ -26,11 +26,11 @@ namespace NBitcoin.Protocol
 		{
 
 		}
-		public AddrPayload(NetworkAddress address)
+		public AddrPayload(Address address)
 		{
-			addr_list = new NetworkAddress[] { address };
+			addr_list = new Address[] { address };
 		}
-		public AddrPayload(NetworkAddress[] addresses)
+		public AddrPayload(Address[] addresses)
 		{
 			addr_list = addresses.ToArray();
 		}
@@ -56,6 +56,17 @@ namespace NBitcoin.Protocol
 	[Payload("addrv2")]
 	public class AddrV2Payload : AddrPayload
 	{
+		#region IBitcoinSerializable Members
+
+		public override void ReadWriteCore(BitcoinStream stream)
+		{
+			using (stream.ProtocolVersionScope(NetworkAddress.AddrV2Format))
+			{
+				base.ReadWriteCore(stream);
+			}
+		}
+
+		#endregion
 
 	}
 }

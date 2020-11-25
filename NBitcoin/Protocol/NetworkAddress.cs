@@ -7,50 +7,74 @@ using System.Text;
 using System.Threading.Tasks;
 using NBitcoin.DataEncoders;
 using NBitcoin.BouncyCastle.Crypto.Digests;
+using NBitcoin.Crypto;
 
 namespace NBitcoin.Protocol
-{	
-	public class NetworkAddress : IBitcoinSerializable
+{
+	public class NetworkAddress : IBitcoinSerializable, IEquatable<NetworkAddress>
 	{
 		public static readonly uint AddrV2Format = 0x20000000;
 
-		public enum BIP155Network : byte
+		// A network type.
+		// @note An address may belong to more than one network, for example `10.0.0.1`
+		// belongs to both `NET_UNROUTABLE` and `NET_IPV4`.
+		// Keep these sequential starting from 0 and `NET_MAX` as the last entry.
+		protected enum Network
 		{
-			IPV4,  // 0x02 len: 4 IPv4 address (globally routed internet)
-			IPV6,  // 0x02 len: 16 bytes - IPv6 address (globally routed internet)
-			TorV2, // 0x03 len: 10 bytes - Tor v2 hidden service address
-			TorV3, // 0x04 len: 32 bytes - Tor v3 hidden service address
+			/// Addresses from these networks are not publicly routable on the global Internet.
+			Unroutable = 0,
+			IPv4,
+			IPv6,
+			/// TOR (v2 or v3)
+			Onion,
+			/// I2P
+			I2P,
+			/// CJDNS
+			Cjdns,
+			/// A set of addresses that represent the hash of a string or FQDN. We use
+			/// them in CAddrMan to keep track of which DNS seeds were used.
+			Internal,
+			Max,
+		};
+
+		enum BIP155Network : byte
+		{
+			IPv4 = 1,  // 0x02 len: 4 IPv4 address (globally routed internet)
+			IPv6,  // 0x02 len: 16 bytes - IPv6 address (globally routed internet)
+			TORv2, // 0x03 len: 10 bytes - Tor v2 hidden service address
+			TORv3, // 0x04 len: 32 bytes - Tor v3 hidden service address
 			I2P,   // 0x05 len: 32 bytes - I2P overlay network address
 			Cjdns, // 0x06 len: 16 bytes - Cjdns overlay network address
 		}
 
 		/// Size of IPv4 address (in bytes).
-		static readonly int ADDR_IPV4_SIZE = 4;
+		protected const int ADDR_IPV4_SIZE = 4;
 
 		/// Size of IPv6 address (in bytes).
-		static readonly int ADDR_IPV6_SIZE = 16;
+		protected  const int ADDR_IPV6_SIZE = 16;
 
 		/// Size of TORv2 address (in bytes).
-		static readonly int ADDR_TORV2_SIZE = 10;
+		const int ADDR_TORV2_SIZE = 10;
 
 		/// Size of TORv3 address (in bytes). This is the length of just the address
 		/// as used in BIP155, without the checksum and the version byte.
-		static readonly int ADDR_TORV3_SIZE = 32;
+		const int ADDR_TORV3_SIZE = 32;
 
 		/// Size of I2P address (in bytes).
-		static readonly int ADDR_I2P_SIZE = 32;
+		const int ADDR_I2P_SIZE = 32;
 
 		/// Size of CJDNS address (in bytes).
-		static readonly int ADDR_CJDNS_SIZE = 16;
+		const int ADDR_CJDNS_SIZE = 16;
 
 		/// Size of "internal" (NET_INTERNAL) address (in bytes).
-		static readonly int ADDR_INTERNAL_SIZE = 10;
+		const int ADDR_INTERNAL_SIZE = 10;
 
 		/// Size of the TORv3 address checksum (in bytes)
-		static readonly int TORV3_ADDR_CHECKSUM_LEN = 2;
+		const int TORV3_ADDR_CHECKSUM_LEN = 2;
 
 		/// Size of the TORv3 address version number (in bytes)
-		static readonly int TORV3_ADDR_VERSION_LEN = 1;
+		const int TORV3_ADDR_VERSION_LEN = 1;
+
 
 		/// Prefix of an IPv6 address when it contains an embedded IPv4 address.
 		/// Used when (un)serializing addresses in ADDRv1 format (pre-BIP155).
@@ -75,63 +99,56 @@ namespace NBitcoin.Protocol
 			0xFD, 0x6B, 0x88, 0xC0, 0x87, 0x24 // 0xFD + sha256("bitcoin")[0:5].
 		};
 
-        /**
-         * Maximum size of an address as defined in BIP155 (in bytes).
-         * This is only the size of the address, not the entire CNetAddr object
-         * when serialized.
-         */
-        static readonly int MAX_ADDRV2_SIZE = 512;
+		/// Prefix of an IPv6 Hurricane Electric address.
+		static readonly byte[] HE_PREFIX = new byte[]{
+			0x20, 0x01, 0x04, 0x70
+		};
+
+		/**
+			* Maximum size of an address as defined in BIP155 (in bytes).
+			* This is only the size of the address, not the entire CNetAddr object
+			* when serialized.
+			*/
+		const int MAX_ADDRV2_SIZE = 512;
 
 		static readonly byte[] IPV6_NONE = new byte[ADDR_IPV6_SIZE];
 		static readonly byte[] IPV4_NONE = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
 		static readonly byte[] IPV4_ANY = new byte[ADDR_IPV4_SIZE];
 
+		protected byte network = (byte)Network.IPv6;
+		protected byte[] addr = new byte[ADDR_IPV6_SIZE];
 
 		public NetworkAddress()
 		{
 		}
+
 		public NetworkAddress(IPAddress ip)
 		{
-			Endpoint = new IPEndPoint(ip, 0);
-		}
-		public NetworkAddress(IPEndPoint endpoint)
-		{
-			Endpoint = endpoint;
-		}
-		public NetworkAddress(IPAddress address, int port)
-		{
-			Endpoint = new IPEndPoint(address, port);
+			SetIp(ip);
 		}
 
-		uint version = 100100;
-
-		internal uint ntime;
-		byte network;
-
-		public bool IsIPv4 => (BIP155Network)network == BIP155Network.IPV4;
-		public bool IsIPv6 => (BIP155Network)network == BIP155Network.IPV6;
-		public bool IsTORv2 => (BIP155Network)network == BIP155Network.TorV2;
-		public bool IsTORv3 => (BIP155Network)network == BIP155Network.TorV3;
-		public bool IsOnion => IsTORv2 || IsTORv3;
-		public bool IsI2P => (BIP155Network)network == BIP155Network.I2P;
-		public bool IsCjdns => (BIP155Network)network == BIP155Network.Cjdns;
+		public bool IsIPv4 => (Network)network == Network.IPv4;
+		public bool IsIPv6 => (Network)network == Network.IPv6;
+		public bool IsTOR => (Network)network == Network.Onion;
+		public bool IsI2P => (Network)network == Network.I2P;
+		public bool IsCjdns => (Network)network == Network.Cjdns;
 
 		public bool IsLocal 
 		{
 			get
 			{
-			    // IPv4 loopback (127.0.0.0/8 or 0.0.0.0/8)
+				// IPv4 loopback (127.0.0.0/8 or 0.0.0.0/8)
 				if (IsIPv4 && (addr[0] == 127 || addr[0] == 0))
 				{
 					return true;
 				}
-			    // IPv6 loopback (::1/128)
-    			if (IsIPv6 && Utils.ArrayEqual(addr, new byte[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1}))
+				// IPv6 loopback (::1/128)
+				if (IsIPv6 && Utils.ArrayEqual(addr, new byte[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1}))
 				{
-			        return true;
-    			}
+					return true;
+				}
 
-    			return false;
+				return false;
 			}
 		}
 
@@ -171,42 +188,46 @@ namespace NBitcoin.Protocol
 		public bool IsRFC4843 =>
 			IsIPv6 && (addr[0] == 0x20 && addr[1] == 0x01 && addr[2] == 0x00 && (addr[3] & 0xF0) == 0x10);
 
+		public bool HasLinkedIPv4 =>
+			IsRoutable(false) && (IsIPv4 || IsRFC6145 || IsRFC6052 || IsRFC3964 || IsRFC4380);
 
-/*
-		static readonly byte[] pchOnionCat = new byte[] { 0xFD, 0x87, 0xD8, 0x7E, 0xEB, 0x43 };
-		public static bool IsTor(this IPAddress address)
+		public int GetLinkedIPv4()
 		{
-			var bytes = address.GetAddressBytes();
-			return ((Utils.ArrayEqual(bytes, 0, pchOnionCat, 0, pchOnionCat.Length) ? 0 : 1) == 0);
-		}
-		public static bool IsTor(this EndPoint endpoint)
-		{
-			if (endpoint == null)
-				throw new ArgumentNullException(nameof(endpoint));
-			if (endpoint is IPEndPoint ip)
-				return ip.IsTor();
-			else if (endpoint is DnsEndPoint dns)
-				return dns.IsTor();
-			else
-				return false;
-		}
-		public static bool IsTor(this DnsEndPoint dnsEndPoint)
-		{
-			if (dnsEndPoint == null)
-				throw new ArgumentNullException(nameof(dnsEndPoint));
-			return dnsEndPoint.Host.EndsWith(".onion", StringComparison.OrdinalIgnoreCase);
-		}
-		public static bool IsTor(this IPEndPoint iPEndPoint)
-		{
-			if (iPEndPoint == null)
-				throw new ArgumentNullException(nameof(iPEndPoint));
-			return iPEndPoint.Address.IsTor();
-		}
-*/
+			int ReadBE32(byte[] data, int offset = 0) =>
+				BitConverter.ToInt32(data, offset);
 
-		ulong service = 1;
-		byte[] addr = new byte[ADDR_IPV6_SIZE];
-		ushort port;
+			if (IsIPv4)
+			{
+				return ReadBE32(addr);
+			}
+			else if (IsRFC6052 || IsRFC6145)
+			{
+				// mapped IPv4, SIIT translated IPv4: the IPv4 address is the last 4 bytes of the address
+				return ReadBE32(addr, ADDR_IPV6_SIZE - ADDR_IPV4_SIZE);
+			}
+			else if (IsRFC3964)
+			{
+				// 6to4 tunneled IPv4: the IPv4 address is in bytes 2-6
+				return ReadBE32(addr, 2);
+			}
+			else if (IsRFC4380)
+			{
+				// Teredo tunneled IPv4: the IPv4 address is in the last 4 bytes of the address, but bitflipped
+				return ~ReadBE32(addr, ADDR_IPV6_SIZE - ADDR_IPV4_SIZE);
+			}
+			throw new Exception("Network Address is not IPv4 linked.");
+		}
+
+		public bool IsHeNet =>
+			IsIPv6 && HasPrefix(addr, HE_PREFIX);
+
+		public bool IsInternal =>
+			(Network)network == Network.Internal;
+
+		protected void SetIp(IPAddress ip)
+		{
+			SetLegacyIpv6(ip.MapToIPv6().GetAddressBytes());
+		}
 
 		public void SetLegacyIpv6(byte[] ipv6)
 		{
@@ -218,28 +239,44 @@ namespace NBitcoin.Protocol
 			var skip = 0;
 			if (HasPrefix(ipv6, IPV4_IN_IPV6_PREFIX))
 			{
-				network = (byte)BIP155Network.IPV4;
+				network = (byte)Network.IPv4;
 				skip = IPV4_IN_IPV6_PREFIX.Length;
 			}
 			else if(HasPrefix(ipv6, TORV2_IN_IPV6_PREFIX))
 			{
 				// TORv2-in-IPv6
-				network = (byte)BIP155Network.TorV2;
+				network = (byte)Network.Onion;
 				skip = TORV2_IN_IPV6_PREFIX.Length;
 			} 
 			else if (HasPrefix(ipv6, INTERNAL_IN_IPV6_PREFIX))
 			{
 				// Internal-in-IPv6
-				//network = NET_INTERNAL;
+				network = (byte)Network.Internal;
 				skip = INTERNAL_IN_IPV6_PREFIX.Length;
 			} 
 			else
 			{
 				// IPv6
-				network = (byte)BIP155Network.IPV6;
-    		}	
+				network = (byte)Network.IPv6;
+			}	
 
-			addr = ipv6;
+			addr = ipv6.Skip(skip).ToArray();
+		}
+
+		// Create an "internal" address that represents a name or FQDN. CAddrMan uses
+		// these fake addresses to keep track of which DNS seeds were used.
+		// @returns Whether or not the operation was successful.
+		// @see NET_INTERNAL, INTERNAL_IN_IPV6_PREFIX, CNetAddr::IsInternal(), CNetAddr::IsRFC4193()
+		public bool SetInternal(string name)
+		{
+			if (string.IsNullOrEmpty(name))
+			{
+				return false;
+			}
+			network = (byte)Network.Internal;
+			var hash = Hashes.SHA256(Encoding.UTF8.GetBytes(name));
+			addr = hash.SafeSubarray(0, ADDR_INTERNAL_SIZE);
+			return true;
 		}
 
 		public bool SetSpecial(string address)
@@ -261,7 +298,7 @@ namespace NBitcoin.Protocol
 
 			if (bytes.Length == ADDR_TORV2_SIZE)
 			{
-				network = (byte)BIP155Network.TorV2;
+				network = (byte)Network.Onion;
 				addr = bytes;
 				return true;
 			}
@@ -284,7 +321,7 @@ namespace NBitcoin.Protocol
 					return false;
 				}
 
-				network = (byte)BIP155Network.TorV3;
+				network = (byte)Network.Onion;
 				addr = pubkey;
 				return true;
 			}
@@ -307,113 +344,48 @@ namespace NBitcoin.Protocol
 			return fullChecksum.SafeSubarray(0, TORV3_ADDR_CHECKSUM_LEN);
 		}
 
-		public ulong Service
-		{
-			get
-			{
-				return service;
-			}
-			set
-			{
-				service = value;
-			}
-		}
-
-		public TimeSpan Ago
-		{
-			get
-			{
-				return DateTimeOffset.UtcNow - Time;
-			}
-			set
-			{
-				Time = DateTimeOffset.UtcNow - value;
-			}
-		}
-
-		public void Adjust()
-		{
-			var nNow = Utils.DateTimeToUnixTime(DateTimeOffset.UtcNow);
-			if (ntime <= 100000000 || ntime > nNow + 10 * 60)
-				ntime = nNow - 5 * 24 * 60 * 60;
-		}
-
-		public IPEndPoint Endpoint
-		{
-			get
-			{
-				return new IPEndPoint(new IPAddress(addr), port);
-			}
-			set
-			{
-				port = (ushort)value.Port;
-				var ipBytes = value.Address.GetAddressBytes();
-				if (ipBytes.Length == ADDR_IPV6_SIZE)
-				{
-					addr = ipBytes;
-					network = (byte)BIP155Network.IPV6;
-				}
-				else if (ipBytes.Length == ADDR_IPV4_SIZE)
-				{
-					//Convert to ipv4 mapped to ipv6
-					//In these addresses, the first 80 bits are zero, the next 16 bits are one, and the remaining 32 bits are the IPv4 address
-					addr = new byte[ADDR_IPV6_SIZE];
-					Array.Copy(ipBytes, 0, addr, ADDR_IPV6_SIZE - ADDR_IPV4_SIZE, ADDR_IPV4_SIZE);
-					Array.Copy(new byte[] { 0xFF, 0xFF }, 0, addr, ADDR_IPV6_SIZE - ADDR_IPV4_SIZE - 2, 2);
-					network = (byte)BIP155Network.IPV4;
-				}
-				else
-					throw new NotSupportedException("Invalid IP address type");
-			}
-		}
-
-		public DateTimeOffset Time
-		{
-			get
-			{
-				return Utils.UnixTimeToDateTime(ntime);
-			}
-			set
-			{
-				ntime = Utils.DateTimeToUnixTime(value);
-			}
-		}
 
 		#region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+		public virtual void ReadWrite(BitcoinStream stream)
 		{
-			if (stream.Type == SerializationType.Disk)
-			{
-				stream.ReadWrite(ref version);
-			}
 			var useV2Format = stream.ProtocolVersion is {} protcocolVersion && (protcocolVersion & AddrV2Format) != 0;
-			if (
-				stream.Type == SerializationType.Disk ||
-				(stream.ProtocolCapabilities.SupportTimeAddress && stream.Type != SerializationType.Hash))
+			if (useV2Format)
 			{
-				if (useV2Format)
+				if (stream.Serializing)
 				{
-					stream.ReadWriteAsVarInt(ref ntime);
+					var bip155net = (byte)GetBIP155Network();
+					stream.ReadWrite(bip155net);
+					stream.ReadWriteAsVarString(ref addr);
 				}
 				else
 				{
-					stream.ReadWrite(ref ntime);
+					stream.ReadWrite(ref network);
+					stream.ReadWriteAsVarString(ref addr);
+					
+					if (SetNetFromBIP155Network((BIP155Network)network, addr.Length))
+					{
+						if (HasPrefix(addr, IPV4_IN_IPV6_PREFIX) || HasPrefix(addr, TORV2_IN_IPV6_PREFIX))
+						{
+							// set to invalid because IPv4 and Torv2 should not be embeded in IPv6.
+							addr = IPV6_NONE;
+							network = (byte)Network.IPv6;
+						}
+					}
+					else
+					{
+						// set to invalid because IPv4 and Torv2 should not be embeded in IPv6.
+						addr = IPV6_NONE;
+						network = (byte)Network.IPv6;
+					}
 				}
-			}
-
-			if (useV2Format)
-			{
-				stream.ReadWriteAsVarInt(ref service);
-				stream.ReadWrite(ref network);
-				stream.ReadWriteAsVarString(ref addr);
 			}
 			else
 			{
-				stream.ReadWrite(ref service);
 				if (stream.Serializing)
 				{
-					stream.ReadWrite(ref addr);
+					var localAddr = IsAddrV1Compatible ? SerializeV1Array() : IPV6_NONE;
+					stream.ReadWrite(ref localAddr);
 				}
 				else
 				{
@@ -422,45 +394,106 @@ namespace NBitcoin.Protocol
 					SetLegacyIpv6(localAddr);
 				}
 			}
-			using (stream.BigEndianScope())
-			{
-				stream.ReadWrite(ref port);
-			}
 		}
 
 		#endregion
 
+		private BIP155Network GetBIP155Network()
+		{
+			switch ((Network)network) 
+			{
+				case Network.IPv4:
+					return BIP155Network.IPv4;
+				case Network.IPv6:
+					return BIP155Network.IPv6;
+				case Network.Onion:
+					if (addr.Length == ADDR_TORV2_SIZE)
+					{
+						return BIP155Network.TORv2;
+					}
+					else if (addr.Length == ADDR_TORV3_SIZE)
+					{
+						return BIP155Network.TORv3;
+					}
+					throw new Exception("Onion address size doesn't match the TORv2 nor TORv3 sizes.");
+				case Network.I2P:
+					return BIP155Network.I2P;
+				case Network.Cjdns:
+					return BIP155Network.Cjdns;
+				case Network.Internal:   // should have been handled before calling this function
+				case Network.Unroutable: // m_net is never and should not be set to NET_UNROUTABLE
+				case Network.Max:        // m_net is never and should not be set to NET_MAX
+					throw new Exception("Unknown network.");
+			} // no default case, so the compiler can warn about missing cases
+			throw new Exception("Unknown network.");
+		}
+
+		private bool SetNetFromBIP155Network(BIP155Network bip155Network, int length)
+		{
+			byte AssignIfCorrectSize(Network net, int expectedSize)
+			{
+				if (length != expectedSize)
+				{
+					throw new Exception($"BIP155 {(BIP155Network)bip155Network} address with length {length} (should be {expectedSize}).");
+				}
+				return (byte)net;
+			}
+
+			switch(bip155Network)
+			{
+				case BIP155Network.IPv4:
+					network = AssignIfCorrectSize(Network.IPv4, ADDR_IPV4_SIZE);
+					break;
+				case BIP155Network.IPv6:
+					network = AssignIfCorrectSize(Network.IPv6, ADDR_IPV6_SIZE);
+					break;
+				case BIP155Network.TORv2:
+					network = AssignIfCorrectSize(Network.Onion, ADDR_TORV2_SIZE);
+					break;
+				case BIP155Network.TORv3:
+					network = AssignIfCorrectSize(Network.Onion, ADDR_TORV3_SIZE);
+					break;
+				case BIP155Network.I2P:
+					network = AssignIfCorrectSize(Network.I2P, ADDR_I2P_SIZE);
+					break;
+				case BIP155Network.Cjdns:
+					network = AssignIfCorrectSize(Network.Cjdns, ADDR_CJDNS_SIZE);
+					break;
+				default:
+					return false;
+			}
+			return true;
+		}
+
 
 		// Serialize in pre-ADDRv2/BIP155 format to an array.
 		private byte[] SerializeV1Array() =>
-			(((BIP155Network)network) switch 
+			(((Network)network) switch 
 			{
-				BIP155Network.IPV6  => addr,
-				BIP155Network.IPV4  => IPV4_IN_IPV6_PREFIX.Concat(addr),
-				BIP155Network.TorV2 => TORV2_IN_IPV6_PREFIX.Concat(addr),
-				BIP155Network.TorV3 => new byte[ADDR_TORV3_SIZE],
-				BIP155Network.I2P   => new byte[ADDR_I2P_SIZE],
-				BIP155Network.Cjdns => new byte[ADDR_CJDNS_SIZE],
+				Network.IPv6  => addr,
+				Network.IPv4  => IPV4_IN_IPV6_PREFIX.Concat(addr),
+				Network.Onion when addr.Length == ADDR_TORV3_SIZE => new byte[ADDR_TORV3_SIZE],
+				Network.Onion => TORV2_IN_IPV6_PREFIX.Concat(addr),
+				Network.Internal => INTERNAL_IN_IPV6_PREFIX.Concat(addr), 
+				Network.I2P   => new byte[ADDR_I2P_SIZE],
+				Network.Cjdns => new byte[ADDR_CJDNS_SIZE],
+				_ => throw new InvalidOperationException("Unknown Address network.") 
 			}).ToArray();
 
-		public void ZeroTime()
-		{
-			this.ntime = 0;
-		}
-
 		public bool IsAddrV1Compatible =>
-			(BIP155Network)network switch 
+			((Network)network, addr.Length) switch 
 			{
-				BIP155Network.IPV4 => true,
-				BIP155Network.IPV6 => true,
-				BIP155Network.TorV2 => true,
-				BIP155Network.TorV3 => false,
-				BIP155Network.I2P => false,
-				BIP155Network.Cjdns => false,
+				(Network.IPv4, _) => true,
+				(Network.IPv6, _) => true,
+				(Network.Internal, _) => true,
+				(Network.Onion, ADDR_TORV2_SIZE) => true,
+				(Network.Onion, ADDR_TORV3_SIZE) => false,
+				(Network.I2P, _ ) => false,
+				(Network.Cjdns,_) => false,
 				_ => throw new InvalidOperationException("Unknown Address network.")
 			};
 
-		public byte[] GetAddressBytes() =>
+		public byte[] GetAddressBytes() => 
 			IsAddrV1Compatible ? SerializeV1Array() : addr;
 
 		public bool IsValid 
@@ -468,13 +501,18 @@ namespace NBitcoin.Protocol
 			get
 			{
 				// unspecified IPv6 address (::/128)
-				if (IsIPv6 && !Utils.ArrayEqual(addr, 0, IPV6_NONE, 0, 16))
+				if (IsIPv6 && Utils.ArrayEqual(addr, 0, IPV6_NONE, 0, 16))
 				{
 					return false;
 				}
 
 				// documentation IPv6 address
 				if (IsRFC3849)
+				{
+					return false;
+				}
+
+				if (IsInternal)
 				{
 					return false;
 				}
@@ -496,103 +534,163 @@ namespace NBitcoin.Protocol
 
 		public bool IsRoutable( bool allowLocal) =>
 			IsValid && !(
-				(!allowLocal && IsRFC1918) || IsRFC3927 || IsRFC4862 ||	(IsRFC4193 && !IsOnion) || IsRFC4843 || (!allowLocal && IsLocal));
+				(!allowLocal && IsRFC1918) || IsRFC3927 || IsRFC4862 ||	(IsRFC4193 && !IsTOR) || IsRFC4843 || (!allowLocal && IsLocal) || IsInternal);
 
 		public byte[] GetGroup()
 		{
-			List<byte> vchRet = new List<byte>();
-			int nClass = 2;
-			int nStartByte = 0;
-			int nBits = 16;
+			var vchRet = new List<byte>();
 
-			// all local addresses belong to the same group
+			var netClass = GetNetClass();
+			vchRet.Add((byte)netClass);
+			int nBits = 0;
+
 			if (IsLocal)
 			{
-				nClass = 255;
-				nBits = 0;
+				// all local addresses belong to the same group
 			}
-
-			// all unroutable addresses belong to the same group
-			if (!IsRoutable(true))
+			else if (IsInternal)
 			{
-				nClass = 0;
-				nBits = 0;
+				// all internal-usage addresses get their own group
+				nBits = ADDR_INTERNAL_SIZE * 8;
 			}
-			// for IPv4 addresses, '1' + the 16 higher-order bits of the IP
-			// includes mapped IPv4, SIIT translated IPv4, and the well-known prefix
-			else if (IsIPv4 || IsRFC6145 || IsRFC6052)
+			else if (!IsRoutable(true))
 			{
-				nClass = 1;
-				nStartByte = 12;
+				// all other unroutable addresses belong to the same group
 			}
-			// for 6to4 tunnelled addresses, use the encapsulated IPv4 address
-			else if (IsRFC3964)
+			else if (HasLinkedIPv4)
 			{
-				nClass = 1;
-				nStartByte = 2;
-			}
-			// for Teredo-tunnelled IPv6 addresses, use the encapsulated IPv4 address
-
-			else if (IsRFC4380)
-			{
-				vchRet.Add(1);
-				vchRet.Add((byte)(addr[12] ^ 0xFF));
-				vchRet.Add((byte)(addr[13] ^ 0xFF));
+				// IPv4 addresses (and mapped IPv4 addresses) use /16 groups
+				var ipv4 = GetLinkedIPv4();
+				vchRet.Add((byte)((ipv4 >> 24) & 0xFF));
+				vchRet.Add((byte)((ipv4 >> 16) & 0xFF));
 				return vchRet.ToArray();
 			}
-			else if (IsOnion)
+			else if (IsTOR || IsI2P || IsCjdns)
 			{
-				nClass = 3;
-				nStartByte = 6;
 				nBits = 4;
 			}
-			// for he.net, use /36 groups
-			else if (addr[0] == 0x20 && addr[1] == 0x01 && addr[2] == 0x04 && addr[3] == 0x70)
+			else if (IsHeNet)
 			{
+				// for he.net, use /36 groups
 				nBits = 36;
 			}
-			// for the rest of the IPv6 network, use /32 groups
 			else
 			{
+				// for the rest of the IPv6 network, use /32 groups
 				nBits = 32;
 			}
 
-			vchRet.Add((byte)nClass);
-			while (nBits >= 8)
-			{
-				vchRet.Add(addr[nStartByte]);
-				nStartByte++;
-				nBits -= 8;
-			}
+			// Push our address onto vchRet.
+			int numBytes = nBits / 8;
+			vchRet.AddRange(addr.Take(numBytes));
+			nBits %= 8;
+			// ...for the last byte, push nBits and for the rest of the byte push 1's
 			if (nBits > 0)
 			{
-				vchRet.Add((byte)(addr[nStartByte] | ((1 << nBits) - 1)));
+				var b = addr[numBytes] | ((1 << (8 - nBits)) - 1);
+				vchRet.Add((byte)b);
 			}
+
 			return vchRet.ToArray();
 		}
 
-        public override string ToString()
-        {
-			switch ((BIP155Network)network)
+
+		private Network GetNetClass() 
+		{
+			// Make sure that if we return NET_IPV6, then IsIPv6() is true. The callers expect that.
+
+			// Check for "internal" first because such addresses are also !IsRoutable()
+			// and we don't want to return NET_UNROUTABLE in that case.
+			if (IsInternal)
 			{
-				case BIP155Network.IPV4:
-				case BIP155Network.IPV6:
-				case BIP155Network.Cjdns:
-					return new IPAddress(addr).ToString();
-				case BIP155Network.TorV2:
-					return Encoders.Base32.EncodeData(addr) + ".onion";
-				case BIP155Network.TorV3:
-					var chksum = CalculateChecksum(addr);
-					var data = addr.Concat(chksum, new byte[]{ 3 });
-					return Encoders.Base32.EncodeData(data) + ".onion";
-				case BIP155Network.I2P:
-					return Encoders.Base32.EncodeData(addr) + ".b32.i2p";
-				default:
-					throw new InvalidOperationException($"{network} is unknown");					
+				return Network.Internal;
 			}
-        }
-        
-		internal byte[] GetKey()
+			if (!IsRoutable(false))
+			{
+				return Network.Unroutable;
+			}
+			if (HasLinkedIPv4)
+			{
+				return Network.IPv4;
+			}
+			return (Network)network;
+		}
+
+		public override string ToString()
+		{
+			switch ((Network)network)
+			{
+				case Network.IPv4:
+				case Network.IPv6:
+				case Network.Cjdns:
+					return new IPAddress(addr).ToString();
+				case Network.Onion:
+					if (addr.Length == ADDR_TORV2_SIZE)
+					{
+						return Encoders.Base32.EncodeData(addr) + ".onion";
+					}
+					else
+					{
+						var chksum = CalculateChecksum(addr);
+						var data = addr.Concat(chksum, new byte[]{ 3 });
+						return Encoders.Base32.EncodeData(data) + ".onion";
+					}
+				case Network.I2P:
+					return Encoders.Base32.EncodeData(addr).Replace("=", "") + ".b32.i2p"; // FIXME: Base32 withour padding
+				default:
+					throw new InvalidOperationException($"{network} is unknown");
+			}
+		}
+		
+		private bool HasPrefix(byte[] arr, byte[] prefix) =>
+			Utils.ArrayEqual(arr, 0, prefix, 0, prefix.Length);
+
+		public bool Equals(NetworkAddress other) =>
+			network == other.network && Utils.ArrayEqual(addr, other.addr);
+	}
+
+	public class Service : NetworkAddress, IEquatable<Service>
+	{
+		private ushort port;
+
+		public ushort Port => port;
+
+		public Service()
+		{
+		}
+		public Service(IPAddress ip)
+		{
+			Endpoint = new IPEndPoint(ip, 0);
+		}
+		public Service(IPEndPoint endpoint)
+		{
+			Endpoint = endpoint;
+		}
+		public Service(IPAddress address, int port)
+		{
+			Endpoint = new IPEndPoint(address, port);
+		}
+		public Service(Service service)
+		{
+			network = service.network;
+			addr = service.addr;
+			port = service.port;
+		}
+
+		public IPEndPoint Endpoint
+		{
+			get
+			{
+				return new IPEndPoint(new IPAddress(addr), port);
+			}
+			set
+			{
+				port = (ushort)value.Port;
+				SetIp(value.Address);
+			}
+		}
+
+		public byte[] GetKey()
 		{
 			var buffer = GetAddressBytes();
 			var vKey = new byte[buffer.Length + 2];
@@ -602,24 +700,157 @@ namespace NBitcoin.Protocol
 			return vKey;
 		}
 
-		internal byte[] EnsureIPv6()
+		#region IBitcoinSerializable Members
+
+		public override void ReadWrite(BitcoinStream stream)
 		{
-			if (IsIPv6 || IsTORv2)
+			base.ReadWrite(stream);
+			using (stream.BigEndianScope())
 			{
-				return addr;
-			}
-			else if (IsIPv4)
-			{
-				return new byte[16] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF, addr[0], addr[1], addr[2], addr[3] };
-			}
-			else
-			{
-				throw new Exception("Only IP addresses can be converted to IPv6");
+				stream.ReadWrite(ref port);
 			}
 		}
 
-		private bool HasPrefix(byte[] arr, byte[] prefix) =>
-			Utils.ArrayEqual(arr, 0, prefix, 0, prefix.Length);
+		#endregion
+
+		public override string ToString()
+		{
+			if (IsIPv4 || IsTOR || IsI2P || IsInternal)
+			{
+				return $"{base.ToString()}:{Port}";
+			} 
+			else
+			{
+				return $"[{base.ToString()}]:{Port}";
+			}
+		}
+
+		public override bool Equals(object obj) =>
+			obj is Service service ? Equals(service) : false;
+
+		public bool Equals(Service other) =>
+			other is {} && port == other.Port && base.Equals((NetworkAddress)other);
+
+		public static bool operator == (Service a, Service b) =>
+			a.Equals(b);
+
+		public static bool operator != (Service a, Service b) =>
+			!a.Equals(b);
 	}
+
+	public class Address : Service
+	{
+		static uint TIME_INIT = 100000000;
+
+		// disk and network only
+		internal uint nTime = TIME_INIT;
+
+		private ulong services = (ulong)NodeServices.Nothing;
+
+		public Address()
+			: base()
+		{
+		}
+		public Address(IPAddress ip)
+			: base(ip)
+		{
+		}
+		public Address(IPEndPoint endpoint)
+			: base(endpoint)
+		{
+		}
+		public Address(IPAddress address, int port)
+			: base(address, port)
+		{
+		}
+		public Address(Service service)
+			: base(service)
+		{
+		}
+
+		public NodeServices Services
+		{
+			get
+			{
+				return (NodeServices)services;
+			}
+			set
+			{
+				services = (ulong)value;
+			}
+		}
+
+		public DateTimeOffset Time
+		{
+			get
+			{
+				return Utils.UnixTimeToDateTime(nTime);
+			}
+			set
+			{
+				nTime = Utils.DateTimeToUnixTime(value);
+			}
+		}
+
+		public TimeSpan Ago
+		{
+			get
+			{
+				return DateTimeOffset.UtcNow - Time;
+			}
+			set
+			{
+				Time = DateTimeOffset.UtcNow - value;
+			}
+		}
+
+		#region IBitcoinSerializable Members
+
+		public override void ReadWrite(BitcoinStream stream)
+		{
+			var version = stream.ProtocolVersion ?? 0;
+			if (stream.Type == SerializationType.Disk)
+			{
+				stream.ReadWrite(ref version);
+			}
+			if (
+				stream.Type == SerializationType.Disk ||
+				(stream.ProtocolCapabilities.SupportTimeAddress && stream.Type != SerializationType.Hash))
+			{
+				// The only time we serialize a CAddress object without nTime is in
+				// the initial VERSION messages which contain two CAddress records.
+				// At that point, the serialization version is INIT_PROTO_VERSION.
+				// After the version handshake, serialization version is >=
+				// MIN_PEER_PROTO_VERSION and all ADDR messages are serialized with
+				// nTime.
+				stream.ReadWrite(ref nTime);
+			}
+			if ((version & AddrV2Format) != 0)
+			{
+				stream.ReadWriteAsVarInt(ref services);
+			}
+			else
+			{
+				stream.ReadWrite(ref services);
+			}
+
+			base.ReadWrite(stream);
+		}
+
+		#endregion
+
+		public void Adjust()
+		{
+			var nNow = Utils.DateTimeToUnixTime(DateTimeOffset.UtcNow);
+			if (nTime <= 100000000 || nTime > nNow + 10 * 60)
+				nTime = nNow - 5 * 24 * 60 * 60;
+		}
+
+		public void ZeroTime()
+		{
+			nTime = 0;
+		}
+
+	};
 }
 #endif

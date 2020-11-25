@@ -209,10 +209,10 @@ namespace NBitcoin
 		protected void RegisterDefaultCookiePath(string folderName) {}
 #endif
 #if !NOSOCKET
-		protected static IEnumerable<NetworkAddress> ToSeed(Tuple<byte[], int>[] tuples)
+		protected static IEnumerable<Service> ToSeed(Tuple<byte[], int>[] tuples)
 		{
 			return tuples
-					.Select(t => new NetworkAddress(new IPAddress(t.Item1), t.Item2))
+					.Select(t => new Service(new IPAddress(t.Item1), t.Item2))
 					.ToArray();
 		}
 #endif

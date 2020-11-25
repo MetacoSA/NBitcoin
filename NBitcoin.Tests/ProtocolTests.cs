@@ -169,7 +169,7 @@ namespace NBitcoin.Tests
 							var version = (VersionPayload)o;
 							Assert.Equal((ulong)0x1357B43A2C209DDD, version.Nonce);
 							Assert.Equal("", version.UserAgent);
-							Assert.Equal("::ffff:10.0.0.2", version.AddressFrom.Address.ToString());
+							Assert.Equal("10.0.0.2", version.AddressFrom.Address.ToString());
 							Assert.Equal(8333, version.AddressFrom.Port);
 							Assert.Equal(0x00018155, version.StartHeight);
 							Assert.Equal<uint>(31900, version.Version);
@@ -281,7 +281,7 @@ namespace NBitcoin.Tests
 				var node = builder.CreateNode(true);
 				node.Generate(101);
 				AddressManager manager = new AddressManager();
-				manager.Add(new NetworkAddress(node.NodeEndpoint), IPAddress.Loopback);
+				manager.Add(new Address(node.NodeEndpoint), IPAddress.Loopback);
 
 				var chain = new SlimChain(builder.Network.GenesisHash);
 				NodesGroup group = new NodesGroup(builder.Network, new NodeConnectionParameters()

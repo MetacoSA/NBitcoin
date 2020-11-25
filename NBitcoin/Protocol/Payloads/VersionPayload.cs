@@ -115,7 +115,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		NetworkAddress addr_recv = new NetworkAddress();
+		Address addr_recv = new Address();
 		public IPEndPoint AddressReceiver
 		{
 			get
@@ -127,7 +127,7 @@ namespace NBitcoin.Protocol
 				addr_recv.Endpoint = value;
 			}
 		}
-		NetworkAddress addr_from = new NetworkAddress();
+		Address addr_from = new Address();
 		public IPEndPoint AddressFrom
 		{
 			get

@@ -38,7 +38,7 @@ namespace NBitcoin.Protocol
 				source = IPAddress.Loopback;
 			foreach (var ip in (await endpoint.ResolveToIPEndpointsAsync().ConfigureAwait(false)))
 			{
-				Add(new NetworkAddress(ip), source);
+				Add(new Address(ip), source);
 			}
 		}
 		internal class AddressInfo : IBitcoinSerializable
@@ -120,7 +120,7 @@ namespace NBitcoin.Protocol
 				}
 			}
 
-			NetworkAddress _Address;
+			Address _Address;
 			public int nRandomPos = -1;
 			public int nRefCount;
 			public bool fInTried;
@@ -143,12 +143,12 @@ namespace NBitcoin.Protocol
 
 			}
 			[Obsolete("Use AddressInfo(NetworkAddress addr, NetworkAddress addrSource) instead.")]
-			public AddressInfo(NetworkAddress addr, IPAddress addrSource)
+			public AddressInfo(Address addr, IPAddress addrSource)
 				: this(addr, new NetworkAddress(addrSource))
 			{
 			}
 
-			public AddressInfo(NetworkAddress addr, NetworkAddress addrSource)
+			public AddressInfo(Address addr, NetworkAddress addrSource)
 			{
 				Address = addr;
 				SourceAddress = addrSource;
@@ -174,7 +174,7 @@ namespace NBitcoin.Protocol
 				}
 			}
 
-			public NetworkAddress Address
+			public Address Address
 			{
 				get
 				{
@@ -242,7 +242,7 @@ namespace NBitcoin.Protocol
 				if (Address.Time > now + TimeSpan.FromSeconds(10 * 60)) // came in a flying DeLorean
 					return true;
 
-				if (Address.ntime == 0 || now - Address.Time > TimeSpan.FromSeconds(ADDRMAN_HORIZON_DAYS * 24 * 60 * 60)) // not seen in recent history
+				if (Address.nTime == 0 || now - Address.Time > TimeSpan.FromSeconds(ADDRMAN_HORIZON_DAYS * 24 * 60 * 60)) // not seen in recent history
 					return true;
 
 				if (nLastSuccess == 0 && nAttempts >= AddressManager.ADDRMAN_RETRIES) // tried N times and never a success
@@ -254,7 +254,7 @@ namespace NBitcoin.Protocol
 				return false;
 			}
 
-			internal bool Match(NetworkAddress addr)
+			internal bool Match(Address addr)
 			{
 				return
 					Address.Endpoint.Address.Equals(addr.Endpoint.Address) &&
@@ -598,24 +598,18 @@ namespace NBitcoin.Protocol
 		#endregion
 
 		//! Add a single address.
-		public bool Add(NetworkAddress addr, IPAddress source)
+		public bool Add(Address addr, IPAddress source)
 		{
 			return Add(addr, new NetworkAddress(source), TimeSpan.Zero);
 		}
 
 		object cs = new object();
-		public bool Add(NetworkAddress addr)
+		public bool Add(Address addr)
 		{
 			return Add(addr, IPAddress.Loopback);
 		}
 
-		[Obsolete("Use Add(NetworkAddress, NetworkAddress, TimeSpan) instead")]
-		public bool Add(NetworkAddress addr, IPAddress source, TimeSpan nTimePenalty)
-		{
-			return Add(addr, new NetworkAddress(source), nTimePenalty);
-		}
-
-		public bool Add(NetworkAddress addr, NetworkAddress source, TimeSpan nTimePenalty)
+		public bool Add(Address addr, NetworkAddress source, TimeSpan nTimePenalty)
 		{
 			bool fRet = false;
 			lock (cs)
@@ -627,24 +621,12 @@ namespace NBitcoin.Protocol
 			return fRet;
 		}
 
-		[Obsolete("Use Add(IEnumerable<NetworkAddress> vAddr, NetworkAddress) instead")]
-		public bool Add(IEnumerable<NetworkAddress> vAddr, IPAddress source)
-		{
-			return Add(vAddr, new NetworkAddress(source));
-		}
-
-		public bool Add(IEnumerable<NetworkAddress> vAddr, NetworkAddress source)
+		public bool Add(IEnumerable<Address> vAddr, NetworkAddress source)
 		{
 			return Add(vAddr, source, TimeSpan.FromSeconds(0));
 		}
 
-		[Obsolete("Use Add(IEnumerable<NetworkAddress>, NetworkAddress, TimeSpan) instead")]
-		public bool Add(IEnumerable<NetworkAddress> vAddr, IPAddress source, TimeSpan nTimePenalty)
-		{
-			return Add(vAddr, new NetworkAddress(source), nTimePenalty);
-		}
-
-		public bool Add(IEnumerable<NetworkAddress> vAddr, NetworkAddress source, TimeSpan nTimePenalty)
+		public bool Add(IEnumerable<Address> vAddr, NetworkAddress source, TimeSpan nTimePenalty)
 		{
 			int nAdd = 0;
 			lock (cs)
@@ -657,7 +639,7 @@ namespace NBitcoin.Protocol
 			return nAdd > 0;
 		}
 
-		private bool Add_(NetworkAddress addr, NetworkAddress source, TimeSpan nTimePenalty)
+		private bool Add_(Address addr, NetworkAddress source, TimeSpan nTimePenalty)
 		{
 			if (!addr.IsRoutable(true))
 				return false;
@@ -670,14 +652,14 @@ namespace NBitcoin.Protocol
 				// periodically update nTime
 				bool fCurrentlyOnline = (DateTimeOffset.UtcNow - addr.Time < TimeSpan.FromSeconds(24 * 60 * 60));
 				var nUpdateInterval = TimeSpan.FromSeconds(fCurrentlyOnline ? 60 * 60 : 24 * 60 * 60);
-				if (addr.ntime != 0 && (pinfo.Address.ntime == 0 || pinfo.Address.Time < addr.Time - nUpdateInterval - nTimePenalty))
-					pinfo.Address.ntime = (uint)Math.Max(0L, (long)Utils.DateTimeToUnixTime(addr.Time - nTimePenalty));
+				if (addr.nTime != 0 && (pinfo.Address.nTime == 0 || pinfo.Address.Time < addr.Time - nUpdateInterval - nTimePenalty))
+					pinfo.Address.nTime = (uint)Math.Max(0L, (long)Utils.DateTimeToUnixTime(addr.Time - nTimePenalty));
 
 				// add services
-				pinfo.Address.Service |= addr.Service;
+				pinfo.Address.Services |= addr.Services;
 
 				// do not update if no new information is present
-				if (addr.ntime == 0 || (pinfo.Address.ntime != 0 && addr.Time <= pinfo.Address.Time))
+				if (addr.nTime == 0 || (pinfo.Address.nTime != 0 && addr.Time <= pinfo.Address.Time))
 					return false;
 
 				// do not update if the entry was already in the "tried" table
@@ -698,7 +680,7 @@ namespace NBitcoin.Protocol
 			else
 			{
 				pinfo = Create(addr, source, out nId);
-				pinfo.Address.ntime = (uint)Math.Max((long)0, (long)Utils.DateTimeToUnixTime(pinfo.Address.Time - nTimePenalty));
+				pinfo.Address.nTime = (uint)Math.Max((long)0, (long)Utils.DateTimeToUnixTime(pinfo.Address.Time - nTimePenalty));
 				nNew++;
 				fNew = true;
 			}
@@ -788,7 +770,7 @@ namespace NBitcoin.Protocol
 			vRandom[nRndPos2] = nId1;
 		}
 
-		private AddressInfo Create(NetworkAddress addr, NetworkAddress addrSource, out int pnId)
+		private AddressInfo Create(Address addr, NetworkAddress addrSource, out int pnId)
 		{
 			int nId = nIdCount++;
 			mapInfo[nId] = new AddressInfo(addr, addrSource);
@@ -900,12 +882,12 @@ namespace NBitcoin.Protocol
 
 
 
-		public void Good(NetworkAddress addr)
+		public void Good(Service addr)
 		{
 			Good(addr, DateTimeOffset.UtcNow);
 		}
 
-		public void Good(NetworkAddress addr, DateTimeOffset nTime)
+		public void Good(Service addr, DateTimeOffset nTime)
 		{
 			lock (cs)
 			{
@@ -915,7 +897,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		private void Good_(NetworkAddress addr, DateTimeOffset nTime)
+		private void Good_(Service addr, DateTimeOffset nTime)
 		{
 			int nId;
 			AddressInfo pinfo = Find(addr, out nId);
@@ -927,7 +909,7 @@ namespace NBitcoin.Protocol
 			AddressInfo info = pinfo;
 
 			// check whether we are talking about the exact same CService (including same port)
-			if (!info.Match(addr))
+			if (info.Address != addr)
 				return;
 
 			// update info
@@ -1021,12 +1003,12 @@ namespace NBitcoin.Protocol
 				throw new InvalidOperationException("Bug in AddressManager, should never happen, contact NBitcoin developers if you see this exception");
 		}
 		//! Mark an entry as connection attempted to.
-		public void Attempt(NetworkAddress addr)
+		public void Attempt(Service addr)
 		{
 			Attempt(addr, DateTimeOffset.UtcNow);
 		}
 		//! Mark an entry as connection attempted to.
-		public void Attempt(NetworkAddress addr, DateTimeOffset nTime)
+		public void Attempt(Service addr, DateTimeOffset nTime)
 		{
 			lock (cs)
 			{
@@ -1036,7 +1018,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		private void Attempt_(NetworkAddress addr, DateTimeOffset nTime)
+		private void Attempt_(Service addr, DateTimeOffset nTime)
 		{
 			AddressInfo pinfo = Find(addr);
 
@@ -1047,7 +1029,7 @@ namespace NBitcoin.Protocol
 			AddressInfo info = pinfo;
 
 			// check whether we are talking about the exact same CService (including same port)
-			if (!info.Match(addr))
+			if (info.Address != addr)
 				return;
 
 			// update info
@@ -1056,13 +1038,13 @@ namespace NBitcoin.Protocol
 		}
 
 		//! Mark an entry as currently-connected-to.
-		public void Connected(NetworkAddress addr)
+		public void Connected(Service addr)
 		{
 			Connected(addr, DateTimeOffset.UtcNow);
 		}
 
 		//! Mark an entry as currently-connected-to.
-		public void Connected(NetworkAddress addr, DateTimeOffset nTime)
+		public void Connected(Service addr, DateTimeOffset nTime)
 		{
 			lock (cs)
 			{
@@ -1071,7 +1053,7 @@ namespace NBitcoin.Protocol
 				Check();
 			}
 		}
-		void Connected_(NetworkAddress addr, DateTimeOffset nTime)
+		void Connected_(Service addr, DateTimeOffset nTime)
 		{
 			int unused;
 			AddressInfo pinfo = Find(addr, out unused);
@@ -1083,7 +1065,7 @@ namespace NBitcoin.Protocol
 			AddressInfo info = pinfo;
 
 			// check whether we are talking about the exact same CService (including same port)
-			if (!info.Match(addr))
+			if (info.Address != addr)
 				return;
 
 			// update info
@@ -1096,7 +1078,7 @@ namespace NBitcoin.Protocol
 		/// Choose an address to connect to.
 		/// </summary>
 		/// <returns>The network address of a peer, or null if none are found</returns>
-		public NetworkAddress Select()
+		public Address Select()
 		{
 			AddressInfo addrRet = null;
 			lock (cs)
@@ -1169,9 +1151,9 @@ namespace NBitcoin.Protocol
 		/// Return a bunch of addresses, selected at random.
 		/// </summary>
 		/// <returns></returns>
-		public NetworkAddress[] GetAddr()
+		public Address[] GetAddr()
 		{
-			NetworkAddress[] result = null;
+			Address[] result = null;
 			lock (cs)
 			{
 				Check();
@@ -1180,9 +1162,9 @@ namespace NBitcoin.Protocol
 			}
 			return result;
 		}
-		IEnumerable<NetworkAddress> GetAddr_()
+		IEnumerable<Address> GetAddr_()
 		{
-			List<NetworkAddress> vAddr = new List<NetworkAddress>();
+			List<Address> vAddr = new List<Address>();
 			int nNodes = ADDRMAN_GETADDR_MAX_PCT * vRandom.Count / 100;
 			if (nNodes > ADDRMAN_GETADDR_MAX)
 				nNodes = ADDRMAN_GETADDR_MAX;
@@ -1231,13 +1213,13 @@ namespace NBitcoin.Protocol
 
 					Logs.NodeServer.LogTrace("Remaining peer to get {remainingPeerCount}", (-_DiscoveredPeers + peerToFind));
 
-					List<NetworkAddress> peers = new List<NetworkAddress>();
+					List<Service> peers = new List<Service>();
 					peers.AddRange(this.GetAddr());
 					if (peers.Count == 0)
 					{
 						PopulateTableWithDNSNodes(network, peers).GetAwaiter().GetResult();
 						PopulateTableWithHardNodes(network, peers);
-						peers = new List<NetworkAddress>(peers.OrderBy(a => RandomUtils.GetInt32()));
+						peers = new List<Service>(peers.OrderBy(a => RandomUtils.GetInt32()));
 						if (peers.Count == 0)
 							return;
 					}
@@ -1303,18 +1285,18 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		private async static Task PopulateTableWithDNSNodes(Network network, List<NetworkAddress> peers)
+		private async static Task PopulateTableWithDNSNodes(Network network, List<Service> peers)
 		{
 			var result = await Task.WhenAll(network.DNSSeeds
 				.Select(async dns =>
 				{
 					try
 					{
-						return (await dns.GetAddressNodesAsync(network.DefaultPort).ConfigureAwait(false)).Select(o => new NetworkAddress(o)).ToArray();
+						return (await dns.GetAddressNodesAsync(network.DefaultPort).ConfigureAwait(false)).Select(o => new Service(o)).ToArray();
 					}
 					catch
 					{
-						return new NetworkAddress[0];
+						return new Service[0];
 					}
 				})
 				.ToArray()).ConfigureAwait(false);
@@ -1322,7 +1304,7 @@ namespace NBitcoin.Protocol
 				peers.AddRange(result.SelectMany(x => x));
 		}
 
-		private static void PopulateTableWithHardNodes(Network network, List<NetworkAddress> peers)
+		private static void PopulateTableWithHardNodes(Network network, List<Service> peers)
 		{
 			peers.AddRange(network.SeedNodes);
 		}

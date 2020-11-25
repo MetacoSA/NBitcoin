@@ -1928,7 +1928,7 @@ namespace NBitcoin
 
 #if !NOSOCKET
 		List<DNSSeedData> vSeeds = new List<DNSSeedData>();
-		List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
+		List<Service> vFixedSeeds = new List<Service>();
 #else
 		List<string> vSeeds = new List<string>();
 		List<string> vFixedSeeds = new List<string>();
@@ -2201,7 +2201,7 @@ namespace NBitcoin
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
 				// it'll get a pile of addresses with newer timestamps.
-				NetworkAddress addr = new NetworkAddress();
+				Address addr = new Address();
 				// Seed nodes are given a random 'last seen time' of between one and two
 				// weeks ago.
 				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
@@ -2277,7 +2277,7 @@ namespace NBitcoin
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
 				// it'll get a pile of addresses with newer timestamps.
-				NetworkAddress addr = new NetworkAddress();
+				Address addr = new Address();
 				// Seed nodes are given a random 'last seen time' of between one and two
 				// weeks ago.
 				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
@@ -2784,7 +2784,7 @@ namespace NBitcoin
 		}
 
 #if !NOSOCKET
-		public IEnumerable<NetworkAddress> SeedNodes
+		public IEnumerable<Service> SeedNodes
 		{
 			get
 			{
