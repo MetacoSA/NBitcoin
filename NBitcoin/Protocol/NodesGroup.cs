@@ -159,7 +159,7 @@ namespace NBitcoin.Protocol
 									AllowSameGroup ? WellKnownGroupSelectors.ByRandom : null;
 
 								var connectedPeers = _ConnectedNodes.Select(n => n.Peer).Where(e => e != null).ToArray();
-								node = Node.ConnectNode(_Network, parameters, connectedPeers, groupSelector);
+								node = Node.Connect(_Network, parameters, connectedPeers, groupSelector);
 								using (var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token))
 								{
 									timeout.CancelAfter(5000);

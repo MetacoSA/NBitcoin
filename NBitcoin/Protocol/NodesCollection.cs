@@ -41,8 +41,8 @@ namespace NBitcoin.Protocol
 		event EventHandler<NodeEventArgs> Added;
 		event EventHandler<NodeEventArgs> Removed;
 
-		Node FindByEndpoint(IPEndPoint endpoint);
-		Node FindByIp(IPAddress ip);
+		Node FindByService(Service endpoint);
+
 		Node FindLocal();
 	}
 
@@ -132,36 +132,12 @@ namespace NBitcoin.Protocol
 
 		public Node FindLocal()
 		{
-			return FindByIp(IPAddress.Loopback);
+			return _Nodes.Select(n => n.Key).FirstOrDefault(n => n.PeerVersion.AddressFrom.IsLocal);
 		}
 
-		public Node FindByIp(IPAddress ip)
+		public Node FindByService(Service service)
 		{
-			//ip = ip.EnsureIPv6();
-			return _Nodes.Where(n => Match(ip, null, n.Key)).Select(s => s.Key).FirstOrDefault();
-		}
-
-
-
-		public Node FindByEndpoint(IPEndPoint endpoint)
-		{
-			var ip = endpoint.Address.EnsureIPv6();
-			int port = endpoint.Port;
-			return _Nodes.Select(n => n.Key).FirstOrDefault(n => Match(ip, port, n));
-		}
-
-		private static bool Match(IPAddress ip, int? port, Node n)
-		{
-			if (port.HasValue)
-			{
-				return (n.State > NodeState.Disconnecting && n.RemoteSocketAddress.Equals(ip) && n.RemoteSocketPort == port.Value) ||
-						(n.PeerVersion.AddressFrom.Address.Equals(ip) && n.PeerVersion.AddressFrom.Port == port.Value);
-			}
-			else
-			{
-				return (n.State > NodeState.Disconnecting && n.RemoteSocketAddress.Equals(ip)) ||
-						n.PeerVersion.AddressFrom.Address.Equals(ip);
-			}
+			return _Nodes.Select(n => n.Key).FirstOrDefault(n => n.PeerVersion.AddressFrom == service);
 		}
 
 

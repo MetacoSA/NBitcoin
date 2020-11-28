@@ -254,13 +254,6 @@ namespace NBitcoin.Protocol
 				return false;
 			}
 
-			internal bool Match(Address addr)
-			{
-				return
-					Address.Endpoint.Address.Equals(addr.Endpoint.Address) &&
-					Address.Endpoint.Port == addr.Endpoint.Port;
-			}
-
 			internal double Chance
 			{
 				get
@@ -1245,12 +1238,11 @@ namespace NBitcoin.Protocol
 									var addrman = param2.TemplateBehaviors.Find<AddressManagerBehavior>();
 									param2.TemplateBehaviors.Clear();
 									param2.TemplateBehaviors.Add(addrman);
-									n = Node.Connect(network, p.Endpoint, param2);
+									n = Node.Connect(network, p, param2);
 									n.VersionHandshake(cancelConnection.Token);
 									n.MessageReceived += (s, a) =>
 									{
-										var addr = (a.Message.Payload as AddrPayload);
-										if (addr != null)
+										if (a.Message.Payload is AddrPayload addr)
 										{
 											Interlocked.Add(ref _DiscoveredPeers, addr.Addresses.Length);
 											backoff = TimeSpan.FromSeconds(0);

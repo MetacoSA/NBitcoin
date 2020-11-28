@@ -55,7 +55,7 @@ namespace NBitcoin.Protocol
 			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6Ex(), internalPort);
 			MaxConnections = 125;
 			_Network = network;
-			_ExternalEndpoint = new IPEndPoint(_LocalEndpoint.Address, Network.DefaultPort);
+			_ExternalEndpoint = new Address(_LocalEndpoint.Address, Network.DefaultPort);
 			_Version = version == null ? network.MaxP2PVersion : version.Value;
 			var listener = new EventLoopMessageListener<IncomingMessage>(ProcessMessage);
 			_MessageProducer.AddMessageListener(listener);
@@ -246,8 +246,8 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		volatile IPEndPoint _ExternalEndpoint;
-		public IPEndPoint ExternalEndpoint
+		volatile Service _ExternalEndpoint;
+		public Service ExternalEndpoint
 		{
 			get
 			{
@@ -255,17 +255,17 @@ namespace NBitcoin.Protocol
 			}
 			set
 			{
-				_ExternalEndpoint = Utils.EnsureIPv6(value);
+				_ExternalEndpoint = value;
 			}
 		}
 
 
 		internal void ExternalAddressDetected(IPAddress iPAddress)
 		{
-			if (!ExternalEndpoint.Address.IsRoutable(AllowLocalPeers) && iPAddress.IsRoutable(AllowLocalPeers))
+			if (!ExternalEndpoint.IsRoutable(AllowLocalPeers) && iPAddress.IsRoutable(AllowLocalPeers))
 			{
 				Logs.NodeServer.LogInformation("New externalAddress detected {externalAddress}", iPAddress);
-				ExternalEndpoint = new IPEndPoint(iPAddress, ExternalEndpoint.Port);
+				ExternalEndpoint = new Address(iPAddress, ExternalEndpoint.Port);
 			}
 		}
 
@@ -295,22 +295,21 @@ namespace NBitcoin.Protocol
 				if (message.Node == null)
 				{
 					var remoteEndpoint = version.AddressFrom;
-					if (!remoteEndpoint.Address.IsRoutable(AllowLocalPeers))
+					if (!remoteEndpoint.IsRoutable(AllowLocalPeers))
 					{
 						//Send his own endpoint
-						remoteEndpoint = new IPEndPoint(((IPEndPoint)message.Socket.RemoteEndPoint).Address, Network.DefaultPort);
+						remoteEndpoint = new Address(((IPEndPoint)message.Socket.RemoteEndPoint).Address, Network.DefaultPort);
 					}
 
-					var peer = new Address()
+					var peer = new Address(remoteEndpoint)
 					{
-						Endpoint = remoteEndpoint,
 						Time = DateTimeOffset.UtcNow
 					};
 					var node = new Node(peer, Network, CreateNodeConnectionParameters(), message.Socket, version);
 
 					if (connectedToSelf)
 					{
-						node.SendMessage(CreateNodeConnectionParameters().CreateVersion(node.Peer.Endpoint, Network));
+						node.SendMessage(CreateNodeConnectionParameters().CreateVersion(node.Peer, Network));
 						Logs.NodeServer.LogWarning("Connection to self detected, abort connection");
 						node.Disconnect();
 						return;
@@ -416,11 +415,10 @@ namespace NBitcoin.Protocol
 
 		internal NodeConnectionParameters CreateNodeConnectionParameters()
 		{
-			var myExternal = Utils.EnsureIPv6(ExternalEndpoint);
 			var param2 = InboundNodeConnectionParameters.Clone();
 			param2.Nonce = Nonce;
 			param2.Version = Version;
-			param2.AddressFrom = myExternal;
+			param2.AddressFrom = new Address(ExternalEndpoint);
 			return param2;
 		}
 
@@ -443,16 +441,16 @@ namespace NBitcoin.Protocol
 
 
 
-		public bool IsConnectedTo(IPEndPoint endpoint)
+		public bool IsConnectedTo(Service endpoint)
 		{
-			return _ConnectedNodes.FindByEndpoint(endpoint) != null;
+			return _ConnectedNodes.FindByService(endpoint) != null;
 		}
 
-		public Node FindOrConnect(IPEndPoint endpoint)
+		public Node FindOrConnect(Service endpoint)
 		{
 			while (true)
 			{
-				var node = _ConnectedNodes.FindByEndpoint(endpoint);
+				var node = _ConnectedNodes.FindByService(endpoint);
 				if (node != null)
 					return node;
 				node = Node.Connect(Network, endpoint, CreateNodeConnectionParameters());

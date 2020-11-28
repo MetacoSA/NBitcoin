@@ -13,12 +13,4 @@ namespace NBitcoin.Protocol
 	public class GetAddrPayload : Payload
 	{
 	}
-
-	/// <summary>
-	/// Ask for known peer addresses in the network (BIP 155)
-	/// </summary>
-	[Payload("getaddrv2")]
-	public class GetAddrV2Payload : Payload
-	{
-	}
 }

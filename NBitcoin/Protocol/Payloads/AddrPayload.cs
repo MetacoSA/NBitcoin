@@ -56,6 +56,21 @@ namespace NBitcoin.Protocol
 	[Payload("addrv2")]
 	public class AddrV2Payload : AddrPayload
 	{
+		public AddrV2Payload()
+			: base()
+		{
+		}
+
+		public AddrV2Payload(Address address)
+			: base(address)
+		{
+		}
+
+		public AddrV2Payload(Address[] addresses)
+			: base(addresses)
+		{
+		}
+
 		#region IBitcoinSerializable Members
 
 		public override void ReadWriteCore(BitcoinStream stream)

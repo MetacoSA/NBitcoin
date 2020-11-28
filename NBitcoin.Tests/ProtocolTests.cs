@@ -38,12 +38,12 @@ namespace NBitcoin.Tests
 					var b = _Rand.Next(4000, 60000);
 					_Server1 = new NodeServer(network, internalPort: a);
 					_Server1.AllowLocalPeers = true;
-					_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6Ex(), a);
+					_Server1.ExternalEndpoint = new Address(IPAddress.Parse("127.0.0.1"), a);
 					_Server1.Listen();
 					Assert.True(_Server1.IsListening);
 					_Server2 = new NodeServer(network, internalPort: b);
 					_Server2.AllowLocalPeers = true;
-					_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6Ex(), b);
+					_Server2.ExternalEndpoint = new Address(IPAddress.Parse("127.0.0.1"), b);
 					_Server2.Listen();
 					Assert.True(_Server2.IsListening);
 					break;
@@ -169,8 +169,7 @@ namespace NBitcoin.Tests
 							var version = (VersionPayload)o;
 							Assert.Equal((ulong)0x1357B43A2C209DDD, version.Nonce);
 							Assert.Equal("", version.UserAgent);
-							Assert.Equal("10.0.0.2", version.AddressFrom.Address.ToString());
-							Assert.Equal(8333, version.AddressFrom.Port);
+							Assert.Equal("10.0.0.2:8333", version.AddressFrom.ToString());
 							Assert.Equal(0x00018155, version.StartHeight);
 							Assert.Equal<uint>(31900, version.Version);
 						})
@@ -272,6 +271,37 @@ namespace NBitcoin.Tests
 			}
 		}
 
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
+		public void CanProcessAddressGossip()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode(true);
+				var rpc = node.CreateRPCClient();
+				for (var i = 0; i < 10_000; i++)
+				{
+					var first_octet = i >> 8;
+					var second_octet = i % 256;
+					var ip = IPAddress.Parse($"{first_octet}.{second_octet}.1.1");
+					rpc.AddPeerAddress(ip, 8333);
+				}
+
+				var nodeClient = node.CreateNodeClient();
+				nodeClient.VersionHandshake();
+				AddrV2Payload addr;
+				using (var list = nodeClient.CreateListener()
+										.Where(m => m.Message.Payload is AddrV2Payload))
+				{
+					nodeClient.SendMessage(new GetAddrPayload());
+
+					addr = list.ReceivePayload<AddrV2Payload>();
+					Assert.Equal(1000, addr.Addresses.Length);
+				}
+			}
+		}
+
 		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void CanHandshakeWithSeveralTemplateBehaviors()
@@ -349,7 +379,7 @@ namespace NBitcoin.Tests
 				group.ConnectedNodes.Added -= waitingConnected;
 			};
 			group.ConnectedNodes.Added += waitingConnected;
-			CancellationTokenSource cts = new CancellationTokenSource(5000);
+			CancellationTokenSource cts = new CancellationTokenSource(5000 * 100);
 			using (cts.Token.Register(() => tcs.TrySetCanceled()))
 			{
 				await tcs.Task;

@@ -149,7 +149,7 @@ namespace NBitcoin.Protocol
 			return new NodeConnectionParameters(this);
 		}
 
-		public IPEndPoint AddressFrom
+		public Address AddressFrom
 		{
 			get;
 			set;
@@ -161,7 +161,7 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
-		public VersionPayload CreateVersion(IPEndPoint peer, Network network)
+		public VersionPayload CreateVersion(Address peer, Network network)
 		{
 			VersionPayload version = new VersionPayload()
 			{
@@ -170,7 +170,7 @@ namespace NBitcoin.Protocol
 				Version = Version == null ? network.MaxP2PVersion : Version.Value,
 				Timestamp = DateTimeOffset.UtcNow,
 				AddressReceiver = peer,
-				AddressFrom = AddressFrom ?? new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6Ex(), network.DefaultPort),
+				AddressFrom = AddressFrom ?? new Address(IPAddress.Parse("0.0.0.0"), network.DefaultPort),
 				Relay = IsRelay,
 				Services = Services
 			};

@@ -11,7 +11,7 @@ using NBitcoin.Crypto;
 
 namespace NBitcoin.Protocol
 {
-	public class NetworkAddress : IBitcoinSerializable, IEquatable<NetworkAddress>
+		public class NetworkAddress : IBitcoinSerializable, IEquatable<NetworkAddress>
 	{
 		public static readonly uint AddrV2Format = 0x20000000;
 
@@ -725,17 +725,26 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		public override int GetHashCode() =>
+			(network, addr, port).GetHashCode();
+
 		public override bool Equals(object obj) =>
 			obj is Service service ? Equals(service) : false;
 
 		public bool Equals(Service other) =>
 			other is {} && port == other.Port && base.Equals((NetworkAddress)other);
 
-		public static bool operator == (Service a, Service b) =>
-			a.Equals(b);
+		public static bool operator == (Service a, Service b)
+		{
+			if (System.Object.ReferenceEquals(a, b))
+				return true;
+			if ((a is null) || (b is null))
+				return false;
+			return a.Equals(b);
+		}
 
 		public static bool operator != (Service a, Service b) =>
-			!a.Equals(b);
+			!(a == b);
 	}
 
 	public class Address : Service
@@ -766,6 +775,13 @@ namespace NBitcoin.Protocol
 		public Address(Service service)
 			: base(service)
 		{
+		}
+
+		public Address(Address address)
+			: base(address)
+		{
+			services = address.services;
+			nTime = address.nTime;
 		}
 
 		public NodeServices Services

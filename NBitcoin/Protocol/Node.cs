@@ -221,10 +221,13 @@ namespace NBitcoin.Protocol
 							{
 								Logs.NodeServer.LogTrace("Sending message {message}", message);
 							}
+							var addrSupport = Node.PreferAddressV2
+								? NetworkAddress.AddrV2Format
+								: 0; 
 							MemoryStream ms = new MemoryStream();
 							message.ReadWrite(new BitcoinStream(ms, true)
 							{
-								ProtocolVersion = Node.Version,
+								ProtocolVersion = Node.Version | addrSupport,
 								TransactionOptions = Node.SupportedTransactionOptions,
 								ConsensusFactory = Node.Network.Consensus.ConsensusFactory
 							});
@@ -542,27 +545,13 @@ namespace NBitcoin.Protocol
 		/// <param name="parameters">The parameters used by the found node</param>
 		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
 		/// <returns></returns>
-		public static Node Connect(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null)
+		public static Node Connect(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, Service[] connectedEndpoints = null)
 		{
 			parameters = parameters ?? new NodeConnectionParameters();
 			AddressManagerBehavior.SetAddrman(parameters, addrman);
 			return Connect(network, parameters, connectedEndpoints);
 		}
 
-		/// <summary>
-		/// Connect to a random node on the network
-		/// </summary>
-		/// <param name="network">The network to connect to</param>
-		/// <param name="addrman">The addrman used for finding peers</param>
-		/// <param name="parameters">The parameters used by the found node</param>
-		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
-		/// <returns></returns>
-		public static Node ConnectNode(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, Address[] connectedEndpoints = null)
-		{
-			parameters = parameters ?? new NodeConnectionParameters();
-			AddressManagerBehavior.SetAddrman(parameters, addrman);
-			return ConnectNode(network, parameters, connectedEndpoints);
-		}
 
 		/// <summary>
 		/// Connect to a random node on the network
@@ -572,30 +561,10 @@ namespace NBitcoin.Protocol
 		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
 		/// <param name="getGroup">Group selector, by default NBicoin.IpExtensions.GetGroup</param>
 		/// <returns></returns>
-		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null, Func<IPEndPoint, byte[]> getGroup = null)
+		public static Node Connect(Network network, NodeConnectionParameters parameters = null, Service[] connectedEndpoints = null, Func<Service, byte[]> getGroup = null)
 		{
-			connectedEndpoints ??= new IPEndPoint[0];
-			var connectedNetworkAddresses = connectedEndpoints.Select(x => new Address(x)).ToArray();  
-
-			getGroup ??= new Func<IPEndPoint, byte[]>(a => new Address(a).GetGroup());
-
-			var getNetworkAddressGroup = new Func<Address, byte[]>(a => getGroup(a.Endpoint));
-
-			return ConnectNode(network, parameters, connectedNetworkAddresses, getNetworkAddressGroup);
-		}
-
-		/// <summary>
-		/// Connect to a random node on the network
-		/// </summary>
-		/// <param name="network">The network to connect to</param>
-		/// <param name="parameters">The parameters used by the found node, use AddressManagerBehavior.GetAddrman for finding peers</param>
-		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
-		/// <param name="getGroup">Group selector, by default NBicoin.IpExtensions.GetGroup</param>
-		/// <returns></returns>
-		public static Node ConnectNode(Network network, NodeConnectionParameters parameters = null, Address[] connectedEndpoints = null, Func<Address, byte[]> getGroup = null)
-		{
-			getGroup ??= new Func<Address, byte[]>(a => a.GetGroup());
-			connectedEndpoints ??= new Address[0];
+			getGroup ??= new Func<Service, byte[]>(a => a.GetGroup());
+			connectedEndpoints ??= new Service[0];
 			parameters = parameters ?? new NodeConnectionParameters();
 			var addrmanBehavior = parameters.TemplateBehaviors.FindOrCreate(() => new AddressManagerBehavior(new AddressManager()));
 			var addrman = AddressManagerBehavior.GetAddrman(parameters);
@@ -700,7 +669,7 @@ namespace NBitcoin.Protocol
 
 		public static Node Connect(Network network,
 							 Service endpoint,
-							 NodeConnectionParameters parameters)
+							 NodeConnectionParameters parameters = null)
 		{
 			return ConnectAsync(network, endpoint?.Endpoint, endpoint, parameters).GetAwaiter().GetResult();
 		}
@@ -750,7 +719,7 @@ namespace NBitcoin.Protocol
 				{
 					peer = new Service(expectedPeerEndpoint);
 				}
-				else if (!expectedPeerEndpoint.MapToIPv6Ex().Equals(peer.Endpoint))
+				else if (!expectedPeerEndpoint.Equals(peer.Endpoint))
 				{
 					throw new ArgumentException("The peer's endpoint that you provided is different from the endpoint eventually connected to");
 				}
@@ -807,7 +776,7 @@ namespace NBitcoin.Protocol
 			Inbound = peerVersion != null;
 			Network = network;
 			_Behaviors = new NodeBehaviorsCollection(this);
-			_MyVersion = parameters.CreateVersion(peer.Endpoint, network);
+			_MyVersion = parameters.CreateVersion(peer, network);
 			if (peerVersion is null)
 				SetVersion((uint)_MyVersion.Version);
 			_Connection = new NodeConnection(this, socket);
@@ -1066,8 +1035,8 @@ namespace NBitcoin.Protocol
 				_PeerVersion = version;
 				SetVersion(Math.Min(MyVersion.Version, version.Version));
 
-				if (!version.AddressReceiver.Address.Equals(MyVersion.AddressFrom.Address))
-					Logs.NodeServer.LogWarning("Different external address detected by the node {addressReceiver} instead of {addressFrom}", version.AddressReceiver.Address, MyVersion.AddressFrom.Address);
+				if (!version.AddressReceiver.Equals(MyVersion.AddressFrom))
+					Logs.NodeServer.LogWarning("Different external address detected by the node {addressReceiver} instead of {addressFrom}", version.AddressReceiver, MyVersion.AddressFrom);
 
 				if (ProtocolCapabilities.PeerTooOld)
 				{
@@ -1085,7 +1054,11 @@ namespace NBitcoin.Protocol
 				SendMessageAsync(new VerAckPayload());
 				listener.ReceivePayload<VerAckPayload>(cancellationToken);
 				State = NodeState.HandShaked;
-				if (Advertize && MyVersion.AddressFrom.Address.IsRoutable(true))
+
+				// Signal ADDRv2 support (BIP155).
+				SendMessageAsync(new SendAddrV2Payload());
+
+				if (Advertize && MyVersion.AddressFrom.IsRoutable(true))
 				{
 					SendMessageAsync(new AddrPayload(new Address(MyVersion.AddressFrom)
 					{
@@ -1186,6 +1159,23 @@ namespace NBitcoin.Protocol
 			get
 			{
 				return _SupportedTransactionOptions;
+			}
+		}
+
+		bool _PreferAddressV2 = false;
+
+		/// <summary>
+		/// Transaction options supported by the peer
+		/// </summary>
+		public bool PreferAddressV2
+		{
+			get
+			{
+				return _PreferAddressV2;
+			}
+			set
+			{
+				_PreferAddressV2 = value;
 			}
 		}
 

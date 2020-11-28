@@ -43,6 +43,9 @@ namespace NBitcoin.Protocol
 		/// </summary> 
 		NODE_WITNESS = (1 << 3),
 
+		// NODE_COMPACT_FILTERS means the node will service basic block filter requests.
+		// See BIP157 and BIP158 for details on how this is implemented.
+		NODE_COMPACT_FILTERS = (1 << 6),
 		/// <summary> NODE_NETWORK_LIMITED means the same as NODE_NETWORK with the limitation of only
 		/// serving the last 288 (2 day) blocks
 		/// See BIP159 for details on how this is implemented.
@@ -116,27 +119,27 @@ namespace NBitcoin.Protocol
 		}
 
 		Address addr_recv = new Address();
-		public IPEndPoint AddressReceiver
+		public Address AddressReceiver
 		{
 			get
 			{
-				return addr_recv.Endpoint;
+				return addr_recv;
 			}
 			set
 			{
-				addr_recv.Endpoint = value;
+				addr_recv = value;
 			}
 		}
 		Address addr_from = new Address();
-		public IPEndPoint AddressFrom
+		public Address AddressFrom
 		{
 			get
 			{
-				return addr_from.Endpoint;
+				return addr_from;
 			}
 			set
 			{
-				addr_from.Endpoint = value;
+				addr_from = value;
 			}
 		}
 

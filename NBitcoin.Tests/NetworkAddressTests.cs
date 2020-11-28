@@ -50,6 +50,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void SerializeV1()
 		{
 			var addr = new NetworkAddress();
@@ -145,6 +146,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void UnserializeV2()
 		{
 			var addr = new NetworkAddress();
@@ -428,6 +430,110 @@ namespace NBitcoin.Tests
 			stream.ReadWrite(ref addr);
 			Assert.False(addr.IsValid);
 			Assert.True(stream.Inner.Length == stream.Inner.Position);
+		}
+
+		static Address[] fixture_addresses = new Address[]{
+			new Address(IPAddress.IPv6Loopback, 0)
+			{
+				Services = NodeServices.Nothing,
+				Time = Utils.UnixTimeToDateTime(0x4966bc61U) /* Fri Jan  9 02:54:25 UTC 2009 */
+			},
+			new Address(IPAddress.IPv6Loopback, 0x00f1 /* port */)
+			{
+				Services = NodeServices.Network,
+				Time = Utils.UnixTimeToDateTime(0x83766279U) /* Tue Nov 22 11:22:33 UTC 2039 */
+			},
+			new Address(IPAddress.IPv6Loopback, 0xf1f2 /* port */)
+			{
+				Services = NodeServices.NODE_WITNESS | NodeServices.NODE_NETWORK_LIMITED | NodeServices.NODE_COMPACT_FILTERS,
+				Time = Utils.UnixTimeToDateTime(0xffffffffU) /* Sun Feb  7 06:28:15 UTC 2106 */
+			}
+		};
+
+		// fixture_addresses should equal to this when serialized in V1 format.
+		// When this is unserialized from V1 format it should equal to fixture_addresses.
+		static string stream_addrv1_hex =
+			  "03" // number of entries
+
+			+ "61bc6649"                         // time, Fri Jan  9 02:54:25 UTC 2009
+			+ "0000000000000000"                 // service flags, NODE_NONE
+			+ "00000000000000000000000000000001" // address, fixed 16 bytes (IPv4 embedded in IPv6)
+			+ "0000"                             // port
+
+			+ "79627683"                         // time, Tue Nov 22 11:22:33 UTC 2039
+			+ "0100000000000000"                 // service flags, NODE_NETWORK
+			+ "00000000000000000000000000000001" // address, fixed 16 bytes (IPv6)
+			+ "00f1"                             // port
+
+			+ "ffffffff"                         // time, Sun Feb  7 06:28:15 UTC 2106
+			+ "4804000000000000"                 // service flags, NODE_WITNESS | NODE_COMPACT_FILTERS | NODE_NETWORK_LIMITED
+			+ "00000000000000000000000000000001" // address, fixed 16 bytes (IPv6)
+			+ "f1f2";                            // port
+
+		// fixture_addresses should equal to this when serialized in V2 format.
+		// When this is unserialized from V2 format it should equal to fixture_addresses.
+		static string stream_addrv2_hex =
+			  "03" // number of entries
+
+			+ "61bc6649"                         // time, Fri Jan  9 02:54:25 UTC 2009
+			+ "00"                               // service flags, COMPACTSIZE(NODE_NONE)
+			+ "02"                               // network id, IPv6
+			+ "10"                               // address length, COMPACTSIZE(16)
+			+ "00000000000000000000000000000001" // address
+			+ "0000"                             // port
+
+			+ "79627683"                         // time, Tue Nov 22 11:22:33 UTC 2039
+			+ "01"                               // service flags, COMPACTSIZE(NODE_NETWORK)
+			+ "02"                               // network id, IPv6
+			+ "10"                               // address length, COMPACTSIZE(16)
+			+ "00000000000000000000000000000001" // address
+			+ "00f1"                             // port
+
+			+ "ffffffff"                         // time, Sun Feb  7 06:28:15 UTC 2106
+			+ "fd4804"                           // service flags, COMPACTSIZE(NODE_WITNESS | NODE_COMPACT_FILTERS | NODE_NETWORK_LIMITED)
+			+ "02"                               // network id, IPv6
+			+ "10"                               // address length, COMPACTSIZE(16)
+			+ "00000000000000000000000000000001" // address
+			+ "f1f2";                            // port
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void SerializeAddressV1()
+		{
+			var mem = new MemoryStream();
+			var stream = new BitcoinStream(mem, serializing: true){
+				Type = SerializationType.Network
+			};
+			stream.ReadWrite(ref fixture_addresses);
+			Assert.Equal(stream_addrv1_hex, Encoders.Hex.EncodeData(mem.ToArray()));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void SerializeAddressV2()
+		{
+			var mem = new MemoryStream();
+			var stream = new BitcoinStream(mem, serializing: true){
+				Type = SerializationType.Network,
+				ProtocolVersion = NetworkAddress.AddrV2Format
+			};
+			stream.ReadWrite(ref fixture_addresses);
+			Assert.Equal(stream_addrv2_hex, Encoders.Hex.EncodeData(mem.ToArray()));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void DeserializeAddressV2()
+		{
+			var stream = new BitcoinStream(Encoders.Hex.DecodeData(stream_addrv2_hex)){
+				Type = SerializationType.Network,
+				ProtocolVersion = NetworkAddress.AddrV2Format
+			};
+			Address[] addresses = null;
+			stream.ReadWrite(ref addresses);
+			Assert.Equal(fixture_addresses.Length, addresses.Length);
+			Assert.All(Enumerable.Zip(fixture_addresses, addresses), t => Assert.Equal(t.First, t.Second));
 		}
 	}
 
