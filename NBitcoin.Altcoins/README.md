@@ -28,6 +28,7 @@ Currently supported altcoins are:
 * ZCoin
 * DogeCash
 * Qtum
+* XDS
 
 ## How to use?
 
