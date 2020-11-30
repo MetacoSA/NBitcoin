@@ -500,6 +500,7 @@ namespace NBitcoin.Tests
 					configStr.AppendLine($"[{NodeImplementation.Chain}]");
 				}
 			}
+			config.Add("wallet", "wallet.dat");
 			config.Add("rest", "1");
 			config.Add("server", "1");
 			config.Add("txindex", "1");
@@ -524,6 +525,7 @@ namespace NBitcoin.Tests
 			if (NodeImplementation.AdditionalRegtestConfig != null)
 				configStr.AppendLine(NodeImplementation.AdditionalRegtestConfig);
 			File.WriteAllText(_Config, configStr.ToString());
+			
 			await Run();
 		}
 
@@ -531,6 +533,8 @@ namespace NBitcoin.Tests
 		{
 			lock (l)
 			{
+				CreateDefaultWallet();
+
 				string appPath = new FileInfo(this._Builder.BitcoinD).FullName;
 				string args = "-conf=bitcoin.conf" + " -datadir=" + dataDir + " -debug=net";
 
@@ -561,6 +565,24 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		private void CreateDefaultWallet()
+		{
+			var walletToolPath = Path.Combine(Path.GetDirectoryName(this._Builder.BitcoinD), "bitcoin-wallet");
+			string walletToolArgs = $"-regtest -wallet=\"wallet.dat\" -datadir=\"{dataDir}\" create";
+
+			Process walletToolProcess; 
+			if (_Builder.ShowNodeConsole)
+			{
+				ProcessStartInfo info = new ProcessStartInfo(walletToolPath, walletToolArgs);
+				info.UseShellExecute = true;
+				walletToolProcess = Process.Start(info);
+			}
+			else
+			{
+				walletToolProcess = Process.Start(walletToolPath, walletToolArgs);
+			}
+			walletToolProcess.WaitForExit();
+		}
 
 		Process _Process;
 		private readonly string dataDir;

@@ -5,6 +5,7 @@ using NBitcoin.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -79,8 +80,9 @@ namespace NBitcoin.RPC
 
 		------------------ Wallet
 		wallet			 addmultisigaddress
-		wallet			 backupwallet				 Yes
-		wallet			 dumpprivkey				  Yes
+		wallet			 backupwallet				Yes
+		wallet			 dumpprivkey				Yes
+		wallet			 createwallet				Yes
 		wallet			 dumpwallet
 		wallet			 encryptwallet
 		wallet			 getaccountaddress			Yes
@@ -91,7 +93,7 @@ namespace NBitcoin.RPC
 		wallet			 getnewaddress
 		wallet			 getrawchangeaddress
 		wallet			 getreceivedbyaccount
-		wallet			 getreceivedbyaddress		 Yes
+		wallet			 getreceivedbyaddress		Yes
 		wallet			 gettransaction
 		wallet			 getunconfirmedbalance
 		wallet			 getwalletinfo
@@ -99,15 +101,16 @@ namespace NBitcoin.RPC
 		wallet			 importwallet
 		wallet			 importaddress				Yes
 		wallet			 keypoolrefill
-		wallet			 listaccounts				 Yes
-		wallet			 listaddressgroupings		 Yes
+		wallet			 listaccounts				Yes
+		wallet			 listaddressgroupings		Yes
 		wallet			 listlockunspent
 		wallet			 listreceivedbyaccount
 		wallet			 listreceivedbyaddress
 		wallet			 listsinceblock
 		wallet			 listtransactions
-		wallet			 listunspent				  Yes
-		wallet			 lockunspent				  Yes
+		wallet			 listunspent				Yes
+		wallet			 loadwallet					Yes
+		wallet			 lockunspent				Yes
 		wallet			 move
 		wallet			 sendfrom
 		wallet			 sendmany
@@ -115,16 +118,256 @@ namespace NBitcoin.RPC
 		wallet			 setaccount
 		wallet			 settxfee
 		wallet			 signmessage
+		wallet			 unloadwallet				Yes
 		wallet			 walletlock
 		wallet			 walletpassphrasechange
-		wallet			 walletpassphrase			yes
+		wallet			 walletpassphrase			Yes
 		wallet			 walletprocesspsbt
 		wallet			 walletcreatefundedpsbt
 	*/
-	public partial class RPCClient
-	{
-		// backupwallet
 
+	public interface IRPCWalletClient
+	{
+		BitcoinAddress GetNewAddress();
+
+		BitcoinAddress GetNewAddress(GetNewAddressRequest request);
+
+		Task<BitcoinAddress> GetNewAddressAsync();
+
+		Task<BitcoinAddress> GetNewAddressAsync(GetNewAddressRequest request);
+
+		BitcoinAddress GetRawChangeAddress();
+
+		Task<BitcoinAddress> GetRawChangeAddressAsync();
+
+		Task UnloadAsync(bool? loadOnStartup = null);
+
+		void Unload(bool? loadOnStartup = null);
+
+		void ImportPrivKey(BitcoinSecret secret);
+
+		void ImportPrivKey(BitcoinSecret secret, string label, bool rescan);
+
+		Task ImportPrivKeyAsync(BitcoinSecret secret);
+
+		Task ImportPrivKeyAsync(BitcoinSecret secret, string label, bool rescan);
+
+		void ImportAddress(IDestination address);
+
+		void ImportAddress(IDestination address, string label, bool rescan);
+
+		void ImportAddress(Script scriptPubKey);
+
+		void ImportAddress(Script scriptPubKey, string label, bool rescan);
+
+		Task ImportAddressAsync(Script scriptPubKey);
+
+		Task ImportAddressAsync(Script scriptPubKey, string label, bool rescan);
+
+		Task ImportAddressAsync(BitcoinAddress address);
+
+		Task ImportAddressAsync(BitcoinAddress address, string label, bool rescan);
+
+		void ImportMulti(ImportMultiAddress[] addresses, bool rescan);
+
+		void ImportMulti(ImportMultiAddress[] addresses, bool rescan, ISigningRepository signingRepository);
+
+		Task ImportMultiAsync(ImportMultiAddress[] addresses, bool rescan);
+
+		Task ImportMultiAsync(ImportMultiAddress[] addresses, bool rescan, ISigningRepository signingRepository);
+
+		BitcoinSecret DumpPrivKey(BitcoinAddress address);
+
+		Task<BitcoinSecret> DumpPrivKeyAsync(BitcoinAddress address);
+
+		Money GetReceivedByAddress(BitcoinAddress address);
+
+		Task<Money> GetReceivedByAddressAsync(BitcoinAddress address);
+
+		Money GetReceivedByAddress(BitcoinAddress address, int confirmations);
+
+		Task<Money> GetReceivedByAddressAsync(BitcoinAddress address, int confirmations);
+
+		GetAddressInfoResponse GetAddressInfo(IDestination address);
+
+		Task<GetAddressInfoResponse> GetAddressInfoAsync(IDestination address);
+
+		Money GetBalance(int minConf, bool includeWatchOnly);
+
+		Money GetBalance();
+
+		Task<Money> GetBalanceAsync();
+
+		Task<Money> GetBalanceAsync(int minConf, bool includeWatchOnly);
+
+		void AbandonTransaction(uint256 txId);
+
+		Task AbandonTransactionAsync(uint256 txId);
+
+		void BackupWallet(string path);
+
+		Task BackupWalletAsync(string path);
+
+		void WalletPassphrase(string passphrase, int timeout);
+
+		Task WalletPassphraseAsync(string passphrase, int timeout);
+		
+		Task<OutPoint[]> ListLockUnspentAsync();
+
+		OutPoint[] ListLockUnspent();
+
+		UnspentCoin[] ListUnspent();
+
+		UnspentCoin[] ListUnspent(int minconf, int maxconf, params BitcoinAddress[] addresses);
+
+		Task<UnspentCoin[]> ListUnspentAsync();
+
+		Task<UnspentCoin[]> ListUnspentAsync(int minconf, int maxconf, params BitcoinAddress[] addresses);
+
+		Task<UnspentCoin[]> ListUnspentAsync(ListUnspentOptions options, params BitcoinAddress[] addresses);
+
+		FundRawTransactionResponse FundRawTransaction(Transaction transaction, FundRawTransactionOptions options = null);
+		
+		Task<FundRawTransactionResponse> FundRawTransactionAsync(Transaction transaction, FundRawTransactionOptions options = null);
+
+		IEnumerable<AddressGrouping> ListAddressGroupings();
+
+		IEnumerable<BitcoinSecret> ListSecrets();
+
+		void LockUnspent(params OutPoint[] outpoints);
+
+		Task LockUnspentAsync(params OutPoint[] outpoints);
+
+		void UnlockUnspent(params OutPoint[] outpoints);
+
+		Task UnlockUnspentAsync(params OutPoint[] outpoints);
+
+		Transaction SignRawTransaction(Transaction tx);
+
+		Task<Transaction> SignRawTransactionAsync(Transaction tx);
+
+		SignRawTransactionResponse SignRawTransactionWithWallet(SignRawTransactionRequest request);
+
+		Task<SignRawTransactionResponse> SignRawTransactionWithWalletAsync(SignRawTransactionRequest request);
+
+		WalletProcessPSBTResponse WalletProcessPSBT(PSBT psbt, bool sign = true, SigHash hashType = SigHash.All, bool bip32derivs = false);
+		Task<WalletProcessPSBTResponse> WalletProcessPSBTAsync(PSBT psbt, bool sign = true, SigHash sighashType = SigHash.All, bool bip32derivs = false);
+		WalletCreateFundedPSBTResponse WalletCreateFundedPSBT(
+			TxIn[] inputs,
+			Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>> outputs,
+			LockTime locktime,
+			FundRawTransactionOptions options = null,
+			bool bip32derivs = false
+			);
+
+		Task<WalletCreateFundedPSBTResponse> WalletCreateFundedPSBTAsync(
+		TxIn[] inputs,
+		Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>> outputs,
+		LockTime locktime = default(LockTime),
+		FundRawTransactionOptions options = null,
+		bool bip32derivs = false
+		);
+
+		WalletCreateFundedPSBTResponse WalletCreateFundedPSBT(
+			TxIn[] inputs,
+			Dictionary<BitcoinAddress, Money> outputs,
+			LockTime locktime,
+			FundRawTransactionOptions options = null,
+			bool bip32derivs = false
+		);
+
+		WalletCreateFundedPSBTResponse WalletCreateFundedPSBT(
+			TxIn[] inputs,
+			Dictionary<string, string> outputs,
+			LockTime locktime,
+			FundRawTransactionOptions options = null,
+			bool bip32derivs = false
+		);
+
+		Task<RPCResponse> SendCommandAsync(RPCOperations commandName, params object[] parameters);
+
+	}
+
+	public partial class RPCClient : IRPCWalletClient
+	{
+		public RPCClient GetWallet(string walletName)
+		{
+			RPCCredentialString credentialString;;
+
+			if (_BatchedRequests is null)
+			{
+				credentialString = RPCCredentialString.Parse(CredentialString.ToString());
+			}
+			else
+			{
+				if (string.IsNullOrEmpty(CredentialString.WalletName))
+				{
+					credentialString = CredentialString;
+				}
+				else
+				{
+					throw new InvalidOperationException("Batch RPC client already has a wallet assigned.");
+				}
+			}
+			credentialString.WalletName = walletName;
+
+			return new RPCClient(credentialString, Address, Network)
+			{
+				_BatchedRequests = _BatchedRequests,
+				Capabilities = Capabilities,
+				RequestTimeout = RequestTimeout,
+				_HttpClient = _HttpClient,
+				AllowBatchFallback = AllowBatchFallback
+			};
+		}
+
+		public async Task<IRPCWalletClient> CreateWalletAsync(string walletNameOrPath, 
+			bool disablePrivateKeys = false, 
+			bool blank = false, 
+			string passphrase = null, 
+			bool avoidReuse = false,
+			bool descriptors = false,
+			bool? loadOnStartup = null)
+		{
+			var result = await SendCommandAsync(RPCOperations.createwallet, walletNameOrPath, disablePrivateKeys, blank, passphrase, avoidReuse, descriptors, loadOnStartup).ConfigureAwait(false);
+			return GetWallet(result.Result.Value<string>("name"));
+		}
+
+		public IRPCWalletClient CreateWallet(string walletNameOrPath, 
+			bool disablePrivateKeys = false, 
+			bool blank = false, 
+			string passphrase = null, 
+			bool avoidReuse = false,
+			bool descriptors = false,
+			bool? loadOnStartup = null)
+		{
+			var result = SendCommandAsync(RPCOperations.createwallet, walletNameOrPath, disablePrivateKeys, blank, passphrase, avoidReuse, descriptors, loadOnStartup).GetAwaiter().GetResult();
+			return GetWallet(result.Result.Value<string>("name"));
+		}
+
+		public async Task<IRPCWalletClient> LoadWalletAsync(string filename, bool? loadOnStartup = null)
+		{
+			var result =  await SendCommandAsync(RPCOperations.loadwallet, filename, loadOnStartup).ConfigureAwait(false);
+			return GetWallet(result.Result.Value<string>("name"));
+		}
+
+		public IRPCWalletClient LoadWallet(string filename, bool? loadOnStartup = null)
+		{
+			var result = SendCommandAsync(RPCOperations.loadwallet, filename, loadOnStartup).GetAwaiter().GetResult();
+			return GetWallet(result.Result.Value<string>("name"));
+		}
+
+		public async Task UnloadAsync(bool? loadOnStartup = null)
+		{
+			var result = await SendCommandAsync(RPCOperations.loadwallet, loadOnStartup).ConfigureAwait(false);
+		}
+
+		public void Unload(bool? loadOnStartup = null)
+		{
+			SendCommandAsync(RPCOperations.unloadwallet, loadOnStartup).GetAwaiter().GetResult();
+		}
+
+		// backupwallet
 		public void BackupWallet(string path)
 		{
 			if (string.IsNullOrEmpty(path))
@@ -694,6 +937,28 @@ namespace NBitcoin.RPC
 		public OutPoint[] ListLockUnspent()
 		{
 			return ListLockUnspentAsync().GetAwaiter().GetResult();
+		}
+
+		// abandom transaction
+
+		/// <summary>
+		/// Marks a transaction and all its in-wallet descendants as abandoned which will allow
+		/// for their inputs to be respent.
+		/// </summary>
+		/// <param name="txId">the transaction id to be marked as abandoned.</param>
+		public void AbandonTransaction(uint256 txId)
+		{
+			SendCommand(RPCOperations.abandontransaction, txId.ToString());
+		}
+
+		/// <summary>
+		/// Marks a transaction and all its in-wallet descendants as abandoned which will allow
+		/// for their inputs to be respent.
+		/// </summary>
+		/// <param name="txId">the transaction id to be marked as abandoned.</param>
+		public async Task AbandonTransactionAsync(uint256 txId)
+		{
+			await SendCommandAsync(RPCOperations.abandontransaction, txId.ToString()).ConfigureAwait(false);
 		}
 
 
