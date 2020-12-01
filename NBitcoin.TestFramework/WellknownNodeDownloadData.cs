@@ -1542,7 +1542,7 @@ namespace NBitcoin.Tests
 					DownloadLink = "https://github.com/xds-playgrounds/xds-blockcore-experimental/releases/download/v{0}/xds-blockcore-v{0}-win-x64.zip",
 					Archive = "xds-blockcore-v{0}-win-x64.zip",
 					Executable = "xds-blockcore-v{0}-win-x64/blockcore.xdsd.exe",
-					Hash = "ad6e70feeb94e1ed98217cbd81b715b03c9db74e9eaf91836e7badc47290cb71"
+					Hash = "dd5661dcac7dcba6a78dd1e706623b65ddb1ad15252b286d692e99dd0b653e02"
 				},
 			};
 		}
