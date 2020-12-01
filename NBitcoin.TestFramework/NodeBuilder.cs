@@ -287,6 +287,14 @@ namespace NBitcoin.Tests
 			ConfigParameters.Import(builder.ConfigParameters, true);
 			ports = new int[2];
 
+			if (Version.TryParse(builder.NodeImplementation.Version, out var version))
+			{
+				if (builder.Network.NetworkSet is Bitcoin && version >= new Version(0, 21))
+				{
+					RequiresWalletCreation = true;
+				}
+			}
+
 			if (builder.CleanBeforeStartingNode && File.Exists(_Config))
 			{
 				var oldCreds = ExtractCreds(File.ReadAllText(_Config));
@@ -500,7 +508,9 @@ namespace NBitcoin.Tests
 					configStr.AppendLine($"[{NodeImplementation.Chain}]");
 				}
 			}
-			config.Add("wallet", "wallet.dat");
+			if (RequiresWalletCreation)
+				config.Add("wallet", "wallet.dat");
+
 			config.Add("rest", "1");
 			config.Add("server", "1");
 			config.Add("txindex", "1");
@@ -533,7 +543,8 @@ namespace NBitcoin.Tests
 		{
 			lock (l)
 			{
-				CreateDefaultWallet();
+				if (RequiresWalletCreation)
+					CreateDefaultWallet();
 
 				string appPath = new FileInfo(this._Builder.BitcoinD).FullName;
 				string args = "-conf=bitcoin.conf" + " -datadir=" + dataDir + " -debug=net";
@@ -668,6 +679,12 @@ namespace NBitcoin.Tests
 			get;
 			set;
 		} = true;
+
+		public bool RequiresWalletCreation
+		{
+			get;
+			set;
+		} = false;
 
 		class TransactionNode
 		{
