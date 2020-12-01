@@ -1528,7 +1528,24 @@ namespace NBitcoin.Tests
 			};
 		}
 
-
+		/// <summary>
+		/// Using Stratis C# full node.
+		/// Should be updated to use official release once it is deployed.
+		/// </summary>
+		public class XDSNodeDownloadData
+		{
+			public NodeDownloadData v1_0_16 = new NodeDownloadData()
+			{
+				Version = "1.0.16",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/xds-playgrounds/xds-blockcore-experimental/releases/download/v{0}/xds-blockcore-v{0}-win-x64.zip",
+					Archive = "xds-blockcore-v{0}-win-x64.zip",
+					Executable = "xds-blockcore-v{0}-win-x64/blockcore.xdsd.exe",
+					Hash = "dd5661dcac7dcba6a78dd1e706623b65ddb1ad15252b286d692e99dd0b653e02"
+				},
+			};
+		}
 
 		public static LBRYCreditsNodeDownloadData LBRYCredits
 		{
@@ -1688,6 +1705,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new MonetaryUnitNodeDownloadData();
+
+		public static XDSNodeDownloadData XDS
+		{
+			get; set;
+		} = new XDSNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
