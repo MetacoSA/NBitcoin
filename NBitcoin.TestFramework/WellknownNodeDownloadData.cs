@@ -246,7 +246,8 @@ namespace NBitcoin.Tests
 					Archive = "bitcoin-{0}rc2-win64.zip",
 					Hash = "6406e1ef94472ad257e9fd5a5ff84dc3fb5ce88e1e3e3ed91c20728bc78b1858"
 				},
-				UseSectionInConfigFile = true
+				UseSectionInConfigFile = true,
+				CreateWallet = true
 			};
 
 		}

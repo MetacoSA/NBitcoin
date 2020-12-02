@@ -100,6 +100,11 @@ namespace NBitcoin.Tests
 		}
 		public string RegtestFolderName { get; set; }
 
+		public bool CreateWallet
+		{
+			get; set;
+		}
+
 		/// <summary>
 		/// For blockchains that use an arbitrary chain (e.g. instead of main, testnet and regtest
 		/// Elements can use chain=elementsregtest).
@@ -286,14 +291,6 @@ namespace NBitcoin.Tests
 			_Config = Path.Combine(dataDir, "bitcoin.conf");
 			ConfigParameters.Import(builder.ConfigParameters, true);
 			ports = new int[2];
-
-			if (Version.TryParse(builder.NodeImplementation.Version, out var version))
-			{
-				if (builder.Network.NetworkSet is Bitcoin && version >= new Version(0, 21))
-				{
-					RequiresWalletCreation = true;
-				}
-			}
 
 			if (builder.CleanBeforeStartingNode && File.Exists(_Config))
 			{
@@ -508,7 +505,7 @@ namespace NBitcoin.Tests
 					configStr.AppendLine($"[{NodeImplementation.Chain}]");
 				}
 			}
-			if (RequiresWalletCreation)
+			if (NodeImplementation.CreateWallet)
 				config.Add("wallet", "wallet.dat");
 
 			config.Add("rest", "1");
@@ -543,7 +540,7 @@ namespace NBitcoin.Tests
 		{
 			lock (l)
 			{
-				if (RequiresWalletCreation)
+				if (_Builder.NodeImplementation.CreateWallet)
 					CreateDefaultWallet();
 
 				string appPath = new FileInfo(this._Builder.BitcoinD).FullName;
@@ -679,12 +676,6 @@ namespace NBitcoin.Tests
 			get;
 			set;
 		} = true;
-
-		public bool RequiresWalletCreation
-		{
-			get;
-			set;
-		} = false;
 
 		class TransactionNode
 		{
