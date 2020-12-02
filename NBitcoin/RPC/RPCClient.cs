@@ -2346,7 +2346,7 @@ namespace NBitcoin.RPC
 		public async Task<bool> AddPeerAddressAsync(IPAddress ip, int port)
 		{
 			var result = await SendCommandAsync(RPCOperations.addpeeraddress, ip.ToString(), port).ConfigureAwait(false);
-			return ((JValue)result.Result).Value<bool>();
+			return result.Result["success"].Value<bool>();
 		}
 
 #endif 
