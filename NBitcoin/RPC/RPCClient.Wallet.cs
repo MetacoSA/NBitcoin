@@ -782,7 +782,7 @@ namespace NBitcoin.RPC
 			return ListLockUnspentAsync().GetAwaiter().GetResult();
 		}
 
-		// abandom transaction
+		// abandon transaction
 
 		/// <summary>
 		/// Marks a transaction and all its in-wallet descendants as abandoned which will allow
