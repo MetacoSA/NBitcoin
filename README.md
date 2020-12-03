@@ -1,7 +1,7 @@
 # NBitcoin
 
 [![Join the chat at https://gitter.im/MetacoSA/NBitcoin](https://badges.gitter.im/MetacoSA/NBitcoin.svg)](https://gitter.im/MetacoSA/NBitcoin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build status](https://github.com/MetacoSA/NBitcoin/workflows/CI/badge.svg)](https://github.com/MetacoSA/NBitcoin/workflows/CI/badge.svg)
+[![Build status](https://github.com/MetacoSA/NBitcoin/workflows/CI/badge.svg)](https://github.com/MetacoSA/NBitcoin/actions?query=workflow%3ACI)
 
 NBitcoin is the most complete Bitcoin library for the .NET platform. It implements all most relevant Bitcoin Improvement Proposals (BIPs). It also provides low level access to Bitcoin primitives so you can easily build your application on top of it. Join us in our [gitter chat room](https://gitter.im/MetacoSA/NBitcoin).
 It works on Windows, Mac and Linux with Xamarin, Unity, .NET Core or CLR. (Porting to Unity should not be that hard if you need it)
