@@ -585,8 +585,8 @@ namespace NBitcoin.Altcoins
 		{
 			/// <summary>
 			/// Truncated double-SHA512 hash. Used are the first 32 bytes of the second hash output.
+			/// https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
 			/// </summary>
-			/// <seealso cref="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf"/>
 			/// <param name="src">bytes to hash</param>
 			/// <returns>hash</returns>
 			public static byte[] GetHash(byte[] src, int offset, int count)
