@@ -578,17 +578,11 @@ namespace NBitcoin.Tests
 			var walletToolPath = Path.Combine(Path.GetDirectoryName(this._Builder.BitcoinD), "bitcoin-wallet");
 			string walletToolArgs = $"-regtest -wallet=\"wallet.dat\" -datadir=\"{dataDir}\" create";
 
-			Process walletToolProcess; 
-			if (_Builder.ShowNodeConsole)
+			var info = new ProcessStartInfo(walletToolPath, walletToolArgs)
 			{
-				ProcessStartInfo info = new ProcessStartInfo(walletToolPath, walletToolArgs);
-				info.UseShellExecute = true;
-				walletToolProcess = Process.Start(info);
-			}
-			else
-			{
-				walletToolProcess = Process.Start(walletToolPath, walletToolArgs);
-			}
+				UseShellExecute = _Builder.ShowNodeConsole
+			};
+			using var walletToolProcess = Process.Start(info); 
 			walletToolProcess.WaitForExit();
 		}
 
