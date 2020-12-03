@@ -1,16 +1,10 @@
 #!/bin/bash
 set -e
 
-PROPERTIES=""
-if [[ "$TargetFrameworkOverride" ]]; then
-    PROPERTIES="$PROPERTIES /p:TargetFrameworkOverride=$TargetFrameworkOverride"
-fi
-if [[ "$AdditionalDefineConstants" ]]; then
-    PROPERTIES="$PROPERTIES /p:AdditionalDefineConstants=$AdditionalDefineConstants"
-fi
+: "${BUILD_ARGS:=}"
 
 dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj \
-             $PROPERTIES \
+             $BUILD_ARGS \
              -c Release \
              -f $Framework
 

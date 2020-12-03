@@ -12,8 +12,8 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  tests:
-    name: tests
+  dotnetcore31:
+    name: '3.1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -22,4 +22,17 @@ jobs:
           dotnet-version: '3.1.x'
       - run: ./Build/CI/tests.sh
         env:
+          BUILD_ARGS: /p:AdditionalDefineConstants=SECP256K1_VERIFY
+          Framework: netcoreapp3.1
+  dotnetcore31standard20:
+    name: '3.1 with netstandard2.0'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      - run: ./Build/CI/tests.sh
+        env:
+          BUILD_ARGS: /p:TargetFrameworkOverride=netstandard2.0
           Framework: netcoreapp3.1
