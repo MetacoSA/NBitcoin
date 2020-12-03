@@ -2282,7 +2282,7 @@ namespace NBitcoin.RPC
 				catch (RPCException rpc) when (
 					rpc.RPCCode == RPCErrorCode.RPC_METHOD_DEPRECATED 
 					|| rpc.RPCCode == RPCErrorCode.RPC_METHOD_NOT_FOUND 
-					|| (rpc.RPCCode == RPCErrorCode.RPC_MISC_ERROR && rpc.Message.StartsWith("generate\nhas been replaced by the -generate cli option")))
+					|| (rpc.RPCCode == RPCErrorCode.RPC_MISC_ERROR))
 				{
 					var address = await GetNewAddressAsync();
 					return await GenerateToAddressAsync(nBlocks, address);
@@ -2337,6 +2337,8 @@ namespace NBitcoin.RPC
 		/// </summary>
 		public bool AddPeerAddress(IPAddress ip, int port)
 		{
+			if (ip is null) throw new ArgumentNullException(nameof(ip));
+
 			return AddPeerAddressAsync(ip, port).GetAwaiter().GetResult();
 		}
 
@@ -2345,6 +2347,8 @@ namespace NBitcoin.RPC
 		/// </summary>
 		public async Task<bool> AddPeerAddressAsync(IPAddress ip, int port)
 		{
+			if (ip is null) throw new ArgumentNullException(nameof(ip));
+
 			var result = await SendCommandAsync(RPCOperations.addpeeraddress, ip.ToString(), port).ConfigureAwait(false);
 			return result.Result["success"].Value<bool>();
 		}

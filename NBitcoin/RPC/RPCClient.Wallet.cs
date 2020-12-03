@@ -163,19 +163,24 @@ namespace NBitcoin.RPC
 
 		public async Task<RPCClient> CreateWalletAsync(string walletNameOrPath, CreateWalletOptions? options = null)
 		{
+			if (string.IsNullOrEmpty(walletNameOrPath)) throw new ArgumentNullException(nameof(walletNameOrPath));
+
 			var parameters = new Dictionary<string, object>();
 			parameters.Add("wallet_name", walletNameOrPath);
 			if (options is { })
 			{
-				parameters.Add("disable_private_keys", options.DisablePrivateKeys.ToString());
-				parameters.Add("blank", options.Blank.ToString());
-				if (!string.IsNullOrEmpty(options.Passphrase))
-					parameters.Add("passphrase", options.Passphrase);
-
-				parameters.Add("avoid_reuse", options.AvoidReuse.ToString());
-				parameters.Add("descriptors", options.Descriptors.ToString());
-				if (options.LoadOnStartup.HasValue)
-					parameters.Add("load_on_startup", options.LoadOnStartup.ToString());
+				if (options.DisablePrivateKeys is { })
+					parameters.Add("disable_private_keys", options.DisablePrivateKeys.ToString());
+				if (options.Blank is { })
+					parameters.Add("blank", options.Blank.ToString());
+				if (options.Passphrase is string passphrase && passphrase.Length > 0)
+					parameters.Add("passphrase", passphrase);
+				if (options.AvoidReuse is { })
+					parameters.Add("avoid_reuse", options.AvoidReuse.ToString());
+				if (options.AvoidReuse is { })
+					parameters.Add("descriptors", options.Descriptors.ToString());
+				if (options.LoadOnStartup is bool loadOnStartup)
+					parameters.Add("load_on_startup", loadOnStartup.ToString());
 			}
 			var result = await SendCommandWithNamedArgsAsync(RPCOperations.createwallet.ToString(), parameters).ConfigureAwait(false);
 			return GetWallet(result.Result.Value<string>("name"));
@@ -183,17 +188,23 @@ namespace NBitcoin.RPC
 
 		public RPCClient CreateWallet(string walletNameOrPath, CreateWalletOptions? options = null)
 		{
+			if (string.IsNullOrEmpty(walletNameOrPath)) throw new ArgumentNullException(nameof(walletNameOrPath));
+
 			return CreateWalletAsync(walletNameOrPath, options).GetAwaiter().GetResult();
 		}
 
 		public async Task<RPCClient> LoadWalletAsync(string filename, bool? loadOnStartup = null)
 		{
+			if (string.IsNullOrEmpty(filename)) throw new ArgumentNullException(nameof(filename));
+
 			var result =  await SendCommandAsync(RPCOperations.loadwallet, filename, loadOnStartup).ConfigureAwait(false);
 			return GetWallet(result.Result.Value<string>("name"));
 		}
 
 		public RPCClient LoadWallet(string filename, bool? loadOnStartup = null)
 		{
+			if (string.IsNullOrEmpty(filename)) throw new ArgumentNullException(nameof(filename));
+
 			var result = SendCommandAsync(RPCOperations.loadwallet, filename, loadOnStartup).GetAwaiter().GetResult();
 			return GetWallet(result.Result.Value<string>("name"));
 		}
@@ -791,6 +802,8 @@ namespace NBitcoin.RPC
 		/// <param name="txId">the transaction id to be marked as abandoned.</param>
 		public void AbandonTransaction(uint256 txId)
 		{
+			if (txId is null) throw new ArgumentNullException(nameof(txId));
+
 			SendCommand(RPCOperations.abandontransaction, txId.ToString());
 		}
 
@@ -801,6 +814,8 @@ namespace NBitcoin.RPC
 		/// <param name="txId">the transaction id to be marked as abandoned.</param>
 		public async Task AbandonTransactionAsync(uint256 txId)
 		{
+			if (txId is null) throw new ArgumentNullException(nameof(txId));
+
 			await SendCommandAsync(RPCOperations.abandontransaction, txId.ToString()).ConfigureAwait(false);
 		}
 
