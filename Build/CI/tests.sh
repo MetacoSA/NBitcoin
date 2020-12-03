@@ -16,6 +16,6 @@ dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj \
 
 dotnet test ./NBitcoin.Tests/NBitcoin.Tests.csproj \
             --no-build -v n -c Release \
-            -f $Framework.1  \
+            -f $Framework  \
             --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest|Altcoins=Altcoins" \
             -p:ParallelizeTestCollections=false  < /dev/null
