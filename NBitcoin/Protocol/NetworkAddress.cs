@@ -1,4 +1,4 @@
-﻿#if !NOSOCKET
+#if !NOSOCKET
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -129,7 +129,7 @@ namespace NBitcoin.Protocol
 
 		public bool IsIPv4 => (Network)network == Network.IPv4;
 		public bool IsIPv6 => (Network)network == Network.IPv6;
-		public bool IsTOR => (Network)network == Network.Onion;
+		public bool IsTor => (Network)network == Network.Onion;
 		public bool IsI2P => (Network)network == Network.I2P;
 		public bool IsCjdns => (Network)network == Network.Cjdns;
 
@@ -534,7 +534,7 @@ namespace NBitcoin.Protocol
 
 		public bool IsRoutable( bool allowLocal) =>
 			IsValid && !(
-				(!allowLocal && IsRFC1918) || IsRFC3927 || IsRFC4862 ||	(IsRFC4193 && !IsTOR) || IsRFC4843 || (!allowLocal && IsLocal) || IsInternal);
+				(!allowLocal && IsRFC1918) || IsRFC3927 || IsRFC4862 ||	(IsRFC4193 && !IsTor) || IsRFC4843 || (!allowLocal && IsLocal) || IsInternal);
 
 		public byte[] GetGroup()
 		{
@@ -565,7 +565,7 @@ namespace NBitcoin.Protocol
 				vchRet.Add((byte)((ipv4 >> 16) & 0xFF));
 				return vchRet.ToArray();
 			}
-			else if (IsTOR || IsI2P || IsCjdns)
+			else if (IsTor || IsI2P || IsCjdns)
 			{
 				nBits = 4;
 			}
@@ -715,7 +715,7 @@ namespace NBitcoin.Protocol
 
 		public override string ToString()
 		{
-			if (IsIPv4 || IsTOR || IsI2P || IsInternal)
+			if (IsIPv4 || IsTor || IsI2P || IsInternal)
 			{
 				return $"{base.ToString()}:{Port}";
 			} 

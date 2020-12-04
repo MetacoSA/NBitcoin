@@ -20,7 +20,7 @@ namespace NBitcoin.Tests
 						
 			// TORv2
 			Assert.True(addr.SetSpecial("6hzph5hv6337r6p2.onion"));
-			Assert.True(addr.IsTOR);
+			Assert.True(addr.IsTor);
 
 			Assert.True(addr.IsAddrV1Compatible);
 			Assert.Equal("6hzph5hv6337r6p2.onion", addr.ToString());
@@ -28,7 +28,7 @@ namespace NBitcoin.Tests
 			// TORv3
 			var torv3_addr = "pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion";
 			Assert.True(addr.SetSpecial(torv3_addr));
-			Assert.True(addr.IsTOR);
+			Assert.True(addr.IsTor);
 
 			Assert.False(addr.IsAddrV1Compatible);
 			Assert.Equal(addr.ToString(), torv3_addr);
@@ -281,7 +281,7 @@ namespace NBitcoin.Tests
 			};
 			stream.ReadWrite(ref addr);
 			Assert.True(addr.IsValid);
-			Assert.True(addr.IsTOR);
+			Assert.True(addr.IsTor);
 			Assert.True(addr.IsAddrV1Compatible);
 			Assert.Equal("6hzph5hv6337r6p2.onion", addr.ToString());
 			Assert.True(stream.Inner.Length == stream.Inner.Position);
@@ -311,7 +311,7 @@ namespace NBitcoin.Tests
 			};
 			stream.ReadWrite(ref addr);
 			Assert.True(addr.IsValid);
-			Assert.True(addr.IsTOR);
+			Assert.True(addr.IsTor);
 			Assert.False(addr.IsAddrV1Compatible);
 			Assert.Equal("pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion", addr.ToString());
 			Assert.True(stream.Inner.Length == stream.Inner.Position);

@@ -1,4 +1,4 @@
-﻿#if !NOSOCKET
+#if !NOSOCKET
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -379,7 +379,7 @@ namespace NBitcoin.Tests
 				group.ConnectedNodes.Added -= waitingConnected;
 			};
 			group.ConnectedNodes.Added += waitingConnected;
-			CancellationTokenSource cts = new CancellationTokenSource(5000 * 100);
+			CancellationTokenSource cts = new CancellationTokenSource(5000);
 			using (cts.Token.Register(() => tcs.TrySetCanceled()))
 			{
 				await tcs.Task;
