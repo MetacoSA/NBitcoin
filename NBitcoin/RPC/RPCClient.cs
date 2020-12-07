@@ -1185,6 +1185,7 @@ namespace NBitcoin.RPC
 					SynchronizedHeaders = (int)peer["synced_headers"],
 					IsWhiteListed = peer["whitelisted"] != null ? (bool)peer["whitelisted"] : false,
 					BanScore = peer["banscore"] == null ? 0 : (int)peer["banscore"],
+					Permissions = peer["permissions"] is JArray permissions ? permissions.Select(p => p.Value<string>()).ToArray() : new string[0], 
 					Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
 				};
 			}
@@ -2451,6 +2452,7 @@ namespace NBitcoin.RPC
 		{
 			get; internal set;
 		}
+		public string[] Permissions { get; set; } = new string[0];
 	}
 
 	public class AddedNodeInfo

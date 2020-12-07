@@ -1219,6 +1219,7 @@ namespace NBitcoin.Tests
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var nodeA = builder.CreateNode();
+				nodeA.WhiteBind = true;
 				builder.StartAll();
 				var rpc = nodeA.CreateRPCClient();
 				using (var node = nodeA.CreateNodeClient())
@@ -1226,6 +1227,7 @@ namespace NBitcoin.Tests
 					node.VersionHandshake();
 					var peers = rpc.GetPeersInfo();
 					Assert.NotEmpty(peers);
+					Assert.NotEmpty(peers[0].Permissions);
 				}
 			}
 		}
