@@ -245,6 +245,35 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
+		public void CanProcessAddressGossip()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode(true);
+				var rpc = node.CreateRPCClient();
+				for (var i = 1; i < 101; i++)
+				{
+					for (var j = 1; j < 101; j++)
+					{
+						var ip = IPAddress.Parse($"{i}.{j}.1.1");
+						rpc.AddPeerAddress(ip, 8333);
+					}
+				}
+
+				var nodeClient = node.CreateNodeClient();
+				nodeClient.VersionHandshake();
+				using (var list = nodeClient.CreateListener().Where(m => m.Message.Payload is AddrPayload))
+				{
+					nodeClient.SendMessage(new GetAddrPayload());
+
+					var addr = list.ReceivePayload<AddrPayload>();
+					Assert.Equal(1000, addr.Addresses.Length);
+				}
+			}
+		}
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
 		public void CanHandshakeWithSeveralTemplateBehaviors()
 		{
 			using (var builder = NodeBuilderEx.Create())

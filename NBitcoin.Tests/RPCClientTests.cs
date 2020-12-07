@@ -108,23 +108,22 @@ namespace NBitcoin.Tests
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
-				node.ConfigParameters.Add("wallet", "w1");
-				//node.ConfigParameters.Add("wallet", "w2");
 				node.Start();
 				var rpc = node.CreateRPCClient();
-				var creds = RPCCredentialString.Parse(rpc.CredentialString.ToString());
-				creds.Server = rpc.Address.AbsoluteUri;
-				creds.WalletName = "w1";
-				rpc = new RPCClient(creds, Network.RegTest);
-				rpc.SendCommandAsync(RPCOperations.getwalletinfo).GetAwaiter().GetResult().ThrowIfError();
-				Assert.NotNull(rpc.GetBalance());
+				var w1 = rpc.CreateWallet("w1");
+				w1.SendCommandAsync(RPCOperations.getwalletinfo).GetAwaiter().GetResult().ThrowIfError();
+				Assert.NotNull(w1.GetBalance());
 				Assert.NotNull(rpc.GetBestBlockHash());
-				var block = rpc.GetBlock(rpc.Generate(1)[0]);
+				var address = w1.GetNewAddress();
+				var blocks = rpc.GenerateToAddress(1, address);
+
+				var block = rpc.GetBlock(blocks[0]);
 
 				rpc = rpc.PrepareBatch();
-				var b = rpc.GetBalanceAsync();
+				var w1b = rpc.GetWallet("w1");
+				var b = w1b.GetBalanceAsync();
 				var b2 = rpc.GetBestBlockHashAsync();
-				var a = rpc.SendCommandAsync(RPCOperations.gettransaction, block.Transactions.First().GetHash().ToString());
+				var a = w1b.SendCommandAsync(RPCOperations.gettransaction, block.Transactions.First().GetHash().ToString());
 				rpc.SendBatch();
 				b.GetAwaiter().GetResult();
 				b2.GetAwaiter().GetResult();
@@ -2072,6 +2071,23 @@ namespace NBitcoin.Tests
 				Assert.NotNull(client.GetAddressInfo(redeem.WitHash));
 				Assert.NotNull(client.GetAddressInfo(redeem.WitHash.ScriptPubKey.Hash));
 			}
+		}
+
+		[Fact]
+		public void ShouldCreateLoadAndUnloadWallet()
+		{
+			using var builder = NodeBuilderEx.Create();
+			var rpc = builder.CreateNode(true).CreateRPCClient();
+
+			var wallet0 = rpc.CreateWallet("w0");
+			var address = wallet0.GetNewAddress();
+			wallet0.Unload();
+			Assert.Throws<RPCException>(()=> wallet0.GetNewAddress());
+
+			wallet0 = rpc.LoadWallet("w0");
+			address = wallet0.GetNewAddress();
+			wallet0.Unload();
+			Assert.Throws<RPCException>(()=> wallet0.GetNewAddress());
 		}
 
 		[Fact]

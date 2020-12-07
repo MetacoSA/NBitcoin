@@ -5,6 +5,7 @@ using NBitcoin.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -79,8 +80,9 @@ namespace NBitcoin.RPC
 
 		------------------ Wallet
 		wallet			 addmultisigaddress
-		wallet			 backupwallet				 Yes
-		wallet			 dumpprivkey				  Yes
+		wallet			 backupwallet				Yes
+		wallet			 dumpprivkey				Yes
+		wallet			 createwallet				Yes
 		wallet			 dumpwallet
 		wallet			 encryptwallet
 		wallet			 getaccountaddress			Yes
@@ -91,7 +93,7 @@ namespace NBitcoin.RPC
 		wallet			 getnewaddress
 		wallet			 getrawchangeaddress
 		wallet			 getreceivedbyaccount
-		wallet			 getreceivedbyaddress		 Yes
+		wallet			 getreceivedbyaddress		Yes
 		wallet			 gettransaction
 		wallet			 getunconfirmedbalance
 		wallet			 getwalletinfo
@@ -99,15 +101,16 @@ namespace NBitcoin.RPC
 		wallet			 importwallet
 		wallet			 importaddress				Yes
 		wallet			 keypoolrefill
-		wallet			 listaccounts				 Yes
-		wallet			 listaddressgroupings		 Yes
+		wallet			 listaccounts				Yes
+		wallet			 listaddressgroupings		Yes
 		wallet			 listlockunspent
 		wallet			 listreceivedbyaccount
 		wallet			 listreceivedbyaddress
 		wallet			 listsinceblock
 		wallet			 listtransactions
-		wallet			 listunspent				  Yes
-		wallet			 lockunspent				  Yes
+		wallet			 listunspent				Yes
+		wallet			 loadwallet					Yes
+		wallet			 lockunspent				Yes
 		wallet			 move
 		wallet			 sendfrom
 		wallet			 sendmany
@@ -115,16 +118,110 @@ namespace NBitcoin.RPC
 		wallet			 setaccount
 		wallet			 settxfee
 		wallet			 signmessage
+		wallet			 unloadwallet				Yes
 		wallet			 walletlock
 		wallet			 walletpassphrasechange
-		wallet			 walletpassphrase			yes
+		wallet			 walletpassphrase			Yes
 		wallet			 walletprocesspsbt
 		wallet			 walletcreatefundedpsbt
 	*/
+
 	public partial class RPCClient
 	{
-		// backupwallet
+		#nullable enable
 
+		public RPCClient GetWallet(string walletName)
+		{
+			RPCCredentialString credentialString;;
+
+			if (_BatchedRequests is null)
+			{
+				credentialString = RPCCredentialString.Parse(CredentialString.ToString());
+			}
+			else
+			{
+				if (string.IsNullOrEmpty(CredentialString.WalletName))
+				{
+					credentialString = CredentialString;
+				}
+				else
+				{
+					throw new InvalidOperationException("Batch RPC client already has a wallet assigned.");
+				}
+			}
+			credentialString.WalletName = walletName;
+
+			return new RPCClient(credentialString, Address, Network)
+			{
+				_BatchedRequests = _BatchedRequests,
+				Capabilities = Capabilities,
+				RequestTimeout = RequestTimeout,
+				_HttpClient = _HttpClient,
+				AllowBatchFallback = AllowBatchFallback
+			};
+		}
+
+		public async Task<RPCClient> CreateWalletAsync(string walletNameOrPath, CreateWalletOptions? options = null)
+		{
+			if (string.IsNullOrEmpty(walletNameOrPath)) throw new ArgumentNullException(nameof(walletNameOrPath));
+
+			var parameters = new Dictionary<string, object>();
+			parameters.Add("wallet_name", walletNameOrPath);
+			if (options is { })
+			{
+				if (options.DisablePrivateKeys is { })
+					parameters.Add("disable_private_keys", options.DisablePrivateKeys.ToString());
+				if (options.Blank is { })
+					parameters.Add("blank", options.Blank.ToString());
+				if (options.Passphrase is string passphrase && passphrase.Length > 0)
+					parameters.Add("passphrase", passphrase);
+				if (options.AvoidReuse is { })
+					parameters.Add("avoid_reuse", options.AvoidReuse.ToString());
+				if (options.AvoidReuse is { })
+					parameters.Add("descriptors", options.Descriptors.ToString());
+				if (options.LoadOnStartup is bool loadOnStartup)
+					parameters.Add("load_on_startup", loadOnStartup.ToString());
+			}
+			var result = await SendCommandWithNamedArgsAsync(RPCOperations.createwallet.ToString(), parameters).ConfigureAwait(false);
+			return GetWallet(result.Result.Value<string>("name"));
+		}
+
+		public RPCClient CreateWallet(string walletNameOrPath, CreateWalletOptions? options = null)
+		{
+			if (string.IsNullOrEmpty(walletNameOrPath)) throw new ArgumentNullException(nameof(walletNameOrPath));
+
+			return CreateWalletAsync(walletNameOrPath, options).GetAwaiter().GetResult();
+		}
+
+		public async Task<RPCClient> LoadWalletAsync(string filename, bool? loadOnStartup = null)
+		{
+			if (string.IsNullOrEmpty(filename)) throw new ArgumentNullException(nameof(filename));
+
+			var result =  await SendCommandAsync(RPCOperations.loadwallet, filename, loadOnStartup).ConfigureAwait(false);
+			return GetWallet(result.Result.Value<string>("name"));
+		}
+
+		public RPCClient LoadWallet(string filename, bool? loadOnStartup = null)
+		{
+			if (string.IsNullOrEmpty(filename)) throw new ArgumentNullException(nameof(filename));
+
+			var result = SendCommandAsync(RPCOperations.loadwallet, filename, loadOnStartup).GetAwaiter().GetResult();
+			return GetWallet(result.Result.Value<string>("name"));
+		}
+
+		public async Task UnloadAsync(bool? loadOnStartup = null)
+		{
+			var result = await SendCommandAsync(RPCOperations.loadwallet, loadOnStartup).ConfigureAwait(false);
+		}
+
+		public void Unload(bool? loadOnStartup = null)
+		{
+			SendCommandAsync(RPCOperations.unloadwallet, loadOnStartup).GetAwaiter().GetResult();
+		}
+
+		#nullable restore
+
+		// backupwallet
 		public void BackupWallet(string path)
 		{
 			if (string.IsNullOrEmpty(path))
@@ -694,6 +791,32 @@ namespace NBitcoin.RPC
 		public OutPoint[] ListLockUnspent()
 		{
 			return ListLockUnspentAsync().GetAwaiter().GetResult();
+		}
+
+		// abandon transaction
+
+		/// <summary>
+		/// Marks a transaction and all its in-wallet descendants as abandoned which will allow
+		/// for their inputs to be respent.
+		/// </summary>
+		/// <param name="txId">the transaction id to be marked as abandoned.</param>
+		public void AbandonTransaction(uint256 txId)
+		{
+			if (txId is null) throw new ArgumentNullException(nameof(txId));
+
+			SendCommand(RPCOperations.abandontransaction, txId.ToString());
+		}
+
+		/// <summary>
+		/// Marks a transaction and all its in-wallet descendants as abandoned which will allow
+		/// for their inputs to be respent.
+		/// </summary>
+		/// <param name="txId">the transaction id to be marked as abandoned.</param>
+		public async Task AbandonTransactionAsync(uint256 txId)
+		{
+			if (txId is null) throw new ArgumentNullException(nameof(txId));
+
+			await SendCommandAsync(RPCOperations.abandontransaction, txId.ToString()).ConfigureAwait(false);
 		}
 
 

@@ -1183,7 +1183,7 @@ namespace NBitcoin.RPC
 					StartingHeight = (int)peer["startingheight"],
 					SynchronizedBlocks = (int)peer["synced_blocks"],
 					SynchronizedHeaders = (int)peer["synced_headers"],
-					IsWhiteListed = (bool)peer["whitelisted"],
+					IsWhiteListed = peer["whitelisted"] != null ? (bool)peer["whitelisted"] : false,
 					BanScore = peer["banscore"] == null ? 0 : (int)peer["banscore"],
 					Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
 				};
@@ -2279,7 +2279,10 @@ namespace NBitcoin.RPC
 					var result = (JArray)(await SendCommandAsync(RPCOperations.generate, nBlocks).ConfigureAwait(false)).Result;
 					return result.Select(r => new uint256(r.Value<string>())).ToArray();
 				}
-				catch (RPCException rpc) when (rpc.RPCCode == RPCErrorCode.RPC_METHOD_DEPRECATED || rpc.RPCCode == RPCErrorCode.RPC_METHOD_NOT_FOUND)
+				catch (RPCException rpc) when (
+					rpc.RPCCode == RPCErrorCode.RPC_METHOD_DEPRECATED 
+					|| rpc.RPCCode == RPCErrorCode.RPC_METHOD_NOT_FOUND 
+					|| (rpc.RPCCode == RPCErrorCode.RPC_MISC_ERROR))
 				{
 					var address = await GetNewAddressAsync();
 					return await GenerateToAddressAsync(nBlocks, address);
@@ -2327,25 +2330,30 @@ namespace NBitcoin.RPC
 			await SendCommandAsync(RPCOperations.invalidateblock, blockhash).ConfigureAwait(false);
 		}
 
+#if !NOSOCKET
+
 		/// <summary>
-		/// Marks a transaction and all its in-wallet descendants as abandoned which will allow
-		/// for their inputs to be respent.
+		/// Add the address of a potential peer to the address manager. This RPC is for testing only.
 		/// </summary>
-		/// <param name="txId">the transaction id to be marked as abandoned.</param>
-		public void AbandonTransaction(uint256 txId)
+		public bool AddPeerAddress(IPAddress ip, int port)
 		{
-			SendCommand(RPCOperations.abandontransaction, txId.ToString());
+			if (ip is null) throw new ArgumentNullException(nameof(ip));
+
+			return AddPeerAddressAsync(ip, port).GetAwaiter().GetResult();
 		}
 
 		/// <summary>
-		/// Marks a transaction and all its in-wallet descendants as abandoned which will allow
-		/// for their inputs to be respent.
+		/// Add the address of a potential peer to the address manager. This RPC is for testing only.
 		/// </summary>
-		/// <param name="txId">the transaction id to be marked as abandoned.</param>
-		public async Task AbandonTransactionAsync(uint256 txId)
+		public async Task<bool> AddPeerAddressAsync(IPAddress ip, int port)
 		{
-			await SendCommandAsync(RPCOperations.abandontransaction, txId.ToString()).ConfigureAwait(false);
+			if (ip is null) throw new ArgumentNullException(nameof(ip));
+
+			var result = await SendCommandAsync(RPCOperations.addpeeraddress, ip.ToString(), port).ConfigureAwait(false);
+			return result.Result["success"].Value<bool>();
 		}
+
+#endif 
 
 		#endregion
 	}

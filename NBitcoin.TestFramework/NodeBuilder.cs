@@ -100,6 +100,11 @@ namespace NBitcoin.Tests
 		}
 		public string RegtestFolderName { get; set; }
 
+		public bool CreateWallet
+		{
+			get; set;
+		}
+
 		/// <summary>
 		/// For blockchains that use an arbitrary chain (e.g. instead of main, testnet and regtest
 		/// Elements can use chain=elementsregtest).
@@ -500,6 +505,9 @@ namespace NBitcoin.Tests
 					configStr.AppendLine($"[{NodeImplementation.Chain}]");
 				}
 			}
+			if (NodeImplementation.CreateWallet)
+				config.Add("wallet", "wallet.dat");
+
 			config.Add("rest", "1");
 			config.Add("server", "1");
 			config.Add("txindex", "1");
@@ -524,6 +532,7 @@ namespace NBitcoin.Tests
 			if (NodeImplementation.AdditionalRegtestConfig != null)
 				configStr.AppendLine(NodeImplementation.AdditionalRegtestConfig);
 			File.WriteAllText(_Config, configStr.ToString());
+			
 			await Run();
 		}
 
@@ -531,6 +540,9 @@ namespace NBitcoin.Tests
 		{
 			lock (l)
 			{
+				if (_Builder.NodeImplementation.CreateWallet)
+					CreateDefaultWallet();
+
 				string appPath = new FileInfo(this._Builder.BitcoinD).FullName;
 				string args = "-conf=bitcoin.conf" + " -datadir=" + dataDir + " -debug=net";
 
@@ -561,6 +573,20 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		private void CreateDefaultWallet()
+		{
+			var walletToolPath = Path.Combine(Path.GetDirectoryName(this._Builder.BitcoinD), "bitcoin-wallet");
+			string walletToolArgs = $"-regtest -wallet=\"wallet.dat\" -datadir=\"{dataDir}\" create";
+
+			var info = new ProcessStartInfo(walletToolPath, walletToolArgs)
+			{
+				UseShellExecute = _Builder.ShowNodeConsole
+			};
+			using (var walletToolProcess = Process.Start(info))
+			{ 
+				walletToolProcess.WaitForExit();
+			}
+		}
 
 		Process _Process;
 		private readonly string dataDir;
