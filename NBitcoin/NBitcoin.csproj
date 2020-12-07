@@ -90,8 +90,10 @@
     <Compile Include="BouncyCastle\crypto\digests\RipeMD160Digest.cs"></Compile>
     <Compile Include="BouncyCastle\crypto\digests\Sha1Digest.cs"></Compile>
     <Compile Include="BouncyCastle\crypto\digests\Sha256Digest.cs"></Compile>
+    <Compile Include="BouncyCastle\crypto\digests\KeccakDigest.cs"></Compile>
+    <Compile Include="BouncyCastle\crypto\digests\Sha3Digest.cs"></Compile>
     <Compile Include="BouncyCastle\crypto\digests\GeneralDigest.cs"></Compile>
-		<Compile Include="BouncyCastle\crypto\util\Pack.cs"></Compile>
+    <Compile Include="BouncyCastle\crypto\util\Pack.cs"></Compile>
   </ItemGroup>
 	<ItemGroup>
     <None Include="..\icon.png" Pack="true" PackagePath="\" />

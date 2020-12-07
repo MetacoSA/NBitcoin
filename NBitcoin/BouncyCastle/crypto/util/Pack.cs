@@ -283,6 +283,15 @@ namespace NBitcoin.BouncyCastle.Crypto.Utilities
 			UInt32_To_LE((uint)(n >> 32), bs, off + 4);
 		}
 
+		internal static void UInt64_To_LE(ulong[] ns, int nsOff, int nsLen, byte[] bs, int bsOff)
+		{
+			for (int i = 0; i < nsLen; ++i)
+			{
+				UInt64_To_LE(ns[nsOff + i], bs, bsOff);
+				bsOff += sizeof(ulong);
+			}
+		}
+
 		internal static ulong LE_To_UInt64(byte[] bs)
 		{
 			uint lo = LE_To_UInt32(bs);
