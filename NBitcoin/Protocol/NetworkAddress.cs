@@ -11,7 +11,7 @@ namespace NBitcoin.Protocol
 	public class NetworkAddress : IBitcoinSerializable
 	{
 		public static readonly uint AddrV2Format = 0x20000000;
-
+		
 		public NetworkAddress()
 		{
 
@@ -135,6 +135,10 @@ namespace NBitcoin.Protocol
 			vKey[17] = (byte)(port & 0x0FF);
 			return vKey;
 		}
+
+		// Temporary properties. These will be implemented correctly.
+		public bool IsValid => Endpoint.Address.IsValid();
+		public bool IsAddrV1Compatible => true;
 	}
 }
 #endif

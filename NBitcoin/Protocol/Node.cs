@@ -221,10 +221,13 @@ namespace NBitcoin.Protocol
 							{
 								Logs.NodeServer.LogTrace("Sending message {message}", message);
 							}
+							var addrV2Support = Node.PreferAddressV2
+									? NetworkAddress.AddrV2Format
+									: 0;
 							MemoryStream ms = new MemoryStream();
 							message.ReadWrite(new BitcoinStream(ms, true)
 							{
-								ProtocolVersion = Node.Version,
+								ProtocolVersion = Node.Version | addrV2Support,
 								TransactionOptions = Node.SupportedTransactionOptions,
 								ConsensusFactory = Node.Network.Consensus.ConsensusFactory
 							});
@@ -1052,6 +1055,9 @@ namespace NBitcoin.Protocol
 					return;
 				}
 
+				// Signal ADDRv2 support (BIP155).
+				SendMessageAsync(new SendAddrV2Payload());
+
 				SendMessageAsync(new VerAckPayload());
 				listener.ReceivePayload<VerAckPayload>(cancellationToken);
 				State = NodeState.HandShaked;
@@ -1156,6 +1162,23 @@ namespace NBitcoin.Protocol
 			get
 			{
 				return _SupportedTransactionOptions;
+			}
+		}
+
+		bool _PreferAddressV2 = false;
+
+		/// <summary>
+		/// Transaction options supported by the peer
+		/// </summary>
+		public bool PreferAddressV2
+		{
+			get
+			{
+				return _PreferAddressV2;
+			}
+			set
+			{
+				_PreferAddressV2 = value;
 			}
 		}
 

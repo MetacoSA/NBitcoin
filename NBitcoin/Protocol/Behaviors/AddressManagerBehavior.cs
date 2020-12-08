@@ -136,19 +136,37 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void AttachedNode_MessageReceived(Node node, IncomingMessage message)
 		{
+			var payload = message.Message.Payload; 
+			if (payload is SendAddrV2Payload)
+			{
+				node.PreferAddressV2 = true;
+				return;
+			}
+			
 			if ((Mode & AddressManagerBehaviorMode.Advertize) != 0)
 			{
-				var getaddr = message.Message.Payload as GetAddrPayload;
-				if (getaddr != null)
+				if (payload is GetAddrPayload)
 				{
-					node.SendMessageAsync(new AddrPayload(AddressManager.GetAddr().Take(1000).ToArray()));
+					var addresses = AddressManager.GetAddr().Where(a => a.IsValid);
+					if (node.PreferAddressV2)
+					{
+						var addressesToSend = addresses
+							.Take(1000).ToArray();
+						node.SendMessageAsync(new AddrV2Payload(addressesToSend));
+					}
+					else
+					{
+						var addressesToSend = addresses
+							.Where(a => a.IsAddrV1Compatible)
+							.Take(1000).ToArray();
+						node.SendMessageAsync(new AddrPayload(addressesToSend));
+					}
 				}
 			}
 
 			if ((Mode & AddressManagerBehaviorMode.Discover) != 0)
 			{
-				var addr = message.Message.Payload as AddrPayload;
-				if (addr != null)
+				if (payload is AddrPayload addr)
 				{
 					AddressManager.Add(addr.Addresses, node.RemoteSocketAddress);
 				}
