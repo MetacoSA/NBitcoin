@@ -82,11 +82,11 @@ namespace NBitcoin.Altcoins
 			.SetPort(defaultPort)
 			.SetRPCPort(48333)
 			.SetName(networkName)
-			.AddSeeds(new List<NetworkAddress>
+			.AddSeeds(new List<Service>
 			{
-				new NetworkAddress(IPAddress.Parse("178.62.62.160"), defaultPort),
-				new NetworkAddress(IPAddress.Parse("206.189.33.114"), defaultPort),
-				new NetworkAddress(IPAddress.Parse("159.65.148.135"), defaultPort),
+				new Service(IPAddress.Parse("178.62.62.160"), defaultPort),
+				new Service(IPAddress.Parse("206.189.33.114"), defaultPort),
+				new Service(IPAddress.Parse("159.65.148.135"), defaultPort),
 			})
 			.AddDNSSeeds(new DNSSeedData[0]);
 
@@ -161,7 +161,7 @@ namespace NBitcoin.Altcoins
 			.SetPort(defaultPort)
 			.SetRPCPort(48333 + testNetMagicNumberOffset)
 			.SetName(networkName)
-			.AddSeeds(new List<NetworkAddress>())
+			.AddSeeds(new List<Service>())
 			.AddDNSSeeds(new DNSSeedData[0]);
 
 			var genesisTime = Utils.DateTimeToUnixTime(new DateTime(2020, 11, 29, 23, 36, 00, DateTimeKind.Utc));
@@ -235,7 +235,7 @@ namespace NBitcoin.Altcoins
 			.SetPort(defaultPort)
 			.SetRPCPort(48333 + regTestMagicNumberOffset)
 			.SetName(networkName)
-			.AddSeeds(new List<NetworkAddress>())
+			.AddSeeds(new List<Service>())
 			.AddDNSSeeds(new DNSSeedData[0]);
 
 			var genesisTime = Utils.DateTimeToUnixTime(new DateTime(2020, 11, 29, 22, 50, 00, DateTimeKind.Utc));
