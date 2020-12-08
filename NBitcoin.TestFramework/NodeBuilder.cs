@@ -453,7 +453,7 @@ namespace NBitcoin.Tests
 #if !NOSOCKET
 		public Node CreateNodeClient()
 		{
-			return Node.Connect(Network, NodeEndpoint);
+			return Node.Connect(Network, new Service(NodeEndpoint));
 		}
 		public Node CreateNodeClient(NodeConnectionParameters parameters)
 		{

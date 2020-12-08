@@ -46,7 +46,7 @@ namespace NBitcoin.Tests
 			AddressManager addrman = new AddressManager();
 			addrman.DebugMode = true;
 			var localhost = new Address(IPAddress.Parse("127.0.0.1"), 8333);
-			addrman.Add(localhost, localhost.Endpoint.Address);
+			addrman.Add(localhost, IPAddress.Loopback);
 			Assert.NotNull(addrman.nKey);
 			Assert.True(addrman.nKey != new uint256(0));
 			Assert.True(addrman.nNew == 1);

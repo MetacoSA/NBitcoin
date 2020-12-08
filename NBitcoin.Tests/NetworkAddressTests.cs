@@ -401,7 +401,7 @@ namespace NBitcoin.Tests
 				Type = SerializationType.Hash
 			};
 			ex = Assert.Throws<ArgumentOutOfRangeException>(()=> stream.ReadWrite(ref addr));
-			Assert.Equal("Specified argument was out of the range of valid values. (Parameter 'Array size too big')", ex.Message);
+			Assert.Contains("Array size too big", ex.Message);
 			Assert.True(stream.Inner.Length != stream.Inner.Position);
 
 			// Unknown, with reasonable length.
@@ -533,7 +533,10 @@ namespace NBitcoin.Tests
 			Address[] addresses = null;
 			stream.ReadWrite(ref addresses);
 			Assert.Equal(fixture_addresses.Length, addresses.Length);
-			Assert.All(Enumerable.Zip(fixture_addresses, addresses), t => Assert.Equal(t.First, t.Second));
+			for(var i = 0; i < fixture_addresses.Length; i++)
+			{
+				Assert.Equal(fixture_addresses[i], addresses[i]);
+			}
 		}
 	}
 

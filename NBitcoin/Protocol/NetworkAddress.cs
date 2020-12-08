@@ -480,18 +480,38 @@ namespace NBitcoin.Protocol
 				_ => throw new InvalidOperationException("Unknown Address network.") 
 			}).ToArray();
 
-		public bool IsAddrV1Compatible =>
-			((Network)network, addr.Length) switch 
+		public bool IsAddrV1Compatible
+		{
+			get
 			{
-				(Network.IPv4, _) => true,
-				(Network.IPv6, _) => true,
-				(Network.Internal, _) => true,
-				(Network.Onion, ADDR_TORV2_SIZE) => true,
-				(Network.Onion, ADDR_TORV3_SIZE) => false,
-				(Network.I2P, _ ) => false,
-				(Network.Cjdns,_) => false,
-				_ => throw new InvalidOperationException("Unknown Address network.")
-			};
+				var net = (Network)network;
+				switch (net)
+				{
+					case Network.IPv4:
+						return true;
+					case Network.IPv6:
+						return true;
+					case Network.Internal:
+						return true;
+					case Network.Onion:
+						switch (addr.Length)
+						{
+							case ADDR_TORV2_SIZE:
+								return true;
+							case ADDR_TORV3_SIZE:
+								return false;
+							default:
+								throw new InvalidOperationException("Unknown Address network.");
+						}
+					case Network.I2P:
+						return false;
+					case Network.Cjdns: 
+						return false;
+					default:
+						throw new InvalidOperationException("Unknown Address network.");
+				}
+			} 
+		}
 
 		public byte[] GetAddressBytes() => 
 			IsAddrV1Compatible ? SerializeV1Array() : addr;
@@ -660,15 +680,17 @@ namespace NBitcoin.Protocol
 		}
 		public Service(IPAddress ip)
 		{
-			Endpoint = new IPEndPoint(ip, 0);
+			SetIp(ip);
 		}
 		public Service(IPEndPoint endpoint)
 		{
-			Endpoint = endpoint;
+			SetIp(endpoint.Address);
+			this.port = (ushort)endpoint.Port;
 		}
 		public Service(IPAddress address, int port)
 		{
-			Endpoint = new IPEndPoint(address, port);
+			SetIp(address);
+			this.port = (ushort)port;
 		}
 		public Service(Service service)
 		{
@@ -677,18 +699,39 @@ namespace NBitcoin.Protocol
 			port = service.port;
 		}
 
-		public IPEndPoint Endpoint
+		public static implicit operator EndPoint(Service service)
 		{
-			get
+			if (service.IsAddrV1Compatible)
 			{
-				return new IPEndPoint(new IPAddress(addr), port);
+				return new IPEndPoint(new IPAddress(service.addr), service.port);
 			}
-			set
+			else
 			{
-				port = (ushort)value.Port;
-				SetIp(value.Address);
+				var domain = ((NetworkAddress)service).ToString();
+				return new DnsEndPoint(domain, service.port);
 			}
-		}
+		} 
+
+		public static implicit operator Service(EndPoint endpoint)
+		{
+			var service = new Service();
+
+			if (endpoint is IPEndPoint ipEndPoint)
+			{
+				service.SetIp(ipEndPoint.Address);
+				service.port = (ushort)ipEndPoint.Port;
+			}
+			else if (endpoint is DnsEndPoint dnsEndPoint)
+			{
+				service.SetSpecial(dnsEndPoint.Host);
+				service.port = (ushort)dnsEndPoint.Port;
+			}
+			else
+			{
+				throw new ArgumentException($"Not supported {nameof(EndPoint)} type {endpoint.GetType().FullName}.");
+			}
+			return service;
+		} 
 
 		public byte[] GetKey()
 		{
@@ -727,12 +770,14 @@ namespace NBitcoin.Protocol
 
 		public override int GetHashCode()
 		{
-			var hasher = new HashCode();
-			hasher.Add(network);
-			hasher.Add(addr);
-			hasher.Add(port);
-			
-			return hasher.GetHashCode();
+			int hash = 0;
+			foreach (byte b in addr)
+			{
+				hash = hash * 31 + b;
+			}
+			hash = hash * 31 + network;
+			hash = hash * 31 +  port;
+			return hash;
 		}
 
 		public override bool Equals(object obj) =>

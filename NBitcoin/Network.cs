@@ -2201,11 +2201,10 @@ namespace NBitcoin
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
 				// it'll get a pile of addresses with newer timestamps.
-				Address addr = new Address();
+				Address addr = new Address(new IPAddress(pnSeed6_main[i].Item1), pnSeed6_main[i].Item2);
 				// Seed nodes are given a random 'last seen time' of between one and two
 				// weeks ago.
 				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
-				addr.Endpoint = new IPEndPoint(new IPAddress(pnSeed6_main[i].Item1), pnSeed6_main[i].Item2);
 				vFixedSeeds.Add(addr);
 			}
 #endif
@@ -2277,11 +2276,10 @@ namespace NBitcoin
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
 				// it'll get a pile of addresses with newer timestamps.
-				Address addr = new Address();
+				Address addr = new Address(new IPAddress(pnSeed6_test[i].Item1), pnSeed6_test[i].Item2);
 				// Seed nodes are given a random 'last seen time' of between one and two
 				// weeks ago.
 				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
-				addr.Endpoint = new IPEndPoint(new IPAddress(pnSeed6_test[i].Item1), pnSeed6_test[i].Item2);
 				vFixedSeeds.Add(addr);
 			}
 #endif
