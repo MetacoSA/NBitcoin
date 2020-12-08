@@ -725,8 +725,15 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public override int GetHashCode() =>
-			(network, addr, port).GetHashCode();
+		public override int GetHashCode()
+		{
+			var hasher = new HashCode();
+			hasher.Add(network);
+			hasher.Add(addr);
+			hasher.Add(port);
+			
+			return hasher.GetHashCode();
+		}
 
 		public override bool Equals(object obj) =>
 			obj is Service service ? Equals(service) : false;
