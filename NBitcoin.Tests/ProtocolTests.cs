@@ -1,4 +1,4 @@
-#if !NOSOCKET
+﻿#if !NOSOCKET
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -265,38 +265,7 @@ namespace NBitcoin.Tests
 				{
 					nodeClient.SendMessage(new GetAddrPayload());
 
-					var addr = list.ReceivePayload<AddrPayload>();
-					Assert.Equal(1000, addr.Addresses.Length);
-				}
-			}
-		}
-
-
-		[Fact]
-		[Trait("Protocol", "Protocol")]
-		public void CanProcessAddressGossip()
-		{
-			using (var builder = NodeBuilderEx.Create())
-			{
-				var node = builder.CreateNode(true);
-				var rpc = node.CreateRPCClient();
-				for (var i = 0; i < 10_000; i++)
-				{
-					var first_octet = i >> 8;
-					var second_octet = i % 256;
-					var ip = IPAddress.Parse($"{first_octet}.{second_octet}.1.1");
-					rpc.AddPeerAddress(ip, 8333);
-				}
-
-				var nodeClient = node.CreateNodeClient();
-				nodeClient.VersionHandshake();
-				AddrV2Payload addr;
-				using (var list = nodeClient.CreateListener()
-										.Where(m => m.Message.Payload is AddrV2Payload))
-				{
-					nodeClient.SendMessage(new GetAddrPayload());
-
-					addr = list.ReceivePayload<AddrV2Payload>();
+					var addr = list.ReceivePayload<AddrV2Payload>();
 					Assert.Equal(1000, addr.Addresses.Length);
 				}
 			}
