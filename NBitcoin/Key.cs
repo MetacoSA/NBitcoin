@@ -483,29 +483,37 @@ namespace NBitcoin
 #endif
 		}
 
+		bool disposed = false;
 
-#if HAS_SPAN
-		void AssertNotDiposed()
-		{
-			if (_ECKey.cleared)
-				throw new ObjectDisposedException(nameof(NBitcoin.Key));
-		}
 		public void Dispose()
 		{
-			_ECKey.Clear();
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
-#else
-		bool disposed = false;
+
 		void AssertNotDiposed()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(nameof(NBitcoin.Key));
 		}
-		public void Dispose()
+
+		protected virtual void Dispose(bool disposing)
 		{
+			if (disposed)
+				return;
+			
+			if (disposing)
+			{
+				if (_ECKey is IDisposable keyMaterial)
+					keyMaterial.Dispose();
+			}
 			disposed = true;
 		}
-#endif
+
+		~Key()
+		{
+			Dispose(false);
+		}
 	}
 }
 #nullable disable
