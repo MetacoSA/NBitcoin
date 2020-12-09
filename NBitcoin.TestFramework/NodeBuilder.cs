@@ -582,6 +582,11 @@ namespace NBitcoin.Tests
 			{
 				UseShellExecute = _Builder.ShowNodeConsole
 			};
+			if (!_Builder.ShowNodeConsole)
+			{
+				info.RedirectStandardError = true;
+				info.RedirectStandardOutput = true;
+			}
 			using (var walletToolProcess = Process.Start(info))
 			{ 
 				walletToolProcess.WaitForExit();
