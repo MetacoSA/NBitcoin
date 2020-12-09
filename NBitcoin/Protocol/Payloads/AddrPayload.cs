@@ -49,5 +49,34 @@ namespace NBitcoin.Protocol
 			return Addresses.Length + " address(es)";
 		}
 	}
+
+	/// <summary>
+	/// An available peer address in the bitcoin network is announce (unsolicited or after a getaddrv2)
+	/// </summary>
+	[Payload("addrv2")]
+	public class AddrV2Payload : AddrPayload
+	{
+		public AddrV2Payload()
+			: base()
+		{
+		}
+		public AddrV2Payload(NetworkAddress address)
+			: base(address)
+		{
+		}
+
+		public AddrV2Payload(NetworkAddress[] addresses)
+			: base(addresses)
+		{
+		}
+
+		public override void ReadWriteCore(BitcoinStream stream)
+		{
+			using (stream.ProtocolVersionScope(NetworkAddress.AddrV2Format))
+			{
+				base.ReadWriteCore(stream);
+			}
+		}
+	}
 }
 #endif

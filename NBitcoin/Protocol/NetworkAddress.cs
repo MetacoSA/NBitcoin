@@ -10,6 +10,8 @@ namespace NBitcoin.Protocol
 {
 	public class NetworkAddress : IBitcoinSerializable
 	{
+		public static readonly uint AddrV2Format = 0x20000000;
+
 		public NetworkAddress()
 		{
 
