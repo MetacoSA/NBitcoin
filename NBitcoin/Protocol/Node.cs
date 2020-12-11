@@ -1062,8 +1062,12 @@ namespace NBitcoin.Protocol
 
 				State = NodeState.HandShaked;
 
-				// Signal ADDRv2 support (BIP155).
-				SendMessageAsync(new SendAddrV2Payload());
+				// As a cortesy we do not send sendaddr to nodes that do not support it.
+				if (ProtocolCapabilities.SupportAddrv2)
+				{
+					// Signal ADDRv2 support (BIP155).
+					SendMessageAsync(new SendAddrV2Payload());
+				}
 
 				if (Advertize)
 				{
@@ -1097,7 +1101,13 @@ namespace NBitcoin.Protocol
 					throw new ProtocolException("Version rejected " + reject.Code + " : " + reject.Reason);
 				SendMessageAsync(new VerAckPayload());
 				State = NodeState.HandShaked;
-				SendMessageAsync(new SendAddrV2Payload());
+
+				// As a cortesy we do not send sendaddr to nodes that do not support it.
+				if (ProtocolCapabilities.SupportAddrv2)
+				{
+					// Signal ADDRv2 support (BIP155).
+					SendMessageAsync(new SendAddrV2Payload());
+				}
 			}
 		}
 

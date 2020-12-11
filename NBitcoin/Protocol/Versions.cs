@@ -106,6 +106,12 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
+		public bool SupportAddrv2
+		{ 
+			get; 
+			set;
+		}
+
 		public static ProtocolCapabilities CreateSupportAll()
 		{
 			return new ProtocolCapabilities()
@@ -121,7 +127,8 @@ namespace NBitcoin.Protocol
 				SupportSendHeaders = true,
 				SupportTimeAddress = true,
 				SupportUserAgent = true,
-				SupportWitness = true
+				SupportWitness = true,
+				SupportAddrv2 = true
 			};
 		}
 
@@ -138,7 +145,8 @@ namespace NBitcoin.Protocol
 				(!capabilities.SupportTimeAddress || SupportTimeAddress) &&
 				(!capabilities.SupportWitness || SupportWitness) &&
 				(!capabilities.SupportUserAgent || SupportUserAgent) &&
-				(!capabilities.SupportCheckSum || SupportCheckSum);
+				(!capabilities.SupportCheckSum || SupportCheckSum) &&
+				(!capabilities.SupportAddrv2 || SupportAddrv2);
 		}
 	}
 }
