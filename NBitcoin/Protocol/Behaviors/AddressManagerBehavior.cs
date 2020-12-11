@@ -147,7 +147,7 @@ namespace NBitcoin.Protocol.Behaviors
 			{
 				if (payload is GetAddrPayload)
 				{
-					var addresses = AddressManager.GetAddr().Where(a => a.IsValid);
+					var addresses = AddressManager.GetAddr().Where(a => a.Endpoint.IsValid());
 					if (node.PreferAddressV2)
 					{
 						var addressesToSend = addresses

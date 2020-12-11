@@ -149,7 +149,7 @@ namespace NBitcoin.Protocol
 			return new NodeConnectionParameters(this);
 		}
 
-		public IPEndPoint AddressFrom
+		public EndPoint AddressFrom
 		{
 			get;
 			set;
@@ -161,7 +161,7 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
-		public VersionPayload CreateVersion(IPEndPoint peer, Network network)
+		public VersionPayload CreateVersion(EndPoint peer, Network network)
 		{
 			VersionPayload version = new VersionPayload()
 			{

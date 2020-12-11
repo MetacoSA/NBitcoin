@@ -1,4 +1,4 @@
-﻿#if !NOSOCKET
+#if !NOSOCKET
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
@@ -116,7 +116,7 @@ namespace NBitcoin.Protocol
 		}
 
 		NetworkAddress addr_recv = new NetworkAddress();
-		public IPEndPoint AddressReceiver
+		public EndPoint AddressReceiver
 		{
 			get
 			{
@@ -128,7 +128,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 		NetworkAddress addr_from = new NetworkAddress();
-		public IPEndPoint AddressFrom
+		public EndPoint AddressFrom
 		{
 			get
 			{

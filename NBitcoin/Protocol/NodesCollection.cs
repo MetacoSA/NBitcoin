@@ -41,7 +41,7 @@ namespace NBitcoin.Protocol
 		event EventHandler<NodeEventArgs> Added;
 		event EventHandler<NodeEventArgs> Removed;
 
-		Node FindByEndpoint(IPEndPoint endpoint);
+		Node FindByEndpoint(EndPoint endpoint);
 		Node FindByIp(IPAddress ip);
 		Node FindLocal();
 	}
@@ -138,29 +138,29 @@ namespace NBitcoin.Protocol
 		public Node FindByIp(IPAddress ip)
 		{
 			ip = ip.EnsureIPv6();
-			return _Nodes.Where(n => Match(ip, null, n.Key)).Select(s => s.Key).FirstOrDefault();
+			var endpoint = new IPEndPoint(ip, 0);
+			return _Nodes.Where(n => Match(endpoint, n.Key, ignorePort: true)).Select(s => s.Key).FirstOrDefault();
 		}
 
-
-
-		public Node FindByEndpoint(IPEndPoint endpoint)
+		public Node FindByEndpoint(EndPoint endpoint)
 		{
-			var ip = endpoint.Address.EnsureIPv6();
-			int port = endpoint.Port;
-			return _Nodes.Select(n => n.Key).FirstOrDefault(n => Match(ip, port, n));
+			return _Nodes.Select(n => n.Key).FirstOrDefault(n => Match(endpoint, n));
 		}
 
-		private static bool Match(IPAddress ip, int? port, Node n)
+		private static bool Match(EndPoint endpoint, Node n, bool ignorePort = false)
 		{
-			if (port.HasValue)
+			if (!ignorePort)
 			{
-				return (n.State > NodeState.Disconnecting && n.RemoteSocketAddress.Equals(ip) && n.RemoteSocketPort == port.Value) ||
-						(n.PeerVersion.AddressFrom.Address.Equals(ip) && n.PeerVersion.AddressFrom.Port == port.Value);
+				return (n.State > NodeState.Disconnecting && n.RemoteSocketEndpoint.IsEqualTo(endpoint)) ||
+						(n.PeerVersion.AddressFrom.IsEqualTo(endpoint));
 			}
 			else
 			{
-				return (n.State > NodeState.Disconnecting && n.RemoteSocketAddress.Equals(ip)) ||
-						n.PeerVersion.AddressFrom.Address.Equals(ip);
+				var remoteEndPointAsString = n.RemoteSocketEndpoint.GetStringAddress();
+				var fromEndPointAsString = n.PeerVersion.AddressFrom.GetStringAddress();
+				var endPointAsString = endpoint.GetStringAddress();
+				return (n.State > NodeState.Disconnecting && remoteEndPointAsString == endPointAsString) ||
+						fromEndPointAsString == endPointAsString;
 			}
 		}
 
