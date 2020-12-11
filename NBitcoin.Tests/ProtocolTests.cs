@@ -169,8 +169,7 @@ namespace NBitcoin.Tests
 							var version = (VersionPayload)o;
 							Assert.Equal((ulong)0x1357B43A2C209DDD, version.Nonce);
 							Assert.Equal("", version.UserAgent);
-							Assert.Equal("::ffff:10.0.0.2", version.AddressFrom.Address.ToString());
-							Assert.Equal(8333, version.AddressFrom.Port);
+							Assert.Equal("[::ffff:10.0.0.2]:8333", version.AddressFrom.ToString());
 							Assert.Equal(0x00018155, version.StartHeight);
 							Assert.Equal<uint>(31900, version.Version);
 						})
@@ -262,11 +261,13 @@ namespace NBitcoin.Tests
 
 				var nodeClient = node.CreateNodeClient();
 				nodeClient.VersionHandshake();
-				using (var list = nodeClient.CreateListener().Where(m => m.Message.Payload is AddrPayload))
+				AddrV2Payload addr;
+				using (var list = nodeClient.CreateListener()
+											.Where(m => m.Message.Payload is AddrV2Payload))
 				{
 					nodeClient.SendMessage(new GetAddrPayload());
 
-					var addr = list.ReceivePayload<AddrPayload>();
+					addr = list.ReceivePayload<AddrV2Payload>();
 					Assert.Equal(1000, addr.Addresses.Length);
 				}
 			}
