@@ -1102,7 +1102,7 @@ namespace NBitcoin.Protocol
 				SendMessageAsync(new VerAckPayload());
 				State = NodeState.HandShaked;
 
-				// As a cortesy we do not send sendaddr to nodes that do not support it.
+				// As a courtesy we do not send sendaddr to nodes that do not support it.
 				if (ProtocolCapabilities.SupportAddrv2)
 				{
 					// Signal ADDRv2 support (BIP155).
@@ -1182,21 +1182,14 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		bool _PreferAddressV2 = false;
 
 		/// <summary>
 		/// Transaction options supported by the peer
 		/// </summary>
 		public bool PreferAddressV2
 		{
-			get
-			{
-				return _PreferAddressV2;
-			}
-			set
-			{
-				_PreferAddressV2 = value;
-			}
+			get;
+			internal set;
 		}
 
 		/// <summary>

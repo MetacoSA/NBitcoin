@@ -48,20 +48,9 @@ namespace NBitcoin.Protocol
 			public void ReadWrite(BitcoinStream stream)
 			{
 				stream.ReadWrite(ref _Address);
-				var useV2Format = stream.ProtocolVersion is {} protcocolVersion && (protcocolVersion &  NetworkAddress.AddrV2Format) != 0;
-				if (useV2Format)
-				{
-					byte network = 0;
-					stream.ReadWrite(ref network);
-					stream.ReadWriteAsVarString(ref source);
-				}
-				else
-				{
-					stream.ReadWrite(ref source);
-				}
+				stream.ReadWrite(ref source);
 				stream.ReadWrite(ref nLastSuccess);
 				stream.ReadWrite(ref nAttempts);
-
 			}
 
 			internal int nAttempts;

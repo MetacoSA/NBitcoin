@@ -44,7 +44,7 @@ namespace NBitcoin.Protocol
 						if (dnsEndPoint.IsTor()) // All Tor endpoints are grouped together
 							return Encoding.UTF8.GetBytes("onion address");
 
-						if (dnsEndPoint.IsI2P()) // All Tor endpoints are grouped together
+						if (dnsEndPoint.IsI2P()) // All I2P endpoints are grouped together
 							return Encoding.UTF8.GetBytes("i2p address");
 					}
 
@@ -61,7 +61,7 @@ namespace NBitcoin.Protocol
 				return _GroupByEndpoint = _GroupByEndpoint ?? new Func<EndPoint, byte[]>((endpoint) =>
 				{
 					var netaddr = new NetworkAddress(endpoint);
-					return  netaddr.GetKey();
+					return netaddr.GetKey();
 				});
 			}
 		}

@@ -43,8 +43,9 @@ namespace NBitcoin.Protocol
 		/// </summary> 
 		NODE_WITNESS = (1 << 3),
 
-		// NODE_COMPACT_FILTERS means the node will service basic block filter requests.
+		// NODE_COMPACT_FILTERS means the node will serve basic block filter requests.
 		// See BIP157 and BIP158 for details on how this is implemented.
+
 		NODE_COMPACT_FILTERS = (1 << 6),
 
 		/// <summary> NODE_NETWORK_LIMITED means the same as NODE_NETWORK with the limitation of only

@@ -147,20 +147,15 @@ namespace NBitcoin.Protocol.Behaviors
 			{
 				if (payload is GetAddrPayload)
 				{
-					var addresses = AddressManager.GetAddr().Where(a => a.Endpoint.IsValid());
-					if (node.PreferAddressV2)
-					{
-						var addressesToSend = addresses
-							.Take(1000).ToArray();
-						node.SendMessageAsync(new AddrV2Payload(addressesToSend));
-					}
-					else
-					{
-						var addressesToSend = addresses
-							.Where(a => a.IsAddrV1Compatible)
-							.Take(1000).ToArray();
-						node.SendMessageAsync(new AddrPayload(addressesToSend));
-					}
+					var addressesToSend = AddressManager.GetAddr()
+						.Where(a => a.Endpoint.IsValid())
+						.Where(a => node.PreferAddressV2 || a.IsAddrV1Compatible)
+						.Take(1000)
+						.ToArray();
+
+					node.SendMessageAsync(node.PreferAddressV2
+						? new AddrV2Payload(addressesToSend)
+						: new AddrPayload(addressesToSend));
 				}
 			}
 

@@ -144,7 +144,8 @@ namespace NBitcoin
 			{
 				return ip.Address.GetGroup();
 			}
-			else if (endpoint is DnsEndPoint dns)
+
+			if (endpoint is DnsEndPoint dns)
 			{
 				if (dns.IsTor() || dns.IsI2P())
 				{

@@ -11,9 +11,9 @@ using NBitcoin.Crypto;
 
 namespace NBitcoin.Protocol
 {
-		public class NetworkAddress : IBitcoinSerializable
+	public class NetworkAddress : IBitcoinSerializable
 	{
-		/// see: https://github.com/bitcoin/bips/blob/master/bip-0155.mediawiki		
+		/// see: https://github.com/bitcoin/bips/blob/master/bip-0155.mediawiki
 		public const uint AddrV2Format = 0x20000000;
 
 		// A network type.
@@ -46,34 +46,34 @@ namespace NBitcoin.Protocol
 		}
 
 		/// Size of IPv4 address (in bytes).
-		protected const int ADDR_IPV4_SIZE = 4;
+		private const int ADDR_IPV4_SIZE = 4;
 
 		/// Size of IPv6 address (in bytes).
-		protected  const int ADDR_IPV6_SIZE = 16;
+		private  const int ADDR_IPV6_SIZE = 16;
 
 		/// Size of TORv2 address (in bytes).
-		const int ADDR_TORV2_SIZE = 10;
+		private const int ADDR_TORV2_SIZE = 10;
 
 		/// Size of TORv3 address (in bytes). This is the length of just the address
 		/// as used in BIP155, without the checksum and the version byte.
-		const int ADDR_TORV3_SIZE = 32;
+		private const int ADDR_TORV3_SIZE = 32;
 
 		/// Size of I2P address (in bytes).
-		const int ADDR_I2P_SIZE = 32;
+		private const int ADDR_I2P_SIZE = 32;
 
 		/// Size of CJDNS address (in bytes).
-		const int ADDR_CJDNS_SIZE = 16;
+		private const int ADDR_CJDNS_SIZE = 16;
 
 		/// Size of the TORv3 address checksum (in bytes)
-		const int TORV3_ADDR_CHECKSUM_LEN = 2;
+		private const int TORV3_ADDR_CHECKSUM_LEN = 2;
 
 		/// Size of the TORv3 address version number (in bytes)
-		const int TORV3_ADDR_VERSION_LEN = 1;
+		private const int TORV3_ADDR_VERSION_LEN = 1;
 
 
 		/// Prefix of an IPv6 address when it contains an embedded IPv4 address.
 		/// Used when (un)serializing addresses in ADDRv1 format (pre-BIP155).
-		static readonly byte[] IPV4_IN_IPV6_PREFIX = new byte[]{
+		private static readonly byte[] IPV4_IN_IPV6_PREFIX = new byte[]{
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF
 		};
 
@@ -81,7 +81,7 @@ namespace NBitcoin.Protocol
 		/// Used when (un)serializing addresses in ADDRv1 format (pre-BIP155).
 		/// Such dummy IPv6 addresses are guaranteed to not be publicly routable as they
 		/// fall under RFC4193's fc00::/7 subnet allocated to unique-local addresses.
-		static readonly byte[] TORV2_IN_IPV6_PREFIX = new byte[]{
+		private static readonly byte[] TORV2_IN_IPV6_PREFIX = new byte[]{
 			0xFD, 0x87, 0xD8, 0x7E, 0xEB, 0x43
 		};
 
@@ -90,12 +90,12 @@ namespace NBitcoin.Protocol
 		/// The prefix comes from 0xFD + SHA256("bitcoin")[0:5].
 		/// Such dummy IPv6 addresses are guaranteed to not be publicly routable as they
 		/// fall under RFC4193's fc00::/7 subnet allocated to unique-local addresses.
-		static readonly byte[] INTERNAL_IN_IPV6_PREFIX = new byte[]{
+		private static readonly byte[] INTERNAL_IN_IPV6_PREFIX = new byte[]{
 			0xFD, 0x6B, 0x88, 0xC0, 0x87, 0x24 // 0xFD + sha256("bitcoin")[0:5].
 		};
 
 
-		static readonly byte[] IPV6_NONE = new byte[ADDR_IPV6_SIZE];
+		private static readonly byte[] IPV6_NONE = new byte[ADDR_IPV6_SIZE];
 
 		private byte network = (byte)Network.IPv6;
 		private byte[] addr = new byte[ADDR_IPV6_SIZE];
