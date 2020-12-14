@@ -879,9 +879,23 @@ namespace NBitcoin.Secp256k1
 			return true;
 		}
 
+		protected virtual void Dispose(bool disposing)
+		{
+			if (this.cleared)
+				return;
+				
+			Clear();
+		}
+
 		public void Dispose()
 		{
-			Clear();
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		~ECPrivKey()
+		{
+			Dispose(false);
 		}
 
 		public void Clear()
