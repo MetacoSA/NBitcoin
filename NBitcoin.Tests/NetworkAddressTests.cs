@@ -161,6 +161,15 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void UnserializeV2()
 		{
+			static BitcoinStream MakeNewStream(byte[] payload)
+			{
+				return new BitcoinStream(payload)
+				{
+					ProtocolVersion = NetworkAddress.AddrV2Format,
+					Type = SerializationType.Hash
+				};
+			}
+
 			var addr = new NetworkAddress();
 
 			// Valid IPv4.
@@ -170,16 +179,13 @@ namespace NBitcoin.Tests
 				"04" +         // address length
 				"01020304" +   // address
 				"0000");       // port
-			var stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			var stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.True(addr.Endpoint.IsValid());
 			Assert.True(addr.IsIPv4);
 			Assert.True(addr.IsAddrV1Compatible);
 			Assert.Equal("1.2.3.4", addr.ToAddressString());
-			Assert.True(stream.Inner.Length == stream.Inner.Position);
+			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
 
 			// Invalid IPv4, valid length but address itself is shorter.
 			payload = Encoders.Hex.DecodeData(
@@ -188,12 +194,9 @@ namespace NBitcoin.Tests
 				"04" +         // address length
 				"0102" +       // address
 				"0000");       // port
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			Assert.Throws<EndOfStreamException>(() => stream.ReadWrite(ref addr));
-			Assert.True(stream.Inner.Length == stream.Inner.Position);
+			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
 
 			// Invalid IPv4, with bogus length.
 			// Invalid IPv4, valid length but address itself is shorter.
@@ -202,10 +205,7 @@ namespace NBitcoin.Tests
 				"01" +         // network type (IPv4)
 				"05" +         // address length
 				"0102030400"); // address
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			var ex = Assert.Throws<ArgumentException>(() => stream.ReadWrite(ref addr));
 			Assert.Equal("BIP155 IPv4 address is 5 bytes long. Expected length is 4 bytes.", ex.Message);
 
@@ -216,17 +216,14 @@ namespace NBitcoin.Tests
 				"10" +         // address length
 				"0102030405060708090a0b0c0d0e0f10" +  // address
 				"0000");       // port
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 
 			Assert.True(addr.Endpoint.IsValid());
 			Assert.True(addr.IsIPv6);
 			Assert.True(addr.IsAddrV1Compatible);
 			Assert.Equal("102:304:506:708:90a:b0c:d0e:f10", addr.ToAddressString());
-			Assert.True(stream.Inner.Length == stream.Inner.Position);
+			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
 
 			// Invalid IPv6, with bogus length.
 			payload = Encoders.Hex.DecodeData(
@@ -234,11 +231,7 @@ namespace NBitcoin.Tests
 				"02" +         // network type (IPv6)
 				"04" +         // address length
 				"00000000");   // address
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
-
+			stream = MakeNewStream(payload);
 			ex = Assert.Throws<ArgumentException>(() => stream.ReadWrite(ref addr));
 			Assert.Equal("BIP155 IPv6 address is 4 bytes long. Expected length is 16 bytes.", ex.Message);
 
@@ -249,14 +242,11 @@ namespace NBitcoin.Tests
 				"10" +         // address length
 				"00000000000000000000ffff01020304" +  // address
 				"0000");       // port
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 
 			Assert.False(addr.Endpoint.IsValid());
-			Assert.True(stream.Inner.Length == stream.Inner.Position);
+			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
 
 			// Invalid IPv6, contains embedded TORv2.
 			payload = Encoders.Hex.DecodeData(
@@ -265,14 +255,10 @@ namespace NBitcoin.Tests
 				"10" +         // address length
 				"fd87d87eeb430102030405060708090a" +   // address
 				"0000");       // port
-
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.False(addr.Endpoint.IsValid());
-			Assert.True(stream.Inner.Length == stream.Inner.Position);
+			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
 
 			// Valid TORv2.
 			payload = Encoders.Hex.DecodeData(
@@ -281,16 +267,13 @@ namespace NBitcoin.Tests
 				"0a" +         // address length
 				"f1f2f3f4f5f6f7f8f9fa" +  // address
 				"0000");       // port
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.True(addr.Endpoint.IsValid());
 			Assert.True(addr.IsTor);
 			Assert.True(addr.IsAddrV1Compatible);
 			Assert.Equal("6hzph5hv6337r6p2.onion", addr.ToAddressString());
-			Assert.True(stream.Inner.Length == stream.Inner.Position);
+			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
 
 			// Invalid TORv2, with bogus length.
 			payload = Encoders.Hex.DecodeData(
@@ -298,11 +281,7 @@ namespace NBitcoin.Tests
 				"03" +         // network type (TORv2)
 				"07" +         // address length
 				"00000000000000" );   // address
-
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			ex = Assert.Throws<ArgumentException>(() => stream.ReadWrite(ref addr));
 			Assert.Equal("BIP155 TORv2 address is 7 bytes long. Expected length is 10 bytes.", ex.Message);
 
@@ -313,17 +292,13 @@ namespace NBitcoin.Tests
 				"20" +         // address length
 				"79bcc625184b05194975c28b66b66b0469f7f6556fb1ac3189a79b40dda32f1f" +   // address
 				"0000");       // port
-
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.True(addr.Endpoint.IsValid());
 			Assert.True(addr.IsTor);
 			Assert.False(addr.IsAddrV1Compatible);
 			Assert.Equal("pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion", addr.ToAddressString());
-			Assert.True(stream.Inner.Length == stream.Inner.Position);
+			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
 
 			// Invalid TORv3, with bogus length.
 			payload = Encoders.Hex.DecodeData(
@@ -331,14 +306,10 @@ namespace NBitcoin.Tests
 				"04" +         // network type (TORv3)
 				"00" +         // address length
 				"00" );        // address
-
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			ex = Assert.Throws<ArgumentException>(() => stream.ReadWrite(ref addr));
 			Assert.Equal("BIP155 TORv3 address is 0 bytes long. Expected length is 32 bytes.", ex.Message);
-			Assert.True(stream.Inner.Length != stream.Inner.Position);
+			Assert.NotEqual(stream.Inner.Length, stream.Inner.Position);
 
 			// Valid I2P.
 			payload = Encoders.Hex.DecodeData(
@@ -347,16 +318,13 @@ namespace NBitcoin.Tests
 				"20" +         // address length
 				"a2894dabaec08c0051a481a6dac88b64f98232ae42d4b6fd2fa81952dfe36a87" + // address
 				"0000");       // port
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.True(addr.Endpoint.IsValid());
 			Assert.True(addr.IsI2P);
 			Assert.False(addr.IsAddrV1Compatible);
 			Assert.Equal("ukeu3k5oycgaauneqgtnvselmt4yemvoilkln7jpvamvfx7dnkdq.b32.i2p", addr.ToAddressString());
-			Assert.True(stream.Inner.Length == stream.Inner.Position);
+			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
 
 			// Invalid I2P, with bogus length.
 			payload = Encoders.Hex.DecodeData(
@@ -364,11 +332,7 @@ namespace NBitcoin.Tests
 				"05" +         // network type (I2P)
 				"03" +         // address length
 				"000000");     // address
-
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			ex = Assert.Throws<ArgumentException>(() => stream.ReadWrite(ref addr));
 			Assert.Equal("BIP155 I2P address is 3 bytes long. Expected length is 32 bytes.", ex.Message);
 
@@ -379,16 +343,13 @@ namespace NBitcoin.Tests
 				"10" +         // address length
 				"fc000001000200030004000500060007" + // address
 				"0000");       // port
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.True(addr.Endpoint.IsValid());
 			Assert.True(addr.IsCjdns);
 			Assert.False(addr.IsAddrV1Compatible);
 			Assert.Equal("fc00:1:2:3:4:5:6:7", addr.ToAddressString());
-			Assert.True(stream.Inner.Length == stream.Inner.Position);
+			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
 
 			// Invalid CJDNS, with bogus length.
 			payload = Encoders.Hex.DecodeData(
@@ -396,10 +357,7 @@ namespace NBitcoin.Tests
 				"06" +         // network type (CJDNS)
 				"01" +         // address length
 				"00");         // address
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			ex = Assert.Throws<ArgumentException>(() => stream.ReadWrite(ref addr));
 			Assert.Equal("BIP155 Cjdns address is 1 bytes long. Expected length is 16 bytes.", ex.Message);
 
@@ -409,13 +367,10 @@ namespace NBitcoin.Tests
 				"aa" +         // network type (unknown)
 				"fe00000002" + // address length (CompactSize's MAX_SIZE)
 				"01020304050607"); // address
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			ex = Assert.Throws<ArgumentOutOfRangeException>(() => stream.ReadWrite(ref addr));
 			Assert.Contains("Array size too big", ex.Message);
-			Assert.True(stream.Inner.Length != stream.Inner.Position);
+			Assert.NotEqual(stream.Inner.Length, stream.Inner.Position);
 
 			// Unknown, with reasonable length.
 			payload = Encoders.Hex.DecodeData(
@@ -424,13 +379,10 @@ namespace NBitcoin.Tests
 				"04" +         // address length
 				"01020304" +   // address
 				"0000");       // port
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.False(addr.Endpoint.IsValid());
-			Assert.True(stream.Inner.Length == stream.Inner.Position);
+			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
 
 			// Unknown, with zero length.
 			payload = Encoders.Hex.DecodeData(
@@ -438,13 +390,10 @@ namespace NBitcoin.Tests
 				"aa" +         // network type (unknown)
 				"00" +         // address length
 				"0000");       // port
-			stream = new BitcoinStream(payload){
-				ProtocolVersion = NetworkAddress.AddrV2Format,
-				Type = SerializationType.Hash
-			};
+			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.False(addr.Endpoint.IsValid());
-			Assert.True(stream.Inner.Length == stream.Inner.Position);
+			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
 		}
 
 		static NetworkAddress[] fixture_addresses = new NetworkAddress[]
@@ -468,7 +417,7 @@ namespace NBitcoin.Tests
 
 		// fixture_addresses should be equal to this when serialized in V1 format.
 		// When this is unserialized from V1 format it should equal to fixture_addresses.
-		static string stream_addrv1_hex =
+		const string stream_addrv1_hex =
 			  "03" // number of entries
 
 			+ "61bc6649"                         // time, Fri Jan  9 02:54:25 UTC 2009

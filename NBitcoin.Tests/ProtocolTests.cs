@@ -259,16 +259,18 @@ namespace NBitcoin.Tests
 					}
 				}
 
-				var nodeClient = node.CreateNodeClient();
-				nodeClient.VersionHandshake();
-				AddrV2Payload addr;
-				using (var list = nodeClient.CreateListener()
-											.Where(m => m.Message.Payload is AddrV2Payload))
+				using (var nodeClient = node.CreateNodeClient())
 				{
-					nodeClient.SendMessage(new GetAddrPayload());
+					nodeClient.VersionHandshake();
+					AddrV2Payload addr;
+					using (var list = nodeClient.CreateListener()
+												.Where(m => m.Message.Payload is AddrV2Payload))
+					{
+						nodeClient.SendMessage(new GetAddrPayload());
 
-					addr = list.ReceivePayload<AddrV2Payload>();
-					Assert.Equal(1000, addr.Addresses.Length);
+						addr = list.ReceivePayload<AddrV2Payload>();
+						Assert.Equal(1000, addr.Addresses.Length);
+					}
 				}
 			}
 		}

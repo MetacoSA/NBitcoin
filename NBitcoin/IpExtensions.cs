@@ -152,11 +152,11 @@ namespace NBitcoin
 					var vchRet = new List<byte>();
 					if (dns.IsTor())
 					{
-						vchRet.Add((byte)1);
+						vchRet.Add((byte)3);
 					}
 					else if (dns.IsI2P())
 					{
-						vchRet.Add((byte)2);
+						vchRet.Add((byte)4);
 					}
 
 					var nBits = 4;
