@@ -1057,17 +1057,18 @@ namespace NBitcoin.Protocol
 					return;
 				}
 
-				SendMessageAsync(new VerAckPayload());
-				listener.ReceivePayload<VerAckPayload>(cancellationToken);
-
-				State = NodeState.HandShaked;
-
 				// As a cortesy we do not send sendaddr to nodes that do not support it.
 				if (ProtocolCapabilities.SupportAddrv2)
 				{
 					// Signal ADDRv2 support (BIP155).
 					SendMessageAsync(new SendAddrV2Payload());
 				}
+
+				SendMessageAsync(new VerAckPayload());
+
+				listener.ReceivePayload<VerAckPayload>(cancellationToken);
+
+				State = NodeState.HandShaked;
 
 				if (Advertize)
 				{
