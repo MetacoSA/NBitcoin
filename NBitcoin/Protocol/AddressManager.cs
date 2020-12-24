@@ -21,6 +21,13 @@ namespace NBitcoin.Protocol
 	/// </summary>
 	public class AddressManager : IBitcoinSerializable
 	{
+		// Serialization versions.
+		private const byte V0_HISTORICAL = 0;    // historic format, before bitcoin core commit e6b343d88
+		private const byte V1_DETERMINISTIC = 1; // for pre-asmap files
+		private const byte V2_ASMAP = 2;         // for files including asmap version
+		private const byte V3_BIP155 = 3;        // same as V2_ASMAP plus addresses are in BIP155 format
+
+
 		/// <summary>
 		/// Will properly convert a endpoint to IPEndpoint
 		/// If endpoint is a DNSEndpoint, a DNS resolution will be made and all addresses added
@@ -385,7 +392,7 @@ namespace NBitcoin.Protocol
 			nNew = 0;
 		}
 
-		byte nVersion = 1;
+		byte nVersion = V3_BIP155;
 		byte nKeySize = 32;
 		internal uint256 nKey;
 		internal int nNew;
@@ -413,6 +420,8 @@ namespace NBitcoin.Protocol
 				if (!stream.Serializing)
 					Clear();
 				stream.ReadWrite(ref nVersion);
+				if (nVersion >= V3_BIP155)
+					stream.ProtocolVersion = (stream.ProtocolVersion ?? 0) | NetworkAddress.AddrV2Format;
 				stream.ReadWrite(ref nKeySize);
 				if (!stream.Serializing && nKeySize != 32)
 					throw new FormatException("Incorrect keysize in addrman deserialization");
@@ -422,7 +431,7 @@ namespace NBitcoin.Protocol
 
 				int nUBuckets = ADDRMAN_NEW_BUCKET_COUNT ^ (1 << 30);
 				stream.ReadWrite(ref nUBuckets);
-				if (nVersion != 0)
+				if (nVersion > V0_HISTORICAL)
 				{
 					nUBuckets ^= (1 << 30);
 				}
@@ -437,9 +446,9 @@ namespace NBitcoin.Protocol
 						mapAddr[info.Address.ToAddressString()] = n;
 						info.nRandomPos = vRandom.Count;
 						vRandom.Add(n);
-						if (nVersion != 1 || nUBuckets != ADDRMAN_NEW_BUCKET_COUNT)
+						if (nVersion == V0_HISTORICAL || nUBuckets != ADDRMAN_NEW_BUCKET_COUNT)
 						{
-							// In case the new table data cannot be used (nVersion unknown, or bucket count wrong),
+							// In case the new table data cannot be used (nVersion unknown/historical, or bucket count wrong),
 							// immediately try to give them a reference based on their primary source address.
 							int nUBucket = info.GetNewBucket(nKey);
 							int nUBucketPos = info.GetBucketPosition(nKey, true, nUBucket);
@@ -492,7 +501,7 @@ namespace NBitcoin.Protocol
 							{
 								AddressInfo info = mapInfo[nIndex];
 								int nUBucketPos = info.GetBucketPosition(nKey, true, bucket);
-								if (nVersion == 1 && nUBuckets == ADDRMAN_NEW_BUCKET_COUNT && vvNew[bucket, nUBucketPos] == -1 && info.nRefCount < ADDRMAN_NEW_BUCKETS_PER_ADDRESS)
+								if (nVersion >= V1_DETERMINISTIC && nUBuckets == ADDRMAN_NEW_BUCKET_COUNT && vvNew[bucket, nUBucketPos] == -1 && info.nRefCount < ADDRMAN_NEW_BUCKETS_PER_ADDRESS)
 								{
 									info.nRefCount++;
 									vvNew[bucket, nUBucketPos] = nIndex;
