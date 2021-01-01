@@ -220,7 +220,6 @@ namespace NBitcoin
 			// It will be reassigned in `ReadWriteAsVarString` so no worry to assign 0 length array here.
 			byte[] k = new byte[0];
 			byte[] v = new byte[0];
-			var txFound = false;
 			stream.ReadWriteAsVarString(ref k);
 			while (k.Length != 0)
 			{
@@ -240,7 +239,6 @@ namespace NBitcoin
 							throw new FormatException("Malformed global tx. Unexpected size.");
 						if (tx.Inputs.Any(txin => txin.ScriptSig != Script.Empty || txin.WitScript != WitScript.Empty))
 							throw new FormatException("Malformed global tx. It should not contain any scriptsig or witness by itself");
-						txFound = true;
 						break;
 					case PSBTConstants.PSBT_GLOBAL_XPUB when XPubVersionBytes != null:
 						if (k.Length != 1 + XPubVersionBytes.Length + 74)
@@ -264,7 +262,7 @@ namespace NBitcoin
 				}
 				stream.ReadWriteAsVarString(ref k);
 			}
-			if (!txFound)
+			if (tx is null)
 				throw new FormatException("Invalid PSBT. No global TX");
 
 			int i = 0;
