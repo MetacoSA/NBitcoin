@@ -80,7 +80,7 @@ namespace NBitcoin.Altcoins.Elements
 #endif
 			var polymod = Polymod(values) ^ 1;
 			var ret = new byte[12];
-			foreach (var i in Enumerable.Range(0, 12))
+			for (int i = 0; i < 12; i++)
 			{
 				ret[i] = (byte)((polymod >> 5 * (11 - i)) & 31);
 			}
