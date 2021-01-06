@@ -10,16 +10,6 @@ namespace NBitcoin.Tests
 	[Trait("UnitTest", "UnitTest")]
 	public class Bech32Test
 	{
-		private static string[] VALID_CHECKSUM =
-		{
-			"A12UEL5L",
-			"a12uel5l",
-			"an83characterlonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1tt5tgs",
-			"abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw",
-			"11qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc8247j",
-			"split1checkupstagehandshakeupstreamerranterredcaperred2y9e3w",
-			"?1ezyfcl"
-		};
 
 		private static string[] INVALID_CHECKSUM =
 		{
@@ -40,14 +30,18 @@ namespace NBitcoin.Tests
 		private static string[][] VALID_ADDRESS = {
 			new [] { "BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4", "0014751e76e8199196d454941c45d1b3a323f1433bd6"},
 			new [] { "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7","00201863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262"},
-			new [] { "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx", "5128751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6"},
-			new [] { "BC1SW50QA3JX3S", "6002751e"},
-			new [] { "bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj", "5210751e76e8199196d454941c45d1b3a323"},
 			new [] { "tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy", "0020000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433"},
+			new [] { "bcrt1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvseswlauz7", "0020000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433"},
+			new [] { "tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy", "0020000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433"},
+			new [] { "bc1sw50qgdz25j", "6002751e" },
+			new [] { "bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs", "5210751e76e8199196d454941c45d1b3a323" },
+			new [] { "tb1pqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesf3hn0c", "5120000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433" },
+			new [] { "bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0", "512079be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798" },
 		};
 
 		private static string[] INVALID_ADDRESS = {
-			"tc1qw508d6qejxtdg4y5r3zarvary0c5xw7kg3g4ty",
+			// In theory should not work because invalid hrp, but in our tests we don't check for the hrp
+			//"tc1qw508d6qejxtdg4y5r3zarvary0c5xw7kg3g4ty",
 			"bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5",
 			"BC13W508D6QEJXTDG4Y5R3ZARVARY0C5XW7KN40WF2",
 			"bc1rw5uspcuh",
@@ -56,6 +50,11 @@ namespace NBitcoin.Tests
 			"tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sL5k7",
 			"tb1pw508d6qejxtdg4y5r3zarqfsj6c3",
 			"tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3pjxtptv",
+			"bcrt1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8",
+			"bcrt1sqq5r4036",
+			"BC1SW50QA3JX3S",
+			"bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj",
+			"bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx"
 		};
 
 		[Fact]
@@ -94,28 +93,13 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		Bech32Encoder bech32 = Encoders.Bech32("bc");
-		Bech32Encoder tbech32 = Encoders.Bech32("tb");
-
 		[Fact]
 		public void ValidAddress()
 		{
 			foreach (var address in VALID_ADDRESS)
 			{
-				byte witVer;
-				byte[] witProg;
-				Bech32Encoder encoder = bech32;
-				try
-				{
-					witProg = bech32.Decode(address[0], out witVer);
-					encoder = bech32;
-				}
-				catch
-				{
-					witProg = tbech32.Decode(address[0], out witVer);
-					encoder = tbech32;
-				}
-
+				Bech32Encoder encoder = Bech32Encoder.ExtractEncoderFromString(address[0]);
+				var witProg = encoder.Decode(address[0], out var witVer);
 				var scriptPubkey = Scriptpubkey(witVer, witProg);
 				var hex = string.Join("", scriptPubkey.Select(x => x.ToString("x2")));
 				Assert.Equal(hex, address[1]);
@@ -126,21 +110,34 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void bech32m_testvectors_valid()
+		{
+			foreach (var address in new[]
+			{
+				"A1LQFN3A",
+				"a1lqfn3a",
+				"an83characterlonghumanreadablepartthatcontainsthetheexcludedcharactersbioandnumber11sg7hg6",
+				"abcdef1l7aum6echk45nj3s0wdvt2fg8x9yrzpqzd3ryx",
+				"11llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllludsr8",
+				"split1checkupstagehandshakeupstreamerranterredcaperredlc445v",
+				"?1v759aa"
+			})
+			{
+				var encoder = Bech32Encoder.ExtractEncoderFromString(address);
+				var bytes = encoder.DecodeDataRaw(address, out var encodingType);
+				Assert.Equal(Bech32EncodingType.BECH32M, encodingType);
+				var reencoded = encoder.EncodeRaw(bytes, encodingType);
+				Assert.Equal(address, reencoded, true);
+			}
+		}
+
+		[Fact]
 		public void InvalidAddress()
 		{
 			foreach (var test in INVALID_ADDRESS)
 			{
-				byte witver;
-				try
-				{
-					bech32.Decode(test, out witver);
-				}
-				catch (FormatException) { }
-				try
-				{
-					tbech32.Decode(test, out witver);
-				}
-				catch (FormatException) { }
+				var encoder = Bech32Encoder.ExtractEncoderFromString(test);
+				Assert.ThrowsAny<FormatException>(() => encoder.Decode(test, out var v));
 			}
 		}
 
