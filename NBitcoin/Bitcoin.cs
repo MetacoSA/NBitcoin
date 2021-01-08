@@ -34,7 +34,6 @@ namespace NBitcoin
 				RuleChangeActivationThreshold = 1916,
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
-				//ConsensusFactory = LitecoinConsensusFactory.Instance
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
@@ -43,24 +42,17 @@ namespace NBitcoin
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, "tb")
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, "tb")
-			//.SetNetworkStringParser(new LitecoinMainnetAddressStringParser())
-			//.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("ltc"))
-			//.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("ltc"))
 			.SetMagic(GetSignetMagic())
 			.SetPort(38333)
 			.SetRPCPort(38332)
 			.SetName("signet")
 			.AddAlias("bitcoin-signet")
 			.AddAlias("btc-signet")
-			//.AddDNSSeeds(new[]
-			//{
-			//	new DNSSeedData("loshan.co.uk", "seed-a.litecoin.loshan.co.uk"),
-			//	new DNSSeedData("thrasher.io", "dnsseed.thrasher.io"),
-			//	new DNSSeedData("litecointools.com", "dnsseed.litecointools.com"),
-			//	new DNSSeedData("litecoinpool.org", "dnsseed.litecoinpool.org"),
-			//	new DNSSeedData("koin-project.com", "dnsseed.koin-project.com"),
-			//})
-			//.AddSeeds(ToSeed(pnSeed6_main))
+			.AddSeeds(new[]
+			{
+				"178.128.221.177",
+				"2a01:7c8:d005:390::5"
+			}.Select(o => new Protocol.NetworkAddress(System.Net.IPAddress.Parse(o))))
 			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a008f4d5fae77031e8ad222030101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
 			var network = builder.BuildAndRegister();
 #if !NOFILEIO
