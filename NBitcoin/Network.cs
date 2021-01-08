@@ -11,6 +11,7 @@ using NBitcoin.Protocol;
 using NBitcoin.Stealth;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace NBitcoin
 {
@@ -49,11 +50,92 @@ namespace NBitcoin
 		}
 	}
 
+	[Obsolete("Use ChainName.Mainnet/Testnet/Regtest instead")]
 	public enum NetworkType
 	{
 		Mainnet,
 		Testnet,
 		Regtest
+	}
+	public class ChainName
+	{
+		static ChainName()
+		{
+			Mainnet = new ChainName("Mainnet");
+			Testnet = new ChainName("Testnet");
+			Regtest = new ChainName("Regtest");
+		}
+		public static ChainName Mainnet { get; }
+		public static ChainName Testnet { get; }
+		public static ChainName Regtest { get; }
+
+		private readonly string name;
+		private readonly string nameInvariant;
+
+		public ChainName(string chainName)
+		{
+			if (chainName == null)
+				throw new ArgumentNullException(nameof(chainName));
+			this.name = chainName;
+			this.nameInvariant = chainName.ToUpperInvariant();
+		}
+
+		public override bool Equals(object obj)
+		{
+			ChainName? item = obj as ChainName;
+			if (item is null)
+				return false;
+			return nameInvariant.Equals(item.nameInvariant);
+		}
+		public static bool operator ==(ChainName a, ChainName b)
+		{
+			if (a is ChainName && b is ChainName)
+				return a.nameInvariant == b.nameInvariant;
+			if (a is null && b is null)
+				return true;
+			return false;
+		}
+
+		public static bool operator !=(ChainName a, ChainName b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return nameInvariant.GetHashCode();
+		}
+		public override string ToString()
+		{
+			return name;
+		}
+
+		[Obsolete("Do not use NetworkType anymore, use ChainName instead")]
+		public NetworkType ToNetworkType()
+		{
+			if (this == ChainName.Mainnet)
+				return NetworkType.Mainnet;
+			if (this == ChainName.Testnet)
+				return NetworkType.Testnet;
+			if (this == ChainName.Regtest)
+				return NetworkType.Regtest;
+			throw new NotSupportedException($"Impossible to convert ChainName {name} to NetworkType");
+		}
+		[Obsolete("Do not use NetworkType anymore, use ChainName instead")]
+		public static ChainName FromNetworkType(NetworkType network)
+		{
+			switch(network)
+			{
+				case NetworkType.Mainnet:
+					return ChainName.Mainnet;
+				case NetworkType.Testnet:
+					return ChainName.Testnet;
+				case NetworkType.Regtest:
+					return ChainName.Regtest;
+				default:
+					throw new NotSupportedException($"Unsupported network type {network}");
+			}
+		}
 	}
 
 	public enum Base58Type
@@ -562,6 +644,19 @@ namespace NBitcoin
 				throw new InvalidOperationException("This instance can't be modified");
 		}
 
+		bool _SupportTaproot = true;
+		public bool SupportTaproot
+		{
+			get
+			{
+				return _SupportTaproot;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_SupportTaproot = value;
+			}
+		}
 
 		bool _SupportSegwit = true;
 		public bool SupportSegwit
@@ -630,6 +725,7 @@ namespace NBitcoin
 			consensus._ConsensusFactory = _ConsensusFactory;
 			consensus._LitecoinWorkCalculation = _LitecoinWorkCalculation;
 			consensus._SupportSegwit = _SupportSegwit;
+			consensus._SupportTaproot = _SupportTaproot;
 			consensus._NeverNeedPreviousTxForSigning = _NeverNeedPreviousTxForSigning;
 		}
 	}
@@ -1994,12 +2090,22 @@ namespace NBitcoin
 			}
 		}
 
-		private NetworkType networkType;
+		private ChainName? chainName;
+		[Obsolete("Use ChainName instead")]
 		public NetworkType NetworkType
 		{
 			get
 			{
-				return networkType;
+				return ChainName.ToNetworkType();
+			}
+		}
+		public ChainName ChainName
+		{
+			get
+			{
+				if (chainName is null)
+					throw new InvalidOperationException("Network.ChainName is not set"); 
+				return chainName;
 			}
 		}
 
@@ -2025,6 +2131,7 @@ namespace NBitcoin
 				NBitcoin.Bitcoin.Instance);
 			_RegTest.InitReg();
 			_RegTest.Consensus.Freeze();
+			Bitcoin.Instance.InitSignet();
 		}
 
 		static Network _Main;
@@ -2066,6 +2173,25 @@ namespace NBitcoin
 				return _NetworkSet;
 			}
 		}
+#if !NOFILEIO
+		/// <summary>
+		/// Returns the default data directory of bitcoin correctly accross OS
+		/// </summary>
+		/// <param name="folderName">The name of the folder</param>
+		/// <returns>The full path to the data directory of Bitcoin</returns>
+		public static string? GetDefaultDataFolder(string folderName)
+		{
+			var home = Environment.GetEnvironmentVariable("HOME");
+			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
+			if (string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
+				return null;
+			if (!string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
+				return Path.Combine(home, "." + folderName.ToLowerInvariant());
+			else if (!string.IsNullOrEmpty(localAppData))
+				return Path.Combine(localAppData, char.ToUpperInvariant(folderName[0]) + folderName.Substring(1));
+			return null;
+		}
+#endif
 
 		internal static Network Register(NetworkBuilder builder)
 		{
@@ -2074,7 +2200,7 @@ namespace NBitcoin
 			if (GetNetwork(builder._Name) != null)
 				throw new InvalidOperationException("The network " + builder._Name + " is already registered");
 			Network network = new Network(builder._Name, builder._Genesis.ToArray(), builder._Magic, builder._NetworkSet);
-			network.networkType = builder._NetworkType;
+			network.chainName = builder._ChainName;
 			network.consensus = builder._Consensus;
 			network.nDefaultPort = builder._Port;
 			network.nRPCPort = builder._RPCPort;
@@ -2117,7 +2243,7 @@ namespace NBitcoin
 					_OtherAliases.Add(alias.ToLowerInvariant(), network);
 				}
 				_OtherAliases.Add(network.name.ToLowerInvariant(), network);
-				var defaultAlias = network._NetworkSet.CryptoCode.ToLowerInvariant() + "-" + network.NetworkType.ToString().ToLowerInvariant();
+				var defaultAlias = network._NetworkSet.CryptoCode.ToLowerInvariant() + "-" + network.ChainName.ToString().ToLowerInvariant();
 				if (!_OtherAliases.ContainsKey(defaultAlias))
 					_OtherAliases.Add(defaultAlias, network);
 			}
@@ -2135,7 +2261,7 @@ namespace NBitcoin
 		const uint BITCOIN_MAX_P2P_VERSION = 70016;
 		private void InitMain()
 		{
-			networkType = NetworkType.Mainnet;
+			chainName = ChainName.Mainnet;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.CoinbaseMaturity = 100;
 			consensus.SubsidyHalvingInterval = 210000;
@@ -2212,8 +2338,8 @@ namespace NBitcoin
 		}
 		private void InitTest()
 		{
-			_TestNet.networkType = NetworkType.Testnet;
-			networkType = NetworkType.Testnet;
+			_TestNet.chainName = ChainName.Testnet;
+			chainName = ChainName.Testnet;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.SubsidyHalvingInterval = 210000;
 			consensus.MajorityEnforceBlockUpgrade = 51;
@@ -2288,7 +2414,7 @@ namespace NBitcoin
 		}
 		private void InitReg()
 		{
-			networkType = NetworkType.Regtest;
+			chainName = ChainName.Regtest;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.SubsidyHalvingInterval = 150;
 			consensus.MajorityEnforceBlockUpgrade = 750;

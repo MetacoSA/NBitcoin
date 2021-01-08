@@ -266,39 +266,20 @@ namespace NBitcoin.RPC
 		static ConcurrentDictionary<Network, string> _DefaultPaths = new ConcurrentDictionary<Network, string>();
 		static RPCClient()
 		{
-#if !NOFILEIO
-			var home = Environment.GetEnvironmentVariable("HOME");
-			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
 
-			if (string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
+#if !NOFILEIO
+			var bitcoinFolder = Network.GetDefaultDataFolder("bitcoin");
+			if (bitcoinFolder is null)
 				return;
 
-			if (!string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
-			{
-				var bitcoinFolder = Path.Combine(home, ".bitcoin");
+			var mainnet = Path.Combine(bitcoinFolder, ".cookie");
+			RegisterDefaultCookiePath(Network.Main, mainnet);
 
-				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
-				RegisterDefaultCookiePath(Network.Main, mainnet);
+			var testnet = Path.Combine(bitcoinFolder, "testnet3", ".cookie");
+			RegisterDefaultCookiePath(Network.TestNet, testnet);
 
-				var testnet = Path.Combine(bitcoinFolder, "testnet3", ".cookie");
-				RegisterDefaultCookiePath(Network.TestNet, testnet);
-
-				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
-				RegisterDefaultCookiePath(Network.RegTest, regtest);
-			}
-			else if (!string.IsNullOrEmpty(localAppData))
-			{
-				var bitcoinFolder = Path.Combine(localAppData, "Bitcoin");
-
-				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
-				RegisterDefaultCookiePath(Network.Main, mainnet);
-
-				var testnet = Path.Combine(bitcoinFolder, "testnet3", ".cookie");
-				RegisterDefaultCookiePath(Network.TestNet, testnet);
-
-				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
-				RegisterDefaultCookiePath(Network.RegTest, regtest);
-			}
+			var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
+			RegisterDefaultCookiePath(Network.RegTest, regtest);
 #endif
 		}
 		public static void RegisterDefaultCookiePath(Network network, string path)
