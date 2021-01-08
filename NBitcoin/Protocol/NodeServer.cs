@@ -246,8 +246,8 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		volatile IPEndPoint _ExternalEndpoint;
-		public IPEndPoint ExternalEndpoint
+		volatile EndPoint _ExternalEndpoint;
+		public EndPoint ExternalEndpoint
 		{
 			get
 			{
@@ -255,17 +255,7 @@ namespace NBitcoin.Protocol
 			}
 			set
 			{
-				_ExternalEndpoint = Utils.EnsureIPv6(value);
-			}
-		}
-
-
-		internal void ExternalAddressDetected(IPAddress iPAddress)
-		{
-			if (!ExternalEndpoint.Address.IsRoutable(AllowLocalPeers) && iPAddress.IsRoutable(AllowLocalPeers))
-			{
-				Logs.NodeServer.LogInformation("New externalAddress detected {externalAddress}", iPAddress);
-				ExternalEndpoint = new IPEndPoint(iPAddress, ExternalEndpoint.Port);
+				_ExternalEndpoint = value;
 			}
 		}
 
@@ -295,15 +285,14 @@ namespace NBitcoin.Protocol
 				if (message.Node == null)
 				{
 					var remoteEndpoint = version.AddressFrom;
-					if (!remoteEndpoint.Address.IsRoutable(AllowLocalPeers))
+					if (remoteEndpoint is IPEndPoint remoteIpEndPoint && !remoteIpEndPoint.Address.IsRoutable(AllowLocalPeers))
 					{
 						//Send his own endpoint
 						remoteEndpoint = new IPEndPoint(((IPEndPoint)message.Socket.RemoteEndPoint).Address, Network.DefaultPort);
 					}
 
-					var peer = new NetworkAddress()
+					var peer = new NetworkAddress(remoteEndpoint)
 					{
-						Endpoint = remoteEndpoint,
 						Time = DateTimeOffset.UtcNow
 					};
 					var node = new Node(peer, Network, CreateNodeConnectionParameters(), message.Socket, version);
@@ -416,11 +405,10 @@ namespace NBitcoin.Protocol
 
 		internal NodeConnectionParameters CreateNodeConnectionParameters()
 		{
-			var myExternal = Utils.EnsureIPv6(ExternalEndpoint);
 			var param2 = InboundNodeConnectionParameters.Clone();
 			param2.Nonce = Nonce;
 			param2.Version = Version;
-			param2.AddressFrom = myExternal;
+			param2.AddressFrom = ExternalEndpoint;
 			return param2;
 		}
 
@@ -443,12 +431,12 @@ namespace NBitcoin.Protocol
 
 
 
-		public bool IsConnectedTo(IPEndPoint endpoint)
+		public bool IsConnectedTo(EndPoint endpoint)
 		{
 			return _ConnectedNodes.FindByEndpoint(endpoint) != null;
 		}
 
-		public Node FindOrConnect(IPEndPoint endpoint)
+		public Node FindOrConnect(EndPoint endpoint)
 		{
 			while (true)
 			{

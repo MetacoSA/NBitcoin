@@ -2132,7 +2132,7 @@ namespace NBitcoin
 		}
 
 
-		const uint BITCOIN_MAX_P2P_VERSION = 70012;
+		const uint BITCOIN_MAX_P2P_VERSION = 70016;
 		private void InitMain()
 		{
 			networkType = NetworkType.Mainnet;

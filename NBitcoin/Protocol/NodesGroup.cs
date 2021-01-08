@@ -1,6 +1,7 @@
 ﻿#if !NOSOCKET
 using NBitcoin.Protocol.Behaviors;
 using System;
+using System.Text;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -13,14 +14,13 @@ namespace NBitcoin.Protocol
 	public class WellKnownGroupSelectors
 	{
 		static Random _Rand = new Random();
-		static Func<IPEndPoint, byte[]> _GroupByRandom;
-		public static Func<IPEndPoint, byte[]> ByRandom
+		static Func<EndPoint, byte[]> _GroupByRandom;
+		public static Func<EndPoint, byte[]> ByRandom
 		{
 			get
 			{
-				return _GroupByRandom = _GroupByRandom ?? new Func<IPEndPoint, byte[]>((ip) =>
+				return _GroupByRandom = _GroupByRandom ?? new Func<EndPoint, byte[]>((ip) =>
 				{
-
 					var group = new byte[20];
 					_Rand.NextBytes(group);
 					return group;
@@ -29,43 +29,51 @@ namespace NBitcoin.Protocol
 		}
 
 
-		static Func<IPEndPoint, byte[]> _GroupByIp;
-		public static Func<IPEndPoint, byte[]> ByIp
+		static Func<EndPoint, byte[]> _GroupByIp;
+		public static Func<EndPoint, byte[]> ByIp
 		{
 			get
 			{
-				return _GroupByIp = _GroupByIp ?? new Func<IPEndPoint, byte[]>((ip) =>
+				return _GroupByIp = _GroupByIp ?? new Func<EndPoint, byte[]>((endpoint) =>
 				{
-					return ip.Address.GetAddressBytes();
+					if (endpoint is IPEndPoint ipEndPoint)
+						return ipEndPoint.Address.GetAddressBytes();
+
+					if (endpoint is DnsEndPoint dnsEndPoint)
+					{
+						if (dnsEndPoint.IsTor()) // All Tor endpoints are grouped together
+							return Encoding.UTF8.GetBytes("onion address");
+
+						if (dnsEndPoint.IsI2P()) // All I2P endpoints are grouped together
+							return Encoding.UTF8.GetBytes("i2p address");
+					}
+
+					return Encoding.UTF8.GetBytes("unknown address");
 				});
 			}
 		}
 
-		static Func<IPEndPoint, byte[]> _GroupByEndpoint;
-		public static Func<IPEndPoint, byte[]> ByEndpoint
+		static Func<EndPoint, byte[]> _GroupByEndpoint;
+		public static Func<EndPoint, byte[]> ByEndpoint
 		{
 			get
 			{
-				return _GroupByEndpoint = _GroupByEndpoint ?? new Func<IPEndPoint, byte[]>((endpoint) =>
+				return _GroupByEndpoint = _GroupByEndpoint ?? new Func<EndPoint, byte[]>((endpoint) =>
 				{
-					var bytes = endpoint.Address.GetAddressBytes();
-					var port = Utils.ToBytes((uint)endpoint.Port, true);
-					var result = new byte[bytes.Length + port.Length];
-					Array.Copy(bytes, result, bytes.Length);
-					Array.Copy(port, 0, result, bytes.Length, port.Length);
-					return result;
+					var netaddr = new NetworkAddress(endpoint);
+					return netaddr.GetKey();
 				});
 			}
 		}
 
-		static Func<IPEndPoint, byte[]> _GroupByNetwork;
-		public static Func<IPEndPoint, byte[]> ByNetwork
+		static Func<EndPoint, byte[]> _GroupByNetwork;
+		public static Func<EndPoint, byte[]> ByNetwork
 		{
 			get
 			{
-				return _GroupByNetwork = _GroupByNetwork ?? new Func<IPEndPoint, byte[]>((ip) =>
+				return _GroupByNetwork = _GroupByNetwork ?? new Func<EndPoint, byte[]>((address) =>
 				{
-					return IpExtensions.GetGroup(ip.Address);
+					return address.GetGroup();
 				});
 			}
 		}
@@ -162,7 +170,9 @@ namespace NBitcoin.Protocol
 							{
 								var groupSelector = CustomGroupSelector != null ? CustomGroupSelector :
 									AllowSameGroup ? WellKnownGroupSelectors.ByRandom : null;
-								node = Node.Connect(_Network, parameters, _ConnectedNodes.Select(n => n.RemoteSocketEndpoint as IPEndPoint).Where(e => e != null).ToArray(), groupSelector);
+
+								var connectedPeers = _ConnectedNodes.Where(n => n.Peer is { }).Select(n => n.Peer.Endpoint).ToArray();
+								node = Node.Connect(_Network, parameters, connectedPeers, groupSelector);
 								using (var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token))
 								{
 									timeout.CancelAfter(5000);
@@ -272,7 +282,7 @@ namespace NBitcoin.Protocol
 		/// How to calculate a group of an ip, by default using NBitcoin.IpExtensions.GetGroup.
 		/// Overrides AllowSameGroup.
 		/// </summary>
-		public Func<IPEndPoint, byte[]> CustomGroupSelector
+		public Func<EndPoint, byte[]> CustomGroupSelector
 		{
 			get; set;
 		}

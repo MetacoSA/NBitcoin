@@ -221,10 +221,13 @@ namespace NBitcoin.Protocol
 							{
 								Logs.NodeServer.LogTrace("Sending message {message}", message);
 							}
+							var addrV2Support = Node.PreferAddressV2
+									? NetworkAddress.AddrV2Format
+									: 0;
 							MemoryStream ms = new MemoryStream();
 							message.ReadWrite(new BitcoinStream(ms, true)
 							{
-								ProtocolVersion = Node.Version,
+								ProtocolVersion = Node.Version | addrV2Support,
 								TransactionOptions = Node.SupportedTransactionOptions,
 								ConsensusFactory = Node.Network.Consensus.ConsensusFactory
 							});
@@ -542,7 +545,7 @@ namespace NBitcoin.Protocol
 		/// <param name="parameters">The parameters used by the found node</param>
 		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
 		/// <returns></returns>
-		public static Node Connect(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null)
+		public static Node Connect(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, EndPoint[] connectedEndpoints = null)
 		{
 			parameters = parameters ?? new NodeConnectionParameters();
 			AddressManagerBehavior.SetAddrman(parameters, addrman);
@@ -557,9 +560,9 @@ namespace NBitcoin.Protocol
 		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
 		/// <param name="getGroup">Group selector, by default NBicoin.IpExtensions.GetGroup</param>
 		/// <returns></returns>
-		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null, Func<IPEndPoint, byte[]> getGroup = null)
+		public static Node Connect(Network network, NodeConnectionParameters parameters = null, EndPoint[] connectedEndpoints = null, Func<EndPoint, byte[]> getGroup = null)
 		{
-			getGroup = getGroup ?? new Func<IPEndPoint, byte[]>((a) => IpExtensions.GetGroup(a.Address));
+			getGroup = getGroup ?? new Func<EndPoint, byte[]>((a) => a.GetGroup());
 			connectedEndpoints = connectedEndpoints ?? new IPEndPoint[0];
 			parameters = parameters ?? new NodeConnectionParameters();
 			var addrmanBehavior = parameters.TemplateBehaviors.FindOrCreate(() => new AddressManagerBehavior(new AddressManager()));
@@ -588,7 +591,7 @@ namespace NBitcoin.Protocol
 						parameters.ConnectCancellation.WaitHandle.WaitOne(1000);
 						break;
 					}
-					if (!addr.Endpoint.Address.IsValid())
+					if (!addr.Endpoint.IsValid())
 						continue;
 					var groupExist = connectedEndpoints.Any(a => getGroup(a).SequenceEqual(getGroup(addr.Endpoint)));
 					if (groupExist)
@@ -713,12 +716,10 @@ namespace NBitcoin.Protocol
 				var expectedPeerEndpoint = (endpoint as IPEndPoint) ?? endpoint.AsOnionCatIPEndpoint() ?? (socket.RemoteEndPoint as IPEndPoint);
 				if (peer is null)
 				{
-					peer = new NetworkAddress()
+					peer = new NetworkAddress(expectedPeerEndpoint)
 					{
 						Time = DateTimeOffset.UtcNow,
-						Endpoint = expectedPeerEndpoint
 					};
-					peer.Endpoint = expectedPeerEndpoint;
 				}
 				else if (!expectedPeerEndpoint.MapToIPv6Ex().Equals(peer.Endpoint))
 				{
@@ -742,7 +743,6 @@ namespace NBitcoin.Protocol
 				throw;
 			}
 
-			var destinationEndpoint = endpoint.AsOnionCatIPEndpoint() ?? ((IPEndPoint)socket.RemoteEndPoint);
 			Node node = new Node(peer, network, parameters, socket, null);
 			return node;
 		}
@@ -770,9 +770,12 @@ namespace NBitcoin.Protocol
 
 		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters, Socket socket, VersionPayload peerVersion)
 		{
-			_RemoteSocketAddress = peer.Endpoint.Address;
 			_RemoteSocketEndpoint = peer.Endpoint;
-			_RemoteSocketPort = peer.Endpoint.Port;
+			if (peer.Endpoint is IPEndPoint ip)
+			{
+				_RemoteSocketAddress = ip.Address;
+				_RemoteSocketPort = ip.Port;
+			}
 			_Peer = peer;
 			Inbound = peerVersion != null;
 			Network = network;
@@ -1036,8 +1039,10 @@ namespace NBitcoin.Protocol
 				_PeerVersion = version;
 				SetVersion(Math.Min(MyVersion.Version, version.Version));
 
-				if (!version.AddressReceiver.Address.Equals(MyVersion.AddressFrom.Address))
-					Logs.NodeServer.LogWarning("Different external address detected by the node {addressReceiver} instead of {addressFrom}", version.AddressReceiver.Address, MyVersion.AddressFrom.Address);
+				var receiverAddress = version.AddressReceiver.GetStringAddress();
+				var addressFrom = MyVersion.AddressFrom.GetStringAddress();
+				if (receiverAddress != addressFrom)
+					Logs.NodeServer.LogWarning($"Different external address detected by the node {receiverAddress} instead of {addressFrom}");
 
 				if (ProtocolCapabilities.PeerTooOld)
 				{
@@ -1052,17 +1057,29 @@ namespace NBitcoin.Protocol
 					return;
 				}
 
-				SendMessageAsync(new VerAckPayload());
-				listener.ReceivePayload<VerAckPayload>(cancellationToken);
-				State = NodeState.HandShaked;
-				if (Advertize && MyVersion.AddressFrom.Address.IsRoutable(true))
+				// As a cortesy we do not send sendaddr to nodes that do not support it.
+				if (ProtocolCapabilities.SupportAddrv2)
 				{
+					// Signal ADDRv2 support (BIP155).
+					SendMessageAsync(new SendAddrV2Payload());
+				}
+
+				SendMessageAsync(new VerAckPayload());
+
+				listener.ReceivePayload<VerAckPayload>(cancellationToken);
+
+				State = NodeState.HandShaked;
+
+				if (Advertize)
+				{
+					if (MyVersion.AddressFrom is IPEndPoint iPEndPoint && !iPEndPoint.Address.IsRoutable(true))
+						return;
+
 					SendMessageAsync(new AddrPayload(new NetworkAddress(MyVersion.AddressFrom)
 					{
 						Time = DateTimeOffset.UtcNow
 					}));
 				}
-
 			}
 		}
 
@@ -1085,6 +1102,13 @@ namespace NBitcoin.Protocol
 					throw new ProtocolException("Version rejected " + reject.Code + " : " + reject.Reason);
 				SendMessageAsync(new VerAckPayload());
 				State = NodeState.HandShaked;
+
+				// As a courtesy we do not send sendaddr to nodes that do not support it.
+				if (ProtocolCapabilities.SupportAddrv2)
+				{
+					// Signal ADDRv2 support (BIP155).
+					SendMessageAsync(new SendAddrV2Payload());
+				}
 			}
 		}
 
@@ -1157,6 +1181,16 @@ namespace NBitcoin.Protocol
 			{
 				return _SupportedTransactionOptions;
 			}
+		}
+
+
+		/// <summary>
+		/// Transaction options supported by the peer
+		/// </summary>
+		public bool PreferAddressV2
+		{
+			get;
+			internal set;
 		}
 
 		/// <summary>

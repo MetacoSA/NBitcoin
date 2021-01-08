@@ -1,4 +1,4 @@
-﻿#if !NOSOCKET
+#if !NOSOCKET
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
@@ -42,6 +42,11 @@ namespace NBitcoin.Protocol
 		/// witness data. 
 		/// </summary> 
 		NODE_WITNESS = (1 << 3),
+
+		// NODE_COMPACT_FILTERS means the node will serve basic block filter requests.
+		// See BIP157 and BIP158 for details on how this is implemented.
+
+		NODE_COMPACT_FILTERS = (1 << 6),
 
 		/// <summary> NODE_NETWORK_LIMITED means the same as NODE_NETWORK with the limitation of only
 		/// serving the last 288 (2 day) blocks
@@ -116,7 +121,7 @@ namespace NBitcoin.Protocol
 		}
 
 		NetworkAddress addr_recv = new NetworkAddress();
-		public IPEndPoint AddressReceiver
+		public EndPoint AddressReceiver
 		{
 			get
 			{
@@ -128,7 +133,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 		NetworkAddress addr_from = new NetworkAddress();
-		public IPEndPoint AddressFrom
+		public EndPoint AddressFrom
 		{
 			get
 			{

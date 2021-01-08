@@ -94,7 +94,8 @@ namespace NBitcoin
 				SupportWitness = protocolVersion >= 70012U,
 				SupportCompactBlocks = protocolVersion >= 70014U,
 				SupportCheckSum = protocolVersion >= 60002,
-				SupportUserAgent = protocolVersion >= 60002
+				SupportUserAgent = protocolVersion >= 60002,
+				SupportAddrv2 = protocolVersion >= 70016U,
 			};
 		}
 

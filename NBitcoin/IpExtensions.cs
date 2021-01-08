@@ -138,6 +138,37 @@ namespace NBitcoin
 			return (bytes[15 - 15] == 0x20 && bytes[15 - 14] == 0x01 && bytes[15 - 13] == 0x00 && (bytes[15 - 12] & 0xF0) == 0x10);
 		}
 
+		public static byte[] GetGroup(this EndPoint endpoint)
+		{
+			if (endpoint is IPEndPoint ip)
+			{
+				return ip.Address.GetGroup();
+			}
+
+			if (endpoint is DnsEndPoint dns)
+			{
+				if (dns.IsTor() || dns.IsI2P())
+				{
+					var vchRet = new List<byte>();
+					if (dns.IsTor())
+					{
+						vchRet.Add((byte)3);
+					}
+					else if (dns.IsI2P())
+					{
+						vchRet.Add((byte)4);
+					}
+
+					var nBits = 4;
+					var hostBytes = Encoding.UTF8.GetBytes(dns.Host);
+					var b = hostBytes[0] | ((1 << (8 - nBits)) - 1);
+					vchRet.Add((byte)b);
+					return vchRet.ToArray();
+				}
+			}
+			throw new ArgumentException($"Unknown {nameof(EndPoint)} type {endpoint.GetType().FullName}.");
+		}
+
 		public static byte[] GetGroup(this IPAddress address)
 		{
 			List<byte> vchRet = new List<byte>();
@@ -183,7 +214,7 @@ namespace NBitcoin
 				vchRet.Add((byte)(bytes[15 - 2] ^ 0xFF));
 				return vchRet.ToArray();
 			}
-			else if (address.IsTor())
+			else if (address.IsTor() || address.IsCjdns())
 			{
 				nClass = 3;
 				nStartByte = 6;
@@ -238,6 +269,23 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(iPEndPoint));
 			return iPEndPoint.Address.IsTor();
 		}
+		public static bool IsI2P(this EndPoint endPoint)
+		{
+			if (endPoint == null)
+				throw new ArgumentNullException(nameof(endPoint));
+			return endPoint is DnsEndPoint dns && dns.Host.EndsWith(".b32.i2p", StringComparison.OrdinalIgnoreCase);
+		}
+		public static bool IsCjdns(this IPAddress address)
+		{
+			if (address == null)
+				throw new ArgumentNullException(nameof(address));
+			if (address.AddressFamily == AddressFamily.InterNetworkV6)
+			{
+				var bytes = address.GetAddressBytes();
+				return bytes[0] == 0xfc;
+			}
+			return false;
+		}
 
 		/// <summary>
 		/// Return {host}:{port} of this endpoint.
@@ -253,6 +301,30 @@ namespace NBitcoin
 				return $"{dns.Host}:{dns.Port}";
 			}
 			return endpoint.ToString();
+		}
+
+		public static string GetStringAddress(this EndPoint endPoint)
+		{
+			return endPoint switch
+			{
+				IPEndPoint ip => ip.Address.ToString(),
+				DnsEndPoint dns => dns.Host,
+				_ => throw new ArgumentException($"Unknown {nameof(EndPoint)} type.") 
+			};
+		}
+
+		public static bool IsEqualTo(this EndPoint endPoint1, EndPoint endPoint2)
+		{
+			if (Object.ReferenceEquals(endPoint1, endPoint2))
+				return true;
+
+			if (endPoint1 is IPEndPoint ip1 && endPoint2 is IPEndPoint ip2)
+				return ip1.Address.EnsureIPv6().Equals(ip2.Address.EnsureIPv6()) && ip1.Port == ip2.Port;
+
+			if (endPoint1 is DnsEndPoint dns1 && endPoint2 is DnsEndPoint dns2)
+				return dns1.Host == dns2.Host && dns1.Port == dns2.Port;
+
+			return false;
 		}
 
 		/// <summary>
@@ -459,6 +531,13 @@ namespace NBitcoin
 				   || (bytes[15 - 15] == 0xFF);
 		}
 
+		public static bool IsRoutable(this EndPoint endpoint, bool allowLocal)
+		{
+			if (endpoint is IPEndPoint ip)
+				return ip.Address.IsRoutable(allowLocal);
+
+			return true; 
+		}
 
 
 		public static bool IsRoutable(this IPAddress address, bool allowLocal)
@@ -474,6 +553,15 @@ namespace NBitcoin
 		static readonly byte[] ipNone = new byte[16];
 		static readonly byte[] inadddr_none = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
 		static readonly byte[] ipNone_v4 = new byte[4];
+
+		public static bool IsValid(this EndPoint endpoint)
+		{
+			if (endpoint is IPEndPoint ip)
+				return ip.Address.IsValid();
+
+			return true;
+		}
+
 		public static bool IsValid(this IPAddress address)
 		{
 			address = address.EnsureIPv6();

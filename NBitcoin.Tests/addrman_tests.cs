@@ -38,7 +38,27 @@ namespace NBitcoin.Tests
 			var after = File.ReadAllBytes("serializerPeer.dat");
 			Assert.True(original.SequenceEqual(after));
 		}
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSerializeDeserializePeerTableAfterBIP155()
+		{
+			AddressManager addrman = new AddressManager();
+			var netaddr = new NetworkAddress(new DnsEndPoint("wasabiukrxmkdgve5kynjztuovbg43uxcbcxn6y2okcrsg7gb6jdmbad.onion", 8333));
+			addrman.Add(netaddr);
+			addrman.SavePeerFile("serializerPeerBIP155.dat", Network.Main);
+			var loaddedAddrMgr = AddressManager.LoadPeerFile("serializerPeerBIP155.dat", Network.Main);
+
+			var addr = addrman.Select();
+			Assert.True(addr.Endpoint is DnsEndPoint);
+			var dns = addr.Endpoint as DnsEndPoint;
+			Assert.Equal("wasabiukrxmkdgve5kynjztuovbg43uxcbcxn6y2okcrsg7gb6jdmbad.onion", dns.Host);
+			Assert.Equal(8333, dns.Port);
+		}
+
 #endif
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanUseAddrManager()
@@ -46,7 +66,7 @@ namespace NBitcoin.Tests
 			AddressManager addrman = new AddressManager();
 			addrman.DebugMode = true;
 			var localhost = new NetworkAddress(IPAddress.Parse("127.0.0.1"), 8333);
-			addrman.Add(localhost, localhost.Endpoint.Address);
+			addrman.Add(localhost, IPAddress.Loopback);
 			Assert.NotNull(addrman.nKey);
 			Assert.True(addrman.nKey != new uint256(0));
 			Assert.True(addrman.nNew == 1);
