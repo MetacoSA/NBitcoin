@@ -22,6 +22,7 @@ namespace NBitcoin
 
 		public string CryptoCode => "BTC";
 
+		[Obsolete("Use GetNetwork(ChainName.Mainnet/Testnet/Regtest) instead.")]
 		public Network GetNetwork(NetworkType networkType)
 		{
 			switch (networkType)
@@ -34,6 +35,19 @@ namespace NBitcoin
 					return Regtest;
 			}
 			throw new NotSupportedException(networkType.ToString());
+		}
+
+		public Network GetNetwork(ChainName chainName)
+		{
+			if (chainName == null)
+				throw new ArgumentNullException(nameof(chainName));
+			if (chainName == ChainName.Mainnet)
+				return Mainnet;
+			if (chainName == ChainName.Testnet)
+				return Testnet;
+			if (chainName == ChainName.Regtest)
+				return Regtest;
+			throw new NotSupportedException(chainName.ToString());
 		}
 	}
 }

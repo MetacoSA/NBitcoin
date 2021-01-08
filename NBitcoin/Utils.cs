@@ -164,6 +164,17 @@ namespace NBitcoin
 			return repository.GetBlockAsync(blockId).GetAwaiter().GetResult();
 		}
 
+		public static T ToNetwork<T>(this T obj, ChainName chainName) where T : IBitcoinString
+		{
+			if (obj == null)
+				throw new ArgumentNullException(nameof(obj));
+			if (chainName == null)
+				throw new ArgumentNullException(nameof(chainName));
+			if (obj.Network.ChainName == chainName)
+				return obj;
+			return obj.ToNetwork(obj.Network.NetworkSet.GetNetwork(chainName));
+		}
+		[Obsolete("Use ToNetwork(ChainName) instead")]
 		public static T ToNetwork<T>(this T obj, NetworkType networkType) where T : IBitcoinString
 		{
 			if (obj.Network.NetworkType == networkType)

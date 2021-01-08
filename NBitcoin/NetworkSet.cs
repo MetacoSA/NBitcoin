@@ -12,7 +12,9 @@ namespace NBitcoin
 {
 	public interface INetworkSet
 	{
+		[Obsolete("Use GetNetwork(ChainName.Mainnet/Testnet/Regtest) instead.")]
 		Network GetNetwork(NetworkType networkType);
+		Network GetNetwork(ChainName chainName);
 		Network Mainnet
 		{
 			get;
@@ -36,6 +38,7 @@ namespace NBitcoin
 		public NetworkSetBase()
 		{
 		}
+		[Obsolete("Use GetNetwork(ChainName.Mainnet/Testnet/Regtest) instead.")]
 		public Network GetNetwork(NetworkType networkType)
 		{
 			switch (networkType)
@@ -48,6 +51,18 @@ namespace NBitcoin
 					return Regtest;
 			}
 			throw new NotSupportedException(networkType.ToString());
+		}
+		public virtual Network GetNetwork(ChainName chainName)
+		{
+			if (chainName == null)
+				throw new ArgumentNullException(nameof(chainName));
+			if (chainName == ChainName.Mainnet)
+				return Mainnet;
+			if (chainName == ChainName.Testnet)
+				return Testnet;
+			if (chainName == ChainName.Regtest)
+				return Regtest;
+			throw new NotSupportedException(chainName.ToString());
 		}
 
 		volatile bool _Registered;
@@ -66,21 +81,21 @@ namespace NBitcoin
 				var builder = CreateMainnet();
 				if (builder != null)
 				{
-					builder.SetNetworkType(NetworkType.Mainnet);
+					builder.SetChainName(ChainName.Mainnet);
 					builder.SetNetworkSet(this);
 					_Mainnet = builder.BuildAndRegister();
 				}
 				builder = CreateTestnet();
 				if (builder != null)
 				{
-					builder.SetNetworkType(NetworkType.Testnet);
+					builder.SetChainName(ChainName.Testnet);
 					builder.SetNetworkSet(this);
 					_Testnet = builder.BuildAndRegister();
 				}
 				builder = CreateRegtest();
 				if (builder != null)
 				{
-					builder.SetNetworkType(NetworkType.Regtest);
+					builder.SetChainName(ChainName.Regtest);
 					builder.SetNetworkSet(this);
 					_Regtest = builder.BuildAndRegister();
 				}
