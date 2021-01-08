@@ -644,6 +644,19 @@ namespace NBitcoin
 				throw new InvalidOperationException("This instance can't be modified");
 		}
 
+		bool _SupportTaproot = true;
+		public bool SupportTaproot
+		{
+			get
+			{
+				return _SupportTaproot;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_SupportTaproot = value;
+			}
+		}
 
 		bool _SupportSegwit = true;
 		public bool SupportSegwit
@@ -712,6 +725,7 @@ namespace NBitcoin
 			consensus._ConsensusFactory = _ConsensusFactory;
 			consensus._LitecoinWorkCalculation = _LitecoinWorkCalculation;
 			consensus._SupportSegwit = _SupportSegwit;
+			consensus._SupportTaproot = _SupportTaproot;
 			consensus._NeverNeedPreviousTxForSigning = _NeverNeedPreviousTxForSigning;
 		}
 	}
@@ -2117,6 +2131,7 @@ namespace NBitcoin
 				NBitcoin.Bitcoin.Instance);
 			_RegTest.InitReg();
 			_RegTest.Consensus.Freeze();
+			Bitcoin.Instance.InitSignet();
 		}
 
 		static Network _Main;
@@ -2158,6 +2173,25 @@ namespace NBitcoin
 				return _NetworkSet;
 			}
 		}
+#if !NOFILEIO
+		/// <summary>
+		/// Returns the default data directory of bitcoin correctly accross OS
+		/// </summary>
+		/// <param name="folderName">The name of the folder</param>
+		/// <returns>The full path to the data directory of Bitcoin</returns>
+		public static string? GetDefaultDataFolder(string folderName)
+		{
+			var home = Environment.GetEnvironmentVariable("HOME");
+			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
+			if (string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
+				return null;
+			if (!string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
+				return Path.Combine(home, "." + folderName.ToLowerInvariant());
+			else if (!string.IsNullOrEmpty(localAppData))
+				return Path.Combine(localAppData, char.ToUpperInvariant(folderName[0]) + folderName.Substring(1));
+			return null;
+		}
+#endif
 
 		internal static Network Register(NetworkBuilder builder)
 		{
