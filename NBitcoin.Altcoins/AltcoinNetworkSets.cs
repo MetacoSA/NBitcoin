@@ -14,6 +14,7 @@ namespace NBitcoin.Altcoins
 		public static Dash Dash { get; } = Dash.Instance;
 		public static Verge Verge { get; } = Verge.Instance;
 		public static Terracoin Terracoin { get; } = Terracoin.Instance;
+		public static TDCoin TDCoin { get; } = Terracoin.Instance;
 		public static Mogwai Mogwai { get; } = Mogwai.Instance;
 		public static Dogecoin Dogecoin { get; } = Dogecoin.Instance;
 		public static Dystem Dystem { get; } = Dystem.Instance;
@@ -57,6 +58,7 @@ namespace NBitcoin.Altcoins
 			yield return Dash;
 			//yield return Verge;
 			yield return Terracoin;
+			yield return TDCoin;
 			yield return Mogwai;
 			yield return Ufo;
 			yield return Groestlcoin;
