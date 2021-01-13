@@ -141,32 +141,32 @@ namespace NBitcoin.Secp256k1
 			throw new InvalidOperationException("Schnorr signature failed, this should never happen");
 		}
 		/// <summary>
-		/// Create a non deterministic BIP140 schnorr signature. With Auxiliary random data taken from secure RNG.
+		/// Create a non deterministic BIP340 schnorr signature. With Auxiliary random data taken from secure RNG.
 		/// </summary>
 		/// <param name="msg32">32 bytes message to sign</param>
 		/// <returns>A schnorr signature</returns>
-		public SecpSchnorrSignature SignBIP140(ReadOnlySpan<byte> msg32)
+		public SecpSchnorrSignature SignBIP340(ReadOnlySpan<byte> msg32)
 		{
-			return SignBIP140(msg32, new BIP340NonceFunction(true));
+			return SignBIP340(msg32, new BIP340NonceFunction(true));
 		}
 		/// <summary>
-		/// Create a deterministic BIP140 schnorr signature. With auxiliary random data passed in parameter.
+		/// Create a deterministic BIP340 schnorr signature. With auxiliary random data passed in parameter.
 		/// </summary>
 		/// <param name="msg32">32 bytes message to sign</param>
 		/// <param name="auxData32">Auxiliary random data</param>
 		/// <returns>A schnorr signature</returns>
-		public SecpSchnorrSignature SignBIP140(ReadOnlySpan<byte> msg32, ReadOnlyMemory<byte> auxData32)
+		public SecpSchnorrSignature SignBIP340(ReadOnlySpan<byte> msg32, ReadOnlyMemory<byte> auxData32)
 		{
-			return SignBIP140(msg32, new BIP340NonceFunction(auxData32));
+			return SignBIP340(msg32, new BIP340NonceFunction(auxData32));
 		}
-		public SecpSchnorrSignature SignBIP140(ReadOnlySpan<byte> msg32, INonceFunctionHardened? nonceFunction)
+		public SecpSchnorrSignature SignBIP340(ReadOnlySpan<byte> msg32, INonceFunctionHardened? nonceFunction)
 		{
-			if (TrySignBIP140(msg32, nonceFunction, out var sig) && sig is SecpSchnorrSignature)
+			if (TrySignBIP340(msg32, nonceFunction, out var sig) && sig is SecpSchnorrSignature)
 				return sig;
 			throw new InvalidOperationException("Schnorr signature failed, this should never happen");
 		}
 
-		public bool TrySignBIP140(ReadOnlySpan<byte> msg32, INonceFunctionHardened? nonceFunction, out SecpSchnorrSignature? signature)
+		public bool TrySignBIP340(ReadOnlySpan<byte> msg32, INonceFunctionHardened? nonceFunction, out SecpSchnorrSignature? signature)
 		{
 			signature = null;
 			if (msg32.Length != 32)

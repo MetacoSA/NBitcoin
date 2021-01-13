@@ -17,7 +17,7 @@ namespace NBitcoin.Tests
 	{
 #if HAS_SPAN
 		[Fact]
-		public void BIP140Tests()
+		public void BIP340Tests()
 		{
 			var content = File.ReadAllText("data/bip340_vectors.csv");
 			var lines = content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries).Skip(1).ToArray();
@@ -50,7 +50,7 @@ namespace NBitcoin.Tests
 				{
 					var aux = Encoders.Hex.DecodeData(fields[3]);
 					var key = Context.Instance.CreateECPrivKey(Encoders.Hex.DecodeData(fields[1]));
-					var actualSig = key.SignBIP140(msg, aux);
+					var actualSig = key.SignBIP340(msg, aux);
 					Assert.True(expectedPubKey.SigVerifyBIP340(actualSig, msg));
 					if (expectedGoodSig)
 					{
