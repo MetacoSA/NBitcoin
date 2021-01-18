@@ -21,8 +21,15 @@ namespace NBitcoin.DataEncoders
 	}
 	public class Bech32EncodingType
 	{
-		public readonly static Bech32EncodingType BECH32 = new Bech32EncodingType(1);
-		public readonly static Bech32EncodingType BECH32M = new Bech32EncodingType(0x2bc830a3);
+		static Bech32EncodingType()
+		{
+			BECH32 = new Bech32EncodingType(1);
+			BECH32M = new Bech32EncodingType(0x2bc830a3);
+			All = new Bech32EncodingType[] { BECH32, BECH32M };
+		}
+		public readonly static Bech32EncodingType BECH32;
+		public readonly static Bech32EncodingType BECH32M;
+		public readonly static Bech32EncodingType[] All;
 		public Bech32EncodingType(int encodingConstant)
 		{
 			EncodingConstant = encodingConstant;
@@ -348,9 +355,14 @@ namespace NBitcoin.DataEncoders
 			else
 			{
 				encodingType = null;
-				var epos = locate_errors(polymod ^ 1, bechStringLen - 1);
+
+				var epos = Bech32EncodingType.All
+											.Select(e => locate_errors(polymod ^ (uint)e.EncodingConstant, bechStringLen - 1))
+											.Where(e => e.Length != 0)
+											.OrderByDescending(e => e.Length)
+											.FirstOrDefault();
 				errorPosition = epos;
-				if (epos.Length == 0)
+				if (epos is null || epos.Length == 0)
 					return false;
 				for (var ep = 0; ep < epos.Length; ++ep)
 				{

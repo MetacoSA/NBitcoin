@@ -110,6 +110,25 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void bech32m_testvectors_error_detection()
+		{
+			foreach (var address in new[]
+			{
+				// bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0
+				( "bc1p0xlxvleemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0", new [] { 10 }),
+				( "bc1p0xlxvleemja6c4dqv22uapctqupfhlxmmh8z3k2e72q4k9hcz7vqzk5jj0", new [] { 10, 36 })
+			})
+			{
+				var ex = Assert.Throws<Bech32FormatException>(() => Encoders.Bech32("bc").Decode(address.Item1, out var v));
+				Assert.Equal(address.Item2.Length, ex.ErrorIndexes.Length);
+				for (int i = 0; i < address.Item2.Length; i++)
+				{
+					Assert.Equal(address.Item2[i], ex.ErrorIndexes[i]);
+				}
+			}
+		}
+
+		[Fact]
 		public void bech32m_testvectors_valid()
 		{
 			foreach (var address in new[]

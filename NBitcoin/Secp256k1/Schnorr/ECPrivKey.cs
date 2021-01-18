@@ -165,8 +165,13 @@ namespace NBitcoin.Secp256k1
 				return sig;
 			throw new InvalidOperationException("Schnorr signature failed, this should never happen");
 		}
-
+		
 		public bool TrySignBIP340(ReadOnlySpan<byte> msg32, INonceFunctionHardened? nonceFunction, out SecpSchnorrSignature? signature)
+		{
+			return TrySignBIP340(msg32, null, nonceFunction, out signature);
+		}
+
+		public bool TrySignBIP340(ReadOnlySpan<byte> msg32, ECPubKey? pubkey, INonceFunctionHardened? nonceFunction, out SecpSchnorrSignature? signature)
 		{
 			signature = null;
 			if (msg32.Length != 32)
@@ -182,7 +187,7 @@ namespace NBitcoin.Secp256k1
 				nonceFunction = new BIP340NonceFunction(true);
 			}
 
-			var pk = CreatePubKey().Q;
+			var pk = (pubkey ?? CreatePubKey()).Q;
 			var sk = this.sec;
 			/* Because we are signing for a x-only pubkey, the secret key is negated
 	* before signing if the point corresponding to the secret key does not
@@ -219,7 +224,7 @@ namespace NBitcoin.Secp256k1
 			e.WriteToSpan(sig64.Slice(32));
 
 			ret &= SecpSchnorrSignature.TryCreate(sig64, out signature);
-			
+
 			k = default;
 			sk = default;
 			sec_key.Fill(0);
