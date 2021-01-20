@@ -104,7 +104,6 @@ namespace NBitcoin.Secp256k1
 		 */
 		internal static int Fixed(Span<int> wnaf, in Scalar s, int w)
 		{
-
 			int skew = 0;
 			int pos;
 			int max_pos;

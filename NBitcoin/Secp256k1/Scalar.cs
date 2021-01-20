@@ -854,7 +854,7 @@ namespace NBitcoin.Secp256k1
 			r1 = r1 + this;
 		}
 
-		public readonly Scalar MultiplyShiftVariable(Scalar b, int shift)
+		public readonly Scalar MultiplyShiftVariable(in Scalar b, int shift)
 		{
 			Span<uint> l = stackalloc uint[16];
 			int shiftlimbs;

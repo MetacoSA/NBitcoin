@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+  		<ProjectReference Include="..\NBitcoin.Secp256k1\NBitcoin.Secp256k1.csproj" Condition=" '$(TargetFramework)' != 'net472' " />
   		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
