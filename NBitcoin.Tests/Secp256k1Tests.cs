@@ -518,7 +518,7 @@ namespace NBitcoin.Tests
 				ECPubKey pubkey2;
 				secp256k1_rand256_test(rnd);
 				ret1 = privkey.TryTweakMul(rnd, out privkey);
-				ret2 = pubkey.TryMultTweak(rnd, out pubkey);
+				ret2 = pubkey.TryTweakMul(rnd, out pubkey);
 				Assert.Equal(ret1, ret2);
 				if (!ret1)
 					return;

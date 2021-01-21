@@ -341,13 +341,13 @@ namespace NBitcoin.Secp256k1
 			return true;
 		}
 
-		public ECPubKey MultTweak(ReadOnlySpan<byte> tweak)
+		public ECPubKey TweakMul(ReadOnlySpan<byte> tweak)
 		{
-			if (TryMultTweak(tweak, out var r))
+			if (TryTweakMul(tweak, out var r))
 				return r!;
 			throw new ArgumentException(paramName: nameof(tweak), message: "Invalid tweak");
 		}
-		public bool TryMultTweak(ReadOnlySpan<byte> tweak, out ECPubKey? tweakedPubKey)
+		public bool TryTweakMul(ReadOnlySpan<byte> tweak, out ECPubKey? tweakedPubKey)
 		{
 			tweakedPubKey = null;
 			if (tweak.Length != 32)

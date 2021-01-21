@@ -64,6 +64,7 @@ namespace NBitcoin.Secp256k1
 			}
 			r = secp256k1_ecmult_strauss_wnaf(state, pointsJ.AsSpan(), scalars, inp_g_sc, points.Length);
 			System.Buffers.ArrayPool<GEJ>.Shared.Return(pointsJ);
+			state.Dispose();
 			return r;
 		}
 		unsafe GEJ secp256k1_ecmult_strauss_wnaf(in StraussState state, in ReadOnlySpan<GEJ> a, in ReadOnlySpan<Scalar> na, in Scalar? ng, int num)

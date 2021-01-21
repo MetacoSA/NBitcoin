@@ -226,7 +226,7 @@ namespace NBitcoin
 #if HAS_SPAN
 			if (!NBitcoinContext.Instance.TryCreatePubKey(Passpoint, out var eckey) || eckey is null)
 				throw new InvalidOperationException("Invalid Passpoint");
-			var pubKey = new PubKey(eckey.MultTweak(factorb), isCompressed);
+			var pubKey = new PubKey(eckey.TweakMul(factorb), isCompressed);
 #else
 			var curve = ECKey.Secp256k1;
 			var passpoint = curve.Curve.DecodePoint(Passpoint);

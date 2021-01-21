@@ -109,7 +109,7 @@ namespace NBitcoin
 #if HAS_SPAN
 			if (!NBitcoinContext.Instance.TryCreatePubKey(pointb, out var pk) || pk is null)
 				return false;
-			PubKey pubkey = new PubKey(pk.MultTweak(passfactor), true);
+			PubKey pubkey = new PubKey(pk.TweakMul(passfactor), true);
 #else
 			var curve = ECKey.Secp256k1;
 			ECPoint pointbec;
