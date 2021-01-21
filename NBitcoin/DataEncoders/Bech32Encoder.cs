@@ -528,7 +528,7 @@ namespace NBitcoin.DataEncoders
 			int[] error;
 			if (!VerifyChecksum(data, encoded.Length, out encodingType, out error))
 			{
-				if (error == null && error.Length == 0)
+				if (error == null || error.Length == 0)
 					throw new FormatException("Error while verifying Bech32 checksum");
 				else
 					throw new Bech32FormatException($"Error in Bech32 string at {String.Join(",", error)}", error);
