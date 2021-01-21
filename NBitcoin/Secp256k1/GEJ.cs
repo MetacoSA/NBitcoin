@@ -79,7 +79,10 @@ namespace NBitcoin.Secp256k1
 				return (y * z).IsQuadVariable;
 			}
 		}
-
+		public readonly GEJ AddVariable(in GE b)
+		{
+			return AddVariable(b, out _);
+		}
 		public readonly GEJ AddVariable(in GE b, out FE rzr)
 		{
 			ref readonly GEJ a = ref this;
@@ -185,7 +188,10 @@ namespace NBitcoin.Secp256k1
 		{
 			return new GEJ(x, y.NormalizeWeak().Negate(1), z, infinity);
 		}
-
+		public readonly GEJ AddVariable(in GEJ b)
+		{
+			return AddVariable(b, out _);
+		}
 		public readonly GEJ AddVariable(in GEJ b, out FE rzr)
 		{
 			ref readonly GEJ a = ref this;

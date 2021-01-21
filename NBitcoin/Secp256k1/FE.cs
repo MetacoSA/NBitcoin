@@ -58,26 +58,26 @@ namespace NBitcoin.Secp256k1
 			return false;
 		}
 
-		public FE(ReadOnlySpan<byte> bytes): this(bytes, true, out _)
+		public FE(ReadOnlySpan<byte> in32): this(in32, true, out _)
 		{
 
 		}
-		FE(ReadOnlySpan<byte> bytes, bool throws, out bool isValid)
+		FE(ReadOnlySpan<byte> in32, bool throws, out bool isValid)
 		{
-			n0 = bytes[31] | ((uint)bytes[30] << 8) | ((uint)bytes[29] << 16) | ((uint)(bytes[28] & 0x3) << 24);
-			n1 = (uint)((bytes[28] >> 2) & 0x3f) | ((uint)bytes[27] << 6) | ((uint)bytes[26] << 14) | ((uint)(bytes[25] & 0xf) << 22);
-			n2 = (uint)((bytes[25] >> 4) & 0xf) | ((uint)bytes[24] << 4) | ((uint)bytes[23] << 12) | ((uint)(bytes[22] & 0x3f) << 20);
-			n3 = (uint)((bytes[22] >> 6) & 0x3) | ((uint)bytes[21] << 2) | ((uint)bytes[20] << 10) | ((uint)bytes[19] << 18);
-			n4 = bytes[18] | ((uint)bytes[17] << 8) | ((uint)bytes[16] << 16) | ((uint)(bytes[15] & 0x3) << 24);
-			n5 = (uint)((bytes[15] >> 2) & 0x3f) | ((uint)bytes[14] << 6) | ((uint)bytes[13] << 14) | ((uint)(bytes[12] & 0xf) << 22);
-			n6 = (uint)((bytes[12] >> 4) & 0xf) | ((uint)bytes[11] << 4) | ((uint)bytes[10] << 12) | ((uint)(bytes[9] & 0x3f) << 20);
-			n7 = (uint)((bytes[9] >> 6) & 0x3) | ((uint)bytes[8] << 2) | ((uint)bytes[7] << 10) | ((uint)bytes[6] << 18);
-			n8 = bytes[5] | ((uint)bytes[4] << 8) | ((uint)bytes[3] << 16) | ((uint)(bytes[2] & 0x3) << 24);
-			n9 = (uint)((bytes[2] >> 2) & 0x3f) | ((uint)bytes[1] << 6) | ((uint)bytes[0] << 14);
+			n0 = in32[31] | ((uint)in32[30] << 8) | ((uint)in32[29] << 16) | ((uint)(in32[28] & 0x3) << 24);
+			n1 = (uint)((in32[28] >> 2) & 0x3f) | ((uint)in32[27] << 6) | ((uint)in32[26] << 14) | ((uint)(in32[25] & 0xf) << 22);
+			n2 = (uint)((in32[25] >> 4) & 0xf) | ((uint)in32[24] << 4) | ((uint)in32[23] << 12) | ((uint)(in32[22] & 0x3f) << 20);
+			n3 = (uint)((in32[22] >> 6) & 0x3) | ((uint)in32[21] << 2) | ((uint)in32[20] << 10) | ((uint)in32[19] << 18);
+			n4 = in32[18] | ((uint)in32[17] << 8) | ((uint)in32[16] << 16) | ((uint)(in32[15] & 0x3) << 24);
+			n5 = (uint)((in32[15] >> 2) & 0x3f) | ((uint)in32[14] << 6) | ((uint)in32[13] << 14) | ((uint)(in32[12] & 0xf) << 22);
+			n6 = (uint)((in32[12] >> 4) & 0xf) | ((uint)in32[11] << 4) | ((uint)in32[10] << 12) | ((uint)(in32[9] & 0x3f) << 20);
+			n7 = (uint)((in32[9] >> 6) & 0x3) | ((uint)in32[8] << 2) | ((uint)in32[7] << 10) | ((uint)in32[6] << 18);
+			n8 = in32[5] | ((uint)in32[4] << 8) | ((uint)in32[3] << 16) | ((uint)(in32[2] & 0x3) << 24);
+			n9 = (uint)((in32[2] >> 2) & 0x3f) | ((uint)in32[1] << 6) | ((uint)in32[0] << 14);
 			if (n9 == 0x3FFFFFUL && (n8 & n7 & n6 & n5 & n4 & n3 & n2) == 0x3FFFFFFUL && (n1 + 0x40UL + ((n0 + 0x3D1UL) >> 26)) > 0x3FFFFFFUL)
 			{
 				if (throws)
-					throw new ArgumentException(paramName: nameof(bytes), message: "Invalid Field");
+					throw new ArgumentException(paramName: nameof(in32), message: "Invalid Field");
 				else
 				{
 					isValid = false;

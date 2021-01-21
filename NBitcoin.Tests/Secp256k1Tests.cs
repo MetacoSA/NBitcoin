@@ -11,6 +11,7 @@ using Xunit.Abstractions;
 using System.Security.Cryptography;
 using System.IO;
 using NBitcoin.Crypto;
+using System.Threading.Tasks;
 
 namespace NBitcoin.Tests
 {
@@ -1329,7 +1330,7 @@ namespace NBitcoin.Tests
 
 			var two = Scalar.One + Scalar.One;
 			var max = two.Sqr(6) + two.Negate();
-			var maxULong = new Scalar(ulong.MaxValue-1);
+			var maxULong = new Scalar(ulong.MaxValue - 1);
 			Assert.Equal(maxULong, max);
 
 			Assert.Equal(new Scalar(17) + new Scalar(10), new Scalar(27));
@@ -2124,7 +2125,7 @@ namespace NBitcoin.Tests
 			int bits;
 			x = new Scalar(0);
 			two = new Scalar(2);
-			bits = ECMultContext.secp256k1_ecmult_wnaf(wnaf, number, w);
+			bits = ECMultContext.secp256k1_ecmult_wnaf(wnaf, 256, number, w);
 			Assert.True(bits <= 256);
 			for (i = bits - 1; i >= 0; i--)
 			{
@@ -3226,6 +3227,344 @@ namespace NBitcoin.Tests
 				var tweaked = pk[i].ToXOnlyPubKey(out var pk_parity);
 				var xonly_pk = pk[i - 1].ToXOnlyPubKey(out _);
 				Assert.True(tweaked.CheckIsTweakedWith(xonly_pk, tweak[i - 1], pk_parity));
+			}
+		}
+
+		[Fact]
+		public void test_ecmult_multi2()
+		{
+			int keyCount = 504;
+			var scalars = new Scalar[keyCount];
+			var points = new GE[keyCount];
+			for (int i = 0; i < keyCount; i++)
+			{
+				scalars[i] = random_scalar_order_test();
+				points[i] = random_group_element_test();
+			}
+
+
+			GE r = GE.Infinity;
+			foreach (ECMultiImplementation implementation in Enum.GetValues(typeof(ECMultiImplementation)).OfType<ECMultiImplementation>())
+			{
+				var res = ECMultContext.Instance.MultBatch(null, scalars, points, implementation);
+
+				if (!r.IsInfinity)
+				{
+					Assert.Equal(r, res.ToGroupElement());
+				}
+				else
+				{
+					r = res.ToGroupElement();
+				}
+			}
+
+			foreach (ECMultiImplementation implementation in Enum.GetValues(typeof(ECMultiImplementation)).OfType<ECMultiImplementation>())
+			{
+				var res = ECMultContext.Instance.MultBatch(null, scalars, points, implementation);
+				Assert.Equal(r, res.ToGroupElement());
+			}
+
+			// Show case how to parallelize
+			foreach (ECMultiImplementation implementation in Enum.GetValues(typeof(ECMultiImplementation)).OfType<ECMultiImplementation>())
+			{
+				int fullBatchCount = 100;
+				var batches = (int)Math.DivRem(keyCount, fullBatchCount, out var remainder);
+				var subResult = new GEJ[remainder == 0 ? batches : batches + 1];
+				Parallel.For(0, batches + 1, (int i) =>
+				{
+					var count = i == batches ? remainder : fullBatchCount;
+					if (count == 0)
+						return;
+					subResult[i] = ECMultContext.Instance.MultBatch(null, scalars.AsSpan().Slice(i * fullBatchCount, count)
+									   , points.AsSpan().Slice(i * fullBatchCount, count), implementation);
+				});
+
+				GEJ sum = GEJ.Infinity;
+				foreach (var item in subResult)
+				{
+					sum = sum.AddVariable(item);
+				}
+				Assert.Equal(r, sum.ToGroupElement());
+			}
+		}
+
+
+		[Fact]
+		public void test_ecmult_multi()
+		{
+			test_ecmult_multi_core(ECMultiImplementation.Pippenger);
+			test_ecmult_multi_core(ECMultiImplementation.Simple);
+			test_ecmult_multi_core(ECMultiImplementation.Strauss);
+		}
+
+		private void test_ecmult_multi_core(ECMultiImplementation implementation)
+		{
+			int ncount;
+			Scalar szero = Scalar.Zero;
+			Span<Scalar> sc = new Scalar[32];
+			Span<GE> pt = new GE[32];
+			GEJ r;
+			GEJ r2;
+
+			/* No points to multiply */
+			r = ctx.EcMultContext.MultBatch(null, sc.Slice(0, 0), pt.Slice(0, 0), implementation);
+			Assert.True(r.IsInfinity);
+			/* Check 1- and 2-point multiplies against ecmult */
+			for (ncount = 0; ncount < count; ncount++)
+			{
+				GE ptg;
+				GEJ ptgj;
+				sc[0] = random_scalar_order();
+				sc[1] = random_scalar_order();
+
+				ptg = random_group_element_test();
+				ptgj = ptg.ToGroupElementJacobian();
+				pt[0] = ptg;
+				pt[1] = EC.G;
+
+				/* only G scalar */
+				r2 = ctx.EcMultContext.Mult(ptgj, szero, sc[0]);
+				r = ctx.EcMultContext.MultBatch(sc[0], sc.Slice(0, 0), pt.Slice(0, 0), implementation);
+				r2 = r2.Negate();
+				r = r.AddVariable(r2, out _);
+				Assert.True(r.IsInfinity);
+
+				/* 1-point */
+				r2 = ctx.EcMultContext.Mult(ptgj, sc[0], szero);
+				r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, 1), pt.Slice(0, 1), implementation);
+				r2 = r2.Negate();
+				r = r.AddVariable(r2, out _);
+				Assert.True(r.IsInfinity);
+
+				/* Try to multiply 1 point, but scratch space is empty */
+				//scratch_empty = secp256k1_scratch_create(&ctx->error_callback, 0, 0);
+				//CHECK(!ecmult_multi(&ctx->ecmult_ctx, scratch_empty, &r, &szero, ecmult_multi_callback, &data, 1));
+				//secp256k1_scratch_destroy(scratch_empty);
+
+				/* Try to multiply 1 point, but callback returns false */
+				//CHECK(!ecmult_multi(&ctx->ecmult_ctx, scratch, &r, &szero, ecmult_multi_false_callback, &data, 1));
+
+				/* 2-point */
+				r2 = ctx.EcMultContext.Mult(ptgj, sc[0], sc[1]);
+				r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, 2), pt.Slice(0, 2), implementation);
+
+				r2 = r2.Negate();
+				r = r.AddVariable(r2, out _);
+				Assert.True(r.IsInfinity);
+
+				/* 2-point with G scalar */
+				r2 = ctx.EcMultContext.Mult(ptgj, sc[0], sc[1]);
+				r = ctx.EcMultContext.MultBatch(sc[1], sc.Slice(0, 1), pt.Slice(0, 1), implementation);
+
+				r2 = r2.Negate();
+				r = r.AddVariable(r2, out _);
+				Assert.True(r.IsInfinity);
+			}
+
+			/* Check infinite outputs of various forms */
+			for (ncount = 0; ncount < count; ncount++)
+			{
+				GE ptg;
+				int i, j;
+				int[] sizes = { 2, 10, 32 };
+
+				for (j = 0; j < 3; j++)
+				{
+					for (i = 0; i < 32; i++)
+					{
+						sc[i] = random_scalar_order();
+						pt[i] = GE.Infinity;
+					}
+					r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, sizes[j]), pt.Slice(0, sizes[j]), implementation);
+
+					Assert.True(r.IsInfinity);
+				}
+
+				for (j = 0; j < 3; j++)
+				{
+					for (i = 0; i < 32; i++)
+					{
+						ptg = random_group_element_test();
+						pt[i] = ptg;
+						sc[i] = new Scalar(0);
+					}
+					r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, sizes[j]), pt.Slice(0, sizes[j]), implementation);
+					Assert.True(r.IsInfinity);
+				}
+
+				for (j = 0; j < 3; j++)
+				{
+					ptg = random_group_element_test();
+					for (i = 0; i < 16; i++)
+					{
+						sc[2 * i] = random_scalar_order();
+						sc[2 * i + 1] = sc[2 * i].Negate();
+						pt[2 * i] = ptg;
+						pt[2 * i + 1] = ptg;
+					}
+
+					r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, sizes[j]), pt.Slice(0, sizes[j]), implementation);
+					Assert.True(r.IsInfinity);
+
+					sc[0] = random_scalar_order();
+					for (i = 0; i < 16; i++)
+					{
+						ptg = random_group_element_test();
+
+						sc[2 * i] = sc[0];
+						sc[2 * i + 1] = sc[0];
+						pt[2 * i] = ptg;
+						pt[2 * i + 1] = pt[2 * i].Negate();
+					}
+
+					r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, sizes[j]), pt.Slice(0, sizes[j]), implementation);
+					Assert.True(r.IsInfinity);
+				}
+
+				ptg = random_group_element_test();
+				sc[0] = new Scalar(0);
+				pt[0] = ptg;
+				for (i = 1; i < 32; i++)
+				{
+					pt[i] = ptg;
+
+					sc[i] = random_scalar_order();
+					sc[0] += sc[i];
+					sc[i] = sc[i].Negate();
+				}
+
+				r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, 32), pt.Slice(0, 32), implementation);
+
+				Assert.True(r.IsInfinity);
+			}
+
+			/* Check random points, constant scalar */
+			for (ncount = 0; ncount < count; ncount++)
+			{
+				int i;
+				r = GEJ.Infinity;
+
+				sc[0] = random_scalar_order();
+				for (i = 0; i < 20; i++)
+				{
+					GE ptg;
+					sc[i] = sc[0];
+					ptg = random_group_element_test();
+					pt[i] = ptg;
+					r = r.AddVariable(pt[i], out _);
+				}
+				r2 = ctx.EcMultContext.Mult(r, sc[0], szero);
+				r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, 20), pt.Slice(0, 20), implementation);
+				r2 = r2.Negate();
+				r = r.AddVariable(r2, out _);
+				Assert.True(r.IsInfinity);
+			}
+
+			/* Check random scalars, constant point */
+			for (ncount = 0; ncount < count; ncount++)
+			{
+				int i;
+				GE ptg;
+				GEJ p0j;
+				Scalar rs = new Scalar(0);
+
+				ptg = random_group_element_test();
+				for (i = 0; i < 20; i++)
+				{
+					sc[i] = random_scalar_order();
+					pt[i] = ptg;
+					rs += sc[i];
+				}
+
+				p0j = pt[0].ToGroupElementJacobian();
+				r2 = ctx.EcMultContext.Mult(p0j, rs, szero);
+
+				r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, 20), pt.Slice(0, 20), implementation);
+				r2 = r2.Negate();
+				r = r.AddVariable(r2, out _);
+				Assert.True(r.IsInfinity);
+			}
+
+			/* Sanity check that zero scalars don't cause problems */
+			for (ncount = 0; ncount < 20; ncount++)
+			{
+				sc[ncount] = random_scalar_order();
+				pt[ncount] = random_group_element_test();
+			}
+
+			Scalar.Clear(ref sc[0]);
+			r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, 20), pt.Slice(0, 20), implementation);
+			Scalar.Clear(ref sc[1]);
+			Scalar.Clear(ref sc[2]);
+			Scalar.Clear(ref sc[3]);
+			Scalar.Clear(ref sc[4]);
+
+			r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, 6), pt.Slice(0, 6), implementation);
+			
+			r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, 5), pt.Slice(0, 5), implementation);
+
+			Assert.True(r.IsInfinity);
+
+			/* Run through s0*(t0*P) + s1*(t1*P) exhaustively for many small values of s0, s1, t0, t1 */
+			{
+				int TOP = 8;
+				int s0i, s1i;
+				int t0i, t1i;
+				GE ptg;
+				GEJ ptgj;
+
+				ptg = random_group_element_test();
+				ptgj = ptg.ToGroupElementJacobian();
+
+				for (t0i = 0; t0i < TOP; t0i++)
+				{
+					for (t1i = 0; t1i < TOP; t1i++)
+					{
+						GEJ t0p, t1p;
+						Scalar t0, t1;
+
+						t0 = new Scalar((uint)(t0i + 1) / 2);
+						t0.CondNegate(t0i & 1, out t0);
+						t1 = new Scalar((uint)(t1i + 1) / 2);
+						t1.CondNegate(t1i & 1, out t1);
+
+						t0p = ctx.EcMultContext.Mult(ptgj, t0, szero);
+						t1p = ctx.EcMultContext.Mult(ptgj, t1, szero);
+
+						for (s0i = 0; s0i < TOP; s0i++)
+						{
+							for (s1i = 0; s1i < TOP; s1i++)
+							{
+								Scalar tmp1, tmp2;
+								GEJ expected, actual;
+
+								pt[0] = t0p.ToGroupElement();
+								pt[1] = t1p.ToGroupElement();
+
+								sc[0] = new Scalar((uint)(s0i + 1) / 2);
+								sc[0].CondNegate(s0i & 1, out sc[0]);
+								sc[1] = new Scalar((uint)(s1i + 1) / 2);
+								sc[1].CondNegate(s1i & 1, out sc[1]);
+
+								tmp1 = t0 * sc[0];
+								tmp2 = t1 * sc[1];
+								tmp1 += tmp2;
+
+								expected = ctx.EcMultContext.Mult(ptgj, tmp1, szero);
+
+								actual = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, 2), pt.Slice(0, 2), implementation);
+
+								expected = expected.Negate();
+								actual = actual.AddVariable(expected, out _);
+								if (!actual.IsInfinity)
+								{
+
+								}
+								Assert.True(actual.IsInfinity);
+							}
+						}
+					}
+				}
 			}
 		}
 	}
