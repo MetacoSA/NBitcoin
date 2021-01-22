@@ -118,7 +118,6 @@ namespace NBitcoin.Altcoins
 			.SetRPCPort(20102)
 			.SetName("verge-main")
 			.AddAlias("verge-mainnet")
-			.AddAlias("verge-mainnet")
 			.AddAlias("verge-main")
 			.AddDNSSeeds(new[]
 			{
