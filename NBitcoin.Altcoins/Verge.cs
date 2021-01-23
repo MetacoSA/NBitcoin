@@ -118,7 +118,6 @@ namespace NBitcoin.Altcoins
 			.SetRPCPort(20102)
 			.SetName("verge-main")
 			.AddAlias("verge-mainnet")
-			.AddAlias("verge-main")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("marpmedev.xyz", "seed.marpmedev.xyz"),
@@ -166,8 +165,6 @@ namespace NBitcoin.Altcoins
 			.SetRPCPort(21102)
 		   .SetName("verge-test")
 		   .AddAlias("verge-testnet")
-		   .AddAlias("verge-test")
-		   .AddAlias("verge-testnet")
 		   .AddDNSSeeds(new[]
 		   {
 				new DNSSeedData("jrn.me.uk", "testseed.jrn.me.uk")
@@ -211,8 +208,6 @@ namespace NBitcoin.Altcoins
 			.SetRPCPort(44555) // by default this is assigned dynamically, adding port I got for testing
 			.SetName("verge-reg")
 			.AddAlias("verge-regtest")
-			.AddAlias("verge-regtest")
-			.AddAlias("verge-reg")
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000696ad20e2dd4365c7459b4a4a5af743d5e92c6da3229e6532cd605f6533f2a5bdae5494dffff7f20020000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1004ffff001d0104084e696e746f6e646fffffffff010058850c020000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
