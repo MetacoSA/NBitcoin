@@ -3204,6 +3204,7 @@ namespace NBitcoin.Tests
 		* additional pubkeys by calling tweak_add. Then verifies every tweak starting
 		* from the last pubkey. */
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void test_xonly_pubkey_tweak_recursive()
 		{
 			var N_PUBKEYS = 32;
@@ -3231,6 +3232,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void test_ecmult_multi2()
 		{
 			int keyCount = 504;
@@ -3290,6 +3292,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void test_ecmult_multi()
 		{
 			test_ecmult_multi_core(ECMultiImplementation.Pippenger);

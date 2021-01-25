@@ -57,6 +57,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanSortuin256()
 		{
 			SortedDictionary<uint256, uint256> values = new SortedDictionary<uint256, uint256>();
@@ -92,6 +93,16 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void chainNameTests()
+		{
+			Assert.Equal(new ChainName("lol"), new ChainName("Lol"));
+			Assert.Equal(new ChainName("lol"), new ChainName("LoL"));
+			Assert.Equal("Lol", new ChainName("LoL").ToString());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void spanUintSerializationTests()
 		{
 			var v = new uint256(RandomUtils.GetBytes(32));

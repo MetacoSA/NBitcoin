@@ -97,6 +97,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanReturnTheListOfWords()
 		{
 			var lang = Wordlist.English;
@@ -219,6 +220,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void GenerateHardcodedNormalization()
 		{
 			StringBuilder builder = new StringBuilder();

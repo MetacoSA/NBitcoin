@@ -12,6 +12,7 @@ using NBitcoin.Stealth;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Buffers;
 
 namespace NBitcoin
 {
@@ -69,16 +70,30 @@ namespace NBitcoin
 		public static ChainName Testnet { get; }
 		public static ChainName Regtest { get; }
 
-		private readonly string name;
 		private readonly string nameInvariant;
 
 		public ChainName(string chainName)
 		{
 			if (chainName == null)
 				throw new ArgumentNullException(nameof(chainName));
-			this.name = chainName;
-			this.nameInvariant = chainName.ToUpperInvariant();
+			if (chainName.Length is 0)
+				throw new ArgumentException("Empty chainName is invalid", nameof(chainName));
+
+#if !HAS_SPAN
+			var invariant = chainName.ToLowerInvariant().ToCharArray();
+			invariant[0] = char.ToUpperInvariant(invariant[0]);
+			this.nameInvariant = new string(invariant);
+#else
+			this.nameInvariant = String.Create<string>(chainName.Length, chainName, CreateInvariant);
+#endif
 		}
+#if HAS_SPAN
+		static void CreateInvariant(Span<char> span, string arg)
+		{
+			MemoryExtensions.ToLowerInvariant(arg.AsSpan(), span);
+			span[0] = char.ToUpperInvariant(span[0]);
+		}
+#endif
 
 		public override bool Equals(object obj)
 		{
@@ -107,7 +122,7 @@ namespace NBitcoin
 		}
 		public override string ToString()
 		{
-			return name;
+			return nameInvariant;
 		}
 
 		[Obsolete("Do not use NetworkType anymore, use ChainName instead")]
@@ -119,7 +134,7 @@ namespace NBitcoin
 				return NetworkType.Testnet;
 			if (this == ChainName.Regtest)
 				return NetworkType.Regtest;
-			throw new NotSupportedException($"Impossible to convert ChainName {name} to NetworkType");
+			throw new NotSupportedException($"Impossible to convert ChainName {nameInvariant} to NetworkType");
 		}
 		[Obsolete("Do not use NetworkType anymore, use ChainName instead")]
 		public static ChainName FromNetworkType(NetworkType network)

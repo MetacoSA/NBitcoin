@@ -3386,6 +3386,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		// Fix https://github.com/MetacoSA/NBitcoin/issues/746
 		public void TransactionBuilderDoesNotCreateInvalidTx()
 		{
@@ -4409,6 +4410,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void ShouldSendAllRemaining()
 		{
 			var builder = Network
@@ -4442,6 +4444,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void ShouldSendAllRemainingEvenWithoutOtherSend()
 		{
 			var builder = Network
@@ -4471,6 +4474,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void ShuffleAfterContinueBuild()
 		{
 			var k1 = new Key();
@@ -4514,6 +4518,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanDisableShuffle()
 		{
 			var builder = Network

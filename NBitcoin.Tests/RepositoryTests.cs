@@ -103,12 +103,6 @@ namespace NBitcoin.Tests
 		{
 			return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, p2pkh ? bob.PubKey.Hash.ScriptPubKey : bob.PubKey.WitHash.ScriptPubKey);
 		}
-
-		[Fact]
-		public void Pregenerate()
-		{
-		}
-
 		Network Network => Network.Main;
 
 		[Fact]

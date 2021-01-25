@@ -453,6 +453,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void EdgeCaseSipHashEqualZero()
 		{
 			var dummyScriptPubKey = Encoders.Hex.DecodeData("0009BBE4C2D17185643765C265819BF5261755247D");

@@ -36,6 +36,7 @@ namespace NBitcoin.Tests.PropertyTest
 		}
 
 		[Property(MaxTest = 10)]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCoinJoin(PSBT a, PSBT b)
 		{
 			var result = a.CoinJoin(b);

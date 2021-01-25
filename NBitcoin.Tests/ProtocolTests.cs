@@ -622,6 +622,7 @@ namespace NBitcoin.Tests
 
 #if !NOFILEIO
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanConnectToRandomNode()
 		{
 			Stopwatch watch = new Stopwatch();
