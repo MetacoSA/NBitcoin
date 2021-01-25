@@ -50,7 +50,7 @@ namespace NBitcoin
 				case NetworkType.Regtest:
 					return Regtest;
 			}
-			throw new NotSupportedException(networkType.ToString());
+			return null;
 		}
 		public virtual Network GetNetwork(ChainName chainName)
 		{
@@ -62,7 +62,7 @@ namespace NBitcoin
 				return Testnet;
 			if (chainName == ChainName.Regtest)
 				return Regtest;
-			throw new NotSupportedException(chainName.ToString());
+			return null;
 		}
 
 		volatile bool _Registered;

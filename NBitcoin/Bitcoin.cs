@@ -98,7 +98,7 @@ namespace NBitcoin
 				case NetworkType.Regtest:
 					return Regtest;
 			}
-			throw new NotSupportedException(networkType.ToString());
+			return null;
 		}
 		static readonly ChainName SignetName = new ChainName("Signet");
 
@@ -115,7 +115,7 @@ namespace NBitcoin
 				return Regtest;
 			if (chainName == SignetName)
 				return Signet;
-			throw new NotSupportedException(chainName.ToString());
+			return null;
 		}
 
 		internal void InitSignet()
