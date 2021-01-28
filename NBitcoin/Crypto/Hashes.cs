@@ -1,4 +1,4 @@
-﻿#if !NO_BC
+#if !NO_BC
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Security;
 #endif
@@ -671,7 +671,7 @@ namespace NBitcoin.Crypto
 
 		public static byte[] SHA256(byte[] data, int offset, int count)
 		{
-#if USEBC || WINDOWS_UWP || NETSTANDARD1X
+#if USEBC || WINDOWS_UWP || NETSTANDARD1X || NONATIVEHASH
 			Sha256Digest sha256 = new Sha256Digest();
 			sha256.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[32];
@@ -693,7 +693,7 @@ namespace NBitcoin.Crypto
 
 		public static byte[] SHA512(byte[] data, int offset, int count)
 		{
-#if USEBC || WINDOWS_UWP || NETSTANDARD1X
+#if USEBC || WINDOWS_UWP || NETSTANDARD1X || NONATIVEHASH
 			Sha512Digest sha512 = new Sha512Digest();
 			sha512.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[32];
@@ -801,17 +801,29 @@ namespace NBitcoin.Crypto
 		{
 			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new Sha512Digest());
 			mac.Init(new KeyParameter(key));
-			mac.Update(data);
+			mac.BlockUpdate(data, 0, data.Length);
 			byte[] result = new byte[mac.GetMacSize()];
 			mac.DoFinal(result, 0);
 			return result;
 		}
+#if HAS_SPAN
+		public static bool HMACSHA512(byte[] key, ReadOnlySpan<byte> data, Span<byte> output, out int outputLength)
+		{
+			var outputBuffer = HMACSHA512(key, data.ToArray());
+			outputLength = output.Length;
 
+			if (outputLength > output.Length)
+				return false;
+
+			outputBuffer.CopyTo(output);
+			return true;
+		}
+#endif
 		public static byte[] HMACSHA256(byte[] key, byte[] data)
 		{
 			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new Sha256Digest());
 			mac.Init(new KeyParameter(key));
-			mac.Update(data);
+			mac.BlockUpdate(data, 0, data.Length);
 			byte[] result = new byte[mac.GetMacSize()];
 			mac.DoFinal(result, 0);
 			return result;
