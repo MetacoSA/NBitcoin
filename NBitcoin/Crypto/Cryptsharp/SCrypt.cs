@@ -18,10 +18,10 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 #endregion
 #if !NO_BC
-using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Security;
 #endif
 using NBitcoin.Crypto.Internal;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
 using System;
 #if !USEBC
 using System.Security.Cryptography;

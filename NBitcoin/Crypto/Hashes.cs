@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 
 #if !NONATIVEHASH
 using System.Security.Cryptography;
+using NBitcoin.Crypto.digests; // use managed SHA implementations
+using NBitcoin.BouncyCastle.Crypto.Parameters;  // we'll need this to create HMACs based o the managed SHAs.
 #endif
 
 namespace NBitcoin.Crypto
@@ -806,6 +808,7 @@ namespace NBitcoin.Crypto
 			mac.DoFinal(result, 0);
 			return result;
 		}
+
 #if HAS_SPAN
 		public static bool HMACSHA512(byte[] key, ReadOnlySpan<byte> data, Span<byte> output, out int outputLength)
 		{
@@ -823,6 +826,7 @@ namespace NBitcoin.Crypto
 			return true;
 		}
 #endif
+
 		public static byte[] HMACSHA256(byte[] key, byte[] data)
 		{
 			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new Sha256Digest());
@@ -833,11 +837,46 @@ namespace NBitcoin.Crypto
 			return result;
 		}
 
-#else
+#elif NO_NATIVE_HMACSHA512 // There is a native hash, but no native HMAC.
+		public static byte[] HMACSHA512(byte[] key, byte[] data)
+		{
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new ManagedSha512Digest());
+			mac.Init(new KeyParameter(key));
+			mac.BlockUpdate(data, 0, data.Length);
+			byte[] result = new byte[mac.GetMacSize()];
+			mac.DoFinal(result, 0);
+			return result;
+		}
+
+#if HAS_SPAN
+		public static bool HMACSHA512(byte[] key, ReadOnlySpan<byte> data, Span<byte> output, out int outputLength)
+		{
+			var outputBuffer = HMACSHA512(key, data.ToArray());
+			outputLength = output.Length;
+
+			if (outputLength > output.Length)
+				return false;
+
+			outputBuffer.CopyTo(output);
+			return true;
+		}
+#endif
+
+		public static byte[] HMACSHA256(byte[] key, byte[] data)
+		{
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new ManagedSha256Digest());
+			mac.Init(new KeyParameter(key));
+			mac.BlockUpdate(data, 0, data.Length);
+			byte[] result = new byte[mac.GetMacSize()];
+			mac.DoFinal(result, 0);
+			return result;
+		}
+#else // There is no native hash and no native HMAC
 		public static byte[] HMACSHA512(byte[] key, byte[] data)
 		{
 			return new HMACSHA512(key).ComputeHash(data);
 		}
+
 #if HAS_SPAN
 		public static bool HMACSHA512(byte[] key, ReadOnlySpan<byte> data, Span<byte> output, out int outputLength)
 		{
@@ -845,11 +884,13 @@ namespace NBitcoin.Crypto
 			return hmac.TryComputeHash(data, output, out outputLength);
 		}
 #endif
+
 		public static byte[] HMACSHA256(byte[] key, byte[] data)
 		{
 			return new HMACSHA256(key).ComputeHash(data);
 		}
 #endif
+
 #if HAS_SPAN
 		public static void BIP32Hash(byte[] chainCode, uint nChild, byte header, Span<byte> data, Span<byte> output)
 		{

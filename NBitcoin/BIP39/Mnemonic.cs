@@ -173,7 +173,11 @@ namespace NBitcoin
 			var salt = Concat(NoBOMUTF8.GetBytes("mnemonic"), Normalize(passphrase));
 			var bytes = Normalize(_Mnemonic);
 #if NO_NATIVE_HMACSHA512
+#if NONATIVEHASH
 			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest());
+#else
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new Crypto.digests.ManagedSha512Digest());
+#endif
 			mac.Init(new NBitcoin.BouncyCastle.Crypto.Parameters.KeyParameter(bytes));
 			return Pbkdf2.ComputeDerivedKey(mac, salt, 2048, 64);
 #elif NO_NATIVE_RFC2898_HMACSHA512

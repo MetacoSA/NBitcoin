@@ -101,7 +101,7 @@ namespace NBitcoin.Secp256k1
 #endif
 	class SchnorrNonceFunction : INonceFunction
 	{
-		byte[]? data = null;
+		readonly byte[]? data = null;
 		public SchnorrNonceFunction(byte[]? nonceData = null)
 		{
 			this.data = nonceData;
