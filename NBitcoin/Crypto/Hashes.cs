@@ -1,8 +1,9 @@
 #if !NO_BC
-using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Security;
 #endif
+using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Crypto.Digests;
+using NBitcoin.Crypto.NativeDigests; // Managed digests, compatible with BC's HMac algorithm.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,8 +13,6 @@ using System.Threading.Tasks;
 
 #if !NONATIVEHASH
 using System.Security.Cryptography;
-using NBitcoin.Crypto.digests; // use managed SHA implementations
-using NBitcoin.BouncyCastle.Crypto.Parameters;  // we'll need this to create HMACs based o the managed SHAs.
 #endif
 
 namespace NBitcoin.Crypto

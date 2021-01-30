@@ -1,9 +1,12 @@
 ﻿using NBitcoin.BouncyCastle.Crypto;
 using System;
-using System.Security.Cryptography;
 
-namespace NBitcoin.Crypto.digests
+namespace NBitcoin.Crypto.NativeDigests
 {
+#if !NETSTANDARD1X && !NONATIVEHASH
+
+	using System.Security.Cryptography;
+
 	/// <summary>
 	/// A wrapper around the native SHA256, implements BouncyCastle's IDigest interface in order
 	/// to be compatible with BouncyCastle's HMac implementation.
@@ -56,4 +59,5 @@ namespace NBitcoin.Crypto.digests
 			nativeSha256?.Dispose();
 		}
 	}
+#endif
 }
