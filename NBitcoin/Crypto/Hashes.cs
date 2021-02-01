@@ -839,12 +839,15 @@ namespace NBitcoin.Crypto
 #elif NO_NATIVE_HMACSHA512 // There is a native hash, but no native HMAC.
 		public static byte[] HMACSHA512(byte[] key, byte[] data)
 		{
-			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new ManagedSha512Digest());
-			mac.Init(new KeyParameter(key));
-			mac.BlockUpdate(data, 0, data.Length);
-			byte[] result = new byte[mac.GetMacSize()];
-			mac.DoFinal(result, 0);
-			return result;
+			using (var sha512 = new ManagedSha512Digest())
+			{
+				var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(sha512);
+				mac.Init(new KeyParameter(key));
+				mac.BlockUpdate(data, 0, data.Length);
+				byte[] result = new byte[mac.GetMacSize()];
+				mac.DoFinal(result, 0);
+				return result;
+			}
 		}
 
 #if HAS_SPAN
@@ -863,12 +866,15 @@ namespace NBitcoin.Crypto
 
 		public static byte[] HMACSHA256(byte[] key, byte[] data)
 		{
-			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new ManagedSha256Digest());
-			mac.Init(new KeyParameter(key));
-			mac.BlockUpdate(data, 0, data.Length);
-			byte[] result = new byte[mac.GetMacSize()];
-			mac.DoFinal(result, 0);
-			return result;
+			using (var sha256 = new ManagedSha256Digest())
+			{
+				var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(sha256);
+				mac.Init(new KeyParameter(key));
+				mac.BlockUpdate(data, 0, data.Length);
+				byte[] result = new byte[mac.GetMacSize()];
+				mac.DoFinal(result, 0);
+				return result;
+			}
 		}
 #else // There is no native hash and no native HMAC
 		public static byte[] HMACSHA512(byte[] key, byte[] data)
