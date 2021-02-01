@@ -136,7 +136,7 @@ namespace NBitcoin.Secp256k1
 	{
 		public SecpSchnorrSignature SignSchnorr(ReadOnlySpan<byte> msg32)
 		{
-			if (TrySignSchnorr(msg32, null, out _, out var sig) && sig is SecpSchnorrSignature)
+			if (TrySignSchnorr(msg32, null, out _, out var sig))
 				return sig;
 			throw new InvalidOperationException("Schnorr signature failed, this should never happen");
 		}
@@ -161,17 +161,17 @@ namespace NBitcoin.Secp256k1
 		}
 		public SecpSchnorrSignature SignBIP340(ReadOnlySpan<byte> msg32, INonceFunctionHardened? nonceFunction)
 		{
-			if (TrySignBIP340(msg32, nonceFunction, out var sig) && sig is SecpSchnorrSignature)
+			if (TrySignBIP340(msg32, nonceFunction, out var sig))
 				return sig;
 			throw new InvalidOperationException("Schnorr signature failed, this should never happen");
 		}
 		
-		public bool TrySignBIP340(ReadOnlySpan<byte> msg32, INonceFunctionHardened? nonceFunction, out SecpSchnorrSignature? signature)
+		public bool TrySignBIP340(ReadOnlySpan<byte> msg32, INonceFunctionHardened? nonceFunction, [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out SecpSchnorrSignature signature)
 		{
 			return TrySignBIP340(msg32, null, nonceFunction, out signature);
 		}
 
-		public bool TrySignBIP340(ReadOnlySpan<byte> msg32, ECPubKey? pubkey, INonceFunctionHardened? nonceFunction, out SecpSchnorrSignature? signature)
+		public bool TrySignBIP340(ReadOnlySpan<byte> msg32, ECPubKey? pubkey, INonceFunctionHardened? nonceFunction, [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out SecpSchnorrSignature signature)
 		{
 			signature = null;
 			if (msg32.Length != 32)
@@ -233,7 +233,7 @@ namespace NBitcoin.Secp256k1
 				signature = null;
 			return ret;
 		}
-		public bool TrySignSchnorr(ReadOnlySpan<byte> msg32, INonceFunction? nonceFunction, out bool nonceIsNegated, out SecpSchnorrSignature? signature)
+		public bool TrySignSchnorr(ReadOnlySpan<byte> msg32, INonceFunction? nonceFunction, out bool nonceIsNegated, [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out SecpSchnorrSignature signature)
 		{
 			signature = null;
 			nonceIsNegated = false;
