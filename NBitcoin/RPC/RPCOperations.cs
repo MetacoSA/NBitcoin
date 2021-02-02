@@ -122,5 +122,6 @@ namespace NBitcoin.RPC
 		loadwallet,
 		unloadwallet,
 		addpeeraddress,
+		savemempool,
 	}
 }

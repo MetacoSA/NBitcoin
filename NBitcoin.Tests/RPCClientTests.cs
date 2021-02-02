@@ -194,6 +194,25 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanSaveMemPool()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+				node.Generate(101);
+
+				var mempoolFilePath = Path.Combine(node.Folder, "data", "regtest", "mempool.dat");
+				File.Delete(mempoolFilePath);
+				Assert.False(File.Exists(mempoolFilePath));
+				rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), "hello", "world");
+				rpc.SaveMempool();
+				Assert.True(File.Exists(mempoolFilePath));
+			}
+		}
+
+		[Fact]
 		public async Task RPCBatchingCanFallbackIfAccessForbidden()
 		{
 			using (var builder = NodeBuilderEx.Create())
