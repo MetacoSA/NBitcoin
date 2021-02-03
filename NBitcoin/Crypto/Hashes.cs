@@ -853,14 +853,17 @@ namespace NBitcoin.Crypto
 #if HAS_SPAN
 		public static bool HMACSHA512(byte[] key, ReadOnlySpan<byte> data, Span<byte> output, out int outputLength)
 		{
-			var outputBuffer = HMACSHA512(key, data.ToArray());
-			outputLength = output.Length;
-
-			if (outputLength > output.Length)
+			outputLength = 0;
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new Sha512Digest());
+			var macSize = mac.GetMacSize();
+			if (output.Length < macSize)
 				return false;
-
-			outputBuffer.CopyTo(output);
-			return true;
+			mac.Init(new KeyParameter(key));
+			mac.BlockUpdate(data.ToArray(), 0, data.Length);
+			byte[] result = new byte[macSize];
+			mac.DoFinal(result, 0);
+			result.CopyTo(result);
+			outputLength = result.Length; 
 		}
 #endif
 
