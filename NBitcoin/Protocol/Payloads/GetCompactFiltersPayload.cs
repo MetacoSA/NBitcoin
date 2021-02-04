@@ -58,4 +58,18 @@ namespace NBitcoin.Protocol
 		}
 		#endregion
 	}
+
+	/// <summary>
+	/// Represents the p2p message payload used for requesting a range of compact filter.
+	/// </summary>
+	[Payload("getcfilters")]
+	public class GetCompactFiltersPayload : CompactFiltersQueryPayload
+	{
+		public GetCompactFiltersPayload(FilterType filterType, uint startHeight, uint256 stopHash)
+			: base(filterType, startHeight, stopHash)
+		{
+		}
+
+		public GetCompactFiltersPayload() { }
+	}
 }
