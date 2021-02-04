@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace NBitcoin.Protocol
@@ -106,6 +106,26 @@ namespace NBitcoin.Protocol
 			stream.ReadWrite(ref _FilterType);
 			stream.ReadWrite(ref _StopHash);
 			stream.ReadWrite(ref _FilterHeaders);
+		}
+	}
+
+	[Payload("cfheaders")]
+	public class CompactFilterHeadersPayload: CompactFilterCheckPointPayload
+	{
+		private uint256 _PreviousFilterHeader = uint256.Zero;
+
+		public override void ReadWriteCore(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref _FilterType);
+			stream.ReadWrite(ref _StopHash);
+			stream.ReadWrite(ref _PreviousFilterHeader);
+			stream.ReadWrite(ref _FilterHeaders);
+		}
+
+		public uint256 PreviousFilterHeader 
+		{ 
+			get => _PreviousFilterHeader; 
+			set => _PreviousFilterHeader = value;
 		}
 	}
 }
