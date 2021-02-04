@@ -58,4 +58,54 @@ namespace NBitcoin.Protocol
 		}
 	}
 
+	[Payload("cfcheckpt")]
+	public class CompactFilterCheckPointPayload : Payload
+	{
+		protected byte _FilterType = (byte)FilterType.Basic;
+		protected uint256 _StopHash = uint256.Zero;
+		protected List<uint256> _FilterHeaders = new List<uint256>();
+
+		public CompactFilterCheckPointPayload()
+		{
+		}
+
+		public CompactFilterCheckPointPayload(FilterType filterType, uint256 stopHash, List<uint256> filterHeaders)
+		{
+			if (filterType != FilterType.Basic)
+				throw new ArgumentException(nameof(filterType));
+			if (stopHash == null)
+				throw new ArgumentException(nameof(stopHash));
+			if (filterHeaders == null)
+				throw new ArgumentException(nameof(filterHeaders));
+
+			FilterType = filterType;
+			_StopHash = stopHash;
+			_FilterHeaders = filterHeaders;
+		}
+
+		public FilterType FilterType
+		{
+			get => (FilterType)_FilterType;
+			internal set => _FilterType = (byte)value;
+		}
+
+		public uint256 StopHash 
+		{ 
+			get => _StopHash; 
+			set => _StopHash = value;
+		}
+		
+		public List<uint256> FilterHeaders 
+		{ 
+			get => _FilterHeaders; 
+			set => _FilterHeaders = value;
+		}
+
+		public override void ReadWriteCore(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref _FilterType);
+			stream.ReadWrite(ref _StopHash);
+			stream.ReadWrite(ref _FilterHeaders);
+		}
+	}
 }
