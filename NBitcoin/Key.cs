@@ -155,7 +155,7 @@ namespace NBitcoin
 		{
 			AssertNotDiposed();
 #if HAS_SPAN
-			Span<byte> h = stackalloc byte[32];
+			Span<byte> h = stackalloc byte[KEY_SIZE];
 			hash.ToBytes(h);
 			return new SchnorrSignature(_ECKey.SignSchnorr(h));
 #else
