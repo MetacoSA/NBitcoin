@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Text;
 using NBitcoin.DataEncoders;
+using System.IO;
 #if !HAS_SPAN
 using NBitcoin.BouncyCastle.Math;
 #endif
@@ -405,6 +406,18 @@ namespace NBitcoin
 		{
 			AssertNotDiposed();
 			return new BitcoinSecret(this, network);
+		}
+
+		public byte[] GetSeedBytes()
+		{
+			AssertNotDiposed();
+			byte[] bytes = Enumerable.Repeat((byte)0x00, KEY_SIZE).ToArray();
+			using (var bytesStream = new MemoryStream(bytes))
+			{
+				var stream = new BitcoinStream(bytesStream, true);
+				ReadWrite(stream);
+			}
+			return bytes;
 		}
 
 		public BitcoinEncryptedSecretNoEC GetEncryptedBitcoinSecret(string password, Network network)
