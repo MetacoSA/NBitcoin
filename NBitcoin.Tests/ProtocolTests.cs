@@ -277,6 +277,68 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
+		public void CanHandshakeRestrictNodes()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode(true);
+				var manager = new AddressManager();
+				manager.Add(new NetworkAddress(node.NodeEndpoint), IPAddress.Loopback);
+
+				var nodesRequirement = new NodeRequirement(){ MinStartHeight = 100 };
+				var nodeConnectionParameters = new NodeConnectionParameters()
+				{
+					TemplateBehaviors =
+					{
+						new AddressManagerBehavior(manager)
+						{
+							PeersToDiscover = 1,
+							Mode = AddressManagerBehaviorMode.None
+						}
+					}
+				};
+				var group = new NodesGroup(builder.Network, nodeConnectionParameters, nodesRequirement);
+				group.AllowSameGroup = true;
+				var connecting = WaitConnected(group);
+				try
+				{
+					group.Connect();
+					connecting.GetAwaiter().GetResult();
+				}
+				catch (TaskCanceledException)
+				{
+					// It is expected because no node should connect.
+					Assert.Empty(group.ConnectedNodes); // but we chack it anyway.
+				}
+				finally
+				{
+					group.Disconnect();
+				}
+
+				node.Generate(101);
+				group = new NodesGroup(builder.Network, nodeConnectionParameters, nodesRequirement);
+				group.AllowSameGroup = true;
+				connecting = WaitConnected(group);
+				try
+				{
+					group.Connect();
+					connecting.GetAwaiter().GetResult();
+					Eventually(() =>
+					{
+						Assert.NotEmpty(group.ConnectedNodes);
+						Assert.All(group.ConnectedNodes, connectedNode => 
+							Assert.True(connectedNode.RemoteSocketEndpoint.IsEqualTo(node.NodeEndpoint)));
+					});
+				}
+				finally
+				{
+					group.Disconnect();
+				}
+			}
+		}
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
 		public void CanHandshakeWithSeveralTemplateBehaviors()
 		{
 			using (var builder = NodeBuilderEx.Create())

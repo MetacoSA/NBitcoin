@@ -60,6 +60,12 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
+		public int? MinStartHeight
+		{
+			get;
+			set;
+		}
+
 		public bool SupportSPV
 		{
 			get;
@@ -80,6 +86,12 @@ namespace NBitcoin.Protocol
 			if (SupportSPV)
 			{
 				if (capabilities.SupportNodeBloom && ((version.Services & NodeServices.NODE_BLOOM) == 0))
+					return false;
+			}
+
+			if (MinStartHeight is { } minStartHeight)
+			{
+				if (version.StartHeight < minStartHeight)
 					return false;
 			}
 
