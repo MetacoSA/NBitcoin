@@ -176,14 +176,14 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tq"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tq"))
-			.SetMagic(0xf9beb4d9L)
+			.SetMagic(0x1f2e3d4c)
 			.SetPort(4888)
 			.SetRPCPort(4889)
 			.SetMaxP2PVersion(70018)
 			.SetName("althash-main")
 			.AddAlias("althash-mainnet")
 			.AddDNSSeeds(new[]{
-				new DNSSeedData("seed1.htmlcoin.com", "seed2.htmlcoin.com", "seed3.htmlcoin.com", "seed4.htmlcoin.com"),
+				new DNSSeedData("seed1.htmlcoin.com", "seed2.htmlcoin.com"),
 			})
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("0x0000bf23c6424c270a24a17a3db723361c349e0f966d7b55a6bca4bfb2d951b0");
@@ -216,7 +216,7 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("qcrt"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("qcrt"))
-			.SetMagic(0xf9beb4d9L)
+			.SetMagic(0x)
 			.SetPort(14888)
 			.SetRPCPort(14889)
 			.SetMaxP2PVersion(70017)
@@ -257,7 +257,7 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("qcrt"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("qcrt"))
-			.SetMagic(0xf9beb4d9L)
+			.SetMagic(0x2f3e4d5c)
 			.SetPort(24888)
 			.SetRPCPort(14889)
 			.SetMaxP2PVersion(70017)
