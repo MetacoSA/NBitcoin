@@ -158,12 +158,12 @@ namespace NBitcoin.Altcoins
 				MajorityEnforceBlockUpgrade = 15120,
 				MajorityRejectBlockOutdated = 15120,
 				MajorityWindow = 15120,
-                BIP34Hash = new uint256("966e30dd04d09232f6f690a04664cd3258abe43eeda2f2291d93706aa494aa54"),
+                BIP34Hash =  new uint256 (),
 				PowLimit = new Target(new uint256("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
-				PowTargetTimespan = TimeSpan.FromSeconds(4000),
-				PowTargetSpacing = TimeSpan.FromSeconds(2 * 64),
-				PowAllowMinDifficultyBlocks = true,
-                MinimumChainWork = new uint256("0000000000000000000000000000000000000000000000000000000000000000"),
+				PowTargetTimespan = TimeSpan.FromSeconds(120),
+				PowTargetSpacing = TimeSpan.FromSeconds(120),
+				PowAllowMinDifficultyBlocks = false,
+                MinimumChainWork = new uint256("0x00000000000000000000000000000000000000000008be020ba1b67100fd42b5"),
 				// Reference: https://github.com/HTMLCOIN/HTMLCOIN/blob/c17d801571080d0721c8eddb394f919eab5d60f6/src/consensus/consensus.h#L27
 				CoinbaseMaturity = 500,
 				PowNoRetargeting = false,
@@ -176,8 +176,8 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tq"))
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tq"))
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("hc"))
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("hc"))
 			.SetMagic(0x1f2e3d4c)
 			.SetPort(4888)
 			.SetRPCPort(4889)
@@ -187,7 +187,7 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("seed1.htmlcoin.com", "seed2.htmlcoin.com"),
 			})
 			.AddSeeds(new NetworkAddress[0])
-			.SetGenesis("0x0000bf23c6424c270a24a17a3db723361c349e0f966d7b55a6bca4bfb2d951b0");
+			.SetGenesis("01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff3f0004bf91221d01043642424320392f32342f32303137204765726d616e7920656c656374696f6e204d65726b656c2077696e7320666f75727468207465726dffffffff0100e1f50500000000434104e67225ab32299deaf6312b5b77f0cd2a5264f3757c9663f8dc401ff8b3ad8b012fde713be690ab819f977f84eaef078767168aeb1cb1287941b6319b76d8e582ac00000000");
 			return builder;
 		}
 
@@ -200,12 +200,12 @@ namespace NBitcoin.Altcoins
 				MajorityEnforceBlockUpgrade = 108,
 				MajorityRejectBlockOutdated = 108,
 				MajorityWindow = 108,
-                BIP34Hash = new uint256("966e30dd04d09232f6f690a04664cd3258abe43eeda2f2291d93706aa494aa54"),
+                BIP34Hash = new uint256 (),
 				PowLimit = new Target(new uint256("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
-				PowTargetTimespan = TimeSpan.FromSeconds(4000),
-				PowTargetSpacing = TimeSpan.FromSeconds(15 * 60),
-				PowAllowMinDifficultyBlocks = true,
-                MinimumChainWork = new uint256("0000000000000000000000000000000000000000000000000000000000000000"),
+				PowTargetTimespan = TimeSpan.FromSeconds(10),
+				PowTargetSpacing = TimeSpan.FromSeconds(10),
+				PowAllowMinDifficultyBlocks = false,
+                MinimumChainWork = new uint256("0x00"),
 				CoinbaseMaturity = 500,
 				PowNoRetargeting = false,
 				ConsensusFactory = AlthashConsensusFactory.Instance,
@@ -217,8 +217,8 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("qcrt"))
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("qcrt"))
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tq"))
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tq"))
 			.SetMagic(0x2f3e4d5c)
 			.SetPort(14888)
 			.SetRPCPort(14889)
@@ -229,7 +229,7 @@ namespace NBitcoin.Altcoins
 			})
 			.AddSeeds(new NetworkAddress[0])
 			// Incorrect, using mainnet for now
-			.SetGenesis("0x000013694772f8aeb88efeb2829fe5d71fbca3e23d5043baa770726f204f528c");
+			.SetGenesis("01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff3f0004bf91221d01043642424320392f32342f32303137204765726d616e7920656c656374696f6e204d65726b656c2077696e7320666f75727468207465726dffffffff0100e1f50500000000434104e67225ab32299deaf6312b5b77f0cd2a5264f3757c9663f8dc401ff8b3ad8b012fde713be690ab819f977f84eaef078767168aeb1cb1287941b6319b76d8e582ac00000000");
 			return builder;
 		}
 
@@ -242,12 +242,12 @@ namespace NBitcoin.Altcoins
 				MajorityEnforceBlockUpgrade = 108,
 				MajorityRejectBlockOutdated = 108,
 				MajorityWindow = 108,
-                BIP34Hash = new uint256("966e30dd04d09232f6f690a04664cd3258abe43eeda2f2291d93706aa494aa54"),
+                BIP34Hash = new uint256 (),
 				PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
-				PowTargetTimespan = TimeSpan.FromSeconds(4000),
-				PowTargetSpacing = TimeSpan.FromSeconds(15 * 60),
+				PowTargetTimespan = TimeSpan.FromSeconds(60),
+				PowTargetSpacing = TimeSpan.FromSeconds(60),
 				PowAllowMinDifficultyBlocks = true,
-                MinimumChainWork = new uint256("0000000000000000000000000000000000000000000000000000000000000000"),
+                MinimumChainWork = new uint256("0x00"),
 				CoinbaseMaturity = 500,
 				PowNoRetargeting = true,
 				ConsensusFactory = AlthashConsensusFactory.Instance,
@@ -268,7 +268,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("althash-regtest")
 			.AddSeeds(new NetworkAddress[0])
 			// Incorrect, using mainnet for now
-			.SetGenesis("0x665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943");
+			.SetGenesis("01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff3f0004bf91221d01043642424320392f32342f32303137204765726d616e7920656c656374696f6e204d65726b656c2077696e7320666f75727468207465726dffffffff0100e1f50500000000434104e67225ab32299deaf6312b5b77f0cd2a5264f3757c9663f8dc401ff8b3ad8b012fde713be690ab819f977f84eaef078767168aeb1cb1287941b6319b76d8e582ac00000000");
 			return builder;
 		}
 
