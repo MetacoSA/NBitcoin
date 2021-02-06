@@ -181,7 +181,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0x1f2e3d4c)
 			.SetPort(4888)
 			.SetRPCPort(4889)
-			.SetName("main")
+			.SetName("althash-main")
 			.AddAlias("althash-mainnet")
 			.AddDNSSeeds(new[]{
 				new DNSSeedData("seed1.htmlcoin.com", "seed2.htmlcoin.com"),
@@ -222,7 +222,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0x2f3e4d5c)
 			.SetPort(14888)
 			.SetRPCPort(14889)
-			.SetName("test")
+			.SetName("althash-test")
 			.AddAlias("althash-testnet")
 			.AddDNSSeeds(new[]{
 				new DNSSeedData("testnet-seed1.htmlcoin.com", "testnet-seed2.htmlcoin.com"),
@@ -264,7 +264,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0x3f4e5d6c)
 			.SetPort(24888)
 			.SetRPCPort(14889)
-			.SetName("regtest")
+			.SetName("althash-reg")
 			.AddAlias("althash-regtest")
 			.AddSeeds(new NetworkAddress[0])
 			// Incorrect, using mainnet for now
