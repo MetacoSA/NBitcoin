@@ -158,12 +158,10 @@ namespace NBitcoin.Altcoins
 				MajorityEnforceBlockUpgrade = 15120,
 				MajorityRejectBlockOutdated = 15120,
 				MajorityWindow = 15120,
-                BIP34Hash =  new uint256 (),
 				PowLimit = new Target(new uint256("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				PowTargetTimespan = TimeSpan.FromSeconds(120),
 				PowTargetSpacing = TimeSpan.FromSeconds(120),
 				PowAllowMinDifficultyBlocks = false,
-                MinimumChainWork = new uint256("0x00000000000000000000000000000000000000000008be020ba1b67100fd42b5"),
 				// Reference: https://github.com/HTMLCOIN/HTMLCOIN/blob/c17d801571080d0721c8eddb394f919eab5d60f6/src/consensus/consensus.h#L27
 				CoinbaseMaturity = 500,
 				PowNoRetargeting = false,
@@ -171,11 +169,11 @@ namespace NBitcoin.Altcoins
 				LitecoinWorkCalculation = false,
 				SupportSegwit = true
 			})
-			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 100 })
-			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 110 })
-			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
-			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
-			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 41 })
+			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 100 })
+			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 169 })
+			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x13, 0x97, 0xC1, 0x0D })
+			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x13, 0x97, 0xBC, 0xF3 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("hc"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("hc"))
 			.SetMagic(0x1f2e3d4c)
@@ -197,22 +195,20 @@ namespace NBitcoin.Altcoins
 			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 7680000,
-				MajorityEnforceBlockUpgrade = 108,
-				MajorityRejectBlockOutdated = 108,
-				MajorityWindow = 108,
-                BIP34Hash = new uint256 (),
+				MajorityEnforceBlockUpgrade = 1512,
+				MajorityRejectBlockOutdated = 1512,
+				MajorityWindow = 1512,
 				PowLimit = new Target(new uint256("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				PowTargetTimespan = TimeSpan.FromSeconds(10),
 				PowTargetSpacing = TimeSpan.FromSeconds(10),
 				PowAllowMinDifficultyBlocks = false,
-                MinimumChainWork = new uint256("0x00"),
 				CoinbaseMaturity = 500,
 				PowNoRetargeting = false,
 				ConsensusFactory = AlthashConsensusFactory.Instance,
 				LitecoinWorkCalculation = false,
 				SupportSegwit = true
 			})
-			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 120 })
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 100 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 110 })
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
@@ -225,7 +221,7 @@ namespace NBitcoin.Altcoins
 			.SetName("althash-test")
 			.AddAlias("althash-testnet")
 			.AddDNSSeeds(new[]{
-				new DNSSeedData("testnet-seed1.htmlcoin.com", "testnet-seed2.htmlcoin.com"),
+				new DNSSeedData("testnet-seed1.htmlcoin.com", "testnet-seed1.htmlcoin.com"),
 			})
 			.AddSeeds(new NetworkAddress[0])
 			// Incorrect, using mainnet for now
@@ -242,14 +238,12 @@ namespace NBitcoin.Altcoins
 				MajorityEnforceBlockUpgrade = 108,
 				MajorityRejectBlockOutdated = 108,
 				MajorityWindow = 108,
-                BIP34Hash = new uint256 (),
 				PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				PowTargetTimespan = TimeSpan.FromSeconds(60),
 				PowTargetSpacing = TimeSpan.FromSeconds(60),
 				PowAllowMinDifficultyBlocks = true,
-                MinimumChainWork = new uint256("0x00"),
 				CoinbaseMaturity = 500,
-				PowNoRetargeting = true,
+				PowNoRetargeting = false,
 				ConsensusFactory = AlthashConsensusFactory.Instance,
 				LitecoinWorkCalculation = false,
 				SupportSegwit = true
@@ -264,6 +258,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0x3f4e5d6c)
 			.SetPort(24888)
 			.SetRPCPort(14889)
+			.SetMaxP2PVersion(70018)
 			.SetName("althash-reg")
 			.AddAlias("althash-regtest")
 			.AddSeeds(new NetworkAddress[0])
