@@ -39,6 +39,7 @@ namespace NBitcoin.Altcoins
 		public static Qtum Qtum { get; } = Qtum.Instance;
 		public static MonetaryUnit MonetaryUnit { get; } = MonetaryUnit.Instance;
 		public static LBRYCredits LBRYCredits { get; } = LBRYCredits.Instance;
+		public static Althash Althash { get; } = Althash.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
@@ -73,6 +74,7 @@ namespace NBitcoin.Altcoins
 			yield return Qtum;
 			yield return MonetaryUnit;
 			yield return LBRYCredits;
+			yield return Althash;
 		}
 	}
 }

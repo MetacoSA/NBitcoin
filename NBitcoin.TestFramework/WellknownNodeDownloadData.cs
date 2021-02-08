@@ -1583,6 +1583,38 @@ namespace NBitcoin.Tests
 				}
 			};
 		}
+		
+		public class AlthashNodeDownloadData
+		{
+			public NodeDownloadData v2_5_1 = new NodeDownloadData()
+			{
+				Version = "2.5.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/HTMLCOIN/HTMLCOIN/releases/download/v{0}/htmlcoin-{0}-win64-setup.exe",
+					Archive = "htmlcoin-{0}-win64-setup.exe",
+					Executable = "HTMLCOIN/bin/htmlcoind.exe",
+					Hash = "13262996832e0f32916f5188ab7b80aff08e0920a35d0f317816e46113036c7e"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/HTMLCOIN/HTMLCOIN/releases/download/v{0}/htmlcoin-{0}-linux64.tar.gz",
+					Archive = "htmlcoin-{0}-linux64.tar.gz",
+					Executable = "HTMLCOIN/bin/htmlcoind",
+					Hash = "0863c4f67fc237f563d44d7fa9e6ca4d0e50e5e89172b56034a2c65f7e908c0a"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/HTMLCOIN/HTMLCOIN/releases/download/v{0}/htmlcoin-{0}-mac.dmg",
+					Archive = "htmlcoin-{0}-mac.dmg",
+					Executable = "HTMLCOIN/bin/htmlcoind",
+					Hash = "9dc520cc0068984d825fe0051a33ee717bc04bda9cd4063d2de20897a86bb1d7"
+				},
+				
+				UseSectionInConfigFile = true
+			};
+		}
+
 
 		/// <summary>
 		/// Using Stratis C# full node.
@@ -1766,6 +1798,12 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new XDSNodeDownloadData();
+		
+		public static AlthashNodeDownloadData Althash
+		{
+			get; set;
+		} = new AlthashNodeDownloadData();
+
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
