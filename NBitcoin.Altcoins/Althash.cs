@@ -20,6 +20,7 @@ namespace NBitcoin.Altcoins
 
 		private Althash()
 		{
+		
 		}
 		public class AlthashConsensusFactory : ConsensusFactory
 		{
