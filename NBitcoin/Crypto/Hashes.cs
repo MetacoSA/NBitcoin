@@ -809,6 +809,7 @@ namespace NBitcoin.Crypto
 #if HAS_SPAN
 		public static bool HMACSHA512(byte[] key, ReadOnlySpan<byte> data, Span<byte> output, out int outputLength)
 		{
+			outputLength = 0;
 			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new Sha512Digest());
 			var macSize = mac.GetMacSize();
 			if (output.Length < macSize)

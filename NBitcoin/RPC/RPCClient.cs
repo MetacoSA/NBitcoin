@@ -57,6 +57,7 @@ namespace NBitcoin.RPC
 		blockchain		verifytxoutproof
 		blockchain		gettxoutsetinfo				Yes
 		blockchain		verifychain
+		blockchain		savemempool					Yes
 
 		------------------ Mining
 		mining			 getblocktemplate
@@ -1689,6 +1690,16 @@ namespace NBitcoin.RPC
 				SpentBy = jobj["spentby"]?.Select(x => uint256.Parse((string)x)).ToArray()
 			};
 		}
+
+		public async Task SaveMempoolAsync()
+		{
+			await SendCommandAsync(RPCOperations.savemempool).ConfigureAwait(false);
+		} 
+
+		public void SaveMempool()
+		{
+			SaveMempoolAsync().GetAwaiter().GetResult();
+		} 
 
 		private FeeRate AbsurdlyHighFee { get; } = new FeeRate(10_000M);
 
