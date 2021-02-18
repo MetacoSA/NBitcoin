@@ -231,7 +231,7 @@ namespace NBitcoin.Secp256k1
 			sig64.Fill(0);
 			if (!ret)
 				signature = null;
-			return ret;
+			return signature is SecpSchnorrSignature;
 		}
 		public bool TrySignSchnorr(ReadOnlySpan<byte> msg32, INonceFunction? nonceFunction, out bool nonceIsNegated, [System.Diagnostics.CodeAnalysis.MaybeNullWhen(false)] out SecpSchnorrSignature signature)
 		{
