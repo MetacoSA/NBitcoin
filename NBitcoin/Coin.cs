@@ -609,7 +609,7 @@ namespace NBitcoin
 			Sequence = null;
 		}
 
-		public Sequence? Sequence;
+		public Sequence? Sequence { get; set; }
 	}
 
 

@@ -649,14 +649,14 @@ namespace NBitcoin
 
 		internal class CoinWithOptions
 		{
-			public CoinWithOptions(ICoin coin, CoinOptions options)
+			public CoinWithOptions(ICoin coin, CoinOptions? options)
 			{
 				Coin = coin;
 				Options = options;
 			}
 
 			public ICoin Coin;
-			public CoinOptions Options;
+			public CoinOptions? Options;
 		}
 
 		internal class BuilderGroup
@@ -898,15 +898,15 @@ namespace NBitcoin
 			return this;
 		}
 
-		public TransactionBuilder AddCoin(ICoin? coin)
+		public TransactionBuilder AddCoin(ICoin coin)
 		{
 			return AddCoin(coin, new CoinOptions());
 		}
 
-		public TransactionBuilder AddCoin(ICoin? coin, CoinOptions options)
+		public TransactionBuilder AddCoin(ICoin coin, CoinOptions? options)
 		{
-			if (coin is null)
-				return this;
+			if (coin == null)
+				throw new ArgumentNullException(nameof(coin));
 			if (coin.TxOut.ScriptPubKey.IsUnspendable)
 				throw new InvalidOperationException("You cannot add an unspendable coin");
 			CurrentGroup.CoinsWithOptions.AddOrReplace(coin.Outpoint, new CoinWithOptions(coin, options));
@@ -922,7 +922,8 @@ namespace NBitcoin
 		{
 			foreach (var coin in coins)
 			{
-				AddCoin(coin);
+				if (coin is ICoin)
+					AddCoin(coin);
 			}
 			return this;
 		}
@@ -1888,9 +1889,9 @@ namespace NBitcoin
 					inputsPerOutpoints.Add(coin.Outpoint, input);
 				}
 				var options = group.GetOptions(coin);
-				if (options?.Sequence != null)
+				if (options?.Sequence is Sequence seq)
 				{
-					input.Sequence = options.Sequence.Value;
+					input.Sequence = seq;
 				}
 				else if (OptInRBF)
 				{
