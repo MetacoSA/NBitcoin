@@ -647,6 +647,18 @@ namespace NBitcoin
 			}
 		}
 
+		internal class CoinWithOptions
+		{
+			public CoinWithOptions(ICoin coin, CoinOptions options)
+			{
+				Coin = coin;
+				Options = options;
+			}
+
+			public ICoin Coin;
+			public CoinOptions Options;
+		}
+
 		internal class BuilderGroup
 		{
 			internal TransactionBuilder _Parent;
@@ -656,13 +668,18 @@ namespace NBitcoin
 				FeeWeight = 1.0m;
 			}
 			internal List<Builder> Builders = new List<Builder>();
-			internal Dictionary<OutPoint, ICoin> Coins = new Dictionary<OutPoint, ICoin>();
+			internal Dictionary<OutPoint, CoinWithOptions> CoinsWithOptions = new Dictionary<OutPoint, CoinWithOptions>();
 			internal List<AssetBuilder> IssuanceBuilders = new List<AssetBuilder>();
 			internal Dictionary<AssetId, List<AssetBuilder>> BuildersByAsset = new Dictionary<AssetId, List<AssetBuilder>>();
 			internal Script[] ChangeScript = new Script[3];
 			internal bool sendAllToChange;
 			internal bool preventSetChange;
 			internal MoneyBag FixedFee = new MoneyBag();
+
+			internal IEnumerable<T> CoinsOfType<T>()
+			{
+				return CoinsWithOptions.Values.Select(coinWithOptions => coinWithOptions.Coin).OfType<T>();
+			}
 
 			internal void Shuffle()
 			{
@@ -674,6 +691,12 @@ namespace NBitcoin
 			private void Shuffle<T>(List<T> builders)
 			{
 				Utils.Shuffle(builders, _Parent.ShuffleRandom);
+			}
+
+			public CoinOptions? GetOptions(ICoin coin)
+			{
+				CoinsWithOptions.TryGetValue(coin.Outpoint, out var coinWithOptions);
+				return coinWithOptions?.Options;
 			}
 
 			public MoneyBag CoverOnly
@@ -875,6 +898,21 @@ namespace NBitcoin
 			return this;
 		}
 
+		public TransactionBuilder AddCoin(ICoin? coin)
+		{
+			return AddCoin(coin, new CoinOptions());
+		}
+
+		public TransactionBuilder AddCoin(ICoin? coin, CoinOptions options)
+		{
+			if (coin is null)
+				return this;
+			if (coin.TxOut.ScriptPubKey.IsUnspendable)
+				throw new InvalidOperationException("You cannot add an unspendable coin");
+			CurrentGroup.CoinsWithOptions.AddOrReplace(coin.Outpoint, new CoinWithOptions(coin, options));
+			return this;
+		}
+
 		public TransactionBuilder AddCoins(params ICoin?[] coins)
 		{
 			return AddCoins((IEnumerable<ICoin?>)coins);
@@ -884,11 +922,7 @@ namespace NBitcoin
 		{
 			foreach (var coin in coins)
 			{
-				if (coin is null)
-					continue;
-				if (coin.TxOut.ScriptPubKey.IsUnspendable)
-					throw new InvalidOperationException("You cannot add an unspendable coin");
-				CurrentGroup.Coins.AddOrReplace(coin.Outpoint, coin);
+				AddCoin(coin);
 			}
 			return this;
 		}
@@ -963,7 +997,7 @@ namespace NBitcoin
 		{
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
-			var totalInput = CurrentGroup.Coins.Values.OfType<Coin>().Sum(coin => coin.Amount);
+			var totalInput = CurrentGroup.CoinsOfType<Coin>().Sum(coin => coin.Amount);
 			return Send(scriptPubKey, totalInput).SubtractFees();
 		}
 
@@ -1292,7 +1326,7 @@ namespace NBitcoin
 				var marker = ctx.GetColorMarker(true);
 				if (ctx.IssuanceCoin == null)
 				{
-					var issuance = ctx.Group.Coins.Values.OfType<IssuanceCoin>().Where(i => i.AssetId == asset.Id).FirstOrDefault();
+					var issuance = ctx.Group.CoinsOfType<IssuanceCoin>().Where(i => i.AssetId == asset.Id).FirstOrDefault();
 					if (issuance == null)
 						throw new InvalidOperationException("No issuance coin for emitting asset found");
 					ctx.IssuanceCoin = issuance;
@@ -1646,7 +1680,7 @@ namespace NBitcoin
 				foreach (var builders in buildersByAsset)
 				{
 					ctx.Zero = new AssetMoney(builders.Key);
-					var coins = group.Coins.Values.OfType<ColoredCoin>().Where(c => c.Amount.Id == builders.Key);
+					var coins = group.CoinsOfType<ColoredCoin>().Where(c => c.Amount.Id == builders.Key);
 					ctx.GetDust = null;
 					var btcSpent = BuildTransaction(ctx, group, builders.Value, coins)
 									.OfType<IColoredCoin>().Select(c => c.Bearer.Amount).Sum();
@@ -1658,9 +1692,9 @@ namespace NBitcoin
 
 				var builderList = group.Builders.ToList();
 				ctx.AddChangeTxOut = SetChange;
-				BuildTransaction(ctx, group, builderList, group.Coins.Values.OfType<Coin>()
-																			.Where(c => c.Amount >= ctx.CurrentGroupContext.MinValue)
-																			.Where(IsEconomical));
+				BuildTransaction(ctx, group, builderList, group.CoinsOfType<Coin>()
+															   .Where(c => c.Amount >= ctx.CurrentGroupContext.MinValue)
+															   .Where(IsEconomical));
 			}
 
 			if (ShuffleRandom != null)
@@ -1853,7 +1887,12 @@ namespace NBitcoin
 					input = ctx.Transaction.Inputs.Add(coin.Outpoint);
 					inputsPerOutpoints.Add(coin.Outpoint, input);
 				}
-				if (OptInRBF)
+				var options = group.GetOptions(coin);
+				if (options?.Sequence != null)
+				{
+					input.Sequence = options.Sequence.Value;
+				}
+				else if (OptInRBF)
 				{
 					input.Sequence = Sequence.OptInRBF;
 				}
@@ -2117,7 +2156,7 @@ namespace NBitcoin
 
 		public ICoin? FindCoin(OutPoint outPoint)
 		{
-			var result = _BuilderGroups.Select(c => c.Coins.TryGet(outPoint)).FirstOrDefault(r => r != null);
+			var result = _BuilderGroups.Select(c => c.CoinsWithOptions.TryGet(outPoint)).FirstOrDefault(r => r != null)?.Coin;
 			if (result == null && CoinFinder != null)
 				result = CoinFinder(outPoint);
 			return result;

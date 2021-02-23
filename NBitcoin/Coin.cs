@@ -602,6 +602,16 @@ namespace NBitcoin
 		WitnessV0
 	}
 
+	public class CoinOptions
+	{
+		public CoinOptions()
+		{
+			Sequence = null;
+		}
+
+		public Sequence? Sequence;
+	}
+
 
 	/// <summary>
 	/// Represent a coin which need a redeem script to be spent (P2SH or P2WSH)
