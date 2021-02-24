@@ -851,6 +851,13 @@ namespace NBitcoin
 			return this;
 		}
 
+		uint _Version = 1;
+		public TransactionBuilder SetVersion(uint version)
+		{
+			_Version = version;
+			return this;
+		}
+
 		internal List<Key> _Keys = new List<Key>();
 
 		public TransactionBuilder AddKeys(params ISecret[] keys)
@@ -1669,6 +1676,7 @@ namespace NBitcoin
 			}
 			if (_LockTime != null)
 				ctx.Transaction.LockTime = _LockTime.Value;
+			ctx.Transaction.Version = _Version;
 			foreach (var group in _BuilderGroups)
 			{
 				ctx.SetGroup(group);
