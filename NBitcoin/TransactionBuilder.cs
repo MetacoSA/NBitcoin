@@ -851,7 +851,7 @@ namespace NBitcoin
 			return this;
 		}
 
-		uint _Version = 1;
+		uint? _Version = 1;
 		public TransactionBuilder SetVersion(uint version)
 		{
 			_Version = version;
@@ -1676,7 +1676,8 @@ namespace NBitcoin
 			}
 			if (_LockTime != null)
 				ctx.Transaction.LockTime = _LockTime.Value;
-			ctx.Transaction.Version = _Version;
+			if (_Version is uint v)
+				ctx.Transaction.Version = v;
 			foreach (var group in _BuilderGroups)
 			{
 				ctx.SetGroup(group);
