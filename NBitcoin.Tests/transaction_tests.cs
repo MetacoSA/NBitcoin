@@ -4602,5 +4602,32 @@ namespace NBitcoin.Tests
 				);
 			}
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSetVersion() {
+			var k = new Key();
+			var address = k.PubKey.WitHash.GetAddress(Network.Main);
+			var coins = new[] { RandomCoin(Money.Coins(10), k.ScriptPubKey, false) };
+
+			TransactionBuilder builder = Network.CreateTransactionBuilder();
+			builder.AddCoins(coins);
+			builder.AddKeys(k);
+			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.SendFees(Money.Coins(0.001m));
+			builder.SetChange(address);
+			var tx = builder.BuildTransaction(false);
+			Assert.Equal(1u, tx.Version);
+
+			builder = Network.CreateTransactionBuilder();
+			builder.AddCoins(coins);
+			builder.AddKeys(k);
+			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.SendFees(Money.Coins(0.001m));
+			builder.SetChange(address);
+			builder.SetVersion(2);
+			tx = builder.BuildTransaction(false);
+			Assert.Equal(2u, tx.Version);
+		}
 	}
 }
