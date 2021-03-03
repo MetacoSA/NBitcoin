@@ -4555,5 +4555,79 @@ namespace NBitcoin.Tests
 			Assert.Equal(2, tx.Outputs.Count);
 			Assert.Equal(coin2.Amount, tx.Outputs[0].Value);
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSetSequenceNumber()
+		{
+			var k = new Key();
+			var address = k.PubKey.WitHash.GetAddress(Network.Main);
+			var sequence = new Sequence(123);
+			var options = new CoinOptions {
+				Sequence = sequence,
+			};
+			var coin0 = RandomCoin(Money.Coins(10), k.ScriptPubKey, false);
+			var coin1 = RandomCoin(Money.Coins(20), k.ScriptPubKey, false);
+
+			TransactionBuilder builder = Network.CreateTransactionBuilder();
+			builder.AddCoin(coin0, options);
+			builder.AddCoin(coin1);
+			builder.AddKeys(k);
+			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.SendFees(Money.Coins(0.001m));
+			builder.SetChange(address);
+			var tx = builder.BuildTransaction(false);
+			foreach (var inp in tx.Inputs)
+			{
+				Assert.True(
+					(inp.PrevOut == coin0.Outpoint && inp.Sequence == sequence) ||
+					(inp.PrevOut == coin1.Outpoint && inp.Sequence == Sequence.Final)
+				);
+			}
+
+			builder = Network.CreateTransactionBuilder();
+			builder.AddCoin(coin0, options);
+			builder.AddCoin(coin1);
+			builder.AddKeys(k);
+			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.SendFees(Money.Coins(0.001m));
+			builder.SetChange(address);
+			builder.OptInRBF = true;
+			tx = builder.BuildTransaction(false);
+			foreach (var inp in tx.Inputs)
+			{
+				Assert.True(
+					(inp.PrevOut == coin0.Outpoint && inp.Sequence == sequence) ||
+					(inp.PrevOut == coin1.Outpoint && inp.Sequence.IsRBF)
+				);
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSetVersion() {
+			var k = new Key();
+			var address = k.PubKey.WitHash.GetAddress(Network.Main);
+			var coins = new[] { RandomCoin(Money.Coins(10), k.ScriptPubKey, false) };
+
+			TransactionBuilder builder = Network.CreateTransactionBuilder();
+			builder.AddCoins(coins);
+			builder.AddKeys(k);
+			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.SendFees(Money.Coins(0.001m));
+			builder.SetChange(address);
+			var tx = builder.BuildTransaction(false);
+			Assert.Equal(1u, tx.Version);
+
+			builder = Network.CreateTransactionBuilder();
+			builder.AddCoins(coins);
+			builder.AddKeys(k);
+			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.SendFees(Money.Coins(0.001m));
+			builder.SetChange(address);
+			builder.SetVersion(2);
+			tx = builder.BuildTransaction(false);
+			Assert.Equal(2u, tx.Version);
+		}
 	}
 }
