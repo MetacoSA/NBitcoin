@@ -34,6 +34,11 @@ namespace NBitcoin.Altcoins
 			{
 				return new NeblioBlock(new NeblioBlockHeader());
 			}
+
+			public override Transaction CreateTransaction()
+			{
+				return new NeblioTransaction(this);
+			}
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -57,6 +62,137 @@ namespace NBitcoin.Altcoins
 				return Instance.Mainnet.Consensus.ConsensusFactory;
 			}
 		}
+
+		public class NeblioTransaction : Transaction
+		{
+			public NeblioTransaction(ConsensusFactory consensusFactory)
+			{
+				_Factory = consensusFactory;
+			}
+
+			ConsensusFactory _Factory;
+			public override ConsensusFactory GetConsensusFactory()
+			{
+				return _Factory;
+			}
+
+			/// <summary>
+			/// POS Timestamp
+			/// </summary>
+			public uint Time { get; set; } = Utils.DateTimeToUnixTime(DateTime.UtcNow);
+
+			public override void ReadWrite(BitcoinStream stream)
+			{
+				if (stream.Serializing)
+					SerializeTxn(stream);
+				else
+					DeserializeTxn(stream);
+			}
+
+			private void DeserializeTxn(BitcoinStream stream)
+			{
+
+				UInt32 nVersionTemp = 0;
+				stream.ReadWrite(ref nVersionTemp);
+
+				// POS time stamp
+				uint nTimeTemp = 0;
+				stream.ReadWrite(ref nTimeTemp);
+
+				TxInList vinTemp = new TxInList();
+				TxOutList voutTemp = new TxOutList();
+
+				// Try to read the vin.
+				stream.ReadWrite<TxInList, TxIn>(ref vinTemp);
+
+				// Assume a normal vout follows.
+				stream.ReadWrite<TxOutList, TxOut>(ref voutTemp);
+				voutTemp.Transaction = this;
+
+				LockTime lockTimeTemp = LockTime.Zero;
+				stream.ReadWriteStruct(ref lockTimeTemp);
+
+				this.Version = nVersionTemp;
+				this.Time = nTimeTemp; // POS Timestamp
+				vinTemp.ForEach(i => this.Inputs.Add(i));
+				voutTemp.ForEach(i => this.Outputs.Add(i));
+				this.LockTime = lockTimeTemp;
+			}
+
+			private void SerializeTxn(BitcoinStream stream)
+			{
+				byte flags = 0;
+				var version = this.Version;
+				stream.ReadWrite(ref version);
+
+				// POS Timestamp
+				var time = this.Time;
+				stream.ReadWrite(ref time);
+
+				TxInList vin = this.Inputs;
+				stream.ReadWrite<TxInList, TxIn>(ref vin);
+				vin.Transaction = this;
+
+				TxOutList vout = this.Outputs;
+				stream.ReadWrite<TxOutList, TxOut>(ref vout);
+				vout.Transaction = this;
+
+				LockTime lockTime = this.LockTime;
+				stream.ReadWriteStruct(ref lockTime);
+			}
+
+			public static NeblioTransaction ParseJson(string tx)
+			{
+				JObject obj = JObject.Parse(tx);
+				NeblioTransaction neblioTx = new NeblioTransaction(Neblio.NeblioConsensusFactory.Instance);
+				DeserializeFromJson(obj, ref neblioTx);
+
+				return neblioTx;
+			}
+
+			private static void DeserializeFromJson(JObject json, ref NeblioTransaction tx)
+			{
+				tx.Version = json.Value<uint>("version");
+				tx.Time = json.Value<uint>("time");
+				tx.LockTime = json.Value<uint>("locktime");
+
+				var vin = json.Value<JArray>("vin");
+				for (int i = 0; i < vin.Count; i++)
+				{
+					var jsonIn = (JObject)vin[i];
+					var txin = new TxIn();
+					var script = jsonIn.Value<JObject>("scriptSig");
+					if (script != null)
+					{
+						txin.ScriptSig = new Script(Encoders.Hex.DecodeData(script.Value<string>("hex")));
+						txin.PrevOut.Hash = uint256.Parse(jsonIn.Value<string>("txid"));
+						txin.PrevOut.N = jsonIn.Value<uint>("vout");
+					}
+					else
+					{
+						txin.ScriptSig = new Script(Encoders.Hex.DecodeData(jsonIn.Value<string>("coinbase")));
+					}
+					txin.Sequence = jsonIn.Value<uint>("sequence");
+
+					tx.Inputs.Add(txin);
+				}
+
+				var vout = json.Value<JArray>("vout");
+				for (int i = 0; i < vout.Count; i++)
+				{
+					var jsonOut = (JObject)vout[i];
+					var txout = new TxOut()
+					{
+						Value = Money.Coins(jsonOut.Value<decimal>("value"))
+					};
+					tx.Outputs.Add(txout);
+
+					var script = jsonOut.Value<JObject>("scriptPubKey");
+					txout.ScriptPubKey = new Script(Encoders.Hex.DecodeData(script.Value<string>("hex")));
+				}
+			}
+		}
+
 #pragma warning restore CS0618 // Type or member is obsolete
 
 		protected override void PostInit()
