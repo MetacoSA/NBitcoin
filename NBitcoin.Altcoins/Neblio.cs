@@ -216,7 +216,10 @@ namespace NBitcoin.Altcoins
 				CoinType = 146 // BIP44 CoinType
 			})
 				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 53 }) // 0x35
-				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 112 }) //0x70
+				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 112 }) // 0x70
+				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 181 }) // 0xb5
+				.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
+				.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
 				.SetMagic(0x325e6f86)
 				.SetPort(6325)
 				.SetRPCPort(6326)
