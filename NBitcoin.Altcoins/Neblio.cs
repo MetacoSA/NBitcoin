@@ -121,7 +121,6 @@ namespace NBitcoin.Altcoins
 
 			private void SerializeTxn(BitcoinStream stream)
 			{
-				byte flags = 0;
 				var version = this.Version;
 				stream.ReadWrite(ref version);
 
