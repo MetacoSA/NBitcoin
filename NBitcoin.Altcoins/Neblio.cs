@@ -1,8 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Net;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
+using Newtonsoft.Json.Linq;
 
 namespace NBitcoin.Altcoins
 {
@@ -81,6 +84,160 @@ namespace NBitcoin.Altcoins
 			/// </summary>
 			public uint Time { get; set; } = Utils.DateTimeToUnixTime(DateTime.UtcNow);
 
+			public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
+			{
+				if (sigversion == HashVersion.WitnessV0)
+				{
+					if (spentOutput?.Value == null || spentOutput.Value == TxOut.NullMoney)
+						throw new ArgumentException("The output being signed with the amount must be provided", nameof(spentOutput));
+					uint256 hashPrevouts = uint256.Zero;
+					uint256 hashSequence = uint256.Zero;
+					uint256 hashOutputs = uint256.Zero;
+
+					if ((nHashType & SigHash.AnyoneCanPay) == 0)
+					{
+						hashPrevouts = precomputedTransactionData == null ?
+									   GetHashPrevouts() : precomputedTransactionData.HashPrevouts;
+					}
+
+					if ((nHashType & SigHash.AnyoneCanPay) == 0 && ((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
+					{
+						hashSequence = precomputedTransactionData == null ?
+									   GetHashSequence() : precomputedTransactionData.HashSequence;
+					}
+
+					if (((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
+					{
+						hashOutputs = precomputedTransactionData == null ?
+										GetHashOutputs() : precomputedTransactionData.HashOutputs;
+					}
+					else if (((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < this.Outputs.Count)
+					{
+						BitcoinStream ss = CreateHashWriter(sigversion);
+						ss.ReadWrite(this.Outputs[nIn]);
+						hashOutputs = GetHash(ss);
+					}
+
+					BitcoinStream sss = CreateHashWriter(sigversion);
+					// Version
+					sss.ReadWrite(this.Version);
+					sss.ReadWrite(this.Time); // Neblio Timestamp!!!
+					// Input prevouts/nSequence (none/all, depending on flags)
+					sss.ReadWrite(hashPrevouts);
+					sss.ReadWrite(hashSequence);
+					// The input being signed (replacing the scriptSig with scriptCode + amount)
+					// The prevout may already be contained in hashPrevout, and the nSequence
+					// may already be contain in hashSequence.
+					sss.ReadWrite(Inputs[nIn].PrevOut);
+					sss.ReadWrite(scriptCode);
+					sss.ReadWrite(spentOutput.Value.Satoshi);
+					sss.ReadWrite((uint)Inputs[nIn].Sequence);
+					// Outputs (none/one/all, depending on flags)
+					sss.ReadWrite(hashOutputs);
+					// Locktime
+					sss.ReadWriteStruct(LockTime);
+					// Sighash type
+					sss.ReadWrite((uint)nHashType);
+
+					return GetHash(sss);
+				}
+
+				bool fAnyoneCanPay = (nHashType & SigHash.AnyoneCanPay) != 0;
+				bool fHashSingle = ((byte)nHashType & 0x1f) == (byte)SigHash.Single;
+				bool fHashNone = ((byte)nHashType & 0x1f) == (byte)SigHash.None;
+
+				if (nIn >= Inputs.Count)
+				{
+					return uint256.One;
+				}
+				if (fHashSingle)
+				{
+					if (nIn >= Outputs.Count)
+					{
+						return uint256.One;
+					}
+				}
+
+				var stream = CreateHashWriter(sigversion);
+				stream.ReadWrite(Version);
+				stream.ReadWrite(this.Time); // Neblio Timestamp!!!
+				uint nInputs = (uint)(fAnyoneCanPay ? 1 : Inputs.Count);
+				stream.ReadWriteAsVarInt(ref nInputs);
+				for (int nInput = 0; nInput < nInputs; nInput++)
+				{
+					if (fAnyoneCanPay)
+						nInput = nIn;
+					stream.ReadWrite(Inputs[nInput].PrevOut);
+					if (nInput != nIn)
+					{
+						stream.ReadWrite(Script.Empty);
+					}
+					else
+					{
+						WriteScriptCode(stream, scriptCode);
+					}
+
+					if (nInput != nIn && (fHashSingle || fHashNone))
+						stream.ReadWrite((uint)0);
+					else
+						stream.ReadWrite((uint)Inputs[nInput].Sequence);
+				}
+
+				uint nOutputs = (uint)(fHashNone ? 0 : (fHashSingle ? nIn + 1 : Outputs.Count));
+				stream.ReadWriteAsVarInt(ref nOutputs);
+				for (int nOutput = 0; nOutput < nOutputs; nOutput++)
+				{
+					if (fHashSingle && nOutput != nIn)
+					{
+						this.Outputs.CreateNewTxOut().ReadWrite(stream);
+					}
+					else
+					{
+						Outputs[nOutput].ReadWrite(stream);
+					}
+				}
+
+				stream.ReadWriteStruct(LockTime);
+				stream.ReadWrite((uint)nHashType);
+				return GetHash(stream);
+			}
+
+			private static uint256 GetHash(BitcoinStream stream)
+			{
+				var preimage = ((HashStreamBase)stream.Inner).GetHash();
+				stream.Inner.Dispose();
+				return preimage;
+			}
+
+			private static void WriteScriptCode(BitcoinStream stream, Script scriptCode)
+			{
+				int nCodeSeparators = 0;
+				var reader = scriptCode.CreateReader();
+				OpcodeType opcode;
+				while (reader.TryReadOpCode(out opcode))
+				{
+					if (opcode == OpcodeType.OP_CODESEPARATOR)
+						nCodeSeparators++;
+				}
+
+				uint n = (uint)(scriptCode.Length - nCodeSeparators);
+				stream.ReadWriteAsVarInt(ref n);
+
+				reader = scriptCode.CreateReader();
+				int itBegin = 0;
+				while (reader.TryReadOpCode(out opcode))
+				{
+					if (opcode == OpcodeType.OP_CODESEPARATOR)
+					{
+						stream.Inner.Write(scriptCode.ToBytes(true), itBegin, (int)(reader.Inner.Position - itBegin - 1));
+						itBegin = (int)reader.Inner.Position;
+					}
+				}
+
+				if (itBegin != scriptCode.Length)
+					stream.Inner.Write(scriptCode.ToBytes(true), itBegin, (int)(reader.Inner.Position - itBegin));
+			}
+
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				if (stream.Serializing)
@@ -96,7 +253,7 @@ namespace NBitcoin.Altcoins
 				stream.ReadWrite(ref nVersionTemp);
 
 				// POS time stamp
-				uint nTimeTemp = 0;
+				UInt32 nTimeTemp = 0;
 				stream.ReadWrite(ref nTimeTemp);
 
 				TxInList vinTemp = new TxInList();
@@ -140,21 +297,59 @@ namespace NBitcoin.Altcoins
 				stream.ReadWriteStruct(ref lockTime);
 			}
 
-			public static NeblioTransaction ParseJson(string tx)
+			public static string GetNeblioTransactionJson(string txid)
 			{
-				JObject obj = JObject.Parse(tx);
-				NeblioTransaction neblioTx = new NeblioTransaction(Neblio.NeblioConsensusFactory.Instance);
-				DeserializeFromJson(obj, ref neblioTx);
+				if (!string.IsNullOrEmpty(txid))
+				{
+					var url = @"https://ntp1node.nebl.io/ntp1/transactioninfo/" + txid;
+					HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+					request.AutomaticDecompression = DecompressionMethods.GZip;
 
-				return neblioTx;
+					using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+					using (Stream stream = response.GetResponseStream())
+					using (StreamReader reader = new StreamReader(stream))
+					{
+						var resp = reader.ReadToEnd();
+						return resp;
+					}
+				}
+				else
+				{
+					return string.Empty;
+				}
 			}
 
+			public static NeblioTransaction GetNeblioTransaction(string txid)
+			{
+				var tx = GetNeblioTransactionJson(txid);
+				return ParseJson(tx);
+			}
+
+			public static NeblioTransaction ParseJson(string tx)
+			{
+				if (!string.IsNullOrEmpty(tx))
+				{
+					JObject obj = JObject.Parse(tx);
+					NeblioTransaction neblioTx = new NeblioTransaction(Neblio.NeblioConsensusFactory.Instance);
+					DeserializeFromJson(obj, ref neblioTx);
+
+					return neblioTx;
+				}
+				else
+				{
+					return null;
+				}
+			}
+
+			public string Hex { get; set; } = string.Empty;
 			private static void DeserializeFromJson(JObject json, ref NeblioTransaction tx)
 			{
 				tx.Version = json.Value<uint>("version");
-				tx.Time = json.Value<uint>("time");
+				//tx.Time = json.Value<uint>("time");
+				var tm = json.Value<double>("time");
+				tx.Time = Convert.ToUInt32(tm/1000);
 				tx.LockTime = json.Value<uint>("locktime");
-
+				tx.Hex = json.Value<string>("hex");
 				var vin = json.Value<JArray>("vin");
 				for (int i = 0; i < vin.Count; i++)
 				{
@@ -182,7 +377,7 @@ namespace NBitcoin.Altcoins
 					var jsonOut = (JObject)vout[i];
 					var txout = new TxOut()
 					{
-						Value = Money.Coins(jsonOut.Value<decimal>("value"))
+						Value = Money.Coins(jsonOut.Value<decimal>("value")/100000000)
 					};
 					tx.Outputs.Add(txout);
 
