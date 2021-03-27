@@ -242,37 +242,34 @@ namespace NBitcoin.Altcoins
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus
 			{
-				SubsidyHalvingInterval = unchecked(1000000000),
-				MajorityEnforceBlockUpgrade = 51,
-				MajorityRejectBlockOutdated = 75,
-				MajorityWindow = 100,
 				PowLimit = new Target(0 >> 1),
 				MinimumChainWork = new uint256("0x000000000000000000000000000000000000000000000000000a0c3931735170"),
-				PowTargetTimespan = TimeSpan.FromSeconds(3 * 50),
-				PowTargetSpacing = TimeSpan.FromSeconds(3 * 50),
+				PowTargetTimespan = TimeSpan.FromSeconds(2 * 60 * 60),
+				PowTargetSpacing = TimeSpan.FromSeconds(30),
 				PowAllowMinDifficultyBlocks = true,
-				CoinbaseMaturity = 15,
+				CoinbaseMaturity = 120,
 				PowNoRetargeting = false,
 				ConsensusFactory = NeblioConsensusFactory.Instance,
 				SupportSegwit = false,
-				CoinType = 1
+				CoinType = 146
 			})
-				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
-				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
-				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
+				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 65 }) // 0x41
+				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 127 }) // 0x7f
+				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 193 }) // 0xc1
 				.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 				.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
-				.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tNEBL"))
-				.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tNEBL"))
-				.SetMagic(0xfae4aae1)
+				.SetMagic(0x1bba63c5)
 				.SetPort(16325)
 				.SetRPCPort(16326)
-				.SetMaxP2PVersion(70800)
+				.SetMaxP2PVersion(60320)
 				.SetName("Neblio-test")
 				.AddAlias("Neblio-testnet")
+				.AddDNSSeeds(new[]
+				{
+					new DNSSeedData("testnet-seed.nebl.io", "testnet-seed.nebl.io"),
+				})
 				.AddSeeds(new NetworkAddress[0])
-				//testnet down for now
-				.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000cc59e59ff97ac092b55e423aa5495151ed6fb80570a5bb78cd5bd1c3821c21b8010000000000000000000000000000000000000000000000000000000000000033193156ffff001f070500000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f04ffff001d010417696e736572742074696d657374616d7020737472696e67ffffffff01000004bfc91b8e001976a914345991dbf57bfb014b87006acdfafbfc5fe8292f88ac0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+				.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000e7ae9132c789d33c38b735ae562ef57c9780c7328b0d1cb0121a321432d13f20137a7259ffff7f20252100000101000000137a7259010000000000000000000000000000000000000000000000000000000000000000ffffffff2900012a2532316a756c32303137202d204e65626c696f204669727374204e6574204c61756e63686573ffffffff010000000000000000000000000000");
 
 			return builder;
 		}
@@ -282,36 +279,31 @@ namespace NBitcoin.Altcoins
 			var builder = new NetworkBuilder();
 			var res = builder.SetConsensus(new Consensus
 			{
-				SubsidyHalvingInterval = 150,
-				MajorityEnforceBlockUpgrade = 750,
-				MajorityRejectBlockOutdated = 950,
-				MajorityWindow = 1000,
 				PowLimit = new Target(0 >> 1),
 				MinimumChainWork = new uint256("0000000000000000000000000000000000000000000000000000000000000000"),
-				PowTargetTimespan = TimeSpan.FromSeconds(1),
-				PowTargetSpacing = TimeSpan.FromSeconds(1),
+				PowTargetTimespan = TimeSpan.FromSeconds(2 * 60 * 60),
+				PowTargetSpacing = TimeSpan.FromSeconds(30),
 				PowAllowMinDifficultyBlocks = false,
-				CoinbaseMaturity = 0,
-				PowNoRetargeting = true,
+				CoinbaseMaturity = 10,
+				PowNoRetargeting = false,
 				ConsensusFactory = NeblioConsensusFactory.Instance,
 				SupportSegwit = false
+				CoinType = 146
 			})
-			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
-			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
-			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 65 }) // 0x41
+			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 127 }) // 0x7f
+			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 193 }) // 0xc1
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("rtNEBL"))
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("rtNEBL"))
-			.SetMagic(0xfae4aad1)
-			.SetPort(16325)
-			.SetRPCPort(16326)
-			.SetMaxP2PVersion(70800)
+			.SetMagic(0xcdf3e0ee)
+			.SetPort(26325)
+			.SetRPCPort(26326)
+			.SetMaxP2PVersion(60320)
 			.SetName("Neblio-reg")
 			.AddAlias("Neblio-regtest")
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000cc59e59ff97ac092b55e423aa5495151ed6fb80570a5bb78cd5bd1c3821c21b8010000000000000000000000000000000000000000000000000000000000000033193156ffff7f20010000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1f04ffff001d010417696e736572742074696d657374616d7020737472696e67ffffffff01000004bfc91b8e001976a914345991dbf57bfb014b87006acdfafbfc5fe8292f88ac0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000e7ae9132c789d33c38b735ae562ef57c9780c7328b0d1cb0121a321432d13f20137a7259ffff7f20252100000101000000137a7259010000000000000000000000000000000000000000000000000000000000000000ffffffff2900012a2532316a756c32303137202d204e65626c696f204669727374204e6574204c61756e63686573ffffffff010000000000000000000000000000");
 
 			return builder;
 		}
