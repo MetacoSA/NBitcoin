@@ -1615,7 +1615,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class NebliohNodeDownloadData
+		public class NeblioNodeDownloadData
 		{
 			public NodeDownloadData v3_2_0 = new NodeDownloadData()
 			{
@@ -1821,7 +1821,7 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new AlthashNodeDownloadData();
 
-		public static NeblioNodeDownloadData Althash
+		public static NeblioNodeDownloadData Neblio
 		{
 			get; set;
 		} = new NeblioNodeDownloadData();
