@@ -482,7 +482,7 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 10,
 				PowNoRetargeting = false,
 				ConsensusFactory = NeblioConsensusFactory.Instance,
-				SupportSegwit = false
+				SupportSegwit = false,
 				CoinType = 146
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 65 }) // 0x41
