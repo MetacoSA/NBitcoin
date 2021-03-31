@@ -14,11 +14,11 @@ namespace NBitcoin
 		private const int KEY_SIZE = 32;
 		private readonly static uint256 N = uint256.Parse("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141");
 
-		public static Key Parse(string wif, Network network)
+		public static Key Parse(string wif, Network expectedNetwork)
 		{
-			if (network == null)
-				throw new ArgumentNullException(nameof(network));
-			return Network.Parse<BitcoinSecret>(wif, network).PrivateKey;
+			if (expectedNetwork == null)
+				throw new ArgumentNullException(nameof(expectedNetwork));
+			return Network.Parse<BitcoinSecret>(wif, expectedNetwork).PrivateKey;
 		}
 
 		public static Key Parse(string wif, string password, Network network)
