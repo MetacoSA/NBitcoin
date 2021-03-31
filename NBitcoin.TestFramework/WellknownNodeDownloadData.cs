@@ -1583,7 +1583,7 @@ namespace NBitcoin.Tests
 				}
 			};
 		}
-		
+
 		public class AlthashNodeDownloadData
 		{
 			public NodeDownloadData v2_5_1 = new NodeDownloadData()
@@ -1610,7 +1610,24 @@ namespace NBitcoin.Tests
 					Executable = "HTMLCOIN/bin/htmlcoind",
 					Hash = "9dc520cc0068984d825fe0051a33ee717bc04bda9cd4063d2de20897a86bb1d7"
 				},
-				
+
+				UseSectionInConfigFile = true
+			};
+		}
+
+		public class NeblioNodeDownloadData
+		{
+			public NodeDownloadData v3_2_0 = new NodeDownloadData()
+			{
+				Version = "3.2.0",
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/NeblioTeam/neblio/releases/download/v3.2.0/2021-02-01---v3.2.0-5f11d65---nebliod---ubuntu16.04.tar.gz",
+					Archive = "2021-02-01---v3.2.0-5f11d65---nebliod---ubuntu16.04.tar.gz",
+					Executable = "nebliod",
+					Hash = "afc52eeb0726dbb222222debb51e8b8bb333e4987eabae2b12cd95faa3214ec1"
+				},
+
 				UseSectionInConfigFile = true
 			};
 		}
@@ -1798,11 +1815,16 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new XDSNodeDownloadData();
-		
+
 		public static AlthashNodeDownloadData Althash
 		{
 			get; set;
 		} = new AlthashNodeDownloadData();
+
+		public static NeblioNodeDownloadData Neblio
+		{
+			get; set;
+		} = new NeblioNodeDownloadData();
 
 
 		public bool UseSectionInConfigFile { get; private set; }

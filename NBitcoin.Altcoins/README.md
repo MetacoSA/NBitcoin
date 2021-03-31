@@ -30,6 +30,7 @@ Currently supported altcoins are:
 * Qtum
 * XDS
 * Althash
+* Neblio
 
 ## How to use?
 
