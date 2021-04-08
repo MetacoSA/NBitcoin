@@ -2102,12 +2102,12 @@ namespace NBitcoin.Tests
 
 			var wallet0 = rpc.CreateWallet("w0");
 			var address = wallet0.GetNewAddress();
-			wallet0.Unload();
+			wallet0.UnloadWallet("w0");
 			Assert.Throws<RPCException>(()=> wallet0.GetNewAddress());
 
 			wallet0 = rpc.LoadWallet("w0");
 			address = wallet0.GetNewAddress();
-			wallet0.Unload();
+			wallet0.UnloadWallet("w0");
 			Assert.Throws<RPCException>(()=> wallet0.GetNewAddress());
 		}
 
