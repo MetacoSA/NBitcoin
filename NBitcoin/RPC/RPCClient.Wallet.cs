@@ -209,14 +209,14 @@ namespace NBitcoin.RPC
 			return GetWallet(result.Result.Value<string>("name"));
 		}
 
-		public async Task UnloadAsync(bool? loadOnStartup = null)
+		public async Task UnloadWalletAsync(string filename, bool? loadOnStartup = null)
 		{
-			var result = await SendCommandAsync(RPCOperations.loadwallet, loadOnStartup).ConfigureAwait(false);
+			var result = await SendCommandAsync(RPCOperations.loadwallet, filename, loadOnStartup).ConfigureAwait(false);
 		}
 
-		public void Unload(bool? loadOnStartup = null)
+		public void UnloadWallet(string filename, bool? loadOnStartup = null)
 		{
-			SendCommandAsync(RPCOperations.unloadwallet, loadOnStartup).GetAwaiter().GetResult();
+			SendCommandAsync(RPCOperations.unloadwallet, filename, loadOnStartup).GetAwaiter().GetResult();
 		}
 
 		#nullable restore
