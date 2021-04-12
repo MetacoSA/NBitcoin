@@ -1,7 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using System.Net;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
@@ -295,50 +292,6 @@ namespace NBitcoin.Altcoins
 
 				LockTime lockTime = this.LockTime;
 				stream.ReadWriteStruct(ref lockTime);
-			}
-
-			public static string GetNeblioTransactionJson(string txid)
-			{
-				if (!string.IsNullOrEmpty(txid))
-				{
-					var url = @"https://ntp1node.nebl.io/ntp1/transactioninfo/" + txid;
-					HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-					request.AutomaticDecompression = DecompressionMethods.GZip;
-
-					using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-					using (Stream stream = response.GetResponseStream())
-					using (StreamReader reader = new StreamReader(stream))
-					{
-						var resp = reader.ReadToEnd();
-						return resp;
-					}
-				}
-				else
-				{
-					return string.Empty;
-				}
-			}
-
-			public static NeblioTransaction GetNeblioTransaction(string txid)
-			{
-				var tx = GetNeblioTransactionJson(txid);
-				return ParseJson(tx);
-			}
-
-			public static NeblioTransaction ParseJson(string tx)
-			{
-				if (!string.IsNullOrEmpty(tx))
-				{
-					JObject obj = JObject.Parse(tx);
-					NeblioTransaction neblioTx = new NeblioTransaction(Neblio.NeblioConsensusFactory.Instance);
-					DeserializeFromJson(obj, ref neblioTx);
-
-					return neblioTx;
-				}
-				else
-				{
-					return null;
-				}
 			}
 
 			public string Hex { get; set; } = string.Empty;
