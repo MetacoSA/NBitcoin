@@ -181,6 +181,11 @@ namespace NBitcoin
 			return ret;
 		}
 
+		internal ConsensusFactory GetConsensusFactory()
+		{
+			return Network.Consensus.ConsensusFactory;
+		}
+
 		public Network Network { get; }
 
 		private PSBT(Transaction transaction, Network network)

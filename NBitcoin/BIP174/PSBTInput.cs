@@ -58,7 +58,7 @@ namespace NBitcoin
 							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for NonWitnessUTXO");
 						if (non_witness_utxo != null)
 							throw new FormatException("Invalid PSBTInput. Duplicate non_witness_utxo");
-						non_witness_utxo = this.GetConsensusFactory().CreateTransaction();
+						non_witness_utxo = Parent.GetConsensusFactory().CreateTransaction();
 						non_witness_utxo.FromBytes(v);
 						break;
 					case PSBTConstants.PSBT_IN_WITNESS_UTXO:
@@ -66,7 +66,7 @@ namespace NBitcoin
 							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for WitnessUTXO");
 						if (witness_utxo != null)
 							throw new FormatException("Invalid PSBTInput. Duplicate witness_utxo");
-						if (this.GetConsensusFactory().TryCreateNew<TxOut>(out var txout))
+						if (Parent.GetConsensusFactory().TryCreateNew<TxOut>(out var txout))
 						{
 							witness_utxo = txout;
 						}
@@ -708,12 +708,10 @@ namespace NBitcoin
 		{
 			MemoryStream ms = new MemoryStream();
 			var bs = new BitcoinStream(ms, true);
-			bs.ConsensusFactory = Parent.tx.GetConsensusFactory();
+			bs.ConsensusFactory = Parent.GetConsensusFactory();
 			this.Serialize(bs);
 			return ms.ToArrayEfficient();
 		}
-
-		public virtual ConsensusFactory GetConsensusFactory() => Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
 
 		internal void Write(JsonTextWriter jsonWriter)
 		{
