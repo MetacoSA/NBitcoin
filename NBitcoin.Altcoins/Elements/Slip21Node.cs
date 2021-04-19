@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 
 namespace NBitcoin.Altcoins.Elements
 {
@@ -11,50 +12,55 @@ namespace NBitcoin.Altcoins.Elements
 	/// </summary>
 	public class Slip21Node
 	{
+		private static readonly int KEY_SIZE = 32;
 		private byte[] _data;
 		static readonly byte[]  HMAC_MASTER_NODE_KEY = Encoding.ASCII.GetBytes("Symmetric key seed");
 
-		public Slip21Node(byte[] data = null)
+		public Slip21Node(byte[] data)
 		{
-			_data = data ?? new byte[64];
+			_data = data.Length == 64
+				? data
+				: throw new ArgumentException("The data array has to be 64 bytes long.", nameof(data));
 		}
 
-		public Key Key
+
+		public Key Key => new Key(_data.SafeSubarray(KEY_SIZE, KEY_SIZE));
+
+		public static Slip21Node FromSeed(string seed)
 		{
-			get
+			if (HexEncoder.IsWellFormed(seed))
 			{
-				var vchChainCode = new byte[32];
-				Buffer.BlockCopy((Array) _data, 32, vchChainCode, 0, 32);
-				return new Key(vchChainCode);
+				return FromSeed(Encoders.Hex.DecodeData(seed));
 			}
+			return FromSeed(Encoding.ASCII.GetBytes(seed));
 		}
 
-		public static Slip21Node NewMaster(string seed)
-		{
-			return NewMaster(Encoding.ASCII.GetBytes(seed));
-		}
-
-		public static Slip21Node NewMaster(byte[] seed)
+		public static Slip21Node FromSeed(byte[] seed)
 		{
 			return new Slip21Node(Hashes.HMACSHA512(HMAC_MASTER_NODE_KEY, seed));
 		}
 
-		public Slip21Node DeriveChild(string data)
+		public Slip21Node DeriveChild(string label)
 		{
-			return DeriveChild(Encoding.ASCII.GetBytes(data));
-		}
-		public Slip21Node DeriveChild(byte[] data)
-		{
-			return new Slip21Node(Hashes.HMACSHA512( _data.Take(32).ToArray(), new byte[]{0x00}.Concat(data).ToArray()));
-		}
-		public Slip21Node Clone()
-		{
-			return new Slip21Node(_data.ToArray());
+			if (string.IsNullOrEmpty(label))
+			{
+				throw new ArgumentException("label must not be null or empty", nameof(label));
+			}
+			if (HexEncoder.IsWellFormed(label))
+			{
+				return DeriveChild(Encoders.Hex.DecodeData(label));
+			}
+			return DeriveChild(Encoding.ASCII.GetBytes(label));
 		}
 
-		public static Slip21Node GetSlip77MasterNode(byte[] seed)
+		public Slip21Node DeriveChild(byte[] label)
 		{
-			return NewMaster(seed).DeriveChild("SLIP-0077");
+			if (label is null)
+			{
+				throw new ArgumentException("label must not be null", nameof(label));
+			}
+			return new Slip21Node(
+				Hashes.HMACSHA512(_data.SafeSubarray(0, KEY_SIZE), new byte[] {0x00}.Concat(label).ToArray()));
 		}
 	}
 }
