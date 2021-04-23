@@ -150,9 +150,10 @@ namespace NBitcoin
 			_ChainName = ChainName.FromNetworkType(network);
 			return this;
 		}
-		public NetworkBuilder SetChainName(ChainName chainName)
+		public NetworkBuilder SetChainName(ChainName chainName, bool ifNotSet = false)
 		{
-			_ChainName = chainName;
+			if(!ifNotSet ||  _ChainName is null)
+				_ChainName = chainName;
 			return this;
 		}
 

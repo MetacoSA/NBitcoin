@@ -81,21 +81,21 @@ namespace NBitcoin
 				var builder = CreateMainnet();
 				if (builder != null)
 				{
-					builder.SetChainName(ChainName.Mainnet);
+					builder.SetChainName(ChainName.Mainnet, true);
 					builder.SetNetworkSet(this);
 					_Mainnet = builder.BuildAndRegister();
 				}
 				builder = CreateTestnet();
 				if (builder != null)
 				{
-					builder.SetChainName(ChainName.Testnet);
+					builder.SetChainName(ChainName.Testnet, true);
 					builder.SetNetworkSet(this);
 					_Testnet = builder.BuildAndRegister();
 				}
 				builder = CreateRegtest();
 				if (builder != null)
 				{
-					builder.SetChainName(ChainName.Regtest);
+					builder.SetChainName(ChainName.Regtest, true);
 					builder.SetNetworkSet(this);
 					_Regtest = builder.BuildAndRegister();
 				}
