@@ -57,6 +57,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xdab5bffa)
 			.SetPort(7042)
 			.SetRPCPort(7041)
+			.SetChainName(new ChainName("liquidv1"))
 			.SetName("liquid")
 			.AddAlias("liquid-mainnet")
 			.AddAlias("liquid-main")
