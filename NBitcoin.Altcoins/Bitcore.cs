@@ -115,14 +115,14 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xD9B4BEF9) //defined in inverted direction, 0xF9BEB4D9
 			.SetPort(8555) 
 			.SetRPCPort(8556)
-			.SetMaxP2PVersion(80008)
+			.SetMaxP2PVersion(80009)
 			.SetName("btx-main")
 			.AddAlias("btx-mainnet")
 			.AddAlias("bitcore-mainnet")
 			.AddAlias("bitcore-main")
 			.AddDNSSeeds(new[]
 			{
-				new DNSSeedData("bitcore.biz", "seed.bitcore.biz"),
+				new DNSSeedData("seed.bitcore.cc", "seed.bitcore.cc"),
 				new DNSSeedData("37.120.190.76", "37.120.190.76"),
 				new DNSSeedData("37.120.186.85", "37.120.186.85"),
 				new DNSSeedData("185.194.140.60", "185.194.140.60"),
@@ -162,7 +162,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xF1C8D2FD) //defined in inverted direction, 0xFDD2C8F1
 			.SetPort(8666)
 			.SetRPCPort(50332)
-			.SetMaxP2PVersion(80000)
+			.SetMaxP2PVersion(80009)
 			.SetName("btx-test")
 			.AddAlias("btx-testnet")
 			.AddAlias("bitcore-test")
@@ -209,7 +209,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xDAB5BFFA) //defined in inverted direction, 0xFABFB5DA
 			.SetPort(19444)
 			.SetRPCPort(19332)
-			.SetMaxP2PVersion(80000)
+			.SetMaxP2PVersion(80009)
 			.SetName("btx-reg")
 			.AddAlias("btx-regtest")
 			.AddAlias("bitcore-reg")

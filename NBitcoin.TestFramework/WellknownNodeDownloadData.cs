@@ -763,41 +763,22 @@ namespace NBitcoin.Tests
 
 		public class BitcoreNodeDownloadData
 		{
-			public NodeDownloadData v0_90_9_1 = new NodeDownloadData()
+			public NodeDownloadData v0_90_9_10 = new NodeDownloadData()
 			{
-				Version = "0.90.9.1",
+				Version = "0.90.9.10",
 				Windows = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/bitcore-win64-daemon.zip",
+					DownloadLink = "https://github.com/bitcore-btx/BitCore/releases/download/{0}/bitcore-win64-daemon.zip",
 					Archive = "bitcore-win64-daemon.zip",
 					Executable = "bitcored.exe",
-					Hash = "e024772e3bf18e23ee4c942f6577b38f7fc34b2139bea9fd4aab7eb9d93ea24c"
+					Hash = "d50c75d11b88b15f42b8e59919684f61c585009f3a2465ea0fc2890f448d5bb2"
 				},
 				Linux = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/bitcore-x86_64-linux-gnu_no-wallet.tar.gz",
+					DownloadLink = "https://github.com/bitcore-btx/BitCore/releases/download/{0}/bitcore-x86_64-linux-gnu_no-wallet.tar.gz",
 					Archive = "bitcore-x86_64-linux-gnu_no-wallet.tar.gz",
 					Executable = "bin/bitcored",
-					Hash = "7dc0f84799d025e7acbf13a985d69c2069f8e401b7d493766632a5339c1db8f8"
-				}
-			};
-
-			public NodeDownloadData v0_90_9_5 = new NodeDownloadData()
-			{
-				Version = "0.90.9.5",
-				Windows = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/bitcore-win64-daemon.zip",
-					Archive = "bitcore-win64-daemon.zip",
-					Executable = "bitcored.exe",
-					Hash = "5c492b741aceb47e430378d3027ed371f341fed25b11a293a363044ab891e1aa"
-				},
-				Linux = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/bitcore-x86_64-linux-gnu_no-wallet.tar.gz",
-					Archive = "bitcore-x86_64-linux-gnu_no-wallet.tar.gz",
-					Executable = "bin/bitcored",
-					Hash = "60545a5733ab79a2a9c699295572475aefc0164e74da487b2857a961356ec787"
+					Hash = "1980b85c229e00f58a474858a2da9fe9fc41f0fba06416337ea9f5e4aa197a1b"
 				}
 			};
 		}
