@@ -115,18 +115,18 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xD9B4BEF9) //defined in inverted direction, 0xF9BEB4D9
 			.SetPort(8555) 
 			.SetRPCPort(8556)
-			.SetMaxP2PVersion(80008)
+			.SetMaxP2PVersion(80009)
 			.SetName("btx-main")
 			.AddAlias("btx-mainnet")
 			.AddAlias("bitcore-mainnet")
 			.AddAlias("bitcore-main")
 			.AddDNSSeeds(new[]
 			{
-				new DNSSeedData("bitcore.biz", "seed.bitcore.biz"),
-				new DNSSeedData("37.120.190.76", "37.120.190.76"),
-				new DNSSeedData("37.120.186.85", "37.120.186.85"),
-				new DNSSeedData("185.194.140.60", "185.194.140.60"),
-				new DNSSeedData("188.71.223.206", "188.71.223.206")
+				new DNSSeedData("seed.bitcore.cc", "seed.bitcore.cc"),
+				new DNSSeedData("94.16.108.85", "94.16.108.85"),
+				new DNSSeedData("45.83.104.212", "45.83.104.212"),
+				new DNSSeedData("45.132.245.131", "45.132.245.131"),
+				new DNSSeedData("94.16.109.242", "94.16.109.242")
 			})
 			.AddSeeds(ToSeed(pnSeed6_main)) 
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c787795041016d5ee652e55e3a6aeff6c8019cf0c525887337e0b4206552691613f7fc58f0ff0f1ea12400000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4004ffff001d010438506f77657264652062792042697473656e642d4575726f7065636f696e2d4469616d6f6e642d4d41432d42332032332f4170722f32303137ffffffff010000000000000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
@@ -162,7 +162,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xF1C8D2FD) //defined in inverted direction, 0xFDD2C8F1
 			.SetPort(8666)
 			.SetRPCPort(50332)
-			.SetMaxP2PVersion(80000)
+			.SetMaxP2PVersion(80009)
 			.SetName("btx-test")
 			.AddAlias("btx-testnet")
 			.AddAlias("bitcore-test")
@@ -209,7 +209,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xDAB5BFFA) //defined in inverted direction, 0xFABFB5DA
 			.SetPort(19444)
 			.SetRPCPort(19332)
-			.SetMaxP2PVersion(80000)
+			.SetMaxP2PVersion(80009)
 			.SetName("btx-reg")
 			.AddAlias("btx-regtest")
 			.AddAlias("bitcore-reg")
