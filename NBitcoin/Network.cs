@@ -41,8 +41,12 @@ namespace NBitcoin
 #if !NOSOCKET
 		public Task<IPEndPoint[]> GetAddressNodesAsync(int port)
 		{
+			return GetAddressNodesAsync(port, null, default);
+		}
+		public Task<IPEndPoint[]> GetAddressNodesAsync(int port, IDnsResolver? dnsResolver, CancellationToken cancellationToken = default)
+		{
 			var dns = new DnsEndPoint(Host, port);
-			return dns.ResolveToIPEndpointsAsync();
+			return dns.ResolveToIPEndpointsAsync(dnsResolver, cancellationToken);
 		}
 #endif
 		public override string ToString()

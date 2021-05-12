@@ -81,7 +81,7 @@ namespace NBitcoin.Socks
 			return Handshake(socket, endpoint, null, cancellationToken);
 		}
 
-		public static async Task Handshake(Socket socket, EndPoint endpoint, NetworkCredential credentials, CancellationToken cancellationToken)
+		public static async Task Handshake(Socket socket, NetworkCredential credentials, CancellationToken cancellationToken)
 		{
 			NetworkStream stream = new NetworkStream(socket, false);
 			var selectionMessage = credentials is null ? SelectionMessageNoAuthenticationRequired : SelectionMessageUsernamePassword;
@@ -143,7 +143,11 @@ namespace NBitcoin.Socks
 			}
 			else if (selectionResponse[1] != 0)
 				throw new SocksException("Unsupported authentication method in selection reply");
-
+		}
+		public static async Task Handshake(Socket socket, EndPoint endpoint, NetworkCredential credentials, CancellationToken cancellationToken)
+		{
+			await Handshake(socket, credentials, cancellationToken).ConfigureAwait(false);
+			NetworkStream stream = new NetworkStream(socket, false);
 			var connectBytes = CreateConnectMessage(endpoint);
 			await stream.WriteAsync(connectBytes, 0, connectBytes.Length).WithCancellation(cancellationToken).ConfigureAwait(false);
 			await stream.FlushAsync().WithCancellation(cancellationToken).ConfigureAwait(false);

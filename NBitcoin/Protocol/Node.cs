@@ -579,6 +579,15 @@ namespace NBitcoin.Protocol
 			parameters = parameters ?? new NodeConnectionParameters();
 			var addrmanBehavior = parameters.TemplateBehaviors.FindOrCreate(() => new AddressManagerBehavior(new AddressManager()));
 			var addrman = AddressManagerBehavior.GetAddrman(parameters);
+			var socks = parameters.TemplateBehaviors.Find<SocksSettingsBehavior>();
+			if (socks != null && socks.SocksEndpoint != null && addrman.DnsResolver is null)
+			{
+				addrman.DnsResolver = new DnsSocksResolver(socks.SocksEndpoint)
+				{
+					NetworkCredential = socks.NetworkCredential,
+					StreamIsolation = socks.StreamIsolation
+				};
+			}
 			DateTimeOffset start = DateTimeOffset.UtcNow;
 			while (true)
 			{

@@ -40,7 +40,7 @@ namespace NBitcoin.Protocol.Behaviors
 
 
 		/// <summary>
-		/// Credentials to connect to the SOCKS proxy (Use StreamIsolation instead of you want Tor isolation)
+		/// Credentials to connect to the SOCKS proxy (Use StreamIsolation instead if you want Tor isolation)
 		/// </summary>
 		public NetworkCredential NetworkCredential { get; set; }
 
