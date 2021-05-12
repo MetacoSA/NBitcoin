@@ -7,6 +7,8 @@ using System.Text;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
+using System.Threading;
 
 namespace NBitcoin
 {
@@ -434,7 +436,25 @@ namespace NBitcoin
 		/// <exception cref="System.ArgumentNullException">The endpoint is null</exception>
 		/// <exception cref="System.Net.Sockets.SocketException">An error is encountered when resolving the dns name.</exception>
 		/// <exception cref="System.NotSupportedException">The endpoint passed can't be converted into an Ip (eg. An onion host which is not TorV2)</exception>
-		public static async Task<IPEndPoint[]> ResolveToIPEndpointsAsync(this EndPoint endpoint)
+		public static Task<IPEndPoint[]> ResolveToIPEndpointsAsync(this EndPoint endpoint)
+		{
+			return ResolveToIPEndpointsAsync(endpoint, DnsResolver.Instance, default);
+		}
+
+		/// <summary>
+		/// <para>Will properly convert <paramref name="endpoint"/> to IPEndpoint
+		/// If <paramref name="endpoint"/> is a DNSEndpoint is an onion host (Tor v2), it will be converted into onioncat address
+		/// else, a DNS resolution will be made and all resolved addresses will be returned</para>
+		/// <para>If <paramref name="endpoint"/> is a IPEndpoint, it will be returned as-is.</para>
+		/// You can pass any endpoint parsed by <see cref="NBitcoin.Utils.ParseEndpoint(string, int)"/>
+		/// </summary>
+		/// <param name="endpoint">The endpoint to convert to IPEndpoint</param>
+		/// <param name="dnsResolver">The DNS Resolver</param>
+		/// <param name="cancellationToken">The cancellation token</param>
+		/// <exception cref="System.ArgumentNullException">The endpoint is null</exception>
+		/// <exception cref="System.Net.Sockets.SocketException">An error is encountered when resolving the dns name.</exception>
+		/// <exception cref="System.NotSupportedException">The endpoint passed can't be converted into an Ip (eg. An onion host which is not TorV2)</exception>
+		public static async Task<IPEndPoint[]> ResolveToIPEndpointsAsync(this EndPoint endpoint, IDnsResolver dnsResolver, CancellationToken cancellationToken = default)
 		{
 			if (endpoint == null)
 				throw new ArgumentNullException(nameof(endpoint));
@@ -450,7 +470,7 @@ namespace NBitcoin
 			{
 				if (dns.IsTor())
 					throw new NotSupportedException($"{endpoint} is not a Tor v2 address, and can't be converted into an IPEndpoint");
-				var ips = await Dns.GetHostAddressesAsync(dns.Host).ConfigureAwait(false);
+				var ips = await (dnsResolver ?? DnsResolver.Instance).GetHostAddressesAsync(dns.Host, cancellationToken).ConfigureAwait(false);
 				return ips.Select(i => new IPEndPoint(i, dns.Port)).ToArray();
 			}
 			else

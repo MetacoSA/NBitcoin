@@ -28,6 +28,8 @@ namespace NBitcoin.Protocol
 		private const byte V3_BIP155 = 3;        // same as V2_ASMAP plus addresses are in BIP155 format
 
 
+		public IDnsResolver DnsResolver { get; set; }
+
 		/// <summary>
 		/// Will properly convert a endpoint to IPEndpoint
 		/// If endpoint is a DNSEndpoint, a DNS resolution will be made and all addresses added
@@ -37,13 +39,27 @@ namespace NBitcoin.Protocol
 		/// <param name="endpoint">The endpoint to add to the address manager</param>
 		/// <param name="source">The source which advertized this endpoint (default: IPAddress.Loopback)</param>
 		/// <returns></returns>
-		public async Task AddAsync(EndPoint endpoint, IPAddress source = null)
+		public Task AddAsync(EndPoint endpoint, IPAddress source = null)
+		{
+			return AddAsync(endpoint, source, default);
+		}
+		/// <summary>
+		/// Will properly convert a endpoint to IPEndpoint
+		/// If endpoint is a DNSEndpoint, a DNS resolution will be made and all addresses added
+		/// If endpoint is a DNSEndpoint for onion, it will be converted into onioncat address
+		/// If endpoint is an IPEndpoint it is added to AddressManager
+		/// </summary>
+		/// <param name="endpoint">The endpoint to add to the address manager</param>
+		/// <param name="source">The source which advertized this endpoint (default: IPAddress.Loopback)</param>
+		/// <param name="cancellationToken">The cancellationToken</param>
+		/// <returns></returns>
+		public async Task AddAsync(EndPoint endpoint, IPAddress source, CancellationToken cancellationToken)
 		{
 			if (endpoint == null)
 				throw new ArgumentNullException(nameof(endpoint));
 			if (source == null)
 				source = IPAddress.Loopback;
-			foreach (var ip in (await endpoint.ResolveToIPEndpointsAsync().ConfigureAwait(false)))
+			foreach (var ip in (await endpoint.ResolveToIPEndpointsAsync(DnsResolver, cancellationToken).ConfigureAwait(false)))
 			{
 				Add(new NetworkAddress(ip), source);
 			}
@@ -1191,7 +1207,7 @@ namespace NBitcoin.Protocol
 					peers.AddRange(this.GetAddr());
 					if (peers.Count == 0)
 					{
-						PopulateTableWithDNSNodes(network, peers).GetAwaiter().GetResult();
+						PopulateTableWithDNSNodes(network, peers, parameters.ConnectCancellation).GetAwaiter().GetResult();
 						PopulateTableWithHardNodes(network, peers);
 						peers = new List<NetworkAddress>(peers.OrderBy(a => RandomUtils.GetInt32()));
 						if (peers.Count == 0)
@@ -1259,14 +1275,14 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		private async static Task PopulateTableWithDNSNodes(Network network, List<NetworkAddress> peers)
+		private async Task PopulateTableWithDNSNodes(Network network, List<NetworkAddress> peers, CancellationToken cancellationToken)
 		{
 			var result = await Task.WhenAll(network.DNSSeeds
 				.Select(async dns =>
 				{
 					try
 					{
-						return (await dns.GetAddressNodesAsync(network.DefaultPort).ConfigureAwait(false)).Select(o => new NetworkAddress(o)).ToArray();
+						return (await dns.GetAddressNodesAsync(network.DefaultPort, DnsResolver, cancellationToken).ConfigureAwait(false)).Select(o => new NetworkAddress(o)).ToArray();
 					}
 					catch
 					{

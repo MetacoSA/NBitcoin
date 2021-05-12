@@ -992,6 +992,21 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		// Disabled because it relies on tor which make tests shaky
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
+#pragma warning disable xUnit1013 // Public method should be marked as test
+		public async Task CanResolveTor()
+#pragma warning restore xUnit1013 // Public method should be marked as test
+		{
+			var resolver = new DnsSocksResolver(Utils.ParseEndpoint("localhost", 9050));
+			var ex1 = await Assert.ThrowsAsync<SocketException>(async () => await resolver.GetHostAddressesAsync("googlekefwjefjfwqk.com", default));
+			var ex2 = await Assert.ThrowsAsync<SocketException>(async () => await DnsResolver.Instance.GetHostAddressesAsync("googlekefwjefjfwqk.com", default));
+			Assert.Equal(ex1.ErrorCode, ex2.ErrorCode);
+			var ip = await resolver.GetHostAddressesAsync("google.com", default);
+			Assert.NotNull(ip);
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanExchangeFastPingPong()
