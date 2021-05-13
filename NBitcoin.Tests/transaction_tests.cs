@@ -1161,6 +1161,12 @@ namespace NBitcoin.Tests
 		{
 			var seed = RandomUtils.GetInt32();
 			log.WriteLine("Seed " + seed);
+			TransactionBuilderFuzzyingCore(seed);
+			TransactionBuilderFuzzyingCore(659623968);
+		}
+
+		private void TransactionBuilderFuzzyingCore(int seed)
+		{
 			var r = new Random(seed);
 			int iterations = 10000;
 			byte[] bytes = new byte[32];
@@ -1245,10 +1251,18 @@ namespace NBitcoin.Tests
 					if (feeRate != null)
 					{
 						var actualFeeRate = new FeeRate(actualFee, builder.EstimateSize(tx, true));
-						Assert.Equal(feeRate, actualFeeRate);
+						if (tx.Outputs.Any(o => o.ScriptPubKey == carolScript))
+						{
+							Assert.Equal(feeRate, actualFeeRate);
+						}
+						// It is possible that no change was calculated, and thus the actualFeeRate ends up more than expected
+						else
+						{
+							Assert.True(feeRate <= actualFeeRate);
+						}
 					}
 				}
-				catch(NotEnoughFundsException)
+				catch (NotEnoughFundsException)
 				{
 					goto reroll;
 				}
@@ -4563,7 +4577,8 @@ namespace NBitcoin.Tests
 			var k = new Key();
 			var address = k.PubKey.WitHash.GetAddress(Network.Main);
 			var sequence = new Sequence(123);
-			var options = new CoinOptions {
+			var options = new CoinOptions
+			{
 				Sequence = sequence,
 			};
 			var coin0 = RandomCoin(Money.Coins(10), k.ScriptPubKey, false);
@@ -4605,7 +4620,8 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanSetVersion() {
+		public void CanSetVersion()
+		{
 			var k = new Key();
 			var address = k.PubKey.WitHash.GetAddress(Network.Main);
 			var coins = new[] { RandomCoin(Money.Coins(10), k.ScriptPubKey, false) };
