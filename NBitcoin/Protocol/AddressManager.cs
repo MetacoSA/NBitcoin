@@ -1240,8 +1240,11 @@ namespace NBitcoin.Protocol
 									var param2 = parameters.Clone();
 									param2.ConnectCancellation = cancelConnection.Token;
 									var addrman = param2.TemplateBehaviors.Find<AddressManagerBehavior>();
+									var socks = param2.TemplateBehaviors.Find<SocksSettingsBehavior>();
 									param2.TemplateBehaviors.Clear();
 									param2.TemplateBehaviors.Add(addrman);
+									if (socks != null)
+										param2.TemplateBehaviors.Add(socks);
 									n = Node.Connect(network, p, param2);
 									n.VersionHandshake(cancelConnection.Token);
 									n.MessageReceived += (s, a) =>
