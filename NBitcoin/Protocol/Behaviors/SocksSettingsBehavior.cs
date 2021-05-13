@@ -55,6 +55,17 @@ namespace NBitcoin.Protocol.Behaviors
 				(StreamIsolation ? GenerateCredentials() : null);
 		}
 
+		public DnsSocksResolver CreateDnsResolver()
+		{
+			if (SocksEndpoint is null)
+				throw new InvalidOperationException("SocksEndpoint is not set");
+			return new DnsSocksResolver(SocksEndpoint)
+			{
+				NetworkCredential = NetworkCredential,
+				StreamIsolation = StreamIsolation
+			};
+		}
+
 		private NetworkCredential GenerateCredentials()
 		{
 			const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

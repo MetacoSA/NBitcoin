@@ -20,7 +20,7 @@ namespace NBitcoin.Tests
 
 			// TORv2
 			Assert.True(addr.SetSpecial("6hzph5hv6337r6p2.onion"));
-			Assert.True(addr.IsTor);
+			Assert.True(addr.AddressType == NetworkAddressType.Onion);
 
 			Assert.True(addr.IsAddrV1Compatible);
 			Assert.Equal("6hzph5hv6337r6p2.onion", addr.ToAddressString());
@@ -28,7 +28,7 @@ namespace NBitcoin.Tests
 			// TORv3
 			var torv3_addr = "pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion";
 			Assert.True(addr.SetSpecial(torv3_addr));
-			Assert.True(addr.IsTor);
+			Assert.True(addr.AddressType == NetworkAddressType.Onion);
 
 			Assert.False(addr.IsAddrV1Compatible);
 			Assert.Equal(addr.ToAddressString(), torv3_addr);
@@ -51,7 +51,7 @@ namespace NBitcoin.Tests
 			// I2P
 			var i2p_addr = "udhdrtrcetjm5sxzskjyr5ztpeszydbh4dpl3pl4utgqqw2v4jna.b32.i2p";
 			Assert.True(addr.SetSpecial(i2p_addr));
-			Assert.True(addr.IsI2P);
+			Assert.True(addr.AddressType == NetworkAddressType.I2P);
 			Assert.False(addr.IsAddrV1Compatible);
 			Assert.Equal(addr.ToAddressString(), i2p_addr);
 
@@ -182,7 +182,7 @@ namespace NBitcoin.Tests
 			var stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.True(addr.Endpoint.IsValid());
-			Assert.True(addr.IsIPv4);
+			Assert.True(addr.AddressType == NetworkAddressType.IPv4);
 			Assert.True(addr.IsAddrV1Compatible);
 			Assert.Equal("1.2.3.4", addr.ToAddressString());
 			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
@@ -220,7 +220,7 @@ namespace NBitcoin.Tests
 			stream.ReadWrite(ref addr);
 
 			Assert.True(addr.Endpoint.IsValid());
-			Assert.True(addr.IsIPv6);
+			Assert.True(addr.AddressType == NetworkAddressType.IPv6);
 			Assert.True(addr.IsAddrV1Compatible);
 			Assert.Equal("102:304:506:708:90a:b0c:d0e:f10", addr.ToAddressString());
 			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
@@ -270,7 +270,7 @@ namespace NBitcoin.Tests
 			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.True(addr.Endpoint.IsValid());
-			Assert.True(addr.IsTor);
+			Assert.True(addr.AddressType == NetworkAddressType.Onion);
 			Assert.True(addr.IsAddrV1Compatible);
 			Assert.Equal("6hzph5hv6337r6p2.onion", addr.ToAddressString());
 			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
@@ -295,7 +295,7 @@ namespace NBitcoin.Tests
 			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.True(addr.Endpoint.IsValid());
-			Assert.True(addr.IsTor);
+			Assert.True(addr.AddressType == NetworkAddressType.Onion);
 			Assert.False(addr.IsAddrV1Compatible);
 			Assert.Equal("pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion", addr.ToAddressString());
 			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
@@ -321,7 +321,7 @@ namespace NBitcoin.Tests
 			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.True(addr.Endpoint.IsValid());
-			Assert.True(addr.IsI2P);
+			Assert.True(addr.AddressType == NetworkAddressType.I2P);
 			Assert.False(addr.IsAddrV1Compatible);
 			Assert.Equal("ukeu3k5oycgaauneqgtnvselmt4yemvoilkln7jpvamvfx7dnkdq.b32.i2p", addr.ToAddressString());
 			Assert.Equal(stream.Inner.Length, stream.Inner.Position);
@@ -346,7 +346,7 @@ namespace NBitcoin.Tests
 			stream = MakeNewStream(payload);
 			stream.ReadWrite(ref addr);
 			Assert.True(addr.Endpoint.IsValid());
-			Assert.True(addr.IsCjdns);
+			Assert.True(addr.AddressType == NetworkAddressType.Cjdns);
 			Assert.False(addr.IsAddrV1Compatible);
 			Assert.Equal("fc00:1:2:3:4:5:6:7", addr.ToAddressString());
 			Assert.Equal(stream.Inner.Length, stream.Inner.Position);

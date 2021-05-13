@@ -564,6 +564,10 @@ namespace NBitcoin.Protocol
 			return Connect(network, parameters, connectedEndpoints);
 		}
 
+		static bool SupportSocks(NodeConnectionParameters parameters) =>
+			parameters?.TemplateBehaviors.Find<SocksSettingsBehavior>() is SocksSettingsBehavior b &&
+			b.SocksEndpoint != null;
+
 		/// <summary>
 		/// Connect to a random node on the network
 		/// </summary>
@@ -579,14 +583,15 @@ namespace NBitcoin.Protocol
 			parameters = parameters ?? new NodeConnectionParameters();
 			var addrmanBehavior = parameters.TemplateBehaviors.FindOrCreate(() => new AddressManagerBehavior(new AddressManager()));
 			var addrman = AddressManagerBehavior.GetAddrman(parameters);
+			bool hasSocks = false;
 			var socks = parameters.TemplateBehaviors.Find<SocksSettingsBehavior>();
-			if (socks != null && socks.SocksEndpoint != null && addrman.DnsResolver is null)
+			if (socks != null && socks.SocksEndpoint != null)
 			{
-				addrman.DnsResolver = new DnsSocksResolver(socks.SocksEndpoint)
+				hasSocks = true;
+				if (addrman.DnsResolver is null)
 				{
-					NetworkCredential = socks.NetworkCredential,
-					StreamIsolation = socks.StreamIsolation
-				};
+					addrman.DnsResolver = socks.CreateDnsResolver();
+				}
 			}
 			DateTimeOffset start = DateTimeOffset.UtcNow;
 			while (true)
@@ -599,9 +604,11 @@ namespace NBitcoin.Protocol
 				}
 				NetworkAddress addr = null;
 				int groupFail = 0;
+				int socksFail = 0;
 				while (true)
 				{
-					if (groupFail > 50)
+					
+					if (groupFail > 50 || socksFail > 50)
 					{
 						parameters.ConnectCancellation.WaitHandle.WaitOne((int)TimeSpan.FromSeconds(60).TotalMilliseconds);
 						break;
@@ -614,6 +621,14 @@ namespace NBitcoin.Protocol
 					}
 					if (!addr.Endpoint.IsValid())
 						continue;
+					if (!hasSocks &&
+						addr.AddressType != NetworkAddressType.IPv4 &&
+						addr.AddressType != NetworkAddressType.IPv6)
+					{
+						socksFail++;
+						continue;
+					}
+
 					var groupExist = connectedEndpoints.Any(a => getGroup(a).SequenceEqual(getGroup(addr.Endpoint)));
 					if (groupExist)
 					{
@@ -631,7 +646,7 @@ namespace NBitcoin.Protocol
 					using (var cts = CancellationTokenSource.CreateLinkedTokenSource(parameters.ConnectCancellation, timeout.Token))
 					{
 						param2.ConnectCancellation = cts.Token;
-						var node = Node.Connect(network, addr.Endpoint, param2);
+						var node = Node.Connect(network, addr, param2);
 						return node;
 					}
 				}
@@ -687,11 +702,41 @@ namespace NBitcoin.Protocol
 			return Connect(network, Utils.ParseEndpoint(endpoint, network.DefaultPort), myVersion, isRelay, cancellation);
 		}
 
+
+		public static Task<Node> ConnectAsync(Network network,
+							 NetworkAddress endpoint,
+							 NodeConnectionParameters parameters)
+		{
+			if (endpoint == null)
+				throw new ArgumentNullException(nameof(endpoint));
+			string error = null;
+			if (endpoint.AddressType == NetworkAddressType.IPv4 ||
+				endpoint.AddressType == NetworkAddressType.IPv6)
+			{
+				error = null;
+			}
+			if (endpoint.AddressType == NetworkAddressType.Unroutable)
+			{
+				if (!endpoint.Endpoint.IsRoutable(true))
+					error = "The endpoint is not routable locally";
+			}
+			if (endpoint.AddressType == NetworkAddressType.Onion ||
+				endpoint.AddressType == NetworkAddressType.I2P ||
+				endpoint.AddressType == NetworkAddressType.Cjdns)
+			{
+				if (!SupportSocks(parameters))
+					error = $"The endpoint address type is {endpoint.AddressType}, but no socks proxy has been configured";
+			}
+			if (error is string)
+				throw new InvalidOperationException(error);
+			return ConnectAsync(network, endpoint.Endpoint, parameters);
+		}
 		public static Node Connect(Network network,
 							 NetworkAddress endpoint,
 							 NodeConnectionParameters parameters)
 		{
-			return ConnectAsync(network, endpoint?.Endpoint, endpoint, parameters).GetAwaiter().GetResult();
+
+			return ConnectAsync(network, endpoint, parameters).GetAwaiter().GetResult();
 		}
 
 		public static Node Connect(Network network,
