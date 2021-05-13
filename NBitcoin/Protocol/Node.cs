@@ -655,6 +655,10 @@ namespace NBitcoin.Protocol
 					if (ex.CancellationToken == parameters.ConnectCancellation)
 						throw;
 				}
+				catch (InvalidOperationException)
+				{
+					// Happen when we ask connecting to a tor node, but without socks
+				}
 				catch (SocketException)
 				{
 					parameters.ConnectCancellation.WaitHandle.WaitOne(500);

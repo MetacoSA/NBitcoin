@@ -1251,12 +1251,17 @@ namespace NBitcoin.Protocol
 										{
 											Interlocked.Add(ref _DiscoveredPeers, addr.Addresses.Length);
 											backoff = TimeSpan.FromSeconds(0);
+											try
+											{
+												cancelConnection.Cancel();
+											}
+											catch { }
 											if (_DiscoveredPeers >= peerToFind)
 												peerTableFull.Cancel();
 										}
 									};
 									n.SendMessageAsync(new GetAddrPayload());
-									loopCancel.WaitHandle.WaitOne(2000);
+									cancelConnection.Token.WaitHandle.WaitOne(2000);
 								}
 								catch
 								{
