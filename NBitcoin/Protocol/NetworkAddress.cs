@@ -11,15 +11,29 @@ using NBitcoin.Crypto;
 
 namespace NBitcoin.Protocol
 {
+	// A network type.
+	// @note An address may belong to more than one network, for example `10.0.0.1`
+	// belongs to both `NET_UNROUTABLE` and `NET_IPV4`.
+	// Keep these sequential starting from 0 and `NET_MAX` as the last entry.
+	public enum NetworkAddressType
+	{
+		/// Addresses from these networks are not publicly routable on the global Internet.
+		Unroutable = 0,
+		IPv4,
+		IPv6,
+		/// TOR (v2 or v3)
+		Onion,
+		/// I2P
+		I2P,
+		/// CJDNS
+		Cjdns
+	}
 	public class NetworkAddress : IBitcoinSerializable
 	{
 		/// see: https://github.com/bitcoin/bips/blob/master/bip-0155.mediawiki
 		public const uint AddrV2Format = 0x20000000;
 
-		// A network type.
-		// @note An address may belong to more than one network, for example `10.0.0.1`
-		// belongs to both `NET_UNROUTABLE` and `NET_IPV4`.
-		// Keep these sequential starting from 0 and `NET_MAX` as the last entry.
+		
 		protected enum Network
 		{
 			/// Addresses from these networks are not publicly routable on the global Internet.
@@ -34,6 +48,9 @@ namespace NBitcoin.Protocol
 			Cjdns,
 			Max,
 		};
+
+
+		public NetworkAddressType AddressType => network;
 
 		enum BIP155Network : byte
 		{
@@ -97,7 +114,7 @@ namespace NBitcoin.Protocol
 
 		private static readonly byte[] IPV6_NONE = new byte[ADDR_IPV6_SIZE];
 
-		private byte network = (byte)Network.IPv6;
+		private NetworkAddressType network = NetworkAddressType.IPv6;
 		private byte[] addr = new byte[ADDR_IPV6_SIZE];
 
 		private ushort port;
@@ -132,18 +149,23 @@ namespace NBitcoin.Protocol
 				throw new ArgumentNullException(nameof(endPoint));
 			Endpoint = endPoint;
 			if (endPoint.IsTor())
-				network = (byte)Network.Onion;
+				network = NetworkAddressType.Onion;
 			else if (endPoint is IPEndPoint ip)
 				SetIp(ip.Address);
 			else
 				throw new NotSupportedException($"Unsupported endpoint of type {endPoint.GetType()}");
 		}
 
-		public bool IsIPv4 => (Network)network == Network.IPv4;
-		public bool IsIPv6 => (Network)network == Network.IPv6;
-		public bool IsTor => (Network)network == Network.Onion;
-		public bool IsI2P => (Network)network == Network.I2P;
-		public bool IsCjdns => (Network)network == Network.Cjdns;
+		[Obsolete("Use AddressType instead")]
+		public bool IsIPv4 => network == NetworkAddressType.IPv4;
+		[Obsolete("Use AddressType instead")]
+		public bool IsIPv6 => network == NetworkAddressType.IPv6;
+		[Obsolete("Use AddressType instead")]
+		public bool IsTor => network == NetworkAddressType.Onion;
+		[Obsolete("Use AddressType instead")]
+		public bool IsI2P => network == NetworkAddressType.I2P;
+		[Obsolete("Use AddressType instead")]
+		public bool IsCjdns => network == NetworkAddressType.Cjdns;
 
 		public EndPoint Endpoint
 		{
@@ -192,19 +214,19 @@ namespace NBitcoin.Protocol
 			var skip = 0;
 			if (HasPrefix(ipv6, IPV4_IN_IPV6_PREFIX))
 			{
-				network = (byte)Network.IPv4;
+				network = NetworkAddressType.IPv4;
 				skip = IPV4_IN_IPV6_PREFIX.Length;
 			}
 			else if(HasPrefix(ipv6, TORV2_IN_IPV6_PREFIX))
 			{
 				// TORv2-in-IPv6
-				network = (byte)Network.Onion;
+				network = NetworkAddressType.Onion;
 				skip = TORV2_IN_IPV6_PREFIX.Length;
 			} 
 			else
 			{
 				// IPv6
-				network = (byte)Network.IPv6;
+				network = NetworkAddressType.IPv6;
 			}	
 
 			addr = ipv6.SafeSubarray(skip);
@@ -229,7 +251,7 @@ namespace NBitcoin.Protocol
 
 			if (bytes.Length == ADDR_TORV2_SIZE)
 			{
-				network = (byte)Network.Onion;
+				network = NetworkAddressType.Onion;
 				addr = bytes;
 				return true;
 			}
@@ -252,7 +274,7 @@ namespace NBitcoin.Protocol
 					return false;
 				}
 
-				network = (byte)Network.Onion;
+				network = NetworkAddressType.Onion;
 				addr = pubkey;
 				return true;
 			}
@@ -288,7 +310,7 @@ namespace NBitcoin.Protocol
 				return false;
 			}
 
-			network = (byte)Network.I2P;
+			network = NetworkAddressType.I2P;
 			addr = bytes.SafeSubarray(0, ADDR_I2P_SIZE);
 			return true;
 		}
@@ -392,18 +414,19 @@ namespace NBitcoin.Protocol
 				}
 				else
 				{
-					stream.ReadWrite(ref network);
+					byte n = 0;
+					stream.ReadWrite(ref n);
 					stream.ReadWriteAsVarString(ref addr);
 					
-					if (SetNetFromBIP155Network((BIP155Network)network, addr.Length))
+					if (SetNetFromBIP155Network((BIP155Network)n, addr.Length))
 					{
-						if ((BIP155Network)network == BIP155Network.IPv6)
+						if (network == NetworkAddressType.IPv6)
 						{
 							if (HasPrefix(addr, IPV4_IN_IPV6_PREFIX) || HasPrefix(addr, TORV2_IN_IPV6_PREFIX))
 							{
 								// set to invalid because IPv4 and Torv2 should not be embeded in IPv6.
 								addr = IPV6_NONE;
-								network = (byte)Network.IPv6;
+								network = NetworkAddressType.IPv6;
 							}
 						}
 					}
@@ -411,7 +434,7 @@ namespace NBitcoin.Protocol
 					{
 						// set to invalid because IPv4 and Torv2 should not be embeded in IPv6.
 						addr = IPV6_NONE;
-						network = (byte)Network.IPv6;
+						network = NetworkAddressType.IPv6;
 					}
 				}
 			}
@@ -468,34 +491,34 @@ namespace NBitcoin.Protocol
 
 		private bool SetNetFromBIP155Network(BIP155Network bip155Network, int length)
 		{
-			byte AssignIfCorrectSize(Network net, int expectedSize)
+			NetworkAddressType AssignIfCorrectSize(NetworkAddressType net, int expectedSize)
 			{
 				if (length != expectedSize)
 				{
 					throw new ArgumentException($"BIP155 {(BIP155Network)bip155Network} address is {length} bytes long. Expected length is {expectedSize} bytes.");
 				}
-				return (byte)net;
+				return net;
 			}
 
 			switch(bip155Network)
 			{
 				case BIP155Network.IPv4:
-					network = AssignIfCorrectSize(Network.IPv4, ADDR_IPV4_SIZE);
+					network = AssignIfCorrectSize(NetworkAddressType.IPv4, ADDR_IPV4_SIZE);
 					break;
 				case BIP155Network.IPv6:
-					network = AssignIfCorrectSize(Network.IPv6, ADDR_IPV6_SIZE);
+					network = AssignIfCorrectSize(NetworkAddressType.IPv6, ADDR_IPV6_SIZE);
 					break;
 				case BIP155Network.TORv2:
-					network = AssignIfCorrectSize(Network.Onion, ADDR_TORV2_SIZE);
+					network = AssignIfCorrectSize(NetworkAddressType.Onion, ADDR_TORV2_SIZE);
 					break;
 				case BIP155Network.TORv3:
-					network = AssignIfCorrectSize(Network.Onion, ADDR_TORV3_SIZE);
+					network = AssignIfCorrectSize(NetworkAddressType.Onion, ADDR_TORV3_SIZE);
 					break;
 				case BIP155Network.I2P:
-					network = AssignIfCorrectSize(Network.I2P, ADDR_I2P_SIZE);
+					network = AssignIfCorrectSize(NetworkAddressType.I2P, ADDR_I2P_SIZE);
 					break;
 				case BIP155Network.Cjdns:
-					network = AssignIfCorrectSize(Network.Cjdns, ADDR_CJDNS_SIZE);
+					network = AssignIfCorrectSize(NetworkAddressType.Cjdns, ADDR_CJDNS_SIZE);
 					break;
 				default:
 					return false;
@@ -578,7 +601,9 @@ namespace NBitcoin.Protocol
 
 		public override string ToString()
 		{
-			if (IsIPv4 || IsTor || IsI2P)
+			if (network == NetworkAddressType.IPv4 ||
+				network == NetworkAddressType.Onion||
+				network == NetworkAddressType.I2P)
 			{
 				return $"{ToAddressString()}:{Port}";
 			} 

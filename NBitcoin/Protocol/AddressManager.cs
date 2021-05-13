@@ -1242,7 +1242,7 @@ namespace NBitcoin.Protocol
 									var addrman = param2.TemplateBehaviors.Find<AddressManagerBehavior>();
 									param2.TemplateBehaviors.Clear();
 									param2.TemplateBehaviors.Add(addrman);
-									n = Node.Connect(network, p.Endpoint, param2);
+									n = Node.Connect(network, p, param2);
 									n.VersionHandshake(cancelConnection.Token);
 									n.MessageReceived += (s, a) =>
 									{
