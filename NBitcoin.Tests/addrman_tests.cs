@@ -46,6 +46,7 @@ namespace NBitcoin.Tests
 		{
 			AddressManager addrman = new AddressManager();
 			var netaddr = new NetworkAddress(new DnsEndPoint("wasabiukrxmkdgve5kynjztuovbg43uxcbcxn6y2okcrsg7gb6jdmbad.onion", 8333));
+			Assert.True(netaddr.IsTor);
 			addrman.Add(netaddr);
 			addrman.SavePeerFile("serializerPeerBIP155.dat", Network.Main);
 			var loaddedAddrMgr = AddressManager.LoadPeerFile("serializerPeerBIP155.dat", Network.Main);

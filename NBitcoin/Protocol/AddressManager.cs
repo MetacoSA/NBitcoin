@@ -59,9 +59,16 @@ namespace NBitcoin.Protocol
 				throw new ArgumentNullException(nameof(endpoint));
 			if (source == null)
 				source = IPAddress.Loopback;
-			foreach (var ip in (await endpoint.ResolveToIPEndpointsAsync(DnsResolver, cancellationToken).ConfigureAwait(false)))
+			if (endpoint is DnsEndPoint && !endpoint.IsI2P() && !endpoint.IsTor())
 			{
-				Add(new NetworkAddress(ip), source);
+				foreach (var ip in (await endpoint.ResolveToIPEndpointsAsync(DnsResolver, cancellationToken).ConfigureAwait(false)))
+				{
+					Add(new NetworkAddress(ip), source);
+				}
+			}
+			else
+			{
+				Add(new NetworkAddress(endpoint), source);
 			}
 		}
 		internal class AddressInfo : IBitcoinSerializable

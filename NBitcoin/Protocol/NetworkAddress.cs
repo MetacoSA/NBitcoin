@@ -128,7 +128,15 @@ namespace NBitcoin.Protocol
 
 		public NetworkAddress(EndPoint endPoint)
 		{
+			if (endPoint == null)
+				throw new ArgumentNullException(nameof(endPoint));
 			Endpoint = endPoint;
+			if (endPoint.IsTor())
+				network = (byte)Network.Onion;
+			else if (endPoint is IPEndPoint ip)
+				SetIp(ip.Address);
+			else
+				throw new NotSupportedException($"Unsupported endpoint of type {endPoint.GetType()}");
 		}
 
 		public bool IsIPv4 => (Network)network == Network.IPv4;
