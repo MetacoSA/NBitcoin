@@ -2367,7 +2367,7 @@ namespace NBitcoin
 			bech32Encoders[(int)Bech32Type.WITNESS_PUBKEY_ADDRESS] = encoder;
 			bech32Encoders[(int)Bech32Type.WITNESS_SCRIPT_ADDRESS] = encoder;
 		}
-
+#if !NOSOCKET
 		private static IEnumerable<NetworkAddress> LoadNetworkAddresses(byte[] payload)
 		{
 			// Convert the pnSeeds array into usable address objects.
@@ -2399,7 +2399,7 @@ namespace NBitcoin
 				}
 			}
 		}
-
+#endif
 		private Block CreateGenesisBlock(uint nTime, uint nNonce, uint nBits, int nVersion, Money genesisReward)
 		{
 			string pszTimestamp = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks";
