@@ -1495,6 +1495,11 @@ namespace NBitcoin
 
 		public uint256 GetHash()
 		{
+			return GetHash(BitcoinStream.DefaultArraySize);
+		}
+
+		public uint256 GetHash(int maxArraySize)
+		{
 			uint256 h = null;
 			var hashes = _Hashes;
 			if (hashes != null)
@@ -1510,6 +1515,7 @@ namespace NBitcoin
 				{
 					TransactionOptions = TransactionOptions.None,
 					ConsensusFactory = GetConsensusFactory(),
+					MaxArraySize = maxArraySize
 				};
 				stream.SerializationTypeScope(SerializationType.Hash);
 				this.ReadWrite(stream);
