@@ -4645,5 +4645,22 @@ namespace NBitcoin.Tests
 			tx = builder.BuildTransaction(false);
 			Assert.Equal(2u, tx.Version);
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void GetHashFromBigTransaction()
+		{
+			var stream = new MemoryStream(Encoders.Hex.DecodeData(File.ReadAllText(@"data/big_tx.txt")));
+			Assert.True(stream.Length > BitcoinStream.DefaultArraySize);
+			var bStream = new BitcoinStream(stream, false)
+			{
+				MaxArraySize = int.MaxValue
+			};
+
+			var tx = Transaction.Create(Network.Main);
+			tx.ReadWrite(bStream);
+			Assert.Throws<ArgumentOutOfRangeException>(() => tx.GetHash());
+			Assert.True(tx.GetHash(int.MaxValue) != uint256.Zero);
+		}
 	}
 }
