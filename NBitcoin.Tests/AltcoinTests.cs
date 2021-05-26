@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using NBitcoin.Altcoins;
 using NBitcoin.JsonConverters;
 using Newtonsoft.Json;
 using Xunit;
@@ -147,6 +148,54 @@ namespace NBitcoin.Tests
 				 }
 			}
 
+		}
+
+		[Fact]
+		public void Slip21Tests()
+		{
+			var allMnemonic = new Mnemonic("all all all all all all all all all all all all");
+			var master = Slip21Node.FromSeed(allMnemonic.DeriveSeed());
+			Assert.Equal("dbf12b44133eaab506a740f6565cc117228cbf1dd70635cfa8ddfdc9af734756", master.Key.ToHex());
+
+			var child1 = master.DeriveChild("SLIP-0021");
+			Assert.Equal("1d065e3ac1bbe5c7fad32cf2305f7d709dc070d672044a19e610c77cdf33de0d", child1.Key.ToHex());
+
+			var child2 = child1.DeriveChild("Master encryption key");
+			Assert.Equal("ea163130e35bbafdf5ddee97a17b39cef2be4b4f390180d65b54cf05c6a82fde", child2.Key.ToHex());
+
+			var child3 = child1.DeriveChild("Authentication key");
+			Assert.Equal("47194e938ab24cc82bfa25f6486ed54bebe79c40ae2a5a32ea6db294d81861a6", child3.Key.ToHex());
+		}
+
+		[Fact]
+		public void Slip77Tests()
+		{
+			//test vector: https://github.com/vulpemventures/slip77/commit/bc0fa0c712512d27cf1e2d6e1aaee5c36a3d38fa
+			var allMnemonic = new Mnemonic("all all all all all all all all all all all all");
+			var master = Slip21Node.FromSeed(allMnemonic.DeriveSeed());
+			Assert.Equal("dbf12b44133eaab506a740f6565cc117228cbf1dd70635cfa8ddfdc9af734756", master.Key.ToHex());
+			var slip77 = Slip21Node.FromSeed(allMnemonic.DeriveSeed()).GetSlip77Node();
+			var script = Script.FromHex("76a914a579388225827d9f2fe9014add644487808c695d88ac");
+			var privateBlindingKey = slip77.DeriveSlip77BlindingKey(script);
+			var unconfidentialAddress =
+				BitcoinAddress.Create("2dpWh6jbhAowNsQ5agtFzi7j6nKscj6UnEr", Altcoins.Liquid.Instance.Regtest);
+			var publicBlindingKey = privateBlindingKey.PubKey;
+			Assert.Equal("4e6e94df28448c7bb159271fe546da464ea863b3887d2eec6afd841184b70592",
+				privateBlindingKey.ToHex());
+			Assert.Equal("0223ef5cf5d1185f86204b9386c8541061a24b6f72fa4a29e3a0b60e1c20ffaf5b",
+				publicBlindingKey.ToHex());
+			Assert.Equal("CTEkf75DFff5ReB7juTg2oehrj41aMj21kvvJaQdWsEAQohz1EDhu7Ayh6goxpz3GZRVKidTtaXaXYEJ",
+				new BitcoinBlindedAddress(publicBlindingKey, unconfidentialAddress).ToString());
+
+
+			//test vector: https://github.com/trezor/trezor-firmware/pull/398/files#diff-afc9a622fb2281269983493a9da47a364e94f8bd338e5322f4a7cef99f98ee69R119
+			var abusiveWords =
+				new Mnemonic("alcohol woman abuse must during monitor noble actual mixed trade anger aisle");
+			var derived = abusiveWords.DeriveExtKey().Derive(new KeyPath("44'/1'/0'/0/0"));
+			var addr = derived.PrivateKey.ScriptPubKey.GetDestinationAddress(Liquid.Instance.Regtest);
+			var abusiveslip77 = Slip21Node.FromSeed(abusiveWords.DeriveSeed()).GetSlip77Node();
+			Assert.Equal("26f1dc2c52222394236d76e0809516255cfcca94069fd5187c0f090d18f42ad6",
+				abusiveslip77.DeriveSlip77BlindingKey(addr.ScriptPubKey).ToHex());
 		}
 
 		[Fact]
