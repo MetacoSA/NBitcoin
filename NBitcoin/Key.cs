@@ -397,7 +397,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Same than GetBitcoinSecret
+		/// Same as GetBitcoinSecret
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
