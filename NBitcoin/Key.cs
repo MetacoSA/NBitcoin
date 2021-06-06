@@ -122,7 +122,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				AssertNotDiposed();
+				AssertNotDisposed();
 				if (_PubKey is PubKey pubkey)
 					return pubkey;
 #if HAS_SPAN
@@ -140,19 +140,19 @@ namespace NBitcoin
 
 		public ECDSASignature Sign(uint256 hash, bool useLowR)
 		{
-			AssertNotDiposed();
+			AssertNotDisposed();
 			return _ECKey.Sign(hash, useLowR);
 		}
 
 		public ECDSASignature Sign(uint256 hash)
 		{
-			AssertNotDiposed();
+			AssertNotDisposed();
 			return _ECKey.Sign(hash, true);
 		}
 
 		public SchnorrSignature SignSchnorr(uint256 hash)
 		{
-			AssertNotDiposed();
+			AssertNotDisposed();
 #if HAS_SPAN
 			Span<byte> h = stackalloc byte[32];
 			hash.ToBytes(h);
@@ -176,7 +176,7 @@ namespace NBitcoin
 		{
 			if (messageBytes is null)
 				throw new ArgumentNullException(nameof(messageBytes));
-			AssertNotDiposed();
+			AssertNotDisposed();
 			byte[] data = Utils.FormatMessageForSigning(messageBytes);
 			var hash = Hashes.DoubleSHA256(data);
 			return Convert.ToBase64String(SignCompact(hash, forceLowR));
@@ -192,7 +192,7 @@ namespace NBitcoin
 		{
 			if (hash is null)
 				throw new ArgumentNullException(nameof(hash));
-			AssertNotDiposed();
+			AssertNotDisposed();
 #if HAS_SPAN
 			Span<byte> vchSig = stackalloc byte[65];
 			int rec = -1;
@@ -236,7 +236,7 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			AssertNotDiposed();
+			AssertNotDisposed();
 #if HAS_SPAN
 			Span<byte> tmp = stackalloc byte[KEY_SIZE];
 			if (!stream.Serializing)
@@ -271,7 +271,7 @@ namespace NBitcoin
 		{
 			if (string.IsNullOrEmpty(encryptedText))
 				throw new ArgumentNullException(nameof(encryptedText));
-			AssertNotDiposed();
+			AssertNotDisposed();
 			var bytes = Encoders.Base64.DecodeData(encryptedText);
 			var decrypted = Decrypt(bytes);
 			return Encoding.UTF8.GetString(decrypted, 0, decrypted.Length);
@@ -283,7 +283,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(encrypted));
 			if (encrypted.Length < 85)
 				throw new ArgumentException("Encrypted text is invalid, it should be length >= 85.");
-			AssertNotDiposed();
+			AssertNotDisposed();
 			var magic = encrypted.SafeSubarray(0, 4);
 			var ephemeralPubkeyBytes = encrypted.SafeSubarray(4, 33);
 			var cipherText = encrypted.SafeSubarray(37, encrypted.Length - 32 - 37);
@@ -309,7 +309,7 @@ namespace NBitcoin
 
 		public Key Derivate(byte[] cc, uint nChild, out byte[] ccChild)
 		{
-			AssertNotDiposed();
+			AssertNotDisposed();
 #if HAS_SPAN
 			if (!IsCompressed)
 				throw new InvalidOperationException("The key must be compressed");
@@ -368,7 +368,7 @@ namespace NBitcoin
 
 		public Key Uncover(Key scan, PubKey ephem)
 		{
-			AssertNotDiposed();
+			AssertNotDisposed();
 #if HAS_SPAN
 			Span<byte> tmp = stackalloc byte[33];
 			ephem.ECKey.GetSharedPubkey(scan._ECKey).WriteToSpan(true, tmp, out _);
@@ -392,30 +392,30 @@ namespace NBitcoin
 
 		public BitcoinSecret GetBitcoinSecret(Network network)
 		{
-			AssertNotDiposed();
+			AssertNotDisposed();
 			return new BitcoinSecret(this, network);
 		}
 
 		/// <summary>
-		/// Same than GetBitcoinSecret
+		/// Same as GetBitcoinSecret
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
 		public BitcoinSecret GetWif(Network network)
 		{
-			AssertNotDiposed();
+			AssertNotDisposed();
 			return new BitcoinSecret(this, network);
 		}
 
 		public BitcoinEncryptedSecretNoEC GetEncryptedBitcoinSecret(string password, Network network)
 		{
-			AssertNotDiposed();
+			AssertNotDisposed();
 			return new BitcoinEncryptedSecretNoEC(this, password, network);
 		}
 
 		public string ToString(Network network)
 		{
-			AssertNotDiposed();
+			AssertNotDisposed();
 			return new BitcoinSecret(this, network).ToString();
 		}
 
@@ -425,7 +425,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				AssertNotDiposed();
+				AssertNotDisposed();
 				return PubKey.Hash.ScriptPubKey;
 			}
 		}
@@ -440,7 +440,7 @@ namespace NBitcoin
 		{
 			if (hash == null)
 				throw new ArgumentNullException(nameof(hash));
-			AssertNotDiposed();
+			AssertNotDisposed();
 			signingOptions ??= new SigningOptions();
 			return new TransactionSignature(Sign(hash, signingOptions.EnforceLowR), signingOptions.SigHash);
 		}
@@ -473,7 +473,7 @@ namespace NBitcoin
 
 		public string ToHex()
 		{
-			AssertNotDiposed();
+			AssertNotDisposed();
 #if HAS_SPAN
 			Span<byte> tmp = stackalloc byte[KEY_SIZE];
 			_ECKey.WriteToSpan(tmp);
@@ -491,7 +491,7 @@ namespace NBitcoin
 			GC.SuppressFinalize(this);
 		}
 
-		void AssertNotDiposed()
+		void AssertNotDisposed()
 		{
 			if (disposed)
 				throw new ObjectDisposedException(nameof(NBitcoin.Key));
