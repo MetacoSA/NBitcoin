@@ -41,6 +41,8 @@ namespace NBitcoin.Altcoins
 			{
 				var txBuilder = base.CreateTransactionBuilderCore(network);
 				txBuilder.StandardTransactionPolicy.MinFee = Money.Coins(1m);
+				// Around 3000 USD of fee for a transaction at ~0.4 USD per doge
+				txBuilder.StandardTransactionPolicy.MaxTxFee = new FeeRate(Money.Coins(56m), 1);
 				return txBuilder;
 			}
 		}
