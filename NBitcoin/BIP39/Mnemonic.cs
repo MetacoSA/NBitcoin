@@ -52,7 +52,7 @@ namespace NBitcoin
 
 			var i = Array.IndexOf(entArray, entropy.Length * 8);
 			if (i == -1)
-				throw new ArgumentException("The length for entropy should be : " + String.Join(",", entArray), "entropy");
+				throw new ArgumentException("The length for entropy should be " + String.Join(",", entArray) + " bits", "entropy");
 
 			int cs = csArray[i];
 			byte[] checksum = Hashes.SHA256(entropy);
