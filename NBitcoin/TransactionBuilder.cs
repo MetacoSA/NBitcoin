@@ -75,14 +75,17 @@ namespace NBitcoin
 	{
 		public DefaultCoinSelector()
 		{
-
+			_Rand = new Random();
 		}
-		Random _Rand = new Random();
+
+		Random? _Rand;
+
 		public DefaultCoinSelector(int seed)
 		{
 			_Rand = new Random(seed);
 		}
-		public DefaultCoinSelector(Random random)
+
+		public DefaultCoinSelector(Random? random)
 		{
 			_Rand = random;
 		}
@@ -128,7 +131,8 @@ namespace NBitcoin
 			List<OutputGroup> applicable_groups = new List<OutputGroup>();
 			var nTotalLower = zero;
 			var targetMinChange = target.IsCompatible(MinimumChange) ? target.Add(MinimumChange) : target;
-			Utils.Shuffle(groups, _Rand);
+			if (_Rand != null)
+				Utils.Shuffle(groups, _Rand);
 
 			foreach (var group in groups)
 			{
@@ -241,7 +245,7 @@ namespace NBitcoin
 						//that the rng is fast. We do not use a constant random sequence,
 						//because there may be some privacy improvement by making
 						//the selection random.
-						if (nPass == 0 ? _Rand.Next(0, 2) == 0 : !vfIncluded[i])
+						if ((nPass == 0 && _Rand != null) ? _Rand.Next(0, 2) == 0 : !vfIncluded[i])
 						{
 							nTotal = nTotal.Add(groups[i].Amount);
 							vfIncluded[i] = true;
