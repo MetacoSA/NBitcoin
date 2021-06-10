@@ -78,14 +78,14 @@ namespace NBitcoin
 			_Rand = new Random();
 		}
 
-		Random _Rand;
+		Random? _Rand;
 
 		public DefaultCoinSelector(int seed)
 		{
 			_Rand = new Random(seed);
 		}
 
-		public DefaultCoinSelector(Random random)
+		public DefaultCoinSelector(Random? random)
 		{
 			_Rand = random;
 		}
