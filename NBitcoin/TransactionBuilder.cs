@@ -245,7 +245,8 @@ namespace NBitcoin
 						//that the rng is fast. We do not use a constant random sequence,
 						//because there may be some privacy improvement by making
 						//the selection random.
-						if ((nPass == 0 && _Rand != null) ? _Rand.Next(0, 2) == 0 : !vfIncluded[i])
+						if (nPass == 0 ? (_Rand is null || _Rand.Next(0, 2) == 0)
+							: !vfIncluded[i])
 						{
 							nTotal = nTotal.Add(groups[i].Amount);
 							vfIncluded[i] = true;
