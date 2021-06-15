@@ -1,4 +1,5 @@
 ﻿using NBitcoin.Crypto;
+using NBitcoin.JsonConverters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace NBitcoin
 		TX_MULTISIG,
 		TX_NULL_DATA,
 		TX_SEGWIT,
+		TX_TAPROOT
 	};
 
 	public class TxNullDataTemplate : ScriptTemplate
@@ -114,6 +116,58 @@ namespace NBitcoin
 		{
 			get;
 			set;
+		}
+	}
+
+	public class PayToTaprootTemplate : ScriptTemplate
+	{
+		private PayToTaprootTemplate()
+		{
+
+		}
+		static PayToTaprootTemplate _Instance;
+		public static PayToTaprootTemplate Instance => _Instance ??= new PayToTaprootTemplate();
+		public override TxOutType Type => TxOutType.TX_TAPROOT;
+
+		[Obsolete("Use pubKey.ScriptPubKey instead")]
+		public Script GenerateScriptPubKey(TaprootPubKey pubKey)
+		{
+			return pubKey.ScriptPubKey;
+		}
+
+		public TaprootPubKey ExtractScriptPubKeyParameters(Script scriptPubKey)
+		{
+			var ok = FastCheckScriptPubKey(scriptPubKey, out _);
+			if (!ok)
+				return null;
+			var arr = scriptPubKey.ToBytes(true);
+#if !HAS_SPAN
+			var pk = new byte[32];
+			Array.Copy(arr, 2, pk, 0, 32);
+			return new TaprootPubKey(arr);
+#else
+			if (TaprootPubKey.TryCreate(arr.AsSpan().Slice(2), out var r))
+				return r;
+			return null;
+#endif
+		}
+		protected override bool FastCheckScriptPubKey(Script scriptPubKey, out bool needMoreCheck)
+		{
+			needMoreCheck = false;
+			return scriptPubKey.Length == 34 && scriptPubKey._Script[0] == 0x51 && scriptPubKey._Script[1] == 32;
+		}
+		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
+		{
+			return true;
+		}
+		protected override bool FastCheckScriptSig(Script scriptSig, Script scriptPubKey, out bool needMoreCheck)
+		{
+			needMoreCheck = false;
+			return true;
+		}
+		protected override bool CheckScriptSigCore(Script scriptSig, Op[] scriptSigOps, Script scriptPubKey, Op[] scriptPubKeyOps)
+		{
+			throw new NotSupportedException();
 		}
 	}
 	public class PayToMultiSigTemplate : ScriptTemplate

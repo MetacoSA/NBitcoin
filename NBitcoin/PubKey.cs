@@ -393,6 +393,7 @@ namespace NBitcoin
 			return vch.ToArray();
 #endif
 		}
+
 #if HAS_SPAN
 		public void ToBytes(Span<byte> output, out int length)
 		{

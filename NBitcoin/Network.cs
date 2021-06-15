@@ -179,13 +179,14 @@ namespace NBitcoin
 	{
 		WITNESS_PUBKEY_ADDRESS,
 		WITNESS_SCRIPT_ADDRESS,
+		TAPROOT_ADDRESS,
 		BLINDED_ADDRESS
 	}
 
 	public partial class Network
 	{
 		internal byte[][] base58Prefixes = new byte[13][];
-		internal Bech32Encoder[] bech32Encoders = new Bech32Encoder[2];
+		internal Bech32Encoder[] bech32Encoders = new Bech32Encoder[3];
 
 		public uint MaxP2PVersion
 		{
@@ -2252,6 +2253,7 @@ namespace NBitcoin
 			var encoder = new Bech32Encoder("bc");
 			bech32Encoders[(int)Bech32Type.WITNESS_PUBKEY_ADDRESS] = encoder;
 			bech32Encoders[(int)Bech32Type.WITNESS_SCRIPT_ADDRESS] = encoder;
+			bech32Encoders[(int)Bech32Type.TAPROOT_ADDRESS] = encoder;
 
 #if !NOSOCKET
 			vFixedSeeds.AddRange(LoadNetworkAddresses(pnSeed6_main));
@@ -2315,6 +2317,7 @@ namespace NBitcoin
 			var encoder = new Bech32Encoder("tb");
 			bech32Encoders[(int)Bech32Type.WITNESS_PUBKEY_ADDRESS] = encoder;
 			bech32Encoders[(int)Bech32Type.WITNESS_SCRIPT_ADDRESS] = encoder;
+			bech32Encoders[(int)Bech32Type.TAPROOT_ADDRESS] = encoder;
 
 #if !NOSOCKET
 			vFixedSeeds.AddRange(LoadNetworkAddresses(pnSeed6_test));
@@ -2366,6 +2369,7 @@ namespace NBitcoin
 			var encoder = new Bech32Encoder("bcrt");
 			bech32Encoders[(int)Bech32Type.WITNESS_PUBKEY_ADDRESS] = encoder;
 			bech32Encoders[(int)Bech32Type.WITNESS_SCRIPT_ADDRESS] = encoder;
+			bech32Encoders[(int)Bech32Type.TAPROOT_ADDRESS] = encoder;
 		}
 #if !NOSOCKET
 		private static IEnumerable<NetworkAddress> LoadNetworkAddresses(byte[] payload)
@@ -2562,7 +2566,8 @@ namespace NBitcoin
 						candidate = new BitcoinWitPubKeyAddress(str.ToLowerInvariant(), bytes, this);
 					if (witVersion == 0 && bytes.Length == 32 && type == Bech32Type.WITNESS_SCRIPT_ADDRESS)
 						candidate = new BitcoinWitScriptAddress(str.ToLowerInvariant(), bytes, this);
-
+					if (witVersion == 1 && bytes.Length == 32 && type == Bech32Type.TAPROOT_ADDRESS)
+						candidate = new TaprootAddress(str.ToLowerInvariant(), bytes, this);
 					if (candidate != null && targetType.GetTypeInfo().IsAssignableFrom((candidate.GetType().GetTypeInfo())))
 						return candidate;
 				}

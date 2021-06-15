@@ -167,6 +167,11 @@ namespace NBitcoin.Secp256k1
 			other.WriteToSpan(pk1);
 			return ECPubKey.secp256k1_memcmp_var(pk0, pk1, 32);
 		}
+
+		public override int GetHashCode()
+		{
+			return this.Q.x.GetHashCode();
+		}
 	}
 }
 #nullable restore
