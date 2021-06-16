@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 using System.IO;
 using NBitcoin.Crypto;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace NBitcoin.Tests
 {
@@ -3503,7 +3504,7 @@ namespace NBitcoin.Tests
 			Scalar.Clear(ref sc[4]);
 
 			r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, 6), pt.Slice(0, 6), implementation);
-			
+
 			r = ctx.EcMultContext.MultBatch(szero, sc.Slice(0, 5), pt.Slice(0, 5), implementation);
 
 			Assert.True(r.IsInfinity);
@@ -3568,6 +3569,166 @@ namespace NBitcoin.Tests
 						}
 					}
 				}
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void run_pubkey_comparison()
+		{
+			byte[] pk1_ser = new byte[33] {
+			0x02,
+			0x58, 0x84, 0xb3, 0xa2, 0x4b, 0x97, 0x37, 0x88, 0x92, 0x38, 0xa6, 0x26, 0x62, 0x52, 0x35, 0x11,
+			0xd0, 0x9a, 0xa1, 0x1b, 0x80, 0x0b, 0x5e, 0x93, 0x80, 0x26, 0x11, 0xef, 0x67, 0x4b, 0xd9, 0x23
+		};
+			byte[] pk2_ser = new byte[33] {
+		0x02,
+		0xde, 0x36, 0x0e, 0x87, 0x59, 0x8f, 0x3c, 0x01, 0x36, 0x2a, 0x2a, 0xb8, 0xc6, 0xf4, 0x5e, 0x4d,
+		0xb2, 0xc2, 0xd5, 0x03, 0xa7, 0xf9, 0xf1, 0x4f, 0xa8, 0xfa, 0x95, 0xa8, 0xe9, 0x69, 0x76, 0x1c
+	};
+			ECPubKey pk1;
+			ECPubKey pk2;
+			//int ecount = 0;
+
+			Assert.True(ECPubKey.TryCreate(pk1_ser, ctx, out _, out pk1));
+			Assert.True(ECPubKey.TryCreate(pk2_ser, ctx, out _, out pk2));
+
+			Assert.True(pk1.CompareTo(pk2) < 0);
+			Assert.True(pk2.CompareTo(pk1) > 0);
+			Assert.True(pk1.CompareTo(pk1) == 0);
+			Assert.True(pk2.CompareTo(pk2) == 0);
+
+			/* Make pk2 the same as pk1 but with 3 rather than 2. Note that in
+			 * an uncompressed encoding, these would have the opposite ordering */
+			pk1_ser[0] = 3;
+			Assert.True(ECPubKey.TryCreate(pk1_ser, ctx, out _, out pk2));
+			Assert.True(pk1.CompareTo(pk2) < 0);
+			Assert.True(pk2.CompareTo(pk1) > 0);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void test_xonly_pubkey_comparison()
+		{
+			byte[] pk1_ser = new byte[32] {
+		0x58, 0x84, 0xb3, 0xa2, 0x4b, 0x97, 0x37, 0x88, 0x92, 0x38, 0xa6, 0x26, 0x62, 0x52, 0x35, 0x11,
+		0xd0, 0x9a, 0xa1, 0x1b, 0x80, 0x0b, 0x5e, 0x93, 0x80, 0x26, 0x11, 0xef, 0x67, 0x4b, 0xd9, 0x23
+	};
+			byte[] pk2_ser = new byte[32] {
+		0xde, 0x36, 0x0e, 0x87, 0x59, 0x8f, 0x3c, 0x01, 0x36, 0x2a, 0x2a, 0xb8, 0xc6, 0xf4, 0x5e, 0x4d,
+		0xb2, 0xc2, 0xd5, 0x03, 0xa7, 0xf9, 0xf1, 0x4f, 0xa8, 0xfa, 0x95, 0xa8, 0xe9, 0x69, 0x76, 0x1c
+	};
+			ECXOnlyPubKey pk1;
+			ECXOnlyPubKey pk2;
+
+
+			Assert.True(ECXOnlyPubKey.TryCreate(pk1_ser, ctx, out pk1));
+			Assert.True(ECXOnlyPubKey.TryCreate(pk2_ser, ctx, out pk2));
+
+
+			Assert.True(pk1.CompareTo(pk2) < 0);
+			Assert.True(pk2.CompareTo(pk1) > 0);
+			Assert.True(pk1.CompareTo(pk1) == 0);
+			Assert.True(pk2.CompareTo(pk2) == 0);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void test_xonly_sort()
+		{
+			ECXOnlyPubKey[] pk = new ECXOnlyPubKey[5];
+			byte[][] pk_ser = new byte[5][];
+			for (int o = 0; o < pk_ser.Length; o++)
+			{
+				pk_ser[o] = new byte[32];
+			}
+			int i;
+			int[] pk_order = new int[5] { 0, 1, 2, 3, 4 };
+			pk_ser[0][0] = 5;
+			pk_ser[1][0] = 8;
+			pk_ser[2][0] = 0x0a;
+			pk_ser[3][0] = 0x0b;
+			pk_ser[4][0] = 0x0c;
+			for (i = 0; i < 5; i++)
+			{
+				Assert.True(ECXOnlyPubKey.TryCreate(pk_ser[i], ctx, out pk[i]));
+			}
+			permute(pk_order, 1);
+			test_xonly_sort_helper(pk, pk_order, 1);
+			permute(pk_order, 2);
+			test_xonly_sort_helper(pk, pk_order, 2);
+			permute(pk_order, 3);
+			test_xonly_sort_helper(pk, pk_order, 3);
+			for (i = 0; i < count; i++)
+			{
+				permute(pk_order, 4);
+				test_xonly_sort_helper(pk, pk_order, 4);
+			}
+			for (i = 0; i < count; i++)
+			{
+				permute(pk_order, 5);
+				test_xonly_sort_helper(pk, pk_order, 5);
+			}
+			/* Check that sorting also works for random pubkeys */
+			for (i = 0; i < count; i++)
+			{
+				int j;
+				ECXOnlyPubKey[] pk_ptr = new ECXOnlyPubKey[5];
+				for (j = 0; j < 5; j++)
+				{
+					pk[j] = rand_xonly_pk();
+					pk_ptr[j] = pk[j];
+				}
+				Array.Sort(pk_ptr, 0, 5);
+				for (j = 1; j < 5; j++)
+				{
+					Assert.True(pk_ptr[j - 1].CompareTo(pk_ptr[j]) <= 0);
+				}
+			}
+		}
+
+		ECXOnlyPubKey rand_xonly_pk()
+		{
+			ECPrivKey k = null;
+			Span<byte> data = stackalloc byte[32];
+			while (true)
+			{
+				secp256k1_rand_bytes_test(data, 32);
+				if (NBitcoinContext.Instance.TryCreateECPrivKey(data, out var key) && key is Secp256k1.ECPrivKey)
+				{
+					k = key;
+					break;
+				}
+			}
+			return k.CreatePubKey().ToXOnlyPubKey();
+		}
+
+		void test_xonly_sort_helper(ECXOnlyPubKey[] pk, int[] pk_order, int n_pk)
+		{
+			int i;
+			ECXOnlyPubKey[] pk_test = new ECXOnlyPubKey[5];
+
+			for (i = 0; i < n_pk; i++)
+			{
+				pk_test[i] = pk[pk_order[i]];
+			}
+			Array.Sort(pk_test, 0, n_pk);
+			for (i = 0; i < n_pk; i++)
+			{
+				Assert.True(pk_test[i].CompareTo(pk[i]) == 0);
+			}
+	}
+
+	void permute(int[] arr, int n)
+		{
+			int i;
+			for (i = n - 1; i >= 1; i--)
+			{
+				int tmp, j;
+				j = (int)Secp256k1Tests.secp256k1_rand_int((uint)(i + 1));
+				tmp = arr[i];
+				arr[i] = arr[j];
+				arr[j] = tmp;
 			}
 		}
 	}

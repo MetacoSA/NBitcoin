@@ -15,7 +15,7 @@ namespace NBitcoin.Secp256k1
 	public
 #endif
 
-	class ECXOnlyPubKey : ECPubKey
+	class ECXOnlyPubKey : ECPubKey, IComparable<ECXOnlyPubKey>
 	{
 		internal static byte[] TAG_BIP0340Challenge = ASCIIEncoding.ASCII.GetBytes("BIP0340/challenge");
 
@@ -60,7 +60,7 @@ namespace NBitcoin.Secp256k1
 			Span<byte> buf = stackalloc byte[32];
 			SHA256 sha = new SHA256();
 			sha.InitializeTagged(TAG_BIP0340Challenge);
-			
+
 			signature.rx.WriteToSpan(buf);
 			sha.Write(buf);
 			Q.x.WriteToSpan(buf);
@@ -115,6 +115,17 @@ namespace NBitcoin.Secp256k1
 			byte[] buf = new byte[32];
 			WriteToSpan(buf);
 			return buf;
+		}
+
+		public int CompareTo(ECXOnlyPubKey other)
+		{
+			if (other is null)
+				throw new ArgumentNullException(nameof(other));
+			Span<byte> pk0 = stackalloc byte[32];
+			this.WriteToSpan(pk0);
+			Span<byte> pk1 = stackalloc byte[32];
+			other.WriteToSpan(pk1);
+			return secp256k1_memcmp_var(pk0, pk1, 32);
 		}
 	}
 }

@@ -11,7 +11,7 @@ namespace NBitcoin.Secp256k1
 #if SECP256K1_LIB
 	public
 #endif
-	partial class ECPubKey
+	partial class ECPubKey : IComparable<ECPubKey>
 	{
 
 #if SECP256K1_LIB
@@ -425,6 +425,30 @@ namespace NBitcoin.Secp256k1
 			// We have a ref over an undisposed secret here
 			//secp256k1_scalar_clear(&s);
 			//return ret;
+		}
+
+		internal static int secp256k1_memcmp_var(ReadOnlySpan<byte> s1, ReadOnlySpan<byte> s2, int n)
+		{
+			for (int i = 0; i < n; i++)
+			{
+				int diff = s1[i] - s2[i];
+				if (diff != 0)
+				{
+					return diff;
+				}
+			}
+			return 0;
+		}
+
+		public int CompareTo(ECPubKey other)
+		{
+			if (other is null)
+				throw new ArgumentNullException(nameof(other));
+			Span<byte> pk0 = stackalloc byte[33];
+			this.WriteToSpan(true, pk0, out _);
+			Span<byte> pk1 = stackalloc byte[33];
+			other.WriteToSpan(true, pk1, out _);
+			return secp256k1_memcmp_var(pk0, pk1, 33);
 		}
 	}
 }
