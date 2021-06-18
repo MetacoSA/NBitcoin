@@ -200,6 +200,18 @@ namespace NBitcoin.RPC
 			var result =  await SendCommandAsync(RPCOperations.loadwallet, filename, loadOnStartup).ConfigureAwait(false);
 			return GetWallet(result.Result.Value<string>("name"));
 		}
+		
+		[Obsolete("Use UnloadWalletAsync instead")]
+		public async Task UnloadAsync(bool? loadOnStartup = null)
+		{
+			var result = await SendCommandAsync(RPCOperations.loadwallet, loadOnStartup).ConfigureAwait(false);
+		}
+		
+		[Obsolete("Use UnloadWallet instead")]
+		public void Unload(bool? loadOnStartup = null)
+		{
+			SendCommandAsync(RPCOperations.unloadwallet, loadOnStartup).GetAwaiter().GetResult();
+		}
 
 		public RPCClient LoadWallet(string filename, bool? loadOnStartup = null)
 		{
