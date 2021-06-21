@@ -51,6 +51,12 @@ namespace NBitcoin.Secp256k1
 			rx.WriteToSpan(out64.Slice(0, 32));
 			s.WriteToSpan(out64.Slice(32, 32));
 		}
+		public byte[] ToBytes()
+		{
+			var b = new byte[64];
+			WriteToSpan(b);
+			return b;
+		}
 	}
 }
 #endif

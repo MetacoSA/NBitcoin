@@ -25,7 +25,7 @@ namespace NBitcoin.Secp256k1
 #else
 		internal
 #endif
-		readonly FE x,y;
+		readonly FE x, y;
 #if SECP256K1_LIB
 		public
 #else
@@ -217,6 +217,11 @@ namespace NBitcoin.Secp256k1
 		{
 			return new GE(x, this.y.Normalize(), infinity);
 		}
+		[MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.AggressiveInlining)]
+		public readonly GE NormalizeXVariable()
+		{
+			return new GE(x.NormalizeVariable(), this.y, infinity);
+		}
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public readonly GE NormalizeYVariable()
 		{
@@ -271,6 +276,33 @@ namespace NBitcoin.Secp256k1
 			return new GEJ(x, y, new FE(1), infinity);
 		}
 
+
+		/// <summary>
+		/// Keeps a group element as is if it has an even Y and otherwise negates it.
+		/// parity is set to 0 in the former case and to 1 in the latter case.
+		/// Requires that the coordinates of r are normalized.
+		/// </summary>
+		public readonly GE ToEvenY(out bool parity)
+		{
+			if (IsInfinity)
+				throw new InvalidOperationException("Should not be infinity point");
+			if (!y.IsOdd)
+			{
+				parity = false;
+				return this;
+			}
+			parity = true;
+			return new GE(x, y.Negate(1));
+		}
+		/// <summary>
+		/// Keeps a group element as is if it has an even Y and otherwise negates it.
+		/// Requires that the coordinates of r are normalized.
+		/// </summary>
+		public readonly GE ToEvenY()
+		{
+			return ToEvenY(out _);
+		}
+
 		public readonly string ToC(string varName)
 		{
 			StringBuilder b = new StringBuilder();
@@ -288,7 +320,7 @@ namespace NBitcoin.Secp256k1
 			return new GEStorage(x, y);
 		}
 
-		public static GEJ operator*(in GE groupElement, in Scalar scalar)
+		public static GEJ operator *(in GE groupElement, in Scalar scalar)
 		{
 			return groupElement.MultConst(scalar, 256);
 		}
@@ -319,7 +351,7 @@ namespace NBitcoin.Secp256k1
 			Scalar sc = q;
 
 			/* build wnaf representation for q. */
-			int rsize = bits;
+		int rsize = bits;
 			if (bits > 128)
 			{
 				rsize = 128;

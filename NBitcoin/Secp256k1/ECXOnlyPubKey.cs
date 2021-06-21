@@ -15,8 +15,7 @@ namespace NBitcoin.Secp256k1
 #if SECP256K1_LIB
 	public
 #endif
-
-	class ECXOnlyPubKey : IComparable<ECXOnlyPubKey>
+	partial class ECXOnlyPubKey : IComparable<ECXOnlyPubKey>
 	{
 		internal static byte[] TAG_BIP0340Challenge = ASCIIEncoding.ASCII.GetBytes("BIP0340/challenge");
 #if SECP256K1_LIB
@@ -144,8 +143,7 @@ namespace NBitcoin.Secp256k1
 			if (tweak32.Length != 32)
 				throw new ArgumentException(nameof(tweak32), "tweak32 should be 32 bytes");
 			tweakedPubKey = null;
-			var internal_pubkey = this;
-			GE pk = internal_pubkey.Q;
+			var pk = Q;
 			if (!ECPubKey.secp256k1_ec_pubkey_tweak_add_helper(ctx.EcMultContext, ref pk, tweak32))
 				return false;
 			tweakedPubKey = new ECPubKey(pk, ctx);

@@ -2483,7 +2483,9 @@ namespace NBitcoin.Tests
 			builder.AddKeys(k);
 			builder.SignTransactionInPlace(tx);
 			var rate = tx.GetFeeRate(builder.FindSpentCoins(tx));
-			Assert.Equal(new FeeRate(1.0m), rate);
+			// We can overshoot slightly, never undershoot
+			Assert.True(new FeeRate(1.0m).SatoshiPerByte <= rate.SatoshiPerByte);
+			Assert.Equal(new FeeRate(1.0m).SatoshiPerByte, rate.SatoshiPerByte, 1);
 		}
 
 		[Fact]
