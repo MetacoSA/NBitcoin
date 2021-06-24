@@ -193,33 +193,88 @@ namespace NBitcoin.RPC
 			return CreateWalletAsync(walletNameOrPath, options).GetAwaiter().GetResult();
 		}
 
-		public async Task<RPCClient> LoadWalletAsync(string filename, bool? loadOnStartup = null)
+		public Task<RPCClient> LoadWalletAsync(bool? loadOnStartup = null)
 		{
-			if (string.IsNullOrEmpty(filename)) throw new ArgumentNullException(nameof(filename));
-
-			var result =  await SendCommandAsync(RPCOperations.loadwallet, filename, loadOnStartup).ConfigureAwait(false);
-			return GetWallet(result.Result.Value<string>("name"));
+			return LoadWalletAsync(null, loadOnStartup);
+		}
+		public RPCClient LoadWallet(bool? loadOnStartup = null)
+		{
+			return LoadWallet(null, loadOnStartup);
+		}
+		public async Task<RPCClient> LoadWalletAsync(string? walletName, bool? loadOnStartup = null)
+		{
+			var req = GetLoadUnloadWalletRequest("loadwallet", walletName, loadOnStartup);
+			var response = await SendCommandAsync(req).ConfigureAwait(false);
+			return GetWallet(response.Result.Value<string>("name"));
 		}
 
-		public RPCClient LoadWallet(string filename, bool? loadOnStartup = null)
+		private RPCRequest GetLoadUnloadWalletRequest(string methodName, string? walletName, bool? loadOnStartup)
 		{
-			if (string.IsNullOrEmpty(filename)) throw new ArgumentNullException(nameof(filename));
-
-			var result = SendCommandAsync(RPCOperations.loadwallet, filename, loadOnStartup).GetAwaiter().GetResult();
-			return GetWallet(result.Result.Value<string>("name"));
+			List<object> parameters = new List<object>();
+			RPCRequest req;
+			if (walletName != null)
+			{
+				parameters.Add(walletName);
+				if (loadOnStartup is bool b)
+					parameters.Add(b);
+				req = new RPCRequest(methodName, parameters.ToArray());
+			}
+			else
+			{
+				if (loadOnStartup is bool b)
+				{
+					req = new RPCRequest()
+					{
+						Method = methodName,
+						NamedParams = new Dictionary<string, object>()
+						{
+							{ "load_on_startup", b }
+						}
+					};
+				}
+				else
+				{
+					req = new RPCRequest(methodName, parameters.ToArray());
+				}
+			}
+			return req;
 		}
 
-		public async Task UnloadAsync(bool? loadOnStartup = null)
+		public RPCClient LoadWallet(string? walletName, bool? loadOnStartup = null)
 		{
-			var result = await SendCommandAsync(RPCOperations.loadwallet, loadOnStartup).ConfigureAwait(false);
+			return LoadWalletAsync(walletName, loadOnStartup).GetAwaiter().GetResult();
 		}
 
+		[Obsolete("Use UnloadWalletAsync instead")]
+		public Task UnloadAsync(bool? loadOnStartup = null)
+		{
+			return UnloadWalletAsync(loadOnStartup);
+		}
+		[Obsolete("Use UnloadWallet instead")]
 		public void Unload(bool? loadOnStartup = null)
 		{
-			SendCommandAsync(RPCOperations.unloadwallet, loadOnStartup).GetAwaiter().GetResult();
+			UnloadWallet(loadOnStartup);
+		}
+		public void UnloadWallet()
+		{
+			UnloadWalletAsync(null).GetAwaiter().GetResult();
+		}
+		public void UnloadWallet(bool? loadOnStartup = null)
+		{
+			UnloadWalletAsync(loadOnStartup).GetAwaiter().GetResult();
+		}
+		public Task UnloadWalletAsync(bool? loadOnStartup = null)
+		{
+			return UnloadWalletAsync(null, loadOnStartup);
+		}
+		public Task UnloadWalletAsync(string? walletName, bool? loadOnStartup = null)
+		{
+			var req = GetLoadUnloadWalletRequest("unloadwallet", walletName, loadOnStartup);
+			return SendCommandAsync(req);
 		}
 
-		#nullable restore
+
+#nullable restore
 
 		// backupwallet
 		public void BackupWallet(string path)

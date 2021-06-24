@@ -2098,17 +2098,29 @@ namespace NBitcoin.Tests
 		public void ShouldCreateLoadAndUnloadWallet()
 		{
 			using var builder = NodeBuilderEx.Create();
-			var rpc = builder.CreateNode(true).CreateRPCClient();
+			var node = builder.CreateNode(true);
+			var rpc = node.CreateRPCClient();
 
 			var wallet0 = rpc.CreateWallet("w0");
 			var address = wallet0.GetNewAddress();
-			wallet0.Unload();
+			wallet0.UnloadWallet();
 			Assert.Throws<RPCException>(()=> wallet0.GetNewAddress());
 
 			wallet0 = rpc.LoadWallet("w0");
 			address = wallet0.GetNewAddress();
-			wallet0.Unload();
+			wallet0.UnloadWallet();
 			Assert.Throws<RPCException>(()=> wallet0.GetNewAddress());
+
+			wallet0 = rpc.LoadWallet("w0", true);
+			node.Restart();
+			address = wallet0.GetNewAddress();
+			wallet0.UnloadWallet();
+
+			node.Restart();
+			address = wallet0.GetNewAddress();
+			wallet0.UnloadWallet(false);
+			node.Restart();
+			Assert.Throws<RPCException>(() => wallet0.GetNewAddress());
 		}
 
 		[Fact]
