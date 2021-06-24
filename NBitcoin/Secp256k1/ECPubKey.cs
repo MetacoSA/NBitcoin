@@ -279,7 +279,7 @@ namespace NBitcoin.Secp256k1
 				return r!;
 			throw new ArgumentException(paramName: nameof(tweak), message: "Invalid tweak");
 		}
-		public bool TryAddTweak(ReadOnlySpan<byte> tweak, out ECPubKey? tweakedPubKey)
+		public bool TryAddTweak(ReadOnlySpan<byte> tweak, [MaybeNullWhen(false)] out ECPubKey tweakedPubKey)
 		{
 			tweakedPubKey = null;
 			if (tweak.Length != 32)
@@ -303,7 +303,12 @@ namespace NBitcoin.Secp256k1
 			return ret;
 		}
 
-		private bool secp256k1_eckey_pubkey_tweak_add(ECMultContext ctx, ref GE key, in Scalar tweak)
+		internal static bool secp256k1_ec_pubkey_tweak_add_helper(ECMultContext ctx, ref GE p, in ReadOnlySpan<byte> tweak32)
+		{
+			var term = new Scalar(tweak32, out var overflow);
+			return overflow == 0 && secp256k1_eckey_pubkey_tweak_add(ctx, ref p, term);
+		}
+		internal static bool secp256k1_eckey_pubkey_tweak_add(ECMultContext ctx, ref GE key, in Scalar tweak)
 		{
 			GEJ pt;
 			Scalar one;

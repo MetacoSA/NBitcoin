@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -15,9 +16,22 @@ namespace NBitcoin.Secp256k1
 	public
 #endif
 
-	class ECXOnlyPubKey : ECPubKey, IComparable<ECXOnlyPubKey>
+	class ECXOnlyPubKey : IComparable<ECXOnlyPubKey>
 	{
 		internal static byte[] TAG_BIP0340Challenge = ASCIIEncoding.ASCII.GetBytes("BIP0340/challenge");
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly GE Q;
+
+#if SECP256K1_LIB
+		public
+#else
+		internal
+#endif
+		readonly Context ctx;
 
 		public static bool TryCreate(ReadOnlySpan<byte> input32, [MaybeNullWhen(false)] out ECXOnlyPubKey pubkey)
 		{
@@ -47,8 +61,16 @@ namespace NBitcoin.Secp256k1
 			pubkey = new ECXOnlyPubKey(ge, context);
 			return true;
 		}
-		internal ECXOnlyPubKey(in GE ge, Context? context) : base(ge, context)
+		internal ECXOnlyPubKey(in GE ge, Context? context)
 		{
+			if (ge.IsInfinity)
+			{
+				throw new InvalidOperationException("A pubkey can't be an infinite group element");
+			}
+			var x = ge.x.NormalizeVariable();
+			var y = ge.y.NormalizeVariable();
+			Q = new GE(x, y);
+			this.ctx = context ?? Context.Instance;
 		}
 
 		public bool SigVerifyBIP340(SecpSchnorrSignature signature, ReadOnlySpan<byte> msg32)
@@ -80,12 +102,6 @@ namespace NBitcoin.Secp256k1
 			return !r.y.Normalize().IsOdd && signature.rx.EqualsVariable(r.x);
 		}
 
-		public override ECXOnlyPubKey ToXOnlyPubKey(out bool parity)
-		{
-			parity = false;
-			return this;
-		}
-
 		/// <summary>
 		/// Write the 32 bytes of the X value of the public key to output32
 		/// </summary>
@@ -104,13 +120,39 @@ namespace NBitcoin.Secp256k1
 		/// <returns></returns>
 		public bool CheckIsTweakedWith(ECXOnlyPubKey internalPubKey, ReadOnlySpan<byte> tweak32, bool expectedParity)
 		{
-			if (!internalPubKey.TryAddTweak(tweak32, out var actualTweakedPubKey) || actualTweakedPubKey is null)
+			if (tweak32.Length != 32)
+				throw new ArgumentException(nameof(tweak32), "tweak32 should be 32 bytes");
+			var tweaked_pubkey32 = this;
+			GE pk = internalPubKey.Q;
+			if (!ECPubKey.secp256k1_ec_pubkey_tweak_add_helper(ctx.EcMultContext, ref pk, tweak32))
 				return false;
-			var actualTweakedKey = actualTweakedPubKey.ToXOnlyPubKey(out var actualParity);
-			return actualParity == expectedParity && actualTweakedKey == this;
+			pk = new GE(pk.x.NormalizeVariable(), pk.y.NormalizeVariable());
+			Span<byte> expected = stackalloc byte[32];
+			Span<byte> actual = stackalloc byte[32];
+			this.Q.x.WriteToSpan(actual);
+			pk.x.WriteToSpan(expected);
+			return ECPubKey.secp256k1_memcmp_var(expected, actual, 32) == 0 && pk.y.IsOdd == expectedParity;
+		}
+		public ECPubKey AddTweak(ReadOnlySpan<byte> tweak)
+		{
+			if (TryAddTweak(tweak, out var r))
+				return r!;
+			throw new ArgumentException(paramName: nameof(tweak), message: "Invalid tweak");
+		}
+		public bool TryAddTweak(ReadOnlySpan<byte> tweak32, [MaybeNullWhen(false)] out ECPubKey tweakedPubKey)
+		{
+			if (tweak32.Length != 32)
+				throw new ArgumentException(nameof(tweak32), "tweak32 should be 32 bytes");
+			tweakedPubKey = null;
+			var internal_pubkey = this;
+			GE pk = internal_pubkey.Q;
+			if (!ECPubKey.secp256k1_ec_pubkey_tweak_add_helper(ctx.EcMultContext, ref pk, tweak32))
+				return false;
+			tweakedPubKey = new ECPubKey(pk, ctx);
+			return true;
 		}
 
-		public new byte[] ToBytes()
+		public byte[] ToBytes()
 		{
 			byte[] buf = new byte[32];
 			WriteToSpan(buf);
@@ -125,7 +167,7 @@ namespace NBitcoin.Secp256k1
 			this.WriteToSpan(pk0);
 			Span<byte> pk1 = stackalloc byte[32];
 			other.WriteToSpan(pk1);
-			return secp256k1_memcmp_var(pk0, pk1, 32);
+			return ECPubKey.secp256k1_memcmp_var(pk0, pk1, 32);
 		}
 	}
 }
