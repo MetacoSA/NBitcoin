@@ -1,5 +1,6 @@
 ﻿#if HAS_SPAN
 #nullable enable
+using NBitcoin.Secp256k1.Musig;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

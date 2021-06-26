@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
 
 namespace NBitcoin.Secp256k1
 {
@@ -45,13 +46,7 @@ namespace NBitcoin.Secp256k1
 		}
 		public virtual ECXOnlyPubKey ToXOnlyPubKey(out bool parity)
 		{
-			if (!Q.y.IsOdd)
-			{
-				parity = false;
-				return new ECXOnlyPubKey(Q, ctx);
-			}
-			parity = true;
-			return new ECXOnlyPubKey(new GE(Q.x, Q.y.Negate(1)), ctx);
+			return new ECXOnlyPubKey(Q.ToEvenY(out parity), ctx);
 		}
 
 		public void WriteToSpan(bool compressed, Span<byte> output, out int length)
@@ -103,7 +98,7 @@ namespace NBitcoin.Secp256k1
 			}
 		}
 
-		public static bool TryCreate(ReadOnlySpan<byte> input, Context ctx, out bool compressed, [MaybeNullWhen(false)] out ECPubKey pubkey)
+		public static bool TryCreate(ReadOnlySpan<byte> input, Context? ctx, out bool compressed, [MaybeNullWhen(false)] out ECPubKey pubkey)
 		{
 			GE Q;
 			pubkey = null;
@@ -113,7 +108,7 @@ namespace NBitcoin.Secp256k1
 			GE.Clear(ref Q);
 			return true;
 		}
-		public static bool TryCreateRawFormat(ReadOnlySpan<byte> input, Context ctx, [MaybeNullWhen(false)] out ECPubKey pubkey)
+		public static bool TryCreateRawFormat(ReadOnlySpan<byte> input, Context? ctx, [MaybeNullWhen(false)] out ECPubKey pubkey)
 		{
 			if (input.Length != 64)
 			{
@@ -273,34 +268,22 @@ namespace NBitcoin.Secp256k1
 			}
 		}
 
-		public ECPubKey AddTweak(ReadOnlySpan<byte> tweak)
+		public ECPubKey AddTweak(ReadOnlySpan<byte> tweak32)
 		{
-			if (TryAddTweak(tweak, out var r))
+			if (TryAddTweak(tweak32, out var r))
 				return r!;
-			throw new ArgumentException(paramName: nameof(tweak), message: "Invalid tweak");
+			throw new ArgumentException(paramName: nameof(tweak32), message: "Invalid tweak");
 		}
-		public bool TryAddTweak(ReadOnlySpan<byte> tweak, [MaybeNullWhen(false)] out ECPubKey tweakedPubKey)
+		public bool TryAddTweak(ReadOnlySpan<byte> tweak32, [MaybeNullWhen(false)] out ECPubKey tweakedPubKey)
 		{
+			if (tweak32.Length != 32)
+				throw new ArgumentException(nameof(tweak32), "tweak32 should be 32 bytes");
 			tweakedPubKey = null;
-			if (tweak.Length != 32)
+			var pk = Q;
+			if (!secp256k1_ec_pubkey_tweak_add_helper(ctx.EcMultContext, ref pk, tweak32))
 				return false;
-			Scalar term;
-			int overflow;
-			term = new Scalar(tweak, out overflow);
-			bool ret = overflow == 0;
-			var p = Q;
-			if (ret)
-			{
-				if (secp256k1_eckey_pubkey_tweak_add(ctx.EcMultContext, ref p, term))
-				{
-					tweakedPubKey = new ECPubKey(p, ctx);
-				}
-				else
-				{
-					ret = false;
-				}
-			}
-			return ret;
+			tweakedPubKey = new ECPubKey(pk, ctx);
+			return true;
 		}
 
 		internal static bool secp256k1_ec_pubkey_tweak_add_helper(ECMultContext ctx, ref GE p, in ReadOnlySpan<byte> tweak32)

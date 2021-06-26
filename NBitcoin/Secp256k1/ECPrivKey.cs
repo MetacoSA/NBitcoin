@@ -871,7 +871,7 @@ namespace NBitcoin.Secp256k1
 			return ret;
 		}
 
-		private bool secp256k1_eckey_privkey_tweak_mul(ref Scalar key, in Scalar tweak)
+		internal static bool secp256k1_eckey_privkey_tweak_mul(ref Scalar key, in Scalar tweak)
 		{
 			if (tweak.IsZero)
 				return false;

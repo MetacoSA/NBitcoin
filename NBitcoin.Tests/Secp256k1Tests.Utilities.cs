@@ -24,6 +24,13 @@ namespace NBitcoin.Tests
 			RandomUtils.GetBytes(output);
 		}
 
+		private byte[] secp256k1_rand256()
+		{
+			var output = new byte[32];
+			RandomUtils.GetBytes(output);
+			return output;
+		}
+
 		private void secp256k1_rand256_test(Span<byte> output)
 		{
 			secp256k1_rand_bytes_test(output, 32);
