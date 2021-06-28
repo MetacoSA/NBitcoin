@@ -3969,60 +3969,60 @@ namespace NBitcoin.Tests
 			foreach (var useTweak in new[] { false, true })
 				foreach (var useAdaptor in new[] { false, true })
 				{
-var msg32 = random_scalar_order().ToBytes();
-var tweak = random_scalar_order().ToBytes();
-var adaptor = ctx.CreateECPrivKey(random_scalar_order());
-var peers = 3;
-var privKeys = new ECPrivKey[peers];
-var privNonces = new MusigPrivNonce[peers];
-var pubNonces = new MusigPubNonce[peers];
-var musig = new MusigContext[peers];
-var sigs = new MusigPartialSignature[peers];
-var pubKeys = new ECXOnlyPubKey[peers];
+					var msg32 = random_scalar_order().ToBytes();
+					var tweak = random_scalar_order().ToBytes();
+					var adaptor = ctx.CreateECPrivKey(random_scalar_order());
+					var peers = 3;
+					var privKeys = new ECPrivKey[peers];
+					var privNonces = new MusigPrivNonce[peers];
+					var pubNonces = new MusigPubNonce[peers];
+					var musig = new MusigContext[peers];
+					var sigs = new MusigPartialSignature[peers];
+					var pubKeys = new ECXOnlyPubKey[peers];
 
-for (int i = 0; i < peers; i++)
-{
-	privKeys[i] = ctx.CreateECPrivKey(random_scalar_order());
-	pubKeys[i] = privKeys[i].CreateXOnlyPubKey();
-}
+					for (int i = 0; i < peers; i++)
+					{
+						privKeys[i] = ctx.CreateECPrivKey(random_scalar_order());
+						pubKeys[i] = privKeys[i].CreateXOnlyPubKey();
+					}
 
-for (int i = 0; i < peers; i++)
-{
-	musig[i] = new MusigContext(pubKeys, msg32);
-	privNonces[i] = musig[i].GenerateNonce((uint)i, privKeys[i]);
-	pubNonces[i] = privNonces[i].CreatePubNonce();
-}
+					for (int i = 0; i < peers; i++)
+					{
+						musig[i] = new MusigContext(pubKeys, msg32);
+						privNonces[i] = musig[i].GenerateNonce((uint)i, privKeys[i]);
+						pubNonces[i] = privNonces[i].CreatePubNonce();
+					}
 
-for (int i = 0; i < peers; i++)
-{
-	if (useTweak)
-	{
-		musig[i].Tweak(tweak);
-	}
-	if (useAdaptor)
-	{
-		musig[i].UseAdaptor(adaptor.CreatePubKey());
-	}
+					for (int i = 0; i < peers; i++)
+					{
+						if (useTweak)
+						{
+							musig[i].Tweak(tweak);
+						}
+						if (useAdaptor)
+						{
+							musig[i].UseAdaptor(adaptor.CreatePubKey());
+						}
 
-	musig[i].ProcessNonces(pubNonces);
-	sigs[i] = musig[i].Sign(privKeys[i], privNonces[i]);
-}
+						musig[i].ProcessNonces(pubNonces);
+						sigs[i] = musig[i].Sign(privKeys[i], privNonces[i]);
+					}
 
 
-// Verify all the partial sigs
-for (int i = 0; i < peers; i++)
-{
-	Assert.True(musig[i].Verify(pubKeys[i], pubNonces[i], sigs[i]));
-}
+					// Verify all the partial sigs
+					for (int i = 0; i < peers; i++)
+					{
+						Assert.True(musig[i].Verify(pubKeys[i], pubNonces[i], sigs[i]));
+					}
 
-// Combine
-var schnorrSig = musig[0].Combine(sigs);
+					// Combine
+					var schnorrSig = musig[0].Combine(sigs);
 
-if (useAdaptor)
-	schnorrSig = musig[0].Adapt(schnorrSig, adaptor);
-// Verify resulting signature
-// SigningPubKey is the tweaked key if tweaked, or the combined key if not
-Assert.True(musig[0].SigningPubKey.SigVerifyBIP340(schnorrSig, msg32));
+					if (useAdaptor)
+						schnorrSig = musig[0].Adapt(schnorrSig, adaptor);
+					// Verify resulting signature
+					// SigningPubKey is the tweaked key if tweaked, or the combined key if not
+					Assert.True(musig[0].SigningPubKey.SigVerifyBIP340(schnorrSig, msg32));
 				}
 		}
 
