@@ -639,6 +639,8 @@ namespace NBitcoin
 		static readonly byte[] vchTrue = new byte[] { 1 };
 
 		private const int MAX_SCRIPT_ELEMENT_SIZE = 520;
+		private const int MAX_SCRIPT_SIZE = 10_000;
+		private const int MAX_OPS_PER_SCRIPT = 201;
 
 		public bool EvalScript(Script s, Transaction txTo, int nIn)
 		{
@@ -650,7 +652,7 @@ namespace NBitcoin
 		}
 		bool EvalScript(Script s, TransactionChecker checker, int hashversion)
 		{
-			if (s.Length > 10000)
+			if ((hashversion == (int)HashVersion.Original || hashversion == (int)HashVersion.WitnessV0) && s.Length > MAX_SCRIPT_SIZE)
 				return SetError(ScriptError.ScriptSize);
 
 			SetError(ScriptError.UnknownError);
@@ -675,9 +677,12 @@ namespace NBitcoin
 					if (opcode.PushData != null && opcode.PushData.Length > MAX_SCRIPT_ELEMENT_SIZE)
 						return SetError(ScriptError.PushSize);
 
-					// Note how OP_RESERVED does not count towards the opcode limit.
-					if (opcode.Code > OpcodeType.OP_16 && ++nOpCount > 201)
+					if(hashversion == (int)HashVersion.Original || hashversion == (int)HashVersion.WitnessV0)
+					{
+						// Note how OP_RESERVED does not count towards the opcode limit.
+						if(opcode.Code > OpcodeType.OP_16 && ++nOpCount > MAX_OPS_PER_SCRIPT)
 						return SetError(ScriptError.OpCount);
+					}
 
 					if (opcode.Code == OpcodeType.OP_CAT ||
 						opcode.Code == OpcodeType.OP_SUBSTR ||
