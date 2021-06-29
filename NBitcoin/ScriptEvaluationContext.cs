@@ -61,6 +61,7 @@ namespace NBitcoin
 		NullFail,
 		MinimalIf,
 		WitnessPubkeyType,
+		TapscriptMinimalIf,
 	}
 
 	public class TransactionChecker
@@ -860,6 +861,17 @@ namespace NBitcoin
 
 										var vch = _stack.Top(-1);
 
+										// Tapscript requires minimal IF/NOTIF inputs as a consensus rule.
+										if (hashversion == (int)HashVersion.Tapscript)
+										{
+											// The input argument to the OP_IF and OP_NOTIF opcodes must be either
+											// exactly 0 (the empty vector) or exactly 1 (the one-byte vector with value 1).
+											if (vch.Length > 1 || (vch.Length == 1 && vch[0] != 1)) {
+												return SetError(ScriptError.TapscriptMinimalIf);
+											}
+										}
+
+										// Under witness v0 rules it is only a policy rule, enabled through SCRIPT_VERIFY_MINIMALIF.
 										if (hashversion == (int)HashVersion.WitnessV0 && (ScriptVerify & ScriptVerify.MinimalIf) != 0)
 										{
 											if (vch.Length > 1)
