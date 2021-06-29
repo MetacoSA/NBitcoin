@@ -62,6 +62,7 @@ namespace NBitcoin
 		MinimalIf,
 		WitnessPubkeyType,
 		TapscriptMinimalIf,
+		TapscriptCheckMultiSig,
 	}
 
 	public class TransactionChecker
@@ -1379,6 +1380,9 @@ namespace NBitcoin
 							case OpcodeType.OP_CHECKMULTISIG:
 							case OpcodeType.OP_CHECKMULTISIGVERIFY:
 								{
+									if (hashversion == (int)HashVersion.Tapscript)
+										return SetError(ScriptError.TapscriptCheckMultiSig);
+
 									// ([sig ...] num_of_signatures [pubkey ...] num_of_pubkeys -- bool)
 
 									int i = 1;
