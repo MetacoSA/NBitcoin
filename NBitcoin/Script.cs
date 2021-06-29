@@ -337,7 +337,9 @@ namespace NBitcoin
 		Original = 0,
 		[Obsolete("Use HashVersion.WitnessV0 instead")]
 		Witness = 1,
-		WitnessV0 = 1
+		WitnessV0 = 1,
+		Taproot = 2,
+		Tapscript = 3
 	}
 
 	public enum ScriptType
