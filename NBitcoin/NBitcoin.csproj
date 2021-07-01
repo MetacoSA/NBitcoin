@@ -87,6 +87,12 @@
     <Compile Include="BouncyCastle\math\BigInteger.cs"></Compile>
     <Compile Include="BouncyCastle\util\Arrays.cs"></Compile>
     <Compile Include="BouncyCastle\util\Platform.cs"></Compile>
+    <Compile Include="BouncyCastle\util\IMemoable.cs"></Compile>
+    <Compile Include="BouncyCastle\crypto\IDigest.cs"></Compile>
+    <Compile Include="BouncyCastle\crypto\IMac.cs"></Compile>
+    <Compile Include="BouncyCastle\crypto\ICipherParameters.cs"></Compile>
+    <Compile Include="BouncyCastle\crypto\macs\HMac.cs"></Compile>
+    <Compile Include="BouncyCastle\crypto\parameters\KeyParameter.cs"></Compile>
     <Compile Include="BouncyCastle\crypto\digests\RipeMD160Digest.cs"></Compile>
     <Compile Include="BouncyCastle\crypto\digests\Sha1Digest.cs"></Compile>
     <Compile Include="BouncyCastle\crypto\digests\Sha256Digest.cs"></Compile>
