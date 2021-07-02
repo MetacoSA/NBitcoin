@@ -562,6 +562,32 @@ namespace NBitcoin
 			return true;
 		}
 
+		private bool ExecuteWitnessProgram(List<byte[]> stack, Script execScript, HashVersion hashversion, TransactionChecker checker)
+		{
+			var ctx = this.Clone();
+			ctx.Stack.Clear();
+			foreach (var item in stack)
+				ctx.Stack.Push(item);
+
+			// Disallow stack item size > MAX_SCRIPT_ELEMENT_SIZE in witness stack
+			for (int i = 0; i < ctx.Stack.Count; i++)
+			{
+				if (ctx.Stack.Top(-(i + 1)).Length > MAX_SCRIPT_ELEMENT_SIZE)
+					return SetError(ScriptError.PushSize);
+			}
+			if (!ctx.EvalScript(execScript, checker, 1))
+			{
+				return SetError(ctx.Error);
+			}
+			// Scripts inside witness implicitly require cleanstack behaviour
+			if (ctx.Stack.Count != 1)
+				return SetError(ScriptError.EvalFalse);
+			if (!CastToBool(ctx.Stack.Top(-1)))
+				return SetError(ScriptError.EvalFalse);
+
+			return true;
+		}
+
 		private bool VerifyWitnessProgram(WitScript witness, WitProgramParameters wit, TransactionChecker checker)
 		{
 			List<byte[]> stack = new List<byte[]>();
@@ -586,6 +612,7 @@ namespace NBitcoin
 					{
 						return SetError(ScriptError.WitnessProgramMissmatch);
 					}
+					return ExecuteWitnessProgram(stack, execScript, HashVersion.WitnessV0, checker);
 				}
 				else if (wit.Program.Length == 20)
 				{
@@ -596,6 +623,7 @@ namespace NBitcoin
 					}
 					execScript = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(new KeyId(wit.Program));
 					stack = witness.Pushes.ToList();
+					return ExecuteWitnessProgram(stack, execScript, HashVersion.WitnessV0, checker);
 				}
 				else
 				{
@@ -611,28 +639,6 @@ namespace NBitcoin
 				// Higher version witness scripts return true for future softfork compatibility
 				return true;
 			}
-
-			var ctx = this.Clone();
-			ctx.Stack.Clear();
-			foreach (var item in stack)
-				ctx.Stack.Push(item);
-
-			// Disallow stack item size > MAX_SCRIPT_ELEMENT_SIZE in witness stack
-			for (int i = 0; i < ctx.Stack.Count; i++)
-			{
-				if (ctx.Stack.Top(-(i + 1)).Length > MAX_SCRIPT_ELEMENT_SIZE)
-					return SetError(ScriptError.PushSize);
-			}
-			if (!ctx.EvalScript(execScript, checker, 1))
-			{
-				return SetError(ctx.Error);
-			}
-			// Scripts inside witness implicitly require cleanstack behaviour
-			if (ctx.Stack.Count != 1)
-				return SetError(ScriptError.EvalFalse);
-			if (!CastToBool(ctx.Stack.Top(-1)))
-				return SetError(ScriptError.EvalFalse);
-			return true;
 		}
 
 
