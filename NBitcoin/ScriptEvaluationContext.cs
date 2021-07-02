@@ -565,7 +565,7 @@ namespace NBitcoin
 		private bool VerifyWitnessProgram(WitScript witness, WitProgramParameters wit, TransactionChecker checker)
 		{
 			List<byte[]> stack = new List<byte[]>();
-			Script scriptPubKey;
+			Script execScript;
 
 			if (wit.Version == 0)
 			{
@@ -576,12 +576,12 @@ namespace NBitcoin
 					{
 						return SetError(ScriptError.WitnessProgramEmpty);
 					}
-					scriptPubKey = Script.FromBytesUnsafe(witness.GetUnsafePush(witness.PushCount - 1));
+					execScript = Script.FromBytesUnsafe(witness.GetUnsafePush(witness.PushCount - 1));
 					for (int i = 0; i < witness.PushCount - 1; i++)
 					{
 						stack.Add(witness.GetUnsafePush(i));
 					}
-					var hashScriptPubKey = Hashes.SHA256(scriptPubKey.ToBytes(true));
+					var hashScriptPubKey = Hashes.SHA256(execScript.ToBytes(true));
 					if (!Utils.ArrayEqual(hashScriptPubKey, wit.Program))
 					{
 						return SetError(ScriptError.WitnessProgramMissmatch);
@@ -594,7 +594,7 @@ namespace NBitcoin
 					{
 						return SetError(ScriptError.WitnessProgramMissmatch); // 2 items in witness
 					}
-					scriptPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(new KeyId(wit.Program));
+					execScript = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(new KeyId(wit.Program));
 					stack = witness.Pushes.ToList();
 				}
 				else
@@ -623,7 +623,7 @@ namespace NBitcoin
 				if (ctx.Stack.Top(-(i + 1)).Length > MAX_SCRIPT_ELEMENT_SIZE)
 					return SetError(ScriptError.PushSize);
 			}
-			if (!ctx.EvalScript(scriptPubKey, checker, 1))
+			if (!ctx.EvalScript(execScript, checker, 1))
 			{
 				return SetError(ctx.Error);
 			}
