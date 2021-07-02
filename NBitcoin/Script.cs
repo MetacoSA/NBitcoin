@@ -118,6 +118,16 @@ namespace NBitcoin
 		WitnessPubkeyType = (1U << 15),
 
 		/// <summary>
+		/// Taproot/Tapscript validation (BIPs 341 & 342)
+		/// </summary>
+		Taproot = (1U << 17),
+
+		/// <summary>
+		/// Making unknown Taproot leaf versions non-standard
+		/// </summary>
+		DiscourageUpgradableTaprootVersion = (1U << 18),
+
+		/// <summary>
 		/// Some altcoins like BCash and BGold requires ForkId inside the sigHash
 		/// </summary>
 		ForkId = (1U << 29),

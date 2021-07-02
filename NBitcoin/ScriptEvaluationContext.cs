@@ -3,7 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
+#if HAS_SPAN
+using NBitcoin.Secp256k1;
+#endif
 namespace NBitcoin
 {
 	public enum ScriptError
@@ -63,6 +65,8 @@ namespace NBitcoin
 		WitnessPubkeyType,
 		TapscriptMinimalIf,
 		TapscriptCheckMultiSig,
+		DiscourageUpgradableTaprootVersion,
+		TaprootWrongControlSize,
 	}
 
 	public class TransactionChecker
@@ -473,7 +477,7 @@ namespace NBitcoin
 						// The scriptSig must be _exactly_ CScript(), otherwise we reintroduce malleability.
 						return SetError(ScriptError.WitnessMalleated);
 					}
-					if (!VerifyWitnessProgram(witness, wit, checker))
+					if (!VerifyWitnessProgram(witness, wit, checker, false))
 					{
 						return false;
 					}
@@ -519,7 +523,7 @@ namespace NBitcoin
 							// reintroduce malleability.
 							return SetError(ScriptError.WitnessMalleatedP2SH);
 						}
-						if (!VerifyWitnessProgram(witness, wit, checker))
+						if (!VerifyWitnessProgram(witness, wit, checker, true))
 						{
 							return false;
 						}
@@ -588,14 +592,43 @@ namespace NBitcoin
 			return true;
 		}
 
-		private bool VerifyWitnessProgram(WitScript witness, WitProgramParameters wit, TransactionChecker checker)
+#if HAS_SPAN
+		static bool VerifyTaprootCommitment(Span<byte> control, Span<byte> program, Script script)
+		{
+			int pathLen = (control.Length - TAPROOT_CONTROL_BASE_SIZE) / TAPROOT_CONTROL_NODE_SIZE;
+			if( ECXOnlyPubKey.TryCreate(control.Slice(1, TAPROOT_CONTROL_BASE_SIZE), out var p) &&
+				ECXOnlyPubKey.TryCreate(program.Slice(0, 32), out var q))
+			{
+
+			}
+
+// uint256 tapleaf_hash = (CHashWriter(HASHER_TAPLEAF) << uint8_t(control[0] & TAPROOT_LEAF_MASK) << script).GetSHA256();
+//    uint256 k = tapleaf_hash;
+//    for (int i = 0; i < path_len; ++i) {
+//        CHashWriter ss_branch{HASHER_TAPBRANCH};
+//        Span<const unsigned char> node(control.data() + TAPROOT_CONTROL_BASE_SIZE + TAPROOT_CONTROL_NODE_SIZE * i, TAPROOT_CONTROL_NODE_SIZE);
+//        if (std::lexicographical_compare(k.begin(), k.end(), node.begin(), node.end())) {
+//            ss_branch << k << node;
+//        } else {
+//            ss_branch << node << k;
+//        }
+//        k = ss_branch.GetSHA256();
+//    }
+//    k = (CHashWriter(HASHER_TAPTWEAK) << MakeSpan(p) << k).GetSHA256();
+//    return q.CheckPayToContract(p, k, control[0] & 1);
+			return true;
+		}
+#endif
+
+		private bool VerifyWitnessProgram(WitScript witness, WitProgramParameters wit, TransactionChecker checker, bool isP2SH)
 		{
 			var stack = witness.Pushes.ToList();
 			Script execScript;
 
 			if (wit.Version == 0)
 			{
-				if (wit.Program.Length == 32)
+				// BIP141 P2WSH: 32-byte witness v0 program (which encodes SHA256(script))
+				if (wit.Program.Length == WITNESS_V0_SCRIPTHASH_SIZE)
 				{
 					// Version 0 segregated witness program: SHA256(CScript) inside the program, CScript + inputs in witness
 					if (witness.PushCount == 0)
@@ -611,9 +644,9 @@ namespace NBitcoin
 					}
 					return ExecuteWitnessProgram(stack, execScript, HashVersion.WitnessV0, checker);
 				}
-				else if (wit.Program.Length == 20)
+				else if (wit.Program.Length == WITNESS_V0_KEYHASH_SIZE)
 				{
-					// Special case for pay-to-pubkeyhash; signature + pubkey in witness
+					// BIP141 P2WPKH: 20-byte witness v0 program (which encodes Hash160(pubkey))
 					if (witness.PushCount != 2)
 					{
 						return SetError(ScriptError.WitnessProgramMissmatch); // 2 items in witness
@@ -625,6 +658,57 @@ namespace NBitcoin
 				{
 					return SetError(ScriptError.WitnessProgramWrongLength);
 				}
+			}
+			else if (wit.Version == (OpcodeType)1 && wit.Program.Length == WITNESS_V1_TAPROOT_SIZE && !isP2SH)
+			{
+#if HAS_SPAN
+				// BIP341 Taproot: 32-byte non-P2SH witness v1 program (which encodes a P2C-tweaked pubkey)
+				if (!ScriptVerify.HasFlag(ScriptVerify.Taproot))
+				{
+					return true;
+				}
+				if (stack.Count == 0)
+				{
+					return SetError(ScriptError.WitnessProgramEmpty);
+				}
+				if (stack.Count >= 2 && stack[stack.Count -1].Length > 0 && stack[stack.Count -1][0] == ANNEX_TAG)
+				{
+					// Drop annex (this is non-standard; see IsWitnessStandard)
+					SpanPopBack(stack);
+				}
+				if (stack.Count == 1)
+				{
+					// Key path spending (stack size is 1 after removing optional annex)
+					/*
+					if (!checker.CheckSchnorrSignature(stack.front(), program, SigVersion::TAPROOT, serror)) {
+						return false; // serror is set
+					}
+					*/
+					return true;
+				}
+				else
+				{
+					// Script path spending (stack size is >1 after removing optional annex)
+					var control = SpanPopBack(stack);
+					var scriptBytes = SpanPopBack(stack);
+					execScript = new Script(scriptBytes);
+					if (control.Length < TAPROOT_CONTROL_BASE_SIZE || control.Length > TAPROOT_CONTROL_MAX_SIZE || ((control.Length - TAPROOT_CONTROL_BASE_SIZE) % TAPROOT_CONTROL_NODE_SIZE) != 0)
+					{
+						return SetError(ScriptError.TaprootWrongControlSize);
+					}
+					if (!VerifyTaprootCommitment(control, wit.Program, execScript))
+					{
+						return SetError(ScriptError.WitnessProgramMissmatch);
+					}
+					if (ScriptVerify.HasFlag(ScriptVerify.DiscourageUpgradableTaprootVersion))
+					{
+						return SetError(ScriptError.DiscourageUpgradableTaprootVersion);
+					}
+					return true;
+				}
+#else
+				throw new NotSupportedException("Taproot scripts are not supported for your .NET framework version.");
+#endif
 			}
 			else if ((ScriptVerify & ScriptVerify.DiscourageUpgradableWitnessProgram) != 0)
 			{
@@ -648,11 +732,26 @@ namespace NBitcoin
 		static readonly byte[] vchZero = new byte[0];
 		static readonly byte[] vchTrue = new byte[] { 1 };
 
+		// TODO: Implement stream writter
+		// static const CHashWriter HASHER_TAPSIGHASH = TaggedHash("TapSighash");
+		// static const CHashWriter HASHER_TAPLEAF = TaggedHash("TapLeaf");
+		// static const CHashWriter HASHER_TAPBRANCH = TaggedHash("TapBranch");
+		// static const CHashWriter HASHER_TAPTWEAK = TaggedHash("TapTweak");
+
+
 		private const int MAX_SCRIPT_ELEMENT_SIZE = 520;
 		private const int MAX_SCRIPT_SIZE = 10_000;
 		private const int MAX_OPS_PER_SCRIPT = 201;
+		private const int WITNESS_V1_TAPROOT_SIZE = 32;
+		private const int WITNESS_V0_SCRIPTHASH_SIZE = 32;
+		private const int WITNESS_V0_KEYHASH_SIZE = 20;
+		private const int ANNEX_TAG = 0x50;
 
-		public bool EvalScript(Script s, Transaction txTo, int nIn)
+		private const int TAPROOT_CONTROL_BASE_SIZE = 33;
+		private const int TAPROOT_CONTROL_NODE_SIZE = 32;
+		private const int TAPROOT_CONTROL_MAX_NODE_COUNT = 128;
+		private const int TAPROOT_CONTROL_MAX_SIZE = TAPROOT_CONTROL_BASE_SIZE + TAPROOT_CONTROL_NODE_SIZE * TAPROOT_CONTROL_MAX_NODE_COUNT;
+ 		public bool EvalScript(Script s, Transaction txTo, int nIn)
 		{
 			return EvalScript(s, new TransactionChecker(txTo, nIn), 0);
 		}
