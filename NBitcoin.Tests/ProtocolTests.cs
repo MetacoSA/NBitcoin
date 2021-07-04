@@ -404,6 +404,80 @@ namespace NBitcoin.Tests
 				}
 			}
 		}
+
+		//[Fact]
+		//[Trait("Protocol", "Protocol")]
+		public void CanSyncCompactFilters()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				node.ConfigParameters.Add("blockfilterindex", "basic");
+				node.ConfigParameters.Add("peerblockfilters", "");
+				
+				node.Start();
+
+				node.Generate(101);
+				AddressManager manager = new AddressManager();
+				manager.Add(new NetworkAddress(node.NodeEndpoint), IPAddress.Loopback);
+
+				var chain = new SlimChain(uint256.Parse("b17ba25562f198a43d1fc5e4b7114ac5346c5dcc85b95ed19278bbfa30de301f"));
+				NodesGroup group = new NodesGroup(builder.Network, new NodeConnectionParameters()
+				{
+					Services = NodeServices.Nothing,
+					IsRelay = true,
+					TemplateBehaviors =
+					{
+						new AddressManagerBehavior(manager)
+						{
+							PeersToDiscover = 1,
+							Mode = AddressManagerBehaviorMode.None
+						},
+						new CompactFiltersChainBehavior(chain),
+						new PingPongBehavior()
+					}
+				});
+				group.AllowSameGroup = true;
+				group.MaximumNodeConnection = 1;
+				var connecting = WaitConnected(group);
+				try
+				{
+
+					group.Connect();
+					connecting.GetAwaiter().GetResult();
+					Eventually(() =>
+					{
+						Assert.Equal(101, chain.Height);
+					});
+					var ms = new MemoryStream();
+					chain.Save(ms);
+
+					var chain2 = new SlimChain(chain.Genesis);
+					ms.Position = 0;
+					chain2.Load(ms);
+					Assert.Equal(chain.Tip, chain2.Tip);
+
+					using (var fs = new FileStream("cfheaders-test.slim.dat", FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024))
+					{
+						chain.Save(fs);
+						fs.Flush();
+					}
+
+					chain.ResetToGenesis();
+					using (var fs = new FileStream("cfheaders-test.slim.dat", FileMode.Open, FileAccess.Read, FileShare.None, 1024 * 1024))
+					{
+						chain.Load(fs);
+					}
+					Assert.Equal(101, chain2.Height);
+					chain.ResetToGenesis();
+				}
+				finally
+				{
+					group.Disconnect();
+				}
+			}
+		}
+
 		private static async Task WaitConnected(NodesGroup group)
 		{
 			TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
