@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
@@ -201,10 +202,10 @@ namespace NBitcoin.RPC
 		{
 			return LoadWallet(null, loadOnStartup);
 		}
-		public async Task<RPCClient> LoadWalletAsync(string? walletName, bool? loadOnStartup = null)
+		public async Task<RPCClient> LoadWalletAsync(string? walletName, bool? loadOnStartup = null, CancellationToken cancellationToken = default)
 		{
 			var req = GetLoadUnloadWalletRequest("loadwallet", walletName, loadOnStartup);
-			var response = await SendCommandAsync(req).ConfigureAwait(false);
+			var response = await SendCommandAsync(req, cancellationToken: cancellationToken).ConfigureAwait(false);
 			return GetWallet(response.Result.Value<string>("name"));
 		}
 
@@ -267,10 +268,10 @@ namespace NBitcoin.RPC
 		{
 			return UnloadWalletAsync(null, loadOnStartup);
 		}
-		public Task UnloadWalletAsync(string? walletName, bool? loadOnStartup = null)
+		public Task UnloadWalletAsync(string? walletName, bool? loadOnStartup = null, CancellationToken cancellationToken = default)
 		{
 			var req = GetLoadUnloadWalletRequest("unloadwallet", walletName, loadOnStartup);
-			return SendCommandAsync(req);
+			return SendCommandAsync(req, cancellationToken: cancellationToken);
 		}
 
 

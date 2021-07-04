@@ -593,9 +593,9 @@ namespace NBitcoin.RPC
 			return SendCommand(new RPCRequest() { Method = commandName, NamedParams = parameters });
 		}
 
-		public Task<RPCResponse> SendCommandWithNamedArgsAsync(string commandName, Dictionary<string, object> parameters)
+		public Task<RPCResponse> SendCommandWithNamedArgsAsync(string commandName, Dictionary<string, object> parameters, CancellationToken cancellationToken = default)
 		{
-			return SendCommandAsync(new RPCRequest() { Method = commandName, NamedParams = parameters });
+			return SendCommandAsync(new RPCRequest() { Method = commandName, NamedParams = parameters }, cancellationToken: cancellationToken);
 		}
 
 		public Task<RPCResponse> SendCommandAsync(string commandName, params object[] parameters)
@@ -920,7 +920,7 @@ namespace NBitcoin.RPC
 								{
 									try
 									{
-										var resp = await SendCommandAsync(req.Item1);
+										var resp = await SendCommandAsync(req.Item1, cancellationToken: cancellationToken);
 										req.Item2.TrySetResult(resp);
 									}
 									catch (Exception ex)
@@ -1661,10 +1661,10 @@ namespace NBitcoin.RPC
 			return GetMempoolEntryAsync(txid, throwIfNotFound).GetAwaiter().GetResult();
 		}
 
-		public async Task<MempoolEntry> GetMempoolEntryAsync(uint256 txid, bool throwIfNotFound = true)
+		public async Task<MempoolEntry> GetMempoolEntryAsync(uint256 txid, bool throwIfNotFound = true, CancellationToken cancellationToken = default)
 		{
 			var request = new RPCRequest(RPCOperations.getmempoolentry, new[] { txid });
-			var response = await SendCommandAsync(request, throwIfRPCError: throwIfNotFound).ConfigureAwait(false);
+			var response = await SendCommandAsync(request, throwIfRPCError: throwIfNotFound, cancellationToken: cancellationToken).ConfigureAwait(false);
 			if (throwIfNotFound)
 				response.ThrowIfError();
 			if (response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
@@ -1920,14 +1920,14 @@ namespace NBitcoin.RPC
 			return GetRawTransactionAsync(txid, blockId, throwIfNotFound).GetAwaiter().GetResult();
 		}
 
-		public async Task<Transaction> GetRawTransactionAsync(uint256 txid, uint256 blockId, bool throwIfNotFound = true)
+		public async Task<Transaction> GetRawTransactionAsync(uint256 txid, uint256 blockId, bool throwIfNotFound = true, CancellationToken cancellationToken = default)
 		{
 			List<object> args = new List<object>(3);
 			args.Add(txid);
 			args.Add(0);
 			if (blockId != null)
 				args.Add(blockId);
-			var response = await SendCommandAsync(new RPCRequest(RPCOperations.getrawtransaction, args.ToArray()), throwIfNotFound).ConfigureAwait(false);
+			var response = await SendCommandAsync(new RPCRequest(RPCOperations.getrawtransaction, args.ToArray()), throwIfNotFound, cancellationToken).ConfigureAwait(false);
 			if (throwIfNotFound)
 				response.ThrowIfError();
 			if (response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
@@ -1951,10 +1951,10 @@ namespace NBitcoin.RPC
 			return tx;
 		}
 
-		public async Task<RawTransactionInfo> GetRawTransactionInfoAsync(uint256 txId)
+		public async Task<RawTransactionInfo> GetRawTransactionInfoAsync(uint256 txId, CancellationToken cancellationToken = default)
 		{
 			var request = new RPCRequest(RPCOperations.getrawtransaction, new object[] { txId, true });
-			var response = await SendCommandAsync(request);
+			var response = await SendCommandAsync(request, cancellationToken: cancellationToken);
 			var json = response.Result;
 
 			return new RawTransactionInfo
@@ -2082,7 +2082,7 @@ namespace NBitcoin.RPC
 		/// <summary>
 		/// (>= Bitcoin Core v0.14)
 		/// </summary>
-		private async Task<EstimateSmartFeeResponse> EstimateSmartFeeImplAsync(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative)
+		private async Task<EstimateSmartFeeResponse> EstimateSmartFeeImplAsync(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative, CancellationToken cancellationToken = default)
 		{
 			if (Capabilities == null || Capabilities.SupportEstimateSmartFee)
 			{
@@ -2094,7 +2094,7 @@ namespace NBitcoin.RPC
 
 				var request = new RPCRequest(RPCOperations.estimatesmartfee.ToString(), parameters.ToArray());
 
-				var response = await SendCommandAsync(request, throwIfRPCError: false).ConfigureAwait(false);
+				var response = await SendCommandAsync(request, throwIfRPCError: false, cancellationToken: cancellationToken).ConfigureAwait(false);
 
 				if (response?.Error != null)
 				{
@@ -2116,7 +2116,7 @@ namespace NBitcoin.RPC
 			}
 			else
 			{
-				RPCResponse response = await SendCommandAsync(new RPCRequest(RPCOperations.estimatefee, new object[] { confirmationTarget }), false).ConfigureAwait(false);
+				RPCResponse response = await SendCommandAsync(new RPCRequest(RPCOperations.estimatefee, new object[] { confirmationTarget }), false, cancellationToken).ConfigureAwait(false);
 				if (response.Error != null)
 				{
 					if (response.Error.Code is RPCErrorCode.RPC_MISC_ERROR)
