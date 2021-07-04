@@ -540,7 +540,7 @@ namespace NBitcoin.RPC
 			return BitcoinAddress.Create(result.Result.ToString(), Network);
 		}
 
-		public async Task<BitcoinAddress> GetNewAddressAsync(GetNewAddressRequest request)
+		public async Task<BitcoinAddress> GetNewAddressAsync(GetNewAddressRequest request, CancellationToken cancellationToken = default)
 		{
 			var p = new Dictionary<string, object>();
 			if (request != null)
@@ -558,7 +558,8 @@ namespace NBitcoin.RPC
 										  );
 				}
 			}
-			return BitcoinAddress.Create((await SendCommandWithNamedArgsAsync(RPCOperations.getnewaddress.ToString(), p).ConfigureAwait(false)).Result.ToString(), Network);
+			var getAddressResponse = await SendCommandWithNamedArgsAsync(RPCOperations.getnewaddress.ToString(), p, cancellationToken).ConfigureAwait(false);
+			return BitcoinAddress.Create(getAddressResponse.Result.ToString(), Network);
 		}
 
 		public BitcoinAddress GetRawChangeAddress()

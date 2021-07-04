@@ -162,7 +162,7 @@ namespace NBitcoin.RPC
 			};
 		}
 
-		public async Task<RPCClient> CreateWalletAsync(string walletNameOrPath, CreateWalletOptions? options = null)
+		public async Task<RPCClient> CreateWalletAsync(string walletNameOrPath, CreateWalletOptions? options = null, CancellationToken cancellationToken = default)
 		{
 			if (string.IsNullOrEmpty(walletNameOrPath)) throw new ArgumentNullException(nameof(walletNameOrPath));
 
@@ -183,7 +183,7 @@ namespace NBitcoin.RPC
 				if (options.LoadOnStartup is bool loadOnStartup)
 					parameters.Add("load_on_startup", loadOnStartup.ToString());
 			}
-			var result = await SendCommandWithNamedArgsAsync(RPCOperations.createwallet.ToString(), parameters).ConfigureAwait(false);
+			var result = await SendCommandWithNamedArgsAsync(RPCOperations.createwallet.ToString(), parameters, cancellationToken).ConfigureAwait(false);
 			return GetWallet(result.Result.Value<string>("name"));
 		}
 
@@ -804,7 +804,13 @@ namespace NBitcoin.RPC
 		/// MaximumCount - Maximum number of UTXOs
 		/// MinimumSumAmount - Minimum sum value of all UTXOs
 		/// </param>
+		[Obsolete("Use ListUnspentAsync(ListUnspentOptions, BitcoinAddress[], CancellationToken) instead.")]
 		public async Task<UnspentCoin[]> ListUnspentAsync(ListUnspentOptions options, params BitcoinAddress[] addresses)
+		{
+			return await ListUnspentAsync(options, addresses, CancellationToken.None);
+		}
+
+		public async Task<UnspentCoin[]> ListUnspentAsync(ListUnspentOptions options, BitcoinAddress[] addresses, CancellationToken cancellationToken = default)
 		{
 			var queryOptions = new Dictionary<string, object>();
 			var queryObjects = new JObject();
@@ -831,7 +837,7 @@ namespace NBitcoin.RPC
 			var addr = (from a in addresses select a.ToString()).ToArray();
 			queryOptions.Add("addresses", addr);
 
-			var response = await SendCommandWithNamedArgsAsync(RPCOperations.listunspent.ToString(), queryOptions).ConfigureAwait(false);
+			var response = await SendCommandWithNamedArgsAsync(RPCOperations.listunspent.ToString(), queryOptions, cancellationToken).ConfigureAwait(false);
 			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
 
@@ -998,7 +1004,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="request">The transaction to be signed</param>
 		/// <returns>The signed transaction</returns>
-		public async Task<SignRawTransactionResponse> SignRawTransactionWithKeyAsync(SignRawTransactionWithKeyRequest request)
+		public async Task<SignRawTransactionResponse> SignRawTransactionWithKeyAsync(SignRawTransactionWithKeyRequest request, CancellationToken cancellationToken = default)
 		{
 			Dictionary<string, object> values = new Dictionary<string, object>();
 			values.Add("hexstring", request.Transaction.ToHex());
@@ -1031,7 +1037,7 @@ namespace NBitcoin.RPC
 				}
 			}
 
-			var result = await SendCommandWithNamedArgsAsync("signrawtransactionwithkey", values).ConfigureAwait(false);
+			var result = await SendCommandWithNamedArgsAsync("signrawtransactionwithkey", values, cancellationToken).ConfigureAwait(false);
 			var response = new SignRawTransactionResponse();
 			response.SignedTransaction = ParseTxHex(result.Result["hex"].Value<string>());
 			response.Complete = result.Result["complete"].Value<bool>();
@@ -1070,7 +1076,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="request">The transaction to be signed</param>
 		/// <returns>The signed transaction</returns>
-		public async Task<SignRawTransactionResponse> SignRawTransactionWithWalletAsync(SignRawTransactionRequest request)
+		public async Task<SignRawTransactionResponse> SignRawTransactionWithWalletAsync(SignRawTransactionRequest request, CancellationToken cancellationToken = default)
 		{
 			Dictionary<string, object> values = new Dictionary<string, object>();
 			values.Add("hexstring", request.Transaction.ToHex());
@@ -1097,7 +1103,7 @@ namespace NBitcoin.RPC
 				}
 			}
 
-			var result = await SendCommandWithNamedArgsAsync("signrawtransactionwithwallet", values).ConfigureAwait(false);
+			var result = await SendCommandWithNamedArgsAsync("signrawtransactionwithwallet", values, cancellationToken).ConfigureAwait(false);
 			var response = new SignRawTransactionResponse();
 			response.SignedTransaction = ParseTxHex(result.Result["hex"].Value<string>());
 			response.Complete = result.Result["complete"].Value<bool>();
