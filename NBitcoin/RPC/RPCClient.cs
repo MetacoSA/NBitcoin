@@ -309,19 +309,19 @@ namespace NBitcoin.RPC
 		/// Run several RPC function to scan the RPC capabilities, then set RPCClient.Capabilities
 		/// </summary>
 		/// <returns>The RPCCapabilities</returns>
-		public async Task<RPCCapabilities> ScanRPCCapabilitiesAsync()
+		public async Task<RPCCapabilities> ScanRPCCapabilitiesAsync(CancellationToken cancellationToken = default)
 		{
 			var capabilities = new RPCCapabilities();
 			var rpc = this.PrepareBatch();
 			rpc.AllowBatchFallback = true;
 			var waiting = Task.WhenAll(
 			SetVersion(capabilities),
-			CheckCapabilities(rpc, "scantxoutset", v => capabilities.SupportScanUTXOSet = v),
-			CheckCapabilities(rpc, "signrawtransactionwithkey", v => capabilities.SupportSignRawTransactionWith = v),
-			CheckCapabilities(rpc, "testmempoolaccept", v => capabilities.SupportTestMempoolAccept = v),
-			CheckCapabilities(rpc, "estimatesmartfee", v => capabilities.SupportEstimateSmartFee = v),
-			CheckCapabilities(rpc, "generatetoaddress", v => capabilities.SupportGenerateToAddress = v),
-			CheckSegwitCapabilities(rpc, v => capabilities.SupportSegwit = v));
+			CheckCapabilities(rpc, "scantxoutset", v => capabilities.SupportScanUTXOSet = v, cancellationToken),
+			CheckCapabilities(rpc, "signrawtransactionwithkey", v => capabilities.SupportSignRawTransactionWith = v, cancellationToken),
+			CheckCapabilities(rpc, "testmempoolaccept", v => capabilities.SupportTestMempoolAccept = v, cancellationToken),
+			CheckCapabilities(rpc, "estimatesmartfee", v => capabilities.SupportEstimateSmartFee = v, cancellationToken),
+			CheckCapabilities(rpc, "generatetoaddress", v => capabilities.SupportGenerateToAddress = v, cancellationToken),
+			CheckSegwitCapabilities(rpc, v => capabilities.SupportSegwit = v, cancellationToken));
 			await rpc.SendBatchAsync().ConfigureAwait(false);
 			await waiting.ConfigureAwait(false);
 #if !NETSTANDARD1X
@@ -362,7 +362,7 @@ namespace NBitcoin.RPC
 			return ScanRPCCapabilitiesAsync().GetAwaiter().GetResult();
 		}
 
-		async static Task CheckSegwitCapabilities(RPCClient rpc, Action<bool> setResult)
+		async static Task CheckSegwitCapabilities(RPCClient rpc, Action<bool> setResult, CancellationToken cancellationToken)
 		{
 			var address = new Key().ScriptPubKey.WitHash.ScriptPubKey.GetDestinationAddress(rpc.Network);
 			if (address == null)
@@ -372,7 +372,7 @@ namespace NBitcoin.RPC
 			}
 			try
 			{
-				var result = await rpc.SendCommandAsync("validateaddress", new[] { address.ToString() }).ConfigureAwait(false);
+				var result = await rpc.InternalSendCommandAsync("validateaddress", new[] { address.ToString() }, cancellationToken).ConfigureAwait(false);
 				result.ThrowIfError();
 				setResult(result.Result["isvalid"].Value<bool>());
 			}
@@ -406,9 +406,9 @@ namespace NBitcoin.RPC
 				setResult(false);
 			}
 		}
-		private static Task CheckCapabilities(RPCClient rpc, string command, Action<bool> setResult)
+		private static Task CheckCapabilities(RPCClient rpc, string command, Action<bool> setResult, CancellationToken cancellationToken)
 		{
-			return CheckCapabilities(() => rpc.SendCommandAsync(command, "random"), setResult);
+			return CheckCapabilities(() => rpc.InternalSendCommandAsync(command, new[] { "random" }, cancellationToken), setResult);
 		}
 
 		public static string GetDefaultCookieFilePath(Network network)
@@ -575,7 +575,7 @@ namespace NBitcoin.RPC
 
 		public Task<RPCResponse> SendCommandAsync(RPCOperations commandName, params object[] parameters)
 		{
-			return SendCommandAsync(commandName.ToString(), parameters);
+			return InternalSendCommandAsync(commandName.ToString(), parameters, CancellationToken.None);
 		}
 
 		/// <summary>
@@ -601,7 +601,12 @@ namespace NBitcoin.RPC
 
 		public Task<RPCResponse> SendCommandAsync(string commandName, params object[] parameters)
 		{
-			return SendCommandAsync(new RPCRequest(commandName, parameters));
+			return InternalSendCommandAsync(commandName, parameters, CancellationToken.None);
+		}
+
+		private Task<RPCResponse> InternalSendCommandAsync(string commandName, object[] parameters, CancellationToken cancellationToken)
+		{
+			return SendCommandAsync(new RPCRequest(commandName, parameters), cancellationToken: cancellationToken);
 		}
 
 		public RPCResponse SendCommand(RPCRequest request, bool throwIfRPCError = true)
@@ -1439,9 +1444,9 @@ namespace NBitcoin.RPC
 			return ParseBlockHeader(resp);
 		}
 
-		public async Task<BlockHeader> GetBlockHeaderAsync(uint256 blockHash)
+		public async Task<BlockHeader> GetBlockHeaderAsync(uint256 blockHash, CancellationToken cancellationToken = default)
 		{
-			var resp = await SendCommandAsync("getblockheader", blockHash, false).ConfigureAwait(false);
+			var resp = await InternalSendCommandAsync("getblockheader", new object[] {blockHash, false }, cancellationToken).ConfigureAwait(false);
 			return ParseBlockHeader(resp);
 		}
 
@@ -1458,9 +1463,9 @@ namespace NBitcoin.RPC
 			return GetBlockAsync(blockHash, verbosity).GetAwaiter().GetResult();
 		}
 
-		public async Task<GetBlockRPCResponse> GetBlockAsync(uint256 blockHash, GetBlockVerbosity verbosity)
+		public async Task<GetBlockRPCResponse> GetBlockAsync(uint256 blockHash, GetBlockVerbosity verbosity, CancellationToken cancellationToken = default)
 		{
-			var resp = await SendCommandAsync("getblock", blockHash, (int)verbosity).ConfigureAwait(false);
+			var resp = await InternalSendCommandAsync("getblock", new object[] { blockHash, (int)verbosity }, cancellationToken).ConfigureAwait(false);
 			return ParseVerboseBlock(resp, (int)verbosity);
 		}
 

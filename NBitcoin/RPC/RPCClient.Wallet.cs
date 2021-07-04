@@ -348,7 +348,7 @@ namespace NBitcoin.RPC
 			return Money.Coins(data.Result.Value<decimal>());
 		}
 
-		public async Task<FundRawTransactionResponse> FundRawTransactionAsync(Transaction transaction, FundRawTransactionOptions options = null)
+		public async Task<FundRawTransactionResponse> FundRawTransactionAsync(Transaction transaction, FundRawTransactionOptions options = null, CancellationToken cancellationToken = default)
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
@@ -357,11 +357,11 @@ namespace NBitcoin.RPC
 			if (options != null)
 			{
 				var jOptions = FundRawTransactionOptionsToJson(options);
-				response = await SendCommandAsync("fundrawtransaction", ToHex(transaction), jOptions).ConfigureAwait(false);
+				response = await InternalSendCommandAsync("fundrawtransaction", new object[] { ToHex(transaction), jOptions }, cancellationToken).ConfigureAwait(false);
 			}
 			else
 			{
-				response = await SendCommandAsync("fundrawtransaction", ToHex(transaction)).ConfigureAwait(false);
+				response = await InternalSendCommandAsync("fundrawtransaction", new object[] { ToHex(transaction) }, cancellationToken).ConfigureAwait(false);
 			}
 			var r = (JObject)response.Result;
 			return new FundRawTransactionResponse()
@@ -564,7 +564,7 @@ namespace NBitcoin.RPC
 		/// <param name="signingRepository">If you specify this, This method tries to serialize OutputDescriptor with the private key (If there is any entry in the repository).</param>
 		/// <returns></returns>
 		/// <exception cref="RPCException"></exception>
-		public async Task ImportMultiAsync(ImportMultiAddress[] addresses, bool rescan, ISigningRepository? signingRepository)
+		public async Task ImportMultiAsync(ImportMultiAddress[] addresses, bool rescan, ISigningRepository? signingRepository, CancellationToken cancellationToken = default)
 		{
 			var parameters = new List<object>();
 
@@ -604,7 +604,7 @@ namespace NBitcoin.RPC
 			var oRescan = JObject.FromObject(new { rescan = rescan });
 			parameters.Add(oRescan);
 
-			var response = await SendCommandAsync("importmulti", parameters.ToArray()).ConfigureAwait(false);
+			var response = await InternalSendCommandAsync("importmulti", parameters.ToArray(), cancellationToken).ConfigureAwait(false);
 			response.ThrowIfError();
 
 			//Somehow, this one has error embedded
@@ -1154,7 +1154,8 @@ namespace NBitcoin.RPC
 		Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>> outputs,
 		LockTime locktime = default(LockTime),
 		FundRawTransactionOptions options = null,
-		bool bip32derivs = false
+		bool bip32derivs = false,
+		CancellationToken cancellationToken = default
 		)
 		{
 			var values = new object[] { };
@@ -1189,13 +1190,15 @@ namespace NBitcoin.RPC
 			{
 				jOptions = (JObject)"";
 			}
-			RPCResponse response = await SendCommandAsync(
+			RPCResponse response = await InternalSendCommandAsync(
 				"walletcreatefundedpsbt",
-				rpcInputs,
-				outputToSend,
-				locktime.Value,
-				jOptions,
-				bip32derivs).ConfigureAwait(false);
+				new object[]{
+					rpcInputs,
+					outputToSend,
+					locktime.Value,
+					jOptions,
+					bip32derivs},
+				cancellationToken).ConfigureAwait(false);
 			var result = (JObject)response.Result;
 			var psbt = PSBT.Parse(result.Property("psbt").Value.Value<string>(), Network.Main);
 			var fee = Money.Coins(result.Property("fee").Value.Value<decimal>());
