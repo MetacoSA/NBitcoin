@@ -161,7 +161,7 @@ namespace NBitcoin
 
 		public static Block GetBlock(this IBlockRepository repository, uint256 blockId)
 		{
-			return repository.GetBlockAsync(blockId).GetAwaiter().GetResult();
+			return repository.GetBlockAsync(blockId, CancellationToken.None).GetAwaiter().GetResult();
 		}
 
 		public static T ToNetwork<T>(this T obj, ChainName chainName) where T : IBitcoinString
@@ -365,7 +365,7 @@ namespace NBitcoin
 			if(offset > buffer.Length - count) throw new ArgumentOutOfRangeException("count");
 
 			//IO interruption not supported on these platforms.
-			
+
 			int totalReadCount = 0;
 #if !NOSOCKET
 			var interruptable = stream is NetworkStream && cancellation.CanBeCanceled;

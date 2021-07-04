@@ -828,7 +828,7 @@ namespace NBitcoin.RPC
 		/// <summary>
 		///	Send all commands in one batch
 		/// </summary>
-		public async Task SendBatchAsync()
+		public async Task SendBatchAsync(CancellationToken cancellationToken = default)
 		{
 			Tuple<RPCRequest, TaskCompletionSource<RPCResponse>> req;
 			List<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> requests = new List<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>();
@@ -842,7 +842,7 @@ namespace NBitcoin.RPC
 			}
 			if (requests.Count == 0)
 				return;
-			await SendBatchAsyncCore(requests).ConfigureAwait(false);
+			await SendBatchAsyncCore(requests, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -858,7 +858,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		public bool AllowBatchFallback { get; set; }
 
-		private async Task SendBatchAsyncCore(List<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> requests)
+		private async Task SendBatchAsyncCore(List<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> requests, CancellationToken cancellationToken)
 		{
 			var writer = new StringWriter();
 			writer.Write("[");
@@ -881,7 +881,7 @@ namespace NBitcoin.RPC
 			{
 			retry:
 				var webRequest = CreateWebRequest(writer.ToString());
-				using (var cts = new CancellationTokenSource(RequestTimeout))
+				using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(RequestTimeout).Token))
 				{
 					using (var httpResponse = await HttpClient.SendAsync(webRequest, cts.Token).ConfigureAwait(false))
 					{
@@ -952,11 +952,11 @@ namespace NBitcoin.RPC
 			await Task.Delay(1);
 		}
 
-
-		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true)
+		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true, CancellationToken cancellationToken = default)
 		{
-			return await SendCommandAsyncCore(request, throwIfRPCError).ConfigureAwait(false);
+			return await SendCommandAsyncCore(request, throwIfRPCError, cancellationToken).ConfigureAwait(false);
 		}
+
 		private bool TryRenewCookie()
 		{
 			var cookiePath = GetCookiePath();
@@ -983,7 +983,7 @@ namespace NBitcoin.RPC
 		}
 
 		static Encoding NoBOMUTF8 = new UTF8Encoding(false);
-		async Task<RPCResponse> SendCommandAsyncCore(RPCRequest request, bool throwIfRPCError)
+		async Task<RPCResponse> SendCommandAsyncCore(RPCRequest request, bool throwIfRPCError, CancellationToken cancellationToken)
 		{
 			RPCResponse response = null;
 			var batches = _BatchedRequests;
@@ -1010,7 +1010,7 @@ namespace NBitcoin.RPC
 				TimeSpan maxRetryTimeout = TimeSpan.FromSeconds(10.0);
 			retry:
 				var webRequest = CreateWebRequest(writer.ToString());
-				using (var cts = new CancellationTokenSource(RequestTimeout))
+				using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(RequestTimeout).Token))
 				{
 					using (var httpResponse = await HttpClient.SendAsync(webRequest, cts.Token).ConfigureAwait(false))
 					{
@@ -1167,7 +1167,7 @@ namespace NBitcoin.RPC
 					SynchronizedHeaders = (int)peer["synced_headers"],
 					IsWhiteListed = peer["whitelisted"] != null ? (bool)peer["whitelisted"] : false,
 					BanScore = peer["banscore"] == null ? 0 : (int)peer["banscore"],
-					Permissions = peer["permissions"] is JArray permissions ? permissions.Select(p => p.Value<string>()).ToArray() : new string[0], 
+					Permissions = peer["permissions"] is JArray permissions ? permissions.Select(p => p.Value<string>()).ToArray() : new string[0],
 					Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
 				};
 			}
@@ -1394,7 +1394,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="blockId"></param>
 		/// <returns></returns>
-		public async Task<Block> GetBlockAsync(uint256 blockId)
+		public async Task<Block> GetBlockAsync(uint256 blockId, CancellationToken cancellationToken = default)
 		{
 			var resp = await SendCommandAsync(RPCOperations.getblock, blockId, false).ConfigureAwait(false);
 			return Block.Parse(resp.Result.ToString(), Network);
@@ -1694,12 +1694,12 @@ namespace NBitcoin.RPC
 		public async Task SaveMempoolAsync()
 		{
 			await SendCommandAsync(RPCOperations.savemempool).ConfigureAwait(false);
-		} 
+		}
 
 		public void SaveMempool()
 		{
 			SaveMempoolAsync().GetAwaiter().GetResult();
-		} 
+		}
 
 		private FeeRate AbsurdlyHighFee { get; } = new FeeRate(10_000M);
 
@@ -2273,8 +2273,8 @@ namespace NBitcoin.RPC
 					return result.Select(r => new uint256(r.Value<string>())).ToArray();
 				}
 				catch (RPCException rpc) when (
-					rpc.RPCCode == RPCErrorCode.RPC_METHOD_DEPRECATED 
-					|| rpc.RPCCode == RPCErrorCode.RPC_METHOD_NOT_FOUND 
+					rpc.RPCCode == RPCErrorCode.RPC_METHOD_DEPRECATED
+					|| rpc.RPCCode == RPCErrorCode.RPC_METHOD_NOT_FOUND
 					|| (rpc.RPCCode == RPCErrorCode.RPC_MISC_ERROR))
 				{
 					var address = await GetNewAddressAsync();
@@ -2346,7 +2346,7 @@ namespace NBitcoin.RPC
 			return result.Result["success"].Value<bool>();
 		}
 
-#endif 
+#endif
 
 		#endregion
 	}

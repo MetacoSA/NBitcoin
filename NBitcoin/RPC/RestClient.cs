@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Payloads;
@@ -76,7 +77,7 @@ namespace NBitcoin.RPC
 		/// <param name="blockId">The block identifier.</param>
 		/// <returns>Given a block hash (id) returns the requested block object.</returns>
 		/// <exception cref="System.ArgumentNullException">blockId cannot be null.</exception>
-		public async Task<Block> GetBlockAsync(uint256 blockId)
+		public async Task<Block> GetBlockAsync(uint256 blockId, CancellationToken cancellationToken = default)
 		{
 			if (blockId == null)
 				throw new ArgumentNullException(nameof(blockId));
