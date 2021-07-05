@@ -1171,7 +1171,7 @@ namespace NBitcoin.Tests
 				var rpc = nodeA.CreateRPCClient();
 				var batch = rpc.PrepareBatch();
 				var generating = batch.GenerateAsync(10);
-				var garbaging = batch.SendCommandAsync(new RPCRequest("ofwifwu", new object[0]));
+				var garbaging = batch.SendCommandAsync("ofwifwu");
 				await batch.SendBatchAsync();
 				await generating;
 				var err = await Assert.ThrowsAsync<RPCException>(async () => await garbaging);

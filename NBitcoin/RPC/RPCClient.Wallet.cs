@@ -357,11 +357,11 @@ namespace NBitcoin.RPC
 			if (options != null)
 			{
 				var jOptions = FundRawTransactionOptionsToJson(options);
-				response = await InternalSendCommandAsync("fundrawtransaction", new object[] { ToHex(transaction), jOptions }, cancellationToken).ConfigureAwait(false);
+				response = await SendCommandAsync("fundrawtransaction", cancellationToken, ToHex(transaction), jOptions).ConfigureAwait(false);
 			}
 			else
 			{
-				response = await InternalSendCommandAsync("fundrawtransaction", new object[] { ToHex(transaction) }, cancellationToken).ConfigureAwait(false);
+				response = await SendCommandAsync("fundrawtransaction", cancellationToken, ToHex(transaction)).ConfigureAwait(false);
 			}
 			var r = (JObject)response.Result;
 			return new FundRawTransactionResponse()
@@ -604,7 +604,7 @@ namespace NBitcoin.RPC
 			var oRescan = JObject.FromObject(new { rescan = rescan });
 			parameters.Add(oRescan);
 
-			var response = await InternalSendCommandAsync("importmulti", parameters.ToArray(), cancellationToken).ConfigureAwait(false);
+			var response = await SendCommandAsync("importmulti", cancellationToken, parameters.ToArray()).ConfigureAwait(false);
 			response.ThrowIfError();
 
 			//Somehow, this one has error embedded
@@ -804,13 +804,12 @@ namespace NBitcoin.RPC
 		/// MaximumCount - Maximum number of UTXOs
 		/// MinimumSumAmount - Minimum sum value of all UTXOs
 		/// </param>
-		[Obsolete("Use ListUnspentAsync(ListUnspentOptions, BitcoinAddress[], CancellationToken) instead.")]
 		public async Task<UnspentCoin[]> ListUnspentAsync(ListUnspentOptions options, params BitcoinAddress[] addresses)
 		{
-			return await ListUnspentAsync(options, addresses, CancellationToken.None);
+			return await ListUnspentAsync(options, CancellationToken.None, addresses);
 		}
 
-		public async Task<UnspentCoin[]> ListUnspentAsync(ListUnspentOptions options, BitcoinAddress[] addresses, CancellationToken cancellationToken = default)
+		public async Task<UnspentCoin[]> ListUnspentAsync(ListUnspentOptions options, CancellationToken cancellationToken, params BitcoinAddress[] addresses)
 		{
 			var queryOptions = new Dictionary<string, object>();
 			var queryObjects = new JObject();
@@ -1190,15 +1189,14 @@ namespace NBitcoin.RPC
 			{
 				jOptions = (JObject)"";
 			}
-			RPCResponse response = await InternalSendCommandAsync(
+			RPCResponse response = await SendCommandAsync(
 				"walletcreatefundedpsbt",
-				new object[]{
-					rpcInputs,
-					outputToSend,
-					locktime.Value,
-					jOptions,
-					bip32derivs},
-				cancellationToken).ConfigureAwait(false);
+				cancellationToken,
+				rpcInputs,
+				outputToSend,
+				locktime.Value,
+				jOptions,
+				bip32derivs).ConfigureAwait(false);
 			var result = (JObject)response.Result;
 			var psbt = PSBT.Parse(result.Property("psbt").Value.Value<string>(), Network.Main);
 			var fee = Money.Coins(result.Property("fee").Value.Value<decimal>());
