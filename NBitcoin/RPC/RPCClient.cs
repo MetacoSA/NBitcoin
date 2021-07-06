@@ -578,7 +578,7 @@ namespace NBitcoin.RPC
 			return SendCommandAsync(commandName, CancellationToken.None, parameters);
 		}
 
-		private Task<RPCResponse> SendCommandAsync(RPCOperations commandName, CancellationToken cancellationToken, params object[] parameters)
+		public Task<RPCResponse> SendCommandAsync(RPCOperations commandName, CancellationToken cancellationToken, params object[] parameters)
 		{
 			return SendCommandAsync(commandName.ToString(), cancellationToken, parameters);
 		}
@@ -610,7 +610,7 @@ namespace NBitcoin.RPC
 			return SendCommandAsync(commandName, CancellationToken.None, parameters);
 		}
 
-		private Task<RPCResponse> SendCommandAsync(string commandName, CancellationToken cancellationToken, params object[] parameters)
+		public Task<RPCResponse> SendCommandAsync(string commandName, CancellationToken cancellationToken, params object[] parameters)
 		{
 			return SendCommandAsync(new RPCRequest(commandName, parameters), cancellationToken: cancellationToken);
 		}
