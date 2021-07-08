@@ -357,6 +357,33 @@ namespace NBitcoin.Tests
 				},
 				UseSectionInConfigFile = true
 			};
+
+			public NodeDownloadData v0_18_1 = new NodeDownloadData()
+			{
+				Version = "0.18.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://download.litecoin.org/litecoin-{0}/win/litecoin-{0}-win64.zip",
+					Archive = "litecoin-{0}-win64.zip",
+					Executable = "litecoin-{0}/bin/litecoind.exe",
+					Hash = "9ff1f552f8ed3f058a56332defa7c61cfb345848428d7b419182096eca2ac99a"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://download.litecoin.org/litecoin-{0}/linux/litecoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "litecoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "litecoin-{0}/bin/litecoind",
+					Hash = "ca50936299e2c5a66b954c266dcaaeef9e91b2f5307069b9894048acf3eb5751"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://download.litecoin.org/litecoin-{0}/osx/litecoin-{0}-osx64.tar.gz",
+					Archive = "litecoin-{0}-osx64.tar.gz",
+					Executable = "litecoin-{0}/bin/litecoind",
+					Hash = "4ce590ecbaecaced7253473bc574a2b70527c9aeb3a3ab33a843ea1c9caf0c86"
+				},
+				UseSectionInConfigFile = true
+			};
 		}
 
 		public class ViacoinNodeDownloadData

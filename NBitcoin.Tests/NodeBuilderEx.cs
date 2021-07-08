@@ -10,7 +10,7 @@ namespace NBitcoin.Tests
 	{
 		public static NodeBuilder Create([CallerMemberName] string caller = null)
 		{
-			//var builder = NodeBuilder.Create(NodeDownloadData.Litecoin.v0_17_1, Altcoins.Litecoin.Instance.Regtest, caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.Litecoin.v0_18_1, Altcoins.Litecoin.Instance.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Viacoin.v0_15_1, Altcoins.Viacoin.Instance.Regtest, caller);
 
