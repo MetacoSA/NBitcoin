@@ -2132,7 +2132,7 @@ namespace NBitcoin
 		/// <exception cref="System.IndexOutOfRangeException">topIndex</exception>
 		public T Top(int i)
 		{
-			if (i > 0 || -i > Count)
+			if (i >= 0 || -i > Count)
 				throw new IndexOutOfRangeException("topIndex");
 			return _array[Count + i];
 		}
@@ -2147,9 +2147,9 @@ namespace NBitcoin
 		/// </exception>
 		public void Swap(int i, int j)
 		{
-			if (i > 0 || -i > Count)
+			if (i >= 0 || -i > Count)
 				throw new IndexOutOfRangeException("i");
-			if (i > 0 || -j > Count)
+			if (i >= 0 || -j > Count)
 				throw new IndexOutOfRangeException("j");
 
 			var t = _array[Count + i];
