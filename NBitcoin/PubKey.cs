@@ -5,6 +5,9 @@ using NBitcoin.Stealth;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
 #endif
+#if HAS_SPAN
+using NBitcoin.Secp256k1;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -283,6 +286,7 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
+#nullable enable
 		public TaprootPubKey GetTaprootPubKey()
 		{
 			return GetTaprootPubKey(null, out _);
@@ -291,16 +295,16 @@ namespace NBitcoin
 		{
 			return GetTaprootPubKey(null, out parity);
 		}
-		public TaprootPubKey GetTaprootPubKey(uint256 merkleRoot)
+		public TaprootPubKey GetTaprootPubKey(uint256? merkleRoot)
 		{
 			return GetTaprootPubKey(merkleRoot, out _);
 		}
-		public TaprootPubKey GetTaprootPubKey(uint256 merkleRoot, out bool parity)
+		public TaprootPubKey GetTaprootPubKey(uint256? merkleRoot, out bool parity)
 		{
 			using Secp256k1.SHA256 sha = new Secp256k1.SHA256();
 			sha.InitializeTagged("TapTweak");
 			Span<byte> buf = stackalloc byte[32];
-			var xonly = this.ECKey.ToXOnlyPubKey();
+			var xonly = ToXOnlyPubKey().XOnlyPubKey;
 			xonly.WriteToSpan(buf);
 			sha.Write(buf);
 			if (merkleRoot is uint256)
@@ -311,6 +315,21 @@ namespace NBitcoin
 			sha.GetHash(buf);
 			return new TaprootPubKey(xonly.AddTweak(buf).ToXOnlyPubKey(out parity));
 		}
+
+		ECXOnlyPubKey? _XOnlyPubKey;
+		bool _Parity;
+		private (ECXOnlyPubKey XOnlyPubKey, bool Parity) ToXOnlyPubKey()
+		{
+			if (_XOnlyPubKey is ECXOnlyPubKey)
+			{
+				return (_XOnlyPubKey, _Parity);
+			}
+			var xonly = this.ECKey.ToXOnlyPubKey(out var p);
+			_XOnlyPubKey = xonly;
+			_Parity = p;
+			return (xonly, p);
+		}
+#nullable restore
 #endif
 
 		[Obsolete("Use GetAddress(ScriptPubKeyType.Legacy, network) instead")]

@@ -77,9 +77,9 @@ namespace NBitcoin
 			_PubKey = pubKey;
 		}
 
-		private static string? NotNull(TaprootPubKey pubKey)
+		private static string? NotNull(TaprootPubKey? pubKey)
 		{
-			if (pubKey == null)
+			if (pubKey is null)
 				throw new ArgumentNullException(nameof(pubKey));
 			return null;
 		}

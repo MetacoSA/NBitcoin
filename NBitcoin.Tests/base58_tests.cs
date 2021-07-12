@@ -173,7 +173,7 @@ namespace NBitcoin.Tests
 				else
 				{
 					string exp_addrType = (string)metadata.addrType;
-					TxDestination dest;
+					IAddressableDestination dest;
 					if (exp_addrType == "pubkey")
 					{
 						dest = new KeyId(new uint160(exp_payload));
