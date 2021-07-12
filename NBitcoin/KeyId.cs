@@ -4,7 +4,7 @@ using System;
 
 namespace NBitcoin
 {
-	public abstract class TxDestination : IDestination
+	public abstract class TxDestination : IAddressableDestination
 	{
 		internal byte[] _DestBytes;
 

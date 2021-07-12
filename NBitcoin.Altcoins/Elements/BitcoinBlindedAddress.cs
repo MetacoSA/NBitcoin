@@ -127,16 +127,14 @@ namespace NBitcoin.Altcoins.Elements
 			}
 			else
 			{
-
-
+				// Is Base58
 				var network = address.Network;
-				var keyId = address.ScriptPubKey.GetDestination();
-				if (keyId == null)
-					throw new ArgumentException("The passed address can't be reduced to a hash");
+				var base58Unblinded = network.GetBase58CheckEncoder().DecodeData(address.ToString());
+				var prefix = network.GetVersionBytes(((IBase58Data)address).Type, true);
 				var bytes = address.Network.GetVersionBytes(Base58Type.BLINDED_ADDRESS, true).Concat(
-					network.GetVersionBytes(((IBase58Data) address).Type, true), blindingKey.ToBytes(),
-					keyId.ToBytes());
-				return NBitcoin.DataEncoders.Encoders.Base58Check.EncodeData(bytes);
+					prefix, blindingKey.ToBytes(),
+					base58Unblinded.Skip(prefix.Length).ToArray());
+				return network.GetBase58CheckEncoder().EncodeData(bytes);
 			}
 		}
 

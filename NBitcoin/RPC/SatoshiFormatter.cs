@@ -109,12 +109,12 @@ namespace NBitcoin.RPC
 				WritePropertyValue(writer, "asm", txout.ScriptPubKey.ToString());
 				WritePropertyValue(writer, "hex", Encoders.Hex.EncodeData(txout.ScriptPubKey.ToBytes()));
 
-				var destinations = new List<TxDestination>() { txout.ScriptPubKey.GetDestination() };
+				var destinations = new List<IAddressableDestination>() { txout.ScriptPubKey.GetDestination() };
 				if (destinations[0] == null)
 				{
 					destinations = txout.ScriptPubKey.GetDestinationPublicKeys()
 														.Select(p => p.Hash)
-														.ToList<TxDestination>();
+														.ToList<IAddressableDestination>();
 				}
 				if (destinations.Count == 1)
 				{

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 #if HAS_SPAN
+using NBitcoin.DataEncoders;
 using NBitcoin.Secp256k1;
 #endif
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class TaprootPubKey : IDestination
+	public class TaprootPubKey : IAddressableDestination
 	{
 #if HAS_SPAN
 		private ECXOnlyPubKey pubkey;
@@ -146,5 +147,21 @@ namespace NBitcoin
 			return System.Collections.StructuralComparisons.StructuralEqualityComparer.GetHashCode(pubkey);
 		}
 #endif
+		BitcoinAddress IAddressableDestination.GetAddress(Network network)
+		{
+			return this.GetAddress(network);
+		}
+		Script IDestination.ScriptPubKey => ScriptPubKey;
+
+		public override string ToString()
+		{
+#if HAS_SPAN
+			Span<byte> b = stackalloc byte[32];
+			ToBytes(b);
+			return Encoders.Hex.EncodeData(b);
+#else
+			return Encoders.Hex.EncodeData(ToBytes());
+#endif
+		}
 	}
 }

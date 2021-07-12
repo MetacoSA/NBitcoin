@@ -774,28 +774,22 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Extract P2SH/P2PKH/P2WSH/P2WPKH address from scriptPubKey
+		/// Extract P2SH/P2PKH/P2WSH/P2WPKH/P2TR address from scriptPubKey
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
 		public BitcoinAddress GetDestinationAddress(Network network)
 		{
 			var dest = GetDestination();
-			if (dest is null)
-			{
-				var taproot = PayToTaprootTemplate.Instance.ExtractScriptPubKeyParameters(this);
-				if (taproot != null)
-					return taproot.GetAddress(network);
-			}
 			return dest == null ? null : dest.GetAddress(network);
 		}
 
 		/// <summary>
-		/// Extract P2SH/P2PKH/P2WSH/P2WPKH id from scriptPubKey
+		/// Extract P2SH/P2PKH/P2WSH/P2WPKH/P2TR id from scriptPubKey
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
-		public TxDestination GetDestination()
+		public IAddressableDestination GetDestination()
 		{
 			var pubKeyHashParams = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
 			if (pubKeyHashParams != null)
@@ -804,7 +798,9 @@ namespace NBitcoin
 			if (scriptHashParams != null)
 				return scriptHashParams;
 			var wit = PayToWitTemplate.Instance.ExtractScriptPubKeyParameters(this);
-			return wit;
+			if (wit != null)
+				return wit;
+			return PayToTaprootTemplate.Instance.ExtractScriptPubKeyParameters(this);
 		}
 
 		/// <summary>

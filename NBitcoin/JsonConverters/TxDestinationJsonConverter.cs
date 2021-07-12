@@ -22,7 +22,8 @@ namespace NBitcoin.JsonConverters
 			return objectType == typeof(KeyId) ||
 				objectType == typeof(ScriptId) ||
 				objectType == typeof(WitKeyId) ||
-				objectType == typeof(WitScriptId);
+				objectType == typeof(WitScriptId) ||
+				objectType == typeof(TaprootPubKey);
 		}
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -40,6 +41,8 @@ namespace NBitcoin.JsonConverters
 					return new WitKeyId(Encoders.Hex.DecodeData((string)reader.Value));
 				if (objectType == typeof(WitScriptId))
 					return new WitScriptId(Encoders.Hex.DecodeData((string)reader.Value));
+				if (objectType == typeof(TaprootPubKey))
+					return new TaprootPubKey(Encoders.Hex.DecodeData((string)reader.Value));
 			}
 			catch
 			{
@@ -59,6 +62,8 @@ namespace NBitcoin.JsonConverters
 					writer.WriteValue(Encoders.Hex.EncodeData(((WitKeyId)value).ToBytes()));
 				if (value is WitScriptId)
 					writer.WriteValue(Encoders.Hex.EncodeData(((WitScriptId)value).ToBytes()));
+				if (value is TaprootPubKey)
+					writer.WriteValue(Encoders.Hex.EncodeData(((TaprootPubKey)value).ToBytes()));
 			}
 		}
 	}
