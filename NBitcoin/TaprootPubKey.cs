@@ -1,8 +1,8 @@
 ﻿#nullable enable
 #if HAS_SPAN
-using NBitcoin.DataEncoders;
 using NBitcoin.Secp256k1;
 #endif
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

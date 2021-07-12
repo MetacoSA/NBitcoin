@@ -33,5 +33,26 @@ namespace NBitcoin.Tests
 			Assert.True(address2.PubKey != address.PubKey);
 			Assert.False(address2.PubKey.GetHashCode() == address.PubKey.GetHashCode());
 		}
+#if HAS_SPAN
+		[Fact]
+		public void CanGenerateTaprootPubKey()
+		{
+			var mnemo = new Mnemonic("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about");
+			var root = mnemo.DeriveExtKey();
+
+			// From BIP86
+			foreach (var v in new[]
+			{
+				("bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr", "m/86'/0'/0'/0/0") ,
+				("bc1p4qhjn9zdvkux4e44uhx8tc55attvtyu358kutcqkudyccelu0was9fqzwh", "m/86'/0'/0'/0/1"),
+				("bc1p3qkhfews2uk44qtvauqyr2ttdsw7svhkl9nkm9s9c3x4ax5h60wqwruhk7", "m/86'/0'/0'/1/0")
+			})
+			{
+				var privKey = root.Derive(KeyPath.Parse(v.Item2));
+				var address = privKey.GetPublicKey().GetAddress(ScriptPubKeyType.TaprootBIP86, Network.Main);
+				Assert.Equal(v.Item1, address.ToString());
+			}
+		}
+#endif
 	}
 }

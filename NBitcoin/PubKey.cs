@@ -8,6 +8,7 @@ using NBitcoin.BouncyCastle.Math.EC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,7 +30,11 @@ namespace NBitcoin
 		/// Derive P2SH address of a Segwit address (P2WPKH-P2SH)
 		/// Use this when you worry that your users do not support Bech address format.
 		/// </summary>
-		SegwitP2SH
+		SegwitP2SH,
+		/// <summary>
+		/// Derive the taproot address of this pubkey following TaprootBIP86
+		/// </summary>
+		TaprootBIP86
 	}
 	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>
 	{
@@ -264,10 +269,49 @@ namespace NBitcoin
 					if (!network.Consensus.SupportSegwit)
 						throw new NotSupportedException("This network does not support segwit");
 					return this.WitHash.ScriptPubKey.Hash.GetAddress(network);
+				case ScriptPubKeyType.TaprootBIP86:
+					if (!network.Consensus.SupportTaproot)
+						throw new NotSupportedException("This network does not support taproot");
+#if !HAS_SPAN
+					throw new NotSupportedException("This feature of taproot is not supported in .NET Framework");
+#else
+					return GetTaprootPubKey().GetAddress(network);
+#endif
 				default:
 					throw new NotSupportedException("Unsupported ScriptPubKeyType");
 			}
 		}
+
+#if HAS_SPAN
+		public TaprootPubKey GetTaprootPubKey()
+		{
+			return GetTaprootPubKey(null, out _);
+		}
+		public TaprootPubKey GetTaprootPubKey(out bool parity)
+		{
+			return GetTaprootPubKey(null, out parity);
+		}
+		public TaprootPubKey GetTaprootPubKey(uint256 merkleRoot)
+		{
+			return GetTaprootPubKey(merkleRoot, out _);
+		}
+		public TaprootPubKey GetTaprootPubKey(uint256 merkleRoot, out bool parity)
+		{
+			using Secp256k1.SHA256 sha = new Secp256k1.SHA256();
+			sha.InitializeTagged("TapTweak");
+			Span<byte> buf = stackalloc byte[32];
+			var xonly = this.ECKey.ToXOnlyPubKey();
+			xonly.WriteToSpan(buf);
+			sha.Write(buf);
+			if (merkleRoot is uint256)
+			{
+				merkleRoot.ToBytes(buf);
+				sha.Write(buf);
+			}
+			sha.GetHash(buf);
+			return new TaprootPubKey(xonly.AddTweak(buf).ToXOnlyPubKey(out parity));
+		}
+#endif
 
 		[Obsolete("Use GetAddress(ScriptPubKeyType.Legacy, network) instead")]
 		public BitcoinPubKeyAddress GetAddress(Network network)
