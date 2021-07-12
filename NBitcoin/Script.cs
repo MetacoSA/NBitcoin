@@ -781,6 +781,12 @@ namespace NBitcoin
 		public BitcoinAddress GetDestinationAddress(Network network)
 		{
 			var dest = GetDestination();
+			if (dest is null)
+			{
+				var taproot = PayToTaprootTemplate.Instance.ExtractScriptPubKeyParameters(this);
+				if (taproot != null)
+					return taproot.GetAddress(network);
+			}
 			return dest == null ? null : dest.GetAddress(network);
 		}
 

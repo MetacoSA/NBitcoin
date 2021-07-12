@@ -113,7 +113,7 @@ namespace NBitcoin
 			_Network = network;
 		}
 
-		string _Str;
+		protected string _Str;
 
 		Script? _ScriptPubKey;
 		public Script ScriptPubKey

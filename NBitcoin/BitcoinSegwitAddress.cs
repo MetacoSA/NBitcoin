@@ -17,6 +17,8 @@ namespace NBitcoin
 			{
 				byte witVersion;
 				var decoded = encoder.Decode(bech32, out witVersion);
+				if (witVersion != 0)
+					throw expectedNetwork.Bech32NotSupported(Bech32Type.WITNESS_PUBKEY_ADDRESS);
 				_Hash = new WitKeyId(decoded);
 			}
 			else
@@ -111,8 +113,7 @@ namespace NBitcoin
 		{
 			if (expectedNetwork.GetBech32Encoder(Bech32Type.WITNESS_SCRIPT_ADDRESS, false) is Bech32Encoder encoder)
 			{
-				byte witVersion;
-				var decoded = encoder.Decode(bech32, out witVersion);
+				var decoded = encoder.Decode(bech32, out _);
 				_Hash = new WitScriptId(decoded);
 			}
 			else
