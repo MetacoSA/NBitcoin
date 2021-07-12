@@ -2149,7 +2149,7 @@ namespace NBitcoin
 		{
 			if (i >= 0 || -i > Count)
 				throw new IndexOutOfRangeException("i");
-			if (i >= 0 || -j > Count)
+			if (j >= 0 || -j > Count)
 				throw new IndexOutOfRangeException("j");
 
 			var t = _array[Count + i];
