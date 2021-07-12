@@ -67,7 +67,7 @@ namespace NBitcoin
 				bytes[0] = 0x51;
 				bytes[1] = 32;
 #if !HAS_SPAN
-				Array.Copy(pubkey, 0, bytes, 1, 32);
+				Array.Copy(pubkey, 0, bytes, 2, 32);
 #else
 				ToBytes(bytes.AsSpan().Slice(2));
 #endif
