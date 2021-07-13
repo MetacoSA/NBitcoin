@@ -783,8 +783,25 @@ namespace NBitcoin
 		/// <returns></returns>
 		public BitcoinAddress GetDestinationAddress(Network network)
 		{
-			var dest = GetDestination();
+			var dest = GetAddressableDestination();
 			return dest == null ? null : dest.GetAddress(network);
+		}
+
+		/// <summary>
+		/// Extract P2SH/P2PKH/P2WSH/P2WPKH id from scriptPubKey
+		/// </summary>
+		/// <param name="network"></param>
+		/// <returns></returns>
+		[Obsolete("Use GetAddressableDestination instead")]
+		public TxDestination GetDestination()
+		{
+			var pubKeyHashParams = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
+			if (pubKeyHashParams != null)
+				return pubKeyHashParams;
+			var scriptHashParams = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
+			if (scriptHashParams != null)
+				return scriptHashParams;
+			return PayToWitTemplate.Instance.ExtractScriptPubKeyParameters(this);
 		}
 
 		/// <summary>
@@ -792,7 +809,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
-		public IAddressableDestination GetDestination()
+		public IAddressableDestination GetAddressableDestination()
 		{
 			var pubKeyHashParams = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
 			if (pubKeyHashParams != null)

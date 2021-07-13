@@ -34,6 +34,16 @@ namespace NBitcoin.Tests
 			Assert.True(address2.PubKey != address.PubKey);
 			Assert.False(address2.PubKey.GetHashCode() == address.PubKey.GetHashCode());
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanExtractTaprootScript()
+		{
+			var a = BitcoinAddress.Create("bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0", Network.Main);
+			var res = PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(a.ScriptPubKey);
+			Assert.Equal(OpcodeType.OP_1, res.Version);
+		}
+
 #if HAS_SPAN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
