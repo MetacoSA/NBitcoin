@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace NBitcoin.Altcoins
 {
@@ -209,6 +210,47 @@ namespace NBitcoin.Altcoins
 				}
 			}
 		}
+
+		public class DogecoinTestnetAddressStringParser : NetworkStringParser
+		{
+			public override bool TryParse(string str, Network network, Type targetType, out IBitcoinString result)
+			{
+				if (str.StartsWith("tgpv", StringComparison.OrdinalIgnoreCase) && targetType.GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtKey).GetTypeInfo()))
+				{
+					try
+					{
+						var decoded = Encoders.Base58Check.DecodeData(str);
+						decoded[0] = 0x04;
+						decoded[1] = 0x35;
+						decoded[2] = 0x83;
+						decoded[3] = 0x94;
+						result = new BitcoinExtKey(Encoders.Base58Check.EncodeData(decoded), network);
+						return true;
+					}
+					catch
+					{
+					}
+				}
+				if (str.StartsWith("tgub", StringComparison.OrdinalIgnoreCase) && targetType.GetTypeInfo().IsAssignableFrom(typeof(BitcoinExtPubKey).GetTypeInfo()))
+				{
+					try
+					{
+						var decoded = Encoders.Base58Check.DecodeData(str);
+						decoded[0] = 0x04;
+						decoded[1] = 0x35;
+						decoded[2] = 0x87;
+						decoded[3] = 0xCF;
+						result = new BitcoinExtPubKey(Encoders.Base58Check.EncodeData(decoded), network);
+						return true;
+					}
+					catch
+					{
+					}
+				}
+				return base.TryParse(str, network, targetType, out result);
+			}
+		}
+
 #pragma warning restore CS0618 // Type or member is obsolete
 
 		//Format visual studio
@@ -294,6 +336,7 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 241 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
+			.SetNetworkStringParser(new DogecoinTestnetAddressStringParser())
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tdoge"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tdoge"))
 			.SetMagic(0xdcb7c1fc)
