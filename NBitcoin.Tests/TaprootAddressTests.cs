@@ -9,6 +9,7 @@ namespace NBitcoin.Tests
 	public class TaprootAddressTests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanParseTaprootAddress()
 		{
 			var a = BitcoinAddress.Create("bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0", Network.Main);
@@ -35,6 +36,7 @@ namespace NBitcoin.Tests
 		}
 #if HAS_SPAN
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanGenerateTaprootPubKey()
 		{
 			var mnemo = new Mnemonic("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about");
