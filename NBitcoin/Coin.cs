@@ -448,7 +448,8 @@ namespace NBitcoin
 				return key.AsKeyId().ScriptPubKey;
 			return ScriptPubKey;
 		}
-		public bool IsMalleable => GetHashVersion() != HashVersion.WitnessV0;
+		public bool IsMalleable => !(ScriptPubKey.IsScriptType(ScriptType.Taproot) ||
+								     GetHashVersion() == HashVersion.WitnessV0);
 		public virtual bool CanGetScriptCode
 		{
 			get
