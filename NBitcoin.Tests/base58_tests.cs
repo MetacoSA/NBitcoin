@@ -204,7 +204,7 @@ namespace NBitcoin.Tests
 						BitcoinAddress addrOut = dest.GetAddress(network);
 						Assert.True(addrOut.ToString() == exp_base58string, "mismatch: " + strTest);
 						Assert.True(addrOut.ScriptPubKey == dest.ScriptPubKey);
-						Assert.True(dest.ScriptPubKey.GetDestination() == dest);
+						Assert.True(dest.ScriptPubKey.GetDestination().Equals(dest));
 					}
 					catch (ArgumentException)
 					{
