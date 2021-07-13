@@ -1,6 +1,11 @@
-﻿using NBitcoin.DataEncoders;
+﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
+#if HAS_SPAN
+using NBitcoin.Secp256k1;
+#endif
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -44,7 +49,52 @@ namespace NBitcoin.Tests
 			Assert.Equal(OpcodeType.OP_1, res.Version);
 		}
 
+
 #if HAS_SPAN
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSignUsingTaproot()
+		{
+			using (var nodeBuilder = NodeBuilderEx.Create())
+			{
+				var rpc = nodeBuilder.CreateNode().CreateRPCClient();
+				nodeBuilder.StartAll();
+				rpc.Generate(102);
+
+				var key = new Key();
+				var addr = key.PubKey.GetTaprootPubKey().GetAddress(nodeBuilder.Network);
+
+				foreach (var anyoneCanPay in new[] { false, true })
+				{
+					rpc.Generate(1);
+					foreach (var hashType in new[] { SigHash.All, SigHash.Default, SigHash.None, SigHash.Single })
+					{
+						if (hashType == SigHash.Default && anyoneCanPay)
+							continue; // Not supported by btc
+						var txid = rpc.SendToAddress(addr, Money.Coins(1.0m));
+
+						var tx = rpc.GetRawTransaction(txid);
+						var spentOutput = tx.Outputs.AsIndexedOutputs().First(o => o.TxOut.ScriptPubKey == addr.ScriptPubKey);
+
+						var spender = nodeBuilder.Network.CreateTransaction();
+						spender.Inputs.Add(new OutPoint(tx, spentOutput.N));
+
+						var dest = rpc.GetNewAddress();
+						spender.Outputs.Add(Money.Coins(0.7m), dest);
+						spender.Outputs.Add(Money.Coins(0.2999000m), addr);
+
+						var sighash = hashType | (anyoneCanPay ? SigHash.AnyoneCanPay : 0);
+						var hash = spender.GetSignatureHashTaproot(new[] { spentOutput.TxOut },
+																 new TaprootExecutionData(0) { SigHash = sighash });
+						var sig = key.SignTaprootKeyPath(hash, sighash);
+						Assert.True(addr.PubKey.VerifyTaproot(hash, sig.SchnorrSignature));
+						spender.Inputs[0].WitScript = new WitScript(Op.GetPushOp(sig.ToBytes()));
+						rpc.SendRawTransaction(spender);
+					}
+				}
+			}
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanGenerateTaprootPubKey()

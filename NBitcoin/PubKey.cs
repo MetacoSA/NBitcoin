@@ -35,7 +35,7 @@ namespace NBitcoin
 		/// </summary>
 		SegwitP2SH,
 		/// <summary>
-		/// Derive the taproot address of this pubkey following TaprootBIP86
+		/// Derive the taproot address of this pubkey following BIP86. This public key is used as the internal key, the output key is computed without script path. (The tweak is SHA256(internal_key))
 		/// </summary>
 #if !HAS_SPAN
 		[Obsolete("TaprootBIP86 is unavailable in .net framework")]
@@ -306,24 +306,31 @@ namespace NBitcoin
 		}
 		public TaprootPubKey GetTaprootPubKey(uint256? merkleRoot, out bool parity)
 		{
+			
+			Span<byte> tweak = stackalloc byte[32];
+			ComputeTapTweak(merkleRoot, tweak);
+			var internalKey = AsInternalKey().XOnlyPubKey;
+			return new TaprootPubKey(internalKey.AddTweak(tweak).ToXOnlyPubKey(out parity));
+		}
+
+		internal void ComputeTapTweak(uint256? merkleRoot, Span<byte> tweak32)
+		{
 			using Secp256k1.SHA256 sha = new Secp256k1.SHA256();
 			sha.InitializeTagged("TapTweak");
-			Span<byte> buf = stackalloc byte[32];
-			var xonly = ToXOnlyPubKey().XOnlyPubKey;
-			xonly.WriteToSpan(buf);
-			sha.Write(buf);
+			var xonly = AsInternalKey().XOnlyPubKey;
+			xonly.WriteToSpan(tweak32);
+			sha.Write(tweak32);
 			if (merkleRoot is uint256)
 			{
-				merkleRoot.ToBytes(buf);
-				sha.Write(buf);
+				merkleRoot.ToBytes(tweak32);
+				sha.Write(tweak32);
 			}
-			sha.GetHash(buf);
-			return new TaprootPubKey(xonly.AddTweak(buf).ToXOnlyPubKey(out parity));
+			sha.GetHash(tweak32);
 		}
 
 		ECXOnlyPubKey? _XOnlyPubKey;
 		bool _Parity;
-		private (ECXOnlyPubKey XOnlyPubKey, bool Parity) ToXOnlyPubKey()
+		internal (ECXOnlyPubKey XOnlyPubKey, bool Parity) AsInternalKey()
 		{
 			if (_XOnlyPubKey is ECXOnlyPubKey)
 			{

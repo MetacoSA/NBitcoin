@@ -150,6 +150,7 @@ namespace NBitcoin
 			return _ECKey.Sign(hash, true);
 		}
 
+		[Obsolete("This method is depracted, if you wants to sign for taproot, use SignTaprootKeyPath()")]
 		public SchnorrSignature SignSchnorr(uint256 hash)
 		{
 			AssertNotDisposed();
@@ -162,6 +163,29 @@ namespace NBitcoin
 			return signer.Sign(hash, this);
 #endif
 		}
+#if HAS_SPAN
+		public TaprootSignature SignTaprootKeyPath(uint256 hash, SigHash sigHash = SigHash.Default)
+		{
+			return SignTaprootKeyPath(hash, null, sigHash);
+		}
+		public TaprootSignature SignTaprootKeyPath(uint256 hash, uint256? merkleRoot, SigHash sigHash)
+		{
+			if (hash == null)
+				throw new ArgumentNullException(nameof(hash));
+			AssertNotDisposed();
+			var eckey = _ECKey;
+			if (PubKey.AsInternalKey().Parity)
+			{
+				eckey = new Secp256k1.ECPrivKey(_ECKey.sec.Negate(), _ECKey.ctx, true);
+			}
+			Span<byte> buf = stackalloc byte[32];
+			PubKey.ComputeTapTweak(merkleRoot, buf);
+			eckey = eckey.TweakAdd(buf);
+			hash.ToBytes(buf);
+			var sig = eckey.SignBIP340(buf);
+			return new TaprootSignature(new SchnorrSignature(sig), sigHash);
+		}
+#endif
 
 		public string SignMessage(String message)
 		{
