@@ -162,6 +162,23 @@ namespace NBitcoin
 			return signer.Sign(hash, this);
 #endif
 		}
+#if HAS_SPAN
+		public TaprootSignature SignBIP340(uint256 hash, SigHash sigHash = SigHash.Default)
+		{
+			AssertNotDisposed();
+			var eckey = _ECKey;
+			if (PubKey.ToXOnlyPubKey().Parity)
+			{
+				eckey = new Secp256k1.ECPrivKey(_ECKey.sec.Negate(), _ECKey.ctx, true);
+			}
+			Span<byte> buf = stackalloc byte[32];
+			PubKey.ComputeTapTweak(null, buf);
+			eckey = eckey.TweakAdd(buf);
+			hash.ToBytes(buf);
+			var sig = eckey.SignBIP340(buf);
+			return new TaprootSignature(new SchnorrSignature(sig), sigHash);
+		}
+#endif
 
 		public string SignMessage(String message)
 		{
