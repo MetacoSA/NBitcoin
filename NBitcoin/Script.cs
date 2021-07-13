@@ -189,6 +189,7 @@ namespace NBitcoin
 		/// If set, no inputs, except this, are part of the signature
 		/// </summary>
 		AnyoneCanPay = 0x80,
+		Default = 0
 	};
 
 	/// <summary>
@@ -337,7 +338,9 @@ namespace NBitcoin
 		Original = 0,
 		[Obsolete("Use HashVersion.WitnessV0 instead")]
 		Witness = 1,
-		WitnessV0 = 1
+		WitnessV0 = 1,
+		Taproot = 2,
+		Tapscript = 3,
 	}
 
 	public enum ScriptType

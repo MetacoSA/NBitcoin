@@ -1557,7 +1557,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(Money.Coins(0.99980450m), change.Value);
 				Assert.Equal(rate, txBuilder.EstimateFeeRate(transfer));
 
-				Assert.Equal(gold.PubKey.Hash, change.ScriptPubKey.GetDestination());
+				Assert.Equal(gold.PubKey.Hash, change.ScriptPubKey.GetAddressableDestination());
 
 				//Verify issuancecoin can have an url
 				var issuanceCoin = (IssuanceCoin)issuanceCoins[0];

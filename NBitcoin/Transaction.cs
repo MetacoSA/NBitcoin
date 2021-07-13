@@ -1533,6 +1533,12 @@ namespace NBitcoin
 		{
 			return new HashStream();
 		}
+		protected virtual HashStreamBase CreateSignatureHashStream(HashVersion hashVersion)
+		{
+			if (hashVersion == HashVersion.Taproot)
+				return new HashStream() { SingleSHA256 = true };
+			return new HashStream();
+		}
 
 		/// <summary>
 		/// Precompute the transaction hash and witness hash so that later calls to GetHash() and GetWitHash() will returns the precomputed hash
@@ -1986,6 +1992,99 @@ namespace NBitcoin
 			return TransactionCheckResult.Success;
 		}
 
+		public virtual uint256 GetSignatureHashSchnorr(TaprootHashContext hashContext, int in_pos, SigHash hash_type, HashVersion sigversion, byte[] annex)
+		{
+			byte ext_flag, key_version = 0;
+			switch (sigversion)
+			{
+				case HashVersion.Taproot:
+					ext_flag = 0;
+					// key_version is not used and left uninitialized.
+					break;
+				case HashVersion.Tapscript:
+					ext_flag = 1;
+					// key_version must be 0 for now, representing the current version of
+					// 32-byte public keys in the tapscript signature opcode execution.
+					// An upgradable public key version (with a size not 32-byte) may
+					// request a different key_version with a new sigversion.
+					key_version = 0;
+					break;
+				default:
+					throw new ArgumentException("The sigversion should be taproot or tapscript", nameof(sigversion));
+			}
+			if (in_pos >= this.Inputs.Count)
+				throw new ArgumentException("in_pos should be less than the number of inputs in the transaction", nameof(in_pos));
+			
+			var ss = CreateHashWriter(sigversion, "TapSighash");
+			ss.Inner.WriteByte(0);
+
+			byte output_type = (hash_type is SigHash.Default) ? (byte)SigHash.All : (byte)((byte)hash_type & SIGHASH_OUTPUT_MASK); // Default (no sighash byte) is equivalent to SIGHASH_ALL
+			byte input_type = (byte)((byte)hash_type & SIGHASH_INPUT_MASK);
+
+			if (!((byte)hash_type <= 0x03 || ((byte)hash_type >= 0x81 && (byte)hash_type <= 0x83)))
+				throw new ArgumentException("Invalid hash_type", nameof(hash_type));
+			ss.Inner.WriteByte((byte)hash_type);
+
+			// Transaction level data
+			ss.ReadWrite(this.Version);
+			ss.ReadWrite(this.LockTime);
+			
+			
+			if (input_type != (byte)SigHash.AnyoneCanPay)
+			{
+				ss.ReadWrite(hashContext.HashPrevoutsSingle);
+				ss.ReadWrite(hashContext.HashAmountsSingle);
+				ss.ReadWrite(hashContext.HashScriptsSingle);
+				ss.ReadWrite(hashContext.HashSequenceSingle);
+			}
+
+			if (output_type == (byte)SigHash.All)
+			{
+				ss.ReadWrite(hashContext.HashOutputsSingle);
+			}
+
+			// Data about the input/prevout being spent
+			byte spend_type = (byte)((ext_flag << 1) + (annex is byte[] ? 1 : 0)); // The low bit indicates whether an annex is present.
+			ss.Inner.WriteByte(spend_type);
+			if (input_type == (byte)SigHash.AnyoneCanPay)
+			{
+				ss.ReadWrite(this.Inputs[in_pos].PrevOut);
+				ss.ReadWrite(hashContext.SpentOutputs[in_pos]);
+				ss.ReadWrite(this.vin[in_pos].Sequence);
+			}
+			else
+			{
+				ss.ReadWrite((uint)in_pos);
+			}
+
+			if (annex is byte[])
+			{
+				ss.ReadWrite(ref annex);
+			}
+
+			// Data about the output (if only one).
+			if (output_type == (byte)SigHash.Single)
+			{
+				if (in_pos >= this.Outputs.Count)
+					throw new ArgumentException("in_pos should be less than the number of output in the transaction", nameof(in_pos));
+				var sha_single_output = CreateHashWriter(sigversion);
+				sha_single_output.ReadWrite(this.Outputs[in_pos]);
+				ss.ReadWrite(GetHash(sha_single_output));
+			}
+
+			// Additional data for BIP 342 signatures
+			if (sigversion == HashVersion.Tapscript)
+			{
+				ss.ReadWrite(hashContext.TapleafHash);
+				ss.Inner.WriteByte(key_version);
+				ss.ReadWrite(hashContext.CodeseparatorPosition);
+			}
+			return GetHash(ss);
+		}
+
+		const byte SIGHASH_OUTPUT_MASK = 3;
+		const byte SIGHASH_INPUT_MASK = 0x80;
+
 		public virtual uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 		{
 			if (sigversion == HashVersion.WitnessV0)
@@ -1999,19 +2098,19 @@ namespace NBitcoin
 				if ((nHashType & SigHash.AnyoneCanPay) == 0)
 				{
 					hashPrevouts = precomputedTransactionData == null ?
-								   GetHashPrevouts() : precomputedTransactionData.HashPrevouts;
+								   GetHashPrevouts(HashVersion.WitnessV0) : precomputedTransactionData.HashPrevouts;
 				}
 
 				if ((nHashType & SigHash.AnyoneCanPay) == 0 && ((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
 				{
 					hashSequence = precomputedTransactionData == null ?
-								   GetHashSequence() : precomputedTransactionData.HashSequence;
+								   GetHashSequence(HashVersion.WitnessV0) : precomputedTransactionData.HashSequence;
 				}
 
 				if (((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
 				{
 					hashOutputs = precomputedTransactionData == null ?
-									GetHashOutputs() : precomputedTransactionData.HashOutputs;
+									GetHashOutputs(HashVersion.WitnessV0) : precomputedTransactionData.HashOutputs;
 				}
 				else if (((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < this.Outputs.Count)
 				{
@@ -2145,8 +2244,20 @@ namespace NBitcoin
 
 		internal virtual uint256 GetHashOutputs()
 		{
+			return GetHashOutputs(HashVersion.WitnessV0);
+		}
+		internal virtual uint256 GetHashSequence()
+		{
+			return GetHashSequence(HashVersion.WitnessV0);
+		}
+		internal virtual uint256 GetHashPrevouts()
+		{
+			return GetHashPrevouts(HashVersion.WitnessV0);
+		}
+		internal virtual uint256 GetHashOutputs(HashVersion hashVersion)
+		{
 			uint256 hashOutputs;
-			BitcoinStream ss = CreateHashWriter(HashVersion.WitnessV0);
+			BitcoinStream ss = CreateHashWriter(hashVersion);
 			foreach (var txout in Outputs)
 			{
 				txout.ReadWrite(ss);
@@ -2155,10 +2266,10 @@ namespace NBitcoin
 			return hashOutputs;
 		}
 
-		internal virtual uint256 GetHashSequence()
+		internal virtual uint256 GetHashSequence(HashVersion hashVersion)
 		{
 			uint256 hashSequence;
-			BitcoinStream ss = CreateHashWriter(HashVersion.WitnessV0);
+			BitcoinStream ss = CreateHashWriter(hashVersion);
 			foreach (var input in Inputs)
 			{
 				ss.ReadWrite((uint)input.Sequence);
@@ -2167,10 +2278,10 @@ namespace NBitcoin
 			return hashSequence;
 		}
 
-		internal virtual uint256 GetHashPrevouts()
+		internal virtual uint256 GetHashPrevouts(HashVersion hashVersion)
 		{
 			uint256 hashPrevouts;
-			BitcoinStream ss = CreateHashWriter(HashVersion.WitnessV0);
+			BitcoinStream ss = CreateHashWriter(hashVersion);
 			foreach (var input in Inputs)
 			{
 				ss.ReadWrite(input.PrevOut);
@@ -2179,9 +2290,38 @@ namespace NBitcoin
 			return hashPrevouts;
 		}
 
+		internal virtual uint256 GetHashAmounts(HashVersion hashVersion, IEnumerable<TxOut> outputsSpents)
+		{
+			uint256 hashAmounts;
+			BitcoinStream ss = CreateHashWriter(hashVersion);
+			foreach (var vout in outputsSpents)
+			{
+				ss.ReadWrite(vout.Value);
+			}
+			hashAmounts = GetHash(ss);
+			return hashAmounts;
+		}
+
+		internal virtual uint256 GetHashScripts(HashVersion hashVersion, IEnumerable<TxOut> outputsSpents)
+		{
+			uint256 hashScripts;
+			BitcoinStream ss = CreateHashWriter(hashVersion);
+			foreach (var vout in outputsSpents)
+			{
+				ss.ReadWrite(vout.ScriptPubKey);
+			}
+			hashScripts = GetHash(ss);
+			return hashScripts;
+		}
 		protected BitcoinStream CreateHashWriter(HashVersion version)
 		{
-			var hs = CreateSignatureHashStream();
+			return CreateHashWriter(version, null);
+		}
+		protected BitcoinStream CreateHashWriter(HashVersion version, string tag)
+		{
+			var hs = CreateSignatureHashStream(version);
+			if (tag is string)
+				hs.InitializeTagged(tag);
 			BitcoinStream stream = new BitcoinStream(hs, true);
 			stream.Type = SerializationType.Hash;
 			stream.TransactionOptions = version == HashVersion.Original ? TransactionOptions.None : TransactionOptions.Witness;
@@ -2208,7 +2348,6 @@ namespace NBitcoin
 		{
 			this.ReadWrite(new BitcoinStream(bytes) { ConsensusFactory = GetConsensusFactory(), ProtocolVersion = version });
 		}
-
 	}
 
 	public enum TransactionCheckResult

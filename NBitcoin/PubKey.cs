@@ -306,24 +306,31 @@ namespace NBitcoin
 		}
 		public TaprootPubKey GetTaprootPubKey(uint256? merkleRoot, out bool parity)
 		{
+			
+			Span<byte> tweak = stackalloc byte[32];
+			ComputeTapTweak(merkleRoot, tweak);
+			var xonly = ToXOnlyPubKey().XOnlyPubKey;
+			return new TaprootPubKey(xonly.AddTweak(tweak).ToXOnlyPubKey(out parity));
+		}
+
+		internal void ComputeTapTweak(uint256? merkleRoot, Span<byte> out32)
+		{
 			using Secp256k1.SHA256 sha = new Secp256k1.SHA256();
 			sha.InitializeTagged("TapTweak");
-			Span<byte> buf = stackalloc byte[32];
 			var xonly = ToXOnlyPubKey().XOnlyPubKey;
-			xonly.WriteToSpan(buf);
-			sha.Write(buf);
+			xonly.WriteToSpan(out32);
+			sha.Write(out32);
 			if (merkleRoot is uint256)
 			{
-				merkleRoot.ToBytes(buf);
-				sha.Write(buf);
+				merkleRoot.ToBytes(out32);
+				sha.Write(out32);
 			}
-			sha.GetHash(buf);
-			return new TaprootPubKey(xonly.AddTweak(buf).ToXOnlyPubKey(out parity));
+			sha.GetHash(out32);
 		}
 
 		ECXOnlyPubKey? _XOnlyPubKey;
 		bool _Parity;
-		private (ECXOnlyPubKey XOnlyPubKey, bool Parity) ToXOnlyPubKey()
+		internal (ECXOnlyPubKey XOnlyPubKey, bool Parity) ToXOnlyPubKey()
 		{
 			if (_XOnlyPubKey is ECXOnlyPubKey)
 			{
