@@ -144,7 +144,7 @@ namespace NBitcoin
 #if !HAS_SPAN
 			var pk = new byte[32];
 			Array.Copy(arr, 2, pk, 0, 32);
-			return new TaprootPubKey(arr);
+			return new TaprootPubKey(pk);
 #else
 			if (TaprootPubKey.TryCreate(arr.AsSpan().Slice(2), out var r))
 				return r;
