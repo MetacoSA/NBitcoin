@@ -37,6 +37,9 @@ namespace NBitcoin
 		/// <summary>
 		/// Derive the taproot address of this pubkey following TaprootBIP86
 		/// </summary>
+#if !HAS_SPAN
+		[Obsolete("TaprootBIP86 is unavailable in .net framework")]
+#endif
 		TaprootBIP86
 	}
 	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>
@@ -272,7 +275,9 @@ namespace NBitcoin
 					if (!network.Consensus.SupportSegwit)
 						throw new NotSupportedException("This network does not support segwit");
 					return this.WitHash.ScriptPubKey.Hash.GetAddress(network);
+#pragma warning disable CS0618 // Type or member is obsolete
 				case ScriptPubKeyType.TaprootBIP86:
+#pragma warning restore CS0618 // Type or member is obsolete
 					if (!network.Consensus.SupportTaproot)
 						throw new NotSupportedException("This network does not support taproot");
 #if !HAS_SPAN
