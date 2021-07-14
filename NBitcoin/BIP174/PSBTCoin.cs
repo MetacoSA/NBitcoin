@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
-using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.RootedKeyPath>;
+using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.IPubKey, NBitcoin.RootedKeyPath>;
 
 namespace NBitcoin
 {
@@ -212,10 +212,9 @@ namespace NBitcoin
 					// The fingerprint match, but we need to check the public keys, because fingerprint collision is easy to provoke
 					if (!hdKey.Value.KeyPath.IsHardenedPath || (accountKey.CanDeriveHardenedPath() && (accountHDScriptPubKey == null || accountHDScriptPubKey.CanDeriveHardenedPath())))
 					{
-						if (accountKey.Derive(hdKey.Value.KeyPath).GetPublicKey() == hdKey.Key)
+						if (accountHDScriptPubKey == null || accountHDScriptPubKey.Derive(hdKey.Value.KeyPath).ScriptPubKey == coinScriptPubKey)
 						{
-							if (accountHDScriptPubKey == null || accountHDScriptPubKey.Derive(hdKey.Value.KeyPath).ScriptPubKey == coinScriptPubKey)
-								yield return CreateHDKeyMatch(accountKey, hdKey.Value.KeyPath, hdKey);
+							yield return CreateHDKeyMatch(accountKey, hdKey.Value.KeyPath, hdKey);
 							matched = true;
 						}
 					}
@@ -228,10 +227,9 @@ namespace NBitcoin
 					// The cases where addresses are generated on a non-hardened path below it (eg. 49'/0'/0'/0/1)
 					if (addressPath.Indexes.Length != 0)
 					{
-						if (accountKey.Derive(addressPath).GetPublicKey() == hdKey.Key)
+						if (accountHDScriptPubKey == null || accountHDScriptPubKey.Derive(addressPath).ScriptPubKey == coinScriptPubKey)
 						{
-							if (accountHDScriptPubKey == null || accountHDScriptPubKey.Derive(addressPath).ScriptPubKey == coinScriptPubKey)
-								yield return CreateHDKeyMatch(accountKey, addressPath, hdKey);
+							yield return CreateHDKeyMatch(accountKey, addressPath, hdKey);
 							matched = true;
 						}
 					}
@@ -246,7 +244,7 @@ namespace NBitcoin
 							var indexes = new uint[addressPathSize];
 							Array.Copy(hdKeyIndexes, hdKey.Value.KeyPath.Length - addressPathSize, indexes, 0, addressPathSize);
 							addressPath = new KeyPath(indexes);
-							if (accountKey.Derive(addressPath).GetPublicKey() == hdKey.Key)
+							if (accountKey.Derive(addressPath).GetPublicKey().Equals(hdKey.Key))
 							{
 								if (accountHDScriptPubKey == null || accountHDScriptPubKey.Derive(addressPath).ScriptPubKey == coinScriptPubKey)
 									yield return CreateHDKeyMatch(accountKey, addressPath, hdKey);
@@ -260,7 +258,7 @@ namespace NBitcoin
 			}
 		}
 
-		protected abstract PSBTHDKeyMatch CreateHDKeyMatch(IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<PubKey, RootedKeyPath> kv);
+		protected abstract PSBTHDKeyMatch CreateHDKeyMatch(IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<IPubKey, RootedKeyPath> kv);
 	}
 }
 #nullable disable

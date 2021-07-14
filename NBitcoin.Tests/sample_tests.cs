@@ -20,7 +20,11 @@ namespace NBitcoin.Tests
 				nodeBuilder.StartAll();
 				rpc.Generate(102);
 
-				var key = new Key();
+				var rootKey = new ExtKey();
+				var accountKeyPath = new KeyPath("86'/0'/0'");
+				var accountRootKeyPath = new RootedKeyPath(rootKey.GetPublicKey().GetHDFingerPrint(), accountKeyPath);
+				var accountKey = rootKey.Derive(accountKeyPath);
+				var key = accountKey.Derive(new KeyPath("0/0")).PrivateKey;
 				var address = key.PubKey.GetAddress(ScriptPubKeyType.TaprootBIP86, nodeBuilder.Network);
 				var destination = new Key().ScriptPubKey;
 				var amount = new Money(1, MoneyUnit.BTC);
@@ -41,7 +45,23 @@ namespace NBitcoin.Tests
 					.SetChange(new Key().ScriptPubKey)
 					.SendEstimatedFees(rate)
 					.BuildTransaction(true);
+				rpc.SendRawTransaction(signedTx);
 
+				// Let's try again, but this time with PSBT
+				id = await rpc.SendToAddressAsync(address, Money.Coins(1));
+				tx = await rpc.GetRawTransactionAsync(id);
+				coin = tx.Outputs.AsCoins().Where(o => o.ScriptPubKey == address.ScriptPubKey).Single();
+				builder = Network.Main.CreateTransactionBuilder();
+				var psbt = builder
+					.AddCoins(coin)
+					.Send(destination, amount)
+					.SubtractFees()
+					.SetChange(new Key().ScriptPubKey)
+					.SendEstimatedFees(rate)
+					.BuildPSBT(false);
+
+				psbt.Inputs[0].HDKeyPaths.Add(key.PubKey.GetTaprootPubKey(), accountRootKeyPath.Derive(KeyPath.Parse("0/0")));
+				psbt.SignAll(ScriptPubKeyType.TaprootBIP86, accountKey, accountRootKeyPath);
 				rpc.SendRawTransaction(signedTx);
 			}
 		}

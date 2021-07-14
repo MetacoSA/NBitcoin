@@ -424,7 +424,7 @@ namespace NBitcoin
 							continue;
 
 						if (!signingContext.PrecomputedTransactionData.ForTaproot)
-							throw new InvalidOperationException("Some previous coin spent by this transaction are missing. Add them with txBuilder.AddCoins().");
+							throw new InvalidOperationException("This transaction include inputs not belonging to the signer, and taproot signing is detected. You need to pass the PrecomputedTransactionData to the TransactionBuilder with txBuilder.SetPrecomputedTransactionData(transactionToSign, spentOutputs).");
 						var hash = txIn.GetSignatureHash(coin, taproot.SigHash, signingContext.PrecomputedTransactionData);
 						if (tv.Item3 != null || tpk.VerifyTaproot(hash, taproot.SchnorrSignature))
 						{
@@ -452,7 +452,7 @@ namespace NBitcoin
 
 		internal class TransactionSigningContext
 		{
-			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, SigningOptions signingOptions)
+			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, SigningOptions signingOptions, PrecomputedTransactionData? precomputedTransactionData = null)
 			{
 				Builder = builder;
 				Transaction = transaction;
@@ -463,14 +463,21 @@ namespace NBitcoin
 				}
 				SigningOptions = signingOptions;
 
-				var prevTxous = transaction.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
-				if (prevTxous.Any(txout => txout is null))
+				if (precomputedTransactionData is null)
 				{
-					PrecomputedTransactionData = new PrecomputedTransactionData(transaction);
+					var prevTxous = transaction.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
+					if (prevTxous.Any(txout => txout is null))
+					{
+						PrecomputedTransactionData = new PrecomputedTransactionData(transaction);
+					}
+					else
+					{
+						PrecomputedTransactionData = new PrecomputedTransactionData(transaction, prevTxous);
+					}
 				}
 				else
 				{
-					PrecomputedTransactionData = new PrecomputedTransactionData(transaction, prevTxous);
+					PrecomputedTransactionData = precomputedTransactionData;
 				}
 			}
 
@@ -1425,12 +1432,41 @@ namespace NBitcoin
 			return this;
 		}
 
+		/// <summary>
+		/// Providing the PrecomputedTransactionData speed up signing time, by pre computing one several hashes need
+		/// for the calculation of the signatures of every input.
+		/// 
+		/// For taproot transaction signing, the precomputed transaction data is required if some of the inputs does not
+		/// belong to the signer.
+		/// </summary>
+		/// <param name="precomputedTransactionData"></param>
+		/// <returns></returns>
+		public TransactionBuilder SetPrecomputedTransactionData(PrecomputedTransactionData? precomputedTransactionData)
+		{
+			this.precomputedTransactionData = precomputedTransactionData;
+			return this;
+		}
+		/// <summary>
+		/// Providing the PrecomputedTransactionData speed up signing time, by pre computing one several hashes need
+		/// for the calculation of the signatures of every input.
+		/// 
+		/// For taproot transaction signing, the precomputed transaction data is required if some of the inputs does not
+		/// belong to the signer.
+		/// </summary>
+		/// <param name="transaction">The transaction being signed</param>
+		/// <param name="spentOutputs">The ordered list of outputs referenced by the inputs of this transaction</param>
+		/// <returns></returns>
+		public TransactionBuilder SetPrecomputedTransactionData(Transaction transaction, TxOut[] spentOutputs)
+		{
+			this.precomputedTransactionData = new PrecomputedTransactionData(transaction, spentOutputs);
+			return this;
+		}
 		public bool TrySignInput(Transaction transaction, uint index, SigningOptions? signingOptions, [MaybeNullWhen(false)] out ITransactionSignature signature)
 		{
 			signingOptions ??= new SigningOptions();
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
-			var ctx = new TransactionSigningContext(this, transaction.Clone(), signingOptions);
+			var ctx = new TransactionSigningContext(this, transaction.Clone(), signingOptions, precomputedTransactionData);
 			ctx.InputIndex = index;
 			this.SignTransactionInPlace(ctx);
 			signature = ctx.SignatureEvents.FirstOrDefault()?.Signature;
@@ -2668,6 +2704,8 @@ namespace NBitcoin
 		}
 
 		Dictionary<Script, Script> _ScriptPubKeyToRedeem = new Dictionary<Script, Script>();
+		private PrecomputedTransactionData? precomputedTransactionData;
+
 		public TransactionBuilder AddKnownRedeems(params Script[] knownRedeems)
 		{
 			foreach (var redeem in knownRedeems)

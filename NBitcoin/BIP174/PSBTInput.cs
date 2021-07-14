@@ -7,6 +7,7 @@ using System.IO;
 using NBitcoin.DataEncoders;
 using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.IPubKey, NBitcoin.ITransactionSignature>;
 using System.Diagnostics.CodeAnalysis;
+using NBitcoin.Crypto;
 
 namespace NBitcoin
 {
@@ -77,10 +78,23 @@ namespace NBitcoin
 						witness_utxo.FromBytes(v);
 						break;
 					case PSBTConstants.PSBT_IN_PARTIAL_SIG:
-						var pubkey = new PubKey(k.Skip(1).ToArray());
-						if (partial_sigs.ContainsKey(pubkey))
-							throw new FormatException("Invalid PSBTInput. Duplicate key for partial_sigs");
-						partial_sigs.Add(pubkey, new TransactionSignature(v));
+						var pkbytes = k.Skip(1).ToArray();
+						if (pkbytes.Length == 33)
+						{
+							var pubkey = new PubKey(pkbytes);
+							if (partial_sigs.ContainsKey(pubkey))
+								throw new FormatException("Invalid PSBTInput. Duplicate key for partial_sigs");
+							partial_sigs.Add(pubkey, new TransactionSignature(v));
+						}
+						else if (pkbytes.Length == 32)
+						{
+							var pubkey = new TaprootPubKey(pkbytes);
+							if (partial_sigs.ContainsKey(pubkey))
+								throw new FormatException("Invalid PSBTInput. Duplicate key for partial_sigs");
+							partial_sigs.Add(pubkey, TaprootSignature.Parse(v));
+						}
+						else
+							throw new FormatException("Unexpected public key size in the PSBT");
 						break;
 					case PSBTConstants.PSBT_IN_SIGHASH:
 						if (k.Length != 1)
@@ -553,6 +567,10 @@ namespace NBitcoin
 
 		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, SigningOptions signingOptions)
 		{
+			TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, signingOptions, null);
+		}
+		internal void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, SigningOptions signingOptions, PrecomputedTransactionData? precomputedTransactionData)
+		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
 			if (accountHDScriptPubKey == null)
@@ -564,7 +582,7 @@ namespace NBitcoin
 			foreach (var hdk in this.HDKeysFor(accountHDScriptPubKey, cache, accountKeyPath))
 			{
 				if (((HDKeyCache)cache.Derive(hdk.AddressKeyPath)).Inner is ISecret k)
-					Sign(k.PrivateKey, signingOptions);
+					Sign(k.PrivateKey, signingOptions, precomputedTransactionData);
 				else
 					throw new ArgumentException(paramName: nameof(accountKey), message: "This should be a private key");
 			}
@@ -880,12 +898,16 @@ namespace NBitcoin
 		}
 		public ITransactionSignature? Sign(Key key, SigningOptions signingOptions)
 		{
+			return Sign(key, signingOptions, null);
+		}
+		internal ITransactionSignature? Sign(Key key, SigningOptions signingOptions, PrecomputedTransactionData? precomputedTransactionData)
+		{
 			if (this.IsFinalized())
 				return null;
 			signingOptions ??= new SigningOptions();
-			CheckCompatibleSigHash(signingOptions.SigHash);
 			if (PartialSigs.TryGetValue(key.PubKey, out var existingSig) && existingSig is TransactionSignature ecdsa)
 			{
+				CheckCompatibleSigHash(signingOptions.SigHash);
 				var signature = PartialSigs[key.PubKey];
 				if (signingOptions.SigHash != ecdsa.SigHash)
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
@@ -899,6 +921,9 @@ namespace NBitcoin
 			var builder = Parent.CreateTransactionBuilder();
 			builder.AddCoins(coin);
 			builder.AddKeys(key);
+			if (precomputedTransactionData is null)
+				precomputedTransactionData = new PrecomputedTransactionData(Transaction, Parent.Outputs.Select(o => o.TxOut).ToArray());
+			builder.SetPrecomputedTransactionData(precomputedTransactionData);
 			if (builder.TrySignInput(Transaction, Index, signingOptions, out var signature2))
 			{
 				this.PartialSigs.TryAdd(key.PubKey, signature2);
@@ -968,7 +993,7 @@ namespace NBitcoin
 			return strWriter.ToString();
 		}
 
-		protected override PSBTHDKeyMatch CreateHDKeyMatch(IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<PubKey, RootedKeyPath> kv)
+		protected override PSBTHDKeyMatch CreateHDKeyMatch(IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<IPubKey, RootedKeyPath> kv)
 		{
 			return new PSBTHDKeyMatch<PSBTInput>(this, accountKey, addressKeyPath, kv);
 		}

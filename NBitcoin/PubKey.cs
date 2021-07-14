@@ -390,6 +390,14 @@ namespace NBitcoin
 					return WitHash.ScriptPubKey;
 				case ScriptPubKeyType.SegwitP2SH:
 					return WitHash.ScriptPubKey.Hash.ScriptPubKey;
+#pragma warning disable CS0618 // Type or member is obsolete
+				case ScriptPubKeyType.TaprootBIP86:
+#pragma warning restore CS0618 // Type or member is obsolete
+#if HAS_SPAN
+					return GetTaprootPubKey().ScriptPubKey;
+#else
+					throw new NotSupportedException("ScriptPubKeyType.TaprootBIP86 is not supported by .net framework");
+#endif
 				default:
 					throw new NotSupportedException();
 			}
