@@ -54,6 +54,10 @@ namespace NBitcoin
 		/// </summary>
 		public SigHash SigHash { get; set; }
 		/// <summary>
+		/// What are we signing for taproot (default: SigHash.Default)
+		/// </summary>
+		public TaprootSigHash TaprootSigHash { get; set; } = TaprootSigHash.Default;
+		/// <summary>
 		/// Do we try to get shorter signatures? (default: true)
 		/// </summary>
 		public bool EnforceLowR { get; set; }
@@ -62,7 +66,8 @@ namespace NBitcoin
 			return new SigningOptions()
 			{
 				SigHash = SigHash,
-				EnforceLowR = EnforceLowR
+				EnforceLowR = EnforceLowR,
+				TaprootSigHash = TaprootSigHash
 			};
 		}
 	}
@@ -319,14 +324,14 @@ namespace NBitcoin
 	{
 		internal class SignatureEvent
 		{
-			public SignatureEvent(PubKey pubKey, TransactionSignature sig, IndexedTxIn input)
+			public SignatureEvent(IPubKey pubKey, ITransactionSignature sig, IndexedTxIn input)
 			{
 				Input = input;
 				PubKey = pubKey;
 				Signature = sig;
 			}
-			public PubKey PubKey;
-			public TransactionSignature Signature;
+			public IPubKey PubKey;
+			public ITransactionSignature Signature;
 			public IndexedTxIn Input;
 		}
 		internal class TransactionBuilderSigner : ISigner
@@ -346,10 +351,12 @@ namespace NBitcoin
 
 			public List<SignatureEvent> EmittedSignatures { get; } = new List<SignatureEvent>();
 
-			public TransactionSignature Sign(PubKey pubKey)
+			public ITransactionSignature? Sign(IPubKey pubKey)
 			{
-				var key = ctx.FindKey(pubKey);
-				var sig = txIn.Sign(key, coin, signingOptions);
+				var key = ctx.FindKey(pubKey)?.Key;
+				if (key is null)
+					return null;
+				var sig = txIn.Sign(key, coin, signingOptions, this.ctx.PrecomputedTransactionData);
 				EmittedSignatures.Add(new SignatureEvent(key.PubKey, sig, txIn));
 				return sig;
 			}
@@ -365,7 +372,7 @@ namespace NBitcoin
 			}
 			#region IKeyRepository Members
 
-			public PubKey? FindKey(Script scriptPubkey)
+			public IPubKey? FindKey(Script scriptPubkey)
 			{
 				return _Ctx.FindKey(scriptPubkey)?.PubKey;
 			}
@@ -378,12 +385,12 @@ namespace NBitcoin
 			private ICoin coin;
 			private IndexedTxIn txIn;
 			private readonly TransactionSigningContext signingContext;
-			private List<Tuple<PubKey, ECDSASignature, OutPoint>> _KnownSignatures;
-			private Dictionary<KeyId, ECDSASignature> _VerifiedSignatures = new Dictionary<KeyId, ECDSASignature>();
+			private List<Tuple<IPubKey, ITransactionSignature, OutPoint>> _KnownSignatures;
+			private Dictionary<IPubKey, ITransactionSignature> _VerifiedSignatures = new Dictionary<IPubKey, ITransactionSignature>();
 
 			public List<SignatureEvent> EmittedSignatures { get; } = new List<SignatureEvent>();
 
-			public KnownSignatureSigner(TransactionSigningContext signingContext, List<Tuple<PubKey, ECDSASignature, OutPoint>> knownSignatures, ICoin coin, IndexedTxIn txIn)
+			public KnownSignatureSigner(TransactionSigningContext signingContext, List<Tuple<IPubKey, ITransactionSignature, OutPoint>> knownSignatures, ICoin coin, IndexedTxIn txIn)
 			{
 				this.signingContext = signingContext;
 				this._KnownSignatures = knownSignatures;
@@ -391,32 +398,61 @@ namespace NBitcoin
 				this.txIn = txIn;
 			}
 
-			public PubKey? FindKey(Script scriptPubKey)
+			public IPubKey? FindKey(Script scriptPubKey)
 			{
 				foreach (var tv in _KnownSignatures.Where(tv => signingContext.Builder.IsCompatibleKeyFromScriptCode(tv.Item1, scriptPubKey)))
 				{
 					if (tv.Item3 != null && coin.Outpoint != tv.Item3)
 						continue;
-					var hash = txIn.GetSignatureHash(coin, signingContext.SigningOptions.SigHash);
-					if (tv.Item3 != null || tv.Item1.Verify(hash, tv.Item2))
+
+					var sig = tv.Item2;
+					bool found = false;
+					if (sig is TransactionSignature ecdsa && tv.Item1 is PubKey pk)
 					{
-						EmittedSignatures.Add(new SignatureEvent(tv.Item1, new TransactionSignature(tv.Item2, signingContext.SigningOptions.SigHash), txIn));
-						_VerifiedSignatures.AddOrReplace(tv.Item1.Hash, tv.Item2);
+						if (signingContext.SigningOptions.SigHash != ecdsa.SigHash)
+							continue;
+						var hash = txIn.GetSignatureHash(coin, ecdsa.SigHash, signingContext.PrecomputedTransactionData);
+						if (tv.Item3 != null || pk.Verify(hash, ecdsa.Signature))
+						{
+							found = true;
+						}
+					}
+#if HAS_SPAN
+					if (sig is TaprootSignature taproot && tv.Item1 is TaprootPubKey tpk)
+					{
+						if (signingContext.SigningOptions.TaprootSigHash != taproot.SigHash)
+							continue;
+
+						if (!signingContext.PrecomputedTransactionData.ForTaproot)
+							throw new InvalidOperationException("This transaction include inputs not belonging to the signer, and taproot signing is detected. You need to pass the PrecomputedTransactionData to the TransactionBuilder with txBuilder.SetPrecomputedTransactionData(transactionToSign, spentOutputs).");
+						var hash = txIn.GetSignatureHash(coin, taproot.SigHash, signingContext.PrecomputedTransactionData);
+						if (tv.Item3 != null || tpk.VerifyTaproot(hash, taproot.SchnorrSignature))
+						{
+							found = true;
+						}
+					}
+#else
+					if (sig is TaprootSignature taproot) throw new NotSupportedException("Signing with taproot is not supported by .net framework");
+#endif
+					if (found)
+					{
+						EmittedSignatures.Add(new SignatureEvent(tv.Item1, tv.Item2, txIn));
+						_VerifiedSignatures.AddOrReplace(tv.Item1, sig);
 						return tv.Item1;
 					}
 				}
 				return null;
 			}
 
-			public TransactionSignature Sign(PubKey key)
+			public ITransactionSignature Sign(IPubKey key)
 			{
-				return new TransactionSignature(_VerifiedSignatures[key.Hash], signingContext.SigningOptions.SigHash);
+				return _VerifiedSignatures[key];
 			}
 		}
 
 		internal class TransactionSigningContext
 		{
-			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, SigningOptions signingOptions)
+			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, SigningOptions signingOptions, PrecomputedTransactionData? precomputedTransactionData = null)
 			{
 				Builder = builder;
 				Transaction = transaction;
@@ -426,6 +462,23 @@ namespace NBitcoin
 					signingOptions.SigHash = (SigHash)((uint)signingOptions.SigHash | 0x40u);
 				}
 				SigningOptions = signingOptions;
+
+				if (precomputedTransactionData is null)
+				{
+					var prevTxous = transaction.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
+					if (prevTxous.Any(txout => txout is null))
+					{
+						PrecomputedTransactionData = new PrecomputedTransactionData(transaction);
+					}
+					else
+					{
+						PrecomputedTransactionData = new PrecomputedTransactionData(transaction, prevTxous);
+					}
+				}
+				else
+				{
+					PrecomputedTransactionData = precomputedTransactionData;
+				}
 			}
 
 			public Transaction Transaction
@@ -439,18 +492,20 @@ namespace NBitcoin
 				set;
 			}
 
-			internal Key? FindKey(Script scriptPubKey)
+			public PrecomputedTransactionData PrecomputedTransactionData { get; }
+
+			internal KeyPair? FindKey(Script scriptPubKey)
 			{
-				Key? key = Builder._Keys
+				var keypair = (Builder._Keys
 					.Concat(AdditionalKeys)
-					.FirstOrDefault(k => Builder.IsCompatibleKeyFromScriptCode(k.PubKey, scriptPubKey));
-				if (key is null && Builder.KeyFinder != null)
+					.FirstOrDefault(k => Builder.IsCompatibleKeyFromScriptCode(k.PubKey, scriptPubKey)));
+				if (keypair is null && Builder.KeyFinder != null)
 				{
-					key = Builder.KeyFinder(scriptPubKey);
+					keypair = Builder.KeyFinder(scriptPubKey);
 				}
-				return key;
+				return keypair;
 			}
-			internal Key FindKey(PubKey pubKey)
+			internal KeyPair FindKey(IPubKey pubKey)
 			{
 				var key = Builder._Keys
 					.Concat(AdditionalKeys)
@@ -458,8 +513,8 @@ namespace NBitcoin
 				return key;
 			}
 
-			private readonly List<Key> _AdditionalKeys = new List<Key>();
-			public List<Key> AdditionalKeys
+			private readonly List<KeyPair> _AdditionalKeys = new List<KeyPair>();
+			public List<KeyPair> AdditionalKeys
 			{
 				get
 				{
@@ -758,6 +813,12 @@ namespace NBitcoin
 			Extensions.Add(new P2MultiSigBuilderExtension());
 			Extensions.Add(new P2PKBuilderExtension());
 			Extensions.Add(new OPTrueExtension());
+#if HAS_SPAN
+			if (Network.Consensus.SupportTaproot)
+			{
+				Extensions.Add(new TaprootBIP86Extension());
+			}
+#endif
 		}
 
 		/// <summary>
@@ -843,7 +904,7 @@ namespace NBitcoin
 		/// <summary>
 		/// A callback used by the TransactionBuilder when it does not find the key for a scriptPubKey
 		/// </summary>
-		public Func<Script, Key>? KeyFinder
+		public Func<Script, KeyPair>? KeyFinder
 		{
 			get;
 			set;
@@ -863,27 +924,43 @@ namespace NBitcoin
 			return this;
 		}
 
-		internal List<Key> _Keys = new List<Key>();
+		internal List<KeyPair> _Keys = new List<KeyPair>();
 
 		public TransactionBuilder AddKeys(params ISecret[] keys)
 		{
+			if (keys == null)
+				throw new ArgumentNullException(nameof(keys));
 			AddKeys(keys.Select(k => k.PrivateKey).ToArray());
 			return this;
 		}
 
 		public TransactionBuilder AddKeys(params Key[] keys)
 		{
-			_Keys.AddRange(keys);
-			foreach (var k in keys)
+			if (keys == null)
+				throw new ArgumentNullException(nameof(keys));
+			List<KeyPair> pairs = new List<KeyPair>(keys.Length * 2);
+#if HAS_SPAN
+			if (Network.Consensus.SupportTaproot)
+				pairs.AddRange(keys.Select(k => KeyPair.CreateTaprootBIP38Pair(k)));
+#endif
+			pairs.AddRange(keys.Select(k => KeyPair.CreateECDSAPair(k)));
+			return AddKeys(pairs.ToArray());
+		}
+		public TransactionBuilder AddKeys(params KeyPair[] keyPairs)
+		{
+			if (keyPairs == null)
+				throw new ArgumentNullException(nameof(keyPairs));
+			_Keys.AddRange(keyPairs);
+			foreach (var pk in keyPairs.Select(k => k.PubKey).OfType<PubKey>())
 			{
-				AddKnownRedeems(k.PubKey.ScriptPubKey);
-				AddKnownRedeems(k.PubKey.WitHash.ScriptPubKey);
-				AddKnownRedeems(k.PubKey.Hash.ScriptPubKey);
+				AddKnownRedeems(pk.ScriptPubKey);
+				AddKnownRedeems(pk.WitHash.ScriptPubKey);
+				AddKnownRedeems(pk.Hash.ScriptPubKey);
 			}
 			return this;
 		}
 
-		public TransactionBuilder AddKnownSignature(PubKey pubKey, TransactionSignature signature, OutPoint signedOutpoint)
+		public TransactionBuilder AddKnownSignature(IPubKey pubKey, ITransactionSignature signature, OutPoint signedOutpoint)
 		{
 			if (pubKey == null)
 				throw new ArgumentNullException(nameof(pubKey));
@@ -891,22 +968,13 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(signature));
 			if (signedOutpoint == null)
 				throw new ArgumentNullException(nameof(signedOutpoint));
-			_KnownSignatures.Add(Tuple.Create(pubKey, signature.Signature, signedOutpoint));
+			_KnownSignatures.Add(Tuple.Create(pubKey, signature, signedOutpoint));
 			return this;
 		}
 
 		public TransactionBuilder SetOptInRBF(bool rbf)
 		{
 			OptInRBF = rbf;
-			return this;
-		}
-		public TransactionBuilder AddKnownSignature(PubKey pubKey, ECDSASignature signature, OutPoint signedOutpoint)
-		{
-			if (pubKey == null)
-				throw new ArgumentNullException(nameof(pubKey));
-			if (signature == null)
-				throw new ArgumentNullException(nameof(signature));
-			_KnownSignatures.Add(Tuple.Create(pubKey, signature, signedOutpoint));
 			return this;
 		}
 
@@ -1364,12 +1432,41 @@ namespace NBitcoin
 			return this;
 		}
 
-		public bool TrySignInput(Transaction transaction, uint index, SigningOptions? signingOptions, [MaybeNullWhen(false)] out TransactionSignature signature)
+		/// <summary>
+		/// Providing the PrecomputedTransactionData speed up signing time, by pre computing one several hashes need
+		/// for the calculation of the signatures of every input.
+		/// 
+		/// For taproot transaction signing, the precomputed transaction data is required if some of the inputs does not
+		/// belong to the signer.
+		/// </summary>
+		/// <param name="precomputedTransactionData"></param>
+		/// <returns></returns>
+		public TransactionBuilder SetPrecomputedTransactionData(PrecomputedTransactionData? precomputedTransactionData)
+		{
+			this.precomputedTransactionData = precomputedTransactionData;
+			return this;
+		}
+		/// <summary>
+		/// Providing the PrecomputedTransactionData speed up signing time, by pre computing one several hashes need
+		/// for the calculation of the signatures of every input.
+		/// 
+		/// For taproot transaction signing, the precomputed transaction data is required if some of the inputs does not
+		/// belong to the signer.
+		/// </summary>
+		/// <param name="transaction">The transaction being signed</param>
+		/// <param name="spentOutputs">The ordered list of outputs referenced by the inputs of this transaction</param>
+		/// <returns></returns>
+		public TransactionBuilder SetPrecomputedTransactionData(Transaction transaction, TxOut[] spentOutputs)
+		{
+			this.precomputedTransactionData = new PrecomputedTransactionData(transaction, spentOutputs);
+			return this;
+		}
+		public bool TrySignInput(Transaction transaction, uint index, SigningOptions? signingOptions, [MaybeNullWhen(false)] out ITransactionSignature signature)
 		{
 			signingOptions ??= new SigningOptions();
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
-			var ctx = new TransactionSigningContext(this, transaction.Clone(), signingOptions);
+			var ctx = new TransactionSigningContext(this, transaction.Clone(), signingOptions, precomputedTransactionData);
 			ctx.InputIndex = index;
 			this.SignTransactionInPlace(ctx);
 			signature = ctx.SignatureEvents.FirstOrDefault()?.Signature;
@@ -1387,7 +1484,7 @@ namespace NBitcoin
 			return signingOptions;
 		}
 
-		public bool TrySignInput(Transaction transaction, uint index, SigHash sigHash, out TransactionSignature? signature)
+		public bool TrySignInput(Transaction transaction, uint index, SigHash sigHash, [MaybeNullWhen(false)] out ITransactionSignature signature)
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
@@ -2379,11 +2476,11 @@ namespace NBitcoin
 			var input = txIn.TxIn;
 			if (coin is StealthCoin stealthCoin)
 			{
-				var scanKey = ctx.FindKey(stealthCoin.Address.ScanPubKey.ScriptPubKey);
+				var scanKey = ctx.FindKey(stealthCoin.Address.ScanPubKey.ScriptPubKey)?.Key;
 				if (scanKey is null)
 					throw new KeyNotFoundException("Scan key for decrypting StealthCoin not found");
-				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => ctx.FindKey(p.ScriptPubKey)).Where(p => !(p is null)).ToArray();
-				ctx.AdditionalKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey));
+				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => ctx.FindKey(p.ScriptPubKey)?.Key).Where(p => !(p is null)).ToArray();
+				ctx.AdditionalKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey).Select(KeyPair.CreateECDSAPair));
 				var normalCoin = new Coin(coin.Outpoint, coin.TxOut);
 				if (stealthCoin.Redeem != null)
 					normalCoin = normalCoin.ToScriptCoin(stealthCoin.Redeem);
@@ -2503,8 +2600,8 @@ namespace NBitcoin
 			throw new NotSupportedException("Unsupported scriptPubKey");
 		}
 
-		List<Tuple<PubKey, ECDSASignature, OutPoint>> _KnownSignatures = new List<Tuple<PubKey, ECDSASignature, OutPoint>>();
-		internal bool IsCompatibleKeyFromScriptCode(PubKey pubKey, Script scriptPubKey)
+		List<Tuple<IPubKey, ITransactionSignature, OutPoint>> _KnownSignatures = new List<Tuple<IPubKey, ITransactionSignature, OutPoint>>();
+		internal bool IsCompatibleKeyFromScriptCode(IPubKey pubKey, Script scriptPubKey)
 		{
 			return _Extensions.Any(e => e.IsCompatibleKey(pubKey, scriptPubKey));
 		}
@@ -2607,6 +2704,8 @@ namespace NBitcoin
 		}
 
 		Dictionary<Script, Script> _ScriptPubKeyToRedeem = new Dictionary<Script, Script>();
+		private PrecomputedTransactionData? precomputedTransactionData;
+
 		public TransactionBuilder AddKnownRedeems(params Script[] knownRedeems)
 		{
 			foreach (var redeem in knownRedeems)

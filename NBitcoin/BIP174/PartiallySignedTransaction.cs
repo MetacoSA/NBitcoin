@@ -567,9 +567,10 @@ namespace NBitcoin
 			accountHDScriptPubKey = accountHDScriptPubKey.AsHDKeyCache();
 			accountKey = accountKey.AsHDKeyCache();
 			Money total = Money.Zero;
+			var transactionData = GetPrecomputedTransactionData();
 			foreach (var o in Inputs.CoinsFor(accountHDScriptPubKey, accountKey, accountKeyPath))
 			{
-				o.TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, signingOptions);
+				o.TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, signingOptions, transactionData);
 			}
 			return this;
 		}
@@ -711,14 +712,20 @@ namespace NBitcoin
 		public PSBT SignWithKeys(SigningOptions signingOptions, params Key[] keys)
 		{
 			AssertSanity();
+			var transactionData = GetPrecomputedTransactionData();
 			foreach (var key in keys)
 			{
 				foreach (var input in this.Inputs)
 				{
-					input.Sign(key, signingOptions);
+					input.Sign(key, signingOptions, transactionData);
 				}
 			}
 			return this;
+		}
+
+		private PrecomputedTransactionData GetPrecomputedTransactionData()
+		{
+			return new PrecomputedTransactionData(tx, Outputs.Select(o => o.TxOut).ToArray());
 		}
 
 		internal TransactionBuilder CreateTransactionBuilder()
@@ -1255,7 +1262,6 @@ namespace NBitcoin
 			if (IsAllFinalized())
 				return this;
 			accountKey = accountKey.AsHDKeyCache();
-			var accountKeyFP = accountKey.GetPublicKey().GetHDFingerPrint();
 			foreach (var o in HDKeysFor(accountKey).GroupBy(c => c.Coin))
 			{
 				if (o.Key is PSBTInput i && i.IsFinalized())
@@ -1271,7 +1277,7 @@ namespace NBitcoin
 			}
 			foreach (var xpub in GlobalXPubs.ToList())
 			{
-				if (xpub.Key.ExtPubKey.PubKey == accountKey.GetPublicKey())
+				if (xpub.Key.ExtPubKey.PubKey.Equals(accountKey.GetPublicKey()))
 				{
 					if (xpub.Value.MasterFingerprint != newRoot.MasterFingerprint)
 					{

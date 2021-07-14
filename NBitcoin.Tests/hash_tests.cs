@@ -16,6 +16,27 @@ namespace NBitcoin.Tests
 	{
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void InitiateTaggedWorks()
+		{
+#if HAS_SPAN
+			var sha = new NBitcoin.Secp256k1.SHA256();
+			sha.InitializeTagged("lol");
+			sha.Write(new byte[32]);
+			byte[] buff = new byte[32];
+			sha.GetHash(buff);
+			Assert.Equal("9185788706ad8d475d2410ce07554aeff7a212418159a8fa8ef2b3cb4a883b62", new uint256(buff).ToString());
+#endif
+			HashStream stream = new HashStream();
+			stream.SingleSHA256 = true;
+			stream.InitializeTagged("lol");
+			stream.Write(new byte[32], 0, 32);
+			var actual = stream.GetHash();
+			Assert.Equal("9185788706ad8d475d2410ce07554aeff7a212418159a8fa8ef2b3cb4a883b62", actual.ToString());
+		}
+
+
+		[Fact]
 		[Trait("Core", "Core")]
 		public void murmurhash3()
 		{

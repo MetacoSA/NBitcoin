@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,14 +8,16 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BuilderExtensions
 {
+#nullable enable
 	public interface ISigner
 	{
-		TransactionSignature Sign(PubKey key);
+		ITransactionSignature? Sign(IPubKey key);
 	}
 	public interface IKeyRepository
 	{
-		PubKey FindKey(Script scriptPubKey);
+		IPubKey? FindKey(Script scriptPubKey);
 	}
+#nullable restore
 
 	/// <summary>
 	/// Base extension class to derive from for extending the TransactionBuilder
@@ -37,6 +40,6 @@ namespace NBitcoin.BuilderExtensions
 
 		public abstract Script CombineScriptSig(Script scriptPubKey, Script a, Script b);
 
-		public abstract bool IsCompatibleKey(PubKey publicKey, Script scriptPubKey);
+		public abstract bool IsCompatibleKey(IPubKey publicKey, Script scriptPubKey);
 	}
 }

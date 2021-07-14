@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.RootedKeyPath>;
+using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.IPubKey, NBitcoin.RootedKeyPath>;
 
 namespace NBitcoin
 {
@@ -21,7 +21,7 @@ namespace NBitcoin
 			foreach (var keypath in hd_keypaths)
 			{
 				jsonWriter.WriteStartObject();
-				jsonWriter.WritePropertyValue("pubkey", keypath.Key.ToHex());
+				jsonWriter.WritePropertyValue("pubkey", keypath.Key.ToString());
 				jsonWriter.WritePropertyValue("master_fingerprint", Encoders.Hex.EncodeData(keypath.Value.MasterFingerprint.ToBytes()));
 				jsonWriter.WritePropertyValue("path", keypath.Value.KeyPath.ToString());
 				jsonWriter.WriteEndObject();
@@ -30,14 +30,14 @@ namespace NBitcoin
 		}
 	}
 
-	internal class PubKeyComparer : IComparer<PubKey>
+	internal class PubKeyComparer : IComparer<IPubKey>
 	{
 		PubKeyComparer()
 		{
 
 		}
 		public static PubKeyComparer Instance { get; } = new PubKeyComparer();
-		public int Compare(PubKey x, PubKey y)
+		public int Compare(IPubKey x, IPubKey y)
 		{
 			return BytesComparer.Instance.Compare(x.ToBytes(), y.ToBytes());
 		}

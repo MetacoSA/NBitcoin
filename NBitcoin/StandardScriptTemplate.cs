@@ -169,6 +169,13 @@ namespace NBitcoin
 		{
 			throw new NotSupportedException();
 		}
+
+		public Script GenerateScriptSig(TaprootSignature signature)
+		{
+			if (signature == null)
+				throw new ArgumentNullException(nameof(signature));
+			return new Script(Op.GetPushOp(signature.ToBytes()));
+		}
 	}
 	public class PayToMultiSigTemplate : ScriptTemplate
 	{

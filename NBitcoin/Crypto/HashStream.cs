@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NBitcoin.DataEncoders;
 #if !NONATIVEHASH
 using System.Security.Cryptography;
 #endif
@@ -13,6 +14,13 @@ namespace NBitcoin.Crypto
 	public abstract class HashStreamBase : Stream
 	{
 		public abstract uint256 GetHash();
+		public void InitializeTagged(string tag)
+		{
+			var bytes = Encoders.ASCII.DecodeData(tag);
+			var hash = Hashes.SHA256(bytes);
+			this.Write(hash, 0, 32);
+			this.Write(hash, 0, 32);
+		}
 	}
 
 	/// <summary>
@@ -24,6 +32,8 @@ namespace NBitcoin.Crypto
 		{
 
 		}
+
+		public bool SingleSHA256 { get; set; }
 
 		public override bool CanRead
 		{
@@ -157,6 +167,8 @@ namespace NBitcoin.Crypto
 		{
 			ProcessBlock();
 			sha.DoFinal(_Buffer, 0);
+			if (SingleSHA256)
+				return new uint256(_Buffer);
 			_Pos = 32;
 			ProcessBlock();
 			sha.DoFinal(_Buffer, 0);
@@ -177,6 +189,10 @@ namespace NBitcoin.Crypto
 			ProcessBlock();
 			sha.TransformFinalBlock(Empty, 0, 0);
 			var hash1 = sha.Hash;
+			if (SingleSHA256)
+			{
+				return new uint256(hash1);
+			}
 			Buffer.BlockCopy(sha.Hash, 0, _Buffer, 0, 32);
 			sha.Initialize();
 			sha.TransformFinalBlock(_Buffer, 0, 32);
@@ -189,6 +205,11 @@ namespace NBitcoin.Crypto
 			ProcessBlock();
 			sha.TransformFinalBlock(Empty, 0, 0);
 			var hash1 = sha.Hash;
+			if (SingleSHA256)
+			{
+				hash1.AsSpan().CopyTo(output);
+				return;
+			}
 			Buffer.BlockCopy(sha.Hash, 0, _Buffer, 0, 32);
 			sha.Initialize();
 			sha.TransformFinalBlock(_Buffer, 0, 32);

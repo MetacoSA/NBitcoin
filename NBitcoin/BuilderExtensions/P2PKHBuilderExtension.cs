@@ -51,23 +51,24 @@ namespace NBitcoin.BuilderExtensions
 
 		public override int EstimateScriptSigSize(Script scriptPubKey)
 		{
-			// return PayToPubkeyHashTemplate.Instance.GenerateScriptSig(DummySignature, DummyPubKey).Length;
 			return 107;
 		}
 
 		public override Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer)
 		{
 			var parameters = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
-			var key = keyRepo.FindKey(parameters.ScriptPubKey);
+			var key = keyRepo.FindKey(parameters.ScriptPubKey) as PubKey;
 			if (key == null)
 				return null;
-			var sig = signer.Sign(key);
+			var sig = signer.Sign(key) as TransactionSignature;
+			if (sig is null)
+				return null;
 			return PayToPubkeyHashTemplate.Instance.GenerateScriptSig(sig, key);
 		}
 
-		public override bool IsCompatibleKey(PubKey publicKey, Script scriptPubKey)
+		public override bool IsCompatibleKey(IPubKey publicKey, Script scriptPubKey)
 		{
-			return publicKey.Hash.ScriptPubKey == scriptPubKey;
+			return publicKey is PubKey pk && pk.Hash.ScriptPubKey == scriptPubKey;
 		}
 	}
 }

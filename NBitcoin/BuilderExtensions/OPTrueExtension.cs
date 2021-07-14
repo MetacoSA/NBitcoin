@@ -48,7 +48,7 @@ namespace NBitcoin.BuilderExtensions
 			return Script.Empty;
 		}
 
-		public override bool IsCompatibleKey(PubKey publicKey, Script scriptPubKey)
+		public override bool IsCompatibleKey(IPubKey publicKey, Script scriptPubKey)
 		{
 			return false;
 		}

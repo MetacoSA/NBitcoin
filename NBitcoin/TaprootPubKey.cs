@@ -9,10 +9,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NBitcoin.Crypto;
 
 namespace NBitcoin
 {
-	public class TaprootPubKey : IAddressableDestination
+	public class TaprootPubKey : IAddressableDestination, IPubKey
 	{
 #if HAS_SPAN
 		private ECXOnlyPubKey pubkey;
@@ -122,6 +123,15 @@ namespace NBitcoin
 		public override int GetHashCode()
 		{
 			return pubkey.GetHashCode();
+		}
+
+		public bool VerifyTaproot(uint256 hash, SchnorrSignature signature)
+		{
+			if (hash == null)
+				throw new ArgumentNullException(nameof(hash));
+			if (signature == null)
+				throw new ArgumentNullException(nameof(signature));
+			return this.pubkey.SigVerifyBIP340(signature.secpShnorr, hash.ToBytes());
 		}
 #else
 		public override bool Equals(object obj)
