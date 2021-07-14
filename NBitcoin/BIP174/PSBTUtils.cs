@@ -30,14 +30,14 @@ namespace NBitcoin
 		}
 	}
 
-	internal class PubKeyComparer : IComparer<PubKey>
+	internal class PubKeyComparer : IComparer<IPubKey>
 	{
 		PubKeyComparer()
 		{
 
 		}
 		public static PubKeyComparer Instance { get; } = new PubKeyComparer();
-		public int Compare(PubKey x, PubKey y)
+		public int Compare(IPubKey x, IPubKey y)
 		{
 			return BytesComparer.Instance.Compare(x.ToBytes(), y.ToBytes());
 		}

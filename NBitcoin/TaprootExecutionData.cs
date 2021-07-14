@@ -10,10 +10,14 @@ namespace NBitcoin
 	{
 		public TaprootExecutionData(int inputIndex)
 		{
+			if (inputIndex < 0)
+				throw new ArgumentOutOfRangeException(nameof(inputIndex));
 			InputIndex = inputIndex;
 		}
 		public TaprootExecutionData(int inputIndex, uint256 tapleaf)
 		{
+			if (inputIndex < 0)
+				throw new ArgumentOutOfRangeException(nameof(inputIndex));
 			InputIndex = inputIndex;
 			HashVersion = HashVersion.Tapscript;
 			TapleafHash = tapleaf;

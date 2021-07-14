@@ -48,13 +48,15 @@ namespace NBitcoin.BuilderExtensions
 			var key = keyRepo.FindKey(scriptPubKey);
 			if (key == null)
 				return null;
-			var sig = signer.Sign(key);
+			var sig = signer.Sign(key) as TransactionSignature;
+			if (sig is null)
+				return null;
 			return PayToPubkeyTemplate.Instance.GenerateScriptSig(sig);
 		}
 
-		public override bool IsCompatibleKey(PubKey publicKey, Script scriptPubKey)
+		public override bool IsCompatibleKey(IPubKey publicKey, Script scriptPubKey)
 		{
-			return publicKey.ScriptPubKey == scriptPubKey;
+			return publicKey is PubKey pk && pk.ScriptPubKey == scriptPubKey;
 		}
 	}
 }

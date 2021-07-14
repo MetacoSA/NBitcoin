@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class TaprootSignature
+	public class TaprootSignature : ITransactionSignature
 	{
 		public TaprootSignature(SchnorrSignature schnorrSignature): this(schnorrSignature, TaprootSigHash.Default)
 		{

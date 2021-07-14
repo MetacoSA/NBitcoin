@@ -789,22 +789,54 @@ namespace NBitcoin
 			return VerifyScript(coin, ScriptVerify.Standard, out error);
 		}
 
-		public TransactionSignature Sign(Key key, ICoin coin, SigHash sigHash, bool useLowR = true)
+		public ITransactionSignature Sign(Key key, ICoin coin, SigHash sigHash, bool useLowR = true)
 		{
 			return Sign(key, coin, new SigningOptions(sigHash, useLowR));
 		}
-		public TransactionSignature Sign(Key key, ICoin coin, SigningOptions signingOptions)
+		public ITransactionSignature Sign(Key key, ICoin coin, SigningOptions signingOptions, PrecomputedTransactionData transactionData)
 		{
 			signingOptions ??= new SigningOptions();
-			var hash = GetSignatureHash(coin, signingOptions.SigHash);
-			return key.Sign(hash, signingOptions);
+			if (coin == null)
+				throw new ArgumentNullException(nameof(coin));
+			if (coin.TxOut.ScriptPubKey.IsScriptType(ScriptType.Taproot))
+			{
+#if HAS_SPAN
+				var hash = GetSignatureHash(coin, signingOptions.TaprootSigHash, transactionData);
+				return key.SignTaprootKeyPath(hash, signingOptions.TaprootSigHash);
+#else
+				throw new NotSupportedException("Signing of taproot input is not supported by the .net framework");
+#endif
+			}
+			else
+			{
+				var hash = GetSignatureHash(coin, signingOptions.SigHash, transactionData);
+				return key.Sign(hash, signingOptions);
+			}
+		}
+		public ITransactionSignature Sign(Key key, ICoin coin, SigningOptions signingOptions)
+		{
+			return Sign(key, coin, signingOptions, null);
 		}
 
 		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash = SigHash.All)
 		{
-			return Transaction.GetSignatureHash(coin.GetScriptCode(), (int)Index, sigHash, coin.TxOut, coin.GetHashVersion());
+			return GetSignatureHash(coin, sigHash, null);
 		}
-
+		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash, PrecomputedTransactionData transactionData)
+		{
+			return Transaction.GetSignatureHash(coin.GetScriptCode(), (int)Index, sigHash, coin.TxOut, coin.GetHashVersion(), transactionData);
+		}
+		public uint256 GetSignatureHash(ICoin coin, TaprootSigHash sigHash = TaprootSigHash.Default)
+		{
+			return GetSignatureHash(coin, sigHash, null);
+		}
+		public uint256 GetSignatureHash(ICoin coin, TaprootSigHash sigHash, PrecomputedTransactionData transactionData)
+		{
+			return Transaction.GetSignatureHashTaproot(transactionData, new TaprootExecutionData((int)Index)
+			{
+				SigHash = sigHash
+			});
+		}
 	}
 	public class TxInList : UnsignedList<TxIn>
 	{
@@ -1595,7 +1627,7 @@ namespace NBitcoin
 			}
 			return h;
 		}
-		public TransactionSignature SignInput(Key key, ICoin coin, SigningOptions signingOptions)
+		public ITransactionSignature SignInput(Key key, ICoin coin, SigningOptions signingOptions)
 		{
 			return GetIndexedInput(coin).Sign(key, coin, signingOptions);
 		}
@@ -1603,11 +1635,11 @@ namespace NBitcoin
 		{
 			return GetIndexedInput(coin).GetSignatureHash(coin, sigHash);
 		}
-		public TransactionSignature SignInput(ISecret secret, ICoin coin, SigHash sigHash = SigHash.All)
+		public ITransactionSignature SignInput(ISecret secret, ICoin coin, SigHash sigHash = SigHash.All)
 		{
 			return SignInput(secret.PrivateKey, coin, sigHash);
 		}
-		public TransactionSignature SignInput(Key key, ICoin coin, SigHash sigHash = SigHash.All)
+		public ITransactionSignature SignInput(Key key, ICoin coin, SigHash sigHash = SigHash.All)
 		{
 			return GetIndexedInput(coin).Sign(key, coin, sigHash);
 		}
@@ -2157,6 +2189,8 @@ namespace NBitcoin
 
 				return GetHash(sss);
 			}
+			if (sigversion != HashVersion.Original)
+				throw new ArgumentException("Expected sigversion Original or WitnessV0. Do you mean GetSignatureHashTaproot?", nameof(sigversion));
 
 			bool fAnyoneCanPay = (nHashType & SigHash.AnyoneCanPay) != 0;
 			bool fHashSingle = ((byte)nHashType & 0x1f) == (byte)SigHash.Single;

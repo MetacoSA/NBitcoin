@@ -42,7 +42,7 @@ namespace NBitcoin
 #endif
 		TaprootBIP86
 	}
-	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>
+	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>, IPubKey
 	{
 		/// <summary>
 		/// Create a new Public key from string
@@ -359,23 +359,6 @@ namespace NBitcoin
 		public HDFingerprint GetHDFingerPrint()
 		{
 			return new HDFingerprint(this.Hash.ToBytes(true), 0);
-		}
-
-
-		public bool Verify(uint256 hash, SchnorrSignature sig)
-		{
-			if (sig == null)
-				throw new ArgumentNullException(nameof(sig));
-			if (hash == null)
-				throw new ArgumentNullException(nameof(hash));
-#if HAS_SPAN
-			Span<byte> msg = stackalloc byte[32];
-			hash.ToBytes(msg);
-			return ECKey.SigVerifySchnorr(sig.secpShnorr, msg);
-#else
-			SchnorrSigner signer = new SchnorrSigner();
-			return signer.Verify(hash, this, sig);
-#endif
 		}
 
 		public bool Verify(uint256 hash, ECDSASignature sig)

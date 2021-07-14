@@ -86,7 +86,7 @@ namespace NBitcoin.BuilderExtensions
 					break;
 				if (keys[i] != null)
 				{
-					var sig = signer.Sign(keys[i]);
+					var sig = signer.Sign(keys[i]) as TransactionSignature;
 					signatures[i] = sig;
 					sigCount++;
 				}
@@ -100,12 +100,14 @@ namespace NBitcoin.BuilderExtensions
 			return PayToMultiSigTemplate.Instance.GenerateScriptSig(sigs);
 		}
 
-		public override bool IsCompatibleKey(PubKey publicKey, Script scriptPubKey)
+		public override bool IsCompatibleKey(IPubKey publicKey, Script scriptPubKey)
 		{
+			if (!(publicKey is PubKey pk))
+				return false;
 			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 			if (multiSigParams == null)
 				return false;
-			return multiSigParams.PubKeys.Any(p => p == publicKey);
+			return multiSigParams.PubKeys.Any(p => p == pk);
 		}
 	}
 }

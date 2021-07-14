@@ -13,7 +13,7 @@ using NBitcoin.Crypto;
 
 namespace NBitcoin
 {
-	public class TaprootPubKey : IAddressableDestination
+	public class TaprootPubKey : IAddressableDestination, IPubKey
 	{
 #if HAS_SPAN
 		private ECXOnlyPubKey pubkey;

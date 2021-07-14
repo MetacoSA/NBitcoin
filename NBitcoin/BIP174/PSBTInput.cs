@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
 using NBitcoin.DataEncoders;
-using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.TransactionSignature>;
+using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.IPubKey, NBitcoin.ITransactionSignature>;
 using System.Diagnostics.CodeAnalysis;
 
 namespace NBitcoin
@@ -874,20 +874,20 @@ namespace NBitcoin
 				throw new PSBTException(errors);
 		}
 
-		public TransactionSignature? Sign(Key key)
+		public ITransactionSignature? Sign(Key key)
 		{
 			return Sign(key, SigHash.All);
 		}
-		public TransactionSignature? Sign(Key key, SigningOptions signingOptions)
+		public ITransactionSignature? Sign(Key key, SigningOptions signingOptions)
 		{
 			if (this.IsFinalized())
 				return null;
 			signingOptions ??= new SigningOptions();
 			CheckCompatibleSigHash(signingOptions.SigHash);
-			if (PartialSigs.ContainsKey(key.PubKey))
+			if (PartialSigs.TryGetValue(key.PubKey, out var existingSig) && existingSig is TransactionSignature ecdsa)
 			{
 				var signature = PartialSigs[key.PubKey];
-				if (signingOptions.SigHash != signature.SigHash)
+				if (signingOptions.SigHash != ecdsa.SigHash)
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
 				return signature;
 			}
@@ -905,7 +905,7 @@ namespace NBitcoin
 			}
 			return signature2;
 		}
-		public TransactionSignature? Sign(Key key, SigHash sigHash)
+		public ITransactionSignature? Sign(Key key, SigHash sigHash)
 		{
 			return Sign(key, Parent.Normalize(new SigningOptions(sigHash)));
 		}

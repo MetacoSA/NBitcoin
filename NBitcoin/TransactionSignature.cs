@@ -4,7 +4,7 @@ using System;
 
 namespace NBitcoin
 {
-	public class TransactionSignature
+	public class TransactionSignature : ITransactionSignature
 	{
 #if HAS_SPAN
 		static readonly TransactionSignature _Empty = new TransactionSignature(new ECDSASignature(Secp256k1.Scalar.Zero, Secp256k1.Scalar.Zero), SigHash.All);

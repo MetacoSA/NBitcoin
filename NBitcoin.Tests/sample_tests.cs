@@ -2,12 +2,50 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
 {
 	public class sample_tests
 	{
+#if HAS_SPAN
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public async Task CanBuildTaprootSingleSigTransactions()
+		{
+			using (var nodeBuilder = NodeBuilderEx.Create())
+			{
+				var rpc = nodeBuilder.CreateNode().CreateRPCClient();
+				nodeBuilder.StartAll();
+				rpc.Generate(102);
+
+				var key = new Key();
+				var address = key.PubKey.GetAddress(ScriptPubKeyType.TaprootBIP86, nodeBuilder.Network);
+				var destination = new Key().ScriptPubKey;
+				var amount = new Money(1, MoneyUnit.BTC);
+
+
+				var id = await rpc.SendToAddressAsync(address, Money.Coins(1));
+				var tx = await rpc.GetRawTransactionAsync(id);
+				var coin = tx.Outputs.AsCoins().Where(o => o.ScriptPubKey == address.ScriptPubKey).Single();
+
+				var builder = Network.Main.CreateTransactionBuilder();
+				var rate = new FeeRate(Money.Satoshis(1), 1);
+
+				var signedTx = builder
+					.AddCoins(coin)
+					.AddKeys(key)
+					.Send(destination, amount)
+					.SubtractFees()
+					.SetChange(new Key().ScriptPubKey)
+					.SendEstimatedFees(rate)
+					.BuildTransaction(true);
+
+				rpc.SendRawTransaction(signedTx);
+			}
+		}
+#endif
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildSegwitP2SHMultisigTransactions()
