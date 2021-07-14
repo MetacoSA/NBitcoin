@@ -2030,10 +2030,10 @@ namespace NBitcoin
 			var ss = CreateHashWriter(executionData.HashVersion, "TapSighash");
 			ss.Inner.WriteByte(0);
 
-			byte output_type = (executionData.SigHash is SigHash.Default) ? (byte)SigHash.All : (byte)((byte)executionData.SigHash & SIGHASH_OUTPUT_MASK); // Default (no sighash byte) is equivalent to SIGHASH_ALL
+			byte output_type = (executionData.SigHash is TaprootSigHash.Default) ? (byte)SigHash.All : (byte)((byte)executionData.SigHash & SIGHASH_OUTPUT_MASK); // Default (no sighash byte) is equivalent to SIGHASH_ALL
 			byte input_type = (byte)((byte)executionData.SigHash & SIGHASH_INPUT_MASK);
 
-			if (!((byte)executionData.SigHash <= 0x03 || ((byte)executionData.SigHash >= 0x81 && (byte)executionData.SigHash <= 0x83)))
+			if (!TaprootExecutionData.IsValidSigHash((byte)executionData.SigHash))
 				throw new InvalidOperationException("Error 23942: This should never happen, report to NBitcoin developers");
 			ss.Inner.WriteByte((byte)executionData.SigHash);
 

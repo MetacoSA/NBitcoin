@@ -39,6 +39,26 @@ namespace NBitcoin.Tests
 			Assert.True(address2.PubKey != address.PubKey);
 			Assert.False(address2.PubKey.GetHashCode() == address.PubKey.GetHashCode());
 		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanParseTaprootSignature()
+		{
+			void AssertRoundtrip(string sig)
+			{
+				var parsed = TaprootSignature.Parse(sig);
+				Assert.Equal(sig, parsed.ToString());
+#if HAS_SPAN
+				parsed = TaprootSignature.Parse(Encoders.Hex.DecodeData(sig).AsSpan());
+				Assert.Equal(sig, parsed.ToString());
+#endif
+			}
+			var schnorrsig = "23152e7c682ef0a805574d8a9d91d9f9bdbbdbdfea9de2496ac87652d367432784f266ec23cb6eacbc5b890bf5f95941dd0ba1e537a8ffa42d05316acfeef4f3";
+			AssertRoundtrip(schnorrsig + "01");
+			AssertRoundtrip(schnorrsig);
+			Assert.Throws<FormatException>(() => AssertRoundtrip(schnorrsig + "00"));
+			Assert.Throws<FormatException>(() => AssertRoundtrip(schnorrsig.Substring(0, 63)));
+			Assert.Throws<FormatException>(() => AssertRoundtrip(schnorrsig.Substring(0, 62)));
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -67,9 +87,9 @@ namespace NBitcoin.Tests
 				foreach (var anyoneCanPay in new[] { false, true })
 				{
 					rpc.Generate(1);
-					foreach (var hashType in new[] { SigHash.All, SigHash.Default, SigHash.None, SigHash.Single })
+					foreach (var hashType in new[] { TaprootSigHash.All, TaprootSigHash.Default, TaprootSigHash.None, TaprootSigHash.Single })
 					{
-						if (hashType == SigHash.Default && anyoneCanPay)
+						if (hashType == TaprootSigHash.Default && anyoneCanPay)
 							continue; // Not supported by btc
 						var txid = rpc.SendToAddress(addr, Money.Coins(1.0m));
 
@@ -83,10 +103,11 @@ namespace NBitcoin.Tests
 						spender.Outputs.Add(Money.Coins(0.7m), dest);
 						spender.Outputs.Add(Money.Coins(0.2999000m), addr);
 
-						var sighash = hashType | (anyoneCanPay ? SigHash.AnyoneCanPay : 0);
+						var sighash = hashType | (anyoneCanPay ? TaprootSigHash.AnyoneCanPay : 0);
 						var hash = spender.GetSignatureHashTaproot(new[] { spentOutput.TxOut },
 																 new TaprootExecutionData(0) { SigHash = sighash });
 						var sig = key.SignTaprootKeyPath(hash, sighash);
+
 						Assert.True(addr.PubKey.VerifyTaproot(hash, sig.SchnorrSignature));
 						spender.Inputs[0].WitScript = new WitScript(Op.GetPushOp(sig.ToBytes()));
 						rpc.SendRawTransaction(spender);

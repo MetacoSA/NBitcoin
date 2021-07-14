@@ -164,11 +164,11 @@ namespace NBitcoin
 #endif
 		}
 #if HAS_SPAN
-		public TaprootSignature SignTaprootKeyPath(uint256 hash, SigHash sigHash = SigHash.Default)
+		public TaprootSignature SignTaprootKeyPath(uint256 hash, TaprootSigHash sigHash = TaprootSigHash.Default)
 		{
 			return SignTaprootKeyPath(hash, null, sigHash);
 		}
-		public TaprootSignature SignTaprootKeyPath(uint256 hash, uint256? merkleRoot, SigHash sigHash)
+		public TaprootSignature SignTaprootKeyPath(uint256 hash, uint256? merkleRoot, TaprootSigHash sigHash)
 		{
 			if (hash == null)
 				throw new ArgumentNullException(nameof(hash));

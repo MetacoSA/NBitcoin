@@ -90,7 +90,9 @@ namespace NBitcoin.Tests
 				var message = Parseuint256(vector[3]);
 				var expectedSignature = SchnorrSignature.Parse(vector[4]);
 
+#pragma warning disable CS0618 // Type or member is obsolete
 				var signature = privatekey.SignSchnorr(message);
+#pragma warning restore CS0618 // Type or member is obsolete
 				Assert.Equal(expectedSignature.ToBytes(), signature.ToBytes());
 
 				Assert.True(publicKey.Verify(message, expectedSignature));

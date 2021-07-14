@@ -21,8 +21,12 @@ namespace NBitcoin
 		public int InputIndex { get; set; }
 		public byte[] Annex { get; set; }
 
-		SigHash _SigHash = SigHash.Default;
-		public SigHash SigHash
+		TaprootSigHash _SigHash = TaprootSigHash.Default;
+		public static bool IsValidSigHash(byte value)
+		{
+			return (value <= 0x03 || (value >= 0x81 && value <= 0x83));
+		}
+		public TaprootSigHash SigHash
 		{
 			get
 			{
@@ -30,7 +34,7 @@ namespace NBitcoin
 			}
 			set
 			{
-				if (!((byte)value <= 0x03 || ((byte)value >= 0x81 && (byte)value <= 0x83)))
+				if (!IsValidSigHash((byte)value))
 					throw new ArgumentException("Invalid SigHash", nameof(value));
 				_SigHash = value;
 			}
