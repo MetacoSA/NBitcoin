@@ -8,6 +8,5 @@ namespace NBitcoin
 {
 	public interface IPubKey
 	{
-		byte[] ToBytes();
 	}
 }

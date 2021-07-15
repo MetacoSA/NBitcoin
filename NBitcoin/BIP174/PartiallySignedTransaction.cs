@@ -55,6 +55,9 @@ namespace NBitcoin
 		public const byte PSBT_OUT_TAP_INTERNAL_KEY = 0x05;
 		public const byte PSBT_IN_TAP_KEY_SIG = 0x13;
 		public const byte PSBT_IN_TAP_INTERNAL_KEY = 0x17;
+		public const byte PSBT_IN_TAP_BIP32_DERIVATION = 0x16;
+		public const byte PSBT_OUT_TAP_BIP32_DERIVATION = 0x07;
+		public const byte PSBT_IN_TAP_MERKLE_ROOT = 0x18;
 
 		// Output types
 		public const byte PSBT_OUT_REDEEMSCRIPT = 0x00;
@@ -98,6 +101,7 @@ namespace NBitcoin
 		/// Try to do anything that is possible to deduce PSBT information from input information
 		/// </summary>
 		public bool IsSmart { get; set; } = true;
+		public bool SkipVerifyScript { get; set; } = false;
 
 		public PSBTSettings Clone()
 		{
@@ -661,8 +665,8 @@ namespace NBitcoin
 			transactionBuilder.AddCoins(GetAllCoins());
 			try
 			{
-				 vsize = transactionBuilder.EstimateSize(this.tx, true);
-				 return true;
+				vsize = transactionBuilder.EstimateSize(this.tx, true);
+				return true;
 			}
 			catch
 			{
@@ -726,9 +730,10 @@ namespace NBitcoin
 			return this;
 		}
 
-		private PrecomputedTransactionData GetPrecomputedTransactionData()
+		internal PrecomputedTransactionData GetPrecomputedTransactionData()
 		{
-			return new PrecomputedTransactionData(tx, Outputs.Select(o => o.TxOut).ToArray());
+			return new PrecomputedTransactionData(tx, Inputs.Select(txin => txin.GetTxOut())
+															.ToArray());
 		}
 
 		internal TransactionBuilder CreateTransactionBuilder()
@@ -1273,8 +1278,11 @@ namespace NBitcoin
 				{
 					if (keyPath.RootedKeyPath.MasterFingerprint != newRoot.MasterFingerprint)
 					{
-						o.Key.HDKeyPaths.Remove(keyPath.PubKey);
-						o.Key.HDKeyPaths.Add(keyPath.PubKey, newRoot.Derive(keyPath.RootedKeyPath.KeyPath));
+						if (keyPath.PubKey is PubKey ecdsa)
+						{
+							o.Key.HDKeyPaths.Remove(ecdsa);
+							o.Key.HDKeyPaths.Add(ecdsa, newRoot.Derive(keyPath.RootedKeyPath.KeyPath));
+						}
 					}
 				}
 			}

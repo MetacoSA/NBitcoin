@@ -283,7 +283,7 @@ namespace NBitcoin
 #if !HAS_SPAN
 					throw new NotSupportedException("This feature of taproot is not supported in .NET Framework");
 #else
-					return GetTaprootPubKey().GetAddress(network);
+					return GetTaprootFullPubKey().GetAddress(network);
 #endif
 				default:
 					throw new NotSupportedException("Unsupported ScriptPubKeyType");
@@ -292,55 +292,28 @@ namespace NBitcoin
 
 #if HAS_SPAN
 #nullable enable
-		public TaprootPubKey GetTaprootPubKey()
+		public TaprootFullPubKey GetTaprootFullPubKey()
 		{
-			return GetTaprootPubKey(null, out _);
+			return GetTaprootFullPubKey(null);
 		}
-		public TaprootPubKey GetTaprootPubKey(out bool parity)
+		public TaprootFullPubKey GetTaprootFullPubKey(uint256? merkleRoot)
 		{
-			return GetTaprootPubKey(null, out parity);
-		}
-		public TaprootPubKey GetTaprootPubKey(uint256? merkleRoot)
-		{
-			return GetTaprootPubKey(merkleRoot, out _);
-		}
-		public TaprootPubKey GetTaprootPubKey(uint256? merkleRoot, out bool parity)
-		{
-			
-			Span<byte> tweak = stackalloc byte[32];
-			ComputeTapTweak(merkleRoot, tweak);
-			var internalKey = AsInternalKey().XOnlyPubKey;
-			return new TaprootPubKey(internalKey.AddTweak(tweak).ToXOnlyPubKey(out parity));
+			return TaprootFullPubKey.Create(GetTaprootInternalKey(), merkleRoot);
 		}
 
-		internal void ComputeTapTweak(uint256? merkleRoot, Span<byte> tweak32)
+		TaprootInternalPubKey? _InternalKey;
+		internal bool Parity => this.ECKey.Q.y.IsOdd;
+		public TaprootInternalPubKey GetTaprootInternalKey()
 		{
-			using Secp256k1.SHA256 sha = new Secp256k1.SHA256();
-			sha.InitializeTagged("TapTweak");
-			var xonly = AsInternalKey().XOnlyPubKey;
-			xonly.WriteToSpan(tweak32);
-			sha.Write(tweak32);
-			if (merkleRoot is uint256)
+			if (_InternalKey is TaprootInternalPubKey)
 			{
-				merkleRoot.ToBytes(tweak32);
-				sha.Write(tweak32);
+				return _InternalKey;
 			}
-			sha.GetHash(tweak32);
+			var xonly = this.ECKey.ToXOnlyPubKey(out _);
+			_InternalKey = new TaprootInternalPubKey(xonly);
+			return _InternalKey;
 		}
 
-		ECXOnlyPubKey? _XOnlyPubKey;
-		bool _Parity;
-		internal (ECXOnlyPubKey XOnlyPubKey, bool Parity) AsInternalKey()
-		{
-			if (_XOnlyPubKey is ECXOnlyPubKey)
-			{
-				return (_XOnlyPubKey, _Parity);
-			}
-			var xonly = this.ECKey.ToXOnlyPubKey(out var p);
-			_XOnlyPubKey = xonly;
-			_Parity = p;
-			return (xonly, p);
-		}
 #nullable restore
 #endif
 
@@ -394,7 +367,7 @@ namespace NBitcoin
 				case ScriptPubKeyType.TaprootBIP86:
 #pragma warning restore CS0618 // Type or member is obsolete
 #if HAS_SPAN
-					return GetTaprootPubKey().ScriptPubKey;
+					return GetTaprootFullPubKey().ScriptPubKey;
 #else
 					throw new NotSupportedException("ScriptPubKeyType.TaprootBIP86 is not supported by .net framework");
 #endif

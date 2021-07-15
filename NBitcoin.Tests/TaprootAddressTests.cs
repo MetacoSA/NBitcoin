@@ -82,7 +82,7 @@ namespace NBitcoin.Tests
 				rpc.Generate(102);
 
 				var key = new Key();
-				var addr = key.PubKey.GetTaprootPubKey().GetAddress(nodeBuilder.Network);
+				var addr = key.PubKey.GetTaprootFullPubKey().GetAddress(nodeBuilder.Network);
 
 				foreach (var anyoneCanPay in new[] { false, true })
 				{
@@ -106,7 +106,7 @@ namespace NBitcoin.Tests
 						var sighash = hashType | (anyoneCanPay ? TaprootSigHash.AnyoneCanPay : 0);
 						var hash = spender.GetSignatureHashTaproot(new[] { spentOutput.TxOut },
 																 new TaprootExecutionData(0) { SigHash = sighash });
-						var sig = key.SignTaprootKeyPath(hash, sighash);
+						var sig = key.SignTaprootKeySpend(hash, sighash);
 
 						Assert.True(addr.PubKey.VerifyTaproot(hash, sig.SchnorrSignature));
 						spender.Inputs[0].WitScript = new WitScript(Op.GetPushOp(sig.ToBytes()));

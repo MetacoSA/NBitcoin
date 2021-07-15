@@ -789,35 +789,42 @@ namespace NBitcoin
 			return VerifyScript(coin, ScriptVerify.Standard, out error);
 		}
 
-		public ITransactionSignature Sign(Key key, ICoin coin, SigHash sigHash, bool useLowR = true)
+		public TransactionSignature Sign(Key key, ICoin coin, SigHash sigHash, bool useLowR = true)
 		{
 			return Sign(key, coin, new SigningOptions(sigHash, useLowR));
 		}
-		public ITransactionSignature Sign(Key key, ICoin coin, SigningOptions signingOptions, PrecomputedTransactionData transactionData)
+#nullable enable
+#if HAS_SPAN
+		public TaprootSignature SignTaprootKeySpend(TaprootKeyPair keyPair, ICoin coin, SigningOptions? signingOptions, PrecomputedTransactionData transactionData)
 		{
-			signingOptions ??= new SigningOptions();
+			if (keyPair == null)
+				throw new ArgumentNullException(nameof(keyPair));
 			if (coin == null)
 				throw new ArgumentNullException(nameof(coin));
-			if (coin.TxOut.ScriptPubKey.IsScriptType(ScriptType.Taproot))
-			{
-#if HAS_SPAN
-				var hash = GetSignatureHash(coin, signingOptions.TaprootSigHash, transactionData);
-				return key.SignTaprootKeyPath(hash, signingOptions.TaprootSigHash);
-#else
-				throw new NotSupportedException("Signing of taproot input is not supported by the .net framework");
-#endif
-			}
-			else
-			{
-				var hash = GetSignatureHash(coin, signingOptions.SigHash, transactionData);
-				return key.Sign(hash, signingOptions);
-			}
+			signingOptions ??= new SigningOptions();
+			if (!coin.TxOut.ScriptPubKey.IsScriptType(ScriptType.Taproot))
+				throw new ArgumentException("The passed coin script type must be Taproot", nameof(coin));
+
+			var hash = GetSignatureHash(coin, signingOptions.TaprootSigHash, transactionData);
+			return keyPair.SignTaprootKeySpend(hash, signingOptions.TaprootSigHash);
 		}
-		public ITransactionSignature Sign(Key key, ICoin coin, SigningOptions signingOptions)
+#endif
+		public TransactionSignature Sign(Key key, ICoin coin, SigningOptions? signingOptions, PrecomputedTransactionData? transactionData)
+		{
+			if (key == null)
+				throw new ArgumentNullException(nameof(key));
+			if (coin == null)
+				throw new ArgumentNullException(nameof(coin));
+			signingOptions ??= new SigningOptions();
+			var hash = GetSignatureHash(coin, signingOptions.SigHash, transactionData);
+			return key.Sign(hash, signingOptions);
+		}
+
+		public TransactionSignature Sign(Key key, ICoin coin, SigningOptions? signingOptions)
 		{
 			return Sign(key, coin, signingOptions, null);
 		}
-
+#nullable restore
 		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash = SigHash.All)
 		{
 			return GetSignatureHash(coin, sigHash, null);
