@@ -86,6 +86,11 @@ namespace NBitcoin
 						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
 						hd_keypaths.Add(pubkey2, new RootedKeyPath(new HDFingerprint(v.Take(4).ToArray()), path));
 						break;
+					case PSBTConstants.PSBT_OUT_TAP_INTERNAL_KEY:
+						if (!TaprootPubKey.TryCreate(k, out var tpk))
+							throw new FormatException("Invalid PSBTOutput. Contains invalid internal taproot pubkey");
+						TaprootInternalKey = tpk;
+						break;
 					default:
 						if (unknown.ContainsKey(k))
 							throw new FormatException("Invalid PSBTInput, duplicate key for unknown value");

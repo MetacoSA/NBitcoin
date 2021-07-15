@@ -122,6 +122,16 @@ namespace NBitcoin
 							throw new FormatException("Invalid PSBTInput. Duplicate key for redeem_script");
 						witness_script = Script.FromBytesUnsafe(v);
 						break;
+					case PSBTConstants.PSBT_IN_TAP_KEY_SIG:
+						if (!TaprootSignature.TryParse(k, out var sig))
+							throw new FormatException("Invalid PSBTInput. Contains invalid TaprootSignature");
+						TaprootKeySignature = sig;
+						break;
+					case PSBTConstants.PSBT_IN_TAP_INTERNAL_KEY:
+						if (!TaprootPubKey.TryCreate(k, out var tpk))
+							throw new FormatException("Invalid PSBTInput. Contains invalid internal taproot pubkey");
+						TaprootInternalKey = tpk;
+						break;
 					case PSBTConstants.PSBT_IN_BIP32_DERIVATION:
 						var pubkey2 = new PubKey(k.Skip(1).ToArray());
 						if (hd_keypaths.ContainsKey(pubkey2))
@@ -248,7 +258,7 @@ namespace NBitcoin
 			}
 		}
 
-
+		public TaprootSignature? TaprootKeySignature { get; set; }
 
 		public PartialSigKVMap PartialSigs
 		{

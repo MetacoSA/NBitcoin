@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
 using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.IPubKey, NBitcoin.RootedKeyPath>;
+using NBitcoin.Crypto;
 
 namespace NBitcoin
 {
@@ -37,6 +38,8 @@ namespace NBitcoin
 				return hd_keypaths;
 			}
 		}
+
+		public TaprootPubKey? TaprootInternalKey { get; set; }
 
 		public Script? RedeemScript
 		{

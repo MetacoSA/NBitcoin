@@ -25,6 +25,21 @@ namespace NBitcoin
 		private byte[] pubkey = new byte[32];
 #endif
 
+		public static bool TryCreate(byte[] pubkey, [MaybeNullWhen(false)] out TaprootPubKey result)
+		{
+#if HAS_SPAN
+			return TryCreate(pubkey.AsSpan(), out result);
+#else
+			if (pubkey.Length != 32)
+			{
+				result = null;
+				return false;
+			}
+			result = new TaprootPubKey(pubkey);
+			return true;
+#endif
+		}
+
 #if HAS_SPAN
 		public static bool TryCreate(ReadOnlySpan<byte> pubkey, [MaybeNullWhen(false)] out TaprootPubKey result)
 		{

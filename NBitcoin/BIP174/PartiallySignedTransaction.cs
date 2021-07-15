@@ -52,6 +52,9 @@ namespace NBitcoin
 		public const byte PSBT_IN_BIP32_DERIVATION = 0x06;
 		public const byte PSBT_IN_SCRIPTSIG = 0x07;
 		public const byte PSBT_IN_SCRIPTWITNESS = 0x08;
+		public const byte PSBT_OUT_TAP_INTERNAL_KEY = 0x05;
+		public const byte PSBT_IN_TAP_KEY_SIG = 0x13;
+		public const byte PSBT_IN_TAP_INTERNAL_KEY = 0x17;
 
 		// Output types
 		public const byte PSBT_OUT_REDEEMSCRIPT = 0x00;
