@@ -5,9 +5,10 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
 using NBitcoin.DataEncoders;
-using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.IPubKey, NBitcoin.ITransactionSignature>;
+using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.TransactionSignature>;
 using System.Diagnostics.CodeAnalysis;
 using NBitcoin.Crypto;
+using System.Text;
 
 namespace NBitcoin
 {
@@ -86,13 +87,6 @@ namespace NBitcoin
 								throw new FormatException("Invalid PSBTInput. Duplicate key for partial_sigs");
 							partial_sigs.Add(pubkey, new TransactionSignature(v));
 						}
-						else if (pkbytes.Length == 32)
-						{
-							var pubkey = new TaprootPubKey(pkbytes);
-							if (partial_sigs.ContainsKey(pubkey))
-								throw new FormatException("Invalid PSBTInput. Duplicate key for partial_sigs");
-							partial_sigs.Add(pubkey, TaprootSignature.Parse(v));
-						}
 						else
 							throw new FormatException("Unexpected public key size in the PSBT");
 						break;
@@ -122,6 +116,20 @@ namespace NBitcoin
 							throw new FormatException("Invalid PSBTInput. Duplicate key for redeem_script");
 						witness_script = Script.FromBytesUnsafe(v);
 						break;
+					case PSBTConstants.PSBT_IN_TAP_KEY_SIG:
+						if (k.Length != 1)
+							throw new FormatException("Invalid PSBTInput. Unexpected key length for PSBT_IN_TAP_KEY_SIG");
+						if (!TaprootSignature.TryParse(v, out var sig))
+							throw new FormatException("Invalid PSBTInput. Contains invalid TaprootSignature");
+						TaprootKeySignature = sig;
+						break;
+					case PSBTConstants.PSBT_IN_TAP_INTERNAL_KEY:
+						if (k.Length != 1)
+							throw new FormatException("Invalid PSBTInput. Unexpected key length for PSBT_IN_TAP_INTERNAL_KEY");
+						if (!TaprootInternalPubKey.TryCreate(v, out var tpk))
+							throw new FormatException("Invalid PSBTInput. Contains invalid internal taproot pubkey");
+						TaprootInternalKey = tpk;
+						break;
 					case PSBTConstants.PSBT_IN_BIP32_DERIVATION:
 						var pubkey2 = new PubKey(k.Skip(1).ToArray());
 						if (hd_keypaths.ContainsKey(pubkey2))
@@ -129,6 +137,27 @@ namespace NBitcoin
 						var masterFingerPrint = new HDFingerprint(v.Take(4).ToArray());
 						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
 						hd_keypaths.Add(pubkey2, new RootedKeyPath(masterFingerPrint, path));
+						break;
+					case PSBTConstants.PSBT_IN_TAP_BIP32_DERIVATION:
+						var pubkey3 = new TaprootPubKey(k.Skip(1).ToArray());
+						if (hd_taprootkeypaths.ContainsKey(pubkey3))
+							throw new FormatException("Invalid PSBTOutput, duplicate key for PSBT_IN_TAP_BIP32_DERIVATION");
+						var bs = new BitcoinStream(v);
+						List<uint256> hashes = null!;
+						bs.ReadWrite(ref hashes);
+						var pos = (int)bs.Inner.Position;
+						KeyPath path2 = KeyPath.FromBytes(v.Skip(pos + 4).ToArray());
+						hd_taprootkeypaths.Add(pubkey3,
+							new TaprootKeyPath(
+								new RootedKeyPath(new HDFingerprint(v.Skip(pos).Take(4).ToArray()), path2),
+								hashes.ToArray()));
+						break;
+					case PSBTConstants.PSBT_IN_TAP_MERKLE_ROOT:
+						if (k.Length != 1)
+							throw new FormatException("Invalid PSBTInput. Unexpected key length for PSBT_IN_TAP_MERKLE_ROOT");
+						if (v.Length != 32)
+							throw new FormatException("Invalid PSBTInput. Unexpected value length for PSBT_IN_TAP_MERKLE_ROOT");
+						TaprootMerkleRoot = new uint256(v);
 						break;
 					case PSBTConstants.PSBT_IN_SCRIPTSIG:
 						if (k.Length != 1)
@@ -248,7 +277,8 @@ namespace NBitcoin
 			}
 		}
 
-
+		public TaprootSignature? TaprootKeySignature { get; set; }
+		public uint256? TaprootMerkleRoot { get; set; }
 
 		public PartialSigKVMap PartialSigs
 		{
@@ -421,6 +451,8 @@ namespace NBitcoin
 			this.partial_sigs.Clear();
 			this.hd_keypaths.Clear();
 			this.sighash_type = null;
+			this.TaprootKeySignature = null;
+			this.TaprootInternalKey = null;
 		}
 
 		/// <summary>
@@ -667,6 +699,33 @@ namespace NBitcoin
 				stream.ReadWriteAsVarString(ref value);
 			}
 
+			if (this.TaprootMerkleRoot is uint256 merkleRoot)
+			{
+				stream.ReadWriteAsVarInt(ref defaultKeyLen);
+				var key = PSBTConstants.PSBT_IN_TAP_MERKLE_ROOT;
+				stream.ReadWrite(ref key);
+				var value = merkleRoot.ToBytes();
+				stream.ReadWriteAsVarString(ref value);
+			}
+
+			if (this.TaprootInternalKey is TaprootInternalPubKey tp)
+			{
+				stream.ReadWriteAsVarInt(ref defaultKeyLen);
+				var key = PSBTConstants.PSBT_IN_TAP_INTERNAL_KEY;
+				stream.ReadWrite(ref key);
+				var b = tp.ToBytes();
+				stream.ReadWriteAsVarString(ref b);
+			}
+
+			if (this.TaprootKeySignature is TaprootSignature tsig)
+			{
+				stream.ReadWriteAsVarInt(ref defaultKeyLen);
+				var key = PSBTConstants.PSBT_IN_TAP_KEY_SIG;
+				stream.ReadWrite(ref key);
+				var b = tsig.ToBytes();
+				stream.ReadWriteAsVarString(ref b);
+			}
+
 			// Write any partial signatures
 			foreach (var sig_pair in partial_sigs)
 			{
@@ -685,6 +744,24 @@ namespace NBitcoin
 				var path = pathPair.Value.KeyPath.ToBytes();
 				var pathInfo = masterFingerPrint.ToBytes().Concat(path);
 				stream.ReadWriteAsVarString(ref pathInfo);
+			}
+			foreach (var pathPair in hd_taprootkeypaths)
+			{
+				var key = new byte[] { PSBTConstants.PSBT_IN_TAP_BIP32_DERIVATION }.Concat(pathPair.Key.ToBytes());
+				stream.ReadWriteAsVarString(ref key);
+				uint leafCount = (uint)pathPair.Value.LeafHashes.Length;
+				BitcoinStream bs = new BitcoinStream(new MemoryStream(), true);
+				bs.ReadWriteAsVarInt(ref leafCount);
+				foreach (var hash in pathPair.Value.LeafHashes)
+				{
+					bs.ReadWrite(hash);
+				}
+				var b = pathPair.Value.RootedKeyPath.MasterFingerprint.ToBytes();
+				bs.ReadWrite(ref b);
+				b = pathPair.Value.RootedKeyPath.KeyPath.ToBytes();
+				bs.ReadWrite(ref b);
+				b = ((MemoryStream)bs.Inner).ToArrayEfficient();
+				stream.ReadWriteAsVarString(ref b);
 			}
 
 			// Write script sig
@@ -745,6 +822,19 @@ namespace NBitcoin
 				}
 				jsonWriter.WriteEndObject();
 			}
+
+			if (this.TaprootInternalKey is TaprootInternalPubKey tpk)
+			{
+				jsonWriter.WritePropertyValue("taproot_internal_key", tpk.ToString());
+			}
+			if (this.TaprootMerkleRoot is uint256 r)
+			{
+				jsonWriter.WritePropertyValue("taproot_merkle_root", r.ToString());
+			}
+			if (this.TaprootKeySignature is TaprootSignature tsig)
+			{
+				jsonWriter.WritePropertyValue("taproot_key_signature", tsig.ToString());
+			}
 			jsonWriter.WritePropertyName("partial_signatures");
 			jsonWriter.WriteStartObject();
 			foreach (var sig in partial_sigs)
@@ -789,7 +879,7 @@ namespace NBitcoin
 				jsonWriter.WriteEndObject();
 			}
 			jsonWriter.WriteBIP32Derivations(this.hd_keypaths);
-
+			jsonWriter.WriteBIP32Derivations(this.hd_taprootkeypaths);
 			jsonWriter.WriteEndObject();
 		}
 
@@ -854,6 +944,13 @@ namespace NBitcoin
 			{
 				transactionBuilder.AddKnownSignature(sig.Key, sig.Value, coin.Outpoint);
 			}
+#if HAS_SPAN
+			if (TaprootInternalKey is TaprootInternalPubKey tpk && TaprootKeySignature is TaprootSignature ts)
+			{
+				var k = TaprootFullPubKey.Create(tpk, TaprootMerkleRoot);
+				transactionBuilder.AddKnownSignature(k, ts, coin.Outpoint);
+			}
+#endif
 			Transaction? signed = null;
 			try
 			{
@@ -866,7 +963,7 @@ namespace NBitcoin
 				return false;
 			}
 			var indexedInput = signed.Inputs.FindIndexedInput(coin.Outpoint);
-			if (!indexedInput.VerifyScript(coin, out var error))
+			if (!Parent.Settings.SkipVerifyScript && !indexedInput.VerifyScript(coin, out var error))
 			{
 				errors = new List<PSBTError>() { new PSBTError(Index, $"The finalized input script does not properly validate \"{error}\"") };
 				return false;
@@ -896,39 +993,80 @@ namespace NBitcoin
 		{
 			return Sign(key, SigHash.All);
 		}
+		public ITransactionSignature? Sign(KeyPair keyPair)
+		{
+			return Sign(keyPair, null);
+		}
 		public ITransactionSignature? Sign(Key key, SigningOptions signingOptions)
 		{
 			return Sign(key, signingOptions, null);
 		}
-		internal ITransactionSignature? Sign(Key key, SigningOptions signingOptions, PrecomputedTransactionData? precomputedTransactionData)
+		public ITransactionSignature? Sign(KeyPair keyPair, SigningOptions? signingOptions)
 		{
+			return Sign(keyPair, signingOptions, null);
+		}
+		internal ITransactionSignature? Sign(KeyPair keyPair, SigningOptions? signingOptions, PrecomputedTransactionData? precomputedTransactionData)
+		{
+			if (keyPair == null)
+				throw new ArgumentNullException(nameof(keyPair));
 			if (this.IsFinalized())
 				return null;
 			signingOptions ??= new SigningOptions();
-			if (PartialSigs.TryGetValue(key.PubKey, out var existingSig) && existingSig is TransactionSignature ecdsa)
+
+			if (keyPair.PubKey is PubKey ecdsapk && PartialSigs.TryGetValue(ecdsapk, out var existingSig))
 			{
 				CheckCompatibleSigHash(signingOptions.SigHash);
-				var signature = PartialSigs[key.PubKey];
-				if (signingOptions.SigHash != ecdsa.SigHash)
+				var signature = PartialSigs[ecdsapk];
+				if (signingOptions.SigHash != existingSig.SigHash)
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
 				return signature;
 			}
+
 			AssertSanity();
 			var coin = GetSignableCoin();
 			if (coin == null)
 				return null;
-
 			var builder = Parent.CreateTransactionBuilder();
 			builder.AddCoins(coin);
-			builder.AddKeys(key);
+			builder.AddKeys(keyPair);
 			if (precomputedTransactionData is null)
-				precomputedTransactionData = new PrecomputedTransactionData(Transaction, Parent.Outputs.Select(o => o.TxOut).ToArray());
+				precomputedTransactionData = Parent.GetPrecomputedTransactionData();
 			builder.SetPrecomputedTransactionData(precomputedTransactionData);
 			if (builder.TrySignInput(Transaction, Index, signingOptions, out var signature2))
 			{
-				this.PartialSigs.TryAdd(key.PubKey, signature2);
+				if (keyPair.PubKey is PubKey ecdsapk2 && signature2 is TransactionSignature ecdsasig)
+					this.PartialSigs.TryAdd(ecdsapk2, ecdsasig);
+#if HAS_SPAN
+				if (keyPair.PubKey is TaprootFullPubKey tfp)
+				{
+					TaprootInternalKey ??= tfp.InternalKey;
+					TaprootMerkleRoot ??= tfp.MerkleRoot;
+				}
+				if (signature2 is TaprootSignature tsig)
+					TaprootKeySignature ??= tsig;
+#endif
 			}
 			return signature2;
+		}
+		internal ITransactionSignature? Sign(Key key, SigningOptions signingOptions, PrecomputedTransactionData? precomputedTransactionData)
+		{
+			if (key == null)
+				throw new ArgumentNullException(nameof(key));
+			var coin = GetSignableCoin();
+			if (coin == null)
+				return null;
+			if (coin.ScriptPubKey.IsScriptType(ScriptType.Taproot))
+			{
+#if HAS_SPAN
+				return Sign(key.CreateTaprootKeyPair(TaprootMerkleRoot), signingOptions, precomputedTransactionData);
+#else
+				throw new NotSupportedException("Impossible to sign taproot input on .NET Framework");
+#endif
+			}
+			else
+			{
+				return Sign(key.CreateKeyPair(), signingOptions, precomputedTransactionData);
+			}
 		}
 		public ITransactionSignature? Sign(Key key, SigHash sigHash)
 		{

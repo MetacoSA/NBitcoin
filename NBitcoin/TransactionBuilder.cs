@@ -324,15 +324,17 @@ namespace NBitcoin
 	{
 		internal class SignatureEvent
 		{
-			public SignatureEvent(IPubKey pubKey, ITransactionSignature sig, IndexedTxIn input)
+			public SignatureEvent(IPubKey pubKey, ITransactionSignature sig, IndexedTxIn input, ICoin coin)
 			{
 				Input = input;
 				PubKey = pubKey;
 				Signature = sig;
+				Coin = coin;
 			}
 			public IPubKey PubKey;
 			public ITransactionSignature Signature;
 			public IndexedTxIn Input;
+			public ICoin Coin;
 		}
 		internal class TransactionBuilderSigner : ISigner
 		{
@@ -353,15 +355,21 @@ namespace NBitcoin
 
 			public ITransactionSignature? Sign(IPubKey pubKey)
 			{
-				var key = ctx.FindKey(pubKey)?.Key;
-				if (key is null)
+				var keypair = ctx.FindKey(pubKey);
+				if (keypair is null)
 					return null;
-				var sig = txIn.Sign(key, coin, signingOptions, this.ctx.PrecomputedTransactionData);
-				EmittedSignatures.Add(new SignatureEvent(key.PubKey, sig, txIn));
+#if HAS_SPAN
+				var sig = keypair is TaprootKeyPair tkp
+						? (ITransactionSignature)txIn.SignTaprootKeySpend(tkp, coin, signingOptions, this.ctx.PrecomputedTransactionData)
+						: (ITransactionSignature)txIn.Sign(keypair.Key, coin, signingOptions, this.ctx.PrecomputedTransactionData);
+#else
+				var sig = (ITransactionSignature)txIn.Sign(keypair.Key, coin, signingOptions, this.ctx.PrecomputedTransactionData);
+#endif
+				EmittedSignatures.Add(new SignatureEvent(pubKey, sig, txIn, coin));
 				return sig;
 			}
 
-			#endregion
+#endregion
 		}
 		internal class TransactionBuilderKeyRepository : IKeyRepository
 		{
@@ -370,14 +378,14 @@ namespace NBitcoin
 			{
 				_Ctx = ctx;
 			}
-			#region IKeyRepository Members
+#region IKeyRepository Members
 
 			public IPubKey? FindKey(Script scriptPubkey)
 			{
 				return _Ctx.FindKey(scriptPubkey)?.PubKey;
 			}
 
-			#endregion
+#endregion
 		}
 
 		class KnownSignatureSigner : ISigner, IKeyRepository
@@ -436,7 +444,7 @@ namespace NBitcoin
 #endif
 					if (found)
 					{
-						EmittedSignatures.Add(new SignatureEvent(tv.Item1, tv.Item2, txIn));
+						EmittedSignatures.Add(new SignatureEvent(tv.Item1, tv.Item2, txIn, coin));
 						_VerifiedSignatures.AddOrReplace(tv.Item1, sig);
 						return tv.Item1;
 					}
@@ -941,7 +949,7 @@ namespace NBitcoin
 			List<KeyPair> pairs = new List<KeyPair>(keys.Length * 2);
 #if HAS_SPAN
 			if (Network.Consensus.SupportTaproot)
-				pairs.AddRange(keys.Select(k => KeyPair.CreateTaprootBIP38Pair(k)));
+				pairs.AddRange(keys.Select(k => KeyPair.CreateTaprootPair(k)));
 #endif
 			pairs.AddRange(keys.Select(k => KeyPair.CreateECDSAPair(k)));
 			return AddKeys(pairs.ToArray());
@@ -1692,7 +1700,21 @@ namespace NBitcoin
 			foreach (var signature in signingContext.SignatureEvents)
 			{
 				var psbtInput = psbt.Inputs.FindIndexedInput(signature.Input.PrevOut);
-				psbtInput.PartialSigs.TryAdd(signature.PubKey, signature.Signature);
+				if (signature.PubKey is PubKey ecdsapk && signature.Signature is TransactionSignature ecdsasig)
+					psbtInput.PartialSigs.TryAdd(ecdsapk, ecdsasig);
+#if HAS_SPAN
+				if (signature.PubKey is TaprootPubKey tp &&
+					signature.Signature is TaprootSignature ts &&
+					signature.Coin.GetHashVersion() == HashVersion.Taproot)
+				{
+					if (tp is TaprootFullPubKey ftp)
+					{
+						psbtInput.TaprootInternalKey ??= ftp.InternalKey;
+						psbtInput.TaprootMerkleRoot ??= ftp.MerkleRoot;
+					}
+					psbtInput.TaprootKeySignature ??= ts;
+				}
+#endif
 			}
 		}
 

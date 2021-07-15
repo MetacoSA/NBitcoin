@@ -48,7 +48,7 @@ namespace NBitcoin.BuilderExtensions
 
 		public override Script? GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer)
 		{
-			var pk = keyRepo.FindKey(scriptPubKey) as TaprootPubKey;
+			var pk = keyRepo.FindKey(scriptPubKey) as TaprootFullPubKey;
 			if (pk is null)
 				return null;
 			var signature = signer.Sign(pk) as TaprootSignature;
