@@ -362,7 +362,13 @@ namespace NBitcoin
 		[Obsolete("Use HashVersion.WitnessV0 instead")]
 		Witness = 1,
 		WitnessV0 = 1,
+		/// <summary>
+		/// Key spend
+		/// </summary>
 		Taproot = 2,
+		/// <summary>
+		/// Script spend
+		/// </summary>
 		Tapscript = 3,
 	}
 

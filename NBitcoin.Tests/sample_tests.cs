@@ -19,7 +19,7 @@ namespace NBitcoin.Tests
 				var rpc = nodeBuilder.CreateNode().CreateRPCClient();
 				nodeBuilder.StartAll();
 				rpc.Generate(102);
-
+				var change = new Key().ScriptPubKey;
 				var rootKey = new ExtKey();
 				var accountKeyPath = new KeyPath("86'/0'/0'");
 				var accountRootKeyPath = new RootedKeyPath(rootKey.GetPublicKey().GetHDFingerPrint(), accountKeyPath);
@@ -28,42 +28,124 @@ namespace NBitcoin.Tests
 				var address = key.PubKey.GetAddress(ScriptPubKeyType.TaprootBIP86, nodeBuilder.Network);
 				var destination = new Key().ScriptPubKey;
 				var amount = new Money(1, MoneyUnit.BTC);
-
-
-				var id = await rpc.SendToAddressAsync(address, Money.Coins(1));
-				var tx = await rpc.GetRawTransactionAsync(id);
-				var coin = tx.Outputs.AsCoins().Where(o => o.ScriptPubKey == address.ScriptPubKey).Single();
-
-				var builder = Network.Main.CreateTransactionBuilder();
+				uint256 id = null;
+				Transaction tx = null;
+				ICoin coin = null;
+				TransactionBuilder builder = null;
 				var rate = new FeeRate(Money.Satoshis(1), 1);
 
+				async Task RefreshCoin()
+				{
+					id = await rpc.SendToAddressAsync(address, Money.Coins(1));
+					tx = await rpc.GetRawTransactionAsync(id);
+					coin = tx.Outputs.AsCoins().Where(o => o.ScriptPubKey == address.ScriptPubKey).Single();
+					builder = Network.Main.CreateTransactionBuilder(0);
+				}
+				await RefreshCoin();
 				var signedTx = builder
 					.AddCoins(coin)
 					.AddKeys(key)
 					.Send(destination, amount)
 					.SubtractFees()
-					.SetChange(new Key().ScriptPubKey)
+					.SetChange(change)
 					.SendEstimatedFees(rate)
 					.BuildTransaction(true);
 				rpc.SendRawTransaction(signedTx);
 
+				await RefreshCoin();
 				// Let's try again, but this time with PSBT
-				id = await rpc.SendToAddressAsync(address, Money.Coins(1));
-				tx = await rpc.GetRawTransactionAsync(id);
-				coin = tx.Outputs.AsCoins().Where(o => o.ScriptPubKey == address.ScriptPubKey).Single();
-				builder = Network.Main.CreateTransactionBuilder();
 				var psbt = builder
 					.AddCoins(coin)
 					.Send(destination, amount)
 					.SubtractFees()
-					.SetChange(new Key().ScriptPubKey)
+					.SetChange(change)
 					.SendEstimatedFees(rate)
 					.BuildPSBT(false);
 
-				psbt.Inputs[0].HDKeyPaths.Add(key.PubKey.GetTaprootPubKey(), accountRootKeyPath.Derive(KeyPath.Parse("0/0")));
+				var tk = key.PubKey.GetTaprootFullPubKey();
+				psbt.Inputs[0].HDTaprootKeyPaths.Add(tk.OutputKey, new TaprootKeyPath(accountRootKeyPath.Derive(KeyPath.Parse("0/0"))));
 				psbt.SignAll(ScriptPubKeyType.TaprootBIP86, accountKey, accountRootKeyPath);
-				rpc.SendRawTransaction(signedTx);
+
+				// Check if we can roundtrip
+				psbt = CanRoundtripPSBT(psbt);
+
+				//TODO remove this when script evaluator is implemented
+				psbt.Settings.SkipVerifyScript = true;
+				psbt.Finalize();
+				rpc.SendRawTransaction(psbt.ExtractTransaction());
+
+				// Let's try again, but this time with BuildPSBT(true)
+				await RefreshCoin();
+				psbt = builder
+					.AddCoins(coin)
+					.AddKeys(key)
+					.Send(destination, amount)
+					.SubtractFees()
+					.SetChange(change)
+					.SendEstimatedFees(rate)
+					.BuildPSBT(true);
+				//TODO remove this when script evaluator is implemented
+				psbt.Settings.SkipVerifyScript = true;
+				psbt.Finalize();
+				rpc.SendRawTransaction(psbt.ExtractTransaction());
+
+				// Let's try again, this time with a merkle root
+				var merkleRoot = RandomUtils.GetUInt256();
+				address = key.PubKey.GetTaprootFullPubKey(merkleRoot).GetAddress(nodeBuilder.Network);
+
+				await RefreshCoin();
+				psbt = builder
+					.AddCoins(coin)
+					.AddKeys(key.CreateTaprootKeyPair(merkleRoot))
+					.Send(destination, amount)
+					.SubtractFees()
+					.SetChange(change)
+					.SendEstimatedFees(rate)
+					.BuildPSBT(true);
+				Assert.NotNull(psbt.Inputs[0].TaprootMerkleRoot);
+				Assert.NotNull(psbt.Inputs[0].TaprootInternalKey);
+				Assert.NotNull(psbt.Inputs[0].TaprootKeySignature);
+				psbt = CanRoundtripPSBT(psbt);
+				//TODO remove this when script evaluator is implemented
+				psbt.Settings.SkipVerifyScript = true;
+				psbt.Finalize();
+				rpc.SendRawTransaction(psbt.ExtractTransaction());
+
+				// Can we sign the PSBT separately?
+				await RefreshCoin();
+				psbt = builder
+					.AddCoins(coin)
+					.Send(destination, amount)
+					.SubtractFees()
+					.SetChange(change)
+					.SendEstimatedFees(rate)
+					.BuildPSBT(false);
+
+				var taprootKeyPair = key.CreateTaprootKeyPair(merkleRoot);
+				psbt.Inputs[0].Sign(taprootKeyPair);
+				Assert.NotNull(psbt.Inputs[0].TaprootMerkleRoot);
+				Assert.NotNull(psbt.Inputs[0].TaprootInternalKey);
+				Assert.NotNull(psbt.Inputs[0].TaprootKeySignature);
+
+				// This line is useless, we just use it to test the PSBT roundtrip
+				psbt.Inputs[0].HDTaprootKeyPaths.Add(taprootKeyPair.PubKey,
+												     new TaprootKeyPath(RootedKeyPath.Parse("12345678/86'/0'/0'/0/0"),
+													 new uint256[] { RandomUtils.GetUInt256() }));
+				psbt = CanRoundtripPSBT(psbt);
+				//TODO remove this when script evaluator is implemented
+				psbt.Settings.SkipVerifyScript = true;
+				psbt.Finalize();
+				rpc.SendRawTransaction(psbt.ExtractTransaction());
 			}
+		}
+
+		private static PSBT CanRoundtripPSBT(PSBT psbt)
+		{
+			var psbtBefore = psbt.ToString();
+			psbt = psbt.Clone();
+			var psbtAfter = psbt.ToString();
+			Assert.Equal(psbtBefore, psbtAfter);
+			return psbt;
 		}
 #endif
 		[Fact]

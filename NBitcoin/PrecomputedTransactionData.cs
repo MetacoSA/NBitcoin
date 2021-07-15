@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace NBitcoin
 {
@@ -16,7 +17,7 @@ namespace NBitcoin
 			HashSequence = tx.GetHashSequence(HashVersion.WitnessV0);
 			HashPrevouts = tx.GetHashPrevouts(HashVersion.WitnessV0);
 
-			if (spentOutputs is TxOut[])
+			if (spentOutputs is TxOut[] && spentOutputs.All(o => o != null))
 			{
 				ForTaproot = true;
 				SpentOutputs = spentOutputs;

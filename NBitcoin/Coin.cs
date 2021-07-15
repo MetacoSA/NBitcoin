@@ -460,6 +460,8 @@ namespace NBitcoin
 
 		public virtual HashVersion GetHashVersion()
 		{
+			if (ScriptPubKey.IsScriptType(ScriptType.Taproot))
+				return HashVersion.Taproot;
 			if (PayToWitTemplate.Instance.CheckScriptPubKey(ScriptPubKey))
 				return HashVersion.WitnessV0;
 			return HashVersion.Original;

@@ -3,14 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
-using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.IPubKey, NBitcoin.RootedKeyPath>;
+using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.RootedKeyPath>;
+using HDTaprootKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.TaprootPubKey, NBitcoin.TaprootKeyPath>;
 using NBitcoin.Crypto;
+using System.Collections;
 
 namespace NBitcoin
 {
 	public abstract class PSBTCoin
 	{
 		protected HDKeyPathKVMap hd_keypaths = new HDKeyPathKVMap(PubKeyComparer.Instance);
+		protected HDTaprootKeyPathKVMap hd_taprootkeypaths = new HDTaprootKeyPathKVMap(Comparer<NBitcoin.TaprootPubKey>.Default);
 		protected UnKnownKVMap unknown = new SortedDictionary<byte[], byte[]>(BytesComparer.Instance);
 		protected Script? redeem_script;
 		protected Script? witness_script;
@@ -38,8 +41,27 @@ namespace NBitcoin
 				return hd_keypaths;
 			}
 		}
+		public HDTaprootKeyPathKVMap HDTaprootKeyPaths
+		{
+			get
+			{
+				return hd_taprootkeypaths;
+			}
+		}
 
-		public TaprootPubKey? TaprootInternalKey { get; set; }
+		public IEnumerable<KeyValuePair<IPubKey, RootedKeyPath>> EnumerateKeyPaths()
+		{
+			foreach (var v in hd_keypaths)
+			{
+				yield return new KeyValuePair<IPubKey, RootedKeyPath>(v.Key, v.Value);
+			}
+			foreach (var v in hd_taprootkeypaths)
+			{
+				yield return new KeyValuePair<IPubKey, RootedKeyPath>(v.Key, v.Value.RootedKeyPath);
+			}
+		}
+
+		public TaprootInternalPubKey? TaprootInternalKey { get; set; }
 
 		public Script? RedeemScript
 		{
@@ -205,7 +227,7 @@ namespace NBitcoin
 			accountKey = accountKey.AsHDKeyCache();
 			accountHDScriptPubKey = accountHDScriptPubKey?.AsHDKeyCache();
 			var coinScriptPubKey = this.GetCoin()?.ScriptPubKey;
-			foreach (var hdKey in HDKeyPaths)
+			foreach (var hdKey in EnumerateKeyPaths())
 			{
 				bool matched = false;
 

@@ -258,7 +258,9 @@ namespace NBitcoin
 			if (!Serializing)
 			{
 				if (data == null)
+				{
 					data = new TList();
+				}
 				else
 					data.Clear();
 				data.AddRange(dataArray);

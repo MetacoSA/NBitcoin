@@ -164,29 +164,40 @@ namespace NBitcoin
 #endif
 		}
 #if HAS_SPAN
-		public TaprootSignature SignTaprootKeyPath(uint256 hash, TaprootSigHash sigHash = TaprootSigHash.Default)
+		public TaprootSignature SignTaprootKeySpend(uint256 hash, TaprootSigHash sigHash = TaprootSigHash.Default)
 		{
-			return SignTaprootKeyPath(hash, null, sigHash);
+			return SignTaprootKeySpend(hash, null, sigHash);
 		}
-		public TaprootSignature SignTaprootKeyPath(uint256 hash, uint256? merkleRoot, TaprootSigHash sigHash)
+		public TaprootSignature SignTaprootKeySpend(uint256 hash, uint256? merkleRoot, TaprootSigHash sigHash)
 		{
 			if (hash == null)
 				throw new ArgumentNullException(nameof(hash));
 			AssertNotDisposed();
 			var eckey = _ECKey;
-			if (PubKey.AsInternalKey().Parity)
+			if (PubKey.Parity)
 			{
 				eckey = new Secp256k1.ECPrivKey(_ECKey.sec.Negate(), _ECKey.ctx, true);
 			}
 			Span<byte> buf = stackalloc byte[32];
-			PubKey.ComputeTapTweak(merkleRoot, buf);
+			TaprootFullPubKey.ComputeTapTweak(PubKey.GetTaprootInternalKey(), merkleRoot, buf);
 			eckey = eckey.TweakAdd(buf);
 			hash.ToBytes(buf);
 			var sig = eckey.SignBIP340(buf);
 			return new TaprootSignature(new SchnorrSignature(sig), sigHash);
 		}
+		public TaprootKeyPair CreateTaprootKeyPair()
+		{
+			return CreateTaprootKeyPair(null);
+		}
+		public TaprootKeyPair CreateTaprootKeyPair(uint256? merkleRoot)
+		{
+			return TaprootKeyPair.CreateTaprootPair(this, merkleRoot);
+		}
 #endif
-
+		public KeyPair CreateKeyPair()
+		{
+			return new KeyPair(this, this.PubKey);
+		}
 		public string SignMessage(String message)
 		{
 			return SignMessage(Encoding.UTF8.GetBytes(message));
