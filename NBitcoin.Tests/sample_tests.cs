@@ -69,8 +69,6 @@ namespace NBitcoin.Tests
 				// Check if we can roundtrip
 				psbt = CanRoundtripPSBT(psbt);
 
-				//TODO remove this when script evaluator is implemented
-				psbt.Settings.SkipVerifyScript = true;
 				psbt.Finalize();
 				rpc.SendRawTransaction(psbt.ExtractTransaction());
 
@@ -84,8 +82,6 @@ namespace NBitcoin.Tests
 					.SetChange(change)
 					.SendEstimatedFees(rate)
 					.BuildPSBT(true);
-				//TODO remove this when script evaluator is implemented
-				psbt.Settings.SkipVerifyScript = true;
 				psbt.Finalize();
 				rpc.SendRawTransaction(psbt.ExtractTransaction());
 
@@ -106,8 +102,6 @@ namespace NBitcoin.Tests
 				Assert.NotNull(psbt.Inputs[0].TaprootInternalKey);
 				Assert.NotNull(psbt.Inputs[0].TaprootKeySignature);
 				psbt = CanRoundtripPSBT(psbt);
-				//TODO remove this when script evaluator is implemented
-				psbt.Settings.SkipVerifyScript = true;
 				psbt.Finalize();
 				rpc.SendRawTransaction(psbt.ExtractTransaction());
 
@@ -132,8 +126,6 @@ namespace NBitcoin.Tests
 												     new TaprootKeyPath(RootedKeyPath.Parse("12345678/86'/0'/0'/0/0"),
 													 new uint256[] { RandomUtils.GetUInt256() }));
 				psbt = CanRoundtripPSBT(psbt);
-				//TODO remove this when script evaluator is implemented
-				psbt.Settings.SkipVerifyScript = true;
 				psbt.Finalize();
 				rpc.SendRawTransaction(psbt.ExtractTransaction());
 			}

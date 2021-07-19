@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,7 +24,7 @@ namespace NBitcoin
 			TapleafHash = tapleaf;
 		}
 		public int InputIndex { get; set; }
-		public byte[] Annex { get; set; }
+		public uint256? AnnexHash { get; set; }
 
 		TaprootSigHash _SigHash = TaprootSigHash.Default;
 		public static bool IsValidSigHash(byte value)
@@ -44,7 +45,7 @@ namespace NBitcoin
 			}
 		}
 		public HashVersion HashVersion { get; } = HashVersion.Taproot;
-		public uint256 TapleafHash { get; set; }
+		public uint256? TapleafHash { get; set; }
 		public uint CodeseparatorPosition { get; set; } = 0xffffffff;
 	}
 }
