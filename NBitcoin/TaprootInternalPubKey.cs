@@ -58,6 +58,14 @@ namespace NBitcoin
 				throw new FormatException("Invalid taproot pubkey");
 			this.pubkey = k;
 		}
+		public TaprootFullPubKey GetTaprootFullPubKey()
+		{
+			return GetTaprootFullPubKey(null);
+		}
+		public TaprootFullPubKey GetTaprootFullPubKey(uint256? merkleRoot)
+		{
+			return TaprootFullPubKey.Create(this, merkleRoot);
+		}
 #endif
 		public TaprootInternalPubKey(byte[] pubkey)
 		{

@@ -298,7 +298,7 @@ namespace NBitcoin
 		}
 		public TaprootFullPubKey GetTaprootFullPubKey(uint256? merkleRoot)
 		{
-			return TaprootFullPubKey.Create(GetTaprootInternalKey(), merkleRoot);
+			return GetTaprootInternalKey().GetTaprootFullPubKey(merkleRoot);
 		}
 
 		TaprootInternalPubKey? _InternalKey;
