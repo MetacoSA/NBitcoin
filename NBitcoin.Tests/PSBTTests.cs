@@ -374,7 +374,6 @@ namespace NBitcoin.Tests
 
 			var tx = CreateTxToSpendFunds(funds, keys, redeem, false, false);
 			var psbt = PSBT.FromTransaction(tx, Network.Main);
-
 			var ex = Assert.Throws<PSBTException>(() => psbt.Finalize());
 			Assert.Equal(6, ex.Errors.GroupBy(e => e.InputIndex).Count());
 		}

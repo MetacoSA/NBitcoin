@@ -1799,17 +1799,37 @@ namespace NBitcoin
 			if (IsCoinBase)
 				return Money.Zero;
 			spentCoins = spentCoins ?? new ICoin[0];
-			Dictionary<OutPoint, ICoin> coinsByOutpoint = new Dictionary<OutPoint, ICoin>();
+			var coinsByOutpoint = new Dictionary<OutPoint, TxOut>();
 			foreach (var c in spentCoins)
 			{
-				coinsByOutpoint.TryAdd(c.Outpoint, c);
+				coinsByOutpoint.TryAdd(c.Outpoint, c.TxOut);
 			}
 			Money fees = -TotalOut;
 			foreach (var input in this.Inputs)
 			{
 				if (!coinsByOutpoint.TryGetValue(input.PrevOut, out var coin))
 					return null;
-				fees += coin.TxOut.Value;
+				fees += coin.Value;
+			}
+			return fees;
+		}
+		/// <summary>
+		/// Calculate the fee of the transaction
+		/// </summary>
+		/// <param name="spentOutputs">Outputs being spent</param>
+		/// <returns>Fee or null if some spent coins are missing or if spentCoins is null</returns>
+		public virtual Money GetFee(TxOut[] spentOutputs)
+		{
+			if (IsCoinBase)
+				return Money.Zero;
+			if (spentOutputs == null)
+				throw new ArgumentNullException(nameof(spentOutputs));
+			if (spentOutputs.Length != Inputs.Count)
+				return null;
+			Money fees = -TotalOut;
+			for (int i = 0; i < spentOutputs.Length; i++)
+			{
+				fees += spentOutputs[i].Value;
 			}
 			return fees;
 		}

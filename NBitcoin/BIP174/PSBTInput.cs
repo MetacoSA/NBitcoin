@@ -922,7 +922,7 @@ namespace NBitcoin
 		{
 			return TryFinalizeInput(null, out errors);
 		}
-		internal bool TryFinalizeInput(PrecomputedTransactionData? precomputedTransactionData, [MaybeNullWhen(true)] out IList<PSBTError> errors)
+		public bool TryFinalizeInput(TransactionValidator? validator, [MaybeNullWhen(true)] out IList<PSBTError> errors)
 		{
 			errors = null;
 			if (IsFinalized())
@@ -941,9 +941,17 @@ namespace NBitcoin
 			var coin = this.GetSignableCoin(out var getSignableCoinError) ?? this.GetCoin(); // GetCoin can't be null at this stage.
 			if (coin is null)
 				throw new InvalidOperationException("Bug in NBitcoin during TryFinalizeInput: Please report it");
-			var txdata = precomputedTransactionData ?? Parent.GetPrecomputedTransactionData();
+
+			if (validator is null)
+			{
+				if (!Parent.TryCreateTransactionValidator(out validator, out var err))
+				{
+					errors = err;
+					return false;
+				}
+			}
 			TransactionBuilder transactionBuilder = Parent.CreateTransactionBuilder();
-			transactionBuilder.SetPrecomputedTransactionData(txdata);
+			transactionBuilder.SetPrecomputedTransactionData(validator.PrecomputedTransactionData);
 			transactionBuilder.AddCoins(coin);
 			foreach (var sig in PartialSigs)
 			{
@@ -968,9 +976,10 @@ namespace NBitcoin
 				return false;
 			}
 			var indexedInput = signed.Inputs.FindIndexedInput(coin.Outpoint);
-			if (!Parent.Settings.SkipVerifyScript && !indexedInput.VerifyScript(coin, ScriptVerify.Standard, precomputedTransactionData, out var error))
+			validator = validator.ChangeTransaction(signed);
+			if (!Parent.Settings.SkipVerifyScript && !validator.TryValidateInput((int)Index, out var res))
 			{
-				errors = new List<PSBTError>() { new PSBTError(Index, $"The finalized input script does not properly validate \"{error}\"") };
+				errors = new List<PSBTError>() { new PSBTError(Index, $"The finalized input script does not properly validate \"{res.Error}\"") };
 				return false;
 			}
 

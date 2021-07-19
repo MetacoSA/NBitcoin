@@ -2587,15 +2587,6 @@ namespace NBitcoin.Tests
 			Assert.True(txBuilder.Verify(psbt.ExtractTransaction(), "0.0001"));
 			// OK PSBT is finalized
 
-			//Verify that we can detect malleability
-			txBuilder.StandardTransactionPolicy = EasyPolicy.Clone();
-			txBuilder.StandardTransactionPolicy.CheckMalleabilitySafe = true;
-			Assert.False(txBuilder.Verify(tx, "0.0001"));
-			Assert.Equal(3, tx.Outputs.Count);
-			var errors = txBuilder.Check(tx);
-			Assert.True(errors.Length > 0);
-			Assert.Equal(witCoins.Count, tx.Inputs.Count - errors.Length);
-
 			txBuilder = Network.CreateTransactionBuilder(0);
 			txBuilder.MergeOutputs = false;
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
@@ -3100,8 +3091,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(fees.Missing, Money.Coins(0.7m));
 
 			spending.Inputs.Add(new TxIn(new OutPoint(funding, 3))); //Coins not found
-			builder.Verify(spending, Money.Coins(1.0m), out errors);
-			var coin = errors.OfType<CoinNotFoundPolicyError>().Single();
+			var coin = Assert.Throws<CoinNotFoundException>(() => builder.Verify(spending, Money.Coins(1.0m), out errors));
 			Assert.Equal(4UL, coin.InputIndex);
 			Assert.Equal(3UL, coin.OutPoint.N);
 		}

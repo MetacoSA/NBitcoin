@@ -178,7 +178,7 @@ namespace NBitcoin
 
 	public class SignedHash
 	{
-		public TransactionSignature Signature
+		public ITransactionSignature Signature
 		{
 			get;
 			internal set;
