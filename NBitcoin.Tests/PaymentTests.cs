@@ -54,16 +54,10 @@ namespace NBitcoin.Tests
 
 			url = new BitcoinUrlBuilder("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&r=https://merchant.com/pay.php?h%3D2a8628fc2fbe", Network.TestNet);
 			Assert.Equal("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&r=https://merchant.com/pay.php?h%3d2a8628fc2fbe", url.ToString());
-#pragma warning disable CS0618 // Type or member is obsolete
-			Assert.Equal("https://merchant.com/pay.php?h=2a8628fc2fbe", url.PaymentRequestUrl.ToString());
-#pragma warning restore CS0618 // Type or member is obsolete
 			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString(), Network.TestNet).ToString());
 
 			//Support no address
 			url = new BitcoinUrlBuilder("bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe", Network.Main);
-#pragma warning disable CS0618 // Type or member is obsolete
-			Assert.Equal("https://merchant.com/pay.php?h=2a8628fc2fbe", url.PaymentRequestUrl.ToString());
-#pragma warning restore CS0618 // Type or member is obsolete
 			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString(), Network.Main).ToString());
 		}
 
@@ -74,7 +68,7 @@ namespace NBitcoin.Tests
 			BitcoinUrlBuilder url = new BitcoinUrlBuilder("bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe&idontknow=test", Network.Main);
 
 			Assert.Equal("test", url.UnknowParameters["idontknow"]);
-			Assert.Single(url.UnknowParameters);
+			Assert.Equal("https://merchant.com/pay.php?h=2a8628fc2fbe", url.UnknowParameters["r"]);
 		}
 
 		private BitcoinUrlBuilder CreateBuilder(string uri)
