@@ -61,6 +61,9 @@ namespace NBitcoin
 		NullFail,
 		MinimalIf,
 		WitnessPubkeyType,
+		SchnorrSigSize,
+		SchnorrSigHashType,
+		SchnorrSig,
 	}
 
 	public class TransactionChecker
@@ -127,6 +130,50 @@ namespace NBitcoin
 				return _SpentOutput;
 			}
 		}
+#if HAS_SPAN
+		public bool CheckSchnorrSignature(byte[] sig, byte[] pubkey_in, HashVersion taproot, ExecutionData executionData, out ScriptError err)
+		{
+			// Schnorr signatures have 32-byte public keys. The caller is responsible for enforcing this.
+
+			//assert(sigversion == SigVersion::TAPROOT || sigversion == SigVersion::TAPSCRIPT);
+			//assert(pubkey_in.size() == 32);
+
+			// Note that in Tapscript evaluation, empty signatures are treated specially (invalid signature that does not
+			// abort script execution). This is implemented in EvalChecksigTapscript, which won't invoke
+			// CheckSchnorrSignature in that case. In other contexts, they are invalid like every other signature with
+			// size different from 64 or 65.
+			if (sig.Length != 64 && sig.Length != 65)
+			{
+				err = ScriptError.SchnorrSigSize;
+				return false;
+			}
+
+			if (!TaprootPubKey.TryCreate(pubkey_in, out var pubkey))
+			{
+				// Technically, the pubkey is wrong, but bitcoin core code doesn't check this.
+				err = ScriptError.SchnorrSig;
+				return false;
+			}
+			if (!TaprootSignature.TryParse(sig, out var taprootSig))
+			{
+				err = ScriptError.SchnorrSigHashType;
+				return false;
+			}
+			var hash = this.Transaction.GetSignatureHashTaproot(PrecomputedTransactionData, new TaprootExecutionData(this.Index)
+			{
+				AnnexHash = executionData.AnnexHash,
+				TapleafHash = executionData.TapleafHash,
+				CodeseparatorPosition = executionData.CodeseparatorPosition
+			});
+			if (!pubkey.VerifyTaproot(hash, taprootSig.SchnorrSignature))
+			{
+				err = ScriptError.SchnorrSig;
+				return false;
+			}
+			err = ScriptError.OK;
+			return true;
+		}
+#endif
 	}
 
 	public class SignedHash
@@ -155,9 +202,15 @@ namespace NBitcoin
 			internal set;
 		}
 	}
+
+	public class ExecutionData
+	{
+		public uint256 AnnexHash { get; set; }
+		public uint256 TapleafHash { get; internal set; }
+		public uint CodeseparatorPosition { get; set; } = 0xffffffff;
+	}
 	public class ScriptEvaluationContext
 	{
-
 		class CScriptNum
 		{
 			const long nMaxNumSize = 4;
@@ -410,7 +463,6 @@ namespace NBitcoin
 		public ScriptEvaluationContext()
 		{
 			ScriptVerify = NBitcoin.ScriptVerify.Standard;
-			SigHash = NBitcoin.SigHash.Undefined;
 			Error = ScriptError.UnknownError;
 		}
 		public ScriptVerify ScriptVerify
@@ -418,18 +470,7 @@ namespace NBitcoin
 			get;
 			set;
 		}
-		public SigHash SigHash
-		{
-			get;
-			set;
-		}
-
-		[Obsolete("Use VerifyScript(Script scriptSig, Transaction txTo, int nIn, TxOut spentOutput) instead")]
-		public bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction txTo, int nIn, Money value)
-		{
-			TxOut txOut = txTo.Outputs.CreateNewTxOut(value, scriptPubKey);
-			return VerifyScript(scriptSig, scriptPubKey, new TransactionChecker(txTo, nIn, txOut));
-		}
+		public ExecutionData ExecutionData { get; set; } = new ExecutionData();
 
 		public bool VerifyScript(Script scriptSig, Transaction txTo, int nIn, TxOut spentOutput)
 		{
@@ -438,6 +479,7 @@ namespace NBitcoin
 
 		public bool VerifyScript(Script scriptSig, Script scriptPubKey, TransactionChecker checker)
 		{
+			ExecutionData = new ExecutionData();
 			WitScript witness = checker.Input.WitScript;
 			SetError(ScriptError.UnknownError);
 			if ((ScriptVerify & ScriptVerify.SigPushOnly) != 0 && !scriptSig.IsPushOnly)
@@ -471,7 +513,7 @@ namespace NBitcoin
 						// The scriptSig must be _exactly_ CScript(), otherwise we reintroduce malleability.
 						return SetError(ScriptError.WitnessMalleated);
 					}
-					if (!VerifyWitnessProgram(witness, wit, checker))
+					if (!VerifyWitnessProgram(witness, wit, checker, false))
 					{
 						return false;
 					}
@@ -517,7 +559,7 @@ namespace NBitcoin
 							// reintroduce malleability.
 							return SetError(ScriptError.WitnessMalleatedP2SH);
 						}
-						if (!VerifyWitnessProgram(witness, wit, checker))
+						if (!VerifyWitnessProgram(witness, wit, checker, true))
 						{
 							return false;
 						}
@@ -559,46 +601,75 @@ namespace NBitcoin
 
 			return true;
 		}
-
-		private bool VerifyWitnessProgram(WitScript witness, WitProgramParameters wit, TransactionChecker checker)
+		const byte ANNEX_TAG = 0x50;
+		private bool VerifyWitnessProgram(WitScript witness, WitProgramParameters wit, TransactionChecker checker, bool isP2SH)
 		{
-			List<byte[]> stack = new List<byte[]>();
+			ContextStack<byte[]> stack = new ContextStack<byte[]>(witness.Pushes);
 			Script scriptPubKey;
-
 			if (wit.Version == 0)
 			{
 				if (wit.Program.Length == 32)
 				{
 					// Version 0 segregated witness program: SHA256(CScript) inside the program, CScript + inputs in witness
-					if (witness.PushCount == 0)
+					if (stack.Count == 0)
 					{
 						return SetError(ScriptError.WitnessProgramEmpty);
 					}
-					scriptPubKey = Script.FromBytesUnsafe(witness.GetUnsafePush(witness.PushCount - 1));
-					for (int i = 0; i < witness.PushCount - 1; i++)
-					{
-						stack.Add(witness.GetUnsafePush(i));
-					}
+					scriptPubKey = Script.FromBytesUnsafe(stack.Pop());
 					var hashScriptPubKey = Hashes.SHA256(scriptPubKey.ToBytes(true));
 					if (!Utils.ArrayEqual(hashScriptPubKey, wit.Program))
 					{
 						return SetError(ScriptError.WitnessProgramMissmatch);
 					}
+					return ExecuteWitnessScript(stack, scriptPubKey, HashVersion.WitnessV0, checker);
 				}
 				else if (wit.Program.Length == 20)
 				{
 					// Special case for pay-to-pubkeyhash; signature + pubkey in witness
-					if (witness.PushCount != 2)
+					if (stack.Count != 2)
 					{
 						return SetError(ScriptError.WitnessProgramMissmatch); // 2 items in witness
 					}
 					scriptPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(new KeyId(wit.Program));
-					stack = witness.Pushes.ToList();
+					return ExecuteWitnessScript(stack, scriptPubKey, HashVersion.WitnessV0, checker);
 				}
 				else
 				{
 					return SetError(ScriptError.WitnessProgramWrongLength);
 				}
+			}
+			else if (wit.Version == OpcodeType.OP_1 && wit.Program.Length == 32 && !isP2SH)
+			{
+#if HAS_SPAN
+				// BIP341 Taproot: 32-byte non-P2SH witness v1 program (which encodes a P2C-tweaked pubkey)
+				if (!this.ScriptVerify.HasFlag(ScriptVerify.Taproot))
+					return SetSuccess(ScriptError.OK);
+				if (stack.Count == 0) return SetError(ScriptError.WitnessProgramEmpty);
+				if (stack.Count >= 2 && stack.LastOrDefault() is byte[] b && b.Length > 0 && b[0] == ANNEX_TAG)
+				{
+					// Drop annex (this is non-standard; see IsWitnessStandard)
+					var annex = stack.Pop();
+					ExecutionData.AnnexHash = new uint256(Hashes.SHA256(annex));
+				}
+				if (stack.Count == 1)
+				{
+					// Key path spending (stack size is 1 after removing optional annex)
+					if (!checker.CheckSchnorrSignature(stack.First(), wit.Program, HashVersion.Taproot, ExecutionData, out var err))
+					{
+						return SetError(err);
+					}
+					return true;
+				}
+				else
+				{
+					// Script path spending (stack size is >1 after removing optional annex)
+					return true;
+				}
+
+#else
+				return true;
+#endif
+
 			}
 			else if ((ScriptVerify & ScriptVerify.DiscourageUpgradableWitnessProgram) != 0)
 			{
@@ -609,10 +680,13 @@ namespace NBitcoin
 				// Higher version witness scripts return true for future softfork compatibility
 				return true;
 			}
+		}
 
+		private bool ExecuteWitnessScript(ContextStack<byte[]> stack, Script scriptPubKey, HashVersion witnessV0, TransactionChecker checker)
+		{
 			var ctx = this.Clone();
 			ctx.Stack.Clear();
-			foreach (var item in stack)
+			foreach (var item in stack.Reverse())
 				ctx.Stack.Push(item);
 
 			// Disallow stack item size > MAX_SCRIPT_ELEMENT_SIZE in witness stack
@@ -632,7 +706,6 @@ namespace NBitcoin
 				return SetError(ScriptError.EvalFalse);
 			return true;
 		}
-
 
 		static readonly byte[] vchFalse = new byte[0];
 		static readonly byte[] vchZero = new byte[0];
@@ -1966,9 +2039,6 @@ namespace NBitcoin
 				return false;
 			}
 
-			if (!IsAllowedSignature(scriptSig.SigHash))
-				return false;
-
 			uint256 sighash = checker.Transaction.GetSignatureHash(scriptCode, checker.Index, scriptSig.SigHash, checker.SpentOutput, (HashVersion)sigversion, checker.PrecomputedTransactionData);
 			_SignedHashes.Add(new SignedHash()
 			{
@@ -2005,20 +2075,10 @@ namespace NBitcoin
 			return true;
 		}
 
-
-		public bool IsAllowedSignature(SigHash sigHash)
-		{
-			if (SigHash == NBitcoin.SigHash.Undefined)
-				return true;
-			return SigHash == sigHash;
-		}
-
-
 		private void Load(ScriptEvaluationContext other)
 		{
 			_stack = new ContextStack<byte[]>(other._stack);
 			ScriptVerify = other.ScriptVerify;
-			SigHash = other.SigHash;
 		}
 
 		public ScriptEvaluationContext Clone()
@@ -2027,8 +2087,9 @@ namespace NBitcoin
 			{
 				_stack = new ContextStack<byte[]>(_stack),
 				ScriptVerify = ScriptVerify,
-				SigHash = SigHash,
-				_SignedHashes = _SignedHashes
+				_SignedHashes = _SignedHashes,
+				ExecutionData = ExecutionData,
+				Error = Error,
 			};
 		}
 
@@ -2080,6 +2141,12 @@ namespace NBitcoin
 			_position = stack._position;
 			_array = new T[stack._array.Length];
 			stack._array.CopyTo(_array, 0);
+		}
+
+		public ContextStack(IEnumerable<T> elements) : this()
+		{
+			foreach (var el in elements)
+				Push(el);
 		}
 
 		/// <summary>
@@ -2228,7 +2295,7 @@ namespace NBitcoin
 			return new Enumerator(this);
 		}
 
-#region Reverse order enumerator (for Stacks)
+		#region Reverse order enumerator (for Stacks)
 
 		/// <summary>
 		/// Implements a reverse enumerator for the ContextStack
@@ -2278,7 +2345,7 @@ namespace NBitcoin
 			{
 			}
 		}
-#endregion
+		#endregion
 
 		internal void Clear()
 		{

@@ -771,18 +771,33 @@ namespace NBitcoin
 
 		public bool VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error)
 		{
+			return VerifyScript(spentOutput, scriptVerify, null, out error);
+		}
+		public bool VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify, PrecomputedTransactionData precomputedTransactionData, out ScriptError error)
+		{
 			return Script.VerifyScript(Transaction, (int)Index, spentOutput, scriptVerify, SigHash.Undefined, out error);
 		}
 
 		public bool VerifyScript(ICoin coin, ScriptVerify scriptVerify = ScriptVerify.Standard)
 		{
 			ScriptError error;
-			return VerifyScript(coin, scriptVerify, out error);
+			return VerifyScript(coin, scriptVerify, null, out error);
 		}
 
 		public bool VerifyScript(ICoin coin, ScriptVerify scriptVerify, out ScriptError error)
 		{
-			return Script.VerifyScript(Transaction, (int)Index, coin.TxOut, scriptVerify, SigHash.Undefined, out error);
+			return VerifyScript(coin, scriptVerify, null, out error);
+		}
+		public bool VerifyScript(ICoin coin, ScriptVerify scriptVerify, PrecomputedTransactionData precomputedTransactionData, out ScriptError error)
+		{
+			var eval = new ScriptEvaluationContext
+			{
+				ScriptVerify = scriptVerify,
+			};
+			var checker = new TransactionChecker(Transaction, (int)Index, coin.TxOut, precomputedTransactionData);
+			var result = eval.VerifyScript(this.Transaction.Inputs[(int)Index].ScriptSig, coin.TxOut.ScriptPubKey, checker);
+			error = eval.Error;
+			return result;
 		}
 		public bool VerifyScript(ICoin coin, out ScriptError error)
 		{
@@ -2096,7 +2111,7 @@ namespace NBitcoin
 
 			// Note annex has not purpose yet, so we don't nee it
 			// Data about the input/prevout being spent
-			byte spend_type = (byte)((ext_flag << 1) + (executionData.Annex is byte[] ? 1 : 0));
+			byte spend_type = (byte)((ext_flag << 1) + (executionData.AnnexHash is uint256 ? 1 : 0));
 
 			// The low bit indicates whether an annex is present.
 			ss.Inner.WriteByte(spend_type);
@@ -2111,9 +2126,9 @@ namespace NBitcoin
 				ss.ReadWrite((uint)executionData.InputIndex);
 			}
 
-			if (executionData.Annex is byte[])
+			if (executionData.AnnexHash is uint256)
 			{
-				var annex = executionData.Annex;
+				var annex = executionData.AnnexHash;
 				ss.ReadWrite(ref annex);
 			}
 

@@ -123,6 +123,15 @@ namespace NBitcoin
 		ForkId = (1U << 29),
 
 		/// <summary>
+		/// Taproot/Tapscript validation (BIPs 341 & 342)
+		/// </summary>
+		Taproot = (1U << 17),
+		/// <summary>
+		/// Making unknown Taproot leaf versions non-standard
+		/// </summary>
+		DiscourageUpgradableTaprootVersion = (1U << 18),
+
+		/// <summary>
 		/// Mandatory script verification flags that all new blocks must comply with for
 		/// them to be valid. (but old blocks may not comply with) Currently just P2SH,
 		/// but in the future other flags may be added, such as a soft-fork to enforce
@@ -152,7 +161,10 @@ namespace NBitcoin
 			| Witness
 			| DiscourageUpgradableWitnessProgram
 			| NullFail
-			| MinimalIf,
+			| MinimalIf
+			| Taproot
+			| DiscourageUpgradableTaprootVersion,
+
 
 		/// <summary>
 		/// Strict consensus script verification flags that are checked by the Bitcoin Core
@@ -929,44 +941,15 @@ namespace NBitcoin
 			var compressor = new ScriptCompressor(this);
 			return compressor.ToBytes();
 		}
-
-		[Obsolete("Use VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined) instead")]
-		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
-		{
-			ScriptError unused;
-			return VerifyScript(scriptSig, scriptPubKey, tx, i, null, scriptVerify, sigHash, out unused);
-		}
-
-		[Obsolete("Use VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined) instead")]
-		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, Money value, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
-		{
-			ScriptError unused;
-			return VerifyScript(scriptSig, scriptPubKey, tx, i, value, scriptVerify, sigHash, out unused);
-		}
-
 		public static bool VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
 		{
 			ScriptError unused;
 			return VerifyScript(scriptSig, tx, i, spentOutput, scriptVerify, sigHash, out unused);
 		}
 
-		[Obsolete("Use VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, out ScriptError error) instead")]
-		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, Money value, out ScriptError error)
-		{
-			return VerifyScript(scriptSig, scriptPubKey, tx, i, value, ScriptVerify.Standard, SigHash.Undefined, out error);
-		}
-
 		public static bool VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, out ScriptError error)
 		{
 			return VerifyScript(scriptSig, tx, i, spentOutput, ScriptVerify.Standard, SigHash.Undefined, out error);
-		}
-
-		[Obsolete("Use VerifyScript(Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined) instead")]
-		public static bool VerifyScript(Script scriptPubKey, Transaction tx, int i, Money value, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
-		{
-			ScriptError unused;
-			var scriptSig = tx.Inputs[i].ScriptSig;
-			return VerifyScript(scriptSig, scriptPubKey, tx, i, value, scriptVerify, sigHash, out unused);
 		}
 
 		public static bool VerifyScript(Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
@@ -976,24 +959,10 @@ namespace NBitcoin
 			return VerifyScript(scriptSig, tx, i, spentOutput, scriptVerify, sigHash, out unused);
 		}
 
-		[Obsolete("Use VerifyScript(Transaction tx, int i, TxOut spentOutput, out ScriptError error) instead")]
-		public static bool VerifyScript(Script scriptPubKey, Transaction tx, int i, Money value, out ScriptError error)
-		{
-			var scriptSig = tx.Inputs[i].ScriptSig;
-			return VerifyScript(scriptSig, scriptPubKey, tx, i, value, ScriptVerify.Standard, SigHash.Undefined, out error);
-		}
-
 		public static bool VerifyScript(Transaction tx, int i, TxOut spentOutput, out ScriptError error)
 		{
 			var scriptSig = tx.Inputs[i].ScriptSig;
 			return VerifyScript(scriptSig, tx, i, spentOutput, ScriptVerify.Standard, SigHash.Undefined, out error);
-		}
-
-		[Obsolete("Use VerifyScript(Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error) instead")]
-		public static bool VerifyScript(Script scriptPubKey, Transaction tx, int i, Money value, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
-		{
-			var scriptSig = tx.Inputs[i].ScriptSig;
-			return VerifyScript(scriptSig, scriptPubKey, tx, i, value, scriptVerify, sigHash, out error);
 		}
 
 		public static bool VerifyScript(Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
@@ -1002,27 +971,13 @@ namespace NBitcoin
 			return VerifyScript(scriptSig, tx, i, spentOutput, scriptVerify, sigHash, out error);
 		}
 
-		[Obsolete("Use VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error) instead")]
-		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, Money value, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
-		{
-			var eval = new ScriptEvaluationContext
-			{
-				SigHash = sigHash,
-				ScriptVerify = scriptVerify
-			};
-			var result = eval.VerifyScript(scriptSig, scriptPubKey, tx, i, value);
-			error = eval.Error;
-			return result;
-		}
-
 		public static bool VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
 		{
 			if (spentOutput == null)
 				throw new ArgumentNullException(nameof(spentOutput));
 			var eval = new ScriptEvaluationContext
 			{
-				SigHash = sigHash,
-				ScriptVerify = scriptVerify
+				ScriptVerify = scriptVerify,
 			};
 			var result = eval.VerifyScript(scriptSig, tx, i, spentOutput);
 			error = eval.Error;

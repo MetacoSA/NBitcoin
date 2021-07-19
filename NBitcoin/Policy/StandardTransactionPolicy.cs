@@ -67,15 +67,16 @@ namespace NBitcoin.Policy
 
 		public TransactionPolicyError[] Check(Transaction transaction, ICoin[] spentCoins)
 		{
+			return Check(null, transaction, spentCoins);
+		}
+		public TransactionPolicyError[] Check(PrecomputedTransactionData precomputedTransactionData, Transaction transaction, ICoin[] spentCoins)
+		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
 
 			spentCoins = spentCoins ?? new ICoin[0];
 
 			List<TransactionPolicyError> errors = new List<TransactionPolicyError>();
-
-
-
 			foreach (var input in transaction.Inputs.AsIndexedInputs())
 			{
 				var coin = spentCoins.FirstOrDefault(s => s.Outpoint == input.PrevOut);
@@ -84,7 +85,7 @@ namespace NBitcoin.Policy
 					if (ScriptVerify != null)
 					{
 						ScriptError error;
-						if (!VerifyScript(input, coin.TxOut, ScriptVerify.Value, out error))
+						if (!VerifyScript(precomputedTransactionData, input, coin.TxOut, ScriptVerify.Value, out error))
 						{
 							errors.Add(new ScriptPolicyError(input, error, ScriptVerify.Value, coin.TxOut.ScriptPubKey));
 						}
@@ -182,7 +183,7 @@ namespace NBitcoin.Policy
 			return bytes.Length > 0 && bytes[0] == (byte)OpcodeType.OP_RETURN;
 		}
 
-		private bool VerifyScript(IndexedTxIn input, TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error)
+		private bool VerifyScript(PrecomputedTransactionData precomputedTransactionData, IndexedTxIn input, TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error)
 		{
 
 #if !NOCONSENSUSLIB
@@ -191,7 +192,14 @@ namespace NBitcoin.Policy
 			{
 				if (input.Transaction is IHasForkId)
 					scriptVerify |= NBitcoin.ScriptVerify.ForkId;
-				return input.VerifyScript(spentOutput, scriptVerify, out error);
+
+				ScriptEvaluationContext ctx = new ScriptEvaluationContext()
+				{
+					ScriptVerify = scriptVerify
+				};
+				var ok = ctx.VerifyScript(input.ScriptSig, spentOutput.ScriptPubKey, new TransactionChecker(input.Transaction, (int)input.Index, spentOutput, precomputedTransactionData));
+				error = ctx.Error;
+				return ok;
 			}
 #if !NOCONSENSUSLIB
 			else

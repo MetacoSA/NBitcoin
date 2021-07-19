@@ -468,9 +468,10 @@ namespace NBitcoin
 		public bool TryFinalize([MaybeNullWhen(true)] out IList<PSBTError> errors)
 		{
 			var localErrors = new List<PSBTError>();
+			var txdata = GetPrecomputedTransactionData();
 			foreach (var input in Inputs)
 			{
-				if (!input.TryFinalizeInput(out var e))
+				if (!input.TryFinalizeInput(txdata, out var e))
 				{
 					localErrors.AddRange(e);
 				}
