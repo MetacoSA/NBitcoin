@@ -792,7 +792,6 @@ namespace NBitcoin
 		{
 			var eval = new ScriptEvaluationContext
 			{
-				SigHash = SigHash.Undefined,
 				ScriptVerify = scriptVerify,
 			};
 			var checker = new TransactionChecker(Transaction, (int)Index, coin.TxOut, precomputedTransactionData);

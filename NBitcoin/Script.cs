@@ -977,7 +977,6 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(spentOutput));
 			var eval = new ScriptEvaluationContext
 			{
-				SigHash = sigHash,
 				ScriptVerify = scriptVerify,
 			};
 			var result = eval.VerifyScript(scriptSig, tx, i, spentOutput);

@@ -195,8 +195,7 @@ namespace NBitcoin.Policy
 
 				ScriptEvaluationContext ctx = new ScriptEvaluationContext()
 				{
-					ScriptVerify = scriptVerify,
-					SigHash = SigHash.Undefined
+					ScriptVerify = scriptVerify
 				};
 				var ok = ctx.VerifyScript(input.ScriptSig, spentOutput.ScriptPubKey, new TransactionChecker(input.Transaction, (int)input.Index, spentOutput, precomputedTransactionData));
 				error = ctx.Error;

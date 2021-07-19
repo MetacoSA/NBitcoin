@@ -917,8 +917,7 @@ namespace NBitcoin.Tests
 
 			var context = new ScriptEvaluationContext()
 			{
-				ScriptVerify = ScriptVerify.P2SH,
-				SigHash = 0
+				ScriptVerify = ScriptVerify.P2SH
 			};
 			var directStack = context.Clone();
 			Assert.True(directStack.EvalScript(direct, Network.CreateTransaction(), 0));

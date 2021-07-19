@@ -463,7 +463,6 @@ namespace NBitcoin
 		public ScriptEvaluationContext()
 		{
 			ScriptVerify = NBitcoin.ScriptVerify.Standard;
-			SigHash = NBitcoin.SigHash.Undefined;
 			Error = ScriptError.UnknownError;
 		}
 		public ScriptVerify ScriptVerify
@@ -471,12 +470,6 @@ namespace NBitcoin
 			get;
 			set;
 		}
-		public SigHash SigHash
-		{
-			get;
-			set;
-		}
-
 		public ExecutionData ExecutionData { get; set; } = new ExecutionData();
 
 		public bool VerifyScript(Script scriptSig, Transaction txTo, int nIn, TxOut spentOutput)
@@ -2046,9 +2039,6 @@ namespace NBitcoin
 				return false;
 			}
 
-			if (!IsAllowedSignature(scriptSig.SigHash))
-				return false;
-
 			uint256 sighash = checker.Transaction.GetSignatureHash(scriptCode, checker.Index, scriptSig.SigHash, checker.SpentOutput, (HashVersion)sigversion, checker.PrecomputedTransactionData);
 			_SignedHashes.Add(new SignedHash()
 			{
@@ -2085,20 +2075,10 @@ namespace NBitcoin
 			return true;
 		}
 
-
-		public bool IsAllowedSignature(SigHash sigHash)
-		{
-			if (SigHash == NBitcoin.SigHash.Undefined)
-				return true;
-			return SigHash == sigHash;
-		}
-
-
 		private void Load(ScriptEvaluationContext other)
 		{
 			_stack = new ContextStack<byte[]>(other._stack);
 			ScriptVerify = other.ScriptVerify;
-			SigHash = other.SigHash;
 		}
 
 		public ScriptEvaluationContext Clone()
@@ -2107,7 +2087,6 @@ namespace NBitcoin
 			{
 				_stack = new ContextStack<byte[]>(_stack),
 				ScriptVerify = ScriptVerify,
-				SigHash = SigHash,
 				_SignedHashes = _SignedHashes,
 				ExecutionData = ExecutionData,
 				Error = Error,

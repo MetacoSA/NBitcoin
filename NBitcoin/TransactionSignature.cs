@@ -118,20 +118,6 @@ namespace NBitcoin
 			return (67 <= length && length <= 80) || length == 9; //9 = Empty signature
 		}
 
-		public bool Check(PubKey pubKey, Script scriptPubKey, IndexedTxIn txIn, ScriptVerify verify = ScriptVerify.Standard)
-		{
-			return Check(pubKey, scriptPubKey, txIn.Transaction, txIn.Index, verify);
-		}
-
-		public bool Check(PubKey pubKey, Script scriptPubKey, Transaction tx, uint nIndex, ScriptVerify verify = ScriptVerify.Standard)
-		{
-			return new ScriptEvaluationContext()
-			{
-				ScriptVerify = verify,
-				SigHash = SigHash
-			}.CheckSig(this, pubKey, scriptPubKey, tx, nIndex);
-		}
-
 		string _Id;
 		private string Id
 		{
