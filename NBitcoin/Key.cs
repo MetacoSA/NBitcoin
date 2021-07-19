@@ -179,7 +179,7 @@ namespace NBitcoin
 				eckey = new Secp256k1.ECPrivKey(_ECKey.sec.Negate(), _ECKey.ctx, true);
 			}
 			Span<byte> buf = stackalloc byte[32];
-			TaprootFullPubKey.ComputeTapTweak(PubKey.GetTaprootInternalKey(), merkleRoot, buf);
+			TaprootFullPubKey.ComputeTapTweak(PubKey.TaprootInternalKey, merkleRoot, buf);
 			eckey = eckey.TweakAdd(buf);
 			hash.ToBytes(buf);
 			var sig = eckey.SignBIP340(buf);

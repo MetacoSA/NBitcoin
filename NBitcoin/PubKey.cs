@@ -298,20 +298,23 @@ namespace NBitcoin
 		}
 		public TaprootFullPubKey GetTaprootFullPubKey(uint256? merkleRoot)
 		{
-			return GetTaprootInternalKey().GetTaprootFullPubKey(merkleRoot);
+			return TaprootInternalKey.GetTaprootFullPubKey(merkleRoot);
 		}
 
 		TaprootInternalPubKey? _InternalKey;
 		internal bool Parity => this.ECKey.Q.y.IsOdd;
-		public TaprootInternalPubKey GetTaprootInternalKey()
+		public TaprootInternalPubKey TaprootInternalKey
 		{
-			if (_InternalKey is TaprootInternalPubKey)
+			get
 			{
+				if (_InternalKey is TaprootInternalPubKey)
+				{
+					return _InternalKey;
+				}
+				var xonly = this.ECKey.ToXOnlyPubKey(out _);
+				_InternalKey = new TaprootInternalPubKey(xonly);
 				return _InternalKey;
 			}
-			var xonly = this.ECKey.ToXOnlyPubKey(out _);
-			_InternalKey = new TaprootInternalPubKey(xonly);
-			return _InternalKey;
 		}
 
 #nullable restore
