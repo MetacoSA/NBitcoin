@@ -81,13 +81,6 @@ namespace NBitcoin.Payment
 				Message = parameters["message"];
 				parameters.Remove("message");
 			}
-#pragma warning disable CS0618 // Type or member is obsolete
-			if (parameters.ContainsKey("r"))
-			{
-				PaymentRequestUrl = new Uri(parameters["r"], UriKind.Absolute);
-				parameters.Remove("r");
-			}
-#pragma warning restore CS0618 // Type or member is obsolete
 			_UnknowParameters = parameters;
 			var reqParam = parameters.Keys.FirstOrDefault(k => k.StartsWith("req-", StringComparison.OrdinalIgnoreCase));
 			if (reqParam != null)
@@ -102,57 +95,6 @@ namespace NBitcoin.Payment
 				return _UnknowParameters;
 			}
 		}
-#if !NOHTTPCLIENT
-		[Obsolete("BIP70 is obsolete")]
-		public PaymentRequest GetPaymentRequest()
-		{
-			if (PaymentRequestUrl == null)
-				throw new InvalidOperationException("No PaymentRequestUrl specified");
-
-			return GetPaymentRequestAsync().GetAwaiter().GetResult();
-		}
-		[Obsolete("BIP70 is obsolete")]
-		public async Task<PaymentRequest> GetPaymentRequestAsync(HttpClient httpClient = null)
-		{
-			if (PaymentRequestUrl == null)
-				throw new InvalidOperationException("No PaymentRequestUrl specified");
-
-			bool own = false;
-			if (httpClient == null)
-			{
-				httpClient = new HttpClient();
-				own = true;
-			}
-			try
-			{
-				HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, PaymentRequestUrl);
-				req.Headers.Clear();
-				req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(PaymentRequest.MediaType));
-
-				var result = await httpClient.SendAsync(req).ConfigureAwait(false);
-				if (!result.IsSuccessStatusCode)
-					throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
-				if (result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentRequest.MediaType, StringComparison.OrdinalIgnoreCase))
-				{
-					throw new WebException("Invalid contenttype received, expecting " + PaymentRequest.MediaType + ", but got " + result.Content.Headers.ContentType);
-				}
-				var stream = await result.Content.ReadAsStreamAsync().ConfigureAwait(false);
-				return PaymentRequest.Load(stream);
-			}
-			finally
-			{
-				if (own)
-					httpClient.Dispose();
-			}
-		}
-#endif
-		[Obsolete("BIP70 is obsolete")]
-		public Uri PaymentRequestUrl
-		{
-			get;
-			set;
-		}
-
 		public BitcoinAddress Address
 		{
 			get;
@@ -197,12 +139,6 @@ namespace NBitcoin.Payment
 				{
 					parameters.Add("message", Message.ToString());
 				}
-#pragma warning disable CS0618 // Type or member is obsolete
-				if (PaymentRequestUrl != null)
-				{
-					parameters.Add("r", PaymentRequestUrl.ToString());
-				}
-#pragma warning restore CS0618 // Type or member is obsolete
 
 				foreach (var kv in UnknowParameters)
 				{
