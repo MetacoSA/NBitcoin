@@ -899,8 +899,6 @@ namespace NBitcoin
 					return "NONE|ANYONECANPAY";
 				case SigHash.Single | SigHash.AnyoneCanPay:
 					return "SINGLE|ANYONECANPAY";
-				case SigHash.Undefined:
-					return "UNDEFINED";
 				default:
 					return sighashType.ToString();
 			}

@@ -64,8 +64,6 @@ namespace NBitcoin
 		}
 		public TransactionSignature(ECDSASignature signature, SigHash sigHash)
 		{
-			if (sigHash == SigHash.Undefined)
-				throw new ArgumentException("sigHash should not be Undefined");
 			if (signature == null)
 				throw new ArgumentNullException(nameof(signature));
 			_SigHash = sigHash;

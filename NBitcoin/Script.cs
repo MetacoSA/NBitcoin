@@ -184,7 +184,6 @@ namespace NBitcoin
 	/// </summary>
 	public enum SigHash : uint
 	{
-		Undefined = 0,
 		/// <summary>
 		/// All outputs are signed
 		/// </summary>
@@ -941,37 +940,37 @@ namespace NBitcoin
 			var compressor = new ScriptCompressor(this);
 			return compressor.ToBytes();
 		}
-		public static bool VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
+		public static bool VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard)
 		{
 			ScriptError unused;
-			return VerifyScript(scriptSig, tx, i, spentOutput, scriptVerify, sigHash, out unused);
+			return VerifyScript(scriptSig, tx, i, spentOutput, scriptVerify, out unused);
 		}
 
 		public static bool VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, out ScriptError error)
 		{
-			return VerifyScript(scriptSig, tx, i, spentOutput, ScriptVerify.Standard, SigHash.Undefined, out error);
+			return VerifyScript(scriptSig, tx, i, spentOutput, ScriptVerify.Standard, out error);
 		}
 
-		public static bool VerifyScript(Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
+		public static bool VerifyScript(Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard)
 		{
 			ScriptError unused;
 			var scriptSig = tx.Inputs[i].ScriptSig;
-			return VerifyScript(scriptSig, tx, i, spentOutput, scriptVerify, sigHash, out unused);
+			return VerifyScript(scriptSig, tx, i, spentOutput, scriptVerify, out unused);
 		}
 
 		public static bool VerifyScript(Transaction tx, int i, TxOut spentOutput, out ScriptError error)
 		{
 			var scriptSig = tx.Inputs[i].ScriptSig;
-			return VerifyScript(scriptSig, tx, i, spentOutput, ScriptVerify.Standard, SigHash.Undefined, out error);
+			return VerifyScript(scriptSig, tx, i, spentOutput, ScriptVerify.Standard, out error);
 		}
 
-		public static bool VerifyScript(Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
+		public static bool VerifyScript(Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error)
 		{
 			var scriptSig = tx.Inputs[i].ScriptSig;
-			return VerifyScript(scriptSig, tx, i, spentOutput, scriptVerify, sigHash, out error);
+			return VerifyScript(scriptSig, tx, i, spentOutput, scriptVerify, out error);
 		}
 
-		public static bool VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
+		public static bool VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error)
 		{
 			if (spentOutput == null)
 				throw new ArgumentNullException(nameof(spentOutput));

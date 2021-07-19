@@ -3893,8 +3893,7 @@ namespace NBitcoin.Tests
 						tx,
 						i,
 						txOut,
-						ParseFlags(test[2].ToString())
-						, 0);
+						ParseFlags(test[2].ToString()));
 					Assert.True(valid, strTest + " failed");
 					Assert.True(tx.Check() == TransactionCheckResult.Success);
 				}
@@ -4030,14 +4029,12 @@ namespace NBitcoin.Tests
 						Assert.False(true, "Bad test: " + strTest);
 						continue;
 					}
-
 					var txOut = new TxOut(mapprevOutScriptPubKeysAmount.TryGet(tx.Inputs[i].PrevOut), mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut]);
 					fValid = Script.VerifyScript(
 					   tx,
 					   i,
 					   txOut,
-					   ParseFlags(test[2].ToString())
-					   , 0);
+					   ParseFlags(test[2].ToString()));
 				}
 				if (fValid)
 					Debugger.Break();
