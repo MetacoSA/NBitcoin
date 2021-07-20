@@ -1485,40 +1485,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
-		public void CanTestMempoolAcceptWithCore0181()
-		{
-			using (var builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.v0_18_1))
-			{
-				var node = builder.CreateNode();
-				var rpc = node.CreateRPCClient();
-				builder.StartAll();
-				node.Generate(101);
-
-				var coins = rpc.ListUnspent();
-				var coin = coins[0];
-				var fee = Money.Coins(0.0001m);
-				var tx = Transaction.Create(node.Network);
-				tx.Inputs.Add(coin.OutPoint);
-				tx.Outputs.Add(tx.Outputs.CreateNewTxOut(coin.Amount - fee, new Key().PubKey.Hash.ScriptPubKey));
-
-				var result = rpc.TestMempoolAccept(tx, new FeeRate(1.0m));
-				Assert.False(result.IsAllowed);
-				Assert.Equal(Protocol.RejectCode.INVALID, result.RejectCode);
-				Assert.Equal("mandatory-script-verify-flag-failed (Operation not valid with the current stack size)", result.RejectReason);
-
-				var signedTx = rpc.SignRawTransactionWithWallet(new SignRawTransactionRequest()
-				{
-					Transaction = tx
-				});
-
-				result = rpc.TestMempoolAccept(signedTx.SignedTransaction, false);
-				Assert.True(result.IsAllowed);
-				Assert.Equal(Protocol.RejectCode.INVALID, result.RejectCode);
-				Assert.Equal(string.Empty, result.RejectReason);
-			}
-		}
-
 #if !NOSOCKET
 
 		[Fact]

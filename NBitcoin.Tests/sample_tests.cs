@@ -134,7 +134,7 @@ namespace NBitcoin.Tests
 				await RefreshCoin();
 				signedTx = builder
 					.AddCoins(coin)
-					.AddKeys(key)
+					.AddKeys(key.CreateTaprootKeyPair(merkleRoot))
 					.Send(destination, amount)
 					.SubtractFees()
 					.SetChange(change)

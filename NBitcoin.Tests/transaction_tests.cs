@@ -1556,7 +1556,7 @@ namespace NBitcoin.Tests
 				AssertHasAsset(transfer, colored, colored.Transfers[1], goldId, 60, bob.PubKey);
 
 				var change = transfer.Outputs.Last(o => o.ScriptPubKey == gold.PubKey.Hash.ScriptPubKey);
-				Assert.Equal(Money.Coins(0.99980450m), change.Value);
+				Assert.Equal(Money.Coins(0.99980490m), change.Value);
 				Assert.Equal(rate, txBuilder.EstimateFeeRate(transfer));
 
 				Assert.Equal(gold.PubKey.Hash, change.ScriptPubKey.GetAddressableDestination());
