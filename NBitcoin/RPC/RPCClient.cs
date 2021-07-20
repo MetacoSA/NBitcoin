@@ -502,7 +502,6 @@ namespace NBitcoin.RPC
 			{
 				_BatchedRequests = new ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>(),
 				Capabilities = Capabilities,
-				RequestTimeout = RequestTimeout,
 				_HttpClient = _HttpClient,
 				AllowBatchFallback = AllowBatchFallback
 			};
@@ -513,7 +512,6 @@ namespace NBitcoin.RPC
 			{
 				_BatchedRequests = _BatchedRequests,
 				Capabilities = Capabilities,
-				RequestTimeout = RequestTimeout,
 				_HttpClient = _HttpClient,
 				AllowBatchFallback = AllowBatchFallback
 			};
@@ -675,14 +673,14 @@ namespace NBitcoin.RPC
 
 
 		public ScanTxoutSetResponse StartScanTxoutSet(OutputDescriptor descriptor, uint rangeStart = 0,
-			uint rangeEnd = 1000) => StartScanTxoutSetAsync(new[] {descriptor}.AsEnumerable(), rangeStart, rangeEnd).GetAwaiter().GetResult();
+			uint rangeEnd = 1000) => StartScanTxoutSetAsync(new[] { descriptor }.AsEnumerable(), rangeStart, rangeEnd).GetAwaiter().GetResult();
 
 		public ScanTxoutSetResponse StartScanTxoutSet(IEnumerable<OutputDescriptor> descriptor,
 			uint rangeStart = 0, uint rangeEnd = 1000)
 			=> StartScanTxoutSetAsync(descriptor, rangeStart, rangeEnd).GetAwaiter().GetResult();
 
 		public Task<ScanTxoutSetResponse> StartScanTxoutSetAsync(OutputDescriptor descriptor, uint rangeStart = 0, uint rangeEnd = 1000, CancellationToken cancellationToken = default)
-			=> StartScanTxoutSetAsync(new[] {descriptor}.AsEnumerable(), rangeStart, rangeEnd, cancellationToken);
+			=> StartScanTxoutSetAsync(new[] { descriptor }.AsEnumerable(), rangeStart, rangeEnd, cancellationToken);
 
 		public async Task<ScanTxoutSetResponse> StartScanTxoutSetAsync(IEnumerable<OutputDescriptor> descriptor, uint rangeStart = 0, uint rangeEnd = 1000, CancellationToken cancellationToken = default)
 		{
@@ -894,63 +892,60 @@ namespace NBitcoin.RPC
 			JArray response;
 			try
 			{
-			retry:
+				retry:
 				var webRequest = CreateWebRequest(writer.ToString());
-				using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(RequestTimeout).Token))
+				using (var httpResponse = await HttpClient.SendAsync(webRequest, cancellationToken).ConfigureAwait(false))
 				{
-					using (var httpResponse = await HttpClient.SendAsync(webRequest, cts.Token).ConfigureAwait(false))
+					if (httpResponse.IsSuccessStatusCode)
 					{
-						if (httpResponse.IsSuccessStatusCode)
+						response = JArray.Load(new JsonTextReader(
+						new StreamReader(await httpResponse.Content.ReadAsStreamAsync().ConfigureAwait(false), NoBOMUTF8)));
+						foreach (var jobj in response.OfType<JObject>())
 						{
-							response = JArray.Load(new JsonTextReader(
-							new StreamReader(await httpResponse.Content.ReadAsStreamAsync().ConfigureAwait(false), NoBOMUTF8)));
-							foreach (var jobj in response.OfType<JObject>())
+							try
+							{
+								RPCResponse rpcResponse = new RPCResponse(jobj);
+								requests[responseIndex].Item2.TrySetResult(rpcResponse);
+							}
+							catch (Exception ex)
+							{
+								requests[responseIndex].Item2.TrySetException(ex);
+							}
+							responseIndex++;
+						}
+					}
+					else
+					{
+						if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+						{
+							if (TryRenewCookie())
+								goto retry;
+							httpResponse.EnsureSuccessStatusCode(); // Let's throw
+						}
+						// Bitcoin RPC 0.20 whitelisting feature throw a forbidden status
+						// code if one of the message fail. So we fall back to un-batched
+						// request. However, this might result in some requests being executed twice...
+						if (AllowBatchFallback && httpResponse.StatusCode == HttpStatusCode.Forbidden)
+						{
+							foreach (var req in requests)
 							{
 								try
 								{
-									RPCResponse rpcResponse = new RPCResponse(jobj);
-									requests[responseIndex].Item2.TrySetResult(rpcResponse);
+									var resp = await SendCommandAsync(req.Item1, cancellationToken: cancellationToken);
+									req.Item2.TrySetResult(resp);
 								}
 								catch (Exception ex)
 								{
-									requests[responseIndex].Item2.TrySetException(ex);
+									req.Item2.TrySetException(ex);
 								}
-								responseIndex++;
 							}
+							return;
 						}
-						else
+						if (httpResponse.Content == null ||
+							(httpResponse.Content.Headers.ContentLength == null || httpResponse.Content.Headers.ContentLength.Value == 0) ||
+							!httpResponse.Content.Headers.ContentType.MediaType.Equals("application/json", StringComparison.Ordinal))
 						{
-							if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
-							{
-								if (TryRenewCookie())
-									goto retry;
-								httpResponse.EnsureSuccessStatusCode(); // Let's throw
-							}
-							// Bitcoin RPC 0.20 whitelisting feature throw a forbidden status
-							// code if one of the message fail. So we fall back to un-batched
-							// request. However, this might result in some requests being executed twice...
-							if (AllowBatchFallback && httpResponse.StatusCode == HttpStatusCode.Forbidden)
-							{
-								foreach (var req in requests)
-								{
-									try
-									{
-										var resp = await SendCommandAsync(req.Item1, cancellationToken: cancellationToken);
-										req.Item2.TrySetResult(resp);
-									}
-									catch (Exception ex)
-									{
-										req.Item2.TrySetException(ex);
-									}
-								}
-								return;
-							}
-							if (httpResponse.Content == null ||
-								(httpResponse.Content.Headers.ContentLength == null || httpResponse.Content.Headers.ContentLength.Value == 0) ||
-								!httpResponse.Content.Headers.ContentType.MediaType.Equals("application/json", StringComparison.Ordinal))
-							{
-								httpResponse.EnsureSuccessStatusCode(); // Let's throw
-							}
+							httpResponse.EnsureSuccessStatusCode(); // Let's throw
 						}
 					}
 				}
@@ -1023,47 +1018,44 @@ namespace NBitcoin.RPC
 				bool renewedCookie = false;
 				TimeSpan retryTimeout = TimeSpan.FromSeconds(1.0);
 				TimeSpan maxRetryTimeout = TimeSpan.FromSeconds(10.0);
-			retry:
+				retry:
 				var webRequest = CreateWebRequest(writer.ToString());
-				using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(RequestTimeout).Token))
+				using (var httpResponse = await HttpClient.SendAsync(webRequest, cancellationToken).ConfigureAwait(false))
 				{
-					using (var httpResponse = await HttpClient.SendAsync(webRequest, cts.Token).ConfigureAwait(false))
+					if (httpResponse.IsSuccessStatusCode)
 					{
-						if (httpResponse.IsSuccessStatusCode)
+						response = RPCResponse.Load(await httpResponse.Content.ReadAsStreamAsync());
+						if (throwIfRPCError)
+							response.ThrowIfError();
+					}
+					else
+					{
+						if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+						{
+							if (!renewedCookie && TryRenewCookie())
+							{
+								renewedCookie = true;
+								goto retry;
+							}
+							httpResponse.EnsureSuccessStatusCode(); // Let's throw
+						}
+						if (IsJson(httpResponse))
 						{
 							response = RPCResponse.Load(await httpResponse.Content.ReadAsStreamAsync());
 							if (throwIfRPCError)
 								response.ThrowIfError();
 						}
+						else if (await IsWorkQueueFull(httpResponse))
+						{
+							await Task.Delay(retryTimeout, cancellationToken);
+							retryTimeout = TimeSpan.FromTicks(retryTimeout.Ticks * 2);
+							if (retryTimeout > maxRetryTimeout)
+								retryTimeout = maxRetryTimeout;
+							goto retry;
+						}
 						else
 						{
-							if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
-							{
-								if (!renewedCookie && TryRenewCookie())
-								{
-									renewedCookie = true;
-									goto retry;
-								}
-								httpResponse.EnsureSuccessStatusCode(); // Let's throw
-							}
-							if (IsJson(httpResponse))
-							{
-								response = RPCResponse.Load(await httpResponse.Content.ReadAsStreamAsync());
-								if (throwIfRPCError)
-									response.ThrowIfError();
-							}
-							else if (await IsWorkQueueFull(httpResponse))
-							{
-								await Task.Delay(retryTimeout, cts.Token);
-								retryTimeout = TimeSpan.FromTicks(retryTimeout.Ticks * 2);
-								if (retryTimeout > maxRetryTimeout)
-									retryTimeout = maxRetryTimeout;
-								goto retry;
-							}
-							else
-							{
-								httpResponse.EnsureSuccessStatusCode(); // Let's throw
-							}
+							httpResponse.EnsureSuccessStatusCode(); // Let's throw
 						}
 					}
 				}
@@ -1097,8 +1089,6 @@ namespace NBitcoin.RPC
 			webRequest.Content = new StringContent(json, NoBOMUTF8, "application/json-rpc");
 			return webRequest;
 		}
-
-		public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(100);
 
 		private async Task<Stream> ToMemoryStreamAsync(Stream stream)
 		{
@@ -1633,10 +1623,11 @@ namespace NBitcoin.RPC
 			var response = await SendCommandAsync(RPCOperations.getmempoolinfo, cancellationToken);
 
 			static IEnumerable<FeeRateGroup> ExtractFeeRateGroups(JToken jt) =>
-				jt switch {
+				jt switch
+				{
 					JObject jo => jo.Properties()
 						.Where(p => p.Name != "total_fees")
-						.Select( p => new FeeRateGroup
+						.Select(p => new FeeRateGroup
 						{
 							Group = int.Parse(p.Name),
 							Sizes = p.Value.Value<ulong>("sizes"),
@@ -1645,7 +1636,8 @@ namespace NBitcoin.RPC
 							From = new FeeRate(Money.Satoshis(p.Value.Value<ulong>("from_feerate"))),
 							To = new FeeRate(Money.Satoshis(p.Value.Value<ulong>("to_feerate")))
 						}),
-					_ => Enumerable.Empty<FeeRateGroup>() };
+					_ => Enumerable.Empty<FeeRateGroup>()
+				};
 
 			return new MemPoolInfo()
 			{

@@ -156,7 +156,6 @@ namespace NBitcoin.RPC
 			{
 				_BatchedRequests = _BatchedRequests,
 				Capabilities = Capabilities,
-				RequestTimeout = RequestTimeout,
 				_HttpClient = _HttpClient,
 				AllowBatchFallback = AllowBatchFallback
 			};
