@@ -64,7 +64,7 @@ namespace NBitcoin
 
 		private const int ChainCodeLength = 32;
 
-		Key key;
+		readonly Key key;
 		readonly byte[] vchChainCode;
 		readonly uint nChild;
 		readonly byte nDepth;
