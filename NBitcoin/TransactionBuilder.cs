@@ -35,24 +35,27 @@ namespace NBitcoin
 	{
 		public SigningOptions()
 		{
-			SigHash = SigHash.All;
-			EnforceLowR = true;
 		}
 		public SigningOptions(SigHash sigHash)
 		{
 			SigHash = sigHash;
-			EnforceLowR = true;
+			TaprootSigHash = (TaprootSigHash)sigHash;
+			if (sigHash == SigHash.All)
+				TaprootSigHash = TaprootSigHash.Default;
 		}
 		public SigningOptions(SigHash sigHash, bool useLowR)
 		{
 			SigHash = sigHash;
+			TaprootSigHash = (TaprootSigHash)sigHash;
+			if (sigHash == SigHash.All)
+				TaprootSigHash = TaprootSigHash.Default;
 			EnforceLowR = useLowR;
 		}
 
 		/// <summary>
 		/// What are we signing (default: SigHash.All)
 		/// </summary>
-		public SigHash SigHash { get; set; }
+		public SigHash SigHash { get; set; } = SigHash.All;
 		/// <summary>
 		/// What are we signing for taproot (default: SigHash.Default)
 		/// </summary>
@@ -60,7 +63,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Do we try to get shorter signatures? (default: true)
 		/// </summary>
-		public bool EnforceLowR { get; set; }
+		public bool EnforceLowR { get; set; } = true;
 		public SigningOptions Clone()
 		{
 			return new SigningOptions()
@@ -464,11 +467,6 @@ namespace NBitcoin
 			{
 				Builder = builder;
 				Transaction = transaction;
-				if (transaction is IHasForkId hasForkId)
-				{
-					signingOptions = signingOptions.Clone();
-					signingOptions.SigHash = (SigHash)((uint)signingOptions.SigHash | 0x40u);
-				}
 				SigningOptions = signingOptions;
 
 				if (precomputedTransactionData is null)
@@ -1035,23 +1033,6 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Do we try to get shorter signatures? (default: true)
-		/// </summary>
-		[Obsolete("Pass SigningOptions with SigningOptions.EnforceLowR set when signing instead")]
-		public bool UseLowR
-		{
-			get
-			{
-				return _UseLowR is bool v ? v : true;
-			}
-			set
-			{
-				_UseLowR = value;
-			}
-		}
-		bool? _UseLowR;
-
-		/// <summary>
 		/// Send bitcoins to a destination
 		/// </summary>
 		/// <param name="destination">The destination</param>
@@ -1469,9 +1450,16 @@ namespace NBitcoin
 			this.precomputedTransactionData = new PrecomputedTransactionData(transaction, spentOutputs);
 			return this;
 		}
-		public bool TrySignInput(Transaction transaction, uint index, SigningOptions? signingOptions, [MaybeNullWhen(false)] out ITransactionSignature signature)
+		public TransactionBuilder SetSigningOptions(SigningOptions signingOptions)
 		{
-			signingOptions ??= new SigningOptions();
+			if (signingOptions == null)
+				throw new ArgumentNullException(nameof(signingOptions));
+			this.signingOptions = signingOptions;
+			return this;
+		}
+
+		public bool TrySignInput(Transaction transaction, uint index, [MaybeNullWhen(false)] out ITransactionSignature signature)
+		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
 			var ctx = new TransactionSigningContext(this, transaction.Clone(), signingOptions, precomputedTransactionData);
@@ -1479,24 +1467,6 @@ namespace NBitcoin
 			this.SignTransactionInPlace(ctx);
 			signature = ctx.SignatureEvents.FirstOrDefault()?.Signature;
 			return signature != null;
-		}
-
-		private SigningOptions Normalize(SigningOptions signingOptions)
-		{
-			// Legacy UseLowR
-			if (_UseLowR is bool v)
-			{
-				signingOptions = signingOptions.Clone();
-				signingOptions.EnforceLowR = v;
-			}
-			return signingOptions;
-		}
-
-		public bool TrySignInput(Transaction transaction, uint index, SigHash sigHash, [MaybeNullWhen(false)] out ITransactionSignature signature)
-		{
-			if (transaction == null)
-				throw new ArgumentNullException(nameof(transaction));
-			return TrySignInput(transaction, index, Normalize(new SigningOptions(sigHash)), out signature);
 		}
 
 		public TransactionBuilder SendFees(Money fees)
@@ -1620,38 +1590,13 @@ namespace NBitcoin
 		/// Build a PSBT (Partially signed bitcoin transaction)
 		/// </summary>
 		/// <param name="sign">True if signs all inputs with the available keys</param>
+		/// <param name="sigHash">The sighash for signing (ignored if sign is false)</param>
 		/// <returns>A PSBT</returns>
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public PSBT BuildPSBT(bool sign)
 		{
-			return BuildPSBT(sign, SigHash.All);
-		}
-
-		/// <summary>
-		/// Build a PSBT (Partially signed bitcoin transaction)
-		/// </summary>
-		/// <param name="sign">True if signs all inputs with the available keys</param>
-		/// <param name="sigHash">The sighash for signing (ignored if sign is false)</param>
-		/// <returns>A PSBT</returns>
-		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
-		public PSBT BuildPSBT(bool sign, SigHash sigHash)
-		{
-			var tx = BuildTransaction(false, sigHash);
-			return CreatePSBTFromCore(tx, sign, Normalize(new SigningOptions(sigHash)));
-		}
-
-		/// <summary>
-		/// Build a PSBT (Partially signed bitcoin transaction)
-		/// </summary>
-		/// <param name="sign">True if signs all inputs with the available keys</param>
-		/// <param name="signingOptions">The signing options (ignored if sign is false)</param>
-		/// <returns>A PSBT</returns>
-		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
-		public PSBT BuildPSBT(bool sign, SigningOptions? signingOptions)
-		{
-			signingOptions ??= new SigningOptions();
-			var tx = BuildTransaction(false, signingOptions);
-			return CreatePSBTFromCore(tx, sign, signingOptions);
+			var tx = BuildTransaction(false);
+			return CreatePSBTFromCore(tx, sign);
 		}
 
 		/// <summary>
@@ -1659,33 +1604,17 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="tx">The transaction</param>
 		/// <param name="sign">If true, the transaction builder will sign this transaction</param>
-		/// <param name="sigHash">The sighash for signing (ignored if sign is false)</param>
 		/// <returns></returns>
-		public PSBT CreatePSBTFrom(Transaction tx, bool sign, SigHash sigHash)
+		public PSBT CreatePSBTFrom(Transaction tx, bool sign)
 		{
 			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
-			return CreatePSBTFromCore(tx.Clone(), sign, Normalize(new SigningOptions(sigHash)));
+			return CreatePSBTFromCore(tx.Clone(), sign);
 		}
 
-		/// <summary>
-		/// Create a PSBT from a transaction
-		/// </summary>
-		/// <param name="tx">The transaction</param>
-		/// <param name="sign">If true, the transaction builder will sign this transaction</param>
-		/// <param name="signingOptions">The signing options (ignored if sign is false)</param>
-		/// <returns></returns>
-		public PSBT CreatePSBTFrom(Transaction tx, bool sign, SigningOptions? signingOptions)
+		PSBT CreatePSBTFromCore(Transaction tx, bool sign)
 		{
-			signingOptions ??= new SigningOptions();
-			if (tx == null)
-				throw new ArgumentNullException(nameof(tx));
-			return CreatePSBTFromCore(tx.Clone(), sign, signingOptions);
-		}
-
-		PSBT CreatePSBTFromCore(Transaction tx, bool sign, SigningOptions signingOptions)
-		{
-			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, signingOptions);
+			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, this.signingOptions);
 			if (sign)
 				SignTransactionInPlace(signingContext);
 			var psbt = tx.CreatePSBT(Network);
@@ -1717,20 +1646,8 @@ namespace NBitcoin
 #endif
 			}
 		}
-
 		public TransactionBuilder SignPSBT(PSBT psbt)
 		{
-			SignPSBT(psbt, SigHash.All);
-			return this;
-		}
-		public TransactionBuilder SignPSBT(PSBT psbt, SigHash sigHash)
-		{
-			SignPSBT(psbt, Normalize(new SigningOptions(sigHash)));
-			return this;
-		}
-		public TransactionBuilder SignPSBT(PSBT psbt, SigningOptions? signingOptions)
-		{
-			signingOptions ??= new SigningOptions();
 			if (psbt == null)
 				throw new ArgumentNullException(nameof(psbt));
 			AddCoins(psbt);
@@ -1757,6 +1674,7 @@ namespace NBitcoin
 			psbt.AddScripts(_ScriptPubKeyToRedeem.Values.ToArray());
 			return this;
 		}
+
 		/// <summary>
 		/// Build the transaction
 		/// </summary>
@@ -1764,29 +1682,6 @@ namespace NBitcoin
 		/// <returns>The transaction</returns>
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public Transaction BuildTransaction(bool sign)
-		{
-			return BuildTransaction(sign, SigHash.All);
-		}
-		/// <summary>
-		/// Build the transaction
-		/// </summary>
-		/// <param name="sign">True if signs all inputs with the available keys</param>
-		/// <param name="sigHash">The type of signature</param>
-		/// <returns>The transaction</returns>
-		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
-		public Transaction BuildTransaction(bool sign, SigHash sigHash)
-		{
-			return BuildTransaction(sign, Normalize(new SigningOptions(sigHash)));
-		}
-
-		/// <summary>
-		/// Build the transaction
-		/// </summary>
-		/// <param name="sign">True if signs all inputs with the available keys</param>
-		/// <param name="signingOptions">The signing options</param>
-		/// <returns>The transaction</returns>
-		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
-		public Transaction BuildTransaction(bool sign, SigningOptions signingOptions)
 		{
 			int totalRepass = 5;
 			DoShuffleGroups();
@@ -1935,7 +1830,7 @@ namespace NBitcoin
 
 			if (sign)
 			{
-				SignTransactionInPlace(ctx.Transaction, signingOptions);
+				SignTransactionInPlace(ctx.Transaction);
 			}
 
 			_built = true;
@@ -2043,22 +1938,13 @@ namespace NBitcoin
 		{
 		}
 
-		public Transaction SignTransaction(Transaction transaction, SigHash sigHash)
+		public Transaction SignTransaction(Transaction transaction)
 		{
 			var tx = transaction.Clone();
-			SignTransactionInPlace(tx, sigHash);
+			SignTransactionInPlace(tx);
 			return tx;
 		}
 
-		/// <summary>
-		/// Clone the transaction passed as parameter and sign it
-		/// </summary>
-		/// <param name="transaction">The transaction</param>
-		/// <returns>The signed transaction</returns>
-		public Transaction SignTransaction(Transaction transaction)
-		{
-			return SignTransaction(transaction, SigHash.All);
-		}
 		/// <summary>
 		/// Sign the transaction passed as parameter
 		/// </summary>
@@ -2066,17 +1952,6 @@ namespace NBitcoin
 		/// <returns>The transaction object as the one passed as parameter</returns>
 		public Transaction SignTransactionInPlace(Transaction transaction)
 		{
-			return SignTransactionInPlace(transaction, SigHash.All);
-		}
-		/// <summary>
-		/// Sign the transaction passed as parameter
-		/// </summary>
-		/// <param name="transaction">The transaction</param>
-		/// <param name="signingOptions">The signing options</param>
-		/// <returns>The transaction object as the one passed as parameter</returns>
-		public Transaction SignTransactionInPlace(Transaction transaction, SigningOptions? signingOptions)
-		{
-			signingOptions ??= new SigningOptions();
 			return SignTransactionInPlace(new TransactionSigningContext(this, transaction, signingOptions));
 		}
 
@@ -2094,16 +1969,7 @@ namespace NBitcoin
 			var fee = tx.GetFee(this.FindSpentCoins(tx));
 			return new FeeRate(fee, vSize);
 		}
-		/// <summary>
-		/// Sign the transaction passed as parameter
-		/// </summary>
-		/// <param name="transaction">The transaction</param>
-		/// <param name="sigHash">The sighash to sign</param>
-		/// <returns>The transaction object as the one passed as parameter</returns>
-		public Transaction SignTransactionInPlace(Transaction transaction, SigHash sigHash)
-		{
-			return SignTransactionInPlace(transaction, Normalize(new SigningOptions(sigHash)));
-		}
+
 		Transaction SignTransactionInPlace(TransactionSigningContext ctx)
 		{
 			foreach (var input in ctx.Transaction.Inputs.AsIndexedInputs())
@@ -2821,6 +2687,7 @@ namespace NBitcoin
 
 		Dictionary<Script, Script> _ScriptPubKeyToRedeem = new Dictionary<Script, Script>();
 		private PrecomputedTransactionData? precomputedTransactionData;
+		private SigningOptions signingOptions = new SigningOptions();
 
 		public TransactionBuilder AddKnownRedeems(params Script[] knownRedeems)
 		{

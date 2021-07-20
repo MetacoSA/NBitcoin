@@ -73,26 +73,6 @@ namespace NBitcoin
 	public class PSBTSettings
 	{
 		/// <summary>
-		/// Test vector in the bip174 specify to use a signer which follows RFC 6979.
-		/// So we must sign without [LowR value assured way](https://github.com/MetacoSA/NBitcoin/pull/510)
-		/// This should be turned false only in the test.
-		/// ref: https://github.com/bitcoin/bitcoin/pull/13666
-		/// </summary>
-		[Obsolete("Pass SigningOptions with SigningOptions.EnforceLowR set when signing instead")]
-		public bool UseLowR
-		{
-			get
-			{
-				return _UseLowR is bool v ? v : true;
-			}
-			set
-			{
-				_UseLowR = value;
-			}
-		}
-		internal bool? _UseLowR;
-
-		/// <summary>
 		/// Use custom builder extensions to customize finalization
 		/// </summary>
 		public IEnumerable<BuilderExtension>? CustomBuilderExtensions { get; set; }
@@ -102,14 +82,12 @@ namespace NBitcoin
 		/// </summary>
 		public bool IsSmart { get; set; } = true;
 		public bool SkipVerifyScript { get; set; } = false;
-
+		public SigningOptions SigningOptions { get; set; } = new SigningOptions();
 		public PSBTSettings Clone()
 		{
 			return new PSBTSettings()
 			{
-#pragma warning disable CS0618 // Type or member is obsolete
-				UseLowR = UseLowR,
-#pragma warning restore CS0618 // Type or member is obsolete
+				SigningOptions = SigningOptions.Clone(),
 				CustomBuilderExtensions = CustomBuilderExtensions?.ToArray(),
 				IsSmart = IsSmart
 			};
@@ -537,11 +515,11 @@ namespace NBitcoin
 		/// <param name="accountKeyPath">The account key path (eg. [masterFP]/49'/0'/0')</param>
 		/// <param name="sigHash">The SigHash</param>
 		/// <returns>This PSBT</returns>
-		public PSBT SignAll(ScriptPubKeyType scriptPubKeyType, IHDKey accountKey, RootedKeyPath accountKeyPath, SigHash sigHash = SigHash.All)
+		public PSBT SignAll(ScriptPubKeyType scriptPubKeyType, IHDKey accountKey, RootedKeyPath accountKeyPath)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
-			return SignAll(new HDKeyScriptPubKey(accountKey, scriptPubKeyType), accountKey, accountKeyPath, sigHash);
+			return SignAll(new HDKeyScriptPubKey(accountKey, scriptPubKeyType), accountKey, accountKeyPath);
 		}
 
 		/// <summary>
@@ -551,11 +529,11 @@ namespace NBitcoin
 		/// <param name="accountKey">The account key with which to sign</param>
 		/// <param name="sigHash">The SigHash</param>
 		/// <returns>This PSBT</returns>
-		public PSBT SignAll(ScriptPubKeyType scriptPubKeyType, IHDKey accountKey, SigHash sigHash = SigHash.All)
+		public PSBT SignAll(ScriptPubKeyType scriptPubKeyType, IHDKey accountKey)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
-			return SignAll(new HDKeyScriptPubKey(accountKey, scriptPubKeyType), accountKey, sigHash);
+			return SignAll(new HDKeyScriptPubKey(accountKey, scriptPubKeyType), accountKey);
 		}
 
 		/// <summary>
@@ -565,9 +543,9 @@ namespace NBitcoin
 		/// <param name="accountKey">The account key with which to sign</param>
 		/// <param name="sigHash">The SigHash</param>
 		/// <returns>This PSBT</returns>
-		public PSBT SignAll(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, SigHash sigHash = SigHash.All)
+		public PSBT SignAll(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey)
 		{
-			return SignAll(accountHDScriptPubKey, accountKey, null, sigHash);
+			return SignAll(accountHDScriptPubKey, accountKey, null);
 		}
 
 		/// <summary>
@@ -576,9 +554,8 @@ namespace NBitcoin
 		/// <param name="accountHDScriptPubKey">The address generator</param>
 		/// <param name="accountKey">The account key with which to sign</param>
 		/// <param name="accountKeyPath">The account key path (eg. [masterFP]/49'/0'/0')</param>
-		/// <param name="signingOptions">The signature options to use</param>
 		/// <returns>This PSBT</returns>
-		public PSBT SignAll(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, SigningOptions signingOptions)
+		public PSBT SignAll(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
@@ -590,21 +567,9 @@ namespace NBitcoin
 			var transactionData = GetPrecomputedTransactionData();
 			foreach (var o in Inputs.CoinsFor(accountHDScriptPubKey, accountKey, accountKeyPath))
 			{
-				o.TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, signingOptions, transactionData);
+				o.TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, transactionData);
 			}
 			return this;
-		}
-		/// <summary>
-		/// Sign all inputs which derive addresses from <paramref name="accountHDScriptPubKey"/> and that need to be signed by <paramref name="accountKey"/>.
-		/// </summary>
-		/// <param name="accountHDScriptPubKey">The address generator</param>
-		/// <param name="accountKey">The account key with which to sign</param>
-		/// <param name="accountKeyPath">The account key path (eg. [masterFP]/49'/0'/0')</param>
-		/// <param name="sigHash">The SigHash</param>
-		/// <returns>This PSBT</returns>
-		public PSBT SignAll(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, SigHash sigHash = SigHash.All)
-		{
-			return SignAll(accountHDScriptPubKey, accountKey, accountKeyPath, Normalize(new SigningOptions(sigHash)));
 		}
 
 		/// <summary>
@@ -700,36 +665,12 @@ namespace NBitcoin
 			return feeRate;
 		}
 
-		public PSBT SignWithKeys(params Key[] keys)
-		{
-			return SignWithKeys(SigHash.All, keys);
-		}
 		public PSBT SignWithKeys(params ISecret[] keys)
 		{
-			return SignWithKeys(SigHash.All, keys.Select(k => k.PrivateKey).ToArray());
-		}
-		public PSBT SignWithKeys(SigningOptions signingOptions, params ISecret[] keys)
-		{
-			return SignWithKeys(signingOptions, keys.Select(k => k.PrivateKey).ToArray());
+			return SignWithKeys(keys.Select(k => k.PrivateKey).ToArray());
 		}
 
-		public PSBT SignWithKeys(SigHash sigHash, params Key[] keys)
-		{
-			return SignWithKeys(Normalize(new SigningOptions(sigHash)), keys);
-		}
-
-		internal SigningOptions Normalize(SigningOptions signingOptions)
-		{
-			// Handle legacy
-			if (Settings._UseLowR is bool v)
-			{
-				signingOptions = signingOptions.Clone();
-				signingOptions.EnforceLowR = v;
-			}
-			return signingOptions;
-		}
-
-		public PSBT SignWithKeys(SigningOptions signingOptions, params Key[] keys)
+		public PSBT SignWithKeys(params Key[] keys)
 		{
 			AssertSanity();
 			var transactionData = GetPrecomputedTransactionData();
@@ -737,7 +678,7 @@ namespace NBitcoin
 			{
 				foreach (var input in this.Inputs)
 				{
-					input.Sign(key, signingOptions, transactionData);
+					input.Sign(key, transactionData);
 				}
 			}
 			return this;
@@ -795,9 +736,7 @@ namespace NBitcoin
 				transactionBuilder.Extensions.Clear();
 				transactionBuilder.Extensions.AddRange(Settings.CustomBuilderExtensions);
 			}
-#pragma warning disable CS0618 // Type or member is obsolete
-			transactionBuilder.UseLowR = Settings.UseLowR;
-#pragma warning restore CS0618 // Type or member is obsolete
+			transactionBuilder.SetSigningOptions(Settings.SigningOptions);
 			return transactionBuilder;
 		}
 

@@ -874,8 +874,9 @@ namespace NBitcoin.Tests
 			txBuilder = Network.CreateTransactionBuilder();
 			var aliceSigned = txBuilder
 					.AddCoins(aliceBobCoins)
+					.SetSigningOptions(new SigningOptions(SigHash.All | SigHash.AnyoneCanPay))
 					.AddKeys(aliceKey)
-					.SignTransaction(unsigned, SigHash.All | SigHash.AnyoneCanPay);
+					.SignTransaction(unsigned);
 
 			var carlaCoins = GetCoinSource(carlaKey, "1.0", "0.8", "0.6", "0.2", "0.05");
 
@@ -1631,7 +1632,9 @@ namespace NBitcoin.Tests
 				Transaction tx = txbuilder.BuildTransaction(false);
 
 				// sign with anyone can pay
-				tx = txbuilder.AddKeys(privateKey).SignTransaction(tx, SigHash.AnyoneCanPay | SigHash.Single);
+				tx = txbuilder
+					.SetSigningOptions(new SigningOptions(SigHash.AnyoneCanPay | SigHash.Single))
+					.AddKeys(privateKey).SignTransaction(tx);
 
 				// extract signature
 				tokenAnyoneCanPayScript = tx.Inputs[0].ScriptSig;
@@ -2395,15 +2398,16 @@ namespace NBitcoin.Tests
 			var txBuilder = Network.CreateTransactionBuilder();
 			txBuilder.AddCoins(coin);
 			txBuilder.AddKnownSignature(k.PubKey, signature, coin.Outpoint);
-			Assert.True(txBuilder.TrySignInput(tx, 0, SigHash.All, out var sig));
+			txBuilder.SetSigningOptions(new SigningOptions(SigHash.All));
+			Assert.True(txBuilder.TrySignInput(tx, 0, out var sig));
 			Assert.Equal(signature, sig);
 
-			Assert.False(txBuilder.TrySignInput(tx, 1, SigHash.All, out _));
+			Assert.False(txBuilder.TrySignInput(tx, 1, out _));
 			txBuilder.AddCoins(coin, unsignableCoin);
-			Assert.False(txBuilder.TrySignInput(tx, 1, SigHash.All, out _));
+			Assert.False(txBuilder.TrySignInput(tx, 1, out _));
 
 			txBuilder.AddKnownSignature(k2.PubKey, TransactionSignature.Empty, unsignableCoin.Outpoint);
-			Assert.True(txBuilder.TrySignInput(tx, 1, SigHash.All, out sig));
+			Assert.True(txBuilder.TrySignInput(tx, 1, out sig));
 			Assert.Equal(TransactionSignature.Empty, sig);
 
 			txBuilder.SignTransactionInPlace(tx);
@@ -3705,7 +3709,9 @@ namespace NBitcoin.Tests
 							builder.AddCoins(knownCoins);
 							if (txx.Outputs.Count == 0)
 								txx.Outputs.Add(new TxOut(coin1.Amount, new Script(OpcodeType.OP_TRUE)));
-							var result = builder.SignTransaction(txx, actualFlag);
+							var result = builder
+								.SetSigningOptions(new SigningOptions(actualFlag))
+								.SignTransaction(txx);
 							Assert.True(builder.Verify(result));
 
 							if (flag == SigHash.None)
