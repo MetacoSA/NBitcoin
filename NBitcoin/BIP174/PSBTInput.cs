@@ -597,11 +597,11 @@ namespace NBitcoin
 			return errors;
 		}
 
-		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, SigningOptions signingOptions)
+		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath)
 		{
-			TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, signingOptions, null);
+			TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, null);
 		}
-		internal void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, SigningOptions signingOptions, PrecomputedTransactionData? precomputedTransactionData)
+		internal void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, PrecomputedTransactionData? precomputedTransactionData)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
@@ -614,21 +614,11 @@ namespace NBitcoin
 			foreach (var hdk in this.HDKeysFor(accountHDScriptPubKey, cache, accountKeyPath))
 			{
 				if (((HDKeyCache)cache.Derive(hdk.AddressKeyPath)).Inner is ISecret k)
-					Sign(k.PrivateKey, signingOptions, precomputedTransactionData);
+					Sign(k.PrivateKey, precomputedTransactionData);
 				else
 					throw new ArgumentException(paramName: nameof(accountKey), message: "This should be a private key");
 			}
 		}
-		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, SigHash sigHash = SigHash.All)
-		{
-			TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, Parent.Normalize(new SigningOptions(sigHash)));
-		}
-
-		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, SigHash sigHash = SigHash.All)
-		{
-			TrySign(accountHDScriptPubKey, accountKey, null, sigHash);
-		}
-
 		public void AssertSanity()
 		{
 			var errors = CheckSanity();
@@ -968,7 +958,7 @@ namespace NBitcoin
 			try
 			{
 				var signedTx = Parent.Settings.IsSmart ? Parent.GetOriginalTransaction() : Transaction.Clone();
-				signed = transactionBuilder.SignTransaction(signedTx, SigHash.All);
+				signed = transactionBuilder.SignTransaction(signedTx);
 			}
 			catch (Exception ex)
 			{
@@ -1005,33 +995,24 @@ namespace NBitcoin
 
 		public ITransactionSignature? Sign(Key key)
 		{
-			return Sign(key, SigHash.All);
+			return Sign(key, null);
 		}
 		public ITransactionSignature? Sign(KeyPair keyPair)
 		{
 			return Sign(keyPair, null);
 		}
-		public ITransactionSignature? Sign(Key key, SigningOptions signingOptions)
-		{
-			return Sign(key, signingOptions, null);
-		}
-		public ITransactionSignature? Sign(KeyPair keyPair, SigningOptions? signingOptions)
-		{
-			return Sign(keyPair, signingOptions, null);
-		}
-		internal ITransactionSignature? Sign(KeyPair keyPair, SigningOptions? signingOptions, PrecomputedTransactionData? precomputedTransactionData)
+		internal ITransactionSignature? Sign(KeyPair keyPair, PrecomputedTransactionData? precomputedTransactionData)
 		{
 			if (keyPair == null)
 				throw new ArgumentNullException(nameof(keyPair));
 			if (this.IsFinalized())
 				return null;
-			signingOptions ??= new SigningOptions();
 
 			if (keyPair.PubKey is PubKey ecdsapk && PartialSigs.TryGetValue(ecdsapk, out var existingSig))
 			{
-				CheckCompatibleSigHash(signingOptions.SigHash);
+				CheckCompatibleSigHash(this.Parent.Settings.SigningOptions.SigHash);
 				var signature = PartialSigs[ecdsapk];
-				if (signingOptions.SigHash != existingSig.SigHash)
+				if (this.Parent.Settings.SigningOptions.SigHash != existingSig.SigHash)
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
 				return signature;
 			}
@@ -1046,7 +1027,7 @@ namespace NBitcoin
 			if (precomputedTransactionData is null)
 				precomputedTransactionData = Parent.GetPrecomputedTransactionData();
 			builder.SetPrecomputedTransactionData(precomputedTransactionData);
-			if (builder.TrySignInput(Transaction, Index, signingOptions, out var signature2))
+			if (builder.TrySignInput(Transaction, Index, out var signature2))
 			{
 				if (keyPair.PubKey is PubKey ecdsapk2 && signature2 is TransactionSignature ecdsasig)
 					this.PartialSigs.TryAdd(ecdsapk2, ecdsasig);
@@ -1062,7 +1043,7 @@ namespace NBitcoin
 			}
 			return signature2;
 		}
-		internal ITransactionSignature? Sign(Key key, SigningOptions signingOptions, PrecomputedTransactionData? precomputedTransactionData)
+		internal ITransactionSignature? Sign(Key key, PrecomputedTransactionData? precomputedTransactionData)
 		{
 			if (key == null)
 				throw new ArgumentNullException(nameof(key));
@@ -1072,19 +1053,15 @@ namespace NBitcoin
 			if (coin.ScriptPubKey.IsScriptType(ScriptType.Taproot))
 			{
 #if HAS_SPAN
-				return Sign(key.CreateTaprootKeyPair(TaprootMerkleRoot), signingOptions, precomputedTransactionData);
+				return Sign(key.CreateTaprootKeyPair(TaprootMerkleRoot), precomputedTransactionData);
 #else
 				throw new NotSupportedException("Impossible to sign taproot input on .NET Framework");
 #endif
 			}
 			else
 			{
-				return Sign(key.CreateKeyPair(), signingOptions, precomputedTransactionData);
+				return Sign(key.CreateKeyPair(), precomputedTransactionData);
 			}
-		}
-		public ITransactionSignature? Sign(Key key, SigHash sigHash)
-		{
-			return Sign(key, Parent.Normalize(new SigningOptions(sigHash)));
 		}
 
 		private void CheckCompatibleSigHash(SigHash sigHash)

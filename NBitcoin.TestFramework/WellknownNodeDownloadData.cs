@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace NBitcoin.Tests
 {
@@ -6,7 +7,31 @@ namespace NBitcoin.Tests
 	{
 		public bool SupportCookieFile { get; set; } = true;
 
-		public class BitcoinNodeDownloadData
+		public class NodeDownloadDataBase
+		{
+			/// <summary>
+			/// Get the specific version from string
+			/// </summary>
+			/// <param name="version">The version number, null or 'latest' if fetching the latest version.</param>
+			/// <returns></returns>
+			public NodeDownloadData FromVersion(string version)
+			{
+				var nodes = this.GetType().GetFields()
+					.Where(v => v.FieldType == typeof(NodeDownloadData))
+					.Select(v => (NodeDownloadData)v.GetValue(this));
+				if (version is "latest" || version is null)
+					return nodes.OrderBy(v => v.Version).Last();
+				return nodes.First(n => VersionMach(n.Version, version));
+			}
+
+			private bool VersionMach(string v1, string v2)
+			{
+				v1 = v1.Replace("v", "").Replace("_", ".");
+				v2 = v2.Replace("v", "").Replace("_", ".");
+				return v1.Equals(v2);
+			}
+		}
+		public class BitcoinNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_13_1 = new NodeDownloadData()
 			{
@@ -279,7 +304,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class LitecoinNodeDownloadData
+		public class LitecoinNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_14_2 = new NodeDownloadData()
 			{
@@ -413,7 +438,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class ViacoinNodeDownloadData
+		public class ViacoinNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_15_2 = new NodeDownloadData()
 			{
@@ -442,7 +467,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class BCashNodeDownloadData
+		public class BCashNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_16_2 = new NodeDownloadData()
 			{
@@ -552,7 +577,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class FeathercoinNodeDownloadData
+		public class FeathercoinNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_16_0 = new NodeDownloadData()
 			{
@@ -581,7 +606,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class DogecoinNodeDownloadData
+		public class DogecoinNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v1_10_0 = new NodeDownloadData()
 			{
@@ -611,7 +636,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class DashNodeDownloadData
+		public class DashNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_13_0 = new NodeDownloadData()
 			{
@@ -669,7 +694,7 @@ namespace NBitcoin.Tests
 			//};
 		}
 
-		public class TerracoinNodeDownloadData
+		public class TerracoinNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_12_2 = new NodeDownloadData()
 			{
@@ -698,7 +723,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class VergeNodeDownloadData
+		public class VergeNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v6_0_2 = new NodeDownloadData()
 			{
@@ -727,7 +752,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class DystemNodeDownloadData
+		public class DystemNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v1_0_9_9 = new NodeDownloadData()
 			{
@@ -756,7 +781,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class MogwaiNodeDownloadData
+		public class MogwaiNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_12_2 = new NodeDownloadData()
 			{
@@ -784,7 +809,7 @@ namespace NBitcoin.Tests
 				}
 			};
 		}
-		public class BGoldNodeDownloadData
+		public class BGoldNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_15_0 = new NodeDownloadData()
 			{
@@ -813,7 +838,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class PolisNodeDownloadData
+		public class PolisNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v1_4_3 = new NodeDownloadData()
 			{
@@ -842,7 +867,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class BitcoreNodeDownloadData
+		public class BitcoreNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_90_9_10 = new NodeDownloadData()
 			{
@@ -864,7 +889,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class MonacoinNodeDownloadData
+		public class MonacoinNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_15_1 = new NodeDownloadData()
 			{
@@ -893,7 +918,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class UfoNodeDownloadData
+		public class UfoNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_16_0 = new NodeDownloadData()
 			{
@@ -922,7 +947,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class GroestlcoinNodeDownloadData
+		public class GroestlcoinNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v2_16_0 = new NodeDownloadData()
 			{
@@ -1145,7 +1170,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class ZclassicNodeDownloadData
+		public class ZclassicNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v1_0_14 = new NodeDownloadData()
 			{
@@ -1174,7 +1199,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class ElementsNodeDownloadData
+		public class ElementsNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_14_1 = new NodeDownloadData()
 			{
@@ -1207,7 +1232,7 @@ namespace NBitcoin.Tests
 			};
 
 		}
-		public class LiquidNodeDownloadData
+		public class LiquidNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v3_14_1_21 = new NodeDownloadData()
 			{
@@ -1258,7 +1283,7 @@ namespace NBitcoin.Tests
 				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0"
 			};
 		}
-		public class MonoeciNodeDownloadData
+		public class MonoeciNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_12_2_3 = new NodeDownloadData()
 			{
@@ -1289,7 +1314,7 @@ namespace NBitcoin.Tests
 				}
 			};
 		}
-		public class GoByteNodeDownloadData
+		public class GoByteNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_12_2_4 = new NodeDownloadData()
 			{
@@ -1317,7 +1342,7 @@ namespace NBitcoin.Tests
 				}
 			};
 		}
-		public class ColossusNodeDownloadData
+		public class ColossusNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v1_1_1 = new NodeDownloadData()
 			{
@@ -1349,7 +1374,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class GincoinNodeDownloadData
+		public class GincoinNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v1_1_0_0 = new NodeDownloadData()
 			{
@@ -1379,7 +1404,7 @@ namespace NBitcoin.Tests
 				}
 			};
 		}
-		public class KotoNodeDownloadData
+		public class KotoNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v2_0_0 = new NodeDownloadData()
 			{
@@ -1408,7 +1433,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class BitcoinplusNodeDownloadData
+		public class BitcoinplusNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v2_7_0 = new NodeDownloadData()
 			{
@@ -1437,7 +1462,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class ChaincoinNodeDownloadData
+		public class ChaincoinNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_16_4 = new NodeDownloadData()
 			{
@@ -1459,7 +1484,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class ZCoinNodeDownloadData
+		public class ZCoinNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_13_8_3 = new NodeDownloadData()
 			{
@@ -1492,7 +1517,7 @@ namespace NBitcoin.Tests
 		/// Using Stratis C# full node.
 		/// Should be updated to use official release once it is deployed.
 		/// </summary>
-		public class StratisNodeDownloadData
+		public class StratisNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v3_0_0 = new NodeDownloadData()
 			{
@@ -1523,7 +1548,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class DogeCashNodeDownloadData
+		public class DogeCashNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v5_1_1 = new NodeDownloadData()
 			{
@@ -1552,7 +1577,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class ArgoneumNodeDownloadData
+		public class ArgoneumNodeDownloadData : NodeDownloadDataBase
 		{
 			// Note that Argoneum has mining disabled by default in offical Windows and Mac binaries as per
 			// https://github.com/dashpay/dash/pull/2778 and https://github.com/dashpay/dash/issues/2998.
@@ -1584,7 +1609,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class QtumNodeDownloadData
+		public class QtumNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_18_3 = new NodeDownloadData()
 			{
@@ -1614,7 +1639,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class MonetaryUnitNodeDownloadData
+		public class MonetaryUnitNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v2_1_6 = new NodeDownloadData()
 			{
@@ -1644,7 +1669,7 @@ namespace NBitcoin.Tests
 		}
 
 
-		public class LBRYCreditsNodeDownloadData
+		public class LBRYCreditsNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v2_1_6 = new NodeDownloadData()
 			{
@@ -1673,7 +1698,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class AlthashNodeDownloadData
+		public class AlthashNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v2_5_1 = new NodeDownloadData()
 			{
@@ -1704,7 +1729,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class NeblioNodeDownloadData
+		public class NeblioNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v3_2_0 = new NodeDownloadData()
 			{
@@ -1726,7 +1751,7 @@ namespace NBitcoin.Tests
 		/// Using Stratis C# full node.
 		/// Should be updated to use official release once it is deployed.
 		/// </summary>
-		public class XDSNodeDownloadData
+		public class XDSNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v1_0_16 = new NodeDownloadData()
 			{

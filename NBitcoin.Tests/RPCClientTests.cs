@@ -1926,20 +1926,9 @@ namespace NBitcoin.Tests
 		// 3. In version 0.17, `importmulti` can not handle witness script so only p2sh are considered here. TODO: fix
 		[Theory]
 		[InlineData("latest")]
-		[InlineData("v0_19_0_1")]
 		public void ShouldPerformMultisigProcessingWithCore(string version)
 		{
-			NodeBuilder builder;
-			if (version == "latest")
-			{
-				builder = NodeBuilderEx.Create();
-			}
-			else // if (version == "v0_19_0_1")
-			{
-				builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.v0_19_0_1);
-			}
-
-			using (builder)
+			using (var builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.FromVersion(version)))
 			{
 				var nodeAlice = builder.CreateNode();
 				var nodeBob = builder.CreateNode();
@@ -2054,7 +2043,6 @@ namespace NBitcoin.Tests
 
 		[Theory]
 		[InlineData("latest")]
-		[InlineData("v0_19_0_1")]
 		/// <summary>
 		/// For p2sh, p2wsh, p2sh-p2wsh, we must also test the case for `solvable` to the wallet.
 		/// For that, both script and the address must be imported by `importmulti`.
@@ -2063,17 +2051,7 @@ namespace NBitcoin.Tests
 		/// </summary>
 		public void ShouldGetAddressInfo(string version)
 		{
-			NodeBuilder builder;
-			if (version == "latest")
-			{
-				builder = NodeBuilderEx.Create();
-			}
-			else // if (version == "v0_19_0_1")
-			{
-				builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.v0_19_0_1);
-			}
-
-			using (builder)
+			using (var builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.FromVersion(version)))
 			{
 				var client = builder.CreateNode(true).CreateRPCClient();
 				var addrLegacy = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Legacy });
