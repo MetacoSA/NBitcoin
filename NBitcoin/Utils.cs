@@ -174,13 +174,6 @@ namespace NBitcoin
 				return obj;
 			return obj.ToNetwork(obj.Network.NetworkSet.GetNetwork(chainName));
 		}
-		[Obsolete("Use ToNetwork(ChainName) instead")]
-		public static T ToNetwork<T>(this T obj, NetworkType networkType) where T : IBitcoinString
-		{
-			if (obj.Network.NetworkType == networkType)
-				return obj;
-			return obj.ToNetwork(obj.Network.NetworkSet.GetNetwork(networkType));
-		}
 
 		public static T ToNetwork<T>(this T obj, Network network) where T : IBitcoinString
 		{

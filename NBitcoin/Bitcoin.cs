@@ -86,20 +86,6 @@ namespace NBitcoin
 
 		public string CryptoCode => "BTC";
 
-		[Obsolete("Use GetNetwork(ChainName.Mainnet/Testnet/Regtest) instead.")]
-		public Network GetNetwork(NetworkType networkType)
-		{
-			switch (networkType)
-			{
-				case NetworkType.Mainnet:
-					return Mainnet;
-				case NetworkType.Testnet:
-					return Testnet;
-				case NetworkType.Regtest:
-					return Regtest;
-			}
-			return null;
-		}
 		static readonly ChainName SignetName = new ChainName("Signet");
 
 		public Network Signet { get; private set; }

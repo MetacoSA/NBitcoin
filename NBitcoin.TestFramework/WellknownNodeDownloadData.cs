@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace NBitcoin.Tests
 {
@@ -16,7 +17,7 @@ namespace NBitcoin.Tests
 			/// <returns></returns>
 			public NodeDownloadData FromVersion(string version)
 			{
-				var nodes = this.GetType().GetFields()
+				var nodes = this.GetType().GetTypeInfo().DeclaredFields
 					.Where(v => v.FieldType == typeof(NodeDownloadData))
 					.Select(v => (NodeDownloadData)v.GetValue(this));
 				if (version is "latest" || version is null)

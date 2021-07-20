@@ -54,14 +54,6 @@ namespace NBitcoin
 			return name + " (" + host + ")";
 		}
 	}
-
-	[Obsolete("Use ChainName.Mainnet/Testnet/Regtest instead")]
-	public enum NetworkType
-	{
-		Mainnet,
-		Testnet,
-		Regtest
-	}
 	public class ChainName
 	{
 		static ChainName()
@@ -127,33 +119,6 @@ namespace NBitcoin
 		public override string ToString()
 		{
 			return nameInvariant;
-		}
-
-		[Obsolete("Do not use NetworkType anymore, use ChainName instead")]
-		public NetworkType ToNetworkType()
-		{
-			if (this == ChainName.Mainnet)
-				return NetworkType.Mainnet;
-			if (this == ChainName.Testnet)
-				return NetworkType.Testnet;
-			if (this == ChainName.Regtest)
-				return NetworkType.Regtest;
-			throw new NotSupportedException($"Impossible to convert ChainName {nameInvariant} to NetworkType");
-		}
-		[Obsolete("Do not use NetworkType anymore, use ChainName instead")]
-		public static ChainName FromNetworkType(NetworkType network)
-		{
-			switch (network)
-			{
-				case NetworkType.Mainnet:
-					return ChainName.Mainnet;
-				case NetworkType.Testnet:
-					return ChainName.Testnet;
-				case NetworkType.Regtest:
-					return ChainName.Regtest;
-				default:
-					throw new NotSupportedException($"Unsupported network type {network}");
-			}
 		}
 	}
 
@@ -2026,14 +1991,7 @@ namespace NBitcoin
 		}
 
 		private ChainName? chainName;
-		[Obsolete("Use ChainName instead")]
-		public NetworkType NetworkType
-		{
-			get
-			{
-				return ChainName.ToNetworkType();
-			}
-		}
+
 		public ChainName ChainName
 		{
 			get
