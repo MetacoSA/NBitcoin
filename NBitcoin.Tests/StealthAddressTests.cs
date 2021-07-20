@@ -348,6 +348,14 @@ namespace NBitcoin.Tests
 		{
 			return Encoders.Hex.EncodeData(spend.ToBytes());
 		}
+		private static string ToString(PubKey spend)
+		{
+			return Encoders.Hex.EncodeData(spend.ToBytes());
+		}
+		private static string ToString(Key spend)
+		{
+			return Encoders.Hex.EncodeData(spend.ToBytes());
+		}
 
 		public override string ToString()
 		{

@@ -39,7 +39,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Property(MaxTest=10)]
-		[Trait("PropertyTest", "BidirectionalConversion")]
+		[Trait("PropertyTest", "PropertyTest")]
 		public void ShouldConvertToStringBidirectionally(OutputDescriptor desc)
 		{
 			var afterConversion = OutputDescriptor.Parse(MaybeInsertSpaces(desc.ToString()));
@@ -49,7 +49,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Property]
-		[Trait("PropertyTest", "Verification")]
+		[Trait("PropertyTest", "PropertyTest")]
 		public void ShouldNotThrowErrorInBasicOperation(OutputDescriptor od)
 		{
 			od.IsSolvable();

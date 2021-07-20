@@ -9,7 +9,7 @@ using NBitcoin.BouncyCastle.Math;
 #endif
 namespace NBitcoin
 {
-	public class Key : IDestination, IDisposable, IBitcoinSerializable
+	public class Key : IDestination, IDisposable
 	{
 		private const int KEY_SIZE = 32;
 		private readonly static uint256 N = uint256.Parse("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141");
@@ -29,10 +29,10 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
-		internal Secp256k1.ECPrivKey _ECKey;
+		internal readonly Secp256k1.ECPrivKey _ECKey;
 #else
-		byte[] vch = new byte[0];
-		internal ECKey _ECKey;
+		readonly byte[] vch;
+		internal readonly ECKey _ECKey;
 #endif
 		public bool IsCompressed
 		{
@@ -52,6 +52,20 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(ecKey));
 			this.IsCompressed = compressed;
 			_ECKey = ecKey;
+		}
+		internal Key(ReadOnlySpan<byte> bytes, bool compressed = true)
+		{
+			this.IsCompressed = compressed;
+			if (bytes.Length != KEY_SIZE)
+			{
+				throw new ArgumentException(paramName: "data", message: $"The size of an EC key should be {KEY_SIZE}");
+			}
+			if (NBitcoinContext.Instance.TryCreateECPrivKey(bytes, out var key) && key is Secp256k1.ECPrivKey)
+			{
+				_ECKey = key;
+			}
+			else
+				throw new ArgumentException(paramName: "data", message: "Invalid EC key");
 		}
 #endif
 
@@ -265,43 +279,6 @@ namespace NBitcoin
 #endif
 		}
 
-
-
-		#region IBitcoinSerializable Members
-
-		public void ReadWrite(BitcoinStream stream)
-		{
-			AssertNotDisposed();
-#if HAS_SPAN
-			Span<byte> tmp = stackalloc byte[KEY_SIZE];
-			if (!stream.Serializing)
-			{
-				stream.ReadWrite(ref tmp);
-				if (NBitcoinContext.Instance.TryCreateECPrivKey(tmp, out var k) && k is Secp256k1.ECPrivKey)
-				{
-					_ECKey = k;
-				}
-				else
-				{
-					throw new FormatException("Unvalid private key");
-				}
-			}
-			else
-			{
-				_ECKey.WriteToSpan(tmp);
-				stream.ReadWrite(ref tmp);
-			}
-#else
-			stream.ReadWrite(ref vch);
-			if (!stream.Serializing)
-			{
-				_ECKey = new ECKey(vch, true);
-			}
-#endif
-		}
-
-#endregion
-
 		public string Decrypt(string encryptedText)
 		{
 			if (string.IsNullOrEmpty(encryptedText))
@@ -491,7 +468,7 @@ namespace NBitcoin
 		{
 			if (a?.PubKey is PubKey apk && b?.PubKey is PubKey bpk)
 			{
-				return apk == bpk;
+				return apk.Equals(bpk);
 			}
 			return a is null && b is null;
 		}
@@ -504,6 +481,18 @@ namespace NBitcoin
 		public override int GetHashCode()
 		{
 			return PubKey.GetHashCode();
+		}
+
+		public byte[] ToBytes()
+		{
+			AssertNotDisposed();
+#if HAS_SPAN
+			var b = new byte[KEY_SIZE];
+			_ECKey.WriteToSpan(b);
+			return b;
+#else
+			return vch.ToArray();
+#endif
 		}
 
 		public string ToHex()

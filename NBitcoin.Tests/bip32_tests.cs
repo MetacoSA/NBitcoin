@@ -248,8 +248,8 @@ namespace NBitcoin.Tests
 		{
 			var key = new ExtKey();
 			var pubkey = key.Neuter();
-			Assert.True(ExtKey.Parse(key.ToString(Network.Main), Network.Main).ToString(Network.Main) == key.ToString(Network.Main));
-			Assert.True(ExtPubKey.Parse(pubkey.ToString(Network.Main), Network.Main).ToString(Network.Main) == pubkey.ToString(Network.Main));
+			Assert.Equal(ExtKey.Parse(key.ToString(Network.Main), Network.Main).ToString(Network.Main), key.ToString(Network.Main));
+			Assert.Equal(ExtPubKey.Parse(pubkey.ToString(Network.Main), Network.Main).ToString(Network.Main), pubkey.ToString(Network.Main));
 		}
 
 		[Fact]
@@ -292,7 +292,7 @@ namespace NBitcoin.Tests
 		private void RunTest(TestVector test)
 		{
 			var seed = TestUtils.ParseHex(test.strHexMaster);
-			ExtKey key = new ExtKey(seed);
+			ExtKey key = ExtKey.CreateFromSeed(seed);
 			ExtPubKey pubkey = key.Neuter();
 			foreach (TestDerivation derive in test.vDerive)
 			{

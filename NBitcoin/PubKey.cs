@@ -42,7 +42,7 @@ namespace NBitcoin
 #endif
 		TaprootBIP86
 	}
-	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>, IEquatable<PubKey>, IPubKey
+	public class PubKey : IDestination, IComparable<PubKey>, IEquatable<PubKey>, IPubKey
 	{
 		/// <summary>
 		/// Create a new Public key from string
@@ -113,6 +113,22 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
+		/// <summary>
+		/// Create a new Public key from byte array
+		/// </summary>
+		/// <param name="bytes">byte array</param>
+		public PubKey(ReadOnlySpan<byte> bytes)
+		{
+			if (NBitcoinContext.Instance.TryCreatePubKey(bytes, out compressed, out var p) && p is Secp256k1.ECPubKey)
+			{
+				_ECKey = p;
+			}
+			else
+			{
+				throw new FormatException("Invalid public key");
+			}
+		}
+
 		Secp256k1.ECPubKey _ECKey;
 		internal ref readonly Secp256k1.ECPubKey ECKey => ref _ECKey;
 #else
@@ -393,40 +409,6 @@ namespace NBitcoin
 		}
 #endif
 
-#region IBitcoinSerializable Members
-
-		public void ReadWrite(BitcoinStream stream)
-		{
-#if HAS_SPAN
-			if (stream.Serializing)
-			{
-				Span<byte> tmp = stackalloc byte[65];
-				_ECKey.WriteToSpan(compressed, tmp, out var l);
-				tmp = tmp.Slice(0, l);
-				stream.ReadWrite(ref tmp);
-			}
-			else
-			{
-				Span<byte> tmp = stackalloc byte[compressed ? 33 : 65];
-				stream.ReadWrite(ref tmp);
-				if (NBitcoinContext.Instance.TryCreatePubKey(tmp, out var p) && p is Secp256k1.ECPubKey)
-				{
-					_ECKey = p;
-				}
-				else
-				{
-					throw new FormatException("Deserializing invalid pubkey");
-				}
-			}
-#else
-			stream.ReadWrite(ref vch);
-			if (!stream.Serializing)
-				_ECKey = new ECKey(vch, false);
-#endif
-		}
-
-#endregion
-
 		public byte[] ToBytes()
 		{
 #if HAS_SPAN
@@ -685,17 +667,23 @@ namespace NBitcoin
 			return !(a == b);
 		}
 
+		int? hashcode;
 		public override int GetHashCode()
 		{
+			if (hashcode is int h)
+				return h;
 #if HAS_SPAN
 			unchecked
 			{
-				var hash = this._ECKey.GetHashCode();
-				hash = hash * 23 + (compressed ? 0 : 1);
-				return hash;
+				h = this._ECKey.GetHashCode();
+				h = h * 23 + (compressed ? 0 : 1);
+				hashcode = h;
+				return h;
 			}
 #else
-			return ToHex().GetHashCode();
+			h = ToHex().GetHashCode();
+			hashcode = h;
+			return h;
 #endif
 		}
 

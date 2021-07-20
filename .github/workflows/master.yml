@@ -58,4 +58,4 @@ jobs:
         with:
           dotnet-version: '3.1.x'
       - run: dotnet clean -c Release ./NBitcoin.Tests/NBitcoin.Tests.csproj && dotnet nuget locals all --clear
-      - run: dotnet test -c Release -v n ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest|Altcoins=Altcoins" -p:ParallelizeTestCollections=false -f net461
+      - run: dotnet test -c Release -v n ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest|Altcoins=Altcoins|PropertyTest=PropertyTest" -p:ParallelizeTestCollections=false -f net461
