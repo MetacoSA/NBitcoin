@@ -426,27 +426,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		// Test it still works with 0.18.1
-		[Fact]
-		public async Task CanGetBlockchainInfoWithCore0181()
-		{
-			using (var builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.v0_18_1))
-			{
-				var rpc = builder.CreateNode().CreateRPCClient();
-				builder.StartAll();
-				var response = await rpc.GetBlockchainInfoAsync();
-
-				Assert.Equal(builder.Network, response.Chain);
-				Assert.Equal(builder.Network.GetGenesis().GetHash(), response.BestBlockHash);
-
-				Assert.Contains(response.Bip9SoftForks, x => x.Name == "segwit");
-				Assert.Contains(response.Bip9SoftForks, x => x.Name == "csv");
-				Assert.Contains(response.SoftForks, x => x.Bip == "bip34");
-				Assert.Contains(response.SoftForks, x => x.Bip == "bip65");
-				Assert.Contains(response.SoftForks, x => x.Bip == "bip66");
-			}
-		}
-
 		[Fact]
 		public void CanGetTransactionInfo()
 		{
