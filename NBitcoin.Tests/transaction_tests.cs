@@ -874,7 +874,7 @@ namespace NBitcoin.Tests
 			txBuilder = Network.CreateTransactionBuilder();
 			var aliceSigned = txBuilder
 					.AddCoins(aliceBobCoins)
-					.SetSigningOptions(new SigningOptions(SigHash.All | SigHash.AnyoneCanPay))
+					.SetSigningOptions(SigHash.All | SigHash.AnyoneCanPay)
 					.AddKeys(aliceKey)
 					.SignTransaction(unsigned);
 
@@ -1633,7 +1633,7 @@ namespace NBitcoin.Tests
 
 				// sign with anyone can pay
 				tx = txbuilder
-					.SetSigningOptions(new SigningOptions(SigHash.AnyoneCanPay | SigHash.Single))
+					.SetSigningOptions(SigHash.AnyoneCanPay | SigHash.Single)
 					.AddKeys(privateKey).SignTransaction(tx);
 
 				// extract signature
@@ -2398,7 +2398,7 @@ namespace NBitcoin.Tests
 			var txBuilder = Network.CreateTransactionBuilder();
 			txBuilder.AddCoins(coin);
 			txBuilder.AddKnownSignature(k.PubKey, signature, coin.Outpoint);
-			txBuilder.SetSigningOptions(new SigningOptions(SigHash.All));
+			txBuilder.SetSigningOptions(SigHash.All);
 			Assert.True(txBuilder.TrySignInput(tx, 0, out var sig));
 			Assert.Equal(signature, sig);
 
@@ -3710,7 +3710,7 @@ namespace NBitcoin.Tests
 							if (txx.Outputs.Count == 0)
 								txx.Outputs.Add(new TxOut(coin1.Amount, new Script(OpcodeType.OP_TRUE)));
 							var result = builder
-								.SetSigningOptions(new SigningOptions(actualFlag))
+								.SetSigningOptions(actualFlag)
 								.SignTransaction(txx);
 							Assert.True(builder.Verify(result));
 

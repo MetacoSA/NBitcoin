@@ -1457,6 +1457,16 @@ namespace NBitcoin
 			this.signingOptions = signingOptions;
 			return this;
 		}
+		public TransactionBuilder SetSigningOptions(SigHash sigHash)
+		{
+			this.signingOptions = new SigningOptions(sigHash);
+			return this;
+		}
+		public TransactionBuilder SetSigningOptions(SigHash sigHash, bool enforceLowR)
+		{
+			this.signingOptions = new SigningOptions(sigHash, enforceLowR);
+			return this;
+		}
 
 		public bool TrySignInput(Transaction transaction, uint index, [MaybeNullWhen(false)] out ITransactionSignature signature)
 		{
@@ -1614,7 +1624,7 @@ namespace NBitcoin
 
 		PSBT CreatePSBTFromCore(Transaction tx, bool sign)
 		{
-			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, this.signingOptions);
+			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, signingOptions);
 			if (sign)
 				SignTransactionInPlace(signingContext);
 			var psbt = tx.CreatePSBT(Network);
