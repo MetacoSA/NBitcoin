@@ -39,8 +39,6 @@ namespace NBitcoin
 #if HAS_SPAN
 		public HDFingerprint(ReadOnlySpan<byte> bytes)
 		{
-			if (bytes == null)
-				throw new ArgumentNullException(nameof(bytes));
 			if (bytes.Length != 4)
 				throw new ArgumentException(paramName: nameof(bytes), message: "Bytes should be of length 4");
 			_Value = Utils.ToUInt32(bytes, true);

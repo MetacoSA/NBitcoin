@@ -14,14 +14,14 @@ namespace NBitcoin.Tests.PropertyTest
 		}
 
 		[Property]
-		[Trait("PropertyTest", "Immutability")]
+		[Trait("PropertyTest", "PropertyTest")]
 		public void ShouldNotChangeByCloneOrConstructor(ExtKey key)
 		{
-			Assert.Equal(key.Clone(), new ExtKey(key.Neuter(), key.PrivateKey));
+			Assert.Equal(ExtKey.CreateFromBytes(key.ToBytes()), new ExtKey(key.Neuter(), key.PrivateKey));
 		}
 
 		[Property]
-		[Trait("PropertyTest", "BidirectionalConversion")]
+		[Trait("PropertyTest", "PropertyTest")]
 		public void ShouldRecoverNeuteredParentKeyIfNotHardened(ExtKey key, uint index)
 		{
 			var child = key.Derive((int)index, false);

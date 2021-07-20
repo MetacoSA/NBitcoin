@@ -21,6 +21,7 @@ using Xunit.Abstractions;
 using Encoders = NBitcoin.DataEncoders.Encoders;
 using static NBitcoin.Tests.Helpers.PrimitiveUtils;
 using Newtonsoft.Json.Schema;
+using Xunit.Sdk;
 
 namespace NBitcoin.Tests
 {
@@ -30,12 +31,66 @@ namespace NBitcoin.Tests
 		{
 			this.log = log;
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TestExtKeyEquality()
+		{
+			var ak = new BitcoinExtKey("xprv9s21ZrQH143K2JF8RafpqtKiTbsbaxEeUaMnNHsm5o6wCW3z8ySyH4UxFVSfZ8n7ESu7fgir8imbZKLYVBxFPND1pniTZ81vKfd45EHKX73", Network.Main).ExtKey;
+			var bk = new BitcoinExtKey("xprv9s21ZrQH143K429DsKC9LByUo6oXdA7NtQYtWAhju6Z5fYkeM1tma3JsxdvoonuBNZ5cQiSKnAtnFGRJQ9D1cFdW87WgSCgA9s28e4z8JPm", Network.Main).ExtKey;
+			var ak2 = new BitcoinExtKey("xprv9s21ZrQH143K2JF8RafpqtKiTbsbaxEeUaMnNHsm5o6wCW3z8ySyH4UxFVSfZ8n7ESu7fgir8imbZKLYVBxFPND1pniTZ81vKfd45EHKX73", Network.Main).ExtKey;
+			var bk2 = new BitcoinExtKey("xprv9s21ZrQH143K429DsKC9LByUo6oXdA7NtQYtWAhju6Z5fYkeM1tma3JsxdvoonuBNZ5cQiSKnAtnFGRJQ9D1cFdW87WgSCgA9s28e4z8JPm", Network.Main).ExtKey;
+			var apk = ak.Neuter();
+			var bpk = bk.Neuter();
+			var apk2 = ak2.Neuter();
+			var bpk2 = bk2.Neuter();
+
+			Assert.False(ak.Equals(bk));
+			Assert.False(ak.Equals(apk));
+			Assert.True(ak.Equals(ak));
+			Assert.True(ak.Equals(ak2));
+			Assert.True(ak.Equals(ak2 as object));
+			Assert.Equal(ak.GetHashCode(), ak2.GetHashCode());
+			Assert.Equal(apk.GetHashCode(), apk2.GetHashCode());
+			Assert.NotEqual(ak.GetHashCode(), bk.GetHashCode());
+			Assert.NotEqual(apk.GetHashCode(), bpk.GetHashCode());
+			Assert.False(apk.Equals(bpk));
+			Assert.False(apk.Equals(ak));
+			Assert.True(apk.Equals(apk));
+			Assert.True(apk.Equals(apk2));
+			Assert.True(apk.Equals(apk2 as object));
+			Assert.False(ak == (null as ExtKey));
+			Assert.False((null as ExtKey) == ak);
+			Assert.False(apk == (null as ExtPubKey));
+			Assert.False((null as ExtPubKey) == apk);
+			Assert.True((null as ExtPubKey) == (null as ExtPubKey));
+			Assert.True((null as ExtKey) == (null as ExtKey));
+			Assert.True(apk == apk2);
+			Assert.True(ak == ak2);
+			Assert.False(apk == bpk2);
+			Assert.False(ak == bk2);
+		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseExtKey()
 		{
 			Assert.Throws<FormatException>(() => new BitcoinExtPubKey("2hETSoyNygffyGQTYW2m5YZYVYTxUMByde", Network.RegTest));
 			new BitcoinExtPubKey("tpubDDtSBgfc8peQPRWaSUfPC6k3QosE6QWv1P3ZBXbmCBQehxd4KdZLpsLJGe4qML2AcgbxZNHdi87929AXeFD2tENmLZD2DWFPGXBDcQzeQ3d", Network.RegTest);
+
+			var k = new BitcoinExtPubKey("xpub6DF8uhdarytz3FWdA8TvFSvvAh8dP3283MY7p2V4SeE2wyWmG5mg5EwVvmdMVCQcoNJxGoWaU9DCWh89LojfZ537wTfunKau47EL2dhHKon", Network.Main);
+			Assert.Equal(1u, k.ExtPubKey.Child);
+			Assert.Equal(3u, k.ExtPubKey.Depth);
+			Assert.Equal("d8ab4937", k.ExtPubKey.ParentFingerprint.ToString());
+			k = new BitcoinExtPubKey(k.ToString(), Network.Main);
+			Assert.Equal(1u, k.ExtPubKey.Child);
+			Assert.Equal(3u, k.ExtPubKey.Depth);
+			Assert.Equal("d8ab4937", k.ExtPubKey.ParentFingerprint.ToString());
+#if HAS_SPAN
+			var k1 = new ExtPubKey(k.ToBytes().AsSpan());
+			Assert.Equal(1u, k1.Child);
+			Assert.Equal(3u, k1.Depth);
+			Assert.Equal("d8ab4937", k1.ParentFingerprint.ToString());
+#endif
 		}
 
 		[Fact]
