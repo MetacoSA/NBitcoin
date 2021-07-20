@@ -336,12 +336,6 @@ namespace NBitcoin
 #nullable restore
 #endif
 
-		[Obsolete("Use GetAddress(ScriptPubKeyType.Legacy, network) instead")]
-		public BitcoinPubKeyAddress GetAddress(Network network)
-		{
-			return (BitcoinPubKeyAddress)GetAddress(ScriptPubKeyType.Legacy, network);
-		}
-
 		public BitcoinScriptAddress GetScriptAddress(Network network)
 		{
 			var redeem = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(this);
@@ -770,17 +764,6 @@ namespace NBitcoin
 				}
 				return _ScriptPubKey;
 			}
-		}
-
-		/// <summary>
-		/// Exchange shared secret through ECDH
-		/// </summary>
-		/// <param name="key">Private key</param>
-		/// <returns>Shared secret</returns>
-		[Obsolete("Use GetSharedPubkey instead")]
-		public byte[] GetSharedSecret(Key key)
-		{
-			return Hashes.SHA256(GetSharedPubkey(key).ToBytes());
 		}
 
 		/// <summary>

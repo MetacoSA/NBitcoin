@@ -45,6 +45,18 @@ namespace NBitcoin
 		{
 
 		}
+
+		public BitcoinAddress GetAddress(ScriptPubKeyType scriptPubKeyType, Network network)
+		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			return PubKey.GetAddress(scriptPubKeyType, network);
+		}
+		public Script GetAddress(ScriptPubKeyType scriptPubKeyType)
+		{
+			return PubKey.GetScriptPubKey(scriptPubKeyType);
+		}
+
 #if HAS_SPAN
 		internal Key(Secp256k1.ECPrivKey ecKey, bool compressed)
 		{

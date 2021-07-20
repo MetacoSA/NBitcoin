@@ -1804,7 +1804,7 @@ namespace NBitcoin.Tests
 				addr = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.P2SHSegwit });
 				client.SendToAddress(addr, Money.Coins(15));
 				var tmpaddr = new Key();
-				client.GenerateToAddress(1, tmpaddr.PubKey.GetAddress(node.Network));
+				client.GenerateToAddress(1, tmpaddr.PubKey.GetAddress(ScriptPubKeyType.Legacy, node.Network));
 
 				// case 1: irrelevant psbt.
 				var keys = new Key[] { new Key(), new Key(), new Key() }.Select(k => k.GetWif(Network.RegTest)).ToArray();
@@ -1952,7 +1952,7 @@ namespace NBitcoin.Tests
 				// Assert.Equal(Money.Coins(120), balance);
 				Assert.Equal(Money.Coins(40), balance);
 
-				var aSend = new Key().PubKey.GetAddress(nodeAlice.Network);
+				var aSend = new Key().GetAddress(ScriptPubKeyType.Legacy, nodeAlice.Network);
 				var outputs = new Dictionary<BitcoinAddress, Money>();
 				outputs.Add(aSend, Money.Coins(10));
 				var fundOptions = new FundRawTransactionOptions() { SubtractFeeFromOutputs = new int[] { 0 }, IncludeWatching = true };
