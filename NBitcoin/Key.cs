@@ -52,7 +52,11 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(network));
 			return PubKey.GetAddress(scriptPubKeyType, network);
 		}
-		public Script GetAddress(ScriptPubKeyType scriptPubKeyType)
+		public IAddressableDestination GetDestination(ScriptPubKeyType scriptPubKeyType)
+		{
+			return PubKey.GetDestination(scriptPubKeyType);
+		}
+		public Script GetScriptPubKey(ScriptPubKeyType scriptPubKeyType)
 		{
 			return PubKey.GetScriptPubKey(scriptPubKeyType);
 		}
@@ -445,7 +449,7 @@ namespace NBitcoin
 
 #region IDestination Members
 
-		public Script ScriptPubKey
+		Script IDestination.ScriptPubKey
 		{
 			get
 			{

@@ -42,7 +42,7 @@ namespace NBitcoin.Tests.Generators
 
 		public static Gen<BitcoinAddress> P2SHAddress(Network network) =>
 			from pk in PublicKey()
-			select (BitcoinAddress)pk.GetScriptAddress(network);
+			select (BitcoinAddress)pk.GetScriptPubKey(ScriptPubKeyType.Legacy).Hash.GetAddress(network);
 
 		public static Gen<BitcoinAddress> Bech32Address() =>
 			from n in ChainParamsGenerator.NetworkGen()
@@ -53,7 +53,7 @@ namespace NBitcoin.Tests.Generators
 
 		private static Gen<BitcoinAddress> P2WPKHAddress(Network network) =>
 			from pk in PublicKey()
-			select (BitcoinAddress)pk.GetSegwitAddress(network);
+			select (BitcoinAddress)pk.GetAddress(ScriptPubKeyType.Segwit, network);
 		private static Gen<BitcoinAddress> P2WSHAddress(Network network) =>
 			from script in MultiSignatureWitScript()
 			select (BitcoinAddress)new BitcoinWitScriptAddress(script.ToScript().WitHash, network);

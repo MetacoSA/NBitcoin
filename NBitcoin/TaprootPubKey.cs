@@ -200,5 +200,9 @@ namespace NBitcoin
 			return BytesComparer.Instance.Compare(this.pubkey, other.pubkey);
 		}
 #endif
+		bool IAddressableDestination.IsSupported(Network network)
+		{
+			return network.Consensus.SupportTaproot;
+		}
 	}
 }

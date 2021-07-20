@@ -432,7 +432,7 @@ namespace NBitcoin.Tests
 				var nodeClient = node.CreateNodeClient();
 				rpc.Generate(101);
 
-				List<TxDestination> knownAddresses = new List<TxDestination>();
+				List<IAddressableDestination> knownAddresses = new List<IAddressableDestination>();
 				var batch = rpc.PrepareBatch();
 				for (int i = 0; i < 20; i++)
 				{
@@ -454,7 +454,7 @@ namespace NBitcoin.Tests
 				{
 					BloomFilter filter = new BloomFilter(1, 0.0001, 50, BloomFlags.UPDATE_NONE);
 					foreach (var a in knownAddresses)
-						filter.Insert(a.ToBytes());
+						filter.Insert(ToBytes(a));
 					nodeClient.SendMessageAsync(new FilterLoadPayload(filter));
 					nodeClient.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, block.GetHash())));
 					var merkle = list.ReceivePayload<MerkleBlockPayload>();
@@ -493,6 +493,21 @@ namespace NBitcoin.Tests
 					Assert.True(!tree.GetMatchedTransactions().Contains(knownTx));
 				}
 			}
+		}
+
+		private byte[] ToBytes(IAddressableDestination a)
+		{
+			if (a is WitKeyId wk)
+				return wk.ToBytes();
+			if (a is KeyId ki)
+				return ki.ToBytes();
+			if (a is WitScriptId wsk)
+				return wsk.ToBytes();
+			if (a is ScriptId si)
+				return si.ToBytes();
+			if (a is TaprootPubKey tp)
+				return tp.ToBytes();
+			throw new NotSupportedException("Error code 3921: It should, contact NBitcoin developers");
 		}
 
 		[Fact]

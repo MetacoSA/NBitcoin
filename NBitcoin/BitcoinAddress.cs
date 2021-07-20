@@ -130,13 +130,6 @@ namespace NBitcoin
 
 		protected abstract Script GeneratePaymentScript();
 
-		public BitcoinScriptAddress GetScriptAddress()
-		{
-			return this is BitcoinScriptAddress bitcoinScriptAddress ?
-				bitcoinScriptAddress :
-				new BitcoinScriptAddress(this.ScriptPubKey.Hash, Network);
-		}
-
 		public BitcoinColoredAddress ToColoredAddress()
 		{
 			return new BitcoinColoredAddress(this);
@@ -164,11 +157,9 @@ namespace NBitcoin
 		}
 		public static bool operator ==(BitcoinAddress a, BitcoinAddress b)
 		{
-			if (System.Object.ReferenceEquals(a, b))
-				return true;
-			if (((object)a == null) || ((object)b == null))
-				return false;
-			return a._Str == b._Str;
+			if (a is BitcoinAddress && b is BitcoinAddress)
+				return a._Str == b._Str;
+			return a is null && b is null;
 		}
 
 		public static bool operator !=(BitcoinAddress a, BitcoinAddress b)

@@ -743,7 +743,7 @@ namespace NBitcoin.Tests
 			tx.Inputs.Add(new OutPoint(funds[3].GetHash(), 0)); // p2sh-p2wpkh
 			tx.Inputs.Add(new OutPoint(funds[4].GetHash(), 0)); // p2sh-p2wsh
 
-			var dummyOut = new TxOut(Money.Coins(0.599m), keys[0]);
+			var dummyOut = new TxOut(Money.Coins(0.599m), keys[0].PrivateKey);
 			tx.Outputs.Add(dummyOut);
 
 			if (withScript)

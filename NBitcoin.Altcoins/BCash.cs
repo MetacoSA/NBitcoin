@@ -255,7 +255,7 @@ namespace NBitcoin.Altcoins
 				{
 					Format = BCashAddr.BchAddr.CashFormat.Cashaddr,
 					Prefix = _Prefix,
-					Hash = keyId.ToBytes(true),
+					Hash = keyId.ToBytes(),
 					Type = BCashAddr.BchAddr.CashType.P2PKH,
 					Network = network
 				};
@@ -268,7 +268,7 @@ namespace NBitcoin.Altcoins
 				{
 					Format = BCashAddr.BchAddr.CashFormat.Cashaddr,
 					Prefix = _Prefix,
-					Hash = scriptId.ToBytes(true),
+					Hash = scriptId.ToBytes(),
 					Type = BCashAddr.BchAddr.CashType.P2SH,
 					Network = network
 				};

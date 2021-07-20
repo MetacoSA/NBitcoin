@@ -1,116 +1,40 @@
-﻿using NBitcoin.Crypto;
+﻿#nullable enable
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using System;
 
 namespace NBitcoin
 {
-	public abstract class TxDestination : IAddressableDestination
-	{
-		internal byte[] _DestBytes;
-
-		public TxDestination()
-		{
-			_DestBytes = new byte[] { 0 };
-		}
-
-		public TxDestination(byte[] value)
-		{
-			if (value == null)
-				throw new ArgumentNullException(nameof(value));
-			_DestBytes = value;
-		}
-
-		public TxDestination(string value)
-		{
-			_DestBytes = Encoders.Hex.DecodeData(value);
-			_Str = value;
-		}
-
-		public abstract BitcoinAddress GetAddress(Network network);
-
-		#region IDestination Members
-
-		public abstract Script ScriptPubKey
-		{
-			get;
-		}
-
-		#endregion
-
-
-		public byte[] ToBytes()
-		{
-			return ToBytes(false);
-		}
-		public byte[] ToBytes(bool @unsafe)
-		{
-			if (@unsafe)
-				return _DestBytes;
-			var array = new byte[_DestBytes.Length];
-			Array.Copy(_DestBytes, array, _DestBytes.Length);
-			return array;
-		}
-
-		public override bool Equals(object obj)
-		{
-			TxDestination item = obj as TxDestination;
-			if (item == null)
-				return false;
-			return Utils.ArrayEqual(_DestBytes, item._DestBytes) && item.GetType() == this.GetType();
-		}
-		public static bool operator ==(TxDestination a, TxDestination b)
-		{
-			if (System.Object.ReferenceEquals(a, b))
-				return true;
-			if (((object)a == null) || ((object)b == null))
-				return false;
-			return Utils.ArrayEqual(a._DestBytes, b._DestBytes) && a.GetType() == b.GetType();
-		}
-
-		public static bool operator !=(TxDestination a, TxDestination b)
-		{
-			return !(a == b);
-		}
-
-		public override int GetHashCode()
-		{
-			return Utils.GetHashCode(_DestBytes);
-		}
-
-		string _Str;
-		public override string ToString()
-		{
-			if (_Str == null)
-				_Str = Encoders.Hex.EncodeData(_DestBytes);
-			return _Str;
-		}
-	}
-	public class KeyId : TxDestination
+	public class KeyId : IAddressableDestination
 	{
 		public KeyId()
 			: this(0)
 		{
 
 		}
-
+		readonly uint160 v;
 		public KeyId(byte[] value)
-			: base(value)
 		{
 			if (value.Length != 20)
 				throw new ArgumentException("value should be 20 bytes", "value");
+			v = new uint160(value);
 		}
 		public KeyId(uint160 value)
-			: base(value.ToBytes())
 		{
-
+			if (value is null)
+				throw new ArgumentNullException(nameof(value));
+			this.v = value;
 		}
 
 		public KeyId(string value)
-			: base(value)
 		{
+			if (value is null)
+				throw new ArgumentNullException(nameof(value));
+			var bytes = Encoders.Hex.DecodeData(value);
+			v = new uint160(bytes);
 		}
 
-		public override Script ScriptPubKey
+		public Script ScriptPubKey
 		{
 			get
 			{
@@ -118,94 +42,165 @@ namespace NBitcoin
 			}
 		}
 
-		public override BitcoinAddress GetAddress(Network network)
+		public BitcoinAddress GetAddress(Network network)
 		{
 			return network.NetworkStringParser.CreateP2PKH(this, network);
 		}
+
+		public bool IsSupported(Network network)
+		{
+			return true;
+		}
+
+
+		public override bool Equals(object obj)
+		{
+			if (obj is KeyId id)
+				return this.v == id.v;
+			return false;
+		}
+		public static bool operator ==(KeyId? a, KeyId? b)
+		{
+			if (a is KeyId && b is KeyId)
+				return a.Equals(b);
+			return a is null && b is null;
+		}
+
+		public static bool operator !=(KeyId? a, KeyId? b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return v.GetHashCode();
+		}
+
+		public byte[] ToBytes()
+		{
+			return v.ToBytes();
+		}
+
+		public override string ToString()
+		{
+			return Encoders.Hex.EncodeData(v.ToBytes());
+		}
 	}
-	public class WitKeyId : TxDestination
+	public class WitKeyId : IAddressableDestination
 	{
 		public WitKeyId()
 			: this(0)
 		{
 
 		}
-
+		readonly uint160 v;
 		public WitKeyId(byte[] value)
-			: base(value)
 		{
 			if (value.Length != 20)
 				throw new ArgumentException("value should be 20 bytes", "value");
+			v = new uint160(value);
 		}
 		public WitKeyId(uint160 value)
-			: base(value.ToBytes())
 		{
-
+			if (value is null)
+				throw new ArgumentNullException(nameof(value));
+			this.v = value;
 		}
 
 		public WitKeyId(string value)
-			: base(value)
 		{
-		}
-
-		public WitKeyId(KeyId keyId)
-			: base(keyId.ToBytes())
-		{
-
+			if (value is null)
+				throw new ArgumentNullException(nameof(value));
+			var bytes = Encoders.Hex.DecodeData(value);
+			v = new uint160(bytes);
 		}
 
 
-		public override Script ScriptPubKey
+		public Script ScriptPubKey
 		{
 			get
 			{
-				return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, _DestBytes);
-			}
-		}
-
-		[Obsolete("Use AsKeyId().ScriptPubKey instead")]
-		public Script WitScriptPubKey
-		{
-			get
-			{
-				return new KeyId(_DestBytes).ScriptPubKey;
+				return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, v.ToBytes());
 			}
 		}
 
 		public KeyId AsKeyId()
 		{
-			return new KeyId(_DestBytes);
+			return new KeyId(v);
 		}
 
-		public override BitcoinAddress GetAddress(Network network)
+		public BitcoinAddress GetAddress(Network network)
 		{
 			return network.NetworkStringParser.CreateP2WPKH(this, network);
 		}
+
+		public bool IsSupported(Network network)
+		{
+			return network.Consensus.SupportSegwit;
+		}
+
+
+		public override bool Equals(object obj)
+		{
+			if (obj is WitKeyId id)
+				return this.v == id.v;
+			return false;
+		}
+		public static bool operator ==(WitKeyId? a, WitKeyId? b)
+		{
+			if (a is WitKeyId && b is WitKeyId)
+				return a.Equals(b);
+			return a is null && b is null;
+		}
+
+		public static bool operator !=(WitKeyId? a, WitKeyId? b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return v.GetHashCode();
+		}
+
+		public byte[] ToBytes()
+		{
+			return v.ToBytes();
+		}
+
+		public override string ToString()
+		{
+			return Encoders.Hex.EncodeData(v.ToBytes());
+		}
 	}
 
-	public class WitScriptId : TxDestination
+	public class WitScriptId : IAddressableDestination
 	{
 		public WitScriptId()
 			: this(0)
 		{
 
 		}
-
+		readonly uint256 v;
 		public WitScriptId(byte[] value)
-			: base(value)
 		{
 			if (value.Length != 32)
-				throw new ArgumentException("value should be 32 bytes", "value");
+				throw new ArgumentException("value should be 20 bytes", "value");
+			v = new uint256(value);
 		}
 		public WitScriptId(uint256 value)
-			: base(value.ToBytes())
 		{
-
+			if (value is null)
+				throw new ArgumentNullException(nameof(value));
+			this.v = value;
 		}
 
 		public WitScriptId(string value)
-			: base(value)
 		{
+			if (value is null)
+				throw new ArgumentNullException(nameof(value));
+			var bytes = Encoders.Hex.DecodeData(value);
+			v = new uint256(bytes);
 		}
 
 		public WitScriptId(Script script)
@@ -221,7 +216,7 @@ namespace NBitcoin
 		/// (witness program and witness script) with one ScriptId. So instead we use single-RIPEMD160
 		/// This is the same way with how bitcoin core handles scripts internally.
 		/// </summary>
-		public ScriptId _HashForLookUp;
+		public ScriptId? _HashForLookUp;
 		public ScriptId HashForLookUp 
 		{
 			get{
@@ -230,43 +225,83 @@ namespace NBitcoin
 		}
 
 
-		public override Script ScriptPubKey
+		public Script ScriptPubKey
 		{
 			get
 			{
-				return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, _DestBytes);
+				return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, ToBytes());
 			}
 		}
 
-		public override BitcoinAddress GetAddress(Network network)
+		public BitcoinAddress GetAddress(Network network)
 		{
 			return network.NetworkStringParser.CreateP2WSH(this, network);
 		}
+		public bool IsSupported(Network network)
+		{
+			return network.Consensus.SupportSegwit;
+		}
+		public override bool Equals(object obj)
+		{
+			if (obj is WitScriptId id)
+				return this.v == id.v;
+			return false;
+		}
+		public static bool operator ==(WitScriptId? a, WitScriptId? b)
+		{
+			if (a is WitScriptId && b is WitScriptId)
+				return a.Equals(b);
+			return a is null && b is null;
+		}
+
+		public static bool operator !=(WitScriptId? a, WitScriptId? b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return v.GetHashCode();
+		}
+
+		public byte[] ToBytes()
+		{
+			return v.ToBytes();
+		}
+
+		public override string ToString()
+		{
+			return Encoders.Hex.EncodeData(v.ToBytes());
+		}
 	}
 
-	public class ScriptId : TxDestination
+	public class ScriptId : IAddressableDestination
 	{
 		public ScriptId()
 			: this(0)
 		{
 
 		}
-
+		readonly uint160 v;
 		public ScriptId(byte[] value)
-			: base(value)
 		{
 			if (value.Length != 20)
 				throw new ArgumentException("value should be 20 bytes", "value");
+			v = new uint160(value);
 		}
 		public ScriptId(uint160 value)
-			: base(value.ToBytes())
 		{
-
+			if (value is null)
+				throw new ArgumentNullException(nameof(value));
+			this.v = value;
 		}
 
 		public ScriptId(string value)
-			: base(value)
 		{
+			if (value is null)
+				throw new ArgumentNullException(nameof(value));
+			var bytes = Encoders.Hex.DecodeData(value);
+			v = new uint160(bytes);
 		}
 
 		public ScriptId(Script script)
@@ -274,7 +309,7 @@ namespace NBitcoin
 		{
 		}
 
-		public override Script ScriptPubKey
+		public Script ScriptPubKey
 		{
 			get
 			{
@@ -282,9 +317,46 @@ namespace NBitcoin
 			}
 		}
 
-		public override BitcoinAddress GetAddress(Network network)
+		public BitcoinAddress GetAddress(Network network)
 		{
 			return network.NetworkStringParser.CreateP2SH(this, network);
+		}
+		public bool IsSupported(Network network)
+		{
+			return true;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj is ScriptId id)
+				return this.v == id.v;
+			return false;
+		}
+		public static bool operator ==(ScriptId? a, ScriptId? b)
+		{
+			if (a is ScriptId && b is ScriptId)
+				return a.Equals(b);
+			return a is null && b is null;
+		}
+
+		public static bool operator !=(ScriptId? a, ScriptId? b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return v.GetHashCode();
+		}
+
+		public byte[] ToBytes()
+		{
+			return v.ToBytes();
+		}
+
+		public override string ToString()
+		{
+			return Encoders.Hex.EncodeData(v.ToBytes());
 		}
 	}
 }

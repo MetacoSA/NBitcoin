@@ -74,10 +74,15 @@ namespace NBitcoin.Protocol
 
 		public virtual bool Check(VersionPayload version, ProtocolCapabilities capabilities)
 		{
-#pragma warning disable CS0618 // Type or member is obsolete
-			if (!Check(version))
-#pragma warning restore CS0618 // Type or member is obsolete
+			if (MinVersion != null)
+			{
+				if (version.Version < MinVersion.Value)
+					return false;
+			}
+			if ((RequiredServices & version.Services) != RequiredServices)
+			{
 				return false;
+			}
 			if (capabilities.PeerTooOld)
 				return false;
 			if (MinProtocolCapabilities is null)
@@ -96,21 +101,6 @@ namespace NBitcoin.Protocol
 			}
 
 			return capabilities.IsSupersetOf(MinProtocolCapabilities);
-		}
-
-		[Obsolete("Use Check(VersionPayload, ProtocolCapabilities capabilities) instead")]
-		public virtual bool Check(VersionPayload version)
-		{
-			if (MinVersion != null)
-			{
-				if (version.Version < MinVersion.Value)
-					return false;
-			}
-			if ((RequiredServices & version.Services) != RequiredServices)
-			{
-				return false;
-			}
-			return true;
 		}
 	}
 

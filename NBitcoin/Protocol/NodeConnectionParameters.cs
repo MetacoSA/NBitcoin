@@ -90,45 +90,11 @@ namespace NBitcoin.Protocol
 			get;
 			set;
 		}
-		[Obsolete("Use SocketSettings.ReceiveBufferSize instead")]
-		public int ReceiveBufferSize
-		{
-			get
-			{
-				return SocketSettings.ReceiveBufferSize is int v ? v : 1048576;
-			}
-			set
-			{
-				SocketSettings.ReceiveBufferSize = value;
-			}
-		}
-
-		[Obsolete("Use SocketSettings.SendBufferSize instead")]
-		public int SendBufferSize
-		{
-			get
-			{
-				return SocketSettings.SendBufferSize is int v ? v : 1048576;
-			}
-			set
-			{
-				SocketSettings.SendBufferSize = value;
-			}
-		}
 
 		public SocketSettings SocketSettings { get; set; } = new SocketSettings();
 
 		public IEnpointConnector EndpointConnector { get; set; } = new DefaultEndpointConnector();
 
-		/// <summary>
-		/// Whether we reuse a 1MB buffer for deserializing messages, for limiting GC activity (Default : true)
-		/// </summary>
-		[Obsolete("Ignored, all arrays are allocated through ArrayPool")]
-		public bool ReuseBuffer
-		{
-			get;
-			set;
-		}
 		public CancellationToken ConnectCancellation
 		{
 			get;

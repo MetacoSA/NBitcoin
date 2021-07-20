@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -221,29 +222,25 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			if (obj is KeyPath k)
-				return _Indexes.Length == k._Indexes.Length && _Indexes.SequenceEqual(k._Indexes);
+				return StructuralComparisons.StructuralEqualityComparer.Equals(_Indexes, k._Indexes);
 			return false;
 		}
 		public static bool operator ==(KeyPath? a, KeyPath? b)
 		{
-			if (ReferenceEquals(a, b))
-				return true;
-			if (a is null && b is null)
-				return true;
-			if (a is null || b is null)
-				return false;
-			return a.ToString() == b.ToString();
+			if (a is KeyPath && b is KeyPath)
+				return StructuralComparisons.StructuralEqualityComparer.Equals(a._Indexes, b._Indexes);
+			return a is null && b is null;
 		}
 
 		public static KeyPath? operator +(KeyPath? a, KeyPath? b)
 		{
+			if (a is KeyPath && b is KeyPath)
+				return a.Derive(b);
 			if (a is null && !(b is null))
 				return b;
 			if (b is null && !(a is null))
 				return a;
-			if (a is null && b is null)
-				return null;
-			return a!.Derive(b!);
+			return null;
 		}
 
 		public static bool operator !=(KeyPath a, KeyPath b)
