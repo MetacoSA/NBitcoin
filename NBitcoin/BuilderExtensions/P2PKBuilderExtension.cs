@@ -38,7 +38,7 @@ namespace NBitcoin.BuilderExtensions
 			throw new NotImplementedException();
 		}
 
-		public override int EstimateScriptSigSize(Script scriptPubKey)
+		public override int EstimateScriptSigSize(Script scriptPubKey, SigningOptions signingOptions)
 		{
 			return PayToPubkeyTemplate.Instance.GenerateScriptSig(DummySignature).Length;
 		}

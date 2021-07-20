@@ -38,7 +38,7 @@ namespace NBitcoin.BuilderExtensions
 			throw new NotSupportedException();
 		}
 
-		public override int EstimateScriptSigSize(Script scriptPubKey)
+		public override int EstimateScriptSigSize(Script scriptPubKey, SigningOptions signingOptions)
 		{
 			return 1;
 		}

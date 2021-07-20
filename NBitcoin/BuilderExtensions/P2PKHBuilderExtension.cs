@@ -49,8 +49,10 @@ namespace NBitcoin.BuilderExtensions
 			return p2pkh.PublicKey.Hash.ScriptPubKey;
 		}
 
-		public override int EstimateScriptSigSize(Script scriptPubKey)
+		public override int EstimateScriptSigSize(Script scriptPubKey, SigningOptions signingOptions)
 		{
+			if (signingOptions.EnforceLowR)
+				return 106;
 			return 107;
 		}
 

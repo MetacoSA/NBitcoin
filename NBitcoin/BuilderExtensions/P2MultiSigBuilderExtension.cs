@@ -63,7 +63,7 @@ namespace NBitcoin.BuilderExtensions
 			throw new NotImplementedException();
 		}
 
-		public override int EstimateScriptSigSize(Script scriptPubKey)
+		public override int EstimateScriptSigSize(Script scriptPubKey, SigningOptions signingOptions)
 		{
 			var p2mk = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 			return PayToMultiSigTemplate.Instance.GenerateScriptSig(Enumerable.Range(0, p2mk.SignatureCount).Select(o => DummySignature).ToArray()).Length;

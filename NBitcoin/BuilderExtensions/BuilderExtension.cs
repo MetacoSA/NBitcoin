@@ -34,7 +34,7 @@ namespace NBitcoin.BuilderExtensions
 		public abstract bool CanDeduceScriptPubKey(Script scriptSig);
 
 		public abstract bool CanEstimateScriptSigSize(Script scriptPubKey);
-		public abstract int EstimateScriptSigSize(Script scriptPubKey);
+		public abstract int EstimateScriptSigSize(Script scriptPubKey, SigningOptions signingOptions);
 
 		public abstract bool CanCombineScriptSig(Script scriptPubKey, Script a, Script b);
 

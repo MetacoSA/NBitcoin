@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BuilderExtensions
 {
-	public class TaprootBIP86Extension : BuilderExtension
+	public class TaprootKeySpendExtension : BuilderExtension
 	{
 		public override bool CanCombineScriptSig(Script scriptPubKey, Script a, Script b)
 		{
@@ -40,9 +40,10 @@ namespace NBitcoin.BuilderExtensions
 			throw new NotSupportedException();
 		}
 
-		public override int EstimateScriptSigSize(Script scriptPubKey)
+		public override int EstimateScriptSigSize(Script scriptPubKey, SigningOptions signingOptions)
 		{
-			// Push op + 65 bytes for sig (most likely 64, but we don't know the sighash here)
+			if (signingOptions.TaprootSigHash == TaprootSigHash.Default)
+				return 65;
 			return 66;
 		}
 

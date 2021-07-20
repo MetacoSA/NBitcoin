@@ -822,7 +822,7 @@ namespace NBitcoin
 #if HAS_SPAN
 			if (Network.Consensus.SupportTaproot)
 			{
-				Extensions.Add(new TaprootBIP86Extension());
+				Extensions.Add(new TaprootKeySpendExtension());
 			}
 #endif
 		}
@@ -2371,9 +2371,8 @@ namespace NBitcoin
 
 			int p2shPushRedeemSize = 0;
 			int segwitPushRedeemSize = 0;
-			if (coin is ScriptCoin)
+			if (coin is ScriptCoin scriptCoin)
 			{
-				var scriptCoin = (ScriptCoin)coin;
 				var p2sh = scriptCoin.GetP2SHRedeem();
 				if (p2sh != null)
 				{
@@ -2399,7 +2398,7 @@ namespace NBitcoin
 			{
 				if (extension.CanEstimateScriptSigSize(scriptPubkey))
 				{
-					scriptSigSize = extension.EstimateScriptSigSize(scriptPubkey);
+					scriptSigSize = extension.EstimateScriptSigSize(scriptPubkey, signingOptions);
 					break;
 				}
 			}

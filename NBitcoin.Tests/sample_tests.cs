@@ -128,6 +128,23 @@ namespace NBitcoin.Tests
 				psbt = CanRoundtripPSBT(psbt);
 				psbt.Finalize();
 				rpc.SendRawTransaction(psbt.ExtractTransaction());
+
+
+				// Let's check if we estimate precisely the size of a taproot transaction.
+				await RefreshCoin();
+				signedTx = builder
+					.AddCoins(coin)
+					.AddKeys(key)
+					.Send(destination, amount)
+					.SubtractFees()
+					.SetChange(change)
+					.SendEstimatedFees(rate)
+					.BuildTransaction(false);
+				var actualvsize = builder.EstimateSize(signedTx, true);
+				builder.SignTransactionInPlace(signedTx);
+				var expectedvsize = signedTx.GetVirtualSize();
+				// Should have no difference. The size of a taproot keyspend is well known.
+				Assert.Equal(expectedvsize, actualvsize);
 			}
 		}
 

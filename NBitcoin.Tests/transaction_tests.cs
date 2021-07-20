@@ -20,6 +20,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Encoders = NBitcoin.DataEncoders.Encoders;
 using static NBitcoin.Tests.Helpers.PrimitiveUtils;
+using Newtonsoft.Json.Schema;
 
 namespace NBitcoin.Tests
 {
@@ -1913,6 +1914,27 @@ namespace NBitcoin.Tests
 			var actualLock = tx.CalculateSequenceLocks(prevHeights, chain.Tip);
 			Assert.Equal(expectedLock.MinTime, actualLock.MinTime);
 			Assert.Equal(expectedLock.MinHeight, actualLock.MinHeight);
+		}
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanEstimatePerfectSizeForP2PKH()
+		{
+			// We enforce low r by default, so we should correctly estimate
+			var alice = new Key();
+			TransactionBuilder builder = Network.CreateTransactionBuilder();
+			var aliceCoins = new ICoin[] { RandomCoin("0.6", alice) };
+			builder.StandardTransactionPolicy = EasyPolicy;
+			var unsigned = builder
+				.AddCoins(aliceCoins)
+				.AddKeys(alice)
+				.Send(new Key().PubKey.GetScriptPubKey(ScriptPubKeyType.Legacy), "0.6")
+				.SubtractFees()
+				.BuildTransaction(false);
+			var actual = builder.EstimateSize(unsigned, true);
+			builder.SignTransactionInPlace(unsigned);
+			Assert.Equal(actual, unsigned.GetVirtualSize());
 		}
 
 		[Fact]
