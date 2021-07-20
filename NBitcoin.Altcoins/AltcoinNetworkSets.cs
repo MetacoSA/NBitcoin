@@ -41,6 +41,7 @@ namespace NBitcoin.Altcoins
 		public static LBRYCredits LBRYCredits { get; } = LBRYCredits.Instance;
 		public static Althash Althash { get; } = Althash.Instance;
 		public static Neblio Neblio { get; } = Neblio.Instance;
+		public static Triptourcoin Triptourcoin { get; } = Triptourcoin.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
@@ -77,6 +78,7 @@ namespace NBitcoin.Altcoins
 			yield return LBRYCredits;
 			yield return Althash;
 			yield return Neblio;
+			yield return Triptourcoin;
 		}
 	}
 }
