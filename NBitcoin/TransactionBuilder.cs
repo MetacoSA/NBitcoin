@@ -2161,6 +2161,20 @@ namespace NBitcoin
 			return coin;
 		}
 
+		TxOut[] GetSpentOutputs(Transaction tx)
+		{
+			TxOut[] outputs = new TxOut[tx.Inputs.Count];
+			foreach (var input in tx.Inputs.AsIndexedInputs())
+			{
+				var c = FindCoin(input.PrevOut);
+				if (c is ICoin)
+					outputs[input.Index] = c.TxOut;
+				else
+					throw new CoinNotFoundException(input);
+			}
+			return outputs;
+		}
+
 		/// <summary>
 		/// Verify that a transaction is fully signed and have enough fees
 		/// </summary>
@@ -2174,6 +2188,16 @@ namespace NBitcoin
 		/// <summary>
 		/// Verify that a transaction is fully signed and have enough fees
 		/// </summary>
+		/// <param name="validator">The transaction validator</param>
+		/// <returns>True if no error</returns>
+		public bool Verify(TransactionValidator validator)
+		{
+			TransactionPolicyError[] errors;
+			return Verify(validator, null as Money, out errors);
+		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
 		/// <param name="tx">The transaction to check</param>
 		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
 		/// <returns>True if no error</returns>
@@ -2181,6 +2205,17 @@ namespace NBitcoin
 		{
 			TransactionPolicyError[] errors;
 			return Verify(tx, expectedFees, out errors);
+		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="validator">The transaction validator</param>
+		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
+		/// <returns>True if no error</returns>
+		public bool Verify(TransactionValidator validator, Money expectedFees)
+		{
+			TransactionPolicyError[] errors;
+			return Verify(validator, expectedFees, out errors);
 		}
 
 		/// <summary>
@@ -2194,6 +2229,17 @@ namespace NBitcoin
 			TransactionPolicyError[] errors;
 			return Verify(tx, expectedFeeRate, out errors);
 		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="validator">The transaction validator</param>
+		/// <param name="expectedFeeRate">The expected fee rate</param>
+		/// <returns>True if no error</returns>
+		public bool Verify(TransactionValidator validator, FeeRate expectedFeeRate)
+		{
+			TransactionPolicyError[] errors;
+			return Verify(validator, expectedFeeRate, out errors);
+		}
 
 		/// <summary>
 		/// Verify that a transaction is fully signed and have enough fees
@@ -2206,6 +2252,27 @@ namespace NBitcoin
 			return Verify(tx, null as Money, out errors);
 		}
 		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="validator">The transaction validator</param>
+		/// <param name="errors">Detected errors</param>
+		/// <returns>True if no error</returns>
+		public bool Verify(TransactionValidator validator, out TransactionPolicyError[] errors)
+		{
+			return Verify(validator, null as Money, out errors);
+		}
+
+		public TransactionValidator CreateTransactionValidatorFromCoins(Transaction tx)
+		{
+			if (tx == null)
+				throw new ArgumentNullException(nameof(tx));
+			var validator = new TransactionValidator(tx, GetSpentOutputs(tx));
+			if (StandardTransactionPolicy.ScriptVerify is ScriptVerify s)
+				validator.ScriptVerify = s;
+			return validator;
+		}
+
+		/// <summary>
 		/// Verify that a transaction is fully signed, have enough fees, and follow the Standard and Miner Transaction Policy rules
 		/// </summary>
 		/// <param name="tx">The transaction to check</param>
@@ -2216,15 +2283,28 @@ namespace NBitcoin
 		{
 			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
-			var coins = tx.Inputs.Select(i => FindCoin(i.PrevOut)).Where(c => c != null).ToArray();
+			return Verify(CreateTransactionValidatorFromCoins(tx), expectedFees, out errors);
+		}
+
+		/// <summary>
+		/// Verify that a transaction is fully signed, have enough fees, and follow the Standard and Miner Transaction Policy rules
+		/// </summary>
+		/// <param name="validator">The transaction validator</param>
+		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
+		/// <param name="errors">Detected errors</param>
+		/// <returns>True if no error</returns>
+		public bool Verify(TransactionValidator validator, Money? expectedFees, out TransactionPolicyError[] errors)
+		{
+			if (validator == null)
+				throw new ArgumentNullException(nameof(validator));
 			List<TransactionPolicyError> exceptions = new List<TransactionPolicyError>();
-			var policyErrors = MinerTransactionPolicy.Instance.Check(tx, coins);
+			var policyErrors = MinerTransactionPolicy.Instance.Check(validator);
 			exceptions.AddRange(policyErrors);
-			policyErrors = StandardTransactionPolicy.Check(tx, coins);
+			policyErrors = StandardTransactionPolicy.Check(validator);
 			exceptions.AddRange(policyErrors);
 			if (expectedFees != null)
 			{
-				var fees = tx.GetFee(coins);
+				var fees = validator.Transaction.GetFee(validator.SpentOutputs);
 				if (fees != null)
 				{
 					Money margin = Money.Zero;
@@ -2250,6 +2330,20 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(tx));
 			return Verify(tx, expectedFeeRate == null ? null : expectedFeeRate.GetFee(tx), out errors);
 		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="validator">The transaction validator</param>
+		/// <param name="expectedFeeRate">The expected fee rate</param>
+		/// <param name="errors">Detected errors</param>
+		/// <returns>True if no error</returns>
+		public bool Verify(TransactionValidator validator, FeeRate expectedFeeRate, out TransactionPolicyError[] errors)
+		{
+			if (validator == null)
+				throw new ArgumentNullException(nameof(validator));
+			return Verify(validator, expectedFeeRate == null ? null : expectedFeeRate.GetFee(validator.Transaction), out errors);
+		}
+
 		/// <summary>
 		/// Verify that a transaction is fully signed and have enough fees
 		/// </summary>

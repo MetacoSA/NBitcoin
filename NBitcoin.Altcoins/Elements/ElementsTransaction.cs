@@ -614,6 +614,10 @@ namespace NBitcoin.Altcoins.Elements
 		{
 			return Fee;
 		}
+		public override Money GetFee(TxOut[] spentOutputs)
+		{
+			return Fee;
+		}
 
 		public override bool HasWitness
 		{

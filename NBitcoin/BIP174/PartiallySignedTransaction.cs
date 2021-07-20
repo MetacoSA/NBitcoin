@@ -465,13 +465,21 @@ namespace NBitcoin
 			return this;
 		}
 
-		public bool TryFinalize([MaybeNullWhen(true)] out IList<PSBTError> errors)
+		public bool TryFinalize(TransactionValidator? validator, [MaybeNullWhen(true)] out IList<PSBTError> errors)
 		{
+			if (validator is null)
+			{
+				if (!TryCreateTransactionValidator(out validator, out var err))
+				{
+					errors = err;
+					return false;
+				}
+			}
+			
 			var localErrors = new List<PSBTError>();
-			var txdata = GetPrecomputedTransactionData();
 			foreach (var input in Inputs)
 			{
-				if (!input.TryFinalizeInput(txdata, out var e))
+				if (!input.TryFinalizeInput(validator, out var e))
 				{
 					localErrors.AddRange(e);
 				}
@@ -483,6 +491,10 @@ namespace NBitcoin
 			}
 			errors = null;
 			return true;
+		}
+		public bool TryFinalize([MaybeNullWhen(true)] out IList<PSBTError> errors)
+		{
+			return TryFinalize(null, out errors);
 		}
 
 		public bool IsReadyToSign()
@@ -733,8 +745,46 @@ namespace NBitcoin
 
 		internal PrecomputedTransactionData GetPrecomputedTransactionData()
 		{
-			return new PrecomputedTransactionData(tx, Inputs.Select(txin => txin.GetTxOut())
-															.ToArray());
+			var outputs = GetSpentTxOuts(out var errors);
+			if (errors != null)
+				throw new PSBTException(errors);
+			return new PrecomputedTransactionData(tx, outputs);
+		}
+
+		public TransactionValidator CreateTransactionValidator()
+		{
+			var outputs = GetSpentTxOuts(out var errors);
+			if (errors != null)
+				throw new PSBTException(errors);
+			return new TransactionValidator(tx, outputs);
+		}
+		internal bool TryCreateTransactionValidator([MaybeNullWhen(false)] out TransactionValidator validator, [MaybeNullWhen(true)] out List<PSBTError> errors)
+		{
+			var outputs = GetSpentTxOuts(out errors);
+			if (errors != null)
+			{
+				validator = null;
+				return false;
+			}
+			validator = new TransactionValidator(tx, outputs);
+			return true;
+		}
+
+		private TxOut[] GetSpentTxOuts(out List<PSBTError>? errors)
+		{
+			errors = null;
+			TxOut[] spentOutputs = new TxOut[Inputs.Count];
+			foreach (var input in Inputs)
+			{
+				if (input.GetTxOut() is TxOut txOut)
+					spentOutputs[input.Index] = txOut;
+				else
+				{
+					errors ??= new List<PSBTError>();
+					errors.Add(new PSBTError((uint)input.Index, "Some inputs are missing their previous txout"));
+				}
+			}
+			return spentOutputs;
 		}
 
 		internal TransactionBuilder CreateTransactionBuilder()

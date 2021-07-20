@@ -68,7 +68,13 @@ namespace NBitcoin.Policy
 
 		public TransactionPolicyError[] Check(Transaction transaction, ICoin[] spentCoins)
 		{
-			spentCoins = spentCoins ?? new ICoin[0];
+			return Check(new TransactionValidator(transaction, spentCoins));
+		}
+		public TransactionPolicyError[] Check(TransactionValidator validator)
+		{
+			if (validator == null)
+				throw new ArgumentNullException(nameof(validator));
+			var transaction = validator.Transaction;
 			List<TransactionPolicyError> errors = new List<TransactionPolicyError>();
 
 			if (transaction.Version > Transaction.CURRENT_VERSION || transaction.Version < 1)
@@ -84,22 +90,13 @@ namespace NBitcoin.Policy
 					errors.Add(new DuplicateInputPolicyError(duplicates));
 			}
 
-			foreach (var input in transaction.Inputs.AsIndexedInputs())
-			{
-				var coin = spentCoins.FirstOrDefault(s => s.Outpoint == input.PrevOut);
-				if (coin == null)
-				{
-					errors.Add(new CoinNotFoundPolicyError(input));
-				}
-			}
-
 			foreach (var output in transaction.Outputs.AsCoins())
 			{
 				if (output.Amount < Money.Zero)
 					errors.Add(new OutputPolicyError("Output value should not be less than zero", (int)output.Outpoint.N));
 			}
 
-			var fees = transaction.GetFee(spentCoins);
+			var fees = transaction.GetFee(validator.SpentOutputs);
 			if (fees != null)
 			{
 				if (fees < Money.Zero)

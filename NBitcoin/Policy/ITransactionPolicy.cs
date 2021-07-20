@@ -202,20 +202,6 @@ namespace NBitcoin.Policy
 			}
 		}
 	}
-	public class CoinNotFoundPolicyError : InputPolicyError
-	{
-		IndexedTxIn _TxIn;
-		public CoinNotFoundPolicyError(IndexedTxIn txIn)
-			: base("No coin matching " + txIn.PrevOut + " was found", txIn)
-		{
-			_TxIn = txIn;
-		}
-
-		internal Exception AsException()
-		{
-			return new CoinNotFoundException(_TxIn);
-		}
-	}
 
 	public class ScriptPolicyError : InputPolicyError
 	{
