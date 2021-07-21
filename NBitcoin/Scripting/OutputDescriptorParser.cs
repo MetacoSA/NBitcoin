@@ -104,7 +104,7 @@ namespace NBitcoin.Scripting
 			// why not just read base58 string first? A. Because failing fast improves speed.
 			(from magic in Parse.String("xprv").Or(Parse.String("tprv")).Text()
 			 from base58Str in Parse.Base58.XMany().Text()
-			 from x in Parse.TryConvert(magic + base58Str, c => new BitcoinExtKey(c))
+			 from x in Parse.TryConvert(magic + base58Str, c => new BitcoinExtKey(c, Network.Main))
 			 select x).InjectRepository(repo).Select(extKey => extKey.Neuter());
 
 		#endregion

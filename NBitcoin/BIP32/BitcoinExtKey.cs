@@ -32,7 +32,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Constructor. Creates an extended key from the Base58 representation, checking the expected network.
 		/// </summary>
-		public BitcoinExtKey(string base58, Network expectedNetwork = null)
+		public BitcoinExtKey(string base58, Network expectedNetwork)
 		{
 			Init<BitcoinExtKey>(base58, expectedNetwork);
 		}

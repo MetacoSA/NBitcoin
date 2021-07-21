@@ -22,7 +22,7 @@ namespace NBitcoin
 			else
 				return keyBytes.Concat(new byte[] { 0x01 }).ToArray();
 		}
-		public BitcoinSecret(string base58, Network expectedNetwork = null)
+		public BitcoinSecret(string base58, Network expectedNetwork)
 		{
 			Init<BitcoinSecret>(base58, expectedNetwork);
 		}

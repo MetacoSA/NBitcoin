@@ -121,7 +121,7 @@ namespace NBitcoin.Stealth
 	public class BitcoinStealthAddress : Base58Data
 	{
 
-		public BitcoinStealthAddress(string base58, Network expectedNetwork = null)
+		public BitcoinStealthAddress(string base58, Network expectedNetwork)
 		{
 			Init<BitcoinStealthAddress>(base58, expectedNetwork);
 		}

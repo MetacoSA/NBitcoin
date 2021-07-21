@@ -269,9 +269,9 @@ namespace NBitcoin
 		{
 		}
 
-		protected BitcoinEncryptedSecret(string wif, Network network)
+		protected BitcoinEncryptedSecret(string wif, Network expectedNetwork)
 		{
-			Init<BitcoinEncryptedSecret>(wif, network);
+			Init<BitcoinEncryptedSecret>(wif, expectedNetwork);
 		}
 
 

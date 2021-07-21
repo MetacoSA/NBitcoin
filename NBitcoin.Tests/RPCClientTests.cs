@@ -1004,7 +1004,7 @@ namespace NBitcoin.Tests
 					new ImportMultiAddress
 					{
 						Desc = desc,
-						Keys = new [] {new BitcoinSecret(wifPriv) }
+						Keys = new [] {new BitcoinSecret(wifPriv, Network.Main) }
 					}
 				};
 				rpc.ImportMulti(multiAddresses.ToArray(), false);
