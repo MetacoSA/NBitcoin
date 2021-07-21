@@ -380,30 +380,6 @@ namespace NBitcoin
 #endif
 		}
 
-		public Key Uncover(Key scan, PubKey ephem)
-		{
-			AssertNotDisposed();
-#if HAS_SPAN
-			Span<byte> tmp = stackalloc byte[33];
-			ephem.ECKey.GetSharedPubkey(scan._ECKey).WriteToSpan(true, tmp, out _);
-			var c = NBitcoinContext.Instance.CreateECPrivKey(Hashes.SHA256(tmp));
-			var priv = c.sec + this._ECKey.sec;
-			return new Key(this._ECKey.ctx.CreateECPrivKey(priv), this.IsCompressed);
-#else
-			var curve = ECKey.Secp256k1;
-			var priv = new BigInteger(1, PubKey.GetStealthSharedSecret(scan, ephem))
-							.Add(new BigInteger(1, this.ToBytes()))
-							.Mod(curve.N)
-							.ToByteArrayUnsigned();
-
-			if (priv.Length < 32)
-				priv = new byte[32 - priv.Length].Concat(priv).ToArray();
-
-			var key = new Key(priv, fCompressedIn: this.IsCompressed);
-			return key;
-#endif
-		}
-
 		public BitcoinSecret GetBitcoinSecret(Network network)
 		{
 			AssertNotDisposed();

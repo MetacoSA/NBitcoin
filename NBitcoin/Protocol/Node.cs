@@ -1074,6 +1074,8 @@ namespace NBitcoin.Protocol
 		}
 		public void VersionHandshake(NodeRequirement requirements, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			if (State == NodeState.HandShaked)
+				throw new InvalidOperationException("Already handshaked");
 			requirements = requirements ?? new NodeRequirement();
 			using (var listener = CreateListener()
 									.Where(p => p.Message.Payload is VersionPayload ||

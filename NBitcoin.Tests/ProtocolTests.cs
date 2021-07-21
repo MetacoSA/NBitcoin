@@ -1077,7 +1077,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(2, nodeCount);
 				n2.PingPong();
 				n1.PingPong();
-				Assert.Throws<ProtocolException>(() => n2.VersionHandshake());
+				Assert.Throws<InvalidOperationException>(() => n2.VersionHandshake());
 				Thread.Sleep(100);
 				n2.PingPong();
 				Assert.Equal(2, nodeCount);

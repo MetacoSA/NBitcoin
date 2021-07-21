@@ -25,7 +25,7 @@ namespace NBitcoin.Tests.PropertyTest
 			ComparerInstance = new PSBTComparer();
 		}
 
-		[Property(MaxTest = 10)]
+		[Property(MaxTest = 5)]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCloneAndCombine(PSBT psbt)
 		{
@@ -35,7 +35,7 @@ namespace NBitcoin.Tests.PropertyTest
 			Assert.Equal(psbt, combined, ComparerInstance);
 		}
 
-		[Property(MaxTest = 10)]
+		[Property(MaxTest = 5)]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCoinJoin(PSBT a, PSBT b)
 		{

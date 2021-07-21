@@ -851,6 +851,8 @@ namespace NBitcoin
 		}
 		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash, PrecomputedTransactionData transactionData)
 		{
+			if (coin is null)
+				throw new ArgumentNullException(nameof(coin));
 			return Transaction.GetSignatureHash(coin.GetScriptCode(), (int)Index, sigHash, coin.TxOut, coin.GetHashVersion(), transactionData);
 		}
 		public uint256 GetSignatureHash(ICoin coin, TaprootSigHash sigHash = TaprootSigHash.Default)
@@ -868,6 +870,10 @@ namespace NBitcoin
 	public class TxInList : UnsignedList<TxIn>
 	{
 		public TxInList()
+		{
+
+		}
+		public TxInList(int capacity) : base(capacity)
 		{
 
 		}
@@ -979,6 +985,10 @@ namespace NBitcoin
 	public class TxOutList : UnsignedList<TxOut>
 	{
 		public TxOutList()
+		{
+
+		}
+		public TxOutList(int capacity) : base(capacity)
 		{
 
 		}
@@ -1473,8 +1483,8 @@ namespace NBitcoin
 			{
 				stream.ReadWrite(ref nVersion);
 				/* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
-				stream.ReadWrite<TxInList, TxIn>(ref vin);
-
+				stream.ReadWrite(ref vin);
+				vin.Transaction = this;
 				var hasNoDummy = (nVersion & NoDummyInput) != 0 && vin.Count == 0;
 				if (witSupported && hasNoDummy)
 					nVersion = nVersion & ~NoDummyInput;
@@ -1486,9 +1496,9 @@ namespace NBitcoin
 					if (flags != 0)
 					{
 						/* Assume we read a dummy and a flag. */
-						stream.ReadWrite<TxInList, TxIn>(ref vin);
+						stream.ReadWrite(ref vin);
 						vin.Transaction = this;
-						stream.ReadWrite<TxOutList, TxOut>(ref vout);
+						stream.ReadWrite(ref vout);
 						vout.Transaction = this;
 					}
 					else
@@ -1501,7 +1511,7 @@ namespace NBitcoin
 				else
 				{
 					/* We read a non-empty vin. Assume a normal vout follows. */
-					stream.ReadWrite<TxOutList, TxOut>(ref vout);
+					stream.ReadWrite(ref vout);
 					vout.Transaction = this;
 				}
 				if (((flags & 1) != 0) && witSupported)
@@ -1534,12 +1544,12 @@ namespace NBitcoin
 				{
 					/* Use extended format in case witnesses are to be serialized. */
 					TxInList vinDummy = new TxInList();
-					stream.ReadWrite<TxInList, TxIn>(ref vinDummy);
+					stream.ReadWrite(ref vinDummy);
 					stream.ReadWrite(ref flags);
 				}
-				stream.ReadWrite<TxInList, TxIn>(ref vin);
+				stream.ReadWrite(ref vin);
 				vin.Transaction = this;
-				stream.ReadWrite<TxOutList, TxOut>(ref vout);
+				stream.ReadWrite(ref vout);
 				vout.Transaction = this;
 				if ((flags & 1) != 0)
 				{
@@ -2105,7 +2115,7 @@ namespace NBitcoin
 			}
 			if (executionData.InputIndex >= this.Inputs.Count)
 				throw new ArgumentException("in_pos should be less than the number of inputs in the transaction", nameof(executionData.InputIndex));
-			
+
 			var ss = CreateHashWriter(executionData.HashVersion, "TapSighash");
 			ss.Inner.WriteByte(0);
 
@@ -2119,8 +2129,8 @@ namespace NBitcoin
 			// Transaction level data
 			ss.ReadWrite(this.Version);
 			ss.ReadWrite(this.LockTime);
-			
-			
+
+
 			if (input_type != (byte)SigHash.AnyoneCanPay)
 			{
 				ss.ReadWrite(cache.HashPrevoutsSingle);

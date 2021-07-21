@@ -72,7 +72,7 @@ namespace NBitcoin.Scripting
 			(from magic in Parse.String("xpub").Or(Parse.String("tpub")).Text()
 			 from base58Str in Parse.Base58.XMany().Text()
 
-			 from x in Parse.TryConvert((magic + base58Str), c => new BitcoinExtPubKey(c))
+			 from x in Parse.TryConvert((magic + base58Str), c => new BitcoinExtPubKey(c, magic.StartsWith("xpub") ? Network.Main : Network.TestNet))
 			 select x).InjectRepository(repo);
 		private static Parser<char, RootedKeyPath> PRootedKeyPath(ISigningRepository? repo) =>
 			(from _l in Parse.Char('[')
