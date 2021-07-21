@@ -5,7 +5,6 @@ using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Policy;
 using NBitcoin.Protocol;
-using NBitcoin.Stealth;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -1542,81 +1541,6 @@ namespace NBitcoin.Tests
 			if (destination != null)
 				Assert.True(txout.ScriptPubKey == destination.ScriptPubKey);
 		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanBuildStealthTransaction()
-		{
-			var stealthKeys = Enumerable.Range(0, 3).Select(_ => new Key()).ToArray();
-			var scanKey = new Key();
-
-			var darkSatoshi = new BitcoinStealthAddress(scanKey.PubKey, stealthKeys.Select(k => k.PubKey).ToArray(), 2, new BitField(3, 5), Network.Main);
-
-			var bob = new Key();
-			var coins = new Coin[] {
-				new Coin()
-				{
-					Outpoint = RandOutpoint(),
-					TxOut = new TxOut("1.00",bob.PubKey.Hash)
-				} };
-
-			//Bob sends money to satoshi
-			TransactionBuilder builder = Network.CreateTransactionBuilder();
-			builder.StandardTransactionPolicy = EasyPolicy;
-			var tx =
-				builder
-				.AddCoins(coins)
-				.AddKeys(bob)
-				.Send(darkSatoshi, "1.00")
-				.BuildTransaction(true);
-			Assert.True(builder.Verify(tx));
-
-			//Satoshi scans a StealthCoin in the transaction with his scan key
-			var stealthCoin = StealthCoin.Find(tx, darkSatoshi, scanKey);
-			Assert.NotNull(stealthCoin);
-
-			//Satoshi sends back the money to Bob
-			builder = Network.CreateTransactionBuilder();
-			builder.StandardTransactionPolicy = EasyPolicy;
-			tx =
-				builder
-					.AddCoins(stealthCoin)
-					.AddKeys(stealthKeys)
-					.AddKeys(scanKey)
-					.Send(bob.PubKey.Hash, "1.00")
-					.BuildTransaction(true);
-
-			Assert.True(builder.Verify(tx)); //Signed !
-
-
-			//Same scenario, Satoshi wants to send money back to Bob
-			//However, his keys are spread on two machines
-			//He partially signs on the 1st machine
-			builder = Network.CreateTransactionBuilder();
-			builder.StandardTransactionPolicy = EasyPolicy;
-			tx =
-				builder
-					.AddCoins(stealthCoin)
-					.AddKeys(stealthKeys.Skip(2).ToArray()) //Only one Stealth Key
-					.AddKeys(scanKey)
-					.Send(bob.PubKey.Hash, "1.00")
-					.BuildTransaction(true);
-
-			Assert.False(builder.Verify(tx)); //Not fully signed
-
-			//Then he partially signs on the 2nd machine
-			builder = Network.CreateTransactionBuilder();
-			builder.StandardTransactionPolicy = EasyPolicy;
-			tx =
-				builder
-					.AddCoins(stealthCoin)
-					.AddKeys(stealthKeys[0]) //Other key
-					.AddKeys(scanKey)
-					.SignTransaction(tx);
-
-			Assert.True(builder.Verify(tx)); //Fully signed !
-		}
-
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

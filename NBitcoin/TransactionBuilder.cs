@@ -4,7 +4,6 @@ using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Policy;
-using NBitcoin.Stealth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -503,7 +502,6 @@ namespace NBitcoin
 			internal KeyPair? FindKey(Script scriptPubKey)
 			{
 				var keypair = (Builder._Keys
-					.Concat(AdditionalKeys)
 					.FirstOrDefault(k => Builder.IsCompatibleKeyFromScriptCode(k.PubKey, scriptPubKey)));
 				if (keypair is null && Builder.KeyFinder != null)
 				{
@@ -514,18 +512,8 @@ namespace NBitcoin
 			internal KeyPair FindKey(IPubKey pubKey)
 			{
 				var key = Builder._Keys
-					.Concat(AdditionalKeys)
 					.FirstOrDefault(k => k.PubKey == pubKey);
 				return key;
-			}
-
-			private readonly List<KeyPair> _AdditionalKeys = new List<KeyPair>();
-			public List<KeyPair> AdditionalKeys
-			{
-				get
-				{
-					return _AdditionalKeys;
-				}
 			}
 			public SigningOptions SigningOptions { get; }
 
@@ -1343,27 +1331,6 @@ namespace NBitcoin
 			}
 		}
 
-		public TransactionBuilder Send(BitcoinStealthAddress address, Money amount, Key? ephemKey = null)
-		{
-			if (amount < Money.Zero)
-				throw new ArgumentOutOfRangeException(nameof(amount), "amount can't be negative");
-
-			if (_OpReturnUser == null)
-				_OpReturnUser = "Stealth Payment";
-			else
-				throw new InvalidOperationException("Op return already used for " + _OpReturnUser);
-
-			CurrentGroup.Builders.Add(ctx =>
-			{
-				var payment = address.CreatePayment(ephemKey);
-				payment.AddToTransaction(ctx.Transaction, amount);
-				ctx.CurrentGroupContext.SentOutput += amount;
-				ctx.CanShuffleOutputs = false;
-				ctx.CanMergeOutputs = false;
-			});
-			return this;
-		}
-
 		public TransactionBuilder IssueAsset(IDestination destination, AssetMoney asset)
 		{
 			return IssueAsset(destination.ScriptPubKey, asset);
@@ -1979,7 +1946,7 @@ namespace NBitcoin
 			var coin = FindCoin(txIn.PrevOut);
 			if (coin is IColoredCoin)
 				coin = ((IColoredCoin)coin).Bearer;
-			if (coin == null || coin is ScriptCoin || coin is StealthCoin)
+			if (coin == null || coin is ScriptCoin)
 				return coin;
 
 			var hash = ScriptCoin.GetRedeemHash(coin.TxOut.ScriptPubKey);
@@ -2440,18 +2407,6 @@ namespace NBitcoin
 		private void Sign(TransactionSigningContext ctx, ICoin coin, IndexedTxIn txIn)
 		{
 			var input = txIn.TxIn;
-			if (coin is StealthCoin stealthCoin)
-			{
-				var scanKey = ctx.FindKey(stealthCoin.Address.ScanPubKey.ScriptPubKey)?.Key;
-				if (scanKey is null)
-					throw new KeyNotFoundException("Scan key for decrypting StealthCoin not found");
-				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => ctx.FindKey(p.ScriptPubKey)?.Key).Where(p => !(p is null)).ToArray();
-				ctx.AdditionalKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey).Select(KeyPair.CreateECDSAPair));
-				var normalCoin = new Coin(coin.Outpoint, coin.TxOut);
-				if (stealthCoin.Redeem != null)
-					normalCoin = normalCoin.ToScriptCoin(stealthCoin.Redeem);
-				coin = normalCoin;
-			}
 			var scriptSig = CreateScriptSig(ctx, coin, txIn);
 			if (scriptSig == null)
 				return;

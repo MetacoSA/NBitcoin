@@ -1,7 +1,6 @@
 #nullable enable
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
-using NBitcoin.Stealth;
 #if !NO_BC
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
@@ -744,11 +743,6 @@ namespace NBitcoin
 				return this.Compress();
 			else
 				return this.Decompress();
-		}
-
-		public BitcoinStealthAddress CreateStealthAddress(PubKey scanKey, Network network)
-		{
-			return new BitcoinStealthAddress(scanKey, new PubKey[] { this }, 1, null, network);
 		}
 
 		public string ToString(Network network)
