@@ -260,7 +260,7 @@ namespace NBitcoin.Tests
 				rpc.SendRawTransaction(signed);
 
 				// Let's try P2SH with 2 coins
-				aliceAddress = alice.PubKey.ScriptPubKey.GetScriptAddress(builder.Network);
+				aliceAddress = alice.PubKey.ScriptPubKey.Hash.GetAddress(builder.Network);
 				txid = rpc.SendToAddress(aliceAddress, Money.Coins(1.0m));
 				tx = rpc.GetRawTransaction(txid);
 				coin = tx.Outputs.AsCoins().First(c => c.ScriptPubKey == aliceAddress.ScriptPubKey);

@@ -42,9 +42,13 @@ namespace NBitcoin
 			}
 		}
 
-		public BitcoinAddress GetAddress(Network network)
+		public BitcoinPubKeyAddress GetAddress(Network network)
 		{
 			return network.NetworkStringParser.CreateP2PKH(this, network);
+		}
+		BitcoinAddress IAddressableDestination.GetAddress(Network network)
+		{
+			return GetAddress(network);
 		}
 
 		public bool IsSupported(Network network)
@@ -129,9 +133,13 @@ namespace NBitcoin
 			return new KeyId(v);
 		}
 
-		public BitcoinAddress GetAddress(Network network)
+		public BitcoinWitPubKeyAddress GetAddress(Network network)
 		{
 			return network.NetworkStringParser.CreateP2WPKH(this, network);
+		}
+		BitcoinAddress IAddressableDestination.GetAddress(Network network)
+		{
+			return GetAddress(network);
 		}
 
 		public bool IsSupported(Network network)
@@ -233,9 +241,13 @@ namespace NBitcoin
 			}
 		}
 
-		public BitcoinAddress GetAddress(Network network)
+		public BitcoinWitScriptAddress GetAddress(Network network)
 		{
 			return network.NetworkStringParser.CreateP2WSH(this, network);
+		}
+		BitcoinAddress IAddressableDestination.GetAddress(Network network)
+		{
+			return GetAddress(network);
 		}
 		public bool IsSupported(Network network)
 		{
@@ -317,9 +329,13 @@ namespace NBitcoin
 			}
 		}
 
-		public BitcoinAddress GetAddress(Network network)
+		public BitcoinScriptAddress GetAddress(Network network)
 		{
 			return network.NetworkStringParser.CreateP2SH(this, network);
+		}
+		BitcoinAddress IAddressableDestination.GetAddress(Network network)
+		{
+			return GetAddress(network);
 		}
 		public bool IsSupported(Network network)
 		{

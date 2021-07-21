@@ -48,12 +48,12 @@ namespace NBitcoin
 			return new BitcoinScriptAddress(scriptId, network);
 		}
 
-		public virtual BitcoinAddress CreateP2WPKH(WitKeyId witKeyId, Network network)
+		public virtual BitcoinWitPubKeyAddress CreateP2WPKH(WitKeyId witKeyId, Network network)
 		{
 			return new BitcoinWitPubKeyAddress(witKeyId, network);
 		}
 
-		public virtual BitcoinAddress CreateP2WSH(WitScriptId scriptId, Network network)
+		public virtual BitcoinWitScriptAddress CreateP2WSH(WitScriptId scriptId, Network network)
 		{
 			return new BitcoinWitScriptAddress(scriptId, network);
 		}

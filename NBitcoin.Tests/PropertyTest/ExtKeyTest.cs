@@ -26,7 +26,7 @@ namespace NBitcoin.Tests.PropertyTest
 		{
 			var child = key.Derive(index);
 			Assert.Equal(child.Child, index);
-			if (!key.IsHardened)
+			if (!child.IsHardened)
 				Assert.Equal(key, child.GetParentExtKey(key.Neuter()));
 		}
 	}
