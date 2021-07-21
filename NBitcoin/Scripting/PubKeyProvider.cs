@@ -170,7 +170,7 @@ namespace NBitcoin.Scripting
 						pubkey = extkey.Neuter().ExtPubKey.PubKey;
 					} else
 					{
-						var extkey = new BitcoinExtPubKey(self.Extkey.ToString());
+						var extkey = new BitcoinExtPubKey(self.Extkey.ToString(), self.Extkey.Network);
 						extkey = extkey.Derive(self.Path);
 						if (self.Derive == DeriveType.UNHARDENED)
 							extkey = extkey.Derive(pos);

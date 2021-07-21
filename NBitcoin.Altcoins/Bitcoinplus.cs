@@ -331,13 +331,14 @@ namespace NBitcoin.Altcoins
                 uint nTimeTemp = 0;
                 stream.ReadWrite(ref nTimeTemp);
 
-                TxInList vinTemp = new TxInList();
-                TxOutList voutTemp = new TxOutList();
+                TxInList vinTemp = null;
+                TxOutList voutTemp = null;
 
                 /* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
-                stream.ReadWrite<TxInList, TxIn>(ref vinTemp);
+                stream.ReadWrite(ref vinTemp);
+				vinTemp.Transaction = this;
 
-                var hasNoDummy = (nVersionTemp & NoDummyInput) != 0 && vinTemp.Count == 0;
+				var hasNoDummy = (nVersionTemp & NoDummyInput) != 0 && vinTemp.Count == 0;
                 if (witSupported && hasNoDummy)
                     nVersionTemp = nVersionTemp & ~NoDummyInput;
 
@@ -348,9 +349,9 @@ namespace NBitcoin.Altcoins
                     if (flags != 0)
                     {
                         /* Assume we read a dummy and a flag. */
-                        stream.ReadWrite<TxInList, TxIn>(ref vinTemp);
+                        stream.ReadWrite(ref vinTemp);
                         vinTemp.Transaction = this;
-                        stream.ReadWrite<TxOutList, TxOut>(ref voutTemp);
+                        stream.ReadWrite(ref voutTemp);
                         voutTemp.Transaction = this;
                     }
                     else
@@ -363,7 +364,7 @@ namespace NBitcoin.Altcoins
                 else
                 {
                     /* We read a non-empty vin. Assume a normal vout follows. */
-                    stream.ReadWrite<TxOutList, TxOut>(ref voutTemp);
+                    stream.ReadWrite(ref voutTemp);
                     voutTemp.Transaction = this;
                 }
                 if (((flags & 1) != 0) && witSupported)
@@ -409,15 +410,15 @@ namespace NBitcoin.Altcoins
                 if (flags != 0)
                 {
                     /* Use extended format in case witnesses are to be serialized. */
-                    TxInList vinDummy = new TxInList();
-                    stream.ReadWrite<TxInList, TxIn>(ref vinDummy);
+                    TxInList vinDummy = null;
+                    stream.ReadWrite(ref vinDummy);
                     stream.ReadWrite(ref flags);
                 }
                 TxInList vin = this.Inputs;
-                stream.ReadWrite<TxInList, TxIn>(ref vin);
+                stream.ReadWrite(ref vin);
                 vin.Transaction = this;
                 TxOutList vout = this.Outputs;
-                stream.ReadWrite<TxOutList, TxOut>(ref vout);
+                stream.ReadWrite(ref vout);
                 vout.Transaction = this;
                 if ((flags & 1) != 0)
                 {
