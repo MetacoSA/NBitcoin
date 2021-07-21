@@ -1111,11 +1111,6 @@ namespace NBitcoin
 			return endpoint;
 		}
 
-		[Obsolete("Use TryParseEndpoint or ParseEndpoint instead")]
-		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort)
-		{
-			return ParseIpEndpoint(endpoint, defaultPort, true);
-		}
 		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort, bool useDNS)
 		{
 			var splitted = endpoint.Trim().Split(new[] { ':' });

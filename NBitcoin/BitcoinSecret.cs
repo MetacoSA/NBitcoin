@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class BitcoinSecret : Base58Data, IDestination, ISecret
+	public class BitcoinSecret : Base58Data, ISecret, IDestination
 	{
 		public BitcoinSecret(Key key, Network network)
 			: base(ToBytes(key), network)
@@ -30,17 +30,6 @@ namespace NBitcoin
 		public BitcoinAddress GetAddress(ScriptPubKeyType type)
 		{
 			return PrivateKey.PubKey.GetAddress(type, Network);
-		}
-
-		[Obsolete("Use GetAddress(ScriptPubKeyType.Legacy) instead")]
-		public BitcoinPubKeyAddress GetAddress()
-		{
-			return (BitcoinPubKeyAddress)GetAddress(ScriptPubKeyType.Legacy);
-		}
-
-		public BitcoinWitPubKeyAddress GetSegwitAddress()
-		{
-			return PrivateKey.PubKey.GetSegwitAddress(Network);
 		}
 
 		public virtual KeyId PubKeyHash
@@ -134,17 +123,6 @@ namespace NBitcoin
 			}
 		}
 
-		#region IDestination Members
-
-		[Obsolete("Use GetAddress(ScriptPubKeyType.Legacy) instead")]
-		public Script ScriptPubKey
-		{
-			get
-			{
-				return GetAddress().ScriptPubKey;
-			}
-		}
-
-		#endregion
+		Script IDestination.ScriptPubKey => ((IDestination)PrivateKey).ScriptPubKey;
 	}
 }

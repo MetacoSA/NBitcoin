@@ -11,9 +11,6 @@ namespace NBitcoin.RPC
 		public bool IsMine { get; private set; }
 		public bool? Solvable { get; private set; }
 
-		[Obsolete("Use Descriptor field instead")]
-		public ScanTxoutDescriptor Desc { get; private set; }
-
 # nullable enable
 		public OutputDescriptor? Descriptor { get; private set; }
 #nullable disable
@@ -28,9 +25,6 @@ namespace NBitcoin.RPC
 		public uint160 HDSeedID { get; private set; }
 		public uint160 HDMasterKeyID { get; private set; }
 
-		[Obsolete("Bitcoin Core 0.20.0 obsolated this.")]
-		public List<Dictionary<string, string>> Labels { get; private set; } = new List<Dictionary<string, string>>();
-
 		public bool? IsCompressed { get; private set; }
 
 		public static GetAddressInfoResponse FromJsonResponse(JObject raw, Network network)
@@ -42,9 +36,6 @@ namespace NBitcoin.RPC
 			SetSubInfo(this, raw, network);
 			IsMine = raw.Property("ismine").Value.Value<bool>();
 			Solvable = raw.Property("solvable")?.Value.Value<bool>();
-#pragma warning disable 618
-			Desc = raw.Property("desc") == null ? null : new ScanTxoutDescriptor(raw.Property("desc").Value.Value<string>());
-#pragma warning restore 618
 			Descriptor = raw.Property("desc") == null
 				? null
 				: OutputDescriptor.Parse(raw.Property("desc").Value.Value<string>());
@@ -68,21 +59,6 @@ namespace NBitcoin.RPC
 			HDKeyPath = raw.Property("hdkeypath") == null ? null : KeyPath.Parse(raw.Property("hdkeypath").Value.Value<string>());
 			HDSeedID = raw.Property("hdseedid") == null ? null : uint160.Parse(raw.Property("hdseedid").Value.Value<string>());
 			HDMasterKeyID = raw.Property("hdmasterkeyid") == null ? null : uint160.Parse(raw.Property("hdmasterkeyid").Value.Value<string>());
-			var jlabels = raw.Property("labels");
-			if (jlabels != null)
-			{
-				var labelObjects = jlabels.Value.Value<JArray>();
-				foreach (var jToken in labelObjects)
-				{
-					if (jToken is JObject jObject) // Before Bitcoin Core 0.20.0
-					{
-#pragma warning disable CS0618 // Type or member is obsolete.
-						Labels.Add(jToken.ToObject<Dictionary<string, string>>());
-#pragma warning restore CS0618 // Type or member is obsolete
-					}
-				}
-			}
-
 			return this;
 		}
 

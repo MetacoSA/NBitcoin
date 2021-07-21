@@ -125,7 +125,7 @@ namespace NBitcoin
 		[Obsolete("Use new BlockHeader(byte[] hex, Network|Consensus|ConsensusFactory) instead")]
 		public BlockHeader(byte[] bytes)
 		{
-			this.ReadWrite(bytes);
+			this.ReadWrite(new BitcoinStream(bytes));
 		}
 
 

@@ -364,7 +364,12 @@ namespace NBitcoin.RPC
 
 		async static Task CheckSegwitCapabilitiesAsync(RPCClient rpc, Action<bool> setResult, CancellationToken cancellationToken)
 		{
-			var address = new Key().ScriptPubKey.WitHash.ScriptPubKey.GetDestinationAddress(rpc.Network);
+			if (!rpc.Network.Consensus.SupportSegwit)
+			{
+				setResult(false);
+				return;
+			}
+			var address = new Key().GetAddress(ScriptPubKeyType.Segwit, rpc.Network);
 			if (address == null)
 			{
 				setResult(false);
@@ -732,70 +737,6 @@ namespace NBitcoin.RPC
 				Success = success,
 				SearchedItems = searchedItems
 			};
-		}
-
-		/// <summary>
-		/// Scans the unspent transaction output set for entries that match certain output descriptors.
-		/// </summary>
-		/// <param name="descriptorObjects"></param>
-		/// <returns></returns>
-		[Obsolete("Pass OutputDescriptor[] instead")]
-		public async Task<ScanTxoutSetResponse> StartScanTxoutSetAsync(params ScanTxoutSetObject[] descriptorObjects)
-		{
-			if (descriptorObjects == null)
-				throw new ArgumentNullException(nameof(descriptorObjects));
-
-			JArray descriptorsJson = new JArray();
-			foreach (var descObj in descriptorObjects)
-			{
-				JObject descJson = new JObject();
-				descJson.Add(new JProperty("desc", descObj.Descriptor.Value));
-				if (descObj.Range.HasValue)
-				{
-					descJson.Add(new JProperty("range", descObj.Range.Value));
-				}
-				descriptorsJson.Add(descJson);
-			}
-
-			var result = await SendCommandAsync(RPCOperations.scantxoutset, "start", descriptorsJson);
-			result.ThrowIfError();
-
-			var jobj = result.Result as JObject;
-			var amount = Money.Coins(jobj.Property("total_amount").Value.Value<decimal>());
-			var success = jobj.Property("success").Value.Value<bool>();
-			//searched_items
-
-			var searchedItems = (int)(jobj.Property("txouts") ?? jobj.Property("searched_items")).Value.Value<long>();
-			var outputs = new List<ScanTxoutOutput>();
-			foreach (var unspent in (jobj.Property("unspents").Value as JArray).OfType<JObject>())
-			{
-				OutPoint outpoint = OutPoint.Parse($"{unspent.Property("txid").Value.Value<string>()}-{(int)unspent.Property("vout").Value.Value<long>()}");
-				var a = Money.Coins(unspent.Property("amount").Value.Value<decimal>());
-				int height = (int)unspent.Property("height").Value.Value<long>();
-				var scriptPubKey = Script.FromBytesUnsafe(Encoders.Hex.DecodeData(unspent.Property("scriptPubKey").Value.Value<string>()));
-				outputs.Add(new ScanTxoutOutput()
-				{
-					Coin = new Coin(outpoint, new TxOut(a, scriptPubKey)),
-					Height = height
-				});
-			}
-			return new ScanTxoutSetResponse()
-			{
-				Outputs = outputs.ToArray(),
-				TotalAmount = amount,
-				Success = success,
-				SearchedItems = searchedItems
-			};
-		}
-		/// <summary>
-		/// Scans the unspent transaction output set for entries that match certain output descriptors.
-		/// </summary>
-		/// <param name="descriptorObjects"></param>
-		/// <returns></returns>
-		[Obsolete("Pass OutputDescriptor[] instead")]
-		public ScanTxoutSetResponse StartScanTxoutSet(params ScanTxoutSetObject[] descriptorObjects)
-		{
-			return StartScanTxoutSetAsync(descriptorObjects).GetAwaiter().GetResult();
 		}
 
 		/// <summary>

@@ -113,7 +113,7 @@ namespace NBitcoin.Tests
 			var builder = Network.CreateTransactionBuilder();
 			builder.AddKeys(signer);
 			builder.AddCoins(RandomCoin(signer, Money.Coins(1)));
-			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.Send(new Key(), Money.Coins(1));
 			builder.SubtractFees();
 			builder.SendEstimatedFees(new FeeRate(Money.Satoshis(100), 1));
 			var v = VerifyFees(builder, new FeeRate(Money.Satoshis(100), 1));
@@ -129,11 +129,11 @@ namespace NBitcoin.Tests
 					var signers = Enumerable.Range(0, signersCount).Select(_ => new Key()).ToArray();
 					builder.AddCoins(RandomCoin(signers, Money.Coins(1), (CoinType)(RandomUtils.GetUInt32() % 5)));
 					builder.AddKeys(signers);
-					builder.Send(new Key().ScriptPubKey, Money.Coins(0.9m));
+					builder.Send(new Key(), Money.Coins(0.9m));
 
 				}
 				builder.SubtractFees();
-				builder.SetChange(new Key().ScriptPubKey);
+				builder.SetChange(new Key());
 				builder.SendEstimatedFees(builder.StandardTransactionPolicy.MinRelayTxFee);
 				VerifyFees(builder);
 			}
@@ -180,15 +180,15 @@ namespace NBitcoin.Tests
 			Assert.Equal(2, tx.Inputs.Count);
 			Assert.Equal(3, tx.Outputs.Count);
 			Assert.Single(tx.Outputs
-								.Where(o => o.ScriptPubKey == bob.ScriptPubKey)
+								.Where(o => o.ScriptPubKey == bob.GetScriptPubKey(ScriptPubKeyType.Legacy))
 								.Where(o => o.Value == Money.Coins(0.3m) + Money.Coins(0.1m))
 );
 			Assert.Single(tx.Outputs
-							  .Where(o => o.ScriptPubKey == alice.ScriptPubKey)
+							  .Where(o => o.ScriptPubKey == alice.GetScriptPubKey(ScriptPubKeyType.Legacy))
 							  .Where(o => o.Value == Money.Coins(0.7m))
 );
 			Assert.Single(tx.Outputs
-								.Where(o => o.ScriptPubKey == carol.ScriptPubKey)
+								.Where(o => o.ScriptPubKey == carol.GetScriptPubKey(ScriptPubKeyType.Legacy))
 								.Where(o => o.Value == Money.Coins(1.0m))
 );
 		}

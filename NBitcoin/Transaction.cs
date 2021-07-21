@@ -481,7 +481,7 @@ namespace NBitcoin
 			{
 				result = new byte[21];
 				result[0] = 0x00;
-				Array.Copy(keyID.ToBytes(true), 0, result, 1, 20);
+				Array.Copy(keyID.ToBytes(), 0, result, 1, 20);
 				return result;
 			}
 			ScriptId scriptID = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(script);
@@ -489,7 +489,7 @@ namespace NBitcoin
 			{
 				result = new byte[21];
 				result[0] = 0x01;
-				Array.Copy(scriptID.ToBytes(true), 0, result, 1, 20);
+				Array.Copy(scriptID.ToBytes(), 0, result, 1, 20);
 				return result;
 			}
 			PubKey pubkey = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(script, true);
@@ -532,7 +532,7 @@ namespace NBitcoin
 					byte[] vch = new byte[33];
 					vch[0] = (byte)(nSize - 2);
 					Array.Copy(data, 0, vch, 1, 32);
-					PubKey pubkey = new PubKey(vch, true);
+					PubKey pubkey = new PubKey(vch);
 					pubkey = pubkey.Decompress();
 					return PayToPubkeyTemplate.Instance.GenerateScriptPubKey(pubkey);
 			}
@@ -1285,7 +1285,7 @@ namespace NBitcoin
 			return new WitScript(ToBytes());
 		}
 
-		public TxDestination GetSigner()
+		public IAddressableDestination GetSigner()
 		{
 			var pubKey = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(this);
 			if (pubKey != null)

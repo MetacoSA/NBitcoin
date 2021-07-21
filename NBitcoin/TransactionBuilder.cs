@@ -765,12 +765,6 @@ namespace NBitcoin
 				return coinWithOptions?.Options;
 			}
 
-			public MoneyBag CoverOnly
-			{
-				get;
-				set;
-			} = new MoneyBag();
-
 			public string? Name
 			{
 				get;
@@ -1248,13 +1242,6 @@ namespace NBitcoin
 			return SendAsset(destination, new AssetMoney(assetId, quantity));
 		}
 
-		[Obsolete("Transaction builder is automatically shuffled")]
-		public TransactionBuilder Shuffle()
-		{
-			DoShuffleGroups();
-			return this;
-		}
-
 		private void DoShuffleGroups()
 		{
 			if (ShuffleRandom != null && ShuffleOutputs)
@@ -1697,12 +1684,6 @@ namespace NBitcoin
 			DoShuffleGroups();
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
 			retry:
-			if (_CompletedTransaction != null)
-			{
-				ctx.Transaction = _CompletedTransaction.Clone();
-				foreach (var input in ctx.Transaction.Inputs)
-					ctx.ConsumedOutpoints.Add(input.PrevOut);
-			}
 			if (_LockTime != null)
 				ctx.Transaction.LockTime = _LockTime.Value;
 			if (_Version is uint v)
@@ -1740,11 +1721,11 @@ namespace NBitcoin
 			{
 				if (ShuffleInputs && ctx.CanShuffleInputs)
 					Utils.Shuffle(ctx.Transaction.Inputs,
-								_CompletedTransaction is null ? 0 : _CompletedTransaction.Inputs.Count,
+								0,
 								ShuffleRandom);
 				if (ShuffleOutputs && ctx.CanShuffleOutputs)
 					Utils.Shuffle(ctx.Transaction.Outputs,
-								_CompletedTransaction is null ? 0 : _CompletedTransaction.Outputs.Count,
+								0,
 								ShuffleRandom);
 			}
 			if (MergeOutputs && ctx.CanMergeOutputs)
@@ -1843,7 +1824,6 @@ namespace NBitcoin
 				SignTransactionInPlace(ctx.Transaction);
 			}
 
-			_built = true;
 			if (ctx.Transaction.Outputs.Count == 0)
 				throw new NotEnoughFundsException("Not enough funds to create even one change output", null, GetDust());
 			return ctx.Transaction;
@@ -1872,11 +1852,6 @@ namespace NBitcoin
 				builder(ctx);
 
 			IMoney selectionTarget = (gctx.SentOutput + gctx.Fee - gctx.LeftOverChange).GetAmount(zero);
-
-			if (group.CoverOnly.GetAmount(zero).CompareTo(zero) > 0)
-			{
-				selectionTarget = group.CoverOnly.GetAmount(zero);
-			}
 
 			var unconsumed = coins.Where(c => !ctx.ConsumedOutpoints.Contains(c.Outpoint)).ToArray();
 
@@ -2622,68 +2597,6 @@ namespace NBitcoin
 				group.Name = groupName;
 			}
 			_CurrentGroup = group;
-			return this;
-		}
-
-		/// <summary>
-		/// Specify the amount of money to cover txouts, if not specified all txout will be covered
-		/// </summary>
-		/// <param name="amount"></param>
-		/// <returns></returns>
-		[Obsolete("Do not use this anymore. The creator of NBitcoin is still wondering why this method exists and is poorly tested. Contact him if you found out why.")]
-		public TransactionBuilder CoverOnly(Money amount)
-		{
-			CurrentGroup.CoverOnly = new MoneyBag(amount);
-			return this;
-		}
-
-
-		Transaction? _CompletedTransaction;
-		private bool _built = false;
-
-		/// <summary>
-		/// Allows to keep building on the top of a partially built transaction
-		/// </summary>
-		/// <param name="transaction">Transaction to complete</param>
-		/// <returns></returns>
-		public TransactionBuilder ContinueToBuild(Transaction transaction)
-		{
-			if (_built)
-				throw new InvalidOperationException("ContinueToBuild must be called with a new TransactionBuilder instance");
-			if (_CompletedTransaction != null)
-				throw new InvalidOperationException("Transaction to complete already set");
-			_CompletedTransaction = transaction.Clone();
-			return this;
-		}
-
-		/// <summary>
-		/// Will cover the remaining amount of TxOut of a partially built transaction (to call after ContinueToBuild)
-		/// </summary>
-		/// <returns></returns>
-		public TransactionBuilder CoverTheRest()
-		{
-			if (_CompletedTransaction == null)
-				throw new InvalidOperationException("A partially built transaction should be specified by calling ContinueToBuild");
-
-			var spent = _CompletedTransaction.Inputs.AsIndexedInputs().Select(txin =>
-			{
-				var c = FindCoin(txin.PrevOut);
-				if (c == null)
-					throw CoinNotFound(txin);
-				if (!(c is Coin))
-					return null;
-				return (Coin)c;
-			})
-					.Select(c => c == null ? Money.Zero : c.Amount)
-					.Sum();
-
-			var toComplete = _CompletedTransaction.TotalOut - spent;
-			CurrentGroup.Builders.Add(ctx =>
-			{
-				if (toComplete < Money.Zero)
-					return;
-				ctx.CurrentGroupContext.SentOutput += toComplete;
-			});
 			return this;
 		}
 

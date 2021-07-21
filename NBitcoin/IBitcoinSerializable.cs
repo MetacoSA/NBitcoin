@@ -58,12 +58,6 @@ namespace NBitcoin
 			return GetSerializedSize(serializable, version, SerializationType.Disk);
 		}
 
-		[Obsolete("Use ReadWrite(this IBitcoinSerializable serializable, byte[] bytes, Network network, uint? version = null) or ReadWrite(new BitcoinStream(bytes)) if no network context")]
-		public static void ReadWrite(this IBitcoinSerializable serializable, byte[] bytes, uint? version = null)
-		{
-			ReadWrite(serializable, new MemoryStream(bytes), false, version);
-		}
-
 		public static void ReadWrite(this IBitcoinSerializable serializable, byte[] bytes, Network network, uint? version = null)
 		{
 			ReadWrite(serializable, new MemoryStream(bytes), false, network, version);

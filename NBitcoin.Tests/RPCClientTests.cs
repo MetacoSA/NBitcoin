@@ -311,12 +311,7 @@ namespace NBitcoin.Tests
 				var funding = rpc.GetRawTransaction(txid);
 				var coin = funding.Outputs.AsCoins().Single(o => o.ScriptPubKey == dest.ScriptPubKey);
 
-#pragma warning disable 618
-				var result = rpc.StartScanTxoutSet(new ScanTxoutSetObject(ScanTxoutDescriptor.Addr(dest)));
-#pragma warning restore 618
-
-				var resultWithOD = rpc.StartScanTxoutSet(OutputDescriptor.NewAddr(dest));
-				Assert.Equal(resultWithOD.TotalAmount, result.TotalAmount);
+				var result = rpc.StartScanTxoutSet(OutputDescriptor.NewAddr(dest));
 
 				Assert.Equal(101, result.SearchedItems);
 				Assert.True(result.Success);
@@ -327,11 +322,7 @@ namespace NBitcoin.Tests
 				Assert.Null(rpc.GetStatusScanTxoutSet());
 
 				rpc.Generate(1);
-
-#pragma warning disable 618
-				result = rpc.StartScanTxoutSet(new ScanTxoutSetObject(ScanTxoutDescriptor.Addr(dest)));
-#pragma warning restore 618
-
+				result = rpc.StartScanTxoutSet(OutputDescriptor.NewAddr(dest));
 				Assert.True(result.SearchedItems > 100);
 				Assert.True(result.Success);
 				Assert.Single(result.Outputs);
@@ -656,7 +647,7 @@ namespace NBitcoin.Tests
 				var txBuilder = builder.Network.CreateTransactionBuilder();
 				txBuilder.AddCoins(coin);
 				txBuilder.AddKeys(receiver);
-				txBuilder.Send(new Key().ScriptPubKey, Money.Satoshis(600));
+				txBuilder.Send(new Key(), Money.Satoshis(600));
 				txBuilder.SetChange(new Key().PubKey.WitHash);
 				// The dust should be 294, so should have 2 outputs
 				txBuilder.SendFees(Money.Satoshis(400 - 294));
@@ -704,7 +695,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject (key.ScriptPubKey),
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject (key.GetScriptPubKey(ScriptPubKeyType.Legacy)),
 						Internal = true
 					}
 				};
@@ -718,7 +709,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(key.ScriptPubKey),
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(key.GetScriptPubKey(ScriptPubKeyType.Legacy)),
 						Internal = true,
 						Label = "Unsuccessful labelling for internal addresses"
 					}
@@ -732,7 +723,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy)},
 					}
 				};
 
@@ -759,7 +750,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy)},
 						PubKeys = new[] { key.PubKey },
 						Internal = true
 					}
@@ -770,7 +761,7 @@ namespace NBitcoin.Tests
 
 				#region Nonstandard scriptPubKey + Public key + !internal
 				key = new Key();
-				var nonStandardSpk = Script.FromHex(key.ScriptPubKey.ToHex() + new Script(OpcodeType.OP_NOP ).ToHex());
+				var nonStandardSpk = Script.FromHex(key.GetScriptPubKey(ScriptPubKeyType.Legacy).ToHex() + new Script(OpcodeType.OP_NOP ).ToHex());
 				multiAddresses = new List<ImportMultiAddress>
 				{
 					new ImportMultiAddress
@@ -787,7 +778,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy)},
 						PubKeys = new [] { key.PubKey }
 					}
 				};
@@ -844,7 +835,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy)},
 						Keys = new [] { key.GetWif(network) },
 						Internal = true
 					}
@@ -859,7 +850,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy)},
 						Keys = new [] { key.GetWif(network) }
 					}
 				};
@@ -903,7 +894,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy) },
 						PubKeys = new [] { new Key().PubKey },
 						Internal = true
 					}
@@ -932,7 +923,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey },
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy)},
 						Keys = new [] { new Key().GetWif(network) },
 						Internal = true
 					}
@@ -1663,7 +1654,7 @@ namespace NBitcoin.Tests
 				var rpc = node.CreateRPCClient();
 				var capabilities = await rpc.ScanRPCCapabilitiesAsync();
 
-				var address = new Key().PubKey.GetSegwitAddress(Network.RegTest);
+				var address = new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, Network.RegTest);
 				var blockHash1 = rpc.GenerateToAddress(1, address);
 				var block = rpc.GetBlock(blockHash1[0]);
 

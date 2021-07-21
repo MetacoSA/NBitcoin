@@ -485,7 +485,7 @@ namespace NBitcoin.Altcoins
 
 			public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 			{
-				if (sigversion == HashVersion.Witness)
+				if (sigversion == HashVersion.WitnessV0)
 				{
 					if (spentOutput?.Value == null || spentOutput.Value == TxOut.NullMoney)
 						throw new ArgumentException("The output being signed with the amount must be provided", nameof(spentOutput));

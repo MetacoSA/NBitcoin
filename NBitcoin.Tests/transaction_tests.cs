@@ -281,8 +281,8 @@ namespace NBitcoin.Tests
 
 
 			// Should spend all coins belonging to same scriptPubKey
-			var bob = new Key().ScriptPubKey;
-			var alice = new Key().ScriptPubKey;
+			var bob = new Key();
+			var alice = new Key();
 			var selected = selector.Select(new ICoin[] { CreateCoin("5", bob), CreateCoin("5", bob) }, Money.Parse("2.0")).ToArray();
 			Assert.Equal(2, selected.Length);
 
@@ -653,7 +653,10 @@ namespace NBitcoin.Tests
 			}
 			return true;
 		}
-
+		private Coin CreateCoin(Money amount, IDestination dest)
+		{
+			return CreateCoin(amount, dest.ScriptPubKey);
+		}
 		private Coin CreateCoin(Money amount, Script scriptPubKey = null)
 		{
 			return new Coin(new OutPoint(Rand(), 0), new TxOut()
@@ -721,7 +724,7 @@ namespace NBitcoin.Tests
 
 			//This gives you a Bech32 address (currently not really interoperable in wallets, so you need to convert it into P2SH)
 			var address = k.PubKey.WitHash.GetAddress(Network.Main);
-			var p2sh = address.GetScriptAddress();
+			var p2sh = (BitcoinScriptAddress)address.ScriptPubKey.Hash.GetAddress(Network.Main);
 			//p2sh is now an interoperable P2SH segwit address
 
 			//For spending, it works the same as a a normal P2SH
@@ -740,7 +743,7 @@ namespace NBitcoin.Tests
 			TransactionBuilder builder = Network.CreateTransactionBuilder();
 			builder.AddCoins(coins);
 			builder.AddKeys(k);
-			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.Send(new Key(), Money.Coins(1));
 			builder.SendFees(Money.Coins(0.001m));
 			builder.SetChange(p2sh);
 			var signedTx = builder.BuildTransaction(true);
@@ -753,12 +756,12 @@ namespace NBitcoin.Tests
 		{
 			var k = new Key();
 			var address = k.PubKey.WitHash.GetAddress(Network.Main);
-			var coins = new[] { RandomCoin(Money.Coins(10), k.ScriptPubKey, false) };
+			var coins = new[] { RandomCoin(Money.Coins(10), k, false) };
 
 			TransactionBuilder builder = Network.CreateTransactionBuilder();
 			builder.AddCoins(coins);
 			builder.AddKeys(k);
-			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.Send(new Key(), Money.Coins(1));
 			builder.SendFees(Money.Coins(0.001m));
 			builder.SetChange(address);
 			builder.OptInRBF = true;
@@ -772,7 +775,7 @@ namespace NBitcoin.Tests
 			builder = Network.CreateTransactionBuilder();
 			builder.AddCoins(coins);
 			builder.AddKeys(k);
-			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.Send(new Key(), Money.Coins(1));
 			builder.SendFees(Money.Coins(0.001m));
 			builder.SetChange(address);
 			builder.OptInRBF = true;
@@ -816,7 +819,7 @@ namespace NBitcoin.Tests
 				{
 					builder = Network.CreateTransactionBuilder();
 					builder.DustPrevention = dustPrevention;
-					var substracted = new Key().ScriptPubKey;
+					var substracted = new Key();
 					var change = new Key().PubKey.GetScriptPubKey(segwitChange ? ScriptPubKeyType.Segwit : ScriptPubKeyType.Legacy);
 					var feeAmount = scriptCoin2.Amount - dust - Money.Satoshis(1);
 					var remainingOfCoin2 = scriptCoin2.Amount - feeAmount;
@@ -829,7 +832,7 @@ namespace NBitcoin.Tests
 					.SendFees(feeAmount)
 					.BuildTransaction(false);
 					// The txout must be kicked out because of dust rule
-					var substractedExists = tx.Outputs.Any(o => o.ScriptPubKey == substracted);
+					var substractedExists = tx.Outputs.Any(o => o.ScriptPubKey == substracted.GetScriptPubKey(ScriptPubKeyType.Legacy));
 					var totalFee = tx.GetFee(builder.FindSpentCoins(tx));
 					var changeOutput = tx.Outputs.FirstOrDefault(o => o.ScriptPubKey == change);
 
@@ -869,124 +872,6 @@ namespace NBitcoin.Tests
 					else
 						Assert.Equal(feeAmount, totalFee);
 				}
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		//https://github.com/NicolasDorier/NBitcoin/issues/34
-		public void CanBuildAnyoneCanPayTransaction()
-		{
-			//Carla is buying from Alice. Bob is acting as a mediator between Alice and Carla.
-			var aliceKey = new Key();
-			var bobKey = new Key();
-			var carlaKey = new Key();
-
-			// Alice + Bob 2 of 2 multisig "wallet"
-			var aliceBobRedeemScript = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new PubKey[] { aliceKey.PubKey, bobKey.PubKey });
-
-			var txBuilder = Network.CreateTransactionBuilder();
-			var funding = txBuilder
-				.AddCoins(GetCoinSource(aliceKey))
-				.AddKeys(aliceKey)
-				.Send(aliceBobRedeemScript.Hash, "0.5")
-				.SetChange(aliceKey.PubKey.Hash)
-				.SendFees(Money.Satoshis(5000))
-				.BuildTransaction(true);
-
-			Assert.True(txBuilder.Verify(funding));
-
-			List<ICoin> aliceBobCoins = new List<ICoin>();
-			aliceBobCoins.Add(new ScriptCoin(funding, funding.Outputs.To(aliceBobRedeemScript.Hash).First(), aliceBobRedeemScript));
-
-			// first Bob constructs the TX
-			txBuilder = Network.CreateTransactionBuilder();
-			txBuilder.ShuffleRandom = null;
-#pragma warning disable CS0618 // Type or member is obsolete
-			var unsigned = txBuilder
-				// spend from the Alice+Bob wallet to Carla
-				.AddCoins(aliceBobCoins)
-				.Send(carlaKey.PubKey.Hash, "0.01")
-				//and Carla pays Alice
-				.Send(aliceKey.PubKey.Hash, "0.02")
-				.CoverOnly("0.01")
-#pragma warning restore CS0618 // Type or member is obsolete
-				.SetChange(aliceBobRedeemScript.Hash)
-				// Bob does not sign anything yet
-				.BuildTransaction(false);
-
-			Assert.Equal(3, unsigned.Outputs.Count);
-			Assert.True(unsigned.Outputs[2].IsTo(aliceBobRedeemScript.Hash));
-			//Only 0.01 should be covered, not 0.03 so 0.49 goes back to Alice+Bob
-			Assert.True(unsigned.Outputs[2].Value == Money.Parse("0.49"));
-
-
-			Assert.True(unsigned.Outputs[0].IsTo(carlaKey.PubKey.Hash));
-			Assert.True(unsigned.Outputs[0].Value == Money.Parse("0.01"));
-
-			Assert.True(unsigned.Outputs[1].IsTo(aliceKey.PubKey.Hash));
-			Assert.True(unsigned.Outputs[1].Value == Money.Parse("0.02"));
-
-			//Alice signs
-			txBuilder = Network.CreateTransactionBuilder();
-			var aliceSigned = txBuilder
-					.AddCoins(aliceBobCoins)
-					.SetSigningOptions(SigHash.All | SigHash.AnyoneCanPay)
-					.AddKeys(aliceKey)
-					.SignTransaction(unsigned);
-
-			var carlaCoins = GetCoinSource(carlaKey, "1.0", "0.8", "0.6", "0.2", "0.05");
-
-			//Scenario 1 : Carla knows aliceBobCoins so she can calculate how much coin she need to complete the transaction
-			//Carla fills and signs
-			txBuilder = Network.CreateTransactionBuilder();
-			((DefaultCoinSelector)txBuilder.CoinSelector).GroupByScriptPubKey = false;
-			var carlaSigned = txBuilder
-				.AddCoins(aliceBobCoins)
-				.Then()
-				.AddKeys(carlaKey)
-				//Carla should complete 0.02, but with 0.03 of fees, she should have a coins of 0.05
-				.AddCoins(carlaCoins)
-				.ContinueToBuild(aliceSigned)
-				.SendFees("0.03")
-				.CoverTheRest()
-				.BuildTransaction(true);
-
-
-			//Bob review and signs
-			txBuilder = Network.CreateTransactionBuilder();
-			var bobSigned = txBuilder
-				.AddCoins(aliceBobCoins)
-				.AddKeys(bobKey)
-				.SignTransaction(carlaSigned);
-
-			txBuilder.AddCoins(carlaCoins);
-			Assert.True(txBuilder.Verify(bobSigned));
-
-
-			//Scenario 2 : Carla is told by Bob to complete 0.05 BTC
-			//Carla fills and signs
-			txBuilder = Network.CreateTransactionBuilder();
-			((DefaultCoinSelector)txBuilder.CoinSelector).GroupByScriptPubKey = false;
-#pragma warning disable CS0618 // Type or member is obsolete
-			carlaSigned = txBuilder
-				.AddKeys(carlaKey)
-				.AddCoins(carlaCoins.Concat(aliceBobCoins).ToArray())
-				//Carla should complete 0.02, but with 0.03 of fees, she should have a coins of 0.05
-				.ContinueToBuild(aliceSigned)
-				.CoverOnly("0.05")
-#pragma warning restore CS0618 // Type or member is obsolete
-				.BuildTransaction(true);
-
-
-			//Bob review and signs
-			txBuilder = Network.CreateTransactionBuilder();
-			bobSigned = txBuilder
-				.AddCoins(aliceBobCoins)
-				.AddKeys(bobKey)
-				.SignTransaction(carlaSigned);
-
-			txBuilder.AddCoins(carlaCoins);
-			Assert.True(txBuilder.Verify(bobSigned));
 		}
 
 		private ICoin[] GetCoinSource(Key destination, params Money[] amounts)
@@ -1164,7 +1049,7 @@ namespace NBitcoin.Tests
 		{
 			var bobKey = new Key();
 			var bob = bobKey.PubKey.GetScriptPubKey(ScriptPubKeyType.Segwit);
-			var alice = new Key().ScriptPubKey;
+			var alice = new Key();
 			var c1 = new Coin(new OutPoint(uint256.Zero, 0), new TxOut(Money.Coins(1.0m), bob));
 			var c2 = new Coin(new OutPoint(uint256.Zero, 1), new TxOut(Money.Coins(2.0m), bob));
 
@@ -1188,15 +1073,15 @@ namespace NBitcoin.Tests
 				var actualFeeRate = new FeeRate(actualfee, vsize);
 				Assert.Equal(new FeeRate(5.0m), actualFeeRate);
 				if (substractFee)
-					Assert.Equal(Money.Coins(0.5m) - actualfee, tx.Outputs.First(o => o.ScriptPubKey == alice).Value);
+					Assert.Equal(Money.Coins(0.5m) - actualfee, tx.Outputs.First(o => o.ScriptPubKey == alice.GetScriptPubKey(ScriptPubKeyType.Legacy)).Value);
 				else
-					Assert.Equal(Money.Coins(0.5m), tx.Outputs.First(o => o.ScriptPubKey == alice).Value);
+					Assert.Equal(Money.Coins(0.5m), tx.Outputs.First(o => o.ScriptPubKey == alice.GetScriptPubKey(ScriptPubKeyType.Legacy)).Value);
 			}
 
 			// We test what happen if the substracted output is cleaned via dust prevention
 			// and that the build sweep the dust prevention
 			{
-				var change = new Key().ScriptPubKey;
+				var change = new Key();
 				var txbuilder = Network.Main.CreateTransactionBuilder();
 				txbuilder.AddCoins(new[] { c1 });
 				txbuilder.Send(alice, Money.Coins(0.6m));
@@ -1207,7 +1092,7 @@ namespace NBitcoin.Tests
 				var tx = txbuilder.BuildTransaction(false);
 				Assert.Equal(2, tx.Outputs.Count);
 				Assert.DoesNotContain(tx.Outputs, o => o.ScriptPubKey == bob);
-				var txout = tx.Outputs.First(o => o.ScriptPubKey == change);
+				var txout = tx.Outputs.First(o => o.ScriptPubKey == change.GetScriptPubKey(ScriptPubKeyType.Legacy));
 				Assert.Equal(Money.Coins(1.0m) - Money.Coins(0.6m) - Money.Satoshis(300), txout.Value);
 			}
 		}
@@ -1614,7 +1499,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(Money.Coins(0.99980490m), change.Value);
 				Assert.Equal(rate, txBuilder.EstimateFeeRate(transfer));
 
-				Assert.Equal(gold.PubKey.Hash, change.ScriptPubKey.GetAddressableDestination());
+				Assert.Equal(gold.PubKey.Hash, change.ScriptPubKey.GetDestination());
 
 				//Verify issuancecoin can have an url
 				var issuanceCoin = (IssuanceCoin)issuanceCoins[0];
@@ -1656,80 +1541,6 @@ namespace NBitcoin.Tests
 			Assert.True(entry.Asset.Quantity == quantity);
 			if (destination != null)
 				Assert.True(txout.ScriptPubKey == destination.ScriptPubKey);
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CorrectFeeAfterAnyoneCanPay()
-		{
-			var network = Network.Main;
-			var feeRate = new FeeRate(1_000L);
-			var tokenValue = 5_500L;
-			var tokenPrice = 10_000L;
-			OutPoint tokenOutpoint;
-			Script tokenOwnerScriptPubKey;
-			Script tokenAnyoneCanPayScript;
-			// create token with anyone can pay signature
-			{
-				var privateKey = new Key();
-				tokenOwnerScriptPubKey = privateKey.PubKey.Hash.ScriptPubKey;
-
-				Coin token = CreateCoin(tokenValue, tokenOwnerScriptPubKey);
-				tokenOutpoint = token.Outpoint;
-
-				var txbuilder = new TransactionBuilder(network);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-				txbuilder
-					.AddCoins(token)
-					.CoverOnly(token.Amount)
-#pragma warning restore CS0618 // Type or member is obsolete
-					.Send(tokenOwnerScriptPubKey, new Money(tokenPrice));
-				Transaction tx = txbuilder.BuildTransaction(false);
-
-				// sign with anyone can pay
-				tx = txbuilder
-					.SetSigningOptions(SigHash.AnyoneCanPay | SigHash.Single)
-					.AddKeys(privateKey).SignTransaction(tx);
-
-				// extract signature
-				tokenAnyoneCanPayScript = tx.Inputs[0].ScriptSig;
-			}
-
-			// another key tries to consume this token
-			{
-				var toComplete = network.Consensus.ConsensusFactory.CreateTransaction();
-				TxIn in0 = new TxIn(tokenOutpoint, tokenAnyoneCanPayScript);
-				TxOut out0 = new TxOut(Money.FromUnit(tokenPrice, MoneyUnit.Satoshi), tokenOwnerScriptPubKey);
-				toComplete.Inputs.Add(in0);
-				toComplete.Outputs.Add(out0);
-
-				var privateKey = new Key();
-				var tokenBuyerScriptPubKey = privateKey.PubKey.Hash.ScriptPubKey;
-				var tokenCoin = new Coin(tokenOutpoint, new TxOut(tokenValue, tokenOwnerScriptPubKey));
-				var coins = new ICoin[] { CreateCoin(5_500L, tokenBuyerScriptPubKey) };
-				var txbuilder = new TransactionBuilder(network);
-				var signed = txbuilder
-					.ContinueToBuild(toComplete)
-					.AddCoins(tokenCoin)
-					.AddCoins(coins)
-					.CoverTheRest()
-					.SetChange(tokenBuyerScriptPubKey)
-					.SendEstimatedFees(feeRate)
-					.BuildTransaction(false);
-
-				// sign and verify
-				signed = txbuilder.AddKeys(new Key[] { privateKey }).SignTransaction(signed);
-
-				var estimatedFees = txbuilder.EstimateFees(feeRate);
-				var fee = signed.GetFee(txbuilder.FindSpentCoins(signed));
-				Assert.Equal(tokenAnyoneCanPayScript, signed.Inputs[0].ScriptSig);
-				Assert.Equal(estimatedFees, fee);
-
-				bool result = txbuilder.Verify(signed, out TransactionPolicyError[] errors);
-				Assert.True(result);
-
-			}
 		}
 
 		[Fact]
@@ -2036,6 +1847,10 @@ namespace NBitcoin.Tests
 			Assert.True(builder.Verify(signed, estimatedFees));
 		}
 
+		private Coin RandomCoin(Money amount, IDestination dest, bool p2sh)
+		{
+			return RandomCoin(amount, dest.ScriptPubKey, p2sh);
+		}
 		private Coin RandomCoin(Money amount, Script scriptPubKey, bool p2sh)
 		{
 			var outpoint = RandOutpoint();
@@ -2447,7 +2262,7 @@ namespace NBitcoin.Tests
 			var bob = new Key();
 			var tx =
 				Network.CreateTransactionBuilder()
-				.AddCoins(new Coin(new OutPoint(Rand(), 1), new TxOut(Money.Coins(1.0m), alice.ScriptPubKey)))
+				.AddCoins(new Coin(new OutPoint(Rand(), 1), new TxOut(Money.Coins(1.0m), alice)))
 				.AddKeys(alice)
 				.Send(bob, Money.Coins(0.6m))
 				.SubtractFees()
@@ -2500,8 +2315,8 @@ namespace NBitcoin.Tests
 			var txBuilder = Altcoins.Dogecoin.Instance.Regtest.CreateTransactionBuilder();
 			txBuilder.AddKeys(k);
 			txBuilder.AddCoins(RandomCoin(Money.Coins(10m), k.PubKey.Hash));
-			txBuilder.Send(new Key().ScriptPubKey, Money.Coins(4));
-			txBuilder.SetChange(new Key().ScriptPubKey);
+			txBuilder.Send(new Key(), Money.Coins(4));
+			txBuilder.SetChange(new Key());
 			txBuilder.SendFees(Money.Coins(0.0001m));
 			var signed = txBuilder.BuildPSBT(true);
 			signed.TryGetFee(out var fee);
@@ -2515,7 +2330,7 @@ namespace NBitcoin.Tests
 			var k = new Key();
 			var txBuilder = Bitcoin.Instance.Regtest.CreateTransactionBuilder();
 			txBuilder.AddCoins(RandomCoin(Money.Satoshis(1000), k.PubKey.WitHash));
-			txBuilder.Send(new Key().ScriptPubKey, Money.Satoshis(600));
+			txBuilder.Send(new Key(), Money.Satoshis(600));
 			txBuilder.SetChange(new Key().PubKey.WitHash);
 			// The dust should be 294, so should have 2 outputs
 			txBuilder.SendFees(Money.Satoshis(400 - 294));
@@ -2524,7 +2339,7 @@ namespace NBitcoin.Tests
 
 			txBuilder = Bitcoin.Instance.Regtest.CreateTransactionBuilder();
 			txBuilder.AddCoins(RandomCoin(Money.Satoshis(1000), k.PubKey.WitHash));
-			txBuilder.Send(new Key().ScriptPubKey, Money.Satoshis(600));
+			txBuilder.Send(new Key(), Money.Satoshis(600));
 			txBuilder.SetChange(new Key().PubKey.WitHash);
 			// The dust should be 293, so should have 1 outputs
 			txBuilder.SendFees(Money.Satoshis(400 - 293));
@@ -3165,7 +2980,7 @@ namespace NBitcoin.Tests
 			AssertEx.Equals(new OutPoint(funding, 0), dup.OutPoint);
 
 			var script = errors.OfType<ScriptPolicyError>().Single();
-			AssertEx.Equals(alice.ScriptPubKey, script.ScriptPubKey);
+			AssertEx.Equals(alice.GetScriptPubKey(ScriptPubKeyType.Legacy), script.ScriptPubKey);
 			AssertEx.Equals(3, script.InputIndex);
 
 			var fees = errors.OfType<NotEnoughFundsPolicyError>().Single();
@@ -3289,7 +3104,7 @@ namespace NBitcoin.Tests
 			{
 				var param1 = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(tx.Inputs[input].WitScript);
 				Assert.NotNull(param1);
-				var param2 = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(param1.PublicKey.GetSegwitAddress(Network.Main).Hash.ScriptPubKey);
+				var param2 = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(param1.PublicKey.GetScriptPubKey(ScriptPubKeyType.Segwit));
 				Assert.Equal(param1.PublicKey.WitHash, param2);
 				scriptCode = param1.ScriptPubKey;
 			}
@@ -3452,19 +3267,19 @@ namespace NBitcoin.Tests
 		public void TransactionBuilderDoesNotRunForever()
 		{
 			var network = Network.TestNet;
-			var scriptPubKey = new Key().ScriptPubKey;
+			var scriptPubKey = new Key();
 			var amount = Money.Coins(0.01m);
 			var inputs = new[]{
 				(new Coin(RandOutpoint(), new TxOut(amount, scriptPubKey ))),
 				(new Coin(RandOutpoint(), new TxOut(amount, scriptPubKey))),
-				(new Coin(RandOutpoint(), new TxOut(amount, new Key().ScriptPubKey ))),  // this is different script.
+				(new Coin(RandOutpoint(), new TxOut(amount, new Key() ))),  // this is different script.
 				(new Coin(RandOutpoint(), new TxOut(amount, scriptPubKey)))};
 
-			var change = new Key().PubKey.GetSegwitAddress(network).ScriptPubKey;
+			var change = new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, network).ScriptPubKey;
 			var builder = network.CreateTransactionBuilder();
 			builder.SetCoinSelector(new BrokenCoinSelector(inputs));
 			builder.AddCoins(inputs);
-			builder.Send(new Key().PubKey.GetSegwitAddress(network), Money.Coins(0.015m));
+			builder.Send(new Key().PubKey.GetScriptPubKey(ScriptPubKeyType.Segwit), Money.Coins(0.015m));
 			builder.SetChange(change);
 			builder.SendEstimatedFees(new FeeRate(10m));
 			var tx = builder.BuildTransaction(false);
@@ -3488,7 +3303,7 @@ namespace NBitcoin.Tests
 			TransactionBuilder builder = Network.CreateTransactionBuilder();
 			builder.SetCoinSelector(new BrokenCoinSelector(inputs));
 			builder.AddCoins(inputs);
-			builder.SendAllRemaining(new Key().ScriptPubKey);
+			builder.SendAllRemaining(new Key());
 			builder.SendEstimatedFees(new FeeRate(10m));
 
 			var psbt = builder.BuildPSBT(false);
@@ -4046,16 +3861,9 @@ namespace NBitcoin.Tests
 			var tx = txBuilder
 				.AddCoins(coin)
 				.AddKeys(key)
-				.Send(key.ScriptPubKey, Money.Coins(0.999m))
+				.Send(key.GetScriptPubKey(ScriptPubKeyType.Legacy), Money.Coins(0.999m))
 				.SendFees(Money.Coins(0.001m))
 				.BuildTransaction(false);
-
-			Assert.Throws<InvalidOperationException>(() =>
-			{
-				txBuilder
-					.ContinueToBuild(tx)
-					.BuildTransaction(true);
-			});
 		}
 
 		[Fact]
@@ -4561,50 +4369,6 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void ShuffleAfterContinueBuild()
-		{
-			var k1 = new Key();
-			var k2 = new Key();
-			var k3 = new Key();
-			var dest1 = k1.PubKey.Hash;
-			var dest2 = k2.PubKey.Hash;
-			var dest3 = k3.PubKey.Hash;
-
-			var coin1_1 = RandomCoin(Money.Coins(0.1m), k1);
-			var coin1_2 = RandomCoin(Money.Coins(0.2m), k1);
-			var coin2 = RandomCoin(Money.Coins(0.3m), k2);
-
-			var rate = new FeeRate(Money.Coins(0.0004m));
-			var builder = Network
-				.CreateTransactionBuilder();
-			builder
-				.AddCoins(coin1_1)
-				.AddCoins(coin1_2)
-				.AddKeys(k1)
-				.Send(dest3, Money.Coins(0.1m))
-				.SendEstimatedFees(rate)
-				.SendAllRemaining(dest1);
-
-			var tx = builder.BuildTransaction(false);
-			builder = Network
-				.CreateTransactionBuilder();
-			builder
-				.ContinueToBuild(tx)
-				.AddCoins(coin1_1)
-				.AddCoins(coin1_2)
-				.AddCoins(coin2)
-				.AddKeys(k2)
-				.SendEstimatedFees(rate)
-				.SendAllRemaining(dest2);
-
-			tx = builder.BuildTransaction(false);
-
-			Assert.Equal(3, tx.Inputs.Count);
-			Assert.Equal(3, tx.Outputs.Count);
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
 		public void CanDisableShuffle()
 		{
 			var builder = Network
@@ -4653,14 +4417,14 @@ namespace NBitcoin.Tests
 			{
 				Sequence = sequence,
 			};
-			var coin0 = RandomCoin(Money.Coins(10), k.ScriptPubKey, false);
-			var coin1 = RandomCoin(Money.Coins(20), k.ScriptPubKey, false);
+			var coin0 = RandomCoin(Money.Coins(10), k, false);
+			var coin1 = RandomCoin(Money.Coins(20), k, false);
 
 			TransactionBuilder builder = Network.CreateTransactionBuilder();
 			builder.AddCoin(coin0, options);
 			builder.AddCoin(coin1);
 			builder.AddKeys(k);
-			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.Send(new Key(), Money.Coins(1));
 			builder.SendFees(Money.Coins(0.001m));
 			builder.SetChange(address);
 			var tx = builder.BuildTransaction(false);
@@ -4676,7 +4440,7 @@ namespace NBitcoin.Tests
 			builder.AddCoin(coin0, options);
 			builder.AddCoin(coin1);
 			builder.AddKeys(k);
-			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.Send(new Key(), Money.Coins(1));
 			builder.SendFees(Money.Coins(0.001m));
 			builder.SetChange(address);
 			builder.OptInRBF = true;
@@ -4696,12 +4460,12 @@ namespace NBitcoin.Tests
 		{
 			var k = new Key();
 			var address = k.PubKey.WitHash.GetAddress(Network.Main);
-			var coins = new[] { RandomCoin(Money.Coins(10), k.ScriptPubKey, false) };
+			var coins = new[] { RandomCoin(Money.Coins(10), k, false) };
 
 			TransactionBuilder builder = Network.CreateTransactionBuilder();
 			builder.AddCoins(coins);
 			builder.AddKeys(k);
-			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.Send(new Key(), Money.Coins(1));
 			builder.SendFees(Money.Coins(0.001m));
 			builder.SetChange(address);
 			var tx = builder.BuildTransaction(false);
@@ -4710,7 +4474,7 @@ namespace NBitcoin.Tests
 			builder = Network.CreateTransactionBuilder();
 			builder.AddCoins(coins);
 			builder.AddKeys(k);
-			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.Send(new Key(), Money.Coins(1));
 			builder.SendFees(Money.Coins(0.001m));
 			builder.SetChange(address);
 			builder.SetVersion(2);

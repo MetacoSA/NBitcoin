@@ -795,11 +795,11 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="scriptPubKey">The scriptPubKey</param>
 		/// <returns>The hash of the scriptPubkey</returns>
-		public static TxDestination GetRedeemHash(Script scriptPubKey)
+		public static IAddressableDestination GetRedeemHash(Script scriptPubKey)
 		{
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
-			return PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) as TxDestination
+			return PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) as IAddressableDestination
 					??
 					PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 		}

@@ -428,7 +428,7 @@ namespace NBitcoin.Tests
 			var scripts = new List<Script>();
 			for (var i = 0; i < 10_000; i++)
 			{
-				var script = new Key().PubKey.GetSegwitAddress(Network.Main).ScriptPubKey;
+				var script = new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, Network.Main).ScriptPubKey;
 				scripts.Add(script);
 			}
 

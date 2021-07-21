@@ -52,7 +52,11 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(network));
 			return PubKey.GetAddress(scriptPubKeyType, network);
 		}
-		public Script GetAddress(ScriptPubKeyType scriptPubKeyType)
+		public IAddressableDestination GetDestination(ScriptPubKeyType scriptPubKeyType)
+		{
+			return PubKey.GetDestination(scriptPubKeyType);
+		}
+		public Script GetScriptPubKey(ScriptPubKeyType scriptPubKeyType)
 		{
 			return PubKey.GetScriptPubKey(scriptPubKeyType);
 		}
@@ -174,20 +178,6 @@ namespace NBitcoin
 		{
 			AssertNotDisposed();
 			return _ECKey.Sign(hash, true);
-		}
-
-		[Obsolete("This method is depracted, if you wants to sign for taproot, use SignTaprootKeyPath()")]
-		public SchnorrSignature SignSchnorr(uint256 hash)
-		{
-			AssertNotDisposed();
-#if HAS_SPAN
-			Span<byte> h = stackalloc byte[32];
-			hash.ToBytes(h);
-			return new SchnorrSignature(_ECKey.SignSchnorr(h));
-#else
-			var signer = new SchnorrSigner();
-			return signer.Sign(hash, this);
-#endif
 		}
 #if HAS_SPAN
 		public TaprootSignature SignTaprootKeySpend(uint256 hash, TaprootSigHash sigHash = TaprootSigHash.Default)
@@ -445,7 +435,7 @@ namespace NBitcoin
 
 #region IDestination Members
 
-		public Script ScriptPubKey
+		Script IDestination.ScriptPubKey
 		{
 			get
 			{

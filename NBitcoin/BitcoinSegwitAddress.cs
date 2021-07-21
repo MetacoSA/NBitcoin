@@ -94,7 +94,7 @@ namespace NBitcoin
 
 		protected override Script GeneratePaymentScript()
 		{
-			return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, Hash._DestBytes);
+			return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, Hash.ToBytes());
 		}
 
 		public Bech32Type Type
@@ -187,7 +187,7 @@ namespace NBitcoin
 
 		protected override Script GeneratePaymentScript()
 		{
-			return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, Hash._DestBytes);
+			return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, Hash.ToBytes());
 		}
 
 		public Bech32Type Type

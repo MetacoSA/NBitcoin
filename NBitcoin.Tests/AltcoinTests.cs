@@ -187,7 +187,7 @@ namespace NBitcoin.Tests
 			var abusiveWords =
 				new Mnemonic("alcohol woman abuse must during monitor noble actual mixed trade anger aisle");
 			var derived = abusiveWords.DeriveExtKey().Derive(new KeyPath("44'/1'/0'/0/0"));
-			var addr = derived.PrivateKey.ScriptPubKey.GetDestinationAddress(Liquid.Instance.Regtest);
+			var addr = derived.PrivateKey.GetAddress(ScriptPubKeyType.Legacy, Liquid.Instance.Regtest);
 			var abusiveslip77 = Slip21Node.FromSeed(abusiveWords.DeriveSeed()).GetSlip77Node();
 			Assert.Equal("26f1dc2c52222394236d76e0809516255cfcca94069fd5187c0f090d18f42ad6",
 				abusiveslip77.DeriveSlip77BlindingKey(addr.ScriptPubKey).ToHex());
@@ -250,7 +250,7 @@ namespace NBitcoin.Tests
 				TransactionBuilder txbuilder = builder.Network.CreateTransactionBuilder();
 				txbuilder.AddCoins(coin);
 				txbuilder.AddKeys(alice);
-				txbuilder.Send(new Key().ScriptPubKey, Money.Coins(0.4m));
+				txbuilder.Send(new Key(), Money.Coins(0.4m));
 				txbuilder.SendFees(Money.Coins(0.001m));
 				txbuilder.SetChange(aliceAddress);
 				var signed = txbuilder.BuildTransaction(false);
@@ -260,7 +260,7 @@ namespace NBitcoin.Tests
 				rpc.SendRawTransaction(signed);
 
 				// Let's try P2SH with 2 coins
-				aliceAddress = alice.PubKey.ScriptPubKey.GetScriptAddress(builder.Network);
+				aliceAddress = alice.PubKey.ScriptPubKey.Hash.GetAddress(builder.Network);
 				txid = rpc.SendToAddress(aliceAddress, Money.Coins(1.0m));
 				tx = rpc.GetRawTransaction(txid);
 				coin = tx.Outputs.AsCoins().First(c => c.ScriptPubKey == aliceAddress.ScriptPubKey);
@@ -272,7 +272,7 @@ namespace NBitcoin.Tests
 				txbuilder = builder.Network.CreateTransactionBuilder()
 								.AddCoins(new[] { coin.ToScriptCoin(alice.PubKey.ScriptPubKey), coin2.ToScriptCoin(alice.PubKey.ScriptPubKey) })
 								.AddKeys(alice)
-								.SendAll(new Key().ScriptPubKey)
+								.SendAll(new Key())
 								.SendFees(Money.Coins(0.00001m))
 								.SubtractFees()
 								.SetChange(aliceAddress);

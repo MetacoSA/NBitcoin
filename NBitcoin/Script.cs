@@ -370,8 +370,6 @@ namespace NBitcoin
 	public enum HashVersion
 	{
 		Original = 0,
-		[Obsolete("Use HashVersion.WitnessV0 instead")]
-		Witness = 1,
 		WitnessV0 = 1,
 		/// <summary>
 		/// Key spend
@@ -596,19 +594,6 @@ namespace NBitcoin
 			}
 		}
 
-
-		/// <summary>
-		/// True if the scriptPubKey is witness
-		/// </summary>
-		[Obsolete("Use IsScriptType instead")]
-		public bool IsWitness
-		{
-			get
-			{
-				return PayToWitTemplate.Instance.CheckScriptPubKey(this);
-			}
-		}
-
 		public override string ToString()
 		{
 			// by default StringBuilder capacity is 16 (too small)
@@ -725,25 +710,6 @@ namespace NBitcoin
 			}
 		}
 
-		public BitcoinScriptAddress GetScriptAddress(Network network)
-		{
-			return (BitcoinScriptAddress)Hash.GetAddress(network);
-		}
-
-		[Obsolete("Use IsScriptType instead")]
-		public bool IsPayToScriptHash
-		{
-			get
-			{
-				return PayToScriptHashTemplate.Instance.CheckScriptPubKey(this);
-			}
-		}
-
-		public BitcoinWitScriptAddress GetWitScriptAddress(Network network)
-		{
-			return (BitcoinWitScriptAddress)WitHash.GetAddress(network);
-		}
-
 		public uint GetSigOpCount(Script scriptSig)
 		{
 			if (!IsScriptType(ScriptType.P2SH))
@@ -808,7 +774,7 @@ namespace NBitcoin
 		/// Extract P2SH or P2PKH id from scriptSig
 		/// </summary>
 		/// <returns>The network</returns>
-		public TxDestination GetSigner()
+		public IAddressableDestination GetSigner()
 		{
 			var pubKey = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(this);
 			if (pubKey != null)
@@ -826,17 +792,16 @@ namespace NBitcoin
 		/// <returns></returns>
 		public BitcoinAddress GetDestinationAddress(Network network)
 		{
-			var dest = GetAddressableDestination();
+			var dest = GetDestination();
 			return dest == null ? null : dest.GetAddress(network);
 		}
 
 		/// <summary>
-		/// Extract P2SH/P2PKH/P2WSH/P2WPKH id from scriptPubKey
+		/// Extract P2SH/P2PKH/P2WSH/P2WPKH/P2TR id from scriptPubKey
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
-		[Obsolete("Use GetAddressableDestination instead")]
-		public TxDestination GetDestination()
+		public IAddressableDestination GetDestination()
 		{
 			var pubKeyHashParams = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
 			if (pubKeyHashParams != null)
@@ -845,25 +810,6 @@ namespace NBitcoin
 			if (scriptHashParams != null)
 				return scriptHashParams;
 			return PayToWitTemplate.Instance.ExtractScriptPubKeyParameters(this);
-		}
-
-		/// <summary>
-		/// Extract P2SH/P2PKH/P2WSH/P2WPKH/P2TR id from scriptPubKey
-		/// </summary>
-		/// <param name="network"></param>
-		/// <returns></returns>
-		public IAddressableDestination GetAddressableDestination()
-		{
-			var pubKeyHashParams = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
-			if (pubKeyHashParams != null)
-				return pubKeyHashParams;
-			var scriptHashParams = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
-			if (scriptHashParams != null)
-				return scriptHashParams;
-			var wit = PayToWitTemplate.Instance.ExtractScriptPubKeyParameters(this);
-			if (wit != null)
-				return wit;
-			return PayToTaprootTemplate.Instance.ExtractScriptPubKeyParameters(this);
 		}
 
 		/// <summary>
@@ -891,17 +837,11 @@ namespace NBitcoin
 		}
 
 		public PubKey[] GetAllPubKeys() =>
-			ToOps().Where(op => op.PushData != null && PubKey.Check(op.PushData, true)).Select(op => new PubKey(op.PushData)).ToArray();
-
-		/// <summary>
-		/// Get script byte array
-		/// </summary>
-		/// <returns></returns>
-		[Obsolete("Use ToBytes instead")]
-		public byte[] ToRawScript()
-		{
-			return ToBytes(false);
-		}
+			ToOps().Where(op => op.PushData != null).Select(op =>
+			{
+				PubKey.TryCreatePubKey(op.PushData, out var pk);
+				return pk;
+			}).Where(pk => pk != null).ToArray();
 
 		/// <summary>
 		/// Get script byte array
@@ -910,17 +850,6 @@ namespace NBitcoin
 		public byte[] ToBytes()
 		{
 			return ToBytes(false);
-		}
-
-		/// <summary>
-		/// Get script byte array
-		/// </summary>
-		/// <param name="unsafe">if false, returns a copy of the internal byte array</param>
-		/// <returns></returns>
-		[Obsolete("Use ToBytes instead")]
-		public byte[] ToRawScript(bool @unsafe)
-		{
-			return @unsafe ? _Script : _Script.ToArray();
 		}
 
 		/// <summary>

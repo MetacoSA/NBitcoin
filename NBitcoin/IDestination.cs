@@ -16,6 +16,7 @@
 	/// </summary>
 	public interface IAddressableDestination : IDestination
 	{
+		bool IsSupported(Network network);
 		BitcoinAddress GetAddress(Network network);
 	}
 }

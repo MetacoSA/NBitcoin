@@ -199,20 +199,10 @@ namespace NBitcoin.Tests
 						Assert.True(false, "Bad addrtype: " + strTest);
 						continue;
 					}
-					try
-					{
-						BitcoinAddress addrOut = dest.GetAddress(network);
-						Assert.True(addrOut.ToString() == exp_base58string, "mismatch: " + strTest);
-						Assert.True(addrOut.ScriptPubKey == dest.ScriptPubKey);
-#pragma warning disable CS0618 // Type or member is obsolete
-						Assert.True(dest.ScriptPubKey.GetDestination() == (TxDestination)dest);
-#pragma warning restore CS0618 // Type or member is obsolete
-						Assert.True(dest.ScriptPubKey.GetAddressableDestination().Equals(dest));
-					}
-					catch (ArgumentException)
-					{
-						Assert.True(dest.GetType() == typeof(TxDestination));
-					}
+					BitcoinAddress addrOut = dest.GetAddress(network);
+					Assert.True(addrOut.ToString() == exp_base58string, "mismatch: " + strTest);
+					Assert.True(addrOut.ScriptPubKey == dest.ScriptPubKey);
+					Assert.True(dest.ScriptPubKey.GetDestination().Equals(dest));
 				}
 			}
 		}

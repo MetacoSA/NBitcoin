@@ -19,14 +19,14 @@ namespace NBitcoin.Tests
 				var rpc = nodeBuilder.CreateNode().CreateRPCClient();
 				nodeBuilder.StartAll();
 				rpc.Generate(102);
-				var change = new Key().ScriptPubKey;
+				var change = new Key();
 				var rootKey = new ExtKey();
 				var accountKeyPath = new KeyPath("86'/0'/0'");
 				var accountRootKeyPath = new RootedKeyPath(rootKey.GetPublicKey().GetHDFingerPrint(), accountKeyPath);
 				var accountKey = rootKey.Derive(accountKeyPath);
 				var key = accountKey.Derive(new KeyPath("0/0")).PrivateKey;
 				var address = key.PubKey.GetAddress(ScriptPubKeyType.TaprootBIP86, nodeBuilder.Network);
-				var destination = new Key().ScriptPubKey;
+				var destination = new Key();
 				var amount = new Money(1, MoneyUnit.BTC);
 				uint256 id = null;
 				Transaction tx = null;
@@ -193,7 +193,7 @@ namespace NBitcoin.Tests
 				}).Select(t => t.Result).ToArray();
 
 
-				var destination = new Key().ScriptPubKey;
+				var destination = new Key();
 				var amount = new Money(1, MoneyUnit.BTC);
 				var redeemScripts = keyRedeemAddresses.Select(kra => kra.Redeem).ToArray();
 				var privateKeys = keyRedeemAddresses.SelectMany(kra => kra.Keys).ToArray();
@@ -206,7 +206,7 @@ namespace NBitcoin.Tests
 					.AddKeys(privateKeys)
 					.Send(destination, amount)
 					.SubtractFees()
-					.SetChange(new Key().ScriptPubKey)
+					.SetChange(new Key())
 					.SendEstimatedFees(rate)
 					.BuildTransaction(true);
 
@@ -240,7 +240,7 @@ namespace NBitcoin.Tests
 									.Single();
 
 
-				var destination = new Key().ScriptPubKey;
+				var destination = new Key();
 				var amount = new Money(1, MoneyUnit.BTC);
 
 
@@ -251,7 +251,7 @@ namespace NBitcoin.Tests
 					.AddKeys(keys[0])
 					.Send(destination, amount)
 					.SubtractFees()
-					.SetChange(new Key().ScriptPubKey)
+					.SetChange(new Key())
 					.SendEstimatedFees(rate)
 					.BuildPSBT(true);
 				Assert.True(partiallySignedTx.Inputs.All(i => i.PartialSigs.Count == 1));
@@ -315,7 +315,7 @@ namespace NBitcoin.Tests
 				}).Select(t => t.Result).ToArray();
 
 
-				var destination = new Key().ScriptPubKey;
+				var destination = new Key();
 				var amount = new Money(1, MoneyUnit.BTC);
 
 				var builder = Network.Main.CreateTransactionBuilder();
