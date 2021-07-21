@@ -831,6 +831,11 @@ namespace NBitcoin
 			if (coin == null)
 				throw new ArgumentNullException(nameof(coin));
 			signingOptions ??= new SigningOptions();
+			if (Transaction is IHasForkId)
+			{
+				signingOptions = signingOptions.Clone();
+				signingOptions.SigHash |= (SigHash)(0x40u);
+			}
 			var hash = GetSignatureHash(coin, signingOptions.SigHash, transactionData);
 			return key.Sign(hash, signingOptions);
 		}

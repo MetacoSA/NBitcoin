@@ -399,6 +399,50 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public async Task CanSignAltcoinTransaction()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				builder.StartAll();
+				var rpc = node.CreateRPCClient();
+				rpc.Generate(builder.Network.Consensus.CoinbaseMaturity + 1);
+				var key = new Key();
+				var addr = key.GetAddress(ScriptPubKeyType.Legacy, builder.Network);
+				var txid = await rpc.SendToAddressAsync(addr, Money.Coins(1.0m));
+				var tx = await rpc.GetRawTransactionAsync(txid);
+				var dest = await rpc.GetNewAddressAsync();
+				var txbuilder = builder.Network.CreateTransactionBuilder();
+				txbuilder.AddCoins(tx.Outputs.AsCoins());
+				txbuilder.AddKeys(key);
+				txbuilder.Send(dest, Money.Coins(1.0m));
+				txbuilder.SendFees(Money.Coins(0.00004m));
+				txbuilder.SubtractFees();
+				var signed = txbuilder.BuildTransaction(true);
+				await rpc.SendRawTransactionAsync(signed);
+			}
+		}
+
+		[Fact]
+		public void CheckForkIdIsUsedDuringSigning()
+		{
+			var n = Altcoins.AltNetworkSets.BCash.Regtest;
+			var key = new Key(Encoders.Hex.DecodeData("1718bce503a08a80ab698ad6e9b5211ed7a232958532877dd1cc67213fa5c4d9"));
+			var dest = BitcoinAddress.Create("bchreg:qz8d85evkscf7qx3y7pycllwwpyjy8dj7uwryky89l", n);
+			var tx = Transaction.Parse("0200000001766dc30996037844f838a4fc2f214e1fc13c3d65d46221e4d915c8b9b1c002bc0000000048473044022076c1ff7362f4cb50d4a36fb9a72db9ac8c8de4f7de1d9145e8bf8fb667578f4b022051a774e17cd8a0e3d3862985bc860c8fd49202b424d78a3989fae2a3848ba06441feffffff0241101024010000001976a9141686731726f06127a4e0d33a90d7912055582eb188ac00e1f505000000001976a9147bf316ee14ba66ba07bbcaa9ad5d94515acf35fc88ac65000000", n);
+
+			var txbuilder = n.CreateTransactionBuilder();
+			txbuilder.AddCoins(tx.Outputs.AsCoins());
+			txbuilder.AddKeys(key);
+			txbuilder.Send(dest, Money.Coins(1.0m));
+			txbuilder.SendFees(Money.Coins(0.00004m));
+			txbuilder.SubtractFees();
+			var signed = txbuilder.BuildTransaction(true);
+			var expected = Transaction.Parse("0100000001557fec4d75208907d177542573a31aad7d5e825514c54d5e97ddb159a9621477010000006a473044022053ae899e9927f3f77c9aff605bd88b6b84205c290f8498bdba73ad063107a5e7022006357498990b46475f65045a74eb25645d4dee0835e108b11a87ce77ffd3348341210309046b4af074cfb8138abd6d87003398d497336d2aca5102393aff1f47c6c009ffffffff0160d1f505000000001976a9148ed3d32cb4309f00d127824c7fee7049221db2f788ac00000000", n);
+			Assert.Equal(expected.ToString(), signed.ToString());
+		}
+
+		[Fact]
 		public async Task CorrectCoinMaturity()
 		{
 			using (var builder = NodeBuilderEx.Create())
