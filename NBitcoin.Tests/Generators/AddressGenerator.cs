@@ -10,8 +10,8 @@ namespace NBitcoin.Tests.Generators
 {
 	public class AddressGenerator
 	{
-		public static Arbitrary<BitcoinAddress> BitcoinAddressArb() =>
-			 Arb.From<BitcoinAddress>(RandomAddress());
+		public static Arbitrary<BitcoinAddress> BitcoinAddressArb(Network n) =>
+			 Arb.From<BitcoinAddress>(RandomAddress(n));
 
 		public static Arbitrary<Tuple<BitcoinAddress, Network>> BitcoinAddressWithNetworkArb()
 		{
@@ -20,9 +20,6 @@ namespace NBitcoin.Tests.Generators
 						   select Tuple.Create(addr, n);
 			return Arb.From<Tuple<BitcoinAddress, Network>>(tupleGen);
 		}
-
-		public static Gen<BitcoinAddress> RandomAddress() =>
-			Gen.OneOf(P2PKHAddress(), P2SHAddress(), Bech32Address());
 
 		public static Gen<BitcoinAddress> RandomAddress(Network network) =>
 			Gen.OneOf(P2PKHAddress(network), P2SHAddress(network), Bech32Address(network));

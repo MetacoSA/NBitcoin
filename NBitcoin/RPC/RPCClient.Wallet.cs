@@ -587,7 +587,7 @@ namespace NBitcoin.RPC
 					signingRepository.SetSecret(key.PubKeyHash, key);
 				}
 			}
-			seria.Converters.Add(new OutputDescriptorJsonConverter(false, signingRepository));
+			seria.Converters.Add(new OutputDescriptorJsonConverter(Network, false, signingRepository));
 
 			// -- --
 			foreach (var addr in addresses)

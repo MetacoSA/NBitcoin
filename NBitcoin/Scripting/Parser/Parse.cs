@@ -16,7 +16,7 @@ namespace NBitcoin.Scripting.Parser
 			if (second == null)
 				throw new ArgumentNullException(nameof(second));
 
-			return i => first(i).IfSuccess(s => second(s.Value)(s.Rest));
+			return (i, n) => first(i, n).IfSuccess(s => second(s.Value)(s.Rest, n));
 		}
 
 		public static Parser<TToken, IEnumerable<T>> Many<TToken, T>(this Parser<TToken, T> parser)
@@ -24,18 +24,18 @@ namespace NBitcoin.Scripting.Parser
 			if (parser == null)
 				throw new ArgumentNullException(nameof(parser));
 
-			return i =>
+			return (i, n) =>
 			{
 				var rest = i;
 				var result = new List<T>();
-				var r = parser(i);
+				var r = parser(i, n);
 				while (r.IsSuccess)
 				{
 					if (rest.Equals(r.Rest))
 						break;
 					result.Add(r.Value);
 					rest = r.Rest;
-					r = parser(rest);
+					r = parser(rest, n);
 				}
 
 				return ParserResult<TToken, IEnumerable<T>>.Success(rest, result);
@@ -121,7 +121,7 @@ namespace NBitcoin.Scripting.Parser
 		/// <typeparam name="T"></typeparam>
 		/// <returns></returns>
 		public static Parser<TToken, T> Return<TToken, T>(T v)
-			=> i => ParserResult<TToken, T>.Success(i, v);
+			=> (i, n) => ParserResult<TToken, T>.Success(i, v);
 
 		/// <summary>
 		/// Take the result of parsing, and project it onto a different domain.
@@ -163,7 +163,7 @@ namespace NBitcoin.Scripting.Parser
 
 			Parser<TToken, T> p = null;
 
-			return i =>
+			return (i, n) =>
 				{
 					if (p == null)
 						p = reference();
@@ -175,7 +175,7 @@ namespace NBitcoin.Scripting.Parser
 						new string[0],
 						"Left recursion in the grammar."
 					);
-					var result = p(i);
+					var result = p(i, n);
 					i.Memos[p] = result;
 					return result;
 				};
@@ -189,14 +189,14 @@ namespace NBitcoin.Scripting.Parser
 			if (second == null)
 				throw new ArgumentNullException(nameof(second));
 
-			return i =>
+			return (i, n) =>
 			{
-				var fr = first(i);
+				var fr = first(i, n);
 				if (!fr.IsSuccess)
-					return second(i).IfFailure<T>(sf => DetermineBestError(fr, sf));
+					return second(i, n).IfFailure<T>(sf => DetermineBestError(fr, sf));
 
 				if (fr.Rest.Equals(i))
-					return second(i).IfFailure<T>(sf => fr);
+					return second(i, n).IfFailure<T>(sf => fr);
 
 				return fr;
 			};
@@ -219,21 +219,21 @@ namespace NBitcoin.Scripting.Parser
 			if (second == null)
 				throw new ArgumentNullException(nameof(second));
 
-			return i =>
+			return (i, n) =>
 			{
-				var fr = first(i);
+				var fr = first(i, n);
 				if (!fr.IsSuccess)
 				{
 					// The 'X' part
 					if (!fr.Rest.Equals(i))
 						return fr;
 
-					return second(i).IfFailure<T>(sf => DetermineBestError(fr, sf));
+					return second(i, n).IfFailure<T>(sf => DetermineBestError(fr, sf));
 				}
 
 				// This handles a zero-length successful application of first.
 				if (fr.Rest.Equals(i))
-					return second(i).IfFailure<T>(sf => fr);
+					return second(i, n).IfFailure<T>(sf => fr);
 
 				return fr;
 			};
@@ -310,12 +310,12 @@ namespace NBitcoin.Scripting.Parser
 				throw new ArgumentNullException(nameof(except));
 
 			// Could be more like: except.Then(s => s.Fail("..")).XOr(parser)
-			return i =>
+			return (i, n) =>
 				{
-					var r = except(i);
+					var r = except(i, n);
 					if (r.IsSuccess)
 						return ParserResult<TToken, T>.Failure(i, new[] { "other than the excepted input" }, "Excepted parser succeeded.");
-					return parser(i);
+					return parser(i, n);
 				};
 		}
 
@@ -324,7 +324,7 @@ namespace NBitcoin.Scripting.Parser
 			if (parser == null)
 				throw new ArgumentNullException(nameof(parser));
 
-			return i => parser(i).IfSuccess(s =>
+			return (i, n) => parser(i, n).IfSuccess(s =>
 				s.Rest.AtEnd ? s : ParserResult<TToken, T>.Failure(
 					s.Rest,
 					new[] { "end of input" },
@@ -363,7 +363,7 @@ namespace NBitcoin.Scripting.Parser
 			if (predicate == null)
 				throw new ArgumentNullException(nameof(predicate));
 
-			return i => parser(i).IfSuccess(s =>
+			return (i, n) => parser(i, n).IfSuccess(s =>
 				predicate(s.Value) ? s : ParserResult<TToken, T>.Failure(i,
 					new string[0],
 					string.Format("Unexpected {0}.", s.Value)
@@ -599,14 +599,14 @@ namespace NBitcoin.Scripting.Parser
 			if (parser == null)
 				throw new ArgumentNullException(nameof(parser));
 
-			return i =>
+			return (i, net) =>
 				{
 					var remainder = i;
 					var result = new List<T>();
 
 					for (var n = 0; n < maximumCount; ++n)
 					{
-						var r = parser(remainder);
+						var r = parser(remainder, net);
 
 						if (!r.IsSuccess && n < minimumCount)
 						{
@@ -636,7 +636,7 @@ namespace NBitcoin.Scripting.Parser
 
 		internal static Parser<char, T> TryConvert<T>(string str, Func<string, T> converter)
 		{
-			return i =>
+			return (i, n) =>
 			{
 				try
 				{

@@ -27,10 +27,10 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void BasicParserTest()
 		{
-			ParserForTest.PToken().Parse("prefix(foo)");
-			ParserForTest.PToken().Parse("prefix  (foo)");
-			ParserForTest.PToken().Parse("prefix  (foo)   ");
-			ParserForTest.PToken().Parse("prefix  (   foo   )   ");
+			ParserForTest.PToken().Parse("prefix(foo)", Network.RegTest);
+			ParserForTest.PToken().Parse("prefix  (foo)", Network.RegTest);
+			ParserForTest.PToken().Parse("prefix  (foo)   ", Network.RegTest);
+			ParserForTest.PToken().Parse("prefix  (   foo   )   ", Network.RegTest);
 
 			// input must be enumerable
 			foreach (var p in new StringInput("123"))
