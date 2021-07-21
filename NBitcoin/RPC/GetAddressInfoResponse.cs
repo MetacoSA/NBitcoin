@@ -38,7 +38,7 @@ namespace NBitcoin.RPC
 			Solvable = raw.Property("solvable")?.Value.Value<bool>();
 			Descriptor = raw.Property("desc") == null
 				? null
-				: OutputDescriptor.Parse(raw.Property("desc").Value.Value<string>());
+				: OutputDescriptor.Parse(raw.Property("desc").Value.Value<string>(), network);
 			IsWatchOnly = raw.Property("iswatchonly").Value.Value<bool>();
 			IsScript = raw.Property("isscript").Value.Value<bool>();
 			IsWitness = raw.Property("iswitness").Value.Value<bool>();

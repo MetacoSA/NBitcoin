@@ -311,7 +311,7 @@ namespace NBitcoin.Tests
 				var funding = rpc.GetRawTransaction(txid);
 				var coin = funding.Outputs.AsCoins().Single(o => o.ScriptPubKey == dest.ScriptPubKey);
 
-				var result = rpc.StartScanTxoutSet(OutputDescriptor.NewAddr(dest));
+				var result = rpc.StartScanTxoutSet(OutputDescriptor.NewAddr(dest, builder.Network));
 
 				Assert.Equal(101, result.SearchedItems);
 				Assert.True(result.Success);
@@ -322,7 +322,7 @@ namespace NBitcoin.Tests
 				Assert.Null(rpc.GetStatusScanTxoutSet());
 
 				rpc.Generate(1);
-				result = rpc.StartScanTxoutSet(OutputDescriptor.NewAddr(dest));
+				result = rpc.StartScanTxoutSet(OutputDescriptor.NewAddr(dest, builder.Network));
 				Assert.True(result.SearchedItems > 100);
 				Assert.True(result.Success);
 				Assert.Single(result.Outputs);
@@ -947,7 +947,7 @@ namespace NBitcoin.Tests
 				{
 					new ImportMultiAddress
 					{
-						Desc = OutputDescriptor.Parse($"sh(wpkh({key.PubKey}))"),
+						Desc = OutputDescriptor.Parse($"sh(wpkh({key.PubKey}))", Network.RegTest),
 						Label = p2shP2wpkhLabel,
 						Keys = new [] { new BitcoinSecret(key, rpc.Network)},
 					}
@@ -967,7 +967,7 @@ namespace NBitcoin.Tests
 
 				// keyRepo to store xpriv
 				var keyRepo = new FlatSigningRepository();
-				var desc = OutputDescriptor.Parse($"sh(wpkh({xpriv}/0'/0'/*'))", false, keyRepo);
+				var desc = OutputDescriptor.Parse($"sh(wpkh({xpriv}/0'/0'/*'))", Network.RegTest, false, keyRepo);
 				multiAddresses = new List<ImportMultiAddress>
 				{
 					new ImportMultiAddress
@@ -998,13 +998,13 @@ namespace NBitcoin.Tests
 
 				var wifPriv = "cTe1f5rdT8A8DFgVWTjyPwACsDPJM9ff4QngFxUixCSvvbg1x6sh";
 				var address = "2MuhcG52uHPknxDgmGPsV18jSHFBnnRgjPg";
-				desc = OutputDescriptor.Parse($"sh(wpkh({wifPriv}))");
+				desc = OutputDescriptor.Parse($"sh(wpkh({wifPriv}))", Network.TestNet);
 				multiAddresses = new List<ImportMultiAddress>
 				{
 					new ImportMultiAddress
 					{
 						Desc = desc,
-						Keys = new [] {new BitcoinSecret(wifPriv, Network.Main) }
+						Keys = new [] {new BitcoinSecret(wifPriv, Network.TestNet) }
 					}
 				};
 				rpc.ImportMulti(multiAddresses.ToArray(), false);

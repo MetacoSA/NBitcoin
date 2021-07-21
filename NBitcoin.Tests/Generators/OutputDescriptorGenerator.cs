@@ -9,9 +9,10 @@ namespace NBitcoin.Tests.Generators
 {
 	public class OutputDescriptorGenerator : OutputDescriptorGeneratorBase
 	{
-
 		public static Arbitrary<OutputDescriptor> OutputDescriptorArb() =>
-			Arb.From(OutputDescriptorGen());
+			Arb.From(OutputDescriptorGen(Network.Main).Or(OutputDescriptorGen(Network.RegTest)));
+		public static Arbitrary<OutputDescriptor> OutputDescriptorArb(Network n) =>
+			Arb.From(OutputDescriptorGen(n));
 	}
 
 	public class RegtestOutputDescriptorGenerator : OutputDescriptorGeneratorBase
@@ -22,10 +23,10 @@ namespace NBitcoin.Tests.Generators
 
 	public class OutputDescriptorGeneratorBase
 	{
-		public static Gen<OutputDescriptor> OutputDescriptorGen(Network? n = null) =>
+		public static Gen<OutputDescriptor> OutputDescriptorGen(Network n) =>
 			Gen.OneOf(
 				AddrOutputDescriptorGen(n),
-				RawOutputDescriptorGen(),
+				RawOutputDescriptorGen(n),
 				PKOutputDescriptorGen(n),
 				PKHOutputDescriptorGen(n),
 				WPKHOutputDescriptorGen(n),
@@ -34,57 +35,57 @@ namespace NBitcoin.Tests.Generators
 				SHOutputDescriptorGen(n),
 				WSHOutputDescriptorGen(n)
 				);
-		private static Gen<OutputDescriptor> AddrOutputDescriptorGen(Network? n = null) =>
-			from addr in n is null ? AddressGenerator.RandomAddress() : AddressGenerator.RandomAddress(n)
-			select OutputDescriptor.NewAddr(addr);
+		private static Gen<OutputDescriptor> AddrOutputDescriptorGen(Network n) =>
+			from addr in AddressGenerator.RandomAddress(n)
+			select OutputDescriptor.NewAddr(addr, n);
 
-		private static Gen<OutputDescriptor> RawOutputDescriptorGen() =>
+		private static Gen<OutputDescriptor> RawOutputDescriptorGen(Network n) =>
 			from addr in ScriptGenerator.RandomScriptSig()
 			where addr._Script.Length > 0
-			select OutputDescriptor.NewRaw(addr);
-		private static Gen<OutputDescriptor> PKOutputDescriptorGen(Network? n = null) =>
+			select OutputDescriptor.NewRaw(addr, n);
+		private static Gen<OutputDescriptor> PKOutputDescriptorGen(Network n) =>
 			from pkProvider in PubKeyProviderGen(n)
-			select OutputDescriptor.NewPK(pkProvider);
+			select OutputDescriptor.NewPK(pkProvider, n);
 
-		private static Gen<OutputDescriptor> PKHOutputDescriptorGen(Network? n = null) =>
+		private static Gen<OutputDescriptor> PKHOutputDescriptorGen(Network n) =>
 			from pkProvider in PubKeyProviderGen(n)
-			select OutputDescriptor.NewPKH(pkProvider);
+			select OutputDescriptor.NewPKH(pkProvider, n);
 
-		private static Gen<OutputDescriptor> WPKHOutputDescriptorGen(Network? n = null) =>
+		private static Gen<OutputDescriptor> WPKHOutputDescriptorGen(Network n) =>
 			from pkProvider in PubKeyProviderGen(n)
-			select OutputDescriptor.NewWPKH(pkProvider);
+			select OutputDescriptor.NewWPKH(pkProvider, n);
 
-		private static Gen<OutputDescriptor> ComboOutputDescriptorGen(Network? n = null) =>
+		private static Gen<OutputDescriptor> ComboOutputDescriptorGen(Network n) =>
 			from pkProvider in PubKeyProviderGen(n)
-			select OutputDescriptor.NewCombo(pkProvider);
+			select OutputDescriptor.NewCombo(pkProvider, n);
 
-		private static Gen<OutputDescriptor> MultisigOutputDescriptorGen(int maxN, Network? network = null) =>
+		private static Gen<OutputDescriptor> MultisigOutputDescriptorGen(int maxN, Network network) =>
 			from n in Gen.Choose(2, maxN)
 			from m in Gen.Choose(2, n).Select(i => (uint)i)
 			from pkProviders in Gen.ArrayOf(n, PubKeyProviderGen(network))
 			from isSorted in Arb.Generate<bool>()
-			select OutputDescriptor.NewMulti(m, pkProviders, isSorted);
+			select OutputDescriptor.NewMulti(m, pkProviders, isSorted, network);
 
-		private static Gen<OutputDescriptor> WSHInnerGen(int maxMultisigN, Network? n = null) =>
+		private static Gen<OutputDescriptor> WSHInnerGen(int maxMultisigN, Network n) =>
 			Gen.OneOf(
 				PKOutputDescriptorGen(n),
 				PKHOutputDescriptorGen(n),
 				MultisigOutputDescriptorGen(maxMultisigN, n)
 				);
-		private static Gen<OutputDescriptor> InnerOutputDescriptorGen(int maxMultisigN, Network? n = null) =>
+		private static Gen<OutputDescriptor> InnerOutputDescriptorGen(int maxMultisigN, Network n) =>
 			Gen.OneOf(
 				WPKHOutputDescriptorGen(n),
 				WSHInnerGen(maxMultisigN, n)
 				);
 
 		// For sh-nested script, max multisig Number is 15.
-		private static Gen<OutputDescriptor> SHOutputDescriptorGen(Network? n = null) =>
+		private static Gen<OutputDescriptor> SHOutputDescriptorGen(Network n) =>
 			from inner in Gen.OneOf(InnerOutputDescriptorGen(15, n), WSHOutputDescriptorGen(n))
-			select OutputDescriptor.NewSH(inner);
+			select OutputDescriptor.NewSH(inner, n);
 
-		private static Gen<OutputDescriptor> WSHOutputDescriptorGen(Network? n = null) =>
+		private static Gen<OutputDescriptor> WSHOutputDescriptorGen(Network n) =>
 			from inner in WSHInnerGen(20, n)
-			select OutputDescriptor.NewWSH(inner);
+			select OutputDescriptor.NewWSH(inner, n);
 
 		#region pubkey providers
 
