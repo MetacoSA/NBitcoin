@@ -684,57 +684,6 @@ namespace NBitcoin
 			return h;
 #endif
 		}
-
-		public PubKey UncoverSender(Key ephem, PubKey scan)
-		{
-			return Uncover(ephem, scan);
-		}
-		public PubKey UncoverReceiver(Key scan, PubKey ephem)
-		{
-			return Uncover(scan, ephem);
-		}
-		public PubKey Uncover(Key priv, PubKey pub)
-		{
-			if (priv == null)
-				throw new ArgumentNullException(nameof(priv));
-			if (pub is null)
-				throw new ArgumentNullException(nameof(pub));
-#if HAS_SPAN
-			Span<byte> tmp = stackalloc byte[33];
-			pub._ECKey.GetSharedPubkey(priv._ECKey).WriteToSpan(true, tmp, out _);
-			var c = NBitcoinContext.Instance.CreateECPrivKey(Hashes.SHA256(tmp));
-			//Q' = Q + cG
-			var qprime = Secp256k1.EC.G.MultConst(c.sec, 256).Add(this.ECKey.Q);
-			return new PubKey(new Secp256k1.ECPubKey(qprime.ToGroupElement(), this._ECKey.ctx), this.IsCompressed);
-#else
-			var curve = ECKey.Secp256k1;
-			var hash = GetStealthSharedSecret(priv, pub);
-			//Q' = Q + cG
-			var qprim = curve.G.Multiply(new BigInteger(1, hash)).Add(curve.Curve.DecodePoint(this.ToBytes()));
-			return new PubKey(qprim.GetEncoded()).Compress(this.IsCompressed);
-#endif
-		}
-
-		internal static byte[] GetStealthSharedSecret(Key priv, PubKey pub)
-		{
-			if (priv == null)
-				throw new ArgumentNullException(nameof(priv));
-			if (pub is null)
-				throw new ArgumentNullException(nameof(pub));
-#if HAS_SPAN
-			Span<byte> tmp = stackalloc byte[33];
-			pub._ECKey.GetSharedPubkey(priv._ECKey).WriteToSpan(true, tmp, out _);
-			return Hashes.SHA256(tmp);
-#else
-			var curve = ECKey.Secp256k1;
-			var pubec = curve.Curve.DecodePoint(pub.ToBytes());
-			var p = pubec.Multiply(new BigInteger(1, priv.ToBytes()));
-			var pBytes = new PubKey(p.GetEncoded()).Compress().ToBytes();
-			var hash = Hashes.SHA256(pBytes);
-			return hash;
-#endif
-		}
-
 		public PubKey Compress(bool compression)
 		{
 			if (IsCompressed == compression)
