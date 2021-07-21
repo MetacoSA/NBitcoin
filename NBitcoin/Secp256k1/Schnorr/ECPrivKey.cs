@@ -92,41 +92,6 @@ namespace NBitcoin.Secp256k1
 		}
 	}
 
-
-
-#if SECP256K1_LIB
-	public
-#else
-	internal
-#endif
-	class SchnorrNonceFunction : INonceFunction
-	{
-		byte[]? data = null;
-		public SchnorrNonceFunction(byte[]? nonceData = null)
-		{
-			this.data = nonceData;
-		}
-		public static SchnorrNonceFunction Instance { get; } = new SchnorrNonceFunction();
-		public bool TryGetNonce(Span<byte> nonce32, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> algo16, uint counter)
-		{
-			using var sha = new Secp256k1.SHA256();
-			/* Hash x||msg as per the spec */
-			sha.Write(key32.Slice(0, 32));
-			sha.Write(msg32.Slice(0, 32));
-			/* Hash in algorithm, which is not in the spec, but may be critical to
-			 * users depending on it to avoid nonce reuse across algorithms. */
-			if (algo16.Length == 16)
-			{
-				sha.Write(algo16.Slice(0, 16));
-			}
-			if (data != null)
-			{
-				sha.Write(data.AsSpan().Slice(0, 32));
-			}
-			sha.GetHash(nonce32);
-			return true;
-		}
-	}
 #if SECP256K1_LIB
 	public
 #else
