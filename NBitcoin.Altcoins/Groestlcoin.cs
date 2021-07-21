@@ -87,7 +87,6 @@ namespace NBitcoin.Altcoins
 					SupportMempoolQuery = true;
 					SupportNodeBloom = true;
 					SupportPingPong = true;
-					SupportReject = true;
 					SupportSendHeaders = true;
 					SupportTimeAddress = true;
 					SupportUserAgent = true;

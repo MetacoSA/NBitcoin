@@ -1098,21 +1098,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanParseReject()
-		{
-			var hex = "f9beb4d972656a6563740000000000003a000000db7f7e7802747812156261642d74786e732d696e707574732d7370656e74577a9694da4ff41ae999f6591cff3749ad6a7db19435f3d8af5fecbcff824196";
-			Message message = new Message();
-			message.ReadWrite(Encoders.Hex.DecodeData(hex), Network.Main);
-			var reject = (RejectPayload)message.Payload;
-			Assert.True(reject.Message == "tx");
-			Assert.True(reject.Code == RejectCode.DUPLICATE);
-			Assert.True(reject.CodeType == RejectCodeType.Transaction);
-			Assert.True(reject.Reason == "bad-txns-inputs-spent");
-			Assert.True(reject.Hash == uint256.Parse("964182ffbcec5fafd8f33594b17d6aad4937ff1c59f699e91af44fda94967a57"));
-		}
-
-		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlock()
 		{

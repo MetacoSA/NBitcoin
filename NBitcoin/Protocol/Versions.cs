@@ -43,14 +43,6 @@ namespace NBitcoin.Protocol
 		}
 
 		/// <summary>
-		/// "reject" command
-		/// </summary>
-		public bool SupportReject
-		{
-			get; set;
-		}
-
-		/// <summary>
 		/// ! "filter*" commands are disabled without NODE_BLOOM after and including this version
 		/// </summary>
 		public bool SupportNodeBloom
@@ -123,7 +115,6 @@ namespace NBitcoin.Protocol
 				SupportMempoolQuery = true,
 				SupportNodeBloom = true,
 				SupportPingPong = true,
-				SupportReject = true,
 				SupportSendHeaders = true,
 				SupportTimeAddress = true,
 				SupportUserAgent = true,
@@ -140,7 +131,6 @@ namespace NBitcoin.Protocol
 				(!capabilities.SupportMempoolQuery || SupportMempoolQuery) &&
 				(!capabilities.SupportNodeBloom || SupportNodeBloom) &&
 				(!capabilities.SupportPingPong || SupportPingPong) &&
-				(!capabilities.SupportReject || SupportReject) &&
 				(!capabilities.SupportSendHeaders || SupportSendHeaders) &&
 				(!capabilities.SupportTimeAddress || SupportTimeAddress) &&
 				(!capabilities.SupportWitness || SupportWitness) &&

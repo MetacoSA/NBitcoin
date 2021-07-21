@@ -426,14 +426,6 @@ namespace NBitcoin.Protocol
 		protected void OnMessageReceived(IncomingMessage message)
 		{
 			var version = message.Message.Payload as VersionPayload;
-			if (version != null && State == NodeState.HandShaked)
-			{
-				if (message.Node.ProtocolCapabilities.SupportReject)
-					message.Node.SendMessageAsync(new RejectPayload()
-					{
-						Code = RejectCode.DUPLICATE
-					});
-			}
 			if (version != null)
 			{
 				TimeOffset = DateTimeOffset.Now - version.Timestamp;
@@ -1085,17 +1077,11 @@ namespace NBitcoin.Protocol
 			requirements = requirements ?? new NodeRequirement();
 			using (var listener = CreateListener()
 									.Where(p => p.Message.Payload is VersionPayload ||
-												p.Message.Payload is RejectPayload ||
 												p.Message.Payload is VerAckPayload))
 			{
 
 				SendMessageAsync(MyVersion);
-				var payload = listener.ReceivePayload<Payload>(cancellationToken);
-				if (payload is RejectPayload)
-				{
-					throw new ProtocolException("Handshake rejected : " + ((RejectPayload)payload).Reason);
-				}
-				var version = (VersionPayload)payload;
+				var version = listener.ReceivePayload<VersionPayload>(cancellationToken);
 				_PeerVersion = version;
 				SetVersion(Math.Min(MyVersion.Version, version.Version));
 
@@ -1151,15 +1137,12 @@ namespace NBitcoin.Protocol
 		/// <param name="cancellation"></param>
 		public void RespondToHandShake(CancellationToken cancellation = default(CancellationToken))
 		{
-			using (var list = CreateListener().Where(m => m.Message.Payload is VerAckPayload || m.Message.Payload is RejectPayload))
+			using (var list = CreateListener().Where(m => m.Message.Payload is VerAckPayload))
 			{
 				Logs.NodeServer.LogInformation("Responding to handshake");
 
 				SendMessageAsync(MyVersion);
 				var message = list.ReceiveMessage(cancellation);
-				var reject = message.Message.Payload as RejectPayload;
-				if (reject != null)
-					throw new ProtocolException("Version rejected " + reject.Code + " : " + reject.Reason);
 				SendMessageAsync(new VerAckPayload());
 				State = NodeState.HandShaked;
 

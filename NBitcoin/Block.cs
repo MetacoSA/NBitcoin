@@ -505,14 +505,6 @@ namespace NBitcoin
 			}
 		}
 
-		public bool HeaderOnly
-		{
-			get
-			{
-				return vtx == null || vtx.Count == 0;
-			}
-		}
-
 		/// <summary>
 		/// Get the coinbase height as specified by the first tx input of this block (BIP 34)
 		/// </summary>
@@ -546,14 +538,6 @@ namespace NBitcoin
 		{
 			//Block's hash is his header's hash
 			return header.GetHash();
-		}
-
-		public void ReadWrite(byte[] array, int startIndex)
-		{
-			var ms = new MemoryStream(array);
-			ms.Position += startIndex;
-			BitcoinStream bitStream = new BitcoinStream(ms, false);
-			ReadWrite(bitStream);
 		}
 
 		public Transaction AddTransaction(Transaction tx)
@@ -606,25 +590,9 @@ namespace NBitcoin
 			return CheckMerkleRoot() && Header.CheckProofOfWork();
 		}
 
-		/// <summary>
-		/// Check proof of work and merkle root
-		/// </summary>
-		/// <param name="consensus"></param>
-		/// <returns></returns>
-		[Obsolete("Use Check() instead")]
-		public bool Check(Consensus consensus)
-		{
-			return Check();
-		}
-
 		public bool CheckProofOfWork()
 		{
 			return Header.CheckProofOfWork();
-		}
-		[Obsolete("Use CheckProofOfWork() instead")]
-		public bool CheckProofOfWork(Consensus consensus)
-		{
-			return CheckProofOfWork();
 		}
 
 		public bool CheckMerkleRoot()
@@ -685,33 +653,6 @@ namespace NBitcoin
 			return CreateNextBlockWithCoinbase(pubkey, value, DateTimeOffset.UtcNow, Consensus.Main.ConsensusFactory);
 		}
 
-		[Obsolete("Use CreateNextBlockWithCoinbase with consensusFactory instead")]
-		public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value, DateTimeOffset now)
-		{
-			return CreateNextBlockWithCoinbase(pubkey, value, now, Consensus.Main.ConsensusFactory);
-		}
-
-#if !NOJSONNET
-		[Obsolete("Always use an hex encoded version of the block instead")]
-		public static Block ParseJson(string json)
-		{
-			var formatter = new BlockExplorerFormatter();
-			var block = JObject.Parse(json);
-			var txs = (JArray)block["tx"];
-			Block blk = new Block();
-			blk.Header.Bits = new Target((uint)block["bits"]);
-			blk.Header.BlockTime = Utils.UnixTimeToDateTime((uint)block["time"]);
-			blk.Header.Nonce = (uint)block["nonce"];
-			blk.Header.Version = (int)block["ver"];
-			blk.Header.HashPrevBlock = uint256.Parse((string)block["prev_block"]);
-			blk.Header.HashMerkleRoot = uint256.Parse((string)block["mrkl_root"]);
-			foreach (var tx in txs)
-			{
-				blk.AddTransaction(formatter.Parse((JObject)tx));
-			}
-			return blk;
-		}
-#endif
 		public static Block Parse(string hex, Network network)
 		{
 			if (network == null)
@@ -763,13 +704,6 @@ namespace NBitcoin
 			block.ReadWrite(hex, consensusFactory);
 			return block;
 		}
-
-		[Obsolete("Use Parse(byte[], Network|Consensus|ConsensusFactory)")]
-		public static Block Parse(string hex)
-		{
-			return Parse(hex, Consensus.Main.ConsensusFactory);
-		}
-
 		public MerkleBlock Filter(params uint256[] txIds)
 		{
 			return new MerkleBlock(this, txIds);

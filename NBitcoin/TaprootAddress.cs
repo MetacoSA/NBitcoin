@@ -13,23 +13,31 @@ namespace NBitcoin
 {
 	public class TaprootAddress : BitcoinAddress, IBech32Data
 	{
-		public TaprootAddress(string bech32, Network expectedNetwork)
-				: base(Validate(bech32, expectedNetwork), expectedNetwork)
+		public static new TaprootAddress Create(string bech32, Network expectedNetwork)
 		{
+			if (bech32 is null)
+				throw new ArgumentNullException(nameof(bech32));
+			if (expectedNetwork is null)
+				throw new ArgumentNullException(nameof(expectedNetwork));
+			bech32 = bech32.ToLowerInvariant();
 			if (expectedNetwork.GetBech32Encoder(Bech32Type.TAPROOT_ADDRESS, false) is Bech32Encoder encoder)
 			{
-				var decoded = encoder.Decode(bech32, out _);
+				var decoded = encoder.Decode(bech32, out var v);
 #if HAS_SPAN
-				if (ECXOnlyPubKey.TryCreate(decoded, out var k))
-					_PubKey = new TaprootPubKey(k);
+				if (v == 1 && ECXOnlyPubKey.TryCreate(decoded, out var k))
+					return new TaprootAddress(bech32, new TaprootPubKey(k), expectedNetwork);
 				else
 					throw new FormatException("Invalid TaprootAddress");
 #else
-				_PubKey = new TaprootPubKey(decoded);
+				return new TaprootAddress(bech32, new TaprootPubKey(decoded), expectedNetwork);
 #endif
 			}
 			else
 				throw expectedNetwork.Bech32NotSupported(Bech32Type.TAPROOT_ADDRESS);
+		}
+		internal TaprootAddress(string str, TaprootPubKey key, Network network) : base(str, network)
+		{
+			_PubKey = key;
 		}
 		internal TaprootAddress(string str, byte[] key, Network network) : base(str, network)
 		{
@@ -41,34 +49,6 @@ namespace NBitcoin
 #else
 			_PubKey = new TaprootPubKey(key);
 #endif
-		}
-
-		private static string Validate(string bech32, Network expectedNetwork)
-		{
-			if (bech32 == null)
-				throw new ArgumentNullException(nameof(bech32));
-			if (expectedNetwork == null)
-				throw new ArgumentNullException(nameof(expectedNetwork));
-
-			if (expectedNetwork.GetBech32Encoder(Bech32Type.TAPROOT_ADDRESS, false) is Bech32Encoder encoder)
-			{
-				try
-				{
-					byte witVersion;
-					var data = encoder.Decode(bech32, out witVersion);
-					if (data.Length == 32 && witVersion == 1)
-					{
-						return bech32;
-					}
-				}
-				catch (Bech32FormatException) { throw; }
-				catch (FormatException) { }
-			}
-			else
-			{
-				throw expectedNetwork.Bech32NotSupported(Bech32Type.TAPROOT_ADDRESS);
-			}
-			throw new FormatException("Invalid TaprootAddress");
 		}
 
 		public TaprootAddress(TaprootPubKey pubKey, Network network) :
