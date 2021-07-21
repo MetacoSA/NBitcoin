@@ -710,16 +710,6 @@ namespace NBitcoin
 			}
 		}
 
-		public BitcoinScriptAddress GetScriptAddress(Network network)
-		{
-			return (BitcoinScriptAddress)Hash.GetAddress(network);
-		}
-
-		public BitcoinWitScriptAddress GetWitScriptAddress(Network network)
-		{
-			return (BitcoinWitScriptAddress)WitHash.GetAddress(network);
-		}
-
 		public uint GetSigOpCount(Script scriptSig)
 		{
 			if (!IsScriptType(ScriptType.P2SH))
