@@ -110,7 +110,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(testAddress.ScriptPubKey, testColored.ScriptPubKey);
 
 			Assert.Equal(Network.TestNet, testColored.Network);
-			testColored = new BitcoinColoredAddress("bWqaKUZETiECYgmJNbNZUoanBxnAzoVjCNx");
+			testColored = new BitcoinColoredAddress("bWqaKUZETiECYgmJNbNZUoanBxnAzoVjCNx", testColored.Network);
 			Assert.Equal(Network.TestNet, testColored.Network);
 			Assert.Equal(colored.ToNetwork(Network.TestNet), testColored);
 		}

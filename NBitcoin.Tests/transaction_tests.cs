@@ -210,7 +210,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanExtractTxOutDestinationEasily()
 		{
-			var secret = new BitcoinSecret("KyJTjvFpPF6DDX4fnT56d2eATPfxjdUPXFFUb85psnCdh34iyXRQ");
+			var secret = new BitcoinSecret("KyJTjvFpPF6DDX4fnT56d2eATPfxjdUPXFFUb85psnCdh34iyXRQ", Network.Main);
 
 			var tx = Network.CreateTransaction();
 			var p2pkh = tx.Outputs.Add(new Money((UInt64)45000000), secret.GetAddress(ScriptPubKeyType.Legacy));
@@ -2785,7 +2785,7 @@ namespace NBitcoin.Tests
 			var privKeys = new[]{"5JaTXbAUmfPYZFRwrYaALK48fN6sFJp4rHqq2QSXs8ucfpE4yQU",
 						"5Jb7fCeh1Wtm4yBBg3q3XbT6B525i17kVhy3vMC9AqfR6FH2qGk",
 						"5JFjmGo5Fww9p8gvx48qBYDJNAzR9pmH5S389axMtDyPT8ddqmw"}
-						.Select(k => new BitcoinSecret(k)).ToArray();
+						.Select(k => new BitcoinSecret(k, Network.Main)).ToArray();
 
 			//First: combine the three keys into a multisig address
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, privKeys.Select(k => k.PubKey).ToArray());
@@ -3441,7 +3441,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void TestSigHashes()
 		{
-			BitcoinSecret secret = new BitcoinSecret("L5AQtV2HDm4xGsseLokK2VAT2EtYKcTm3c7HwqnJBFt9LdaQULsM");
+			BitcoinSecret secret = new BitcoinSecret("L5AQtV2HDm4xGsseLokK2VAT2EtYKcTm3c7HwqnJBFt9LdaQULsM", Network.Main);
 			var key = secret.PrivateKey;
 			StringBuilder output = new StringBuilder();
 			foreach (var segwit in new[] { false, true })
