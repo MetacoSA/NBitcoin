@@ -419,6 +419,7 @@ namespace NBitcoin.Tests
 				txbuilder.SendFees(Money.Coins(0.00004m));
 				txbuilder.SubtractFees();
 				var signed = txbuilder.BuildTransaction(true);
+				Assert.True(txbuilder.Verify(signed));
 				await rpc.SendRawTransactionAsync(signed);
 			}
 		}
@@ -439,6 +440,7 @@ namespace NBitcoin.Tests
 			txbuilder.SubtractFees();
 			var signed = txbuilder.BuildTransaction(true);
 			var expected = Transaction.Parse("0100000001557fec4d75208907d177542573a31aad7d5e825514c54d5e97ddb159a9621477010000006a473044022053ae899e9927f3f77c9aff605bd88b6b84205c290f8498bdba73ad063107a5e7022006357498990b46475f65045a74eb25645d4dee0835e108b11a87ce77ffd3348341210309046b4af074cfb8138abd6d87003398d497336d2aca5102393aff1f47c6c009ffffffff0160d1f505000000001976a9148ed3d32cb4309f00d127824c7fee7049221db2f788ac00000000", n);
+			Assert.True(txbuilder.Verify(signed));
 			Assert.Equal(expected.ToString(), signed.ToString());
 		}
 
