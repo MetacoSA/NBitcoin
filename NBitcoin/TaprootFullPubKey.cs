@@ -46,6 +46,11 @@ namespace NBitcoin
 		public uint256? MerkleRoot { get; }
 		public TaprootInternalPubKey InternalKey { get; }
 		public TaprootPubKey OutputKey { get; }
+
+		public bool CheckTapTweak(TaprootInternalPubKey internalPubKey)
+		{
+			return this.CheckTapTweak(internalPubKey, MerkleRoot, OutputKeyParity);
+		}
 	}
 }
 #endif

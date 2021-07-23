@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 
 namespace NBitcoin
 {
@@ -1262,6 +1263,12 @@ namespace NBitcoin
 		{
 			var ms = new MemoryStream();
 			BitcoinStream stream = new BitcoinStream(ms, true);
+			Serialize(stream);
+			return ms.ToArrayEfficient();
+		}
+
+		private void Serialize(BitcoinStream stream)
+		{
 			uint pushCount = (uint)_Pushes.Length;
 			stream.ReadWriteAsVarInt(ref pushCount);
 			foreach (var push in Pushes)
@@ -1269,7 +1276,13 @@ namespace NBitcoin
 				var localpush = push;
 				stream.ReadWriteAsVarString(ref localpush);
 			}
-			return ms.ToArrayEfficient();
+		}
+
+		public int GetSerializedSize()
+		{
+			BitcoinStream stream = new BitcoinStream(Stream.Null, true);
+			Serialize(stream);
+			return (int)stream.Counter.WrittenBytes;
 		}
 
 		public override string ToString()
@@ -1604,7 +1617,7 @@ namespace NBitcoin
 		}
 		protected virtual HashStreamBase CreateSignatureHashStream(HashVersion hashVersion)
 		{
-			if (hashVersion == HashVersion.Taproot)
+			if (hashVersion == HashVersion.Taproot || hashVersion == HashVersion.Tapscript)
 				return new HashStream() { SingleSHA256 = true };
 			return new HashStream();
 		}
@@ -2163,8 +2176,7 @@ namespace NBitcoin
 
 			if (executionData.AnnexHash is uint256)
 			{
-				var annex = executionData.AnnexHash;
-				ss.ReadWrite(ref annex);
+				ss.ReadWrite(executionData.AnnexHash);
 			}
 
 			// Data about the output (if only one).
@@ -2187,7 +2199,7 @@ namespace NBitcoin
 			return GetHash(ss);
 		}
 
-		const byte SIGHASH_OUTPUT_MASK = 3;
+		internal const byte SIGHASH_OUTPUT_MASK = 3;
 		const byte SIGHASH_INPUT_MASK = 0x80;
 
 		public virtual uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)

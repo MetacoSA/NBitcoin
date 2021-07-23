@@ -110,7 +110,7 @@ namespace NBitcoin.Tests
 																 new TaprootExecutionData(0) { SigHash = sighash });
 						var sig = key.SignTaprootKeySpend(hash, sighash);
 
-						Assert.True(addr.PubKey.VerifyTaproot(hash, sig.SchnorrSignature));
+						Assert.True(addr.PubKey.VerifySignature(hash, sig.SchnorrSignature));
 						spender.Inputs[0].WitScript = new WitScript(Op.GetPushOp(sig.ToBytes()));
 						rpc.SendRawTransaction(spender);
 					}

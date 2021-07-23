@@ -29,7 +29,10 @@ namespace NBitcoin
 				else
 					throw new FormatException("Invalid TaprootAddress");
 #else
-				return new TaprootAddress(bech32, new TaprootPubKey(decoded), expectedNetwork);
+				if (v == 1 && decoded.Length == 32)
+					return new TaprootAddress(bech32, new TaprootPubKey(decoded), expectedNetwork);
+				else
+					throw new FormatException("Invalid TaprootAddress");
 #endif
 			}
 			else

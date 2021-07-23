@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 #if HAS_SPAN
 using NBitcoin.Secp256k1;
@@ -158,6 +159,10 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
+		public bool VerifyTaproot(uint256 hash, uint256? merkleRoot, SchnorrSignature signature)
+		{
+			return this.GetTaprootFullPubKey(merkleRoot).OutputKey.VerifySignature(hash, signature);
+		}
 		public int CompareTo(TaprootInternalPubKey other)
 		{
 			return this.pubkey.CompareTo(other.pubkey);

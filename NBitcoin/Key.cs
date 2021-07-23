@@ -186,6 +186,10 @@ namespace NBitcoin
 		}
 		public TaprootSignature SignTaprootKeySpend(uint256 hash, uint256? merkleRoot, TaprootSigHash sigHash)
 		{
+			return SignTaprootKeySpend(hash, merkleRoot, null, sigHash);
+		}
+		public TaprootSignature SignTaprootKeySpend(uint256 hash, uint256? merkleRoot, uint256? aux, TaprootSigHash sigHash)
+		{
 			if (hash == null)
 				throw new ArgumentNullException(nameof(hash));
 			AssertNotDisposed();
@@ -198,7 +202,7 @@ namespace NBitcoin
 			TaprootFullPubKey.ComputeTapTweak(PubKey.TaprootInternalKey, merkleRoot, buf);
 			eckey = eckey.TweakAdd(buf);
 			hash.ToBytes(buf);
-			var sig = eckey.SignBIP340(buf);
+			var sig = aux?.ToBytes() is byte[] auxbytes ? eckey.SignBIP340(buf, auxbytes) : eckey.SignBIP340(buf);
 			return new TaprootSignature(new SchnorrSignature(sig), sigHash);
 		}
 		public TaprootKeyPair CreateTaprootKeyPair()
