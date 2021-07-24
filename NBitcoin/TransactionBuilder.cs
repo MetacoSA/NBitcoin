@@ -436,7 +436,7 @@ namespace NBitcoin
 						if (!signingContext.PrecomputedTransactionData.ForTaproot)
 							throw new InvalidOperationException("This transaction include inputs not belonging to the signer, and taproot signing is detected. You need to pass the PrecomputedTransactionData to the TransactionBuilder with txBuilder.SetPrecomputedTransactionData(transactionToSign, spentOutputs).");
 						var hash = txIn.GetSignatureHash(coin, taproot.SigHash, signingContext.PrecomputedTransactionData);
-						if (tv.Item3 != null || tpk.VerifyTaproot(hash, taproot.SchnorrSignature))
+						if (tv.Item3 != null || tpk.VerifySignature(hash, taproot.SchnorrSignature))
 						{
 							found = true;
 						}

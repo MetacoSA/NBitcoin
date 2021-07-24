@@ -1075,13 +1075,14 @@ namespace NBitcoin
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
 			var bytes = scriptPubKey.ToBytes(true);
-			if (bytes.Length < 4 || bytes.Length > 34)
+			if (bytes.Length < 4 || bytes.Length > 42)
 			{
 				return false;
 			}
-			var version = bytes[0];
-			if (!ValidSegwitVersion(version))
+			if (!ValidSegwitVersion(bytes[0]))
+			{
 				return false;
+			}
 			return bytes[1] + 2 == bytes.Length;
 		}
 
@@ -1112,13 +1113,13 @@ namespace NBitcoin
 		{
 			if (!CheckScriptPubKey(scriptPubKey))
 				return null;
-			var ops = scriptPubKey.ToOps().ToArray();
-			if (ops.Length != 2 || ops[1].PushData == null)
-				return null;
+			var bytes = scriptPubKey.ToBytes(true);
+			var program = new byte[bytes.Length - 2];
+			Array.Copy(bytes, 2, program, 0, program.Length);
 			return new WitProgramParameters()
 			{
-				Version = ops[0].Code,
-				Program = ops[1].PushData
+				Version = (OpcodeType)bytes[0],
+				Program = program
 			};
 		}
 

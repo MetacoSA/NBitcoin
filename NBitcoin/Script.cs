@@ -130,6 +130,10 @@ namespace NBitcoin
 		/// Making unknown Taproot leaf versions non-standard
 		/// </summary>
 		DiscourageUpgradableTaprootVersion = (1U << 18),
+		// Making unknown OP_SUCCESS non-standard
+		DiscourageOpSuccess = (1U << 19),
+		// Making unknown public key versions (in BIP 342 scripts) non-standard
+		DiscourageUpgradablePubKeyType = (1U << 20),
 
 		/// <summary>
 		/// Mandatory script verification flags that all new blocks must comply with for
@@ -163,7 +167,9 @@ namespace NBitcoin
 			| NullFail
 			| MinimalIf
 			| Taproot
-			| DiscourageUpgradableTaprootVersion,
+			| DiscourageUpgradableTaprootVersion
+			| DiscourageOpSuccess
+			| DiscourageUpgradablePubKeyType,
 
 
 		/// <summary>
@@ -182,6 +188,7 @@ namespace NBitcoin
 	/// <summary>
 	/// Signature hash types/flags
 	/// </summary>
+	[Flags]
 	public enum SigHash : uint
 	{
 		/// <summary>
@@ -205,6 +212,7 @@ namespace NBitcoin
 	/// <summary>
 	/// Signature hash types/flags for taproot transactions
 	/// </summary>
+	[Flags]
 	public enum TaprootSigHash : uint
 	{
 		Default = 0,
@@ -365,8 +373,8 @@ namespace NBitcoin
 		OP_NOP8 = 0xb7,
 		OP_NOP9 = 0xb8,
 		OP_NOP10 = 0xb9,
-	};
-
+		OP_CHECKSIGADD = 0xba
+	}
 	public enum HashVersion
 	{
 		Original = 0,
@@ -1142,8 +1150,8 @@ namespace NBitcoin
 					if (sigs.ContainsKey(pubkey))
 						continue; // Already got a sig for this pubkey
 
-					ScriptEvaluationContext eval = new ScriptEvaluationContext();
-					if (eval.CheckSig(sig, pubkey, scriptPubKey, checker, hashVersion))
+					uint256 sighash = checker.Transaction.GetSignatureHash(scriptPubKey, checker.Index, sig.SigHash, checker.SpentOutput, hashVersion, checker.PrecomputedTransactionData);
+					if (pubkey.Verify(sighash, sig.Signature))
 					{
 						sigs.AddOrReplace(pubkey, sig);
 					}

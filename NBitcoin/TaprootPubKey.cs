@@ -54,19 +54,19 @@ namespace NBitcoin
 		public TaprootPubKey(ReadOnlySpan<byte> pubkey)
 		{
 			if (pubkey.Length != 32)
-				throw new FormatException("The pubkey size should be 32 bytes");
+				throw new ArgumentException("The pubkey size should be 32 bytes");
 			if (!ECXOnlyPubKey.TryCreate(pubkey, out var k))
-				throw new FormatException("Invalid taproot pubkey");
+				throw new ArgumentException("Invalid taproot pubkey");
 			this.pubkey = k;
 		}
 #endif
 			public TaprootPubKey(byte[] pubkey)
 		{
 			if (pubkey.Length != 32)
-				throw new FormatException("The pubkey size should be 32 bytes");
+				throw new ArgumentException("The pubkey size should be 32 bytes", nameof(pubkey));
 #if HAS_SPAN
 			if (!ECXOnlyPubKey.TryCreate(pubkey, out var k))
-				throw new FormatException("Invalid taproot pubkey");
+				throw new ArgumentException("Invalid taproot pubkey", nameof(pubkey));
 			this.pubkey = k;
 #else
 			pubkey.CopyTo(this.pubkey, 0);
@@ -140,7 +140,7 @@ namespace NBitcoin
 			return pubkey.GetHashCode();
 		}
 
-		public bool VerifyTaproot(uint256 hash, SchnorrSignature signature)
+		public bool VerifySignature(uint256 hash, SchnorrSignature signature)
 		{
 			if (hash == null)
 				throw new ArgumentNullException(nameof(hash));
@@ -204,5 +204,16 @@ namespace NBitcoin
 		{
 			return network.Consensus.SupportTaproot;
 		}
+#if HAS_SPAN
+		public bool CheckTapTweak(TaprootInternalPubKey internalPubKey, uint256? merkleRoot, bool parity)
+		{
+			if (internalPubKey is null)
+				throw new ArgumentNullException(nameof(internalPubKey));
+
+			Span<byte> tweak32 = stackalloc byte[32];
+			TaprootFullPubKey.ComputeTapTweak(internalPubKey, merkleRoot, tweak32);
+			return this.pubkey.CheckIsTweakedWith(internalPubKey.pubkey, tweak32, parity);
+		}
+#endif
 	}
 }
