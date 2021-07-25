@@ -758,45 +758,48 @@ namespace NBitcoin
 			get;
 			set;
 		}
-
+#nullable enable
 		public bool VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard)
 		{
 			ScriptError unused;
-			return VerifyScript(spentOutput, scriptVerify, out unused);
+			return VerifyScript(spentOutput, scriptVerify, null, out unused);
 		}
 
 		public bool VerifyScript(TxOut spentOutput, out ScriptError error)
 		{
-			return Script.VerifyScript(Transaction, (int)Index, spentOutput, out error);
+			return VerifyScript(spentOutput, ScriptVerify.Standard, null, out error);
 		}
 
 		public bool VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error)
 		{
 			return VerifyScript(spentOutput, scriptVerify, null, out error);
 		}
-		public bool VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify, PrecomputedTransactionData precomputedTransactionData, out ScriptError error)
-		{
-			return Script.VerifyScript(Transaction, (int)Index, spentOutput, scriptVerify, out error);
-		}
-
-		public bool VerifyScript(ICoin coin, ScriptVerify scriptVerify = ScriptVerify.Standard)
+		public bool VerifyScript(ICoin spentCoin, ScriptVerify scriptVerify = ScriptVerify.Standard)
 		{
 			ScriptError error;
-			return VerifyScript(coin, scriptVerify, null, out error);
+			return VerifyScript(spentCoin, scriptVerify, null, out error);
 		}
 
-		public bool VerifyScript(ICoin coin, ScriptVerify scriptVerify, out ScriptError error)
+		public bool VerifyScript(ICoin spentCoin, ScriptVerify scriptVerify, out ScriptError error)
 		{
-			return VerifyScript(coin, scriptVerify, null, out error);
+			return VerifyScript(spentCoin, scriptVerify, null, out error);
 		}
-		public bool VerifyScript(ICoin coin, ScriptVerify scriptVerify, PrecomputedTransactionData precomputedTransactionData, out ScriptError error)
+		public bool VerifyScript(ICoin spentCoin, ScriptVerify scriptVerify, PrecomputedTransactionData? precomputedTransactionData, out ScriptError error)
 		{
+			if (spentCoin is null)
+				throw new ArgumentNullException(nameof(spentCoin));
+			return VerifyScript(spentCoin.TxOut, scriptVerify, precomputedTransactionData, out error);
+		}
+		public bool VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify, PrecomputedTransactionData? precomputedTransactionData, out ScriptError error)
+		{
+			if (spentOutput is null)
+				throw new ArgumentNullException(nameof(spentOutput));
 			var eval = new ScriptEvaluationContext
 			{
 				ScriptVerify = scriptVerify,
 			};
-			var checker = new TransactionChecker(Transaction, (int)Index, coin.TxOut, precomputedTransactionData);
-			var result = eval.VerifyScript(this.Transaction.Inputs[(int)Index].ScriptSig, coin.TxOut.ScriptPubKey, checker);
+			var checker = new TransactionChecker(Transaction, (int)Index, spentOutput, precomputedTransactionData);
+			var result = eval.VerifyScript(this.Transaction.Inputs[(int)Index].ScriptSig, spentOutput.ScriptPubKey, checker);
 			error = eval.Error;
 			return result;
 		}
@@ -809,7 +812,6 @@ namespace NBitcoin
 		{
 			return Sign(key, coin, new SigningOptions(sigHash, useLowR));
 		}
-#nullable enable
 #if HAS_SPAN
 		public TaprootSignature SignTaprootKeySpend(TaprootKeyPair keyPair, ICoin coin, SigningOptions? signingOptions, PrecomputedTransactionData transactionData)
 		{
@@ -907,6 +909,22 @@ namespace NBitcoin
 				}
 			}
 			return null;
+		}
+		/// <summary>
+		/// Returns the IndexedTxIn at index.
+		/// </summary>
+		/// <param name="index">the index</param>
+		/// <returns>A IndexedTxIn</returns>
+		public IndexedTxIn FindIndexedInput(int index)
+		{
+			if (index < 0 || index >= this.Count)
+				throw new ArgumentOutOfRangeException(nameof(index));
+			return new IndexedTxIn()
+			{
+				TxIn = this[index],
+				Index = (uint)index,
+				Transaction = Transaction
+			};
 		}
 
 		public TxIn CreateNewTxIn(OutPoint outpoint = null, Script scriptSig = null, WitScript witScript = null, Sequence? sequence = null)
@@ -1763,6 +1781,12 @@ namespace NBitcoin
 			builder.SignTransactionInPlace(this);
 		}
 
+#nullable enable
+		public PrecomputedTransactionData PrecomputeTransactionData(TxOut?[]? spentOutputs)
+		{
+			return PrecomputedTransactionData.Create(this, spentOutputs);
+		}
+
 		public virtual PSBT CreatePSBT(Network network)
 		{
 			if (network == null)
@@ -1780,6 +1804,7 @@ namespace NBitcoin
 		{
 			return Encoders.Hex.EncodeData(this.ToBytes());
 		}
+#nullable restore
 #if !NOJSONNET
 		public override string ToString()
 		{
@@ -2098,7 +2123,7 @@ namespace NBitcoin
 		{
 			if (spentOutputs == null)
 				throw new ArgumentNullException(nameof(spentOutputs));
-			return GetSignatureHashTaproot(new PrecomputedTransactionData(this, spentOutputs), executionData);
+			return GetSignatureHashTaproot(this.PrecomputeTransactionData(spentOutputs), executionData);
 		}
 		public virtual uint256 GetSignatureHashTaproot(PrecomputedTransactionData cache, TaprootExecutionData executionData)
 		{
@@ -2106,7 +2131,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(executionData));
 			if (cache == null)
 				throw new ArgumentNullException(nameof(cache));
-			if (!cache.ForTaproot)
+			if (!(cache is TaprootReadyPrecomputedTransactionData transactionData))
 				throw new ArgumentException("The PrecomputedTransactionData should be created using PrecomputedTransactionData(Transaction tx, TxOut[] spentOutputs)", nameof(cache));
 			byte ext_flag, key_version = 0;
 			switch (executionData.HashVersion)
@@ -2146,15 +2171,15 @@ namespace NBitcoin
 
 			if (input_type != (byte)SigHash.AnyoneCanPay)
 			{
-				ss.ReadWrite(cache.HashPrevoutsSingle);
-				ss.ReadWrite(cache.HashAmountsSingle);
-				ss.ReadWrite(cache.HashScriptsSingle);
-				ss.ReadWrite(cache.HashSequenceSingle);
+				ss.ReadWrite(transactionData.HashPrevoutsSingle);
+				ss.ReadWrite(transactionData.HashAmountsSingle);
+				ss.ReadWrite(transactionData.HashScriptsSingle);
+				ss.ReadWrite(transactionData.HashSequenceSingle);
 			}
 
 			if (output_type == (byte)SigHash.All)
 			{
-				ss.ReadWrite(cache.HashOutputsSingle);
+				ss.ReadWrite(transactionData.HashOutputsSingle);
 			}
 
 			// Note annex has not purpose yet, so we don't nee it
@@ -2166,7 +2191,7 @@ namespace NBitcoin
 			if (input_type == (byte)SigHash.AnyoneCanPay)
 			{
 				ss.ReadWrite(this.Inputs[executionData.InputIndex].PrevOut);
-				ss.ReadWrite(cache.SpentOutputs[executionData.InputIndex]);
+				ss.ReadWrite(transactionData.SpentOutputs[executionData.InputIndex]);
 				ss.ReadWrite(this.vin[executionData.InputIndex].Sequence);
 			}
 			else

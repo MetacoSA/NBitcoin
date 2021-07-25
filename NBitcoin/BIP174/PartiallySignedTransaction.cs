@@ -564,7 +564,7 @@ namespace NBitcoin
 			accountHDScriptPubKey = accountHDScriptPubKey.AsHDKeyCache();
 			accountKey = accountKey.AsHDKeyCache();
 			Money total = Money.Zero;
-			var transactionData = GetPrecomputedTransactionData();
+			var transactionData = PrecomputeTransactionData();
 			foreach (var o in Inputs.CoinsFor(accountHDScriptPubKey, accountKey, accountKeyPath))
 			{
 				o.TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, transactionData);
@@ -673,7 +673,7 @@ namespace NBitcoin
 		public PSBT SignWithKeys(params Key[] keys)
 		{
 			AssertSanity();
-			var transactionData = GetPrecomputedTransactionData();
+			var transactionData = PrecomputeTransactionData();
 			foreach (var key in keys)
 			{
 				foreach (var input in this.Inputs)
@@ -684,12 +684,32 @@ namespace NBitcoin
 			return this;
 		}
 
-		internal PrecomputedTransactionData GetPrecomputedTransactionData()
+		/// <summary>
+		/// Returns a data structure precomputing some hash values that are needed for all inputs to be signed in the transaction.
+		/// </summary>
+		/// <returns>The PrecomputedTransactionData</returns>
+		/// <exception cref="NBitcoin.PSBTException">Throw if the PSBT is missing some previous outputs.</exception>
+		public PrecomputedTransactionData PrecomputeTransactionData()
 		{
 			var outputs = GetSpentTxOuts(out var errors);
 			if (errors != null)
 				throw new PSBTException(errors);
-			return new PrecomputedTransactionData(tx, outputs);
+			return tx.PrecomputeTransactionData(outputs);
+		}
+		/// <summary>
+		/// Returns a data structure precomputing some hash values that are needed for all inputs to be signed in the transaction.
+		/// </summary>
+		/// <returns>False if the PSBT is missing some previous outputs.</returns>
+		public bool TryPrecomputeTransactionData([MaybeNullWhen(false)] out PrecomputedTransactionData precomputedTransactionData)
+		{
+			var outputs = GetSpentTxOuts(out var errors);
+			if (errors != null)
+			{
+				precomputedTransactionData = null;
+				return false;
+			}
+			precomputedTransactionData = tx.PrecomputeTransactionData(outputs);
+			return true;
 		}
 
 		public TransactionValidator CreateTransactionValidator()

@@ -877,48 +877,6 @@ namespace NBitcoin
 			var compressor = new ScriptCompressor(this);
 			return compressor.ToBytes();
 		}
-		public static bool VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard)
-		{
-			ScriptError unused;
-			return VerifyScript(scriptSig, tx, i, spentOutput, scriptVerify, out unused);
-		}
-
-		public static bool VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, out ScriptError error)
-		{
-			return VerifyScript(scriptSig, tx, i, spentOutput, ScriptVerify.Standard, out error);
-		}
-
-		public static bool VerifyScript(Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify = ScriptVerify.Standard)
-		{
-			ScriptError unused;
-			var scriptSig = tx.Inputs[i].ScriptSig;
-			return VerifyScript(scriptSig, tx, i, spentOutput, scriptVerify, out unused);
-		}
-
-		public static bool VerifyScript(Transaction tx, int i, TxOut spentOutput, out ScriptError error)
-		{
-			var scriptSig = tx.Inputs[i].ScriptSig;
-			return VerifyScript(scriptSig, tx, i, spentOutput, ScriptVerify.Standard, out error);
-		}
-
-		public static bool VerifyScript(Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error)
-		{
-			var scriptSig = tx.Inputs[i].ScriptSig;
-			return VerifyScript(scriptSig, tx, i, spentOutput, scriptVerify, out error);
-		}
-
-		public static bool VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error)
-		{
-			if (spentOutput == null)
-				throw new ArgumentNullException(nameof(spentOutput));
-			var eval = new ScriptEvaluationContext
-			{
-				ScriptVerify = scriptVerify,
-			};
-			var result = eval.VerifyScript(scriptSig, tx, i, spentOutput);
-			error = eval.Error;
-			return result;
-		}
 
 
 #if !NOCONSENSUSLIB

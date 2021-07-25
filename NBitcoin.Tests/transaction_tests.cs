@@ -2775,9 +2775,9 @@ namespace NBitcoin.Tests
 
 		private void AssertCorrectlySigned(Transaction tx, TxOut txOut, ScriptVerify scriptVerify = ScriptVerify.Standard)
 		{
-			for (int i = 0; i < tx.Inputs.Count; i++)
+			foreach (var input in tx.Inputs.AsIndexedInputs())
 			{
-				Assert.True(Script.VerifyScript(tx, i, txOut, scriptVerify));
+				Assert.True(input.VerifyScript(txOut, scriptVerify));
 			}
 		}
 
@@ -3041,7 +3041,8 @@ namespace NBitcoin.Tests
 			}
 
 			ScriptError err;
-			var r = Script.VerifyScript(tx, 0, new TxOut(amount, scriptCode), out err);
+			var inputObj = tx.Inputs.FindIndexedInput(input);
+			var r = inputObj.VerifyScript(new TxOut(amount, scriptCode), out err);
 			Assert.True(r);
 		}
 
@@ -3695,20 +3696,16 @@ namespace NBitcoin.Tests
 				Transaction tx = Transaction.Parse((string)test[1], Network.Main);
 
 
-				for (int i = 0; i < tx.Inputs.Count; i++)
+				foreach (var input in tx.Inputs.AsIndexedInputs())
 				{
-					if (!mapprevOutScriptPubKeys.ContainsKey(tx.Inputs[i].PrevOut))
+					if (!mapprevOutScriptPubKeys.ContainsKey(input.PrevOut))
 					{
 						Assert.False(true, "Bad test: " + strTest);
 						continue;
 					}
 
-					var txOut = new TxOut(mapprevOutScriptPubKeysAmount.TryGet(tx.Inputs[i].PrevOut), mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut]);
-					var valid = Script.VerifyScript(
-						tx,
-						i,
-						txOut,
-						ParseFlags(test[2].ToString()));
+					var txOut = new TxOut(mapprevOutScriptPubKeysAmount.TryGet(input.PrevOut), mapprevOutScriptPubKeys[input.PrevOut]);
+					var valid = input.VerifyScript(txOut, ParseFlags(test[2].ToString()));
 					Assert.True(valid, strTest + " failed");
 					Assert.True(tx.Check() == TransactionCheckResult.Success);
 				}
@@ -3830,19 +3827,17 @@ namespace NBitcoin.Tests
 
 				Transaction tx = Transaction.Parse((string)test[1], Network);
 				bool fValid = tx.Check() == TransactionCheckResult.Success;
-				for (int i = 0; i < tx.Inputs.Count && fValid; i++)
+				foreach (var input in tx.Inputs.AsIndexedInputs())
 				{
-					if (!mapprevOutScriptPubKeys.ContainsKey(tx.Inputs[i].PrevOut))
+					if (!fValid)
+						break;
+					if (!mapprevOutScriptPubKeys.ContainsKey(input.PrevOut))
 					{
 						Assert.False(true, "Bad test: " + strTest);
 						continue;
 					}
-					var txOut = new TxOut(mapprevOutScriptPubKeysAmount.TryGet(tx.Inputs[i].PrevOut), mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut]);
-					fValid = Script.VerifyScript(
-					   tx,
-					   i,
-					   txOut,
-					   ParseFlags(test[2].ToString()));
+					var txOut = new TxOut(mapprevOutScriptPubKeysAmount.TryGet(input.PrevOut), mapprevOutScriptPubKeys[input.PrevOut]);
+					fValid = input.VerifyScript(txOut, ParseFlags(test[2].ToString()));
 				}
 				if (fValid)
 					Debugger.Break();
