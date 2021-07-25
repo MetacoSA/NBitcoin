@@ -380,8 +380,8 @@ namespace NBitcoin.Tests
 
 			var creditingTransaction = CreateCreditingTransaction(scriptPubKey, amount);
 			var spendingTransaction = CreateSpendingTransaction(wit, scriptSig, creditingTransaction);
-			ScriptError actual;
-			Script.VerifyScript(scriptSig, spendingTransaction, 0, new TxOut(amount, scriptPubKey), flags, out actual);
+
+			spendingTransaction.Inputs.FindIndexedInput(0).VerifyScript(new TxOut(amount, scriptPubKey), flags, out var actual);
 			Assert.True(expectedError == actual, "Test : " + testIndex + " " + comment);
 #if !NOCONSENSUSLIB
 			var ok = Script.VerifyScriptConsensus(scriptPubKey, spendingTransaction, 0, amount, flags);
@@ -772,7 +772,7 @@ namespace NBitcoin.Tests
 
 		private void AssertInvalidScript(TxOut txOut, Transaction tx, int n, ScriptVerify verify)
 		{
-			Assert.False(Script.VerifyScript(tx, n, txOut, flags));
+			Assert.False(tx.Inputs.FindIndexedInput(n).VerifyScript(txOut, verify, out _));
 #if !NOCONSENSUSLIB
 			Assert.False(Script.VerifyScriptConsensus(txOut.ScriptPubKey, tx, (uint)n, flags));
 #endif
@@ -780,7 +780,7 @@ namespace NBitcoin.Tests
 
 		private void AssertValidScript(TxOut txOut, Transaction tx, int n, ScriptVerify verify)
 		{
-			Assert.True(Script.VerifyScript(tx, n, txOut, flags));
+			Assert.True(tx.Inputs.FindIndexedInput(n).VerifyScript(txOut, verify, out _));
 #if !NOCONSENSUSLIB
 			Assert.True(Script.VerifyScriptConsensus(txOut.ScriptPubKey, tx, (uint)n, flags & ScriptVerify.Consensus));
 #endif

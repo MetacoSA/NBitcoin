@@ -47,7 +47,7 @@ namespace NBitcoin
 				throw new ArgumentException("The number of spentOutputs should be equals to the number of inputs in this transaction", nameof(spentOutputs));
 			if (spentOutputs.Any(o => o is null))
 				throw new ArgumentException("No previous output should be null", nameof(spentOutputs));
-			PrecomputedTransactionData = new PrecomputedTransactionData(transaction, spentOutputs);
+			PrecomputedTransactionData = transaction.PrecomputeTransactionData(spentOutputs);
 			SpentOutputs = spentOutputs;
 			Transaction = transaction;
 		}

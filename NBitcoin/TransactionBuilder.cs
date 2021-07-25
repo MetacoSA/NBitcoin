@@ -433,7 +433,7 @@ namespace NBitcoin
 						if (signingContext.SigningOptions.TaprootSigHash != taproot.SigHash)
 							continue;
 
-						if (!signingContext.PrecomputedTransactionData.ForTaproot)
+						if (!(signingContext.PrecomputedTransactionData is TaprootReadyPrecomputedTransactionData))
 							throw new InvalidOperationException("This transaction include inputs not belonging to the signer, and taproot signing is detected. You need to pass the PrecomputedTransactionData to the TransactionBuilder with txBuilder.SetPrecomputedTransactionData(transactionToSign, spentOutputs).");
 						var hash = txIn.GetSignatureHash(coin, taproot.SigHash, signingContext.PrecomputedTransactionData);
 						if (tv.Item3 != null || tpk.VerifySignature(hash, taproot.SchnorrSignature))
@@ -471,14 +471,7 @@ namespace NBitcoin
 				if (precomputedTransactionData is null)
 				{
 					var prevTxous = transaction.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
-					if (prevTxous.Any(txout => txout is null))
-					{
-						PrecomputedTransactionData = new PrecomputedTransactionData(transaction);
-					}
-					else
-					{
-						PrecomputedTransactionData = new PrecomputedTransactionData(transaction, prevTxous);
-					}
+					PrecomputedTransactionData = transaction.PrecomputeTransactionData(prevTxous);
 				}
 				else
 				{
@@ -1401,7 +1394,7 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TransactionBuilder SetPrecomputedTransactionData(Transaction transaction, TxOut[] spentOutputs)
 		{
-			this.precomputedTransactionData = new PrecomputedTransactionData(transaction, spentOutputs);
+			this.precomputedTransactionData = transaction.PrecomputeTransactionData(spentOutputs);
 			return this;
 		}
 		public TransactionBuilder SetSigningOptions(SigningOptions signingOptions)

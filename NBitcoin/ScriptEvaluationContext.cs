@@ -73,10 +73,10 @@ namespace NBitcoin
 		DiscourageUpgradablePubKeyType,
 		DiscourageOpSuccess
 	}
-
+#nullable enable
 	public class TransactionChecker
 	{
-		public TransactionChecker(Transaction tx, int index, TxOut spentOutput, PrecomputedTransactionData precomputedTransactionData)
+		public TransactionChecker(Transaction tx, int index, TxOut? spentOutput, PrecomputedTransactionData? precomputedTransactionData)
 		{
 			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
@@ -85,7 +85,7 @@ namespace NBitcoin
 			_SpentOutput = spentOutput;
 			_PrecomputedTransactionData = precomputedTransactionData;
 		}
-		public TransactionChecker(Transaction tx, int index, TxOut spentOutput = null)
+		public TransactionChecker(Transaction tx, int index, TxOut? spentOutput = null)
 		{
 			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
@@ -95,12 +95,12 @@ namespace NBitcoin
 		}
 
 
-		private readonly PrecomputedTransactionData _PrecomputedTransactionData;
+		private PrecomputedTransactionData? _PrecomputedTransactionData;
 		public PrecomputedTransactionData PrecomputedTransactionData
 		{
 			get
 			{
-				return _PrecomputedTransactionData;
+				return _PrecomputedTransactionData ??= PrecomputedTransactionData.Create(Transaction);
 			}
 		}
 
@@ -130,8 +130,8 @@ namespace NBitcoin
 			}
 		}
 
-		private readonly TxOut _SpentOutput;
-		public TxOut SpentOutput
+		private readonly TxOut? _SpentOutput;
+		public TxOut? SpentOutput
 		{
 			get
 			{
@@ -190,7 +190,7 @@ namespace NBitcoin
 		}
 #endif
 	}
-
+#nullable restore
 	public class SignedHash
 	{
 		public ITransactionSignature Signature

@@ -1025,7 +1025,7 @@ namespace NBitcoin
 			builder.AddCoins(coin);
 			builder.AddKeys(keyPair);
 			if (precomputedTransactionData is null)
-				precomputedTransactionData = Parent.GetPrecomputedTransactionData();
+				precomputedTransactionData = Parent.PrecomputeTransactionData();
 			builder.SetPrecomputedTransactionData(precomputedTransactionData);
 			if (builder.TrySignInput(Transaction, Index, out var signature2))
 			{
