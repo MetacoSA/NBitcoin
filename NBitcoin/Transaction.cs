@@ -847,20 +847,15 @@ namespace NBitcoin
 		{
 			return Sign(key, coin, signingOptions, null);
 		}
-#nullable restore
 		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash = SigHash.All)
 		{
 			return GetSignatureHash(coin, sigHash, null);
 		}
-		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash, PrecomputedTransactionData transactionData)
+		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash, PrecomputedTransactionData? transactionData)
 		{
 			if (coin is null)
 				throw new ArgumentNullException(nameof(coin));
 			return Transaction.GetSignatureHash(coin.GetScriptCode(), (int)Index, sigHash, coin.TxOut, coin.GetHashVersion(), transactionData);
-		}
-		public uint256 GetSignatureHash(ICoin coin, TaprootSigHash sigHash = TaprootSigHash.Default)
-		{
-			return GetSignatureHash(coin, sigHash, null);
 		}
 		public uint256 GetSignatureHash(ICoin coin, TaprootSigHash sigHash, PrecomputedTransactionData transactionData)
 		{
@@ -869,6 +864,7 @@ namespace NBitcoin
 				SigHash = sigHash
 			});
 		}
+#nullable restore
 	}
 	public class TxInList : UnsignedList<TxIn>
 	{
