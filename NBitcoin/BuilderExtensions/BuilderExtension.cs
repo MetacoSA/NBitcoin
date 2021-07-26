@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static NBitcoin.TransactionBuilder;
 
 namespace NBitcoin.BuilderExtensions
 {
@@ -24,11 +25,11 @@ namespace NBitcoin.BuilderExtensions
 	/// </summary>
 	public abstract class BuilderExtension
 	{
-		public static PubKey DummyPubKey = new PubKey(Encoders.Hex.DecodeData("022c2b9e61169fb1b1f2f3ff15ad52a21745e268d358ba821d36da7d7cd92dee0e"));
 		public static TransactionSignature DummySignature = new TransactionSignature(Encoders.Hex.DecodeData("3045022100b9d685584f46554977343009c04b3091e768c23884fa8d2ce2fb59e5290aa45302203b2d49201c7f695f434a597342eb32dfd81137014fcfb3bb5edc7a19c77774d201"));
 
-		public abstract bool CanGenerateScriptSig(Script scriptPubKey);
-		public abstract Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer);
+		public abstract bool Match(ICoin coin, PSBTInput input);
+
+		public abstract void Sign(InputSigningContext inputSigningContext, IKeyRepository keyRepository, ISigner signer);
 
 		public abstract Script DeduceScriptPubKey(Script scriptSig);
 		public abstract bool CanDeduceScriptPubKey(Script scriptSig);
@@ -36,10 +37,33 @@ namespace NBitcoin.BuilderExtensions
 		public abstract bool CanEstimateScriptSigSize(Script scriptPubKey);
 		public abstract int EstimateScriptSigSize(Script scriptPubKey, SigningOptions signingOptions);
 
-		public abstract bool CanCombineScriptSig(Script scriptPubKey, Script a, Script b);
-
-		public abstract Script CombineScriptSig(Script scriptPubKey, Script a, Script b);
-
 		public abstract bool IsCompatibleKey(IPubKey publicKey, Script scriptPubKey);
+
+		public abstract void Finalize(InputSigningContext inputSigningContext);
+
+		public virtual void ExtractExistingSignatures(InputSigningContext inputSigningContext)
+		{
+		}
+
+		public virtual void MergePartialSignatures(InputSigningContext inputSigningContext)
+		{
+		}
+	}
+
+	public class InputSigningContext
+	{
+		internal InputSigningContext(TransactionSigningContext transactionSigningContext, ICoin coin, PSBTInput input, TxIn originalTxIn, BuilderExtension extension)
+		{
+			Coin = coin;
+			Input = input;
+			Extension = extension;
+			TransactionContext = transactionSigningContext;
+			OriginalTxIn = originalTxIn;
+		}
+		internal TransactionSigningContext TransactionContext { get; }
+		public TxIn OriginalTxIn { get; }
+		public BuilderExtension Extension { get; }
+		public ICoin Coin { get; }
+		public PSBTInput Input { get; }
 	}
 }

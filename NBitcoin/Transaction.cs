@@ -807,11 +807,6 @@ namespace NBitcoin
 		{
 			return VerifyScript(coin, ScriptVerify.Standard, out error);
 		}
-
-		public TransactionSignature Sign(Key key, ICoin coin, SigHash sigHash, bool useLowR = true)
-		{
-			return Sign(key, coin, new SigningOptions(sigHash, useLowR));
-		}
 #if HAS_SPAN
 		public TaprootSignature SignTaprootKeySpend(TaprootKeyPair keyPair, ICoin coin, SigningOptions? signingOptions, PrecomputedTransactionData transactionData)
 		{
@@ -827,6 +822,11 @@ namespace NBitcoin
 			return keyPair.SignTaprootKeySpend(hash, signingOptions.TaprootSigHash);
 		}
 #endif
+
+		public TransactionSignature Sign(Key key, ICoin coin)
+		{
+			return Sign(key, coin, null);
+		}
 		public TransactionSignature Sign(Key key, ICoin coin, SigningOptions? signingOptions, PrecomputedTransactionData? transactionData)
 		{
 			if (key == null)
@@ -1159,6 +1159,11 @@ namespace NBitcoin
 				pushes.Add(op.PushData);
 			}
 			_Pushes = pushes.ToArray();
+		}
+
+		public static bool IsNullOrEmpty(WitScript witScript)
+		{
+			return witScript is null || witScript == WitScript.Empty;
 		}
 
 		public void WriteToStream(BitcoinStream stream)
@@ -1705,7 +1710,7 @@ namespace NBitcoin
 		}
 		public ITransactionSignature SignInput(Key key, ICoin coin, SigHash sigHash = SigHash.All)
 		{
-			return GetIndexedInput(coin).Sign(key, coin, sigHash);
+			return GetIndexedInput(coin).Sign(key, coin, new SigningOptions(sigHash));
 		}
 
 		private IndexedTxIn GetIndexedInput(ICoin coin)

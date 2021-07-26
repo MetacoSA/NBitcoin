@@ -2453,6 +2453,13 @@ namespace NBitcoin.Tests
 					.SignTransaction(tx);
 			Assert.True(txBuilder.Verify(partiallySigned));
 
+			var partiallySignedPSBT = partiallySigned.CreatePSBT(txBuilder.Network);
+			txBuilder.ExtractSignatures(partiallySignedPSBT, partiallySigned);
+			partiallySignedPSBT.AddCoins(allCoins);
+			partiallySignedPSBT.AddTransactions(fundingTx);
+			partiallySigned = partiallySignedPSBT.Finalize().ExtractTransaction();
+			Assert.True(txBuilder.Verify(partiallySigned));
+
 			//Trying with known signature
 			partiallySigned = tx.Clone();
 			txBuilder = Network.CreateTransactionBuilder(0)
@@ -2492,9 +2499,11 @@ namespace NBitcoin.Tests
 
 			txBuilder = Network.CreateTransactionBuilder(0);
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
+#pragma warning disable CS0618 // Type or member is obsolete
 			tx = txBuilder
 				.AddCoins(allCoins)
 				.CombineSignatures(signed1, signed2);
+#pragma warning restore CS0618 // Type or member is obsolete
 			Assert.True(txBuilder.Verify(tx));
 
 			//Check if can deduce scriptPubKey from P2SH and P2SPKH scriptSig
@@ -2525,8 +2534,10 @@ namespace NBitcoin.Tests
 			Assert.False(txBuilder.Verify(signed1));
 			Assert.False(txBuilder.Verify(signed2));
 
+#pragma warning disable CS0618 // Type or member is obsolete
 			tx = Network.CreateTransactionBuilder(0)
 				.CombineSignatures(signed1, signed2);
+#pragma warning restore CS0618 // Type or member is obsolete
 
 			Assert.True(txBuilder.Verify(tx));
 
@@ -2897,7 +2908,7 @@ namespace NBitcoin.Tests
 			builder.StandardTransactionPolicy = EasyPolicy;
 			builder.AddKeys(bob);
 			builder.AddCoins(funding.Outputs.AsCoins());
-			builder.SignTransactionInPlace(spending);
+			Assert.Throws<InvalidOperationException>(() => builder.SignTransactionInPlace(spending));
 
 			TransactionPolicyError[] errors;
 			Assert.False(builder.Verify(spending, Money.Coins(1.0m), out errors));
@@ -2906,16 +2917,20 @@ namespace NBitcoin.Tests
 			AssertEx.CollectionEquals(new uint[] { 0, 1 }, dup.InputIndices);
 			AssertEx.Equals(new OutPoint(funding, 0), dup.OutPoint);
 
+			spending.Inputs.RemoveAt(0);
+			builder.SignTransactionInPlace(spending);
+			Assert.False(builder.Verify(spending, Money.Coins(1.0m), out errors));
+
 			var script = errors.OfType<ScriptPolicyError>().Single();
 			AssertEx.Equals(alice.GetScriptPubKey(ScriptPubKeyType.Legacy), script.ScriptPubKey);
 			AssertEx.Equals(3, script.InputIndex);
 
-			var fees = errors.OfType<NotEnoughFundsPolicyError>().Single();
+			var fees = errors.OfType<NotEnoughFundsPolicyError>().First();
 			Assert.Equal(fees.Missing, Money.Coins(0.7m));
 
 			spending.Inputs.Add(new TxIn(new OutPoint(funding, 3))); //Coins not found
 			var coin = Assert.Throws<CoinNotFoundException>(() => builder.Verify(spending, Money.Coins(1.0m), out errors));
-			Assert.Equal(4UL, coin.InputIndex);
+			Assert.Equal(3UL, coin.InputIndex);
 			Assert.Equal(3UL, coin.OutPoint.N);
 		}
 
@@ -3922,7 +3937,9 @@ namespace NBitcoin.Tests
 		private void CombineSignatures(CKeyStore keystore, Transaction txFrom, ref Transaction input1, Transaction input2)
 		{
 			var builder = CreateBuilder(keystore, txFrom);
+#pragma warning disable CS0618 // Type or member is obsolete
 			input1 = builder.CombineSignatures(input1, input2);
+#pragma warning restore CS0618 // Type or member is obsolete
 		}
 
 		private static TransactionBuilder CreateBuilder(CKeyStore keystore, Transaction txFrom)

@@ -8,10 +8,6 @@ namespace NBitcoin.BuilderExtensions
 {
 	public class P2PKBuilderExtension : BuilderExtension
 	{
-		public override bool CanCombineScriptSig(Script scriptPubKey, Script a, Script b)
-		{
-			return false;
-		}
 
 		public override bool CanDeduceScriptPubKey(Script scriptSig)
 		{
@@ -20,17 +16,24 @@ namespace NBitcoin.BuilderExtensions
 
 		public override bool CanEstimateScriptSigSize(Script scriptPubKey)
 		{
-			return PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) != null;
+			return CanSign(scriptPubKey);
 		}
 
-		public override bool CanGenerateScriptSig(Script scriptPubKey)
+		public override void Sign(InputSigningContext inputSigningContext, IKeyRepository keyRepository, ISigner signer)
 		{
-			return PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) != null;
+			var scriptCode = inputSigningContext.Coin.GetScriptCode();
+			var key = keyRepository.FindKey(scriptCode) as PubKey;
+			if (key == null)
+				return;
+			var sig = signer.Sign(key) as TransactionSignature;
+			if (sig is null)
+				return;
+			inputSigningContext.Input.PartialSigs.TryAdd(key, sig);
 		}
 
-		public override Script CombineScriptSig(Script scriptPubKey, Script a, Script b)
+		private static bool CanSign(Script scriptPubKey)
 		{
-			throw new NotImplementedException();
+			return PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) != null;
 		}
 
 		public override Script DeduceScriptPubKey(Script scriptSig)
@@ -43,20 +46,46 @@ namespace NBitcoin.BuilderExtensions
 			return PayToPubkeyTemplate.Instance.GenerateScriptSig(DummySignature).Length;
 		}
 
-		public override Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer)
-		{
-			var key = keyRepo.FindKey(scriptPubKey);
-			if (key == null)
-				return null;
-			var sig = signer.Sign(key) as TransactionSignature;
-			if (sig is null)
-				return null;
-			return PayToPubkeyTemplate.Instance.GenerateScriptSig(sig);
-		}
-
 		public override bool IsCompatibleKey(IPubKey publicKey, Script scriptPubKey)
 		{
 			return publicKey is PubKey pk && pk.ScriptPubKey == scriptPubKey;
+		}
+
+		public override void Finalize(InputSigningContext inputSigningContext)
+		{
+			var txIn = inputSigningContext.Input;
+			var scriptPubKey = inputSigningContext.Coin.GetScriptCode();
+			var pk = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			if (!txIn.PartialSigs.TryGetValue(pk, out var sig))
+				return;
+			txIn.FinalScriptSig = PayToPubkeyTemplate.Instance.GenerateScriptSig(sig);
+		}
+		public override bool Match(ICoin coin, PSBTInput input)
+		{
+			return CanSign(coin.GetScriptCode());
+		}
+
+		public override void ExtractExistingSignatures(InputSigningContext inputSigningContext)
+		{
+			var scriptPubKey = inputSigningContext.Coin.GetScriptCode();
+			var pk = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			var scriptSigData = inputSigningContext.OriginalTxIn.ScriptSig.ToOps().Select(o => o.PushData);
+			var witScriptData = inputSigningContext.OriginalTxIn.WitScript.Pushes;
+			foreach (var data in scriptSigData.Concat(witScriptData))
+			{
+				if (data is null)
+					continue;
+				try
+				{
+					var sig = new TransactionSignature(data);
+					inputSigningContext.Input.PartialSigs.TryAdd(pk, sig);
+					break;
+				}
+				catch
+				{
+
+				}
+			}
 		}
 	}
 }
