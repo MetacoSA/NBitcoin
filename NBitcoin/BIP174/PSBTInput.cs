@@ -203,6 +203,7 @@ namespace NBitcoin
 		}
 
 		internal TxIn TxIn { get; }
+		internal IndexedTxIn GetIndexedInput() => new IndexedTxIn() { Transaction = Transaction, Index = Index, TxIn = TxIn, PrevOut = PrevOut, ScriptSig = TxIn.ScriptSig, WitScript = TxIn.WitScript };
 
 		public OutPoint PrevOut => TxIn.PrevOut;
 
@@ -404,8 +405,29 @@ namespace NBitcoin
 			foreach (var keyPath in other.hd_keypaths)
 				hd_keypaths.TryAdd(keyPath.Key, keyPath.Value);
 
+			foreach (var keyPath in other.HDTaprootKeyPaths)
+				HDTaprootKeyPaths.TryAdd(keyPath.Key, keyPath.Value);
+
+			TaprootInternalKey ??= other.TaprootInternalKey;
+			TaprootKeySignature ??= other.TaprootKeySignature;
+			TaprootMerkleRoot ??= other.TaprootMerkleRoot;
 			if (IsFinalized())
 				ClearForFinalize();
+		}
+
+		public uint256 GetSignatureHash(TaprootSigHash sigHash, PrecomputedTransactionData precomputedTransactionData)
+		{
+			if (GetSignableCoin() is ICoin coin)
+				return this.Transaction.Inputs.FindIndexedInput((int)Index)
+									   .GetSignatureHash(coin, sigHash, precomputedTransactionData);
+			throw new InvalidOperationException("WitnessUtxo, NonWitnessUtxo, WitnessScript or redeemScript is required to get the signature hash");
+		}
+		public uint256 GetSignatureHash(SigHash sigHash, PrecomputedTransactionData? precomputedTransactionData)
+		{
+			if (GetSignableCoin() is ICoin coin)
+				return this.Transaction.Inputs.FindIndexedInput((int)Index)
+									   .GetSignatureHash(coin, sigHash, precomputedTransactionData);
+			throw new InvalidOperationException("WitnessUtxo, NonWitnessUtxo, WitnessScript or redeemScript is required to get the signature hash");
 		}
 
 		public bool IsFinalized() => final_script_sig != null || final_script_witness != null;
@@ -475,7 +497,7 @@ namespace NBitcoin
 		/// <returns>The input as a signable coin</returns>
 		public override Coin? GetSignableCoin(out string? error)
 		{
-			if (witness_utxo == null && non_witness_utxo == null)
+			if (witness_utxo is null && non_witness_utxo is null)
 			{
 				error = "Neither witness_utxo nor non_witness_output is set";
 				return null;
@@ -954,28 +976,38 @@ namespace NBitcoin
 				transactionBuilder.AddKnownSignature(k, ts, coin.Outpoint);
 			}
 #endif
-			Transaction? signed = null;
+			var finalizedInput = Parent.Clone().Inputs[(int)Index];
 			try
 			{
-				var signedTx = Parent.Settings.IsSmart ? Parent.GetOriginalTransaction() : Transaction.Clone();
-				signed = transactionBuilder.SignTransaction(signedTx);
+				transactionBuilder.FinalizePSBTInput(finalizedInput);
+				if (!finalizedInput.IsFinalized() && Parent.Settings.IsSmart)
+				{
+					transactionBuilder.ExtractSignatures(finalizedInput.PSBT, Parent.GetOriginalTransaction());
+					transactionBuilder.FinalizePSBTInput(finalizedInput);
+				}
 			}
 			catch (Exception ex)
 			{
 				errors = new List<PSBTError>() { new PSBTError(Index, $"Error while finalizing the input \"{getSignableCoinError ?? ex.Message}\"") };
 				return false;
 			}
-			var indexedInput = signed.Inputs.FindIndexedInput(coin.Outpoint);
-			validator = validator.ChangeTransaction(signed);
-			if (!Parent.Settings.SkipVerifyScript && !validator.TryValidateInput((int)Index, out var res))
+			if (!finalizedInput.IsFinalized())
 			{
-				errors = new List<PSBTError>() { new PSBTError(Index, $"The finalized input script does not properly validate \"{res.Error}\"") };
+				errors = new List<PSBTError>() { new PSBTError(Index, $"Impossible to finalize the input") };
 				return false;
 			}
+			if (!Parent.Settings.SkipVerifyScript)
+			{
+				if (!finalizedInput.VerifyScript(validator.ScriptVerify, validator.PrecomputedTransactionData, out var err2))
+				{
+					errors = new List<PSBTError>() { new PSBTError(Index, $"The finalized input script does not properly validate \"{err2}\"") };
+					return false;
+				}
+			}
 
-			FinalScriptSig = indexedInput.ScriptSig is Script oo && oo != Script.Empty ? oo : null;
-			FinalScriptWitness = indexedInput.WitScript is WitScript o && o != WitScript.Empty ? o : null;
-			if (transactionBuilder.FindSignableCoin(indexedInput) is ScriptCoin scriptCoin)
+			FinalScriptSig = finalizedInput.FinalScriptSig is Script oo && oo != Script.Empty ? oo : null;
+			FinalScriptWitness = finalizedInput.FinalScriptWitness is WitScript o && o != WitScript.Empty ? o : null;
+			if (coin is ScriptCoin scriptCoin)
 			{
 				if (scriptCoin.IsP2SH)
 					RedeemScript = scriptCoin.GetP2SHRedeem();
@@ -987,26 +1019,44 @@ namespace NBitcoin
 			return true;
 		}
 
+		public bool VerifyScript(ScriptVerify scriptVerify, PrecomputedTransactionData? precomputedTransactionData, out ScriptError err)
+		{
+			var eval = new ScriptEvaluationContext
+			{
+				ScriptVerify = scriptVerify
+			};
+			var txout = GetTxOut();
+			if (txout is null)
+			{
+				err = ScriptError.UnknownError;
+				return false;
+			}
+			var checker = new TransactionChecker(Transaction, (int)Index, GetTxOut(), precomputedTransactionData);
+			var result = eval.VerifyScript(this.FinalScriptSig, this.FinalScriptWitness, txout.ScriptPubKey, checker);
+			err = eval.Error;
+			return result;
+		}
+
 		public void FinalizeInput()
 		{
 			if (!TryFinalizeInput(out var errors))
 				throw new PSBTException(errors);
 		}
 
-		public ITransactionSignature? Sign(Key key)
+		public void Sign(Key key)
 		{
-			return Sign(key, null);
+			Sign(key, null);
 		}
-		public ITransactionSignature? Sign(KeyPair keyPair)
+		public void Sign(KeyPair keyPair)
 		{
-			return Sign(keyPair, null);
+			Sign(keyPair, null);
 		}
-		internal ITransactionSignature? Sign(KeyPair keyPair, PrecomputedTransactionData? precomputedTransactionData)
+		internal void Sign(KeyPair keyPair, PrecomputedTransactionData? precomputedTransactionData)
 		{
 			if (keyPair == null)
 				throw new ArgumentNullException(nameof(keyPair));
 			if (this.IsFinalized())
-				return null;
+				return;
 
 			if (keyPair.PubKey is PubKey ecdsapk && PartialSigs.TryGetValue(ecdsapk, out var existingSig))
 			{
@@ -1014,53 +1064,40 @@ namespace NBitcoin
 				var signature = PartialSigs[ecdsapk];
 				if (this.Parent.Settings.SigningOptions.SigHash != existingSig.SigHash)
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
-				return signature;
+				return;
 			}
 
 			AssertSanity();
 			var coin = GetSignableCoin();
 			if (coin == null)
-				return null;
+				return;
 			var builder = Parent.CreateTransactionBuilder();
-			builder.AddCoins(coin);
 			builder.AddKeys(keyPair);
 			if (precomputedTransactionData is null)
 				precomputedTransactionData = Parent.PrecomputeTransactionData();
 			builder.SetPrecomputedTransactionData(precomputedTransactionData);
-			if (builder.TrySignInput(Transaction, Index, out var signature2))
-			{
-				if (keyPair.PubKey is PubKey ecdsapk2 && signature2 is TransactionSignature ecdsasig)
-					this.PartialSigs.TryAdd(ecdsapk2, ecdsasig);
-#if HAS_SPAN
-				if (keyPair.PubKey is TaprootFullPubKey tfp)
-				{
-					TaprootInternalKey ??= tfp.InternalKey;
-					TaprootMerkleRoot ??= tfp.MerkleRoot;
-				}
-				if (signature2 is TaprootSignature tsig)
-					TaprootKeySignature ??= tsig;
-#endif
-			}
-			return signature2;
+			builder.SignPSBTInput(this);
 		}
-		internal ITransactionSignature? Sign(Key key, PrecomputedTransactionData? precomputedTransactionData)
+		internal void Sign(Key key, PrecomputedTransactionData? precomputedTransactionData)
 		{
 			if (key == null)
 				throw new ArgumentNullException(nameof(key));
 			var coin = GetSignableCoin();
 			if (coin == null)
-				return null;
+				return;
 			if (coin.ScriptPubKey.IsScriptType(ScriptType.Taproot))
 			{
 #if HAS_SPAN
-				return Sign(key.CreateTaprootKeyPair(TaprootMerkleRoot), precomputedTransactionData);
+				Sign(key.CreateTaprootKeyPair(TaprootMerkleRoot), precomputedTransactionData);
+				return;
 #else
 				throw new NotSupportedException("Impossible to sign taproot input on .NET Framework");
 #endif
 			}
 			else
 			{
-				return Sign(key.CreateKeyPair(), precomputedTransactionData);
+				Sign(key.CreateKeyPair(), precomputedTransactionData);
+				return;
 			}
 		}
 
@@ -1135,8 +1172,9 @@ namespace NBitcoin
 
 		internal void Add(PSBTInput input)
 		{
+			if (!_InputsByOutpoint.TryAdd(input.TxIn.PrevOut, input))
+				throw new InvalidOperationException("Two inputs are spending the same output in the same transaction");
 			_Inner.Add(input);
-			_InputsByOutpoint.Add(input.TxIn.PrevOut, input);
 		}
 
 		public PSBTInput FindIndexedInput(OutPoint prevOut)

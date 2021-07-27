@@ -492,11 +492,15 @@ namespace NBitcoin
 		{
 			return VerifyScript(scriptSig, spentOutput.ScriptPubKey, new TransactionChecker(txTo, nIn, spentOutput));
 		}
-
 		public bool VerifyScript(Script scriptSig, Script scriptPubKey, TransactionChecker checker)
 		{
+			return VerifyScript(scriptSig, checker.Input.WitScript, scriptPubKey, checker);
+		}
+		public bool VerifyScript(Script scriptSig, WitScript witness, Script scriptPubKey, TransactionChecker checker)
+		{
+			scriptSig = scriptSig ?? Script.Empty;
+			witness = witness ?? WitScript.Empty;
 			ExecutionData = new ExecutionData();
-			WitScript witness = checker.Input.WitScript;
 			SetError(ScriptError.UnknownError);
 			if ((ScriptVerify & ScriptVerify.SigPushOnly) != 0 && !scriptSig.IsPushOnly)
 				return SetError(ScriptError.SigPushOnly);

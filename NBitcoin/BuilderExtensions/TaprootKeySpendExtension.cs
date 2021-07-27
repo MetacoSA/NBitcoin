@@ -10,10 +10,6 @@ namespace NBitcoin.BuilderExtensions
 {
 	public class TaprootKeySpendExtension : BuilderExtension
 	{
-		public override bool CanCombineScriptSig(Script scriptPubKey, Script a, Script b)
-		{
-			return false;
-		}
 
 		public override bool CanDeduceScriptPubKey(Script scriptSig)
 		{
@@ -22,17 +18,13 @@ namespace NBitcoin.BuilderExtensions
 
 		public override bool CanEstimateScriptSigSize(Script scriptPubKey)
 		{
-			return true;
+			return CanSign(scriptPubKey);
 		}
 
-		public override bool CanGenerateScriptSig(Script scriptPubKey)
+		
+		bool CanSign(Script executedScript)
 		{
-			return true;
-		}
-
-		public override Script CombineScriptSig(Script scriptPubKey, Script a, Script b)
-		{
-			throw new NotSupportedException();
+			return PayToTaprootTemplate.Instance.CheckScriptPubKey(executedScript);
 		}
 
 		public override Script DeduceScriptPubKey(Script scriptSig)
@@ -47,20 +39,37 @@ namespace NBitcoin.BuilderExtensions
 			return 66;
 		}
 
-		public override Script? GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer)
+		public override void Sign(InputSigningContext inputSigningContext, IKeyRepository keyRepository, ISigner signer)
 		{
-			var pk = keyRepo.FindKey(scriptPubKey) as TaprootFullPubKey;
+			var pk = keyRepository.FindKey(inputSigningContext.Coin.TxOut.ScriptPubKey) as TaprootFullPubKey;
 			if (pk is null)
-				return null;
+				return;
 			var signature = signer.Sign(pk) as TaprootSignature;
 			if (signature is null)
-				return null;
-			return PayToTaprootTemplate.Instance.GenerateScriptSig(signature);
+				return;
+			inputSigningContext.Input.TaprootInternalKey = pk.InternalKey;
+			inputSigningContext.Input.TaprootKeySignature = signature;
+			inputSigningContext.Input.TaprootMerkleRoot = pk.MerkleRoot;
 		}
 
 		public override bool IsCompatibleKey(IPubKey publicKey, Script scriptPubKey)
 		{
 			return publicKey is TaprootPubKey pk && pk.ScriptPubKey == scriptPubKey;
+		}
+
+		public override void Finalize(InputSigningContext inputSigningContext)
+		{
+			var txIn = inputSigningContext.Input;
+			if (txIn.TaprootInternalKey is TaprootInternalPubKey &&
+				txIn.TaprootKeySignature is TaprootSignature)
+			{
+				txIn.FinalScriptWitness = PayToTaprootTemplate.Instance.GenerateScriptSig(txIn.TaprootKeySignature);
+			}
+		}
+		public override bool Match(ICoin coin, PSBTInput input)
+		{
+			return coin.TxOut.ScriptPubKey.IsScriptType(ScriptType.Taproot)
+				&& PayToTaprootTemplate.Instance.CheckScriptPubKey(coin.TxOut.ScriptPubKey);
 		}
 	}
 }
