@@ -155,7 +155,7 @@ namespace NBitcoin.BuilderExtensions
 						var hash = inputSigningContext.TransactionContext
 													.Transaction
 													.Inputs.FindIndexedInput(inputSigningContext.Coin.Outpoint)
-													.GetSignatureHash(inputSigningContext.Coin, txsig.SigHash, inputSigningContext.TransactionContext.PrecomputedTransactionData);
+													.GetSignatureHash(inputSigningContext.Coin, txsig.SigHash, inputSigningContext.TransactionContext.SigningOptions.PrecomputedTransactionData);
 						while (!pk.Verify(hash, txsig.Signature))
 						{
 							pkIndex++;

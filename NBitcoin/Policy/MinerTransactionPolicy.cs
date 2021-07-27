@@ -68,7 +68,7 @@ namespace NBitcoin.Policy
 
 		public TransactionPolicyError[] Check(Transaction transaction, ICoin[] spentCoins)
 		{
-			return Check(new TransactionValidator(transaction, spentCoins));
+			return Check(transaction.CreateValidator(spentCoins));
 		}
 		public TransactionPolicyError[] Check(TransactionValidator validator)
 		{

@@ -1448,7 +1448,7 @@ namespace NBitcoin.Tests
 					}
 					v.tx.Inputs[v.index].ScriptSig = inputData.scriptSig;
 					v.tx.Inputs[v.index].WitScript = new WitScript(inputData.witness.Select(p => Encoders.Hex.DecodeData(p)).ToArray());
-					TransactionValidator validator = new TransactionValidator(v.tx, v.prevouts.ToArray());
+					TransactionValidator validator = v.tx.CreateValidator(v.prevouts.ToArray());
 					validator.ScriptVerify = ParseFlag(v.flags);
 					var result = validator.ValidateInput(v.index);
 					if (expectedSuccess != result.Error is null)

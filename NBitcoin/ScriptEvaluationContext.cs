@@ -100,7 +100,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return _PrecomputedTransactionData ??= PrecomputedTransactionData.Create(Transaction);
+				return _PrecomputedTransactionData ??= new PrecomputedTransactionData(Transaction);
 			}
 		}
 

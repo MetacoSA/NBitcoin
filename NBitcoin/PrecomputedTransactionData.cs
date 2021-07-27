@@ -9,18 +9,7 @@ namespace NBitcoin
 	/// </summary>
 	public class PrecomputedTransactionData
 	{
-		public static PrecomputedTransactionData Create(Transaction tx, TxOut?[]? spentOutputs = null)
-		{
-			if (spentOutputs is TxOut[] && spentOutputs.All(o => o != null))
-			{
-				return new TaprootReadyPrecomputedTransactionData(tx, spentOutputs!);
-			}
-			else
-			{
-				return new PrecomputedTransactionData(tx);
-			}
-		}
-		protected PrecomputedTransactionData(Transaction tx)
+		public PrecomputedTransactionData(Transaction tx)
 		{
 			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
@@ -46,11 +35,11 @@ namespace NBitcoin
 	}
 
 
-	internal class TaprootReadyPrecomputedTransactionData : PrecomputedTransactionData
+	public class TaprootReadyPrecomputedTransactionData : PrecomputedTransactionData
 	{
-		internal TaprootReadyPrecomputedTransactionData(Transaction tx, TxOut[] spentOutputs) : base(tx)
+		public TaprootReadyPrecomputedTransactionData(Transaction tx, TxOut[] spentOutputs) : base(tx)
 		{
-			SpentOutputs = spentOutputs!;
+			SpentOutputs = spentOutputs;
 			HashOutputsSingle = tx.GetHashOutputs(HashVersion.Taproot);
 			HashSequenceSingle = tx.GetHashSequence(HashVersion.Taproot);
 			HashPrevoutsSingle = tx.GetHashPrevouts(HashVersion.Taproot);
@@ -58,31 +47,31 @@ namespace NBitcoin
 			HashScriptsSingle = tx.GetHashScripts(HashVersion.Taproot, spentOutputs);
 		}
 
-		public uint256? HashPrevoutsSingle
+		public uint256 HashPrevoutsSingle
 		{
 			get;
 			set;
 		}
-		public uint256? HashSequenceSingle
+		public uint256 HashSequenceSingle
 		{
 			get;
 			set;
 		}
-		public uint256? HashOutputsSingle
+		public uint256 HashOutputsSingle
 		{
 			get;
 			set;
 		}
-		public uint256? HashAmountsSingle
+		public uint256 HashAmountsSingle
 		{
 			get;
 			set;
 		}
-		public uint256? HashScriptsSingle
+		public uint256 HashScriptsSingle
 		{
 			get;
 			set;
 		}
-		public TxOut[]? SpentOutputs { get; }
+		public TxOut[] SpentOutputs { get; }
 	}
 }

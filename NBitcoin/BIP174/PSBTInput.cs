@@ -419,7 +419,7 @@ namespace NBitcoin
 		{
 			if (GetSignableCoin() is ICoin coin)
 				return this.Transaction.Inputs.FindIndexedInput((int)Index)
-									   .GetSignatureHash(coin, sigHash, precomputedTransactionData);
+									   .GetSignatureHashTaproot(coin, sigHash, precomputedTransactionData);
 			throw new InvalidOperationException("WitnessUtxo, NonWitnessUtxo, WitnessScript or redeemScript is required to get the signature hash");
 		}
 		public uint256 GetSignatureHash(SigHash sigHash, PrecomputedTransactionData? precomputedTransactionData)
@@ -623,7 +623,7 @@ namespace NBitcoin
 		{
 			TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, null);
 		}
-		internal void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, PrecomputedTransactionData? precomputedTransactionData)
+		internal void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, SigningOptions? signingOptions)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
@@ -636,7 +636,7 @@ namespace NBitcoin
 			foreach (var hdk in this.HDKeysFor(accountHDScriptPubKey, cache, accountKeyPath))
 			{
 				if (((HDKeyCache)cache.Derive(hdk.AddressKeyPath)).Inner is ISecret k)
-					Sign(k.PrivateKey, precomputedTransactionData);
+					Sign(k.PrivateKey, signingOptions);
 				else
 					throw new ArgumentException(paramName: nameof(accountKey), message: "This should be a private key");
 			}
@@ -934,7 +934,7 @@ namespace NBitcoin
 		{
 			return TryFinalizeInput(null, out errors);
 		}
-		public bool TryFinalizeInput(TransactionValidator? validator, [MaybeNullWhen(true)] out IList<PSBTError> errors)
+		internal bool TryFinalizeInput(SigningOptions? signingOptions, [MaybeNullWhen(true)] out IList<PSBTError> errors)
 		{
 			errors = null;
 			if (IsFinalized())
@@ -954,16 +954,17 @@ namespace NBitcoin
 			if (coin is null)
 				throw new InvalidOperationException("Bug in NBitcoin during TryFinalizeInput: Please report it");
 
-			if (validator is null)
-			{
-				if (!Parent.TryCreateTransactionValidator(out validator, out var err))
-				{
-					errors = err;
-					return false;
-				}
-			}
+			signingOptions ??= Parent.Settings.SigningOptions;
+
 			TransactionBuilder transactionBuilder = Parent.CreateTransactionBuilder();
-			transactionBuilder.SetPrecomputedTransactionData(validator.PrecomputedTransactionData);
+			signingOptions = Parent.GetSigningOptions(signingOptions);
+			if (!IsTaprootReady(signingOptions, coin))
+			{
+				errors = new List<PSBTError>();
+				errors.Add(new PSBTError(Index, "When finalizing a taproot input, you need to make sure that all inputs of the PSBT contains witness_utxo or non_witness_utxo"));
+				return false;
+			}
+			transactionBuilder.SetSigningOptions(signingOptions);
 			transactionBuilder.AddCoins(coin);
 			foreach (var sig in PartialSigs)
 			{
@@ -998,7 +999,7 @@ namespace NBitcoin
 			}
 			if (!Parent.Settings.SkipVerifyScript)
 			{
-				if (!finalizedInput.VerifyScript(validator.ScriptVerify, validator.PrecomputedTransactionData, out var err2))
+				if (!finalizedInput.VerifyScript(Parent.Settings.ScriptVerify, signingOptions.PrecomputedTransactionData, out var err2))
 				{
 					errors = new List<PSBTError>() { new PSBTError(Index, $"The finalized input script does not properly validate \"{err2}\"") };
 					return false;
@@ -1017,6 +1018,11 @@ namespace NBitcoin
 			ClearForFinalize();
 			errors = null;
 			return true;
+		}
+
+		private static bool IsTaprootReady(SigningOptions signingOptions, Coin coin)
+		{
+			return !coin.ScriptPubKey.IsScriptType(ScriptType.Taproot) || (signingOptions.PrecomputedTransactionData is TaprootReadyPrecomputedTransactionData);
 		}
 
 		public bool VerifyScript(ScriptVerify scriptVerify, PrecomputedTransactionData? precomputedTransactionData, out ScriptError err)
@@ -1051,7 +1057,7 @@ namespace NBitcoin
 		{
 			Sign(keyPair, null);
 		}
-		internal void Sign(KeyPair keyPair, PrecomputedTransactionData? precomputedTransactionData)
+		internal void Sign(KeyPair keyPair, SigningOptions? signingOptions)
 		{
 			if (keyPair == null)
 				throw new ArgumentNullException(nameof(keyPair));
@@ -1071,14 +1077,16 @@ namespace NBitcoin
 			var coin = GetSignableCoin();
 			if (coin == null)
 				return;
+
+			signingOptions = Parent.GetSigningOptions(signingOptions);
+			if (!IsTaprootReady(signingOptions, coin))
+				return;
 			var builder = Parent.CreateTransactionBuilder();
 			builder.AddKeys(keyPair);
-			if (precomputedTransactionData is null)
-				precomputedTransactionData = Parent.PrecomputeTransactionData();
-			builder.SetPrecomputedTransactionData(precomputedTransactionData);
+			builder.SetSigningOptions(signingOptions);
 			builder.SignPSBTInput(this);
 		}
-		internal void Sign(Key key, PrecomputedTransactionData? precomputedTransactionData)
+		internal void Sign(Key key, SigningOptions? signingOptions)
 		{
 			if (key == null)
 				throw new ArgumentNullException(nameof(key));
@@ -1088,7 +1096,7 @@ namespace NBitcoin
 			if (coin.ScriptPubKey.IsScriptType(ScriptType.Taproot))
 			{
 #if HAS_SPAN
-				Sign(key.CreateTaprootKeyPair(TaprootMerkleRoot), precomputedTransactionData);
+				Sign(key.CreateTaprootKeyPair(TaprootMerkleRoot), signingOptions);
 				return;
 #else
 				throw new NotSupportedException("Impossible to sign taproot input on .NET Framework");
@@ -1096,7 +1104,7 @@ namespace NBitcoin
 			}
 			else
 			{
-				Sign(key.CreateKeyPair(), precomputedTransactionData);
+				Sign(key.CreateKeyPair(), signingOptions);
 				return;
 			}
 		}
