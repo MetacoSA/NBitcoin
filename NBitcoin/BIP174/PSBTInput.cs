@@ -934,7 +934,7 @@ namespace NBitcoin
 		{
 			return TryFinalizeInput(null, out errors);
 		}
-		public bool TryFinalizeInput(SigningOptions? signingOptions, [MaybeNullWhen(true)] out IList<PSBTError> errors)
+		internal bool TryFinalizeInput(SigningOptions? signingOptions, [MaybeNullWhen(true)] out IList<PSBTError> errors)
 		{
 			errors = null;
 			if (IsFinalized())

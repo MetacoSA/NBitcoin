@@ -705,7 +705,7 @@ namespace NBitcoin
 			var outputs = GetSpentTxOuts(out var errors);
 			if (errors != null)
 				throw new PSBTException(errors);
-			return new TransactionValidator(tx, outputs);
+			return tx.CreateValidator(outputs);
 		}
 		internal bool TryCreateTransactionValidator([MaybeNullWhen(false)] out TransactionValidator validator, [MaybeNullWhen(true)] out IList<PSBTError> errors)
 		{
@@ -715,7 +715,7 @@ namespace NBitcoin
 				validator = null;
 				return false;
 			}
-			validator = new TransactionValidator(tx, outputs);
+			validator = tx.CreateValidator(outputs);
 			return true;
 		}
 

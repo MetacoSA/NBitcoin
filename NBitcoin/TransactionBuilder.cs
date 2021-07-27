@@ -478,16 +478,17 @@ namespace NBitcoin
 			{
 				Builder = builder;
 				Transaction = transaction;
-				SigningOptions = signingOptions;
 				PSBT = transaction.CreatePSBT(builder.Network);
 				if (signingOptions.PrecomputedTransactionData is null)
 				{
+					signingOptions = signingOptions.Clone();
 					var prevTxous = transaction.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
 					if (prevTxous.All(p => p != null))
 						signingOptions.PrecomputedTransactionData = transaction.PrecomputeTransactionData(prevTxous!);
 					else
 						signingOptions.PrecomputedTransactionData = transaction.PrecomputeTransactionData();
 				}
+				SigningOptions = signingOptions;
 			}
 
 			public PSBT PSBT { get; set; }
@@ -2197,7 +2198,7 @@ namespace NBitcoin
 		{
 			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
-			var validator = new TransactionValidator(tx, GetSpentOutputs(tx));
+			var validator = tx.CreateValidator(GetSpentOutputs(tx));
 			if (StandardTransactionPolicy.ScriptVerify is ScriptVerify s)
 				validator.ScriptVerify = s;
 			return validator;

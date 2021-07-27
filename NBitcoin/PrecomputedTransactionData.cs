@@ -47,31 +47,31 @@ namespace NBitcoin
 			HashScriptsSingle = tx.GetHashScripts(HashVersion.Taproot, spentOutputs);
 		}
 
-		public uint256? HashPrevoutsSingle
+		public uint256 HashPrevoutsSingle
 		{
 			get;
 			set;
 		}
-		public uint256? HashSequenceSingle
+		public uint256 HashSequenceSingle
 		{
 			get;
 			set;
 		}
-		public uint256? HashOutputsSingle
+		public uint256 HashOutputsSingle
 		{
 			get;
 			set;
 		}
-		public uint256? HashAmountsSingle
+		public uint256 HashAmountsSingle
 		{
 			get;
 			set;
 		}
-		public uint256? HashScriptsSingle
+		public uint256 HashScriptsSingle
 		{
 			get;
 			set;
 		}
-		public TxOut[]? SpentOutputs { get; }
+		public TxOut[] SpentOutputs { get; }
 	}
 }

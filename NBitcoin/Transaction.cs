@@ -2477,6 +2477,36 @@ namespace NBitcoin
 		{
 			this.ReadWrite(new BitcoinStream(bytes) { ConsensusFactory = GetConsensusFactory(), ProtocolVersion = version });
 		}
+
+		public TransactionValidator CreateValidator(ICoin[] spentCoins)
+		{
+			if (spentCoins == null)
+				throw new ArgumentNullException(nameof(spentCoins));
+			TxOut[] outputs = new TxOut[spentCoins.Length];
+			Dictionary<OutPoint, ICoin> coinPerOutpoint = new Dictionary<OutPoint, ICoin>(Inputs.Count);
+			foreach (var c in spentCoins.Where(c => c is ICoin))
+				coinPerOutpoint.TryAdd(c.Outpoint, c);
+			int i = 0;
+			foreach (var input in Inputs)
+			{
+				if (coinPerOutpoint.TryGetValue(input.PrevOut, out var c))
+					outputs[i] = c.TxOut;
+				else
+					throw new InvalidOperationException("Impossible to find a spent coin from an input in the transaction");
+				i++;
+			}
+			return CreateValidator(outputs);
+		}
+		public TransactionValidator CreateValidator(TxOut[] spentOutputs)
+		{
+			if (spentOutputs is null)
+				throw new ArgumentNullException(nameof(spentOutputs));
+			if (spentOutputs.Length != Inputs.Count)
+				throw new ArgumentException("The number of spentOutputs should be equals to the number of inputs in this transaction", nameof(spentOutputs));
+			if (spentOutputs.Any(o => o is null))
+				throw new ArgumentException("No previous output should be null", nameof(spentOutputs));
+			return new TransactionValidator(this, spentOutputs);
+		}
 	}
 
 	public enum TransactionCheckResult

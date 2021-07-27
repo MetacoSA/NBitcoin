@@ -63,7 +63,7 @@ namespace NBitcoin.Policy
 		{
 			if (spentCoins == null)
 				throw new ArgumentNullException(nameof(spentCoins));
-			var validator = new TransactionValidator(transaction, spentCoins.ToArray());
+			var validator = transaction.CreateValidator(spentCoins.ToArray());
 			if (ScriptVerify is NBitcoin.ScriptVerify v)
 				validator.ScriptVerify = v;
 			return Check(validator);
