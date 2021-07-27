@@ -2212,7 +2212,7 @@ namespace NBitcoin.Tests
 			var unsignableCoin = new Coin(new OutPoint(Rand(), 0), new TxOut(Money.Coins(1.0m), k2.PubKey.Hash));
 			tx.Inputs.Add(new TxIn(coin.Outpoint));
 			tx.Inputs.Add(new TxIn(unsignableCoin.Outpoint));
-			var signature = tx.SignInput(k, coin);
+			var signature = tx.Inputs.FindIndexedInput(coin.Outpoint).Sign(k, coin);
 
 			var txBuilder = Network.CreateTransactionBuilder();
 			txBuilder.AddCoins(coin);
@@ -2466,7 +2466,7 @@ namespace NBitcoin.Tests
 						.AddCoins(allCoins);
 			foreach (var coin in allCoins)
 			{
-				var sig = partiallySigned.SignInput(keys[0], coin);
+				var sig = partiallySigned.Inputs.FindIndexedInput(coin.Outpoint).Sign(keys[0], coin);
 				txBuilder.AddKnownSignature(keys[0].PubKey, sig, coin.Outpoint);
 			}
 			partiallySigned = txBuilder

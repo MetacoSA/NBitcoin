@@ -42,6 +42,16 @@ namespace NBitcoin
 			if (sigHash == SigHash.All)
 				TaprootSigHash = TaprootSigHash.Default;
 		}
+		public SigningOptions(TaprootSigHash sigHash, TaprootReadyPrecomputedTransactionData precomputedTransactionData)
+		{
+			if (precomputedTransactionData is null)
+				throw new ArgumentNullException(nameof(precomputedTransactionData));
+			TaprootSigHash = sigHash;
+			SigHash = (SigHash)sigHash;
+			if (sigHash == TaprootSigHash.Default)
+				SigHash = SigHash.All;
+			PrecomputedTransactionData = precomputedTransactionData;
+		}
 		public SigningOptions(SigHash sigHash, bool useLowR)
 		{
 			SigHash = sigHash;
@@ -63,13 +73,22 @@ namespace NBitcoin
 		/// Do we try to get shorter signatures? (default: true)
 		/// </summary>
 		public bool EnforceLowR { get; set; } = true;
+		/// <summary>
+		/// Providing the PrecomputedTransactionData speed up signing time, by pre computing one several hashes need
+		/// for the calculation of the signatures of every input.
+		/// 
+		/// For taproot transaction signing, the precomputed transaction data is required if some of the inputs does not
+		/// belong to the signer.
+		/// </summary>
+		public PrecomputedTransactionData? PrecomputedTransactionData { get; set; }
 		public SigningOptions Clone()
 		{
 			return new SigningOptions()
 			{
 				SigHash = SigHash,
 				EnforceLowR = EnforceLowR,
-				TaprootSigHash = TaprootSigHash
+				TaprootSigHash = TaprootSigHash,
+				PrecomputedTransactionData = PrecomputedTransactionData
 			};
 		}
 	}
@@ -348,12 +367,12 @@ namespace NBitcoin
 #if HAS_SPAN
 				if (keypair is TaprootKeyPair tkp)
 				{
-					if (!(this.ctx.PrecomputedTransactionData is TaprootReadyPrecomputedTransactionData))
+					if (!(this.ctx.SigningOptions.PrecomputedTransactionData is TaprootReadyPrecomputedTransactionData))
 						return null;
-					return indexedTxIn.SignTaprootKeySpend(tkp, coin, signingOptions, this.ctx.PrecomputedTransactionData);
+					return indexedTxIn.SignTaprootKeySpend(tkp, coin, signingOptions);
 				}
 #endif
-				return indexedTxIn.Sign(keypair.Key, coin, signingOptions, this.ctx.PrecomputedTransactionData);
+				return indexedTxIn.Sign(keypair.Key, coin, signingOptions);
 			}
 
 			#endregion
@@ -450,25 +469,24 @@ namespace NBitcoin
 
 		internal class TransactionSigningContext
 		{
-			public TransactionSigningContext(TransactionBuilder builder, PSBT psbt, SigningOptions signingOptions, PrecomputedTransactionData? precomputedTransactionData)
-				: this(builder, psbt.GetOriginalTransaction(), signingOptions, precomputedTransactionData)
+			public TransactionSigningContext(TransactionBuilder builder, PSBT psbt, SigningOptions signingOptions)
+				: this(builder, psbt.GetOriginalTransaction(), psbt.GetSigningOptions(signingOptions))
 			{
 				PSBT = psbt;
 			}
-			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, SigningOptions signingOptions, PrecomputedTransactionData? precomputedTransactionData)
+			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, SigningOptions signingOptions)
 			{
 				Builder = builder;
 				Transaction = transaction;
 				SigningOptions = signingOptions;
 				PSBT = transaction.CreatePSBT(builder.Network);
-				if (precomputedTransactionData is null)
+				if (signingOptions.PrecomputedTransactionData is null)
 				{
 					var prevTxous = transaction.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
-					PrecomputedTransactionData = transaction.PrecomputeTransactionData(prevTxous);
-				}
-				else
-				{
-					PrecomputedTransactionData = precomputedTransactionData;
+					if (prevTxous.All(p => p != null))
+						signingOptions.PrecomputedTransactionData = transaction.PrecomputeTransactionData(prevTxous!);
+					else
+						signingOptions.PrecomputedTransactionData = transaction.PrecomputeTransactionData();
 				}
 			}
 
@@ -483,8 +501,6 @@ namespace NBitcoin
 				get;
 				set;
 			}
-
-			public PrecomputedTransactionData PrecomputedTransactionData { get; }
 
 			internal KeyPair? FindKey(Script scriptPubKey)
 			{
@@ -1384,41 +1400,11 @@ namespace NBitcoin
 			});
 			return this;
 		}
-
-		/// <summary>
-		/// Providing the PrecomputedTransactionData speed up signing time, by pre computing one several hashes need
-		/// for the calculation of the signatures of every input.
-		/// 
-		/// For taproot transaction signing, the precomputed transaction data is required if some of the inputs does not
-		/// belong to the signer.
-		/// </summary>
-		/// <param name="precomputedTransactionData"></param>
-		/// <returns></returns>
-		public TransactionBuilder SetPrecomputedTransactionData(PrecomputedTransactionData? precomputedTransactionData)
-		{
-			this.precomputedTransactionData = precomputedTransactionData;
-			return this;
-		}
-		/// <summary>
-		/// Providing the PrecomputedTransactionData speed up signing time, by pre computing one several hashes need
-		/// for the calculation of the signatures of every input.
-		/// 
-		/// For taproot transaction signing, the precomputed transaction data is required if some of the inputs does not
-		/// belong to the signer.
-		/// </summary>
-		/// <param name="transaction">The transaction being signed</param>
-		/// <param name="spentOutputs">The ordered list of outputs referenced by the inputs of this transaction</param>
-		/// <returns></returns>
-		public TransactionBuilder SetPrecomputedTransactionData(Transaction transaction, TxOut[] spentOutputs)
-		{
-			this.precomputedTransactionData = transaction.PrecomputeTransactionData(spentOutputs);
-			return this;
-		}
-		public TransactionBuilder SetSigningOptions(SigningOptions signingOptions)
+		public TransactionBuilder SetSigningOptions(SigningOptions? signingOptions)
 		{
 			if (signingOptions == null)
 				throw new ArgumentNullException(nameof(signingOptions));
-			this.signingOptions = signingOptions;
+			this.signingOptions = signingOptions ?? new SigningOptions();
 			return this;
 		}
 		public TransactionBuilder SetSigningOptions(SigHash sigHash)
@@ -1436,7 +1422,7 @@ namespace NBitcoin
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
-			var ctx = new TransactionSigningContext(this, transaction.Clone(), signingOptions, precomputedTransactionData);
+			var ctx = new TransactionSigningContext(this, transaction.Clone(), signingOptions);
 			ctx.SignOnlyInputIndex = index;
 			this.SignTransactionContext(ctx);
 			var input = ctx.PSBT.Inputs[(int)index];
@@ -1597,7 +1583,7 @@ namespace NBitcoin
 
 		PSBT CreatePSBTFromCore(Transaction tx, bool sign)
 		{
-			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, signingOptions, precomputedTransactionData);
+			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, signingOptions);
 			if (sign)
 				SignTransactionContext(signingContext);
 			var psbt = signingContext.PSBT;
@@ -1610,7 +1596,7 @@ namespace NBitcoin
 			if (psbt == null)
 				throw new ArgumentNullException(nameof(psbt));
 			AddCoins(psbt);
-			var signingContext = new TransactionSigningContext(this, psbt.Clone(), signingOptions, precomputedTransactionData);
+			var signingContext = new TransactionSigningContext(this, psbt.Clone(), signingOptions);
 			SignTransactionContext(signingContext);
 			psbt.Combine(signingContext.PSBT);
 			return this;
@@ -1622,7 +1608,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(psbtInput));
 			var psbt = psbtInput.PSBT;
 			AddCoins(psbt);
-			var signingContext = new TransactionSigningContext(this, psbt.Clone(), signingOptions, precomputedTransactionData)
+			var signingContext = new TransactionSigningContext(this, psbt.Clone(), signingOptions)
 			{
 				SignOnlyInputIndex = psbtInput.Index
 			};
@@ -1635,7 +1621,7 @@ namespace NBitcoin
 		{
 			if (psbt is null)
 				throw new ArgumentNullException(nameof(psbt));
-			var signingContext = new TransactionSigningContext(this, psbt.Clone(), signingOptions, precomputedTransactionData);
+			var signingContext = new TransactionSigningContext(this, psbt.Clone(), signingOptions);
 			FinalizeTransactionContext(signingContext);
 			psbt.Combine(signingContext.PSBT);
 			return this;
@@ -1646,7 +1632,7 @@ namespace NBitcoin
 			if (psbtInput is null)
 				throw new ArgumentNullException(nameof(psbtInput));
 			var psbt = psbtInput.PSBT;
-			var signingContext = new TransactionSigningContext(this, psbtInput.PSBT.Clone(), signingOptions, precomputedTransactionData)
+			var signingContext = new TransactionSigningContext(this, psbtInput.PSBT.Clone(), signingOptions)
 			{
 				SignOnlyInputIndex = psbtInput.Index
 			};
@@ -1667,7 +1653,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(psbt));
 			if (transaction is null)
 				throw new ArgumentNullException(nameof(transaction));
-			var signingContext = new TransactionSigningContext(this, transaction, signingOptions, precomputedTransactionData);
+			var signingContext = new TransactionSigningContext(this, transaction, signingOptions);
 			ExtractExistingSignatures(signingContext);
 			psbt.Combine(signingContext.PSBT);
 			return this;
@@ -1955,7 +1941,7 @@ namespace NBitcoin
 		/// <returns>The transaction object as the one passed as parameter</returns>
 		public Transaction SignTransactionInPlace(Transaction transaction)
 		{
-			var ctx = new TransactionSigningContext(this, transaction, signingOptions, precomputedTransactionData);
+			var ctx = new TransactionSigningContext(this, transaction, signingOptions);
 			ExtractExistingSignatures(ctx);
 			SignTransactionContext(ctx);
 			FinalizeTransactionContext(ctx);
@@ -2600,7 +2586,6 @@ namespace NBitcoin
 		}
 
 		Dictionary<Script, Script> _ScriptPubKeyToRedeem = new Dictionary<Script, Script>();
-		private PrecomputedTransactionData? precomputedTransactionData;
 		private SigningOptions signingOptions = new SigningOptions();
 
 		public TransactionBuilder AddKnownRedeems(params Script[] knownRedeems)
@@ -2626,7 +2611,7 @@ namespace NBitcoin
 
 			for (int i = 0; i < psbts.Length; i++)
 			{
-				var ctx = new TransactionSigningContext(this, transactions[i], signingOptions, precomputedTransactionData);
+				var ctx = new TransactionSigningContext(this, transactions[i], signingOptions);
 				ExtractExistingSignatures(ctx);
 				psbts[i] = ctx.PSBT;
 			}
@@ -2635,7 +2620,7 @@ namespace NBitcoin
 			{
 				psbt = psbt.Combine(psbts[i]);
 			}
-			var ctx2 = new TransactionSigningContext(this, psbt, signingOptions, precomputedTransactionData);
+			var ctx2 = new TransactionSigningContext(this, psbt, signingOptions);
 			FinalizeTransactionContext(ctx2);
 			MergePartialSignatures(ctx2);
 			var tx = ctx2.Transaction;
