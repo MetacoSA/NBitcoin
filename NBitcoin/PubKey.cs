@@ -540,13 +540,6 @@ namespace NBitcoin
 			return RecoverCompact(hash, signatureEncoded);
 		}
 
-		public static PubKey RecoverFromMessage(byte[] messageBytes, byte[] signatureEncoded)
-		{
-			var message = Utils.FormatMessageForSigning(messageBytes);
-			var hash = Hashes.DoubleSHA256(message);
-			return RecoverCompact(hash, signatureEncoded);
-		}
-
 		public static PubKey RecoverCompact(uint256 hash, byte[] signatureEncoded)
 		{
 #if HAS_SPAN
@@ -684,20 +677,6 @@ namespace NBitcoin
 			return h;
 #endif
 		}
-		public PubKey Compress(bool compression)
-		{
-			if (IsCompressed == compression)
-				return this;
-			if (compression)
-				return this.Compress();
-			else
-				return this.Decompress();
-		}
-
-		public string ToString(Network network)
-		{
-			return new BitcoinPubKeyAddress(this.Hash, network).ToString();
-		}
 
 		#region IDestination Members
 
@@ -741,7 +720,7 @@ namespace NBitcoin
 
 		public string Encrypt(string message)
 		{
-			if (string.IsNullOrEmpty(message))
+			if (message is null)
 				throw new ArgumentNullException(nameof(message));
 
 			var bytes = Encoding.UTF8.GetBytes(message);

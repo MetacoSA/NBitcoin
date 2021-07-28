@@ -14,8 +14,6 @@ namespace NBitcoin
 	public interface IPubkeyHashUsable
 	{
 		bool VerifyMessage(string message, string signature);
-
-		bool VerifyMessage(byte[] message, byte[] signature);
 	}
 
 	/// <summary>
@@ -75,12 +73,6 @@ namespace NBitcoin
 		}
 
 		public bool VerifyMessage(string message, string signature)
-		{
-			var key = PubKey.RecoverFromMessage(message, signature);
-			return key.Hash == Hash;
-		}
-
-		public bool VerifyMessage(byte[] message, byte[] signature)
 		{
 			var key = PubKey.RecoverFromMessage(message, signature);
 			return key.Hash == Hash;

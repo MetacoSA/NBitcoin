@@ -76,12 +76,6 @@ namespace NBitcoin
 			return key.WitHash == Hash;
 		}
 
-		public bool VerifyMessage(byte[] message, byte[] signature)
-		{
-			var key = PubKey.RecoverFromMessage(message, signature);
-			return key.WitHash == Hash;
-		}
-
 		WitKeyId _Hash;
 		public WitKeyId Hash
 		{
@@ -168,13 +162,6 @@ namespace NBitcoin
 			var key = PubKey.RecoverFromMessage(message, signature);
 			return key.WitHash.ScriptPubKey.WitHash == Hash;
 		}
-
-		public bool VerifyMessage(byte[] message, byte[] signature)
-		{
-			var key = PubKey.RecoverFromMessage(message, signature);
-			return key.WitHash.ScriptPubKey.WitHash == Hash;
-		}
-
 
 		WitScriptId _Hash;
 		public WitScriptId Hash

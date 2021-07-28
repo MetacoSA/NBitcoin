@@ -60,7 +60,6 @@ namespace NBitcoin.RPC
 		listreceivedbyaccount,
 		listtransactions,
 		listaddressgroupings,
-		listaccounts,
 		listsinceblock,
 		gettransaction,
 		backupwallet,

@@ -926,12 +926,15 @@ namespace NBitcoin.Tests
 			foreach (var plainText in msgs)
 			{
 				var cipherText1 = key.PubKey.Encrypt(plainText);
-				var cipherText2 = key.PubKey.Encrypt(plainText);
+				var cipherText2 = key.PubKey.Encrypt(Encoders.ASCII.EncodeData(plainText));
 				var text1 = key.Decrypt(cipherText1);
 				var text2 = key.Decrypt(cipherText2);
 				Assert.True(Utils.ArrayEqual(text1, plainText));
-				Assert.True(Utils.ArrayEqual(text2, plainText));
-				Assert.True(!Utils.ArrayEqual(cipherText1, cipherText2));
+				Assert.Equal(text2, Encoders.ASCII.EncodeData(plainText));
+
+				// Encrypt twice, should not give twice same cypher
+				var cipherText3 = key.PubKey.Encrypt(plainText);
+				Assert.True(!Utils.ArrayEqual(cipherText1, cipherText3));
 			}
 
 			// Electrum compatibility
