@@ -1763,6 +1763,11 @@ namespace NBitcoin
 		}
 
 #nullable enable
+		public TaprootReadyPrecomputedTransactionData PrecomputeTransactionData(ICoin[] spentCoins)
+		{
+			TxOut[] outputs = GetOrderedTxOuts(spentCoins);
+			return PrecomputeTransactionData(outputs);
+		}
 		public TaprootReadyPrecomputedTransactionData PrecomputeTransactionData(TxOut[] spentOutputs)
 		{
 			return new TaprootReadyPrecomputedTransactionData(this, spentOutputs);
@@ -2480,6 +2485,12 @@ namespace NBitcoin
 
 		public TransactionValidator CreateValidator(ICoin[] spentCoins)
 		{
+			TxOut[] outputs = GetOrderedTxOuts(spentCoins);
+			return CreateValidator(outputs);
+		}
+
+		public TxOut[] GetOrderedTxOuts(ICoin[] spentCoins)
+		{
 			if (spentCoins == null)
 				throw new ArgumentNullException(nameof(spentCoins));
 			TxOut[] outputs = new TxOut[spentCoins.Length];
@@ -2495,8 +2506,10 @@ namespace NBitcoin
 					throw new InvalidOperationException("Impossible to find a spent coin from an input in the transaction");
 				i++;
 			}
-			return CreateValidator(outputs);
+
+			return outputs;
 		}
+
 		public TransactionValidator CreateValidator(TxOut[] spentOutputs)
 		{
 			if (spentOutputs is null)

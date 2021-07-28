@@ -367,8 +367,6 @@ namespace NBitcoin
 #if HAS_SPAN
 				if (keypair is TaprootKeyPair tkp)
 				{
-					if (!(this.ctx.SigningOptions.PrecomputedTransactionData is TaprootReadyPrecomputedTransactionData))
-						return null;
 					return indexedTxIn.SignTaprootKeySpend(tkp, coin, signingOptions);
 				}
 #endif
@@ -1989,8 +1987,15 @@ namespace NBitcoin
 
 		void SignTransactionContext(TransactionSigningContext ctx)
 		{
+
 			foreach (var inputCtx in ctx.GetInputSigningContexts())
 			{
+				if (inputCtx.Coin.TxOut.ScriptPubKey.IsScriptType(ScriptType.Taproot)
+					&& !(ctx.SigningOptions.PrecomputedTransactionData is TaprootReadyPrecomputedTransactionData))
+				{
+					throw new InvalidOperationException($"Impossible to sign taproot input {inputCtx.Input.Index}.\n" +
+						$"Either use TransactionBuilder.AddCoins and add all the coins spent by the transaction to sign, or set SigningOptions.PrecomputedTransactionData via TransactionBuilder.SetSigningOptions to an instance of type TaprootReadyPrecomputedTransactionData.");
+				}
 				var signer = new CompositeSigner(GetSigners(inputCtx).ToArray());
 				var keyrepo = new CompositeKeyRepository(GetKeyRepositories(inputCtx).ToArray());
 				inputCtx.Extension.Sign(inputCtx, keyrepo, signer);

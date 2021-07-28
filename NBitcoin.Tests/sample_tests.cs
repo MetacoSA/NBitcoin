@@ -129,6 +129,37 @@ namespace NBitcoin.Tests
 				psbt.Finalize();
 				rpc.SendRawTransaction(psbt.ExtractTransaction());
 
+				// Can we sign the transaction separately?
+				await RefreshCoin();
+				var coin1 = coin;
+				await RefreshCoin();
+				var coin2 = coin;
+				builder = Network.Main.CreateTransactionBuilder(0);
+				signedTx = builder
+					.AddCoins(coin1, coin2)
+					.Send(destination, amount)
+					.SubtractFees()
+					.SetChange(change)
+					.SendEstimatedFees(rate)
+					.BuildTransaction(false);
+				var unsignedTx = signedTx.Clone();
+				builder = Network.Main.CreateTransactionBuilder(0);
+				builder.AddKeys(key.CreateTaprootKeyPair(merkleRoot));
+				builder.AddCoins(coin1);
+				var ex = Assert.Throws<InvalidOperationException>(() => builder.SignTransactionInPlace(signedTx));
+				Assert.Contains("taproot", ex.Message);
+				builder.AddCoin(coin2);
+				builder.SignTransactionInPlace(signedTx);
+				Assert.True(!WitScript.IsNullOrEmpty(signedTx.Inputs.FindIndexedInput(coin2.Outpoint).WitScript));
+				// Another solution is to set the precomputed transaction data.
+				signedTx = unsignedTx;
+				builder = Network.Main.CreateTransactionBuilder(0);
+				builder.AddKeys(key.CreateTaprootKeyPair(merkleRoot));
+				builder.AddCoins(coin2);
+				builder.SetSigningOptions(new SigningOptions() { PrecomputedTransactionData = signedTx.PrecomputeTransactionData(new ICoin[] { coin1, coin2 }) });
+				builder.SignTransactionInPlace(signedTx);
+				Assert.True(!WitScript.IsNullOrEmpty(signedTx.Inputs.FindIndexedInput(coin2.Outpoint).WitScript));
+
 
 				// Let's check if we estimate precisely the size of a taproot transaction.
 				await RefreshCoin();
