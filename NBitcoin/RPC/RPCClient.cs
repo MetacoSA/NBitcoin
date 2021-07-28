@@ -2127,7 +2127,6 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="scriptPubKey">The scriptPubKey where the bitcoins should be sent</param>
 		/// <param name="amount">The amount to spend</param>
-		/// <param name="parameters"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>The TXID of the sent transaction</returns>
 		public Task<uint256> SendToAddressAsync(
@@ -2139,6 +2138,26 @@ namespace NBitcoin.RPC
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
 			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network), amount, null, cancellationToken);
+		}
+
+		/// <summary>
+		/// Requires wallet support. Requires an unlocked wallet or an unencrypted wallet.
+		/// </summary>
+		/// <param name="scriptPubKey">The scriptPubKey where the bitcoins should be sent</param>
+		/// <param name="amount">The amount to spend</param>
+		/// <param name="parameters"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>The TXID of the sent transaction</returns>
+		public uint256 SendToAddress(
+			Script scriptPubKey,
+			Money amount,
+			SendToAddressParameters? parameters,
+			CancellationToken cancellationToken = default
+			)
+		{
+			if (scriptPubKey == null)
+				throw new ArgumentNullException(nameof(scriptPubKey));
+			return SendToAddress(scriptPubKey.GetDestinationAddress(Network), amount, parameters, cancellationToken);
 		}
 
 		/// <summary>
