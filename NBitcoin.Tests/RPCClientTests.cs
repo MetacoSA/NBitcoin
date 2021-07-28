@@ -154,7 +154,7 @@ namespace NBitcoin.Tests
 				var rpc = node.CreateRPCClient();
 				builder.StartAll();
 				node.Generate(101);
-				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), "hello", "world");
+				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m));
 				var ids = rpc.GetRawMempool();
 				Assert.Single(ids);
 				Assert.Equal(txid, ids[0]);
@@ -186,10 +186,31 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				node.Generate(101);
 
-				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), "hello", "world");
+				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), new SendToAddressParameters() { Comment = "hello", CommentTo = "world" });
 				var memPoolInfo = rpc.GetMemPool();
 				Assert.NotNull(memPoolInfo);
 				Assert.Equal(1, memPoolInfo.Size);
+
+
+				foreach (var param in new[]
+				{
+					(ConfTarget : (int?)5, FeeRate: null as FeeRate, EstimateMode: (EstimateSmartFeeMode?)null),
+					(ConfTarget : (int?)null, FeeRate: new FeeRate(5.0m), EstimateMode: (EstimateSmartFeeMode?)null),
+					(ConfTarget : (int?)null, FeeRate: null as FeeRate, EstimateMode: (EstimateSmartFeeMode?)EstimateSmartFeeMode.Conservative),
+				})
+				{
+					rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m),
+						new SendToAddressParameters()
+						{
+							Comment = "hello",
+							CommentTo = "world",
+							ConfTarget = param.ConfTarget,
+							EstimateMode = param.EstimateMode,
+							Replaceable = true,
+							SubstractFeeFromAmount = true,
+							FeeRate = param.FeeRate
+						});
+				}
 			}
 		}
 
@@ -206,7 +227,7 @@ namespace NBitcoin.Tests
 				var mempoolFilePath = Path.Combine(node.Folder, "data", "regtest", "mempool.dat");
 				File.Delete(mempoolFilePath);
 				Assert.False(File.Exists(mempoolFilePath));
-				rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), "hello", "world");
+				rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), new SendToAddressParameters() { Comment = "hello", CommentTo = "world" });
 				rpc.SaveMempool();
 				Assert.True(File.Exists(mempoolFilePath));
 			}
@@ -227,7 +248,7 @@ namespace NBitcoin.Tests
 				rpc.AllowBatchFallback = true;
 				rpc = rpc.PrepareBatch();
 				// Should be denied
-				var sending = rpc.SendToAddressAsync(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), "hello", "world");
+				var sending = rpc.SendToAddressAsync(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), new SendToAddressParameters() { Comment = "hello", CommentTo = "world" });
 				// Should give network info
 				var gettingNetworkInfo = rpc.SendCommandAsync(RPCOperations.getnetworkinfo);
 				await rpc.SendBatchAsync();
@@ -386,7 +407,7 @@ namespace NBitcoin.Tests
 				var key = new Key();
 				var address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network);
 
-				var txid = rpc.SendToAddress(address, Money.Coins(2), null, null, false, true);
+				var txid = rpc.SendToAddress(address, Money.Coins(2), new SendToAddressParameters() { Replaceable = true });
 				var txbumpid = rpc.BumpFee(txid);
 				var blocks = rpc.Generate(1);
 
@@ -761,7 +782,7 @@ namespace NBitcoin.Tests
 
 				#region Nonstandard scriptPubKey + Public key + !internal
 				key = new Key();
-				var nonStandardSpk = Script.FromHex(key.GetScriptPubKey(ScriptPubKeyType.Legacy).ToHex() + new Script(OpcodeType.OP_NOP ).ToHex());
+				var nonStandardSpk = Script.FromHex(key.GetScriptPubKey(ScriptPubKeyType.Legacy).ToHex() + new Script(OpcodeType.OP_NOP).ToHex());
 				multiAddresses = new List<ImportMultiAddress>
 				{
 					new ImportMultiAddress
@@ -940,7 +961,7 @@ namespace NBitcoin.Tests
 				//TODO
 				#endregion
 
-				# region Test importing of a P2SH-P2WPKH address via descriptor + private key
+				#region Test importing of a P2SH-P2WPKH address via descriptor + private key
 				key = new Key();
 				var p2shP2wpkhLabel = "Successful P2SH-P2wPKH descriptor import";
 				multiAddresses = new List<ImportMultiAddress>
@@ -953,13 +974,13 @@ namespace NBitcoin.Tests
 					}
 				};
 				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				# endregion
+				#endregion
 
-				# region Test ranged descriptor fails if range is not specified
+				#region Test ranged descriptor fails if range is not specified
 
 				var xpriv =
 					"tprv8ZgxMBicQKsPeuVhWwi6wuMQGfPKi9Li5GtX35jVNknACgqe3CY4g5xgkfDDJcmtF7o1QnxWDRYw4H5P26PXq7sbcUkEqeR4fg3Kxp2tigg";
-				var addresses = new List<string>() {"2N7yv4p8G8yEaPddJxY41kPihnWvs39qCMf", "2MsHxyb2JS3pAySeNUsJ7mNnurtpeenDzLA"}; // hdkeypath=m/0'/0'/0' and 1'a
+				var addresses = new List<string>() { "2N7yv4p8G8yEaPddJxY41kPihnWvs39qCMf", "2MsHxyb2JS3pAySeNUsJ7mNnurtpeenDzLA" }; // hdkeypath=m/0'/0'/0' and 1'a
 				addresses.AddRange(new[]
 				{
 					"bcrt1qrd3n235cj2czsfmsuvqqpr3lu6lg0ju7scl8gn", "bcrt1qfqeppuvj0ww98r6qghmdkj70tv8qpchehegrg8"
@@ -990,11 +1011,11 @@ namespace NBitcoin.Tests
 				rpc.ImportMulti(multiAddresses.ToArray(), false, keyRepo);
 				foreach (var addr in addresses)
 				{
-					TestAddress(rpc, addr, solvable: true, isMine:true);
+					TestAddress(rpc, addr, solvable: true, isMine: true);
 				}
 
-				# endregion
-				# region Test importing a descriptor containing a WIF private key
+				#endregion
+				#region Test importing a descriptor containing a WIF private key
 
 				var wifPriv = "cTe1f5rdT8A8DFgVWTjyPwACsDPJM9ff4QngFxUixCSvvbg1x6sh";
 				var address = "2MuhcG52uHPknxDgmGPsV18jSHFBnnRgjPg";
@@ -1010,7 +1031,7 @@ namespace NBitcoin.Tests
 				rpc.ImportMulti(multiAddresses.ToArray(), false);
 				TestAddress(rpc, address, true, true);
 
-				# endregion
+				#endregion
 
 			}
 		}
@@ -1224,7 +1245,7 @@ namespace NBitcoin.Tests
 				{
 					amount = amount / 2 - fee;
 					var address = rpc.GetNewAddress();
-					var txid = rpc.SendToAddress(address, amount, "");
+					var txid = rpc.SendToAddress(address, amount);
 					txs.Add(txid);
 				}
 				var mempoolEntry = rpc.GetMempoolEntry(txs[3]);
@@ -1445,7 +1466,7 @@ namespace NBitcoin.Tests
 				tx.Inputs.Add(coin.OutPoint);
 				tx.Outputs.Add(tx.Outputs.CreateNewTxOut(coin.Amount - fee, new Key().PubKey.Hash.ScriptPubKey));
 
-				var result = rpc.TestMempoolAccept(tx, new FeeRate(1.0m));
+				var result = rpc.TestMempoolAccept(tx, new TestMempoolParameters() { MaxFeeRate = new FeeRate(1.0m) });
 				Assert.False(result.IsAllowed);
 				Assert.Equal(Protocol.RejectCode.INVALID, result.RejectCode);
 				Assert.Equal("non-mandatory-script-verify-flag (Witness program hash mismatch)", result.RejectReason);
@@ -1455,7 +1476,7 @@ namespace NBitcoin.Tests
 					Transaction = tx
 				});
 
-				result = rpc.TestMempoolAccept(signedTx.SignedTransaction, false);
+				result = rpc.TestMempoolAccept(signedTx.SignedTransaction);
 				Assert.True(result.IsAllowed);
 				Assert.Equal(Protocol.RejectCode.INVALID, result.RejectCode);
 				Assert.Equal(string.Empty, result.RejectReason);
@@ -1836,7 +1857,7 @@ namespace NBitcoin.Tests
 				result.PSBT.Finalize();
 
 				var txResult = result.PSBT.ExtractTransaction();
-				var acceptResult = client.TestMempoolAccept(txResult, true);
+				var acceptResult = client.TestMempoolAccept(txResult);
 				Assert.True(acceptResult.IsAllowed, acceptResult.RejectReason);
 			}
 		}
@@ -1957,7 +1978,7 @@ namespace NBitcoin.Tests
 
 				// Finally, anyone can finalize and broadcast the psbt.
 				var tx = psbtCombined.Finalize().ExtractTransaction();
-				var result = alice.TestMempoolAccept(tx, false);
+				var result = alice.TestMempoolAccept(tx);
 				Assert.True(result.IsAllowed, result.RejectReason);
 			}
 		}
@@ -2004,12 +2025,12 @@ namespace NBitcoin.Tests
 			var wallet0 = rpc.CreateWallet("w0");
 			var address = wallet0.GetNewAddress();
 			wallet0.UnloadWallet();
-			Assert.Throws<RPCException>(()=> wallet0.GetNewAddress());
+			Assert.Throws<RPCException>(() => wallet0.GetNewAddress());
 
 			wallet0 = rpc.LoadWallet("w0");
 			address = wallet0.GetNewAddress();
 			wallet0.UnloadWallet();
-			Assert.Throws<RPCException>(()=> wallet0.GetNewAddress());
+			Assert.Throws<RPCException>(() => wallet0.GetNewAddress());
 
 			wallet0 = rpc.LoadWallet("w0", true);
 			node.Restart();

@@ -269,9 +269,9 @@ namespace NBitcoin.RPC
 
 		// dumpprivkey
 
-		public BitcoinSecret DumpPrivKey(BitcoinAddress address)
+		public BitcoinSecret DumpPrivKey(BitcoinAddress address, CancellationToken cancellationToken = default)
 		{
-			var response = SendCommand(RPCOperations.dumpprivkey, address.ToString());
+			var response = SendCommand(RPCOperations.dumpprivkey, cancellationToken, address.ToString());
 			return Network.Parse<BitcoinSecret>((string)response.Result);
 		}
 

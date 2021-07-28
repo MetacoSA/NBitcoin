@@ -48,7 +48,7 @@ namespace NBitcoin.RPC
 			get;
 			set;
 		}
-
+		public bool ThrowIfRPCError { get; set; } = true;
 		public Dictionary<string, object> NamedParams
 		{
 			get; set;

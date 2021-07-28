@@ -524,12 +524,24 @@ namespace NBitcoin.RPC
 
 		public RPCResponse SendCommand(RPCOperations commandName, params object[] parameters)
 		{
-			return SendCommand(commandName.ToString(), parameters);
+			return SendCommand(commandName, default, parameters);
+		}
+		public RPCResponse SendCommand(string commandName, params object[] parameters)
+		{
+			return SendCommand(commandName, default, parameters);
+		}
+		public RPCResponse SendCommand(RPCOperations commandName, CancellationToken cancellationToken, params object[] parameters)
+		{
+			return SendCommand(commandName.ToString(), cancellationToken, parameters);
+		}
+		public RPCResponse SendCommand(string commandName, CancellationToken cancellationToken, params object[] parameters)
+		{
+			return SendCommandAsync(new RPCRequest(commandName, parameters), cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
 		}
 
-		public BitcoinAddress GetNewAddress()
+		public BitcoinAddress GetNewAddress(CancellationToken cancellationToken = default)
 		{
-			return BitcoinAddress.Create(SendCommand(RPCOperations.getnewaddress).Result.ToString(), Network);
+			return BitcoinAddress.Create(SendCommand(RPCOperations.getnewaddress, cancellationToken).Result.ToString(), Network);
 		}
 
 		public BitcoinAddress GetNewAddress(GetNewAddressRequest request)
@@ -586,25 +598,14 @@ namespace NBitcoin.RPC
 			return SendCommandAsync(commandName.ToString(), cancellationToken, parameters);
 		}
 
-		/// <summary>
-		/// Send a command
-		/// </summary>
-		/// <param name="commandName">https://en.bitcoin.it/wiki/Original_Bitcoin_client/API_calls_list</param>
-		/// <param name="parameters"></param>
-		/// <returns></returns>
-		public RPCResponse SendCommand(string commandName, params object[] parameters)
+		public RPCResponse SendCommandWithNamedArgs(string commandName, Dictionary<string, object> parameters, CancellationToken cancellationToken)
 		{
-			return SendCommand(new RPCRequest(commandName, parameters));
+			return SendCommandAsync(new RPCRequest() { Method = commandName, NamedParams = parameters }, cancellationToken).ConfigureAwait(false).GetAwaiter().GetResult();
 		}
 
-		public RPCResponse SendCommandWithNamedArgs(string commandName, Dictionary<string, object> parameters)
+		public Task<RPCResponse> SendCommandWithNamedArgsAsync(string commandName, Dictionary<string, object> parameters, CancellationToken cancellationToken)
 		{
-			return SendCommand(new RPCRequest() { Method = commandName, NamedParams = parameters });
-		}
-
-		public Task<RPCResponse> SendCommandWithNamedArgsAsync(string commandName, Dictionary<string, object> parameters, CancellationToken cancellationToken = default)
-		{
-			return SendCommandAsync(new RPCRequest() { Method = commandName, NamedParams = parameters }, cancellationToken: cancellationToken);
+			return SendCommandAsync(new RPCRequest() { Method = commandName, NamedParams = parameters }, cancellationToken);
 		}
 
 		// Should we obsolete this non-cancellable async method?
@@ -616,11 +617,6 @@ namespace NBitcoin.RPC
 		public Task<RPCResponse> SendCommandAsync(string commandName, CancellationToken cancellationToken, params object[] parameters)
 		{
 			return SendCommandAsync(new RPCRequest(commandName, parameters), cancellationToken: cancellationToken);
-		}
-
-		public RPCResponse SendCommand(RPCRequest request, bool throwIfRPCError = true)
-		{
-			return SendCommandAsync(request, throwIfRPCError).GetAwaiter().GetResult();
 		}
 
 		/// <summary>
@@ -654,9 +650,9 @@ namespace NBitcoin.RPC
 			await SendCommandAsync(RPCOperations.stop, cancellationToken).ConfigureAwait(false);
 		}
 
-		public void Stop()
+		public void Stop(CancellationToken cancellationToken = default)
 		{
-			SendCommand(RPCOperations.stop);
+			SendCommand(RPCOperations.stop, cancellationToken);
 		}
 
 		/// <summary>
@@ -872,7 +868,7 @@ namespace NBitcoin.RPC
 							{
 								try
 								{
-									var resp = await SendCommandAsync(req.Item1, cancellationToken: cancellationToken);
+									var resp = await SendCommandAsync(req.Item1, cancellationToken);
 									req.Item2.TrySetResult(resp);
 								}
 								catch (Exception ex)
@@ -903,11 +899,6 @@ namespace NBitcoin.RPC
 			await Task.Delay(1);
 		}
 
-		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true, CancellationToken cancellationToken = default)
-		{
-			return await SendCommandAsyncCore(request, throwIfRPCError, cancellationToken).ConfigureAwait(false);
-		}
-
 		private bool TryRenewCookie()
 		{
 			var cookiePath = GetCookiePath();
@@ -934,7 +925,7 @@ namespace NBitcoin.RPC
 		}
 
 		static Encoding NoBOMUTF8 = new UTF8Encoding(false);
-		async Task<RPCResponse> SendCommandAsyncCore(RPCRequest request, bool throwIfRPCError, CancellationToken cancellationToken)
+		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, CancellationToken cancellationToken = default)
 		{
 			RPCResponse response = null;
 			var batches = _BatchedRequests;
@@ -947,7 +938,7 @@ namespace NBitcoin.RPC
 #endif
 				batches.Enqueue(Tuple.Create(request, source));
 				response = await source.Task.ConfigureAwait(false);
-				if (throwIfRPCError)
+				if (request.ThrowIfRPCError)
 					response?.ThrowIfError();
 			}
 
@@ -966,7 +957,7 @@ namespace NBitcoin.RPC
 					if (httpResponse.IsSuccessStatusCode)
 					{
 						response = RPCResponse.Load(await httpResponse.Content.ReadAsStreamAsync());
-						if (throwIfRPCError)
+						if (request.ThrowIfRPCError)
 							response.ThrowIfError();
 					}
 					else
@@ -983,7 +974,7 @@ namespace NBitcoin.RPC
 						if (IsJson(httpResponse))
 						{
 							response = RPCResponse.Load(await httpResponse.Content.ReadAsStreamAsync());
-							if (throwIfRPCError)
+							if (request.ThrowIfRPCError)
 								response.ThrowIfError();
 						}
 						else if (await IsWorkQueueFull(httpResponse))
@@ -1595,7 +1586,8 @@ namespace NBitcoin.RPC
 		public async Task<MempoolEntry> GetMempoolEntryAsync(uint256 txid, bool throwIfNotFound = true, CancellationToken cancellationToken = default)
 		{
 			var request = new RPCRequest(RPCOperations.getmempoolentry, new[] { txid });
-			var response = await SendCommandAsync(request, throwIfRPCError: throwIfNotFound, cancellationToken: cancellationToken).ConfigureAwait(false);
+			request.ThrowIfRPCError = throwIfNotFound;
+			var response = await SendCommandAsync(request, cancellationToken: cancellationToken).ConfigureAwait(false);
 			if (throwIfNotFound)
 				response.ThrowIfError();
 			if (response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
@@ -1632,36 +1624,25 @@ namespace NBitcoin.RPC
 			SaveMempoolAsync().GetAwaiter().GetResult();
 		}
 
-		private FeeRate AbsurdlyHighFee { get; } = new FeeRate(10_000M);
-
-		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, bool allowHighFees = false)
+#nullable enable
+		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, TestMempoolParameters? parameters, CancellationToken cancellationToken = default)
 		{
-			return TestMempoolAcceptAsync(transaction, allowHighFees).GetAwaiter().GetResult();
+			return TestMempoolAcceptAsync(transaction, parameters, cancellationToken).GetAwaiter().GetResult();
+		}
+		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, CancellationToken cancellationToken = default)
+		{
+			return TestMempoolAcceptAsync(transaction, null, cancellationToken).GetAwaiter().GetResult();
 		}
 
-		public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, bool allowHighFees = false, CancellationToken cancellationToken = default)
+		public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, CancellationToken cancellationToken = default)
 		{
-			var maxFeeRate = allowHighFees ? AbsurdlyHighFee : null;
-			return await TestMempoolAcceptAsync(transaction, maxFeeRate, cancellationToken).ConfigureAwait(false);
+			return await TestMempoolAcceptAsync(transaction, null, cancellationToken).ConfigureAwait(false);
 		}
 
-		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, FeeRate maxFeeRate)
-		{
-			return TestMempoolAcceptAsync(transaction, maxFeeRate).GetAwaiter().GetResult();
-		}
-		public MempoolAcceptResult TestMempoolAccept(Transaction transaction)
-		{
-			return TestMempoolAcceptAsync(transaction, null as FeeRate).GetAwaiter().GetResult();
-		}
-		public Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, CancellationToken cancellationToken = default)
-		{
-			return TestMempoolAcceptAsync(transaction, null as FeeRate, cancellationToken);
-		}
-
-		public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, FeeRate maxFeeRate = null, CancellationToken cancellationToken = default)
+		public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, TestMempoolParameters? parameters, CancellationToken cancellationToken = default)
 		{
 			RPCResponse response;
-			if (maxFeeRate is FeeRate feeRate)
+			if (parameters?.MaxFeeRate is FeeRate feeRate)
 			{
 				try
 				{
@@ -1670,8 +1651,7 @@ namespace NBitcoin.RPC
 				}
 				catch (RPCException ex) when (ex.Message == "Expected type bool, got number")
 				{
-					var allowHighFees = feeRate >= AbsurdlyHighFee ? true : false;
-					response = await SendCommandAsync(RPCOperations.testmempoolaccept, cancellationToken, new[] { transaction.ToHex() }, allowHighFees).ConfigureAwait(false);
+					response = await SendCommandAsync(RPCOperations.testmempoolaccept, cancellationToken, new[] { transaction.ToHex() }).ConfigureAwait(false);
 				}
 			}
 			else
@@ -1706,7 +1686,7 @@ namespace NBitcoin.RPC
 				RejectReason = rejectedReason
 			};
 		}
-
+#nullable restore
 		/// <summary>
 		/// Returns details about an unspent transaction output.
 		/// </summary>
@@ -1779,13 +1759,14 @@ namespace NBitcoin.RPC
 		/// GetTransactions only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
 		/// </summary>
 		/// <param name="blockHash"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public IEnumerable<Transaction> GetTransactions(uint256 blockHash)
+		public IEnumerable<Transaction> GetTransactions(uint256 blockHash, CancellationToken cancellationToken = default)
 		{
 			if (blockHash == null)
 				throw new ArgumentNullException(nameof(blockHash));
 
-			var resp = SendCommand(RPCOperations.getblock, blockHash);
+			var resp = SendCommand(RPCOperations.getblock, cancellationToken, blockHash);
 
 			var tx = resp.Result["tx"] as JArray;
 			if (tx != null)
@@ -1858,7 +1839,7 @@ namespace NBitcoin.RPC
 			args.Add(0);
 			if (blockId != null)
 				args.Add(blockId);
-			var response = await SendCommandAsync(new RPCRequest(RPCOperations.getrawtransaction, args.ToArray()), throwIfNotFound, cancellationToken).ConfigureAwait(false);
+			var response = await SendCommandAsync(new RPCRequest(RPCOperations.getrawtransaction, args.ToArray()) { ThrowIfRPCError = throwIfNotFound }, cancellationToken).ConfigureAwait(false);
 			if (throwIfNotFound)
 				response.ThrowIfError();
 			if (response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
@@ -2024,8 +2005,8 @@ namespace NBitcoin.RPC
 				}
 
 				var request = new RPCRequest(RPCOperations.estimatesmartfee.ToString(), parameters.ToArray());
-
-				var response = await SendCommandAsync(request, throwIfRPCError: false, cancellationToken: cancellationToken).ConfigureAwait(false);
+				request.ThrowIfRPCError = false;
+				var response = await SendCommandAsync(request, cancellationToken: cancellationToken).ConfigureAwait(false);
 
 				if (response?.Error != null)
 				{
@@ -2047,7 +2028,7 @@ namespace NBitcoin.RPC
 			}
 			else
 			{
-				RPCResponse response = await SendCommandAsync(new RPCRequest(RPCOperations.estimatefee, new object[] { confirmationTarget }), false, cancellationToken).ConfigureAwait(false);
+				RPCResponse response = await SendCommandAsync(new RPCRequest(RPCOperations.estimatefee, new object[] { confirmationTarget }) { ThrowIfRPCError = false }, cancellationToken).ConfigureAwait(false);
 				if (response.Error != null)
 				{
 					if (response.Error.Code is RPCErrorCode.RPC_MISC_ERROR)
@@ -2070,76 +2051,94 @@ namespace NBitcoin.RPC
 
 		#endregion
 
+
+#nullable enable
 		/// <summary>
 		/// Requires wallet support. Requires an unlocked wallet or an unencrypted wallet.
 		/// </summary>
 		/// <param name="address">A P2PKH or P2SH address to which the bitcoins should be sent</param>
 		/// <param name="amount">The amount to spend</param>
-		/// <param name="commentTx">A locally-stored (not broadcast) comment assigned to this transaction. Default is no comment</param>
-		/// <param name="commentDest">A locally-stored (not broadcast) comment assigned to this transaction. Meant to be used for describing who the payment was sent to. Default is no comment</param>
-		/// <param name="subtractFeeFromAmount">The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. </param>
-		/// <param name="replaceable">Allow this transaction to be replaced by a transaction with higher fees. </param>
+		/// <param name="parameters"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns>The TXID of the sent transaction</returns>
 		public uint256 SendToAddress(
 			BitcoinAddress address,
 			Money amount,
-			string commentTx = null,
-			string commentDest = null,
-			bool subtractFeeFromAmount = false,
-			bool replaceable = false
+			SendToAddressParameters? parameters,
+			CancellationToken cancellationToken = default
 		)
 		{
-			uint256 txid = null;
-
-			txid = SendToAddressAsync(address, amount, commentTx, commentDest, subtractFeeFromAmount, replaceable).GetAwaiter().GetResult();
-			return txid;
+			return SendToAddressAsync(address, amount, parameters, cancellationToken).GetAwaiter().GetResult();
+		}
+		/// <summary>
+		/// Requires wallet support. Requires an unlocked wallet or an unencrypted wallet.
+		/// </summary>
+		/// <param name="address">A P2PKH or P2SH address to which the bitcoins should be sent</param>
+		/// <param name="amount">The amount to spend</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>The TXID of the sent transaction</returns>
+		public uint256 SendToAddress(
+			BitcoinAddress address,
+			Money amount,
+			CancellationToken cancellationToken = default
+		)
+		{
+			return SendToAddressAsync(address, amount, null, cancellationToken).GetAwaiter().GetResult();
 		}
 
 		/// <summary>
 		/// Requires wallet support. Requires an unlocked wallet or an unencrypted wallet.
 		/// </summary>
-		/// <param name="scriptPubKey">The destination where coins should be sent</param>
+		/// <param name="address">A P2PKH or P2SH address to which the bitcoins should be sent</param>
 		/// <param name="amount">The amount to spend</param>
-		/// <param name="commentTx">A locally-stored (not broadcast) comment assigned to this transaction. Default is no comment</param>
-		/// <param name="commentDest">A locally-stored (not broadcast) comment assigned to this transaction. Meant to be used for describing who the payment was sent to. Default is no comment</param>
-		/// <param name="subtractFeeFromAmount">The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. </param>
-		/// <param name="replaceable">Allow this transaction to be replaced by a transaction with higher fees. </param>
+		/// <param name="cancellationToken"></param>
 		/// <returns>The TXID of the sent transaction</returns>
 		public uint256 SendToAddress(
 			Script scriptPubKey,
 			Money amount,
-			string commentTx = null,
-			string commentDest = null,
-			bool subtractFeeFromAmount = false,
-			bool replaceable = false
+			CancellationToken cancellationToken = default
 		)
 		{
-			return SendToAddressAsync(scriptPubKey, amount, commentTx, commentDest, subtractFeeFromAmount, replaceable).GetAwaiter().GetResult();
+			return SendToAddressAsync(scriptPubKey, amount, null, cancellationToken).GetAwaiter().GetResult();
 		}
 
 		/// <summary>
 		/// Requires wallet support. Requires an unlocked wallet or an unencrypted wallet.
 		/// </summary>
-		/// <param name="scriptPubKey">The destination where coins should be sent</param>
+		/// <param name="address">A P2PKH or P2SH address to which the bitcoins should be sent</param>
 		/// <param name="amount">The amount to spend</param>
-		/// <param name="commentTx">A locally-stored (not broadcast) comment assigned to this transaction. Default is no comment</param>
-		/// <param name="commentDest">A locally-stored (not broadcast) comment assigned to this transaction. Meant to be used for describing who the payment was sent to. Default is no comment</param>
-		/// <param name="subtractFeeFromAmount">The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. </param>
-		/// <param name="replaceable">Allow this transaction to be replaced by a transaction with higher fees. </param>
+		/// <param name="parameters"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns>The TXID of the sent transaction</returns>
 		public Task<uint256> SendToAddressAsync(
 			Script scriptPubKey,
 			Money amount,
-			string commentTx = null,
-			string commentDest = null,
-			bool subtractFeeFromAmount = false,
-			bool replaceable = false,
+			SendToAddressParameters? parameters,
 			CancellationToken cancellationToken = default
 			)
 		{
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
-			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network), amount, commentTx, commentDest, subtractFeeFromAmount, replaceable, cancellationToken);
+			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network), amount, parameters, cancellationToken);
+		}
+
+		/// <summary>
+		/// Requires wallet support. Requires an unlocked wallet or an unencrypted wallet.
+		/// </summary>
+		/// <param name="scriptPubKey">The scriptPubKey where the bitcoins should be sent</param>
+		/// <param name="amount">The amount to spend</param>
+		/// <param name="parameters"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>The TXID of the sent transaction</returns>
+		public Task<uint256> SendToAddressAsync(
+			Script scriptPubKey,
+			Money amount,
+			CancellationToken cancellationToken = default
+			)
+		{
+			if (scriptPubKey == null)
+				throw new ArgumentNullException(nameof(scriptPubKey));
+			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network), amount, null, cancellationToken);
 		}
 
 		/// <summary>
@@ -2147,43 +2146,74 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="address">A P2PKH or P2SH address to which the bitcoins should be sent</param>
 		/// <param name="amount">The amount to spend</param>
-		/// <param name="commentTx">A locally-stored (not broadcast) comment assigned to this transaction. Default is no comment</param>
-		/// <param name="commentDest">A locally-stored (not broadcast) comment assigned to this transaction. Meant to be used for describing who the payment was sent to. Default is no comment</param>
-		/// <param name="subtractFeeFromAmount">The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. </param>
-		/// <param name="replaceable">Allow this transaction to be replaced by a transaction with higher fees. </param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>The TXID of the sent transaction</returns>
+		public Task<uint256> SendToAddressAsync(
+			BitcoinAddress address,
+			Money amount,
+			CancellationToken cancellationToken = default
+			)
+		{
+			return SendToAddressAsync(address, amount, null, cancellationToken);
+		}
+
+		/// <summary>
+		/// Requires wallet support. Requires an unlocked wallet or an unencrypted wallet.
+		/// </summary>
+		/// <param name="address">A P2PKH or P2SH address to which the bitcoins should be sent</param>
+		/// <param name="amount">The amount to spend</param>
+		/// <param name="parameters"></param>
+		/// <param name="cancellationToken"></param>
 		/// <returns>The TXID of the sent transaction</returns>
 		public async Task<uint256> SendToAddressAsync(
 			BitcoinAddress address,
 			Money amount,
-			string commentTx = null,
-			string commentDest = null,
-			bool subtractFeeFromAmount = false,
-			bool replaceable = false,
+			SendToAddressParameters? parameters,
 			CancellationToken cancellationToken = default
 			)
 		{
-			if (address == null)
+			if (address is null)
 				throw new ArgumentNullException(nameof(address));
-			if (amount == null)
+			if (amount is null)
 				throw new ArgumentNullException(nameof(amount));
-			List<object> parameters = new List<object>();
-			parameters.Add(address.ToString());
-			parameters.Add(amount.ToString());
-			parameters.Add($"{commentTx}");
-			parameters.Add($"{commentDest}");
-			if (subtractFeeFromAmount || replaceable)
-			{
-				parameters.Add(subtractFeeFromAmount);
-				if (replaceable)
-					parameters.Add(replaceable);
-			}
-			var resp = await SendCommandAsync(RPCOperations.sendtoaddress, cancellationToken, parameters.ToArray()).ConfigureAwait(false);
-			return uint256.Parse(resp.Result.ToString());
-		}
 
-		public bool SetTxFee(FeeRate feeRate)
+			// Maximum compatiblity
+			if (parameters is null)
+			{
+				List<object> list = new List<object>();
+				list.Add(address.ToString());
+				list.Add(amount.ToString());
+				var resp = await SendCommandAsync(RPCOperations.sendtoaddress, cancellationToken, list.ToArray()).ConfigureAwait(false);
+				return uint256.Parse(resp.Result.ToString());
+			}
+			else
+			{
+				var list = new Dictionary<string, object>();
+				list.Add("address", address.ToString());
+				list.Add("amount", amount.ToString());
+				if (parameters.Comment is string)
+					list.Add("comment", parameters.Comment);
+				if (parameters.CommentTo is string)
+					list.Add("comment_to", parameters.CommentTo);
+				if (parameters.SubstractFeeFromAmount is bool v)
+					list.Add("subtractfeefromamount", v);
+				if (parameters.Replaceable is bool v1)
+					list.Add("replaceable", v1);
+				if (parameters.ConfTarget is int v2)
+					list.Add("conf_target", v2);
+				if (parameters.EstimateMode is EstimateSmartFeeMode v3)
+					list.Add("estimate_mode", v3 == EstimateSmartFeeMode.Conservative ? "conservative" : "economical");
+				if (parameters.FeeRate is FeeRate v4)
+					list.Add("fee_rate", v4.SatoshiPerByte.ToString(CultureInfo.InvariantCulture));
+				var resp = await SendCommandWithNamedArgsAsync("sendtoaddress", list, cancellationToken).ConfigureAwait(false);
+				return uint256.Parse(resp.Result.ToString());
+			}
+
+		}
+#nullable restore
+		public bool SetTxFee(FeeRate feeRate, CancellationToken cancellationToken = default)
 		{
-			return SendCommand(RPCOperations.settxfee, new[] { feeRate.FeePerK.ToString() }).Result.ToString() == "true";
+			return SendCommand(RPCOperations.settxfee, cancellationToken, new[] { feeRate.FeePerK.ToString() }).Result.ToString() == "true";
 		}
 
 		#endregion
@@ -2243,9 +2273,10 @@ namespace NBitcoin.RPC
 		/// Permanently marks a block as invalid, as if it violated a consensus rule.
 		/// </summary>
 		/// <param name="blockhash">the hash of the block to mark as invalid</param>
-		public void InvalidateBlock(uint256 blockhash)
+		/// <param name="cancellationToken"></param>
+		public void InvalidateBlock(uint256 blockhash, CancellationToken cancellationToken = default)
 		{
-			SendCommand(RPCOperations.invalidateblock, blockhash);
+			SendCommand(RPCOperations.invalidateblock, cancellationToken, blockhash);
 		}
 
 		/// <summary>
@@ -2541,6 +2572,47 @@ namespace NBitcoin.RPC
 		public uint256[] SpentBy { get; set; }
 	}
 
+#nullable enable
+	public class TestMempoolParameters
+	{
+		public FeeRate? MaxFeeRate { get; set; }
+	}
+
+	public class SendToAddressParameters
+	{
+		/// <summary>
+		/// A locally-stored (not broadcast) comment assigned to this transaction. Default is no comment.
+		/// </summary>
+		public string? Comment { get; set; }
+		/// <summary>
+		/// A locally-stored (not broadcast) comment assigned to this transaction. Meant to be used for describing who the payment was sent to. Default is no comment.
+		/// </summary>
+		public string? CommentTo { get; set; }
+		/// <summary>
+		/// The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. Default is false.
+		/// </summary>
+		public bool? SubstractFeeFromAmount { get; set; }
+		/// <summary>
+		/// Allow this transaction to be replaced by a transaction with higher fees. 
+		/// </summary>
+		public bool? Replaceable { get; set; }
+
+		/// <summary>
+		/// Confirmation target in blocks
+		/// </summary>
+		public int? ConfTarget { get; set; }
+
+		/// <summary>
+		/// The fee estimate mode
+		/// </summary>
+		public EstimateSmartFeeMode? EstimateMode { get; set; }
+
+		/// <summary>
+		/// Specify a fee rate in sat/vB.
+		/// </summary>
+		public FeeRate? FeeRate { get; set; }
+	}
+#nullable restore
 	public class MempoolAcceptResult
 	{
 		public uint256 TxId { get; internal set; }
