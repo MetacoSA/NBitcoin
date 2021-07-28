@@ -173,12 +173,6 @@ namespace NBitcoin.Protocol
 		{
 			return ReadNext(socket, network, version, cancellationToken, out counter);
 		}
-		[Obsolete("The buffer parameter is now ignored")]
-		public static Message ReadNext(Socket socket, Network network, uint version, CancellationToken cancellationToken, byte[] buffer, out PerformanceCounter counter)
-		{
-			var stream = new NetworkStream(socket, false);
-			return ReadNext(stream, network, version, cancellationToken, out counter);
-		}
 #endif
 		public static Message ReadNext(Stream stream, Network network, uint version, CancellationToken cancellationToken)
 		{
@@ -206,12 +200,6 @@ namespace NBitcoin.Protocol
 			}
 			counter = bitStream.Counter;
 			return message;
-		}
-
-		[Obsolete("The buffer parameter is now ignored")]
-		public static Message ReadNext(Stream stream, Network network, uint version, CancellationToken cancellationToken, byte[] buffer, out PerformanceCounter counter)
-		{
-			return ReadNext(stream, network, version, cancellationToken, out counter);
 		}
 
 		private IDisposable SkipMagicScope(bool value)

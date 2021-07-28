@@ -22,8 +22,8 @@ namespace NBitcoin.Crypto
 #if HAS_SPAN
 		internal Secp256k1.SecpSchnorrSignature secpShnorr;
 #else
-		public BigInteger R { get; }
-		public BigInteger S { get; }
+		internal BigInteger R { get; }
+		internal BigInteger S { get; }
 #endif
 		public static SchnorrSignature Parse(string hex)
 		{
@@ -86,7 +86,7 @@ namespace NBitcoin.Crypto
 			return buf;
 		}
 #else
-		public SchnorrSignature(BigInteger r, BigInteger s)
+		internal SchnorrSignature(BigInteger r, BigInteger s)
 		{
 			R = r;
 			S = s;

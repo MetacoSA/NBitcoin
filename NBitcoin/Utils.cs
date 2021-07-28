@@ -637,7 +637,7 @@ namespace NBitcoin
 			return bytes;
 		}
 
-		public static byte[] BigIntegerToBytes(BigInteger num)
+		internal static byte[] BigIntegerToBytes(BigInteger num)
 		{
 			if (num.Equals(BigInteger.Zero))
 				//Positive 0 is represented by a null-length vector
@@ -656,7 +656,7 @@ namespace NBitcoin
 			return array;
 		}
 
-		public static BigInteger BytesToBigInteger(byte[] data)
+		internal static BigInteger BytesToBigInteger(byte[] data)
 		{
 			if (data == null)
 				throw new ArgumentNullException(nameof(data));

@@ -245,19 +245,6 @@ namespace NBitcoin
 			set;
 		}
 
-		[Obsolete("Use Amount instead")]
-		public AssetMoney Asset
-		{
-			get
-			{
-				return Amount;
-			}
-			set
-			{
-				Amount = value;
-			}
-		}
-
 		public Coin Bearer
 		{
 			get;

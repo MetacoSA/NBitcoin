@@ -50,13 +50,6 @@ namespace NBitcoin
 			return new BlockHeader(Encoders.Hex.DecodeData(hex), consensusFactory);
 		}
 
-
-		[Obsolete("Use Parse(string hex, Network|Consensus|ConsensusFactory) instead")]
-		public static BlockHeader Parse(string hex)
-		{
-			return Parse(hex, Consensus.Main.ConsensusFactory);
-		}
-
 		[Obsolete("You should instantiate BlockHeader from ConsensusFactory.CreateBlockHeader")]
 		public BlockHeader()
 		{
@@ -88,14 +81,6 @@ namespace NBitcoin
 			this.ReadWrite(bs);
 		}
 
-		[Obsolete("Use new BlockHeader(string hex, Network|Consensus|ConsensusFactory) instead")]
-		public BlockHeader(string hex)
-			: this(Encoders.Hex.DecodeData(hex))
-		{
-
-		}
-
-
 		public BlockHeader(byte[] data, Network network)
 			: this(data, network?.Consensus?.ConsensusFactory ?? throw new ArgumentNullException(nameof(network)))
 		{
@@ -119,13 +104,6 @@ namespace NBitcoin
 				ConsensusFactory = consensusFactory
 			};
 			this.ReadWrite(bs);
-		}
-
-
-		[Obsolete("Use new BlockHeader(byte[] hex, Network|Consensus|ConsensusFactory) instead")]
-		public BlockHeader(byte[] bytes)
-		{
-			this.ReadWrite(new BitcoinStream(bytes));
 		}
 
 
@@ -272,12 +250,6 @@ namespace NBitcoin
 			return new HashStream();
 		}
 
-		[Obsolete("Call PrecomputeHash(true, true) instead")]
-		public void CacheHashes()
-		{
-			PrecomputeHash(true, true);
-		}
-
 		/// <summary>
 		/// Precompute the block header hash so that later calls to GetHash() will returns the precomputed hash
 		/// </summary>
@@ -322,12 +294,6 @@ namespace NBitcoin
 #endif
 			// Check proof of work matches claimed amount
 			return GetPoWHash() <= Bits.ToUInt256();
-		}
-
-		[Obsolete]
-		public bool CheckProofOfWork(Consensus consensus)
-		{
-			return CheckProofOfWork();
 		}
 
 
@@ -490,12 +456,6 @@ namespace NBitcoin
 			ReadWrite(stream);
 		}
 
-		[Obsolete("Should use Block.Load outside of ConsensusFactories")]
-		public Block(byte[] bytes) : this(bytes, Consensus.Main.ConsensusFactory)
-		{
-		}
-
-
 		public virtual void ReadWrite(BitcoinStream stream)
 		{
 			using (stream.ConsensusFactoryScope(GetConsensusFactory()))
@@ -645,12 +605,6 @@ namespace NBitcoin
 		public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value, ConsensusFactory consensusFactory)
 		{
 			return CreateNextBlockWithCoinbase(pubkey, value, DateTimeOffset.UtcNow, consensusFactory);
-		}
-
-		[Obsolete("Use CreateNextBlockWithCoinbase with consensusFactory instead")]
-		public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value)
-		{
-			return CreateNextBlockWithCoinbase(pubkey, value, DateTimeOffset.UtcNow, Consensus.Main.ConsensusFactory);
 		}
 
 		public static Block Parse(string hex, Network network)

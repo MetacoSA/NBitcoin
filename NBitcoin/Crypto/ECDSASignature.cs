@@ -210,8 +210,7 @@ namespace NBitcoin.Crypto
 		}
 #else
 		private readonly BigInteger _R;
-		[Obsolete("This member is not available on .netstandard2.1 and will soon be removed")]
-		public BigInteger R
+		internal BigInteger R
 		{
 			get
 			{
@@ -219,16 +218,14 @@ namespace NBitcoin.Crypto
 			}
 		}
 		private BigInteger _S;
-		[Obsolete("This member is not available on .netstandard2.1 and will soon be removed")]
-		public BigInteger S
+		internal BigInteger S
 		{
 			get
 			{
 				return _S;
 			}
 		}
-		[Obsolete("This member is not available on .netstandard2.1 and will soon be removed")]
-		public ECDSASignature(BigInteger r, BigInteger s)
+		internal ECDSASignature(BigInteger r, BigInteger s)
 		{
 			if (r == null)
 				throw new ArgumentNullException(paramName: nameof(r));
@@ -237,8 +234,7 @@ namespace NBitcoin.Crypto
 			_R = r;
 			_S = s;
 		}
-		[Obsolete("This member is not available on .netstandard2.1 and will soon be removed")]
-		public ECDSASignature(BigInteger[] rs)
+		internal ECDSASignature(BigInteger[] rs)
 		{
 			_R = rs[0];
 			_S = rs[1];
