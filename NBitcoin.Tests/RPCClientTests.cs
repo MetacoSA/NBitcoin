@@ -1857,7 +1857,7 @@ namespace NBitcoin.Tests
 				result.PSBT.Finalize();
 
 				var txResult = result.PSBT.ExtractTransaction();
-				var acceptResult = client.TestMempoolAccept(txResult);
+				var acceptResult = client.TestMempoolAccept(txResult, new TestMempoolParameters() { MaxFeeRate = new FeeRate(10_000m) });
 				Assert.True(acceptResult.IsAllowed, acceptResult.RejectReason);
 			}
 		}
