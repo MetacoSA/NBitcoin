@@ -672,38 +672,35 @@ namespace NBitcoin.RPC
 			return TimeSpan.FromSeconds(res.Result.Value<double>());
 		}
 
+		public ScanTxoutSetResponse StartScanTxoutSet(ScanTxoutSetParameters parameters, CancellationToken cancellationToken = default)
+			=> StartScanTxoutSetAsync(parameters, cancellationToken).GetAwaiter().GetResult();
 
-		public ScanTxoutSetResponse StartScanTxoutSet(OutputDescriptor descriptor, uint rangeStart = 0,
-			uint rangeEnd = 1000) => StartScanTxoutSetAsync(new[] { descriptor }.AsEnumerable(), rangeStart, rangeEnd).GetAwaiter().GetResult();
-
-		public ScanTxoutSetResponse StartScanTxoutSet(IEnumerable<OutputDescriptor> descriptor,
-			uint rangeStart = 0, uint rangeEnd = 1000)
-			=> StartScanTxoutSetAsync(descriptor, rangeStart, rangeEnd).GetAwaiter().GetResult();
-
-		public Task<ScanTxoutSetResponse> StartScanTxoutSetAsync(OutputDescriptor descriptor, uint rangeStart = 0, uint rangeEnd = 1000, CancellationToken cancellationToken = default)
-			=> StartScanTxoutSetAsync(new[] { descriptor }.AsEnumerable(), rangeStart, rangeEnd, cancellationToken);
-
-		public async Task<ScanTxoutSetResponse> StartScanTxoutSetAsync(IEnumerable<OutputDescriptor> descriptor, uint rangeStart = 0, uint rangeEnd = 1000, CancellationToken cancellationToken = default)
+		public async Task<ScanTxoutSetResponse> StartScanTxoutSetAsync(ScanTxoutSetParameters parameters, CancellationToken cancellationToken = default)
 		{
-			if (descriptor == null)
-				throw new ArgumentNullException(nameof(descriptor));
+			if (parameters == null)
+				throw new ArgumentNullException(nameof(parameters));
 
 			JArray descriptorsJson = new JArray();
-			foreach (var descObj in descriptor)
+			foreach (var descObj in parameters.Descriptors)
 			{
 				JObject descJson = new JObject();
-				descJson.Add(new JProperty("desc", descObj.ToString()));
-				if (descObj.IsRange())
+				descJson.Add(new JProperty("desc", descObj.Descriptor.ToString()));
+				if (descObj.Descriptor.IsRange())
 				{
 					var r = new JArray();
-					r.Add(rangeStart);
-					r.Add(rangeEnd);
-					descJson.Add(new JProperty("range", r));
+					if (descObj.Begin is null && descObj.End is int end)
+					{
+						descJson.Add(new JProperty("range", end));
+					}
+					if (descObj.Begin is int begin && descObj.End is int end2)
+					{
+						descJson.Add(new JProperty("range", new[] { begin, end2 }));
+					}
 				}
 				descriptorsJson.Add(descJson);
 			}
 
-			var result = await SendCommandAsync(RPCOperations.scantxoutset, cancellationToken, "start", descriptorsJson);
+			var result = await SendCommandAsync(RPCOperations.scantxoutset, cancellationToken, "start", descriptorsJson).ConfigureAwait(false);
 			result.ThrowIfError();
 
 			var jobj = result.Result as JObject;

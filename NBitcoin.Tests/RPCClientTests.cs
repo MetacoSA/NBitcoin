@@ -332,7 +332,7 @@ namespace NBitcoin.Tests
 				var funding = rpc.GetRawTransaction(txid);
 				var coin = funding.Outputs.AsCoins().Single(o => o.ScriptPubKey == dest.ScriptPubKey);
 
-				var result = rpc.StartScanTxoutSet(OutputDescriptor.NewAddr(dest, builder.Network));
+				var result = rpc.StartScanTxoutSet(new ScanTxoutSetParameters(OutputDescriptor.NewAddr(dest, builder.Network)));
 
 				Assert.Equal(101, result.SearchedItems);
 				Assert.True(result.Success);
@@ -343,7 +343,7 @@ namespace NBitcoin.Tests
 				Assert.Null(rpc.GetStatusScanTxoutSet());
 
 				rpc.Generate(1);
-				result = rpc.StartScanTxoutSet(OutputDescriptor.NewAddr(dest, builder.Network));
+				result = rpc.StartScanTxoutSet(new ScanTxoutSetParameters(OutputDescriptor.NewAddr(dest, builder.Network)));
 				Assert.True(result.SearchedItems > 100);
 				Assert.True(result.Success);
 				Assert.Single(result.Outputs);
@@ -352,6 +352,21 @@ namespace NBitcoin.Tests
 
 				Assert.False(rpc.AbortScanTxoutSet());
 				Assert.Null(rpc.GetStatusScanTxoutSet());
+
+
+				var extkey = new ExtKey().GetWif(builder.Network);
+
+				var outputDesc = OutputDescriptor.NewPKH(PubKeyProvider.NewHD(extkey.Neuter(), new KeyPath("0/0"), PubKeyProvider.DeriveType.UNHARDENED), builder.Network);
+				foreach (var item in new[]
+				{
+					(Begin: (int?)null, End: (int?)500, SearchedItem: 500),
+					(Begin: (int?)500, End: (int?)1500, SearchedItem: 1000),
+					(Begin: (int?)null, End: (int?)null, SearchedItem: 1000),
+				})
+				{
+					result = rpc.StartScanTxoutSet(new ScanTxoutSetParameters(outputDesc, item.Begin, item.End));
+					Assert.True(result.Success);
+				}
 			}
 		}
 
