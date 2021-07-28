@@ -878,8 +878,7 @@ namespace NBitcoin
 			{
 				jsonWriter.WritePropertyName("non_witness_utxo");
 				jsonWriter.WriteStartObject();
-				var formatter = new RPC.BlockExplorerFormatter();
-				formatter.WriteTransaction2(jsonWriter, NonWitnessUtxo);
+				RPC.BlockExplorerFormatter.WriteTransaction(jsonWriter, NonWitnessUtxo);
 				jsonWriter.WriteEndObject();
 			}
 			if (this.WitnessUtxo != null)

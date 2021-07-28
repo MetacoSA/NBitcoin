@@ -1095,20 +1095,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void RawTransactionIsConformsToRPC()
-		{
-			using (var builder = NodeBuilderEx.Create())
-			{
-				var rpc = builder.CreateNode().CreateRPCClient();
-				builder.StartAll();
-				var tx = Network.TestNet.GetGenesis().Transactions[0];
-
-				var tx2 = rpc.DecodeRawTransaction(tx.ToBytes());
-				AssertJsonEquals(tx.ToString(RawFormat.Satoshi), tx2.ToString(RawFormat.Satoshi));
-			}
-		}
-
-		[Fact]
 		public void InvalidateBlockToRPC()
 		{
 			using (var builder = NodeBuilderEx.Create())

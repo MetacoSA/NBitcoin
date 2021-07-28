@@ -1074,12 +1074,6 @@ namespace NBitcoin
 		}
 	}
 
-	public enum RawFormat
-	{
-		Satoshi,
-		BlockExplorer,
-	}
-
 	public class WitScript : IEquatable<WitScript>
 	{
 		byte[][] _Pushes;
@@ -1798,38 +1792,7 @@ namespace NBitcoin
 #if !NOJSONNET
 		public override string ToString()
 		{
-			return ToString(RawFormat.BlockExplorer);
-		}
-
-		public string ToString(RawFormat rawFormat, Network network = null)
-		{
-			var formatter = GetFormatter(rawFormat, network);
-			return ToString(formatter);
-		}
-
-		static private RawFormatter GetFormatter(RawFormat rawFormat, Network network)
-		{
-			RawFormatter formatter = null;
-			switch (rawFormat)
-			{
-				case RawFormat.Satoshi:
-					formatter = new SatoshiFormatter();
-					break;
-				case RawFormat.BlockExplorer:
-					formatter = new BlockExplorerFormatter();
-					break;
-				default:
-					throw new NotSupportedException(rawFormat.ToString());
-			}
-			formatter.Network = network ?? formatter.Network;
-			return formatter;
-		}
-
-		internal string ToString(RawFormatter formatter)
-		{
-			if (formatter == null)
-				throw new ArgumentNullException("formatter");
-			return formatter.ToString(this);
+			return BlockExplorerFormatter.ToString(this);
 		}
 #endif
 		/// <summary>

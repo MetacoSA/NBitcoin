@@ -6,21 +6,6 @@ using System.Linq;
 
 namespace NBitcoin
 {
-	//TODO : Is*Conform can be used to parses the script
-
-	public enum TxOutType
-	{
-		TX_NONSTANDARD,
-		// 'standard' transaction types:
-		TX_PUBKEY,
-		TX_PUBKEYHASH,
-		TX_SCRIPTHASH,
-		TX_MULTISIG,
-		TX_NULL_DATA,
-		TX_SEGWIT,
-		TX_TAPROOT
-	};
-
 	public class TxNullDataTemplate : ScriptTemplate
 	{
 		public TxNullDataTemplate(int maxScriptSize)
@@ -89,14 +74,6 @@ namespace NBitcoin
 				throw new ArgumentOutOfRangeException("data", "Data in OP_RETURN should have a maximum size of " + MaxScriptSizeLimit + " bytes");
 			return script;
 		}
-
-		public override TxOutType Type
-		{
-			get
-			{
-				return TxOutType.TX_NULL_DATA;
-			}
-		}
 	}
 
 	public class PayToMultiSigTemplateParameters
@@ -127,7 +104,6 @@ namespace NBitcoin
 		}
 		static PayToTaprootTemplate _Instance;
 		public static PayToTaprootTemplate Instance => _Instance ??= new PayToTaprootTemplate();
-		public override TxOutType Type => TxOutType.TX_TAPROOT;
 
 		[Obsolete("Use pubKey.ScriptPubKey instead")]
 		public Script GenerateScriptPubKey(TaprootPubKey pubKey)
@@ -331,14 +307,6 @@ namespace NBitcoin
 			}
 		}
 
-		public override TxOutType Type
-		{
-			get
-			{
-				return TxOutType.TX_MULTISIG;
-			}
-		}
-
 		public Script GenerateScriptSig(TransactionSignature[] signatures)
 		{
 			return GenerateScriptSig((IEnumerable<TransactionSignature>)signatures);
@@ -498,16 +466,6 @@ namespace NBitcoin
 			return Script.FromBytesUnsafe(ops[ops.Length - 1].PushData).IsValid;
 		}
 
-
-
-		public override TxOutType Type
-		{
-			get
-			{
-				return TxOutType.TX_SCRIPTHASH;
-			}
-		}
-
 		public ScriptId ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
 			bool needMoreCheck;
@@ -599,14 +557,6 @@ namespace NBitcoin
 			if (ops.Length != 1)
 				return false;
 			return ops[0].PushData != null && TransactionSignature.IsValid(ops[0].PushData);
-		}
-
-		public override TxOutType Type
-		{
-			get
-			{
-				return TxOutType.TX_PUBKEY;
-			}
 		}
 
 		/// <summary>
@@ -787,15 +737,6 @@ namespace NBitcoin
 		{
 			return GenerateScriptSig(parameters.TransactionSignature, parameters.PublicKey);
 		}
-
-		public override TxOutType Type
-		{
-			get
-			{
-				return TxOutType.TX_PUBKEYHASH;
-			}
-		}
-
 	}
 	public abstract class ScriptTemplate
 	{
@@ -839,10 +780,6 @@ namespace NBitcoin
 		}
 
 		protected abstract bool CheckScriptSigCore(Script scriptSig, Op[] scriptSigOps, Script scriptPubKey, Op[] scriptPubKeyOps);
-		public abstract TxOutType Type
-		{
-			get;
-		}
 	}
 
 	public class PayToWitPubKeyHashTemplate : PayToWitTemplate
@@ -1122,15 +1059,6 @@ namespace NBitcoin
 				Program = program
 			};
 		}
-
-		public override TxOutType Type
-		{
-			get
-			{
-				return TxOutType.TX_SEGWIT;
-			}
-		}
-
 		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
 		{
 			throw new NotImplementedException();

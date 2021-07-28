@@ -929,8 +929,7 @@ namespace NBitcoin
 			}
 			jsonWriter.WritePropertyName("tx");
 			jsonWriter.WriteStartObject();
-			var formatter = new RPC.BlockExplorerFormatter();
-			formatter.WriteTransaction2(jsonWriter, tx);
+			RPC.BlockExplorerFormatter.WriteTransaction(jsonWriter, tx);
 			jsonWriter.WriteEndObject();
 			if (GlobalXPubs.Count != 0)
 			{

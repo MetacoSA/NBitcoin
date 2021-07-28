@@ -1912,14 +1912,6 @@ namespace NBitcoin.Tests
 			{
 				bs.ReadWrite(ref items);
 			});
-			BitcoinStreamCoverageCore(new short[] { -1, 1, 2, 3, 4 }, (BitcoinStream bs, ref short[] items) =>
-			{
-				bs.ReadWrite(ref items);
-			});
-			BitcoinStreamCoverageCore(new long[] { -1, 1, 2, 3, 4 }, (BitcoinStream bs, ref long[] items) =>
-			 {
-				 bs.ReadWrite(ref items);
-			 });
 			BitcoinStreamCoverageCore(new byte[] { 1, 2, 3, 4 }, (BitcoinStream bs, ref byte[] items) =>
 			{
 				bs.ReadWrite(ref items);
@@ -3114,17 +3106,6 @@ namespace NBitcoin.Tests
 			spending.Inputs[0].WitScript = new WitScript((new[] { new byte[521] }).Concat(spending.Inputs[0].WitScript.Pushes).ToArray());
 			Assert.False(spending.Inputs.AsIndexedInputs().First().VerifyScript(coin, out error));
 			Assert.Equal(ScriptError.PushSize, error);
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void DoNotThrowsWithSatoshiFormatAndNoOutputs()
-		{
-			var tx = Transaction.Parse("02000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0401700101ffffffff02" +
-				"00f2052a0100000023210295aefb5b15cd9204f18ceda653ebeaada10c69b6ef7f757450c5d66c0f0ebb8dac0000000000000000266a24aa21a9" +
-				"ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf900000000", Network.Main);
-
-			tx.ToString(RawFormat.Satoshi);
 		}
 
 		[Fact]
