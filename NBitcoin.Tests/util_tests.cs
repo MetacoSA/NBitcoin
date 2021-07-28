@@ -1,4 +1,6 @@
-﻿using NBitcoin.BouncyCastle.Math;
+﻿#if !HAS_SPAN
+using NBitcoin.BouncyCastle.Math;
+#endif
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.JsonConverters;
@@ -765,7 +767,7 @@ namespace NBitcoin.Tests
 			Assert.True(!HexEncoder.IsWellFormed("00xx00"));
 			Assert.True(!HexEncoder.IsWellFormed("0x0000"));
 		}
-
+#if !HAS_SPAN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRoundTripBigIntegerToBytes()
@@ -777,6 +779,7 @@ namespace NBitcoin.Tests
 				Assert.Equal<BigInteger>(BigInteger.ValueOf(expected), actual);
 			}
 		}
+#endif
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -821,7 +824,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(k.Derive(baseKeyPath.Derive(19U)).GetPublicKey(), result[19].GetPublicKey());
 			Assert.Equal(8 + 20, cache.Cached);
 		}
-
+#if !HAS_SPAN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertBigIntegerToBytes()
@@ -841,6 +844,28 @@ namespace NBitcoin.Tests
 			Assert.Equal(b, Utils.BytesToBigInteger(bbytes));
 			if (testByteSerialization)
 				Assert.True(Utils.BigIntegerToBytes(b).SequenceEqual(bbytes));
+		}
+#endif
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanConvertBigIntegerLongToBytes()
+		{
+			CanConvertBigIntegerLongToBytesCore(0, new byte[0]);
+			CanConvertBigIntegerLongToBytesCore(0, new byte[] { 0 }, false);
+			CanConvertBigIntegerLongToBytesCore(0, new byte[] { 0x80 }, false);
+			CanConvertBigIntegerLongToBytesCore(1, new byte[] { 1 });
+			CanConvertBigIntegerLongToBytesCore(-1, new byte[] { 0x81 });
+			CanConvertBigIntegerLongToBytesCore(-128, new byte[] { 0x80, 0x80 });
+			CanConvertBigIntegerLongToBytesCore(-129, new byte[] { 0x81, 0x80 });
+			CanConvertBigIntegerLongToBytesCore(-256, new byte[] { 0x00, 0x81 });
+		}
+
+		private void CanConvertBigIntegerLongToBytesCore(long b, byte[] bbytes, bool testByteSerialization = true)
+		{
+			// Assert.Equal(b, Utils.BytesToBigInteger(bbytes)); we don't care about this test
+			if (testByteSerialization)
+				Assert.True(Op.GetPushOp(b).PushData.SequenceEqual(bbytes));
 		}
 
 		[Fact]

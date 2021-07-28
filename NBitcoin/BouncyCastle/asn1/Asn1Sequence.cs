@@ -1,3 +1,4 @@
+#if !HAS_SPAN
 using System;
 using System.Collections;
 using System.IO;
@@ -216,3 +217,4 @@ namespace NBitcoin.BouncyCastle.Asn1
 		}
 	}
 }
+#endif

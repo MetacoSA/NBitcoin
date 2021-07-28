@@ -227,7 +227,7 @@ namespace NBitcoin
 	}
 	public class ScriptEvaluationContext
 	{
-		class CScriptNum
+		internal class CScriptNum
 		{
 			const long nMaxNumSize = 4;
 			/**
@@ -412,12 +412,12 @@ namespace NBitcoin
 				return serialize(m_value);
 			}
 
-			static byte[] serialize(long value)
+			internal static byte[] serialize(long value)
 			{
 				if (value == 0)
 					return new byte[0];
 
-				var result = new List<byte>();
+				var result = new List<byte>(8);
 				bool neg = value < 0;
 				long absvalue = neg ? -value : value;
 

@@ -308,7 +308,7 @@ namespace NBitcoin
 
 		public static Op GetPushOp(long value)
 		{
-			return GetPushOp(Utils.BigIntegerToBytes(BouncyCastle.Math.BigInteger.ValueOf(value)));
+			return GetPushOp(ScriptEvaluationContext.CScriptNum.serialize(value));
 		}
 		public static Op GetPushOp(byte[] data)
 		{

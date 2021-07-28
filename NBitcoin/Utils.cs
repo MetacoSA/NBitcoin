@@ -9,7 +9,9 @@ using System.Threading;
 using NBitcoin.Protocol;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
+#if !HAS_SPAN
 using NBitcoin.BouncyCastle.Math;
+#endif
 using System.Runtime.InteropServices;
 #if !NOSOCKET
 using System.Net.Sockets;
@@ -622,7 +624,7 @@ namespace NBitcoin
 		{
 			ms.Write(bytes, 0, bytes.Length);
 		}
-
+#if !HAS_SPAN
 		internal static byte[] BigIntegerToBytes(BigInteger b, int numBytes)
 		{
 			if (b == null)
@@ -636,7 +638,6 @@ namespace NBitcoin
 			Array.Copy(biBytes, start, bytes, numBytes - length, length);
 			return bytes;
 		}
-
 		internal static byte[] BigIntegerToBytes(BigInteger num)
 		{
 			if (num.Equals(BigInteger.Zero))
@@ -672,7 +673,7 @@ namespace NBitcoin
 			}
 			return new BigInteger(1, data);
 		}
-
+#endif
 		static DateTimeOffset unixRef = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
 		public static uint DateTimeToUnixTime(DateTimeOffset dt)

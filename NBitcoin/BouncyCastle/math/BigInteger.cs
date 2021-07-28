@@ -1,3 +1,4 @@
+#if !HAS_SPAN
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -10,7 +11,7 @@ using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Math
 {
-	internal class BigInteger
+	class BigInteger
 	{
 		// The first few odd primes
 		/*
@@ -3591,3 +3592,4 @@ namespace NBitcoin.BouncyCastle.Math
 		}
 	}
 }
+#endif

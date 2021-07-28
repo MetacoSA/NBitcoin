@@ -398,33 +398,6 @@ namespace NBitcoin
 		{
 		}
 
-		public static Block CreateBlock(Network network)
-		{
-			return CreateBlock(network.Consensus.ConsensusFactory);
-		}
-		public static Block CreateBlock(ConsensusFactory consensusFactory)
-		{
-			return consensusFactory.CreateBlock();
-		}
-
-		public static Block CreateBlock(BlockHeader header, Network network)
-		{
-			return CreateBlock(header, network.Consensus.ConsensusFactory);
-		}
-		public static Block CreateBlock(BlockHeader header, ConsensusFactory consensusFactory)
-		{
-			var ms = new MemoryStream(100);
-			BitcoinStream bs = new BitcoinStream(ms, true);
-			bs.ConsensusFactory = consensusFactory;
-			bs.ReadWrite(header);
-
-			var block = consensusFactory.CreateBlock();
-			ms.Position = 0;
-			bs = new BitcoinStream(ms, false);
-			block.Header.ReadWrite(bs);
-			return block;
-		}
-
 		[Obsolete("Should use ConsensusFactories")]
 		public Block(BlockHeader blockHeader)
 		{
@@ -432,28 +405,6 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(blockHeader));
 			SetNull();
 			header = blockHeader;
-		}
-
-		[Obsolete("Should use Block.Load outside of ConsensusFactories")]
-		public Block(byte[] bytes, Network network) : this(bytes, network.Consensus.ConsensusFactory)
-		{
-
-		}
-
-		[Obsolete("Should use Block.Load outside of ConsensusFactories")]
-		public Block(byte[] bytes, Consensus consensus) : this(bytes, consensus.ConsensusFactory)
-		{
-
-		}
-
-		[Obsolete("Should use Block.Load outside of ConsensusFactories")]
-		public Block(byte[] bytes, ConsensusFactory consensusFactory)
-		{
-			BitcoinStream stream = new BitcoinStream(bytes)
-			{
-				ConsensusFactory = consensusFactory
-			};
-			ReadWrite(stream);
 		}
 
 		public virtual void ReadWrite(BitcoinStream stream)
