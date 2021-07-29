@@ -1706,30 +1706,6 @@ namespace NBitcoin.Tests
 			Assert.Equal(expectedLock.MinHeight, actualLock.MinHeight);
 		}
 
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanEstimatePerfectSizeForP2PKH()
-		{
-			// We enforce low r by default, so we should correctly estimate
-			var alice = new Key();
-			TransactionBuilder builder = Network.CreateTransactionBuilder();
-			var aliceCoins = new ICoin[] { RandomCoin("0.6", alice) };
-			builder.StandardTransactionPolicy = EasyPolicy;
-			var unsigned = builder
-				.AddCoins(aliceCoins)
-				.AddKeys(alice)
-				.Send(new Key().PubKey.GetScriptPubKey(ScriptPubKeyType.Legacy), "0.6")
-				.SubtractFees()
-				.BuildTransaction(false);
-			var actual = builder.EstimateSize(unsigned, true);
-			builder.SignTransactionInPlace(unsigned);
-
-			if (actual != unsigned.GetVirtualSize())
-				actual--; // one time out of a lot, the size will be even smaller by one byte
-			Assert.Equal(unsigned.GetVirtualSize(), actual);
-		}
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanEstimateFees()

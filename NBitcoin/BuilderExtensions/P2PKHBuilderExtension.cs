@@ -33,8 +33,9 @@ namespace NBitcoin.BuilderExtensions
 
 		public override int EstimateScriptSigSize(Script scriptPubKey, SigningOptions signingOptions)
 		{
-			if (signingOptions.EnforceLowR)
-				return 106;
+			// We can't assume all the inputs are signed by us...
+			//if (signingOptions.EnforceLowR)
+			//	return 106;
 			return 107;
 		}
 
