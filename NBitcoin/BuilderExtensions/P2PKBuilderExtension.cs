@@ -14,9 +14,9 @@ namespace NBitcoin.BuilderExtensions
 			return false;
 		}
 
-		public override bool CanEstimateScriptSigSize(Script scriptPubKey)
+		public override bool CanEstimateScriptSigSize(ICoin coin)
 		{
-			return CanSign(scriptPubKey);
+			return CanSign(coin.GetScriptCode());
 		}
 
 		public override void Sign(InputSigningContext inputSigningContext, IKeyRepository keyRepository, ISigner signer)
@@ -41,7 +41,7 @@ namespace NBitcoin.BuilderExtensions
 			throw new NotImplementedException();
 		}
 
-		public override int EstimateScriptSigSize(Script scriptPubKey, SigningOptions signingOptions)
+		public override int EstimateScriptSigSize(ICoin coin)
 		{
 			return PayToPubkeyTemplate.Instance.GenerateScriptSig(DummySignature).Length;
 		}

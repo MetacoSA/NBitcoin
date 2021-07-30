@@ -16,9 +16,9 @@ namespace NBitcoin.BuilderExtensions
 			return false;
 		}
 
-		public override bool CanEstimateScriptSigSize(Script scriptPubKey)
+		public override bool CanEstimateScriptSigSize(ICoin coin)
 		{
-			return CanSign(scriptPubKey);
+			return CanSign(coin.GetScriptCode());
 		}
 
 		
@@ -32,10 +32,8 @@ namespace NBitcoin.BuilderExtensions
 			throw new NotSupportedException();
 		}
 
-		public override int EstimateScriptSigSize(Script scriptPubKey, SigningOptions signingOptions)
+		public override int EstimateScriptSigSize(ICoin coin)
 		{
-			if (signingOptions.TaprootSigHash == TaprootSigHash.Default)
-				return 65;
 			return 66;
 		}
 

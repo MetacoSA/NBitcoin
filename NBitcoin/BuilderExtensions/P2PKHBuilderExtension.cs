@@ -14,9 +14,9 @@ namespace NBitcoin.BuilderExtensions
 			return para != null && para.PublicKey != null;
 		}
 
-		public override bool CanEstimateScriptSigSize(Script scriptPubKey)
+		public override bool CanEstimateScriptSigSize(ICoin coin)
 		{
-			return CanSign(scriptPubKey);
+			return CanSign(coin.GetScriptCode());
 		}
 
 		private static bool CanSign(Script scriptPubKey)
@@ -31,11 +31,8 @@ namespace NBitcoin.BuilderExtensions
 			return p2pkh.PublicKey.Hash.ScriptPubKey;
 		}
 
-		public override int EstimateScriptSigSize(Script scriptPubKey, SigningOptions signingOptions)
+		public override int EstimateScriptSigSize(ICoin coin)
 		{
-			// We can't assume all the inputs are signed by us...
-			//if (signingOptions.EnforceLowR)
-			//	return 106;
 			return 107;
 		}
 

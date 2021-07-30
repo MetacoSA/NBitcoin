@@ -14,9 +14,9 @@ namespace NBitcoin.BuilderExtensions
 			return false;
 		}
 
-		public override bool CanEstimateScriptSigSize(Script scriptPubKey)
+		public override bool CanEstimateScriptSigSize(ICoin coin)
 		{
-			return CanSign(scriptPubKey);
+			return CanSign(coin.GetScriptCode());
 		}
 
 		private static bool CanSign(Script scriptPubKey)
@@ -29,8 +29,9 @@ namespace NBitcoin.BuilderExtensions
 			throw new NotImplementedException();
 		}
 
-		public override int EstimateScriptSigSize(Script scriptPubKey, SigningOptions signingOptions)
+		public override int EstimateScriptSigSize(ICoin coin)
 		{
+			var scriptPubKey = coin.GetScriptCode();
 			var p2mk = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 			return PayToMultiSigTemplate.Instance.GenerateScriptSig(Enumerable.Range(0, p2mk.SignatureCount).Select(o => DummySignature).ToArray()).Length;
 		}

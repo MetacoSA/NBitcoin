@@ -2453,13 +2453,12 @@ namespace NBitcoin
 				}
 			}
 
-			var scriptPubkey = coin.GetScriptCode();
 			var scriptSigSize = -1;
 			foreach (var extension in Extensions)
 			{
-				if (extension.CanEstimateScriptSigSize(scriptPubkey))
+				if (extension.CanEstimateScriptSigSize(coin))
 				{
-					scriptSigSize = extension.EstimateScriptSigSize(scriptPubkey, signingOptions);
+					scriptSigSize = extension.EstimateScriptSigSize(coin);
 					break;
 				}
 			}
