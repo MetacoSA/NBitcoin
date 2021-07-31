@@ -662,8 +662,9 @@ namespace NBitcoin.Altcoins
                 MinerConfirmationWindow = 20160,
                 CoinbaseMaturity = 100,
                 LitecoinWorkCalculation = true,
-                ConsensusFactory = BitcoinplusConsensusFactory.Instance
-            })
+                ConsensusFactory = BitcoinplusConsensusFactory.Instance,
+				SupportSegwit = true
+			})
             .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 25 })
             .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 85 })
             .SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 153 })
@@ -705,8 +706,9 @@ namespace NBitcoin.Altcoins
                 MinerConfirmationWindow = 2016,
                 CoinbaseMaturity = 100,
                 LitecoinWorkCalculation = true,
-                ConsensusFactory = BitcoinplusConsensusFactory.Instance
-            })
+                ConsensusFactory = BitcoinplusConsensusFactory.Instance,
+				SupportSegwit = true
+			})
             .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
             .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
             .SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
@@ -747,8 +749,9 @@ namespace NBitcoin.Altcoins
                 MinerConfirmationWindow = 144,
                 CoinbaseMaturity = 110,
                 LitecoinWorkCalculation = true,
-                ConsensusFactory = BitcoinplusConsensusFactory.Instance
-            })
+                ConsensusFactory = BitcoinplusConsensusFactory.Instance,
+				SupportSegwit = true
+			})
             .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
             .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
             .SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
