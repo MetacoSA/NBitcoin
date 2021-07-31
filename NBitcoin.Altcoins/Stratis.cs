@@ -524,7 +524,8 @@ namespace NBitcoin.Altcoins
 				MinerConfirmationWindow = 2016,
 				CoinType = 105,
 				CoinbaseMaturity = 50,
-				ConsensusFactory = StratisConsensusFactory.Instance
+				ConsensusFactory = StratisConsensusFactory.Instance,
+				SupportSegwit = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 63 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 125 })

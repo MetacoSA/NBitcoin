@@ -627,7 +627,7 @@ namespace NBitcoin
 				throw new InvalidOperationException("This instance can't be modified");
 		}
 
-		bool _SupportTaproot = true;
+		bool _SupportTaproot = false;
 		public bool SupportTaproot
 		{
 			get
@@ -641,7 +641,7 @@ namespace NBitcoin
 			}
 		}
 
-		bool _SupportSegwit = true;
+		bool _SupportSegwit = false;
 		public bool SupportSegwit
 		{
 			get
@@ -2171,6 +2171,8 @@ namespace NBitcoin
 			consensus.PowNoRetargeting = false;
 			consensus.RuleChangeActivationThreshold = 1916; // 95% of 2016
 			consensus.MinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
+			consensus.SupportTaproot = true;
+			consensus.SupportSegwit = true;
 
 			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 1199145601, 1230767999);
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1462060800, 1493596800);
@@ -2235,6 +2237,8 @@ namespace NBitcoin
 			consensus.PowNoRetargeting = false;
 			consensus.RuleChangeActivationThreshold = 1512; // 75% for testchains
 			consensus.MinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
+			consensus.SupportTaproot = true;
+			consensus.SupportSegwit = true;
 
 			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 1199145601, 1230767999);
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1456790400, 1493596800);
@@ -2298,6 +2302,8 @@ namespace NBitcoin
 			consensus.PowNoRetargeting = true;
 			consensus.RuleChangeActivationThreshold = 108;
 			consensus.MinerConfirmationWindow = 144;
+			consensus.SupportTaproot = true;
+			consensus.SupportSegwit = true;
 
 			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 0, 999999999);
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 0, 999999999);

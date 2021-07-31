@@ -99,7 +99,8 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 1916,
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
-				ConsensusFactory = ZCoinConsensusFactory.Instance
+				ConsensusFactory = ZCoinConsensusFactory.Instance,
+				SupportSegwit = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 82 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 07 })
@@ -147,7 +148,8 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 1,
 				MinerConfirmationWindow = 2,
 				CoinbaseMaturity = 100,
-				ConsensusFactory = ZCoinConsensusFactory.Instance
+				ConsensusFactory = ZCoinConsensusFactory.Instance,
+				SupportSegwit = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 65 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 178 })
@@ -192,7 +194,8 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
 				CoinbaseMaturity = 100,
-				ConsensusFactory = ZCoinConsensusFactory.Instance
+				ConsensusFactory = ZCoinConsensusFactory.Instance,
+				SupportSegwit = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 65 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 178 })
