@@ -174,8 +174,9 @@ namespace NBitcoin.Tests
 				var actualvsize = builder.EstimateSize(signedTx, true);
 				builder.SignTransactionInPlace(signedTx);
 				var expectedvsize = signedTx.GetVirtualSize();
-				// Should have no difference. The size of a taproot keyspend is well known.
-				Assert.Equal(expectedvsize, actualvsize);
+				// The estimator can't assume the sighash to be default
+				// for all inputs, so we likely overestimate 1 bytes per input
+				Assert.Equal(expectedvsize, actualvsize - 1);
 			}
 		}
 
