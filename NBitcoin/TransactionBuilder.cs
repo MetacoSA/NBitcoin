@@ -1223,7 +1223,7 @@ namespace NBitcoin
 			if (amount is MoneyBag bag)
 			{
 				foreach (var money in bag)
-					Send(scriptPubKey, amount);
+					Send(scriptPubKey, money);
 				return this;
 			}
 			if (amount is Money coinAmount)
