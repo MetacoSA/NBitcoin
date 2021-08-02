@@ -19,7 +19,7 @@ namespace NBitcoin.JsonConverters
 	{
 		public override bool CanConvert(Type objectType)
 		{
-			return typeof(Key) == objectType || typeof(PubKey) == objectType;
+			return typeof(Key) == objectType || typeof(PubKey) == objectType || typeof(TaprootPubKey) == objectType || typeof(TaprootInternalPubKey) == objectType;
 		}
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -33,8 +33,12 @@ namespace NBitcoin.JsonConverters
 				var bytes = Encoders.Hex.DecodeData((string)reader.Value);
 				if (objectType == typeof(Key))
 					return new Key(bytes);
-				else
+				else if (objectType == typeof(PubKey))
 					return new PubKey(bytes);
+				else if (objectType == typeof(TaprootPubKey))
+					return new TaprootPubKey(bytes);
+				else
+					return new TaprootInternalPubKey(bytes);
 			}
 			catch (EndOfStreamException)
 			{
@@ -54,11 +58,14 @@ namespace NBitcoin.JsonConverters
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			if (value != null)
-			{
-				var bytes = ((IBitcoinSerializable)value).ToBytes();
-				writer.WriteValue(Encoders.Hex.EncodeData(bytes));
-			}
+			if (value is PubKey pk)
+				writer.WriteValue(pk.ToHex());
+			else if (value is Key key)
+				writer.WriteValue(key.ToHex());
+			else if (value is TaprootPubKey tpk)
+				writer.WriteValue(tpk.ToString());
+			else if (value is TaprootInternalPubKey tipk)
+				writer.WriteValue(tipk.ToString());
 		}
 	}
 }

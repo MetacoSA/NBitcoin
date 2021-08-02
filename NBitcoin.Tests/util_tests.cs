@@ -1,4 +1,6 @@
-﻿using NBitcoin.BouncyCastle.Math;
+﻿#if !HAS_SPAN
+using NBitcoin.BouncyCastle.Math;
+#endif
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.JsonConverters;
@@ -232,7 +234,7 @@ namespace NBitcoin.Tests
 
 			//Example of the BIP
 			pubkey = new PubKey("0450863AD64A87AE8A2FE83C1AF1A8403CB53F53E486D8511DAD8A04887E5B23522CD470243453A299FA9E77237716103ABC11A1DF38855ED6F2EE187E9C582BA6");
-			Assert.Equal(new Script("OP_0 010966776006953D5567439E5E39F86A0D273BEE"), pubkey.GetSegwitAddress(Network.Main).ScriptPubKey);
+			Assert.Equal(new Script("OP_0 010966776006953D5567439E5E39F86A0D273BEE"), pubkey.GetAddress(ScriptPubKeyType.Segwit, Network.Main).ScriptPubKey);
 
 
 			//Test .ToNetwork()
@@ -765,7 +767,7 @@ namespace NBitcoin.Tests
 			Assert.True(!HexEncoder.IsWellFormed("00xx00"));
 			Assert.True(!HexEncoder.IsWellFormed("0x0000"));
 		}
-
+#if !HAS_SPAN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRoundTripBigIntegerToBytes()
@@ -777,6 +779,7 @@ namespace NBitcoin.Tests
 				Assert.Equal<BigInteger>(BigInteger.ValueOf(expected), actual);
 			}
 		}
+#endif
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -821,7 +824,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(k.Derive(baseKeyPath.Derive(19U)).GetPublicKey(), result[19].GetPublicKey());
 			Assert.Equal(8 + 20, cache.Cached);
 		}
-
+#if !HAS_SPAN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertBigIntegerToBytes()
@@ -841,6 +844,28 @@ namespace NBitcoin.Tests
 			Assert.Equal(b, Utils.BytesToBigInteger(bbytes));
 			if (testByteSerialization)
 				Assert.True(Utils.BigIntegerToBytes(b).SequenceEqual(bbytes));
+		}
+#endif
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanConvertBigIntegerLongToBytes()
+		{
+			CanConvertBigIntegerLongToBytesCore(0, new byte[0]);
+			CanConvertBigIntegerLongToBytesCore(0, new byte[] { 0 }, false);
+			CanConvertBigIntegerLongToBytesCore(0, new byte[] { 0x80 }, false);
+			CanConvertBigIntegerLongToBytesCore(1, new byte[] { 1 });
+			CanConvertBigIntegerLongToBytesCore(-1, new byte[] { 0x81 });
+			CanConvertBigIntegerLongToBytesCore(-128, new byte[] { 0x80, 0x80 });
+			CanConvertBigIntegerLongToBytesCore(-129, new byte[] { 0x81, 0x80 });
+			CanConvertBigIntegerLongToBytesCore(-256, new byte[] { 0x00, 0x81 });
+		}
+
+		private void CanConvertBigIntegerLongToBytesCore(long b, byte[] bbytes, bool testByteSerialization = true)
+		{
+			// Assert.Equal(b, Utils.BytesToBigInteger(bbytes)); we don't care about this test
+			if (testByteSerialization)
+				Assert.True(Op.GetPushOp(b).PushData.SequenceEqual(bbytes));
 		}
 
 		[Fact]
@@ -901,12 +926,15 @@ namespace NBitcoin.Tests
 			foreach (var plainText in msgs)
 			{
 				var cipherText1 = key.PubKey.Encrypt(plainText);
-				var cipherText2 = key.PubKey.Encrypt(plainText);
+				var cipherText2 = key.PubKey.Encrypt(Encoders.ASCII.EncodeData(plainText));
 				var text1 = key.Decrypt(cipherText1);
 				var text2 = key.Decrypt(cipherText2);
 				Assert.True(Utils.ArrayEqual(text1, plainText));
-				Assert.True(Utils.ArrayEqual(text2, plainText));
-				Assert.True(!Utils.ArrayEqual(cipherText1, cipherText2));
+				Assert.Equal(text2, Encoders.ASCII.EncodeData(plainText));
+
+				// Encrypt twice, should not give twice same cypher
+				var cipherText3 = key.PubKey.Encrypt(plainText);
+				Assert.True(!Utils.ArrayEqual(cipherText1, cipherText3));
 			}
 
 			// Electrum compatibility

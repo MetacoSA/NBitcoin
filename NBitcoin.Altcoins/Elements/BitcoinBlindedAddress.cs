@@ -35,9 +35,8 @@ namespace NBitcoin.Altcoins.Elements
 						hash = vchData.SafeSubarray(version.Length + 32, vchData.Length - version.Length - 32);
 						script = true;
 					}
-					if (PubKey.Check(blinding, true))
+					if (PubKey.TryCreatePubKey(blinding, out _BlindingKey))
 					{
-						_BlindingKey = new PubKey(blinding);
 						if (witnessVerion == 0)
 						{
 							_UnblindedAddress =script?  (BitcoinAddress) new BitcoinWitScriptAddress(new WitScriptId(hash), network):  new BitcoinWitPubKeyAddress(new WitKeyId(hash), network);
@@ -71,10 +70,8 @@ namespace NBitcoin.Altcoins.Elements
 				if (vchData.Length != prefix.Length + version.Length + 33 + 20)
 					throw new FormatException("Invalid Bitcoin Blinded Address");
 				var blinding = vchData.SafeSubarray(prefix.Length + version.Length, 33);
-				if (PubKey.Check(blinding, true))
+				if (PubKey.TryCreatePubKey(blinding, out _BlindingKey))
 				{
-					_BlindingKey = new PubKey(blinding);
-
 					var hash = vchData.SafeSubarray(prefix.Length + version.Length + 33, 20);
 					_UnblindedAddress =
 						p2pkh

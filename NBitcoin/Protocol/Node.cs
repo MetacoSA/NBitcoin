@@ -74,10 +74,15 @@ namespace NBitcoin.Protocol
 
 		public virtual bool Check(VersionPayload version, ProtocolCapabilities capabilities)
 		{
-#pragma warning disable CS0618 // Type or member is obsolete
-			if (!Check(version))
-#pragma warning restore CS0618 // Type or member is obsolete
+			if (MinVersion != null)
+			{
+				if (version.Version < MinVersion.Value)
+					return false;
+			}
+			if ((RequiredServices & version.Services) != RequiredServices)
+			{
 				return false;
+			}
 			if (capabilities.PeerTooOld)
 				return false;
 			if (MinProtocolCapabilities is null)
@@ -96,21 +101,6 @@ namespace NBitcoin.Protocol
 			}
 
 			return capabilities.IsSupersetOf(MinProtocolCapabilities);
-		}
-
-		[Obsolete("Use Check(VersionPayload, ProtocolCapabilities capabilities) instead")]
-		public virtual bool Check(VersionPayload version)
-		{
-			if (MinVersion != null)
-			{
-				if (version.Version < MinVersion.Value)
-					return false;
-			}
-			if ((RequiredServices & version.Services) != RequiredServices)
-			{
-				return false;
-			}
-			return true;
 		}
 	}
 
@@ -436,14 +426,6 @@ namespace NBitcoin.Protocol
 		protected void OnMessageReceived(IncomingMessage message)
 		{
 			var version = message.Message.Payload as VersionPayload;
-			if (version != null && State == NodeState.HandShaked)
-			{
-				if (message.Node.ProtocolCapabilities.SupportReject)
-					message.Node.SendMessageAsync(new RejectPayload()
-					{
-						Code = RejectCode.DUPLICATE
-					});
-			}
 			if (version != null)
 			{
 				TimeOffset = DateTimeOffset.Now - version.Timestamp;
@@ -1092,20 +1074,16 @@ namespace NBitcoin.Protocol
 		}
 		public void VersionHandshake(NodeRequirement requirements, CancellationToken cancellationToken = default(CancellationToken))
 		{
+			if (State == NodeState.HandShaked)
+				throw new InvalidOperationException("Already handshaked");
 			requirements = requirements ?? new NodeRequirement();
 			using (var listener = CreateListener()
 									.Where(p => p.Message.Payload is VersionPayload ||
-												p.Message.Payload is RejectPayload ||
 												p.Message.Payload is VerAckPayload))
 			{
 
 				SendMessageAsync(MyVersion);
-				var payload = listener.ReceivePayload<Payload>(cancellationToken);
-				if (payload is RejectPayload)
-				{
-					throw new ProtocolException("Handshake rejected : " + ((RejectPayload)payload).Reason);
-				}
-				var version = (VersionPayload)payload;
+				var version = listener.ReceivePayload<VersionPayload>(cancellationToken);
 				_PeerVersion = version;
 				SetVersion(Math.Min(MyVersion.Version, version.Version));
 
@@ -1161,15 +1139,12 @@ namespace NBitcoin.Protocol
 		/// <param name="cancellation"></param>
 		public void RespondToHandShake(CancellationToken cancellation = default(CancellationToken))
 		{
-			using (var list = CreateListener().Where(m => m.Message.Payload is VerAckPayload || m.Message.Payload is RejectPayload))
+			using (var list = CreateListener().Where(m => m.Message.Payload is VerAckPayload))
 			{
 				Logs.NodeServer.LogInformation("Responding to handshake");
 
 				SendMessageAsync(MyVersion);
 				var message = list.ReceiveMessage(cancellation);
-				var reject = message.Message.Payload as RejectPayload;
-				if (reject != null)
-					throw new ProtocolException("Version rejected " + reject.Code + " : " + reject.Reason);
 				SendMessageAsync(new VerAckPayload());
 				State = NodeState.HandShaked;
 

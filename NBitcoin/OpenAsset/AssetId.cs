@@ -44,7 +44,7 @@ namespace NBitcoin.OpenAsset
 		{
 			if (scriptId == null)
 				throw new ArgumentNullException(nameof(scriptId));
-			_Bytes = scriptId.ToBytes(true);
+			_Bytes = scriptId.ToBytes();
 		}
 
 		public AssetId(byte[] value)

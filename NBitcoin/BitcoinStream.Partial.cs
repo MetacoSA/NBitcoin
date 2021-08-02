@@ -184,94 +184,6 @@ namespace NBitcoin
 		}
 
 
-		private void ReadWriteArray(ref long[] data)
-		{
-			if (data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
-			if (Serializing)
-			{
-				var len = data == null ? 0 : (ulong)data.Length;
-				if (len > (uint)MaxArraySize)
-					throw new ArgumentOutOfRangeException("Array size too big");
-				VarInt.StaticWrite(this, len);
-				if (len == 0)
-					return;
-			}
-			else
-			{
-				var len = VarInt.StaticRead(this);
-				if (len > (uint)MaxArraySize)
-					throw new ArgumentOutOfRangeException("Array size too big");
-				data = new long[len];
-			}
-			for (int i = 0; i < data.Length; i++)
-			{
-				long obj = data[i];
-				ReadWrite(ref obj);
-				data[i] = obj;
-			}
-		}
-
-
-		private void ReadWriteArray(ref short[] data)
-		{
-			if (data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
-			if (Serializing)
-			{
-				var len = data == null ? 0 : (ulong)data.Length;
-				if (len > (uint)MaxArraySize)
-					throw new ArgumentOutOfRangeException("Array size too big");
-				VarInt.StaticWrite(this, len);
-				if (len == 0)
-					return;
-			}
-			else
-			{
-				var len = VarInt.StaticRead(this);
-				if (len > (uint)MaxArraySize)
-					throw new ArgumentOutOfRangeException("Array size too big");
-				data = new short[len];
-			}
-			for (int i = 0; i < data.Length; i++)
-			{
-				short obj = data[i];
-				ReadWrite(ref obj);
-				data[i] = obj;
-			}
-		}
-
-
-		private void ReadWriteArray(ref int[] data)
-		{
-			if (data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
-			if (Serializing)
-			{
-				var len = data == null ? 0 : (ulong)data.Length;
-				if (len > (uint)MaxArraySize)
-					throw new ArgumentOutOfRangeException("Array size too big");
-				VarInt.StaticWrite(this, len);
-				if (len == 0)
-					return;
-			}
-			else
-			{
-				var len = VarInt.StaticRead(this);
-				if (len > (uint)MaxArraySize)
-					throw new ArgumentOutOfRangeException("Array size too big");
-				data = new int[len];
-			}
-			for (int i = 0; i < data.Length; i++)
-			{
-				int obj = data[i];
-				ReadWrite(ref obj);
-				data[i] = obj;
-			}
-		}
-
-
-
 		public void ReadWrite(ref ulong[] data)
 		{
 			ReadWriteArray(ref data);
@@ -288,37 +200,6 @@ namespace NBitcoin
 		{
 			ReadWriteArray(ref data);
 		}
-
-
-		public void ReadWrite(ref long[] data)
-		{
-			ReadWriteArray(ref data);
-		}
-
-
-		public void ReadWrite(ref short[] data)
-		{
-			ReadWriteArray(ref data);
-		}
-
-		public void ReadWrite(ref HDFingerprint fingerPrint)
-		{
-#if HAS_SPAN
-			Span<byte> bytes = stackalloc byte[4];
-			fingerPrint.ToBytes(bytes);
-#else
-			var bytes = fingerPrint.ToBytes();
-#endif
-			ReadWrite(ref bytes);
-			if (!this.Serializing)
-				fingerPrint = new HDFingerprint(bytes);
-		}
-
-		public void ReadWrite(ref int[] data)
-		{
-			ReadWriteArray(ref data);
-		}
-
 
 		uint256.MutableUint256 _MutableUint256 = new uint256.MutableUint256(uint256.Zero);
 		public void ReadWrite(ref uint256 value)

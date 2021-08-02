@@ -432,7 +432,7 @@ namespace NBitcoin.Tests
 				var nodeClient = node.CreateNodeClient();
 				rpc.Generate(101);
 
-				List<TxDestination> knownAddresses = new List<TxDestination>();
+				List<IAddressableDestination> knownAddresses = new List<IAddressableDestination>();
 				var batch = rpc.PrepareBatch();
 				for (int i = 0; i < 20; i++)
 				{
@@ -454,7 +454,7 @@ namespace NBitcoin.Tests
 				{
 					BloomFilter filter = new BloomFilter(1, 0.0001, 50, BloomFlags.UPDATE_NONE);
 					foreach (var a in knownAddresses)
-						filter.Insert(a.ToBytes());
+						filter.Insert(ToBytes(a));
 					nodeClient.SendMessageAsync(new FilterLoadPayload(filter));
 					nodeClient.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, block.GetHash())));
 					var merkle = list.ReceivePayload<MerkleBlockPayload>();
@@ -493,6 +493,21 @@ namespace NBitcoin.Tests
 					Assert.True(!tree.GetMatchedTransactions().Contains(knownTx));
 				}
 			}
+		}
+
+		private byte[] ToBytes(IAddressableDestination a)
+		{
+			if (a is WitKeyId wk)
+				return wk.ToBytes();
+			if (a is KeyId ki)
+				return ki.ToBytes();
+			if (a is WitScriptId wsk)
+				return wsk.ToBytes();
+			if (a is ScriptId si)
+				return si.ToBytes();
+			if (a is TaprootPubKey tp)
+				return tp.ToBytes();
+			throw new NotSupportedException("Error code 3921: It should, contact NBitcoin developers");
 		}
 
 		[Fact]
@@ -1062,7 +1077,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(2, nodeCount);
 				n2.PingPong();
 				n1.PingPong();
-				Assert.Throws<ProtocolException>(() => n2.VersionHandshake());
+				Assert.Throws<InvalidOperationException>(() => n2.VersionHandshake());
 				Thread.Sleep(100);
 				n2.PingPong();
 				Assert.Equal(2, nodeCount);
@@ -1080,21 +1095,6 @@ namespace NBitcoin.Tests
 			block.Transactions.Add(Network.Main.Consensus.ConsensusFactory.CreateTransaction());
 			var cmpct = new CmpctBlockPayload(block);
 			cmpct.Clone();
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanParseReject()
-		{
-			var hex = "f9beb4d972656a6563740000000000003a000000db7f7e7802747812156261642d74786e732d696e707574732d7370656e74577a9694da4ff41ae999f6591cff3749ad6a7db19435f3d8af5fecbcff824196";
-			Message message = new Message();
-			message.ReadWrite(Encoders.Hex.DecodeData(hex), Network.Main);
-			var reject = (RejectPayload)message.Payload;
-			Assert.True(reject.Message == "tx");
-			Assert.True(reject.Code == RejectCode.DUPLICATE);
-			Assert.True(reject.CodeType == RejectCodeType.Transaction);
-			Assert.True(reject.Reason == "bad-txns-inputs-spent");
-			Assert.True(reject.Hash == uint256.Parse("964182ffbcec5fafd8f33594b17d6aad4937ff1c59f699e91af44fda94967a57"));
 		}
 
 		[Fact]

@@ -34,6 +34,8 @@ namespace NBitcoin
 				RuleChangeActivationThreshold = 1916,
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
+				SupportSegwit = true,
+				SupportTaproot = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
@@ -42,6 +44,7 @@ namespace NBitcoin
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, "tb")
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, "tb")
+			.SetBech32(Bech32Type.TAPROOT_ADDRESS, "tb")
 			.SetMagic(GetSignetMagic())
 			.SetPort(38333)
 			.SetRPCPort(38332)
@@ -86,20 +89,6 @@ namespace NBitcoin
 
 		public string CryptoCode => "BTC";
 
-		[Obsolete("Use GetNetwork(ChainName.Mainnet/Testnet/Regtest) instead.")]
-		public Network GetNetwork(NetworkType networkType)
-		{
-			switch (networkType)
-			{
-				case NetworkType.Mainnet:
-					return Mainnet;
-				case NetworkType.Testnet:
-					return Testnet;
-				case NetworkType.Regtest:
-					return Regtest;
-			}
-			return null;
-		}
 		static readonly ChainName SignetName = new ChainName("Signet");
 
 		public Network Signet { get; private set; }

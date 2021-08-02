@@ -9,7 +9,9 @@ using System.Threading;
 using NBitcoin.Protocol;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
+#if !HAS_SPAN
 using NBitcoin.BouncyCastle.Math;
+#endif
 using System.Runtime.InteropServices;
 #if !NOSOCKET
 using System.Net.Sockets;
@@ -161,7 +163,7 @@ namespace NBitcoin
 
 		public static Block GetBlock(this IBlockRepository repository, uint256 blockId)
 		{
-			return repository.GetBlockAsync(blockId).GetAwaiter().GetResult();
+			return repository.GetBlockAsync(blockId, CancellationToken.None).GetAwaiter().GetResult();
 		}
 
 		public static T ToNetwork<T>(this T obj, ChainName chainName) where T : IBitcoinString
@@ -173,13 +175,6 @@ namespace NBitcoin
 			if (obj.Network.ChainName == chainName)
 				return obj;
 			return obj.ToNetwork(obj.Network.NetworkSet.GetNetwork(chainName));
-		}
-		[Obsolete("Use ToNetwork(ChainName) instead")]
-		public static T ToNetwork<T>(this T obj, NetworkType networkType) where T : IBitcoinString
-		{
-			if (obj.Network.NetworkType == networkType)
-				return obj;
-			return obj.ToNetwork(obj.Network.NetworkSet.GetNetwork(networkType));
 		}
 
 		public static T ToNetwork<T>(this T obj, Network network) where T : IBitcoinString
@@ -365,7 +360,7 @@ namespace NBitcoin
 			if(offset > buffer.Length - count) throw new ArgumentOutOfRangeException("count");
 
 			//IO interruption not supported on these platforms.
-			
+
 			int totalReadCount = 0;
 #if !NOSOCKET
 			var interruptable = stream is NetworkStream && cancellation.CanBeCanceled;
@@ -629,7 +624,7 @@ namespace NBitcoin
 		{
 			ms.Write(bytes, 0, bytes.Length);
 		}
-
+#if !HAS_SPAN
 		internal static byte[] BigIntegerToBytes(BigInteger b, int numBytes)
 		{
 			if (b == null)
@@ -643,8 +638,7 @@ namespace NBitcoin
 			Array.Copy(biBytes, start, bytes, numBytes - length, length);
 			return bytes;
 		}
-
-		public static byte[] BigIntegerToBytes(BigInteger num)
+		internal static byte[] BigIntegerToBytes(BigInteger num)
 		{
 			if (num.Equals(BigInteger.Zero))
 				//Positive 0 is represented by a null-length vector
@@ -663,7 +657,7 @@ namespace NBitcoin
 			return array;
 		}
 
-		public static BigInteger BytesToBigInteger(byte[] data)
+		internal static BigInteger BytesToBigInteger(byte[] data)
 		{
 			if (data == null)
 				throw new ArgumentNullException(nameof(data));
@@ -679,7 +673,7 @@ namespace NBitcoin
 			}
 			return new BigInteger(1, data);
 		}
-
+#endif
 		static DateTimeOffset unixRef = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
 		public static uint DateTimeToUnixTime(DateTimeOffset dt)
@@ -1118,114 +1112,10 @@ namespace NBitcoin
 			return endpoint;
 		}
 
-		[Obsolete("Use TryParseEndpoint or ParseEndpoint instead")]
-		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort)
-		{
-			return ParseIpEndpoint(endpoint, defaultPort, true);
-		}
-		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort, bool useDNS)
-		{
-			var splitted = endpoint.Trim().Split(new[] { ':' });
-			string ip = null;
-			int port = 0;
-			if (splitted.Length == 1)
-			{
-				ip = splitted[0];
-				port = defaultPort;
-			}
-			else if (splitted.Length == 2)
-			{
-				ip = splitted[0];
-				port = int.Parse(splitted[1]);
-			}
-			else
-			{
-				if ((endpoint.IndexOf(']') != -1) &&
-					int.TryParse(splitted.Last(), out port))
-				{
-					ip = String.Join(":", splitted.Take(splitted.Length - 1).ToArray());
-				}
-				else
-				{
-					ip = endpoint;
-					port = defaultPort;
-				}
-			}
-
-			IPAddress address = null;
-			try
-			{
-				address = IPAddress.Parse(ip);
-			}
-			catch (FormatException) when (useDNS)
-			{
-#if !(WINDOWS_UWP || NETSTANDARD1X)
-				address = Dns.GetHostEntry(ip).AddressList[0];
-#else
-				string adr = DnsLookup(ip).GetAwaiter().GetResult();
-				// if not resolved behave like GetHostEntry
-				if (adr == string.Empty)
-					throw new SocketException(11001);
-				else
-					address = IPAddress.Parse(adr);
-#endif
-			}
-			return new IPEndPoint(address, port);
-		}
-
-#if NETSTANDARD1X
-		private static async Task<string> DnsLookup(string remoteHostName)
-		{
-			IPHostEntry data = await Dns.GetHostEntryAsync(remoteHostName).ConfigureAwait(false);
-
-			if (data != null && data.AddressList.Count() > 0)
-			{
-				foreach (IPAddress adr in data.AddressList)
-				{
-					if (adr != null && adr.IsIPv4() == true)
-					{
-						return adr.ToString();
-					}
-				}
-			}
-			return string.Empty;
-		}
-#endif
-#if WINDOWS_UWP
-		private static async Task<string> DnsLookup(string remoteHostName)
-		{
-			IReadOnlyList<EndpointPair> data = await DatagramSocket.GetEndpointPairsAsync(new HostName(remoteHostName), "0").AsTask().ConfigureAwait(false);
-
-			if(data != null && data.Count > 0)
-			{
-				foreach(EndpointPair item in data)
-				{
-					if(item != null && item.RemoteHostName != null && item.RemoteHostName.Type == HostNameType.Ipv4)
-					{
-						return item.RemoteHostName.CanonicalName;
-					}
-				}
-			}
-			return string.Empty;
-		}
-#endif
-
 #endif
 		public static int GetHashCode(byte[] array)
 		{
-			unchecked
-			{
-				if (array == null)
-				{
-					return 0;
-				}
-				int hash = 17;
-				for (int i = 0; i < array.Length; i++)
-				{
-					hash = hash * 31 + array[i];
-				}
-				return hash;
-			}
+			return NBitcoin.BouncyCastle.Utilities.Arrays.GetHashCode(array);
 		}
 	}
 }

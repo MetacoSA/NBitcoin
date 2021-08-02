@@ -10,70 +10,11 @@ namespace NBitcoin
 {
 	public class TransactionValidator
 	{
-		public TransactionValidator(Transaction transaction, ICoin[] spentCoins) : this(transaction, GetTxOuts(transaction, spentCoins))
+		internal TransactionValidator(Transaction transaction, TxOut[] spentOutputs)
 		{
-
-		}
-
-		private static TxOut[] GetTxOuts(Transaction transaction, ICoin[] spentCoins)
-		{
-			if (transaction == null)
-				throw new ArgumentNullException(nameof(transaction));
-			if (spentCoins == null)
-				throw new ArgumentNullException(nameof(spentCoins));
-			TxOut[] outputs = new TxOut[spentCoins.Length];
-			Dictionary<OutPoint, ICoin> coinPerOutpoint = new Dictionary<OutPoint, ICoin>(transaction.Inputs.Count);
-			foreach (var c in spentCoins.Where(c => c is ICoin))
-				coinPerOutpoint.TryAdd(c.Outpoint, c);
-			int i = 0;
-			foreach (var input in transaction.Inputs)
-			{
-				if (coinPerOutpoint.TryGetValue(input.PrevOut, out var c))
-					outputs[i] = c.TxOut;
-				else
-					throw new InvalidOperationException("Impossible to find a spent coin from an input in the transaction");
-				i++;
-			}
-			return outputs;
-		}
-
-		public TransactionValidator(Transaction transaction, TxOut[] spentOutputs)
-		{
-			if (transaction == null)
-				throw new ArgumentNullException(nameof(transaction));
-			if (spentOutputs == null)
-				throw new ArgumentNullException(nameof(spentOutputs));
-			if (spentOutputs.Length != transaction.Inputs.Count)
-				throw new ArgumentException("The number of spentOutputs should be equals to the number of inputs in this transaction", nameof(spentOutputs));
-			if (spentOutputs.Any(o => o is null))
-				throw new ArgumentException("No previous output should be null", nameof(spentOutputs));
-			PrecomputedTransactionData = new PrecomputedTransactionData(transaction, spentOutputs);
+			PrecomputedTransactionData = transaction.PrecomputeTransactionData(spentOutputs);
 			SpentOutputs = spentOutputs;
 			Transaction = transaction;
-		}
-
-		public TransactionValidator ChangeScriptVerify(ScriptVerify scriptVerify)
-		{
-			return new TransactionValidator(Transaction, this) { ScriptVerify = scriptVerify };
-		}
-
-		private TransactionValidator(Transaction transaction, TransactionValidator validator)
-		{
-			if (transaction.Inputs.Count != validator.Transaction.Inputs.Count)
-				throw new InvalidOperationException("You can't change the inputs of a transaction");
-			for (int i = 0; i < transaction.Inputs.Count; i++)
-			{
-				var a = transaction.Inputs[i];
-				var b = validator.Transaction.Inputs[i];
-				if (a.PrevOut != b.PrevOut)
-					throw new InvalidOperationException("You can't change the input outpoint of a transaction");
-				if (a.Sequence != b.Sequence)
-					throw new InvalidOperationException("You can't change the input sequence of a transaction");
-			}
-			Transaction = transaction;
-			SpentOutputs = validator.SpentOutputs;
-			PrecomputedTransactionData = validator.PrecomputedTransactionData;
-			ScriptVerify = validator.ScriptVerify;
 		}
 
 		public Transaction Transaction { get; }
@@ -116,13 +57,6 @@ namespace NBitcoin
 				inputsResult[i] = ValidateInput(i);
 			}
 			return inputsResult;
-		}
-
-		public TransactionValidator ChangeTransaction(Transaction transaction)
-		{
-			if (transaction == null)
-				throw new ArgumentNullException(nameof(transaction));
-			return new TransactionValidator(transaction, this);
 		}
 	}
 

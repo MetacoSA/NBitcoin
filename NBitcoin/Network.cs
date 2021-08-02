@@ -8,7 +8,6 @@ using System.Net;
 using System.Threading;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.Stealth;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.ComponentModel;
@@ -53,14 +52,6 @@ namespace NBitcoin
 		{
 			return name + " (" + host + ")";
 		}
-	}
-
-	[Obsolete("Use ChainName.Mainnet/Testnet/Regtest instead")]
-	public enum NetworkType
-	{
-		Mainnet,
-		Testnet,
-		Regtest
 	}
 	public class ChainName
 	{
@@ -128,33 +119,6 @@ namespace NBitcoin
 		{
 			return nameInvariant;
 		}
-
-		[Obsolete("Do not use NetworkType anymore, use ChainName instead")]
-		public NetworkType ToNetworkType()
-		{
-			if (this == ChainName.Mainnet)
-				return NetworkType.Mainnet;
-			if (this == ChainName.Testnet)
-				return NetworkType.Testnet;
-			if (this == ChainName.Regtest)
-				return NetworkType.Regtest;
-			throw new NotSupportedException($"Impossible to convert ChainName {nameInvariant} to NetworkType");
-		}
-		[Obsolete("Do not use NetworkType anymore, use ChainName instead")]
-		public static ChainName FromNetworkType(NetworkType network)
-		{
-			switch (network)
-			{
-				case NetworkType.Mainnet:
-					return ChainName.Mainnet;
-				case NetworkType.Testnet:
-					return ChainName.Testnet;
-				case NetworkType.Regtest:
-					return ChainName.Regtest;
-				default:
-					throw new NotSupportedException($"Unsupported network type {network}");
-			}
-		}
 	}
 
 	public enum Base58Type
@@ -168,7 +132,6 @@ namespace NBitcoin
 		ENCRYPTED_SECRET_KEY_NO_EC,
 		PASSPHRASE_CODE,
 		CONFIRMATION_CODE,
-		STEALTH_ADDRESS,
 		ASSET_ID,
 		COLORED_ADDRESS,
 		BLINDED_ADDRESS,
@@ -664,7 +627,7 @@ namespace NBitcoin
 				throw new InvalidOperationException("This instance can't be modified");
 		}
 
-		bool _SupportTaproot = true;
+		bool _SupportTaproot = false;
 		public bool SupportTaproot
 		{
 			get
@@ -678,7 +641,7 @@ namespace NBitcoin
 			}
 		}
 
-		bool _SupportSegwit = true;
+		bool _SupportSegwit = false;
 		public bool SupportSegwit
 		{
 			get
@@ -2026,14 +1989,7 @@ namespace NBitcoin
 		}
 
 		private ChainName? chainName;
-		[Obsolete("Use ChainName instead")]
-		public NetworkType NetworkType
-		{
-			get
-			{
-				return ChainName.ToNetworkType();
-			}
-		}
+
 		public ChainName ChainName
 		{
 			get
@@ -2215,6 +2171,8 @@ namespace NBitcoin
 			consensus.PowNoRetargeting = false;
 			consensus.RuleChangeActivationThreshold = 1916; // 95% of 2016
 			consensus.MinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
+			consensus.SupportTaproot = true;
+			consensus.SupportSegwit = true;
 
 			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 1199145601, 1230767999);
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1462060800, 1493596800);
@@ -2246,7 +2204,6 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x88), (0xAD), (0xE4) };
 			base58Prefixes[(int)Base58Type.PASSPHRASE_CODE] = new byte[] { 0x2C, 0xE9, 0xB3, 0xE1, 0xFF, 0x39, 0xE2 };
 			base58Prefixes[(int)Base58Type.CONFIRMATION_CODE] = new byte[] { 0x64, 0x3B, 0xF6, 0xA8, 0x9A };
-			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2a };
 			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 23 };
 			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
 
@@ -2280,6 +2237,8 @@ namespace NBitcoin
 			consensus.PowNoRetargeting = false;
 			consensus.RuleChangeActivationThreshold = 1512; // 75% for testchains
 			consensus.MinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
+			consensus.SupportTaproot = true;
+			consensus.SupportSegwit = true;
 
 			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 1199145601, 1230767999);
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1456790400, 1493596800);
@@ -2310,7 +2269,6 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (239) };
 			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x35), (0x87), (0xCF) };
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x35), (0x83), (0x94) };
-			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2b };
 			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 115 };
 			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
 
@@ -2344,6 +2302,8 @@ namespace NBitcoin
 			consensus.PowNoRetargeting = true;
 			consensus.RuleChangeActivationThreshold = 108;
 			consensus.MinerConfirmationWindow = 144;
+			consensus.SupportTaproot = true;
+			consensus.SupportSegwit = true;
 
 			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 0, 999999999);
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 0, 999999999);
@@ -2674,8 +2634,6 @@ namespace NBitcoin
 				return CreateEncryptedKeyNoEC(base58);
 			if (type == Base58Type.PASSPHRASE_CODE)
 				return CreatePassphraseCode(base58);
-			if (type == Base58Type.STEALTH_ADDRESS)
-				return CreateStealthAddress(base58);
 			if (type == Base58Type.ASSET_ID)
 				return CreateAssetId(base58);
 			if (type == Base58Type.COLORED_ADDRESS)
@@ -2701,11 +2659,6 @@ namespace NBitcoin
 		public NBitcoin.OpenAsset.BitcoinAssetId CreateAssetId(string base58)
 		{
 			return new NBitcoin.OpenAsset.BitcoinAssetId(base58, this);
-		}
-
-		public BitcoinStealthAddress CreateStealthAddress(string base58)
-		{
-			return new BitcoinStealthAddress(base58, this);
 		}
 
 		private BitcoinPassphraseCode CreatePassphraseCode(string base58)

@@ -19,14 +19,14 @@ namespace NBitcoin.Tests
 				var rpc = nodeBuilder.CreateNode().CreateRPCClient();
 				nodeBuilder.StartAll();
 				rpc.Generate(102);
-				var change = new Key().ScriptPubKey;
+				var change = new Key();
 				var rootKey = new ExtKey();
 				var accountKeyPath = new KeyPath("86'/0'/0'");
 				var accountRootKeyPath = new RootedKeyPath(rootKey.GetPublicKey().GetHDFingerPrint(), accountKeyPath);
 				var accountKey = rootKey.Derive(accountKeyPath);
 				var key = accountKey.Derive(new KeyPath("0/0")).PrivateKey;
 				var address = key.PubKey.GetAddress(ScriptPubKeyType.TaprootBIP86, nodeBuilder.Network);
-				var destination = new Key().ScriptPubKey;
+				var destination = new Key();
 				var amount = new Money(1, MoneyUnit.BTC);
 				uint256 id = null;
 				Transaction tx = null;
@@ -128,6 +128,55 @@ namespace NBitcoin.Tests
 				psbt = CanRoundtripPSBT(psbt);
 				psbt.Finalize();
 				rpc.SendRawTransaction(psbt.ExtractTransaction());
+
+				// Can we sign the transaction separately?
+				await RefreshCoin();
+				var coin1 = coin;
+				await RefreshCoin();
+				var coin2 = coin;
+				builder = Network.Main.CreateTransactionBuilder(0);
+				signedTx = builder
+					.AddCoins(coin1, coin2)
+					.Send(destination, amount)
+					.SubtractFees()
+					.SetChange(change)
+					.SendEstimatedFees(rate)
+					.BuildTransaction(false);
+				var unsignedTx = signedTx.Clone();
+				builder = Network.Main.CreateTransactionBuilder(0);
+				builder.AddKeys(key.CreateTaprootKeyPair(merkleRoot));
+				builder.AddCoins(coin1);
+				var ex = Assert.Throws<InvalidOperationException>(() => builder.SignTransactionInPlace(signedTx));
+				Assert.Contains("taproot", ex.Message);
+				builder.AddCoin(coin2);
+				builder.SignTransactionInPlace(signedTx);
+				Assert.True(!WitScript.IsNullOrEmpty(signedTx.Inputs.FindIndexedInput(coin2.Outpoint).WitScript));
+				// Another solution is to set the precomputed transaction data.
+				signedTx = unsignedTx;
+				builder = Network.Main.CreateTransactionBuilder(0);
+				builder.AddKeys(key.CreateTaprootKeyPair(merkleRoot));
+				builder.AddCoins(coin2);
+				builder.SetSigningOptions(new SigningOptions() { PrecomputedTransactionData = signedTx.PrecomputeTransactionData(new ICoin[] { coin1, coin2 }) });
+				builder.SignTransactionInPlace(signedTx);
+				Assert.True(!WitScript.IsNullOrEmpty(signedTx.Inputs.FindIndexedInput(coin2.Outpoint).WitScript));
+
+
+				// Let's check if we estimate precisely the size of a taproot transaction.
+				await RefreshCoin();
+				signedTx = builder
+					.AddCoins(coin)
+					.AddKeys(key.CreateTaprootKeyPair(merkleRoot))
+					.Send(destination, amount)
+					.SubtractFees()
+					.SetChange(change)
+					.SendEstimatedFees(rate)
+					.BuildTransaction(false);
+				var actualvsize = builder.EstimateSize(signedTx, true);
+				builder.SignTransactionInPlace(signedTx);
+				var expectedvsize = signedTx.GetVirtualSize();
+				// The estimator can't assume the sighash to be default
+				// for all inputs, so we likely overestimate 1 bytes per input
+				Assert.Equal(expectedvsize, actualvsize - 1);
 			}
 		}
 
@@ -176,7 +225,7 @@ namespace NBitcoin.Tests
 				}).Select(t => t.Result).ToArray();
 
 
-				var destination = new Key().ScriptPubKey;
+				var destination = new Key();
 				var amount = new Money(1, MoneyUnit.BTC);
 				var redeemScripts = keyRedeemAddresses.Select(kra => kra.Redeem).ToArray();
 				var privateKeys = keyRedeemAddresses.SelectMany(kra => kra.Keys).ToArray();
@@ -189,7 +238,7 @@ namespace NBitcoin.Tests
 					.AddKeys(privateKeys)
 					.Send(destination, amount)
 					.SubtractFees()
-					.SetChange(new Key().ScriptPubKey)
+					.SetChange(new Key())
 					.SendEstimatedFees(rate)
 					.BuildTransaction(true);
 
@@ -223,7 +272,7 @@ namespace NBitcoin.Tests
 									.Single();
 
 
-				var destination = new Key().ScriptPubKey;
+				var destination = new Key();
 				var amount = new Money(1, MoneyUnit.BTC);
 
 
@@ -234,7 +283,7 @@ namespace NBitcoin.Tests
 					.AddKeys(keys[0])
 					.Send(destination, amount)
 					.SubtractFees()
-					.SetChange(new Key().ScriptPubKey)
+					.SetChange(new Key())
 					.SendEstimatedFees(rate)
 					.BuildPSBT(true);
 				Assert.True(partiallySignedTx.Inputs.All(i => i.PartialSigs.Count == 1));
@@ -298,7 +347,7 @@ namespace NBitcoin.Tests
 				}).Select(t => t.Result).ToArray();
 
 
-				var destination = new Key().ScriptPubKey;
+				var destination = new Key();
 				var amount = new Money(1, MoneyUnit.BTC);
 
 				var builder = Network.Main.CreateTransactionBuilder();

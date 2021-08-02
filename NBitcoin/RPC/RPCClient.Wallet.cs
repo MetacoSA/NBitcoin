@@ -13,24 +13,11 @@ using System.Linq;
 using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
-	public class RPCAccount
-	{
-		public Money Amount
-		{
-			get;
-			set;
-		}
-		public String AccountName
-		{
-			get;
-			set;
-		}
-	}
-
 	public class ChangeAddress
 	{
 		public Money Amount
@@ -155,13 +142,12 @@ namespace NBitcoin.RPC
 			{
 				_BatchedRequests = _BatchedRequests,
 				Capabilities = Capabilities,
-				RequestTimeout = RequestTimeout,
 				_HttpClient = _HttpClient,
 				AllowBatchFallback = AllowBatchFallback
 			};
 		}
 
-		public async Task<RPCClient> CreateWalletAsync(string walletNameOrPath, CreateWalletOptions? options = null)
+		public async Task<RPCClient> CreateWalletAsync(string walletNameOrPath, CreateWalletOptions? options = null, CancellationToken cancellationToken = default)
 		{
 			if (string.IsNullOrEmpty(walletNameOrPath)) throw new ArgumentNullException(nameof(walletNameOrPath));
 
@@ -182,7 +168,7 @@ namespace NBitcoin.RPC
 				if (options.LoadOnStartup is bool loadOnStartup)
 					parameters.Add("load_on_startup", loadOnStartup.ToString());
 			}
-			var result = await SendCommandWithNamedArgsAsync(RPCOperations.createwallet.ToString(), parameters).ConfigureAwait(false);
+			var result = await SendCommandWithNamedArgsAsync(RPCOperations.createwallet.ToString(), parameters, cancellationToken).ConfigureAwait(false);
 			return GetWallet(result.Result.Value<string>("name"));
 		}
 
@@ -201,10 +187,10 @@ namespace NBitcoin.RPC
 		{
 			return LoadWallet(null, loadOnStartup);
 		}
-		public async Task<RPCClient> LoadWalletAsync(string? walletName, bool? loadOnStartup = null)
+		public async Task<RPCClient> LoadWalletAsync(string? walletName, bool? loadOnStartup = null, CancellationToken cancellationToken = default)
 		{
 			var req = GetLoadUnloadWalletRequest("loadwallet", walletName, loadOnStartup);
-			var response = await SendCommandAsync(req).ConfigureAwait(false);
+			var response = await SendCommandAsync(req, cancellationToken: cancellationToken).ConfigureAwait(false);
 			return GetWallet(response.Result.Value<string>("name"));
 		}
 
@@ -244,17 +230,6 @@ namespace NBitcoin.RPC
 		{
 			return LoadWalletAsync(walletName, loadOnStartup).GetAwaiter().GetResult();
 		}
-
-		[Obsolete("Use UnloadWalletAsync instead")]
-		public Task UnloadAsync(bool? loadOnStartup = null)
-		{
-			return UnloadWalletAsync(loadOnStartup);
-		}
-		[Obsolete("Use UnloadWallet instead")]
-		public void Unload(bool? loadOnStartup = null)
-		{
-			UnloadWallet(loadOnStartup);
-		}
 		public void UnloadWallet()
 		{
 			UnloadWalletAsync(null).GetAwaiter().GetResult();
@@ -267,10 +242,10 @@ namespace NBitcoin.RPC
 		{
 			return UnloadWalletAsync(null, loadOnStartup);
 		}
-		public Task UnloadWalletAsync(string? walletName, bool? loadOnStartup = null)
+		public Task UnloadWalletAsync(string? walletName, bool? loadOnStartup = null, CancellationToken cancellationToken = default)
 		{
 			var req = GetLoadUnloadWalletRequest("unloadwallet", walletName, loadOnStartup);
-			return SendCommandAsync(req);
+			return SendCommandAsync(req, cancellationToken: cancellationToken);
 		}
 
 
@@ -294,9 +269,9 @@ namespace NBitcoin.RPC
 
 		// dumpprivkey
 
-		public BitcoinSecret DumpPrivKey(BitcoinAddress address)
+		public BitcoinSecret DumpPrivKey(BitcoinAddress address, CancellationToken cancellationToken = default)
 		{
-			var response = SendCommand(RPCOperations.dumpprivkey, address.ToString());
+			var response = SendCommand(RPCOperations.dumpprivkey, cancellationToken, address.ToString());
 			return Network.Parse<BitcoinSecret>((string)response.Result);
 		}
 
@@ -347,7 +322,7 @@ namespace NBitcoin.RPC
 			return Money.Coins(data.Result.Value<decimal>());
 		}
 
-		public async Task<FundRawTransactionResponse> FundRawTransactionAsync(Transaction transaction, FundRawTransactionOptions options = null)
+		public async Task<FundRawTransactionResponse> FundRawTransactionAsync(Transaction transaction, FundRawTransactionOptions options = null, CancellationToken cancellationToken = default)
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
@@ -356,11 +331,11 @@ namespace NBitcoin.RPC
 			if (options != null)
 			{
 				var jOptions = FundRawTransactionOptionsToJson(options);
-				response = await SendCommandAsync("fundrawtransaction", ToHex(transaction), jOptions).ConfigureAwait(false);
+				response = await SendCommandAsync("fundrawtransaction", cancellationToken, ToHex(transaction), jOptions).ConfigureAwait(false);
 			}
 			else
 			{
-				response = await SendCommandAsync("fundrawtransaction", ToHex(transaction)).ConfigureAwait(false);
+				response = await SendCommandAsync("fundrawtransaction", cancellationToken, ToHex(transaction)).ConfigureAwait(false);
 			}
 			var r = (JObject)response.Result;
 			return new FundRawTransactionResponse()
@@ -563,7 +538,7 @@ namespace NBitcoin.RPC
 		/// <param name="signingRepository">If you specify this, This method tries to serialize OutputDescriptor with the private key (If there is any entry in the repository).</param>
 		/// <returns></returns>
 		/// <exception cref="RPCException"></exception>
-		public async Task ImportMultiAsync(ImportMultiAddress[] addresses, bool rescan, ISigningRepository? signingRepository)
+		public async Task ImportMultiAsync(ImportMultiAddress[] addresses, bool rescan, ISigningRepository? signingRepository, CancellationToken cancellationToken = default)
 		{
 			var parameters = new List<object>();
 
@@ -587,7 +562,7 @@ namespace NBitcoin.RPC
 					signingRepository.SetSecret(key.PubKeyHash, key);
 				}
 			}
-			seria.Converters.Add(new OutputDescriptorJsonConverter(false, signingRepository));
+			seria.Converters.Add(new OutputDescriptorJsonConverter(Network, false, signingRepository));
 
 			// -- --
 			foreach (var addr in addresses)
@@ -603,7 +578,7 @@ namespace NBitcoin.RPC
 			var oRescan = JObject.FromObject(new { rescan = rescan });
 			parameters.Add(oRescan);
 
-			var response = await SendCommandAsync("importmulti", parameters.ToArray()).ConfigureAwait(false);
+			var response = await SendCommandAsync("importmulti", cancellationToken, parameters.ToArray()).ConfigureAwait(false);
 			response.ThrowIfError();
 
 			//Somehow, this one has error embedded
@@ -634,78 +609,6 @@ namespace NBitcoin.RPC
 				return _JsonSerializer;
 			}
 		}
-
-		// listaccounts
-
-		/// <summary>
-		/// Lists accounts and their balances, with the default number of confirmations for balances (1),
-		/// and not including watch only addresses (default false).
-		/// </summary>
-		public IEnumerable<RPCAccount> ListAccounts()
-		{
-			var response = SendCommand(RPCOperations.listaccounts);
-			return AsRPCAccount(response);
-		}
-
-		/// <summary>
-		/// Lists accounts and their balances, based on the specified number of confirmations.
-		/// </summary>
-		/// <param name="confirmations">
-		/// The minimum number of confirmations an externally-generated transaction must have before
-		/// it is counted towards the balance. Transactions generated by this node are counted immediately.
-		/// Typically, externally-generated transactions are payments to this wallet and transactions
-		/// generated by this node are payments to other wallets. Use 0 to count unconfirmed transactions.
-		/// Default is 1.
-		/// </param>
-		/// <returns>
-		/// A list of accounts and their balances.
-		/// </returns>
-		public IEnumerable<RPCAccount> ListAccounts(int confirmations)
-		{
-			var response = SendCommand(RPCOperations.listaccounts, confirmations);
-			return AsRPCAccount(response);
-		}
-
-		/// <summary>
-		/// Lists accounts and their balances, based on the specified number of confirmations,
-		/// and including watch only accounts if specified. (Added in Bitcoin Core 0.10.0)
-		/// </summary>
-		/// <param name="confirmations">
-		/// The minimum number of confirmations an externally-generated transaction must have before
-		/// it is counted towards the balance. Transactions generated by this node are counted immediately.
-		/// Typically, externally-generated transactions are payments to this wallet and transactions
-		/// generated by this node are payments to other wallets. Use 0 to count unconfirmed transactions.
-		/// Default is 1.
-		/// </param>
-		/// <param name="includeWatchOnly">
-		/// If set to true, include watch-only addresses in details and calculations as if they were
-		/// regular addresses belonging to the wallet. If set to false (the default), treat watch-only
-		/// addresses as if they didn’t belong to this wallet.
-		/// </param>
-		/// <returns>
-		/// A list of accounts and their balances.
-		/// </returns>
-		public IEnumerable<RPCAccount> ListAccounts(int confirmations,
-			// Added in Bitcoin Core 0.10.0
-			bool includeWatchOnly)
-		{
-			var response = SendCommand(RPCOperations.listaccounts, confirmations, includeWatchOnly);
-			return AsRPCAccount(response);
-		}
-
-		private IEnumerable<RPCAccount> AsRPCAccount(RPCResponse response)
-		{
-			var obj = (JObject)response.Result;
-			foreach (var prop in obj.Properties())
-			{
-				yield return new RPCAccount()
-				{
-					AccountName = prop.Name,
-					Amount = Money.Coins((decimal)prop.Value)
-				};
-			}
-		}
-
 
 		// listaddressgroupings
 
@@ -805,6 +708,11 @@ namespace NBitcoin.RPC
 		/// </param>
 		public async Task<UnspentCoin[]> ListUnspentAsync(ListUnspentOptions options, params BitcoinAddress[] addresses)
 		{
+			return await ListUnspentAsync(options, CancellationToken.None, addresses);
+		}
+
+		public async Task<UnspentCoin[]> ListUnspentAsync(ListUnspentOptions options, CancellationToken cancellationToken, params BitcoinAddress[] addresses)
+		{
 			var queryOptions = new Dictionary<string, object>();
 			var queryObjects = new JObject();
 
@@ -830,7 +738,7 @@ namespace NBitcoin.RPC
 			var addr = (from a in addresses select a.ToString()).ToArray();
 			queryOptions.Add("addresses", addr);
 
-			var response = await SendCommandWithNamedArgsAsync(RPCOperations.listunspent.ToString(), queryOptions).ConfigureAwait(false);
+			var response = await SendCommandWithNamedArgsAsync(RPCOperations.listunspent.ToString(), queryOptions, cancellationToken).ConfigureAwait(false);
 			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
 
@@ -997,7 +905,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="request">The transaction to be signed</param>
 		/// <returns>The signed transaction</returns>
-		public async Task<SignRawTransactionResponse> SignRawTransactionWithKeyAsync(SignRawTransactionWithKeyRequest request)
+		public async Task<SignRawTransactionResponse> SignRawTransactionWithKeyAsync(SignRawTransactionWithKeyRequest request, CancellationToken cancellationToken = default)
 		{
 			Dictionary<string, object> values = new Dictionary<string, object>();
 			values.Add("hexstring", request.Transaction.ToHex());
@@ -1030,7 +938,7 @@ namespace NBitcoin.RPC
 				}
 			}
 
-			var result = await SendCommandWithNamedArgsAsync("signrawtransactionwithkey", values).ConfigureAwait(false);
+			var result = await SendCommandWithNamedArgsAsync("signrawtransactionwithkey", values, cancellationToken).ConfigureAwait(false);
 			var response = new SignRawTransactionResponse();
 			response.SignedTransaction = ParseTxHex(result.Result["hex"].Value<string>());
 			response.Complete = result.Result["complete"].Value<bool>();
@@ -1069,7 +977,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="request">The transaction to be signed</param>
 		/// <returns>The signed transaction</returns>
-		public async Task<SignRawTransactionResponse> SignRawTransactionWithWalletAsync(SignRawTransactionRequest request)
+		public async Task<SignRawTransactionResponse> SignRawTransactionWithWalletAsync(SignRawTransactionRequest request, CancellationToken cancellationToken = default)
 		{
 			Dictionary<string, object> values = new Dictionary<string, object>();
 			values.Add("hexstring", request.Transaction.ToHex());
@@ -1096,7 +1004,7 @@ namespace NBitcoin.RPC
 				}
 			}
 
-			var result = await SendCommandWithNamedArgsAsync("signrawtransactionwithwallet", values).ConfigureAwait(false);
+			var result = await SendCommandWithNamedArgsAsync("signrawtransactionwithwallet", values, cancellationToken).ConfigureAwait(false);
 			var response = new SignRawTransactionResponse();
 			response.SignedTransaction = ParseTxHex(result.Result["hex"].Value<string>());
 			response.Complete = result.Result["complete"].Value<bool>();
@@ -1147,7 +1055,8 @@ namespace NBitcoin.RPC
 		Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>> outputs,
 		LockTime locktime = default(LockTime),
 		FundRawTransactionOptions options = null,
-		bool bip32derivs = false
+		bool bip32derivs = false,
+		CancellationToken cancellationToken = default
 		)
 		{
 			var values = new object[] { };
@@ -1184,6 +1093,7 @@ namespace NBitcoin.RPC
 			}
 			RPCResponse response = await SendCommandAsync(
 				"walletcreatefundedpsbt",
+				cancellationToken,
 				rpcInputs,
 				outputToSend,
 				locktime.Value,
@@ -1238,6 +1148,8 @@ namespace NBitcoin.RPC
 					return "NONE|ANYONECANPAY";
 				case SigHash.Single | SigHash.AnyoneCanPay:
 					return "SINGLE|ANYONECANPAY";
+				case 0:
+					return "DEFAULT";
 				default:
 					throw new NotSupportedException();
 			}

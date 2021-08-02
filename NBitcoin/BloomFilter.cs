@@ -178,8 +178,7 @@ namespace NBitcoin
 						else if ((nFlags & (byte)BloomFlags.UPDATE_MASK) == (byte)BloomFlags.UPDATE_P2PUBKEY_ONLY)
 						{
 							var template = StandardScripts.GetTemplateFromScriptPubKey(txout.ScriptPubKey);
-							if (template != null &&
-									(template.Type == TxOutType.TX_PUBKEY || template.Type == TxOutType.TX_MULTISIG))
+							if (template is PayToPubkeyTemplate || template is PayToMultiSigTemplate)
 								Insert(new OutPoint(hash, i));
 						}
 						break;

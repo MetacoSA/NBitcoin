@@ -6,7 +6,7 @@ namespace NBitcoin.Scripting.Parser
 	{
 		public static Parser<ScriptToken, ScriptToken> ScriptToken(Func<int, bool> predicate, string expected)
 		{
-			return i =>
+			return (i, n) =>
 			{
 				if (i.AtEnd)
 				{

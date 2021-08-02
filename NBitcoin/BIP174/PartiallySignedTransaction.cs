@@ -83,6 +83,8 @@ namespace NBitcoin
 		public bool IsSmart { get; set; } = true;
 		public bool SkipVerifyScript { get; set; } = false;
 		public SigningOptions SigningOptions { get; set; } = new SigningOptions();
+		public ScriptVerify ScriptVerify { get; internal set; } = ScriptVerify.Standard;
+
 		public PSBTSettings Clone()
 		{
 			return new PSBTSettings()
@@ -443,21 +445,13 @@ namespace NBitcoin
 			return this;
 		}
 
-		public bool TryFinalize(TransactionValidator? validator, [MaybeNullWhen(true)] out IList<PSBTError> errors)
+		public bool TryFinalize([MaybeNullWhen(true)] out IList<PSBTError> errors)
 		{
-			if (validator is null)
-			{
-				if (!TryCreateTransactionValidator(out validator, out var err))
-				{
-					errors = err;
-					return false;
-				}
-			}
-			
+			var signingOptions = GetSigningOptions(null);
 			var localErrors = new List<PSBTError>();
 			foreach (var input in Inputs)
 			{
-				if (!input.TryFinalizeInput(validator, out var e))
+				if (!input.TryFinalizeInput(signingOptions, out var e))
 				{
 					localErrors.AddRange(e);
 				}
@@ -470,9 +464,16 @@ namespace NBitcoin
 			errors = null;
 			return true;
 		}
-		public bool TryFinalize([MaybeNullWhen(true)] out IList<PSBTError> errors)
+
+		internal SigningOptions GetSigningOptions(SigningOptions? signingOptions)
 		{
-			return TryFinalize(null, out errors);
+			signingOptions ??= Settings.SigningOptions;
+			if (signingOptions.PrecomputedTransactionData is null)
+			{
+				signingOptions = signingOptions.Clone();
+				signingOptions.PrecomputedTransactionData = PrecomputeTransactionData();
+			}
+			return signingOptions;
 		}
 
 		public bool IsReadyToSign()
@@ -564,10 +565,12 @@ namespace NBitcoin
 			accountHDScriptPubKey = accountHDScriptPubKey.AsHDKeyCache();
 			accountKey = accountKey.AsHDKeyCache();
 			Money total = Money.Zero;
-			var transactionData = GetPrecomputedTransactionData();
+
+			var signingOptions = GetSigningOptions(null);
+
 			foreach (var o in Inputs.CoinsFor(accountHDScriptPubKey, accountKey, accountKeyPath))
 			{
-				o.TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, transactionData);
+				o.TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, signingOptions);
 			}
 			return this;
 		}
@@ -673,23 +676,28 @@ namespace NBitcoin
 		public PSBT SignWithKeys(params Key[] keys)
 		{
 			AssertSanity();
-			var transactionData = GetPrecomputedTransactionData();
+			var signingOptions = GetSigningOptions(null);
 			foreach (var key in keys)
 			{
 				foreach (var input in this.Inputs)
 				{
-					input.Sign(key, transactionData);
+					input.Sign(key, signingOptions);
 				}
 			}
 			return this;
 		}
 
-		internal PrecomputedTransactionData GetPrecomputedTransactionData()
+		/// <summary>
+		/// Returns a data structure precomputing some hash values that are needed for all inputs to be signed in the transaction.
+		/// </summary>
+		/// <returns>The PrecomputedTransactionData</returns>
+		/// <exception cref="NBitcoin.PSBTException">Throw if the PSBT is missing some previous outputs.</exception>
+		public PrecomputedTransactionData PrecomputeTransactionData()
 		{
 			var outputs = GetSpentTxOuts(out var errors);
 			if (errors != null)
-				throw new PSBTException(errors);
-			return new PrecomputedTransactionData(tx, outputs);
+				return tx.PrecomputeTransactionData();
+			return tx.PrecomputeTransactionData(outputs);
 		}
 
 		public TransactionValidator CreateTransactionValidator()
@@ -697,9 +705,9 @@ namespace NBitcoin
 			var outputs = GetSpentTxOuts(out var errors);
 			if (errors != null)
 				throw new PSBTException(errors);
-			return new TransactionValidator(tx, outputs);
+			return tx.CreateValidator(outputs);
 		}
-		internal bool TryCreateTransactionValidator([MaybeNullWhen(false)] out TransactionValidator validator, [MaybeNullWhen(true)] out List<PSBTError> errors)
+		internal bool TryCreateTransactionValidator([MaybeNullWhen(false)] out TransactionValidator validator, [MaybeNullWhen(true)] out IList<PSBTError> errors)
 		{
 			var outputs = GetSpentTxOuts(out errors);
 			if (errors != null)
@@ -707,11 +715,11 @@ namespace NBitcoin
 				validator = null;
 				return false;
 			}
-			validator = new TransactionValidator(tx, outputs);
+			validator = tx.CreateValidator(outputs);
 			return true;
 		}
 
-		private TxOut[] GetSpentTxOuts(out List<PSBTError>? errors)
+		private TxOut[] GetSpentTxOuts(out IList<PSBTError>? errors)
 		{
 			errors = null;
 			TxOut[] spentOutputs = new TxOut[Inputs.Count];
@@ -722,7 +730,7 @@ namespace NBitcoin
 				else
 				{
 					errors ??= new List<PSBTError>();
-					errors.Add(new PSBTError((uint)input.Index, "Some inputs are missing their previous txout"));
+					errors.Add(new PSBTError((uint)input.Index, "Some inputs are missing witness_utxo or non_witness_utxo"));
 				}
 			}
 			return spentOutputs;
@@ -736,7 +744,7 @@ namespace NBitcoin
 				transactionBuilder.Extensions.Clear();
 				transactionBuilder.Extensions.AddRange(Settings.CustomBuilderExtensions);
 			}
-			transactionBuilder.SetSigningOptions(Settings.SigningOptions);
+			transactionBuilder.SetSigningOptions(Settings.SigningOptions.Clone());
 			return transactionBuilder;
 		}
 
@@ -862,7 +870,8 @@ namespace NBitcoin
 				stream.ReadWrite(PSBTConstants.PSBT_GLOBAL_XPUB);
 				var vb = XPubVersionBytes;
 				stream.ReadWrite(ref vb);
-				xpub.Key.ExtPubKey.ReadWrite(stream);
+				var bytes = xpub.Key.ExtPubKey.ToBytes();
+				stream.ReadWrite(ref bytes);
 				var path = xpub.Value.KeyPath.ToBytes();
 				var pathInfo = xpub.Value.MasterFingerprint.ToBytes().Concat(path);
 				stream.ReadWriteAsVarString(ref pathInfo);
@@ -920,8 +929,7 @@ namespace NBitcoin
 			}
 			jsonWriter.WritePropertyName("tx");
 			jsonWriter.WriteStartObject();
-			var formatter = new RPC.BlockExplorerFormatter();
-			formatter.WriteTransaction2(jsonWriter, tx);
+			RPC.BlockExplorerFormatter.WriteTransaction(jsonWriter, tx);
 			jsonWriter.WriteEndObject();
 			if (GlobalXPubs.Count != 0)
 			{

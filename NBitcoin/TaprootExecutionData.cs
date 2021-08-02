@@ -15,12 +15,12 @@ namespace NBitcoin
 				throw new ArgumentOutOfRangeException(nameof(inputIndex));
 			InputIndex = inputIndex;
 		}
-		public TaprootExecutionData(int inputIndex, uint256 tapleaf)
+		public TaprootExecutionData(int inputIndex, uint256? tapleaf)
 		{
 			if (inputIndex < 0)
 				throw new ArgumentOutOfRangeException(nameof(inputIndex));
 			InputIndex = inputIndex;
-			HashVersion = HashVersion.Tapscript;
+			HashVersion = tapleaf is null ? HashVersion.Taproot : HashVersion.Tapscript;
 			TapleafHash = tapleaf;
 		}
 		public int InputIndex { get; set; }
@@ -45,7 +45,7 @@ namespace NBitcoin
 			}
 		}
 		public HashVersion HashVersion { get; } = HashVersion.Taproot;
-		public uint256? TapleafHash { get; set; }
+		public uint256? TapleafHash { get; }
 		public uint CodeseparatorPosition { get; set; } = 0xffffffff;
 	}
 }

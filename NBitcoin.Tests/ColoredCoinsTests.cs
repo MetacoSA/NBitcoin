@@ -110,7 +110,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(testAddress.ScriptPubKey, testColored.ScriptPubKey);
 
 			Assert.Equal(Network.TestNet, testColored.Network);
-			testColored = new BitcoinColoredAddress("bWqaKUZETiECYgmJNbNZUoanBxnAzoVjCNx");
+			testColored = new BitcoinColoredAddress("bWqaKUZETiECYgmJNbNZUoanBxnAzoVjCNx", testColored.Network);
 			Assert.Equal(Network.TestNet, testColored.Network);
 			Assert.Equal(colored.ToNetwork(Network.TestNet), testColored);
 		}
@@ -452,7 +452,7 @@ namespace NBitcoin.Tests
 			Script script = address.ScriptPubKey;
 			Assert.Equal("OP_DUP OP_HASH160 010966776006953D5567439E5E39F86A0D273BEE OP_EQUALVERIFY OP_CHECKSIG", script.ToString().ToUpper());
 
-			var oo = script.GetScriptAddress(Network.Main);
+			var oo = script.Hash.GetAddress(Network.Main);
 			//The script is hashed: 36e0ea8e93eaa0285d641305f4c81e563aa570a2.
 			Assert.Equal("36e0ea8e93eaa0285d641305f4c81e563aa570a2", script.Hash.ToString());
 

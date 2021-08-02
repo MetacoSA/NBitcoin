@@ -9,7 +9,7 @@ using NBitcoin.BouncyCastle.Math;
 #endif
 namespace NBitcoin
 {
-	public class Key : IDestination, IDisposable, IBitcoinSerializable
+	public class Key : IDestination, IDisposable
 	{
 		private const int KEY_SIZE = 32;
 		private readonly static uint256 N = uint256.Parse("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141");
@@ -29,10 +29,10 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
-		internal Secp256k1.ECPrivKey _ECKey;
+		internal readonly Secp256k1.ECPrivKey _ECKey;
 #else
-		byte[] vch = new byte[0];
-		internal ECKey _ECKey;
+		readonly byte[] vch;
+		internal readonly ECKey _ECKey;
 #endif
 		public bool IsCompressed
 		{
@@ -45,6 +45,22 @@ namespace NBitcoin
 		{
 
 		}
+
+		public BitcoinAddress GetAddress(ScriptPubKeyType scriptPubKeyType, Network network)
+		{
+			if (network == null)
+				throw new ArgumentNullException(nameof(network));
+			return PubKey.GetAddress(scriptPubKeyType, network);
+		}
+		public IAddressableDestination GetDestination(ScriptPubKeyType scriptPubKeyType)
+		{
+			return PubKey.GetDestination(scriptPubKeyType);
+		}
+		public Script GetScriptPubKey(ScriptPubKeyType scriptPubKeyType)
+		{
+			return PubKey.GetScriptPubKey(scriptPubKeyType);
+		}
+
 #if HAS_SPAN
 		internal Key(Secp256k1.ECPrivKey ecKey, bool compressed)
 		{
@@ -52,6 +68,20 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(ecKey));
 			this.IsCompressed = compressed;
 			_ECKey = ecKey;
+		}
+		internal Key(ReadOnlySpan<byte> bytes, bool compressed = true)
+		{
+			this.IsCompressed = compressed;
+			if (bytes.Length != KEY_SIZE)
+			{
+				throw new ArgumentException(paramName: "data", message: $"The size of an EC key should be {KEY_SIZE}");
+			}
+			if (NBitcoinContext.Instance.TryCreateECPrivKey(bytes, out var key) && key is Secp256k1.ECPrivKey)
+			{
+				_ECKey = key;
+			}
+			else
+				throw new ArgumentException(paramName: "data", message: "Invalid EC key");
 		}
 #endif
 
@@ -149,26 +179,16 @@ namespace NBitcoin
 			AssertNotDisposed();
 			return _ECKey.Sign(hash, true);
 		}
-
-		[Obsolete("This method is depracted, if you wants to sign for taproot, use SignTaprootKeyPath()")]
-		public SchnorrSignature SignSchnorr(uint256 hash)
-		{
-			AssertNotDisposed();
-#if HAS_SPAN
-			Span<byte> h = stackalloc byte[32];
-			hash.ToBytes(h);
-			return new SchnorrSignature(_ECKey.SignSchnorr(h));
-#else
-			var signer = new SchnorrSigner();
-			return signer.Sign(hash, this);
-#endif
-		}
 #if HAS_SPAN
 		public TaprootSignature SignTaprootKeySpend(uint256 hash, TaprootSigHash sigHash = TaprootSigHash.Default)
 		{
 			return SignTaprootKeySpend(hash, null, sigHash);
 		}
 		public TaprootSignature SignTaprootKeySpend(uint256 hash, uint256? merkleRoot, TaprootSigHash sigHash)
+		{
+			return SignTaprootKeySpend(hash, merkleRoot, null, sigHash);
+		}
+		public TaprootSignature SignTaprootKeySpend(uint256 hash, uint256? merkleRoot, uint256? aux, TaprootSigHash sigHash)
 		{
 			if (hash == null)
 				throw new ArgumentNullException(nameof(hash));
@@ -182,7 +202,7 @@ namespace NBitcoin
 			TaprootFullPubKey.ComputeTapTweak(PubKey.TaprootInternalKey, merkleRoot, buf);
 			eckey = eckey.TweakAdd(buf);
 			hash.ToBytes(buf);
-			var sig = eckey.SignBIP340(buf);
+			var sig = aux?.ToBytes() is byte[] auxbytes ? eckey.SignBIP340(buf, auxbytes) : eckey.SignBIP340(buf);
 			return new TaprootSignature(new SchnorrSignature(sig), sigHash);
 		}
 		public TaprootKeyPair CreateTaprootKeyPair()
@@ -265,46 +285,9 @@ namespace NBitcoin
 #endif
 		}
 
-
-
-		#region IBitcoinSerializable Members
-
-		public void ReadWrite(BitcoinStream stream)
-		{
-			AssertNotDisposed();
-#if HAS_SPAN
-			Span<byte> tmp = stackalloc byte[KEY_SIZE];
-			if (!stream.Serializing)
-			{
-				stream.ReadWrite(ref tmp);
-				if (NBitcoinContext.Instance.TryCreateECPrivKey(tmp, out var k) && k is Secp256k1.ECPrivKey)
-				{
-					_ECKey = k;
-				}
-				else
-				{
-					throw new FormatException("Unvalid private key");
-				}
-			}
-			else
-			{
-				_ECKey.WriteToSpan(tmp);
-				stream.ReadWrite(ref tmp);
-			}
-#else
-			stream.ReadWrite(ref vch);
-			if (!stream.Serializing)
-			{
-				_ECKey = new ECKey(vch, true);
-			}
-#endif
-		}
-
-#endregion
-
 		public string Decrypt(string encryptedText)
 		{
-			if (string.IsNullOrEmpty(encryptedText))
+			if (encryptedText is null)
 				throw new ArgumentNullException(nameof(encryptedText));
 			AssertNotDisposed();
 			var bytes = Encoders.Base64.DecodeData(encryptedText);
@@ -401,30 +384,6 @@ namespace NBitcoin
 #endif
 		}
 
-		public Key Uncover(Key scan, PubKey ephem)
-		{
-			AssertNotDisposed();
-#if HAS_SPAN
-			Span<byte> tmp = stackalloc byte[33];
-			ephem.ECKey.GetSharedPubkey(scan._ECKey).WriteToSpan(true, tmp, out _);
-			var c = NBitcoinContext.Instance.CreateECPrivKey(Hashes.SHA256(tmp));
-			var priv = c.sec + this._ECKey.sec;
-			return new Key(this._ECKey.ctx.CreateECPrivKey(priv), this.IsCompressed);
-#else
-			var curve = ECKey.Secp256k1;
-			var priv = new BigInteger(1, PubKey.GetStealthSharedSecret(scan, ephem))
-							.Add(new BigInteger(1, this.ToBytes()))
-							.Mod(curve.N)
-							.ToByteArrayUnsigned();
-
-			if (priv.Length < 32)
-				priv = new byte[32 - priv.Length].Concat(priv).ToArray();
-
-			var key = new Key(priv, fCompressedIn: this.IsCompressed);
-			return key;
-#endif
-		}
-
 		public BitcoinSecret GetBitcoinSecret(Network network)
 		{
 			AssertNotDisposed();
@@ -456,7 +415,7 @@ namespace NBitcoin
 
 #region IDestination Members
 
-		public Script ScriptPubKey
+		Script IDestination.ScriptPubKey
 		{
 			get
 			{
@@ -467,10 +426,6 @@ namespace NBitcoin
 
 #endregion
 
-		public TransactionSignature Sign(uint256 hash, SigHash sigHash, bool useLowR = true)
-		{
-			return Sign(hash, new SigningOptions(sigHash, useLowR));
-		}
 		public TransactionSignature Sign(uint256 hash, SigningOptions signingOptions)
 		{
 			if (hash == null)
@@ -491,7 +446,7 @@ namespace NBitcoin
 		{
 			if (a?.PubKey is PubKey apk && b?.PubKey is PubKey bpk)
 			{
-				return apk == bpk;
+				return apk.Equals(bpk);
 			}
 			return a is null && b is null;
 		}
@@ -504,6 +459,18 @@ namespace NBitcoin
 		public override int GetHashCode()
 		{
 			return PubKey.GetHashCode();
+		}
+
+		public byte[] ToBytes()
+		{
+			AssertNotDisposed();
+#if HAS_SPAN
+			var b = new byte[KEY_SIZE];
+			_ECKey.WriteToSpan(b);
+			return b;
+#else
+			return vch.ToArray();
+#endif
 		}
 
 		public string ToHex()

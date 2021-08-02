@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace NBitcoin.Secp256k1
@@ -12,7 +13,7 @@ namespace NBitcoin.Secp256k1
 #endif
 	partial class ECPubKey
 	{
-		public static bool TryRecover(Context ctx, Secp256k1.SecpRecoverableECDSASignature recoverableSig, ReadOnlySpan<byte> msg32, out ECPubKey? pubkey)
+		public static bool TryRecover(Context ctx, Secp256k1.SecpRecoverableECDSASignature recoverableSig, ReadOnlySpan<byte> msg32, [MaybeNullWhen(false)] out ECPubKey pubkey)
 		{
 			if (recoverableSig == null)
 				throw new ArgumentNullException(nameof(recoverableSig));

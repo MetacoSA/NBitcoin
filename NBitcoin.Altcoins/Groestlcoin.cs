@@ -87,7 +87,6 @@ namespace NBitcoin.Altcoins
 					SupportMempoolQuery = true;
 					SupportNodeBloom = true;
 					SupportPingPong = true;
-					SupportReject = true;
 					SupportSendHeaders = true;
 					SupportTimeAddress = true;
 					SupportUserAgent = true;
@@ -301,7 +300,9 @@ namespace NBitcoin.Altcoins
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 120,
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = GroestlcoinConsensusFactory.Instance
+				ConsensusFactory = GroestlcoinConsensusFactory.Instance,
+				SupportTaproot = true,
+				SupportSegwit = true
 			})
 			.SetNetworkStringParser(GroestlcoinStringParser.Instance)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 36 })
@@ -311,6 +312,7 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("grs"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("grs"))
+			.SetBech32(Bech32Type.TAPROOT_ADDRESS, Encoders.Bech32("grs"))
 			.SetMagic(0xd4b4bef9)
 			.SetPort(1331)
 			.SetRPCPort(1441)
@@ -348,7 +350,9 @@ namespace NBitcoin.Altcoins
 				MinerConfirmationWindow = 144,
 				CoinbaseMaturity = 120,
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = GroestlcoinConsensusFactory.Instance
+				ConsensusFactory = GroestlcoinConsensusFactory.Instance,
+				SupportTaproot = true,
+				SupportSegwit = true
 			})
 			.SetNetworkStringParser(GroestlcoinStringParser.Instance)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
@@ -358,6 +362,7 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tgrs"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tgrs"))
+			.SetBech32(Bech32Type.TAPROOT_ADDRESS, Encoders.Bech32("tgrs"))
 			.SetMagic(0x0709110b)
 			.SetPort(17777)
 			.SetRPCPort(17766)
@@ -394,7 +399,9 @@ namespace NBitcoin.Altcoins
 				MinerConfirmationWindow = 144,
 				CoinbaseMaturity = 120,
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = GroestlcoinConsensusFactory.Instance
+				ConsensusFactory = GroestlcoinConsensusFactory.Instance,
+				SupportTaproot = true,
+				SupportSegwit = true
 			})
 			.SetNetworkStringParser(GroestlcoinStringParser.Instance)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
@@ -404,6 +411,7 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("grsrt"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("grsrt"))
+			.SetBech32(Bech32Type.TAPROOT_ADDRESS, Encoders.Bech32("grsrt"))
 			.SetMagic(0xdab5bffa)
 			.SetPort(18888)
 			.SetRPCPort(18443)

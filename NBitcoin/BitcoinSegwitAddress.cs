@@ -76,12 +76,6 @@ namespace NBitcoin
 			return key.WitHash == Hash;
 		}
 
-		public bool VerifyMessage(byte[] message, byte[] signature)
-		{
-			var key = PubKey.RecoverFromMessage(message, signature);
-			return key.WitHash == Hash;
-		}
-
 		WitKeyId _Hash;
 		public WitKeyId Hash
 		{
@@ -94,7 +88,7 @@ namespace NBitcoin
 
 		protected override Script GeneratePaymentScript()
 		{
-			return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, Hash._DestBytes);
+			return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, Hash.ToBytes());
 		}
 
 		public Bech32Type Type
@@ -169,13 +163,6 @@ namespace NBitcoin
 			return key.WitHash.ScriptPubKey.WitHash == Hash;
 		}
 
-		public bool VerifyMessage(byte[] message, byte[] signature)
-		{
-			var key = PubKey.RecoverFromMessage(message, signature);
-			return key.WitHash.ScriptPubKey.WitHash == Hash;
-		}
-
-
 		WitScriptId _Hash;
 		public WitScriptId Hash
 		{
@@ -187,7 +174,7 @@ namespace NBitcoin
 
 		protected override Script GeneratePaymentScript()
 		{
-			return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, Hash._DestBytes);
+			return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, Hash.ToBytes());
 		}
 
 		public Bech32Type Type

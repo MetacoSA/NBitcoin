@@ -60,6 +60,12 @@ namespace NBitcoin.Secp256k1
 					innerSpan = _Buffer.AsSpan();
 			}
 		}
+		public void Write(byte b)
+		{
+			_Buffer[_Pos] = b;
+			_Pos++;
+			ProcessBlockIfNeeded();
+		}
 		private bool ProcessBlockIfNeeded()
 		{
 			if (_Pos == _Buffer.Length)

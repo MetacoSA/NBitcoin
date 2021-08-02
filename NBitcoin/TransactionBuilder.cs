@@ -4,7 +4,6 @@ using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Policy;
-using NBitcoin.Stealth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +42,16 @@ namespace NBitcoin
 			if (sigHash == SigHash.All)
 				TaprootSigHash = TaprootSigHash.Default;
 		}
+		public SigningOptions(TaprootSigHash sigHash, TaprootReadyPrecomputedTransactionData precomputedTransactionData)
+		{
+			if (precomputedTransactionData is null)
+				throw new ArgumentNullException(nameof(precomputedTransactionData));
+			TaprootSigHash = sigHash;
+			SigHash = (SigHash)sigHash;
+			if (sigHash == TaprootSigHash.Default)
+				SigHash = SigHash.All;
+			PrecomputedTransactionData = precomputedTransactionData;
+		}
 		public SigningOptions(SigHash sigHash, bool useLowR)
 		{
 			SigHash = sigHash;
@@ -64,13 +73,22 @@ namespace NBitcoin
 		/// Do we try to get shorter signatures? (default: true)
 		/// </summary>
 		public bool EnforceLowR { get; set; } = true;
+		/// <summary>
+		/// Providing the PrecomputedTransactionData speed up signing time, by pre computing one several hashes need
+		/// for the calculation of the signatures of every input.
+		/// 
+		/// For taproot transaction signing, the precomputed transaction data is required if some of the inputs does not
+		/// belong to the signer.
+		/// </summary>
+		public PrecomputedTransactionData? PrecomputedTransactionData { get; set; }
 		public SigningOptions Clone()
 		{
 			return new SigningOptions()
 			{
 				SigHash = SigHash,
 				EnforceLowR = EnforceLowR,
-				TaprootSigHash = TaprootSigHash
+				TaprootSigHash = TaprootSigHash,
+				PrecomputedTransactionData = PrecomputedTransactionData
 			};
 		}
 	}
@@ -325,54 +343,71 @@ namespace NBitcoin
 	/// </summary>
 	public class TransactionBuilder
 	{
-		internal class SignatureEvent
-		{
-			public SignatureEvent(IPubKey pubKey, ITransactionSignature sig, IndexedTxIn input, ICoin coin)
-			{
-				Input = input;
-				PubKey = pubKey;
-				Signature = sig;
-				Coin = coin;
-			}
-			public IPubKey PubKey;
-			public ITransactionSignature Signature;
-			public IndexedTxIn Input;
-			public ICoin Coin;
-		}
 		internal class TransactionBuilderSigner : ISigner
 		{
 			private readonly TransactionSigningContext ctx;
 			private readonly SigningOptions signingOptions;
 			ICoin coin;
-			IndexedTxIn txIn;
-			public TransactionBuilderSigner(TransactionSigningContext ctx, ICoin coin, SigningOptions signingOptions, IndexedTxIn txIn)
+			PSBTInput txIn;
+			public TransactionBuilderSigner(InputSigningContext ctx)
 			{
-				this.ctx = ctx;
-				this.coin = coin;
-				this.txIn = txIn;
-				this.signingOptions = signingOptions;
+				this.ctx = ctx.TransactionContext;
+				this.coin = ctx.Coin;
+				this.txIn = ctx.Input;
+				this.signingOptions = ctx.TransactionContext.SigningOptions;
 			}
 			#region ISigner Members
-
-			public List<SignatureEvent> EmittedSignatures { get; } = new List<SignatureEvent>();
 
 			public ITransactionSignature? Sign(IPubKey pubKey)
 			{
 				var keypair = ctx.FindKey(pubKey);
 				if (keypair is null)
 					return null;
+				var indexedTxIn = txIn.GetIndexedInput();
 #if HAS_SPAN
-				var sig = keypair is TaprootKeyPair tkp
-						? (ITransactionSignature)txIn.SignTaprootKeySpend(tkp, coin, signingOptions, this.ctx.PrecomputedTransactionData)
-						: (ITransactionSignature)txIn.Sign(keypair.Key, coin, signingOptions, this.ctx.PrecomputedTransactionData);
-#else
-				var sig = (ITransactionSignature)txIn.Sign(keypair.Key, coin, signingOptions, this.ctx.PrecomputedTransactionData);
+				if (keypair is TaprootKeyPair tkp)
+				{
+					return indexedTxIn.SignTaprootKeySpend(tkp, coin, signingOptions);
+				}
 #endif
-				EmittedSignatures.Add(new SignatureEvent(pubKey, sig, txIn, coin));
-				return sig;
+				return indexedTxIn.Sign(keypair.Key, coin, signingOptions);
 			}
 
-#endregion
+			#endregion
+		}
+
+		class CompositeKeyRepository : IKeyRepository
+		{
+			public CompositeKeyRepository(IKeyRepository[] keyRepositories)
+			{
+				KeyRepositories = keyRepositories;
+			}
+
+			public IKeyRepository[] KeyRepositories { get; }
+
+			public IPubKey? FindKey(Script scriptPubKey)
+			{
+				return KeyRepositories
+						.Select(k => k.FindKey(scriptPubKey))
+						.Where(k => k != null)
+						.FirstOrDefault();
+			}
+		}
+		class CompositeSigner : ISigner
+		{
+			public CompositeSigner(ISigner[] signers)
+			{
+				Signers = signers;
+			}
+
+			public ISigner[] Signers { get; }
+
+			public ITransactionSignature? Sign(IPubKey key)
+			{
+				return Signers.Select(k => k.Sign(key))
+					.Where(k => k != null)
+					.FirstOrDefault();
+			}
 		}
 		internal class TransactionBuilderKeyRepository : IKeyRepository
 		{
@@ -381,112 +416,80 @@ namespace NBitcoin
 			{
 				_Ctx = ctx;
 			}
-#region IKeyRepository Members
+			#region IKeyRepository Members
 
 			public IPubKey? FindKey(Script scriptPubkey)
 			{
 				return _Ctx.FindKey(scriptPubkey)?.PubKey;
 			}
 
-#endregion
+			#endregion
 		}
 
 		class KnownSignatureSigner : ISigner, IKeyRepository
 		{
 			private ICoin coin;
-			private IndexedTxIn txIn;
+			private PSBTInput txIn;
 			private readonly TransactionSigningContext signingContext;
 			private List<Tuple<IPubKey, ITransactionSignature, OutPoint>> _KnownSignatures;
-			private Dictionary<IPubKey, ITransactionSignature> _VerifiedSignatures = new Dictionary<IPubKey, ITransactionSignature>();
-
-			public List<SignatureEvent> EmittedSignatures { get; } = new List<SignatureEvent>();
-
-			public KnownSignatureSigner(TransactionSigningContext signingContext, List<Tuple<IPubKey, ITransactionSignature, OutPoint>> knownSignatures, ICoin coin, IndexedTxIn txIn)
+			private InputSigningContext inputCtx;
+			public KnownSignatureSigner(InputSigningContext inputSigningContext, List<Tuple<IPubKey, ITransactionSignature, OutPoint>> knownSignatures)
 			{
-				this.signingContext = signingContext;
+				this.signingContext = inputSigningContext.TransactionContext;
 				this._KnownSignatures = knownSignatures;
-				this.coin = coin;
-				this.txIn = txIn;
+				this.coin = inputSigningContext.Coin;
+				this.txIn = inputSigningContext.Input;
+				this.inputCtx = inputSigningContext;
 			}
 
 			public IPubKey? FindKey(Script scriptPubKey)
 			{
-				foreach (var tv in _KnownSignatures.Where(tv => signingContext.Builder.IsCompatibleKeyFromScriptCode(tv.Item1, scriptPubKey)))
+				foreach (var tv in _KnownSignatures.Where(tv => inputCtx.Extension.IsCompatibleKey(tv.Item1, scriptPubKey)))
 				{
 					if (tv.Item3 != null && coin.Outpoint != tv.Item3)
 						continue;
-
-					var sig = tv.Item2;
-					bool found = false;
-					if (sig is TransactionSignature ecdsa && tv.Item1 is PubKey pk)
-					{
-						if (signingContext.SigningOptions.SigHash != ecdsa.SigHash)
-							continue;
-						var hash = txIn.GetSignatureHash(coin, ecdsa.SigHash, signingContext.PrecomputedTransactionData);
-						if (tv.Item3 != null || pk.Verify(hash, ecdsa.Signature))
-						{
-							found = true;
-						}
-					}
-#if HAS_SPAN
-					if (sig is TaprootSignature taproot && tv.Item1 is TaprootPubKey tpk)
-					{
-						if (signingContext.SigningOptions.TaprootSigHash != taproot.SigHash)
-							continue;
-
-						if (!signingContext.PrecomputedTransactionData.ForTaproot)
-							throw new InvalidOperationException("This transaction include inputs not belonging to the signer, and taproot signing is detected. You need to pass the PrecomputedTransactionData to the TransactionBuilder with txBuilder.SetPrecomputedTransactionData(transactionToSign, spentOutputs).");
-						var hash = txIn.GetSignatureHash(coin, taproot.SigHash, signingContext.PrecomputedTransactionData);
-						if (tv.Item3 != null || tpk.VerifyTaproot(hash, taproot.SchnorrSignature))
-						{
-							found = true;
-						}
-					}
-#else
-					if (sig is TaprootSignature taproot) throw new NotSupportedException("Signing with taproot is not supported by .net framework");
-#endif
-					if (found)
-					{
-						EmittedSignatures.Add(new SignatureEvent(tv.Item1, tv.Item2, txIn, coin));
-						_VerifiedSignatures.AddOrReplace(tv.Item1, sig);
-						return tv.Item1;
-					}
+					return tv.Item1;
 				}
 				return null;
 			}
 
-			public ITransactionSignature Sign(IPubKey key)
+			public ITransactionSignature? Sign(IPubKey key)
 			{
-				return _VerifiedSignatures[key];
+				foreach (var tv in _KnownSignatures.Where(k => k.Item1.Equals(key)))
+				{
+					if (tv.Item3 != null && coin.Outpoint != tv.Item3)
+						continue;
+					return tv.Item2;
+				}
+				return null;
 			}
 		}
 
 		internal class TransactionSigningContext
 		{
-			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, SigningOptions signingOptions, PrecomputedTransactionData? precomputedTransactionData = null)
+			public TransactionSigningContext(TransactionBuilder builder, PSBT psbt, SigningOptions signingOptions)
+				: this(builder, psbt.GetOriginalTransaction(), psbt.GetSigningOptions(signingOptions))
+			{
+				PSBT = psbt;
+			}
+			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, SigningOptions signingOptions)
 			{
 				Builder = builder;
 				Transaction = transaction;
-				SigningOptions = signingOptions;
-
-				if (precomputedTransactionData is null)
+				PSBT = transaction.CreatePSBT(builder.Network);
+				if (signingOptions.PrecomputedTransactionData is null)
 				{
+					signingOptions = signingOptions.Clone();
 					var prevTxous = transaction.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
-					if (prevTxous.Any(txout => txout is null))
-					{
-						PrecomputedTransactionData = new PrecomputedTransactionData(transaction);
-					}
+					if (prevTxous.All(p => p != null))
+						signingOptions.PrecomputedTransactionData = transaction.PrecomputeTransactionData(prevTxous!);
 					else
-					{
-						PrecomputedTransactionData = new PrecomputedTransactionData(transaction, prevTxous);
-					}
+						signingOptions.PrecomputedTransactionData = transaction.PrecomputeTransactionData();
 				}
-				else
-				{
-					PrecomputedTransactionData = precomputedTransactionData;
-				}
+				SigningOptions = signingOptions;
 			}
 
+			public PSBT PSBT { get; set; }
 			public Transaction Transaction
 			{
 				get;
@@ -498,12 +501,9 @@ namespace NBitcoin
 				set;
 			}
 
-			public PrecomputedTransactionData PrecomputedTransactionData { get; }
-
 			internal KeyPair? FindKey(Script scriptPubKey)
 			{
 				var keypair = (Builder._Keys
-					.Concat(AdditionalKeys)
 					.FirstOrDefault(k => Builder.IsCompatibleKeyFromScriptCode(k.PubKey, scriptPubKey)));
 				if (keypair is null && Builder.KeyFinder != null)
 				{
@@ -514,23 +514,36 @@ namespace NBitcoin
 			internal KeyPair FindKey(IPubKey pubKey)
 			{
 				var key = Builder._Keys
-					.Concat(AdditionalKeys)
-					.FirstOrDefault(k => k.PubKey == pubKey);
+					.FirstOrDefault(k => k.PubKey.Equals(pubKey));
 				return key;
 			}
+			public SigningOptions SigningOptions { get; }
+			public uint? SignOnlyInputIndex { get; internal set; }
 
-			private readonly List<KeyPair> _AdditionalKeys = new List<KeyPair>();
-			public List<KeyPair> AdditionalKeys
+			public InputSigningContext CreateInputContext(ICoin coin, PSBTInput input, TxIn originalInput, BuilderExtension extension)
 			{
-				get
+				return new InputSigningContext(this, coin, input, originalInput, extension);
+			}
+
+			public IEnumerable<InputSigningContext> GetInputSigningContexts()
+			{
+				foreach (var input in PSBT.Inputs)
 				{
-					return _AdditionalKeys;
+					if (SignOnlyInputIndex is uint i && i != input.Index)
+						continue;
+					var txin = Transaction.Inputs[input.Index];
+					var coin = Builder.FindSignableCoin(txin);
+					if (coin is ICoin)
+					{
+						var ext = Builder.Extensions.FirstOrDefault(e => e.Match(coin, input));
+						if (ext is BuilderExtension)
+						{
+							input.UpdateFromCoin(coin);
+							yield return CreateInputContext(coin, input, txin, ext);
+						}
+					}
 				}
 			}
-			public SigningOptions SigningOptions { get; }
-
-			public List<SignatureEvent> SignatureEvents { get; set; } = new List<SignatureEvent>();
-			public uint? InputIndex { get; internal set; }
 		}
 		internal class TransactionBuildingContext
 		{
@@ -765,12 +778,6 @@ namespace NBitcoin
 				return coinWithOptions?.Options;
 			}
 
-			public MoneyBag CoverOnly
-			{
-				get;
-				set;
-			} = new MoneyBag();
-
 			public string? Name
 			{
 				get;
@@ -822,7 +829,7 @@ namespace NBitcoin
 #if HAS_SPAN
 			if (Network.Consensus.SupportTaproot)
 			{
-				Extensions.Add(new TaprootBIP86Extension());
+				Extensions.Add(new TaprootKeySpendExtension());
 			}
 #endif
 		}
@@ -1248,13 +1255,6 @@ namespace NBitcoin
 			return SendAsset(destination, new AssetMoney(assetId, quantity));
 		}
 
-		[Obsolete("Transaction builder is automatically shuffled")]
-		public TransactionBuilder Shuffle()
-		{
-			DoShuffleGroups();
-			return this;
-		}
-
 		private void DoShuffleGroups()
 		{
 			if (ShuffleRandom != null && ShuffleOutputs)
@@ -1356,27 +1356,6 @@ namespace NBitcoin
 			}
 		}
 
-		public TransactionBuilder Send(BitcoinStealthAddress address, Money amount, Key? ephemKey = null)
-		{
-			if (amount < Money.Zero)
-				throw new ArgumentOutOfRangeException(nameof(amount), "amount can't be negative");
-
-			if (_OpReturnUser == null)
-				_OpReturnUser = "Stealth Payment";
-			else
-				throw new InvalidOperationException("Op return already used for " + _OpReturnUser);
-
-			CurrentGroup.Builders.Add(ctx =>
-			{
-				var payment = address.CreatePayment(ephemKey);
-				payment.AddToTransaction(ctx.Transaction, amount);
-				ctx.CurrentGroupContext.SentOutput += amount;
-				ctx.CanShuffleOutputs = false;
-				ctx.CanMergeOutputs = false;
-			});
-			return this;
-		}
-
 		public TransactionBuilder IssueAsset(IDestination destination, AssetMoney asset)
 		{
 			return IssueAsset(destination.ScriptPubKey, asset);
@@ -1420,41 +1399,11 @@ namespace NBitcoin
 			});
 			return this;
 		}
-
-		/// <summary>
-		/// Providing the PrecomputedTransactionData speed up signing time, by pre computing one several hashes need
-		/// for the calculation of the signatures of every input.
-		/// 
-		/// For taproot transaction signing, the precomputed transaction data is required if some of the inputs does not
-		/// belong to the signer.
-		/// </summary>
-		/// <param name="precomputedTransactionData"></param>
-		/// <returns></returns>
-		public TransactionBuilder SetPrecomputedTransactionData(PrecomputedTransactionData? precomputedTransactionData)
-		{
-			this.precomputedTransactionData = precomputedTransactionData;
-			return this;
-		}
-		/// <summary>
-		/// Providing the PrecomputedTransactionData speed up signing time, by pre computing one several hashes need
-		/// for the calculation of the signatures of every input.
-		/// 
-		/// For taproot transaction signing, the precomputed transaction data is required if some of the inputs does not
-		/// belong to the signer.
-		/// </summary>
-		/// <param name="transaction">The transaction being signed</param>
-		/// <param name="spentOutputs">The ordered list of outputs referenced by the inputs of this transaction</param>
-		/// <returns></returns>
-		public TransactionBuilder SetPrecomputedTransactionData(Transaction transaction, TxOut[] spentOutputs)
-		{
-			this.precomputedTransactionData = new PrecomputedTransactionData(transaction, spentOutputs);
-			return this;
-		}
-		public TransactionBuilder SetSigningOptions(SigningOptions signingOptions)
+		public TransactionBuilder SetSigningOptions(SigningOptions? signingOptions)
 		{
 			if (signingOptions == null)
 				throw new ArgumentNullException(nameof(signingOptions));
-			this.signingOptions = signingOptions;
+			this.signingOptions = signingOptions ?? new SigningOptions();
 			return this;
 		}
 		public TransactionBuilder SetSigningOptions(SigHash sigHash)
@@ -1472,10 +1421,19 @@ namespace NBitcoin
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
-			var ctx = new TransactionSigningContext(this, transaction.Clone(), signingOptions, precomputedTransactionData);
-			ctx.InputIndex = index;
-			this.SignTransactionInPlace(ctx);
-			signature = ctx.SignatureEvents.FirstOrDefault()?.Signature;
+			var ctx = new TransactionSigningContext(this, transaction.Clone(), signingOptions);
+			ctx.SignOnlyInputIndex = index;
+			this.SignTransactionContext(ctx);
+			var input = ctx.PSBT.Inputs[(int)index];
+			signature = input.PartialSigs.Select(p => p.Value).FirstOrDefault();
+			if (signature is null)
+			{
+				signature = input.TaprootKeySignature;
+			}
+			if (signature is null)
+			{
+				// TODO: Add PSBT_IN_TAP_SCRIPT_SIG
+			}
 			return signature != null;
 		}
 
@@ -1626,45 +1584,77 @@ namespace NBitcoin
 		{
 			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, signingOptions);
 			if (sign)
-				SignTransactionInPlace(signingContext);
-			var psbt = tx.CreatePSBT(Network);
+				SignTransactionContext(signingContext);
+			var psbt = signingContext.PSBT;
 			UpdatePSBT(psbt);
-			if (sign)
-				UpdatePSBTSignatures(psbt, signingContext);
 			return psbt;
 		}
 
-		private static void UpdatePSBTSignatures(PSBT psbt, TransactionSigningContext signingContext)
-		{
-			foreach (var signature in signingContext.SignatureEvents)
-			{
-				var psbtInput = psbt.Inputs.FindIndexedInput(signature.Input.PrevOut);
-				if (signature.PubKey is PubKey ecdsapk && signature.Signature is TransactionSignature ecdsasig)
-					psbtInput.PartialSigs.TryAdd(ecdsapk, ecdsasig);
-#if HAS_SPAN
-				if (signature.PubKey is TaprootPubKey tp &&
-					signature.Signature is TaprootSignature ts &&
-					signature.Coin.GetHashVersion() == HashVersion.Taproot)
-				{
-					if (tp is TaprootFullPubKey ftp)
-					{
-						psbtInput.TaprootInternalKey ??= ftp.InternalKey;
-						psbtInput.TaprootMerkleRoot ??= ftp.MerkleRoot;
-					}
-					psbtInput.TaprootKeySignature ??= ts;
-				}
-#endif
-			}
-		}
 		public TransactionBuilder SignPSBT(PSBT psbt)
 		{
 			if (psbt == null)
 				throw new ArgumentNullException(nameof(psbt));
 			AddCoins(psbt);
-			var tx = psbt.GetOriginalTransaction();
-			var signingContext = new TransactionSigningContext(this, tx, signingOptions);
-			SignTransactionInPlace(signingContext);
-			UpdatePSBTSignatures(psbt, signingContext);
+			var signingContext = new TransactionSigningContext(this, psbt.Clone(), signingOptions);
+			SignTransactionContext(signingContext);
+			psbt.Combine(signingContext.PSBT);
+			return this;
+		}
+
+		public TransactionBuilder SignPSBTInput(PSBTInput psbtInput)
+		{
+			if (psbtInput == null)
+				throw new ArgumentNullException(nameof(psbtInput));
+			var psbt = psbtInput.PSBT;
+			AddCoins(psbt);
+			var signingContext = new TransactionSigningContext(this, psbt.Clone(), signingOptions)
+			{
+				SignOnlyInputIndex = psbtInput.Index
+			};
+			SignTransactionContext(signingContext);
+			psbt.Combine(signingContext.PSBT);
+			return this;
+		}
+
+		public TransactionBuilder FinalizePSBT(PSBT psbt)
+		{
+			if (psbt is null)
+				throw new ArgumentNullException(nameof(psbt));
+			var signingContext = new TransactionSigningContext(this, psbt.Clone(), signingOptions);
+			FinalizeTransactionContext(signingContext);
+			psbt.Combine(signingContext.PSBT);
+			return this;
+		}
+
+		public TransactionBuilder FinalizePSBTInput(PSBTInput psbtInput)
+		{
+			if (psbtInput is null)
+				throw new ArgumentNullException(nameof(psbtInput));
+			var psbt = psbtInput.PSBT;
+			var signingContext = new TransactionSigningContext(this, psbtInput.PSBT.Clone(), signingOptions)
+			{
+				SignOnlyInputIndex = psbtInput.Index
+			};
+			FinalizeTransactionContext(signingContext);
+			psbt.Combine(signingContext.PSBT);
+			return this;
+		}
+
+		/// <summary>
+		/// Try to extract the signatures from <paramref name="transaction"/> into the <paramref name="psbt"/>.
+		/// </summary>
+		/// <param name="psbt">The PSBT to extract signatures to.</param>
+		/// <param name="transaction">The transaction from which signatures will get extracted.</param>
+		/// <returns></returns>
+		public TransactionBuilder ExtractSignatures(PSBT psbt, Transaction transaction)
+		{
+			if (psbt is null)
+				throw new ArgumentNullException(nameof(psbt));
+			if (transaction is null)
+				throw new ArgumentNullException(nameof(transaction));
+			var signingContext = new TransactionSigningContext(this, transaction, signingOptions);
+			ExtractExistingSignatures(signingContext);
+			psbt.Combine(signingContext.PSBT);
 			return this;
 		}
 
@@ -1697,12 +1687,6 @@ namespace NBitcoin
 			DoShuffleGroups();
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
 			retry:
-			if (_CompletedTransaction != null)
-			{
-				ctx.Transaction = _CompletedTransaction.Clone();
-				foreach (var input in ctx.Transaction.Inputs)
-					ctx.ConsumedOutpoints.Add(input.PrevOut);
-			}
 			if (_LockTime != null)
 				ctx.Transaction.LockTime = _LockTime.Value;
 			if (_Version is uint v)
@@ -1740,11 +1724,11 @@ namespace NBitcoin
 			{
 				if (ShuffleInputs && ctx.CanShuffleInputs)
 					Utils.Shuffle(ctx.Transaction.Inputs,
-								_CompletedTransaction is null ? 0 : _CompletedTransaction.Inputs.Count,
+								0,
 								ShuffleRandom);
 				if (ShuffleOutputs && ctx.CanShuffleOutputs)
 					Utils.Shuffle(ctx.Transaction.Outputs,
-								_CompletedTransaction is null ? 0 : _CompletedTransaction.Outputs.Count,
+								0,
 								ShuffleRandom);
 			}
 			if (MergeOutputs && ctx.CanMergeOutputs)
@@ -1843,7 +1827,6 @@ namespace NBitcoin
 				SignTransactionInPlace(ctx.Transaction);
 			}
 
-			_built = true;
 			if (ctx.Transaction.Outputs.Count == 0)
 				throw new NotEnoughFundsException("Not enough funds to create even one change output", null, GetDust());
 			return ctx.Transaction;
@@ -1872,11 +1855,6 @@ namespace NBitcoin
 				builder(ctx);
 
 			IMoney selectionTarget = (gctx.SentOutput + gctx.Fee - gctx.LeftOverChange).GetAmount(zero);
-
-			if (group.CoverOnly.GetAmount(zero).CompareTo(zero) > 0)
-			{
-				selectionTarget = group.CoverOnly.GetAmount(zero);
-			}
 
 			var unconsumed = coins.Where(c => !ctx.ConsumedOutpoints.Contains(c.Outpoint)).ToArray();
 
@@ -1962,7 +1940,26 @@ namespace NBitcoin
 		/// <returns>The transaction object as the one passed as parameter</returns>
 		public Transaction SignTransactionInPlace(Transaction transaction)
 		{
-			return SignTransactionInPlace(new TransactionSigningContext(this, transaction, signingOptions));
+			var ctx = new TransactionSigningContext(this, transaction, signingOptions);
+			ExtractExistingSignatures(ctx);
+			SignTransactionContext(ctx);
+			FinalizeTransactionContext(ctx);
+			MergePartialSignatures(ctx);
+			SetFinalScripts(ctx, transaction);
+			return transaction;
+		}
+
+		private static void SetFinalScripts(TransactionSigningContext ctx, Transaction transaction)
+		{
+			foreach (var input in ctx.PSBT.Inputs)
+			{
+				if (input.IsFinalized())
+				{
+					var txin = transaction.Inputs[input.Index];
+					txin.ScriptSig = input.FinalScriptSig ?? Script.Empty;
+					txin.WitScript = input.FinalScriptWitness ?? WitScript.Empty;
+				}
+			}
 		}
 
 		/// <summary>
@@ -1980,19 +1977,83 @@ namespace NBitcoin
 			return new FeeRate(fee, vSize);
 		}
 
-		Transaction SignTransactionInPlace(TransactionSigningContext ctx)
+		void ExtractExistingSignatures(TransactionSigningContext ctx)
 		{
-			foreach (var input in ctx.Transaction.Inputs.AsIndexedInputs())
+			foreach (var inputCtx in ctx.GetInputSigningContexts())
 			{
-				if (ctx.InputIndex is uint i && i != input.Index)
-					continue;
-				var coin = FindSignableCoin(input);
-				if (coin != null)
+				inputCtx.Extension.ExtractExistingSignatures(inputCtx);
+			}
+		}
+
+		void SignTransactionContext(TransactionSigningContext ctx)
+		{
+
+			foreach (var inputCtx in ctx.GetInputSigningContexts())
+			{
+				if (inputCtx.Coin.TxOut.ScriptPubKey.IsScriptType(ScriptType.Taproot)
+					&& !(ctx.SigningOptions.PrecomputedTransactionData is TaprootReadyPrecomputedTransactionData))
 				{
-					Sign(ctx, coin, input);
+					throw new InvalidOperationException($"Impossible to sign taproot input {inputCtx.Input.Index}.\n" +
+						$"Either use TransactionBuilder.AddCoins and add all the coins spent by the transaction to sign, or set SigningOptions.PrecomputedTransactionData via TransactionBuilder.SetSigningOptions to an instance of type TaprootReadyPrecomputedTransactionData.");
+				}
+				var signer = new CompositeSigner(GetSigners(inputCtx).ToArray());
+				var keyrepo = new CompositeKeyRepository(GetKeyRepositories(inputCtx).ToArray());
+				inputCtx.Extension.Sign(inputCtx, keyrepo, signer);
+			}
+		}
+
+		private void MergePartialSignatures(TransactionSigningContext ctx)
+		{
+			foreach (var inputCtx in ctx.GetInputSigningContexts())
+			{
+				if (inputCtx.Input.IsFinalized())
+					continue;
+				inputCtx.Extension.MergePartialSignatures(inputCtx);
+			}
+		}
+
+		void FinalizeTransactionContext(TransactionSigningContext ctx)
+		{
+			foreach (var inputCtx in ctx.GetInputSigningContexts())
+			{
+				if (inputCtx.Input.IsFinalized())
+					continue;
+				inputCtx.Extension.Finalize(inputCtx);
+				if (!inputCtx.Input.IsFinalized())
+					continue;
+				var txIn = inputCtx.Input;
+				ScriptCoin? scriptCoin = inputCtx.Coin as ScriptCoin;
+				if (!inputCtx.Coin.IsMalleable && WitScript.IsNullOrEmpty(txIn.FinalScriptWitness))
+				{
+					txIn.FinalScriptWitness = txIn.FinalScriptSig;
+					txIn.FinalScriptSig = Script.Empty;
+					if (scriptCoin != null)
+					{
+						if (scriptCoin.IsP2SH)
+							txIn.FinalScriptSig = new Script(Op.GetPushOp(scriptCoin.GetP2SHRedeem().ToBytes(true)));
+						if (scriptCoin.RedeemType == RedeemType.WitnessV0)
+							txIn.FinalScriptWitness = txIn.FinalScriptWitness + new WitScript(Op.GetPushOp(scriptCoin.Redeem.ToBytes(true)));
+					}
+				}
+				else
+				{
+					if (scriptCoin != null && scriptCoin.RedeemType == RedeemType.P2SH)
+					{
+						txIn.FinalScriptSig = txIn.FinalScriptSig + Op.GetPushOp(scriptCoin.GetP2SHRedeem().ToBytes(true));
+					}
 				}
 			}
-			return ctx.Transaction;
+		}
+
+		IEnumerable<ISigner> GetSigners(InputSigningContext inputCtx)
+		{
+			yield return new TransactionBuilderSigner(inputCtx);
+			yield return new KnownSignatureSigner(inputCtx, _KnownSignatures);
+		}
+		IEnumerable<IKeyRepository> GetKeyRepositories(InputSigningContext inputCtx)
+		{
+			yield return new TransactionBuilderKeyRepository(inputCtx.TransactionContext);
+			yield return new KnownSignatureSigner(inputCtx, _KnownSignatures);
 		}
 		public ICoin? FindSignableCoin(IndexedTxIn txIn)
 		{
@@ -2004,7 +2065,7 @@ namespace NBitcoin
 			var coin = FindCoin(txIn.PrevOut);
 			if (coin is IColoredCoin)
 				coin = ((IColoredCoin)coin).Bearer;
-			if (coin == null || coin is ScriptCoin || coin is StealthCoin)
+			if (coin == null || coin is ScriptCoin)
 				return coin;
 
 			var hash = ScriptCoin.GetRedeemHash(coin.TxOut.ScriptPubKey);
@@ -2142,7 +2203,7 @@ namespace NBitcoin
 		{
 			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
-			var validator = new TransactionValidator(tx, GetSpentOutputs(tx));
+			var validator = tx.CreateValidator(GetSpentOutputs(tx));
 			if (StandardTransactionPolicy.ScriptVerify is ScriptVerify s)
 				validator.ScriptVerify = s;
 			return validator;
@@ -2371,9 +2432,8 @@ namespace NBitcoin
 
 			int p2shPushRedeemSize = 0;
 			int segwitPushRedeemSize = 0;
-			if (coin is ScriptCoin)
+			if (coin is ScriptCoin scriptCoin)
 			{
-				var scriptCoin = (ScriptCoin)coin;
 				var p2sh = scriptCoin.GetP2SHRedeem();
 				if (p2sh != null)
 				{
@@ -2393,13 +2453,12 @@ namespace NBitcoin
 				}
 			}
 
-			var scriptPubkey = coin.GetScriptCode();
 			var scriptSigSize = -1;
 			foreach (var extension in Extensions)
 			{
-				if (extension.CanEstimateScriptSigSize(scriptPubkey))
+				if (extension.CanEstimateScriptSigSize(coin))
 				{
-					scriptSigSize = extension.EstimateScriptSigSize(scriptPubkey);
+					scriptSigSize = extension.EstimateScriptSigSize(coin);
 					break;
 				}
 			}
@@ -2463,133 +2522,31 @@ namespace NBitcoin
 			return feeRate.GetFee(estimation);
 		}
 
-		private void Sign(TransactionSigningContext ctx, ICoin coin, IndexedTxIn txIn)
+		private static void AdjustFinalScripts(ICoin coin, PSBTInput txIn)
 		{
-			var input = txIn.TxIn;
-			if (coin is StealthCoin stealthCoin)
+			if (txIn.FinalScriptSig is Script)
 			{
-				var scanKey = ctx.FindKey(stealthCoin.Address.ScanPubKey.ScriptPubKey)?.Key;
-				if (scanKey is null)
-					throw new KeyNotFoundException("Scan key for decrypting StealthCoin not found");
-				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => ctx.FindKey(p.ScriptPubKey)?.Key).Where(p => !(p is null)).ToArray();
-				ctx.AdditionalKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey).Select(KeyPair.CreateECDSAPair));
-				var normalCoin = new Coin(coin.Outpoint, coin.TxOut);
-				if (stealthCoin.Redeem != null)
-					normalCoin = normalCoin.ToScriptCoin(stealthCoin.Redeem);
-				coin = normalCoin;
-			}
-			var scriptSig = CreateScriptSig(ctx, coin, txIn);
-			if (scriptSig == null)
-				return;
-			ScriptCoin? scriptCoin = coin as ScriptCoin;
-
-			Script? signatures = null;
-			if (!coin.IsMalleable)
-			{
-				signatures = txIn.WitScript;
-				if (scriptCoin != null)
+				ScriptCoin? scriptCoin = coin as ScriptCoin;
+				if (!coin.IsMalleable)
 				{
-					if (scriptCoin.IsP2SH)
-						txIn.ScriptSig = Script.Empty;
-					if (scriptCoin.RedeemType == RedeemType.WitnessV0)
-						signatures = RemoveRedeem(signatures);
-				}
-			}
-			else
-			{
-				signatures = txIn.ScriptSig;
-				if (scriptCoin != null && scriptCoin.RedeemType == RedeemType.P2SH)
-					signatures = RemoveRedeem(signatures);
-			}
-
-
-			signatures = CombineScriptSigs(coin, scriptSig, signatures);
-
-			if (!coin.IsMalleable)
-			{
-				txIn.WitScript = signatures;
-				if (scriptCoin != null)
-				{
-					if (scriptCoin.IsP2SH)
-						txIn.ScriptSig = new Script(Op.GetPushOp(scriptCoin.GetP2SHRedeem().ToBytes(true)));
-					if (scriptCoin.RedeemType == RedeemType.WitnessV0)
-						txIn.WitScript = txIn.WitScript + new WitScript(Op.GetPushOp(scriptCoin.Redeem.ToBytes(true)));
-				}
-			}
-			else
-			{
-				txIn.ScriptSig = signatures;
-				if (scriptCoin != null && scriptCoin.RedeemType == RedeemType.P2SH)
-				{
-					txIn.ScriptSig = input.ScriptSig + Op.GetPushOp(scriptCoin.GetP2SHRedeem().ToBytes(true));
-				}
-			}
-		}
-
-
-		private static Script RemoveRedeem(Script script)
-		{
-			if (script == Script.Empty)
-				return script;
-			var ops = script.ToOps().ToArray();
-			return new Script(ops.Take(ops.Length - 1));
-		}
-
-		private Script CombineScriptSigs(ICoin coin, Script a, Script b)
-		{
-			var scriptPubkey = coin.GetScriptCode();
-			if (Script.IsNullOrEmpty(a))
-				return b ?? Script.Empty;
-			if (Script.IsNullOrEmpty(b))
-				return a ?? Script.Empty;
-
-			foreach (var extension in Extensions)
-			{
-				if (extension.CanCombineScriptSig(scriptPubkey, a, b))
-				{
-					return extension.CombineScriptSig(scriptPubkey, a, b);
-				}
-			}
-			return a.Length > b.Length ? a : b; //Heurestic
-		}
-
-		private Script? CreateScriptSig(TransactionSigningContext ctx, ICoin coin, IndexedTxIn txIn)
-		{
-			var scriptPubKey = coin.GetScriptCode();
-			var keyRepo = new TransactionBuilderKeyRepository(ctx);
-			var signer = new TransactionBuilderSigner(ctx, coin, ctx.SigningOptions, txIn);
-
-			var signer2 = new KnownSignatureSigner(ctx, _KnownSignatures, coin, txIn);
-
-			foreach (var extension in Extensions)
-			{
-				if (extension.CanGenerateScriptSig(scriptPubKey))
-				{
-					var scriptSig1 = extension.GenerateScriptSig(scriptPubKey, keyRepo, signer);
-					var scriptSig2 = extension.GenerateScriptSig(scriptPubKey, signer2, signer2);
-					if (scriptSig1 != null && scriptSig2 != null && extension.CanCombineScriptSig(scriptPubKey, scriptSig1, scriptSig2))
+					txIn.FinalScriptWitness = txIn.FinalScriptSig;
+					txIn.FinalScriptSig = null;
+					if (scriptCoin != null)
 					{
-						var combined = extension.CombineScriptSig(scriptPubKey, scriptSig1, scriptSig2);
-						if (combined != null)
-						{
-							ctx.SignatureEvents.AddRange(signer.EmittedSignatures);
-							ctx.SignatureEvents.AddRange(signer2.EmittedSignatures);
-						}
-						return combined;
+						if (scriptCoin.IsP2SH)
+							txIn.FinalScriptSig = new Script(Op.GetPushOp(scriptCoin.GetP2SHRedeem().ToBytes(true)));
+						if (scriptCoin.RedeemType == RedeemType.WitnessV0)
+							txIn.FinalScriptWitness = txIn.FinalScriptWitness + new WitScript(Op.GetPushOp(scriptCoin.Redeem.ToBytes(true)));
 					}
-					if (scriptSig1 != null)
+				}
+				else
+				{
+					if (scriptCoin != null && scriptCoin.RedeemType == RedeemType.P2SH)
 					{
-						ctx.SignatureEvents.AddRange(signer.EmittedSignatures);
+						txIn.FinalScriptSig = txIn.FinalScriptSig + Op.GetPushOp(scriptCoin.GetP2SHRedeem().ToBytes(true));
 					}
-					if (scriptSig2 != null)
-					{
-						ctx.SignatureEvents.AddRange(signer2.EmittedSignatures);
-					}
-					return scriptSig1 ?? scriptSig2;
 				}
 			}
-
-			throw new NotSupportedException("Unsupported scriptPubKey");
 		}
 
 		List<Tuple<IPubKey, ITransactionSignature, OutPoint>> _KnownSignatures = new List<Tuple<IPubKey, ITransactionSignature, OutPoint>>();
@@ -2626,68 +2583,6 @@ namespace NBitcoin
 			return this;
 		}
 
-		/// <summary>
-		/// Specify the amount of money to cover txouts, if not specified all txout will be covered
-		/// </summary>
-		/// <param name="amount"></param>
-		/// <returns></returns>
-		[Obsolete("Do not use this anymore. The creator of NBitcoin is still wondering why this method exists and is poorly tested. Contact him if you found out why.")]
-		public TransactionBuilder CoverOnly(Money amount)
-		{
-			CurrentGroup.CoverOnly = new MoneyBag(amount);
-			return this;
-		}
-
-
-		Transaction? _CompletedTransaction;
-		private bool _built = false;
-
-		/// <summary>
-		/// Allows to keep building on the top of a partially built transaction
-		/// </summary>
-		/// <param name="transaction">Transaction to complete</param>
-		/// <returns></returns>
-		public TransactionBuilder ContinueToBuild(Transaction transaction)
-		{
-			if (_built)
-				throw new InvalidOperationException("ContinueToBuild must be called with a new TransactionBuilder instance");
-			if (_CompletedTransaction != null)
-				throw new InvalidOperationException("Transaction to complete already set");
-			_CompletedTransaction = transaction.Clone();
-			return this;
-		}
-
-		/// <summary>
-		/// Will cover the remaining amount of TxOut of a partially built transaction (to call after ContinueToBuild)
-		/// </summary>
-		/// <returns></returns>
-		public TransactionBuilder CoverTheRest()
-		{
-			if (_CompletedTransaction == null)
-				throw new InvalidOperationException("A partially built transaction should be specified by calling ContinueToBuild");
-
-			var spent = _CompletedTransaction.Inputs.AsIndexedInputs().Select(txin =>
-			{
-				var c = FindCoin(txin.PrevOut);
-				if (c == null)
-					throw CoinNotFound(txin);
-				if (!(c is Coin))
-					return null;
-				return (Coin)c;
-			})
-					.Select(c => c == null ? Money.Zero : c.Amount)
-					.Sum();
-
-			var toComplete = _CompletedTransaction.TotalOut - spent;
-			CurrentGroup.Builders.Add(ctx =>
-			{
-				if (toComplete < Money.Zero)
-					return;
-				ctx.CurrentGroupContext.SentOutput += toComplete;
-			});
-			return this;
-		}
-
 		public TransactionBuilder AddCoins(Transaction transaction)
 		{
 			var txId = transaction.GetHash();
@@ -2696,7 +2591,6 @@ namespace NBitcoin
 		}
 
 		Dictionary<Script, Script> _ScriptPubKeyToRedeem = new Dictionary<Script, Script>();
-		private PrecomputedTransactionData? precomputedTransactionData;
 		private SigningOptions signingOptions = new SigningOptions();
 
 		public TransactionBuilder AddKnownRedeems(params Script[] knownRedeems)
@@ -2710,6 +2604,7 @@ namespace NBitcoin
 			return this;
 		}
 
+		[Obsolete("Use PSBTs rather than raw transactions to combine signatures.")]
 		public Transaction? CombineSignatures(params Transaction[] transactions)
 		{
 			if (transactions.Length == 1)
@@ -2717,16 +2612,42 @@ namespace NBitcoin
 			if (transactions.Length == 0)
 				return null;
 
-			Transaction tx = transactions[0].Clone();
-			for (int i = 1; i < transactions.Length; i++)
+			PSBT[] psbts = new PSBT[transactions.Length];
+
+			for (int i = 0; i < psbts.Length; i++)
 			{
-				var signed = transactions[i];
-				tx = CombineSignaturesCore(tx, signed);
+				var ctx = new TransactionSigningContext(this, transactions[i], signingOptions);
+				ExtractExistingSignatures(ctx);
+				psbts[i] = ctx.PSBT;
+			}
+			var psbt = psbts[0];
+			for (int i = 1; i < psbts.Length; i++)
+			{
+				psbt = psbt.Combine(psbts[i]);
+			}
+			var ctx2 = new TransactionSigningContext(this, psbt, signingOptions);
+			FinalizeTransactionContext(ctx2);
+			MergePartialSignatures(ctx2);
+			var tx = ctx2.Transaction;
+			SetFinalScripts(ctx2, tx);
+			for (int i = 0; i < tx.Inputs.Count; i++)
+			{
+				var txin = tx.Inputs[i];
+				if (txin.ScriptSig == Script.Empty)
+				{
+					txin.ScriptSig = transactions
+										.Select(tx => tx.Inputs[i].ScriptSig).FirstOrDefault(s => !Script.IsNullOrEmpty(s))
+										?? Script.Empty;
+				}
+				if (txin.WitScript == WitScript.Empty)
+				{
+					txin.WitScript = transactions
+									.Select(tx => tx.Inputs[i].WitScript).FirstOrDefault(s => !WitScript.IsNullOrEmpty(s))
+										?? WitScript.Empty;
+				}
 			}
 			return tx;
 		}
-
-
 		private readonly List<BuilderExtension> _Extensions = new List<BuilderExtension>();
 		private const int MAX_TX_VSIZE = 100_000;
 
@@ -2736,42 +2657,6 @@ namespace NBitcoin
 			{
 				return _Extensions;
 			}
-		}
-
-		private Transaction CombineSignaturesCore(Transaction signed1, Transaction signed2)
-		{
-			if (signed1 == null)
-				return signed2;
-			if (signed2 == null)
-				return signed1;
-			var tx = signed1.Clone();
-			for (int i = 0; i < tx.Inputs.Count; i++)
-			{
-				if (i >= signed2.Inputs.Count)
-					break;
-
-				var txIn = tx.Inputs[i];
-
-				var coin = FindCoin(txIn.PrevOut);
-				var scriptPubKey = coin == null
-					? (DeduceScriptPubKey(txIn.ScriptSig) ?? DeduceScriptPubKey(signed2.Inputs[i].ScriptSig))
-					: coin.TxOut.ScriptPubKey;
-
-				var txout = coin?.TxOut;
-				if (txout == null)
-				{
-					txout = signed1.Outputs.CreateNewTxOut(null, scriptPubKey);
-				}
-				var result = Script.CombineSignatures(
-									scriptPubKey,
-									new TransactionChecker(tx, i, txout),
-									 GetScriptSigs(signed1.Inputs.AsIndexedInputs().Skip(i).First()),
-									 GetScriptSigs(signed2.Inputs.AsIndexedInputs().Skip(i).First()));
-				var input = tx.Inputs.AsIndexedInputs().Skip(i).First();
-				input.WitScript = result.WitSig;
-				input.ScriptSig = result.ScriptSig;
-			}
-			return tx;
 		}
 
 		private ScriptSigs GetScriptSigs(IndexedTxIn indexedTxIn)

@@ -39,8 +39,10 @@ namespace NBitcoin
 			}
 		}
 
-		protected void Init<T>(string base64, Network expectedNetwork = null) where T : Base58Data
+		protected void Init<T>(string base64, Network expectedNetwork) where T : Base58Data
 		{
+			if (expectedNetwork is null)
+				throw new ArgumentNullException(nameof(expectedNetwork));
 			_Network = expectedNetwork;
 			SetString<T>(base64);
 		}

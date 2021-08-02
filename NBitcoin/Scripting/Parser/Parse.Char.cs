@@ -22,7 +22,7 @@ namespace NBitcoin.Scripting.Parser
 			if (predicate == null)
 				throw new ArgumentNullException(nameof(predicate));
 
-			return i =>
+			return (i, n) =>
 			{
 				if (i.AtEnd)
 				{

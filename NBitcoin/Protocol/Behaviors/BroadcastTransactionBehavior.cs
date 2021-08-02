@@ -11,7 +11,6 @@ using System.Threading;
 namespace NBitcoin.Protocol.Behaviors
 {
 	public delegate void TransactionBroadcastedDelegate(Transaction transaction);
-	public delegate void TransactionRejectedDelegate(Transaction transaction, RejectPayload reject);
 	public class TransactionBroadcast
 	{
 		public BroadcastState State
@@ -62,7 +61,6 @@ namespace NBitcoin.Protocol.Behaviors
 		internal ConcurrentDictionary<uint256, Transaction> BroadcastedTransaction = new ConcurrentDictionary<uint256, Transaction>();
 		internal ConcurrentDictionary<Node, Node> Nodes = new ConcurrentDictionary<Node, Node>();
 		public event TransactionBroadcastedDelegate TransactionBroadcasted;
-		public event TransactionRejectedDelegate TransactionRejected;
 
 		public IEnumerable<Transaction> BroadcastingTransactions
 		{
@@ -84,13 +82,6 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 		}
 
-		internal void OnTransactionRejected(Transaction tx, RejectPayload reject)
-		{
-			var evt = TransactionRejected;
-			if (evt != null)
-				evt(tx, reject);
-		}
-
 		internal void OnTransactionBroadcasted(Transaction tx)
 		{
 			var evt = TransactionBroadcasted;
@@ -103,40 +94,28 @@ namespace NBitcoin.Protocol.Behaviors
 		/// </summary>
 		/// <param name="transaction">The transaction to broadcast</param>
 		/// <returns>The cause of the rejection or null</returns>
-		public Task<RejectPayload> BroadcastTransactionAsync(Transaction transaction)
+		public Task<bool> BroadcastTransactionAsync(Transaction transaction)
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
 #if NO_RCA
-			TaskCompletionSource<RejectPayload> completion = new TaskCompletionSource<RejectPayload>();
+			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>();
 #else
-			TaskCompletionSource<RejectPayload> completion = new TaskCompletionSource<RejectPayload>(TaskCreationOptions.RunContinuationsAsynchronously);
+			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 #endif
 			var hash = transaction.GetHash();
 			if (BroadcastedTransaction.TryAdd(hash, transaction))
 			{
 				TransactionBroadcastedDelegate broadcasted = null;
-				TransactionRejectedDelegate rejected = null;
 				broadcasted = (t) =>
 				{
 					if (t.GetHash() == hash)
 					{
-						completion.SetResult(null);
-						TransactionRejected -= rejected;
+						completion.SetResult(true);
 						TransactionBroadcasted -= broadcasted;
 					}
 				};
 				TransactionBroadcasted += broadcasted;
-				rejected = (t, r) =>
-				{
-					if (r.Hash == hash)
-					{
-						completion.SetResult(r);
-						TransactionRejected -= rejected;
-						TransactionBroadcasted -= broadcasted;
-					}
-				};
-				TransactionRejected += rejected;
 				OnBroadcastTransaction(transaction);
 			}
 			return completion.Task;
@@ -325,19 +304,6 @@ namespace NBitcoin.Protocol.Behaviors
 						_BroadcastHub.OnTransactionBroadcasted(tx.Transaction);
 					}
 				}
-			}
-			RejectPayload reject = message.Message.Payload as RejectPayload;
-			if (reject != null && reject.Message == "tx")
-			{
-				var tx = GetTransaction(reject.Hash, true);
-				if (tx != null)
-					tx.State = BroadcastState.Rejected;
-				Transaction tx2;
-				if (_BroadcastHub.BroadcastedTransaction.TryRemove(reject.Hash, out tx2))
-				{
-					_BroadcastHub.OnTransactionRejected(tx2, reject);
-				}
-
 			}
 
 			GetDataPayload getData = message.Message.Payload as GetDataPayload;

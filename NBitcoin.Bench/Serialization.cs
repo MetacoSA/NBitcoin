@@ -34,7 +34,8 @@ namespace NBitcoin.Bench
 		{
 			MemoryStream ms = new MemoryStream(Sample.BigBlockBytes);
 			var bstream = new BitcoinStream(ms, false);
-			Block.CreateBlock(Network.Main).ReadWrite(bstream);
+			var b = Network.Main.Consensus.ConsensusFactory.CreateBlock();
+			b.ReadWrite(bstream);
 		}
 	}
 }

@@ -42,14 +42,7 @@ namespace NBitcoin.JsonConverters
 				var bytes = Encoders.Hex.DecodeData((string)reader.Value);
 				if (!Network.Consensus.ConsensusFactory.TryCreateNew(objectType, out obj))
 				{
-					if (objectType == typeof(PubKey))
-					{
-						obj = new PubKey(bytes);
-					}
-					else
-					{
-						obj = (IBitcoinSerializable)Activator.CreateInstance(objectType);
-					}
+					obj = (IBitcoinSerializable)Activator.CreateInstance(objectType);
 				}
 				obj.ReadWrite(bytes, Network);
 				return obj;

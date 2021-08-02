@@ -15,15 +15,6 @@ namespace NBitcoin
 
 	public static class BitcoinSerializableExtensions
 	{
-		[Obsolete("Use ReadWrite(this IBitcoinSerializable serializable, Stream stream, bool serializing, Network network, uint? version = null) or ReadWrite(new BitcoinStream(bytes)) if no network context")]
-		public static void ReadWrite(this IBitcoinSerializable serializable, Stream stream, bool serializing, uint? version = null)
-		{
-			BitcoinStream s = new BitcoinStream(stream, serializing)
-			{
-				ProtocolVersion = version
-			};
-			serializable.ReadWrite(s);
-		}
 		public static void ReadWrite(this IBitcoinSerializable serializable, Stream stream, bool serializing, Network network, uint? version = null)
 		{
 			serializable.ReadWrite(stream, serializing, network?.Consensus?.ConsensusFactory, version);
@@ -56,12 +47,6 @@ namespace NBitcoin
 		public static int GetSerializedSize(this IBitcoinSerializable serializable, uint? version = null)
 		{
 			return GetSerializedSize(serializable, version, SerializationType.Disk);
-		}
-
-		[Obsolete("Use ReadWrite(this IBitcoinSerializable serializable, byte[] bytes, Network network, uint? version = null) or ReadWrite(new BitcoinStream(bytes)) if no network context")]
-		public static void ReadWrite(this IBitcoinSerializable serializable, byte[] bytes, uint? version = null)
-		{
-			ReadWrite(serializable, new MemoryStream(bytes), false, version);
 		}
 
 		public static void ReadWrite(this IBitcoinSerializable serializable, byte[] bytes, Network network, uint? version = null)

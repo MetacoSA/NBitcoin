@@ -144,12 +144,6 @@ namespace NBitcoin
 			return this;
 		}
 
-		[Obsolete("Use SetChainName instead")]
-		public NetworkBuilder SetNetworkType(NetworkType network)
-		{
-			_ChainName = ChainName.FromNetworkType(network);
-			return this;
-		}
 		public NetworkBuilder SetChainName(ChainName chainName)
 		{
 			_ChainName = chainName;

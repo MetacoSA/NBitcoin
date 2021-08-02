@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace NBitcoin.Secp256k1
@@ -186,14 +187,14 @@ namespace NBitcoin.Secp256k1
 			return true;
 		}
 
-		public static bool TryCreateFromDer(ReadOnlySpan<byte> sig, out SecpECDSASignature? output)
+		public static bool TryCreateFromDer(ReadOnlySpan<byte> sig, [MaybeNullWhen(false)] out SecpECDSASignature output)
 		{
 			int rlen;
 			Scalar rr, rs;
-			output = null;
 			if (sig.Length == 0 || sig[0] != 0x30)
 			{
 				/* The encoding doesn't start with a constructed sequence (X.690-0207 8.9.1). */
+				output = null;
 				return false;
 			}
 			sig = sig.Slice(1);
@@ -201,32 +202,37 @@ namespace NBitcoin.Secp256k1
 			if (rlen < 0 || rlen > sig.Length)
 			{
 				/* Tuple exceeds bounds */
+				output = null;
 				return false;
 			}
 			if (rlen != sig.Length)
 			{
 				/* Garbage after tuple. */
+				output = null;
 				return false;
 			}
 
 			if (!DerParseInteger(out rr, ref sig))
 			{
+				output = null;
 				return false;
 			}
 			if (!DerParseInteger(out rs, ref sig))
 			{
+				output = null;
 				return false;
 			}
 
 			if (sig.Length != 0)
 			{
 				/* Trailing garbage inside tuple. */
+				output = null;
 				return false;
 			}
 			output = new SecpECDSASignature(rr, rs, false);
 			return true;
 		}
-		public static bool TryCreateFromCompact(ReadOnlySpan<byte> in64, out SecpECDSASignature? output)
+		public static bool TryCreateFromCompact(ReadOnlySpan<byte> in64, [MaybeNullWhen(false)] out SecpECDSASignature output)
 		{
 			output = null;
 			if (in64.Length != 64)
@@ -241,12 +247,13 @@ namespace NBitcoin.Secp256k1
 			if (ret)
 			{
 				output = new SecpECDSASignature(r, s, false);
+				return true;
 			}
 			else
 			{
 				output = null;
+				return false;
 			}
-			return ret;
 		}
 
 		public bool WriteDerToSpan(Span<byte> sig, out int size)

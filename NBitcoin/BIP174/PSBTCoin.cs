@@ -91,7 +91,7 @@ namespace NBitcoin
 		{
 			if (rootedKeyPath == null)
 				throw new ArgumentNullException(nameof(rootedKeyPath));
-			if (pubKey == null)
+			if (pubKey is null)
 				throw new ArgumentNullException(nameof(pubKey));
 			hd_keypaths.AddOrReplace(pubKey, rootedKeyPath);
 

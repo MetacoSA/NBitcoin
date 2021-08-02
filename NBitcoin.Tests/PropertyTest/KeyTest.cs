@@ -26,7 +26,7 @@ namespace NBitcoin.Tests.PropertyTest
 		}
 
 		[Property(MaxTest = 10)]
-		[Trait("PropertyTest", "Verification")]
+		[Trait("PropertyTest", "PropertyTest")]
 		public bool ShouldNotGenerateSameKey(List<Key> keys)
 		{
 			return keys.Distinct().Count() == keys.Count();

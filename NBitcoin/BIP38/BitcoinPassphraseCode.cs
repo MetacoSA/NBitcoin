@@ -192,7 +192,7 @@ namespace NBitcoin
 			return network.NetworkStringParser.GetBase58CheckEncoder().EncodeData(bytes);
 		}
 
-		public BitcoinPassphraseCode(string wif, Network expectedNetwork = null)
+		public BitcoinPassphraseCode(string wif, Network expectedNetwork)
 		{
 			Init<BitcoinPassphraseCode>(wif, expectedNetwork);
 		}

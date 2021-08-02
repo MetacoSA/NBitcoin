@@ -331,13 +331,14 @@ namespace NBitcoin.Altcoins
                 uint nTimeTemp = 0;
                 stream.ReadWrite(ref nTimeTemp);
 
-                TxInList vinTemp = new TxInList();
-                TxOutList voutTemp = new TxOutList();
+                TxInList vinTemp = null;
+                TxOutList voutTemp = null;
 
                 /* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
-                stream.ReadWrite<TxInList, TxIn>(ref vinTemp);
+                stream.ReadWrite(ref vinTemp);
+				vinTemp.Transaction = this;
 
-                var hasNoDummy = (nVersionTemp & NoDummyInput) != 0 && vinTemp.Count == 0;
+				var hasNoDummy = (nVersionTemp & NoDummyInput) != 0 && vinTemp.Count == 0;
                 if (witSupported && hasNoDummy)
                     nVersionTemp = nVersionTemp & ~NoDummyInput;
 
@@ -348,9 +349,9 @@ namespace NBitcoin.Altcoins
                     if (flags != 0)
                     {
                         /* Assume we read a dummy and a flag. */
-                        stream.ReadWrite<TxInList, TxIn>(ref vinTemp);
+                        stream.ReadWrite(ref vinTemp);
                         vinTemp.Transaction = this;
-                        stream.ReadWrite<TxOutList, TxOut>(ref voutTemp);
+                        stream.ReadWrite(ref voutTemp);
                         voutTemp.Transaction = this;
                     }
                     else
@@ -363,7 +364,7 @@ namespace NBitcoin.Altcoins
                 else
                 {
                     /* We read a non-empty vin. Assume a normal vout follows. */
-                    stream.ReadWrite<TxOutList, TxOut>(ref voutTemp);
+                    stream.ReadWrite(ref voutTemp);
                     voutTemp.Transaction = this;
                 }
                 if (((flags & 1) != 0) && witSupported)
@@ -409,15 +410,15 @@ namespace NBitcoin.Altcoins
                 if (flags != 0)
                 {
                     /* Use extended format in case witnesses are to be serialized. */
-                    TxInList vinDummy = new TxInList();
-                    stream.ReadWrite<TxInList, TxIn>(ref vinDummy);
+                    TxInList vinDummy = null;
+                    stream.ReadWrite(ref vinDummy);
                     stream.ReadWrite(ref flags);
                 }
                 TxInList vin = this.Inputs;
-                stream.ReadWrite<TxInList, TxIn>(ref vin);
+                stream.ReadWrite(ref vin);
                 vin.Transaction = this;
                 TxOutList vout = this.Outputs;
-                stream.ReadWrite<TxOutList, TxOut>(ref vout);
+                stream.ReadWrite(ref vout);
                 vout.Transaction = this;
                 if ((flags & 1) != 0)
                 {
@@ -485,7 +486,7 @@ namespace NBitcoin.Altcoins
 
 			public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 			{
-				if (sigversion == HashVersion.Witness)
+				if (sigversion == HashVersion.WitnessV0)
 				{
 					if (spentOutput?.Value == null || spentOutput.Value == TxOut.NullMoney)
 						throw new ArgumentException("The output being signed with the amount must be provided", nameof(spentOutput));
@@ -661,8 +662,9 @@ namespace NBitcoin.Altcoins
                 MinerConfirmationWindow = 20160,
                 CoinbaseMaturity = 100,
                 LitecoinWorkCalculation = true,
-                ConsensusFactory = BitcoinplusConsensusFactory.Instance
-            })
+                ConsensusFactory = BitcoinplusConsensusFactory.Instance,
+				SupportSegwit = true
+			})
             .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 25 })
             .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 85 })
             .SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 153 })
@@ -704,8 +706,9 @@ namespace NBitcoin.Altcoins
                 MinerConfirmationWindow = 2016,
                 CoinbaseMaturity = 100,
                 LitecoinWorkCalculation = true,
-                ConsensusFactory = BitcoinplusConsensusFactory.Instance
-            })
+                ConsensusFactory = BitcoinplusConsensusFactory.Instance,
+				SupportSegwit = true
+			})
             .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
             .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
             .SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
@@ -746,8 +749,9 @@ namespace NBitcoin.Altcoins
                 MinerConfirmationWindow = 144,
                 CoinbaseMaturity = 110,
                 LitecoinWorkCalculation = true,
-                ConsensusFactory = BitcoinplusConsensusFactory.Instance
-            })
+                ConsensusFactory = BitcoinplusConsensusFactory.Instance,
+				SupportSegwit = true
+			})
             .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
             .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
             .SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })

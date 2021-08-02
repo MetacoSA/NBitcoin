@@ -255,7 +255,7 @@ namespace NBitcoin.Altcoins
 				{
 					Format = BCashAddr.BchAddr.CashFormat.Cashaddr,
 					Prefix = _Prefix,
-					Hash = keyId.ToBytes(true),
+					Hash = keyId.ToBytes(),
 					Type = BCashAddr.BchAddr.CashType.P2PKH,
 					Network = network
 				};
@@ -268,7 +268,7 @@ namespace NBitcoin.Altcoins
 				{
 					Format = BCashAddr.BchAddr.CashFormat.Cashaddr,
 					Prefix = _Prefix,
-					Hash = scriptId.ToBytes(true),
+					Hash = scriptId.ToBytes(),
 					Type = BCashAddr.BchAddr.CashType.P2SH,
 					Network = network
 				};
@@ -355,7 +355,8 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				MinimumChainWork = new uint256("00000000000000000000000000000000000000000000002888c34d61b53a244a"),
 				ConsensusFactory = BCashConsensusFactory.Instance,
-				SupportSegwit = false
+				SupportSegwit = false,
+				NeverNeedPreviousTxForSigning = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
@@ -405,7 +406,8 @@ namespace NBitcoin.Altcoins
 				MinerConfirmationWindow = 144,
 				CoinbaseMaturity = 100,
 				ConsensusFactory = BCashConsensusFactory.Instance,
-				SupportSegwit = false
+				SupportSegwit = false,
+				NeverNeedPreviousTxForSigning = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })

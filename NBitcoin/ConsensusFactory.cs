@@ -88,7 +88,6 @@ namespace NBitcoin
 				SupportGetBlock = protocolVersion < 32000U || protocolVersion > 32400U,
 				SupportPingPong = protocolVersion > 60000U,
 				SupportMempoolQuery = protocolVersion >= 60002U,
-				SupportReject = protocolVersion >= 70002U,
 				SupportNodeBloom = protocolVersion >= 70011U,
 				SupportSendHeaders = protocolVersion >= 70012U,
 				SupportWitness = protocolVersion >= 70012U,

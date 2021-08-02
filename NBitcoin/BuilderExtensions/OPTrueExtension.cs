@@ -8,29 +8,20 @@ namespace NBitcoin.BuilderExtensions
 {
 	public class OPTrueExtension : BuilderExtension
 	{
-		public override bool CanCombineScriptSig(Script scriptPubKey, Script a, Script b)
-		{
-			return false;
-		}
 
 		public override bool CanDeduceScriptPubKey(Script scriptSig)
 		{
 			return false;
 		}
 
-		public override bool CanEstimateScriptSigSize(Script scriptPubKey)
+		public override bool CanEstimateScriptSigSize(ICoin coin)
 		{
-			return CanGenerateScriptSig(scriptPubKey);
+			return CanSign(coin.GetScriptCode());
 		}
 
-		public override bool CanGenerateScriptSig(Script scriptPubKey)
+		private static bool CanSign(Script executedScript)
 		{
-			return scriptPubKey.Length == 1 && scriptPubKey.ToBytes(true)[0] == (byte)OpcodeType.OP_TRUE;
-		}
-
-		public override Script CombineScriptSig(Script scriptPubKey, Script a, Script b)
-		{
-			throw new NotSupportedException();
+			return executedScript.Length == 1 && executedScript.ToBytes(true)[0] == (byte)OpcodeType.OP_TRUE;
 		}
 
 		public override Script DeduceScriptPubKey(Script scriptSig)
@@ -38,19 +29,28 @@ namespace NBitcoin.BuilderExtensions
 			throw new NotSupportedException();
 		}
 
-		public override int EstimateScriptSigSize(Script scriptPubKey)
+		public override int EstimateScriptSigSize(ICoin coin)
 		{
 			return 1;
-		}
-
-		public override Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer)
-		{
-			return Script.Empty;
 		}
 
 		public override bool IsCompatibleKey(IPubKey publicKey, Script scriptPubKey)
 		{
 			return false;
+		}
+
+		public override void Finalize(InputSigningContext inputSigningContext)
+		{
+			inputSigningContext.Input.FinalScriptSig = Script.Empty;
+		}
+
+		public override bool Match(ICoin coin, PSBTInput input)
+		{
+			return CanSign(coin.GetScriptCode());
+		}
+
+		public override void Sign(InputSigningContext inputSigningContext, IKeyRepository keyRepository, ISigner signer)
+		{
 		}
 	}
 }

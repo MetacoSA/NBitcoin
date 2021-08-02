@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Sockets;
 #endif
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -235,38 +236,100 @@ namespace NBitcoin
 
 		public void ReadWrite<T>(ref List<T> list) where T : IBitcoinSerializable
 		{
-			ReadWriteList<List<T>, T>(ref list);
-		}
-
-		public void ReadWrite<TList, TItem>(ref TList list)
-			where TList : List<TItem>, new()
-			where TItem : IBitcoinSerializable, new()
-		{
-			ReadWriteList<TList, TItem>(ref list);
-		}
-
-		private void ReadWriteList<TList, TItem>(ref TList data)
-			where TList : List<TItem>, new()
-			where TItem : IBitcoinSerializable
-		{
-			var dataArray = data == null ? null : data.ToArray();
-			if (Serializing && dataArray == null)
+			int listLen = 0;
+			if (Serializing)
 			{
-				dataArray = new TItem[0];
-			}
-			ReadWriteArray(ref dataArray);
-			if (!Serializing)
-			{
-				if (data == null)
+				var len = list == null ? 0 : (ulong)list.Count;
+				if (len > (uint)MaxArraySize)
+					throw new ArgumentOutOfRangeException("Array size too big");
+				VarInt.StaticWrite(this, len);
+				if (len == 0)
+					return;
+				listLen = (int)len;
+				foreach (var obj in list)
 				{
-					data = new TList();
+					ReadWrite(obj);
 				}
-				else
-					data.Clear();
-				data.AddRange(dataArray);
+			}
+			else
+			{
+				var len = VarInt.StaticRead(this);
+				if (len > (uint)MaxArraySize)
+					throw new ArgumentOutOfRangeException("Array size too big");
+				listLen = (int)len;
+				list = new List<T>(listLen);
+				for (int i = 0; i < listLen; i++)
+				{
+					T obj = default;
+					ReadWrite(ref obj);
+					list.Add(obj);
+				}
 			}
 		}
-
+		public void ReadWrite(ref TxInList list)
+		{
+			int listLen = 0;
+			if (Serializing)
+			{
+				var len = list == null ? 0 : (ulong)list.Count;
+				if (len > (uint)MaxArraySize)
+					throw new ArgumentOutOfRangeException("Array size too big");
+				VarInt.StaticWrite(this, len);
+				if (len == 0)
+					return;
+				listLen = (int)len;
+				foreach (var obj in list)
+				{
+					ReadWrite(obj);
+				}
+			}
+			else
+			{
+				var len = VarInt.StaticRead(this);
+				if (len > (uint)MaxArraySize)
+					throw new ArgumentOutOfRangeException("Array size too big");
+				listLen = (int)len;
+				list = new TxInList(listLen);
+				for (int i = 0; i < listLen; i++)
+				{
+					TxIn obj = default;
+					ReadWrite(ref obj);
+					list.Add(obj);
+				}
+			}
+		}
+		public void ReadWrite(ref TxOutList list)
+		{
+			int listLen = 0;
+			if (Serializing)
+			{
+				var len = list == null ? 0 : (ulong)list.Count;
+				if (len > (uint)MaxArraySize)
+					throw new ArgumentOutOfRangeException("Array size too big");
+				VarInt.StaticWrite(this, len);
+				if (len == 0)
+					return;
+				listLen = (int)len;
+				foreach (var obj in list)
+				{
+					ReadWrite(obj);
+				}
+			}
+			else
+			{
+				var len = VarInt.StaticRead(this);
+				if (len > (uint)MaxArraySize)
+					throw new ArgumentOutOfRangeException("Array size too big");
+				listLen = (int)len;
+				list = new TxOutList(listLen);
+				for (int i = 0; i < listLen; i++)
+				{
+					TxOut obj = default;
+					ReadWrite(ref obj);
+					list.Add(obj);
+				}
+			}
+		}
 		public  void ReadWriteListBytes(ref List<byte[]> data)
 		{
 			var dataArray = data?.ToArray();

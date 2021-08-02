@@ -51,12 +51,6 @@ namespace NBitcoin.Protocol.Payloads
 			{
 				return new BitArray(_bitmap.ToBytes());
 			}
-			internal set
-			{
-				var bits = value;
-				var buffer = new BitReader(bits).ToWriter().ToBytes();
-				_bitmap = new VarString(buffer);
-			}
 		}
 
 		public UTxOut[] Outputs

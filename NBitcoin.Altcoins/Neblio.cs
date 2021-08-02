@@ -253,14 +253,14 @@ namespace NBitcoin.Altcoins
 				UInt32 nTimeTemp = 0;
 				stream.ReadWrite(ref nTimeTemp);
 
-				TxInList vinTemp = new TxInList();
-				TxOutList voutTemp = new TxOutList();
+				TxInList vinTemp = null;
+				TxOutList voutTemp = null;
 
 				// Try to read the vin.
-				stream.ReadWrite<TxInList, TxIn>(ref vinTemp);
-
+				stream.ReadWrite(ref vinTemp);
+				vinTemp.Transaction = this;
 				// Assume a normal vout follows.
-				stream.ReadWrite<TxOutList, TxOut>(ref voutTemp);
+				stream.ReadWrite(ref voutTemp);
 				voutTemp.Transaction = this;
 
 				LockTime lockTimeTemp = LockTime.Zero;
@@ -283,11 +283,11 @@ namespace NBitcoin.Altcoins
 				stream.ReadWrite(ref time);
 
 				TxInList vin = this.Inputs;
-				stream.ReadWrite<TxInList, TxIn>(ref vin);
+				stream.ReadWrite(ref vin);
 				vin.Transaction = this;
 
 				TxOutList vout = this.Outputs;
-				stream.ReadWrite<TxOutList, TxOut>(ref vout);
+				stream.ReadWrite(ref vout);
 				vout.Transaction = this;
 
 				LockTime lockTime = this.LockTime;

@@ -8,8 +8,8 @@ namespace NBitcoin
 		{
 
 		}
-		protected BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
-			: base(key.ToBytes(), network)
+		protected BitcoinExtKeyBase(byte[] bytes, Network network)
+			: base(bytes, network)
 		{
 		}
 
@@ -32,7 +32,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Constructor. Creates an extended key from the Base58 representation, checking the expected network.
 		/// </summary>
-		public BitcoinExtKey(string base58, Network expectedNetwork = null)
+		public BitcoinExtKey(string base58, Network expectedNetwork)
 		{
 			Init<BitcoinExtKey>(base58, expectedNetwork);
 		}
@@ -41,12 +41,12 @@ namespace NBitcoin
 		/// Constructor. Creates a representation of an extended key, within the specified network.
 		/// </summary>
 		public BitcoinExtKey(ExtKey key, Network network)
-			: base(key, network)
+			: base(key.ToBytes(), network)
 		{
 		}
 
 		public BitcoinExtKey(BitcoinExtPubKey bitcoinExtPubKey, Key key)
-			: base(new ExtKey(bitcoinExtPubKey.ExtPubKey, key), bitcoinExtPubKey.Network)
+			: base(new ExtKey(bitcoinExtPubKey.ExtPubKey, key).ToBytes(), bitcoinExtPubKey.Network)
 		{}
 
 		/// <summary>
@@ -71,8 +71,7 @@ namespace NBitcoin
 			{
 				if (_Key == null)
 				{
-					_Key = new ExtKey();
-					_Key.ReadWrite(new BitcoinStream(vchData));
+					_Key = ExtKey.CreateFromBytes(vchData);
 				}
 				return _Key;
 			}
@@ -178,7 +177,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Constructor. Creates an extended public key from the Base58 representation, checking the expected network.
 		/// </summary>
-		public BitcoinExtPubKey(string base58, Network expectedNetwork = null)
+		public BitcoinExtPubKey(string base58, Network expectedNetwork)
 		{
 			Init<BitcoinExtPubKey>(base58, expectedNetwork);
 		}
@@ -187,7 +186,7 @@ namespace NBitcoin
 		/// Constructor. Creates a representation of an extended public key, within the specified network.
 		/// </summary>
 		public BitcoinExtPubKey(ExtPubKey key, Network network)
-			: base(key, network)
+			: base(key.ToBytes(), network)
 		{
 		}
 
@@ -202,7 +201,7 @@ namespace NBitcoin
 			{
 				if (_PubKey == null)
 				{
-					_PubKey = new ExtPubKey(new BitcoinStream(vchData));
+					_PubKey = new ExtPubKey(vchData);
 				}
 				return _PubKey;
 			}
@@ -212,13 +211,13 @@ namespace NBitcoin
 		{
 			get
 			{
-				var baseSize = 1 + 4 + 4 + 32;
-				if (vchData.Length != baseSize + 33 && vchData.Length != baseSize + 65)
+				if (_PubKey is ExtPubKey)
+					return true;
+				if (vchData.Length != ExtPubKey.Length)
 					return false;
 				try
 				{
-					_PubKey = new ExtPubKey(new BitcoinStream(vchData));
-					_PubKey.ReadWrite(new BitcoinStream(vchData));
+					_PubKey = new ExtPubKey(vchData);
 					return true;
 				}
 				catch { return false; }

@@ -67,6 +67,8 @@ namespace NBitcoin.Tests
 			var a = BitcoinAddress.Create("bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0", Network.Main);
 			var res = PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(a.ScriptPubKey);
 			Assert.Equal(OpcodeType.OP_1, res.Version);
+			Assert.Equal(a, TaprootAddress.Create("bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0", Network.Main));
+			Assert.Throws<FormatException>(() => TaprootAddress.Create("bc1qaf7uc0w48q5mqfp3qxy7azjc6dhr6f03tflwcx", Network.Main));
 		}
 
 
@@ -108,7 +110,7 @@ namespace NBitcoin.Tests
 																 new TaprootExecutionData(0) { SigHash = sighash });
 						var sig = key.SignTaprootKeySpend(hash, sighash);
 
-						Assert.True(addr.PubKey.VerifyTaproot(hash, sig.SchnorrSignature));
+						Assert.True(addr.PubKey.VerifySignature(hash, sig.SchnorrSignature));
 						spender.Inputs[0].WitScript = new WitScript(Op.GetPushOp(sig.ToBytes()));
 						rpc.SendRawTransaction(spender);
 					}

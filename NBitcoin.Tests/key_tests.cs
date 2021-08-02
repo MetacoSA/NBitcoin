@@ -1,6 +1,7 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -165,7 +166,12 @@ namespace NBitcoin.Tests
 				var address = (BitcoinPubKeyAddress)Network.Main.CreateBitcoinAddress(test.Address);
 				Assert.Equal(new KeyId(test.Hash160), address.Hash);
 				Assert.Equal(new KeyId(test.Hash160), secret.PrivateKey.PubKey.Hash);
+				Assert.Equal(new KeyId(test.Hash160).ToString(), test.Hash160);
 				Assert.Equal(address, secret.PrivateKey.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network.Main));
+
+				Assert.Equal(new WitKeyId(test.Hash160).ToString(), address.Hash.ToString());
+				Assert.Equal(new WitKeyId(test.Hash160).ToString(), secret.PrivateKey.PubKey.Hash.ToString());
+				Assert.Equal(new WitKeyId(test.Hash160).ToString(), test.Hash160.ToString());
 
 				var compressedSec = secret.Copy(true);
 
@@ -179,9 +185,40 @@ namespace NBitcoin.Tests
 				var compressedAddr = (BitcoinPubKeyAddress)Network.Main.CreateBitcoinAddress(test.CompressedAddress);
 				Assert.Equal(new KeyId(test.CompressedHash160), compressedAddr.Hash);
 				Assert.Equal(new KeyId(test.CompressedHash160), compressedSec.PrivateKey.PubKey.Hash);
-
-
 			}
+		}
+
+		[Fact]
+		[Trait("Core", "Core")]
+		public void QuickTestsOnKeyIdBytes()
+		{
+			var a = new KeyId("93e5d305cad2588d5fb254065fe48ce446028ba3");
+			var b = new ScriptId("93e5d305cad2588d5fb254065fe48ce446028ba3");
+			var b2 = new WitKeyId("93e5d305cad2588d5fb254065fe48ce446028ba3");
+			Assert.Equal(a.ToString(), b.ToString());
+			Assert.Equal(a.ToString(), b2.ToString());
+			Assert.Equal("93e5d305cad2588d5fb254065fe48ce446028ba3", a.ToString());
+			var bytes = Encoders.Hex.DecodeData("93e5d305cad2588d5fb254065fe48ce446028ba3");
+			Assert.True(StructuralComparisons.StructuralComparer.Compare(a.ToBytes(), b.ToBytes()) == 0);
+			Assert.True(StructuralComparisons.StructuralComparer.Compare(b2.ToBytes(), b.ToBytes()) == 0);
+
+			var c = new KeyId(bytes);
+			var d = new ScriptId(bytes);
+			var d2 = new WitKeyId(bytes);
+			Assert.Equal(a, c);
+			Assert.Equal(d, b);
+			Assert.Equal(b2, d2);
+			Assert.Equal(c.ToString(), d.ToString());
+			Assert.Equal(c.ToString(), d2.ToString());
+			Assert.Equal("93e5d305cad2588d5fb254065fe48ce446028ba3", c.ToString());
+			Assert.True(StructuralComparisons.StructuralComparer.Compare(c.ToBytes(), d.ToBytes()) == 0);
+			Assert.True(StructuralComparisons.StructuralComparer.Compare(c.ToBytes(), d2.ToBytes()) == 0);
+
+			var e = new WitScriptId("93e5d305cad2588d5fb254065fe48ce446028ba380e6ee663baea9cd10550089");
+			Assert.Equal("93e5d305cad2588d5fb254065fe48ce446028ba380e6ee663baea9cd10550089", e.ToString());
+			bytes = Encoders.Hex.DecodeData("93e5d305cad2588d5fb254065fe48ce446028ba380e6ee663baea9cd10550089");
+			var e2 = new WitScriptId(bytes);
+			Assert.Equal(e, e2);
 		}
 
 		[Fact]

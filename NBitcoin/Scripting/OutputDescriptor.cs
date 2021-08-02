@@ -8,11 +8,16 @@ namespace NBitcoin.Scripting
 
 	public abstract class OutputDescriptor : IEquatable<OutputDescriptor>
 	{
-		# region subtypes
+		private OutputDescriptor(Network network)
+		{
+			Network = network;
+		}
+		public Network Network { get; }
+		#region subtypes
 		public class Addr : OutputDescriptor
 		{
 			public IDestination Address { get; }
-			public Addr(IDestination address)
+			public Addr(IDestination address, Network network) : base(network)
 			{
 				if (address == null)
 					throw new ArgumentNullException(nameof(address));
@@ -24,7 +29,7 @@ namespace NBitcoin.Scripting
 		{
 			public Script Script;
 
-			internal Raw(Script script)
+			internal Raw(Script script, Network network) : base(network)
 			{
 				if (script is null)
 					throw new ArgumentNullException(nameof(script));
@@ -37,7 +42,7 @@ namespace NBitcoin.Scripting
 		public class PK : OutputDescriptor
 		{
 			public PubKeyProvider PkProvider;
-			internal PK(PubKeyProvider pkProvider)
+			internal PK(PubKeyProvider pkProvider, Network network) : base(network)
 			{
 				if (pkProvider == null)
 					throw new ArgumentNullException(nameof(pkProvider));
@@ -48,7 +53,7 @@ namespace NBitcoin.Scripting
 		public class PKH : OutputDescriptor
 		{
 			public PubKeyProvider PkProvider;
-			internal PKH(PubKeyProvider pkProvider)
+			internal PKH(PubKeyProvider pkProvider, Network network) : base(network)
 			{
 				if (pkProvider == null)
 					throw new ArgumentNullException(nameof(pkProvider));
@@ -59,7 +64,7 @@ namespace NBitcoin.Scripting
 		public class WPKH : OutputDescriptor
 		{
 			public PubKeyProvider PkProvider;
-			internal WPKH(PubKeyProvider pkProvider)
+			internal WPKH(PubKeyProvider pkProvider, Network network) : base(network)
 			{
 				if (pkProvider == null)
 					throw new ArgumentNullException(nameof(pkProvider));
@@ -69,7 +74,7 @@ namespace NBitcoin.Scripting
 		public class Combo : OutputDescriptor
 		{
 			public PubKeyProvider PkProvider;
-			internal Combo(PubKeyProvider pkProvider)
+			internal Combo(PubKeyProvider pkProvider, Network network) : base(network)
 			{
 				if (pkProvider == null)
 					throw new ArgumentNullException(nameof(pkProvider));
@@ -80,7 +85,7 @@ namespace NBitcoin.Scripting
 		public class Multi : OutputDescriptor
 		{
 			public List<PubKeyProvider> PkProviders;
-			internal Multi(uint threshold, IEnumerable<PubKeyProvider> pkProviders, bool isSorted)
+			internal Multi(uint threshold, IEnumerable<PubKeyProvider> pkProviders, bool isSorted, Network network) : base(network)
 			{
 				if (pkProviders == null)
 					throw new ArgumentNullException(nameof(pkProviders));
@@ -98,7 +103,7 @@ namespace NBitcoin.Scripting
 		public class SH : OutputDescriptor
 		{
 			public OutputDescriptor Inner;
-			internal SH(OutputDescriptor inner)
+			internal SH(OutputDescriptor inner, Network network) : base(network)
 			{
 				if (inner == null)
 					throw new ArgumentNullException(nameof(inner));
@@ -111,7 +116,7 @@ namespace NBitcoin.Scripting
 		public class WSH : OutputDescriptor
 		{
 			public OutputDescriptor Inner;
-			internal WSH(OutputDescriptor inner)
+			internal WSH(OutputDescriptor inner, Network network) : base(network)
 			{
 				if (inner == null)
 					throw new ArgumentNullException(nameof(inner));
@@ -121,19 +126,15 @@ namespace NBitcoin.Scripting
 			}
 		}
 
-		private OutputDescriptor()
-		{
-		}
-
-		public static OutputDescriptor NewAddr(IDestination dest) => new Addr(dest);
-		public static OutputDescriptor NewRaw(Script sc) => new Raw(sc);
-		public static OutputDescriptor NewPK(PubKeyProvider pk) => new PK(pk);
-		public static OutputDescriptor NewPKH(PubKeyProvider pk) => new PKH(pk);
-		public static OutputDescriptor NewWPKH(PubKeyProvider pk) => new WPKH(pk);
-		public static OutputDescriptor NewCombo(PubKeyProvider pk) => new Combo(pk);
-		public static OutputDescriptor NewMulti(uint m, IEnumerable<PubKeyProvider> pks, bool isSorted) => new Multi(m, pks, isSorted);
-		public static OutputDescriptor NewSH(OutputDescriptor inner) => new SH(inner);
-		public static OutputDescriptor NewWSH(OutputDescriptor inner) => new WSH(inner);
+		public static OutputDescriptor NewAddr(IDestination dest, Network network) => new Addr(dest, network);
+		public static OutputDescriptor NewRaw(Script sc, Network network) => new Raw(sc, network);
+		public static OutputDescriptor NewPK(PubKeyProvider pk, Network network) => new PK(pk, network);
+		public static OutputDescriptor NewPKH(PubKeyProvider pk, Network network) => new PKH(pk, network);
+		public static OutputDescriptor NewWPKH(PubKeyProvider pk, Network network) => new WPKH(pk, network);
+		public static OutputDescriptor NewCombo(PubKeyProvider pk, Network network) => new Combo(pk, network);
+		public static OutputDescriptor NewMulti(uint m, IEnumerable<PubKeyProvider> pks, bool isSorted, Network network) => new Multi(m, pks, isSorted, network);
+		public static OutputDescriptor NewSH(OutputDescriptor inner, Network network) => new SH(inner, network);
+		public static OutputDescriptor NewWSH(OutputDescriptor inner, Network network) => new WSH(inner, network);
 
 		public bool IsTopLevelOnly() => this switch
 		{
@@ -399,21 +400,23 @@ namespace NBitcoin.Scripting
 			_ => null
 		};
 
-		public static OutputDescriptor InferFromScript(Script sc, ISigningRepository repo, ScriptContext ctx = ScriptContext.TOP)
+		public static OutputDescriptor InferFromScript(Script sc, ISigningRepository repo, Network network, ScriptContext ctx = ScriptContext.TOP)
 		{
+			if (network is null)
+				throw new ArgumentNullException(nameof(network));
 			if (sc == null) throw new ArgumentNullException(nameof(sc));
 			if (repo == null) throw new ArgumentNullException(nameof(repo));
 			var template = sc.FindTemplate();
 			if (template is PayToPubkeyTemplate p2pkTemplate)
 			{
 				var pk = p2pkTemplate.ExtractScriptPubKeyParameters(sc);
-				return OutputDescriptor.NewPK(InferPubKey(pk, repo, ctx));
+				return OutputDescriptor.NewPK(InferPubKey(pk, repo, ctx), network);
 			}
 			if (template is PayToPubkeyHashTemplate p2pkhTemplate)
 			{
 				var pkHash = p2pkhTemplate.ExtractScriptPubKeyParameters(sc);
 				if (repo.TryGetPubKey(pkHash, out var pk))
-					return OutputDescriptor.NewPKH(InferPubKey(pk, repo, ctx));
+					return OutputDescriptor.NewPKH(InferPubKey(pk, repo, ctx), network);
 			}
 			if (template is PayToMultiSigTemplate p2MultiSigTemplate)
 			{
@@ -422,15 +425,15 @@ namespace NBitcoin.Scripting
 				var orderedPks = pks.OrderBy(pk => pk);
 				var isOrdered = orderedPks.SequenceEqual(pks);
 				var providers = pks.Select(pk => InferPubKey(pk, repo, ctx));
-				return OutputDescriptor.NewMulti((uint)data.SignatureCount, providers, isOrdered);
+				return OutputDescriptor.NewMulti((uint)data.SignatureCount, providers, isOrdered, network);
 			}
 			if (template is PayToScriptHashTemplate p2shTemplate && ctx == ScriptContext.TOP)
 			{
 				var scriptId = p2shTemplate.ExtractScriptPubKeyParameters(sc);
 				if (repo.TryGetScript(scriptId, out var nextScript))
 				{
-					var sub = InferFromScript(nextScript, repo, ScriptContext.P2SH);
-					return OutputDescriptor.NewSH(sub);
+					var sub = InferFromScript(nextScript, repo, network, ScriptContext.P2SH);
+					return OutputDescriptor.NewSH(sub, network);
 				}
 			}
 			if (template is PayToWitTemplate)
@@ -440,15 +443,15 @@ namespace NBitcoin.Scripting
 				{
 					if (repo.TryGetScript(witScriptId.HashForLookUp, out var nextScript))
 					{
-						var sub = InferFromScript(nextScript, repo, ScriptContext.P2WSH);
-						return OutputDescriptor.NewWSH(sub);
+						var sub = InferFromScript(nextScript, repo, network, ScriptContext.P2WSH);
+						return OutputDescriptor.NewWSH(sub, network);
 					}
 				}
 				var witKeyId = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(sc);
 				if (witKeyId != null && ctx != ScriptContext.P2WSH)
 				{
 					if (repo.TryGetPubKey(witKeyId.AsKeyId(), out var pk))
-						return OutputDescriptor.NewWPKH(InferPubKey(pk, repo, ctx));
+						return OutputDescriptor.NewWPKH(InferPubKey(pk, repo, ctx), network);
 				}
 			}
 
@@ -457,10 +460,10 @@ namespace NBitcoin.Scripting
 			if (template is PayToWitTemplate unknownWitnessTemplate)
 			{
 				var dest = unknownWitnessTemplate.ExtractScriptPubKeyParameters(sc);
-				return OutputDescriptor.NewAddr(dest);
+				return OutputDescriptor.NewAddr(dest, network);
 			}
 
-			return OutputDescriptor.NewRaw(sc);
+			return OutputDescriptor.NewRaw(sc, network);
 		}
 
 		#endregion
@@ -560,11 +563,11 @@ namespace NBitcoin.Scripting
 				throw new Exception("unreachable")
 		};
 
-		public static OutputDescriptor Parse(string desc, bool requireCheckSum = false, ISigningRepository? repo = null)
-			=> OutputDescriptorParser.ParseOD(desc, requireCheckSum, repo);
+		public static OutputDescriptor Parse(string desc, Network network, bool requireCheckSum = false, ISigningRepository? repo = null)
+			=> OutputDescriptorParser.ParseOD(desc, network, requireCheckSum, repo);
 
-		public static bool TryParse(string desc, out OutputDescriptor? result, bool requireCheckSum = false, ISigningRepository? repo = null)
-			=> OutputDescriptorParser.TryParseOD(desc, out result, requireCheckSum, repo);
+		public static bool TryParse(string desc, Network network, out OutputDescriptor? result, bool requireCheckSum = false, ISigningRepository? repo = null)
+			=> OutputDescriptorParser.TryParseOD(desc, network, out result, requireCheckSum, repo);
 
 		#endregion
 

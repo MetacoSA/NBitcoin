@@ -15,12 +15,20 @@ using System.Threading.Tasks;
 using Xunit;
 using Newtonsoft.Json.Linq;
 using System.Runtime.InteropServices;
+using FsCheck;
+using System.Net.Http;
+using System.IO.Compression;
+using Xunit.Abstractions;
 
 namespace NBitcoin.Tests
 {
 	public class script_tests
 	{
-
+		ITestOutputHelper Log;
+		public script_tests(ITestOutputHelper outputHelper)
+		{
+			Log = outputHelper;
+		}
 		static Dictionary<string, OpcodeType> mapOpNames = new Dictionary<string, OpcodeType>();
 		public static Script ParseScript(string s)
 		{
@@ -372,8 +380,8 @@ namespace NBitcoin.Tests
 
 			var creditingTransaction = CreateCreditingTransaction(scriptPubKey, amount);
 			var spendingTransaction = CreateSpendingTransaction(wit, scriptSig, creditingTransaction);
-			ScriptError actual;
-			Script.VerifyScript(scriptSig, spendingTransaction, 0, new TxOut(amount, scriptPubKey), flags, out actual);
+
+			spendingTransaction.Inputs.FindIndexedInput(0).VerifyScript(new TxOut(amount, scriptPubKey), flags, out var actual);
 			Assert.True(expectedError == actual, "Test : " + testIndex + " " + comment);
 #if !NOCONSENSUSLIB
 			var ok = Script.VerifyScriptConsensus(scriptPubKey, spendingTransaction, 0, amount, flags);
@@ -589,6 +597,14 @@ namespace NBitcoin.Tests
 				{
 					result |= ScriptVerify.WitnessPubkeyType;
 				}
+				else if (p == "TAPROOT")
+				{
+					result |= ScriptVerify.Taproot;
+				}
+				else if (p == "CHECKLOCKTIMEVERIFY")
+				{
+					result |= ScriptVerify.CheckLockTimeVerify;
+				}
 				else
 					throw new NotSupportedException(p);
 			}
@@ -756,7 +772,7 @@ namespace NBitcoin.Tests
 
 		private void AssertInvalidScript(TxOut txOut, Transaction tx, int n, ScriptVerify verify)
 		{
-			Assert.False(Script.VerifyScript(tx, n, txOut, flags));
+			Assert.False(tx.Inputs.FindIndexedInput(n).VerifyScript(txOut, verify, out _));
 #if !NOCONSENSUSLIB
 			Assert.False(Script.VerifyScriptConsensus(txOut.ScriptPubKey, tx, (uint)n, flags));
 #endif
@@ -764,7 +780,7 @@ namespace NBitcoin.Tests
 
 		private void AssertValidScript(TxOut txOut, Transaction tx, int n, ScriptVerify verify)
 		{
-			Assert.True(Script.VerifyScript(tx, n, txOut, flags));
+			Assert.True(tx.Inputs.FindIndexedInput(n).VerifyScript(txOut, verify, out _));
 #if !NOCONSENSUSLIB
 			Assert.True(Script.VerifyScriptConsensus(txOut.ScriptPubKey, tx, (uint)n, flags & ScriptVerify.Consensus));
 #endif
@@ -920,19 +936,19 @@ namespace NBitcoin.Tests
 				ScriptVerify = ScriptVerify.P2SH
 			};
 			var directStack = context.Clone();
-			Assert.True(directStack.EvalScript(direct, Network.CreateTransaction(), 0));
+			Assert.True(directStack.EvalScript(direct, new TransactionChecker(Network.CreateTransaction(), 0), HashVersion.Original));
 
 			var pushdata1Stack = context.Clone();
-			Assert.True(pushdata1Stack.EvalScript(pushdata1, Network.CreateTransaction(), 0));
+			Assert.True(pushdata1Stack.EvalScript(pushdata1, new TransactionChecker(Network.CreateTransaction(), 0), HashVersion.Original));
 			AssertEx.StackEquals(pushdata1Stack.Stack, directStack.Stack);
 
 
 			var pushdata2Stack = context.Clone();
-			Assert.True(pushdata2Stack.EvalScript(pushdata2, Network.CreateTransaction(), 0));
+			Assert.True(pushdata2Stack.EvalScript(pushdata2, new TransactionChecker(Network.CreateTransaction(), 0), HashVersion.Original));
 			AssertEx.StackEquals(pushdata2Stack.Stack, directStack.Stack);
 
 			var pushdata4Stack = context.Clone();
-			Assert.True(pushdata4Stack.EvalScript(pushdata4, Network.CreateTransaction(), 0));
+			Assert.True(pushdata4Stack.EvalScript(pushdata4, new TransactionChecker(Network.CreateTransaction(), 0), HashVersion.Original));
 			AssertEx.StackEquals(pushdata4Stack.Stack, directStack.Stack);
 		}
 
@@ -1073,7 +1089,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(expected, actual);
 			var extract = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(actual, null);
 			Assert.Equal(extract, redeem);
-			extract = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(actual, new Key().ScriptPubKey.WitHash);
+			extract = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(actual, new Key().PubKey.ScriptPubKey.WitHash);
 			Assert.Null(extract);
 		}
 
@@ -1124,16 +1140,16 @@ namespace NBitcoin.Tests
 			Assert.Equal("0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d", destinations[1].ToHex());
 
 			var payToScriptHash = new Script("OP_HASH160 b5b88dd9befc9236915fcdbb7fd50052df50c855 OP_EQUAL");
-			Assert.NotNull(payToScriptHash.GetAddressableDestination());
-			Assert.IsType<ScriptId>(payToScriptHash.GetAddressableDestination());
-			Assert.Equal("b5b88dd9befc9236915fcdbb7fd50052df50c855", payToScriptHash.GetAddressableDestination().ToString());
-			Assert.True(payToScriptHash.GetAddressableDestination().GetAddress(Network.Main).GetType() == typeof(BitcoinScriptAddress));
+			Assert.NotNull(payToScriptHash.GetDestination());
+			Assert.IsType<ScriptId>(payToScriptHash.GetDestination());
+			Assert.Equal("b5b88dd9befc9236915fcdbb7fd50052df50c855", payToScriptHash.GetDestination().ToString());
+			Assert.True(payToScriptHash.GetDestination().GetAddress(Network.Main).GetType() == typeof(BitcoinScriptAddress));
 
 			var payToPubKeyHash = new Script("OP_DUP OP_HASH160 356facdac5f5bcae995d13e667bb5864fd1e7d59 OP_EQUALVERIFY OP_CHECKSIG");
-			Assert.NotNull(payToPubKeyHash.GetAddressableDestination());
-			Assert.IsType<KeyId>(payToPubKeyHash.GetAddressableDestination());
-			Assert.Equal("356facdac5f5bcae995d13e667bb5864fd1e7d59", payToPubKeyHash.GetAddressableDestination().ToString());
-			Assert.True(payToPubKeyHash.GetAddressableDestination().GetAddress(Network.Main).GetType() == typeof(BitcoinPubKeyAddress));
+			Assert.NotNull(payToPubKeyHash.GetDestination());
+			Assert.IsType<KeyId>(payToPubKeyHash.GetDestination());
+			Assert.Equal("356facdac5f5bcae995d13e667bb5864fd1e7d59", payToPubKeyHash.GetDestination().ToString());
+			Assert.True(payToPubKeyHash.GetDestination().GetAddress(Network.Main).GetType() == typeof(BitcoinPubKeyAddress));
 
 			var p2shScriptSig = new Script("0 3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301 51210364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c210364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d52ae");
 
@@ -1329,5 +1345,168 @@ namespace NBitcoin.Tests
 			Assert.True(script.IsScriptType(ScriptType.P2WSH));
 			Assert.False(script.IsScriptType(ScriptType.MultiSig));
 		}
+
+#if HAS_SPAN
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void bip340_test_vectors()
+		{
+			var VECTORS = new[]{
+			(Inputs: new[] { "F9308A019258C31049344F85F89D5229B531C845836F99B08601F113BCE036F9", "0000000000000000000000000000000000000000000000000000000000000000", "E907831F80848D1069A5371B402410364BDF1C5F8307B0084C55F1CE2DCA821525F66A4A85EA8B71E482A74F382D2CE5EBEEE8FDB2172F477DF4900D310536C0" }, Expected: true),
+			(Inputs: new[] { "DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659", "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", "6896BD60EEAE296DB48A229FF71DFE071BDE413E6D43F917DC8DCF8C78DE33418906D11AC976ABCCB20B091292BFF4EA897EFCB639EA871CFA95F6DE339E4B0A"}, Expected: true),
+			(Inputs: new[] { "DD308AFEC5777E13121FA72B9CC1B7CC0139715309B086C960E18FD969774EB8", "7E2D58D8B3BCDF1ABADEC7829054F90DDA9805AAB56C77333024B9D0A508B75C", "5831AAEED7B44BB74E5EAB94BA9D4294C49BCF2A60728D8B4C200F50DD313C1BAB745879A5AD954A72C45A91C3A51D3C7ADEA98D82F8481E0E1E03674A6F3FB7"}, Expected: true),
+			(Inputs: new[] { "25D1DFF95105F5253C4022F628A996AD3A0D95FBF21D468A1B33F8C160D8F517", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "7EB0509757E246F19449885651611CB965ECC1A187DD51B64FDA1EDC9637D5EC97582B9CB13DB3933705B32BA982AF5AF25FD78881EBB32771FC5922EFC66EA3"}, Expected: true),
+			(Inputs: new[] { "D69C3509BB99E412E68B0FE8544E72837DFA30746D8BE2AA65975F29D22DC7B9", "4DF3C3F68FCC83B27E9D42C90431A72499F17875C81A599B566C9889B9696703", "00000000000000000000003B78CE563F89A0ED9414F5AA28AD0D96D6795F9C6376AFB1548AF603B3EB45C9F8207DEE1060CB71C04E80F593060B07D28308D7F4"}, Expected: true),
+			(Inputs: new[] { "EEFDEA4CDB677750A420FEE807EACF21EB9898AE79B9768766E4FAA04A2D4A34", "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", "6CFF5C3BA86C69EA4B7376F31A9BCB4F74C1976089B2D9963DA2E5543E17776969E89B4C5564D00349106B8497785DD7D1D713A8AE82B32FA79D5F7FC407D39B"}, Expected: false),
+			(Inputs: new[] { "DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659", "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", "FFF97BD5755EEEA420453A14355235D382F6472F8568A18B2F057A14602975563CC27944640AC607CD107AE10923D9EF7A73C643E166BE5EBEAFA34B1AC553E2"}, Expected: false),
+			(Inputs: new[] { "DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659", "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", "1FA62E331EDBC21C394792D2AB1100A7B432B013DF3F6FF4F99FCB33E0E1515F28890B3EDB6E7189B630448B515CE4F8622A954CFE545735AAEA5134FCCDB2BD"}, Expected: false),
+			(Inputs: new[] { "DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659", "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", "6CFF5C3BA86C69EA4B7376F31A9BCB4F74C1976089B2D9963DA2E5543E177769961764B3AA9B2FFCB6EF947B6887A226E8D7C93E00C5ED0C1834FF0D0C2E6DA6"}, Expected: false),
+			(Inputs: new[] { "DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659", "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", "0000000000000000000000000000000000000000000000000000000000000000123DDA8328AF9C23A94C1FEECFD123BA4FB73476F0D594DCB65C6425BD186051"}, Expected: false),
+			(Inputs: new[] { "DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659", "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", "00000000000000000000000000000000000000000000000000000000000000017615FBAF5AE28864013C099742DEADB4DBA87F11AC6754F93780D5A1837CF197"}, Expected: false),
+			(Inputs: new[] { "DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659", "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", "4A298DACAE57395A15D0795DDBFD1DCB564DA82B0F269BC70A74F8220429BA1D69E89B4C5564D00349106B8497785DD7D1D713A8AE82B32FA79D5F7FC407D39B"}, Expected: false),
+			(Inputs: new[] { "DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659", "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F69E89B4C5564D00349106B8497785DD7D1D713A8AE82B32FA79D5F7FC407D39B"}, Expected: false),
+			(Inputs: new[] { "DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659", "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", "6CFF5C3BA86C69EA4B7376F31A9BCB4F74C1976089B2D9963DA2E5543E177769FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"}, Expected: false),
+			(Inputs: new[] { "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC30", "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", "6CFF5C3BA86C69EA4B7376F31A9BCB4F74C1976089B2D9963DA2E5543E17776969E89B4C5564D00349106B8497785DD7D1D713A8AE82B32FA79D5F7FC407D39B"}, Expected: false)
+			};
+
+			foreach (var v in VECTORS)
+			{
+				var pubkey = Encoders.Hex.DecodeData(v.Inputs[0]);
+				var msg = Encoders.Hex.DecodeData(v.Inputs[1]);
+				var sig = Encoders.Hex.DecodeData(v.Inputs[2]);
+				try
+				{
+					Assert.Equal(new TaprootPubKey(pubkey).VerifySignature(new uint256(msg), new SchnorrSignature(sig)), v.Expected);
+				}
+				catch (ArgumentException)
+				{
+					Assert.False(v.Expected);
+				}
+			}
+
+			var SIGN_VECTORS = new[]{
+			("0000000000000000000000000000000000000000000000000000000000000003", "F9308A019258C31049344F85F89D5229B531C845836F99B08601F113BCE036F9", "0000000000000000000000000000000000000000000000000000000000000000", "0000000000000000000000000000000000000000000000000000000000000000", "E907831F80848D1069A5371B402410364BDF1C5F8307B0084C55F1CE2DCA821525F66A4A85EA8B71E482A74F382D2CE5EBEEE8FDB2172F477DF4900D310536C0"),
+			("B7E151628AED2A6ABF7158809CF4F3C762E7160F38B4DA56A784D9045190CFEF", "DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659", "0000000000000000000000000000000000000000000000000000000000000001", "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", "6896BD60EEAE296DB48A229FF71DFE071BDE413E6D43F917DC8DCF8C78DE33418906D11AC976ABCCB20B091292BFF4EA897EFCB639EA871CFA95F6DE339E4B0A"),
+			("C90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B14E5C9", "DD308AFEC5777E13121FA72B9CC1B7CC0139715309B086C960E18FD969774EB8", "C87AA53824B4D7AE2EB035A2B5BBBCCC080E76CDC6D1692C4B0B62D798E6D906", "7E2D58D8B3BCDF1ABADEC7829054F90DDA9805AAB56C77333024B9D0A508B75C", "5831AAEED7B44BB74E5EAB94BA9D4294C49BCF2A60728D8B4C200F50DD313C1BAB745879A5AD954A72C45A91C3A51D3C7ADEA98D82F8481E0E1E03674A6F3FB7"),
+			("0B432B2677937381AEF05BB02A66ECD012773062CF3FA2549E44F58ED2401710", "25D1DFF95105F5253C4022F628A996AD3A0D95FBF21D468A1B33F8C160D8F517", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "7EB0509757E246F19449885651611CB965ECC1A187DD51B64FDA1EDC9637D5EC97582B9CB13DB3933705B32BA982AF5AF25FD78881EBB32771FC5922EFC66EA3")
+			};
+			foreach (var v in SIGN_VECTORS)
+			{
+				var key = new Key(Encoders.Hex.DecodeData(v.Item1));
+				var expectedpubkey = new TaprootInternalPubKey(Encoders.Hex.DecodeData(v.Item2));
+				var pubkey = key.PubKey.TaprootInternalKey;
+				var aux = new uint256(Encoders.Hex.DecodeData(v.Item3));
+				var msg256 = new uint256(Encoders.Hex.DecodeData(v.Item4));
+				var expectedSig = new SchnorrSignature(Encoders.Hex.DecodeData(v.Item5));
+				Assert.Equal(expectedpubkey, pubkey);
+				var sig64 = key.SignTaprootKeySpend(msg256, null, aux, TaprootSigHash.Default).SchnorrSignature;
+				Assert.Equal(expectedSig.ToString(), sig64.ToString());
+				// Verify those signatures for good measure.
+				Assert.True(pubkey.VerifyTaproot(msg256, null, sig64));
+
+				// Do 10 iterations where we sign with a random Merkle root to tweak,
+				// and compare against the resulting tweaked keys, with random aux.
+				// In iteration i=0 we tweak with empty Merkle tree.
+				for (int i = 0; i < 10; ++i)
+				{
+					uint256 merkle_root = i is 0 ? null : RandomUtils.GetUInt256();
+					var tweaked_key = pubkey.GetTaprootFullPubKey(merkle_root);
+					Assert.True(tweaked_key.CheckTapTweak(pubkey, merkle_root, tweaked_key.OutputKeyParity));
+					Assert.True(tweaked_key.CheckTapTweak(pubkey));
+					var aux256 = RandomUtils.GetUInt256();
+					sig64 = key.SignTaprootKeySpend(msg256, merkle_root, aux256, TaprootSigHash.Default).SchnorrSignature;
+					Assert.True(tweaked_key.VerifySignature(msg256, sig64));
+				}
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		// docker image gcc
+		// git clone https://github.com/bitcoin/bitcoin
+		// cd bitcoin
+		// apt update
+		// apt install -y python3 libsqlite3-dev libdb++-dev libdb-dev bsdmainutils libevent-dev libboost-dev libboost-system-dev libboost-filesystem-dev libboost-test-dev
+		// ./autogen.sh
+		// ./configure --with-gui=no --with-incompatible-bdb --without-miniupnpc  --disable-tests
+		// make -j4
+		// export TEST_DUMP_DIR=/tmp
+		// python3  feature_taproot.py --dumptests
+		// cd /tmp zip -r script_tests.zip *
+		public async Task scripts_tests3()
+		{
+			await foreach (var v in GetScriptsTest3Vectors())
+			{
+				Log.WriteLine(v.comment);
+				bool expectedSuccess = true;
+				foreach (var inputData in new[] { v.success, v.failure })
+				{
+					if (inputData is null)
+					{
+						expectedSuccess = false;
+						continue;
+					}
+					v.tx.Inputs[v.index].ScriptSig = inputData.scriptSig;
+					v.tx.Inputs[v.index].WitScript = new WitScript(inputData.witness.Select(p => Encoders.Hex.DecodeData(p)).ToArray());
+					TransactionValidator validator = v.tx.CreateValidator(v.prevouts.ToArray());
+					validator.ScriptVerify = ParseFlag(v.flags);
+					var result = validator.ValidateInput(v.index);
+					if (expectedSuccess != result.Error is null)
+					{
+						if (expectedSuccess)
+							Assert.False(true, $"Expected success, but got {result.Error.Value}");
+						else
+							Assert.False(true, "Expected failed but passed");
+					}
+					Assert.Equal(expectedSuccess, result.Error is null);
+					expectedSuccess = false;
+				}
+			}
+		}
+		
+		private static async IAsyncEnumerable<ScriptTest3Vector> GetScriptsTest3Vectors()
+		{
+			var testDataDir = Path.Combine("TestData", "script_tests");
+			var testDataZip = Path.Combine(testDataDir, "script_tests.zip");
+			if (!Directory.Exists(testDataDir))
+				Directory.CreateDirectory(testDataDir);
+			if (!File.Exists(testDataZip))
+			{
+				HttpClient client = new HttpClient();
+				var get = await client.GetAsync("https://aois.blob.core.windows.net/public/script_tests.zip");
+				File.WriteAllBytes(testDataZip, await get.Content.ReadAsByteArrayAsync());
+				using var fs = File.OpenRead(testDataZip);
+				var archive = new ZipArchive(fs);
+				archive.ExtractToDirectory(testDataDir);
+			}
+			foreach (var child in new DirectoryInfo(testDataDir).GetDirectories())
+			{
+				foreach (var file in child.GetFiles())
+				{
+					var text = File.ReadAllText(file.FullName);
+					text = text.Substring(0, text.Length - 2);
+					yield return NBitcoin.JsonConverters.Serializer.ToObject<ScriptTest3Vector>(text, Network.Main);
+				}
+			}
+		}
+
+		public class ScriptTest3Vector
+		{
+			public class Input
+			{
+				public Script scriptSig { get; set; }
+				public List<string> witness { get; set; }
+			}
+			public Transaction tx { get; set; }
+			public List<TxOut> prevouts { get; set; }
+			public int index { get; set; }
+			public string flags { get; set; }
+			public string comment { get; set; }
+			public Input success { get; set; }
+			public Input failure { get; set; }
+		}
+
+
+#endif
 	}
 }

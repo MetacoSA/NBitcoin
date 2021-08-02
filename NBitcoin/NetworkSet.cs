@@ -12,8 +12,6 @@ namespace NBitcoin
 {
 	public interface INetworkSet
 	{
-		[Obsolete("Use GetNetwork(ChainName.Mainnet/Testnet/Regtest) instead.")]
-		Network GetNetwork(NetworkType networkType);
 		Network GetNetwork(ChainName chainName);
 		Network Mainnet
 		{
@@ -37,20 +35,6 @@ namespace NBitcoin
 		object l = new object();
 		public NetworkSetBase()
 		{
-		}
-		[Obsolete("Use GetNetwork(ChainName.Mainnet/Testnet/Regtest) instead.")]
-		public Network GetNetwork(NetworkType networkType)
-		{
-			switch (networkType)
-			{
-				case NetworkType.Mainnet:
-					return Mainnet;
-				case NetworkType.Testnet:
-					return Testnet;
-				case NetworkType.Regtest:
-					return Regtest;
-			}
-			return null;
 		}
 		public virtual Network GetNetwork(ChainName chainName)
 		{

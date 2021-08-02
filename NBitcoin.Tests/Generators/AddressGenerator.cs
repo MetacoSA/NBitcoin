@@ -10,8 +10,8 @@ namespace NBitcoin.Tests.Generators
 {
 	public class AddressGenerator
 	{
-		public static Arbitrary<BitcoinAddress> BitcoinAddressArb() =>
-			 Arb.From<BitcoinAddress>(RandomAddress());
+		public static Arbitrary<BitcoinAddress> BitcoinAddressArb(Network n) =>
+			 Arb.From<BitcoinAddress>(RandomAddress(n));
 
 		public static Arbitrary<Tuple<BitcoinAddress, Network>> BitcoinAddressWithNetworkArb()
 		{
@@ -20,9 +20,6 @@ namespace NBitcoin.Tests.Generators
 						   select Tuple.Create(addr, n);
 			return Arb.From<Tuple<BitcoinAddress, Network>>(tupleGen);
 		}
-
-		public static Gen<BitcoinAddress> RandomAddress() =>
-			Gen.OneOf(P2PKHAddress(), P2SHAddress(), Bech32Address());
 
 		public static Gen<BitcoinAddress> RandomAddress(Network network) =>
 			Gen.OneOf(P2PKHAddress(network), P2SHAddress(network), Bech32Address(network));
@@ -42,7 +39,7 @@ namespace NBitcoin.Tests.Generators
 
 		public static Gen<BitcoinAddress> P2SHAddress(Network network) =>
 			from pk in PublicKey()
-			select (BitcoinAddress)pk.GetScriptAddress(network);
+			select (BitcoinAddress)pk.GetScriptPubKey(ScriptPubKeyType.Legacy).Hash.GetAddress(network);
 
 		public static Gen<BitcoinAddress> Bech32Address() =>
 			from n in ChainParamsGenerator.NetworkGen()
@@ -53,7 +50,7 @@ namespace NBitcoin.Tests.Generators
 
 		private static Gen<BitcoinAddress> P2WPKHAddress(Network network) =>
 			from pk in PublicKey()
-			select (BitcoinAddress)pk.GetSegwitAddress(network);
+			select (BitcoinAddress)pk.GetAddress(ScriptPubKeyType.Segwit, network);
 		private static Gen<BitcoinAddress> P2WSHAddress(Network network) =>
 			from script in MultiSignatureWitScript()
 			select (BitcoinAddress)new BitcoinWitScriptAddress(script.ToScript().WitHash, network);

@@ -649,10 +649,10 @@ namespace NBitcoin.Altcoins.Elements
 			}
 			stream.ReadWrite(ref nVersion);
 			stream.ReadWrite(ref flags);
-			stream.ReadWrite<TxInList, TxIn>(ref vin);
+			stream.ReadWrite(ref vin);
 
 			vin.Transaction = this;
-			stream.ReadWrite<TxOutList, TxOut>(ref vout);
+			stream.ReadWrite(ref vout);
 			vout.Transaction = this;
 			stream.ReadWrite(ref nLockTime);
 			if ((flags & 1) != 0)

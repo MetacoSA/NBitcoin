@@ -136,8 +136,9 @@ namespace NBitcoin.Altcoins
                 MinerConfirmationWindow = 20160,
                 CoinbaseMaturity = 120,
                 LitecoinWorkCalculation = true,
-                ConsensusFactory = FeathercoinConsensusFactory.Instance
-            })
+                ConsensusFactory = FeathercoinConsensusFactory.Instance,
+				SupportSegwit = true
+			})
             .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 14 })
             .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 5 })
             .SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 142 })
@@ -182,8 +183,9 @@ namespace NBitcoin.Altcoins
                 MinerConfirmationWindow = 500,
                 CoinbaseMaturity = 120,
                 LitecoinWorkCalculation = true,
-                ConsensusFactory = FeathercoinConsensusFactory.Instance
-            })
+                ConsensusFactory = FeathercoinConsensusFactory.Instance,
+				SupportSegwit = true
+			})
             .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
             .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
             .SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
@@ -227,8 +229,9 @@ namespace NBitcoin.Altcoins
                 MinerConfirmationWindow = 2016,
                 CoinbaseMaturity = 120,
                 LitecoinWorkCalculation = true,
-                ConsensusFactory = FeathercoinConsensusFactory.Instance
-            })
+                ConsensusFactory = FeathercoinConsensusFactory.Instance,
+				SupportSegwit = true
+			})
             .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
             .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
             .SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
