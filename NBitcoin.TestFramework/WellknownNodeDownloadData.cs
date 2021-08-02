@@ -1789,6 +1789,30 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class TriptourcoinNodeDownloadData : NodeDownloadDataBase
+		{
+
+			public NodeDownloadData v0_21_0 = new NodeDownloadData()
+			{
+				Version = "0.21.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "http://node1.triptourcoin.com/triptourcoin-{0}/triptourcoin-{0}-windows.zip",
+					Archive = "triptourcoin-{0}-windows.zip",
+					Executable = "triptourcoind.exe",
+					Hash = "eb1a3c46f31c8d43757b8ad9435e754d685a1e8a"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "http://node1.triptourcoin.com/triptourcoin-{0}/triptourcoin-{0}-linux.zip",
+					Archive = "Linux/bin/triptourcoin-{0}-linux.zip",
+					Executable = "Linux/bin/triptourcoind",
+					Hash = "299f8a8c2da5f0772bd8adc4f329d61bfd4dfca9"
+				},
+				UseSectionInConfigFile = true
+			};
+		}
+
 		public static LBRYCreditsNodeDownloadData LBRYCredits
 		{
 			get; set;
@@ -1963,6 +1987,10 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new NeblioNodeDownloadData();
 
+		public static TriptourcoinNodeDownloadData Triptourcoin
+		{
+			get; set;
+		} = new TriptourcoinNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
