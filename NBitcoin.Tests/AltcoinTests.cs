@@ -346,15 +346,17 @@ namespace NBitcoin.Tests
 					{
 						Assert.False(builder.Network.Consensus.SupportSegwit, "The node RPC does not support segwit, but Network.Consensus.SupportSegwit is set to true (This error can be normal if you are using a old node version)");
 					}
+#if HAS_SPAN
 					if (rpc.Capabilities.SupportTaproot)
 					{
-						Assert.True(builder.Network.Consensus.SupportTaproot, "The node RPC support segwit, but Network.Consensus.SupportSegwit is set to false");
+						Assert.True(builder.Network.Consensus.SupportTaproot, "The node RPC support taproot, but Network.Consensus.SupportTaproot is set to false");
 						rpc.SendToAddress(new Key().GetAddress(ScriptPubKeyType.TaprootBIP86, rpc.Network), Money.Coins(1.0m));
 					}
 					else
 					{
 						Assert.False(builder.Network.Consensus.SupportTaproot, "The node RPC does not support segwit, but Network.Consensus.SupportSegwit is set to true (This error can be normal if you are using a old node version)");
 					}
+#endif
 				}
 				catch (RPCException) when (!rpc.Capabilities.SupportSegwit)
 				{
