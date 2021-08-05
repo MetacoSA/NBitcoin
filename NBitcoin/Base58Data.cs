@@ -97,7 +97,12 @@ namespace NBitcoin
 				}
 				else
 				{
-					throw new FormatException("The version prefix does not match the expected one " + String.Join(",", expectedVersion));
+#if HAS_SPAN
+					var expectedVersionHexString = Encoders.Hex.EncodeData(expectedVersion.Span);
+#else
+					var expectedVersionHexString = Encoders.Hex.EncodeData(expectedVersion);
+#endif
+					throw new FormatException($"The version prefix does not match the expected one 0x{expectedVersionHexString}");
 				}
 			}
 			else
