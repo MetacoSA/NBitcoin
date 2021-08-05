@@ -12,7 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<Version Condition=" '$(Version)' == '' ">6.0.6</Version>
+		<Version Condition=" '$(Version)' == '' ">6.0.7</Version>
 		<LangVersion>8.0</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
