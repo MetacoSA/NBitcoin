@@ -52,10 +52,11 @@ namespace NBitcoin.Secp256k1
 			ge.x.WriteToSpan(output32);
 		}
 
-		/* Compute MuSig coefficient which is constant 1 for the second pubkey and
-	* SHA256(ell, x) otherwise. second_pk_x can be NULL in case there is no
-	* second_pk. Assumes both field elements x and second_pk_x are normalized. */
-		static Scalar secp256k1_musig_coefficient_internal(ReadOnlySpan<byte> ell, in FE x, in FE second_pk_x)
+		/* Compute KeyAgg coefficient which is constant 1 for the second pubkey and
+ * SHA256(ell, x) where ell is the hash of public keys otherwise. second_pk_x
+ * can be 0 in case there is no second_pk. Assumes both field elements x and
+ * second_pk_x are normalized. */
+		static Scalar secp256k1_musig_keyaggcoef_internal(ReadOnlySpan<byte> ell, in FE x, in FE second_pk_x)
 		{
 
 			using SHA256 sha = new SHA256();
@@ -76,12 +77,12 @@ namespace NBitcoin.Secp256k1
 			}
 		}
 
-		internal static Scalar secp256k1_musig_coefficient(MusigContext pre_session, in FE x)
+		internal static Scalar secp256k1_musig_keyaggcoef(MusigContext pre_session, in FE x)
 		{
-			return secp256k1_musig_coefficient_internal(pre_session.pk_hash, x, pre_session.second_pk_x);
+			return secp256k1_musig_keyaggcoef_internal(pre_session.pk_hash, x, pre_session.second_pk_x);
 		}
 
-		const string MusigTag = "MuSig coefficient";
+		const string MusigTag = "KeyAgg coefficient";
 
 		public static ECXOnlyPubKey MusigCombine(ECXOnlyPubKey[] pubkeys)
 		{
@@ -115,7 +116,7 @@ namespace NBitcoin.Secp256k1
 			for (int i = 0; i < pubkeys.Length; i++)
 			{
 				p[i] = pubkeys[i].Q;
-				s[i] = secp256k1_musig_coefficient_internal(ell, p[i].x, second_pk_x);
+				s[i] = secp256k1_musig_keyaggcoef_internal(ell, p[i].x, second_pk_x);
 			}
 			var pkj = ctx.EcMultContext.MultBatch(s, p);
 			var pkp = pkj.ToGroupElement().NormalizeYVariable();

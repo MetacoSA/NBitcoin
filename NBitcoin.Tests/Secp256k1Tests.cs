@@ -4146,7 +4146,7 @@ namespace NBitcoin.Tests
 			musigCtx.Tweak(tweak32);
 			musigCtx.ProcessNonces(pubnonces);
 
-			var expectedSigTemplate = "E0C188FB433A14C1176E3A1513CAC446F73ECD8378250F9AC0980EF6351DAE7839F425E95FDE2CC3A58B3967D55D0AD0CED92F20F2C08A33081D7424B6104FEB";
+			var expectedSigTemplate = "5cb7d3ff1e2718929594844d968a5f9ed94675d6d2dbc5e748bbef80aaabc42162180df3432a0948079575c6488ce346f1cc333a1af3b03ae73660b03043740a";
 			Assert.Equal(expectedSigTemplate.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.Template.ToBytes()));
 
 			MusigPartialSignature[] signatures = new MusigPartialSignature[pubkeys.Length];
@@ -4157,7 +4157,7 @@ namespace NBitcoin.Tests
 				Assert.True(musigCtx.Verify(eck.CreateXOnlyPubKey(), privateNonces[i].CreatePubNonce(), signatures[i]));
 			}
 			var schnorr = musigCtx.Combine(signatures);
-			var expectedSchnorr = "E0C188FB433A14C1176E3A1513CAC446F73ECD8378250F9AC0980EF6351DAE788B5BE9AEA017B88B9B13F7FE7FBB306759E5CE11F984B5C7FC07DE83408B2A23";
+			var expectedSchnorr = "5cb7d3ff1e2718929594844d968a5f9ed94675d6d2dbc5e748bbef80aaabc42149bfbec1d3d9eea0059d080d88cb8139ffd78e0e57c5d727ff45994c516ccd88";
 			Assert.Equal(expectedSchnorr.ToLowerInvariant(), Encoders.Hex.EncodeData(schnorr.ToBytes()));
 			Assert.True(musigCtx.SigningPubKey.SigVerifyBIP340(schnorr, msg32));
 		}
@@ -4175,7 +4175,7 @@ namespace NBitcoin.Tests
 
 
 			var pubkeys = GetPubKeys(privKeys);
-			var expectedCombinedPubkey = "1257E2FA1FBF93014BA49AF8F63143EF295348AD01D4DFCA20F5D1DC27F275B7";
+			var expectedCombinedPubkey = "db7dd0ecf81644c991099936bcf9da322ebf269f213e8c2b3cc47cb290a30b4e";
 			var combinedPubkey = ECXOnlyPubKey.MusigCombine(pubkeys);
 			Assert.Equal(expectedCombinedPubkey.ToLowerInvariant(), Encoders.Hex.EncodeData(combinedPubkey.ToBytes()));
 
@@ -4213,17 +4213,17 @@ namespace NBitcoin.Tests
 			musigCtx.ProcessNonces(pubnonces);
 			var expectedPkHash = "62CF4C50CE51C8E722EE3923E61609D10DF92404FDEE275727C57695386A18F6";
 			Assert.Equal(expectedPkHash.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.pk_hash));
-			var expectedSessionCache = "042B59E8B3BFE773F7C19ABC6510CE7B8D2F6EF0DF17B03D7CBF432D9F66A134662ED798D6D4564C1DDAC2C0709FE547E619A6DA8C63DF2782C56453A9EB804900";
+			var expectedSessionCache = "2edddea0e507546fb389a6118775ec6b4a0b85acae1a73e77f14a82f35473c0121a147835ece4eb23f85d8e1268781541143da274a3152f49d88a2eb70f3d72800";
 			Assert.Equal(expectedSessionCache.ToLowerInvariant(), Encoders.Hex.EncodeData(ToBytes(musigCtx.SessionCache)));
-			var expectedSigTemplate = "D8C6A59F21E3C3EF43F50D1E502ADD31708DC2D926CE51DAF12B6FB63744CCAD0000000000000000000000000000000000000000000000000000000000000000";
+			var expectedSigTemplate = "72220c5d0d21b831e5dff502a869f758d42781b1c116cde69fb83926dc2f2f020000000000000000000000000000000000000000000000000000000000000000";
 			Assert.Equal(expectedSigTemplate.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.Template.ToBytes()));
 
 
 			var expectedSigs = new[]
 			{
-				"8B65321ED13C94858B6F934849CA777CC4887FBDD63D89D85B8293B6D72D68FD",
-				"29FE58D038E1EFE3823CBC1DD93CABDBA087DAA0638453A14880D5AA23C722E8",
-				"EF5E74200851267D18E1799EB2379E674E454EDC555C6E2C0A9EBD918F46E994"
+				"5fe818d7922bdc21c5a70d9f47908bed6b9fe9b043b3f95279446d9b4acac877",
+				"39d370734acce855b6e76b6718c389a70cf5b2af9af48c2e0d1d70cfa3dc8265",
+				"5613f65335043d34cd6842f4155f40009fc82abcbb1aa4ed3aa0e8f30a255800"
 			};
 			MusigPartialSignature[] signatures = new MusigPartialSignature[pubkeys.Length];
 			for (int i = 0; i < pubkeys.Length; i++)

@@ -254,7 +254,7 @@ namespace NBitcoin.Secp256k1.Musig
 			/* Multiplying the messagehash by the musig coefficient is equivalent
 			 * to multiplying the signer's public key by the coefficient, except
 			 * much easier to do. */
-			var mu = ECXOnlyPubKey.secp256k1_musig_coefficient(pre_session, pkp.x);
+			var mu = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(pre_session, pkp.x);
 			var e = SessionCache.E * mu;
 			/* If the MuSig-combined point has an odd Y coordinate, the signers will
      * sign for the negation of their individual xonly public key such that the
@@ -362,7 +362,7 @@ namespace NBitcoin.Secp256k1.Musig
 
 			/* Multiply MuSig coefficient */
 			pk = pk.NormalizeXVariable();
-			var mu = ECXOnlyPubKey.secp256k1_musig_coefficient(pre_session, pk.x);
+			var mu = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(pre_session, pk.x);
 			sk = sk * mu;
 			if (session_cache.CombinedNonceParity)
 			{
