@@ -505,6 +505,24 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanGetStatsFromRPC()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				var blockHashes = rpc.Generate(1);
+				var stats = rpc.GetBlockStats(blockHashes[0]);
+
+				Assert.NotNull(stats);
+				Assert.Equal(2, stats.UTXOIncrease);
+				Assert.Equal(2, stats.Outs);
+				Assert.Equal(1, stats.Txs);
+				Assert.Equal(blockHashes[0], stats.BlockHash);
+			}
+		}
+
+		[Fact]
 		public async Task CanGetTxoutSetInfoAsync()
 		{
 			using (var builder = NodeBuilderEx.Create())
