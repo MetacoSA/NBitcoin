@@ -48,6 +48,7 @@ namespace NBitcoin.RPC
 		blockchain		getblockcount				Yes
 		blockchain		getblock					Yes
 		blockchain		getblockhash				Yes
+		blockchain		getblockstats				Yes
 		blockchain		getchaintips
 		blockchain		getdifficulty
 		blockchain		getmempoolinfo
@@ -851,7 +852,7 @@ namespace NBitcoin.RPC
 			JArray response;
 			try
 			{
-				retry:
+			retry:
 				var webRequest = CreateWebRequest(writer.ToString());
 				using (var httpResponse = await HttpClient.SendAsync(webRequest, cancellationToken).ConfigureAwait(false))
 				{
@@ -972,7 +973,7 @@ namespace NBitcoin.RPC
 				bool renewedCookie = false;
 				TimeSpan retryTimeout = TimeSpan.FromSeconds(1.0);
 				TimeSpan maxRetryTimeout = TimeSpan.FromSeconds(10.0);
-				retry:
+			retry:
 				var webRequest = CreateWebRequest(writer.ToString());
 				using (var httpResponse = await HttpClient.SendAsync(webRequest, cancellationToken).ConfigureAwait(false))
 				{
@@ -1535,6 +1536,54 @@ namespace NBitcoin.RPC
 				GolombRiceFilter.Parse(json.Value<string>("filter")),
 				uint256.Parse(json.Value<string>("header"))
 			);
+		}
+
+		public BlockStats GetBlockStats(uint256 blockHash, string[] stats = null)
+		{
+			return GetBlockStatsAsync(blockHash, stats).GetAwaiter().GetResult();
+		}
+
+		public Task<BlockStats> GetBlockStatsAsync(uint256 blockHash, CancellationToken cancellationToken = default)
+		{
+			return GetBlockStatsAsync(blockHash, null, cancellationToken);
+		}
+
+		public async Task<BlockStats> GetBlockStatsAsync(uint256 blockHash, string[] stats, CancellationToken cancellationToken = default)
+		{
+			var resp = await SendCommandAsync(RPCOperations.getblockstats, cancellationToken, blockHash, stats).ConfigureAwait(false);
+
+			return new BlockStats
+			{
+				AvgFee = Money.Satoshis(resp.Result.Value<ulong>("avgfee")),
+				AvgFeeRate = Money.Satoshis(resp.Result.Value<ulong>("avgfeerate")),
+				AvgTxSize = resp.Result.Value<int>("avgtxsize"),
+				BlockHash = blockHash,
+				FeeRatePercentiles = resp.Result["feerate_percentiles"] == null ? null : resp.Result.Value<JArray>("feerate_percentiles").Select(x => Money.Satoshis(x.Value<int>())).ToArray(),
+				Height = resp.Result.Value<int>("height"),
+				Ins = resp.Result.Value<int>("ins"),
+				MaxFee = Money.Satoshis(resp.Result.Value<ulong>("maxfee")),
+				MaxFeeRate = Money.Satoshis(resp.Result.Value<ulong>("maxfeerate")),
+				MaxTxSize = resp.Result.Value<int>("maxtxsize"),
+				MedianFee = Money.Satoshis(resp.Result.Value<ulong>("medianfee")),
+				MedianTime = Utils.UnixTimeToDateTime(resp.Result.Value<ulong>("mediantime")),
+				MedianTxSize = resp.Result.Value<int>("maxtxsize"),
+				MinFee = Money.Satoshis(resp.Result.Value<ulong>("minfee")),
+				MinFeeRate = Money.Satoshis(resp.Result.Value<ulong>("minfeerate")),
+				MinTxSize = resp.Result.Value<int>("mintxsize"),
+				Outs = resp.Result.Value<int>("outs"),
+				Subsidy = resp.Result.Value<long>("outs"),
+				SWTotalSize = resp.Result.Value<long>("swtotal_size"),
+				SWTotalWeight = resp.Result.Value<long>("swtotal_weight"),
+				SWTxs = resp.Result.Value<int>("swtxs"),
+				Time = Utils.UnixTimeToDateTime(resp.Result.Value<ulong>("time")),
+				TotalFee = Money.Satoshis(resp.Result.Value<ulong>("totalfee")),
+				TotalOut = resp.Result.Value<long>("total_out"),
+				TotalSize = resp.Result.Value<long>("total_size"),
+				TotalWeight = resp.Result.Value<long>("total_weight"),
+				Txs = resp.Result.Value<int>("txs"),
+				UTXOIncrease = resp.Result.Value<int>("utxo_increase"),
+				UTXOSizeInc = resp.Result.Value<int>("utxo_size_inc"),
+			};
 		}
 
 		public int GetBlockCount()
@@ -2672,6 +2721,40 @@ namespace NBitcoin.RPC
 			Filter = filter;
 			Header = header;
 		}
+	}
+
+	public class BlockStats
+	{
+		public Money AvgFee { get; set; }
+		public Money AvgFeeRate { get; set; }
+		public int AvgTxSize { get; set; }
+		public uint256 BlockHash { get; set; }
+		public Money[] FeeRatePercentiles { get; set; }
+		public int Height { get; set; }
+		public int Ins { get; set; }
+		public Money MaxFee { get; set; }
+		public Money MaxFeeRate { get; set; }
+		public int MaxTxSize { get; set; }
+		public Money MedianFee { get; set; }
+		public DateTimeOffset MedianTime { get; set; }
+		public int MedianTxSize { get; set; }
+		public Money MinFee { get; set; }
+		public Money MinFeeRate { get; set; }
+		public int MinTxSize { get; set; }
+		public int Outs { get; set; }
+		public long Subsidy { get; set; }
+		public long SWTotalSize { get; set; }
+		public long SWTotalWeight { get; set; }
+		public int SWTxs { get; set; }
+		public DateTimeOffset Time { get; set; }
+		public long TotalOut { get; set; }
+		public long TotalSize { get; set; }
+		public long TotalWeight { get; set; }
+		public Money TotalFee { get; set; }
+		public int Txs { get; set; }
+		public int UTXOIncrease { get; set; }
+		public int UTXOSizeInc { get; set; }
+		
 	}
 }
 #endif

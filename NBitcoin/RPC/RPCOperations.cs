@@ -97,6 +97,7 @@ namespace NBitcoin.RPC
 
 		getblockcount,
 		getblockfilter,
+		getblockstats,
 		getbestblockhash,
 		getdifficulty,
 		settxfee,
