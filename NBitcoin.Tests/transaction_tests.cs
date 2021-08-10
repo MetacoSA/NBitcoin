@@ -3129,6 +3129,14 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void Play()
 		{
+
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void DoNotCrashIfUsingOnlySignet()
+		{
+			new Key().GetAddress(ScriptPubKeyType.TaprootBIP86, Bitcoin.Instance.Signet);
 		}
 
 		class BrokenCoinSelector : ICoinSelector

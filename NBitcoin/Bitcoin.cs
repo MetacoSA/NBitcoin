@@ -91,7 +91,14 @@ namespace NBitcoin
 
 		static readonly ChainName SignetName = new ChainName("Signet");
 
-		public Network Signet { get; private set; }
+		Network _Signet;
+		public Network Signet
+		{
+			get
+			{
+				return _Signet ??= Network.GetNetwork("signet");
+			}
+		}
 		public Network GetNetwork(ChainName chainName)
 		{
 			if (chainName == null)
@@ -107,9 +114,9 @@ namespace NBitcoin
 			return null;
 		}
 
-		internal void InitSignet()
+		internal Network InitSignet()
 		{
-			Signet = CreateSignet();
+			return _Signet = CreateSignet();
 		}
 	}
 }

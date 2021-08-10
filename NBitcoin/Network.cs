@@ -2746,7 +2746,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Get network from name
 		/// </summary>
-		/// <param name="name">main,mainnet,testnet,test,testnet3,reg,regtest,seg,segnet</param>
+		/// <param name="name">main,mainnet,testnet,test,testnet3,reg,regtest,sig,signet</param>
 		/// <returns>The network or null of the name does not match any network</returns>
 		public static Network? GetNetwork(string name)
 		{
