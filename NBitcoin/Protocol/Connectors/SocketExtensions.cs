@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+#if !NET5_0_OR_GREATER
 namespace NBitcoin.Protocol.Connectors
 {
 	static class SocketExtensions
@@ -66,4 +67,5 @@ namespace NBitcoin.Protocol.Connectors
 #endif
 	}
 }
+#endif
 #endif
