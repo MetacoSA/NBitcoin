@@ -3132,12 +3132,14 @@ namespace NBitcoin.Tests
 
 		}
 
+#if HAS_SPAN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void DoNotCrashIfUsingOnlySignet()
 		{
 			new Key().GetAddress(ScriptPubKeyType.TaprootBIP86, Bitcoin.Instance.Signet);
 		}
+#endif
 
 		class BrokenCoinSelector : ICoinSelector
 		{
