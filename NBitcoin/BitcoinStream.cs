@@ -18,9 +18,9 @@ namespace NBitcoin
 {
 	public enum SerializationType
 	{
-		Disk,
-		Network,
-		Hash
+		Disk = (1 << 1),
+		Network = (1 << 0),
+		Hash = (1 << 2)
 	}
 	public class Scope : IDisposable
 	{

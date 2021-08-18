@@ -9,6 +9,11 @@ namespace NBitcoin.Altcoins.Elements
 
 	public class DynaFedParamEntry:IBitcoinSerializable
 	{
+		// Determines how these entries are serialized and stored
+		// 0 -> Null. Only used for proposed parameter "null votes"
+		// 1 -> Pruned. Doesn't have non-signblockscript data. That elided data
+		// is committed to in m_elided_root, and validated against chainstate.
+		// 2 -> Full. Typically only consensus-legal at epoch start.
 		byte SerializeType; // Determines how it is serialized, defaults to null
 		Script SignBlockScript = new Script();
 		uint SignBlockWitnessLimit; // Max block signature witness serialized size
@@ -16,7 +21,7 @@ namespace NBitcoin.Altcoins.Elements
 		Script FedPegScript = new Script(); // The witnessScript for witness v0 or undefined otherwise.
 		// No consensus meaning to the particular bytes, currently we interpret as PAK keys, details in pak.h
 		List<byte[]> ExtensionSpace = new List<byte[]>();
-
+		uint256 ElidedRoot; // non-zero only when m_serialize_type == 1
 		public bool IsEmpty =>
 			SerializeType == 0 && SignBlockScript == Script.Empty && SignBlockWitnessLimit == 0 &&
 			FedPegProgram == Script.Empty && FedPegScript == Script.Empty && !ExtensionSpace.Any();
@@ -33,6 +38,7 @@ namespace NBitcoin.Altcoins.Elements
 					case 1:
 						stream.ReadWrite(ref SignBlockScript);
 						stream.ReadWrite(ref SignBlockWitnessLimit);
+						stream.ReadWrite(ref ElidedRoot);
 						break;
 					case 2:
 						stream.ReadWrite(ref SignBlockScript);
@@ -74,32 +80,24 @@ namespace NBitcoin.Altcoins.Elements
 
 	public class ElementsBlockHeader<TNetwork> : BlockHeader
 	{
+		// HF bit to detect dynamic federation blocks
 		private  const int DYNAFED_HF_MASK = 1 << 31;
-		public override void ReadWrite(BitcoinStream stream)
+
+
+		private void Serialize(BitcoinStream stream)
 		{
 			var fAllowWitness = stream.TransactionOptions.HasFlag(TransactionOptions.Witness) && stream.ProtocolCapabilities.SupportWitness;
 			// Detect dynamic federation block serialization using "HF bit",
 			// or the signed bit which is invalid in Bitcoin
 			var isDynamic = false;
-			int version = 0;
-			if (!stream.Serializing)
+			int nVersion = this.nVersion;
+			if (!DynaFedParams.IsNull)
 			{
-
-				stream.ReadWrite(ref version);
-				isDynamic = version < 0;
-				nVersion = ~DYNAFED_HF_MASK & version;
-
+				nVersion |= DYNAFED_HF_MASK;
+				isDynamic = true;
 			}
-			else
-			{
-				version = nVersion;
-				if (!DynaFedParams.IsNull)
-				{
-					version |= DYNAFED_HF_MASK;
-					isDynamic = true;
-				}
-				stream.ReadWrite(ref version);
-			}
+
+			stream.ReadWrite(ref nVersion);
 
 			if (isDynamic)
 			{
@@ -108,20 +106,18 @@ namespace NBitcoin.Altcoins.Elements
 				stream.ReadWrite(ref nTime);
 				stream.ReadWrite(ref _nHeight);
 				stream.ReadWrite(ref DynaFedParams);
+				// We do not serialize witness for hashes, or weight calculation
 				if (stream.Type != SerializationType.Hash && fAllowWitness)
 				{
-					if (stream.Serializing)
-					{
-						SignBlockWitness.WriteToStream(stream);
-					}
-					else
-					{
-						SignBlockWitness = WitScript.Load(stream);
-					}
+					SignBlockWitness.WriteToStream(stream);
 				}
+			}
+			else
+			{
+
+				stream.ReadWrite(ref hashPrevBlock);
 				stream.ReadWrite(ref hashMerkleRoot);
 				stream.ReadWrite(ref nTime);
-
 				if (ElementsParams<TNetwork>.BlockHeightInHeader)
 				{
 					stream.ReadWrite(ref _nHeight);
@@ -137,20 +133,74 @@ namespace NBitcoin.Altcoins.Elements
 					stream.ReadWrite(ref nNonce);
 				}
 			}
-			else
+		}
+
+		private void UnSerialize(BitcoinStream stream)
+		{
+			var fAllowWitness = stream.TransactionOptions.HasFlag(TransactionOptions.Witness) && stream.ProtocolCapabilities.SupportWitness;
+
+			// Detect dynamic federation block serialization using "HF bit",
+			// or the signed bit which is invalid in Bitcoin
+			var isDynamic = false;
+			int version = 0;
+			stream.ReadWrite(ref version);
+			isDynamic = version < 0;
+			this.nVersion = ~DYNAFED_HF_MASK & version;
+
+			if (isDynamic)
 			{
 				stream.ReadWrite(ref hashPrevBlock);
 				stream.ReadWrite(ref hashMerkleRoot);
 				stream.ReadWrite(ref nTime);
 				stream.ReadWrite(ref _nHeight);
-				stream.ReadWrite(ref _Proof);
+				stream.ReadWrite(ref DynaFedParams);
+				// We do not serialize witness for hashes, or weight calculation
+				if (stream.Type != SerializationType.Hash && fAllowWitness)
+				{
+					SignBlockWitness = WitScript.Load(stream);
+				}
 			}
-		 }
+			else
+			{
+
+				stream.ReadWrite(ref hashPrevBlock);
+				stream.ReadWrite(ref hashMerkleRoot);
+				stream.ReadWrite(ref nTime);
+				if (ElementsParams<TNetwork>.BlockHeightInHeader)
+				{
+					stream.ReadWrite(ref _nHeight);
+				}
+
+				if (ElementsParams<TNetwork>.SignedBlocks)
+				{
+					stream.ReadWrite(ref _Proof);
+				}
+				else
+				{
+					stream.ReadWrite(ref nBits);
+					stream.ReadWrite(ref nNonce);
+				}
+			}
+		}
+		// ELEMENTS: we give explicit serialization methods so that we can
+		//  mask in the dynafed bit and to selectively embed the blocktime
+		public override void ReadWrite(BitcoinStream stream)
+		{
+			if (stream.Serializing)
+			{
+				Serialize(stream);
+			}
+			else
+			{
+				UnSerialize(stream);
+			}
+		}
 		public override bool IsNull =>ElementsParams<TNetwork>.SignedBlocks ? Proof.IsNull && DynaFedParams.IsNull : base.IsNull;
 
 		protected internal override void SetNull()
 		{
 			base.SetNull();
+			this.nVersion = 0;
 			_nHeight = 0;
 			_Proof = new BlockProof();
 			DynaFedParams = new DynaFedParams();
@@ -184,7 +234,7 @@ namespace NBitcoin.Altcoins.Elements
 
 		public DynaFedParams DynaFedParams = new DynaFedParams();
 
-		public WitScript SignBlockWitness;
+		public WitScript SignBlockWitness = WitScript.Empty;
 	}
 
 	public class BlockProof : IBitcoinSerializable
