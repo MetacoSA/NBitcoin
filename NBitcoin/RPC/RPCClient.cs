@@ -1025,6 +1025,9 @@ namespace NBitcoin.RPC
 
 		private async Task<bool> IsWorkQueueFull(HttpResponseMessage httpResponse)
 		{
+			// Changed in 22.0
+			if (httpResponse.StatusCode == HttpStatusCode.ServiceUnavailable)
+				return true;
 			if (httpResponse.StatusCode != HttpStatusCode.InternalServerError)
 				return false;
 			return (await httpResponse.Content?.ReadAsStringAsync())?.Equals("Work queue depth exceeded", StringComparison.Ordinal) is true;
