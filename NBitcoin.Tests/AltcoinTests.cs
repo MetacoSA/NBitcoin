@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using NBitcoin.Altcoins;
 using NBitcoin.JsonConverters;
@@ -194,8 +195,16 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void ElementsDynFedBlockTests()
+		public async Task ElementsDynFedBlockTests()
 		{
+			var stream = File.ReadAllBytes(
+				$"data/liquid-block-mainnet-4a9c3c0fbb1cb8ff106f474e967bc5ec17a7ba066abd605bfc6f0c078e79b609");;
+			var networkM = Altcoins.Liquid.Instance.Mainnet;
+			var h = "4a9c3c0fbb1cb8ff106f474e967bc5ec17a7ba066abd605bfc6f0c078e79b609";
+			var b = networkM.Consensus.ConsensusFactory.CreateBlock();
+			b.ReadWrite(stream, networkM.Consensus.ConsensusFactory);
+			Assert.Equal(h,b.GetHash().ToString() );
+
 			var network = Altcoins.Liquid.Instance.Regtest;
 			var dynFedBlockHash = "1d4cbd13031d7b0b140ae5e2b941c4a91a5715210cfee5a739125b8a437c157b";
 			var dynFedBlock =
@@ -213,7 +222,6 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void ElementsAddressTests()
 		{
-
 			var network = Altcoins.Liquid.Instance.Mainnet;
 			//p2sh-segwit blidned addresses mainnet
 			var key = Key.Parse("L22adb3BwuUxLoE8jDhNS7y9e92AYaHpXH5HSXZtFUKdJddEuFgm",network );
@@ -244,6 +252,15 @@ namespace NBitcoin.Tests
 					new PubKey("0360a7e0a0ec04f2153c0c5d839b1dd6339227d9abb4e697f5036ac75ce7f7fda4"), segwit);
 
 			Assert.Equal(blinded.ToString(), computed.ToString());
+		}
+
+		[Fact]
+		public async Task ElementsTxOutSerializationTests()
+		{
+			var h =
+				"0a7b4f211a0b435ff617123b9c88bbb9ae4c30583ed596417c40eca4d6f55b9eff00030d9ad60af2c4163a7045ed80231120136b5d909ac9fd9795f507315dac5bdbb517a914fb8f4bd01ffd273d9554a794b512538e971304d887";
+			var txout =Assert.IsType<ElementsTxOut<Liquid>>(Liquid.Instance.Mainnet.Consensus.ConsensusFactory.CreateTxOut());
+			txout.FromBytes(Encoders.Hex.DecodeData(h));
 		}
 
 		[Fact]
