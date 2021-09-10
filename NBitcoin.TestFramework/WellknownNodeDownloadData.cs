@@ -1238,7 +1238,7 @@ namespace NBitcoin.Tests
 
 			public NodeDownloadData v0_18_1_12 = new NodeDownloadData()
 			{
-				Version = "0.18.1.11",
+				Version = "0.18.1.12",
 				Windows = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://github.com/ElementsProject/elements/releases/download/elements-0.18.1.12/elements-0.18.1.12-win64.zip",
@@ -1246,9 +1246,9 @@ namespace NBitcoin.Tests
 					Executable = "elements-0.18.1.12/bin/elementsd.exe",
 					Hash = "ac3eabc603f1c91462b79ea10e4d7ad5f090ac2f2136d43078c12d1e5bdee831"
 				},
-				RegtestFolderName = "liquidv1test",
-				Chain = "liquidv1test",
 				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0\n\ncon_dyna_deploy_start=0\n\ncon_dyna_deploy_signal=1",
+				RegtestFolderName = "elementsregtest",
+				Chain = "elementsregtest",
 				UseSectionInConfigFile = true,
 			};
 
