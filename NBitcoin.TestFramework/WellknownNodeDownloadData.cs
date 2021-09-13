@@ -1246,7 +1246,7 @@ namespace NBitcoin.Tests
 					Executable = "elements-0.18.1.12/bin/elementsd.exe",
 					Hash = "ac3eabc603f1c91462b79ea10e4d7ad5f090ac2f2136d43078c12d1e5bdee831"
 				},
-				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0\n\ncon_dyna_deploy_start=0\n\ncon_dyna_deploy_signal=1",
+				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0\n\ncon_dyna_deploy_start=0\n\ncon_dyna_deploy_signal=1\ncon_nminerconfirmationwindow=1\ncon_nrulechangeactivationthreshold=1",
 				RegtestFolderName = "elementsregtest",
 				Chain = "elementsregtest",
 				UseSectionInConfigFile = true,
