@@ -64,13 +64,7 @@ namespace NBitcoin
 			}
 			for (int i = 0; i < data.Length; i++)
 			{
-				byte[] obj = data[i];
-				var len = VarInt.StaticRead(this);
-				if (len > (uint)MaxArraySize)
-					throw new ArgumentOutOfRangeException("Array size too big");
-				obj = new byte[len];
-				ReadWrite(ref obj);
-				data[i] = obj;
+				ReadWriteArray(ref data[i]);
 			}
 		}
 		private void ReadWriteArray(ref ulong[] data)
