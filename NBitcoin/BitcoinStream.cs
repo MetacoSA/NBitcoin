@@ -330,23 +330,6 @@ namespace NBitcoin
 				}
 			}
 		}
-		public  void ReadWriteListBytes(ref List<byte[]> data)
-		{
-			var dataArray = data?.ToArray();
-			if (Serializing && dataArray == null)
-			{
-				dataArray = new byte[0][];
-			}
-			ReadWriteArray(ref dataArray);
-			if (!Serializing)
-			{
-				if (data == null)
-					data = new List<byte[]>();
-				else
-					data.Clear();
-				data.AddRange(dataArray);
-			}
-		}
 
 		public void ReadWrite(ref byte[] arr)
 		{
@@ -429,7 +412,7 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
-		private void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
+		internal void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
 		{
 			if(data == null)
 				throw new ArgumentNullException(nameof(data));
@@ -458,7 +441,7 @@ namespace NBitcoin
 			}
 		}
 #else
-		private void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
+		internal void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
 		{
 			if (data == null)
 				throw new ArgumentNullException(nameof(data));

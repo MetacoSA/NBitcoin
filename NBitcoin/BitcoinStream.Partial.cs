@@ -42,31 +42,7 @@ namespace NBitcoin
 			}
 		}
 
-		private void ReadWriteArray(ref byte[][] data)
-		{
-			if (data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
-			if (Serializing)
-			{
-				var len = data == null ? 0 : (ulong)data.Length;
-				if (len > (uint)MaxArraySize)
-					throw new ArgumentOutOfRangeException("Array size too big");
-				VarInt.StaticWrite(this, len);
-				if (len == 0)
-					return;
-			}
-			else
-			{
-				var len = VarInt.StaticRead(this);
-				if (len > (uint)MaxArraySize)
-					throw new ArgumentOutOfRangeException("Array size too big");
-				data = new byte[len][];
-			}
-			for (int i = 0; i < data.Length; i++)
-			{
-				ReadWriteArray(ref data[i]);
-			}
-		}
+
 		private void ReadWriteArray(ref ulong[] data)
 		{
 			if (data == null && Serializing)
@@ -154,28 +130,7 @@ namespace NBitcoin
 		}
 
 
-		private void ReadWriteArray(ref byte[] data)
-		{
-			if (data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
-			if (Serializing)
-			{
-				var len = data == null ? 0 : (ulong)data.Length;
-				if (len > (uint)MaxArraySize)
-					throw new ArgumentOutOfRangeException("Array size too big");
-				VarInt.StaticWrite(this, len);
-				if (len == 0)
-					return;
-			}
-			else
-			{
-				var len = VarInt.StaticRead(this);
-				if (len > (uint)MaxArraySize)
-					throw new ArgumentOutOfRangeException("Array size too big");
-				data = new byte[len];
-			}
-			this.ReadWriteBytes(ref data);
-		}
+
 
 
 		public void ReadWrite(ref ulong[] data)
