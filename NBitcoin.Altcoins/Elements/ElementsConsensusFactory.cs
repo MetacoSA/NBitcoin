@@ -36,6 +36,16 @@ namespace NBitcoin.Altcoins.Elements
 			return new ElementsTransaction<TNetwork>();
 		}
 
+		public override TxOut CreateTxOut()
+		{
+			return new ElementsTxOut<TNetwork>();
+		}
+
+		public override TxIn CreateTxIn()
+		{
+			return new ElementsTxIn<TNetwork>();
+		}
+
 		protected override TransactionBuilder CreateTransactionBuilderCore(Network network)
 		{
 			var builder = new ElementsTransactionBuilder(network);

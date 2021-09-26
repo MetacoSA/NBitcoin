@@ -303,6 +303,34 @@ namespace NBitcoin.Tests
 				UseSectionInConfigFile = true,
 				CreateWallet = true
 			};
+
+			public NodeDownloadData v22_0 = new NodeDownloadData()
+			{
+				Version = "22.0",
+				Linux = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "59ebd25dd82a51638b7a6bb914586201e67db67b919b2a1ff08925a7936d1b16"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-osx64.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "2744d199c3343b2d94faffdfb2c94d75a630ba27301a70e47b0ad30a7e0155e9"
+				},
+				Windows = new NodeOSDownloadData()
+				{
+					Executable = "bitcoin-{0}/bin/bitcoind.exe",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win64.zip",
+					Archive = "bitcoin-{0}-win64.zip",
+					Hash = "9485e4b52ed6cebfe474ab4d7d0c1be6d0bb879ba7246a8239326b2230a77eb1"
+				},
+				UseSectionInConfigFile = true,
+				CreateWallet = true
+			};
 		}
 
 		public class LitecoinNodeDownloadData : NodeDownloadDataBase
@@ -1171,6 +1199,33 @@ namespace NBitcoin.Tests
 				},
 				UseSectionInConfigFile = true
 			};
+
+			public NodeDownloadData v22_0 = new NodeDownloadData()
+			{
+				Version = "22.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-win64.zip",
+					Archive = "groestlcoin-{0}-win64.zip",
+					Executable = "groestlcoin-{0}/bin/groestlcoind.exe",
+					Hash = "a4cad64a4c47796d3a6c2d3f28e1088a6ae39ca8a66d6b06dc453bfd234a4275"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "groestlcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "groestlcoin-{0}/bin/groestlcoind",
+					Hash = "b30c5353dd3d9cfd7e8b31f29eac125925751165f690bacff57effd76560dddd"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-osx64.tar.gz",
+					Archive = "groestlcoin-{0}-osx64.tar.gz",
+					Executable = "groestlcoin-{0}/bin/groestlcoind",
+					Hash = "bdcdfac563eb54bc3de185c9b92200a36ccbd10d018aebd665e0bbe65a4480db"
+				},
+				UseSectionInConfigFile = true
+			};
 		}
 
 		public class ZclassicNodeDownloadData
@@ -1233,6 +1288,22 @@ namespace NBitcoin.Tests
 				RegtestFolderName = "elementsregtest",
 				Chain = "elementsregtest",
 				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0\n\ncon_dyna_deploy_start=99999999999999999",
+				UseSectionInConfigFile = true,
+			};
+
+			public NodeDownloadData v0_18_1_12 = new NodeDownloadData()
+			{
+				Version = "0.18.1.12",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/ElementsProject/elements/releases/download/elements-0.18.1.12/elements-0.18.1.12-win64.zip",
+					Archive = "elements-{0}-win64.zip",
+					Executable = "elements-0.18.1.12/bin/elementsd.exe",
+					Hash = "ac3eabc603f1c91462b79ea10e4d7ad5f090ac2f2136d43078c12d1e5bdee831"
+				},
+				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0\n\ncon_dyna_deploy_start=0\n\ncon_dyna_deploy_signal=1\ncon_nminerconfirmationwindow=1\ncon_nrulechangeactivationthreshold=1",
+				RegtestFolderName = "elementsregtest",
+				Chain = "elementsregtest",
 				UseSectionInConfigFile = true,
 			};
 
