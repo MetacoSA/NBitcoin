@@ -70,7 +70,7 @@ namespace NBitcoin.Tests
 
 			//var builder = Create(NodeDownloadData.Bitcoin.v0_19_0_1, caller);
 
-			 var builder = Create(NodeDownloadData.Bitcoin.v0_21_1, caller);
+			var builder = Create(NodeDownloadData.Bitcoin.v22_0, caller);
 			return builder;
 		}
 
