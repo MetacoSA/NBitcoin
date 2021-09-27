@@ -62,8 +62,11 @@ namespace NBitcoin
 			var network = builder.BuildAndRegister();
 #if !NOFILEIO
 			var data = Network.GetDefaultDataFolder("bitcoin");
-			var signetCookie = Path.Combine(data, "signet", ".cookie");
-			RPC.RPCClient.RegisterDefaultCookiePath(network, signetCookie);
+			if (data != null)
+			{
+				var signetCookie = Path.Combine(data, "signet", ".cookie");
+				RPC.RPCClient.RegisterDefaultCookiePath(network, signetCookie);
+			}
 #endif
 			return network;
 		}
