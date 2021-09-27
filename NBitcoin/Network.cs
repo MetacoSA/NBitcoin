@@ -2073,7 +2073,7 @@ namespace NBitcoin
 		public static string? GetDefaultDataFolder(string folderName)
 		{
 			var home = Environment.GetEnvironmentVariable("HOME");
-			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
+			var localAppData = Environment.GetEnvironmentVariable("APPDATA") ?? Path.GetTempPath();
 			if (string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
 				return null;
 			if (!string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
