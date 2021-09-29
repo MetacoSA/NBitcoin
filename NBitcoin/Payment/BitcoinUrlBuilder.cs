@@ -23,6 +23,7 @@ namespace NBitcoin.Payment
 		{
 
 		}
+
 		public BitcoinUrlBuilder(Uri uri, Network network)
 			: this(uri.AbsoluteUri, network)
 		{
@@ -34,11 +35,12 @@ namespace NBitcoin.Payment
 		{
 			if (uri == null)
 				throw new ArgumentNullException(nameof(uri));
-			if (!uri.StartsWith("bitcoin:", StringComparison.OrdinalIgnoreCase))
+
+			if (!uri.StartsWith($"{CoinName}:", StringComparison.OrdinalIgnoreCase))
 				throw new FormatException("Invalid scheme");
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
-			uri = uri.Remove(0, "bitcoin:".Length);
+			uri = uri.Remove(0, $"{CoinName}:".Length);
 			if (uri.StartsWith("//"))
 				uri = uri.Remove(0, 2);
 
@@ -88,6 +90,8 @@ namespace NBitcoin.Payment
 		}
 
 		private readonly Dictionary<string, string> _UnknowParameters = new Dictionary<string, string>();
+		protected virtual string CoinName { get; } = "bitcoin";
+
 		public Dictionary<string, string> UnknowParameters
 		{
 			get
@@ -121,7 +125,7 @@ namespace NBitcoin.Payment
 			{
 				Dictionary<string, string> parameters = new Dictionary<string, string>();
 				StringBuilder builder = new StringBuilder();
-				builder.Append("bitcoin:");
+				builder.Append($"{CoinName}:");
 				if (Address != null)
 				{
 					builder.Append(Address.ToString());
