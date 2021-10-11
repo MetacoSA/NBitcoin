@@ -3129,7 +3129,27 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void Play()
 		{
+			
+		}
 
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCreateBigTransactionsWithLotsOfInputs()
+		{
+			var k = new Key();
+			var addr = k.GetScriptPubKey(ScriptPubKeyType.Segwit);
+			var coins = Enumerable.Range(0, 100_000)
+				.Select(c => new Coin(new OutPoint(RandomUtils.GetUInt256(), 0), new TxOut(Money.Coins(1.0m) + Money.Satoshis((long)(RandomUtils.GetUInt32() % 1000)), addr)))
+				.ToArray();
+			var builder = new TransactionBuilder(Network.Main);
+			builder.AddCoins(coins);
+			builder.AddKeys(k);
+			builder.Send(new Key(), Money.Coins(99_000m - 89912 - 7723));
+			builder.SetChange(new Key());
+			builder.SendEstimatedFees(new FeeRate(1.0m));
+			var tx = builder.BuildTransaction(true);
+			Assert.True(tx.Inputs.Count > 1300);
 		}
 
 #if HAS_SPAN

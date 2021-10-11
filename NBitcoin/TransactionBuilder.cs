@@ -1792,7 +1792,9 @@ namespace NBitcoin
 			if (estimatedSize > MAX_TX_VSIZE)
 			{
 				needRepass = true;
-				int inputsToDelete = ctx.Transaction.Inputs.Count - ((MAX_TX_VSIZE * ctx.Transaction.Inputs.Count) / estimatedSize);
+				var bytesPerInput = (double)estimatedSize / (double)ctx.Transaction.Inputs.Count;
+				var maxInputCount = (int)((double)MAX_TX_VSIZE / bytesPerInput);
+				var inputsToDelete = ctx.Transaction.Inputs.Count - maxInputCount;
 				var minValue = ctx.Selection.OfType<Coin>()
 										.OrderBy(c => c.Amount)
 										.Skip(inputsToDelete - 1)
