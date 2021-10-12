@@ -468,15 +468,18 @@ namespace NBitcoin
 		internal class TransactionSigningContext
 		{
 			public TransactionSigningContext(TransactionBuilder builder, PSBT psbt, SigningOptions signingOptions)
-				: this(builder, psbt.GetOriginalTransaction(), psbt.GetSigningOptions(signingOptions))
+				: this(builder, psbt, psbt.GetOriginalTransaction(), psbt.GetSigningOptions(signingOptions))
 			{
-				PSBT = psbt;
 			}
 			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, SigningOptions signingOptions)
+				: this(builder, transaction.CreatePSBT(builder.Network), transaction, signingOptions)
+			{
+			}
+			public TransactionSigningContext(TransactionBuilder builder, PSBT psbt, Transaction transaction, SigningOptions signingOptions)
 			{
 				Builder = builder;
 				Transaction = transaction;
-				PSBT = transaction.CreatePSBT(builder.Network);
+				PSBT = psbt;
 				if (signingOptions.PrecomputedTransactionData is null)
 				{
 					signingOptions = signingOptions.Clone();
@@ -1607,12 +1610,11 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(psbtInput));
 			var psbt = psbtInput.PSBT;
 			AddCoins(psbt);
-			var signingContext = new TransactionSigningContext(this, psbt.Clone(), signingOptions)
+			var signingContext = new TransactionSigningContext(this, psbt, signingOptions)
 			{
 				SignOnlyInputIndex = psbtInput.Index
 			};
 			SignTransactionContext(signingContext);
-			psbt.Combine(signingContext.PSBT);
 			return this;
 		}
 

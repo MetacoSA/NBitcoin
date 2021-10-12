@@ -1019,7 +1019,7 @@ namespace NBitcoin
 			return true;
 		}
 
-		private static bool IsTaprootReady(SigningOptions signingOptions, Coin coin)
+		internal static bool IsTaprootReady(SigningOptions signingOptions, Coin coin)
 		{
 			return !coin.ScriptPubKey.IsScriptType(ScriptType.Taproot) || (signingOptions.PrecomputedTransactionData is TaprootReadyPrecomputedTransactionData);
 		}
