@@ -3145,7 +3145,7 @@ namespace NBitcoin.Tests
 			var builder = new TransactionBuilder(Network.Main);
 			builder.AddCoins(coins);
 			builder.AddKeys(k);
-			builder.Send(new Key(), Money.Coins(99_000m - 89912 - 7723));
+			builder.Send(new Key(), Money.Coins(99_000m - 89912 - 7726));
 			builder.SetChange(new Key());
 			builder.SendEstimatedFees(new FeeRate(1.0m));
 			var tx = builder.BuildTransaction(true);
