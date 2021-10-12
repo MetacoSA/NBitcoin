@@ -976,10 +976,18 @@ namespace NBitcoin
 				transactionBuilder.AddKnownSignature(k, ts, coin.Outpoint);
 			}
 #endif
-			var finalizedInput = Parent.Clone().Inputs[(int)Index];
+			var finalizedInput = this;
+			var previousFinalScriptSig = this.FinalScriptSig;
+			var previousFinalScriptWit = this.FinalScriptWitness;
+
+			void Rollback()
+			{
+				this.FinalScriptSig = previousFinalScriptSig;
+				this.FinalScriptWitness = previousFinalScriptWit;
+			}
 			try
 			{
-				transactionBuilder.FinalizePSBTInput(finalizedInput);
+				transactionBuilder.FinalizePSBTInput(this);
 				if (!finalizedInput.IsFinalized() && Parent.Settings.IsSmart)
 				{
 					transactionBuilder.ExtractSignatures(finalizedInput.PSBT, Parent.GetOriginalTransaction());
@@ -988,11 +996,13 @@ namespace NBitcoin
 			}
 			catch (Exception ex)
 			{
+				Rollback();
 				errors = new List<PSBTError>() { new PSBTError(Index, $"Error while finalizing the input \"{getSignableCoinError ?? ex.Message}\"") };
 				return false;
 			}
 			if (!finalizedInput.IsFinalized())
 			{
+				Rollback();
 				errors = new List<PSBTError>() { new PSBTError(Index, $"Impossible to finalize the input") };
 				return false;
 			}
@@ -1000,13 +1010,12 @@ namespace NBitcoin
 			{
 				if (!finalizedInput.VerifyScript(Parent.Settings.ScriptVerify, signingOptions.PrecomputedTransactionData, out var err2))
 				{
+					Rollback();
 					errors = new List<PSBTError>() { new PSBTError(Index, $"The finalized input script does not properly validate \"{err2}\"") };
 					return false;
 				}
 			}
 
-			FinalScriptSig = finalizedInput.FinalScriptSig is Script oo && oo != Script.Empty ? oo : null;
-			FinalScriptWitness = finalizedInput.FinalScriptWitness is WitScript o && o != WitScript.Empty ? o : null;
 			if (coin is ScriptCoin scriptCoin)
 			{
 				if (scriptCoin.IsP2SH)

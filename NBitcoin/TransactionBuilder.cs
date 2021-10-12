@@ -1633,12 +1633,11 @@ namespace NBitcoin
 			if (psbtInput is null)
 				throw new ArgumentNullException(nameof(psbtInput));
 			var psbt = psbtInput.PSBT;
-			var signingContext = new TransactionSigningContext(this, psbtInput.PSBT.Clone(), signingOptions)
+			var signingContext = new TransactionSigningContext(this, psbtInput.PSBT, signingOptions)
 			{
 				SignOnlyInputIndex = psbtInput.Index
 			};
 			FinalizeTransactionContext(signingContext);
-			psbt.Combine(signingContext.PSBT);
 			return this;
 		}
 
