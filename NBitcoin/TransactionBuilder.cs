@@ -345,32 +345,26 @@ namespace NBitcoin
 	{
 		internal class TransactionBuilderSigner : ISigner
 		{
-			private readonly TransactionSigningContext ctx;
-			private readonly SigningOptions signingOptions;
-			ICoin coin;
-			PSBTInput txIn;
+			private readonly InputSigningContext inputCtx;
 			public TransactionBuilderSigner(InputSigningContext ctx)
 			{
-				this.ctx = ctx.TransactionContext;
-				this.coin = ctx.Coin;
-				this.txIn = ctx.Input;
-				this.signingOptions = ctx.TransactionContext.SigningOptions;
+				this.inputCtx = ctx;
 			}
 			#region ISigner Members
 
 			public ITransactionSignature? Sign(IPubKey pubKey)
 			{
-				var keypair = ctx.FindKey(pubKey);
+				var keypair = inputCtx.CoinOptions?.KeyPair ?? inputCtx.TransactionContext.FindKey(pubKey);
 				if (keypair is null)
 					return null;
-				var indexedTxIn = txIn.GetIndexedInput();
+				var indexedTxIn = inputCtx.Input.GetIndexedInput();
 #if HAS_SPAN
 				if (keypair is TaprootKeyPair tkp)
 				{
-					return indexedTxIn.SignTaprootKeySpend(tkp, coin, signingOptions);
+					return indexedTxIn.SignTaprootKeySpend(tkp, inputCtx.Coin, inputCtx.TransactionContext.SigningOptions);
 				}
 #endif
-				return indexedTxIn.Sign(keypair.Key, coin, signingOptions);
+				return indexedTxIn.Sign(keypair.Key, inputCtx.Coin, inputCtx.TransactionContext.SigningOptions);
 			}
 
 			#endregion
@@ -411,8 +405,8 @@ namespace NBitcoin
 		}
 		internal class TransactionBuilderKeyRepository : IKeyRepository
 		{
-			TransactionSigningContext _Ctx;
-			public TransactionBuilderKeyRepository(TransactionSigningContext ctx)
+			InputSigningContext _Ctx;
+			public TransactionBuilderKeyRepository(InputSigningContext ctx)
 			{
 				_Ctx = ctx;
 			}
@@ -420,7 +414,7 @@ namespace NBitcoin
 
 			public IPubKey? FindKey(Script scriptPubkey)
 			{
-				return _Ctx.FindKey(scriptPubkey)?.PubKey;
+				return _Ctx.CoinOptions?.KeyPair?.PubKey ?? _Ctx.TransactionContext.FindKey(scriptPubkey)?.PubKey;
 			}
 
 			#endregion
@@ -525,7 +519,7 @@ namespace NBitcoin
 
 			public InputSigningContext CreateInputContext(ICoin coin, PSBTInput input, TxIn originalInput, BuilderExtension extension)
 			{
-				return new InputSigningContext(this, coin, input, originalInput, extension);
+				return new InputSigningContext(this, coin, this.Builder.FindCoinOptions(coin.Outpoint), input, originalInput, extension);
 			}
 
 			public IEnumerable<InputSigningContext> GetInputSigningContexts()
@@ -2055,7 +2049,7 @@ namespace NBitcoin
 		}
 		IEnumerable<IKeyRepository> GetKeyRepositories(InputSigningContext inputCtx)
 		{
-			yield return new TransactionBuilderKeyRepository(inputCtx.TransactionContext);
+			yield return new TransactionBuilderKeyRepository(inputCtx);
 			yield return new KnownSignatureSigner(inputCtx, _KnownSignatures);
 		}
 		public ICoin? FindSignableCoin(IndexedTxIn txIn)
@@ -2328,6 +2322,11 @@ namespace NBitcoin
 			if (result == null && CoinFinder != null)
 				result = CoinFinder(outPoint);
 			return result;
+		}
+
+		internal CoinOptions? FindCoinOptions(OutPoint outPoint)
+		{
+			return _BuilderGroups.Select(c => c.CoinsWithOptions.TryGet(outPoint)).FirstOrDefault(r => r != null)?.Options;
 		}
 
 		/// <summary>

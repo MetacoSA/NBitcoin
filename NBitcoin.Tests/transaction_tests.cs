@@ -3151,6 +3151,25 @@ namespace NBitcoin.Tests
 			var tx = builder.BuildTransaction(true);
 			Assert.True(tx.Inputs.Count > 1300);
 		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSignWithCoinSpecificKey()
+		{
+			var k = new Key();
+			var addr = k.GetScriptPubKey(ScriptPubKeyType.Segwit);
+			var coins = Enumerable.Range(0, 2)
+				.Select(c => new Coin(new OutPoint(RandomUtils.GetUInt256(), 0), new TxOut(Money.Coins(1.0m) + Money.Satoshis((long)(RandomUtils.GetUInt32() % 1000)), addr)))
+				.ToArray();
+			var builder = new TransactionBuilder(Network.Main);
+			builder.AddCoin(coins[0], new CoinOptions() { KeyPair = KeyPair.CreateECDSAPair(k) });
+			builder.AddCoin(coins[1]);
+			builder.SetChange(new Key());
+			builder.SendAllRemainingToChange();
+			builder.SendEstimatedFees(new FeeRate(1.0m));
+			var psbt = builder.BuildPSBT(true);
+			Assert.True(psbt.Inputs.FindIndexedInput(coins[0].Outpoint).TryFinalizeInput(out _));
+			Assert.False(psbt.Inputs.FindIndexedInput(coins[1].Outpoint).TryFinalizeInput(out _));
+		}
 
 #if HAS_SPAN
 		[Fact]

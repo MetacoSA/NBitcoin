@@ -591,6 +591,7 @@ namespace NBitcoin
 		WitnessV0
 	}
 
+#nullable enable
 	public class CoinOptions
 	{
 		public CoinOptions()
@@ -599,7 +600,9 @@ namespace NBitcoin
 		}
 
 		public Sequence? Sequence { get; set; }
+		public KeyPair? KeyPair { get; set; }
 	}
+#nullable restore
 
 
 	/// <summary>
