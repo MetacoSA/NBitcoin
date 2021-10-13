@@ -100,6 +100,8 @@ namespace NBitcoin.BuilderExtensions
 
 		public override void ExtractExistingSignatures(InputSigningContext inputSigningContext)
 		{
+			if (inputSigningContext.OriginalTxIn is null || inputSigningContext.TransactionContext.Transaction is null)
+				return;
 			var scriptSig = inputSigningContext.OriginalTxIn.ScriptSig;
 			var witScript = inputSigningContext.OriginalTxIn.WitScript;
 			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(inputSigningContext.Coin.GetScriptCode());
@@ -175,6 +177,8 @@ namespace NBitcoin.BuilderExtensions
 
 		public override void MergePartialSignatures(InputSigningContext inputSigningContext)
 		{
+			if (inputSigningContext.OriginalTxIn is null || inputSigningContext.TransactionContext.Transaction is null)
+				return;
 			var scriptSig = inputSigningContext.OriginalTxIn.ScriptSig;
 			var witScript = inputSigningContext.OriginalTxIn.WitScript;
 			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(inputSigningContext.Coin.GetScriptCode());

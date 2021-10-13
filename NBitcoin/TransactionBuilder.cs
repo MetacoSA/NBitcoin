@@ -462,14 +462,14 @@ namespace NBitcoin
 		internal class TransactionSigningContext
 		{
 			public TransactionSigningContext(TransactionBuilder builder, PSBT psbt, SigningOptions signingOptions)
-				: this(builder, psbt, psbt.GetOriginalTransaction(), psbt.GetSigningOptions(signingOptions))
+				: this(builder, psbt, null, psbt.GetSigningOptions(signingOptions))
 			{
 			}
 			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, SigningOptions signingOptions)
 				: this(builder, transaction.CreatePSBT(builder.Network), transaction, signingOptions)
 			{
 			}
-			public TransactionSigningContext(TransactionBuilder builder, PSBT psbt, Transaction transaction, SigningOptions signingOptions)
+			public TransactionSigningContext(TransactionBuilder builder, PSBT psbt, Transaction? transaction, SigningOptions signingOptions)
 			{
 				Builder = builder;
 				Transaction = transaction;
@@ -477,17 +477,17 @@ namespace NBitcoin
 				if (signingOptions.PrecomputedTransactionData is null)
 				{
 					signingOptions = signingOptions.Clone();
-					var prevTxous = transaction.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
+					var prevTxous = psbt.tx.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
 					if (prevTxous.All(p => p != null))
-						signingOptions.PrecomputedTransactionData = transaction.PrecomputeTransactionData(prevTxous!);
+						signingOptions.PrecomputedTransactionData = psbt.tx.PrecomputeTransactionData(prevTxous!);
 					else
-						signingOptions.PrecomputedTransactionData = transaction.PrecomputeTransactionData();
+						signingOptions.PrecomputedTransactionData = psbt.tx.PrecomputeTransactionData();
 				}
 				SigningOptions = signingOptions;
 			}
 
 			public PSBT PSBT { get; set; }
-			public Transaction Transaction
+			public Transaction? Transaction
 			{
 				get;
 				set;
@@ -517,7 +517,7 @@ namespace NBitcoin
 			public SigningOptions SigningOptions { get; }
 			public uint? SignOnlyInputIndex { get; internal set; }
 
-			public InputSigningContext CreateInputContext(ICoin coin, PSBTInput input, TxIn originalInput, BuilderExtension extension)
+			public InputSigningContext CreateInputContext(ICoin coin, PSBTInput input, TxIn? originalInput, BuilderExtension extension)
 			{
 				return new InputSigningContext(this, coin, this.Builder.FindCoinOptions(coin.Outpoint), input, originalInput, extension);
 			}
@@ -528,8 +528,19 @@ namespace NBitcoin
 				{
 					if (SignOnlyInputIndex is uint i && i != input.Index)
 						continue;
-					var txin = Transaction.Inputs[input.Index];
-					var coin = Builder.FindSignableCoin(txin);
+					ICoin? coin = null;
+					TxIn? txin = null;
+					if (Transaction is null)
+					{
+						txin = null;
+						coin = Builder.FindSignableCoin(input.TxIn);
+					}
+					else
+					{
+						txin = Transaction.Inputs[input.Index];
+						coin = Builder.FindSignableCoin(txin);
+					}
+					
 					if (coin is ICoin)
 					{
 						var ext = Builder.Extensions.FirstOrDefault(e => e.Match(coin, input));
@@ -2627,10 +2638,10 @@ namespace NBitcoin
 			{
 				psbt = psbt.Combine(psbts[i]);
 			}
-			var ctx2 = new TransactionSigningContext(this, psbt, signingOptions);
+			var ctx2 = new TransactionSigningContext(this, psbt, psbt.GetOriginalTransaction(), signingOptions);
 			FinalizeTransactionContext(ctx2);
 			MergePartialSignatures(ctx2);
-			var tx = ctx2.Transaction;
+			var tx = ctx2.Transaction!;
 			SetFinalScripts(ctx2, tx);
 			for (int i = 0; i < tx.Inputs.Count; i++)
 			{

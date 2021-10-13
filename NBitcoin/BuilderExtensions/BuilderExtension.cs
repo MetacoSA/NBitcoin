@@ -53,7 +53,7 @@ namespace NBitcoin.BuilderExtensions
 #nullable enable
 	public class InputSigningContext
 	{
-		internal InputSigningContext(TransactionSigningContext transactionSigningContext, ICoin coin, CoinOptions? coinOptions, PSBTInput input, TxIn originalTxIn, BuilderExtension extension)
+		internal InputSigningContext(TransactionSigningContext transactionSigningContext, ICoin coin, CoinOptions? coinOptions, PSBTInput input, TxIn? originalTxIn, BuilderExtension extension)
 		{
 			CoinOptions = coinOptions;
 			Coin = coin;
@@ -63,7 +63,7 @@ namespace NBitcoin.BuilderExtensions
 			OriginalTxIn = originalTxIn;
 		}
 		internal TransactionSigningContext TransactionContext { get; }
-		public TxIn OriginalTxIn { get; }
+		public TxIn? OriginalTxIn { get; }
 		public BuilderExtension Extension { get; }
 		public CoinOptions? CoinOptions { get; set; }
 		public ICoin Coin { get; }
