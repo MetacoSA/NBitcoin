@@ -530,15 +530,16 @@ namespace NBitcoin
 						continue;
 					ICoin? coin = null;
 					TxIn? txin = null;
+					coin = input.GetSignableCoin();
 					if (Transaction is null)
 					{
 						txin = null;
-						coin = Builder.FindSignableCoin(input.TxIn);
+						coin = coin ?? Builder.FindSignableCoin(input.TxIn);
 					}
 					else
 					{
 						txin = Transaction.Inputs[input.Index];
-						coin = Builder.FindSignableCoin(txin);
+						coin = coin ?? Builder.FindSignableCoin(txin);
 					}
 					
 					if (coin is ICoin)
@@ -1602,7 +1603,6 @@ namespace NBitcoin
 		{
 			if (psbt == null)
 				throw new ArgumentNullException(nameof(psbt));
-			AddCoins(psbt);
 			var signingContext = new TransactionSigningContext(this, psbt.Clone(), signingOptions);
 			SignTransactionContext(signingContext);
 			psbt.Combine(signingContext.PSBT);
@@ -1614,7 +1614,6 @@ namespace NBitcoin
 			if (psbtInput == null)
 				throw new ArgumentNullException(nameof(psbtInput));
 			var psbt = psbtInput.PSBT;
-			AddCoins(psbt);
 			var signingContext = new TransactionSigningContext(this, psbt, signingOptions)
 			{
 				SignOnlyInputIndex = psbtInput.Index
