@@ -1638,7 +1638,9 @@ namespace NBitcoin
 			if (psbtInput is null)
 				throw new ArgumentNullException(nameof(psbtInput));
 			var psbt = psbtInput.PSBT;
-			var signingContext = new TransactionSigningContext(this, psbtInput.PSBT, signingOptions)
+			var tx = psbt.Settings.IsSmart && (!Script.IsNullOrEmpty(psbtInput.originalScriptSig) ||
+					 !WitScript.IsNullOrEmpty(psbtInput.originalWitScript)) ? psbt.GetOriginalTransaction() : null;
+			var signingContext = new TransactionSigningContext(this, psbtInput.PSBT, tx, signingOptions)
 			{
 				SignOnlyInputIndex = psbtInput.Index
 			};
