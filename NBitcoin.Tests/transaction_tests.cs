@@ -3142,6 +3142,7 @@ namespace NBitcoin.Tests
 			var coins = Enumerable.Range(0, 100_000)
 				.Select(c => new Coin(new OutPoint(RandomUtils.GetUInt256(), 0), new TxOut(Money.Coins(1.0m) + Money.Satoshis((long)(RandomUtils.GetUInt32() % 1000)), addr)))
 				.ToArray();
+
 			var builder = new TransactionBuilder(Network.Main);
 			builder.AddCoins(coins);
 			builder.AddKeys(k);
@@ -3150,6 +3151,16 @@ namespace NBitcoin.Tests
 			builder.SendEstimatedFees(new FeeRate(1.0m));
 			var tx = builder.BuildTransaction(true);
 			Assert.True(tx.Inputs.Count > 1300);
+
+			// Here, we have enough funds, but transaction is too big
+			builder = new TransactionBuilder(Network.Main);
+			builder.AddCoins(coins);
+			builder.AddKeys(k);
+			builder.Send(new Key(), Money.Coins(99_000m));
+			builder.SetChange(new Key());
+			builder.SendEstimatedFees(new FeeRate(1.0m));
+			var ex = Assert.Throws<NotEnoughFundsException>(() => tx = builder.BuildTransaction(true));
+			Assert.Contains("You may have", ex.Message);
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

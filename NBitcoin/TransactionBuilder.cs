@@ -721,6 +721,9 @@ namespace NBitcoin
 			public IMoney Zero { get; internal set; }
 
 			public IEnumerable<GroupContext> GroupContexts => _GroupContexts.Values;
+
+			public bool SmallInputsExcluded { get; internal set; }
+
 			Dictionary<BuilderGroup, GroupContext> _GroupContexts = new Dictionary<BuilderGroup, GroupContext>();
 			public void SetGroup(BuilderGroup group)
 			{
@@ -1807,6 +1810,7 @@ namespace NBitcoin
 										.Skip(inputsToDelete - 1)
 										.Select(c => c.Amount + Money.Satoshis(1))
 										.First();
+				ctx.SmallInputsExcluded = true;
 				foreach (var group in _BuilderGroups)
 				{
 					ctx.SetGroup(group);
@@ -1819,6 +1823,7 @@ namespace NBitcoin
 			if (needRepass)
 			{
 				var newCtx = new TransactionBuildingContext(this);
+				newCtx.SmallInputsExcluded = ctx.SmallInputsExcluded;
 				foreach (var group in _BuilderGroups)
 				{
 					newCtx.SetGroup(group);
@@ -1872,15 +1877,18 @@ namespace NBitcoin
 				selectionTarget.CompareTo(zero) <= 0 ? new ICoin[0] :
 				CoinSelector.Select(unconsumed, selectionTarget)?.ToArray();
 
+			var notEnoughFundsMessage =
+				ctx.SmallInputsExcluded ? "You may have enough funds to cover the target, but the transaction's size would be too high."
+										: "Not enough funds to cover the target";
 			if (selection == null)
-				throw new NotEnoughFundsException("Not enough funds to cover the target",
-					group.Name,
-					selectionTarget.Sub(unconsumed.Select(u => u.Amount).Sum(zero))
-					);
+				throw new NotEnoughFundsException(notEnoughFundsMessage,
+						group.Name,
+						selectionTarget.Sub(unconsumed.Select(u => u.Amount).Sum(zero)));
+
 			var totalInput = selection.Select(s => s.Amount).Sum(zero);
 			var change = totalInput.Sub(selectionTarget);
 			if (change.CompareTo(zero) == -1)
-				throw new NotEnoughFundsException("Not enough funds to cover the target",
+				throw new NotEnoughFundsException(notEnoughFundsMessage,
 					group.Name,
 					change.Negate()
 				);
