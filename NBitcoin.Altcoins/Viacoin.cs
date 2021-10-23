@@ -265,6 +265,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("via-mainnet")
 			.AddAlias("viacoin-mainnet")
 			.AddAlias("viacoin-main")
+			.SetUriScheme("viacoin")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("viacoin.net", "seed.viacoin.net"),
@@ -311,6 +312,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("via-testnet")
 			.AddAlias("viacoin-test")
 			.AddAlias("viacoin-testnet")
+			.SetUriScheme("viacoin")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("viacoin.net",  "testnet.viacoin.net"),
@@ -357,6 +359,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("via-regtest")
 			.AddAlias("viacoin-reg")
 			.AddAlias("viacoin-regtest")
+			.SetUriScheme("viacoin")
 			.SetGenesis("01000000000000000000000000000000000000000000000000000000000000000000000000522753002939c78659b4fdc6ed56c6b6aacdc7586facf2f6ada2012ed31703d321c153ffff7f20000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff5704ffff001d01044c4e426c6f636b20233331303337393a30303030303030303030303030303030323431323532613762623237626539376265666539323138633132393064666633366331666631323965633732313161ffffffff01000000000000000043410459934a6a228ce9716fa0b13aa1cdc01593fca5f8599473c803a5109ff834dfdaf4c9ee35f2218c9ee3e7cf7db734e1179524b9d6ae8ebbeba883d4cb89b6c7bfac00000000");
 			return builder;
 		}

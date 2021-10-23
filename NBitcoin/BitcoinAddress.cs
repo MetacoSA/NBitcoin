@@ -155,14 +155,14 @@ namespace NBitcoin
 		{
 			return obj is BitcoinAddress item ? _Str.Equals(item._Str) : false;
 		}
-		public static bool operator ==(BitcoinAddress a, BitcoinAddress b)
+		public static bool operator ==(BitcoinAddress? a, BitcoinAddress? b)
 		{
 			if (a is BitcoinAddress && b is BitcoinAddress)
 				return a._Str == b._Str;
 			return a is null && b is null;
 		}
 
-		public static bool operator !=(BitcoinAddress a, BitcoinAddress b)
+		public static bool operator !=(BitcoinAddress? a, BitcoinAddress? b)
 		{
 			return !(a == b);
 		}

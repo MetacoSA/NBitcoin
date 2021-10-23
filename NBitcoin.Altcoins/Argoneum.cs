@@ -417,6 +417,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70215)
 			.SetName("argoneum-main")
 			.AddAlias("argoneum-mainnet")
+			.SetUriScheme("argoneum")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("argoneum.net", "seed1.argoneum.net"),
@@ -471,6 +472,7 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("argoneum.net",  "testnet-seed1.argoneum.net"),
 				new DNSSeedData("argoneum.net",  "testnet-seed2.argoneum.net"),
 		   })
+		   .SetUriScheme("argoneum")
 		   .AddSeeds(new NetworkAddress[0])
 			// FIXME
 			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000008413e4d942bcac7d58d727e5e9f45900e048966acec55bfa815bceb64c5ca4ed90dfd95bf0ff0f1ea36617000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4804ffff001d010440323031382f31312f30313a204172676f6e65756d2c20746865206d61737465726e6f646520736f6c7574696f6e7320706c6174666f726d2077617320626f726effffffff010000000000000000434104480f351d994e150563c3c686e25247513ccfcd98d8826fb450f164f9400659e50b066b6fc2d110b7ed61a27a2b932e3f4e5564da19716dd3e5d5fc0e4bfed625ac00000000");
@@ -512,6 +514,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70215)
 			.SetName("argoneum-reg")
 			.AddAlias("argoneum-regtest")
+			.SetUriScheme("argoneum")
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
 			// FIXME

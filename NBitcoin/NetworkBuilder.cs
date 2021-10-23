@@ -29,10 +29,17 @@ namespace NBitcoin
 		internal byte[] _Genesis;
 		internal uint? _MaxP2PVersion;
 		internal INetworkSet _NetworkSet;
+		internal string _UriScheme;
 
 		public NetworkBuilder SetNetworkSet(INetworkSet networkSet)
 		{
 			_NetworkSet = networkSet;
+			return this;
+		}
+
+		public NetworkBuilder SetUriScheme(string uriScheme)
+		{
+			_UriScheme = uriScheme;
 			return this;
 		}
 

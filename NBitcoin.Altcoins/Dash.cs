@@ -405,6 +405,7 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("dash"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("dash"))
+			.SetUriScheme("dash")
 			.SetMagic(0xBD6B0CBF)
 			.SetPort(9999)
 			.SetRPCPort(9998)
@@ -458,6 +459,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70213)
 		   .SetName("dash-test")
 		   .AddAlias("dash-testnet")
+		   .SetUriScheme("dash")
 		   .AddDNSSeeds(new[]
 		   {
 				new DNSSeedData("dashdot.io",  "testnet-seed.dashdot.io"),
@@ -503,6 +505,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70213)
 			.SetName("dash-reg")
 			.AddAlias("dash-regtest")
+			.SetUriScheme("dash")
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0b9968054ffff7f20ffba10000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");

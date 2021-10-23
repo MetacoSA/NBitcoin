@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -19,9 +20,16 @@ namespace NBitcoin.Payment
 	/// </summary>
 	public class BitcoinUrlBuilder
 	{
+		[Obsolete("Use BitcoinUrlBuilder(Network) instead")]
 		public BitcoinUrlBuilder()
 		{
-
+			Network = Bitcoin.Instance.Mainnet;
+			scheme = "bitcoin";
+		}
+		public BitcoinUrlBuilder(Network network)
+		{
+			Network = network;
+			scheme = network.UriScheme;
 		}
 		public BitcoinUrlBuilder(Uri uri, Network network)
 			: this(uri.AbsoluteUri, network)
@@ -30,20 +38,30 @@ namespace NBitcoin.Payment
 				throw new ArgumentNullException(nameof(uri));
 		}
 
+		public Network Network { get; }
+		string scheme;
+
 		public BitcoinUrlBuilder(string uri, Network network)
 		{
 			if (uri == null)
 				throw new ArgumentNullException(nameof(uri));
-			if (!uri.StartsWith("bitcoin:", StringComparison.OrdinalIgnoreCase))
-				throw new FormatException("Invalid scheme");
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
-			uri = uri.Remove(0, "bitcoin:".Length);
+			scheme = network.UriScheme;
+			if (!uri.StartsWith($"{scheme}:", StringComparison.OrdinalIgnoreCase))
+			{
+				if (uri.StartsWith("bitcoin:", StringComparison.OrdinalIgnoreCase))
+					scheme = "bitcoin";
+				else
+					throw new FormatException("Invalid scheme");
+			}
+			Network = network;
+			uri = uri.Remove(0, $"{scheme}:".Length);
 			if (uri.StartsWith("//"))
 				uri = uri.Remove(0, 2);
 
 			var paramStart = uri.IndexOf('?');
-			string address = null;
+			string? address = null;
 			if (paramStart == -1)
 				address = uri;
 			else
@@ -95,22 +113,22 @@ namespace NBitcoin.Payment
 				return _UnknowParameters;
 			}
 		}
-		public BitcoinAddress Address
+		public BitcoinAddress? Address
 		{
 			get;
 			set;
 		}
-		public Money Amount
+		public Money? Amount
 		{
 			get;
 			set;
 		}
-		public string Label
+		public string? Label
 		{
 			get;
 			set;
 		}
-		public string Message
+		public string? Message
 		{
 			get;
 			set;
@@ -121,7 +139,7 @@ namespace NBitcoin.Payment
 			{
 				Dictionary<string, string> parameters = new Dictionary<string, string>();
 				StringBuilder builder = new StringBuilder();
-				builder.Append("bitcoin:");
+				builder.Append($"{scheme}:");
 				if (Address != null)
 				{
 					builder.Append(Address.ToString());
