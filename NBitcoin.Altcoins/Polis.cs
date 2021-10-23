@@ -410,6 +410,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70220)
 			.SetName("polis-main")
 			.AddAlias("polis-mainnet")
+			.SetUriScheme("polis")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("blockbook.polispay.org", "blockbook.polispay.org"),
@@ -457,6 +458,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70220)
 		   	.SetName("polis-test")
 		   	.AddAlias("polis-testnet")
+			.SetUriScheme("polis")
 		   	.AddSeeds(new NetworkAddress[0])
 		   	.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000fc4b8cb903aed54e11e1ae8a5b7ad097ade34988a84500ad2d80e4d1f5bcc95d678f875af0ff0f1e94ba01000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff2404ffff001d01041c506f6c69732c2066726f6d2070656f706c6520746f2070656f706c65ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
 			return builder;
@@ -497,6 +499,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70220)
 			.SetName("polis-reg")
 			.AddAlias("polis-regtest")
+			.SetUriScheme("polis")
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000fc4b8cb903aed54e11e1ae8a5b7ad097ade34988a84500ad2d80e4d1f5bcc95d9a3b3b5af0ff0f1e3c8b0d000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff2404ffff001d01041c506f6c69732c2066726f6d2070656f706c6520746f2070656f706c65ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");

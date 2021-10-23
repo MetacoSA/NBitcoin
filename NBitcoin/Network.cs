@@ -151,6 +151,7 @@ namespace NBitcoin
 		internal byte[][] base58Prefixes = new byte[13][];
 		internal Bech32Encoder[] bech32Encoders = new Bech32Encoder[3];
 
+		public String UriScheme { get; internal set; }
 		public uint MaxP2PVersion
 		{
 			get;
@@ -1957,7 +1958,7 @@ namespace NBitcoin
 			}
 		}
 
-		private Network(string name, byte[] genesis, uint magic, INetworkSet networkSet)
+		private Network(string name, byte[] genesis, uint magic, string? uriScheme, INetworkSet networkSet)
 		{
 			if (name == null)
 				throw new ArgumentNullException(nameof(name));
@@ -1965,6 +1966,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(genesis));
 			if (networkSet == null)
 				throw new ArgumentNullException(nameof(networkSet));
+			this.UriScheme = uriScheme ?? "bitcoin";
 			this._GenesisBytes = genesis;
 			this.magic = magic;
 			this._NetworkSet = networkSet;
@@ -2005,6 +2007,7 @@ namespace NBitcoin
 			_Main = new Network("Main",
 				Encoders.Hex.DecodeData("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000"),
 				0xD9B4BEF9,
+				null,
 				NBitcoin.Bitcoin.Instance);
 			_Main.InitMain();
 			_Main.Consensus.Freeze();
@@ -2012,6 +2015,7 @@ namespace NBitcoin
 			_TestNet = new Network("TestNet",
 				Encoders.Hex.DecodeData("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4adae5494dffff001d1aa4ae180101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000"),
 				0x0709110B,
+				null,
 				NBitcoin.Bitcoin.Instance);
 			_TestNet.InitTest();
 			_TestNet.Consensus.Freeze();
@@ -2019,6 +2023,7 @@ namespace NBitcoin
 			_RegTest = new Network("RegTest",
 				Encoders.Hex.DecodeData("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4adae5494dffff7f20020000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000"),
 				0xDAB5BFFA,
+				null,
 				NBitcoin.Bitcoin.Instance);
 			_RegTest.InitReg();
 			_RegTest.Consensus.Freeze();
@@ -2090,7 +2095,7 @@ namespace NBitcoin
 				throw new InvalidOperationException("A network name need to be provided");
 			if (GetNetwork(builder._Name) != null)
 				throw new InvalidOperationException("The network " + builder._Name + " is already registered");
-			Network network = new Network(builder._Name, builder._Genesis.ToArray(), builder._Magic, builder._NetworkSet);
+			Network network = new Network(builder._Name, builder._Genesis.ToArray(), builder._Magic, builder._UriScheme, builder._NetworkSet);
 			network.chainName = builder._ChainName;
 			network.consensus = builder._Consensus;
 			network.nDefaultPort = builder._Port;

@@ -181,6 +181,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70018)
 			.SetName("althash-main")
 			.AddAlias("althash-mainnet")
+			.SetUriScheme("htmlcoin")
 			.AddDNSSeeds(new[]{
 				new DNSSeedData("seed1.htmlcoin.com", "seed2.htmlcoin.com"),
 			})
@@ -223,6 +224,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70018)
 			.SetName("althash-test")
 			.AddAlias("althash-testnet")
+			.SetUriScheme("htmlcoin")
 			.AddDNSSeeds(new[]{
 				new DNSSeedData("testnet-seed1.htmlcoin.com", "testnet-seed1.htmlcoin.com"),
 			})
@@ -266,6 +268,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70018)
 			.SetName("althash-reg")
 			.AddAlias("althash-regtest")
+			.SetUriScheme("htmlcoin")
 			.AddSeeds(new NetworkAddress[0])
 			// Incorrect, using mainnet for now
 

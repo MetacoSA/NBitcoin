@@ -136,6 +136,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70015)
 			.SetName("chaincoin-main")
 			.AddAlias("chaincoin-mainnet")
+			.SetUriScheme("chaincoin")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("chc1.hashunlimited.com", "chc1.hashunlimited.com"),
@@ -185,6 +186,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70015)
 			.SetName("chaincoin-test")
 			.AddAlias("chaincoin-testnet")
+			.SetUriScheme("chaincoin")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("testseed.hashunlimited.com",  "testseed.hashunlimited.com")
@@ -229,6 +231,7 @@ namespace NBitcoin.Altcoins
 			.SetMaxP2PVersion(70015)
 			.SetName("chaincoin-reg")
 			.AddAlias("chaincoin-regtest")
+			.SetUriScheme("chaincoin")
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000887c5c20f3075215e164877a6de732695a13c0f8ec0fcf6296fa942487f96efadae5494dffff7f20000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d01044531382d30312d3134202d20416e74692d667261636b696e672063616d706169676e65727320636861696e207468656d73656c76657320746f20706574726f6c2070756d7073ffffffff0100105e5f00000000434104becedf6ebadd4596964d890f677f8d2e74fdcc313c6416434384a66d6d8758d1c92de272dc6713e4a81d98841dfdfdc95e204ba915447d2fe9313435c78af3e8ac00000000");

@@ -121,6 +121,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("btx-mainnet")
 			.AddAlias("bitcore-mainnet")
 			.AddAlias("bitcore-main")
+			.SetUriScheme("bitcore")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("seed.bitcore.cc", "seed.bitcore.cc"),
@@ -169,6 +170,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("btx-testnet")
 			.AddAlias("bitcore-test")
 			.AddAlias("bitcore-testnet")
+			.SetUriScheme("bitcore")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("51.15.84.165", "51.15.84.165"),
@@ -217,6 +219,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("btx-regtest")
 			.AddAlias("bitcore-reg")
 			.AddAlias("bitcore-regtest")
+			.SetUriScheme("bitcore")
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c787795041016d5ee652e55e3a6aeff6c8019cf0c525887337e0b4206552691613f7fc58f0ff0f1ea12400000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4004ffff001d010438506f77657264652062792042697473656e642d4575726f7065636f696e2d4469616d6f6e642d4d41432d42332032332f4170722f32303137ffffffff010000000000000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
 			return builder;
 		}

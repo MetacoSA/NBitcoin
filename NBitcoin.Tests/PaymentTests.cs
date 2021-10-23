@@ -23,7 +23,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParsePaymentUrl()
 		{
-			Assert.Equal("bitcoin:", new BitcoinUrlBuilder().Uri.ToString());
+			Assert.Equal("bitcoin:", new BitcoinUrlBuilder(Network.Main).Uri.ToString());
 
 			var url = CreateBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha");
 			Assert.Equal("129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha", url.Address.ToString());
@@ -59,6 +59,16 @@ namespace NBitcoin.Tests
 			//Support no address
 			url = new BitcoinUrlBuilder("bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe", Network.Main);
 			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString(), Network.Main).ToString());
+
+			//Support shitcoins
+			url = new BitcoinUrlBuilder("litecoin:LeLAhU5S7vbVxL4rsT69eMoMrpgV9SNbns", Altcoins.Litecoin.Instance.Mainnet);
+			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString(), Altcoins.Litecoin.Instance.Mainnet).ToString());
+			Assert.Equal("litecoin:LeLAhU5S7vbVxL4rsT69eMoMrpgV9SNbns", url.ToString());
+
+			// Old verison of BitcoinUrl was only supporting bitcoin: to not break existing code, we should support this
+			url = new BitcoinUrlBuilder("bitcoin:LeLAhU5S7vbVxL4rsT69eMoMrpgV9SNbns", Altcoins.Litecoin.Instance.Mainnet);
+			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString(), Altcoins.Litecoin.Instance.Mainnet).ToString());
+			Assert.Equal("bitcoin:LeLAhU5S7vbVxL4rsT69eMoMrpgV9SNbns", url.ToString());
 		}
 
 		[Fact]

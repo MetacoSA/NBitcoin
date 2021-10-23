@@ -320,6 +320,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("groestl-mainnet")
 			.AddAlias("groestlcoin-mainnet")
 			.AddAlias("groestlcoin-main")
+			.SetUriScheme("groestlcoin")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("dnsseed1.groestlcoin.org", "dnsseed1.groestlcoin.org"),
@@ -370,6 +371,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("groestl-testnet")
 			.AddAlias("groestlcoin-test")
 			.AddAlias("groestlcoin-testnet")
+			.SetUriScheme("groestlcoin")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("testnet-seed1.groestlcoin.org", "testnet-seed1.groestlcoin.org"),
@@ -419,6 +421,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("groestl-regtest")
 			.AddAlias("groestlcoin-reg")
 			.AddAlias("groestlcoin-regtest")
+			.SetUriScheme("groestlcoin")
 			.SetGenesis("030000000000000000000000000000000000000000000000000000000000000000000000bb2866aaca46c4428ad08b57bc9d1493abaf64724b6c3052a7c8f958df68e93c02a8d455ffff001e950a64000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff3a04ffff001d0104325072657373757265206d75737420626520707574206f6e20566c6164696d697220507574696e206f766572204372696d6561ffffffff010000000000000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
 			return builder;
 		}
