@@ -91,14 +91,14 @@ namespace NBitcoin
 
 			if (newTip == _BlockHashesByHeight[_Height])
 			{
-				if (newTip != _BlockHashesByHeight[0] && _BlockHashesByHeight[_Height - 1] != previous)
+				if (newTip != _BlockHashesByHeight[0] && _Height > 0 && _BlockHashesByHeight[_Height - 1] != previous)
 					throw new ArgumentException(message: "newTip is already inserted with a different previous block, this should never happen");
 				return true;
 			}
 
 			if (_HeightsByBlockHash.TryGetValue(newTip, out int newTipHeight))
 			{
-				if (newTipHeight - 1 >= 0 && _BlockHashesByHeight[newTipHeight - 1] != previous)
+				if (newTipHeight > 0 && _BlockHashesByHeight[newTipHeight - 1] != previous)
 					throw new ArgumentException(message: "newTip is already inserted with a different previous block, this should never happen");
 
 				if (newTipHeight == 0 && _BlockHashesByHeight[0] != newTip)
