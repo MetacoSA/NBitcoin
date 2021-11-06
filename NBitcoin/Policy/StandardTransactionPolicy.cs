@@ -145,14 +145,11 @@ namespace NBitcoin.Policy
 					}
 				}
 			}
-			if (MinRelayTxFee != null)
+			foreach (var output in transaction.Outputs)
 			{
-				foreach (var output in transaction.Outputs)
-				{
-					var bytes = output.ScriptPubKey.ToBytes(true);
-					if (output.IsDust(MinRelayTxFee) && !IsOpReturn(bytes))
-						errors.Add(new DustPolicyError(output.Value, output.GetDustThreshold(MinRelayTxFee)));
-				}
+				var bytes = output.ScriptPubKey.ToBytes(true);
+				if (output.IsDust() && !IsOpReturn(bytes))
+					errors.Add(new DustPolicyError(output.Value, output.GetDustThreshold()));
 			}
 			var opReturnCount = transaction.Outputs.Select(o => o.ScriptPubKey.ToBytes(true)).Count(b => IsOpReturn(b));
 			if (opReturnCount > 1)

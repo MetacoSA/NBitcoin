@@ -638,17 +638,20 @@ namespace NBitcoin
 			}
 		}
 
-
-		public bool IsDust(FeeRate minRelayTxFee)
+		public bool IsDust()
 		{
-			return (Value < GetDustThreshold(minRelayTxFee));
+			return (Value < GetDustThreshold());
 		}
 
-		public Money GetDustThreshold(FeeRate minRelayTxFee)
+		[Obsolete("Use IsDust() instead. The minRelayTxFee is now ignored.")]
+		public bool IsDust(FeeRate minRelayTxFee)
 		{
-			if (minRelayTxFee == null)
-				throw new ArgumentNullException("minRelayTxFee");
+			return IsDust();
+		}
 
+		static FeeRate dustRelayFee = new FeeRate(3.0m);
+		public Money GetDustThreshold()
+		{
 			// OutPoint (32 + 4) + script_size (1) + sequence (4)
 			int inputSize = 32 + 4 + 1 + 4;
 			inputSize += ScriptPubKey.IsScriptType(ScriptType.Witness)
@@ -657,7 +660,13 @@ namespace NBitcoin
 
 			int outputSize = this.GetSerializedSize();
 
-			return 3 * minRelayTxFee.GetFee(inputSize + outputSize);
+			return dustRelayFee.GetFee(inputSize + outputSize);
+		}
+
+		[Obsolete("Use GetDustThreshold() instead. The minRelayTxFee is now ignored.")]
+		public Money GetDustThreshold(FeeRate minRelayTxFee)
+		{
+			return GetDustThreshold();
 		}
 
 		#region IBitcoinSerializable Members

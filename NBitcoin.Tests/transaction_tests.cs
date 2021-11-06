@@ -1528,7 +1528,7 @@ namespace NBitcoin.Tests
 				foreach (var output in transfer.Outputs)
 				{
 					Assert.False(TxNullDataTemplate.Instance.CheckScriptPubKey(output.ScriptPubKey));
-					Assert.False(output.Value == output.GetDustThreshold(txBuilder.StandardTransactionPolicy.MinRelayTxFee));
+					Assert.False(output.Value == output.GetDustThreshold());
 				}
 			}
 		}

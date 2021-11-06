@@ -710,6 +710,45 @@ namespace NBitcoin.Tests
 				Assert.NotNull(rpc.SendRawTransaction(tx));
 			}
 		}
+		[Fact]
+		public void CanCalculateDustCorrectly()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				rpc.Generate(101);
+				var receiver = new Key();
+				var receiverAddress = receiver.PubKey.WitHash.GetAddress(builder.Network);
+				var owned = Money.Satoshis(10000);
+				var txid = rpc.SendToAddress(receiverAddress, owned);
+				var tx = rpc.GetRawTransaction(txid);
+				var coin = tx.Outputs.AsCoins().Where(c => c.ScriptPubKey == receiverAddress.ScriptPubKey).FirstOrDefault();
+				foreach (var scriptPubKeyType in Enum.GetValues(typeof(ScriptPubKeyType)).OfType<ScriptPubKeyType>())
+				{
+					Transaction paid = builder.Network.CreateTransaction();
+					paid.Inputs.Add(coin.Outpoint);
+					var dest = new Key().GetAddress(scriptPubKeyType, builder.Network);
+					var txout = builder.Network.Consensus.ConsensusFactory.CreateTxOut();
+					txout.ScriptPubKey = dest.ScriptPubKey;
+					var dustThreshold = txout.GetDustThreshold();
+					var sent = dustThreshold;
+					var fee = Money.Satoshis(300);
+					paid.Outputs.Add(sent, dest);
+					paid.Outputs.Add(owned - sent - fee, receiverAddress);
+					var txBuilder = builder.Network.CreateTransactionBuilder();
+					txBuilder.AddKeys(receiver);
+					txBuilder.AddCoins(coin);
+					txBuilder.SignTransactionInPlace(paid);
+					var result = rpc.TestMempoolAccept(paid);
+					Assert.Empty(result.RejectReason);
+					Assert.True(result.IsAllowed);
+					paid.Outputs[0].Value -= Money.Satoshis(1.0m);
+					result = rpc.TestMempoolAccept(paid);
+					Assert.Equal("dust", result.RejectReason);
+				}
+			}
+		}
 
 		[Fact]
 		public void CanImportMultiAddresses()

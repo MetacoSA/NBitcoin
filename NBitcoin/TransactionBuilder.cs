@@ -1334,7 +1334,7 @@ namespace NBitcoin
 		{
 			if (StandardTransactionPolicy == null || StandardTransactionPolicy.MinRelayTxFee == null)
 				return Money.Zero;
-			return CreateTxOut(Money.Zero, script).GetDustThreshold(StandardTransactionPolicy.MinRelayTxFee);
+			return CreateTxOut(Money.Zero, script).GetDustThreshold();
 		}
 
 		/// <summary>
