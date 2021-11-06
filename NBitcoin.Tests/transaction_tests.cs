@@ -2676,7 +2676,7 @@ namespace NBitcoin.Tests
 			builder.MergeOutputs = false;
 			builder.DustPrevention = false;
 			builder.StandardTransactionPolicy = EasyPolicy.Clone();
-			builder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(new Money(1000L));
+			builder.StandardTransactionPolicy.CheckDust = true;
 			signed = create();
 			Assert.True(signed.Outputs.Count == 4);
 			Assert.False(builder.Verify(signed, out errors));
@@ -3970,6 +3970,7 @@ namespace NBitcoin.Tests
 			{
 				CheckFee = false,
 				MinRelayTxFee = null,
+				CheckDust = false,
 #if !NOCONSENSUSLIB
 				UseConsensusLib = false,
 #endif
