@@ -726,6 +726,10 @@ namespace NBitcoin.Tests
 				var coin = tx.Outputs.AsCoins().Where(c => c.ScriptPubKey == receiverAddress.ScriptPubKey).FirstOrDefault();
 				foreach (var scriptPubKeyType in Enum.GetValues(typeof(ScriptPubKeyType)).OfType<ScriptPubKeyType>())
 				{
+#if !HAS_SPAN
+					if (scriptPubKeyType == ScriptPubKeyType.TaprootBIP86)
+						continue;
+#endif
 					Transaction paid = builder.Network.CreateTransaction();
 					paid.Inputs.Add(coin.Outpoint);
 					var dest = new Key().GetAddress(scriptPubKeyType, builder.Network);
