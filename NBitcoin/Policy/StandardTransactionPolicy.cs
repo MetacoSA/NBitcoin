@@ -145,11 +145,14 @@ namespace NBitcoin.Policy
 					}
 				}
 			}
-			foreach (var output in transaction.Outputs)
+			if (CheckDust)
 			{
-				var bytes = output.ScriptPubKey.ToBytes(true);
-				if (output.IsDust() && !IsOpReturn(bytes))
-					errors.Add(new DustPolicyError(output.Value, output.GetDustThreshold()));
+				foreach (var output in transaction.Outputs)
+				{
+					var bytes = output.ScriptPubKey.ToBytes(true);
+					if (output.IsDust() && !IsOpReturn(bytes))
+						errors.Add(new DustPolicyError(output.Value, output.GetDustThreshold()));
+				}
 			}
 			var opReturnCount = transaction.Outputs.Select(o => o.ScriptPubKey.ToBytes(true)).Count(b => IsOpReturn(b));
 			if (opReturnCount > 1)
@@ -219,7 +222,8 @@ namespace NBitcoin.Policy
 #endif
 				CheckScriptPubKey = CheckScriptPubKey,
 				CheckFee = CheckFee,
-				Strategy = Strategy
+				Strategy = Strategy,
+				CheckDust = CheckDust
 			};
 		}
 
@@ -231,6 +235,7 @@ namespace NBitcoin.Policy
 			get;
 			set;
 		}
+		public bool CheckDust { get; set; } = true;
 	}
 
 	public class StandardTransactionPolicyStrategy

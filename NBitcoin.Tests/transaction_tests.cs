@@ -995,7 +995,7 @@ namespace NBitcoin.Tests
 			Assert.True(txBuilder.Verify(tx, "0.1"));
 
 			//Ensure BTC from the IssuanceCoin are returned
-			Assert.Equal(Money.Parse("0.89994240"), tx.Outputs[2].Value);
+			Assert.Equal(Money.Parse("0.89998848"), tx.Outputs[2].Value);
 			Assert.Equal(gold.PubKey.ScriptPubKey, tx.Outputs[2].ScriptPubKey);
 
 			//Can issue and send in same transaction
@@ -1295,7 +1295,7 @@ namespace NBitcoin.Tests
 
 			//Ensure BTC from the IssuanceCoin are returned
 			Assert.Equal(gold.PubKey.ScriptPubKey, tx.Outputs[2].ScriptPubKey);
-			Assert.Equal(Money.Parse("0.89994240"), tx.Outputs[2].Value);
+			Assert.Equal(Money.Parse("0.89998848"), tx.Outputs[2].Value);
 
 			repo.Transactions.Put(tx);
 
@@ -1426,16 +1426,12 @@ namespace NBitcoin.Tests
 			AssertHasAsset(tx, colored, colored.Transfers[4], goldId, 5, satoshi.PubKey);
 			AssertHasAsset(tx, colored, colored.Transfers[5], goldId, 45, bob.PubKey);
 
-			Assert.True(tx.Outputs[8].Value == Money.Parse("0.9"));
+			Assert.Equal(Money.Parse("0.9"), tx.Outputs[8].Value);
 			Assert.True(tx.Outputs[8].ScriptPubKey == satoshi.PubKey.ScriptPubKey);
-			Assert.True(tx.Outputs[9].Value == Money.Parse("1.0999424"));
+			Assert.Equal(Money.Parse("1.09998848"), tx.Outputs[9].Value);
 			Assert.True(tx.Outputs[9].ScriptPubKey == bob.PubKey.ScriptPubKey);
 
 			tx = txBuilder.AddKeys(satoshi, bob).SignTransaction(tx);
-			if (!txBuilder.Verify(tx, out var oei))
-			{
-
-			}
 			Assert.True(txBuilder.Verify(tx));
 
 
@@ -1470,7 +1466,7 @@ namespace NBitcoin.Tests
 			}
 			catch (NotEnoughFundsException ex) //Not enough dust to send the change
 			{
-				Assert.True(((Money)ex.Missing).Satoshi == 2730);
+				Assert.Equal(546, ((Money)ex.Missing).Satoshi);
 				var rate = new FeeRate(Money.Coins(0.0004m));
 				txBuilder = Network.CreateTransactionBuilder();
 				txBuilder.StandardTransactionPolicy = RelayPolicy;
@@ -1495,7 +1491,7 @@ namespace NBitcoin.Tests
 				AssertHasAsset(transfer, colored, colored.Transfers[1], goldId, 60, bob.PubKey);
 
 				var change = transfer.Outputs.Last(o => o.ScriptPubKey == gold.PubKey.Hash.ScriptPubKey);
-				Assert.Equal(Money.Coins(0.99980450m), change.Value);
+				Assert.Equal(Money.Coins(0.99982874m), change.Value);
 				Assert.Equal(rate, txBuilder.EstimateFeeRate(transfer));
 
 				Assert.Equal(gold.PubKey.Hash, change.ScriptPubKey.GetDestination());
@@ -2768,6 +2764,7 @@ namespace NBitcoin.Tests
 		static StandardTransactionPolicy EasyPolicy = new StandardTransactionPolicy()
 		{
 			MaxTransactionSize = null,
+			CheckDust = false,
 			MaxTxFee = null,
 			MinRelayTxFee = null,
 			ScriptVerify = ScriptVerify.Standard & ~ScriptVerify.LowS
@@ -3558,6 +3555,7 @@ namespace NBitcoin.Tests
 							builder.SetTransactionPolicy(new StandardTransactionPolicy()
 							{
 								CheckFee = false,
+								CheckDust = false,
 								CheckScriptPubKey = false,
 								MinRelayTxFee = null
 							});
