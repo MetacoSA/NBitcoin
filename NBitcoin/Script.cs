@@ -537,7 +537,6 @@ namespace NBitcoin
 			return new Script(ops.ToArray());
 		}
 
-
 		public ScriptReader CreateReader()
 		{
 			return new ScriptReader(_Script);

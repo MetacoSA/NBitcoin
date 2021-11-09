@@ -47,7 +47,7 @@ namespace NBitcoin.Crypto
 			sha256.DoFinal(rv, 0);
 			return rv;
 #else
-			using (var sha = new SHA256Managed())
+			using (var sha = System.Security.Cryptography.SHA256.Create())
 			{
 				var h = sha.ComputeHash(data, offset, count);
 				return sha.ComputeHash(h, 0, h.Length);
@@ -115,7 +115,7 @@ namespace NBitcoin.Crypto
 			sha1.DoFinal(rv, 0);
 			return rv;
 #else
-			using (var sha1 = new SHA1Managed())
+			using (var sha1 = System.Security.Cryptography.SHA1.Create())
 			{
 				return sha1.ComputeHash(data, offset, count);
 			}
@@ -655,7 +655,7 @@ namespace NBitcoin.Crypto
 			sha256.DoFinal(rv, 0);
 			return rv;
 #else
-			using (var sha = new SHA256Managed())
+			using (var sha = System.Security.Cryptography.SHA256.Create())
 			{
 				return sha.ComputeHash(data, offset, count);
 			}
@@ -677,7 +677,7 @@ namespace NBitcoin.Crypto
 			sha512.DoFinal(rv, 0);
 			return rv;
 #else
-			using (var sha = new SHA512Managed())
+			using (var sha = System.Security.Cryptography.SHA512.Create())
 			{
 				return sha.ComputeHash(data, offset, count);
 			}

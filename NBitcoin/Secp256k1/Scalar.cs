@@ -1084,7 +1084,7 @@ namespace NBitcoin.Secp256k1
 			return ((a.d0 ^ b.d0) | (a.d1 ^ b.d1) | (a.d2 ^ b.d2) | (a.d3 ^ b.d3) | (a.d4 ^ b.d4) | (a.d5 ^ b.d5) | (a.d6 ^ b.d6) | (a.d7 ^ b.d7)) == 0;
 		}
 		[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
-		public readonly override bool Equals(object obj)
+		public readonly override bool Equals(object? obj)
 		{
 			if (obj is Scalar b)
 			{

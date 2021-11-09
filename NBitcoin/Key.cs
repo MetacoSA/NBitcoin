@@ -436,7 +436,7 @@ namespace NBitcoin
 		}
 
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is Key item)
 				return PubKey.Equals(item.PubKey);

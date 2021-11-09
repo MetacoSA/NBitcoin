@@ -15,7 +15,7 @@ namespace NBitcoin.Secp256k1.Musig
 #endif
 	class MusigPrivNonce : IDisposable
 	{
-		readonly static RandomNumberGenerator rand = new RNGCryptoServiceProvider();
+		readonly static RandomNumberGenerator rand = RandomNumberGenerator.Create();
 
 
 		/// <summary>

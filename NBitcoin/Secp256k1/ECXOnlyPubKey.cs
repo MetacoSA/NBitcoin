@@ -157,7 +157,7 @@ namespace NBitcoin.Secp256k1
 			return buf;
 		}
 
-		public int CompareTo(ECXOnlyPubKey other)
+		public int CompareTo(ECXOnlyPubKey? other)
 		{
 			if (other is null)
 				throw new ArgumentNullException(nameof(other));

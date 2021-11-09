@@ -1193,7 +1193,7 @@ namespace NBitcoin
 			_Inner.Add(input);
 		}
 
-		public PSBTInput FindIndexedInput(OutPoint prevOut)
+		public PSBTInput? FindIndexedInput(OutPoint prevOut)
 		{
 			if (prevOut == null)
 				throw new ArgumentNullException(nameof(prevOut));

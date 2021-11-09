@@ -100,7 +100,7 @@ namespace NBitcoin
 		}
 #endif
 #if HAS_SPAN
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (!(obj is TaprootInternalPubKey a))
 				return false;

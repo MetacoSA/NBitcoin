@@ -727,8 +727,10 @@ namespace NBitcoin.Tests
 				foreach (var scriptPubKeyType in Enum.GetValues(typeof(ScriptPubKeyType)).OfType<ScriptPubKeyType>())
 				{
 #if !HAS_SPAN
+#pragma warning disable CS0618
 					if (scriptPubKeyType == ScriptPubKeyType.TaprootBIP86)
 						continue;
+#pragma warning restore CS0618
 #endif
 					Transaction paid = builder.Network.CreateTransaction();
 					paid.Inputs.Add(coin.Outpoint);

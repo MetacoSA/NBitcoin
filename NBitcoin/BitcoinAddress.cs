@@ -151,7 +151,7 @@ namespace NBitcoin
 		}
 
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			return obj is BitcoinAddress item ? _Str.Equals(item._Str) : false;
 		}

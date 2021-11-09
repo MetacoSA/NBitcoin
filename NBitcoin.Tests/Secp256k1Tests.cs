@@ -364,10 +364,10 @@ namespace NBitcoin.Tests
 				new byte[] { 0x9b, 0x09, 0xff, 0xa7, 0x1b, 0x94, 0x2f, 0xcb, 0x27, 0x63, 0x5f, 0xbc, 0xd5, 0xb0, 0xe9, 0x44, 0xbf, 0xdc, 0x63, 0x64, 0x4f, 0x07, 0x13, 0x93, 0x8a, 0x7f, 0x51, 0x53, 0x5c, 0x3a, 0x35, 0xe2 }
 			};
 			int i;
+			Span<byte> output = stackalloc byte[32];
 			for (i = 0; i < 6; i++)
 			{
 				Secp256k1.HMACSHA256 hasher = new Secp256k1.HMACSHA256();
-				Span<byte> output = stackalloc byte[32];
 				hasher.Initialize(ToBytes(keys[i]));
 				hasher.Write32(ToBytes(inputs[i]));
 				hasher.Finalize(output);
@@ -2714,7 +2714,7 @@ namespace NBitcoin.Tests
 				byte[] key = new byte[32];
 				byte[] msg = new byte[32];
 				SecpECDSASignature sig2;
-				Span<Scalar> sr = stackalloc Scalar[512];
+				Span<Scalar> sr = new Scalar[512];
 				Scalar ss;
 				byte[] extra;
 				extra = t == 0 ? null : zero;
