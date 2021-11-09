@@ -573,7 +573,7 @@ namespace NBitcoin.Scripting
 
 		#region Equatable
 
-		public sealed override bool Equals(object obj)
+		public sealed override bool Equals(object? obj)
 			=> Equals(obj as OutputDescriptor);
 
 		public bool Equals(OutputDescriptor? other) => (other != null) && (this) switch

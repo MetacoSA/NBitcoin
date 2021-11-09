@@ -295,7 +295,7 @@ namespace NBitcoin.Secp256k1
 			this.s.WriteToSpan(out64.Slice(32));
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is SecpECDSASignature item)
 				return this == item;

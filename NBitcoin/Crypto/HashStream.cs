@@ -176,7 +176,7 @@ namespace NBitcoin.Crypto
 		}
 
 #else
-		SHA256Managed sha = new SHA256Managed();
+		System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create();
 		private void ProcessBlock()
 		{
 			sha.TransformBlock(_Buffer, 0, _Pos, null, -1);

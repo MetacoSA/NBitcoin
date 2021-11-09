@@ -14,11 +14,26 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  net60:
+    name: '6.0'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      - run: ./Build/CI/tests.sh
+        env:
+          BUILD_ARGS: /p:AdditionalDefineConstants=SECP256K1_VERIFY
+          Framework: net6.0
   dotnetcore31:
     name: '3.1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
       - uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.x'
@@ -27,35 +42,35 @@ jobs:
           BUILD_ARGS: /p:AdditionalDefineConstants=SECP256K1_VERIFY
           Framework: netcoreapp3.1
   dotnetcore31standard20:
-    name: '3.1 with netstandard2.0'
+    name: '6.0 with netstandard2.0'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.x'
+          dotnet-version: '6.0.x'
       - run: ./Build/CI/tests.sh
         env:
           BUILD_ARGS: /p:TargetFrameworkOverride=netstandard2.0
-          Framework: netcoreapp3.1
+          Framework: net6.0
   dotnetcore31macod:
-    name: '3.1 on Mac-OS'
+    name: '6.0 on Mac-OS'
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.x'
+          dotnet-version: '6.0.x'
       - run: ./Build/CI/tests.sh
         env:
-          Framework: netcoreapp3.1
+          Framework: net6.0
   dotnetcore31winfx:
-    name: '3.1 on Windows NetFramework461'
+    name: '6.0 on Windows NetFramework461'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '3.1.x'
+          dotnet-version: '6.0.x'
       - run: dotnet clean -c Release ./NBitcoin.Tests/NBitcoin.Tests.csproj && dotnet nuget locals all --clear
       - run: dotnet test -c Release -v n ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest|Altcoins=Altcoins|PropertyTest=PropertyTest" -p:ParallelizeTestCollections=false -f net461

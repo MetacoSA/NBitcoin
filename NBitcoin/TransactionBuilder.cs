@@ -508,7 +508,7 @@ namespace NBitcoin
 				}
 				return keypair;
 			}
-			internal KeyPair FindKey(IPubKey pubKey)
+			internal KeyPair? FindKey(IPubKey pubKey)
 			{
 				var key = Builder._Keys
 					.FirstOrDefault(k => k.PubKey.Equals(pubKey));
@@ -1697,8 +1697,7 @@ namespace NBitcoin
 			DoShuffleGroups();
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
 			retry:
-			if (_LockTime != null)
-				ctx.Transaction.LockTime = _LockTime.Value;
+			ctx.Transaction.LockTime = _LockTime.Value;
 			if (_Version is uint v)
 				ctx.Transaction.Version = v;
 			foreach (var group in _BuilderGroups)

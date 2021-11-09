@@ -209,7 +209,7 @@ namespace NBitcoin
 
 		#endregion
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			var item = obj as PSBTOutput;
 			if (item == null)

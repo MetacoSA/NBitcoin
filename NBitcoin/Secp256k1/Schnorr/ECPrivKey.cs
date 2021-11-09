@@ -17,7 +17,7 @@ namespace NBitcoin.Secp256k1
 #endif
 	class BIP340NonceFunction : INonceFunctionHardened
 	{
-		static RandomNumberGenerator rand = new RNGCryptoServiceProvider();
+		static RandomNumberGenerator rand = RandomNumberGenerator.Create();
 		ReadOnlyMemory<byte> data32;
 		public BIP340NonceFunction(ReadOnlyMemory<byte> auxData32)
 		{

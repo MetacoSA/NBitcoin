@@ -142,8 +142,6 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(key));
 			if (chainCode == null)
 				throw new ArgumentNullException(nameof(chainCode));
-			if (fingerprint == null)
-				throw new ArgumentNullException(nameof(fingerprint));
 			if (chainCode.Length != ChainCodeLength)
 				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", ChainCodeLength), "chainCode");
 			this.key = key;
@@ -517,7 +515,7 @@ namespace NBitcoin
 #endif
 		}
 
-		public bool Equals(ExtKey other)
+		public bool Equals(ExtKey? other)
 		{
 			if (other is null)
 				return false;
@@ -543,7 +541,7 @@ namespace NBitcoin
 			return true;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is ExtKey other)
 			{

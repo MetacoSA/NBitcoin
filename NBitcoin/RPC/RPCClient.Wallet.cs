@@ -153,21 +153,18 @@ namespace NBitcoin.RPC
 
 			var parameters = new Dictionary<string, object>();
 			parameters.Add("wallet_name", walletNameOrPath);
-			if (options is { })
-			{
-				if (options.DisablePrivateKeys is { })
-					parameters.Add("disable_private_keys", options.DisablePrivateKeys.ToString());
-				if (options.Blank is { })
-					parameters.Add("blank", options.Blank.ToString());
-				if (options.Passphrase is string passphrase && passphrase.Length > 0)
-					parameters.Add("passphrase", passphrase);
-				if (options.AvoidReuse is { })
-					parameters.Add("avoid_reuse", options.AvoidReuse.ToString());
-				if (options.AvoidReuse is { })
-					parameters.Add("descriptors", options.Descriptors.ToString());
-				if (options.LoadOnStartup is bool loadOnStartup)
-					parameters.Add("load_on_startup", loadOnStartup.ToString());
-			}
+			if (options?.DisablePrivateKeys is bool disablePrivateKeys)
+				parameters.Add("disable_private_keys", disablePrivateKeys.ToString());
+			if (options?.Blank is bool blank)
+				parameters.Add("blank", blank.ToString());
+			if (options?.Passphrase is string passphrase && passphrase.Length > 0)
+				parameters.Add("passphrase", passphrase);
+			if (options?.AvoidReuse is bool avoidReuse)
+				parameters.Add("avoid_reuse", avoidReuse.ToString());
+			if (options?.Descriptors is bool descriptors)
+				parameters.Add("descriptors", descriptors.ToString());
+			if (options?.LoadOnStartup is bool loadOnStartup)
+				parameters.Add("load_on_startup", loadOnStartup.ToString());
 			var result = await SendCommandWithNamedArgsAsync(RPCOperations.createwallet.ToString(), parameters, cancellationToken).ConfigureAwait(false);
 			return GetWallet(result.Result.Value<string>("name"));
 		}

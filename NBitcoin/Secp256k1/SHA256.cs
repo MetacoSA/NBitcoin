@@ -41,7 +41,7 @@ namespace NBitcoin.Secp256k1
 		{
 			InitializeTagged(Encoding.ASCII.GetBytes(tag));
 		}
-		SHA256Managed sha = new SHA256Managed();
+		System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create();
 		int _Pos;
 		byte[] _Buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(64);
 		public void Write(ReadOnlySpan<byte> buffer)

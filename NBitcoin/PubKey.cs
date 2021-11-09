@@ -169,7 +169,7 @@ namespace NBitcoin
 #endif
 
 
-		public int CompareTo(PubKey other) => BytesComparer.Instance.Compare(this.ToBytes(), other.ToBytes());
+		public int CompareTo(PubKey? other) => other is null ? 1 : BytesComparer.Instance.Compare(this.ToBytes(), other.ToBytes());
 
 		public PubKey Compress()
 		{
@@ -625,14 +625,14 @@ namespace NBitcoin
 #endif
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is PubKey pk)
 				return Equals(pk);
 			return false;
 		}
 #if HAS_SPAN
-		public bool Equals(PubKey pk) => this == pk;
+		public bool Equals(PubKey? pk) => this == pk;
 		public static bool operator ==(PubKey? a, PubKey? b)
 		{
 			if (a is PubKey aa && b is PubKey bb)

@@ -800,7 +800,7 @@ namespace NBitcoin.Secp256k1
 			return true;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is ECPrivKey item)
 			{

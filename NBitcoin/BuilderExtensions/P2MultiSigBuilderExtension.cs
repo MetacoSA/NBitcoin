@@ -185,7 +185,7 @@ namespace NBitcoin.BuilderExtensions
 			var txIn = inputSigningContext.Input;
 			var scriptPubKey = inputSigningContext.Coin.GetScriptCode();
 
-			var sigs = new TransactionSignature[multiSigParams.PubKeys.Length];
+			var sigs = new TransactionSignature?[multiSigParams.PubKeys.Length];
 			int sigCount = 0;
 			for (int i = 0; i < multiSigParams.PubKeys.Length; i++)
 			{

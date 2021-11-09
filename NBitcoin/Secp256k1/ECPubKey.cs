@@ -236,7 +236,7 @@ namespace NBitcoin.Secp256k1
 		}
 
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is ECPubKey item)
 				return this == item;
@@ -428,7 +428,7 @@ namespace NBitcoin.Secp256k1
 			return 0;
 		}
 
-		public int CompareTo(ECPubKey other)
+		public int CompareTo(ECPubKey? other)
 		{
 			if (other is null)
 				throw new ArgumentNullException(nameof(other));
