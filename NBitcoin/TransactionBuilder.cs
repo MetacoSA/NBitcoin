@@ -1697,7 +1697,7 @@ namespace NBitcoin
 			DoShuffleGroups();
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
 			retry:
-			ctx.Transaction.LockTime = _LockTime.Value;
+			ctx.Transaction.LockTime = _LockTime;
 			if (_Version is uint v)
 				ctx.Transaction.Version = v;
 			foreach (var group in _BuilderGroups)
