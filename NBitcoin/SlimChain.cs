@@ -12,13 +12,20 @@ namespace NBitcoin
 	/// </summary>
 	public class SlimChain
 	{
-		Dictionary<uint256, int> _HeightsByBlockHash = new Dictionary<uint256, int>();
-		uint256[] _BlockHashesByHeight = new uint256[1];
+		Dictionary<uint256, int> _HeightsByBlockHash;
+		uint256[] _BlockHashesByHeight;
 		int _Height;
 		ReaderWriterLock _lock = new ReaderWriterLock();
 
-		public SlimChain(uint256 genesis)
+		public SlimChain(uint256 genesis) : this(genesis, 1)
 		{
+		}
+		public SlimChain(uint256 genesis, int capacity)
+		{
+			if (capacity < 1)
+				throw new ArgumentOutOfRangeException(nameof(capacity), "Capacity should be 1 or more");
+			_BlockHashesByHeight = new uint256[capacity];
+			_HeightsByBlockHash = new Dictionary<uint256, int>(capacity);
 			_BlockHashesByHeight[0] = genesis;
 			_HeightsByBlockHash.Add(genesis, 0);
 			_Height = 0;
@@ -125,13 +132,16 @@ namespace NBitcoin
 				_BlockHashesByHeight[i] = null;
 			}
 			_Height = prevHeight + 1;
-			if (_BlockHashesByHeight.Length <= _Height)
-				Array.Resize(ref _BlockHashesByHeight, (int)((_Height + 100) * 1.1));
+			while (_BlockHashesByHeight.Length <= _Height)
+			{
+				var old = _BlockHashesByHeight;
+				_BlockHashesByHeight = new uint256[(int)((_BlockHashesByHeight.Length) * (_Height < 500_000 ? 2.0 : 1.1))];
+				Array.Copy(old, 0, _BlockHashesByHeight, 0, old.Length);
+			}
 			_BlockHashesByHeight[_Height] = newTip;
 			_HeightsByBlockHash.Add(newTip, _Height);
 			return true;
 		}
-
 		public BlockLocator GetTipLocator()
 		{
 			using (_lock.LockRead())
