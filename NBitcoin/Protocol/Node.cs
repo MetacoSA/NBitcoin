@@ -773,7 +773,7 @@ namespace NBitcoin.Protocol
 						Time = DateTimeOffset.UtcNow,
 					};
 				}
-				else if (!expectedPeerEndpoint.MapToIPv6Ex().Equals(peer.Endpoint))
+				else if (!expectedPeerEndpoint.MapToIPv6().Equals(peer.Endpoint))
 				{
 					throw new ArgumentException("The peer's endpoint that you provided is different from the endpoint eventually connected to");
 				}

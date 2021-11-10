@@ -52,7 +52,7 @@ namespace NBitcoin.Protocol
 			AllowLocalPeers = true;
 			InboundNodeConnectionParameters = new NodeConnectionParameters();
 			internalPort = internalPort == -1 ? network.DefaultPort : internalPort;
-			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6Ex(), internalPort);
+			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), internalPort);
 			MaxConnections = 125;
 			_Network = network;
 			_ExternalEndpoint = new IPEndPoint(_LocalEndpoint.Address, Network.DefaultPort);
