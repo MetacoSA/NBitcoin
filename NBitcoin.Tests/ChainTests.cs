@@ -324,6 +324,11 @@ namespace NBitcoin.Tests
 			}
 			Assert.Equal(main.Height, c.Height);
 			Assert.Equal(main.Tip.HashBlock, c.Tip);
+			// Can up the capacity without errors
+			c.SetCapacity(main.Height + 3000);
+			Assert.Equal(main.Height, c.Height);
+			Assert.Equal(main.Tip.HashBlock, c.Tip);
+			Assert.Equal(main.GetBlock(main.Tip.HashBlock).HashBlock, c.GetBlock(c.Tip).Hash);
 		}
 
 		[Fact]

@@ -74,6 +74,22 @@ namespace NBitcoin
 			TrySetTip(Genesis, null);
 		}
 
+		public void SetCapacity(int capacity)
+		{
+			using (_lock.LockWrite())
+			{
+				if (capacity <= _BlockHashesByHeight.Length)
+					return;
+				var old = _BlockHashesByHeight;
+				_BlockHashesByHeight = new uint256[capacity];
+				Array.Copy(old, 0, _BlockHashesByHeight, 0, old.Length);
+				var oldd = _HeightsByBlockHash;
+				_HeightsByBlockHash = new Dictionary<uint256, int>(capacity);
+				foreach (var item in oldd)
+					_HeightsByBlockHash.Add(item.Key, item.Value);
+			}
+		}
+
 		/// <summary>
 		/// Set a new tip in the chain
 		/// </summary>
