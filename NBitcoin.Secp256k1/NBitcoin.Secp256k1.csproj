@@ -17,7 +17,7 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);SECP256K1_LIB;HAS_SPAN</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <LangVersion>10.0</LangVersion>
+	  <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
