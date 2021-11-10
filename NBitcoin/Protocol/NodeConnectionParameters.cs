@@ -136,7 +136,7 @@ namespace NBitcoin.Protocol
 				Version = Version == null ? network.MaxP2PVersion : Version.Value,
 				Timestamp = DateTimeOffset.UtcNow,
 				AddressReceiver = peer,
-				AddressFrom = AddressFrom ?? new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6Ex(), network.DefaultPort),
+				AddressFrom = AddressFrom ?? new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), network.DefaultPort),
 				Relay = IsRelay,
 				Services = Services
 			};

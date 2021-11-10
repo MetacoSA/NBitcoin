@@ -4,10 +4,10 @@
 		<Company>Metaco SA</Company>
 		<Copyright>Copyright © Metaco SA 2017</Copyright>
 		<Description>The C# Bitcoin Library</Description>
-		<LangVersion>10.0</LangVersion>
+		<LangVersion>9.0</LangVersion>
 	</PropertyGroup>
   <PropertyGroup>
-	  <TargetFrameworks>net6.0;netcoreapp3.1;net461</TargetFrameworks>
+	  <TargetFrameworks>net6.0;netcoreapp3.1;net472</TargetFrameworks>
 	  <TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netcoreapp3.1</TargetFrameworks>
 	  <!--<StartupObject>NBitcoin.Tests.Program</StartupObject>-->
 	  <!--<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true' And '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp2.1</TargetFrameworks>-->
@@ -19,7 +19,7 @@
   <PropertyGroup Condition=" '$(AdditionalDefineConstants)' != '' ">
     <DefineConstants>$(DefineConstants);$(AdditionalDefineConstants)</DefineConstants>
   </PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">
 		<DefineConstants>$(DefineConstants);WIN</DefineConstants>
 	</PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netcoreapp3.1' ">
@@ -57,7 +57,7 @@
 		<PackageReference Include="System.Threading.Tasks.Parallel" Version="4.3.0" />
 		<PackageReference Include="System.Threading.Thread" Version="4.3.0" />
 	</ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' Or '$(TargetFramework)' == 'net461' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>

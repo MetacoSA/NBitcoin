@@ -70,8 +70,8 @@ namespace NBitcoin.Protocol.Connectors
 
 		private static EndPoint NormalizeEndpoint(EndPoint socketEndpoint)
 		{
-			if (socketEndpoint is IPEndPoint mappedv4 && mappedv4.Address.IsIPv4MappedToIPv6Ex())
-				socketEndpoint = new IPEndPoint(mappedv4.Address.MapToIPv4Ex(), mappedv4.Port);
+			if (socketEndpoint is IPEndPoint mappedv4 && mappedv4.Address.IsIPv4MappedToIPv6)
+				socketEndpoint = new IPEndPoint(mappedv4.Address.MapToIPv4(), mappedv4.Port);
 			return socketEndpoint;
 		}
 	}

@@ -65,7 +65,7 @@ jobs:
         env:
           Framework: net6.0
   dotnetcore60winfx:
-    name: '6.0 on Windows NetFramework461'
+    name: '6.0 on Windows NetFramework472'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -73,4 +73,4 @@ jobs:
         with:
           dotnet-version: '6.0.x'
       - run: dotnet clean -c Release ./NBitcoin.Tests/NBitcoin.Tests.csproj && dotnet nuget locals all --clear
-      - run: dotnet test -c Release -v n ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest|Altcoins=Altcoins|PropertyTest=PropertyTest" -p:ParallelizeTestCollections=false -f net461
+      - run: dotnet test -c Release -v n ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest|Altcoins=Altcoins|PropertyTest=PropertyTest" -p:ParallelizeTestCollections=false -f net472

@@ -14,59 +14,6 @@ namespace NBitcoin
 {
 	public static class IpExtensions
 	{
-#if CLASSICDOTNET
-		interface ICompatibility
-		{
-			IPAddress MapToIPv6(IPAddress address);
-			IPAddress MapToIPv4(IPAddress address);
-			bool IsIPv4MappedToIPv6(IPAddress address);
-		}
-		class MonoCompatibility : ICompatibility
-		{
-			public bool IsIPv4MappedToIPv6(IPAddress address)
-			{
-				return Utils.IsIPv4MappedToIPv6(address);
-			}
-
-			public IPAddress MapToIPv6(IPAddress address)
-			{
-				return Utils.MapToIPv6(address);
-			}
-
-			public IPAddress MapToIPv4(IPAddress address)
-			{
-				return Utils.MapToIPv4(address);
-			}
-		}
-		class WinCompatibility : ICompatibility
-		{
-			public bool IsIPv4MappedToIPv6(IPAddress address)
-			{
-				return address.IsIPv4MappedToIPv6;
-			}
-
-			public IPAddress MapToIPv6(IPAddress address)
-			{
-				return address.MapToIPv6();
-			}
-			public IPAddress MapToIPv4(IPAddress address)
-			{
-				return address.MapToIPv4();
-			}
-		}
-		static ICompatibility _Compatibility;
-		static ICompatibility Compatibility
-		{
-			get
-			{
-				if(_Compatibility == null)
-				{
-					_Compatibility = IsRunningOnMono() ? (ICompatibility)new MonoCompatibility() : new WinCompatibility();
-				}
-				return _Compatibility;
-			}
-		}
-#endif
 		public static bool IsRFC1918(this IPAddress address)
 		{
 			address = address.EnsureIPv6();
@@ -80,7 +27,7 @@ namespace NBitcoin
 
 		public static bool IsIPv4(this IPAddress address)
 		{
-			return address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork || address.IsIPv4MappedToIPv6Ex();
+			return address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork || address.IsIPv4MappedToIPv6;
 		}
 
 		public static bool IsRFC3927(this IPAddress address)
@@ -481,50 +428,16 @@ namespace NBitcoin
 		{
 			if (address.AddressFamily == AddressFamily.InterNetworkV6)
 				return address;
-			return address.MapToIPv6Ex();
-		}
-
-		static bool? _IsRunningOnMono;
-		public static bool IsRunningOnMono()
-		{
-			if (_IsRunningOnMono == null)
-				_IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
-			return _IsRunningOnMono.Value;
-		}
-
-		public static IPAddress MapToIPv6Ex(this IPAddress address)
-		{
-#if CLASSICDOTNET
-			return Compatibility.MapToIPv6(address);
-#else
 			return address.MapToIPv6();
-#endif
 		}
-		public static IPAddress MapToIPv4Ex(this IPAddress address)
-		{
-#if CLASSICDOTNET
-			return Compatibility.MapToIPv4(address);
-#else
-			return address.MapToIPv4();
-#endif
-		}
-		public static IPEndPoint MapToIPv6Ex(this IPEndPoint endpoint)
+		public static IPEndPoint MapToIPv6(this IPEndPoint endpoint)
 		{
 			if (endpoint == null)
 				throw new ArgumentNullException(nameof(endpoint));
 			if (endpoint.AddressFamily == AddressFamily.InterNetworkV6)
 				return endpoint;
-			var ipv6 = endpoint.Address.MapToIPv6Ex();
+			var ipv6 = endpoint.Address.MapToIPv6();
 			return new IPEndPoint(ipv6, endpoint.Port);
-		}
-		public static bool IsIPv4MappedToIPv6Ex(this IPAddress address)
-		{
-#if CLASSICDOTNET
-			return Compatibility.IsIPv4MappedToIPv6(address);
-#else
-			return address.IsIPv4MappedToIPv6;
-#endif
-
 		}
 
 		readonly static byte[] pchLocal = new byte[16] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
