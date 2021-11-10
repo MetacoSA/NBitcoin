@@ -3137,7 +3137,7 @@ namespace NBitcoin.Tests
 			var k = new Key();
 			var addr = k.GetScriptPubKey(ScriptPubKeyType.Segwit);
 			var coins = Enumerable.Range(0, 100_000)
-				.Select(c => new Coin(new OutPoint(RandomUtils.GetUInt256(), 0), new TxOut(Money.Coins(1.0m) + Money.Satoshis((long)(RandomUtils.GetUInt32() % 1000)), addr)))
+				.Select(c => new Coin(new OutPoint(RandomUtils.GetUInt256(), 0), new TxOut(Money.Coins(1.0m) + Money.Satoshis(c), addr)))
 				.ToArray();
 
 			var builder = new TransactionBuilder(Network.Main);
