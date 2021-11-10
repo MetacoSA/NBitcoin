@@ -53,7 +53,7 @@ jobs:
         env:
           BUILD_ARGS: /p:TargetFrameworkOverride=netstandard2.0
           Framework: net6.0
-  dotnetcore60macod:
+  dotnetcore60macos:
     name: '6.0 on Mac-OS'
     runs-on: macOS-latest
     steps:
