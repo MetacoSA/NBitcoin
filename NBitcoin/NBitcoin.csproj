@@ -13,7 +13,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<Version Condition=" '$(Version)' == '' ">6.0.17</Version>
-		<LangVersion>10.0</LangVersion>
+		<LangVersion>9.0</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
