@@ -438,6 +438,26 @@ namespace NBitcoin.Secp256k1
 			other.WriteToSpan(true, pk1, out _);
 			return secp256k1_memcmp_var(pk0, pk1, 33);
 		}
+
+		internal static void secp256k1_eckey_pubkey_serialize(Span<byte> pub, ref GE elem, out int size, bool compressed)
+		{
+			if (elem.IsInfinity)
+				throw new InvalidOperationException("secp256k1_eckey_pubkey_serialize is impossible on an infinite point");
+			elem = elem.NormalizeXVariable();
+			elem = elem.NormalizeYVariable();
+			elem.x.WriteToSpan(pub.Slice(1));
+			if (compressed)
+			{
+				size = 33;
+				pub[0] = elem.y.IsOdd ? GE.SECP256K1_TAG_PUBKEY_ODD : GE.SECP256K1_TAG_PUBKEY_EVEN;
+			}
+			else
+			{
+				size = 65;
+				pub[0] = GE.SECP256K1_TAG_PUBKEY_UNCOMPRESSED;
+				elem.y.WriteToSpan(pub.Slice(33));
+			}
+		}
 	}
 }
 #nullable restore

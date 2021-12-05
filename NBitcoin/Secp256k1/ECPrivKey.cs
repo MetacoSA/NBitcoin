@@ -210,6 +210,17 @@ namespace NBitcoin.Secp256k1
 			return true;
 		}
 
+		public static ECPrivKey Create(ReadOnlySpan<byte> b32)
+		{
+			return Create(b32, null);
+		}
+		public static ECPrivKey Create(ReadOnlySpan<byte> b32, Context? context)
+		{
+			if (!TryCreate(b32, null, out var k))
+				throw new ArgumentException(nameof(b32), "Invalid ec private key");
+			return k;
+		}
+
 		public static bool TryCreate(in Scalar s, [MaybeNullWhen(false)] out ECPrivKey key)
 		{
 			return TryCreate(s, null, out key);
@@ -240,7 +251,7 @@ namespace NBitcoin.Secp256k1
 			this.ctx = ctx ?? Context.Instance;
 		}
 
-		internal ECPrivKey(ReadOnlySpan<byte> b32, Context ctx)
+		internal ECPrivKey(ReadOnlySpan<byte> b32, Context? ctx)
 		{
 			if (b32.Length != 32)
 				throw new ArgumentException(paramName: nameof(b32), message: "b32 should be of length 32");

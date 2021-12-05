@@ -21,6 +21,11 @@ namespace NBitcoin.Tests
 {
 	public partial class Secp256k1Tests
 	{
+
+		public Secp256k1Tests(ITestOutputHelper helper)
+		{
+			Logs = helper;
+		}
 		Scalar One = new Scalar(1, 0, 0, 0, 0, 0, 0, 0);
 		Scalar Two = new Scalar(2, 0, 0, 0, 0, 0, 0, 0);
 		Scalar Three = new Scalar(3, 0, 0, 0, 0, 0, 0, 0);
@@ -3737,38 +3742,11 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void musig_test_vectors()
+		public void musig_test_vectors_keyagg()
 		{
 			int i;
-			byte[][] pk_ser_tmp = new byte[4][];
-			for (i = 0; i < pk_ser_tmp.Length; i++)
-			{
-				pk_ser_tmp[i] = new byte[32];
-			}
-			byte[][] pk_ser = {
-			/* X1 */
-			new byte[]{
-				0xF9, 0x30, 0x8A, 0x01, 0x92, 0x58, 0xC3, 0x10,
-				0x49, 0x34, 0x4F, 0x85, 0xF8, 0x9D, 0x52, 0x29,
-				0xB5, 0x31, 0xC8, 0x45, 0x83, 0x6F, 0x99, 0xB0,
-				0x86, 0x01, 0xF1, 0x13, 0xBC, 0xE0, 0x36, 0xF9
-			},
-			/* X2 */
-			new byte[]{
-				0xDF, 0xF1, 0xD7, 0x7F, 0x2A, 0x67, 0x1C, 0x5F,
-				0x36, 0x18, 0x37, 0x26, 0xDB, 0x23, 0x41, 0xBE,
-				0x58, 0xFE, 0xAE, 0x1D, 0xA2, 0xDE, 0xCE, 0xD8,
-				0x43, 0x24, 0x0F, 0x7B, 0x50, 0x2B, 0xA6, 0x59
-			 },
-			 /* X3 */
-			 new byte[]{
-				0x35, 0x90, 0xA9, 0x4E, 0x76, 0x8F, 0x8E, 0x18,
-				0x15, 0xC2, 0xF2, 0x4B, 0x4D, 0x80, 0xA8, 0xE3,
-				0x14, 0x93, 0x16, 0xC3, 0x51, 0x8C, 0xE7, 0xB7,
-				0xAD, 0x33, 0x83, 0x68, 0xD0, 0x38, 0xCA, 0x66
-			 }
-		};
-			byte[][] combined_pk_expected = {
+			byte[][] pk = new byte[4][];
+			byte[][] agg_pk_expected = {
 			new byte[]{ /* 0 */
 				0xF1, 0x94, 0x7D, 0x65, 0x53, 0x3A, 0x1D, 0x9E,
 				0x46, 0xDD, 0x16, 0x60, 0x3C, 0x95, 0x04, 0x66,
@@ -3795,7 +3773,7 @@ namespace NBitcoin.Tests
 			}
 			};
 
-			for (i = 0; i < combined_pk_expected.Length / combined_pk_expected[0].Length; i++)
+			for (i = 0; i < agg_pk_expected.Length / agg_pk_expected[0].Length; i++)
 			{
 				int n_pks = -1;
 				bool has_second_pk = false;
@@ -3805,47 +3783,46 @@ namespace NBitcoin.Tests
 					case 0:
 						/* [X1, X2, X3] */
 						n_pks = 3;
-						pk_ser[0].CopyTo(pk_ser_tmp[0], 0);
-						pk_ser[1].CopyTo(pk_ser_tmp[1], 0);
-						pk_ser[2].CopyTo(pk_ser_tmp[2], 0);
+						pk[0] = vec_pk[0];
+						pk[1] = vec_pk[1];
+						pk[2] = vec_pk[2];
 						has_second_pk = true;
 						second_pk_idx = 1;
 						break;
 					case 1:
 						/* [X3, X2, X1] */
 						n_pks = 3;
-
-						pk_ser[0].CopyTo(pk_ser_tmp[2], 0);
-						pk_ser[1].CopyTo(pk_ser_tmp[1], 0);
-						pk_ser[2].CopyTo(pk_ser_tmp[0], 0);
+						pk[2] = vec_pk[0];
+						pk[1] = vec_pk[1];
+						pk[0] = vec_pk[2];
 						has_second_pk = true;
 						second_pk_idx = 1;
 						break;
 					case 2:
 						/* [X1, X1, X1] */
 						n_pks = 3;
-						pk_ser[0].CopyTo(pk_ser_tmp[0], 0);
-						pk_ser[0].CopyTo(pk_ser_tmp[1], 0);
-						pk_ser[0].CopyTo(pk_ser_tmp[2], 0);
+						pk[0] = vec_pk[0];
+						pk[1] = vec_pk[0];
+						pk[2] = vec_pk[0];
 						has_second_pk = false;
 						second_pk_idx = 0; /* unchecked */
 						break;
 					case 3:
 						/* [X1, X1, X2, X2] */
 						n_pks = 4;
-						pk_ser[0].CopyTo(pk_ser_tmp[0], 0);
-						pk_ser[0].CopyTo(pk_ser_tmp[1], 0);
-						pk_ser[1].CopyTo(pk_ser_tmp[2], 0);
-						pk_ser[1].CopyTo(pk_ser_tmp[3], 0);
+						pk[0] = vec_pk[0];
+						pk[1] = vec_pk[0];
+						pk[2] = vec_pk[1];
+						pk[3] = vec_pk[1];
 						has_second_pk = true;
 						second_pk_idx = 3;
 						break;
 				}
-				musig_test_vectors_helper(pk_ser_tmp, n_pks, combined_pk_expected[i], has_second_pk, second_pk_idx);
+				musig_test_vectors_keyagg_helper(pk, n_pks, agg_pk_expected[i], has_second_pk, second_pk_idx);
 			}
 		}
 
-		private void musig_test_vectors_helper(byte[][] pk_ser, int n_pks, byte[] combined_pk_expected, bool has_second_pk, int second_pk_idx)
+		private void musig_test_vectors_keyagg_helper(byte[][] pk_ser, int n_pks, byte[] agg_pk_expected, bool has_second_pk, int second_pk_idx)
 		{
 			ECXOnlyPubKey[] pk = new ECXOnlyPubKey[n_pks];
 			ECXOnlyPubKey[] pk_ptr = new ECXOnlyPubKey[n_pks];
@@ -3862,7 +3839,7 @@ namespace NBitcoin.Tests
 				pk_ptr[i] = pk[i];
 			}
 
-			combined_pk = pre_session.CombinedPubKey;
+			combined_pk = pre_session.AggregatedPubKey;
 			second_pk_x = pre_session.second_pk_x;
 			Assert.True(second_pk_x.IsZero == !has_second_pk);
 			if (!second_pk_x.IsZero)
@@ -3870,18 +3847,7 @@ namespace NBitcoin.Tests
 				Assert.True(pk_ser[second_pk_idx].SequenceEqual(pre_session.second_pk_x.ToBytes()));
 			}
 			combined_pk_ser = combined_pk.ToBytes();
-			/* TODO: remove when test vectors are not expected to change anymore */
-			/* int k, l; */
-			/* printf("const unsigned char combined_pk_expected[32] = {\n"); */
-			/* for (k = 0; k < 4; k++) { */
-			/*     printf("    "); */
-			/*     for (l = 0; l < 8; l++) { */
-			/*         printf("0x%02X, ", combined_pk_ser[k*8+l]); */
-			/*     } */
-			/*     printf("\n"); */
-			/* } */
-			/* printf("};\n"); */
-			Assert.True(combined_pk_ser.SequenceEqual(combined_pk_expected));
+			Assert.True(combined_pk_ser.SequenceEqual(agg_pk_expected));
 		}
 
 		[Fact]
@@ -3904,7 +3870,7 @@ namespace NBitcoin.Tests
 			var msg32 = new byte[32];
 			secp256k1_rand256_test(msg32);
 			var pre_session_P = new MusigContext(pk, msg32);
-			var P = pre_session_P.CombinedPubKey;
+			var P = pre_session_P.AggregatedPubKey;
 			var P_serialized = P.ToBytes();
 			Secp256k1.SHA256 sha = new Secp256k1.SHA256();
 			sha.Initialize();
@@ -3958,7 +3924,7 @@ namespace NBitcoin.Tests
 			};
 			Assert.True(pre_session.Verify(pk[0], pubnonce[0], partial_sig[0]));
 			Assert.True(pre_session.Verify(pk[1], pubnonce[1], partial_sig[1]));
-			var final_sig = pre_session.Combine(partial_sig);
+			var final_sig = pre_session.AggregateSignatures(partial_sig);
 			Assert.True(combined_pk.SigVerifyBIP340(final_sig, pre_session.msg32));
 		}
 
@@ -4016,7 +3982,7 @@ namespace NBitcoin.Tests
 					}
 
 					// Combine
-					var schnorrSig = musig[0].Combine(sigs);
+					var schnorrSig = musig[0].AggregateSignatures(sigs);
 
 					if (useAdaptor)
 						schnorrSig = musig[0].Adapt(schnorrSig, adaptor);
@@ -4053,9 +4019,9 @@ namespace NBitcoin.Tests
 			byte[] msg32_a = Encoding.ASCII.GetBytes("this is the message blockchain a");
 			byte[] msg32_b = Encoding.ASCII.GetBytes("this is the message blockchain b");
 			var pre_session_a = new MusigContext(pk_a, msg32_a);
-			var combined_pk_a = pre_session_a.CombinedPubKey;
+			var combined_pk_a = pre_session_a.AggregatedPubKey;
 			var pre_session_b = new MusigContext(pk_b, msg32_b);
-			var combined_pk_b = pre_session_b.CombinedPubKey;
+			var combined_pk_b = pre_session_b.AggregatedPubKey;
 
 			for (int i = 0; i < 2; i++)
 			{
@@ -4086,7 +4052,7 @@ namespace NBitcoin.Tests
 			/* Step 5: Signer 0 adapts its own partial signature and combines it with the
      * partial signature from signer 1. This results in a complete signature which
      * is broadcasted by signer 0 to take B-coins. */
-			var final_sig_b = pre_session_b.Combine(partial_sig_b);
+			var final_sig_b = pre_session_b.AggregateSignatures(partial_sig_b);
 			final_sig_b = pre_session_b.Adapt(final_sig_b, sec_adaptor);
 			Assert.True(combined_pk_b.SigVerifyBIP340(final_sig_b, msg32_b));
 
@@ -4095,7 +4061,7 @@ namespace NBitcoin.Tests
 			var sec_adaptor_extracted = pre_session_b.Extract(final_sig_b, partial_sig_b);
 			Assert.Equal(sec_adaptor, sec_adaptor_extracted);
 			partial_sig_a[1] = pre_session_a.Sign(sk_a[1], secnonce_a[1]);
-			var final_sig_a = pre_session_a.Combine(partial_sig_a);
+			var final_sig_a = pre_session_a.AggregateSignatures(partial_sig_a);
 			final_sig_a = pre_session_a.Adapt(final_sig_a, sec_adaptor);
 			Assert.True(combined_pk_a.SigVerifyBIP340(final_sig_a, msg32_a));
 		}
@@ -4146,8 +4112,11 @@ namespace NBitcoin.Tests
 			musigCtx.Tweak(tweak32);
 			musigCtx.ProcessNonces(pubnonces);
 
-			var expectedSigTemplate = "5cb7d3ff1e2718929594844d968a5f9ed94675d6d2dbc5e748bbef80aaabc42162180df3432a0948079575c6488ce346f1cc333a1af3b03ae73660b03043740a";
-			Assert.Equal(expectedSigTemplate.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.Template.ToBytes()));
+			var expectedFinalNonce = "270e06a22581e868395053573dd63b90aedbd9f96ae9093ef2ddb8f49b8912a9";
+			Assert.Equal(expectedFinalNonce.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.FinalNonce));
+
+			var expectedSPart = "98b8637818b8b73ccaa2edc439c86c7fa032030d7f1f698e497e3a035f403e62";
+			Assert.Equal(expectedSPart.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.SPart.ToBytes()));
 
 			MusigPartialSignature[] signatures = new MusigPartialSignature[pubkeys.Length];
 			for (int i = 0; i < pubkeys.Length; i++)
@@ -4156,8 +4125,8 @@ namespace NBitcoin.Tests
 				signatures[i] = musigCtx.Sign(eck, privateNonces[i]);
 				Assert.True(musigCtx.Verify(eck.CreateXOnlyPubKey(), privateNonces[i].CreatePubNonce(), signatures[i]));
 			}
-			var schnorr = musigCtx.Combine(signatures);
-			var expectedSchnorr = "5cb7d3ff1e2718929594844d968a5f9ed94675d6d2dbc5e748bbef80aaabc42149bfbec1d3d9eea0059d080d88cb8139ffd78e0e57c5d727ff45994c516ccd88";
+			var schnorr = musigCtx.AggregateSignatures(signatures);
+			var expectedSchnorr = "270e06a22581e868395053573dd63b90aedbd9f96ae9093ef2ddb8f49b8912a95e36246dc554bd4bc0a30068122f5f61368353237076e2bfc4931af927117f2c";
 			Assert.Equal(expectedSchnorr.ToLowerInvariant(), Encoders.Hex.EncodeData(schnorr.ToBytes()));
 			Assert.True(musigCtx.SigningPubKey.SigVerifyBIP340(schnorr, msg32));
 		}
@@ -4175,8 +4144,8 @@ namespace NBitcoin.Tests
 
 
 			var pubkeys = GetPubKeys(privKeys);
-			var expectedCombinedPubkey = "db7dd0ecf81644c991099936bcf9da322ebf269f213e8c2b3cc47cb290a30b4e";
-			var combinedPubkey = ECXOnlyPubKey.MusigCombine(pubkeys);
+			var expectedCombinedPubkey = "49c0791208d995cd9507ed594c6caa8845db411e81218c50101bac249b1771b3";
+			var combinedPubkey = ECXOnlyPubKey.MusigAggregate(pubkeys);
 			Assert.Equal(expectedCombinedPubkey.ToLowerInvariant(), Encoders.Hex.EncodeData(combinedPubkey.ToBytes()));
 
 			var msg32 = Encoders.Hex.DecodeData("746869735F636F756C645F62655F7468655F686173685F6F665F615F6D736721");
@@ -4206,24 +4175,26 @@ namespace NBitcoin.Tests
 			}
 			var pubnonces = privateNonces.Select(c => c.CreatePubNonce()).ToArray();
 			var musigCtx = new MusigContext(pubkeys, msg32);
-			var actualCombinedNonce = MusigPubNonce.Combine(pubnonces);
+			var actualCombinedNonce = MusigPubNonce.Aggregate(pubnonces);
 			var expectedCombinedNonce = "0250FB2E3C6A74923E6A60D79AAD4EFB2B8527A9F8DD04DC9CA3F62D814C4B1F29039B9A42F14BD0729AE2B4085D0370131841ED2859B10B5EAE9571A474BC5B3BB3";
 			Assert.Equal(expectedCombinedNonce.ToLowerInvariant(), Encoders.Hex.EncodeData(actualCombinedNonce.ToBytes()));
 
 			musigCtx.ProcessNonces(pubnonces);
-			var expectedPkHash = "62CF4C50CE51C8E722EE3923E61609D10DF92404FDEE275727C57695386A18F6";
+			var expectedPkHash = "6f3282475dda826e361a617d0c1da9db9e345fc642c4775c4e56a154c10a51ed";
 			Assert.Equal(expectedPkHash.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.pk_hash));
-			var expectedSessionCache = "2edddea0e507546fb389a6118775ec6b4a0b85acae1a73e77f14a82f35473c0121a147835ece4eb23f85d8e1268781541143da274a3152f49d88a2eb70f3d72800";
+			var expectedSessionCache = "a272ed181abcc2ccc917d4db039235ad30b563b246506c183c254e50537a2530375c2f9dbdcb39fffddf4695754549eb647293b4f02b3caa103f8453ee27d00a00";
 			Assert.Equal(expectedSessionCache.ToLowerInvariant(), Encoders.Hex.EncodeData(ToBytes(musigCtx.SessionCache)));
-			var expectedSigTemplate = "72220c5d0d21b831e5dff502a869f758d42781b1c116cde69fb83926dc2f2f020000000000000000000000000000000000000000000000000000000000000000";
-			Assert.Equal(expectedSigTemplate.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.Template.ToBytes()));
+			var expectedSPart = "0000000000000000000000000000000000000000000000000000000000000000";
+			Assert.Equal(expectedSPart.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.SPart.ToBytes()));
+			var expectedFinalNonce = "bb89bb158b7591ea1f9f80359438288412d4c7cb9011a1204ef5a75c527a17d4";
+			Assert.Equal(expectedFinalNonce.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.FinalNonce));
 
 
 			var expectedSigs = new[]
 			{
-				"5fe818d7922bdc21c5a70d9f47908bed6b9fe9b043b3f95279446d9b4acac877",
-				"39d370734acce855b6e76b6718c389a70cf5b2af9af48c2e0d1d70cfa3dc8265",
-				"5613f65335043d34cd6842f4155f40009fc82abcbb1aa4ed3aa0e8f30a255800"
+				"d06ae41fb1f60e12f4ddfb2415a0867fce1cb682ea37eed181b1e02730dbd162",
+				"049693d38aa65554fb0344d9bbc7804994e5fdd74672e07a80de1ed49cfeef84",
+				"8efcbdf1ca68d2ae8d8b1f8ff462e737b6aa7ad51f28dbcc0e4ebb8c911d0a76"
 			};
 			MusigPartialSignature[] signatures = new MusigPartialSignature[pubkeys.Length];
 			for (int i = 0; i < pubkeys.Length; i++)
@@ -4234,16 +4205,185 @@ namespace NBitcoin.Tests
 				Assert.True(musigCtx.Verify(eck.CreateXOnlyPubKey(), privateNonces[i].CreatePubNonce(), signatures[i]));
 			}
 
-			var finalSignature = musigCtx.Combine(signatures);
+			var finalSignature = musigCtx.AggregateSignatures(signatures);
 			Assert.True(combinedPubkey.SigVerifyBIP340(finalSignature, msg32));
+		}
+
+
+		byte[][] vec_pk = {
+			/* X1 */
+			new byte[]{
+				0xF9, 0x30, 0x8A, 0x01, 0x92, 0x58, 0xC3, 0x10,
+				0x49, 0x34, 0x4F, 0x85, 0xF8, 0x9D, 0x52, 0x29,
+				0xB5, 0x31, 0xC8, 0x45, 0x83, 0x6F, 0x99, 0xB0,
+				0x86, 0x01, 0xF1, 0x13, 0xBC, 0xE0, 0x36, 0xF9
+			},
+			/* X2 */
+			new byte[]{
+				0xDF, 0xF1, 0xD7, 0x7F, 0x2A, 0x67, 0x1C, 0x5F,
+				0x36, 0x18, 0x37, 0x26, 0xDB, 0x23, 0x41, 0xBE,
+				0x58, 0xFE, 0xAE, 0x1D, 0xA2, 0xDE, 0xCE, 0xD8,
+				0x43, 0x24, 0x0F, 0x7B, 0x50, 0x2B, 0xA6, 0x59
+			 },
+			 /* X3 */
+			 new byte[]{
+				0x35, 0x90, 0xA9, 0x4E, 0x76, 0x8F, 0x8E, 0x18,
+				0x15, 0xC2, 0xF2, 0x4B, 0x4D, 0x80, 0xA8, 0xE3,
+				0x14, 0x93, 0x16, 0xC3, 0x51, 0x8C, 0xE7, 0xB7,
+				0xAD, 0x33, 0x83, 0x68, 0xD0, 0x38, 0xCA, 0x66
+			 }
+		};
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void musig_test_vectors_sign()
+		{
+			Span<byte> sig = stackalloc byte[32];
+			/* The state corresponds to the two scalars that constitute the secret
+			 * nonce. */
+			byte[][] state = new byte[2][] {
+				new byte[]{
+					0x50, 0x8B, 0x81, 0xA6, 0x11, 0xF1, 0x00, 0xA6,
+			0xB2, 0xB6, 0xB2, 0x96, 0x56, 0x59, 0x08, 0x98,
+			0xAF, 0x48, 0x8B, 0xCF, 0x2E, 0x1F, 0x55, 0xCF,
+			0x22, 0xE5, 0xCF, 0xB8, 0x44, 0x21, 0xFE, 0x61,
+		},
+		new byte[]{
+					0xFA, 0x27, 0xFD, 0x49, 0xB1, 0xD5, 0x00, 0x85,
+			0xB4, 0x81, 0x28, 0x5E, 0x1C, 0xA2, 0x05, 0xD5,
+			0x5C, 0x82, 0xCC, 0x1B, 0x31, 0xFF, 0x5C, 0xD5,
+			0x4A, 0x48, 0x98, 0x29, 0x35, 0x59, 0x01, 0xF7,
+		}
+			};
+			/* The nonces are already aggregated */
+			byte[] agg_pubnonce = new byte[] {
+		0x02,
+		0x84, 0x65, 0xFC, 0xF0, 0xBB, 0xDB, 0xCF, 0x44,
+		0x3A, 0xAB, 0xCC, 0xE5, 0x33, 0xD4, 0x2B, 0x4B,
+		0x5A, 0x10, 0x96, 0x6A, 0xC0, 0x9A, 0x49, 0x65,
+		0x5E, 0x8C, 0x42, 0xDA, 0xAB, 0x8F, 0xCD, 0x61,
+		0x03,
+		0x74, 0x96, 0xA3, 0xCC, 0x86, 0x92, 0x6D, 0x45,
+		0x2C, 0xAF, 0xCF, 0xD5, 0x5D, 0x25, 0x97, 0x2C,
+		0xA1, 0x67, 0x5D, 0x54, 0x93, 0x10, 0xDE, 0x29,
+		0x6B, 0xFF, 0x42, 0xF7, 0x2E, 0xEE, 0xA8, 0xC9,
+	};
+			byte[] sk = new byte[] {
+		0x7F, 0xB9, 0xE0, 0xE6, 0x87, 0xAD, 0xA1, 0xEE,
+		0xBF, 0x7E, 0xCF, 0xE2, 0xF2, 0x1E, 0x73, 0xEB,
+		0xDB, 0x51, 0xA7, 0xD4, 0x50, 0x94, 0x8D, 0xFE,
+		0x8D, 0x76, 0xD7, 0xF2, 0xD1, 0x00, 0x76, 0x71,
+	};
+			byte[] msg = new byte[] {
+		0xF7, 0x54, 0x66, 0xD0, 0x86, 0x77, 0x0E, 0x68,
+		0x99, 0x64, 0x66, 0x42, 0x19, 0x26, 0x6F, 0xE5,
+		0xED, 0x21, 0x5C, 0x92, 0xAE, 0x20, 0xBA, 0xB5,
+		0xC9, 0xD7, 0x9A, 0xDD, 0xDD, 0xF3, 0xC0, 0xCF,
+	};
+			byte[][] pk = new byte[2][] { vec_pk[0], vec_pk[1] };
+
+			{
+				byte[] sig_expected = {
+			0x00, 0xB6, 0x9D, 0x89, 0xCD, 0x3A, 0x54, 0xF3,
+			0x9F, 0x2D, 0x2D, 0xDC, 0x5B, 0xE1, 0x90, 0x5E,
+			0x08, 0xD2, 0x9E, 0x26, 0x6A, 0xD3, 0xA0, 0x59,
+			0x92, 0x05, 0xF9, 0xF7, 0x91, 0x45, 0xDC, 0xF9,
+		};
+				var o = musig_test_vectors_sign_helper(state, agg_pubnonce, sk, msg, pk, 0);
+
+				/* This is a test where the combined public key point has an _odd_ y
+		* coordinate, the signer _is not_ the second pubkey in the list and the
+		* nonce parity is 1. */
+				Assert.True(o.Context.pk_parity);
+				Assert.True(o.Context.SessionCache.FinalNonceParity);
+				Assert.False(musig_test_is_second_pk(o.Context, sk));
+				Assert.Equal(Encoders.Hex.EncodeData(sig_expected), Encoders.Hex.EncodeData(o.Signature.ToBytes()));
+			}
+
+			{
+				byte[] sig_expected = {
+			0x7C, 0x45, 0xDD, 0xB6, 0x7D, 0x3D, 0x7C, 0x3D,
+			0xE8, 0x82, 0x22, 0xFC, 0xF6, 0x62, 0x0D, 0xCE,
+			0xBE, 0x92, 0x3D, 0x3B, 0x02, 0xF0, 0xAE, 0xC4,
+			0x66, 0xEC, 0xBC, 0xA3, 0x01, 0x3A, 0x7C, 0xCB,
+				};
+				var o = musig_test_vectors_sign_helper(state, agg_pubnonce, sk, msg, pk, 1);
+
+				/* This is a test where the aggregate public key point has an _even_ y
+	   * coordinate, the signer _is_ the second pubkey in the list and the
+	   * nonce parity is 0. */
+				Assert.False(o.Context.pk_parity);
+				Assert.False(o.Context.SessionCache.FinalNonceParity);
+				Assert.True(musig_test_is_second_pk(o.Context, sk));
+				Assert.Equal(Encoders.Hex.EncodeData(sig_expected), Encoders.Hex.EncodeData(o.Signature.ToBytes()));
+			}
+		}
+
+		(MusigContext Context, MusigPartialSignature Signature) musig_test_vectors_sign_helper(byte[][] state, byte[] agg_pubnonce_ser, byte[] sk, byte[] msg, byte[][] pk_ser, int signer_pos)
+		{
+			var signer = ECPrivKey.Create(sk);
+			ECXOnlyPubKey[] pk = new ECXOnlyPubKey[3];
+			pk[signer_pos] = signer.CreateXOnlyPubKey();
+			for (int i = 0; i < pk.Length; i++)
+			{
+				if (i != signer_pos)
+				{
+					int offset = i < signer_pos ? 0 : -1;
+					pk[i] = ECXOnlyPubKey.Create(pk_ser[i + offset]);
+				}
+				Logs.WriteLine($"{i} key:\r\n" + Encoders.Hex.EncodeData(pk[i].ToBytes().Reverse().ToArray()));
+			}
+			var musigCtx = new MusigContext(pk, msg);
+			Logs.WriteLine($"aggregated:\r\n" + Encoders.Hex.EncodeData(musigCtx.AggregatedPubKey.ToBytes().Reverse().ToArray()));
+			musigCtx.Process(new MusigPubNonce(null, agg_pubnonce_ser));
+			Logs.WriteLine($"combinednonce:\r\n" + Encoders.Hex.EncodeData(musigCtx.AggregatedNonce.ToBytes()));
+			var partialSig = musigCtx.Sign(ECPrivKey.Create(sk), new MusigPrivNonce(ECPrivKey.Create(state[0]), ECPrivKey.Create(state[1])));
+			return (musigCtx, partialSig);
+		}
+
+		bool musig_test_is_second_pk(MusigContext ctx, byte[] sk)
+		{
+			return ECPrivKey.Create(sk).CreateXOnlyPubKey().Q.x.Equals(ctx.second_pk_x);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void musig_test_vectors_noncegen()
+		{
+			Scalar[] k = new Scalar[2];
+			byte[][] k32_expected = new byte[][] {
+				new byte[]{
+					0x91, 0x2C, 0x7C, 0xCD, 0x01, 0xDD, 0x80, 0x2F,
+			0x84, 0xAD, 0x61, 0xD8, 0xB9, 0x5F, 0x03, 0xAE,
+			0x33, 0x44, 0xD4, 0x08, 0x3F, 0x2F, 0x41, 0xF4,
+			0x05, 0x27, 0xD0, 0x31, 0x4B, 0x4D, 0x0B, 0x3E,
+		},
+		new byte[] {
+					0xD7, 0x44, 0x7D, 0xBF, 0x3B, 0x50, 0x4F, 0x96,
+			0xC3, 0x49, 0xA5, 0x22, 0xA3, 0x07, 0x67, 0x28,
+			0x18, 0xC9, 0x2C, 0x87, 0x56, 0xFB, 0x10, 0x98,
+			0x0A, 0x3F, 0x91, 0x8D, 0xF7, 0xA2, 0xDD, 0xAB,
+		},
+	};
+			byte[][] args = new byte[][] { new byte[32], new byte[32], new byte[32], new byte[32], new byte[32] };
+			uint i;
+			for (i = 0; i < 5; i++)
+			{
+				args[i].AsSpan().Fill((byte)i);
+			}
+			MusigPrivNonce.secp256k1_nonce_function_musig(k, args[0], args[1], args[2], args[3], args[4]);
+			for (i = 0; i < 2; i++)
+			{
+				Assert.Equal(Encoders.Hex.EncodeData(k32_expected[i]), Encoders.Hex.EncodeData(k[i].ToBytes()));
+			}
 		}
 
 		private byte[] ToBytes(MusigSessionCache sessionCache)
 		{
 			var b = new byte[65];
-			sessionCache.B.WriteToSpan(b);
-			sessionCache.E.WriteToSpan(b.AsSpan().Slice(32));
-			b[64] = (byte)(sessionCache.CombinedNonceParity ? 1 : 0);
+			sessionCache.NonceCoeff.WriteToSpan(b);
+			sessionCache.Challenge.WriteToSpan(b.AsSpan().Slice(32));
+			b[64] = (byte)(sessionCache.FinalNonceParity ? 1 : 0);
 			return b;
 		}
 

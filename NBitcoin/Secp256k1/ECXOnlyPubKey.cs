@@ -45,7 +45,6 @@ namespace NBitcoin.Secp256k1
 				return false;
 			return TryCreate(x, context, out pubkey);
 		}
-
 		public static bool TryCreate(in FE x, [MaybeNullWhen(false)] out ECXOnlyPubKey pubkey)
 		{
 			return TryCreate(x, null, out pubkey);
@@ -59,6 +58,16 @@ namespace NBitcoin.Secp256k1
 			}
 			pubkey = new ECXOnlyPubKey(ge, context);
 			return true;
+		}
+		public static ECXOnlyPubKey Create(ReadOnlySpan<byte> input32)
+		{
+			return Create(input32, null);
+		}
+		public static ECXOnlyPubKey Create(ReadOnlySpan<byte> input32, Context? context)
+		{
+			if (!TryCreate(input32, context, out var k))
+				throw new ArgumentException(paramName: nameof(input32), message: "Invalid xonly pubkey");
+			return k;
 		}
 		internal ECXOnlyPubKey(in GE ge, Context? context)
 		{

@@ -39,7 +39,7 @@ namespace NBitcoin.Secp256k1.Musig
 			this.context = k1.ctx;
 		}
 
-		public static MusigPubNonce Combine(MusigPubNonce[] nonces)
+		public static MusigPubNonce Aggregate(MusigPubNonce[] nonces)
 		{
 			if (nonces == null)
 				throw new ArgumentNullException(nameof(nonces));
@@ -50,7 +50,7 @@ namespace NBitcoin.Secp256k1.Musig
 			for (int i = 0; i < 2; i++)
 			{
 				if (summed_nonces[i].IsInfinity)
-					throw new InvalidOperationException("Impossible to combine the given nonces");
+					throw new InvalidOperationException("Impossible to aggregate the given nonces");
 			}
 			var ctx = nonces[0].context;
 			return new MusigPubNonce(new ECPubKey(summed_nonces[0].ToGroupElement(), ctx),
@@ -74,7 +74,7 @@ namespace NBitcoin.Secp256k1.Musig
 		{
 			if (!ECPubKey.TryCreate(in66.Slice(0, 33), context, out _, out var k1) ||
 				!ECPubKey.TryCreate(in66.Slice(33, 33), context, out _, out var k2))
-				throw new FormatException("Invalid musig pubnonce");
+				throw new ArgumentException("Invalid musig pubnonce");
 			this.context = context ?? Context.Instance;
 			this.k1 = k1;
 			this.k2 = k2;

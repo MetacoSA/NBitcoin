@@ -14,10 +14,6 @@ namespace NBitcoin.Tests
 		static ulong secp256k1_test_rng_integer;
 		static int[] addbits = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0 };
 		private readonly ITestOutputHelper Logs;
-		public Secp256k1Tests(ITestOutputHelper output)
-		{
-			this.Logs = output;
-		}
 		private void secp256k1_rand256(Span<byte> output)
 		{
 			// Should reproduce the secp256k1_test_rng
