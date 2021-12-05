@@ -48,18 +48,18 @@ namespace NBitcoin.Secp256k1.Musig
 		internal MusigSessionCache? SessionCache;
 
 		private ECXOnlyPubKey[] pubKeys;
-		private MusigPubNonce? aggregatedNonce;
-		public MusigPubNonce? AggregatedNonce => aggregatedNonce;
-		public ECXOnlyPubKey AggregatedPubKey => aggregatedPubKey;
+		private MusigPubNonce? aggregateNonce;
+		public MusigPubNonce? AggregateNonce => aggregateNonce;
+		public ECXOnlyPubKey AggregatePubKey => aggregatePubKey;
 		ECPubKey? tweakedPubKey;
 		ECXOnlyPubKey? xonlyTweakedPubKey;
 		public ECPubKey? TweakedPubKey => tweakedPubKey;
 		public ECXOnlyPubKey? XOnlyTweakedPubKey => xonlyTweakedPubKey ??= tweakedPubKey?.ToXOnlyPubKey();
 
 
-		public ECXOnlyPubKey SigningPubKey => XOnlyTweakedPubKey ?? AggregatedPubKey;
+		public ECXOnlyPubKey SigningPubKey => XOnlyTweakedPubKey ?? AggregatePubKey;
 
-		private ECXOnlyPubKey aggregatedPubKey;
+		private ECXOnlyPubKey aggregatePubKey;
 		private Context ctx;
 
 
@@ -76,8 +76,8 @@ namespace NBitcoin.Secp256k1.Musig
 			processed_nonce = musigContext.processed_nonce;
 			SessionCache = musigContext.SessionCache?.Clone();
 			pubKeys = musigContext.pubKeys.ToArray();
-			aggregatedNonce = musigContext.aggregatedNonce;
-			aggregatedPubKey = musigContext.aggregatedPubKey;
+			aggregateNonce = musigContext.aggregateNonce;
+			aggregatePubKey = musigContext.aggregatePubKey;
 			tweakedPubKey = musigContext.tweakedPubKey;
 			ctx = musigContext.ctx;
 			msg32 = musigContext.msg32;
@@ -97,7 +97,7 @@ namespace NBitcoin.Secp256k1.Musig
 			if (!(msg32.Length is 32))
 				throw new ArgumentNullException(nameof(msg32), "msg32 should be 32 bytes.");
 			this.pubKeys = pubKeys;
-			this.aggregatedPubKey = ECXOnlyPubKey.MusigAggregate(pubKeys, this);
+			this.aggregatePubKey = ECXOnlyPubKey.MusigAggregate(pubKeys, this);
 			this.ctx = pubKeys[0].ctx;
 			this.msg32 = msg32.ToArray();
 		}
@@ -113,7 +113,7 @@ namespace NBitcoin.Secp256k1.Musig
 			scalar_tweak = new Scalar(tweak32, out int overflow);
 			if (overflow == 1)
 				throw new ArgumentException(nameof(tweak32), "The tweak is overflowing");
-			var output = aggregatedPubKey.AddTweak(tweak32);
+			var output = aggregatePubKey.AddTweak(tweak32);
 			internal_key_parity = pk_parity;
 			pk_parity = output.Q.y.IsOdd;
 			is_tweaked = true;
@@ -172,7 +172,7 @@ namespace NBitcoin.Secp256k1.Musig
 			fin_nonce.CopyTo(session_cache.FinalNonce);
 			SessionCache = session_cache;
 			processed_nonce = true;
-			this.aggregatedNonce = aggregatedNonce;
+			this.aggregateNonce = aggregatedNonce;
 		}
 
 		internal static void secp256k1_musig_nonce_process_internal(
@@ -471,7 +471,7 @@ namespace NBitcoin.Secp256k1.Musig
 		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
 		public MusigPrivNonce GenerateNonce(ReadOnlySpan<byte> sessionId32, ECPrivKey? signingKey, ReadOnlySpan<byte> extraInput32)
 		{
-			return MusigPrivNonce.GenerateMusigNonce(ctx, sessionId32, signingKey, this.msg32, this.aggregatedPubKey, extraInput32);
+			return MusigPrivNonce.GenerateMusigNonce(ctx, sessionId32, signingKey, this.msg32, this.aggregatePubKey, extraInput32);
 		}
 	}
 }

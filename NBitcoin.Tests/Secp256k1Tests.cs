@@ -3839,7 +3839,7 @@ namespace NBitcoin.Tests
 				pk_ptr[i] = pk[i];
 			}
 
-			combined_pk = pre_session.AggregatedPubKey;
+			combined_pk = pre_session.AggregatePubKey;
 			second_pk_x = pre_session.second_pk_x;
 			Assert.True(second_pk_x.IsZero == !has_second_pk);
 			if (!second_pk_x.IsZero)
@@ -3870,7 +3870,7 @@ namespace NBitcoin.Tests
 			var msg32 = new byte[32];
 			secp256k1_rand256_test(msg32);
 			var pre_session_P = new MusigContext(pk, msg32);
-			var P = pre_session_P.AggregatedPubKey;
+			var P = pre_session_P.AggregatePubKey;
 			var P_serialized = P.ToBytes();
 			Secp256k1.SHA256 sha = new Secp256k1.SHA256();
 			sha.Initialize();
@@ -4019,9 +4019,9 @@ namespace NBitcoin.Tests
 			byte[] msg32_a = Encoding.ASCII.GetBytes("this is the message blockchain a");
 			byte[] msg32_b = Encoding.ASCII.GetBytes("this is the message blockchain b");
 			var pre_session_a = new MusigContext(pk_a, msg32_a);
-			var combined_pk_a = pre_session_a.AggregatedPubKey;
+			var combined_pk_a = pre_session_a.AggregatePubKey;
 			var pre_session_b = new MusigContext(pk_b, msg32_b);
-			var combined_pk_b = pre_session_b.AggregatedPubKey;
+			var combined_pk_b = pre_session_b.AggregatePubKey;
 
 			for (int i = 0; i < 2; i++)
 			{
@@ -4331,12 +4331,9 @@ namespace NBitcoin.Tests
 					int offset = i < signer_pos ? 0 : -1;
 					pk[i] = ECXOnlyPubKey.Create(pk_ser[i + offset]);
 				}
-				Logs.WriteLine($"{i} key:\r\n" + Encoders.Hex.EncodeData(pk[i].ToBytes().Reverse().ToArray()));
 			}
 			var musigCtx = new MusigContext(pk, msg);
-			Logs.WriteLine($"aggregated:\r\n" + Encoders.Hex.EncodeData(musigCtx.AggregatedPubKey.ToBytes().Reverse().ToArray()));
 			musigCtx.Process(new MusigPubNonce(null, agg_pubnonce_ser));
-			Logs.WriteLine($"combinednonce:\r\n" + Encoders.Hex.EncodeData(musigCtx.AggregatedNonce.ToBytes()));
 			var partialSig = musigCtx.Sign(ECPrivKey.Create(sk), new MusigPrivNonce(ECPrivKey.Create(state[0]), ECPrivKey.Create(state[1])));
 			return (musigCtx, partialSig);
 		}

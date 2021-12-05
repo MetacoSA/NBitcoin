@@ -26,7 +26,7 @@ namespace NBitcoin.Secp256k1.Musig
 		/// <param name="sessionId32">A unique session_id32. It is a "number used once". If empty, it will be randomly generated.</param>
 		/// <param name="signingKey">Provide the message to be signed to increase misuse-resistance. If you do provide a signingKey, sessionId32 can instead be a counter (that must never repeat!). However, it is recommended to always choose session_id32 uniformly at random. Can be null.</param>
 		/// <param name="msg32">Provide the message to be signed to increase misuse-resistance. Can be empty.</param>
-		/// <param name="aggregatedPubKey">Provide the message to be signed to increase misuse-resistance. Can be null.</param>
+		/// <param name="aggregatePubKey">Provide the message to be signed to increase misuse-resistance. Can be null.</param>
 		/// <param name="extraInput32">Provide the message to be signed to increase misuse-resistance. The extra_input32 argument can be used to provide additional data that does not repeat in normal scenarios, such as the current time. Can be empty.</param>
 		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
 		public static MusigPrivNonce GenerateMusigNonce(
@@ -34,7 +34,7 @@ namespace NBitcoin.Secp256k1.Musig
 						   ReadOnlySpan<byte> sessionId32,
 						   ECPrivKey? signingKey,
 						   ReadOnlySpan<byte> msg32,
-						   ECXOnlyPubKey? aggregatedPubKey,
+						   ECXOnlyPubKey? aggregatePubKey,
 						   ReadOnlySpan<byte> extraInput32)
 		{
 			if (!(sessionId32.Length is 32) && !(sessionId32.Length is 0))
@@ -61,13 +61,13 @@ namespace NBitcoin.Secp256k1.Musig
 			}
 
 			Span<byte> agg_pk = stackalloc byte[32];
-			if (aggregatedPubKey is null)
+			if (aggregatePubKey is null)
 			{
 				agg_pk = agg_pk.Slice(0, 0);
 			}
 			else
 			{
-				aggregatedPubKey.WriteToSpan(agg_pk);
+				aggregatePubKey.WriteToSpan(agg_pk);
 			}
 
 			var k = new Scalar[2];
