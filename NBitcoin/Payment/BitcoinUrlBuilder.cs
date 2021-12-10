@@ -99,20 +99,29 @@ namespace NBitcoin.Payment
 				Message = parameters["message"];
 				parameters.Remove("message");
 			}
-			_UnknowParameters = parameters;
+			_UnknownParameters = parameters;
 			var reqParam = parameters.Keys.FirstOrDefault(k => k.StartsWith("req-", StringComparison.OrdinalIgnoreCase));
 			if (reqParam != null)
 				throw new FormatException("Non compatible required parameter " + reqParam);
 		}
 
-		private readonly Dictionary<string, string> _UnknowParameters = new Dictionary<string, string>();
+		private readonly Dictionary<string, string> _UnknownParameters = new Dictionary<string, string>();
+		public IReadOnlyDictionary<string, string> UnknownParameters
+		{
+			get
+			{
+				return _UnknownParameters;
+			}
+		}
+		[Obsolete("Use UnknownParameters property")]
 		public Dictionary<string, string> UnknowParameters
 		{
 			get
 			{
-				return _UnknowParameters;
+				return _UnknownParameters;
 			}
 		}
+
 		public BitcoinAddress? Address
 		{
 			get;
@@ -158,7 +167,7 @@ namespace NBitcoin.Payment
 					parameters.Add("message", Message.ToString());
 				}
 
-				foreach (var kv in UnknowParameters)
+				foreach (var kv in UnknownParameters)
 				{
 					parameters.Add(kv.Key, kv.Value);
 				}
