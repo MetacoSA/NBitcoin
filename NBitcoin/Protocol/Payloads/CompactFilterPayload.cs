@@ -50,11 +50,11 @@ namespace NBitcoin.Protocol
 		{
 		}
 
-		public new void ReadWrite(BitcoinStream stream)
+		public override void ReadWriteCore(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref _FilterType);
 			stream.ReadWrite(ref _BlockHash);
-			stream.ReadWrite(ref _FilterBytes);
+			stream.ReadWriteAsVarString(ref _FilterBytes);
 		}
 	}
 
