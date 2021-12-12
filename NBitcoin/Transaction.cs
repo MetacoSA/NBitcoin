@@ -1574,8 +1574,8 @@ namespace NBitcoin
 				if (flags != 0)
 				{
 					/* Use extended format in case witnesses are to be serialized. */
-					TxInList vinDummy = new TxInList();
-					stream.ReadWrite(ref vinDummy);
+					byte marker = 0;
+					stream.ReadWrite(ref marker);
 					stream.ReadWrite(ref flags);
 				}
 				stream.ReadWrite(ref vin);
