@@ -206,7 +206,7 @@ namespace NBitcoin.Secp256k1.Musig
 		{
 			Span<byte> buf = stackalloc byte[33];
 			using SHA256 sha = new SHA256();
-			sha.Initialize();
+			sha.InitializeTagged("MuSig/noncecoef");
 			int i;
 			for (i = 0; i < 2; i++)
 			{

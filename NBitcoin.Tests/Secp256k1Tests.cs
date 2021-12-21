@@ -4086,9 +4086,9 @@ namespace NBitcoin.Tests
 			};
 			var expectedNonces = new[]
 			{
-				"034FBB6ABC3B899EDA7CC4722C27453F958574F1B8CA6FC56B5AF50DFB298E5E29035D7849EBCA5207D21242DC8F2885DE852323CFCCB2CC3F829358007E2E33E740",
-				"02B86CB76EFD412D76E527DAFA4FFA4574AB2530E83E8792DF6568C650EEBCB38603A3DE55CCCC7A67935F94D0C83479FDA2EFFAD77F12E6E0CD5FC0DB25FB025A8C",
-				"02BEA90D3370B6976FD305BFEB4AA6AFA249286538A7F87E04983D68EEC6D732E8038915E565903FDEA86FD96C11D0E7FEC148362DEF4D8EFACC4E5BD3C4D9B00429"
+				"03b54e24991eca5316a53fb4dfe0ee22731724650f99a89920bc885373f63cb16002b77f8c7d29b4eba13072ab1199f27a9622001e66fb2fbb27f7906aa4b9883ffd",
+				"0207baf49f613a0320d38294b70beca0833bfa991efd1833c967b9feaa2e349f7a0375580e6b7828ec3650a322d8749b903c9d837abb04988ea6e13de0e6fc7ea3fd",
+				"03270d24504ff68c2b1997e11354496e5d1eddeca1118759d02031a33660a5d4bf03d8030c4789ea047e636c25d950a1ba7be69254635833b8b26ffeda8bd5437aab"
 			};
 
 			var privateNonces = new MusigPrivNonce[pubkeys.Length];
@@ -4112,10 +4112,10 @@ namespace NBitcoin.Tests
 			musigCtx.Tweak(tweak32);
 			musigCtx.ProcessNonces(pubnonces);
 
-			var expectedFinalNonce = "270e06a22581e868395053573dd63b90aedbd9f96ae9093ef2ddb8f49b8912a9";
+			var expectedFinalNonce = "0c84d00c742042c0e097808ca546000b0d18ed04a70903dad2712f3e06674b39";
 			Assert.Equal(expectedFinalNonce.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.FinalNonce));
 
-			var expectedSPart = "98b8637818b8b73ccaa2edc439c86c7fa032030d7f1f698e497e3a035f403e62";
+			var expectedSPart = "99f8b35ec4cf050437c0388e05e47bb2c75f659423bbe932fa344645114fcdff";
 			Assert.Equal(expectedSPart.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.SPart.ToBytes()));
 
 			MusigPartialSignature[] signatures = new MusigPartialSignature[pubkeys.Length];
@@ -4126,7 +4126,7 @@ namespace NBitcoin.Tests
 				Assert.True(musigCtx.Verify(eck.CreateXOnlyPubKey(), privateNonces[i].CreatePubNonce(), signatures[i]));
 			}
 			var schnorr = musigCtx.AggregateSignatures(signatures);
-			var expectedSchnorr = "270e06a22581e868395053573dd63b90aedbd9f96ae9093ef2ddb8f49b8912a95e36246dc554bd4bc0a30068122f5f61368353237076e2bfc4931af927117f2c";
+			var expectedSchnorr = "0c84d00c742042c0e097808ca546000b0d18ed04a70903dad2712f3e06674b39c33a751274ed1811df7c6b50b8c5deb67b4c2594a9f541e45507bc823ca97b69";
 			Assert.Equal(expectedSchnorr.ToLowerInvariant(), Encoders.Hex.EncodeData(schnorr.ToBytes()));
 			Assert.True(musigCtx.SigningPubKey.SigVerifyBIP340(schnorr, msg32));
 		}
@@ -4157,9 +4157,9 @@ namespace NBitcoin.Tests
 			};
 			var expectedNonces = new[]
 			{
-				"02F67EAEA36A8B38F4E525E73D125CE83CA363FF1FB727EFCB5AF9BB6924408E7602E9CF19EB0A667A76E99C8B489A1AF120049C0BF88438E40D93F398AEE2C00E3E",
-				"03A54F71C56C987FC3ADE8AA3D72EA9CCBCBC69CFFB13ABC61EF5218276D640BB602C38D2AF1BD7F1007C12FF0759BE6A9B713D7E2ABDC3953B8E7A8876011BD4158",
-				"02A6D96285B93535B5B991CDCF8D1B14086BC08EC3F56D6431870418FD1BB484E2020F8E8C67021D768229120D18FF9FDFDDDF659A29FC83476B43BD43390465FC8E"
+				"037800f8e53168d271ede5e04fb727f81548995524c92f657d4c36db2b4fb79fd403bbb489b7fe065e715afbc2e997a4c6d1a22f4e44222e3e36b6aedfded6958dc3",
+				"03450fd04a75d11b640535780a1f1bc6f80c0fb67a9a4a8c9f7943da7f8ec21c1b03c8bca6416aab169b73f76a17cf2b740dd57c7e77d3b5dff9b2b3fab15246b715",
+				"039ef367f51368c3a96fb8d53112e126efd37eca59f2a8cd4d7c8168a4647ee50f0308b633b6f68fd75ba4d10e731f588cc993752065c0cead6f2daa92a4674b5bad"
 			};
 			var privateNonces = new MusigPrivNonce[pubkeys.Length];
 			for (int i = 0; i < pubkeys.Length; i++)
@@ -4176,25 +4176,25 @@ namespace NBitcoin.Tests
 			var pubnonces = privateNonces.Select(c => c.CreatePubNonce()).ToArray();
 			var musigCtx = new MusigContext(pubkeys, msg32);
 			var actualCombinedNonce = MusigPubNonce.Aggregate(pubnonces);
-			var expectedCombinedNonce = "0250FB2E3C6A74923E6A60D79AAD4EFB2B8527A9F8DD04DC9CA3F62D814C4B1F29039B9A42F14BD0729AE2B4085D0370131841ED2859B10B5EAE9571A474BC5B3BB3";
+			var expectedCombinedNonce = "02861f7cdfc60874b69a3743aeb83566a2b8ceacd39b9c31f23127066b61e80aef02828902ed4a86c266cb46c23b923b3577ea4fcbcb99579302ed801765d205c361";
 			Assert.Equal(expectedCombinedNonce.ToLowerInvariant(), Encoders.Hex.EncodeData(actualCombinedNonce.ToBytes()));
 
 			musigCtx.ProcessNonces(pubnonces);
 			var expectedPkHash = "6f3282475dda826e361a617d0c1da9db9e345fc642c4775c4e56a154c10a51ed";
 			Assert.Equal(expectedPkHash.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.pk_hash));
-			var expectedSessionCache = "a272ed181abcc2ccc917d4db039235ad30b563b246506c183c254e50537a2530375c2f9dbdcb39fffddf4695754549eb647293b4f02b3caa103f8453ee27d00a00";
+			var expectedSessionCache = "8c6ec9c83028ba09a10cc74e0af9890281b73b0f05440d0f261aab051fb31abaa5121da2d218956e8e69df8f5bfabf94c51bad7283cd09a07db4fb3d205ccf1b00";
 			Assert.Equal(expectedSessionCache.ToLowerInvariant(), Encoders.Hex.EncodeData(ToBytes(musigCtx.SessionCache)));
 			var expectedSPart = "0000000000000000000000000000000000000000000000000000000000000000";
 			Assert.Equal(expectedSPart.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.SPart.ToBytes()));
-			var expectedFinalNonce = "bb89bb158b7591ea1f9f80359438288412d4c7cb9011a1204ef5a75c527a17d4";
+			var expectedFinalNonce = "ed7d22176b48817351b197be4ff6df813c938dfc3cd5c9823640c2303e22e80f";
 			Assert.Equal(expectedFinalNonce.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.FinalNonce));
 
 
 			var expectedSigs = new[]
 			{
-				"d06ae41fb1f60e12f4ddfb2415a0867fce1cb682ea37eed181b1e02730dbd162",
-				"049693d38aa65554fb0344d9bbc7804994e5fdd74672e07a80de1ed49cfeef84",
-				"8efcbdf1ca68d2ae8d8b1f8ff462e737b6aa7ad51f28dbcc0e4ebb8c911d0a76"
+				"34ce323cd18ce1193b45f8e1e8ff4d23241053211a3bd26d240f1fbd036f5d07",
+				"f985a08c5da23b409a7a8ad2501598c20e71f9566df0168082136b0c9afc0f45",
+				"71ae6305bc7cf6c784245daab7f2f5c9aff70abbfc7475708069fa7bf1b7c24d"
 			};
 			MusigPartialSignature[] signatures = new MusigPartialSignature[pubkeys.Length];
 			for (int i = 0; i < pubkeys.Length; i++)
@@ -4275,7 +4275,7 @@ namespace NBitcoin.Tests
 		0x8D, 0x76, 0xD7, 0xF2, 0xD1, 0x00, 0x76, 0x71,
 	};
 			byte[] msg = new byte[] {
-		0xF7, 0x54, 0x66, 0xD0, 0x86, 0x77, 0x0E, 0x68,
+		0xF9, 0x54, 0x66, 0xD0, 0x86, 0x77, 0x0E, 0x68,
 		0x99, 0x64, 0x66, 0x42, 0x19, 0x26, 0x6F, 0xE5,
 		0xED, 0x21, 0x5C, 0x92, 0xAE, 0x20, 0xBA, 0xB5,
 		0xC9, 0xD7, 0x9A, 0xDD, 0xDD, 0xF3, 0xC0, 0xCF,
@@ -4284,10 +4284,10 @@ namespace NBitcoin.Tests
 
 			{
 				byte[] sig_expected = {
-			0x00, 0xB6, 0x9D, 0x89, 0xCD, 0x3A, 0x54, 0xF3,
-			0x9F, 0x2D, 0x2D, 0xDC, 0x5B, 0xE1, 0x90, 0x5E,
-			0x08, 0xD2, 0x9E, 0x26, 0x6A, 0xD3, 0xA0, 0x59,
-			0x92, 0x05, 0xF9, 0xF7, 0x91, 0x45, 0xDC, 0xF9,
+			0x68, 0x53, 0x7C, 0xC5, 0x23, 0x4E, 0x50, 0x5B,
+			0xD1, 0x40, 0x61, 0xF8, 0xDA, 0x9E, 0x90, 0xC2,
+			0x20, 0xA1, 0x81, 0x85, 0x5F, 0xD8, 0xBD, 0xB7,
+			0xF1, 0x27, 0xBB, 0x12, 0x40, 0x3B, 0x4D, 0x3B,
 		};
 				var o = musig_test_vectors_sign_helper(state, agg_pubnonce, sk, msg, pk, 0);
 
@@ -4302,10 +4302,10 @@ namespace NBitcoin.Tests
 
 			{
 				byte[] sig_expected = {
-			0x7C, 0x45, 0xDD, 0xB6, 0x7D, 0x3D, 0x7C, 0x3D,
-			0xE8, 0x82, 0x22, 0xFC, 0xF6, 0x62, 0x0D, 0xCE,
-			0xBE, 0x92, 0x3D, 0x3B, 0x02, 0xF0, 0xAE, 0xC4,
-			0x66, 0xEC, 0xBC, 0xA3, 0x01, 0x3A, 0x7C, 0xCB,
+			0x2D, 0xF6, 0x7B, 0xFF, 0xF1, 0x8E, 0x3D, 0xE7,
+			0x97, 0xE1, 0x3C, 0x64, 0x75, 0xC9, 0x63, 0x04,
+			0x81, 0x38, 0xDA, 0xEC, 0x5C, 0xB2, 0x0A, 0x35,
+			0x7C, 0xEC, 0xA7, 0xC8, 0x42, 0x42, 0x95, 0xEA,
 				};
 				var o = musig_test_vectors_sign_helper(state, agg_pubnonce, sk, msg, pk, 1);
 
@@ -4350,39 +4350,39 @@ namespace NBitcoin.Tests
 			Scalar[] k = new Scalar[2];
 			byte[][] k32_expected = new byte[][] {
 				new byte[]{
-					0x91, 0x2C, 0x7C, 0xCD, 0x01, 0xDD, 0x80, 0x2F,
-			0x84, 0xAD, 0x61, 0xD8, 0xB9, 0x5F, 0x03, 0xAE,
-			0x33, 0x44, 0xD4, 0x08, 0x3F, 0x2F, 0x41, 0xF4,
-			0x05, 0x27, 0xD0, 0x31, 0x4B, 0x4D, 0x0B, 0x3E,
+				0x8D, 0xD0, 0x99, 0x51, 0x79, 0x50, 0x5E, 0xB1,
+				0x27, 0x3A, 0x07, 0x11, 0x58, 0x23, 0xC8, 0x6E,
+				0xF7, 0x14, 0x39, 0x0F, 0xDE, 0x2D, 0xEE, 0xB6,
+				0xF9, 0x31, 0x6A, 0xEE, 0xBE, 0x5C, 0x71, 0xFC,
 		},
 		new byte[] {
-					0xD7, 0x44, 0x7D, 0xBF, 0x3B, 0x50, 0x4F, 0x96,
-			0xC3, 0x49, 0xA5, 0x22, 0xA3, 0x07, 0x67, 0x28,
-			0x18, 0xC9, 0x2C, 0x87, 0x56, 0xFB, 0x10, 0x98,
-			0x0A, 0x3F, 0x91, 0x8D, 0xF7, 0xA2, 0xDD, 0xAB,
+					0x73, 0x29, 0x2E, 0x47, 0x11, 0x34, 0x7D, 0xD3,
+				0x9E, 0x36, 0x05, 0xEE, 0xD6, 0x45, 0x65, 0x49,
+				0xB3, 0x0F, 0x3B, 0xC7, 0x16, 0x22, 0x5A, 0x18,
+				0x65, 0xBA, 0xE1, 0xD9, 0x84, 0xEF, 0xF8, 0x9D,
 		},
 		/* msg32 is NULL */
 		new byte[] {
-			0xA2, 0x05, 0xDB, 0xC1, 0x8E, 0x8E, 0x8F, 0x19,
-			0xDB, 0xF0, 0x01, 0x5E, 0x68, 0x88, 0x7E, 0xE7,
-			0x67, 0xCD, 0x45, 0x55, 0xBB, 0xB1, 0xE8, 0x62,
-			0xF5, 0xD9, 0x95, 0xF9, 0x15, 0x8C, 0xF4, 0xC1,
+				  0x67, 0x02, 0x5A, 0xF2, 0xA3, 0x56, 0x0B, 0xFC,
+				0x1D, 0x95, 0xBD, 0xA6, 0xB2, 0x0B, 0x21, 0x50,
+				0x97, 0x63, 0xDB, 0x17, 0x3B, 0xD9, 0x37, 0x30,
+				0x17, 0x24, 0x66, 0xEC, 0xAF, 0xA2, 0x60, 0x3B,
 		},
 		new byte[] {
-			0xC8, 0x90, 0xA5, 0xDC, 0x08, 0x79, 0x9C, 0x50,
-			0x52, 0xEB, 0x4D, 0x75, 0x08, 0x70, 0xF0, 0x48,
-			0x6D, 0x42, 0x46, 0xDC, 0x6D, 0x82, 0x01, 0x67,
-			0x70, 0x20, 0xD0, 0x86, 0xC1, 0xE1, 0xC8, 0x7A,
+			  0x0B, 0x1D, 0x9E, 0x8F, 0x43, 0xBD, 0xAE, 0x69,
+				0x99, 0x6E, 0x0E, 0x3A, 0xBC, 0x30, 0x06, 0x4C,
+				0x52, 0x37, 0x3E, 0x05, 0x3E, 0x70, 0xC6, 0xD6,
+				0x18, 0x4B, 0xFA, 0xDA, 0xE0, 0xF0, 0xE2, 0xD9,
 		},
 		/* All fields except session_id are NULL */
 		new byte[] {
-				0xA6, 0xC3, 0x24, 0xC7, 0xE8, 0xD1, 0x8A, 0xAA,
+				  0xA6, 0xC3, 0x24, 0xC7, 0xE8, 0xD1, 0x8A, 0xAA,
 				0x59, 0xD7, 0xB4, 0x74, 0xDD, 0x73, 0x82, 0x6D,
 				0x7E, 0x74, 0x91, 0x3F, 0x9B, 0x36, 0x12, 0xE4,
 				0x4F, 0x28, 0x6E, 0x07, 0x54, 0x14, 0x58, 0x21,
 			},
 		new byte[] {
-				0x4E, 0x75, 0xD3, 0x81, 0xCD, 0xB7, 0x3C, 0x68,
+			0x4E, 0x75, 0xD3, 0x81, 0xCD, 0xB7, 0x3C, 0x68,
 				0xA0, 0x7E, 0x64, 0x15, 0xE0, 0x0E, 0x89, 0x32,
 				0x44, 0x21, 0x87, 0x4F, 0x4E, 0x03, 0xE8, 0x67,
 				0x73, 0x4E, 0x33, 0x20, 0xCE, 0x24, 0xBA, 0x8E,
@@ -4400,7 +4400,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(Encoders.Hex.EncodeData(k32_expected[i]), Encoders.Hex.EncodeData(k[i].ToBytes()));
 			}
 
-			MusigPrivNonce.secp256k1_nonce_function_musig(k, args[0], args[1], new byte[0], args[3], args[4]);
+			MusigPrivNonce.secp256k1_nonce_function_musig(k, args[0], new byte[0], args[2], args[3], args[4]);
 			for (i = 0; i < 2; i++)
 			{
 				Assert.Equal(Encoders.Hex.EncodeData(k32_expected[i + 2]), Encoders.Hex.EncodeData(k[i].ToBytes()));
