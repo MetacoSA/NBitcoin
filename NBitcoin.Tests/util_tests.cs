@@ -85,27 +85,25 @@ namespace NBitcoin.Tests
 	  "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f");
 
 			AssertEx.Equal(
-				new HexEncoder()
-				{
-					Space = true
-				}.EncodeData(ParseHex_expected, 0, 5),
-				"04 67 8a fd b0");
+				new HexEncoder().EncodeData(ParseHex_expected, 0, 5),
+				"04678afdb0");
 
 			AssertEx.Equal(
-				new HexEncoder()
-				{
-					Space = true
-				}.EncodeData(ParseHex_expected, 0, 0),
+				new HexEncoder().EncodeData(ParseHex_expected, 0, 0),
 				"");
 
 			var ParseHex_vec = ParseHex_expected.Take(5).ToArray();
 
 			AssertEx.Equal(
-				new HexEncoder()
-				{
-					Space = true
-				}.EncodeData(ParseHex_vec),
-				"04 67 8a fd b0");
+				new HexEncoder().EncodeData(ParseHex_vec),
+				"04678afdb0");
+			var allHex = String.Join("", Enumerable.Range(0, 256).Select(v => v.ToString("x2")));
+			var decoded = new HexEncoder().DecodeData(allHex);
+			Assert.Equal(allHex, new HexEncoder().EncodeData(decoded));
+			for (int i = 0; i < 256; i++)
+			{
+				Assert.Equal(i, decoded[i]);
+			}
 		}
 
 		[Fact]
