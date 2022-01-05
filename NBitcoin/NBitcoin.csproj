@@ -73,7 +73,7 @@
 		<PackageReference Include="System.Security.Cryptography.Csp" Version="4.3.0" />
 	</ItemGroup>
 	<ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 	</ItemGroup>
 
   <ItemGroup Condition=" '$(RemoveBC)' == 'true' ">
