@@ -131,7 +131,7 @@ namespace NBitcoin.Protocol
 					payloadStream.CopyParameters(stream);
 
 					var payloadType = PayloadAttribute.GetCommandType(Command);
-					var unknown = payloadType == typeof(UnknowPayload);
+					var unknown = payloadType == typeof(UnknownPayload);
 					if (unknown)
 						Logs.NodeServer.LogWarning("Unknown command received {command}", Command);
 
@@ -140,7 +140,7 @@ namespace NBitcoin.Protocol
 						payload = (IBitcoinSerializable)Activator.CreateInstance(payloadType);
 					payload.ReadWrite(payloadStream);
 					if (unknown)
-						((UnknowPayload)payload)._Command = Command;
+						((UnknownPayload)payload)._Command = Command;
 					Payload = (Payload)payload;
 				}
 				finally

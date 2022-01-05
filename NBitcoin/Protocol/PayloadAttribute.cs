@@ -53,7 +53,7 @@ namespace NBitcoin.Protocol
 		{
 			Type result;
 			if (!_NameToType.TryGetValue(commandName, out result))
-				return typeof(UnknowPayload);
+				return typeof(UnknownPayload);
 			return result;
 		}
 		public PayloadAttribute(string commandName)
