@@ -194,7 +194,7 @@ namespace NBitcoin
 			if (signature == null)
 				throw new ArgumentNullException(nameof(signature));
 			if (annex == null)
-				throw new ArgumentNullException(nameof(annex));
+				return GenerateWitScript(signature);
 			if (!CheckAnnex(annex))
 				throw new ArgumentException("The first byte of annex must be 0x50", "annex");
 
