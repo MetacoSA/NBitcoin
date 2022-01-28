@@ -148,7 +148,7 @@ namespace NBitcoin
 			throw new NotSupportedException();
 		}
 
-		[Obsolete("Use GenerateWitScript instead")]
+		[Obsolete("Use GenerateWitScript(TaprootSignature signature) instead")]
 		public Script GenerateScriptSig(TaprootSignature signature)
 		{
 			if (signature == null)
@@ -158,6 +158,9 @@ namespace NBitcoin
 
 		public PayToTaprootScriptSigParameters ExtractWitScriptParameters(WitScript witScript)
 		{
+			if (witScript == null)
+				throw new ArgumentNullException(nameof(witScript));
+
 			if (witScript.PushCount != 1 && witScript.PushCount != 2)
 				return null;
 			var hasAnex = false;
@@ -191,7 +194,7 @@ namespace NBitcoin
 			if (signature == null)
 				throw new ArgumentNullException(nameof(signature));
 			if (annex == null)
-				throw new ArgumentNullException(nameof(signature));
+				throw new ArgumentNullException(nameof(annex));
 			if (!CheckAnnex(annex))
 				throw new ArgumentException("The first byte of annex must be 0x50", "annex");
 
