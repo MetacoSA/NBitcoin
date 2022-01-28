@@ -151,9 +151,7 @@ namespace NBitcoin
 		[Obsolete("Use GenerateWitScript(TaprootSignature signature) instead")]
 		public Script GenerateScriptSig(TaprootSignature signature)
 		{
-			if (signature == null)
-				throw new ArgumentNullException(nameof(signature));
-			return new Script(Op.GetPushOp(signature.ToBytes()));
+			return GenerateWitScript(signature);
 		}
 
 		public PayToTaprootScriptSigParameters ExtractWitScriptParameters(WitScript witScript)
@@ -186,7 +184,9 @@ namespace NBitcoin
 
 		public WitScript GenerateWitScript(TaprootSignature signature)
 		{
-			return GenerateScriptSig(signature);
+			if (signature == null)
+				throw new ArgumentNullException(nameof(signature));
+			return new Script(Op.GetPushOp(signature.ToBytes()));
 		}
 
 		public WitScript GenerateWitScript(TaprootSignature signature, byte[] annex)
