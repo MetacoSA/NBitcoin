@@ -11,6 +11,12 @@ namespace NBitcoin.Protocol.Connectors
 {
 	static class SocketExtensions
 	{
+#if NET6_0_OR_GREATER
+		public static Task ConnectAsync(this Socket socket, EndPoint remoteEP, CancellationToken cancellationToken)
+		{			
+			return socket.ConnectAsync(remoteEP, cancellationToken).AsTask();
+		}
+#else
 #if !NO_BEGINCONNECT
 		public static Task ConnectAsync(this Socket socket, EndPoint remoteEP, CancellationToken cancellationToken)
 		{
@@ -63,6 +69,7 @@ namespace NBitcoin.Protocol.Connectors
 			if (args.SocketError != SocketError.Success)
 				throw new SocketException((int)args.SocketError);
 		}
+#endif
 #endif
 	}
 }
