@@ -243,7 +243,9 @@ namespace NBitcoin.Tests
 		{
 			var pubkey = new TaprootPubKey(Encoders.Hex.DecodeData("53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343"));
 			var scriptPubKey = new Script("1 53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343");
+#pragma warning disable CS0618 // Type or member is obsolete
 			Assert.Equal(scriptPubKey, PayToTaprootTemplate.Instance.GenerateScriptPubKey(pubkey));
+#pragma warning restore CS0618 // Type or member is obsolete
 			Assert.Equal(pubkey, PayToTaprootTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey));
 
 			// signature has wrong length
@@ -1117,11 +1119,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(scriptPubKey, PayToWitPubKeyHashTemplate.Instance.GenerateScriptPubKey(pubkey.WitHash));
 			Assert.Equal(scriptPubKey, PayToWitPubKeyHashTemplate.Instance.GenerateScriptPubKey((BitcoinWitPubKeyAddress)pubkey.WitHash.GetAddress(Network.Main)));
 			var expected = new WitScript("304402206104c335e4adbb920184957f9f710b09de17d015329fde6807b9d321fd2142db02200b24ad996b4aa4ff103000348b5ad690abfd9fddae546af9e568394ed4a8311301 03a65786c1a48d4167aca08cf6eb8eed081e13f45c02dc6000fd8f3bb16242579a");
-			var actual = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(new PayToWitPubkeyHashScriptSigParameters()
-			{
-				PublicKey = pubkey,
-				TransactionSignature = new TransactionSignature(Encoders.Hex.DecodeData("304402206104c335e4adbb920184957f9f710b09de17d015329fde6807b9d321fd2142db02200b24ad996b4aa4ff103000348b5ad690abfd9fddae546af9e568394ed4a8311301"))
-			});
+			var actual = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(new PayToWitPubkeyHashScriptSigParameters(new TransactionSignature(Encoders.Hex.DecodeData("304402206104c335e4adbb920184957f9f710b09de17d015329fde6807b9d321fd2142db02200b24ad996b4aa4ff103000348b5ad690abfd9fddae546af9e568394ed4a8311301")), pubkey));
 			Assert.Equal(expected, actual);
 
 			// should be able to parse if signature is empty in p2wpkh.

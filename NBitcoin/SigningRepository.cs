@@ -51,26 +51,26 @@ namespace NBitcoin
 			var temp = scriptPubKey.FindTemplate();
 			if (temp is PayToPubkeyTemplate p2pkT)
 			{
-				var pk = p2pkT.ExtractScriptPubKeyParameters(scriptPubKey);
+				var pk = p2pkT.ExtractScriptPubKeyParameters(scriptPubKey)!;
 				if (repo.TryGetPubKey(pk.Hash, out var _))
 					return true;
 			}
 
 			if (temp is PayToPubkeyHashTemplate p2pkhT)
 			{
-				var keyId = p2pkhT.ExtractScriptPubKeyParameters(scriptPubKey);
+				var keyId = p2pkhT.ExtractScriptPubKeyParameters(scriptPubKey)!;
 				if (repo.TryGetPubKey(keyId, out var _))
 					return true;
 			}
 			PubKey[]? pks = null;
 			if (temp is PayToMultiSigTemplate p2multiT)
 			{
-				pks = p2multiT.ExtractScriptPubKeyParameters(scriptPubKey).PubKeys;
+				pks = p2multiT.ExtractScriptPubKeyParameters(scriptPubKey)!.PubKeys;
 			}
 
 			if (temp is PayToScriptHashTemplate p2shT)
 			{
-				var scriptId = p2shT.ExtractScriptPubKeyParameters(scriptPubKey);
+				var scriptId = p2shT.ExtractScriptPubKeyParameters(scriptPubKey)!;
 				// This will give us witness script directly in case of p2sh-p2wsh
 				if (repo.TryGetScript(scriptId, out var sc))
 				{
