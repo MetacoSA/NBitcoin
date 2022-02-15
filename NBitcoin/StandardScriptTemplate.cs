@@ -148,11 +148,57 @@ namespace NBitcoin
 			throw new NotSupportedException();
 		}
 
+		[Obsolete("Use GenerateWitScript(TaprootSignature signature) instead")]
 		public Script GenerateScriptSig(TaprootSignature signature)
+		{
+			return GenerateWitScript(signature);
+		}
+
+		public PayToTaprootScriptSigParameters ExtractWitScriptParameters(WitScript witScript)
+		{
+			if (witScript == null)
+				throw new ArgumentNullException(nameof(witScript));
+
+			if (witScript.PushCount != 1 && witScript.PushCount != 2)
+				return null;
+			var hasAnex = false;
+			if (witScript.PushCount == 2)
+			{
+				if (!CheckAnnex(witScript[1]))
+					return null;
+				hasAnex = true;
+			}
+			if (!TaprootSignature.TryParse(witScript[0], out var sig))
+				return null;
+			return new PayToTaprootScriptSigParameters()
+			{
+				TransactionSignature = sig,
+				Annex = hasAnex ? witScript[1] : null,
+			};
+		}
+
+		private bool CheckAnnex(byte[] annex)
+		{
+			return annex.Length > 0 && annex[0] == 0x50;
+		}
+
+		public WitScript GenerateWitScript(TaprootSignature signature)
 		{
 			if (signature == null)
 				throw new ArgumentNullException(nameof(signature));
 			return new Script(Op.GetPushOp(signature.ToBytes()));
+		}
+
+		public WitScript GenerateWitScript(TaprootSignature signature, byte[] annex)
+		{
+			if (signature == null)
+				throw new ArgumentNullException(nameof(signature));
+			if (annex == null)
+				return GenerateWitScript(signature);
+			if (!CheckAnnex(annex))
+				throw new ArgumentException("The first byte of annex must be 0x50", "annex");
+
+			return new Script(Op.GetPushOp(signature.ToBytes()), Op.GetPushOp(annex));
 		}
 	}
 	public class PayToMultiSigTemplate : ScriptTemplate
@@ -593,6 +639,19 @@ namespace NBitcoin
 
 	}
 
+	public class PayToTaprootScriptSigParameters
+	{
+		public TaprootSignature TransactionSignature
+		{
+			get;
+			set;
+		}
+		public byte[] Annex
+		{
+			get;
+			set;
+		}
+	}
 	public class PayToWitPubkeyHashScriptSigParameters : PayToPubkeyHashScriptSigParameters
 	{
 		public override IAddressableDestination Hash
