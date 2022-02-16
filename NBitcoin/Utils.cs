@@ -125,6 +125,16 @@ namespace NBitcoin
 		}
 		public static async Task WithCancellation(this Task task, CancellationToken cancellationToken)
 		{
+#if NET6_0_OR_GREATER
+			try
+			{
+				await task.WaitAsync(cancellationToken).ConfigureAwait(false);
+			}
+			catch (TimeoutException e)
+			{
+				throw new OperationCanceledException("Timed out.", innerException: e);
+			}
+#else
 			using (var delayCTS = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
 			{
 				var waiting = Task.Delay(-1, delayCTS.Token);
@@ -140,6 +150,7 @@ namespace NBitcoin
 				cancellationToken.ThrowIfCancellationRequested();
 				await doing.ConfigureAwait(false);
 			}
+#endif
 		}
 
 		public static async Task<T> WithCancellation<T>(this Task<T> task, CancellationToken cancellationToken)
