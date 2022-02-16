@@ -198,28 +198,31 @@ namespace NBitcoin.Tests
 				}
 				// compact signatures (with key recovery)
 
-				byte[] csign1 = null, csign2 = null, csign1C = null, csign2C = null;
+				CompactSignature csign1 = null, csign2 = null, csign1C = null, csign2C = null;
 
-				csign1 = key1.SignCompact(hashMsg);
-				csign2 = key2.SignCompact(hashMsg);
-				csign1C = key1C.SignCompact(hashMsg);
-				csign2C = key2C.SignCompact(hashMsg);
+				if (key1.IsCompressed)
+				{
+					csign1 = key1.SignCompact(hashMsg);
+					csign2 = key2.SignCompact(hashMsg);
+					csign1C = key1C.SignCompact(hashMsg);
+					csign2C = key2C.SignCompact(hashMsg);
 
-				PubKey rkey1 = null, rkey2 = null, rkey1C = null, rkey2C = null;
-				rkey1 = PubKey.RecoverCompact(hashMsg, csign1);
-				rkey2 = PubKey.RecoverCompact(hashMsg, csign2);
-				rkey1C = PubKey.RecoverCompact(hashMsg, csign1C);
-				rkey2C = PubKey.RecoverCompact(hashMsg, csign2C);
+					PubKey rkey1 = null, rkey2 = null, rkey1C = null, rkey2C = null;
+					rkey1 = PubKey.RecoverCompact(hashMsg, csign1);
+					rkey2 = PubKey.RecoverCompact(hashMsg, csign2);
+					rkey1C = PubKey.RecoverCompact(hashMsg, csign1C);
+					rkey2C = PubKey.RecoverCompact(hashMsg, csign2C);
 
-				Assert.True(rkey1.ToHex() == pubkey1.ToHex());
-				Assert.True(rkey2.ToHex() == pubkey2.ToHex());
-				Assert.True(rkey1C.ToHex() == pubkey1C.ToHex());
-				Assert.True(rkey2C.ToHex() == pubkey2C.ToHex());
+					Assert.True(rkey1.ToHex() == pubkey1.ToHex());
+					Assert.True(rkey2.ToHex() == pubkey2.ToHex());
+					Assert.True(rkey1C.ToHex() == pubkey1C.ToHex());
+					Assert.True(rkey2C.ToHex() == pubkey2C.ToHex());
 
-				Assert.True(sign1.IsLowR && sign1.ToDER().Length <= 70);
-				Assert.True(sign2.IsLowR && sign2.ToDER().Length <= 70);
-				Assert.True(sign1C.IsLowR && sign1C.ToDER().Length <= 70);
-				Assert.True(sign2C.IsLowR && sign2C.ToDER().Length <= 70);
+					Assert.True(sign1.IsLowR && sign1.ToDER().Length <= 70);
+					Assert.True(sign2.IsLowR && sign2.ToDER().Length <= 70);
+					Assert.True(sign1C.IsLowR && sign1C.ToDER().Length <= 70);
+					Assert.True(sign2C.IsLowR && sign2C.ToDER().Length <= 70);
+				}
 			}
 		}
 

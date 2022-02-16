@@ -233,9 +233,8 @@ namespace NBitcoin
 			AssertNotDisposed();
 #if HAS_SPAN
 			byte[] sigBytes = new byte[64];
-			int rec = -1;
-			var sig = new Secp256k1.SecpRecoverableECDSASignature(_ECKey.Sign(hash, forceLowR, out rec), rec);
-			sig.WriteToSpanCompact(sigBytes, out int recid);
+			var sig = new Secp256k1.SecpRecoverableECDSASignature(_ECKey.Sign(hash, forceLowR, out var rec), rec);
+			sig.WriteToSpanCompact(sigBytes, out _);
 			return new CompactSignature(rec, sigBytes);
 #else
 			var sig = _ECKey.Sign(hash, forceLowR);
