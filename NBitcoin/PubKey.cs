@@ -463,7 +463,7 @@ namespace NBitcoin
 #pragma warning disable 618
 			var sig = new ECDSASignature(r, s);
 #pragma warning restore 618
-			ECKey key = ECKey.RecoverFromSignature(compactSignature.RecoveryId, sig, hash, true);
+			ECKey key = ECKey.RecoverFromSignature(compactSignature.RecoveryId, sig, hash);
 			return key.GetPubKey(true);
 #endif
 		}

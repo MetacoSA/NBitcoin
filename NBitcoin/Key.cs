@@ -242,7 +242,7 @@ namespace NBitcoin
 			int recId = -1;
 			for (int i = 0; i < 4; i++)
 			{
-				ECKey k = ECKey.RecoverFromSignature(i, sig, hash, true);
+				ECKey k = ECKey.RecoverFromSignature(i, sig, hash);
 				if (k != null && k.GetPubKey(true).ToHex() == PubKey.ToHex())
 				{
 					recId = i;
