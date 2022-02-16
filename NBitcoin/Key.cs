@@ -218,25 +218,6 @@ namespace NBitcoin
 		{
 			return new KeyPair(this, this.PubKey);
 		}
-		public string SignMessage(String message)
-		{
-			return SignMessage(Encoding.UTF8.GetBytes(message));
-		}
-
-		public string SignMessage(byte[] messageBytes)
-		{
-			return SignMessage(messageBytes, true);
-		}
-		public string SignMessage(byte[] messageBytes, bool forceLowR)
-		{
-			if (messageBytes is null)
-				throw new ArgumentNullException(nameof(messageBytes));
-			AssertNotDisposed();
-			byte[] data = Utils.FormatMessageForSigning(messageBytes);
-			var hash = Hashes.DoubleSHA256(data);
-			return Convert.ToBase64String(SignCompact(hash, forceLowR));
-		}
-
 
 		public byte[] SignCompact(uint256 hash)
 		{

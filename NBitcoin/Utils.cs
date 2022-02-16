@@ -557,24 +557,6 @@ namespace NBitcoin
 			return true;
 		}
 
-
-		internal static String BITCOIN_SIGNED_MESSAGE_HEADER = "Bitcoin Signed Message:\n";
-		internal static byte[] BITCOIN_SIGNED_MESSAGE_HEADER_BYTES = Encoding.UTF8.GetBytes(BITCOIN_SIGNED_MESSAGE_HEADER);
-
-		//http://bitcoinj.googlecode.com/git-history/keychain/core/src/main/java/com/google/bitcoin/core/Utils.java
-		internal static byte[] FormatMessageForSigning(byte[] messageBytes)
-		{
-			MemoryStream ms = new MemoryStream();
-
-			ms.WriteByte((byte)BITCOIN_SIGNED_MESSAGE_HEADER_BYTES.Length);
-			Write(ms, BITCOIN_SIGNED_MESSAGE_HEADER_BYTES);
-
-			VarInt size = new VarInt((ulong)messageBytes.Length);
-			Write(ms, size.ToBytes());
-			Write(ms, messageBytes);
-			return ms.ToArray();
-		}
-
 		private static void Write(MemoryStream ms, byte[] bytes)
 		{
 			ms.Write(bytes, 0, bytes.Length);

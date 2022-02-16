@@ -442,104 +442,6 @@ namespace NBitcoin
 			return ToHex();
 		}
 
-		/// <summary>
-		/// Verify message signed using signmessage from bitcoincore
-		/// </summary>
-		/// <param name="message">The message</param>
-		/// <param name="signature">The signature</param>
-		/// <returns>True if signatures is valid</returns>
-		public bool VerifyMessage(string message, string signature)
-		{
-			return VerifyMessage(Encoding.UTF8.GetBytes(message), signature);
-		}
-
-		/// <summary>
-		/// Verify message signed using signmessage from bitcoincore
-		/// </summary>
-		/// <param name="message">The message</param>
-		/// <param name="signature">The signature</param>
-		/// <returns>True if signatures is valid</returns>
-		public bool VerifyMessage(byte[] messageBytes, string signature)
-		{
-			return VerifyMessage(messageBytes, DecodeSigString(signature));
-		}
-
-		/// <summary>
-		/// Verify message signed using signmessage from bitcoincore
-		/// </summary>
-		/// <param name="message">The message</param>
-		/// <param name="signature">The signature</param>
-		/// <returns>True if signatures is valid</returns>
-		public bool VerifyMessage(byte[] message, ECDSASignature signature)
-		{
-#if HAS_SPAN
-			var messageToSign = Utils.FormatMessageForSigning(message);
-			var hash = Hashes.DoubleSHA256(messageToSign);
-			Span<byte> msg = stackalloc byte[32];
-			hash.ToBytes(msg);
-			return _ECKey.SigVerify(signature.ToSecpECDSASignature(), msg);
-#else
-			var messageToSign = Utils.FormatMessageForSigning(message);
-			var hash = Hashes.DoubleSHA256(messageToSign);
-			return ECKey.Verify(hash, signature);
-#endif
-		}
-
-#if HAS_SPAN
-		/// <summary>
-		/// Decode signature from bitcoincore verify/signing rpc methods
-		/// </summary>
-		/// <param name="signature"></param>
-		/// <returns></returns>
-		private static ECDSASignature DecodeSigString(string signature)
-		{
-			var signatureEncoded = Encoders.Base64.DecodeData(signature);
-			return DecodeSig(signatureEncoded);
-		}
-		private static ECDSASignature DecodeSig(byte[] signatureEncoded)
-		{
-			if (Secp256k1.SecpECDSASignature.TryCreateFromCompact(signatureEncoded.AsSpan().Slice(1), out var sig) && sig is Secp256k1.SecpECDSASignature)
-			{
-				return new ECDSASignature(sig);
-			}
-			return new ECDSASignature(Secp256k1.Scalar.Zero, Secp256k1.Scalar.Zero);
-		}
-#else
-		/// <summary>
-		/// Decode signature from bitcoincore verify/signing rpc methods
-		/// </summary>
-		/// <param name="signature"></param>
-		/// <returns></returns>
-		private static ECDSASignature DecodeSigString(string signature)
-		{
-			var signatureEncoded = Encoders.Base64.DecodeData(signature);
-			return DecodeSig(signatureEncoded);
-		}
-		private static ECDSASignature DecodeSig(byte[] signatureEncoded)
-		{
-			BigInteger r = new BigInteger(1, signatureEncoded.SafeSubarray(1, 32));
-			BigInteger s = new BigInteger(1, signatureEncoded.SafeSubarray(33, 32));
-#pragma warning disable 618
-			var sig = new ECDSASignature(r, s);
-#pragma warning restore 618
-			return sig;
-		}
-#endif
-		//Thanks bitcoinj source code
-		//http://bitcoinj.googlecode.com/git-history/keychain/core/src/main/java/com/google/bitcoin/core/Utils.java
-		public static PubKey RecoverFromMessage(string messageText, string signatureText)
-		{
-			return RecoverFromMessage(Encoding.UTF8.GetBytes(messageText), signatureText);
-		}
-
-		public static PubKey RecoverFromMessage(byte[] messageBytes, string signatureText)
-		{
-			var signatureEncoded = Encoders.Base64.DecodeData(signatureText);
-			var message = Utils.FormatMessageForSigning(messageBytes);
-			var hash = Hashes.DoubleSHA256(message);
-			return RecoverCompact(hash, signatureEncoded);
-		}
-
 		public static PubKey RecoverCompact(uint256 hash, byte[] signatureEncoded)
 		{
 #if HAS_SPAN
@@ -569,7 +471,11 @@ namespace NBitcoin
 			if (header < 27 || header > 34)
 				throw new ArgumentException("Header byte out of range: " + header);
 
-			var sig = DecodeSig(signatureEncoded);
+			BigInteger r = new BigInteger(1, signatureEncoded.SafeSubarray(1, 32));
+			BigInteger s = new BigInteger(1, signatureEncoded.SafeSubarray(33, 32));
+#pragma warning disable 618
+			var sig = new ECDSASignature(r, s);
+#pragma warning restore 618
 			bool compressed = false;
 
 			if (header >= 31)
@@ -583,7 +489,6 @@ namespace NBitcoin
 			return key.GetPubKey(compressed);
 #endif
 		}
-
 
 		public PubKey Derivate(byte[] cc, uint nChild, out byte[] ccChild)
 		{

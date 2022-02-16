@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class BitcoinWitPubKeyAddress : BitcoinAddress, IBech32Data, IPubkeyHashUsable
+	public class BitcoinWitPubKeyAddress : BitcoinAddress, IBech32Data
 	{
 		public BitcoinWitPubKeyAddress(string bech32, Network expectedNetwork)
 				: base(Validate(bech32, expectedNetwork), expectedNetwork)
@@ -66,16 +66,6 @@ namespace NBitcoin
 			return null;
 		}
 
-		public bool VerifyMessage(string message, string signature)
-		{
-			if (message == null)
-				throw new ArgumentNullException(nameof(message));
-			if (signature == null)
-				throw new ArgumentNullException(nameof(signature));
-			var key = PubKey.RecoverFromMessage(message, signature);
-			return key.WitHash == Hash;
-		}
-
 		WitKeyId _Hash;
 		public WitKeyId Hash
 		{
@@ -100,7 +90,7 @@ namespace NBitcoin
 		}
 	}
 
-	public class BitcoinWitScriptAddress : BitcoinAddress, IBech32Data, IPubkeyHashUsable
+	public class BitcoinWitScriptAddress : BitcoinAddress, IBech32Data
 	{
 		public BitcoinWitScriptAddress(string bech32, Network expectedNetwork)
 				: base(Validate(bech32, expectedNetwork), expectedNetwork)
@@ -155,12 +145,6 @@ namespace NBitcoin
 			if (segwitScriptId == null)
 				throw new ArgumentNullException(nameof(segwitScriptId));
 			return null;
-		}
-
-		public bool VerifyMessage(string message, string signature)
-		{
-			var key = PubKey.RecoverFromMessage(message, signature);
-			return key.WitHash.ScriptPubKey.WitHash == Hash;
 		}
 
 		WitScriptId _Hash;
