@@ -442,51 +442,29 @@ namespace NBitcoin
 			return ToHex();
 		}
 
-		public static PubKey RecoverCompact(uint256 hash, byte[] signatureEncoded)
+		public static PubKey RecoverCompact(uint256 hash, CompactSignature compactSignature)
 		{
+			if (compactSignature is null)
+				throw new ArgumentNullException(nameof(compactSignature));
+			if (hash is null)
+				throw new ArgumentNullException(nameof(hash));
 #if HAS_SPAN
-			if (signatureEncoded.Length != 65)
-				throw new ArgumentException(paramName: nameof(signatureEncoded), message: "Signature truncated, expected 65");
 			Span<byte> msg = stackalloc byte[32];
 			hash.ToBytes(msg);
-			var s = signatureEncoded.AsSpan();
-			int recid = (s[0] - 27) & 3;
-			bool fComp = ((s[0] - 27) & 4) != 0;
-			if (Secp256k1.SecpRecoverableECDSASignature.TryCreateFromCompact(s.Slice(1), recid, out var sig) &&
+			if (Secp256k1.SecpRecoverableECDSASignature.TryCreateFromCompact(compactSignature.Signature, compactSignature.RecoveryId, out var sig) &&
 				Secp256k1.ECPubKey.TryRecover(NBitcoinContext.Instance, sig, msg, out var pubkey))
 			{
-				return new PubKey(pubkey, fComp);
+				return new PubKey(pubkey, true);
 			}
 			throw new InvalidOperationException("Impossible to recover the public key");
 #else
-			if (signatureEncoded.Length < 65)
-				throw new ArgumentException("Signature truncated, expected 65 bytes and got " + signatureEncoded.Length);
-
-
-			int header = signatureEncoded[0];
-
-			// The header byte: 0x1B = first key with even y, 0x1C = first key with odd y,
-			//                  0x1D = second key with even y, 0x1E = second key with odd y
-
-			if (header < 27 || header > 34)
-				throw new ArgumentException("Header byte out of range: " + header);
-
-			BigInteger r = new BigInteger(1, signatureEncoded.SafeSubarray(1, 32));
-			BigInteger s = new BigInteger(1, signatureEncoded.SafeSubarray(33, 32));
+			BigInteger r = new BigInteger(1, compactSignature.Signature.SafeSubarray(0, 32));
+			BigInteger s = new BigInteger(1, compactSignature.Signature.SafeSubarray(32, 32));
 #pragma warning disable 618
 			var sig = new ECDSASignature(r, s);
 #pragma warning restore 618
-			bool compressed = false;
-
-			if (header >= 31)
-			{
-				compressed = true;
-				header -= 4;
-			}
-			int recId = header - 27;
-
-			ECKey key = ECKey.RecoverFromSignature(recId, sig, hash, compressed);
-			return key.GetPubKey(compressed);
+			ECKey key = ECKey.RecoverFromSignature(compactSignature.RecoveryId, sig, hash, true);
+			return key.GetPubKey(true);
 #endif
 		}
 
