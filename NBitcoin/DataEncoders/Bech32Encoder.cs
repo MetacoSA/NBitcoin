@@ -507,7 +507,7 @@ namespace NBitcoin.DataEncoders
 			{
 				throw new FormatException("The Bech32 string is too short");
 			}
-			else if (!StrictLength || encoded.Length > 90)
+			else if (!StrictLength && encoded.Length > 90)
 			{
 				throw new FormatException("The Bech32 string is too long");
 			}
