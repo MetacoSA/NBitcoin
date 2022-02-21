@@ -499,7 +499,7 @@ namespace NBitcoin.DataEncoders
 			var buffer = Encoders.ASCII.DecodeData(encoded);
 #endif
 			var pos = encoded.LastIndexOf("1", StringComparison.OrdinalIgnoreCase);
-			if (pos < 1 || pos + 7 > encoded.Length || encoded.Length > 90)
+			if (pos < 1)
 			{
 				throw new FormatException("The Bech32 string is missing separator '1'");
 			}
