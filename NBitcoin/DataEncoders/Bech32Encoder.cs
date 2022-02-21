@@ -485,6 +485,7 @@ namespace NBitcoin.DataEncoders
 		{
 			return DecodeDataCore(encoded, out encodingType);
 		}
+		public bool StrictLength { get; set; } = true;
 		protected virtual byte[] DecodeDataCore(string encoded, out Bech32EncodingType encodingType)
 		{
 			if (encoded == null)
@@ -500,7 +501,15 @@ namespace NBitcoin.DataEncoders
 			var pos = encoded.LastIndexOf("1", StringComparison.OrdinalIgnoreCase);
 			if (pos < 1 || pos + 7 > encoded.Length || encoded.Length > 90)
 			{
-				throw new FormatException("bech missing separator, separator misplaced or too long input");
+				throw new FormatException("The Bech32 string is missing separator '1'");
+			}
+			else if (pos + 7 > encoded.Length)
+			{
+				throw new FormatException("The Bech32 string is too short");
+			}
+			else if (!StrictLength || encoded.Length > 90)
+			{
+				throw new FormatException("The Bech32 string is too long");
 			}
 			if (pos != _Hrp.Length)
 			{
