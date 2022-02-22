@@ -24,7 +24,7 @@ namespace NBitcoin.Protocol
 			if (dns.IsTor() || dns.IsI2P())
 				throw new SocketException(11001);
 
-#if NET6_0_OR_GREATER
+#if !NO_SOCKETASYNC
 			var addr = await Dns.GetHostAddressesAsync(hostNameOrAddress, cancellationToken).ConfigureAwait(false);
 #else
 			var addr = await Dns.GetHostAddressesAsync(hostNameOrAddress).WithCancellation(cancellationToken).ConfigureAwait(false);

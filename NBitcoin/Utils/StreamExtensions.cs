@@ -15,7 +15,7 @@ namespace NBitcoin
 	{
 		public static async Task ReadCancellableAsync(this NetworkStream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
-#if NET6_0_OR_GREATER
+#if !NO_SOCKETASYNC
 			await stream.ReadAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
 #else
 			// Note that we use WithCancellation because underlying socket operations does not support true cancellation.
@@ -26,7 +26,7 @@ namespace NBitcoin
 
 		public static async Task WriteCancellableAsync(this NetworkStream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
-#if NET6_0_OR_GREATER
+#if !NO_SOCKETASYNC
 			await stream.WriteAsync(buffer, offset, count, cancellationToken).ConfigureAwait(false);
 #else
 			await stream.WriteAsync(buffer, offset, count).WithCancellation(cancellationToken).ConfigureAwait(false);
@@ -35,7 +35,7 @@ namespace NBitcoin
 
 		public static async Task FlushCancellableAsync(this NetworkStream stream, CancellationToken cancellationToken)
 		{
-#if NET6_0_OR_GREATER
+#if !NO_SOCKETASYNC
 			await stream.Flush(cancellationToken).ConfigureAwait(false);
 #else
 			await stream.FlushAsync().WithCancellation(cancellationToken).ConfigureAwait(false);

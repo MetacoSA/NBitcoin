@@ -125,15 +125,8 @@ namespace NBitcoin
 		}
 		public static async Task WithCancellation(this Task task, CancellationToken cancellationToken)
 		{
-#if NET6_0_OR_GREATER
-			try
-			{
-				await task.WaitAsync(cancellationToken).ConfigureAwait(false);
-			}
-			catch (TimeoutException e)
-			{
-				throw new OperationCanceledException("Timed out.", innerException: e);
-			}
+#if !NO_SOCKETASYNC
+			await task.WaitAsync(cancellationToken).ConfigureAwait(false);
 #else
 			using (var delayCTS = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
 			{
