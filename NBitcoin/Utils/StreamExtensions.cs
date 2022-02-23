@@ -36,7 +36,7 @@ namespace NBitcoin
 		public static async Task FlushCancellableAsync(this NetworkStream stream, CancellationToken cancellationToken)
 		{
 #if !NO_SOCKETASYNC
-			await stream.Flush(cancellationToken).ConfigureAwait(false);
+			await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
 #else
 			await stream.FlushAsync().WithCancellation(cancellationToken).ConfigureAwait(false);
 #endif
