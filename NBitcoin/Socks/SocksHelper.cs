@@ -85,13 +85,14 @@ namespace NBitcoin.Socks
 		{
 			NetworkStream stream = new NetworkStream(socket, false);
 			var selectionMessage = credentials is null ? SelectionMessageNoAuthenticationRequired : SelectionMessageUsernamePassword;
-			await stream.WriteAsync(selectionMessage, 0, selectionMessage.Length).WithCancellation(cancellationToken).ConfigureAwait(false);
-			await stream.FlushAsync().WithCancellation(cancellationToken).ConfigureAwait(false);
+
+			await stream.WriteCancellableAsync(selectionMessage, 0, selectionMessage.Length, cancellationToken).ConfigureAwait(false);
+			await stream.FlushCancellableAsync(cancellationToken).ConfigureAwait(false);
 
 			var selectionResponse = new byte[2];
-			// Note that we use WithCancellation because underlying socket operations does not support true cancellation.
-			// This mainly just abandon the operation.
-			await stream.ReadAsync(selectionResponse, 0, 2).WithCancellation(cancellationToken).ConfigureAwait(false);
+
+			await stream.ReadCancellableAsync(selectionResponse, 0, 2, cancellationToken).ConfigureAwait(false);
+
 			if (selectionResponse[0] != 5)
 				throw new SocksException("Invalid version in selection reply");
 			if (selectionResponse[1] == 2)
@@ -121,11 +122,12 @@ namespace NBitcoin.Socks
 				usernamePasswordRequest[index++] = (byte)passwd.Length;
 				Array.Copy(passwd, 0, usernamePasswordRequest, index, passwd.Length);
 
-				await stream.WriteAsync(usernamePasswordRequest, 0, usernamePasswordRequest.Length).WithCancellation(cancellationToken).ConfigureAwait(false);
-				await stream.FlushAsync().WithCancellation(cancellationToken).ConfigureAwait(false);
+				await stream.WriteCancellableAsync(usernamePasswordRequest, 0, usernamePasswordRequest.Length, cancellationToken).ConfigureAwait(false);
+				await stream.FlushCancellableAsync(cancellationToken).ConfigureAwait(false);
 
 				var userNamePasswordResponse = new byte[2];
-				await stream.ReadAsync(userNamePasswordResponse, 0, 2).WithCancellation(cancellationToken).ConfigureAwait(false);
+
+				await stream.ReadCancellableAsync(userNamePasswordResponse, 0, 2, cancellationToken).ConfigureAwait(false);
 
 				if (userNamePasswordResponse[0] != 1)
 				{
@@ -149,11 +151,11 @@ namespace NBitcoin.Socks
 			await Handshake(socket, credentials, cancellationToken).ConfigureAwait(false);
 			NetworkStream stream = new NetworkStream(socket, false);
 			var connectBytes = CreateConnectMessage(endpoint);
-			await stream.WriteAsync(connectBytes, 0, connectBytes.Length).WithCancellation(cancellationToken).ConfigureAwait(false);
-			await stream.FlushAsync().WithCancellation(cancellationToken).ConfigureAwait(false);
+			await stream.WriteCancellableAsync(connectBytes, 0, connectBytes.Length, cancellationToken).ConfigureAwait(false);
+			await stream.FlushCancellableAsync(cancellationToken).ConfigureAwait(false);
 
 			var connectResponse = new byte[10];
-			await stream.ReadAsync(connectResponse, 0, 10).WithCancellation(cancellationToken).ConfigureAwait(false);
+			await stream.ReadCancellableAsync(connectResponse, 0, 10, cancellationToken).ConfigureAwait(false);
 			if (connectResponse[0] != 5)
 				throw new SocksException("Invalid version in connect reply");
 			if (connectResponse[1] != 0)

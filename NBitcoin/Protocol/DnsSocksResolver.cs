@@ -51,18 +51,18 @@ namespace NBitcoin.Protocol
 			req[o++] = 0x00;
 
 			NetworkStream stream = new NetworkStream(socket, false);
-			await stream.WriteAsync(req, 0, req.Length).WithCancellation(cancellationToken).ConfigureAwait(false);
+			await stream.WriteCancellableAsync(req, 0, req.Length, cancellationToken).ConfigureAwait(false);
 
 			
-			await stream.ReadAsync(req, 0, 4).WithCancellation(cancellationToken).ConfigureAwait(false);
+			await stream.ReadCancellableAsync(req, 0, 4, cancellationToken).ConfigureAwait(false);
 
 			var ipLen = req[3] == 1 ? 4 : req[3] == 4 ? 16 :
 				throw new SocketException(11001);
 
 			var ip = new byte[ipLen];
-			await stream.ReadAsync(ip, 0, ipLen).WithCancellation(cancellationToken).ConfigureAwait(false);
+			await stream.ReadCancellableAsync(ip, 0, ipLen, cancellationToken).ConfigureAwait(false);
 			var address = new IPAddress(ip);
-			await stream.ReadAsync(req, 0, 2).WithCancellation(cancellationToken).ConfigureAwait(false);
+			await stream.ReadCancellableAsync(req, 0, 2, cancellationToken).ConfigureAwait(false);
 			return new[] { address };
 		}
 
