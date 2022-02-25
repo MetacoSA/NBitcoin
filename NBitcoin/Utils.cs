@@ -322,6 +322,10 @@ namespace NBitcoin
 
 				int currentReadCount;
 
+#if !NO_SOCKETASYNC
+				currentReadCount = stream.ReadAsync(buffer, offset + totalReadCount, count - totalReadCount, cancellation).GetAwaiter().GetResult();
+#else
+
 				//Big performance problem with BeginRead for other stream types than NetworkStream.
 				//Only take the slow path if cancellation is possible.
 				if (stream is NetworkStream && cancellation.CanBeCanceled)
@@ -344,6 +348,7 @@ namespace NBitcoin
 					//IO interruption not supported in this path.
 					currentReadCount = stream.Read(buffer, offset + totalReadCount, count - totalReadCount);
 				}
+#endif
 
 				if (currentReadCount == 0)
 					return 0;
