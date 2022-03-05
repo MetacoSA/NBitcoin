@@ -108,16 +108,17 @@ namespace NBitcoin.Policy
 				}
 			}
 
-			int virtualSize = transaction.GetVirtualSize();
+			int txSize = transaction.GetSerializedSize();
 			if (MaxTransactionSize != null)
 			{
-				if (virtualSize >= MaxTransactionSize.Value)
-					errors.Add(new TransactionSizePolicyError(virtualSize, MaxTransactionSize.Value));
+				if (txSize >= MaxTransactionSize.Value)
+					errors.Add(new TransactionSizePolicyError(txSize, MaxTransactionSize.Value));
 			}
 
 			var fees = transaction.GetFee(validator.SpentOutputs);
 			if (fees != null)
 			{
+				var virtualSize = transaction.GetVirtualSize();
 				if (CheckFee)
 				{
 					if (MaxTxFee != null)
