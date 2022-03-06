@@ -2033,7 +2033,7 @@ namespace NBitcoin
 		/// Context free transaction check
 		/// </summary>
 		/// <returns>The error or success of the check</returns>
-		public TransactionCheckResult Check()
+		public virtual TransactionCheckResult Check()
 		{
 			// Basic checks that don't depend on any context
 			if (Inputs.Count == 0)
