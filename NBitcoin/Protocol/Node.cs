@@ -201,8 +201,8 @@ namespace NBitcoin.Protocol
 					{
 						Utils.SafeSet(ar);
 					};
-					try
 
+					try
 					{
 						foreach (var kv in Messages.GetConsumingEnumerable(Cancel.Token))
 						{
@@ -280,7 +280,6 @@ namespace NBitcoin.Protocol
 				new Thread(() =>
 				{
 					_ListenerThreadId = Thread.CurrentThread.ManagedThreadId;
-
 
 					using (Logs.NodeServer.BeginScope("Thread scope {ThreadId}", _ListenerThreadId))
 					{
@@ -943,7 +942,7 @@ namespace NBitcoin.Protocol
 #endif
 			if (!IsConnected)
 			{
-				completion.SetException(new OperationCanceledException("The peer has been disconnected"));
+				completion.SetException(new InvalidOperationException("The peer has been disconnected"));
 				return completion.Task;
 			}
 
@@ -993,7 +992,7 @@ namespace NBitcoin.Protocol
 		}
 
 		/// <summary>
-		/// The negociated protocol version (minimum of supported version between MyVersion and the PeerVersion)
+		/// The negotiated protocol version (minimum of supported version between MyVersion and the PeerVersion)
 		/// </summary>
 		public uint Version
 		{
@@ -1081,9 +1080,7 @@ namespace NBitcoin.Protocol
 									.Where(p => p.Message.Payload is VersionPayload ||
 												p.Message.Payload is VerAckPayload))
 			{
-
-				SendMessageAsync(MyVersion);
-				var version = listener.ReceivePayload<VersionPayload>(cancellationToken);
+				VersionPayload version = SendAndReceiveAsync<VersionPayload>(MyVersion, listener, cancellationToken).GetAwaiter().GetResult();
 				_PeerVersion = version;
 				SetVersion(Math.Min(MyVersion.Version, version.Version));
 
@@ -1105,16 +1102,14 @@ namespace NBitcoin.Protocol
 					return;
 				}
 
-				// As a cortesy we do not send sendaddr to nodes that do not support it.
+				// As a courtesy we do not send sendaddr to nodes that do not support it.
 				if (ProtocolCapabilities.SupportAddrv2)
 				{
 					// Signal ADDRv2 support (BIP155).
-					SendMessageAsync(new SendAddrV2Payload());
+					SendMessageAsync(new SendAddrV2Payload()).GetAwaiter().GetResult();
 				}
 
-				SendMessageAsync(new VerAckPayload());
-
-				listener.ReceivePayload<VerAckPayload>(cancellationToken);
+				SendAndReceiveAsync<VerAckPayload>(new VerAckPayload(), listener, cancellationToken).GetAwaiter().GetResult();
 
 				State = NodeState.HandShaked;
 
@@ -1126,12 +1121,24 @@ namespace NBitcoin.Protocol
 					SendMessageAsync(new AddrPayload(new NetworkAddress(MyVersion.AddressFrom)
 					{
 						Time = DateTimeOffset.UtcNow
-					}));
+					})).GetAwaiter().GetResult();
 				}
 			}
 		}
 
-
+		/// <summary>
+		/// Sends a request and waits for a response.
+		/// </summary>
+		/// <param name="payload">Payload to send.</param>
+		/// <param name="listener">Listener instance.</param>
+		/// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
+		/// <returns>Response received from the counterparty.</returns>
+		private async Task<TResponsePayload> SendAndReceiveAsync<TResponsePayload>(Payload payload, NodeListener listener, CancellationToken cancellationToken)
+			where TResponsePayload : Payload
+		{
+			await SendMessageAsync(payload).ConfigureAwait(false);
+			return listener.ReceivePayload<TResponsePayload>(cancellationToken);
+		}
 
 		/// <summary>
 		/// 
@@ -1139,20 +1146,19 @@ namespace NBitcoin.Protocol
 		/// <param name="cancellation"></param>
 		public void RespondToHandShake(CancellationToken cancellation = default(CancellationToken))
 		{
-			using (var list = CreateListener().Where(m => m.Message.Payload is VerAckPayload))
+			using (var listener = CreateListener().Where(m => m.Message.Payload is VerAckPayload))
 			{
-				Logs.NodeServer.LogInformation("Responding to handshake");
+				SendMessageAsync(MyVersion).GetAwaiter().GetResult();
+				var message = listener.ReceiveMessage(cancellation);
 
-				SendMessageAsync(MyVersion);
-				var message = list.ReceiveMessage(cancellation);
-				SendMessageAsync(new VerAckPayload());
+				SendMessageAsync(new VerAckPayload()).GetAwaiter().GetResult();
 				State = NodeState.HandShaked;
 
 				// As a courtesy we do not send sendaddr to nodes that do not support it.
 				if (ProtocolCapabilities.SupportAddrv2)
 				{
 					// Signal ADDRv2 support (BIP155).
-					SendMessageAsync(new SendAddrV2Payload());
+					SendMessageAsync(new SendAddrV2Payload()).GetAwaiter().GetResult();
 				}
 			}
 		}
