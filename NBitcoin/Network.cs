@@ -2619,16 +2619,6 @@ namespace NBitcoin
 			throw new NotSupportedException("Invalid Base58Data type : " + type.ToString());
 		}
 
-		//private BitcoinWitScriptAddress CreateWitScriptAddress(string base58)
-		//{
-		//	return new BitcoinWitScriptAddress(base58, this);
-		//}
-
-		//private BitcoinWitPubKeyAddress CreateWitPubKeyAddress(string base58)
-		//{
-		//	return new BitcoinWitPubKeyAddress(base58, this);
-		//}
-
 		private BitcoinColoredAddress CreateColoredAddress(string base58)
 		{
 			return new BitcoinColoredAddress(base58, this);
