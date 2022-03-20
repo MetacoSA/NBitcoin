@@ -2787,17 +2787,6 @@ namespace NBitcoin
 		{
 			return new BitcoinSecret(key, this);
 		}
-		public BitcoinPubKeyAddress CreateBitcoinAddress(KeyId dest)
-		{
-			if (dest == null)
-				throw new ArgumentNullException(nameof(dest));
-			return NetworkStringParser.CreateP2PKH(dest, this);
-		}
-
-		private BitcoinScriptAddress CreateBitcoinScriptAddress(ScriptId scriptId)
-		{
-			return NetworkStringParser.CreateP2SH(scriptId, this);
-		}
 
 		public Message ParseMessage(byte[] bytes, uint? version = null)
 		{
