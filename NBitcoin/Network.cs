@@ -2092,7 +2092,7 @@ namespace NBitcoin
 		internal static Network Register(NetworkBuilder builder)
 		{
 			if (builder._Name == null)
-				throw new InvalidOperationException("A network name need to be provided");
+				throw new InvalidOperationException("A network name needs to be provided");
 			if (GetNetwork(builder._Name) != null)
 				throw new InvalidOperationException("The network " + builder._Name + " is already registered");
 			Network network = new Network(builder._Name, builder._Genesis.ToArray(), builder._Magic, builder._UriScheme, builder._NetworkSet);
