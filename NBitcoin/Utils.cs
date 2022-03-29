@@ -41,14 +41,14 @@ namespace NBitcoin
 			Secp256k1.SecpECDSASignature sig;
 			uint counter = 0;
 			bool ret = key.TrySignECDSA(hash, null, out recid, out sig);
+			if (extra_entropy == null || nonceFunction == null)
+			{
+				extra_entropy = new byte[32];
+				nonceFunction = new Secp256k1.RFC6979NonceFunction(extra_entropy);
+			}
 			// Grind for low R
 			while (ret && sig.r.IsHigh && enforceLowR)
 			{
-				if (extra_entropy == null || nonceFunction == null)
-				{
-					extra_entropy = new byte[32];
-					nonceFunction = new Secp256k1.RFC6979NonceFunction(extra_entropy);
-				}
 				Utils.ToBytes(++counter, true, extra_entropy.AsSpan());
 				ret = key.TrySignECDSA(hash, nonceFunction, out recid, out sig);
 			}
