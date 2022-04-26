@@ -154,17 +154,17 @@ namespace NBitcoin.RPC
 			var parameters = new Dictionary<string, object>();
 			parameters.Add("wallet_name", walletNameOrPath);
 			if (options?.DisablePrivateKeys is bool disablePrivateKeys)
-				parameters.Add("disable_private_keys", disablePrivateKeys.ToString());
+				parameters.Add("disable_private_keys", disablePrivateKeys);
 			if (options?.Blank is bool blank)
-				parameters.Add("blank", blank.ToString());
+				parameters.Add("blank", blank);
 			if (options?.Passphrase is string passphrase && passphrase.Length > 0)
 				parameters.Add("passphrase", passphrase);
 			if (options?.AvoidReuse is bool avoidReuse)
-				parameters.Add("avoid_reuse", avoidReuse.ToString());
+				parameters.Add("avoid_reuse", avoidReuse);
 			if (options?.Descriptors is bool descriptors)
-				parameters.Add("descriptors", descriptors.ToString());
+				parameters.Add("descriptors", descriptors);
 			if (options?.LoadOnStartup is bool loadOnStartup)
-				parameters.Add("load_on_startup", loadOnStartup.ToString());
+				parameters.Add("load_on_startup", loadOnStartup);
 			var result = await SendCommandWithNamedArgsAsync(RPCOperations.createwallet.ToString(), parameters, cancellationToken).ConfigureAwait(false);
 			return GetWallet(result.Result.Value<string>("name"));
 		}
