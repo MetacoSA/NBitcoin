@@ -15,7 +15,12 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertText()
 		{
-			string testPhrase = "é ^ç hello \"12345\"  wooorld";
+			var testPhrase = Encoding.UTF8.GetBytes("é ^ç hello \"12345\"  wooorld");
+			var rfc4648_1 = new byte[] { 0x14, 0xfb, 0x9c, 0x03, 0xd9, 0x7e };
+			var rfc4648_2 = new byte[] { 0x14, 0xfb, 0x9c, 0x03, 0xd9 };
+			var rfc4648_3 = new byte[] { 0x14, 0xfb, 0x9c, 0x03 };
+
+
 			var tests = new[]
 			{
 				new
@@ -43,6 +48,31 @@ namespace NBitcoin.Tests
 					Input = testPhrase,
 					Expected = "w6kgXsOnIGhlbGxvICIxMjM0NSIgIHdvb29ybGQ="
 				},
+				new
+				{
+					Encoder = Encoders.Base64UrlSafe,
+					Input = testPhrase,
+					Expected = "w6kgXsOnIGhlbGxvICIxMjM0NSIgIHdvb29ybGQ"
+				},
+				new
+				{
+					Encoder = Encoders.Base64UrlSafe,
+					Input = rfc4648_1,
+					Expected = "FPucA9l-"
+				},
+				new
+				{
+					Encoder = Encoders.Base64UrlSafe,
+					Input = rfc4648_2,
+					Expected = "FPucA9k"
+				},
+				new
+				{
+					Encoder = Encoders.Base64UrlSafe,
+					Input = rfc4648_3,
+					Expected = "FPucAw"
+				},
+				
 				//Not yet implemented
 				//new 
 				//{
@@ -89,14 +119,14 @@ namespace NBitcoin.Tests
 
 			foreach (var test in tests)
 			{
-				var input = Encoding.UTF8.GetBytes(test.Input);
-				var encoded = test.Encoder.EncodeData(input);
+				//var input = Encoding.UTF8.GetBytes(test.Input);
+				var encoded = test.Encoder.EncodeData(test.Input);
 				Assert.Equal(test.Expected, encoded);
 
 				try
 				{
 					var decoded = test.Encoder.DecodeData(encoded);
-					AssertEx.CollectionEquals(input, decoded);
+					AssertEx.CollectionEquals(test.Input, decoded);
 				}
 				catch (NotSupportedException)
 				{
