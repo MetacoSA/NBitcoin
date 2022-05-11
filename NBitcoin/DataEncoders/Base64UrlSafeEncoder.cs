@@ -24,7 +24,7 @@ namespace NBitcoin.DataEncoders
 
 		public override string EncodeData(byte[] data, int offset, int count)
 		{
-			return Convert.ToBase64String(data, offset, count).Replace("+", "-").Replace("/", "_").TrimEnd(padding);
+			return Convert.ToBase64String(data, offset, count).Replace('+', '-').Replace('/', '_').TrimEnd(padding);
 		}
 	}
 }
