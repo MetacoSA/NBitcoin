@@ -119,7 +119,6 @@ namespace NBitcoin.Tests
 
 			foreach (var test in tests)
 			{
-				//var input = Encoding.UTF8.GetBytes(test.Input);
 				var encoded = test.Encoder.EncodeData(test.Input);
 				Assert.Equal(test.Expected, encoded);
 
