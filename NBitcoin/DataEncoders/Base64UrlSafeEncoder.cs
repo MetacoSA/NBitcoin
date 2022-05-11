@@ -10,6 +10,8 @@ namespace NBitcoin.DataEncoders
 		public override byte[] DecodeData(string encoded)
 		{
 			var temp = encoded.Replace('-', '+').Replace('_', '/');
+
+			// Re-add padding if necessary
 			var remaining = temp.Length % paddingBoundary;
 			switch(remaining) {
 				case 2:
