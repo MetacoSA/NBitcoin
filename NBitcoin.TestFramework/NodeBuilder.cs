@@ -161,7 +161,8 @@ namespace NBitcoin.Tests
 
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
-				//from https://feedback.telerik.com/document-processing/1518667-ziplibrary-allow-zipfile-extracttodirectory-to-overwrite-existing-files-when-extract-zip
+				// From https://feedback.telerik.com/document-processing/1518667-ziplibrary-allow-zipfile-extracttodirectory-to-overwrite-existing-files-when-extract-zip
+
 				using var source = ZipFile.Open(zip, ZipArchiveMode.Read, null);
 				foreach (var entry in source.Entries)
 				{
