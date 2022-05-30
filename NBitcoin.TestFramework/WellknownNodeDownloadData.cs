@@ -1334,6 +1334,22 @@ namespace NBitcoin.Tests
 				UseSectionInConfigFile = true,
 			};
 
+			public NodeDownloadData v0_21_0_2 = new NodeDownloadData()
+			{
+				Version = "0.21.0.2",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/ElementsProject/elements/releases/download/elements-0.21.0.2/elements-elements-0.21.0.2-win64.zip",
+					Archive = "elements-{0}-win64.zip",
+					Executable = "elements-elements-0.21.0.2/bin/elementsd.exe",
+					Hash = "7a8f427be448eaa89f87c31cce705069c2d9528cf54fdd838c104f1257f800d4"
+				},
+				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0\n\ncon_dyna_deploy_start=0\n\ncon_dyna_deploy_signal=1\ncon_nminerconfirmationwindow=1\ncon_nrulechangeactivationthreshold=1",
+				RegtestFolderName = "elementsregtest",
+				Chain = "elementsregtest",
+				UseSectionInConfigFile = true,
+			};
+
 		}
 		public class LiquidNodeDownloadData
  : NodeDownloadDataBase
