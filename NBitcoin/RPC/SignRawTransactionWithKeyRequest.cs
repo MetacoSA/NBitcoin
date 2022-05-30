@@ -1,9 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NBitcoin.RPC
+﻿namespace NBitcoin.RPC
 {
 	public class SignRawTransactionRequest
 	{

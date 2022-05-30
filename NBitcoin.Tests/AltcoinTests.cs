@@ -1,6 +1,5 @@
 ﻿using NBitcoin.Altcoins.Elements;
 using NBitcoin.RPC;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using NBitcoin.Altcoins;
-using NBitcoin.JsonConverters;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Xunit;
 using Encoders = NBitcoin.DataEncoders.Encoders;
