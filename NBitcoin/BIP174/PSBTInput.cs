@@ -289,13 +289,6 @@ namespace NBitcoin
 			}
 		}
 
-		public override void AddKeyPath(PubKey key, RootedKeyPath rootedKeyPath)
-		{
-			base.AddKeyPath(key, rootedKeyPath);
-			TrySlimUTXO();
-		}
-
-
 		public void UpdateFromCoin(ICoin coin)
 		{
 			if (coin == null)
