@@ -1348,6 +1348,9 @@ namespace NBitcoin.Tests
 				RegtestFolderName = "elementsregtest",
 				Chain = "elementsregtest",
 				UseSectionInConfigFile = true,
+				CreateWallet = true,
+				WalletExecutable = "elements-wallet",
+				GetWalletChainSpecifier = "-chain={0}"
 			};
 
 		}
