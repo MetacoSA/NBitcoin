@@ -308,6 +308,23 @@ namespace NBitcoin
 				throw new InvalidOperationException("Invalid ExtKey (this should never happen)");
 			}
 		}
+#elif NO_NATIVE_HMACSHA512
+		private static Key CalculateKey(byte[] seed, out byte[] chainCode)
+		{
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest());
+			mac.Init(new NBitcoin.BouncyCastle.Crypto.Parameters.KeyParameter(hashkey));
+
+			byte[] hashMAC = new byte[mac.GetMacSize()];
+			byte[] hash = new byte[mac.GetMacSize()];
+			mac.BlockUpdate(seed, 0, seed.Length);
+			mac.DoFinal(hash, 0);
+			Array.Copy(hash, hashMAC, hashMAC.Length);
+
+			var key = new Key(hashMAC.SafeSubarray(0, 32));
+			chainCode = new byte[32];
+			Buffer.BlockCopy(hashMAC, 32, chainCode, 0, ChainCodeLength);
+			return key;
+		}
 #else
 		private static Key CalculateKey(byte[] seed, out byte[] chainCode)
 		{
