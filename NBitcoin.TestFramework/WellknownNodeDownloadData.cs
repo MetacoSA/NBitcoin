@@ -690,6 +690,27 @@ namespace NBitcoin.Tests
 				},
 				SupportCookieFile = false
 			};
+			public NodeDownloadData v1_14_5 = new NodeDownloadData()
+			{
+				Version = "1.14.5",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dogecoin/dogecoin/releases/download/v{0}/dogecoin-{0}-win64.zip",
+					Archive = "dogecoin-{0}-win64.zip",
+					Executable = "dogecoin-{0}/bin/dogecoind.exe",
+					Hash = "d66906cb5c5b132ca7e126734c074345f1655a4f72205ed7c0bf028dbff41120"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dogecoin/dogecoin/releases/download/v{0}/dogecoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "dogecoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "dogecoin-{0}/bin/dogecoind",
+					Hash = "17a03f019168ec5283947ea6fbf1a073c1d185ea9edacc2b91f360e1c191428e"
+				},
+				Mac = null,
+				SupportCookieFile = false,
+				Chain = null
+			};
 		}
 
 		public class DashNodeDownloadData : NodeDownloadDataBase
