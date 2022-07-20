@@ -650,7 +650,7 @@ namespace NBitcoin
 		}
 
 		static FeeRate dustRelayFee = new FeeRate(3.0m);
-		public Money GetDustThreshold()
+		public virtual Money GetDustThreshold()
 		{
 			// OutPoint (32 + 4) + script_size (1) + sequence (4)
 			int inputSize = 32 + 4 + 1 + 4;

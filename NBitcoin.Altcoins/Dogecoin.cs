@@ -38,10 +38,19 @@ namespace NBitcoin.Altcoins
 			{
 				return new DogecoinBlock(new DogecoinBlockHeader());
 			}
+			public override Transaction CreateTransaction()
+			{
+				return new DogeTransaction();
+			}
+			public override TxOut CreateTxOut()
+			{
+				return new DogeTxOut();
+			}
 			protected override TransactionBuilder CreateTransactionBuilderCore(Network network)
 			{
+				// https://github.com/dogecoin/dogecoin/blob/master/doc/fee-recommendation.md
 				var txBuilder = base.CreateTransactionBuilderCore(network);
-				txBuilder.StandardTransactionPolicy.MinFee = Money.Coins(1m);
+				txBuilder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(Money.Coins(0.001m), 1000);
 				// Around 3000 USD of fee for a transaction at ~0.4 USD per doge
 				txBuilder.StandardTransactionPolicy.MaxTxFee = new FeeRate(Money.Coins(56m), 1);
 				return txBuilder;
@@ -160,7 +169,25 @@ namespace NBitcoin.Altcoins
 				stream.ReadWrite(ref parentBlock);
 			}
 		}
-
+		public class DogeTransaction : Transaction
+		{
+			public override ConsensusFactory GetConsensusFactory()
+			{
+				return Dogecoin.DogeConsensusFactory.Instance;
+			}
+		}
+		public class DogeTxOut : TxOut
+		{
+			public override Money GetDustThreshold()
+			{
+				// https://github.com/dogecoin/dogecoin/blob/master/doc/fee-recommendation.md
+				return Money.Coins(0.01m);
+			}
+			public override ConsensusFactory GetConsensusFactory()
+			{
+				return Dogecoin.DogeConsensusFactory.Instance;
+			}
+		}
 		public class DogecoinBlock : Block
 		{
 			public DogecoinBlock(DogecoinBlockHeader header) : base(header)
