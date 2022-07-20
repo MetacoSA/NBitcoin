@@ -2190,22 +2190,6 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void AssertDogeHasAMinimumOf1DogeFee()
-		{
-			var k = new Key();
-			var txBuilder = Altcoins.Dogecoin.Instance.Regtest.CreateTransactionBuilder();
-			txBuilder.AddKeys(k);
-			txBuilder.AddCoins(RandomCoin(Money.Coins(10m), k.PubKey.Hash));
-			txBuilder.Send(new Key(), Money.Coins(4));
-			txBuilder.SetChange(new Key());
-			txBuilder.SendFees(Money.Coins(0.0001m));
-			var signed = txBuilder.BuildPSBT(true);
-			signed.TryGetFee(out var fee);
-			Assert.Equal(fee, Money.Coins(1.0m));
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
 		public void AssertCanSendBackSmallSegwitChange()
 		{
 			var k = new Key();
