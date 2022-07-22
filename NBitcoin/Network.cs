@@ -2516,7 +2516,9 @@ namespace NBitcoin
 			}
 
 			int i = -1;
+#if !NO_TUPLE
 			(Bech32Encoder? encoder, byte[]? bytes, byte witVersion) cache = (null, null, 0);
+#endif
 			foreach (var encoder in bech32Encoders)
 			{
 				i++;
@@ -2525,6 +2527,7 @@ namespace NBitcoin
 				var type = (Bech32Type)i;
 				try
 				{
+#if !NO_TUPLE
 					byte witVersion;
 					byte[] bytes;
 					if (cache.encoder == encoder && cache.bytes is not null)
@@ -2537,6 +2540,9 @@ namespace NBitcoin
 						bytes = encoder.Decode(str, out witVersion);
 						cache = (encoder, bytes, witVersion);
 					}
+#else
+					byte[] bytes = encoder.Decode(str, out var witVersion);
+#endif
 					IBitcoinString? candidate = null;
 					if (witVersion == 0 && bytes.Length == 20 && type == Bech32Type.WITNESS_PUBKEY_ADDRESS)
 						candidate = new BitcoinWitPubKeyAddress(str.ToLowerInvariant(), bytes, this);
