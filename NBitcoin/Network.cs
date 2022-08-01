@@ -2618,16 +2618,22 @@ namespace NBitcoin
 			set;
 		} = new NetworkStringParser();
 
+		[Obsolete("Use CreateTransactionBuilder(TransactionCreationMode)")]
 		public TransactionBuilder CreateTransactionBuilder()
 		{
-			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2(this);
-			return builder;
+			return CreateTransactionBuilder(TransactionCreationMode.EnhanceOnChainPrivacy);
 		}
 
 		public TransactionBuilder CreateTransactionBuilder(int seed)
 		{
-			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2(this);
+			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2(this, TransactionCreationMode.EnhanceOnChainPrivacy);
 			builder.ShuffleRandom = new Random(seed);
+			return builder;
+		}
+
+		public TransactionBuilder CreateTransactionBuilder(TransactionCreationMode mode)
+		{
+			var builder = this.Consensus.ConsensusFactory.CreateTransactionBuilderCore2(this, mode);
 			return builder;
 		}
 

@@ -62,7 +62,7 @@ namespace NBitcoin
 		/// relative lock-time. Setting the most significant bit of a
 		/// sequence number disabled relative lock-time.
 		/// </remarks>
-		public const uint SEQUENCE_FINAL = 0xffffffff;
+		public const uint SEQUENCE_FINAL = UINT_MAX_VALUE;
 
 		/// <summary>
 		/// Setting nSequence to this value on any input in a transaction
@@ -82,17 +82,19 @@ namespace NBitcoin
 		internal const int SEQUENCE_LOCKTIME_GRANULARITY = 9;
 
 
+		internal const uint UINT_MAX_VALUE = 0xFFFFFFFF;
+
 		uint _ValueInv;
 		public uint Value
 		{
 			get
 			{
-				return 0xFFFFFFFF - _ValueInv;
+				return UINT_MAX_VALUE - _ValueInv;
 			}
 		}
 		public Sequence(uint value)
 		{
-			_ValueInv = 0xFFFFFFFF - value;
+			_ValueInv = UINT_MAX_VALUE - value;
 		}
 
 		public Sequence(int lockHeight)
@@ -107,7 +109,7 @@ namespace NBitcoin
 				throw new ArgumentOutOfRangeException("Relative lock time must be positive and lower or equals to " + (0xFFFF * 512) + " seconds (approx 388 days)");
 			var value = (uint)(period.TotalSeconds / (1 << Sequence.SEQUENCE_LOCKTIME_GRANULARITY));
 			value |= SEQUENCE_LOCKTIME_TYPE_FLAG;
-			_ValueInv = 0xFFFFFFFF - (uint)value;
+			_ValueInv = UINT_MAX_VALUE - (uint)value;
 		}
 
 		public bool IsRelativeLock

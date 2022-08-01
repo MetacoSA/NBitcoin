@@ -338,6 +338,18 @@ namespace NBitcoin
 		}
 	}
 
+	public enum TransactionCreationMode
+	{
+		/// <summary>
+		/// RBF disabled, shuffled inputs and shuffled outputs
+		/// </summary>
+		EnhanceOnChainPrivacy,
+		/// <summary>
+		/// RBF enabled, deterministic inputs and outputs (not shuffled)
+		/// </summary>
+		Lightning,
+	}
+
 	/// <summary>
 	/// A class for building and signing all sort of transactions easily (http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All)
 	/// </summary>
@@ -819,7 +831,7 @@ namespace NBitcoin
 			}
 		}
 
-		internal TransactionBuilder(Network network)
+		internal TransactionBuilder(Network network, TransactionCreationMode mode)
 		{
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
@@ -828,7 +840,11 @@ namespace NBitcoin
 			CoinSelector = new DefaultCoinSelector(ShuffleRandom);
 			StandardTransactionPolicy = new StandardTransactionPolicy();
 			DustPrevention = true;
-			OptInRBF = false;
+
+			OptInRBF = (mode == TransactionCreationMode.Lightning);
+			ShuffleInputs = (mode == TransactionCreationMode.EnhanceOnChainPrivacy);
+			ShuffleOutputs = ShuffleInputs;
+
 			InitExtensions();
 		}
 

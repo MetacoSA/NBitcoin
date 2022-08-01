@@ -1385,13 +1385,14 @@ namespace NBitcoin
 
 	//https://en.bitcoin.it/wiki/Transactions
 	//https://en.bitcoin.it/wiki/Protocol_specification
+	[Obsolete("Use Network.CreateTransactionBuilder() for a better API to create transactions")]
 	public class Transaction : IBitcoinSerializable
 	{
 		public bool RBF
 		{
 			get
 			{
-				return Inputs.Any(i => i.Sequence < 0xffffffff - 1);
+				return Inputs.Any(i => i.Sequence < Sequence.UINT_MAX_VALUE - 1);
 			}
 		}
 

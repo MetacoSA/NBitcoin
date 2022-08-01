@@ -127,14 +127,14 @@ namespace NBitcoin
 			return new TxOut();
 		}
 
-		protected virtual TransactionBuilder CreateTransactionBuilderCore(Network network)
+		protected virtual TransactionBuilder CreateTransactionBuilderCore(Network network, TransactionCreationMode mode)
 		{
-			return new TransactionBuilder(network);
+			return new TransactionBuilder(network, mode);
 		}
 
-		internal TransactionBuilder CreateTransactionBuilderCore2(Network network)
+		internal TransactionBuilder CreateTransactionBuilderCore2(Network network, TransactionCreationMode mode)
 		{
-			return CreateTransactionBuilderCore(network);
+			return CreateTransactionBuilderCore(network, mode);
 		}
 	}
 }
