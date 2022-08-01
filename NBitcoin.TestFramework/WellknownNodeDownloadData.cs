@@ -1405,50 +1405,29 @@ namespace NBitcoin.Tests
 		public class LiquidNodeDownloadData
  : NodeDownloadDataBase
 		{
-			public NodeDownloadData v3_14_1_21 = new NodeDownloadData()
+			public NodeDownloadData v0_21_0_2 = new NodeDownloadData()
 			{
-				Version = "3.14.1.21",
+				Version = "0.21.0.2",
 				Windows = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://aois.blob.core.windows.net/public/LiquidBinaries/liquid-{0}-win64.zip",
-					Archive = "liquid-{0}-win64.zip",
-					Executable = "liquid-{0}/bin/liquidd.exe",
-					Hash = "cedab6e7d3f5b6eac4ce8cf81c480dc49599ac34a2d7ede1d15bb9547f800a8a"
+					DownloadLink = "https://github.com/ElementsProject/elements/releases/download/elements-{0}/elements-elements-{0}-win64.zip",
+					Archive = "elements-elements-{0}-win64.zip",
+					Executable = "elements-elements-{0}/bin/elementsd.exe",
+					Hash = "7a8f427be448eaa89f87c31cce705069c2d9528cf54fdd838c104f1257f800d4"
 				},
 				Linux = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/Blockstream/liquid/releases/download/liquid.{0}/liquid-{0}-x86_64-linux-gnu.tar.gz",
-					Archive = "liquid-{0}-x86_64-linux-gnu.tar.gz",
-					Executable = "liquid-{0}/bin/liquidd",
-					Hash = "ea2836aa267b32b29e890acdd5e724b4be225c34891fd26426ce741c12c1e166"
-				},
-				RegtestFolderName = "liquidregtest",
-				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0"
-			};
-
-			public NodeDownloadData v3_14_1_23 = new NodeDownloadData()
-			{
-				Version = "3.14.1.23",
-				Windows = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/Blockstream/liquid/releases/download/liquid.{0}/liquid-{0}-win64.zip",
-					Archive = "liquid-{0}-win64.zip",
-					Executable = "liquid-{0}/bin/liquidd.exe",
-					Hash = "8b18aebbbf8092b052db648e34adf52342a02923d758181cfb8bc0894c90dfb5"
-				},
-				Linux = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/Blockstream/liquid/releases/download/liquid.{0}/liquid-{0}-x86_64-linux-gnu.tar.gz",
-					Archive = "liquid-{0}-x86_64-linux-gnu.tar.gz",
-					Executable = "liquid-{0}/bin/liquidd",
-					Hash = "cb135d60407fd4fcd04d1f021cd314e9f8f50a8f0a660551f5ea251b0fea3ffc"
+					DownloadLink = "https://github.com/ElementsProject/elements/releases/download/elements-{0}/elements-elements-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "elements-elements-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "elements-elements-{0}/bin/elementsd",
+					Hash = "3018116794429b77ce0dd7436c2906f8be4eb5d6163b8451c5ce7e7bedad152b"
 				},
 				Mac = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/Blockstream/liquid/releases/download/liquid.{0}/liquid-{0}-osx64.tar.gz",
-					Archive = "liquid-{0}-x86_64-osx64.tar.gz",
-					Executable = "liquid-{0}/bin/liquidd",
-					Hash = "91f5859414d6bce99695c2de01317ec1454d3d99615f81f301b85f767b5e2cf2  "
+					DownloadLink = "https://github.com/ElementsProject/elements/releases/download/elements-{0}/elements-elements-{0}-osx-unsigned.tar.gz",
+					Archive = "elements-elements-{0}-osx-unsigned.tar.gz",
+					Executable = "elements-elements-{0}/bin/elementsd",
+					Hash = "9cdc53b1f81a8c2f3e4b04d80de04ca1cc182d018c0c4fef1aaaf6dcc87f5b42  "
 				},
 				RegtestFolderName = "liquidregtest",
 				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0"

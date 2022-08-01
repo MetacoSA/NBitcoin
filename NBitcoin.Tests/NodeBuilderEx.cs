@@ -47,7 +47,7 @@ namespace NBitcoin.Tests
 			//var builder = NodeBuilder.Create(NodeDownloadData.Dystem.v1_0_9_9, Altcoins.Dystem.Instance.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Bitcoinplus.v2_7_0, Altcoins.AltNetworkSets.Bitcoinplus.Regtest, caller);
 
-			//var builder = NodeBuilder.Create(NodeDownloadData.Liquid.v3_14_1_21, Altcoins.AltNetworkSets.Liquid.Regtest, caller);
+			var builder = NodeBuilder.Create(NodeDownloadData.Liquid.v0_21_0_2, Altcoins.AltNetworkSets.Liquid.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Bitcore.v0_90_9_10, Altcoins.Bitcore.Instance.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Gincoin.v1_1_0_0, Altcoins.Gincoin.Instance.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Koto.v2_0_0, Altcoins.Koto.Regtest, caller);
@@ -70,7 +70,7 @@ namespace NBitcoin.Tests
 
 			//var builder = Create(NodeDownloadData.Bitcoin.v0_19_0_1, caller);
 
-			var builder = Create(NodeDownloadData.Bitcoin.v22_0, caller);
+			//var builder = Create(NodeDownloadData.Bitcoin.v22_0, caller);
 			return builder;
 		}
 
