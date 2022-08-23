@@ -1,27 +1,16 @@
-﻿using NBitcoin;
-using NBitcoin.DataEncoders;
+﻿using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/qtumproject/qtum/blob/f925e854a84165f8302aa2772cc90faf8a98cb61/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Qtum : NetworkSetBase
 	{
-		public static Qtum Instance { get; } = new Qtum();
-
 		public override string CryptoCode => "QTUM";
 
-		private Qtum()
-		{
-
-		}
 		public class QtumConsensusFactory : ConsensusFactory
 		{
 			private QtumConsensusFactory()

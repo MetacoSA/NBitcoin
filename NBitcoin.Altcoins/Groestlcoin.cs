@@ -7,9 +7,11 @@ using System.Text;
 using NBitcoin.Altcoins.GroestlcoinInternals;
 using NBitcoin.Protocol;
 using NBitcoin.Crypto;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
+	[Export(typeof(INetworkSet))]
 	public class Groestlcoin : NetworkSetBase
 	{
 		public class GroestlEncoder : Base58CheckEncoder
@@ -33,8 +35,6 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
-		public static Groestlcoin Instance { get; } = new Groestlcoin();
-
 		public static byte[] GroestlHash(byte[] arr)
 		{
 			return GroestlHash(arr, 0, arr.Length);
@@ -51,10 +51,6 @@ namespace NBitcoin.Altcoins
 		}
 
 		public override string CryptoCode => "GRS";
-
-		private Groestlcoin()
-		{
-		}
 
 		class GroestlcoinConsensusFactory : ConsensusFactory
 		{
@@ -154,12 +150,14 @@ namespace NBitcoin.Altcoins
 
 			public class GroestlcoinBlock : Block
 			{
+				private readonly Groestlcoin groestlcoin;
 				public GroestlcoinBlock(GroestlcoinBlockHeader h) : base(h)
 				{
+					groestlcoin = new Groestlcoin();
 				}
 				public override ConsensusFactory GetConsensusFactory()
 				{
-					return Groestlcoin.Instance.Mainnet.Consensus.ConsensusFactory;
+					return groestlcoin.Mainnet.Consensus.ConsensusFactory;
 				}
 			}
 #pragma warning restore CS0618 // Type or member is obsolete

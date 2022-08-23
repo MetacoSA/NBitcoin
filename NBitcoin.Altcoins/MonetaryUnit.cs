@@ -1,21 +1,15 @@
-using System;
-using System.Linq;
-using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
+using System;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/muecoin/MUE/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class MonetaryUnit : NetworkSetBase
 	{
-		public static MonetaryUnit Instance { get; } = new MonetaryUnit();
-
 		public override string CryptoCode => "MUE";
-
-		private MonetaryUnit()
-		{
-		}
 
 		public class MonetaryUnitConsensusFactory : ConsensusFactory
 		{
@@ -48,13 +42,15 @@ namespace NBitcoin.Altcoins
 
 		public class MonetaryUnitBlock : Block
 		{
+			private readonly MonetaryUnit monetaryUnit;
 			public MonetaryUnitBlock(MonetaryUnitBlockHeader h) : base(h)
 			{
+				this.monetaryUnit = new MonetaryUnit();
 			}
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Instance.Mainnet.Consensus.ConsensusFactory;
+				return this.monetaryUnit.Mainnet.Consensus.ConsensusFactory;
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete

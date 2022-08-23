@@ -2,22 +2,17 @@
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using System;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/dashpay/dash/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Dash : NetworkSetBase
 	{
-		public static Dash Instance { get; } = new Dash();
-
 		public override string CryptoCode => "DASH";
-
-		private Dash()
-		{
-
-		}
 
 		public class DashConsensusFactory : ConsensusFactory
 		{
@@ -355,12 +350,14 @@ namespace NBitcoin.Altcoins
 
 		public class DashBlock : Block
 		{
+			private readonly Dash dash;
 			public DashBlock(DashBlockHeader h) : base(h)
 			{
+				dash = new Dash();
 			}
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Instance.Mainnet.Consensus.ConsensusFactory;
+				return dash.Mainnet.Consensus.ConsensusFactory;
 			}
 
 			public override string ToString()

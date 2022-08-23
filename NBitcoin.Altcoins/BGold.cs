@@ -1,28 +1,15 @@
-﻿using NBitcoin;
-using System.Reflection;
-using NBitcoin.DataEncoders;
+﻿using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/BTCGPU/BTCGPU/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class BGold : NetworkSetBase
 	{
-		public static BGold Instance { get; } = new BGold();
-
 		public override string CryptoCode => "BTG";
-
-		private BGold()
-		{
-
-		}
 
 		public class BitcoinGoldConsensusFactory : ConsensusFactory
 		{

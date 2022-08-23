@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Composition;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
@@ -7,15 +8,10 @@ using Newtonsoft.Json.Linq;
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/NeblioTeam/neblio/blob/master/wallet/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Neblio : NetworkSetBase
 	{
-		public static Neblio Instance { get; } = new Neblio();
-
 		public override string CryptoCode => "NEBL";
-
-		private Neblio()
-		{
-		}
 
 		public class NeblioConsensusFactory : ConsensusFactory
 		{
@@ -53,13 +49,15 @@ namespace NBitcoin.Altcoins
 
 		public class NeblioBlock : Block
 		{
+			private readonly Neblio neblio;
 			public NeblioBlock(NeblioBlockHeader h) : base(h)
 			{
+				this.neblio = new Neblio();
 			}
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Instance.Mainnet.Consensus.ConsensusFactory;
+				return this.neblio.Mainnet.Consensus.ConsensusFactory;
 			}
 		}
 

@@ -16,6 +16,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using NBitcoin.Altcoins;
 
 namespace NBitcoin.Tests
 {
@@ -194,8 +195,9 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCalculateGoestlcoinTransactionHash()
 		{
+
 			var bs = new BitcoinStream(Encoders.Hex.DecodeData("020000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03510101ffffffff0200002cd6e21500002321023035994e950a694cd81e0384abc1850cfe3e541a9de9706ca669d21c61548f8bac0000000000000000266a24aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf90120000000000000000000000000000000000000000000000000000000000000000000000000"));
-			bs.ConsensusFactory = Altcoins.Groestlcoin.Instance.Mainnet.Consensus.ConsensusFactory;
+			bs.ConsensusFactory = new Groestlcoin().Mainnet.Consensus.ConsensusFactory;
 			var tx = bs.ConsensusFactory.CreateTransaction();
 			tx.ReadWrite(bs);
 			Assert.Equal("f347692c823932e4329b2f720a9ecb84d945341a2d6e663ee4fbe23d53c50386", tx.GetHash().ToString());
@@ -401,12 +403,12 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanDecodeBTrashAddress()
 		{
-			var bcash = NBitcoin.Altcoins.BCash.Instance.Mainnet;
-			BitcoinAddress trashAddress = bcash.Parse<NBitcoin.Altcoins.BCash.BTrashPubKeyAddress>("bitcoincash:qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a");
+			var bcash = new BCash().Mainnet;
+			BitcoinAddress trashAddress = bcash.Parse<BCash.BTrashPubKeyAddress>("bitcoincash:qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a");
 			BitcoinAddress trashAddress2 = trashAddress.ScriptPubKey.GetDestinationAddress(bcash);
 			Assert.Equal(trashAddress.ToString(), trashAddress2.ToString());
 
-			trashAddress = bcash.Parse<NBitcoin.Altcoins.BCash.BTrashScriptAddress>("bitcoincash:ppm2qsznhks23z7629mms6s4cwef74vcwvn0h829pq");
+			trashAddress = bcash.Parse<BCash.BTrashScriptAddress>("bitcoincash:ppm2qsznhks23z7629mms6s4cwef74vcwvn0h829pq");
 			trashAddress2 = trashAddress.ScriptPubKey.GetDestinationAddress(bcash);
 			Assert.Equal(trashAddress.ToString(), trashAddress2.ToString());
 		}

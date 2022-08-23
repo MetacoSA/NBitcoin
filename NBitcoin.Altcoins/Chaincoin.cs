@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -10,15 +11,10 @@ using NBitcoin.Protocol;
 namespace NBitcoin.Altcoins
 {
 	// https://github.com/chaincoin/chaincoin/blob/0.16/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Chaincoin : NetworkSetBase
 	{
-		public static Chaincoin Instance { get; } = new Chaincoin();
-
 		public override string CryptoCode => "CHC";
-
-		private Chaincoin()
-		{
-		}
 
 		public class ChaincoinConsensusFactory : ConsensusFactory
 		{
@@ -56,12 +52,14 @@ namespace NBitcoin.Altcoins
 
 		public class ChaincoinBlock : Block
 		{
+			private readonly Chaincoin chaincoin;
 			public ChaincoinBlock(ChaincoinBlockHeader h) : base(h)
 			{
+				chaincoin = new Chaincoin();
 			}
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Instance.Mainnet.Consensus.ConsensusFactory;
+				return chaincoin.Mainnet.Consensus.ConsensusFactory;
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete

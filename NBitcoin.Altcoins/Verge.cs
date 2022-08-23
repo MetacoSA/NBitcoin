@@ -1,25 +1,15 @@
-using NBitcoin;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
+	[Export(typeof(INetworkSet))]
 	public class Verge : NetworkSetBase
 	{
-		public static Verge Instance { get; } = new Verge();
-
 		public override string CryptoCode => "XVG";
 
-		private Verge()
-		{
-
-		}
 		//Format visual studio
 		//{({.*?}), (.*?)}
 		//Tuple.Create(new byte[]$1, $2)

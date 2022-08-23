@@ -1,29 +1,16 @@
-﻿using NBitcoin;
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/mogwaicoin/mogwai/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Mogwai : NetworkSetBase
 	{
-		public static Mogwai Instance { get; } = new Mogwai();
-
 		public override string CryptoCode => "MOG";
-
-		private Mogwai()
-		{
-
-		}
 
 		public class MogwaiConsensusFactory : ConsensusFactory
 		{

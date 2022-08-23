@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Threading;
-using NBitcoin;
+using NBitcoin.Altcoins;
 using Xunit;
 using System;
 
@@ -25,9 +25,28 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanGetAllShitcoins()
 		{
-			NBitcoin.Altcoins.AltNetworkSets.GetAll().Select(c => c.Regtest).ToList();
-			NBitcoin.Altcoins.AltNetworkSets.GetAll().Select(c => c.Testnet).ToList();
-			NBitcoin.Altcoins.AltNetworkSets.GetAll().Select(c => c.Mainnet).ToList();
+			var altNetworkSets = new AltNetworkSets()
+				.NetworkSets;
+
+			altNetworkSets.Select(c => c.Regtest).ToList();
+			altNetworkSets.Select(c => c.Testnet).ToList();
+			altNetworkSets.Select(c => c.Mainnet).ToList();
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanGetRandomAltcoins()
+		{
+			var altNetworkSets = new AltNetworkSets()
+				.NetworkSets;
+
+			Assert.Contains<INetworkSet>(altNetworkSets, ns => ns.GetType().Equals(typeof(Litecoin)));
+			Assert.Contains<INetworkSet>(altNetworkSets, ns => ns.GetType().Equals(typeof(Dogecoin)));
+			Assert.Contains<INetworkSet>(altNetworkSets, ns => ns.GetType().Equals(typeof(Dash)));
+			Assert.Contains<INetworkSet>(altNetworkSets, ns => ns.GetType().Equals(typeof(LBRYCredits)));
+			Assert.Contains<INetworkSet>(altNetworkSets, ns => ns.GetType().Equals(typeof(Monacoin)));
+			Assert.Contains<INetworkSet>(altNetworkSets, ns => ns.GetType().Equals(typeof(BCash)));
+			Assert.Contains<INetworkSet>(altNetworkSets, ns => ns.GetType().Equals(typeof(ECash)));
 		}
 
 		[Fact]

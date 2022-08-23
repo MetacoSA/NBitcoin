@@ -1,26 +1,15 @@
-﻿using NBitcoin;
-using NBitcoin.DataEncoders;
-using System.Reflection;
-using NBitcoin.Protocol;
-using NBitcoin.RPC;
+﻿using NBitcoin.DataEncoders;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
+using System.ComponentModel.Composition;
+using System.Reflection;
 
 namespace NBitcoin.Altcoins
 {
+	[Export(typeof(INetworkSet))]
 	public class Litecoin : NetworkSetBase
 	{
-		public static Litecoin Instance { get; } = new Litecoin();
-
 		public override string CryptoCode => "LTC";
 
-		private Litecoin()
-		{
-
-		}
 		//Format visual studio
 		//{({.*?}), (.*?)}
 		//Tuple.Create(new byte[]$1, $2)

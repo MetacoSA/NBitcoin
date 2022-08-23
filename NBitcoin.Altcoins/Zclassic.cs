@@ -1,27 +1,15 @@
-using NBitcoin;
-using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
-    // Reference: https://github.com/z-classic/zclassic/blob/master/src/chainparams.cpp
-    public class Zclassic : NetworkSetBase
+	// Reference: https://github.com/z-classic/zclassic/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
+	public class Zclassic : NetworkSetBase
     {
-        public static Zclassic Instance { get; } = new Zclassic();
-
         public override string CryptoCode => "ZCL";
 
-        private Zclassic()
-        {
-
-        }
         public class ZclassicConsensusFactory : ConsensusFactory
         {
             private ZclassicConsensusFactory()

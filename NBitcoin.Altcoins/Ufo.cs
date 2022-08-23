@@ -1,28 +1,14 @@
-﻿using NBitcoin;
-using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using NBitcoin.RPC;
+﻿using NBitcoin.DataEncoders;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
 
+	[Export(typeof(INetworkSet))]
     public class Ufo : NetworkSetBase
 	{
-
-        public static Ufo Instance { get; } = new Ufo();
-
         public override string CryptoCode => "UFO";
-
-        private Ufo()
-        {
-
-        }
 
         //Format visual studio
         //{({.*?}), (.*?)}

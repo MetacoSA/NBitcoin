@@ -29,7 +29,7 @@ namespace NBitcoin.Altcoins.Elements
 			var result = await rpcClient.SendCommandAsync(ElementsRPCOperations.unblindrawtransaction, transactionHex);
 			result.ThrowIfError();
 
-			return ParseTxHex(result.Result["hex"].Value<string>(), network ?? Liquid.Instance.Mainnet);
+			return ParseTxHex(result.Result["hex"].Value<string>(), network ?? new Liquid().Mainnet);
 		}
 
 		private static ElementsTransaction ParseTxHex(string hex,  Network network)

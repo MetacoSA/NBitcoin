@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
@@ -16,17 +17,12 @@ namespace NBitcoin.Altcoins
 	/// XDS is a Proof-of-Work/Proof-of-Stake-v4 coin with SegWit and ColdStaking.
 	/// Bitcointalk: https://bitcointalk.org/index.php?topic=5218979.0
 	/// </summary>
+	[Export(typeof(INetworkSet))]
 	public class XDS : NetworkSetBase
 	{
-		public static XDS Instance { get; } = new XDS();
-
 		public override string CryptoCode => "XDS";
 
 		public const int MaxReorgLength = 125;
-
-		XDS()
-		{
-		}
 
 		protected override NetworkBuilder CreateMainnet()
 		{

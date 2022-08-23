@@ -1,28 +1,18 @@
-﻿using NBitcoin;
-using NBitcoin.DataEncoders;
+﻿using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+using System.ComponentModel.Composition;
 using System.Reflection;
 
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/dogecoin/dogecoin/blob/10a5e93a055ab5f239c5447a5fe05283af09e293/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Dogecoin : NetworkSetBase
 	{
-		public static Dogecoin Instance { get; } = new Dogecoin();
-
 		public override string CryptoCode => "DOGE";
 
-		private Dogecoin()
-		{
-
-		}
 		public class DogeConsensusFactory : ConsensusFactory
 		{
 			private DogeConsensusFactory()

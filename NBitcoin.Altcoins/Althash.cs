@@ -1,26 +1,16 @@
-using NBitcoin;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/HTMLCOIN/HTMLCOIN/blob/master-2.5/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Althash : NetworkSetBase
 	{
-		public static Althash Instance { get; } = new Althash();
-
 		public override string CryptoCode => "HTML";
 
-		private Althash()
-		{
-		}
 		public class AlthashConsensusFactory : ConsensusFactory
 		{
 			private AlthashConsensusFactory()

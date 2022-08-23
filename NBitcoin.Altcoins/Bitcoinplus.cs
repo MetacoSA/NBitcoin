@@ -1,33 +1,22 @@
-﻿using NBitcoin;
-using NBitcoin.Altcoins.HashX11;
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel.Composition;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Threading.Tasks;
 
 
 
 namespace NBitcoin.Altcoins
 {
-    // Reference: https://github.com/Bitcoinpluspay/Bitcoinplus/blob/master/src/chainparams.cpp
+	// Reference: https://github.com/Bitcoinpluspay/Bitcoinplus/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
     public class Bitcoinplus : NetworkSetBase
     {
-        public static Bitcoinplus Instance { get; } = new Bitcoinplus();
-
         public override string CryptoCode => "XBC";
-
-        private Bitcoinplus()
-        {
-
-        }
 
 #pragma warning disable CS0618 // Type or member is obsolete
         public class BitcoinplusConsensusFactory : ConsensusFactory

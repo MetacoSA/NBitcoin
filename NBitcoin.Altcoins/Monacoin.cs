@@ -1,25 +1,14 @@
-using NBitcoin;
 using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
+	[Export(typeof(INetworkSet))]
 	public class Monacoin : NetworkSetBase
 	{
-		public static Monacoin Instance { get; } = new Monacoin();
-
 		public override string CryptoCode => "MONA";
 
-		private Monacoin()
-		{
-
-		}
 		//Format visual studio
 		//{({.*?}), (.*?)}
 		//Tuple.Create(new byte[]$1, $2)

@@ -1,28 +1,18 @@
-﻿using NBitcoin;
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel.Composition;
 using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/monacocoin-net/monoeci-core/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Monoeci : NetworkSetBase
 	{
-		public static Monoeci Instance { get; } = new Monoeci();
-
 		public override string CryptoCode => "XMCC";
 
-		private Monoeci()
-		{
-
-		}
 		public class MonoeciConsensusFactory : ConsensusFactory
 		{
 			private MonoeciConsensusFactory()

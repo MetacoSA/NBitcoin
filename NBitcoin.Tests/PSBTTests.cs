@@ -1,5 +1,4 @@
 using Xunit;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static NBitcoin.Tests.Comparer;
 using Xunit.Abstractions;
+using NBitcoin.Altcoins;
 
 namespace NBitcoin.Tests
 {
@@ -108,8 +108,9 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void PSBTParsingShouldUseTheRightConsensusFactory()
 		{
+			var groestlcoin = new Groestlcoin();
 			var psbt = PSBT.Parse("cHNidP8BAKABAAAAAjzOZOqTmzoqy7rQ1KHnIkaak0mSVzPv5DtvPTvCjAzKAAAAAAD9////RNxEkYoZ/DN8b5DqBHJyUlqw+YOPV2y//wY3S8Z/Ig4BAAAAAP3///8C3JQwAQAAAAAZdqkUwH39zhYQLTpA+yZ9SSHkq9y1rEGIrADh9QUAAAAAGXapFBv+ozFlGBoA7+st28C45qrqFdp8iKwAAAAAAAEA/XQBAgAAAAL+IKvJIVWjWY0mFK0l1+bcEV3NJ1DR9a6BVgxPopR1AwEAAABqRzBEAiBKMOFJ7341UHGSq2mMsu7Tuup/WrWcG3opc4qCizsZEQIgWfbIISu7W1iRKlXgAODKCKxu2pGuGcwsl2Ke2tXExJoBIQOZcYGogH0HL1t2R5WnhUBgEYChDJRerjr6LsZmZy7t0/7///+tNbQ5jJd/4ZXJszKPaLa/RRRoLxbfTFiO6UKdTyiVdAAAAABqRzBEAiBYvo6rVsaNEqtJcXttj0rg+hTjxGkAUlATmqr57SrWlwIgTaYBzvfyPooGjY3LN0NX71cAgZL+jBmAa6nOsrlUpbkBIQOZcYGogH0HL1t2R5WnhUBgEYChDJRerjr6LsZmZy7t0/7///8CcN/1BQAAAAAZdqkUsOguNJiSLxXVqfzkyYiFcJv0vgiIrADh9QUAAAAAGXapFK831Px/KVRlHDKICTeChruGMg/JiKzG0B8AIgICFN+otSuSoj/5zbp0H1MtD+edEx7WwLsvnrLEfbCjErRIMEUCIQD2yd+PvhvjpxmFcFDFv3owFleCr4IzRwHwTovk/S7y7wIgCWgmH6WHRuf0++LouAJuWKJ7pjPD4W53UXkz7WmtfvQBIgYCFN+otSuSoj/5zbp0H1MtD+edEx7WwLsvnrLEfbCjErQYChHi6CwAAIABAACAAAAAgAEAAAAKAAAAAAEA/XUBAQAAAALcjOdC7uRb/bqGnrU6Il6jcdZFeePGFZmkB4UNnwrfGgEAAABqRzBEAiB4ubLFsMIdUKl2SmGhNKdT1fTc46Ir4m2cFM9D8dtB7AIgL4cD2sSqPAdqPldtviV8dHqkjjrdXNrDkAbxjAZQzgABIQONBtYWZOSeDXT/eNAQoIcQYSwtwvkfse9m5wEgxkz4n/3////cjOdC7uRb/bqGnrU6Il6jcdZFeePGFZmkB4UNnwrfGgAAAABrSDBFAiEAndyxtsqQ+aB6s5FaGBhmQhOwhm35TOImMBEDF9jjV5oCIBg+0GQYIGvUWqXaGGxCDsngiWy5P0Tk+ngtuDCWzREpASEC55mD+vA5xSJmYvfcsYH5sykhFnsJdujFPhn2Fg+5HL39////AgDh9QUAAAAAGXapFKBSbBywL1pp4x1JqqX4jFKm2ZTdiKyEKDEBAAAAABl2qRS+dL66EpzsCxfpNVycmI5NNtKDWIisAAAAACICAkOieg7z1fAIG2cfcLj+ZFJ3L3L+yVk1tRApOHz8UwOQSDBFAiEA1bv9YiUDip8YfrBZjv76N783CQSzhj8ykdOQvpALOsECIHKAkrHCNhkF7hN6Eng11IJeqDgxEtZpFt0mGvP5xokKASIGAkOieg7z1fAIG2cfcLj+ZFJ3L3L+yVk1tRApOHz8UwOQGAoR4ugsAACAAQAAgAAAAIABAAAABwAAAAAiAgJbvS/OS/2Jnwd/aGbOJmqXrgL9YcYFarUm+ahIBAuwQBgKEeLoLAAAgAEAAIAAAACAAQAAAAsAAAAAIgID37dgjfw4pjjnV4nSdpZ4XTGqMYRLYeNuQaCD0YMtOOIYChHi6CwAAIABAACAAAAAgAAAAAAQAAAAAA==",
-				Altcoins.AltNetworkSets.Groestlcoin.Testnet);
+				groestlcoin.Testnet);
 			var errors = psbt.CheckSanity();
 			Assert.Empty(errors);
 		}

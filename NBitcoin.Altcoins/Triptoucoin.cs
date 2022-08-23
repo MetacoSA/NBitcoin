@@ -1,20 +1,15 @@
 ﻿using NBitcoin.DataEncoders;
 using System;
+using System.ComponentModel.Composition;
 using System.Reflection;
-using System.Text;
 
 namespace NBitcoin.Altcoins
 {
+	[Export(typeof(INetworkSet))]
 	public class Triptourcoin : NetworkSetBase
 	{
-		public static Triptourcoin Instance { get; } = new Triptourcoin();
-
 		public override string CryptoCode => "TTC";
 
-		private Triptourcoin()
-		{
-
-		}
 		//Format visual studio
 		//{({.*?}), (.*?)}
 		//Tuple.Create(new byte[]$1, $2)

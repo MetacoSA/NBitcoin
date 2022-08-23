@@ -10,10 +10,6 @@ namespace NBitcoin
 {
 	public class Bitcoin : INetworkSet
 	{
-		private Bitcoin()
-		{
-		}
-
 		private Network CreateSignet()
 		{
 			NetworkBuilder builder = new NetworkBuilder();

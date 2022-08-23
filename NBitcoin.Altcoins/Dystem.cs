@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Composition;
 using System.Linq;
 using NBitcoin.Altcoins.HashX11;
 using NBitcoin.Crypto;
@@ -8,15 +9,10 @@ using NBitcoin.Protocol;
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/Dystem/Dystem/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Dystem : NetworkSetBase
 	{
-		public static Dystem Instance { get; } = new Dystem();
-
 		public override string CryptoCode => "DTEM";
-
-		private Dystem()
-		{
-		}
 
 		public class DystemConsensusFactory : ConsensusFactory
 		{
@@ -56,13 +52,15 @@ namespace NBitcoin.Altcoins
 
 		public class DystemBlock : Block
 		{
+			private readonly Dystem dystem;
 			public DystemBlock(DystemBlockHeader h) : base(h)
 			{
+				dystem = new Dystem();
 			}
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Instance.Mainnet.Consensus.ConsensusFactory;
+				return dystem.Mainnet.Consensus.ConsensusFactory;
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete

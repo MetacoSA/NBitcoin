@@ -1,27 +1,17 @@
-﻿using NBitcoin;
-using NBitcoin.DataEncoders;
+﻿using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/terracoin/terracoin/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Terracoin : NetworkSetBase
 	{
-		public static Terracoin Instance { get; } = new Terracoin();
-
 		public override string CryptoCode => "TRC";
 
-		private Terracoin()
-		{
-
-		}
 		//Format visual studio
 		//{({.*?}), (.*?)}
 		//Tuple.Create(new byte[]$1, $2)

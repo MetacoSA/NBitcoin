@@ -5,24 +5,19 @@ using NBitcoin.Protocol;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 
 namespace NBitcoin.Altcoins
 {
 	/// <summary>
 	/// <see cref="http://www.stratisplatform.com">Stratis</see> Altcoin definition 
 	/// </summary>
+	[Export(typeof(INetworkSet))]
 	public class Stratis : NetworkSetBase
 	{
-		public static Stratis Instance { get; } = new Stratis();
-
 		public override string CryptoCode => "STRAT";
-
-		private Stratis()
-		{
-		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
 		public class StratisConsensusFactory : ConsensusFactory

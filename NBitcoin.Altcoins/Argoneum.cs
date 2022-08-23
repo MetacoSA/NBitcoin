@@ -5,22 +5,17 @@ using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.Altcoins.ArgoneumInternals;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/Argoneum/argoneum/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Argoneum : NetworkSetBase
 	{
 		private const uint PHI2_HARDFORK_TIME = 1541934671; // 11/11/2018 @ 11:11:11am (UTC)
 
-		public static Argoneum Instance { get; } = new Argoneum();
-
 		public override string CryptoCode => "AGM";
-
-		private Argoneum()
-		{
-
-		}
 
 		public class ArgoneumConsensusFactory : ConsensusFactory
 		{
@@ -361,12 +356,14 @@ namespace NBitcoin.Altcoins
 
 		public class ArgoneumBlock : Block
 		{
+			private readonly Argoneum argoneum;
 			public ArgoneumBlock(ArgoneumBlockHeader h) : base(h)
 			{
+				argoneum = new Argoneum();
 			}
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Instance.Mainnet.Consensus.ConsensusFactory;
+				return argoneum.Mainnet.Consensus.ConsensusFactory;
 			}
 
 			public override string ToString()

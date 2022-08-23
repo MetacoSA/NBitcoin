@@ -1,28 +1,19 @@
-﻿using NBitcoin;
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/polispay/polis/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Polis : NetworkSetBase
 	{
-		public static Polis Instance { get; } = new Polis();
-
 		public override string CryptoCode => "POLIS";
 
-		private Polis()
-		{
-
-		}
 		public class PolisConsensusFactory : ConsensusFactory
 		{
 			private PolisConsensusFactory()

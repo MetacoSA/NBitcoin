@@ -10,9 +10,9 @@ using System.Reflection;
 namespace NBitcoin.Altcoins
 {
 	[Export(typeof(INetworkSet))]
-	public class BCash : NetworkSetBase
+	public class ECash : NetworkSetBase
 	{
-		public override string CryptoCode => "BCH";
+		public override string CryptoCode => "XEC";
 
 		//Format visual studio
 		//{({.*?}), (.*?)}
@@ -152,13 +152,13 @@ namespace NBitcoin.Altcoins
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xda,0xf4,0x92,0x6f}, 18333)
 };
 
-		class BCashConsensusFactory : ConsensusFactory
+		class ECashConsensusFactory : ConsensusFactory
 		{
-			private BCashConsensusFactory()
+			private ECashConsensusFactory()
 			{
 
 			}
-			public static BCashConsensusFactory Instance { get; } = new BCashConsensusFactory();
+			public static ECashConsensusFactory Instance { get; } = new ECashConsensusFactory();
 
 			public override ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)
 			{
@@ -173,10 +173,10 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
-		public class BTrashPubKeyAddress : BitcoinPubKeyAddress
+		public class ECashPubKeyAddress : BitcoinPubKeyAddress
 		{
-			BCashAddr.BchAddr.BchAddrData addr;
-			internal BTrashPubKeyAddress(string str, BCashAddr.BchAddr.BchAddrData addr) : base(str, new KeyId(addr.Hash), addr.Network)
+			ECashAddr.xecAddr.xecAddrData addr;
+			internal ECashPubKeyAddress(string str, ECashAddr.xecAddr.xecAddrData addr) : base(str, new KeyId(addr.Hash), addr.Network)
 			{
 				this.addr = addr;
 			}
@@ -192,10 +192,10 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
-		public class BTrashScriptAddress : BitcoinScriptAddress
+		public class ECashScriptAddress : BitcoinScriptAddress
 		{
-			BCashAddr.BchAddr.BchAddrData addr;
-			internal BTrashScriptAddress(string str, BCashAddr.BchAddr.BchAddrData addr) : base(str, new ScriptId(addr.Hash), addr.Network)
+			ECashAddr.xecAddr.xecAddrData addr;
+			internal ECashScriptAddress(string str, ECashAddr.xecAddr.xecAddrData addr) : base(str, new ScriptId(addr.Hash), addr.Network)
 			{
 				this.addr = addr;
 			}
@@ -206,10 +206,10 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
-		class BCashStringParser : NetworkStringParser
+		class ECashStringParser : NetworkStringParser
 		{
 			string _Prefix;
-			public BCashStringParser(string prefix)
+			public ECashStringParser(string prefix)
 			{
 				_Prefix = prefix;
 			}
@@ -222,15 +222,15 @@ namespace NBitcoin.Altcoins
 				{
 					try
 					{
-						var addr = BCashAddr.BchAddr.DecodeAddress(str, prefix, network);
-						if (addr.Type == BCashAddr.BchAddr.CashType.P2PKH && targetType.GetTypeInfo().IsAssignableFrom(typeof(BTrashPubKeyAddress).GetTypeInfo()))
+						var addr = ECashAddr.xecAddr.DecodeAddress(str, prefix, network);
+						if (addr.Type == ECashAddr.xecAddr.CashType.P2PKH && targetType.GetTypeInfo().IsAssignableFrom(typeof(ECashPubKeyAddress).GetTypeInfo()))
 						{
-							result = new BTrashPubKeyAddress(str, addr);
+							result = new ECashPubKeyAddress(str, addr);
 							return true;
 						}
-						else if (addr.Type == BCashAddr.BchAddr.CashType.P2SH && targetType.GetTypeInfo().IsAssignableFrom(typeof(BTrashScriptAddress).GetTypeInfo()))
+						else if (addr.Type == ECashAddr.xecAddr.CashType.P2SH && targetType.GetTypeInfo().IsAssignableFrom(typeof(ECashScriptAddress).GetTypeInfo()))
 						{
-							result = new BTrashScriptAddress(str, addr);
+							result = new ECashScriptAddress(str, addr);
 							return true;
 						}
 					}
@@ -241,29 +241,29 @@ namespace NBitcoin.Altcoins
 
 			public override BitcoinPubKeyAddress CreateP2PKH(KeyId keyId, Network network)
 			{
-				var addr = new BCashAddr.BchAddr.BchAddrData()
+				var addr = new ECashAddr.xecAddr.xecAddrData()
 				{
-					Format = BCashAddr.BchAddr.CashFormat.Cashaddr,
+					Format = ECashAddr.xecAddr.CashFormat.Cashaddr,
 					Prefix = _Prefix,
 					Hash = keyId.ToBytes(),
-					Type = BCashAddr.BchAddr.CashType.P2PKH,
+					Type = ECashAddr.xecAddr.CashType.P2PKH,
 					Network = network
 				};
-				var str = BCashAddr.BchAddr.EncodeAsCashaddr(addr);
-				return new BTrashPubKeyAddress(str, addr);
+				var str = ECashAddr.xecAddr.EncodeAsCashaddr(addr);
+				return new ECashPubKeyAddress(str, addr);
 			}
 			public override BitcoinScriptAddress CreateP2SH(ScriptId scriptId, Network network)
 			{
-				var addr = new BCashAddr.BchAddr.BchAddrData()
+				var addr = new ECashAddr.xecAddr.xecAddrData()
 				{
-					Format = BCashAddr.BchAddr.CashFormat.Cashaddr,
+					Format = ECashAddr.xecAddr.CashFormat.Cashaddr,
 					Prefix = _Prefix,
 					Hash = scriptId.ToBytes(),
-					Type = BCashAddr.BchAddr.CashType.P2SH,
+					Type = ECashAddr.xecAddr.CashType.P2SH,
 					Network = network
 				};
-				var str = BCashAddr.BchAddr.EncodeAsCashaddr(addr);
-				return new BTrashScriptAddress(str, addr);
+				var str = ECashAddr.xecAddr.EncodeAsCashaddr(addr);
+				return new ECashScriptAddress(str, addr);
 			}
 		}
 
@@ -291,7 +291,7 @@ namespace NBitcoin.Altcoins
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
 				MinimumChainWork = new uint256("0000000000000000000000000000000000000000007e5dbf54c7f6b58a6853cd"),
-				ConsensusFactory = BCashConsensusFactory.Instance,
+				ConsensusFactory = ECashConsensusFactory.Instance,
 				SupportSegwit = false,
 				NeverNeedPreviousTxForSigning = true
 			})
@@ -302,23 +302,20 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 128 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("bch"))
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("bch"))
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("xec"))
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("xec"))
 			.SetMagic(0xe8f3e1e3)
 			.SetPort(8333)
 			.SetRPCPort(8332)
-			.SetNetworkStringParser(new BCashStringParser("bitcoincash"))
-			.SetName("bch-main")
-			.AddAlias("bch-mainnet")
-			.AddAlias("bcash-mainnet")
-			.AddAlias("bcash-main")
-			.SetUriScheme("bitcoincash")
+			.SetNetworkStringParser(new ECashStringParser("ecash"))
+			.SetName("xec-main")
+			.AddAlias("xec-mainnet")
+			.AddAlias("ecash-mainnet")
+			.AddAlias("ecash-main")
+			.SetUriScheme("ecash")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("bitcoinabc.org", "seed.bitcoinabc.org"),
-				new DNSSeedData("bitcoinforks.org", "seed-abc.bitcoinforks.org"),
-				new DNSSeedData("bitcoinunlimited.info", "btccash-seeder.bitcoinunlimited.info"),
-				new DNSSeedData("bitprim.org", "seed.bitprim.org"),
 				new DNSSeedData("deadalnix.me", "seed.deadalnix.me"),
 				new DNSSeedData("criptolayer.net", "seeder.criptolayer.net"),
 			})
@@ -345,7 +342,7 @@ namespace NBitcoin.Altcoins
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
 				MinimumChainWork = new uint256("00000000000000000000000000000000000000000000002888c34d61b53a244a"),
-				ConsensusFactory = BCashConsensusFactory.Instance,
+				ConsensusFactory = ECashConsensusFactory.Instance,
 				SupportSegwit = false,
 				NeverNeedPreviousTxForSigning = true
 			})
@@ -354,17 +351,17 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tbch"))
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tbch"))
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("txec"))
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("txec"))
 			.SetMagic(0xf4f3e5f4)
 			.SetPort(18333)
 			.SetRPCPort(18332)
-			.SetNetworkStringParser(new BCashStringParser("bchtest"))
-			.SetName("bch-test")
-			.AddAlias("bch-testnet")
-			.AddAlias("bcash-test")
-			.AddAlias("bcash-testnet")
-			.SetUriScheme("bitcoincash")
+			.SetNetworkStringParser(new ECashStringParser("xectest"))
+			.SetName("xec-test")
+			.AddAlias("xec-testnet")
+			.AddAlias("ecash-test")
+			.AddAlias("ecash-testnet")
+			.SetUriScheme("ecash")
 			.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("bitcoinabc.org", "testnet-seed.bitcoinabc.org"),
@@ -397,7 +394,7 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
 				CoinbaseMaturity = 100,
-				ConsensusFactory = BCashConsensusFactory.Instance,
+				ConsensusFactory = ECashConsensusFactory.Instance,
 				SupportSegwit = false,
 				NeverNeedPreviousTxForSigning = true
 			})
@@ -406,17 +403,17 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tbch"))
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tbch"))
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("txec"))
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("txec"))
 			.SetMagic(0xfabfb5da)
 			.SetPort(18444)
 			.SetRPCPort(18443)
-			.SetNetworkStringParser(new BCashStringParser("bchreg"))
-			.SetName("bch-reg")
-			.AddAlias("bch-regtest")
-			.AddAlias("bcash-reg")
-			.AddAlias("bcash-regtest")
-			.SetUriScheme("bitcoincash")
+			.SetNetworkStringParser(new ECashStringParser("xecreg"))
+			.SetName("xec-reg")
+			.AddAlias("xec-regtest")
+			.AddAlias("ecash-reg")
+			.AddAlias("ecash-regtest")
+			.SetUriScheme("ecash")
 			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4adae5494dffff7f20020000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
 			return builder;
 		}
@@ -426,10 +423,10 @@ namespace NBitcoin.Altcoins
 
 
 
-namespace BCashAddr
+namespace ECashAddr
 {
-	// https://github.com/bitcoincashjs/bchaddrjs
-	internal static class BchAddr
+	// https://github.com/ecashjs/xecaddrjs
+	internal static class xecAddr
 	{
 		public enum CashFormat
 		{
@@ -444,7 +441,7 @@ namespace BCashAddr
 			P2SH
 		}
 
-		public class BchAddrData
+		public class xecAddrData
 		{
 			public CashFormat Format
 			{
@@ -476,9 +473,9 @@ namespace BCashAddr
 				internal set;
 			}
 
-			public static BchAddrData Create(CashFormat format, Network network, CashType type, byte[] hash)
+			public static xecAddrData Create(CashFormat format, Network network, CashType type, byte[] hash)
 			{
-				return new BchAddrData
+				return new xecAddrData
 				{
 					Format = format,
 					Network = network,
@@ -493,7 +490,7 @@ namespace BCashAddr
 		/// </summary>
 		/// <param name="decoded"></param>
 		/// <returns></returns>
-		public static string EncodeAsCashaddr(BchAddrData decoded)
+		public static string EncodeAsCashaddr(xecAddrData decoded)
 		{
 			var prefix = decoded.Prefix;
 			var type = decoded.Type == CashType.P2PKH ? "P2PKH" : "P2SH";
@@ -506,14 +503,14 @@ namespace BCashAddr
 		/// </summary>
 		/// <param name="decoded"></param>
 		/// <returns></returns>
-		public static string EncodeAsCashaddrNoPrefix(BchAddrData decoded)
+		public static string EncodeAsCashaddrNoPrefix(xecAddrData decoded)
 		{
 			var address = EncodeAsCashaddr(decoded);
 			if(address.IndexOf(":") != -1)
 			{
 				return address.Split(':')[1];
 			}
-			throw new Validation.ValidationError($"Invalid BchAddrData");
+			throw new Validation.ValidationError($"Invalid xecAddrData");
 		}
 
 		/// <summary>
@@ -521,7 +518,7 @@ namespace BCashAddr
 		/// </summary>
 		/// <param name="address"></param>
 		/// <returns></returns>
-		public static BchAddrData DecodeAddress(string address, string prefix, Network network)
+		public static xecAddrData DecodeAddress(string address, string prefix, Network network)
 		{
 			try
 			{
@@ -536,7 +533,7 @@ namespace BCashAddr
 		/// </summary>
 		/// <param name="address">A valid Bitcoin Cash address in any format</param>
 		/// <returns></returns>
-		private static BchAddrData DecodeCashAddress(string address, string prefix, Network network)
+		private static xecAddrData DecodeCashAddress(string address, string prefix, Network network)
 		{
 			//if(address.IndexOf(":") != -1)
 			//{
@@ -559,15 +556,15 @@ namespace BCashAddr
 		/// </summary>
 		/// <param name="address">A valid Bitcoin Cash address in any format</param>
 		/// <returns></returns>
-		private static BchAddrData DecodeCashAddressWithPrefix(string address, Network network)
+		private static xecAddrData DecodeCashAddressWithPrefix(string address, Network network)
 		{
 			var decoded = CashAddr.Decode(address);
 			var type = decoded.Type == "P2PKH" ? CashType.P2PKH : CashType.P2SH;
-			return BchAddrData.Create(CashFormat.Cashaddr, network, type, decoded.Hash);
+			return xecAddrData.Create(CashFormat.Cashaddr, network, type, decoded.Hash);
 		}
 	}
 
-	// https://github.com/bitcoincashjs/cashaddrjs
+	// https://github.com/BytesOfMan/xecaddrjs
 	internal static class CashAddr
 	{
 		public class CashAddrData
@@ -589,7 +586,7 @@ namespace BCashAddr
 		/// <summary>
 		/// Encodes a hash from a given type into a Bitcoin Cash address with the given prefix
 		/// </summary>
-		/// <param name="prefix">prefix Network prefix. E.g.: 'bitcoincash'</param>
+		/// <param name="prefix">prefix Network prefix. E.g.: 'ecash'</param>
 		/// <param name="type">type Type of address to generate. Either 'P2PKH' or 'P2SH'</param>
 		/// <param name="hash">hash Hash to encode represented as an array of 8-bit integers</param>
 		/// <returns></returns>
@@ -606,7 +603,7 @@ namespace BCashAddr
 		/// <summary>
 		/// Decodes the given address into its constituting prefix, type and hash
 		/// </summary>
-		/// <param name="address">Address to decode. E.g.: 'bitcoincash:qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a'</param>
+		/// <param name="address">Address to decode. E.g.: 'ecash:qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a'</param>
 		/// <returns>DecodeData</returns>
 		public static CashAddrData Decode(string address)
 		{
@@ -713,7 +710,7 @@ namespace BCashAddr
 		/// <summary>
 		/// Derives an array from the given prefix to be used in the computation of the address checksum
 		/// </summary>
-		/// <param name="prefix">Network prefix. E.g.: 'bitcoincash'</param>
+		/// <param name="prefix">Network prefix. E.g.: 'ecash'</param>
 		/// <returns></returns>
 		public static byte[] PrefixToByte5Array(string prefix)
 		{

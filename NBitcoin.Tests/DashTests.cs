@@ -54,7 +54,7 @@ namespace NBitcoin.Tests
 			Assert.Equal("3c05fb32367a25d8dedc16f741b8492006fb948a", proRegTx.KeyIdOwner.ToString());
 			Assert.Equal("8273ec203d1ea62cbdb54e10618329e4ed93e99bc9c5ab2f4cb0055ad281f9ad0808a1dda6aedf12c41c53142828879b", Encoders.Hex.EncodeData(proRegTx.KeyIdOperator));
 			Assert.Equal("3c05fb32367a25d8dedc16f741b8492006fb948a", proRegTx.KeyIdVoting.ToString());
-			Assert.Equal("yh9o9kPRK1s3YsuyCBe3DEjBit2RnzhgwH", proRegTx.ScriptPayout.GetDestinationAddress(Dash.Instance.Testnet).ToString());
+			Assert.Equal("yh9o9kPRK1s3YsuyCBe3DEjBit2RnzhgwH", proRegTx.ScriptPayout.GetDestinationAddress(new Dash().Testnet).ToString());
 			Assert.Equal(0, proRegTx.OperatorReward);
 			Assert.Equal("0b5e6a319019d8f1f4b17da96964df507e417f0a0ef8ca63eaa01e33e05510bc",
 				proRegTx.InputsHash.ToString());

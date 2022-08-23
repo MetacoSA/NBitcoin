@@ -1,25 +1,14 @@
-using NBitcoin;
 using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
+	[Export(typeof(INetworkSet))]
 	public class Bitcore : NetworkSetBase
 	{
-		public static Bitcore Instance { get; } = new Bitcore();
-
 		public override string CryptoCode => "BTX";
 
-		private Bitcore()
-		{
-
-		}
 		//Format visual studio
 		//{({.*?}), (.*?)}
 		//Tuple.Create(new byte[]$1, $2)

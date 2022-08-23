@@ -4,18 +4,14 @@ using NBitcoin.Protocol;
 using System;
 using System.Linq;
 using NBitcoin.Altcoins.GincoinInternals;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
+	[Export(typeof(INetworkSet))]
 	public class Gincoin : NetworkSetBase
 	{
-		public static Gincoin Instance { get; } = new Gincoin();
-
 		public override string CryptoCode => "GIN";
-
-		public Gincoin()
-		{
-		}
 
 		public class GincoinConsensusFactory : ConsensusFactory
 		{
@@ -66,12 +62,14 @@ namespace NBitcoin.Altcoins
 
 		public class GincoinBlock : Block
 		{
+			private readonly Gincoin gincoin;
 			public GincoinBlock(GincoinBlockHeader h) : base(h)
 			{
+				gincoin = new Gincoin();
 			}
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Gincoin.Instance.Mainnet.Consensus.ConsensusFactory;
+				return gincoin.Mainnet.Consensus.ConsensusFactory;
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete

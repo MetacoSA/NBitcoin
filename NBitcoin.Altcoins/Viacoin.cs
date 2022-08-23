@@ -1,26 +1,15 @@
-using NBitcoin;
 using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
+	[Export(typeof(INetworkSet))]
 	public class Viacoin : NetworkSetBase
 	{
-		public static Viacoin Instance { get; } = new Viacoin();
-
 		public override string CryptoCode => "VIA";
 
-		private Viacoin()
-		{
-
-		}
 		//Format visual studio
 		//{({.*?}), (.*?)}
 		//Tuple.Create(new byte[]$1, $2)

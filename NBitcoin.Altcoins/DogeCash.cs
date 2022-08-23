@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.Composition;
 using System.Linq;
 using NBitcoin.Altcoins.HashX11;
 using NBitcoin.Crypto;
@@ -8,15 +9,10 @@ using NBitcoin.Protocol;
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/dogecash/dogecash/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class DogeCash : NetworkSetBase
 	{
-		public static DogeCash Instance { get; } = new DogeCash();
-
 		public override string CryptoCode => "DOGEC";
-
-		private DogeCash()
-		{
-		}
 
 		public class DogeCashConsensusFactory : ConsensusFactory
 		{
@@ -56,13 +52,15 @@ namespace NBitcoin.Altcoins
 
 		public class DogeCashBlock : Block
 		{
+			private readonly DogeCash dogeCash;
 			public DogeCashBlock(DogeCashBlockHeader h) : base(h)
 			{
+				dogeCash = new DogeCash();
 			}
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Instance.Mainnet.Consensus.ConsensusFactory;
+				return dogeCash.Mainnet.Consensus.ConsensusFactory;
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete

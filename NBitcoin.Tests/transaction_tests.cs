@@ -21,6 +21,7 @@ using Encoders = NBitcoin.DataEncoders.Encoders;
 using static NBitcoin.Tests.Helpers.PrimitiveUtils;
 using Newtonsoft.Json.Schema;
 using Xunit.Sdk;
+using NBitcoin.Altcoins;
 
 namespace NBitcoin.Tests
 {
@@ -2515,18 +2516,20 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseLTubLitecoin()
 		{
-			new BitcoinExtKey("Ltpv71G8qDifUiNesyXJM9i5RzRB5HHFWfjseAX7mXY6vim2BHMBHgZJi9poW2J5FveLFg4PnPXf6y2VLtYoTDxJAhbVRRpo3GeKKx1wveysYnw", NBitcoin.Altcoins.Litecoin.Instance.Mainnet);
-			new BitcoinExtPubKey("Ltub2SSUS19CirucVaJxxH11bYDCEmze824yTDJCzRg5fDNN3oBWussWgRA7Zyiya98dAErcvDsw7rAuuZuZug3Ve6iT5uVkwPAKwQphBiQdjNd", NBitcoin.Altcoins.Litecoin.Instance.Mainnet);
+			var litecoin = new Litecoin();
+			new BitcoinExtKey("Ltpv71G8qDifUiNesyXJM9i5RzRB5HHFWfjseAX7mXY6vim2BHMBHgZJi9poW2J5FveLFg4PnPXf6y2VLtYoTDxJAhbVRRpo3GeKKx1wveysYnw", litecoin.Mainnet);
+			new BitcoinExtPubKey("Ltub2SSUS19CirucVaJxxH11bYDCEmze824yTDJCzRg5fDNN3oBWussWgRA7Zyiya98dAErcvDsw7rAuuZuZug3Ve6iT5uVkwPAKwQphBiQdjNd", litecoin.Mainnet);
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseElementsStuff()
 		{
-			var funding = Transaction.Parse("020000000001ee1de792f9390a96dc619ed809aff7e9441e961fbbc259e157d5320a692e1f5c0d00000000feffffff0301e8298b04333ead007973ccb969ba36772c9fcdaf8747cc5dd372e79898debd7a010000000005f5e1000017a914840c45c52492c79b61cced87cb0f033dd5365a168701e8298b04333ead007973ccb969ba36772c9fcdaf8747cc5dd372e79898debd7a01000001e8ebcb2618001976a9147a27ab132bba2730160b4fe1422f3a5f741f9f6388ac01e8298b04333ead007973ccb969ba36772c9fcdaf8747cc5dd372e79898debd7a0100000000000000e8000000000000", Altcoins.Liquid.Instance.Regtest);
-			var funded = BitcoinAddress.Create("XPPSkBFHS7arWiFRRkEhoieCHfXxxFwQa1", Altcoins.Liquid.Instance.Regtest);
+			var liquid = new Liquid();
+			var funding = Transaction.Parse("020000000001ee1de792f9390a96dc619ed809aff7e9441e961fbbc259e157d5320a692e1f5c0d00000000feffffff0301e8298b04333ead007973ccb969ba36772c9fcdaf8747cc5dd372e79898debd7a010000000005f5e1000017a914840c45c52492c79b61cced87cb0f033dd5365a168701e8298b04333ead007973ccb969ba36772c9fcdaf8747cc5dd372e79898debd7a01000001e8ebcb2618001976a9147a27ab132bba2730160b4fe1422f3a5f741f9f6388ac01e8298b04333ead007973ccb969ba36772c9fcdaf8747cc5dd372e79898debd7a0100000000000000e8000000000000", liquid.Regtest);
+			var funded = BitcoinAddress.Create("XPPSkBFHS7arWiFRRkEhoieCHfXxxFwQa1", liquid.Regtest);
 			var redeem = new Script(Encoders.Hex.DecodeData("00149bf32fe6110a55eef7057d74125ba8e5746cd7bd"));
-			Assert.Equal(funded, redeem.Hash.GetAddress(Altcoins.Liquid.Instance.Regtest));
+			Assert.Equal(funded, redeem.Hash.GetAddress(liquid.Regtest));
 			var previous = funding.Outputs.AsCoins().First(c => c.ScriptPubKey == funded.ScriptPubKey);
 
 			foreach (var signed in new[]
@@ -2543,17 +2546,17 @@ namespace NBitcoin.Tests
 				"0100000001017ab2ccf551f3632954583580519a00a1a6580567802a66e7d46719a5a4fae99f00000000171600149bf32fe6110a55eef7057d74125ba8e5746cd7bdffffffff020125b251070e29ca19043cf33ccd7324e2ddab03ecc4ae0b5e77c4fc0e5cf6c95a010000000002faec980017a914840c45c52492c79b61cced87cb0f033dd5365a16870125b251070e29ca19043cf33ccd7324e2ddab03ecc4ae0b5e77c4fc0e5cf6c95a010000000002faf080001976a9145595d11e0a669b1b4177f0222179d9002ac874a688ac00000000000002483045022100d49aa5d8a7bdb1b534089ee153cab55bc507ef2631014b74088a7ea1da23fadb02207b72a76d7f516714a088ce87cdd3b60ce8f6aa61e273e16e7c10307fe565b9130321033db76f52af98480fe32b2fb32bf368683938421bad77a5bc828f9c79da70f8020000000000",
 				// SINGLE|ANYONECANPAY
 				"0100000001017ab2ccf551f3632954583580519a00a1a6580567802a66e7d46719a5a4fae99f00000000171600149bf32fe6110a55eef7057d74125ba8e5746cd7bdffffffff020125b251070e29ca19043cf33ccd7324e2ddab03ecc4ae0b5e77c4fc0e5cf6c95a010000000002faec980017a914840c45c52492c79b61cced87cb0f033dd5365a16870125b251070e29ca19043cf33ccd7324e2ddab03ecc4ae0b5e77c4fc0e5cf6c95a010000000002faf080001976a9145595d11e0a669b1b4177f0222179d9002ac874a688ac00000000000002483045022100ab56dfc37c6d5842fd994e77ca750758b6f6f71ca52187dc27dd513221d3bd3102206e6af5d5efe2f2c21961cd68450fda2ad7c1e399810d8e44b6801c7d2230669a8321033db76f52af98480fe32b2fb32bf368683938421bad77a5bc828f9c79da70f8020000000000"
-			}.Select(s => Transaction.Parse(s, Altcoins.Liquid.Instance.Regtest)))
+			}.Select(s => Transaction.Parse(s, liquid.Regtest)))
 			{
-				var builder = Altcoins.Liquid.Instance.Regtest.CreateTransactionBuilder();
+				var builder = liquid.Regtest.CreateTransactionBuilder();
 				builder.AddCoins(previous);
 				builder.StandardTransactionPolicy.CheckFee = false;
 				builder.Verify(signed, out var err);
 				Assert.True(builder.Verify(signed));
 			}
 
-			var tx = (ElementsTransaction)Transaction.Parse("0200000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03520101ffffffff02016d521c38ec1ea15734ae22b7c46064412829c0d0579f0a713d1c04ede979026f01000000000000133f001976a914fc26751a5025129a2fd006c6fbfa598ddd67f7e188ac016d521c38ec1ea15734ae22b7c46064412829c0d0579f0a713d1c04ede979026f01000000000000000000266a24aa21a9ed23ecf05909c8f45525aede26cdad87f0ca9ce8777cfdc3328ab165d87953a520000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000", Altcoins.Liquid.Instance.Mainnet);
-			Assert.Equal("QLFdUboUPJnUzvsXKu83hUtrQ1DuxyggRg", tx.Outputs[0].ScriptPubKey.GetDestinationAddress(Altcoins.Liquid.Instance.Mainnet).ToString());
+			var tx = (ElementsTransaction)Transaction.Parse("0200000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03520101ffffffff02016d521c38ec1ea15734ae22b7c46064412829c0d0579f0a713d1c04ede979026f01000000000000133f001976a914fc26751a5025129a2fd006c6fbfa598ddd67f7e188ac016d521c38ec1ea15734ae22b7c46064412829c0d0579f0a713d1c04ede979026f01000000000000000000266a24aa21a9ed23ecf05909c8f45525aede26cdad87f0ca9ce8777cfdc3328ab165d87953a520000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000", liquid.Mainnet);
+			Assert.Equal("QLFdUboUPJnUzvsXKu83hUtrQ1DuxyggRg", tx.Outputs[0].ScriptPubKey.GetDestinationAddress(liquid.Mainnet).ToString());
 			Assert.True(((ElementsTxOut)tx.Outputs[0]).IsPeggedAsset.Value);
 			Assert.Equal(Money.Coins(0.00004927m), tx.Outputs[0].Value);
 			Assert.Equal(new uint256("bee744e41cca994ec5f6ff21ffe4a578be70923e64973cba12dbd89b1cc17ff1"), tx.GetHash());
@@ -2562,7 +2565,7 @@ namespace NBitcoin.Tests
 			tx.Outputs[0].Value = Money.Coins(0.00004927m);
 			Assert.Equal(new uint256("bee744e41cca994ec5f6ff21ffe4a578be70923e64973cba12dbd89b1cc17ff1"), tx.GetHash());
 
-			var ba = new BitcoinBlindedAddress("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", Altcoins.Liquid.Instance.Regtest);
+			var ba = new BitcoinBlindedAddress("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", liquid.Regtest);
 			Assert.Equal("2dqVdTn57d4ViCv3gc3kDgCW8diFgKn9owQ", ba.UnblindedAddress.ToString());
 			Assert.Equal("03757c827d7fb2867d0a181bf6e38f105e6eab121284627d61e5d52c1ca1f1ed25", ba.BlindingKey.ToHex());
 			Assert.Equal("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", ba.ToString());
@@ -2573,17 +2576,17 @@ namespace NBitcoin.Tests
 			Assert.Equal("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", ba2.ToString());
 
 			var txStr = "0200000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03510101ffffffff0201230f4f5d4b7c6fa845806ee4f67713459e1b69e8e60fcee2e4940c7a0d5de1b201000000000000000000016a01230f4f5d4b7c6fa845806ee4f67713459e1b69e8e60fcee2e4940c7a0d5de1b201000000000000000000266a24aa21a9ed94f15ed3a62165e4a0b99699cc28b48e19cb5bc1b1f47155db62d63f1e047d45000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000";
-			tx = (ElementsTransaction)Transaction.Parse(txStr, Altcoins.Liquid.Instance.Regtest);
+			tx = (ElementsTransaction)Transaction.Parse(txStr, liquid.Regtest);
 			Assert.Equal(txStr, tx.ToHex());
 			Assert.Equal("43732c47c526dfdb57203e66c2ebf9c0bff23189737b6ef432bd5040b5a697a2", tx.GetHash().ToString());
 
 			txStr = "0200000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03510101ffffffff0201230f4f5d4b7c6fa845806ee4f67713459e1b69e8e60fcee2e4940c7a0d5de1b201000000000000000000016a01230f4f5d4b7c6fa845806ee4f67713459e1b69e8e60fcee2e4940c7a0d5de1b201000000000000000000266a24aa21a9ed94f15ed3a62165e4a0b99699cc28b48e19cb5bc1b1f47155db62d63f1e047d45000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000";
-			tx = (ElementsTransaction)Transaction.Parse(txStr, Altcoins.Liquid.Instance.Regtest);
+			tx = (ElementsTransaction)Transaction.Parse(txStr, liquid.Regtest);
 			Assert.Equal(txStr, tx.ToHex());
 
 			// liquid mainnet tx 6790014426ad5f1896cd944ef920fe15d514f9c4e6cd6a142e65e2941aaf6015 without proof
 			txStr = "020000000101c97ae227202009c4b4728fafb1a668e65211350d5ed1eda137e6d44f16aababc020000801716001432d4c5219ca4f8d8721c11aa0a1e64995e3dbdfffdffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000539010000000000000002040af0efbe4d8b04ce92e290d678811f32647dd49c6e9dc0c241e64dea46898e0a8908ac99918ee3d3aac13991362297d2159cf173fd92ea5904eedd8375c090463de8023c9e5a387911d40c871b1f841ff9486d22dc5ee8f692cdf869f35bf9a1a904201976a91409ed83db1aa0e4c2064be999f8ec2923397d75bd88ac0bda1945d67d0afd0c19c5a3f749065d5f1a538e204d356d3c94ce14c7645b467d0912fd688531afd4c485b819743650a5d4b3b5f3e2b5eccaad3ce6f228895c159c0256d01d259bd94adfcc907dcd5070e039c91a6efa9fcd1bba52fb96f700165c2617a914a3233a6574057e003ff4121055689abc220fb1b3870b33d8e2db463e581a36b7ae8877b40651accc38d7a12c214e768cfd6a163bc8b10853d112523d296866e1ba63807da1e04fec67115b038db32703a662bd09d33173029ffe71264c2825b7b2ab4606560a9d664d353748b182b47adbfbbe5d37584ca81976a914a3c9b283b0521537866ee1fed56c8bf4c3aa71ab88ac016d521c38ec1ea15734ae22b7c46064412829c0d0579f0a713d1c04ede979026f010000000000000b390000ce53060000000247304402206d7b7e92bc40513e0c49a7de2ed82b64da2c9031aaaa0b870ba73d83117c3e0f0220021eb1fa546a14b72ac970d62e2d3817020ba8b2c30719426b120df9b7536afa012102d8d7b2370c42cfa7605d255400e532d205f84fac092ecdb4a5cbc347f7aa8312000000000000000000";
-			tx = (ElementsTransaction)Transaction.Parse(txStr, Altcoins.Liquid.Instance.Mainnet);
+			tx = (ElementsTransaction)Transaction.Parse(txStr, liquid.Mainnet);
 			var id = ((ElementsTxIn)tx.Inputs[0]).GetIssuedAssetId();
 			Assert.Equal("140ad0392c3aa83f8fa31722ca2ecfcf582499a4dc9e63a8e44c9b405cb148fe", id.ToString());
 		}

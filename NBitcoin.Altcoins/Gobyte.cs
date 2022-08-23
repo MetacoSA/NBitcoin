@@ -1,23 +1,15 @@
-﻿using NBitcoin;
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel.Composition;
 using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
- namespace NBitcoin.Altcoins
+namespace NBitcoin.Altcoins
 {
+	[Export(typeof(INetworkSet))]
 	public class GoByte : NetworkSetBase
 	{
-		public static GoByte Instance { get; } = new GoByte();
  		public override string CryptoCode => "GBX";
- 		private GoByte()
-		{
- 		}
 		public class GoByteConsensusFactory : ConsensusFactory
 		{
 			private GoByteConsensusFactory()

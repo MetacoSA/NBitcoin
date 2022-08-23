@@ -5,9 +5,11 @@ using System.Text;
 using NBitcoin.Altcoins.Elements;
 using NBitcoin.DataEncoders;
 using Encoders = NBitcoin.DataEncoders.Encoders;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
+	[Export(typeof(INetworkSet))]
 	public class Liquid : NetworkSetBase
 	{
 		public class LiquidRegtest { }
@@ -22,7 +24,6 @@ namespace NBitcoin.Altcoins
 
 		}
 		public override string CryptoCode => "LBTC";
-		public static Liquid Instance { get; } = new Liquid();
 
 		protected override NetworkBuilder CreateMainnet()
 		{

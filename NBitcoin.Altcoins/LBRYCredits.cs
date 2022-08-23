@@ -1,21 +1,15 @@
-using System;
-using System.Linq;
-using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
+using System;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/lbryio/lbrycrd/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class LBRYCredits : NetworkSetBase
 	{
-		public static LBRYCredits Instance { get; } = new LBRYCredits();
-
 		public override string CryptoCode => "LBC";
-
-		private LBRYCredits()
-		{
-		}
 
 		public class LBRYCreditsConsensusFactory : ConsensusFactory
 		{
@@ -48,13 +42,15 @@ namespace NBitcoin.Altcoins
 
 		public class LBRYCreditsBlock : Block
 		{
+			private readonly LBRYCredits lBRYCredits;
 			public LBRYCreditsBlock(LBRYCreditsBlockHeader h) : base(h)
 			{
+				lBRYCredits = new LBRYCredits();
 			}
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Instance.Mainnet.Consensus.ConsensusFactory;
+				return lBRYCredits.Mainnet.Consensus.ConsensusFactory;
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete

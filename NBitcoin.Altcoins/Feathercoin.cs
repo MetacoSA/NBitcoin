@@ -1,28 +1,15 @@
-﻿using NBitcoin;
-using NBitcoin.DataEncoders;
+﻿using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices;
+using System.ComponentModel.Composition;
 
 namespace NBitcoin.Altcoins
 {
 
+	[Export(typeof(INetworkSet))]
 	public class Feathercoin : NetworkSetBase
 	{
-
-		public static Feathercoin Instance { get; } = new Feathercoin();
-
 		public override string CryptoCode => "FTC";
-
-		private Feathercoin()
-		{
-
-		}
 
         //Format visual studio
         //{({.*?}), (.*?)}

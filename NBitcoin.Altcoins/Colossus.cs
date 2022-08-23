@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.Composition;
 using System.Linq;
 using NBitcoin.Altcoins.HashX11;
 using NBitcoin.Crypto;
@@ -8,15 +9,10 @@ using NBitcoin.Protocol;
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/ColossusCoinXT/ColossusCoinXT/blob/master/src/chainparams.cpp
+	[Export(typeof(INetworkSet))]
 	public class Colossus : NetworkSetBase
 	{
-		public static Colossus Instance { get; } = new Colossus();
-
 		public override string CryptoCode => "COLX";
-
-		private Colossus()
-		{
-		}
 
 		public class ColossusConsensusFactory : ConsensusFactory
 		{
@@ -56,13 +52,15 @@ namespace NBitcoin.Altcoins
 
 		public class ColossusBlock : Block
 		{
+			private readonly Colossus colossus;
 			public ColossusBlock(ColossusBlockHeader h) : base(h)
 			{
+				colossus = new Colossus();
 			}
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Instance.Mainnet.Consensus.ConsensusFactory;
+				return colossus.Mainnet.Consensus.ConsensusFactory;
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
