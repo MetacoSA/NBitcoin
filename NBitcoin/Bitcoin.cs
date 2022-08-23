@@ -1,6 +1,7 @@
 ﻿using NBitcoin.Crypto;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	[Export(typeof(INetworkSet))]
 	public class Bitcoin : INetworkSet
 	{
 		private Network CreateSignet()
@@ -77,8 +79,6 @@ namespace NBitcoin
 			var h = Hashes.DoubleSHA256RawBytes(ms.ToArray(), 0, (int)ms.Length);
 			return Utils.ToUInt32(h, true);
 		}
-
-		public static Bitcoin Instance { get; } = new Bitcoin();
 
 		public Network Mainnet => Network.Main;
 

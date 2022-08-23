@@ -20,7 +20,7 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 	</PropertyGroup>
 	<PropertyGroup>
-    <TargetFrameworks>net472;netstandard1.3;netstandard1.1;netstandard2.1;netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net472;netstandard2.1;netstandard2.0;net6.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetFrameworkOverride)' != ''">$(TargetFrameworkOverride)</TargetFrameworks>
 		<NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -95,6 +95,26 @@
 			<Generator>TextTemplatingFileGenerator</Generator>
 			<LastGenOutput>UInt2561.cs</LastGenOutput>
 		</None>
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+	  <PackageReference Include="System.ComponentModel.Composition">
+	    <Version>6.0.0</Version>
+	  </PackageReference>
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+	  <PackageReference Include="System.ComponentModel.Composition">
+	    <Version>6.0.0</Version>
+	  </PackageReference>
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+	  <PackageReference Include="System.ComponentModel.Composition">
+	    <Version>6.0.0</Version>
+	  </PackageReference>
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+	  <PackageReference Include="System.ComponentModel.Composition">
+	    <Version>6.0.0</Version>
+	  </PackageReference>
 	</ItemGroup>
 
 	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">

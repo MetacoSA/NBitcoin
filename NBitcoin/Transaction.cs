@@ -319,7 +319,7 @@ namespace NBitcoin
 
 		public virtual ConsensusFactory GetConsensusFactory()
 		{
-			return Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
+			return new Bitcoin().Mainnet.Consensus.ConsensusFactory;
 		}
 		public virtual TxIn Clone()
 		{
@@ -705,7 +705,7 @@ namespace NBitcoin
 
 		public virtual ConsensusFactory GetConsensusFactory()
 		{
-			return Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
+			return new Bitcoin().Mainnet.Consensus.ConsensusFactory;
 		}
 	}
 
@@ -2436,7 +2436,7 @@ namespace NBitcoin
 
 		public virtual ConsensusFactory GetConsensusFactory()
 		{
-			return Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
+			return new Bitcoin().Mainnet.Consensus.ConsensusFactory;
 		}
 
 		public Transaction Clone()

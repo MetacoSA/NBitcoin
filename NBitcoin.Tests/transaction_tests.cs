@@ -2194,7 +2194,8 @@ namespace NBitcoin.Tests
 		public void AssertCanSendBackSmallSegwitChange()
 		{
 			var k = new Key();
-			var txBuilder = Bitcoin.Instance.Regtest.CreateTransactionBuilder();
+			var bitcoin = new Bitcoin();
+			var txBuilder = bitcoin.Regtest.CreateTransactionBuilder();
 			txBuilder.AddCoins(RandomCoin(Money.Satoshis(1000), k.PubKey.WitHash));
 			txBuilder.Send(new Key(), Money.Satoshis(600));
 			txBuilder.SetChange(new Key().PubKey.WitHash);
@@ -2203,7 +2204,7 @@ namespace NBitcoin.Tests
 			var signed = txBuilder.BuildPSBT(false);
 			Assert.Equal(2, signed.Outputs.Count);
 
-			txBuilder = Bitcoin.Instance.Regtest.CreateTransactionBuilder();
+			txBuilder = bitcoin.Regtest.CreateTransactionBuilder();
 			txBuilder.AddCoins(RandomCoin(Money.Satoshis(1000), k.PubKey.WitHash));
 			txBuilder.Send(new Key(), Money.Satoshis(600));
 			txBuilder.SetChange(new Key().PubKey.WitHash);
@@ -3161,7 +3162,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void DoNotCrashIfUsingOnlySignet()
 		{
-			new Key().GetAddress(ScriptPubKeyType.TaprootBIP86, Bitcoin.Instance.Signet);
+			new Key().GetAddress(ScriptPubKeyType.TaprootBIP86, new Bitcoin().Signet);
 		}
 #endif
 

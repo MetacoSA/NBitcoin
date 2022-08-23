@@ -20,15 +20,19 @@ namespace NBitcoin.Payment
 	/// </summary>
 	public class BitcoinUrlBuilder
 	{
+		private readonly Bitcoin bitcoin;
+
 		[Obsolete("Use BitcoinUrlBuilder(Network) instead")]
 		public BitcoinUrlBuilder()
 		{
-			Network = Bitcoin.Instance.Mainnet;
+			bitcoin = new Bitcoin();
+			Network = bitcoin.Mainnet;
 			scheme = "bitcoin";
 		}
 		public BitcoinUrlBuilder(Network network)
 		{
 			Network = network;
+			bitcoin = new Bitcoin();
 			scheme = network.UriScheme;
 		}
 		public BitcoinUrlBuilder(Uri uri, Network network)
@@ -43,6 +47,7 @@ namespace NBitcoin.Payment
 
 		public BitcoinUrlBuilder(string uri, Network network)
 		{
+			bitcoin = new Bitcoin();
 			if (uri == null)
 				throw new ArgumentNullException(nameof(uri));
 			if (network == null)
