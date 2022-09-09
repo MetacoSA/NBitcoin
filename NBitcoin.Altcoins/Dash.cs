@@ -409,7 +409,6 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xBD6B0CBF)
 			.SetPort(9999)
 			.SetRPCPort(9998)
-			.SetMaxP2PVersion(70213)
 			.SetName("dash-main")
 			.AddAlias("dash-mainnet")
 			.AddDNSSeeds(new[]
@@ -456,7 +455,6 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xFFCAE2CE)
 			.SetPort(19999)
 			.SetRPCPort(19998)
-			.SetMaxP2PVersion(70213)
 		   .SetName("dash-test")
 		   .AddAlias("dash-testnet")
 		   .SetUriScheme("dash")
@@ -502,7 +500,6 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xDCB7C1FC)
 			.SetPort(19994)
 			.SetRPCPort(19993)
-			.SetMaxP2PVersion(70213)
 			.SetName("dash-reg")
 			.AddAlias("dash-regtest")
 			.SetUriScheme("dash")
