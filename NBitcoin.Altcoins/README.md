@@ -31,6 +31,7 @@ Currently supported altcoins are:
 * XDS
 * Althash
 * Neblio
+* Optical Bitcoin
 
 ## How to use?
 
