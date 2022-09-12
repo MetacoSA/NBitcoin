@@ -23,93 +23,58 @@ namespace NBitcoin.Secp256k1.Musig
 		/// creates a private nonce whose public part intended to be sent to other signers.
 		/// </summary>
 		/// <param name="context">The context</param>
-		/// <param name="sessionId32">A unique session_id32. It is a "number used once". If empty, it will be randomly generated.</param>
+		/// <param name="sessionId">A unique session_id32. It is a "number used once". If null, it will be randomly generated.</param>
 		/// <param name="signingKey">Provide the message to be signed to increase misuse-resistance. If you do provide a signingKey, sessionId32 can instead be a counter (that must never repeat!). However, it is recommended to always choose session_id32 uniformly at random. Can be null.</param>
-		/// <param name="msg32">Provide the message to be signed to increase misuse-resistance. Can be empty.</param>
+		/// <param name="msg">Provide the message to be signed to increase misuse-resistance.</param>
 		/// <param name="aggregatePubKey">Provide the message to be signed to increase misuse-resistance. Can be null.</param>
-		/// <param name="extraInput32">Provide the message to be signed to increase misuse-resistance. The extra_input32 argument can be used to provide additional data that does not repeat in normal scenarios, such as the current time. Can be empty.</param>
+		/// <param name="extraInput">Provide the message to be signed to increase misuse-resistance. The extra_input32 argument can be used to provide additional data that does not repeat in normal scenarios, such as the current time.</param>
 		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
 		public static MusigPrivNonce GenerateMusigNonce(
 						   Context? context,
-						   ReadOnlySpan<byte> sessionId32,
+						   byte[]? sessionId,
 						   ECPrivKey? signingKey,
-						   ReadOnlySpan<byte> msg32,
+						   byte[]? msg,
 						   ECXOnlyPubKey? aggregatePubKey,
-						   ReadOnlySpan<byte> extraInput32)
+						   byte[]? extraInput)
 		{
-			if (!(sessionId32.Length is 32) && !(sessionId32.Length is 0))
-				throw new ArgumentException(nameof(sessionId32), "sessionId32 must be 32 bytes or 0 bytes");
-			if (sessionId32.Length is 0)
-			{
-				var bytes = new byte[32];
-				sessionId32 = bytes.AsSpan();
-				rand.GetBytes(bytes);
-			}
-			if (!(msg32.Length is 32) && !(msg32.Length is 0))
-				throw new ArgumentException(nameof(msg32), "msg32 must be 32 bytes or 0 bytes");
-			if (!(extraInput32.Length is 32) && !(extraInput32.Length is 0))
-				throw new ArgumentException(nameof(extraInput32), "extraInput32 must be 32 bytes or 0 bytes");
 
-			Span<byte> key32 = stackalloc byte[32];
+			byte[]? key32;
 			if (signingKey is null)
 			{
-				key32 = key32.Slice(0, 0);
+				key32 = null;
 			}
 			else
 			{
-				signingKey.WriteToSpan(key32);
+				key32 = new byte[32];
+				signingKey.WriteToSpan(key32.AsSpan());
 			}
 
-			Span<byte> agg_pk = stackalloc byte[32];
-			if (aggregatePubKey is null)
+			byte[]? agg_pk = null;
+			if (aggregatePubKey is not null)
 			{
-				agg_pk = agg_pk.Slice(0, 0);
-			}
-			else
-			{
+				agg_pk = new byte[32];
 				aggregatePubKey.WriteToSpan(agg_pk);
 			}
 
 			var k = new Scalar[2];
-			secp256k1_nonce_function_musig(k, sessionId32, msg32, key32, agg_pk, extraInput32);
+			secp256k1_nonce_function_musig(sessionId, key32, agg_pk, msg, extraInput is null ? Array.Empty<byte>() : extraInput, k);
 			return new MusigPrivNonce(new ECPrivKey(k[0], context, true), new ECPrivKey(k[1], context, true));
 		}
 
-		static void secp256k1_nonce_function_musig_helper(SHA256 sha, uint prefix_size, ReadOnlySpan<byte> data32)
+		internal static void secp256k1_nonce_function_musig(byte[]? rand_, byte[]? key32, byte[]? agg_pk32, byte[]? msg, byte[]? extra_input, Span<Scalar> k)
 		{
-			/* The spec requires length prefix to be 4 bytes for `extra_in`, 1 byte
-			 * otherwise */
-			if (prefix_size == 4)
+			if (rand_ is null)
 			{
-				/* Four byte big-endian value, pad first three bytes with 0 */
-				sha.Write(stackalloc byte[] { 0, 0, 0 });
+				rand_ = new byte[32];
+				MusigPrivNonce.rand.GetBytes(rand_);
 			}
-			if (data32.Length is 32)
-			{
-				sha.Write(32);
-				sha.Write(data32);
-			}
-			else
-			{
-				sha.Write(0);
-			}
-		}
 
-		internal static void secp256k1_nonce_function_musig(Span<Scalar> k, ReadOnlySpan<byte> session_id, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> agg_pk32, ReadOnlySpan<byte> extra_input32)
-		{
-			secp256k1_nonce_function_musig(k, session_id, msg32, key32, agg_pk32, extra_input32, 0);
-			secp256k1_nonce_function_musig(k, session_id, msg32, key32, agg_pk32, extra_input32, 1);
-		}
-
-		internal static void secp256k1_nonce_function_musig(Span<Scalar> k, ReadOnlySpan<byte> session_id, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> agg_pk32, ReadOnlySpan<byte> extra_input32, int i)
-		{
-			using SHA256 sha = new SHA256();
 			Span<byte> rand = stackalloc byte[32];
-
-			if (key32.Length is 32)
+			if (key32 is not null)
 			{
+				using SHA256 sha = new SHA256();
 				sha.InitializeTagged("MuSig/aux");
-				sha.Write(session_id);
+				sha.Write(rand_);
 				sha.GetHash(rand);
 				for (int ii = 0; ii < 32; ii++)
 				{
@@ -118,17 +83,58 @@ namespace NBitcoin.Secp256k1.Musig
 			}
 			else
 			{
-				session_id.CopyTo(rand);
+				rand_.CopyTo(rand);
 			}
+
+			byte[] msg_prefixed;
+			if (msg is null)
+				msg_prefixed = empty_msg_prefixed;
+			else
+			{
+				msg_prefixed = new byte[9 + msg.Length];
+				msg_prefixed[0] = 1;
+				msg_prefixed[1] = (byte)(msg.LongLength >> 56);
+				msg_prefixed[2] = (byte)(msg.LongLength >> 48);
+				msg_prefixed[3] = (byte)(msg.LongLength >> 40);
+				msg_prefixed[4] = (byte)(msg.LongLength >> 32);
+				msg_prefixed[5] = (byte)(msg.LongLength >> 24);
+				msg_prefixed[6] = (byte)(msg.LongLength >> 16);
+				msg_prefixed[7] = (byte)(msg.LongLength >> 8);
+				msg_prefixed[8] = (byte)(msg.LongLength >> 0);
+				msg.CopyTo(msg_prefixed, 9);
+			}
+			secp256k1_nonce_function_musig(k, rand, msg_prefixed, agg_pk32, extra_input, 0);
+			secp256k1_nonce_function_musig(k, rand, msg_prefixed, agg_pk32, extra_input, 1);
+		}
+		static byte[] empty_msg_prefixed = new byte[1];
+		internal static void secp256k1_nonce_function_musig(Span<Scalar> k, ReadOnlySpan<byte> rand, ReadOnlySpan<byte> msg_prefixed, byte[]? agg_pk, ReadOnlySpan<byte> extra_input, int i)
+		{
+			using SHA256 sha = new SHA256();
+			
 
 			sha.InitializeTagged("MuSig/nonce");
 			sha.Write(rand);
-			secp256k1_nonce_function_musig_helper(sha, 1, agg_pk32);
-			secp256k1_nonce_function_musig_helper(sha, 1, msg32);
-			secp256k1_nonce_function_musig_helper(sha, 4, extra_input32);
+			if (agg_pk is null)
+			{
+				sha.Write((byte)0);
+			}
+			else
+			{
+				sha.Write((byte)agg_pk.Length);
+				sha.Write(agg_pk);
+			}
+			sha.Write(msg_prefixed);
+
+			Span<byte> len = stackalloc byte[4];
+			len[0] = (byte)(extra_input.Length >> 24);
+			len[1] = (byte)(extra_input.Length >> 16);
+			len[2] = (byte)(extra_input.Length >> 8);
+			len[3] = (byte)(extra_input.Length >> 0);
+			sha.Write(len);
+			sha.Write(extra_input);
+			sha.Write((byte)i);
 
 			Span<byte> buf = stackalloc byte[32];
-			sha.Write((byte)i);
 			sha.GetHash(buf);
 			k[i] = new Scalar(buf);
 		}

@@ -425,11 +425,11 @@ namespace NBitcoin.Secp256k1.Musig
 		/// This function derives a secret nonce that will be required for signing and
 		/// creates a private nonce whose public part intended to be sent to other signers.
 		/// </summary>
-		/// <param name="sessionId32">A unique session_id32. It is a "number used once". If empty, it will be randomly generated.</param>
+		/// <param name="sessionId">A unique session_id. It is a "number used once". If null, it will be randomly generated.</param>
 		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
-		public MusigPrivNonce GenerateNonce(ReadOnlySpan<byte> sessionId32)
+		public MusigPrivNonce GenerateNonce(byte[]? sessionId)
 		{
-			return GenerateNonce(sessionId32, null, Array.Empty<byte>());
+			return GenerateNonce(sessionId, null, null);
 		}
 
 		/// <summary>
@@ -444,7 +444,7 @@ namespace NBitcoin.Secp256k1.Musig
 			if (signingKey == null)
 				throw new ArgumentNullException(nameof(signingKey));
 
-			Span<byte> sessionId = stackalloc byte[32];
+			byte[] sessionId = new byte[32];
 			for (int i = 0; i < 8; i++)
 				sessionId[i] = (byte)(counter >> (8*i));
 			return GenerateNonce(sessionId, signingKey, Array.Empty<byte>());
@@ -454,24 +454,24 @@ namespace NBitcoin.Secp256k1.Musig
 		/// This function derives a secret nonce that will be required for signing and
 		/// creates a private nonce whose public part intended to be sent to other signers.
 		/// </summary>
-		/// <param name="sessionId32">A unique session_id32. It is a "number used once". If empty, it will be randomly generated.</param>
+		/// <param name="sessionId">A unique session_id32. It is a "number used once". If null, it will be randomly generated.</param>
 		/// <param name="signingKey">Provide the message to be signed to increase misuse-resistance. If you do provide a signingKey, sessionId32 can instead be a counter (that must never repeat!). However, it is recommended to always choose session_id32 uniformly at random. Can be null.</param>
 		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
-		public MusigPrivNonce GenerateNonce(ReadOnlySpan<byte> sessionId32, ECPrivKey? signingKey)
+		public MusigPrivNonce GenerateNonce(byte[]? sessionId, ECPrivKey? signingKey)
 		{
-			return GenerateNonce(sessionId32, signingKey, Array.Empty<byte>());
+			return GenerateNonce(sessionId, signingKey, Array.Empty<byte>());
 		}
 		/// <summary>
 		/// This function derives a secret nonce that will be required for signing and
 		/// creates a private nonce whose public part intended to be sent to other signers.
 		/// </summary>
-		/// <param name="sessionId32">A unique session_id32. It is a "number used once". If empty, it will be randomly generated.</param>
+		/// <param name="sessionId">A unique session_id. It is a "number used once". If null, it will be randomly generated.</param>
 		/// <param name="signingKey">Provide the message to be signed to increase misuse-resistance. If you do provide a signingKey, sessionId32 can instead be a counter (that must never repeat!). However, it is recommended to always choose session_id32 uniformly at random. Can be null.</param>
-		/// <param name="extraInput32">Provide the message to be signed to increase misuse-resistance. The extra_input32 argument can be used to provide additional data that does not repeat in normal scenarios, such as the current time. Can be empty.</param>
+		/// <param name="extraInput">Provide the message to be signed to increase misuse-resistance. The extra_input32 argument can be used to provide additional data that does not repeat in normal scenarios, such as the current time. Can be null.</param>
 		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
-		public MusigPrivNonce GenerateNonce(ReadOnlySpan<byte> sessionId32, ECPrivKey? signingKey, ReadOnlySpan<byte> extraInput32)
+		public MusigPrivNonce GenerateNonce(byte[]? sessionId, ECPrivKey? signingKey, byte[]? extraInput)
 		{
-			return MusigPrivNonce.GenerateMusigNonce(ctx, sessionId32, signingKey, this.msg32, this.aggregatePubKey, extraInput32);
+			return MusigPrivNonce.GenerateMusigNonce(ctx, sessionId, signingKey, this.msg32, this.aggregatePubKey, extraInput);
 		}
 	}
 }

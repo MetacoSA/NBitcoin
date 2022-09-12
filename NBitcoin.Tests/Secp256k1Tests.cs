@@ -16,6 +16,7 @@ using System.Runtime.InteropServices;
 using NBitcoin.Secp256k1.Musig;
 using NBitcoin.DataEncoders;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
+using Newtonsoft.Json.Linq;
 
 namespace NBitcoin.Tests
 {
@@ -4345,72 +4346,31 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void musig_test_vectors_noncegen()
+		public void nonce_gen_vectors()
 		{
-			Scalar[] k = new Scalar[2];
-			byte[][] k32_expected = new byte[][] {
-				new byte[]{
-				0x14, 0x93, 0x78, 0xB9, 0x96, 0xF0, 0x12, 0xF7,
-				0x0C, 0x10, 0x16, 0xC2, 0x9A, 0xE0, 0xA9, 0xB1,
-				0xD8, 0x6A, 0xAD, 0x55, 0x7C, 0xCD, 0x29, 0x17,
-				0x8A, 0x24, 0x47, 0x97, 0x56, 0x20, 0x5D, 0xFD,
-		},
-		new byte[] {
-				0x62, 0x85, 0x69, 0x7E, 0x57, 0xE8, 0x57, 0x8F,
-				0xCF, 0xDE, 0x6F, 0xE7, 0xFA, 0x4B, 0x6C, 0xA8,
-				0xE3, 0xA5, 0xAE, 0xCA, 0xB4, 0xFB, 0x92, 0xF8,
-				0x4B, 0x7F, 0x9D, 0xF8, 0xDD, 0xEF, 0x4D, 0xB8,
-		},
-		/* msg32 is NULL */
-		new byte[] {
-				0x66, 0x13, 0xEA, 0x4A, 0x36, 0xA5, 0x0F, 0x34,
-				0x99, 0x0E, 0xAF, 0x73, 0x61, 0x2E, 0xAA, 0x28,
-				0x63, 0x6E, 0xD0, 0x13, 0x25, 0x79, 0x34, 0x56,
-				0xC0, 0x4D, 0x8D, 0x89, 0xDB, 0x49, 0x37, 0x2B,
-		},
-		new byte[] {
-				0x54, 0xE9, 0xDB, 0x34, 0xD0, 0x9C, 0xBD, 0x39,
-				0x4D, 0xB3, 0xFE, 0x3C, 0xCF, 0xFB, 0xCA, 0x6E,
-				0xD0, 0x16, 0xF3, 0xAC, 0x87, 0x79, 0x38, 0x61,
-				0x30, 0x95, 0x89, 0x3F, 0x54, 0xFA, 0x70, 0xDF,
-		},
-		/* All fields except session_id are NULL */
-		new byte[] {
-				0x7B, 0x3B, 0x5A, 0x00, 0x23, 0x56, 0x47, 0x1A,
-				0xF0, 0xE9, 0x61, 0xDE, 0x25, 0x49, 0xC1, 0x21,
-				0xBD, 0x0D, 0x48, 0xAB, 0xCE, 0xED, 0xC6, 0xE0,
-				0x34, 0xBD, 0xDF, 0x86, 0xAD, 0x3E, 0x0A, 0x18,
-			},
-		new byte[] {
-				0x7E, 0xCE, 0xE6, 0x74, 0xCE, 0xF7, 0x36, 0x4B,
-				0x0B, 0xC4, 0xBE, 0xEF, 0xB8, 0xB6, 0x6C, 0xAD,
-				0x89, 0xF9, 0x8D, 0xE2, 0xF8, 0xC5, 0xA5, 0xEA,
-				0xD5, 0xD1, 0xD1, 0xE4, 0xBD, 0x7D, 0x04, 0xCD,
-			}
-	};
-			byte[][] args = new byte[][] { new byte[32], new byte[32], new byte[32], new byte[32], new byte[32] };
-			uint i;
-			for (i = 0; i < 5; i++)
+			var root = JObject.Parse(File.ReadAllText("data/nonce_gen_vectors.json"));
+			foreach (var item in (JArray)root["test_cases"])
 			{
-				args[i].AsSpan().Fill((byte)i);
+				var rand_ = ParseHex(item["rand_"]);
+				var sk = ParseHex(item["sk"]);
+				var msg = ParseHex(item["msg"]);
+				var aggpk = ParseHex(item["aggpk"]);
+				var extra_in = ParseHex(item["extra_in"]);
+				var expected = item["expected"].Value<string>().ToLowerInvariant();
+				Scalar[] res = new Scalar[2];
+				MusigPrivNonce.secp256k1_nonce_function_musig(rand_, sk, aggpk, msg, extra_in, res);
+				var actual = new byte[64].AsSpan();
+				res[0].WriteToSpan(actual);
+				res[1].WriteToSpan(actual.Slice(32));
+				Assert.Equal(expected, Encoders.Hex.EncodeData(actual));
 			}
-			MusigPrivNonce.secp256k1_nonce_function_musig(k, args[0], args[1], args[2], args[3], args[4]);
-			for (i = 0; i < 2; i++)
-			{
-				Assert.Equal(Encoders.Hex.EncodeData(k32_expected[i]), Encoders.Hex.EncodeData(k[i].ToBytes()));
-			}
+		}
 
-			MusigPrivNonce.secp256k1_nonce_function_musig(k, args[0], new byte[0], args[2], args[3], args[4]);
-			for (i = 0; i < 2; i++)
-			{
-				Assert.Equal(Encoders.Hex.EncodeData(k32_expected[i + 2]), Encoders.Hex.EncodeData(k[i].ToBytes()));
-			}
-
-			MusigPrivNonce.secp256k1_nonce_function_musig(k, args[0], new byte[0], new byte[0], new byte[0], new byte[0]);
-			for (i = 0; i < 2; i++)
-			{
-				Assert.Equal(Encoders.Hex.EncodeData(k32_expected[i + 4]), Encoders.Hex.EncodeData(k[i].ToBytes()));
-			}
+		private byte[] ParseHex(JToken v)
+		{
+			if (v is null || v.Type != JTokenType.String)
+				return null;
+			return Encoders.Hex.DecodeData(v.Value<string>());
 		}
 
 		private byte[] ToBytes(MusigSessionCache sessionCache)
