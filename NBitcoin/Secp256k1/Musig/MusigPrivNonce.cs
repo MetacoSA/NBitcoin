@@ -75,79 +75,62 @@ namespace NBitcoin.Secp256k1.Musig
 			return new MusigPrivNonce(new ECPrivKey(k[0], context, true), new ECPrivKey(k[1], context, true));
 		}
 
+		static void secp256k1_nonce_function_musig_helper(SHA256 sha, uint prefix_size, ReadOnlySpan<byte> data32)
+		{
+			/* The spec requires length prefix to be 4 bytes for `extra_in`, 1 byte
+			 * otherwise */
+			if (prefix_size == 4)
+			{
+				/* Four byte big-endian value, pad first three bytes with 0 */
+				sha.Write(stackalloc byte[] { 0, 0, 0 });
+			}
+			if (data32.Length is 32)
+			{
+				sha.Write(32);
+				sha.Write(data32);
+			}
+			else
+			{
+				sha.Write(0);
+			}
+		}
 
+		internal static void secp256k1_nonce_function_musig(Span<Scalar> k, ReadOnlySpan<byte> session_id, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> agg_pk32, ReadOnlySpan<byte> extra_input32)
+		{
+			secp256k1_nonce_function_musig(k, session_id, msg32, key32, agg_pk32, extra_input32, 0);
+			secp256k1_nonce_function_musig(k, session_id, msg32, key32, agg_pk32, extra_input32, 1);
+		}
 
-		internal static void secp256k1_nonce_function_musig(Span<Scalar> k, ReadOnlySpan<byte> session_id, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> agg_pk, ReadOnlySpan<byte> extra_input32)
+		internal static void secp256k1_nonce_function_musig(Span<Scalar> k, ReadOnlySpan<byte> session_id, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> agg_pk32, ReadOnlySpan<byte> extra_input32, int i)
 		{
 			using SHA256 sha = new SHA256();
-			Span<byte> seed = stackalloc byte[32];
-			Span<byte> i = stackalloc byte[1];
+			Span<byte> rand = stackalloc byte[32];
 
-			/* TODO: this doesn't have the same sidechannel resistance as the BIP340
-			 * nonce function because the seckey feeds directly into SHA. */
-			sha.InitializeTagged("MuSig/nonce");
-			sha.Write(session_id.Slice(0, 32));
-			Span<byte> marker = stackalloc byte[1];
-
-			if (msg32.Length is 32)
-			{
-				marker[0] = 32;
-				sha.Write(marker);
-				sha.Write(msg32);
-			}
-			else
-			{
-				marker[0] = 0;
-				sha.Write(marker);
-			}
 			if (key32.Length is 32)
 			{
-				marker[0] = 32;
-				sha.Write(marker);
-				sha.Write(key32);
+				sha.InitializeTagged("MuSig/aux");
+				sha.Write(session_id);
+				sha.GetHash(rand);
+				for (int ii = 0; ii < 32; ii++)
+				{
+					rand[ii] ^= key32[ii];
+				}
 			}
 			else
 			{
-				marker[0] = 0;
-				sha.Write(marker);
+				session_id.CopyTo(rand);
 			}
 
-			if (agg_pk.Length is 32)
-			{
-				marker[0] = 32;
-				sha.Write(marker);
-				sha.Write(agg_pk);
-			}
-			else
-			{
-				marker[0] = 0;
-				sha.Write(marker);
-			}
-
-			if (extra_input32.Length is 32)
-			{
-				marker[0] = 32;
-				sha.Write(marker);
-				sha.Write(extra_input32);
-			}
-			else
-			{
-				marker[0] = 0;
-				sha.Write(marker);
-			}
-
-			sha.GetHash(seed);
+			sha.InitializeTagged("MuSig/nonce");
+			sha.Write(rand);
+			secp256k1_nonce_function_musig_helper(sha, 1, agg_pk32);
+			secp256k1_nonce_function_musig_helper(sha, 1, msg32);
+			secp256k1_nonce_function_musig_helper(sha, 4, extra_input32);
 
 			Span<byte> buf = stackalloc byte[32];
-
-			for (i[0] = 0; i[0] < 2; i[0]++)
-			{
-				sha.Initialize();
-				sha.Write(seed);
-				sha.Write(i);
-				sha.GetHash(buf);
-				k[i[0]] = new Scalar(buf);
-			}
+			sha.Write((byte)i);
+			sha.GetHash(buf);
+			k[i] = new Scalar(buf);
 		}
 
 		private readonly ECPrivKey k1;
