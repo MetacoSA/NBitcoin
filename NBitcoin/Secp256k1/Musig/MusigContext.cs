@@ -14,7 +14,6 @@ namespace NBitcoin.Secp256k1.Musig
 		internal bool FinalNonceParity;
 		internal Scalar NonceCoeff;
 		internal Scalar Challenge;
-		internal Scalar SPart;
 		internal byte[] FinalNonce = new byte[32];
 
 		internal MusigSessionCache Clone()
@@ -23,8 +22,7 @@ namespace NBitcoin.Secp256k1.Musig
 			{
 				FinalNonceParity = FinalNonceParity,
 				NonceCoeff = NonceCoeff,
-				Challenge = Challenge,
-				SPart = SPart
+				Challenge = Challenge
 			};
 			FinalNonce.AsSpan().CopyTo(c.FinalNonce);
 			return c;
@@ -43,7 +41,7 @@ namespace NBitcoin.Secp256k1.Musig
 		internal bool is_tweaked;
 		internal Scalar scalar_tweak;
 		internal readonly byte[] msg32;
-		internal bool internal_key_parity;
+		internal Scalar gacc;
 		internal bool processed_nonce;
 		internal MusigSessionCache? SessionCache;
 
@@ -72,7 +70,7 @@ namespace NBitcoin.Secp256k1.Musig
 			pk_parity = musigContext.pk_parity;
 			is_tweaked = musigContext.is_tweaked;
 			scalar_tweak = musigContext.scalar_tweak;
-			internal_key_parity = musigContext.internal_key_parity;
+			gacc = musigContext.gacc;
 			processed_nonce = musigContext.processed_nonce;
 			SessionCache = musigContext.SessionCache?.Clone();
 			pubKeys = musigContext.pubKeys.ToArray();
@@ -114,13 +112,20 @@ namespace NBitcoin.Secp256k1.Musig
 			if (overflow == 1)
 				throw new ArgumentException(nameof(tweak32), "The tweak is overflowing");
 			var output = aggregatePubKey.AddTweak(tweak32);
-			internal_key_parity = pk_parity;
 			pk_parity = output.Q.y.IsOdd;
+			if (pk_parity)
+			{
+				gacc = gacc.Negate();
+				tacc = tacc.Negate();
+			}
+			tacc += scalar_tweak;
 			is_tweaked = true;
 			tweakedPubKey = output;
 			return output;
 		}
 		ECPubKey? adaptor;
+		private Scalar tacc = Scalar.Zero;
+
 		public void UseAdaptor(ECPubKey adaptor)
 		{
 			if (processed_nonce)
@@ -158,17 +163,6 @@ namespace NBitcoin.Secp256k1.Musig
 			/* Compute messagehash and store in session cache */
 			ECXOnlyPubKey.secp256k1_schnorrsig_challenge(out session_cache.Challenge, fin_nonce, msg32, agg_pk32);
 
-			/* If there is a tweak then set `msghash` times `tweak` to the `s`-part of the sig template.*/
-			session_cache.SPart = Scalar.Zero;
-			if (is_tweaked)
-			{
-				Scalar e_tmp = session_cache.Challenge;
-				if (!ECPrivKey.secp256k1_eckey_privkey_tweak_mul(ref e_tmp, scalar_tweak))
-					throw new InvalidOperationException("Impossible to sign (secp256k1_eckey_privkey_tweak_mul is false)");
-				if (pk_parity)
-					e_tmp = e_tmp.Negate();
-				session_cache.SPart = session_cache.SPart.Add(e_tmp);
-			}
 			fin_nonce.CopyTo(session_cache.FinalNonce);
 			SessionCache = session_cache;
 			processed_nonce = true;
@@ -250,18 +244,7 @@ namespace NBitcoin.Secp256k1.Musig
 			 * to multiplying the signer's public key by the coefficient, except
 			 * much easier to do. */
 			var mu = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(pre_session, pkp.x);
-			var e = SessionCache.Challenge * mu;
-			/* If the MuSig-combined point has an odd Y coordinate, the signers will
-     * sign for the negation of their individual xonly public key such that the
-     * combined signature is valid for the MuSig aggregated xonly key. If the
-     * MuSig-combined point was tweaked then `e` is negated if the combined key
-     * has an odd Y coordinate XOR the internal key has an odd Y coordinate.*/
-			if (pre_session.pk_parity
-					!= (pre_session.is_tweaked
-						&& pre_session.internal_key_parity))
-			{
-				e = e.Negate();
-			}
+			var e = gacc * SessionCache.Challenge * mu;
 
 			var s = partialSignature.E;
 			/* Compute -s*G + e*pkj + rj */
@@ -281,13 +264,15 @@ namespace NBitcoin.Secp256k1.Musig
 		{
 			if (partialSignatures == null)
 				throw new ArgumentNullException(nameof(partialSignatures));
-			if (this.SessionCache?.SPart is null)
+			if (this.SessionCache is null)
 				throw new InvalidOperationException("You need to run MusigContext.Process first");
-			var s = this.SessionCache.SPart;
+			var s = Scalar.Zero;
 			foreach (var sig in partialSignatures)
 			{
 				s = s + sig.E;
 			}
+			var g = pk_parity ? Scalar.MinusOne : Scalar.One;
+			s = s + g * SessionCache.Challenge * tacc;
 			return new SecpSchnorrSignature(new FE(this.SessionCache.FinalNonce), s);
 		}
 
@@ -345,16 +330,10 @@ namespace NBitcoin.Secp256k1.Musig
 
 			pk = pk.NormalizeYVariable();
 
-			int l = 0;
+			var gacc_ = gacc;
 			if (pk.y.IsOdd)
-				l++;
-			if (pre_session.pk_parity)
-				l++;
-			if (pre_session.internal_key_parity)
-				l++;
-			if (l % 2 == 1)
-				sk = sk.Negate();
-
+				gacc_ = gacc.Negate();
+			sk = gacc_ * sk;
 			/* Multiply MuSig coefficient */
 			pk = pk.NormalizeXVariable();
 			var mu = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(pre_session, pk.x);

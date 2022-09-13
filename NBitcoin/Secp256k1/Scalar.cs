@@ -32,6 +32,8 @@ namespace NBitcoin.Secp256k1
 		public static ref readonly Scalar Zero => ref _Zero;
 		static readonly Scalar _One = new Scalar(1, 0, 0, 0, 0, 0, 0, 0);
 		public static ref readonly Scalar One => ref _One;
+		static readonly Scalar _MinusOne = new Scalar(1, 0, 0, 0, 0, 0, 0, 0).Negate();
+		public static ref readonly Scalar MinusOne => ref _MinusOne;
 
 		internal const uint SECP256K1_N_0 = 0xD0364141U;
 		internal const uint SECP256K1_N_1 = 0xBFD25E8CU;

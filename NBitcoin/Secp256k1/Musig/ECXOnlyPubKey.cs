@@ -127,6 +127,7 @@ namespace NBitcoin.Secp256k1
 			if (preSession is MusigContext)
 			{
 				pk_hash.CopyTo(preSession.pk_hash);
+				preSession.gacc = pk_parity ? Scalar.MinusOne : Scalar.One;
 				preSession.pk_parity = pk_parity;
 				preSession.is_tweaked = false;
 				preSession.second_pk_x = second_pk_x;

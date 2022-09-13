@@ -4116,9 +4116,6 @@ namespace NBitcoin.Tests
 			var expectedFinalNonce = "0c84d00c742042c0e097808ca546000b0d18ed04a70903dad2712f3e06674b39";
 			Assert.Equal(expectedFinalNonce.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.FinalNonce));
 
-			var expectedSPart = "99f8b35ec4cf050437c0388e05e47bb2c75f659423bbe932fa344645114fcdff";
-			Assert.Equal(expectedSPart.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.SPart.ToBytes()));
-
 			MusigPartialSignature[] signatures = new MusigPartialSignature[pubkeys.Length];
 			for (int i = 0; i < pubkeys.Length; i++)
 			{
@@ -4185,8 +4182,6 @@ namespace NBitcoin.Tests
 			Assert.Equal(expectedPkHash.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.pk_hash));
 			var expectedSessionCache = "8c6ec9c83028ba09a10cc74e0af9890281b73b0f05440d0f261aab051fb31abaa5121da2d218956e8e69df8f5bfabf94c51bad7283cd09a07db4fb3d205ccf1b00";
 			Assert.Equal(expectedSessionCache.ToLowerInvariant(), Encoders.Hex.EncodeData(ToBytes(musigCtx.SessionCache)));
-			var expectedSPart = "0000000000000000000000000000000000000000000000000000000000000000";
-			Assert.Equal(expectedSPart.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.SPart.ToBytes()));
 			var expectedFinalNonce = "ed7d22176b48817351b197be4ff6df813c938dfc3cd5c9823640c2303e22e80f";
 			Assert.Equal(expectedFinalNonce.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.FinalNonce));
 
