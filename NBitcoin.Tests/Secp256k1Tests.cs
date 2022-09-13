@@ -3825,10 +3825,10 @@ namespace NBitcoin.Tests
 
 		private void musig_test_vectors_keyagg_helper(byte[][] pk_ser, int n_pks, byte[] agg_pk_expected, bool has_second_pk, int second_pk_idx)
 		{
-			ECXOnlyPubKey[] pk = new ECXOnlyPubKey[n_pks];
-			ECXOnlyPubKey[] pk_ptr = new ECXOnlyPubKey[n_pks];
+			ECPubKey[] pk = new ECPubKey[n_pks];
+			ECPubKey[] pk_ptr = new ECPubKey[n_pks];
 
-			ECXOnlyPubKey combined_pk;
+			ECPubKey combined_pk;
 			byte[] combined_pk_ser = new byte[32];
 			MusigContext pre_session = new MusigContext(pk.Take(n_pks).ToArray(), new byte[32]);
 			FE second_pk_x;
@@ -3836,7 +3836,7 @@ namespace NBitcoin.Tests
 
 			for (i = 0; i < n_pks; i++)
 			{
-				pk[i] = ctx.CreateXOnlyPubKey(pk_ser[i]);
+				pk[i] = ctx.CreatePubKey(pk_ser[i]);
 				pk_ptr[i] = pk[i];
 			}
 
@@ -3859,11 +3859,11 @@ namespace NBitcoin.Tests
 		public void musig_tweak_test()
 		{
 			ECPrivKey[] sk = new ECPrivKey[2];
-			ECXOnlyPubKey[] pk = new ECXOnlyPubKey[2];
+			ECPubKey[] pk = new ECPubKey[2];
 			for (int i = 0; i < 2; i++)
 			{
 				sk[i] = new ECPrivKey(random_scalar_order(), ctx, true);
-				pk[i] = sk[i].CreateXOnlyPubKey();
+				pk[i] = sk[i].CreatePubKey();
 			}
 			byte[] contract = new byte[32];
 			secp256k1_rand256(contract);
@@ -3885,11 +3885,11 @@ namespace NBitcoin.Tests
 
 			/* Check that musig_pubkey_tweak_add produces same result as
      * xonly_pubkey_tweak_add. */
-			Assert.True(Q_xonly.CheckIsTweakedWith(P, ec_commit_tweak, pre_session_Q.pk_parity));
+			Assert.True(Q_xonly.CheckIsTweakedWith(P.ToXOnlyPubKey(), ec_commit_tweak, pre_session_Q.pk_parity));
 
 
 			/* Test signing for P */
-			musig_tweak_test_helper(P, sk[0], sk[1], pre_session_P);
+			musig_tweak_test_helper(P.ToXOnlyPubKey(), sk[0], sk[1], pre_session_P);
 			/* Test signing for Q */
 			musig_tweak_test_helper(Q_xonly, sk[0], sk[1], pre_session_Q);
 		}
@@ -3945,12 +3945,12 @@ namespace NBitcoin.Tests
 					var pubNonces = new MusigPubNonce[peers];
 					var musig = new MusigContext[peers];
 					var sigs = new MusigPartialSignature[peers];
-					var pubKeys = new ECXOnlyPubKey[peers];
+					var pubKeys = new ECPubKey[peers];
 
 					for (int i = 0; i < peers; i++)
 					{
 						privKeys[i] = ctx.CreateECPrivKey(random_scalar_order());
-						pubKeys[i] = privKeys[i].CreateXOnlyPubKey();
+						pubKeys[i] = privKeys[i].CreatePubKey();
 					}
 
 					for (int i = 0; i < peers; i++)
@@ -3989,7 +3989,7 @@ namespace NBitcoin.Tests
 						schnorrSig = musig[0].Adapt(schnorrSig, adaptor);
 					// Verify resulting signature
 					// SigningPubKey is the tweaked key if tweaked, or the combined key if not
-					Assert.True(musig[0].SigningPubKey.SigVerifyBIP340(schnorrSig, msg32));
+					Assert.True(musig[0].AggregatePubKey.ToXOnlyPubKey().SigVerifyBIP340(schnorrSig, msg32));
 				}
 		}
 
@@ -4012,17 +4012,17 @@ namespace NBitcoin.Tests
 			var secnonce_a = new MusigPrivNonce[2];
 			var secnonce_b = new MusigPrivNonce[2];
 
-			var pk_a = sk_a.Select(p => p.CreateXOnlyPubKey()).ToArray();
-			var pk_b = sk_b.Select(p => p.CreateXOnlyPubKey()).ToArray();
+			var pk_a = sk_a.Select(p => p.CreatePubKey()).ToArray();
+			var pk_b = sk_b.Select(p => p.CreatePubKey()).ToArray();
 
 			var sec_adaptor = ctx.CreateECPrivKey(random_scalar_order());
 			var pub_adaptor = sec_adaptor.CreatePubKey();
 			byte[] msg32_a = Encoding.ASCII.GetBytes("this is the message blockchain a");
 			byte[] msg32_b = Encoding.ASCII.GetBytes("this is the message blockchain b");
 			var pre_session_a = new MusigContext(pk_a, msg32_a);
-			var combined_pk_a = pre_session_a.AggregatePubKey;
+			var combined_pk_a = pre_session_a.AggregatePubKey.ToXOnlyPubKey();
 			var pre_session_b = new MusigContext(pk_b, msg32_b);
-			var combined_pk_b = pre_session_b.AggregatePubKey;
+			var combined_pk_b = pre_session_b.AggregatePubKey.ToXOnlyPubKey();
 
 			for (int i = 0; i < 2; i++)
 			{
@@ -4126,7 +4126,7 @@ namespace NBitcoin.Tests
 			var schnorr = musigCtx.AggregateSignatures(signatures);
 			var expectedSchnorr = "0c84d00c742042c0e097808ca546000b0d18ed04a70903dad2712f3e06674b39c33a751274ed1811df7c6b50b8c5deb67b4c2594a9f541e45507bc823ca97b69";
 			Assert.Equal(expectedSchnorr.ToLowerInvariant(), Encoders.Hex.EncodeData(schnorr.ToBytes()));
-			Assert.True(musigCtx.SigningPubKey.SigVerifyBIP340(schnorr, msg32));
+			Assert.True(musigCtx.AggregatePubKey.ToXOnlyPubKey().SigVerifyBIP340(schnorr, msg32));
 		}
 
 		[Fact]
@@ -4202,7 +4202,7 @@ namespace NBitcoin.Tests
 			}
 
 			var finalSignature = musigCtx.AggregateSignatures(signatures);
-			Assert.True(combinedPubkey.SigVerifyBIP340(finalSignature, msg32));
+			Assert.True(combinedPubkey.ToXOnlyPubKey().SigVerifyBIP340(finalSignature, msg32));
 		}
 
 
@@ -4318,14 +4318,14 @@ namespace NBitcoin.Tests
 		(MusigContext Context, MusigPartialSignature Signature) musig_test_vectors_sign_helper(byte[][] state, byte[] agg_pubnonce_ser, byte[] sk, byte[] msg, byte[][] pk_ser, int signer_pos)
 		{
 			var signer = ECPrivKey.Create(sk);
-			ECXOnlyPubKey[] pk = new ECXOnlyPubKey[3];
-			pk[signer_pos] = signer.CreateXOnlyPubKey();
+			ECPubKey[] pk = new ECPubKey[3];
+			pk[signer_pos] = signer.CreatePubKey();
 			for (int i = 0; i < pk.Length; i++)
 			{
 				if (i != signer_pos)
 				{
 					int offset = i < signer_pos ? 0 : -1;
-					pk[i] = ECXOnlyPubKey.Create(pk_ser[i + offset]);
+					pk[i] = ECPubKey.Create(pk_ser[i + offset]);
 				}
 			}
 			var musigCtx = new MusigContext(pk, msg);
@@ -4377,14 +4377,14 @@ namespace NBitcoin.Tests
 			return b;
 		}
 
-		private static ECXOnlyPubKey[] GetPubKeys(string[] privKeys)
+		private static ECPubKey[] GetPubKeys(string[] privKeys)
 		{
-			var pubkeys = new ECXOnlyPubKey[privKeys.Length];
+			var pubkeys = new ECPubKey[privKeys.Length];
 			int i = 0;
 			foreach (var k in privKeys)
 			{
 				Assert.True(ECPrivKey.TryCreate(Encoders.Hex.DecodeData(k.ToLower()), out var eck));
-				pubkeys[i++] = eck.CreateXOnlyPubKey();
+				pubkeys[i++] = eck.CreatePubKey();
 			}
 
 			return pubkeys;

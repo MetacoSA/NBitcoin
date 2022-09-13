@@ -18,14 +18,14 @@ namespace NBitcoin.Secp256k1
 	partial class ECXOnlyPubKey
 	{
 		/* Computes ell = SHA256(pk[0], ..., pk[np-1]) */
-		static void secp256k1_musig_compute_pk_hash(Span<byte> pk_hash, ECXOnlyPubKey[] pk)
+		static void secp256k1_musig_compute_pk_hash(Span<byte> pk_hash, ECPubKey[] pk)
 		{
 			using SHA256 sha = new SHA256();
 			sha.InitializeTagged("KeyAgg list");
-			Span<byte> ser = stackalloc byte[32];
+			Span<byte> ser = stackalloc byte[33];
 			for (int i = 0; i < pk.Length; i++)
 			{
-				pk[i].WriteToSpan(ser);
+				pk[i].WriteToSpan(true, ser, out _);
 				sha.Write(ser);
 			}
 			sha.GetHash(pk_hash);
@@ -74,12 +74,12 @@ namespace NBitcoin.Secp256k1
 
 		const string MusigTag = "KeyAgg coefficient";
 
-		public static ECXOnlyPubKey MusigAggregate(ECXOnlyPubKey[] pubkeys)
+		public static ECPubKey MusigAggregate(ECPubKey[] pubkeys)
 		{
 			return MusigAggregate(pubkeys, null);
 		}
 
-		internal static ECXOnlyPubKey MusigAggregate(ECXOnlyPubKey[] pubkeys, MusigContext? preSession)
+		internal static ECPubKey MusigAggregate(ECPubKey[] pubkeys, MusigContext? preSession)
 		{
 			if (pubkeys == null)
 				throw new ArgumentNullException(nameof(pubkeys));
@@ -105,22 +105,20 @@ namespace NBitcoin.Secp256k1
 
 			for (int i = 0; i < pubkeys.Length; i++)
 			{
-				p[i] = pubkeys[i].Q;
+				p[i] = pubkeys[i].ToXOnlyPubKey().Q;
 				s[i] = secp256k1_musig_keyaggcoef_internal(pk_hash, p[i].x, second_pk_x);
 			}
 			var pkj = ctx.EcMultContext.MultBatch(s, p);
 			var pkp = pkj.ToGroupElement().NormalizeYVariable();
-			pkp = pkp.ToEvenY(out var pk_parity);
-			var agg_pk = new ECXOnlyPubKey(pkp, ctx);
 			if (preSession is MusigContext)
 			{
 				pk_hash.CopyTo(preSession.pk_hash);
-				preSession.gacc = pk_parity ? Scalar.MinusOne : Scalar.One;
-				preSession.pk_parity = pk_parity;
+				preSession.gacc = pkp.y.IsOdd ? Scalar.MinusOne : Scalar.One;
+				preSession.pk_parity = pkp.y.IsOdd;
 				preSession.is_tweaked = false;
 				preSession.second_pk_x = second_pk_x;
 			}
-			return agg_pk;
+			return new ECPubKey(pkp, ctx);
 		}
 	}
 }

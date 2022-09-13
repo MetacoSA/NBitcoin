@@ -62,6 +62,10 @@ namespace NBitcoin.Secp256k1
 			return pubkey;
 		}
 
+		public ECPubKey CreatePubKey(ReadOnlySpan<byte> input)
+		{
+			return ECPubKey.Create(input, this);
+		}
 		public bool TryCreatePubKey(ReadOnlySpan<byte> input, [MaybeNullWhen(false)] out ECPubKey pubkey)
 		{
 			return ECPubKey.TryCreate(input, this, out _, out pubkey);
