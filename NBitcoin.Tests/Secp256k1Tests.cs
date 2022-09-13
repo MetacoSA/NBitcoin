@@ -4114,7 +4114,7 @@ namespace NBitcoin.Tests
 			musigCtx.ProcessNonces(pubnonces);
 
 			var expectedFinalNonce = "0c84d00c742042c0e097808ca546000b0d18ed04a70903dad2712f3e06674b39";
-			Assert.Equal(expectedFinalNonce.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.FinalNonce));
+			Assert.Equal(expectedFinalNonce.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.r.x.ToBytes()));
 
 			MusigPartialSignature[] signatures = new MusigPartialSignature[pubkeys.Length];
 			for (int i = 0; i < pubkeys.Length; i++)
@@ -4183,7 +4183,7 @@ namespace NBitcoin.Tests
 			var expectedSessionCache = "8c6ec9c83028ba09a10cc74e0af9890281b73b0f05440d0f261aab051fb31abaa5121da2d218956e8e69df8f5bfabf94c51bad7283cd09a07db4fb3d205ccf1b00";
 			Assert.Equal(expectedSessionCache.ToLowerInvariant(), Encoders.Hex.EncodeData(ToBytes(musigCtx.SessionCache)));
 			var expectedFinalNonce = "ed7d22176b48817351b197be4ff6df813c938dfc3cd5c9823640c2303e22e80f";
-			Assert.Equal(expectedFinalNonce.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.FinalNonce));
+			Assert.Equal(expectedFinalNonce.ToLowerInvariant(), Encoders.Hex.EncodeData(musigCtx.SessionCache.r.x.ToBytes()));
 
 
 			var expectedSigs = new[]
@@ -4291,7 +4291,7 @@ namespace NBitcoin.Tests
 		* coordinate, the signer _is not_ the second pubkey in the list and the
 		* nonce parity is 1. */
 				Assert.True(o.Context.pk_parity);
-				Assert.True(o.Context.SessionCache.FinalNonceParity);
+				Assert.True(o.Context.SessionCache.r.y.IsOdd);
 				Assert.False(musig_test_is_second_pk(o.Context, sk));
 				Assert.Equal(Encoders.Hex.EncodeData(sig_expected), Encoders.Hex.EncodeData(o.Signature.ToBytes()));
 			}
@@ -4309,7 +4309,7 @@ namespace NBitcoin.Tests
 	   * coordinate, the signer _is_ the second pubkey in the list and the
 	   * nonce parity is 0. */
 				Assert.False(o.Context.pk_parity);
-				Assert.False(o.Context.SessionCache.FinalNonceParity);
+				Assert.False(o.Context.SessionCache.r.y.IsOdd);
 				Assert.True(musig_test_is_second_pk(o.Context, sk));
 				Assert.Equal(Encoders.Hex.EncodeData(sig_expected), Encoders.Hex.EncodeData(o.Signature.ToBytes()));
 			}
@@ -4368,12 +4368,12 @@ namespace NBitcoin.Tests
 			return Encoders.Hex.DecodeData(v.Value<string>());
 		}
 
-		private byte[] ToBytes(MusigSessionCache sessionCache)
+		private byte[] ToBytes(SessionValues sessionCache)
 		{
 			var b = new byte[65];
-			sessionCache.NonceCoeff.WriteToSpan(b);
-			sessionCache.Challenge.WriteToSpan(b.AsSpan().Slice(32));
-			b[64] = (byte)(sessionCache.FinalNonceParity ? 1 : 0);
+			sessionCache.b.WriteToSpan(b);
+			sessionCache.e.WriteToSpan(b.AsSpan().Slice(32));
+			b[64] = (byte)(sessionCache.r.y.IsOdd ? 1 : 0);
 			return b;
 		}
 

@@ -31,18 +31,6 @@ namespace NBitcoin.Secp256k1
 			sha.GetHash(pk_hash);
 		}
 
-		internal static void secp256k1_schnorrsig_challenge(out Scalar e, ReadOnlySpan<byte> r32, ReadOnlySpan<byte> msg, ReadOnlySpan<byte> pubkey32)
-		{
-			Span<byte> buff = stackalloc byte[32];
-			using SHA256 sha = new SHA256();
-			sha.InitializeTagged(TAG_BIP0340Challenge);
-			sha.Write(r32.Slice(0, 32));
-			sha.Write(pubkey32.Slice(0, 32));
-			sha.Write(msg);
-			sha.GetHash(buff);
-			e = new Scalar(buff);
-		}
-
 		internal static void secp256k1_xonly_ge_serialize(Span<byte> output32, ref GE ge)
 		{
 			if (ge.IsInfinity)
