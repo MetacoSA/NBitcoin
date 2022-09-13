@@ -15,28 +15,22 @@ namespace NBitcoin.Secp256k1.Musig
 #endif
 	class MusigPubNonce
 	{
-		private ECPubKey k1;
-		private ECPubKey k2;
-
 #if SECP256K1_LIB
 		public
 #else
-	    internal
+		internal
 #endif
-		ECPubKey K1 => k1;
-#if SECP256K1_LIB
-		public
-#else
-	    internal
-#endif
-		ECPubKey K2 => k2;
+		readonly GE K1, K2;
 
-		internal Context context;
 		internal MusigPubNonce(ECPubKey k1, ECPubKey k2)
 		{
-			this.k1 = k1;
-			this.k2 = k2;
-			this.context = k1.ctx;
+			this.K1 = k1.Q;
+			this.K2 = k2.Q;
+		}
+		internal MusigPubNonce(GE k1, GE k2)
+		{
+			this.K1 = k1;
+			this.K2 = k2;
 		}
 
 		public static MusigPubNonce Aggregate(MusigPubNonce[] nonces)
@@ -47,14 +41,8 @@ namespace NBitcoin.Secp256k1.Musig
 				throw new ArgumentException(nameof(nonces), "nonces should have at least one element");
 			Span<GEJ> summed_nonces = stackalloc GEJ[2];
 			secp256k1_musig_sum_nonces(summed_nonces, nonces);
-			for (int i = 0; i < 2; i++)
-			{
-				if (summed_nonces[i].IsInfinity)
-					throw new InvalidOperationException("Impossible to aggregate the given nonces");
-			}
-			var ctx = nonces[0].context;
-			return new MusigPubNonce(new ECPubKey(summed_nonces[0].ToGroupElement(), ctx),
-									 new ECPubKey(summed_nonces[1].ToGroupElement(), ctx));
+			return new MusigPubNonce(summed_nonces[0].ToGroupElement(),
+									 summed_nonces[1].ToGroupElement());
 		}
 
 		internal static void secp256k1_musig_sum_nonces(Span<GEJ> summed_nonces, MusigPubNonce[] pubnonces)
@@ -65,25 +53,31 @@ namespace NBitcoin.Secp256k1.Musig
 
 			for (i = 0; i < pubnonces.Length; i++)
 			{
-				summed_nonces[0] = summed_nonces[0].AddVariable(pubnonces[i].k1.Q);
-				summed_nonces[1] = summed_nonces[1].AddVariable(pubnonces[i].k2.Q);
+
+				summed_nonces[0] = summed_nonces[0].AddVariable(pubnonces[i].K1);
+				summed_nonces[1] = summed_nonces[1].AddVariable(pubnonces[i].K2);
 			}
 		}
 
-		public MusigPubNonce(Context? context, ReadOnlySpan<byte> in66)
+		public MusigPubNonce(ReadOnlySpan<byte> in66)
 		{
-			if (!ECPubKey.TryCreate(in66.Slice(0, 33), context, out _, out var k1) ||
-				!ECPubKey.TryCreate(in66.Slice(33, 33), context, out _, out var k2))
+			if (!GE.TryParse(in66.Slice(0, 33), out _, out K1) ||
+				!GE.TryParse(in66.Slice(33, 33), out _, out var K2))
+			{
 				throw new ArgumentException("Invalid musig pubnonce");
-			this.context = context ?? Context.Instance;
-			this.k1 = k1;
-			this.k2 = k2;
+			}
 		}
 
 		public void WriteToSpan(Span<byte> out66)
 		{
-			k1.WriteToSpan(true, out66.Slice(0, 33), out _);
-			k2.WriteToSpan(true, out66.Slice(33, 33), out _);
+			if (K1.IsInfinity)
+				out66.Slice(0, 33).Fill(0);
+			else
+				new ECPubKey(K1, null).WriteToSpan(true, out66.Slice(0, 33), out _);
+			if (K2.IsInfinity)
+				out66.Slice(33, 33).Fill(0);
+			else
+				new ECPubKey(K2, null).WriteToSpan(true, out66.Slice(0, 33), out _);
 		}
 
 		public byte[] ToBytes()

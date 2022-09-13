@@ -143,8 +143,8 @@ namespace NBitcoin.Secp256k1.Musig
 
 			Span<byte> agg_pk32 = stackalloc byte[32];
 			Span<GEJ> aggnonce_ptj = stackalloc GEJ[2];
-			aggnonce_ptj[0] = aggregatedNonce.K1.Q.ToGroupElementJacobian();
-			aggnonce_ptj[1] = aggregatedNonce.K2.Q.ToGroupElementJacobian();
+			aggnonce_ptj[0] = aggregatedNonce.K1.ToGroupElementJacobian();
+			aggnonce_ptj[1] = aggregatedNonce.K2.ToGroupElementJacobian();
 
 			agg_pk.WriteToSpan(agg_pk32);
 			/* Add public adaptor to nonce */
@@ -194,7 +194,7 @@ namespace NBitcoin.Secp256k1.Musig
 			b = new Scalar(noncehash);
 			var fin_nonce_ptj = ecmult_ctx.Mult(aggnoncej[1], b, null);
 			fin_nonce_ptj = fin_nonce_ptj.Add(aggnonce[0]);
-			var fin_nonce_pt = fin_nonce_ptj.ToGroupElement();
+			var fin_nonce_pt = fin_nonce_ptj.IsInfinity ? EC.G : fin_nonce_ptj.ToGroupElement();
 			ECXOnlyPubKey.secp256k1_xonly_ge_serialize(fin_nonce, ref fin_nonce_pt);
 
 			fin_nonce_pt = fin_nonce_pt.NormalizeYVariable();
@@ -238,8 +238,8 @@ namespace NBitcoin.Secp256k1.Musig
 			/* Compute "effective" nonce rj = nonces[0] + b*nonces[1] */
 			/* TODO: use multiexp */
 
-			nonces[0] = pubNonce.K1.Q;
-			nonces[1] = pubNonce.K2.Q;
+			nonces[0] = pubNonce.K1;
+			nonces[1] = pubNonce.K2;
 
 			rj = nonces[1].ToGroupElementJacobian();
 			rj = this.ctx.EcMultContext.Mult(rj, b, null);

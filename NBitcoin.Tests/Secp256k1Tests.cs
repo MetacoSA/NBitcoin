@@ -4334,7 +4334,7 @@ namespace NBitcoin.Tests
 				}
 			}
 			var musigCtx = new MusigContext(pk, msg);
-			musigCtx.Process(new MusigPubNonce(null, agg_pubnonce_ser));
+			musigCtx.Process(new MusigPubNonce(agg_pubnonce_ser));
 			var partialSig = musigCtx.Sign(ECPrivKey.Create(sk), new MusigPrivNonce(ECPrivKey.Create(state[0]), ECPrivKey.Create(state[1])));
 			return (musigCtx, partialSig);
 		}
