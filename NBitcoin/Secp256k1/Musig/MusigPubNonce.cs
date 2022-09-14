@@ -64,7 +64,7 @@ namespace NBitcoin.Secp256k1.Musig
 			if (!TryParseGE(in66.Slice(0, 33), out var k1) ||
 				!TryParseGE(in66.Slice(33, 33), out var k2))
 			{
-				throw new ArgumentException("Invalid musig pubnonce");
+				throw new FormatException("Invalid musig pubnonce");
 			}
 			this.K1 = k1.IsInfinity ? k1 : k1.NormalizeVariable();
 			this.K2 = k2.IsInfinity ? k2 : k2.NormalizeVariable();

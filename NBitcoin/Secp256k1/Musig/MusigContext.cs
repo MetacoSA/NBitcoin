@@ -36,7 +36,6 @@ namespace NBitcoin.Secp256k1.Musig
 		internal byte[] pk_hash = new byte[32];
 		internal FE second_pk_x;
 		internal bool pk_parity;
-		internal bool is_tweaked;
 		internal Scalar scalar_tweak;
 		internal readonly byte[] msg32;
 		internal Scalar gacc;
@@ -58,7 +57,6 @@ namespace NBitcoin.Secp256k1.Musig
 			musigContext.pk_hash.CopyTo(pk_hash.AsSpan());
 			second_pk_x = musigContext.second_pk_x;
 			pk_parity = musigContext.pk_parity;
-			is_tweaked = musigContext.is_tweaked;
 			scalar_tweak = musigContext.scalar_tweak;
 			gacc = musigContext.gacc;
 			tacc = musigContext.tacc;
@@ -86,29 +84,47 @@ namespace NBitcoin.Secp256k1.Musig
 			this.msg32 = msg32.ToArray();
 		}
 
+		/// <summary>
+		/// Add tweak to the xonly aggregated pubkey
+		/// </summary>
+		/// <param name="tweak32"></param>
+		/// <returns></returns>
+		/// <exception cref="InvalidOperationException"></exception>
+		/// <exception cref="ArgumentException"></exception>
 		public ECPubKey Tweak(ReadOnlySpan<byte> tweak32)
+		{
+			return Tweak(tweak32, true);
+		}
+
+		/// <summary>
+		/// Add tweak to the xonly aggregated pubkey or to the plain pubkey
+		/// </summary>
+		/// <param name="tweak32"></param>
+		/// <param name="xOnly"></param>
+		/// <returns></returns>
+		/// <exception cref="InvalidOperationException"></exception>
+		/// <exception cref="ArgumentException"></exception>
+		public ECPubKey Tweak(ReadOnlySpan<byte> tweak32, bool xOnly)
 		{
 			if (processed_nonce)
 				throw new InvalidOperationException("This function can only be called before MusigContext.Process");
-			if (is_tweaked)
-				throw new InvalidOperationException("This function can only be called once");
 			if (tweak32.Length != 32)
 				throw new ArgumentException(nameof(tweak32), "The tweak should have a size of 32 bytes");
 			scalar_tweak = new Scalar(tweak32, out int overflow);
 			if (overflow == 1)
 				throw new ArgumentException(nameof(tweak32), "The tweak is overflowing");
-			var output = aggregatePubKey.ToXOnlyPubKey().AddTweak(tweak32);
-			pk_parity = output.Q.y.IsOdd;
-			if (pk_parity)
-			{
-				gacc = gacc.Negate();
-				tacc = tacc.Negate();
-			}
-			tacc += scalar_tweak;
-			is_tweaked = true;
-			aggregatePubKey = output;
-			return output;
+			var t = scalar_tweak;
+			var g = xOnly && pk_parity ? Scalar.MinusOne : Scalar.One;
+			var Q_ = ctx.EcMultContext.Mult(aggregatePubKey.Q.ToGroupElementJacobian(), g, t);
+			if (Q_.IsInfinity)
+				throw new InvalidOperationException("The result of tweaking cannot be infinity");
+			gacc = g * gacc;
+			tacc = (t + g * tacc);
+			aggregatePubKey = new ECPubKey(Q_.ToGroupElement(), ctx);
+			pk_parity = aggregatePubKey.Q.y.IsOdd;
+			return aggregatePubKey;
 		}
+
 		ECPubKey? adaptor;
 		private Scalar tacc = Scalar.Zero;
 

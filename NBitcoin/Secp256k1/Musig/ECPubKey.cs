@@ -115,7 +115,6 @@ namespace NBitcoin.Secp256k1
 				pk_hash.CopyTo(preSession.pk_hash);
 				preSession.gacc = Scalar.One;
 				preSession.pk_parity = pkp.y.IsOdd;
-				preSession.is_tweaked = false;
 				preSession.second_pk_x = second_pk_x;
 			}
 			return new ECPubKey(pkp, ctx);
