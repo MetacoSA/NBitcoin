@@ -4338,12 +4338,49 @@ namespace NBitcoin.Tests
 		{
 			return ECPrivKey.Create(sk).CreateXOnlyPubKey().Q.x.Equals(ctx.second_pk_x);
 		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void nonce_agg_vectors()
+		{
+			var root = JObject.Parse(File.ReadAllText("data/musig/nonce_agg_vectors.json"));
+			var pnonces = GetArray<string>(root["pnonces"]);
+			foreach (var item in (JArray)root["valid_test_cases"])
+			{
+				var expected = new MusigPubNonce(Encoders.Hex.DecodeData(item["expected"].Value<string>().ToLowerInvariant()));
+				var pnonce_indices = GetArray<int>(item["pnonce_indices"]);
+				var nonces = pnonce_indices.Select(i => new MusigPubNonce(Encoders.Hex.DecodeData(pnonces[i]))).ToArray();
+				var actual = MusigPubNonce.Aggregate(nonces);
+				Assert.Equal(expected, actual);
+				Assert.Equal(Encoders.Hex.EncodeData(expected.ToBytes()), Encoders.Hex.EncodeData(actual.ToBytes()));
+			}
+			foreach (var item in (JArray)root["error_test_cases"])
+			{
+				var pnonce_indices = GetArray<int>(item["pnonce_indices"]);
+				var signer = item["error"]["signer"].Value<int>();
+				for (int i = 0; i < pnonce_indices.Length; i++)
+				{
+					try
+					{
+						new MusigPubNonce(Encoders.Hex.DecodeData(pnonces[pnonce_indices[i]]));
+					}
+					catch
+					{
+						Assert.Equal(signer, i);
+					}
+				}
+			}
+		}
+
+		private T[] GetArray<T>(JToken jToken)
+		{
+			return ((JArray)jToken).Select(c => c.Value<T>()).ToArray();
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void nonce_gen_vectors()
 		{
-			var root = JObject.Parse(File.ReadAllText("data/nonce_gen_vectors.json"));
+			var root = JObject.Parse(File.ReadAllText("data/musig/nonce_gen_vectors.json"));
 			foreach (var item in (JArray)root["test_cases"])
 			{
 				var rand_ = ParseHex(item["rand_"]);

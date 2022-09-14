@@ -13,7 +13,7 @@ namespace NBitcoin.Secp256k1.Musig
 #else
 	internal
 #endif
-	class MusigPubNonce
+	record MusigPubNonce
 	{
 #if SECP256K1_LIB
 		public
@@ -27,10 +27,11 @@ namespace NBitcoin.Secp256k1.Musig
 			this.K1 = k1.Q;
 			this.K2 = k2.Q;
 		}
-		internal MusigPubNonce(GE k1, GE k2)
+
+		private MusigPubNonce(GE k1, GE k2)
 		{
-			this.K1 = k1;
-			this.K2 = k2;
+			this.K1 = k1.Normalize();
+			this.K2 = k2.Normalize();
 		}
 
 		public static MusigPubNonce Aggregate(MusigPubNonce[] nonces)
@@ -53,7 +54,6 @@ namespace NBitcoin.Secp256k1.Musig
 
 			for (i = 0; i < pubnonces.Length; i++)
 			{
-
 				summed_nonces[0] = summed_nonces[0].AddVariable(pubnonces[i].K1);
 				summed_nonces[1] = summed_nonces[1].AddVariable(pubnonces[i].K2);
 			}
@@ -61,11 +61,22 @@ namespace NBitcoin.Secp256k1.Musig
 
 		public MusigPubNonce(ReadOnlySpan<byte> in66)
 		{
-			if (!GE.TryParse(in66.Slice(0, 33), out _, out K1) ||
-				!GE.TryParse(in66.Slice(33, 33), out _, out var K2))
+			if (!TryParseGE(in66.Slice(0, 33), out K1) ||
+				!TryParseGE(in66.Slice(33, 33), out K2))
 			{
 				throw new ArgumentException("Invalid musig pubnonce");
 			}
+			K1 = K1.Normalize();
+			K2 = K2.Normalize();
+		}
+
+		private bool TryParseGE(ReadOnlySpan<byte> pub , out GE ge)
+		{
+			if (GE.TryParse(pub, out _, out ge))
+				return true;
+			if (pub.Length == 33 && pub.SequenceCompareTo(stackalloc byte[33]) == 0)
+				return true;
+			return false;
 		}
 
 		public void WriteToSpan(Span<byte> out66)

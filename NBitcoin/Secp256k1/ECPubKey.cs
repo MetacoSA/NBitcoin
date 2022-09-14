@@ -34,9 +34,7 @@ namespace NBitcoin.Secp256k1
 			{
 				throw new InvalidOperationException("A pubkey can't be an infinite group element");
 			}
-			var x = groupElement.x.NormalizeVariable();
-			var y = groupElement.y.NormalizeVariable();
-			Q = new GE(x, y);
+			Q = groupElement.Normalize();
 			this.ctx = context ?? Context.Instance;
 		}
 
