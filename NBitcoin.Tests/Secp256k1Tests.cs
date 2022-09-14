@@ -17,6 +17,7 @@ using NBitcoin.Secp256k1.Musig;
 using NBitcoin.DataEncoders;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
 using Newtonsoft.Json.Linq;
+using Xunit.Sdk;
 
 namespace NBitcoin.Tests
 {
@@ -3971,7 +3972,7 @@ namespace NBitcoin.Tests
 			{
 				var aggnonce = new MusigPubNonce(Encoders.Hex.DecodeData(item["aggnonce"].Value<string>()));
 				var nonces = GetArray<int>(item["nonce_indices"]).Select(p => new MusigPubNonce(Encoders.Hex.DecodeData(pnonces[p]))).ToArray();
-				Assert.Equal(aggnonce, MusigPubNonce.Aggregate(nonces));
+				AssertEx.EqualBytes(aggnonce.ToBytes(), MusigPubNonce.Aggregate(nonces).ToBytes());
 				var keys = GetArray<int>(item["key_indices"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[p]))).ToArray();
 
 				var ctx = new MusigContext(keys, msg);
@@ -3991,9 +3992,9 @@ namespace NBitcoin.Tests
 				{
 					Assert.True(ctx.Verify(keys[i], nonces[i], sigs[i]));
 				}
-				var actual = Encoders.Hex.EncodeData(ctx.AggregateSignatures(sigs).ToBytes());
-				var expected = item["expected"].Value<string>().ToLowerInvariant();
-				Assert.Equal(expected, actual);
+				var actual = ctx.AggregateSignatures(sigs).ToBytes();
+				var expected = item["expected"].Value<string>();
+				AssertEx.EqualBytes(expected, actual);
 				Logs.WriteLine("Passed");
 			}
 		}
@@ -4017,17 +4018,84 @@ namespace NBitcoin.Tests
 				var msg = Encoders.Hex.DecodeData(msgs[item["msg_index"].Value<int>()]);
 				var ctx = new MusigContext(keys, msg);
 				ctx.ProcessNonces(nonces);
-				Assert.Equal(agg_nonce, ctx.AggregateNonce);
+				AssertEx.EqualBytes(agg_nonce.ToBytes(), ctx.AggregateNonce.ToBytes());
 				var secnonce = Encoders.Hex.DecodeData(secnonces[0]).AsSpan();
 				var s = new MusigPrivNonce(
 					ECPrivKey.Create(secnonce.Slice(0, 32)),
 					ECPrivKey.Create(secnonce.Slice(32, 32))
 					);
-				Assert.Equal(s.CreatePubNonce(), new MusigPubNonce(Encoders.Hex.DecodeData(pnonces[0])));
+				AssertEx.EqualBytes(s.CreatePubNonce().ToBytes(), pnonces[0]);
 				var sig = ctx.Sign(sk, s);
 				var expected = item["expected"].Value<string>();
-				Assert.Equal(expected.ToLowerInvariant(), Encoders.Hex.EncodeData(sig.ToBytes()));
+				AssertEx.EqualBytes(expected, sig.ToBytes());
 				Assert.True(ctx.Verify(sk.CreatePubKey(), s.CreatePubNonce(), sig));
+			}
+			foreach (var item in ((JArray)root["sign_error_test_cases"]).Concat((JArray)root["verify_error_test_cases"]))
+			{
+				bool invalidPubKey = false;
+				bool invalidNonceAgg = false;
+				bool invalidSecnonce = false;
+				bool invalidNonce = false;
+				var comment = item["comment"].Value<string>();
+				try
+				{
+					invalidPubKey = true;
+					var keys = GetArray<int>(item["key_indices"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[p]))).ToArray();
+					invalidPubKey = false;
+
+					var aggnonce_index = item["aggnonce_index"];
+					if (aggnonce_index == null)
+					{
+						invalidNonce = true;
+						GetArray<int>(item["nonce_indices"]).Select(p => new MusigPubNonce(Encoders.Hex.DecodeData(pnonces[p]))).ToArray();
+						invalidNonce = false;
+					}
+					invalidNonceAgg = true;
+					var agg_nonce = new MusigPubNonce(Encoders.Hex.DecodeData(aggnonces[aggnonce_index.Value<int>()]));
+					invalidNonceAgg = false;
+					var msg = Encoders.Hex.DecodeData(msgs[item["msg_index"].Value<int>()]);
+					invalidSecnonce = true;
+					var secnonce = Encoders.Hex.DecodeData(secnonces[item["secnonce_index"].Value<int>()]).AsSpan();
+					var s = new MusigPrivNonce(
+						ECPrivKey.Create(secnonce.Slice(0, 32)),
+						ECPrivKey.Create(secnonce.Slice(32, 32))
+						);
+					invalidSecnonce = false;
+					Assert.False(true, comment);
+				}
+				catch (Exception ex) when (!(ex is XunitException))
+				{
+					var err = item["error"]?["contrib"]?.Value<string>();
+					if (invalidPubKey != (err == "pubkey"))
+						Assert.False(true, comment);
+					if (invalidNonceAgg != (err == "aggnonce"))
+						Assert.False(true, comment);
+					if (invalidNonce != (err == "pubnonce"))
+						Assert.False(true, comment);
+					if (invalidSecnonce != (err == null))
+						Assert.False(true, comment);
+				}
+			}
+			foreach (var item in (JArray)root["verify_fail_test_cases"])
+			{
+				var keys = GetArray<int>(item["key_indices"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[p]))).ToArray();
+				var nonces = GetArray<int>(item["nonce_indices"]).Select(p => new MusigPubNonce(Encoders.Hex.DecodeData(pnonces[p]))).ToArray();
+				var msg = Encoders.Hex.DecodeData(msgs[item["msg_index"].Value<int>()]);
+				var signed_index = item["signer_index"].Value<int>();
+				var signer = ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[signed_index]));
+				var comment = item["comment"].Value<string>();
+				MusigPartialSignature sig;
+				try
+				{
+					sig = new MusigPartialSignature(Encoders.Hex.DecodeData(item["sig"].Value<string>()));
+				}
+				catch (ArgumentException)
+				{
+					continue;
+				}
+				var ctx = new MusigContext(keys, msg);
+				ctx.ProcessNonces(nonces);
+				Assert.False(ctx.Verify(signer, nonces[signed_index], sig));
 			}
 		}
 
@@ -4044,7 +4112,7 @@ namespace NBitcoin.Tests
 				var keys = GetArray<int>(item["key_indices"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[p]))).ToArray();
 				var result = ECPubKey.MusigAggregate(keys).ToXOnlyPubKey();
 				var expected = ECXOnlyPubKey.Create(Encoders.Hex.DecodeData(item["expected"].Value<string>()));
-				Assert.Equal(Encoders.Hex.EncodeData(expected.ToBytes()), Encoders.Hex.EncodeData(result.ToBytes()));
+				AssertEx.EqualBytes(expected.ToBytes(), result.ToBytes());
 			}
 
 			foreach (var item in (JArray)root["error_test_cases"])
@@ -4113,12 +4181,12 @@ namespace NBitcoin.Tests
 			var pnonces = GetArray<string>(root["pnonces"]);
 			foreach (var item in (JArray)root["valid_test_cases"])
 			{
-				var expected = new MusigPubNonce(Encoders.Hex.DecodeData(item["expected"].Value<string>().ToLowerInvariant()));
+				var expected = item["expected"].Value<string>().ToLowerInvariant();
 				var pnonce_indices = GetArray<int>(item["pnonce_indices"]);
 				var nonces = pnonce_indices.Select(i => new MusigPubNonce(Encoders.Hex.DecodeData(pnonces[i]))).ToArray();
 				var actual = MusigPubNonce.Aggregate(nonces);
-				Assert.Equal(expected, actual);
-				Assert.Equal(Encoders.Hex.EncodeData(expected.ToBytes()), Encoders.Hex.EncodeData(actual.ToBytes()));
+				AssertEx.EqualBytes(expected, actual.ToBytes());
+
 			}
 			foreach (var item in (JArray)root["error_test_cases"])
 			{
@@ -4163,7 +4231,7 @@ namespace NBitcoin.Tests
 				var actual = new byte[64].AsSpan();
 				res[0].WriteToSpan(actual);
 				res[1].WriteToSpan(actual.Slice(32));
-				Assert.Equal(expected, Encoders.Hex.EncodeData(actual));
+				AssertEx.EqualBytes(expected, actual);
 			}
 		}
 

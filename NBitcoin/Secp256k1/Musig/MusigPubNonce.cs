@@ -13,7 +13,7 @@ namespace NBitcoin.Secp256k1.Musig
 #else
 	internal
 #endif
-	record MusigPubNonce
+	class MusigPubNonce
 	{
 #if SECP256K1_LIB
 		public
@@ -30,8 +30,8 @@ namespace NBitcoin.Secp256k1.Musig
 
 		private MusigPubNonce(GE k1, GE k2)
 		{
-			this.K1 = k1.IsInfinity ? k1 : k1.NormalizeVariable();
-			this.K2 = k2.IsInfinity ? k2 : k2.NormalizeVariable();
+			this.K1 = k1.IsInfinity ? k1 : k1.NormalizeYVariable();
+			this.K2 = k2.IsInfinity ? k2 : k2.NormalizeYVariable();
 		}
 
 		public static MusigPubNonce Aggregate(MusigPubNonce[] nonces)
@@ -66,8 +66,8 @@ namespace NBitcoin.Secp256k1.Musig
 			{
 				throw new FormatException("Invalid musig pubnonce");
 			}
-			this.K1 = k1.IsInfinity ? k1 : k1.NormalizeVariable();
-			this.K2 = k2.IsInfinity ? k2 : k2.NormalizeVariable();
+			this.K1 = k1;
+			this.K2 = k2;
 		}
 
 		private bool TryParseGE(ReadOnlySpan<byte> pub , out GE ge)
@@ -91,7 +91,7 @@ namespace NBitcoin.Secp256k1.Musig
 			if (K2.IsInfinity)
 				out66.Slice(33, 33).Fill(0);
 			else
-				new ECPubKey(K2, null).WriteToSpan(true, out66.Slice(0, 33), out _);
+				new ECPubKey(K2, null).WriteToSpan(true, out66.Slice(33, 33), out _);
 		}
 
 		public byte[] ToBytes()
