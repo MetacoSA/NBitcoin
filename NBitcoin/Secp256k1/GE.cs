@@ -194,7 +194,7 @@ namespace NBitcoin.Secp256k1
 			this.infinity = false;
 		}
 
-		public GE Normalize()
+		public GE NormalizeVariable()
 		{
 			return new GE(
 				x.NormalizeVariable(),

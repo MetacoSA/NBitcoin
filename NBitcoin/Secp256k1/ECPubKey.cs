@@ -34,7 +34,7 @@ namespace NBitcoin.Secp256k1
 			{
 				throw new InvalidOperationException("A pubkey can't be an infinite group element");
 			}
-			Q = groupElement.Normalize();
+			Q = groupElement.NormalizeVariable();
 			this.ctx = context ?? Context.Instance;
 		}
 
@@ -450,8 +450,7 @@ namespace NBitcoin.Secp256k1
 		{
 			if (elem.IsInfinity)
 				throw new InvalidOperationException("secp256k1_eckey_pubkey_serialize is impossible on an infinite point");
-			elem = elem.NormalizeXVariable();
-			elem = elem.NormalizeYVariable();
+			elem = elem.NormalizeVariable();
 			elem.x.WriteToSpan(pub.Slice(1));
 			if (compressed)
 			{

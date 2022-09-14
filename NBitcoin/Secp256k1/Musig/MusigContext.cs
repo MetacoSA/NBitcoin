@@ -81,8 +81,6 @@ namespace NBitcoin.Secp256k1.Musig
 				throw new ArgumentNullException(nameof(pubKeys));
 			if (pubKeys.Length is 0)
 				throw new ArgumentException(nameof(pubKeys), "There should be at least one pubkey in pubKeys");
-			if (!(msg32.Length is 32))
-				throw new ArgumentNullException(nameof(msg32), "msg32 should be 32 bytes.");
 			this.aggregatePubKey = ECXOnlyPubKey.MusigAggregate(pubKeys, this);
 			this.ctx = pubKeys[0].ctx;
 			this.msg32 = msg32.ToArray();
@@ -180,7 +178,7 @@ namespace NBitcoin.Secp256k1.Musig
 			/* aggnonce = aggnonces[0] + b*aggnonces[1] */
 			b = new Scalar(noncehash);
 			var fin_nonce_ptj = ecmult_ctx.Mult(aggnoncej[1], b, null);
-			fin_nonce_ptj = fin_nonce_ptj.Add(aggnonce[0]);
+			fin_nonce_ptj = fin_nonce_ptj.AddVariable(aggnonce[0]);
 			r = fin_nonce_ptj.IsInfinity ? EC.G : fin_nonce_ptj.ToGroupElement();
 			r = r.NormalizeYVariable();
 		}
@@ -194,59 +192,15 @@ namespace NBitcoin.Secp256k1.Musig
 			int i;
 			for (i = 0; i < 2; i++)
 			{
-				ECPubKey.secp256k1_eckey_pubkey_serialize(buf, ref aggnonce[i], out _, true);
+				if (aggnonce[i].IsInfinity)
+					buf.Fill(0);
+				else
+					ECPubKey.secp256k1_eckey_pubkey_serialize(buf, ref aggnonce[i], out _, true);
 				sha.Write(buf);
 			}
-			sha.Write(agg_pk32.Slice(0, 32));
-			sha.Write(msg.Slice(0, 32));
+			sha.Write(agg_pk32);
+			sha.Write(msg);
 			sha.GetHash(noncehash);
-		}
-
-		public bool Verify(ECXOnlyPubKey pubKey, MusigPubNonce pubNonce, MusigPartialSignature partialSignature)
-		{
-			if (partialSignature == null)
-				throw new ArgumentNullException(nameof(partialSignature));
-			if (pubNonce == null)
-				throw new ArgumentNullException(nameof(pubNonce));
-			if (pubKey == null)
-				throw new ArgumentNullException(nameof(pubKey));
-			if (SessionCache is null)
-				throw new InvalidOperationException("You need to run MusigContext.Process first");
-			GEJ pkj;
-			Span<GE> nonces = stackalloc GE[2];
-			GEJ rj;
-			GEJ tmp;
-			GE pkp;
-			var b = SessionCache.b;
-			var pre_session = this;
-			/* Compute "effective" nonce rj = nonces[0] + b*nonces[1] */
-			/* TODO: use multiexp */
-
-			nonces[0] = pubNonce.K1;
-			nonces[1] = pubNonce.K2;
-
-			rj = nonces[1].ToGroupElementJacobian();
-			rj = this.ctx.EcMultContext.Mult(rj, b, null);
-			rj = rj.AddVariable(nonces[0]);
-
-			pkp = pubKey.Q;
-			/* Multiplying the messagehash by the musig coefficient is equivalent
-			 * to multiplying the signer's public key by the coefficient, except
-			 * much easier to do. */
-			var mu = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(pre_session, pkp.x);
-			var e = gacc * SessionCache.e * mu;
-
-			var s = partialSignature.E;
-			/* Compute -s*G + e*pkj + rj */
-			s = s.Negate();
-			pkj = pkp.ToGroupElementJacobian();
-			tmp = ctx.EcMultContext.Mult(pkj, e, s);
-			if (SessionCache.r.y.IsOdd)
-			{
-				rj = rj.Negate();
-			}
-			tmp = tmp.AddVariable(rj);
-			return tmp.IsInfinity;
 		}
 
 		public bool Verify(ECPubKey pubKey, MusigPubNonce pubNonce, MusigPartialSignature partialSignature)
@@ -259,41 +213,20 @@ namespace NBitcoin.Secp256k1.Musig
 				throw new ArgumentNullException(nameof(pubKey));
 			if (SessionCache is null)
 				throw new InvalidOperationException("You need to run MusigContext.Process first");
-			GEJ pkj;
-			Span<GE> nonces = stackalloc GE[2];
-			GEJ rj;
-			GEJ tmp;
-			GE pkp;
-			var b = SessionCache.b;
-			var pre_session = this;
-			/* Compute "effective" nonce rj = nonces[0] + b*nonces[1] */
-			/* TODO: use multiexp */
-
-			nonces[0] = pubNonce.K1;
-			nonces[1] = pubNonce.K2;
-
-			rj = nonces[1].ToGroupElementJacobian();
-			rj = this.ctx.EcMultContext.Mult(rj, b, null);
-			rj = rj.AddVariable(nonces[0]);
-
-			pkp = pubKey.ToXOnlyPubKey().Q;
-			/* Multiplying the messagehash by the musig coefficient is equivalent
-			 * to multiplying the signer's public key by the coefficient, except
-			 * much easier to do. */
-			var mu = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(pre_session, pkp.x);
-			var e = gacc * SessionCache.e * mu;
 
 			var s = partialSignature.E;
+			var R_s1 = pubNonce.K1;
+			var R_s2 = pubNonce.K2;
+			var Re_s_ = ctx.EcMultContext.Mult(R_s2.ToGroupElementJacobian(), SessionCache.b, null).AddVariable(R_s1).ToGroupElement().NormalizeVariable();
+			var Re_s = SessionCache.r.y.IsOdd ? Re_s_.Negate() : Re_s_;
+			var P = pubKey.Q;
+			var a = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(this, pubKey);
+			var g = aggregatePubKey.Q.y.IsOdd ? Scalar.MinusOne : Scalar.One;
+			var g_ = g * gacc;
+
 			/* Compute -s*G + e*pkj + rj */
-			s = s.Negate();
-			pkj = pkp.ToGroupElementJacobian();
-			tmp = ctx.EcMultContext.Mult(pkj, e, s);
-			if (SessionCache.r.y.IsOdd)
-			{
-				rj = rj.Negate();
-			}
-			tmp = tmp.AddVariable(rj);
-			return tmp.IsInfinity;
+			var res = ctx.EcMultContext.Mult(P.ToGroupElementJacobian(), SessionCache.e * a * g_, s.Negate()).AddVariable(Re_s);
+			return res.IsInfinity;
 		}
 
 		public SecpSchnorrSignature AggregateSignatures(MusigPartialSignature[] partialSignatures)
@@ -339,7 +272,11 @@ namespace NBitcoin.Secp256k1.Musig
 			Span<Scalar> k = stackalloc Scalar[2];
 			k[0] = privNonce.K1.sec;
 			k[1] = privNonce.K2.sec;
-
+			if (SessionCache.r.y.IsOdd)
+			{
+				k[0] = k[0].Negate();
+				k[1] = k[1].Negate();
+			}
 
 			/* Obtain the signer's public key point and determine if the sk is
 			 * negated before signing. That happens if if the signer's pubkey has an odd
@@ -361,33 +298,25 @@ namespace NBitcoin.Secp256k1.Musig
 			 *                otherwise.
 			 */
 
-			var sk = privKey.sec;
-			var pk = privKey.CreatePubKey().Q;
+			var d_ = privKey.sec;
+			var ecpk = privKey.CreatePubKey();
+			var P = ecpk.Q;
 
-			pk = pk.NormalizeYVariable();
+			P = P.NormalizeYVariable();
 
 			var gacc_ = gacc;
-			if (pk.y.IsOdd)
+			if (aggregatePubKey.Q.y.IsOdd)
 				gacc_ = gacc.Negate();
-			sk = gacc_ * sk;
 			/* Multiply MuSig coefficient */
-			pk = pk.NormalizeXVariable();
-			var mu = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(pre_session, pk.x);
-			sk = sk * mu;
-			if (SessionCache.r.y.IsOdd)
-			{
-				k[0] = k[0].Negate();
-				k[1] = k[1].Negate();
-			}
-
-			var e = session_cache.e * sk;
-			k[1] = session_cache.b * k[1];
-			k[0] = k[0] + k[1];
-			e = e + k[0];
+			P = P.NormalizeXVariable();
+			var a = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(pre_session, ecpk);
+			var g = aggregatePubKey.Q.y.IsOdd ? Scalar.MinusOne : Scalar.One;
+			var d = g * gacc * d_;
+			var s = (k[0] + SessionCache.b * k[1] + SessionCache.e * a * d);
 			Scalar.Clear(ref k[0]);
 			Scalar.Clear(ref k[1]);
 			privNonce.IsUsed = true;
-			return new MusigPartialSignature(e);
+			return new MusigPartialSignature(s);
 		}
 
 		public SecpSchnorrSignature Adapt(SecpSchnorrSignature signature, ECPrivKey adaptorSecret)

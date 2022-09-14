@@ -66,7 +66,7 @@ namespace NBitcoin.Secp256k1
 		public static ECXOnlyPubKey Create(ReadOnlySpan<byte> input32, Context? context)
 		{
 			if (!TryCreate(input32, context, out var k))
-				throw new ArgumentException(paramName: nameof(input32), message: "Invalid xonly pubkey");
+				throw new FormatException(message: "Invalid xonly pubkey");
 			return k;
 		}
 		internal ECXOnlyPubKey(in GE ge, Context? context)

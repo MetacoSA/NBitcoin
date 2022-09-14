@@ -3904,8 +3904,8 @@ namespace NBitcoin.Tests
 			}
 			var pk = new[]
 			{
-				sk0.CreateXOnlyPubKey(),
-				sk1.CreateXOnlyPubKey(),
+				sk0.CreatePubKey(),
+				sk1.CreatePubKey(),
 			};
 			var secnonce = new[]
 			{
@@ -4121,7 +4121,7 @@ namespace NBitcoin.Tests
 			{
 				ECPrivKey.TryCreate(Encoders.Hex.DecodeData(privKeys[i].ToLowerInvariant()), out var eck);
 				signatures[i] = musigCtx.Sign(eck, privateNonces[i]);
-				Assert.True(musigCtx.Verify(eck.CreateXOnlyPubKey(), privateNonces[i].CreatePubNonce(), signatures[i]));
+				Assert.True(musigCtx.Verify(eck.CreatePubKey(), privateNonces[i].CreatePubNonce(), signatures[i]));
 			}
 			var schnorr = musigCtx.AggregateSignatures(signatures);
 			var expectedSchnorr = "0c84d00c742042c0e097808ca546000b0d18ed04a70903dad2712f3e06674b39c33a751274ed1811df7c6b50b8c5deb67b4c2594a9f541e45507bc823ca97b69";
@@ -4198,7 +4198,7 @@ namespace NBitcoin.Tests
 				ECPrivKey.TryCreate(Encoders.Hex.DecodeData(privKeys[i].ToLowerInvariant()), out var eck);
 				signatures[i] = musigCtx.Sign(eck, privateNonces[i]);
 				Assert.Equal(expectedSigs[i].ToLowerInvariant(), Encoders.Hex.EncodeData(signatures[i].ToBytes()));
-				Assert.True(musigCtx.Verify(eck.CreateXOnlyPubKey(), privateNonces[i].CreatePubNonce(), signatures[i]));
+				Assert.True(musigCtx.Verify(eck.CreatePubKey(), privateNonces[i].CreatePubNonce(), signatures[i]));
 			}
 
 			var finalSignature = musigCtx.AggregateSignatures(signatures);
@@ -4338,6 +4338,114 @@ namespace NBitcoin.Tests
 		{
 			return ECPrivKey.Create(sk).CreateXOnlyPubKey().Q.x.Equals(ctx.second_pk_x);
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void sign_verify_vectors()
+		{
+			var root = JObject.Parse(File.ReadAllText("data/musig/sign_verify_vectors.json"));
+			var pubkeys = GetArray<string>(root["pubkeys"]).ToArray();
+			var msgs = GetArray<string>(root["msgs"]).ToArray();
+			var secnonces = GetArray<string>(root["secnonces"]).ToArray();
+			var pnonces = GetArray<string>(root["pnonces"]).ToArray();
+			var aggnonces = GetArray<string>(root["aggnonces"]).ToArray();
+			var sk = new ECPrivKey(Encoders.Hex.DecodeData(root["sk"].Value<string>()), null);
+			foreach (var item in (JArray)root["valid_test_cases"])
+			{
+				var keys = GetArray<int>(item["key_indices"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[p]))).ToArray();
+				var nonces = GetArray<int>(item["nonce_indices"]).Select(p => new MusigPubNonce(Encoders.Hex.DecodeData(pnonces[p]))).ToArray();
+				var agg_nonce = new MusigPubNonce(Encoders.Hex.DecodeData(aggnonces[item["aggnonce_index"].Value<int>()]));
+				var msg = Encoders.Hex.DecodeData(msgs[item["msg_index"].Value<int>()]);
+				var ctx = new MusigContext(keys, msg);
+				ctx.ProcessNonces(nonces);
+				Assert.Equal(agg_nonce, ctx.AggregateNonce);
+				var secnonce = Encoders.Hex.DecodeData(secnonces[0]).AsSpan();
+				var s = new MusigPrivNonce(
+					ECPrivKey.Create(secnonce.Slice(0, 32)),
+					ECPrivKey.Create(secnonce.Slice(32, 32))
+					);
+				Assert.Equal(s.CreatePubNonce(), new MusigPubNonce(Encoders.Hex.DecodeData(pnonces[0])));
+				var sig = ctx.Sign(sk, s);
+				var expected = item["expected"].Value<string>();
+				Assert.Equal(expected.ToLowerInvariant(), Encoders.Hex.EncodeData(sig.ToBytes()));
+				Assert.True(ctx.Verify(sk.CreatePubKey(), s.CreatePubNonce(), sig));
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void key_agg_vectors()
+		{
+			var root = JObject.Parse(File.ReadAllText("data/musig/key_agg_vectors.json"));
+			var pubkeys = GetArray<string>(root["pubkeys"]).ToArray();
+			var tweaks = GetArray<string>(root["tweaks"]).Select(p => Encoders.Hex.DecodeData(p)).ToArray();
+
+			foreach (var item in (JArray)root["valid_test_cases"])
+			{
+				var keys = GetArray<int>(item["key_indices"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[p]))).ToArray();
+				var result = ECXOnlyPubKey.MusigAggregate(keys).ToXOnlyPubKey();
+				var expected = ECXOnlyPubKey.Create(Encoders.Hex.DecodeData(item["expected"].Value<string>()));
+				Assert.Equal(Encoders.Hex.EncodeData(expected.ToBytes()), Encoders.Hex.EncodeData(result.ToBytes()));
+			}
+
+			foreach (var item in (JArray)root["error_test_cases"])
+			{
+				var keys_indices = GetArray<int>(item["key_indices"]);
+				var tweak_indices = GetArray<int>(item["tweak_indices"]);
+				var is_xonly = GetArray<bool>(item["is_xonly"]);
+				if (item["error"]["signer"]?.Value<int>() is int signer)
+				{
+					for (int i = 0; i < keys_indices.Length; i++)
+					{
+						try
+						{
+							ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[keys_indices[i]]));
+							if (i == signer)
+								Assert.False(true);
+						}
+						catch (FormatException)
+						{
+							Assert.Equal(signer, i);
+						}
+					}
+				}
+				else
+				{
+					var keys = GetArray<int>(item["key_indices"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[p]))).ToArray();
+					var result = ECXOnlyPubKey.MusigAggregate(keys);
+					Assert.ThrowsAny<Exception>(() =>
+					{
+						for (int i = 0; i < tweak_indices.Length; i++)
+						{
+							if (is_xonly[i])
+							{
+								result = result.ToXOnlyPubKey().AddTweak(tweaks[tweak_indices[i]]);
+							}
+							else
+							{
+								result = result.AddTweak(tweaks[tweak_indices[i]]);
+							}
+						}
+					});
+				}
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void key_sort_vectors()
+		{
+			var root = JObject.Parse(File.ReadAllText("data/musig/key_sort_vectors.json"));
+			var pubkeys = GetArray<string>(root["pubkeys"]).Select(p => new PubKey(Encoders.Hex.DecodeData(p))).ToArray();
+			var sorted_pubkeys = GetArray<string>(root["sorted_pubkeys"]).Select(p => new PubKey(Encoders.Hex.DecodeData(p))).ToArray();
+			Array.Sort(pubkeys, PubKeyComparer.Instance);
+			AssertEx.CollectionEquals(pubkeys, sorted_pubkeys);
+
+			var pubkeys2 = GetArray<string>(root["pubkeys"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(p))).ToArray();
+			var sorted_pubkeys2 = GetArray<string>(root["sorted_pubkeys"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(p))).ToArray();
+			Array.Sort(pubkeys2);
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void nonce_agg_vectors()
@@ -4362,8 +4470,10 @@ namespace NBitcoin.Tests
 					try
 					{
 						new MusigPubNonce(Encoders.Hex.DecodeData(pnonces[pnonce_indices[i]]));
+						if (signer == i)
+							Assert.False(true);
 					}
-					catch
+					catch (FormatException)
 					{
 						Assert.Equal(signer, i);
 					}

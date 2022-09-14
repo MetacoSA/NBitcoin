@@ -46,13 +46,13 @@ namespace NBitcoin.Secp256k1
  * SHA256(ell, x) where ell is the hash of public keys otherwise. second_pk_x
  * can be 0 in case there is no second_pk. Assumes both field elements x and
  * second_pk_x are normalized. */
-		static Scalar secp256k1_musig_keyaggcoef_internal(ReadOnlySpan<byte> ell, in FE x, in FE second_pk_x)
+		static Scalar secp256k1_musig_keyaggcoef_internal(ReadOnlySpan<byte> ell, ECPubKey pk, in FE second_pk_x)
 		{
 
 			using SHA256 sha = new SHA256();
-			Span<byte> buf = stackalloc byte[32];
+			Span<byte> buf = stackalloc byte[33];
 
-			if (x.CompareToVariable(second_pk_x) == 0)
+			if (pk.Q.x.CompareToVariable(second_pk_x) == 0)
 			{
 				return Scalar.One;
 			}
@@ -60,16 +60,16 @@ namespace NBitcoin.Secp256k1
 			{
 				sha.InitializeTagged(MusigTag);
 				sha.Write(ell.Slice(0, 32));
-				x.WriteToSpan(buf);
+				pk.WriteToSpan(true, buf, out _);
 				sha.Write(buf);
 				sha.GetHash(buf);
-				return new Scalar(buf);
+				return new Scalar(buf.Slice(0, 32));
 			}
 		}
 
-		internal static Scalar secp256k1_musig_keyaggcoef(MusigContext pre_session, in FE x)
+		internal static Scalar secp256k1_musig_keyaggcoef(MusigContext pre_session, ECPubKey pk)
 		{
-			return secp256k1_musig_keyaggcoef_internal(pre_session.pk_hash, x, pre_session.second_pk_x);
+			return secp256k1_musig_keyaggcoef_internal(pre_session.pk_hash, pk, pre_session.second_pk_x);
 		}
 
 		const string MusigTag = "KeyAgg coefficient";
@@ -105,15 +105,15 @@ namespace NBitcoin.Secp256k1
 
 			for (int i = 0; i < pubkeys.Length; i++)
 			{
-				p[i] = pubkeys[i].ToXOnlyPubKey().Q;
-				s[i] = secp256k1_musig_keyaggcoef_internal(pk_hash, p[i].x, second_pk_x);
+				p[i] = pubkeys[i].Q;
+				s[i] = secp256k1_musig_keyaggcoef_internal(pk_hash, pubkeys[i], second_pk_x);
 			}
 			var pkj = ctx.EcMultContext.MultBatch(s, p);
 			var pkp = pkj.ToGroupElement().NormalizeYVariable();
 			if (preSession is MusigContext)
 			{
 				pk_hash.CopyTo(preSession.pk_hash);
-				preSession.gacc = pkp.y.IsOdd ? Scalar.MinusOne : Scalar.One;
+				preSession.gacc = Scalar.One;
 				preSession.pk_parity = pkp.y.IsOdd;
 				preSession.is_tweaked = false;
 				preSession.second_pk_x = second_pk_x;
