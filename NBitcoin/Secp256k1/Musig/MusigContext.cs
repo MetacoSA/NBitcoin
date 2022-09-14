@@ -81,7 +81,7 @@ namespace NBitcoin.Secp256k1.Musig
 				throw new ArgumentNullException(nameof(pubKeys));
 			if (pubKeys.Length is 0)
 				throw new ArgumentException(nameof(pubKeys), "There should be at least one pubkey in pubKeys");
-			this.aggregatePubKey = ECXOnlyPubKey.MusigAggregate(pubKeys, this);
+			this.aggregatePubKey = ECPubKey.MusigAggregate(pubKeys, this);
 			this.ctx = pubKeys[0].ctx;
 			this.msg32 = msg32.ToArray();
 		}
@@ -144,7 +144,7 @@ namespace NBitcoin.Secp256k1.Musig
 
 			secp256k1_musig_nonce_process_internal(this.ctx.EcMultContext, out var r, out session_cache.b, aggnonce_ptj, qbytes, msg32);
 			Span<byte> rbytes = stackalloc byte[32];
-			ECXOnlyPubKey.secp256k1_xonly_ge_serialize(rbytes, ref r);
+			ECPubKey.secp256k1_xonly_ge_serialize(rbytes, ref r);
 			/* Compute messagehash and store in session cache */
 			Span<byte> buff = stackalloc byte[32];
 			using SHA256 sha = new SHA256();
@@ -220,7 +220,7 @@ namespace NBitcoin.Secp256k1.Musig
 			var Re_s_ = ctx.EcMultContext.Mult(R_s2.ToGroupElementJacobian(), SessionCache.b, null).AddVariable(R_s1).ToGroupElement().NormalizeVariable();
 			var Re_s = SessionCache.r.y.IsOdd ? Re_s_.Negate() : Re_s_;
 			var P = pubKey.Q;
-			var a = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(this, pubKey);
+			var a = ECPubKey.secp256k1_musig_keyaggcoef(this, pubKey);
 			var g = aggregatePubKey.Q.y.IsOdd ? Scalar.MinusOne : Scalar.One;
 			var g_ = g * gacc;
 
@@ -309,7 +309,7 @@ namespace NBitcoin.Secp256k1.Musig
 				gacc_ = gacc.Negate();
 			/* Multiply MuSig coefficient */
 			P = P.NormalizeXVariable();
-			var a = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(pre_session, ecpk);
+			var a = ECPubKey.secp256k1_musig_keyaggcoef(pre_session, ecpk);
 			var g = aggregatePubKey.Q.y.IsOdd ? Scalar.MinusOne : Scalar.One;
 			var d = g * gacc * d_;
 			var s = (k[0] + SessionCache.b * k[1] + SessionCache.e * a * d);

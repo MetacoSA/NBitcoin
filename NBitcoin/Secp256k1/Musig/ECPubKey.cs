@@ -15,7 +15,7 @@ namespace NBitcoin.Secp256k1
 #else
 	internal
 #endif
-	partial class ECXOnlyPubKey
+	partial class ECPubKey
 	{
 		/* Computes ell = SHA256(pk[0], ..., pk[np-1]) */
 		static void secp256k1_musig_compute_pk_hash(Span<byte> pk_hash, ECPubKey[] pk)

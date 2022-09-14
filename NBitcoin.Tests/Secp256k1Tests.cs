@@ -4143,7 +4143,7 @@ namespace NBitcoin.Tests
 
 			var pubkeys = GetPubKeys(privKeys);
 			var expectedCombinedPubkey = "49c0791208d995cd9507ed594c6caa8845db411e81218c50101bac249b1771b3";
-			var combinedPubkey = ECXOnlyPubKey.MusigAggregate(pubkeys);
+			var combinedPubkey = ECPubKey.MusigAggregate(pubkeys);
 			Assert.Equal(expectedCombinedPubkey.ToLowerInvariant(), Encoders.Hex.EncodeData(combinedPubkey.ToBytes()));
 
 			var msg32 = Encoders.Hex.DecodeData("746869735F636F756C645F62655F7468655F686173685F6F665F615F6D736721");
@@ -4383,7 +4383,7 @@ namespace NBitcoin.Tests
 			foreach (var item in (JArray)root["valid_test_cases"])
 			{
 				var keys = GetArray<int>(item["key_indices"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[p]))).ToArray();
-				var result = ECXOnlyPubKey.MusigAggregate(keys).ToXOnlyPubKey();
+				var result = ECPubKey.MusigAggregate(keys).ToXOnlyPubKey();
 				var expected = ECXOnlyPubKey.Create(Encoders.Hex.DecodeData(item["expected"].Value<string>()));
 				Assert.Equal(Encoders.Hex.EncodeData(expected.ToBytes()), Encoders.Hex.EncodeData(result.ToBytes()));
 			}
@@ -4412,7 +4412,7 @@ namespace NBitcoin.Tests
 				else
 				{
 					var keys = GetArray<int>(item["key_indices"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[p]))).ToArray();
-					var result = ECXOnlyPubKey.MusigAggregate(keys);
+					var result = ECPubKey.MusigAggregate(keys);
 					Assert.ThrowsAny<Exception>(() =>
 					{
 						for (int i = 0; i < tweak_indices.Length; i++)
