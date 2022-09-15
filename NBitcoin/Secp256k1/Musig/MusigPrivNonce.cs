@@ -93,18 +93,22 @@ namespace NBitcoin.Secp256k1.Musig
 			{
 				msg_prefixed = new byte[9 + msg.Length];
 				msg_prefixed[0] = 1;
-				msg_prefixed[1] = (byte)(msg.LongLength >> 56);
-				msg_prefixed[2] = (byte)(msg.LongLength >> 48);
-				msg_prefixed[3] = (byte)(msg.LongLength >> 40);
-				msg_prefixed[4] = (byte)(msg.LongLength >> 32);
-				msg_prefixed[5] = (byte)(msg.LongLength >> 24);
-				msg_prefixed[6] = (byte)(msg.LongLength >> 16);
-				msg_prefixed[7] = (byte)(msg.LongLength >> 8);
-				msg_prefixed[8] = (byte)(msg.LongLength >> 0);
+				ToBE(msg_prefixed.AsSpan().Slice(1), msg.LongLength);
 				msg.CopyTo(msg_prefixed, 9);
 			}
 			secp256k1_nonce_function_musig(k, rand, msg_prefixed, agg_pk32, extra_input, 0);
 			secp256k1_nonce_function_musig(k, rand, msg_prefixed, agg_pk32, extra_input, 1);
+		}
+		internal static void ToBE(Span<byte> output, long v)
+		{
+			output[0] = (byte)(v >> 56);
+			output[1] = (byte)(v >> 48);
+			output[2] = (byte)(v >> 40);
+			output[3] = (byte)(v >> 32);
+			output[4] = (byte)(v >> 24);
+			output[5] = (byte)(v >> 16);
+			output[6] = (byte)(v >> 8);
+			output[7] = (byte)(v >> 0);
 		}
 		static byte[] empty_msg_prefixed = new byte[1];
 		internal static void secp256k1_nonce_function_musig(Span<Scalar> k, ReadOnlySpan<byte> rand, ReadOnlySpan<byte> msg_prefixed, byte[]? agg_pk, ReadOnlySpan<byte> extra_input, int i)

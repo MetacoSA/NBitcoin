@@ -261,6 +261,86 @@ namespace NBitcoin.Secp256k1.Musig
 			return new SecpSchnorrSignature(this.SessionCache.r.x, s);
 		}
 
+		/// <summary>
+		/// <inheritdoc cref="DeterministicSign(ECPrivKey, byte[]?)"/>
+		/// </summary>
+		/// <param name="privKey"><inheritdoc cref="DeterministicSign(ECPrivKey, byte[]?)" path="/param/[@name='privKey']"></inheritdoc>/></param>
+		/// <returns></returns>
+		public (MusigPartialSignature Signature, MusigPubNonce PubNonce) DeterministicSign(ECPrivKey privKey)
+		{
+			return DeterministicSign(privKey, null);
+		}
+
+		/// <summary>
+		/// To deterministically sign, you need to call <see cref="Process(MusigPubNonce)"/> or <see cref="ProcessNonces(MusigPubNonce[])"/> with the nonces of all other participants.
+		/// See the BIP for more information about deterministic signer.
+		/// </summary>
+		/// <param name="privKey">The private key of the stateless signer</param>
+		/// <param name="rand">An optional random data</param>
+		/// <returns>The partial signature with the derived public nonce of this signer</returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
+		public (MusigPartialSignature Signature, MusigPubNonce PubNonce) DeterministicSign(ECPrivKey privKey, byte[]? rand)
+		{
+			if (!processed_nonce)
+				throw new InvalidOperationException("You need to call Process or ProcessNonces with the nonces of all other participants");
+			if (privKey is null)
+				throw new ArgumentNullException(nameof(privKey));
+			if (SessionCache is null || aggregateNonce is null)
+				throw new InvalidOperationException("You need to run MusigContext.Process first");
+
+			var sk_ = rand is null ? privKey.sec.ToBytes() : xor32(privKey.sec.ToBytes(), tagged_hash("MuSig/aux", rand));
+			var aggothernonce = aggregateNonce;
+			var k_1 = det_nonce_hash(sk_, aggothernonce, aggregatePubKey, msg32, 0);
+			var k_2 = det_nonce_hash(sk_, aggothernonce, aggregatePubKey, msg32, 1);
+			Array.Clear(sk_, 0, sk_.Length);
+
+			if (k_1 == Scalar.Zero || k_2 == Scalar.Zero)
+				throw new InvalidOperationException("This should never happen (k_1 == Scalar.Zero || k_2 == Scalar.Zero)");
+
+			var secnonce = new MusigPrivNonce(new ECPrivKey(k_1, ctx, false), new ECPrivKey(k_2, ctx, false));
+			var pubnonce = secnonce.CreatePubNonce();
+			processed_nonce = false;
+			ProcessNonces(new[] { pubnonce, aggregateNonce });
+			return (Sign(privKey, secnonce), pubnonce);
+		}
+
+		private Scalar det_nonce_hash(byte[] sk_, MusigPubNonce aggothernonce, ECPubKey aggregatePubKey, ReadOnlySpan<byte> msg, int i)
+		{
+			Span<byte> buff = stackalloc byte[66];
+			using var sha = new SHA256();
+			sha.InitializeTagged("MuSig/deterministic/nonce");
+			sha.Write(sk_);
+			aggothernonce.WriteToSpan(buff);
+			sha.Write(buff.Slice(0, 66));
+			aggregatePubKey.Q.x.WriteToSpan(buff);
+			sha.Write(buff.Slice(0, 32));
+			MusigPrivNonce.ToBE(buff, msg.Length);
+			sha.Write(buff.Slice(0, 8));
+			sha.Write(msg);
+			sha.Write((byte)i);
+			sha.GetHash(buff);
+			return new Scalar(buff.Slice(0, 32));
+		}
+
+		private byte[] xor32(byte[] a, byte[] b)
+		{
+			var r = new byte[32];
+			for (int i = 0; i < 32; i++)
+			{
+				r[i] = (byte)(a[i] ^ b[i]);
+			}
+			return r;
+		}
+
+		private byte[] tagged_hash(string tag, byte[] b)
+		{
+			using var sha = new SHA256();
+			sha.InitializeTagged(tag);
+			sha.Write(b);
+			return sha.GetHash();
+		}
+
 		public MusigPartialSignature Sign(ECPrivKey privKey, MusigPrivNonce privNonce)
 		{
 			if (privKey == null)

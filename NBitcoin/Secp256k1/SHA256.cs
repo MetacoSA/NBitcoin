@@ -80,6 +80,13 @@ namespace NBitcoin.Secp256k1
 			sha.TransformBlock(_Buffer, 0, _Pos, null, -1);
 			_Pos = 0;
 		}
+
+		public byte[] GetHash()
+		{
+			var r = new byte[32];
+			GetHash(r);
+			return r;
+		}
 		public void GetHash(Span<byte> output)
 		{
 			ProcessBlock();

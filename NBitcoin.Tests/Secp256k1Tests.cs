@@ -4001,6 +4001,41 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void musig_det_sign_vectors()
+		{
+			var root = JObject.Parse(File.ReadAllText("data/musig/det_sign_vectors.json"));
+			var pubkeys = GetArray<string>(root["pubkeys"]).ToArray();
+			var msgs = GetArray<string>(root["msgs"]).ToArray();
+			var sk = new ECPrivKey(Encoders.Hex.DecodeData(root["sk"].Value<string>()), null);
+			foreach (var item in (JArray)root["valid_test_cases"])
+			{
+				var keys = GetArray<int>(item["key_indices"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[p]))).ToArray();
+				var rand = item["rand"].Type == JTokenType.Null ? null : Encoders.Hex.DecodeData(item["rand"].Value<string>());
+				var aggothernonce = new MusigPubNonce(Encoders.Hex.DecodeData(item["aggothernonce"].Value<string>()));
+				var msg = Encoders.Hex.DecodeData(msgs[item["msg_index"].Value<int>()]);
+				var signed_index = item["signer_index"].Value<int>();
+				var signer = ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[signed_index]));
+				var expected = GetArray<string>(item["expected"]);
+				var ctx = new MusigContext(keys, msg);
+				foreach (var tweak in GetArray<string>(item["tweaks"])
+					.Select(p => Encoders.Hex.DecodeData(p))
+					.Zip(
+					GetArray<bool>(item["is_xonly"])
+				))
+				{
+					ctx.Tweak(tweak.First, tweak.Second);
+				}
+				ctx.Process(aggothernonce);
+				var sig = ctx.DeterministicSign(sk, rand);
+				AssertEx.EqualBytes(expected[0], sig.PubNonce.ToBytes());
+				AssertEx.EqualBytes(expected[1], sig.Signature.ToBytes());
+				Assert.True(ctx.Verify(sk.CreatePubKey(), sig.PubNonce, sig.Signature));
+			}
+		}
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void musig_sign_verify_vectors()
 		{
 			var root = JObject.Parse(File.ReadAllText("data/musig/sign_verify_vectors.json"));

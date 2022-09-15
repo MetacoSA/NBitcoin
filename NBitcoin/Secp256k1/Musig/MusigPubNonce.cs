@@ -28,7 +28,7 @@ namespace NBitcoin.Secp256k1.Musig
 			this.K2 = k2.Q;
 		}
 
-		private MusigPubNonce(GE k1, GE k2)
+		internal MusigPubNonce(GE k1, GE k2)
 		{
 			this.K1 = k1.IsInfinity ? k1 : k1.NormalizeYVariable();
 			this.K2 = k2.IsInfinity ? k2 : k2.NormalizeYVariable();
@@ -41,22 +41,16 @@ namespace NBitcoin.Secp256k1.Musig
 			if (nonces.Length is 0)
 				throw new ArgumentException(nameof(nonces), "nonces should have at least one element");
 			Span<GEJ> summed_nonces = stackalloc GEJ[2];
-			secp256k1_musig_sum_nonces(summed_nonces, nonces);
-			return new MusigPubNonce(summed_nonces[0].ToGroupElement(),
-									 summed_nonces[1].ToGroupElement());
-		}
-
-		internal static void secp256k1_musig_sum_nonces(Span<GEJ> summed_nonces, MusigPubNonce[] pubnonces)
-		{
-			int i;
 			summed_nonces[0] = GEJ.Infinity;
 			summed_nonces[1] = GEJ.Infinity;
 
-			for (i = 0; i < pubnonces.Length; i++)
+			for (int i = 0; i < nonces.Length; i++)
 			{
-				summed_nonces[0] = summed_nonces[0].AddVariable(pubnonces[i].K1);
-				summed_nonces[1] = summed_nonces[1].AddVariable(pubnonces[i].K2);
+				summed_nonces[0] = summed_nonces[0].AddVariable(nonces[i].K1);
+				summed_nonces[1] = summed_nonces[1].AddVariable(nonces[i].K2);
 			}
+			return new MusigPubNonce(summed_nonces[0].ToGroupElement(),
+									 summed_nonces[1].ToGroupElement());
 		}
 
 		public MusigPubNonce(ReadOnlySpan<byte> in66)
