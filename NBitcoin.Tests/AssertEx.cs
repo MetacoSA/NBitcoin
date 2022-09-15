@@ -33,7 +33,6 @@ namespace NBitcoin.Tests
 					Assert.False(true, "Actual[" + i + "](" + actual[i] + ") != Expected[" + i + "](" + expected[i] + ")");
 			}
 		}
-
 		[DebuggerHidden]
 		internal static void StackEquals(ContextStack<byte[]> stack1, ContextStack<byte[]> stack2)
 		{
@@ -41,6 +40,7 @@ namespace NBitcoin.Tests
 			var hash2 = stack2.Select(o => Hashes.DoubleSHA256(o)).ToArray();
 			AssertEx.CollectionEquals(hash1, hash2);
 		}
+#if HAS_SPAN
 		[DebuggerHidden]
 		internal static void EqualBytes(ReadOnlySpan<byte> expected, ReadOnlySpan<byte> actual)
 		{
@@ -60,5 +60,6 @@ namespace NBitcoin.Tests
 			var aa = DataEncoders.Encoders.Hex.EncodeData(expected);
 			Assert.Equal(aa, actual.ToLowerInvariant());
 		}
+#endif
 	}
 }
