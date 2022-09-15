@@ -262,9 +262,9 @@ namespace NBitcoin.Secp256k1.Musig
 		}
 
 		/// <summary>
-		/// <inheritdoc cref="DeterministicSign(ECPrivKey, byte[]?)"/>
+		/// <inheritdoc cref="DeterministicSign(ECPrivKey, byte[])"/>
 		/// </summary>
-		/// <param name="privKey"><inheritdoc cref="DeterministicSign(ECPrivKey, byte[]?)" path="/param/[@name='privKey']"></inheritdoc>/></param>
+		/// <param name="privKey"><inheritdoc cref="DeterministicSign(ECPrivKey, byte[])" path="/param/[@name='privKey']"></inheritdoc>/></param>
 		/// <returns></returns>
 		public (MusigPartialSignature Signature, MusigPubNonce PubNonce) DeterministicSign(ECPrivKey privKey)
 		{
