@@ -1599,6 +1599,7 @@ namespace NBitcoin
 				SignTransactionContext(signingContext);
 			var psbt = signingContext.PSBT;
 			UpdatePSBT(psbt);
+			psbt.Settings.SigningOptions = signingContext.SigningOptions;
 			return psbt;
 		}
 

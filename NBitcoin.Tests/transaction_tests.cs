@@ -2326,6 +2326,7 @@ namespace NBitcoin.Tests
 			var tx = txBuilder
 				.AddCoins(allCoins)
 				.AddKeys(keys)
+				.SetSigningOptions(SigHash.None)
 				.Send(destinations[0], Money.Parse("6") * 2)
 				.Send(destinations[2], Money.Parse("5"))
 				.Send(destinations[2], Money.Parse("0.9999"))
@@ -2334,9 +2335,15 @@ namespace NBitcoin.Tests
 				.BuildTransaction(true);
 			Assert.False(tx.RBF);
 			Assert.True(txBuilder.Verify(tx, "0.0001"));
+			var psbt = txBuilder.BuildPSBT(true);
+			foreach (var ipt in psbt.Inputs)
+			{
+				Assert.Equal(SigHash.None, psbt.Settings.SigningOptions.SigHash);
+			}
+			Assert.Equal(SigHash.None, psbt.Settings.SigningOptions.SigHash);
 
 			// Let's check if PSBT can be finalized
-			var psbt = txBuilder.BuildPSBT(true);
+			psbt = txBuilder.BuildPSBT(true);
 			Assert.All(psbt.Inputs, input => input.PartialSigs.Any()); // All inputs should have partial sigs
 			Assert.False(psbt.IsAllFinalized());
 			psbt.TryFinalize(out _);

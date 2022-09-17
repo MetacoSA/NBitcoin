@@ -1065,13 +1065,17 @@ namespace NBitcoin
 			if (this.IsFinalized())
 				return;
 
+			signingOptions = Parent.GetSigningOptions(signingOptions);
 			if (keyPair.PubKey is PubKey ecdsapk && PartialSigs.TryGetValue(ecdsapk, out var existingSig))
 			{
-				CheckCompatibleSigHash(this.Parent.Settings.SigningOptions.SigHash);
 				var signature = PartialSigs[ecdsapk];
-				if (this.Parent.Settings.SigningOptions.SigHash != existingSig.SigHash)
+				if (signingOptions.SigHash != existingSig.SigHash)
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
 				return;
+			}
+			if (SighashType is SigHash inputSigHash && inputSigHash != signingOptions.SigHash)
+			{
+				throw new InvalidOperationException("This input's SighashType isn't compatible with in the signing options");
 			}
 
 			AssertSanity();
@@ -1079,7 +1083,6 @@ namespace NBitcoin
 			if (coin == null)
 				return;
 
-			signingOptions = Parent.GetSigningOptions(signingOptions);
 			if (!IsTaprootReady(signingOptions, coin))
 				return;
 			var builder = Parent.CreateTransactionBuilder();
@@ -1108,12 +1111,6 @@ namespace NBitcoin
 				Sign(key.CreateKeyPair(), signingOptions);
 				return;
 			}
-		}
-
-		private void CheckCompatibleSigHash(SigHash sigHash)
-		{
-			if (SighashType is SigHash s && s != sigHash)
-				throw new InvalidOperationException($"The input assert the use of sighash {GetName(s)}");
 		}
 
 		/// <summary>
