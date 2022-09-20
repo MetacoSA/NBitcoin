@@ -126,6 +126,115 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
+
+		public class LitecoinTransaction : Transaction
+		{
+			public LitecoinTransaction()
+			{
+
+			}
+			public override ConsensusFactory GetConsensusFactory()
+			{
+				return LitecoinConsensusFactory.Instance;
+			}
+			public override void ReadWrite(BitcoinStream stream)
+			{
+				var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
+									stream.ProtocolCapabilities.SupportWitness;
+
+				//var mwebSupported = false; //when mweb is supported in nbitcoin this is to be fixed
+
+				byte flags = 0;
+				if (!stream.Serializing)
+				{
+					stream.ReadWrite(ref nVersion);
+					/* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
+					stream.ReadWrite(ref vin);
+					vin.Transaction = this;
+					var hasNoDummy = (nVersion & NoDummyInput) != 0 && vin.Count == 0;
+					if (witSupported && hasNoDummy)
+						nVersion = nVersion & ~NoDummyInput;
+
+					if (vin.Count == 0 && witSupported && !hasNoDummy)
+					{
+						/* We read a dummy or an empty vin. */
+						stream.ReadWrite(ref flags);
+						if (flags != 0)
+						{
+							/* Assume we read a dummy and a flag. */
+							stream.ReadWrite(ref vin);
+							vin.Transaction = this;
+							stream.ReadWrite(ref vout);
+							vout.Transaction = this;
+						}
+						else
+						{
+							/* Assume read a transaction without output. */
+							vout = new TxOutList();
+							vout.Transaction = this;
+						}
+					}
+					else
+					{
+						/* We read a non-empty vin. Assume a normal vout follows. */
+						stream.ReadWrite(ref vout);
+						vout.Transaction = this;
+					}
+					if (((flags & 1) != 0) && witSupported)
+					{
+						/* The witness flag is present, and we support witnesses. */
+						flags ^= 1;
+						Witness wit = new Witness(Inputs);
+						wit.ReadWrite(stream);
+					}
+					if ((flags & 8) != 0) //MWEB extension tx flag
+					{
+						/* The MWEB flag is present, but currently no MWEB data is supported. 
+						 * This fix just prevent from throwing exception bellow so cannonical litecoin transaction can be read
+						 */
+						flags ^= 8;
+					}
+
+					if (flags != 0)
+					{
+						/* Unknown flag in the serialization */
+						throw new FormatException("Unknown transaction optional data");
+					}
+				}
+				else
+				{
+					var version = (witSupported && (vin.Count == 0 && vout.Count > 0)) ? nVersion | NoDummyInput : nVersion;
+					stream.ReadWrite(ref version);
+
+					if (witSupported)
+					{
+						/* Check whether witnesses need to be serialized. */
+						if (HasWitness)
+						{
+							flags |= 1;
+						}
+					}
+					if (flags != 0)
+					{
+						/* Use extended format in case witnesses are to be serialized. */
+						TxInList vinDummy = new TxInList();
+						stream.ReadWrite(ref vinDummy);
+						stream.ReadWrite(ref flags);
+					}
+					stream.ReadWrite(ref vin);
+					vin.Transaction = this;
+					stream.ReadWrite(ref vout);
+					vout.Transaction = this;
+					if ((flags & 1) != 0)
+					{
+						Witness wit = new Witness(this.Inputs);
+						wit.ReadWrite(stream);
+					}
+				}
+				stream.ReadWriteStruct(ref nLockTime);
+			}
+		}
+
 		public class LitecoinBlockHeader : BlockHeader
 		{
 			public override uint256 GetPoWHash()
