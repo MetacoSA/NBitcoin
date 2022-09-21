@@ -3,7 +3,7 @@ using NBitcoin.Altcoins;
 
 namespace NBitcoin.Tests
 {
-    [Trait("Altcoins", "Obtc")]
+    [Trait("Altcoins", "Altcoins")]
     public class HeavyHashMatrixTests
     {
         private static string failureMsgBase = "[FAILED]: HeavyHashMatrixTests. ";

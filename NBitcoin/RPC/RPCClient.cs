@@ -707,7 +707,7 @@ namespace NBitcoin.RPC
 				throw new ArgumentNullException(nameof(parameters));
 
 			JArray descriptorsJson = new JArray();
-			foreach (var descObj in parameters.Descriptors)
+			foreach (var descObj in parameters.Descriptors ?? new ScanTxoutDescriptor[0])
 			{
 				JObject descJson = new JObject();
 				descJson.Add(new JProperty("desc", descObj.Descriptor.ToString()));

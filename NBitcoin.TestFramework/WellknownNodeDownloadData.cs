@@ -1422,7 +1422,6 @@ namespace NBitcoin.Tests
 					Executable = "liquid-{0}/bin/liquidd",
 					Hash = "ea2836aa267b32b29e890acdd5e724b4be225c34891fd26426ce741c12c1e166"
 				},
-				RegtestFolderName = "liquidregtest",
 				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0"
 			};
 
@@ -1450,7 +1449,6 @@ namespace NBitcoin.Tests
 					Executable = "liquid-{0}/bin/liquidd",
 					Hash = "91f5859414d6bce99695c2de01317ec1454d3d99615f81f301b85f767b5e2cf2  "
 				},
-				RegtestFolderName = "liquidregtest",
 				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0"
 			};
 		}
