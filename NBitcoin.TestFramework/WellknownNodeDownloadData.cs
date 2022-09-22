@@ -741,34 +741,33 @@ namespace NBitcoin.Tests
 				}
 			};
 
-			// Note that Dash have DISABLED mining in their offical Windows and Mac binaries as per
-			// https://github.com/dashpay/dash/pull/2778 and https://github.com/dashpay/dash/issues/2998.
-			// Without generate or generatetoaddress RPC calls the ability to run automated tests is very limited.
-			//public NodeDownloadData v0_14_0_1 = new NodeDownloadData()
-			//{
-			//	Version = "0.14.0.1",
-			//	Windows = new NodeOSDownloadData()
-			//	{
-			//		DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-win64.zip",
-			//		Archive = "dashcore-{0}-win64.zip",
-			//		Executable = "dashcore-0.14.0/bin/dashd.exe",
-			//		Hash = "8d9a0d25cafb166dd49b75b63e059d2896d0162b3e32168c5dddb40c8ac3853b"
-			//	},
-			//	Linux = new NodeOSDownloadData()
-			//	{
-			//		DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-x86_64-linux-gnu.tar.gz",
-			//		Archive = "dashcore-{0}-x86_64-linux-gnu.tar.gz",
-			//		Executable = "dashcore-0.14.0/bin/dashd",
-			//		Hash = "c28881104ef7b3bdede7eb2b231b076a6e69213948695b4ec79ccb5621c04d97"
-			//	},
-			//	Mac = new NodeOSDownloadData()
-			//	{
-			//		DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-osx-unsigned.dmg",
-			//		Archive = "dashcore-{0}-osx-unsigned.dmg",
-			//		Executable = "dashcore-0.14.0/bin/dashd",
-			//		Hash = "51faffb422fbd3c659ef4b34e7e708174389d8493f2368db4d6c909b52db9115"
-			//	}
-			//};
+			public NodeDownloadData v18_0_1 = new NodeDownloadData()
+			{
+				Version = "18.0.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-win64.zip",
+					Archive = "dashcore-{0}-win64.zip",
+					Executable = "dashcore-{0}/bin/dashd.exe",
+					Hash = "b977afa493f42131047c6c9aad6381684234a34f48006269ce83ab1c4ac46b52"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "dashcore-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "dashcore-{0}/bin/dashd",
+					Hash = "99b4309c7f53b2a93d4b60a45885000b88947af2f329e24ca757ff8cf882ab18"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-osx-unsigned.dmg",
+					Archive = "dashcore-{0}-osx-unsigned.dmg",
+					Executable = "dashcore-{0}/bin/dashd",
+					Hash = "6f97f502732e5b63a431d0edb5a9d14e95ff8afb8e7eb94463566a75e7589a70"
+				},
+				UseSectionInConfigFile = true,
+				Chain = null
+			};
 		}
 
 		public class TerracoinNodeDownloadData : NodeDownloadDataBase
