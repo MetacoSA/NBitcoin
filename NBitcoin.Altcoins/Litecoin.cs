@@ -116,6 +116,10 @@ namespace NBitcoin.Altcoins
 
 			public static LitecoinConsensusFactory Instance { get; } = new LitecoinConsensusFactory();
 
+			public override Transaction CreateTransaction()
+			{
+				return new LitecoinTransaction();
+			}
 			public override BlockHeader CreateBlockHeader()
 			{
 				return new LitecoinBlockHeader();
