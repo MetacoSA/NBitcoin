@@ -4033,6 +4033,41 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void musig_tweak_vectors()
+		{
+			var root = JObject.Parse(File.ReadAllText("data/musig/tweak_vectors.json"));
+			var sk = new ECPrivKey(Encoders.Hex.DecodeData(root["sk"].Value<string>()), null);
+			var pubkeys = GetArray<string>(root["pubkeys"]).ToArray();
+			var secnonce = root["secnonce"].Value<string>();
+			var pnonces = GetArray<string>(root["pnonces"]).ToArray();
+			var ptweaks = GetArray<string>(root["tweaks"]).ToArray();
+			var msg = Encoders.Hex.DecodeData(root["msg"].Value<string>());
+			foreach (var item in (JArray)root["valid_test_cases"])
+			{
+				var keys = GetArray<int>(item["key_indices"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(pubkeys[p]))).ToArray();
+				var nonces = GetArray<int>(item["nonce_indices"]).Select(p => new MusigPubNonce(Encoders.Hex.DecodeData(pnonces[p]))).ToArray();
+				var tweaks = GetArray<int>(item["tweak_indices"]).Select(p => Encoders.Hex.DecodeData(ptweaks[p])).ToArray();
+				var is_xonly = GetArray<bool>(item["is_xonly"]);
+
+				var ctx = new MusigContext(keys, msg);
+				for (int i = 0; i < tweaks.Length; i++)
+				{
+					ctx.Tweak(tweaks[i], is_xonly[i]);
+				}
+				ctx.ProcessNonces(nonces);
+				var result = ctx.Sign(sk, ToMusigPrivNonce(secnonce));
+				AssertEx.EqualBytes(item["expected"].Value<string>(), result.ToBytes());
+			}
+		}
+
+		private MusigPrivNonce ToMusigPrivNonce(string hex)
+		{
+			var b = Encoders.Hex.DecodeData(hex);
+			return new MusigPrivNonce(ECPrivKey.Create(b.AsSpan().Slice(0, 32)),
+									  ECPrivKey.Create(b.AsSpan().Slice(32, 32)));
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
