@@ -16,17 +16,20 @@ namespace NBitcoin
 			get;
 		}
 	}
-	public interface ICoin
+	public interface ICoinable
 	{
-		IMoney Amount
-		{
-			get;
-		}
 		OutPoint Outpoint
 		{
 			get;
 		}
 		TxOut TxOut
+		{
+			get;
+		}
+	}
+	public interface ICoin : ICoinable
+	{
+		IMoney Amount
 		{
 			get;
 		}
@@ -163,7 +166,7 @@ namespace NBitcoin
 			}
 		}
 
-		OutPoint ICoin.Outpoint
+		OutPoint ICoinable.Outpoint
 		{
 			get
 			{
@@ -171,7 +174,7 @@ namespace NBitcoin
 			}
 		}
 
-		TxOut ICoin.TxOut
+		TxOut ICoinable.TxOut
 		{
 			get
 			{
@@ -340,7 +343,7 @@ namespace NBitcoin
 			}
 		}
 
-		OutPoint ICoin.Outpoint
+		OutPoint ICoinable.Outpoint
 		{
 			get
 			{
@@ -348,7 +351,7 @@ namespace NBitcoin
 			}
 		}
 
-		TxOut ICoin.TxOut
+		TxOut ICoinable.TxOut
 		{
 			get
 			{
@@ -565,7 +568,7 @@ namespace NBitcoin
 			}
 		}
 
-		OutPoint ICoin.Outpoint
+		OutPoint ICoinable.Outpoint
 		{
 			get
 			{
@@ -573,7 +576,7 @@ namespace NBitcoin
 			}
 		}
 
-		TxOut ICoin.TxOut
+		TxOut ICoinable.TxOut
 		{
 			get
 			{
