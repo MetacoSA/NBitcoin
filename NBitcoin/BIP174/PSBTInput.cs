@@ -1032,6 +1032,8 @@ namespace NBitcoin
 			{
 				ScriptVerify = scriptVerify
 			};
+			if (Transaction is IHasForkId)
+				eval.ScriptVerify |= NBitcoin.ScriptVerify.ForkId;
 			var txout = GetTxOut();
 			if (txout is null)
 			{
