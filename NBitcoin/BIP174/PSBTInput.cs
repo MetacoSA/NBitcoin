@@ -1071,7 +1071,10 @@ namespace NBitcoin
 			{
 				CheckCompatibleSigHash(this.Parent.Settings.SigningOptions.SigHash);
 				var signature = PartialSigs[ecdsapk];
-				if (this.Parent.Settings.SigningOptions.SigHash != existingSig.SigHash)
+				var signatureSigHash = existingSig.SigHash;
+				if (Transaction is IHasForkId)
+					signatureSigHash = (SigHash)((uint)existingSig.SigHash & ~(0x40u));
+				if (this.Parent.Settings.SigningOptions.SigHash != signatureSigHash)
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
 				return;
 			}

@@ -101,6 +101,8 @@ namespace NBitcoin.Tests
 				Assert.True(psbt.IsReadyToSign());
 				psbt.SignAll(ScriptPubKeyType.Legacy, bobMaster);
 				psbt.SignAll(ScriptPubKeyType.Legacy, aliceMaster);
+				// Twice should be no-op
+				psbt.SignAll(ScriptPubKeyType.Legacy, bobMaster);
 
 				psbt.Finalize();
 				var result = psbt.ExtractTransaction();
