@@ -1274,6 +1274,7 @@ namespace NBitcoin.RPC
 					?.ToList();
 			}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 			var blockchainInfo = new BlockchainInfo
 			{
 				Chain = Network.GetNetwork(result.Value<string>("chain")),
@@ -1290,6 +1291,7 @@ namespace NBitcoin.RPC
 				SoftForks = softForks,
 				Bip9SoftForks = bip9SoftForks
 			};
+#pragma warning restore CS0612 // Type or member is obsolete
 
 			return blockchainInfo;
 		}
@@ -2566,7 +2568,9 @@ namespace NBitcoin.RPC
 		public ulong SizeOnDisk { get; set; }
 		public bool Pruned { get; set; }
 
+		[Obsolete]
 		public List<SoftFork> SoftForks { get; set; }
+		[Obsolete]
 		public List<Bip9SoftFork> Bip9SoftForks { get; set; }
 	}
 

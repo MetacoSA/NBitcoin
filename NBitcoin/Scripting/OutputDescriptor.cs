@@ -676,8 +676,11 @@ namespace NBitcoin.Scripting
 
 		static readonly char[] INPUT_CHARSET = INPUT_CHARSET_STRING.ToCharArray();
 
-		internal static string GetCheckSum(string desc)
+		public static string AddChecksum(string desc) => $"{desc}#{GetCheckSum(desc)}"; 
+		public static string GetCheckSum(string desc)
 		{
+			if (desc is null)
+				throw new ArgumentNullException(nameof(desc));
 			ulong c = 1;
 			int cls = 0;
 			int clscount = 0;
