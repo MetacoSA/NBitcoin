@@ -21,6 +21,8 @@ using Encoders = NBitcoin.DataEncoders.Encoders;
 using static NBitcoin.Tests.Helpers.PrimitiveUtils;
 using Newtonsoft.Json.Schema;
 using Xunit.Sdk;
+using NBitcoin.Scripting;
+using NBitcoin.RPC;
 
 namespace NBitcoin.Tests
 {

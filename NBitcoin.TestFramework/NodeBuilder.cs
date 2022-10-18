@@ -20,6 +20,11 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Tests
 {
+	public enum RPCWalletType
+	{
+		Legacy,
+		Descriptor
+	}
 	public enum CoreNodeState
 	{
 		Stopped,
@@ -212,6 +217,7 @@ namespace NBitcoin.Tests
 			set;
 		} = Network.RegTest;
 		public NodeDownloadData NodeImplementation { get; private set; }
+		public RPCWalletType? RPCWalletType { get; set; }
 
 		public CoreNode CreateNode(bool start = false)
 		{
@@ -576,10 +582,19 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		public RPCWalletType? RPCWalletType { get; set; }
+
 		private void CreateDefaultWallet()
 		{
 			var walletToolPath = Path.Combine(Path.GetDirectoryName(this._Builder.BitcoinD), _Builder.NodeImplementation.WalletExecutable);
-			string walletToolArgs = $"{string.Format(_Builder.NodeImplementation.GetWalletChainSpecifier, _Builder.NodeImplementation.Chain)} -wallet=\"wallet.dat\" -datadir=\"{dataDir}\" create";
+
+			var walletType = (RPCWalletType ?? this._Builder.RPCWalletType) switch
+			{
+				Tests.RPCWalletType.Descriptor => " -descriptor",
+				Tests.RPCWalletType.Legacy => " -legacy",
+				_ => string.Empty
+			};
+			string walletToolArgs = $"{string.Format(_Builder.NodeImplementation.GetWalletChainSpecifier, _Builder.NodeImplementation.Chain)} -wallet=\"wallet.dat\"{walletType} -datadir=\"{dataDir}\" create";
 
 			var info = new ProcessStartInfo(walletToolPath, walletToolArgs)
 			{

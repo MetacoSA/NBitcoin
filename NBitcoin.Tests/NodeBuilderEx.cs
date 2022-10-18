@@ -69,7 +69,8 @@ namespace NBitcoin.Tests
 
 			//var builder = Create(NodeDownloadData.Bitcoin.v0_19_0_1, caller);
 
-			var builder = Create(NodeDownloadData.Bitcoin.v22_0, caller);
+			var builder = Create(NodeDownloadData.Bitcoin.v23_0, caller);
+			builder.RPCWalletType = RPCWalletType.Legacy;
 			return builder;
 		}
 
