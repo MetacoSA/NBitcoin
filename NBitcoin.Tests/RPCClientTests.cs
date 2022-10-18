@@ -1722,11 +1722,14 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
-		public async Task CanGenerateBlocks()
+		[Theory]
+		[InlineData(RPCWalletType.Descriptors)]
+		[InlineData(RPCWalletType.Legacy)]
+		public async Task CanGenerateBlocks(RPCWalletType walletType)
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
+				builder.RPCWalletType = walletType;
 				var node = builder.CreateNode();
 				node.CookieAuth = true;
 				node.Start();

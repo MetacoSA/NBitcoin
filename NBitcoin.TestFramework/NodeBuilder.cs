@@ -23,7 +23,7 @@ namespace NBitcoin.Tests
 	public enum RPCWalletType
 	{
 		Legacy,
-		Descriptor
+		Descriptors
 	}
 	public enum CoreNodeState
 	{
@@ -590,7 +590,7 @@ namespace NBitcoin.Tests
 
 			var walletType = (RPCWalletType ?? this._Builder.RPCWalletType) switch
 			{
-				Tests.RPCWalletType.Descriptor => " -descriptor",
+				Tests.RPCWalletType.Descriptors => " -descriptors",
 				Tests.RPCWalletType.Legacy => " -legacy",
 				_ => string.Empty
 			};
