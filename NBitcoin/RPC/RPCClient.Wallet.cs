@@ -117,7 +117,7 @@ namespace NBitcoin.RPC
 	{
 		#nullable enable
 
-		public RPCClient GetWallet(string walletName)
+		public RPCClient GetWallet(string? walletName)
 		{
 			RPCCredentialString credentialString;;
 
@@ -565,7 +565,7 @@ namespace NBitcoin.RPC
 			foreach (var addr in addresses)
 			{
 				var obj = JObject.FromObject(addr, seria);
-				if (obj["timestamp"] == null || obj["timestamp"].Type == JTokenType.Null)
+				if (obj["timestamp"] == null || obj["timestamp"]?.Type is JTokenType.Null)
 					obj["timestamp"] = "now";
 				else
 					obj["timestamp"] = new JValue(Utils.DateTimeToUnixTime(addr.Timestamp!.Value));

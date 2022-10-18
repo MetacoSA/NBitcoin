@@ -1735,15 +1735,15 @@ namespace NBitcoin.RPC
 				response = await SendCommandAsync(RPCOperations.testmempoolaccept, cancellationToken, new[] { new[] { transaction.ToHex() } }).ConfigureAwait(false);
 			}
 
-			var first = response.Result[0];
-			var allowed = first["allowed"].Value<bool>();
+			var first = response.Result[0]!;
+			var allowed = first["allowed"]!.Value<bool>();
 
 			RejectCode rejectedCode = RejectCode.INVALID;
 			var rejectedReason = string.Empty;
 			if (!allowed)
 			{
-				var rejected = first["reject-reason"].Value<string>();
-				var separatorIdx = rejected.IndexOf(':');
+				var rejected = first["reject-reason"]!.Value<string>();
+				var separatorIdx = rejected!.IndexOf(':');
 				if (separatorIdx != -1)
 				{
 					rejectedCode = (RejectCode)int.Parse(rejected.Substring(0, separatorIdx));
@@ -1756,7 +1756,7 @@ namespace NBitcoin.RPC
 			}
 			return new MempoolAcceptResult
 			{
-				TxId = uint256.Parse(first["txid"].Value<string>()),
+				TxId = uint256.Parse(first["txid"]!.Value<string>()),
 				IsAllowed = allowed,
 				RejectCode = rejectedCode,
 				RejectReason = rejectedReason
