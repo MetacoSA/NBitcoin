@@ -1,3 +1,6 @@
+#nullable enable
+using System;
+
 namespace NBitcoin.Protocol
 {
 	[Payload("feefilter")]
@@ -5,25 +8,36 @@ namespace NBitcoin.Protocol
 	{
 		public FeeFilterPayload()
 		{
-			_feeRate = 0;
+			_feeRate = FeeRate.Zero;
 		}
 
-		private ulong _feeRate;
+		private FeeRate _feeRate;
 		public FeeRate FeeRate
 		{
 			get
 			{
-				return new FeeRate(new Money(_feeRate));
+				return _feeRate;
 			}
 			set
 			{
-				_feeRate = (ulong)value.FeePerK.Satoshi;
+				if (value is null)
+					throw new ArgumentNullException(nameof(value));
+				_feeRate = value;
 			}
 		}
 
 		public override void ReadWriteCore(BitcoinStream stream)
 		{
-			stream.ReadWrite(ref _feeRate);
+			if (stream.Serializing)
+			{
+				stream.ReadWrite(_feeRate.FeePerK.Satoshi);
+			}
+			else
+			{
+				long v = 0;
+				stream.ReadWrite(ref v);
+				_feeRate = new FeeRate(Money.Satoshis(v), 1000);
+			}
 		}
 
 		public override string ToString()
