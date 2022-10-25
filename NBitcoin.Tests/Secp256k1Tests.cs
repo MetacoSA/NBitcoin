@@ -4230,6 +4230,64 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void schnorr_adaptor_tests()
+		{
+			var anotherKey = new ECPrivKey(Encoders.Hex.DecodeData("f44a81a036d700ca59c3c02e3dd92841a389e1aa8ea572492484437714b62aee"), null);
+			var anotherPk = anotherKey.CreateXOnlyPubKey();
+			var anotherAdaptorKey = new ECPrivKey(Encoders.Hex.DecodeData("4fad346c63cd9b4a5363675d382703c5d1ea4f76d34a60d4babbf8c2bd77a4ef"), null);
+			var anotherAdaptor = anotherAdaptorKey.CreatePubKey();
+			var anotherMsg = Encoders.Hex.DecodeData("4fad346c63cd9b4a5363675d382703c5d1ea4f76d34a60d4babbf8c2bd77a4ef");
+			var vectors = new[]
+			{
+				new
+				{
+					PrivateKey = "688c77bc2d5aaff5491cf309d4753b732135470d05b7b2cd21add0744fe97bef",
+					Message = "024bdd11f2144e825db05759bdd9041367a420fad14b665fd08af5b42056e5e2",
+					AdaptorPrivateKey = "475697a71a74ff3f2a8f150534e9b67d4b0b6561fab86fcaa51f8c9d6c9db8c6"
+				},
+				new
+				{
+					PrivateKey = "0af83c21559b2d26cc7cff555bd90e0e3dca63b370e989f9abfa20be6d2ce3d6",
+					Message = "c81e4db5d6cf653bfba0dc9edfa23cc507251ce288e0294ef9fca11c5a4636ff",
+					AdaptorPrivateKey = "6c4bfbd4c93624d3bd95b177d1f814ee2e11ca3facecdf00475b6c5a638f304d"
+				},
+				new
+				{
+					PrivateKey = "e207a43edf9e82329f700f0c60d9b1fa60f9eeb8c9d6d54d246c895807911adc",
+					Message = "6e2b7cf1d84886790fe418467cb38f2ef6bf7ba69c8af959b61fe9294b3458a2",
+					AdaptorPrivateKey = "0a9b8e3c1b9e5166e3697f6680cf61a4434605d12739b630ddeb6f8f24163952"
+				}
+			};
+			foreach (var v in vectors)
+			{
+				var key = new ECPrivKey(Encoders.Hex.DecodeData(v.PrivateKey), null);
+				var pk = key.CreateXOnlyPubKey();
+				var adaptorKey = new ECPrivKey(Encoders.Hex.DecodeData(v.AdaptorPrivateKey), null);
+				var adaptor = adaptorKey.CreatePubKey();
+				var msg = Encoders.Hex.DecodeData(v.Message);
+				var encryptedSignature = key.SignEncryptedBIP340(msg, adaptor);
+				Assert.True(pk.SigVerifyEncryptedBIP340(encryptedSignature, msg, adaptor));
+
+				var schnorrSig = adaptorKey.DecryptBIP340Signature(encryptedSignature);
+				Assert.True(pk.SigVerifyBIP340(schnorrSig, msg));
+
+				var adaptorKey2 = adaptor.RecoverDecryptionKey(encryptedSignature, schnorrSig);
+				Assert.Equal(adaptorKey, adaptorKey2);
+
+				// Negative tests
+				Assert.False(anotherPk.SigVerifyEncryptedBIP340(encryptedSignature, msg, adaptor));
+				Assert.False(pk.SigVerifyEncryptedBIP340(encryptedSignature, msg, anotherAdaptor));
+				Assert.False(pk.SigVerifyEncryptedBIP340(encryptedSignature, anotherMsg, adaptor));
+				var originalSignature = encryptedSignature;
+				encryptedSignature = new SchnorrEncryptedSignature(originalSignature.R, originalSignature.s_hat.Add(Scalar.One), originalSignature.need_negation);
+				Assert.False(pk.SigVerifyEncryptedBIP340(encryptedSignature, msg, adaptor));
+				encryptedSignature = new SchnorrEncryptedSignature(originalSignature.R, originalSignature.s_hat, !originalSignature.need_negation);
+				Assert.False(pk.SigVerifyEncryptedBIP340(encryptedSignature, msg, adaptor));
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void musig_key_sort_vectors()
 		{
 			var root = JObject.Parse(File.ReadAllText("data/musig/key_sort_vectors.json"));
