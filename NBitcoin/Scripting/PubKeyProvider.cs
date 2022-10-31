@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace NBitcoin.Scripting
@@ -40,14 +41,14 @@ namespace NBitcoin.Scripting
 
 		public class Const : PubKeyProvider
 		{
-			internal Const(PubKey pk)
+			internal Const(PubKey pk, bool xonly = false)
 			{
-				if (pk == null)
-					throw new ArgumentNullException(nameof(pk));
-				Pk = pk;
+				Pk = pk ?? throw new ArgumentNullException(nameof(pk));
+				Xonly = xonly;
 			}
 
 			public PubKey Pk { get; }
+			public bool Xonly { get; }
 		}
 
 		public enum DeriveType
@@ -108,6 +109,30 @@ namespace NBitcoin.Scripting
 		public static PubKeyProvider NewConst(PubKey pk) =>
 			new Const(pk);
 
+		public static PubKeyProvider NewConst(PubKey pk, bool xonly) =>
+			new Const(pk, xonly);
+
+#if HAS_SPAN
+
+		public static PubKeyProvider NewConst(TaprootPubKey pk)
+		{
+			var pkBytes = new byte[33];
+			pkBytes[0] = 0x02;
+			pk.ToBytes().CopyTo(pkBytes, 1);
+			return new Const(new PubKey(pkBytes), xonly: true);
+		}
+
+		public static PubKeyProvider NewConst(TaprootFullPubKey pk) => NewConst((TaprootPubKey)pk);
+
+		public static PubKeyProvider NewConst(TaprootInternalPubKey pk)
+		{
+			var pkBytes = new byte[33];
+			pkBytes[0] = 0x02;
+			pk.ToBytes().CopyTo(pkBytes, 1);
+			return new Const(new PubKey(pkBytes), xonly: true);
+		}
+#endif
+
 		public static PubKeyProvider NewHD(BitcoinExtPubKey extPubKey, KeyPath kp, DeriveType t) =>
 			new HD(extPubKey, kp, t);
 
@@ -125,13 +150,13 @@ namespace NBitcoin.Scripting
 		/// <summary>
 		///
 		/// </summary>
-		/// <param name="pos"></param>
-		/// <param name="privateKeyProvider">In case of the hardend derivation.
-		/// You must give private key by this to derive child</param>
-		/// <param name="keyOriginInfo"></param>
-		/// <param name="pubkey"></param>
+		/// <param name="pos">derivation index position in case of xpub.</param>
+		/// <param name="privateKeyProvider">In case of the hardened derivation,
+		/// You must give private key by this argument so that we can derive the child</param>
+		/// <param name="keyOriginInfo">output keyOriginInfo (optional)</param>
+		/// <param name="pubkey">output PubKey</param>
 		/// <returns></returns>
-		public bool TryGetPubKey(uint pos, Func<KeyId, Key> privateKeyProvider, out RootedKeyPath keyOriginInfo, out PubKey pubkey)
+		public bool TryGetPubKey(uint pos, Func<KeyId, Key> privateKeyProvider, out RootedKeyPath keyOriginInfo, [MaybeNullWhen(false)] out PubKey pubkey)
 		{
 			if (privateKeyProvider == null) throw new ArgumentNullException(nameof(privateKeyProvider));
 			pubkey = null;
@@ -195,30 +220,30 @@ namespace NBitcoin.Scripting
 			}
 			throw new Exception("Unreachable!");
 		}
-		public bool IsRange() => (this) switch
+		public bool IsRange() => this switch
 		{
 			Origin self => self.Inner.IsRange(),
 			Const _ => false,
 			HD self => self.Derive != DeriveType.NO,
 			_ => throw new Exception("Unreachable!"),
 		};
-		public bool IsCompressed() => (this) switch
+		public bool IsCompressed() => this switch
 		{
 			Origin self =>
 				self.Inner.IsCompressed(),
 			Const self =>
-				self.Pk.IsCompressed,
+				self.Xonly || self.Pk.IsCompressed,
 			HD _ =>
 				false,
 			_ => throw new Exception("Unreachable!"),
 		};
 
-		public override string ToString() => (this) switch
+		public override string ToString() => this switch
 		{
 			Origin self =>
 				$"[{self.KeyOriginInfo.ToStringWithEmptyKeyPathAware()}]{self.Inner}",
 			Const self =>
-				self.Pk.ToHex(),
+				self.Xonly ? self.Pk.ToHex().Substring(2, 64) : self.Pk.ToHex(),
 			HD self =>
 				$"{self.Extkey.ToWif()}{self.GetPathString()}",
 			_ =>
@@ -263,10 +288,11 @@ namespace NBitcoin.Scripting
 			=> Equals(obj as PubKeyProvider);
 
 
-		public bool Equals(PubKeyProvider other) => other != null && (this) switch
+		public bool Equals(PubKeyProvider other) => other != null && this switch
 		{
 			Const self =>
 				other is Const o &&
+				self.Xonly.Equals(o.Xonly) &&
 				self.Pk.Equals(o.Pk),
 			HD self =>
 				other is HD o &&
@@ -289,6 +315,7 @@ namespace NBitcoin.Scripting
 				case Const self:
 					{
 						num = 0;
+						num = -1640531527 + self.Xonly.GetHashCode() + ((num << 6) + (num >> 2));
 						return -1640531527 + self.Pk.GetHashCode() + ((num << 6) + (num >> 2));
 					}
 				case HD self:

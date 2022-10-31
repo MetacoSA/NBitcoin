@@ -1,6 +1,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+#if HAS_SPAN
+using NBitcoin.Secp256k1;
+#endif
+
 #nullable enable
 
 namespace NBitcoin
@@ -20,7 +25,16 @@ namespace NBitcoin
 		/// <returns></returns>
 		bool TryGetScript(ScriptId scriptId, [MaybeNullWhen(false)] out Script script);
 		bool TryGetPubKey(KeyId keyId, [MaybeNullWhen(false)] out PubKey pubkey);
+
+
+		/// <summary>
+		///  Get KeyOrigin info for the public key id.
+		/// </summary>
+		/// <param name="keyId"></param>
+		/// <param name="keyorigin"></param>
+		/// <returns></returns>
 		bool TryGetKeyOrigin(KeyId keyId, [MaybeNullWhen(false)] out RootedKeyPath keyorigin);
+
 		bool TryGetSecret(KeyId keyId, [MaybeNullWhen(false)] out ISecret secret);
 
 
@@ -34,6 +48,14 @@ namespace NBitcoin
 		void SetPubKey(KeyId keyId, PubKey pubkey);
 		void SetSecret(KeyId keyId, ISecret secret);
 		void SetKeyOrigin(KeyId keyId, RootedKeyPath keyOrigin);
+
+#if HAS_SPAN
+		bool TryGetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, [MaybeNullWhen(false)] out RootedKeyPath keyorigin);
+		bool TryGetTaprootInternalKey(TaprootFullPubKey taprootOutput,  [MaybeNullWhen(false)] out TaprootInternalPubKey internalPubKey);
+		void SetTaprootInternalKey(TaprootFullPubKey key, TaprootInternalPubKey value);
+
+		void SetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, RootedKeyPath keyOrigin);
+#endif
 
 		/// <summary>
 		/// Consume the argument and take everything it holds.
@@ -49,6 +71,21 @@ namespace NBitcoin
 		public static bool IsSolvable(this ISigningRepository repo, Script scriptPubKey)
 		{
 			var temp = scriptPubKey.FindTemplate();
+
+#if HAS_SPAN
+			if (temp is PayToTaprootTemplate p2trT)
+			{
+				if (p2trT.ExtractScriptPubKeyParameters(scriptPubKey) is TaprootFullPubKey pk)
+				{
+					if (repo.TryGetTaprootInternalKey(pk, out var internalPubKey))
+					{
+						// We must make sure that this Taproot output does not have a script path.
+						return internalPubKey.GetTaprootFullPubKey(null).Equals(pk);
+					}
+				}
+			}
+#endif
+
 			if (temp is PayToPubkeyTemplate p2pkT)
 			{
 				var pk = p2pkT.ExtractScriptPubKeyParameters(scriptPubKey)!;
@@ -115,6 +152,19 @@ namespace NBitcoin
 			return res.PrivateKey;
 		}
 
+#if HAS_SPAN
+		public static bool TryGetKeyOrigin(
+			this ISigningRepository repo,
+			TaprootFullPubKey taprootFullPubKey,
+			[MaybeNullWhen(false)] out RootedKeyPath rootedKeyPath
+		)
+		{
+			rootedKeyPath = null;
+			return
+				repo.TryGetTaprootInternalKey(taprootFullPubKey, out var internalKey)
+				&& repo.TryGetKeyOrigin(internalKey, out rootedKeyPath);
+		}
+#endif
 	}
 
 	public class FlatSigningRepository : ISigningRepository
@@ -123,6 +173,10 @@ namespace NBitcoin
 		public ConcurrentDictionary<KeyId, PubKey> Pubkeys { get; }
 		public ConcurrentDictionary<KeyId, RootedKeyPath> KeyOrigins { get; }
 		public ConcurrentDictionary<ScriptId, Script> Scripts { get; }
+#if HAS_SPAN
+		public ConcurrentDictionary<TaprootFullPubKey, TaprootInternalPubKey> TaprootKeys { get; }
+		public ConcurrentDictionary<TaprootInternalPubKey, RootedKeyPath> TaprootKeyOrigins { get; }
+#endif
 
 		public FlatSigningRepository()
 		{
@@ -130,6 +184,10 @@ namespace NBitcoin
 			Pubkeys = new ConcurrentDictionary<KeyId, PubKey>();
 			KeyOrigins = new ConcurrentDictionary<KeyId, RootedKeyPath>();
 			Scripts = new ConcurrentDictionary<ScriptId, Script>();
+#if HAS_SPAN
+			TaprootKeys = new ConcurrentDictionary<TaprootFullPubKey, TaprootInternalPubKey>();
+			TaprootKeyOrigins = new ConcurrentDictionary<TaprootInternalPubKey, RootedKeyPath>();
+#endif
 		}
 
 		public bool TryGetScript(ScriptId scriptId, [MaybeNullWhen(false)] out Script script)
@@ -141,8 +199,11 @@ namespace NBitcoin
 		public bool TryGetKeyOrigin(KeyId keyId, [MaybeNullWhen(false)] out RootedKeyPath keyOrigin)
 			=> KeyOrigins.TryGetValue(keyId, out keyOrigin);
 
+
 		public bool TryGetSecret(KeyId keyId, [MaybeNullWhen(false)] out ISecret key)
 			=> Secrets.TryGetValue(keyId, out key);
+
+
 		public void SetScript(ScriptId scriptId, Script script)
 		{
 			if (scriptId == null)
@@ -203,6 +264,28 @@ namespace NBitcoin
 			KeyOrigins.AddOrReplace(keyId, keyOrigin);
 		}
 
+
+#if HAS_SPAN
+		public bool TryGetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, out RootedKeyPath keyorigin)
+			=> TaprootKeyOrigins.TryGetValue(taprootInternalPubKey, out keyorigin);
+		public bool TryGetTaprootInternalKey(TaprootFullPubKey taprootOutput, out TaprootInternalPubKey internalPubKey)
+			=> TaprootKeys.TryGetValue(taprootOutput, out internalPubKey);
+		public void SetTaprootInternalKey(TaprootFullPubKey key, TaprootInternalPubKey value)
+		{
+			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (value == null) throw new ArgumentNullException(nameof(value));
+
+			TaprootKeys.AddOrReplace(key, value);
+		}
+
+		public void SetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, RootedKeyPath keyOrigin)
+		{
+			if (taprootInternalPubKey == null) throw new ArgumentNullException(nameof(taprootInternalPubKey));
+			if (keyOrigin == null) throw new ArgumentNullException(nameof(keyOrigin));
+			TaprootKeyOrigins.AddOrReplace(taprootInternalPubKey, keyOrigin);
+		}
+#endif
+
 		public void Merge(ISigningRepository other)
 		{
 			if (!(other is FlatSigningRepository))
@@ -215,6 +298,10 @@ namespace NBitcoin
 			MergeDict(Pubkeys, otherRepo.Pubkeys);
 			MergeDict(Scripts, otherRepo.Scripts);
 			MergeDict(KeyOrigins, otherRepo.KeyOrigins);
+#if HAS_SPAN
+			MergeDict(TaprootKeys, otherRepo.TaprootKeys);
+			MergeDict(TaprootKeyOrigins, otherRepo.TaprootKeyOrigins);
+#endif
 		}
 
 		private void MergeDict<U, T>(ConcurrentDictionary<U, T> a, ConcurrentDictionary<U, T> b) where U : notnull

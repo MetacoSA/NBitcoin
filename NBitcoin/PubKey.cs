@@ -35,13 +35,30 @@ namespace NBitcoin
 		/// Use this when you worry that your users do not support Bech address format.
 		/// </summary>
 		SegwitP2SH,
+
 		/// <summary>
 		/// Derive the taproot address of this pubkey following BIP86. This public key is used as the internal key, the output key is computed without script path. (The tweak is SHA256(internal_key))
 		/// </summary>
 #if !HAS_SPAN
 		[Obsolete("TaprootBIP86 is unavailable in .net framework")]
 #endif
-		TaprootBIP86
+		TaprootBIP86,
+
+		/// <summary>
+		/// Taproot with possible script-spend.
+		/// </summary>
+#if !HAS_SPAN
+		[Obsolete("TaprootWithScript is unavailable in .net framework")]
+#endif
+		TaprootWithScript,
+
+#if !HAS_SPAN
+		[Obsolete("TaprootRaw is unavailable in .net framework")]
+#endif
+		/// <summary>
+		/// Taproot output that we don't know if the script path exists or not.
+		/// </summary>
+		TaprootRaw
 	}
 	public class PubKey : IDestination, IComparable<PubKey>, IEquatable<PubKey>, IPubKey
 	{
@@ -79,6 +96,7 @@ namespace NBitcoin
 			pubKey = null;
 			return false;
 		}
+
 #endif
 #if !HAS_SPAN
 		public static bool TryCreatePubKey(byte[] bytes, [MaybeNullWhen(false)] out PubKey pubKey)
@@ -325,8 +343,23 @@ namespace NBitcoin
 			return TaprootInternalKey.GetTaprootFullPubKey(merkleRoot);
 		}
 
-		TaprootInternalPubKey? _InternalKey;
 		internal bool Parity => this.ECKey.Q.y.IsOdd;
+
+#if HAS_SPAN
+		private PubKey? _twin;
+		internal PubKey GetYCoordinateEvenPubKey()
+		{
+			if (!Parity)
+				return this;
+			var pkBytes = new byte[33];
+			pkBytes[0] = 0x02;
+			ToBytes().AsSpan().Slice(1, 32).CopyTo(pkBytes.AsSpan().Slice(1));
+			_twin = new PubKey(pkBytes);
+			return _twin;
+		}
+#endif
+
+		TaprootInternalPubKey? _InternalKey;
 		public TaprootInternalPubKey TaprootInternalKey
 		{
 			get
@@ -340,6 +373,24 @@ namespace NBitcoin
 				return _InternalKey;
 			}
 		}
+
+
+		TaprootPubKey? _TaprootOutputPubKey;
+		internal TaprootPubKey TaprootOutputPubKey
+		{
+			get
+			{
+				if (_TaprootOutputPubKey is TaprootFullPubKey)
+				{
+					return _TaprootOutputPubKey;
+				}
+
+				var xonly = this.ECKey.ToXOnlyPubKey(out _);
+				_TaprootOutputPubKey = new TaprootPubKey(xonly);
+				return _TaprootOutputPubKey;
+			}
+		}
+
 #endif
 		HDFingerprint? fp;
 		public HDFingerprint GetHDFingerPrint()

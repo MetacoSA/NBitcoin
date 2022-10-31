@@ -649,6 +649,14 @@ namespace NBitcoin.Scripting.Parser
 			};
 		}
 
+		internal delegate bool SafeConverter<TIn, TOut>(TIn input, out TOut output);
+
+		internal static Parser<char, T> TryConvert<T>(string str, SafeConverter<string, T> safeConverter) =>
+			(i, n) =>
+				safeConverter(str, out var result)
+					? ParserResult<char, T>.Success(i, result)
+					: ParserResult<char, T>.Failure(i, $"Failed to parse {str} as {typeof(T)}");
+
 		#endregion
 	}
 
