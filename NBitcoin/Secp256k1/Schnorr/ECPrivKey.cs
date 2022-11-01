@@ -156,16 +156,10 @@ namespace NBitcoin.Secp256k1
 				k = k.Negate();
 			var rx = r.x.NormalizeVariable();
 			rx.WriteToSpan(sig64);
-			/* tagged hash(r.x, pk.x, msg32) */
-			sha.InitializeTagged(ECXOnlyPubKey.TAG_BIP0340Challenge);
-			sha.Write(sig64.Slice(0, 32));
-			sha.Write(pk_buf);
-			sha.Write(msg32);
-			sha.GetHash(buf);
-
+			
 			/* Set scalar e to the challenge hash modulo the curve order as per
      * BIP340. */
-			var e = new Scalar(buf, out _);
+			Scalar e = GetBIP340Challenge(msg32, sig64.Slice(0, 32), pk_buf);
 			e = e * sk;
 			e = e + k;
 			e.WriteToSpan(sig64.Slice(32));
@@ -181,9 +175,27 @@ namespace NBitcoin.Secp256k1
 			return signature is SecpSchnorrSignature;
 		}
 
+		internal static Scalar GetBIP340Challenge(ReadOnlySpan<byte> msg32, Span<byte> R, Span<byte> pk)
+		{
+			Span<byte> buf = stackalloc byte[32];
+			/* tagged hash(r.x, pk.x, msg32) */
+			using SHA256 sha = new SHA256();
+			sha.InitializeTagged(ECXOnlyPubKey.TAG_BIP0340Challenge);
+			sha.Write(R);
+			sha.Write(pk);
+			sha.Write(msg32);
+			sha.GetHash(buf);
+			var e = new Scalar(buf, out _);
+			return e;
+		}
+
 		public ECXOnlyPubKey CreateXOnlyPubKey()
 		{
-			return CreatePubKey().ToXOnlyPubKey(out _);
+			return CreateXOnlyPubKey(out _);
+		}
+		public ECXOnlyPubKey CreateXOnlyPubKey(out bool parity)
+		{
+			return CreatePubKey().ToXOnlyPubKey(out parity);
 		}
 	}
 }

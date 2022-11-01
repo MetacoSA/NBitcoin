@@ -83,6 +83,10 @@ namespace NBitcoin.Tests
 				return num;
 			} while (true);
 		}
+		static void rand_flip_bit(Span<byte> array)
+		{
+			array[(int)secp256k1_rand_int((uint)array.Length)] ^= (byte)(1 << (int)secp256k1_rand_int(8));
+		}
 		static uint secp256k1_rand_int(uint range)
 		{
 			/* We want a uniform integer between 0 and range-1, inclusive.
