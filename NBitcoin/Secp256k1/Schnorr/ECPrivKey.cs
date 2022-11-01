@@ -35,16 +35,21 @@ namespace NBitcoin.Secp256k1
 			}
 		}
 
+		/* Precomputed TaggedHash("BIP0340/aux", 0x0000...00); */
+		static byte[] ZERO_MASK = new byte[]{
+			  84, 241, 105, 207, 201, 226, 229, 114,
+			 116, 128,  68,  31, 144, 186,  37, 196,
+			 136, 244,  97, 199,  11,  94, 165, 220,
+			 170, 247, 175, 105, 39,  10, 165,  20
+		};
+
 		static byte[] TAG_BIP0340AUX = ASCIIEncoding.ASCII.GetBytes("BIP0340/aux");
-		public readonly static byte[] ALGO_BIP340 = ASCIIEncoding.ASCII.GetBytes("BIP0340/nonce\0\0\0");
 		public readonly static byte[] TAG_BIP340 = ASCIIEncoding.ASCII.GetBytes("BIP0340/nonce");
-		public bool TryGetNonce(Span<byte> nonce32, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> xonly_pk32, ReadOnlySpan<byte> algo16)
+		public bool TryGetNonce(Span<byte> nonce32, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> xonly_pk32, ReadOnlySpan<byte> algo)
 		{
 			int i = 0;
 			Span<byte> masked_key = stackalloc byte[32];
 			using SHA256 sha = new SHA256();
-			if (algo16.Length != 16)
-				return false;
 
 			if (data32.Length == 32)
 			{
@@ -56,35 +61,18 @@ namespace NBitcoin.Secp256k1
 					masked_key[i] ^= key32[i];
 				}
 			}
-
-			// * Tag the hash with algo16 which is important to avoid nonce reuse across
-			// * algorithms. If this nonce function is used in BIP-340 signing as defined
-			// * in the spec, an optimized tagging implementation is used. */
-
-			if (algo16.SequenceCompareTo(ALGO_BIP340) == 0)
-			{
-				sha.InitializeTagged(TAG_BIP340);
-			}
 			else
 			{
-				int algo16_len = 16;
-				/* Remove terminating null bytes */
-				while (algo16_len > 0 && algo16[algo16_len - 1] == 0)
+			
+				for (i = 0; i < 32; i++)
 				{
-					algo16_len--;
+					masked_key[i] = (byte)(key32[i] ^ ZERO_MASK[i]);
 				}
-				sha.InitializeTagged(algo16.Slice(0, algo16_len));
 			}
 
-			//* Hash (masked-)key||pk||msg using the tagged hash as per the spec */
-			if (data32.Length == 32)
-			{
-				sha.Write(masked_key);
-			}
-			else
-			{
-				sha.Write(key32);
-			}
+			sha.InitializeTagged(algo);
+			//* Hash masked-key||pk||msg using the tagged hash as per the spec */
+			sha.Write(masked_key);
 			sha.Write(xonly_pk32);
 			sha.Write(msg32);
 			sha.GetHash(nonce32);
@@ -157,7 +145,7 @@ namespace NBitcoin.Secp256k1
 			}
 			sk.WriteToSpan(sec_key);
 			pk.x.WriteToSpan(pk_buf);
-			var ret = nonceFunction.TryGetNonce(buf, msg32, sec_key, pk_buf, BIP340NonceFunction.ALGO_BIP340);
+			var ret = nonceFunction.TryGetNonce(buf, msg32, sec_key, pk_buf, BIP340NonceFunction.TAG_BIP340);
 			var k = new Scalar(buf, out _);
 			ret &= !k.IsZero;
 			Scalar.CMov(ref k, Scalar.One, ret ? 0 : 1);
