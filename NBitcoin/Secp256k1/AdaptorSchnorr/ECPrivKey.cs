@@ -70,7 +70,7 @@ namespace NBitcoin.Secp256k1
 			Span<byte> msgNonce = stackalloc byte[33 + 32];
 			adaptor.WriteToSpan(true, msgNonce, out _);
 			msg32.CopyTo(msgNonce.Slice(33));
-			if (!nonceFunction.TryGetNonce(nonce32, msgNonce, sec_key, pk_buf, BIP340NonceFunction.ALGO_BIP340))
+			if (!nonceFunction.TryGetNonce(nonce32, msgNonce, sec_key, pk_buf, BIP340NonceFunction.TAG_BIP340))
 				throw new InvalidOperationException("This should never happen ERROR29483, contact NBitcoin developers");
 
 			var r = new Scalar(nonce32, out _);

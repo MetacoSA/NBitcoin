@@ -192,6 +192,9 @@
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+	<None Update="data\ecdsaadaptor\*.json">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
   </ItemGroup>
   <ItemGroup>
     <None Update="data\SHA3TestVectors.txt">

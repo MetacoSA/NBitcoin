@@ -27,7 +27,14 @@ namespace NBitcoin.Tests
 		public Secp256k1Tests(ITestOutputHelper helper)
 		{
 			Logs = helper;
+			Random = new RFC6979HMACSHA256();
+			Span<byte> seed = stackalloc byte[32];
+			RandomUtils.GetBytes(seed);
+			Logs.WriteLine("Random seed: " + Encoders.Hex.EncodeData(seed));
+			Random.Initialize(seed);
 		}
+		RFC6979HMACSHA256 Random;
+
 		Scalar One = new Scalar(1, 0, 0, 0, 0, 0, 0, 0);
 		Scalar Two = new Scalar(2, 0, 0, 0, 0, 0, 0, 0);
 		Scalar Three = new Scalar(3, 0, 0, 0, 0, 0, 0, 0);
@@ -4169,6 +4176,172 @@ namespace NBitcoin.Tests
 			}
 		}
 
+
+		private Scalar rand_scalar()
+		{
+			Span<byte> buf32 = stackalloc byte[32];
+			Random.Generate(buf32);
+			return new Scalar(buf32);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ecdsaadaptor_testsvectors()
+		{
+			ECDSAEncryptedSignature GetAdaptorSig(JObject o)
+			{
+				ECDSAEncryptedSignature.TryCreate(Encoders.Hex.DecodeData(o["adaptor_sig"].Value<string>()), out var sig);
+				return sig;
+			}
+			byte[] GetMessage(JObject o)
+			{
+				return Encoders.Hex.DecodeData(o["message_hash"].Value<string>());
+			}
+			ECPubKey GetPublicSigningKey(JObject o)
+			{
+				return ECPubKey.Create(Encoders.Hex.DecodeData(o["public_signing_key"].Value<string>()));
+			}
+			ECPubKey GetEncryptionKey(JObject o)
+			{
+				return ECPubKey.Create(Encoders.Hex.DecodeData(o["encryption_key"].Value<string>()));
+			}
+			ECPrivKey GetDecryptionKey(JObject o)
+			{
+				return ECPrivKey.Create(Encoders.Hex.DecodeData(o["decryption_key"].Value<string>()));
+			}
+			SecpECDSASignature GetSignature(JObject o)
+			{
+				SecpECDSASignature.TryCreateFromCompact(Encoders.Hex.DecodeData(o["signature"].Value<string>()), out var sig);
+				return sig;
+			}
+			var root = JArray.Parse(File.ReadAllText("data/ecdsaadaptor/ecdsa_adaptor.json"));
+			foreach (var test in root.OfType<JObject>())
+			{
+				var error = test["error"]?.Value<string>();
+				var kind = test["kind"].Value<string>();
+				if (kind == "verification")
+				{
+					var adaptorSig = GetAdaptorSig(test);
+					var message = GetMessage(test);
+					var publicSigningKey = GetPublicSigningKey(test);
+					var encryptionKey = GetEncryptionKey(test);
+					var decryptionKey = GetDecryptionKey(test);
+					var signature = GetSignature(test);
+
+					if (error is null)
+					{
+						Assert.Equal(decryptionKey.CreatePubKey(), encryptionKey);
+						Assert.True(encryptionKey.TryRecoverDecryptionKey(signature, adaptorSig, out var d));
+						Assert.Equal(decryptionKey, d);
+
+						Assert.True(publicSigningKey.SigVerifyEncryptedECDSA(adaptorSig, message, encryptionKey));
+
+						var sig = decryptionKey.DecryptECDSASignature(adaptorSig);
+						Assert.Equal(signature, sig);
+
+						Assert.True(publicSigningKey.SigVerify(sig, message));
+					}
+					else
+					{
+						Assert.Equal(decryptionKey.CreatePubKey(), encryptionKey);
+						Assert.False(encryptionKey.TryRecoverDecryptionKey(signature, adaptorSig, out var d));
+						Assert.Null(d);
+						Assert.False(publicSigningKey.SigVerifyEncryptedECDSA(adaptorSig, message, encryptionKey));
+					}
+				}
+				if (kind == "recovery")
+				{
+					var adaptorSig = GetAdaptorSig(test);
+					var encryptionKey = GetEncryptionKey(test);
+					var signature = GetSignature(test);
+					if (error is null)
+					{
+						var decryptionKey = GetDecryptionKey(test);
+						Assert.Equal(decryptionKey.CreatePubKey(), encryptionKey);
+						Assert.True(encryptionKey.TryRecoverDecryptionKey(signature, adaptorSig, out var d));
+					}
+					else
+					{
+						Assert.False(encryptionKey.TryRecoverDecryptionKey(signature, adaptorSig, out var d));
+					}
+				}
+				if (kind == "serialization")
+				{
+					if (error is not null)
+						Assert.Null(GetAdaptorSig(test));
+					else
+						Assert.NotNull(GetAdaptorSig(test));
+				}
+
+			}
+		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ecdsaadaptor_tests()
+		{
+			var secKey = Context.Instance.CreateECPrivKey(rand_scalar());
+			Span<byte> msg = stackalloc byte[32];
+			Random.Generate(msg);
+			var adaptor_secret = Context.Instance.CreateECPrivKey(rand_scalar());
+			var pubkey = secKey.CreatePubKey();
+			var adaptor = adaptor_secret.CreatePubKey();
+			Assert.True(secKey.TrySignEncryptedECDSA(msg, adaptor, out var adaptor_sig));
+			{
+				/* Test adaptor_sig_serialize roundtrip */
+				Span<byte> adaptor_sig_tmp = stackalloc byte[162];
+				Span<byte> adaptor_sig_tmp2 = stackalloc byte[162];
+				adaptor_sig.WriteToSpan(adaptor_sig_tmp);
+				Assert.True(ECDSAEncryptedSignature.TryCreate(adaptor_sig_tmp, out var adaptor_sig2));
+				adaptor_sig2.WriteToSpan(adaptor_sig_tmp2);
+				Assert.True(adaptor_sig_tmp.SequenceEqual(adaptor_sig_tmp2));
+			}
+			Assert.True(pubkey.SigVerifyEncryptedECDSA(adaptor_sig, msg, adaptor));
+			{
+				Span<byte> adaptor_sig_tmp = stackalloc byte[162];
+				adaptor_sig.WriteToSpan(adaptor_sig_tmp);
+				rand_flip_bit(adaptor_sig_tmp);
+				if (ECDSAEncryptedSignature.TryCreate(adaptor_sig_tmp, out var sigg))
+				{
+					Assert.False(pubkey.SigVerifyEncryptedECDSA(sigg, msg, adaptor));
+				}
+			}
+			Assert.False(adaptor.SigVerifyEncryptedECDSA(adaptor_sig, msg, adaptor));
+			{
+				Span<byte> msg_tmp = stackalloc byte[32];
+				msg.CopyTo(msg_tmp);
+				rand_flip_bit(msg_tmp);
+				Assert.False(pubkey.SigVerifyEncryptedECDSA(adaptor_sig, msg_tmp, adaptor));
+			}
+			Assert.False(pubkey.SigVerifyEncryptedECDSA(adaptor_sig, msg, pubkey));
+
+
+			var sig = adaptor_sig.DecryptECDSASignature(adaptor_secret);
+			///* Test adaptor_adapt */
+			Assert.True(pubkey.SigVerify(sig, msg));
+			{
+				/* Test adaptor_extract_secret */
+				Assert.True(adaptor_sig.TryRecoverDecryptionKey(sig, adaptor, out var adaptor_secret2));
+				Assert.Equal(adaptor_secret, adaptor_secret2);
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanVerifyDLEQ()
+		{
+			var y = new ECPubKey(random_group_element_test(), null);
+			var x = new ECPrivKey(random_scalar_order(), null, true);
+			var z = new ECPubKey(ECMultContext.Instance.Mult(y.Q.ToGroupElementJacobian(), x.sec, Scalar.Zero).ToGroupElement(), null);
+			var proof = x.ProveDLEQ(y, z);
+			Assert.True(x.CreatePubKey().VerifyDLEQ(proof, y, z));
+			var x2 = new ECPrivKey(random_scalar_order(), null, true);
+			Assert.False(x2.CreatePubKey().VerifyDLEQ(proof, y, z));
+			var proof2 = new DLEQProof(proof.b.Add(Scalar.One), proof.c);
+			Assert.False(x.CreatePubKey().VerifyDLEQ(proof2, y, z));
+			proof2 = new DLEQProof(proof.b, proof.c.Add(Scalar.One));
+			Assert.False(x.CreatePubKey().VerifyDLEQ(proof2, y, z));
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void musig_key_agg_vectors()
@@ -4271,7 +4444,7 @@ namespace NBitcoin.Tests
 				var schnorrSig = adaptorKey.DecryptBIP340Signature(encryptedSignature);
 				Assert.True(pk.SigVerifyBIP340(schnorrSig, msg));
 
-				var adaptorKey2 = adaptor.RecoverDecryptionKey(encryptedSignature, schnorrSig);
+				Assert.True(adaptor.TryRecoverDecryptionKey(schnorrSig, encryptedSignature, out var adaptorKey2));
 				Assert.Equal(adaptorKey, adaptorKey2);
 
 				// Negative tests

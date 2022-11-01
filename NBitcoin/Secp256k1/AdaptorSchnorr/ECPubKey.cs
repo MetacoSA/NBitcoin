@@ -2,6 +2,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,8 +14,9 @@ namespace NBitcoin.Secp256k1
 #endif
 	partial class ECPubKey
 	{
-		public ECPrivKey RecoverDecryptionKey(SchnorrEncryptedSignature encryptedSignature, SecpSchnorrSignature signature)
+		public bool TryRecoverDecryptionKey(SecpSchnorrSignature signature, SchnorrEncryptedSignature encryptedSignature, [MaybeNullWhen(false)] out ECPrivKey decryptionKey)
 		{
+			decryptionKey = null;
 			if (encryptedSignature is null)
 				throw new ArgumentNullException(nameof(encryptedSignature));
 			if (signature is null)
@@ -23,11 +25,14 @@ namespace NBitcoin.Secp256k1
 			if (encryptedSignature.need_negation)
 				y = y.Negate();
 			if (y.IsOverflow || y.IsZero)
-				throw new InvalidOperationException("Impossible to recover the decryption key");
+				return false;
 			var privKey = new ECPrivKey(y, ctx, true);
 			if (privKey.CreatePubKey() == this)
-				return privKey;
-			throw new InvalidOperationException("Impossible to recover the decryption key");
+			{
+				decryptionKey = privKey;
+				return true;
+			}
+			return false;
 		}
 	}
 }
