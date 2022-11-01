@@ -40,7 +40,7 @@ namespace NBitcoin.Secp256k1
 #endif
 	interface INonceFunctionHardened
 	{
-		bool TryGetNonce(Span<byte> nonce32, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> xonly_pk32, ReadOnlySpan<byte> algo16);
+		bool TryGetNonce(Span<byte> nonce32, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> xonly_pk32, ReadOnlySpan<byte> algo);
 	}
 #if SECP256K1_LIB
 
