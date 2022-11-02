@@ -1183,15 +1183,16 @@ namespace NBitcoin
 		}
 		void ReadCore(BitcoinStream stream)
 		{
-			List<byte[]> pushes = new List<byte[]>();
 			uint pushCount = 0;
 			stream.ReadWriteAsVarInt(ref pushCount);
+			if (pushCount > (uint)stream.MaxArraySize)
+				throw new ArgumentOutOfRangeException("Array size too big");
+			var pushes = new byte[pushCount][];
 			for (int i = 0; i < (int)pushCount; i++)
 			{
-				byte[] push = ReadPush(stream);
-				pushes.Add(push);
+				pushes[i] = ReadPush(stream);
 			}
-			_Pushes = pushes.ToArray();
+			_Pushes = pushes;
 		}
 		private static byte[] ReadPush(BitcoinStream stream)
 		{
