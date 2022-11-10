@@ -338,6 +338,14 @@ namespace NBitcoin
 		}
 	}
 
+	public class OutputTooSmallException : NotEnoughFundsException
+	{
+		public OutputTooSmallException(string message, string? group, IMoney missing) : base(message, group, missing)
+		{
+
+		}
+	}
+
 	/// <summary>
 	/// A class for building and signing all sort of transactions easily (http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All)
 	/// </summary>
@@ -541,7 +549,7 @@ namespace NBitcoin
 						txin = Transaction.Inputs[input.Index];
 						coin = coin ?? Builder.FindSignableCoin(txin);
 					}
-					
+
 					if (coin is ICoin)
 					{
 						var ext = Builder.Extensions.FirstOrDefault(e => e.Match(coin, input));
@@ -1180,7 +1188,7 @@ namespace NBitcoin
 					var minimumTxOutValue = (parent.DustPrevention ? parent.GetDust(txout.ScriptPubKey) : Money.Zero);
 					if (txout.Value < Money.Zero)
 					{
-						throw new NotEnoughFundsException("Can't substract fee from this output because the amount is too small",
+						throw new OutputTooSmallException("Can't substract fee from this output because the amount is too small",
 						ctx.Group.Name,
 						-txout.Value
 						);
