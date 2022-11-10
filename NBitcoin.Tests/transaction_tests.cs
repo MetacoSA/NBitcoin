@@ -803,7 +803,7 @@ namespace NBitcoin.Tests
 			var k = new Key();
 			var scriptCoin = RandomCoin(Money.Coins(0.0001m), k.PubKey.ScriptPubKey, true);
 			var builder = Network.CreateTransactionBuilder();
-			Assert.Throws<NotEnoughFundsException>(() => builder
+			Assert.Throws<OutputTooSmallException>(() => builder
 			.AddCoins(scriptCoin)
 			.Send(new Key(), scriptCoin.Amount)
 			.SubtractFees()
@@ -2644,9 +2644,7 @@ namespace NBitcoin.Tests
 			builder.DustPrevention = false;
 
 			TransactionPolicyError[] errors;
-			Assert.False(builder.Verify(signed, Money.Coins(0.0001m), out errors));
-			var ex = (NotEnoughFundsPolicyError)errors.Single();
-			Assert.True((Money)ex.Missing == Money.Parse("-0.00000500"));
+			Assert.True(builder.Verify(signed, Money.Coins(0.0001m), out errors));
 
 			builder = Network.CreateTransactionBuilder();
 			builder.MergeOutputs = false;
