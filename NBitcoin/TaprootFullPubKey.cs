@@ -7,9 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NBitcoin.DataEncoders;
-#if HAS_SPAN
-using NBitcoin.Secp256k1;
-#endif
 
 namespace NBitcoin
 {

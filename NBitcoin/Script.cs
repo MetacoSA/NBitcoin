@@ -514,7 +514,7 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
-		private uint256? _leafHash;
+		private uint256 _leafHash;
 		public uint256 TaprootV1LeafHash
 		{
 			get

@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 namespace NBitcoin
 {
 #if !NET6_0_OR_GREATER
+#nullable enable
 	static class SR
 	{
 		internal static string ArgumentOutOfRange_NeedNonNegNum => nameof(ArgumentOutOfRange_NeedNonNegNum);

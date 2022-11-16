@@ -102,11 +102,16 @@ namespace NBitcoin
 		}
 	}
 
-	internal class ScriptLeaf
+	public class ScriptLeaf
 	{
-		internal Script Script { get; set; }
-		internal LeafVersion Version { get; set;  }
+		internal Script Script { get; }
+		internal LeafVersion Version { get; }
 		internal TaprootMerkleBranch MerkleBranch { get; } = new ();
+		public ScriptLeaf(Script script, LeafVersion version)
+		{
+			Script = script ?? throw new ArgumentNullException(nameof(script));
+			Version = version;
+		}
 
 		public uint Depth => (uint)this.MerkleBranch.Count;
 		public uint256 LeafHash => Script.TaprootLeafHash(Version);
@@ -117,33 +122,40 @@ namespace NBitcoin
 	/// </summary>
 	public class NodeInfo
 	{
-		internal uint256 Hash { get; private set; }
-		internal List<ScriptLeaf> Leaves { get; private set; }
-		internal bool HasHiddenNodes { get; private set; }
+		internal uint256 Hash { get; }
+		internal List<ScriptLeaf> Leaves { get; }
+		internal bool HasHiddenNodes { get; }
+
+		internal NodeInfo(uint256 hash, List<ScriptLeaf> leaves, bool hasHiddenNodes)
+		{
+			Hash = hash ?? throw new ArgumentNullException(nameof(hash));
+			Leaves = leaves ?? throw new ArgumentNullException(nameof(leaves));
+			HasHiddenNodes = hasHiddenNodes;
+		}
 
 		public static NodeInfo NewLeafWithVersion(Script sc, LeafVersion leafVersion)
 		{
 			var leaf = new ScriptLeaf
-			{
-				Script = sc,
-				Version = leafVersion
-			};
+			(
+				script: sc,
+				version: leafVersion
+			);
 			return
 				new NodeInfo
-				{
-					Hash = leaf.LeafHash,
-					Leaves = new List<ScriptLeaf> { leaf },
-					HasHiddenNodes = false
-				};
+				(
+					hash: leaf.LeafHash,
+					leaves: new List<ScriptLeaf> { leaf },
+					hasHiddenNodes: false
+				);
 		}
 
 		public static NodeInfo NewHiddenNode(uint256 hash) =>
 			new NodeInfo
-			{
-				Hash = hash,
-				Leaves = new List<ScriptLeaf>(),
-				HasHiddenNodes = true,
-			};
+			(
+				hash: hash,
+				leaves: new List<ScriptLeaf>(),
+				hasHiddenNodes: true
+			);
 
 		/// <summary>
 		/// Combines two `NodeInfo` to create a new parent.
@@ -178,11 +190,11 @@ namespace NBitcoin
 				sha.Write(a.Hash.ToBytes());
 			}
 			return new NodeInfo
-			{
-				Hash = new uint256(sha.GetHash()),
-				Leaves = allLeaves,
-				HasHiddenNodes = a.HasHiddenNodes || b.HasHiddenNodes
-			};
+			(
+				hash: new uint256(sha.GetHash()),
+				leaves: allLeaves,
+				hasHiddenNodes: a.HasHiddenNodes || b.HasHiddenNodes
+			);
 		}
 		static bool CompareLexicographic(uint256 a, uint256 b)
 		{
@@ -203,12 +215,20 @@ namespace NBitcoin
 
 	public class ControlBlock : IEquatable<ControlBlock>
 	{
-		public byte LeafVersion { get; internal set; }
-		public bool OutputParityIsOdd { get; internal set; }
-		public TaprootInternalPubKey InternalPubKey { get; internal set; }
-		public TaprootMerkleBranch MerkleBranch { get; internal set; }
+		public byte LeafVersion { get; }
+		public bool OutputParityIsOdd { get; }
+		public TaprootInternalPubKey InternalPubKey { get; }
+		public TaprootMerkleBranch MerkleBranch { get; }
 
 		private static HexEncoder _hex = new HexEncoder();
+
+		public ControlBlock(byte leafVersion, bool outputParityIsOdd, TaprootInternalPubKey internalPubKey, TaprootMerkleBranch merkleBranch)
+		{
+			LeafVersion = leafVersion;
+			OutputParityIsOdd = outputParityIsOdd;
+			InternalPubKey = internalPubKey ?? throw new ArgumentNullException(nameof(internalPubKey));
+			MerkleBranch = merkleBranch ?? throw new ArgumentNullException(nameof(merkleBranch));
+		}
 
 		public static ControlBlock FromHex(string hex)
 			=> FromSlice(_hex.DecodeData(hex));
@@ -236,12 +256,12 @@ namespace NBitcoin
 				index += TAPROOT_CONTROL_NODE_SIZE;
 			}
 			return new ControlBlock
-			{
-				OutputParityIsOdd = outputKeyParity,
-				LeafVersion = (byte)leafVersion,
-				InternalPubKey = internalPubKey,
-				MerkleBranch = merkleBranch,
-			};
+			(
+				outputParityIsOdd: outputKeyParity,
+				leafVersion: (byte)leafVersion,
+				internalPubKey: internalPubKey,
+				merkleBranch: merkleBranch
+			);
 		}
 
 		public byte[] ToBytes()
@@ -297,8 +317,8 @@ namespace NBitcoin
 	/// </summary>
 	public class TaprootSpendInfo
 	{
-		public TaprootInternalPubKey InternalPubKey { get; private set; }
-		public TaprootFullPubKey OutputPubKey { get; private set; }
+		public TaprootInternalPubKey InternalPubKey { get; }
+		public TaprootFullPubKey OutputPubKey { get; }
 
 		/// <summary>
 		/// map from script to -> its merkle proof
@@ -306,17 +326,21 @@ namespace NBitcoin
 		/// In all cases, keeping one should be enough for spending funds, but we keep all of the paths
 		/// so that a full tree can be constructed again from spending data if required.
 		/// </summary>
-		public ConcurrentDictionary<(Script, LeafVersion), List<TaprootMerkleBranch>>? ScriptToMerkleProofMap { get;
-			private set;
-		}
-		public uint256? MerkleRoot { get; internal set; }
+		internal ConcurrentDictionary<(Script, LeafVersion), List<TaprootMerkleBranch>> ScriptToMerkleProofMap { get; }
+		public uint256? MerkleRoot { get; }
+
+		public bool IsKeyPathOnlySpend => this.ScriptToMerkleProofMap.IsEmpty;
 
 		public TaprootSpendInfo(
 			TaprootInternalPubKey internalPubKey,
 			TaprootFullPubKey outputPubKey,
-			Dictionary<(Script, LeafVersion), List<TaprootMerkleBranch>> scriptToMerkleProofMap
+			Dictionary<(Script, LeafVersion), List<TaprootMerkleBranch>> scriptToMerkleProofMap,
+			uint256? merkleRoot
 			)
 		{
+			if (internalPubKey is null) throw new ArgumentNullException(nameof(internalPubKey));
+			if (outputPubKey == null) throw new ArgumentNullException(nameof(outputPubKey));
+			if (scriptToMerkleProofMap == null) throw new ArgumentNullException(nameof(scriptToMerkleProofMap));
 			var map = new ConcurrentDictionary<(Script, LeafVersion), List<TaprootMerkleBranch>>();
 			foreach (var kv in scriptToMerkleProofMap)
 			{
@@ -324,17 +348,15 @@ namespace NBitcoin
 			}
 			InternalPubKey = internalPubKey ?? throw new ArgumentNullException(nameof(internalPubKey));
 			OutputPubKey = outputPubKey;
+			MerkleRoot = merkleRoot;
 			ScriptToMerkleProofMap = map;
-
 		}
 
 		public static TaprootSpendInfo CreateKeySpend(TaprootInternalPubKey internalPubKey, uint256? merkleRoot = null)
 		{
 			var outputKey = internalPubKey.GetTaprootFullPubKey(merkleRoot);
-			return new TaprootSpendInfo(internalPubKey, outputKey, new Dictionary<(Script, LeafVersion), List<TaprootMerkleBranch>>())
-			{
-				MerkleRoot = merkleRoot
-			};
+			return new TaprootSpendInfo(internalPubKey, outputKey,
+				new Dictionary<(Script, LeafVersion), List<TaprootMerkleBranch>>(), merkleRoot);
 		}
 
 
@@ -373,13 +395,13 @@ namespace NBitcoin
 			// choose the smallest merkle proof.
 			var smallest = merkleBranchSet.MinBy(x => x.Count);
 			controlBlock = new ControlBlock
-			{
-				OutputParityIsOdd =
+			(
+				outputParityIsOdd:
 					this.OutputPubKey.OutputKeyParity,
-				InternalPubKey = InternalPubKey,
-				LeafVersion = version,
-				MerkleBranch = smallest!,
-			};
+				internalPubKey: InternalPubKey,
+				leafVersion: version,
+				merkleBranch: smallest!
+			);
 			return true;
 		}
 
@@ -495,9 +517,9 @@ namespace NBitcoin
 		/// <returns></returns>
 		/// <exception cref="InvalidOperationException"></exception>
 		public TaprootSpendInfo Finalize(TaprootInternalPubKey internalPubKey) =>
-			(Branch.Count == 0)
+			Branch.Count == 0
 				? TaprootSpendInfo.CreateKeySpend(internalPubKey, null)
-				: (Branch.Count == 1)
+				: Branch.Count == 1
 					? TaprootSpendInfo.FromNodeInfo(internalPubKey, Branch.Last()!)
 					: throw new InvalidOperationException($"Failed to finalize, maybe you forgot to add some scripts? Branch.Count: {Branch.Count}");
 
