@@ -52,8 +52,9 @@ namespace NBitcoin
 #if HAS_SPAN
 		bool TryGetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, [MaybeNullWhen(false)] out RootedKeyPath keyorigin);
 		bool TryGetTaprootInternalKey(TaprootFullPubKey taprootOutput,  [MaybeNullWhen(false)] out TaprootInternalPubKey internalPubKey);
+		bool TryGetSecret(TaprootPubKey key, [MaybeNullWhen(false)] out ISecret secret);
 		void SetTaprootInternalKey(TaprootFullPubKey key, TaprootInternalPubKey value);
-
+		void SetSecret(TaprootPubKey key, BitcoinSecret secret);
 		void SetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, RootedKeyPath keyOrigin);
 #endif
 
@@ -176,6 +177,7 @@ namespace NBitcoin
 #if HAS_SPAN
 		public ConcurrentDictionary<TaprootFullPubKey, TaprootInternalPubKey> TaprootKeys { get; }
 		public ConcurrentDictionary<TaprootInternalPubKey, RootedKeyPath> TaprootKeyOrigins { get; }
+		public ConcurrentDictionary<TaprootPubKey, ISecret> TaprootKeysToSecret { get;  }
 #endif
 
 		public FlatSigningRepository()
@@ -187,6 +189,7 @@ namespace NBitcoin
 #if HAS_SPAN
 			TaprootKeys = new ConcurrentDictionary<TaprootFullPubKey, TaprootInternalPubKey>();
 			TaprootKeyOrigins = new ConcurrentDictionary<TaprootInternalPubKey, RootedKeyPath>();
+			TaprootKeysToSecret = new ConcurrentDictionary<TaprootPubKey, ISecret>();
 #endif
 		}
 
@@ -266,16 +269,28 @@ namespace NBitcoin
 
 
 #if HAS_SPAN
-		public bool TryGetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, out RootedKeyPath keyorigin)
+		public bool TryGetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, [MaybeNullWhen(false)]out RootedKeyPath keyorigin)
 			=> TaprootKeyOrigins.TryGetValue(taprootInternalPubKey, out keyorigin);
-		public bool TryGetTaprootInternalKey(TaprootFullPubKey taprootOutput, out TaprootInternalPubKey internalPubKey)
+		public bool TryGetTaprootInternalKey(TaprootFullPubKey taprootOutput, [MaybeNullWhen(false)] out TaprootInternalPubKey internalPubKey)
 			=> TaprootKeys.TryGetValue(taprootOutput, out internalPubKey);
+
+		public bool TryGetSecret(TaprootPubKey key, [MaybeNullWhen(false)]out ISecret secret)
+			=> TaprootKeysToSecret.TryGetValue(key, out secret);
+
 		public void SetTaprootInternalKey(TaprootFullPubKey key, TaprootInternalPubKey value)
 		{
 			if (key == null) throw new ArgumentNullException(nameof(key));
 			if (value == null) throw new ArgumentNullException(nameof(value));
 
 			TaprootKeys.AddOrReplace(key, value);
+		}
+
+		public void SetSecret(TaprootPubKey key, BitcoinSecret secret)
+		{
+			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (secret == null) throw new ArgumentNullException(nameof(secret));
+
+			TaprootKeysToSecret.AddOrReplace(key, secret);
 		}
 
 		public void SetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, RootedKeyPath keyOrigin)

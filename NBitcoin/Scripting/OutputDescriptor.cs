@@ -132,7 +132,7 @@ namespace NBitcoin.Scripting
 			}
 		}
 
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 		/// <summary>
 		/// binary tree to represent MAST in Taproot script for descriptor.
 		/// </summary>
@@ -171,6 +171,16 @@ namespace NBitcoin.Scripting
 					$"{self.Inner.ToStringHelper()}", // we don't need checksum here so do not use `ToString`
 				_ => throw new Exception($"Unreachable type {GetType()}")
 			};
+
+			public bool TryExpand(
+				uint pos,
+				ISigningRepository repo,
+				out List<Script> outputScripts,
+				IDictionary<uint, ExtPubKey>? cache = null
+			)
+			{
+				throw new NotImplementedException();
+			}
 
 			private bool TryGetPrivateStringCore(
 				ISigningRepository secretProvider,
@@ -252,6 +262,19 @@ namespace NBitcoin.Scripting
 				TapLeafs = tapLeafs;
 			}
 
+			public bool TryGetSpendInfo([MaybeNullWhen(false)] out TaprootSpendInfo taprootSpendInfo)
+			{
+				taprootSpendInfo = null;
+				if (!InnerPubkey.TryGetXOnlyPubkey(out var xonly))
+					return false;
+				if (this.TapLeafs is null)
+				{
+					taprootSpendInfo = TaprootSpendInfo.CreateKeySpend(xonly, null);
+					return true;
+				}
+
+				throw new NotImplementedException();
+			}
 		}
 
 		public class RawTr : OutputDescriptor
@@ -274,7 +297,7 @@ namespace NBitcoin.Scripting
 			=> new Multi(m, pks, isSorted, network, isTapScript);
 		public static OutputDescriptor NewSH(OutputDescriptor inner, Network network) => new SH(inner, network);
 		public static OutputDescriptor NewWSH(OutputDescriptor inner, Network network) => new WSH(inner, network);
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 		public static OutputDescriptor NewTr(PubKeyProvider innerPubKey, Network network, TapTree? tapTree = null) =>
 			new Tr(innerPubKey, network, tapTree);
 		public static OutputDescriptor NewRawTr(PubKeyProvider outputPubkeyProvider, Network network) =>
@@ -287,7 +310,7 @@ namespace NBitcoin.Scripting
 			Raw _ => true,
 			Combo _ => true,
 			SH _ => true,
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 			Tr _ => true,
 			RawTr _ => true,
 #endif
@@ -445,10 +468,8 @@ namespace NBitcoin.Scripting
 						outputScripts.Add(inner.WitHash.ScriptPubKey);
 					}
 					return true;
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 				case Tr self:
-					if (!self.IsKeyPathSpendOnly)
-						throw new NotSupportedException($"TapScript is not supported in NBitcoin yet!");
 					if (!self.InnerPubkey.TryGetPubKey(pos, privateKeyProvider, out var keyOrigin2, out var pubkey2))
 						return false;
 					if (keyOrigin2 != null)
@@ -498,7 +519,7 @@ namespace NBitcoin.Scripting
 						repo.SetScript(key.WitHash.ScriptPubKey.Hash, key.WitHash.ScriptPubKey);
 					}
 					return res;
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 				case Tr self:
 					Debug.Assert(self.IsKeyPathSpendOnly);
 					return new List<Script>{ key.TaprootInternalKey.GetTaprootFullPubKey().ScriptPubKey };
@@ -528,7 +549,7 @@ namespace NBitcoin.Scripting
 				self.Inner.IsSolvable(),
 			WSH self =>
 				self.Inner.IsSolvable(),
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 			RawTr _ => false,
 #endif
 			_ =>
@@ -555,7 +576,7 @@ namespace NBitcoin.Scripting
 				self.Inner.IsRange(),
 			WSH self =>
 				self.Inner.IsRange(),
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 			Tr self =>
 				self.InnerPubkey.IsRange() ||
 				(self.TapLeafs is not null && self.TapLeafs.IterateScripts().Any(leaf => leaf.Item1.IsRange())),
@@ -571,6 +592,9 @@ namespace NBitcoin.Scripting
 			TOP,
 			P2SH,
 			P2WSH,
+#if NET6_0_OR_GREATER
+			P2TR,
+#endif
 		}
 
 		private static PubKeyProvider InferPubKey(PubKey pk, ISigningRepository repo)
@@ -614,7 +638,7 @@ namespace NBitcoin.Scripting
 					_ => ScriptPubKeyType.Legacy,
 				},
 			WSH _ => ScriptPubKeyType.Segwit,
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 			Tr self =>
 				self.TapLeafs is null ?
 				ScriptPubKeyType.TaprootBIP86 :
@@ -646,7 +670,7 @@ namespace NBitcoin.Scripting
 			if (repo == null) throw new ArgumentNullException(nameof(repo));
 
 			var template = sc.FindTemplate();
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 			if (template is PayToTaprootTemplate p2trTemplate)
 			{
 				if (p2trTemplate.ExtractScriptPubKeyParameters(sc) is TaprootFullPubKey pk)
@@ -810,7 +834,7 @@ namespace NBitcoin.Scripting
 						return false;
 					result = $"wsh({wshInner})";
 					return true;
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 				case Tr self:
 					if (!self.InnerPubkey.TryGetPrivateString(secretProvider, out var internalPubKeyPrivateString))
 						return false;
@@ -857,7 +881,7 @@ namespace NBitcoin.Scripting
 				$"sh({self.Inner.ToStringHelper()})",
 			WSH self =>
 				$"wsh({self.Inner.ToStringHelper()})",
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 			Tr self =>
 				self.IsKeyPathSpendOnly ?
 				$"tr({self.InnerPubkey})" :
@@ -929,7 +953,7 @@ namespace NBitcoin.Scripting
 				other is SH o && self.Inner.Equals(o.Inner),
 			WSH self =>
 				other is WSH o && self.Inner.Equals(o.Inner),
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 			Tr self =>
 				other is Tr o && self.InnerPubkey.Equals(o.InnerPubkey) &&
 					((self.TapLeafs is null && o.TapLeafs is null) || self.TapLeafs?.ToString().Equals(o.TapLeafs?.ToString()) == true),
@@ -996,7 +1020,7 @@ namespace NBitcoin.Scripting
 						num = 8;
 						return -1640531527 + self.Inner.GetHashCode() + ((num << 6) + (num >> 2));
 					}
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 				case Tr self:
 					{
 						num = 9;

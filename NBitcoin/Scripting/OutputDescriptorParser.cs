@@ -53,7 +53,16 @@ namespace NBitcoin.Scripting
 							repo.SetKeyOrigin(constPkPV.Pk.Hash, pkpV.KeyOriginInfo);
 						}
 					}
-
+#if NET6_0_OR_GREATER
+					// in case of tr() descriptor, we may want to later fetch the secret
+					// with x-only pubkey, but BitcoinSecret.PubKey has additional parity byte so key can be different.
+					// So instead inject with additional key.
+					// This is not ideal since we set two redundant entries. TODO: refactor
+					if (r.Value is BitcoinSecret sc)
+					{
+						repo.SetSecret(sc.PubKey.TaprootOutputPubKey, sc);
+					}
+#endif
 				}
 				return r;
 			};
@@ -67,7 +76,7 @@ namespace NBitcoin.Scripting
 
 		private static HexEncoder Hex = new HexEncoder();
 
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 		private static Parser<char, TaprootPubKey> PPubkeyXOnly(ISigningRepository? repo) =>
 			(
 				from x in Parse.Hex.Repeat(64).Text().Then<char, string, TaprootPubKey>(s =>
@@ -139,7 +148,7 @@ namespace NBitcoin.Scripting
 				from pk in PPubKeyCompressed(repo).Or(PWIF(repo, n, onlyCompressed))
 			   select PubKeyProvider.NewConst(pk, xOnly);
 			Parser<char, PubKeyProvider>? xonlyParser =
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 				from pk in PPubkeyXOnly(repo)
 				select PubKeyProvider.NewConst(pk);
 #else
@@ -255,7 +264,7 @@ namespace NBitcoin.Scripting
 			where !maxMultisigN.HasValue ||  pkProviders.Count() <= maxMultisigN.Value
 			select OutputDescriptor.NewMulti(m, pkProviders, isSorted, n);
 
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 
 		// uncompressed public key is not allowed in Taproot context, thus we use different pubkey provider parser here.
 		private static Parser<char, PubKeyProvider> PPubKeyProviderForTaproot(ISigningRepository? repo, Network n) =>
@@ -325,7 +334,7 @@ namespace NBitcoin.Scripting
 		private static P PSH(ISigningRepository? repo, Network n) =>
 			PExprHelper((Parse.String("sh").Text()).Except(Parse.String("wsh")), PInner(repo, n, false, 15).Or(PWSH(repo, n)), OutputDescriptor.NewSH, n);
 
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 		private static P PTR(ISigningRepository? repo, Network n) =>
 			from _n in Parse.String("tr")
 			from _l in Parse.Char('(')
@@ -340,7 +349,7 @@ namespace NBitcoin.Scripting
 				.Or(PInner(repo, n))
 				.Or(PWSH(repo, n))
 				.Or(PSH(repo, n))
-#if HAS_SPAN
+#if NET6_0_OR_GREATER
 				.Or(PTR(repo, n))
 				.Or(PRawTr(repo, n))
 #endif

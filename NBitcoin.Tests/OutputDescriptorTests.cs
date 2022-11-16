@@ -310,6 +310,7 @@ namespace NBitcoin.Tests
 			bool replaceApostrophesInPub = false
 		)
 		{
+			if (!pub.StartsWith("tr(")) return;
 			var keysPriv = new FlatSigningRepository();
 			var keysPub = new FlatSigningRepository();
 			var leftPath = pathIndex;
