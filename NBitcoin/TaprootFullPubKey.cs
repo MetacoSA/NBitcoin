@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NBitcoin.DataEncoders;
+#if HAS_SPAN
+using NBitcoin.Secp256k1;
+#endif
 
 namespace NBitcoin
 {
@@ -20,6 +24,7 @@ namespace NBitcoin
 			var outputKey = internalKey.pubkey.AddTweak(tweak32).ToXOnlyPubKey(out var parity);
 			return new TaprootFullPubKey(outputKey, parity, internalKey, merkleRoot);
 		}
+
 		private TaprootFullPubKey(ECXOnlyPubKey outputKey, bool outputParity, TaprootInternalPubKey internalKey, uint256? merkleRoot) : base(outputKey)
 		{
 			OutputKey = new TaprootPubKey(outputKey);
