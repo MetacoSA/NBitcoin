@@ -61,7 +61,7 @@ namespace NBitcoin
     /// </remarks>
     [DebuggerDisplay("Count = {Count}")]
     [DebuggerTypeProxy(typeof(PriorityQueueDebugView<,>))]
-    public class PriorityQueue<TElement, TPriority>
+    internal class PriorityQueue<TElement, TPriority>
     {
 	    private static int ArrayMaxLength = 0X7FFFFFC7;
         /// <summary>
