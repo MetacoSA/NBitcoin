@@ -14,7 +14,7 @@ using LeafVersion = System.Byte;
 
 namespace NBitcoin
 {
-#if NET6_0_OR_GREATER
+#if HAS_SPAN
 #nullable enable
 
 	internal class ScriptLeaf

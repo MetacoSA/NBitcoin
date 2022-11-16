@@ -18,7 +18,7 @@ namespace NBitcoin.Tests
 		{
 			_testOutputHelper = testOutputHelper;
 		}
-#if NET6_0_OR_GREATER
+#if HAS_SPAN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void TestVectorsCore()

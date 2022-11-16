@@ -7,7 +7,7 @@ using Xunit;
 
 namespace NBitcoin.Tests.PropertyTest
 {
-#if NET6_0_OR_GREATER
+#if HAS_SPAN
 	public class TaprootTests
 	{
 	public TaprootTests()
