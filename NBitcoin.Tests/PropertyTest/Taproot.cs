@@ -21,7 +21,7 @@ namespace NBitcoin.Tests.PropertyTest
 		{
 			if ((ctrl.LeafVersion & 1) == 1)
 				return;
-			if (ctrl.LeafVersion == 0x50) // annex
+			if (ctrl.LeafVersion == TaprootConstants.TAPROOT_LEAF_ANNEX)
 				return;
 			Assert.Equal(ctrl, ControlBlock.FromSlice(ctrl.ToBytes()));
 		}

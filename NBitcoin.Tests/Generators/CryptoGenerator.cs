@@ -26,10 +26,12 @@ namespace NBitcoin.Tests.Generators
 		public static Arbitrary<ECDSASignature> ECDSASignatureArb() =>
 			Arb.From(ECDSA());
 
+#if HAS_SPAN
 		public static Arbitrary<TaprootInternalPubKey> TaprootInternalPubKeyArb() =>
 			Arb.From(TaprootInternalPubKey());
 		public static Arbitrary<TaprootFullPubKey> TaprootFullPubKeyArb() =>
 			Arb.From(TaprootFullPubKey());
+#endif
 
 		public static Arbitrary<uint256> UInt256Arb() =>
 			Arb.From(Hash256());

@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using NBitcoin.DataEncoders;
+#if HAS_SPAN
 using NBitcoin.Secp256k1;
+#endif
 using TaprootMerkleBranch = System.Collections.Generic.List<NBitcoin.uint256>;
 using static NBitcoin.TaprootConstants;
 using LeafVersion = System.Byte;
@@ -16,11 +18,94 @@ namespace NBitcoin
 {
 #if HAS_SPAN
 #nullable enable
+	static class EnumerableExtensions
+	{
+		public static TSource? MinBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey>? comparer = null)
+		{
+			if (source == null) throw new ArgumentNullException(nameof(source));
+			if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));
+
+			comparer ??= Comparer<TKey>.Default;
+
+			using IEnumerator<TSource> e = source.GetEnumerator();
+
+			if (!e.MoveNext())
+			{
+				if (default(TSource) is null)
+				{
+					return default;
+				}
+				else
+				{
+					throw new InvalidOperationException($"no elements");
+				}
+			}
+
+			TSource value = e.Current;
+			TKey key = keySelector(value);
+
+			if (default(TKey) is null)
+			{
+				while (key == null)
+				{
+					if (!e.MoveNext())
+					{
+						return value;
+					}
+
+					value = e.Current;
+					key = keySelector(value);
+				}
+
+				while (e.MoveNext())
+				{
+					TSource nextValue = e.Current;
+					TKey nextKey = keySelector(nextValue);
+					if (nextKey != null && comparer.Compare(nextKey, key) < 0)
+					{
+						key = nextKey;
+						value = nextValue;
+					}
+				}
+			}
+			else
+			{
+				if (comparer == Comparer<TKey>.Default)
+				{
+					while (e.MoveNext())
+					{
+						TSource nextValue = e.Current;
+						TKey nextKey = keySelector(nextValue);
+						if (Comparer<TKey>.Default.Compare(nextKey, key) < 0)
+						{
+							key = nextKey;
+							value = nextValue;
+						}
+					}
+				}
+				else
+				{
+					while (e.MoveNext())
+					{
+						TSource nextValue = e.Current;
+						TKey nextKey = keySelector(nextValue);
+						if (comparer.Compare(nextKey, key) < 0)
+						{
+							key = nextKey;
+							value = nextValue;
+						}
+					}
+				}
+			}
+
+			return value;
+		}
+	}
 
 	internal class ScriptLeaf
 	{
-		internal Script Script { get; init; }
-		internal LeafVersion Version { get; init;  }
+		internal Script Script { get; set; }
+		internal LeafVersion Version { get; set;  }
 		internal TaprootMerkleBranch MerkleBranch { get; } = new ();
 
 		public uint Depth => (uint)this.MerkleBranch.Count;
@@ -32,9 +117,9 @@ namespace NBitcoin
 	/// </summary>
 	public class NodeInfo
 	{
-		internal uint256 Hash { get; private init; }
-		internal List<ScriptLeaf> Leaves { get; private init; }
-		internal bool HasHiddenNodes { get; private init; }
+		internal uint256 Hash { get; private set; }
+		internal List<ScriptLeaf> Leaves { get; private set; }
+		internal bool HasHiddenNodes { get; private set; }
 
 		public static NodeInfo NewLeafWithVersion(Script sc, LeafVersion leafVersion)
 		{
@@ -118,10 +203,10 @@ namespace NBitcoin
 
 	public class ControlBlock : IEquatable<ControlBlock>
 	{
-		public byte LeafVersion { get; internal init; }
-		public bool OutputParityIsOdd { get; internal init; }
-		public TaprootInternalPubKey InternalPubKey { get; internal init; }
-		public TaprootMerkleBranch MerkleBranch { get; internal init; }
+		public byte LeafVersion { get; internal set; }
+		public bool OutputParityIsOdd { get; internal set; }
+		public TaprootInternalPubKey InternalPubKey { get; internal set; }
+		public TaprootMerkleBranch MerkleBranch { get; internal set; }
 
 		private static HexEncoder _hex = new HexEncoder();
 
@@ -137,7 +222,7 @@ namespace NBitcoin
 			var leafVersion = buffer[0] & (byte)TAPROOT_LEAF_MASK;
 			if (((byte)leafVersion & 0b_0000_0001) == 1)
 				throw new FormatException($"Invalid LeafBytes: Odd leaf version {leafVersion}");
-			if (leafVersion == 0x50)
+			if (leafVersion == TAPROOT_LEAF_ANNEX)
 				throw new FormatException($"Invalid LeafBytes: annex {leafVersion}");
 			if (!TaprootInternalPubKey.TryCreate(buffer[1..TAPROOT_CONTROL_BASE_SIZE], out var internalPubKey))
 				throw new FormatException($"Failed to parse Internal pubkey for control block");
@@ -212,8 +297,8 @@ namespace NBitcoin
 	/// </summary>
 	public class TaprootSpendInfo
 	{
-		public TaprootInternalPubKey InternalPubKey { get; private init; }
-		public TaprootFullPubKey OutputPubKey { get; private init; }
+		public TaprootInternalPubKey InternalPubKey { get; private set; }
+		public TaprootFullPubKey OutputPubKey { get; private set; }
 
 		/// <summary>
 		/// map from script to -> its merkle proof
@@ -222,9 +307,9 @@ namespace NBitcoin
 		/// so that a full tree can be constructed again from spending data if required.
 		/// </summary>
 		public ConcurrentDictionary<(Script, LeafVersion), List<TaprootMerkleBranch>>? ScriptToMerkleProofMap { get;
-			private init;
+			private set;
 		}
-		public uint256? MerkleRoot { get; internal init; }
+		public uint256? MerkleRoot { get; internal set; }
 
 		public TaprootSpendInfo(
 			TaprootInternalPubKey internalPubKey,

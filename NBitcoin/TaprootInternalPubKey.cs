@@ -111,7 +111,7 @@ namespace NBitcoin
 			pubkey.WriteToSpan(out32);
 		}
 #endif
-#if HAS_SPAN
+
 		public override bool Equals(object? obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
@@ -119,12 +119,18 @@ namespace NBitcoin
 			if (obj.GetType() != this.GetType()) return false;
 			return Equals((TaprootInternalPubKey)obj);
 		}
-
 		public bool Equals(TaprootInternalPubKey? other)
 		{
 			if (ReferenceEquals(null, other)) return false;
+#if HAS_SPAN
 			return Utils.ArrayEqual(other.pubkey.ToBytes(), pubkey.ToBytes());
+#else
+		return Utils.ArrayEqual(other.pubkey, pubkey);
+#endif
 		}
+
+#if HAS_SPAN
+
 
 		public static bool operator ==(TaprootInternalPubKey a, TaprootInternalPubKey b)
 		{
@@ -143,12 +149,7 @@ namespace NBitcoin
 			return pubkey.GetHashCode();
 		}
 #else
-		public override bool Equals(object obj)
-		{
-			if (!(obj is TaprootInternalPubKey a))
-				return false;
-			return Utils.ArrayEqual(pubkey, a.pubkey);
-		}
+
 		public static bool operator ==(TaprootInternalPubKey a, TaprootInternalPubKey b)
 		{
 			if (a is TaprootInternalPubKey && b is TaprootInternalPubKey)

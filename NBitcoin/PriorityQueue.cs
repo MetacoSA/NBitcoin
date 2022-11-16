@@ -552,20 +552,6 @@ namespace NBitcoin
         }
 
         /// <summary>
-        ///  Removes all items from the <see cref="PriorityQueue{TElement, TPriority}"/>.
-        /// </summary>
-        public void Clear()
-        {
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<(TElement, TPriority)>())
-            {
-                // Clear the elements so that the gc can reclaim the references
-                Array.Clear(_nodes, 0, _size);
-            }
-            _size = 0;
-            _version++;
-        }
-
-        /// <summary>
         ///  Ensures that the <see cref="PriorityQueue{TElement, TPriority}"/> can hold up to
         ///  <paramref name="capacity"/> items without further expansion of its backing storage.
         /// </summary>
@@ -655,7 +641,7 @@ namespace NBitcoin
                 }
             }
 
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<(TElement, TPriority)>())
+            if (!typeof(TElement).IsValueType || !typeof(TPriority).IsValueType)
             {
                 _nodes[lastNodeIndex] = default;
             }
