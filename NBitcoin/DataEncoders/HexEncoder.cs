@@ -58,7 +58,7 @@ namespace NBitcoin.DataEncoders
 				throw new ArgumentNullException(nameof(data));
 
 #if NET6_0_OR_GREATER
-			return Convert.ToHexString(data, offset, count);
+			return Convert.ToHexString(data, offset, count).ToLowerInvariant();
 #elif !HAS_SPAN
 			int pos = 0;
 			var s = new char[2 * count];
