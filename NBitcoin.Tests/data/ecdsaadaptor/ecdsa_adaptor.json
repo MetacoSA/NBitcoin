@@ -1,0 +1,83 @@
+[
+    {
+        "kind" : "verification",
+        "adaptor_sig": "03424d14a5471c048ab87b3b83f6085d125d5864249ae4297a57c84e74710bb6730223f325042fce535d040fee52ec13231bf709ccd84233c6944b90317e62528b2527dff9d659a96db4c99f9750168308633c1867b70f3a18fb0f4539a1aecedcd1fc0148fc22f36b6303083ece3f872b18e35d368b3958efe5fb081f7716736ccb598d269aa3084d57e1855e1ea9a45efc10463bbf32ae378029f5763ceb40173f",
+        "message_hash": "8131e6f4b45754f2c90bd06688ceeabc0c45055460729928b4eecf11026a9e2d",
+        "public_signing_key": "035be5e9478209674a96e60f1f037f6176540fd001fa1d64694770c56a7709c42c",
+        "encryption_key": "02c2662c97488b07b6e819124b8989849206334a4c2fbdf691f7b34d2b16e9c293",
+        "decryption_key": "0b2aba63b885a0f0e96fa0f303920c7fb7431ddfa94376ad94d969fbf4109dc8",
+        "signature": "424d14a5471c048ab87b3b83f6085d125d5864249ae4297a57c84e74710bb67329e80e0ee60e57af3e625bbae1672b1ecaa58effe613426b024fa1621d903394",
+        "comment": "plain valid adaptor signature"
+    },
+    {
+        "kind" : "verification",
+        "adaptor_sig" : "036035c89860ec62ad153f69b5b3077bcd08fbb0d28dc7f7f6df4a05cca35455be037043b63c56f6317d9928e8f91007335748c49824220db14ad10d80a5d00a9654af0996c1824c64c90b951bb2734aaecf78d4b36131a47238c3fa2ba25e2ced54255b06df696de1483c3767242a3728826e05f79e3981e12553355bba8a0131cd370e63e3da73106f638576a5aab0ea6d45c042574c0c8d0b14b8c7c01cfe9072",
+        "message_hash": "8131e6f4b45754f2c90bd06688ceeabc0c45055460729928b4eecf11026a9e2d",
+        "public_signing_key" : "035be5e9478209674a96e60f1f037f6176540fd001fa1d64694770c56a7709c42c",
+        "encryption_key" : "024eee18be9a5a5224000f916c80b393447989e7194bc0b0f1ad7a03369702bb51",
+        "decryption_key" : "db2debddb002473a001dd70b06f6c97bdcd1c46ba1001237fe0ee1aeffb2b6c4",
+        "signature" : "6035c89860ec62ad153f69b5b3077bcd08fbb0d28dc7f7f6df4a05cca35455be4ceacf921546c03dd1be596723ad1e7691bdac73d88cc36c421c5e7f08384305",
+        "comment": "the decrypted signature is high so it must be negated first AND the extracted decryption key must be negated"
+    },
+    {
+        "kind" : "verification",
+        "adaptor_sig": "03f94dca206d7582c015fb9bffe4e43b14591b30ef7d2b464d103ec5e116595dba03127f8ac3533d249280332474339000922eb6a58e3b9bf4fc7e01e4b4df2b7a4100a1e089f16e5d70bb89f961516f1de0684cc79db978495df2f399b0d01ed7240fa6e3252aedb58bdc6b5877b0c602628a235dd1ccaebdddcbe96198c0c21bead7b05f423b673d14d206fa1507b2dbe2722af792b8c266fc25a2d901d7e2c335",
+        "message_hash":  "8131e6f4b45754f2c90bd06688ceeabc0c45055460729928b4eecf11026a9e2d",
+        "public_signing_key": "035be5e9478209674a96e60f1f037f6176540fd001fa1d64694770c56a7709c42c",
+        "encryption_key": "0214ccb756249ad6e733c80285ea7ac2ee12ffebbcee4e556e6810793a60c45ad4",
+        "decryption_key": "1dfcfc0880e72509768ab46f2545b33168b8b8df8e4f5feb5059aa3750ee59d0",
+        "signature": "424d14a5471c048ab87b3b83f6085d125d5864249ae4297a57c84e74710bb67329e80e0ee60e57af3e625bbae1672b1ecaa58effe613426b024fa1621d903394",
+        "error": "proof is wrong"
+    },
+    {
+        "kind" : "recovery",
+        "encryption_key" : "027ee4f899bc9c5f2b626fa1a9b37ce291c0388b5227e90b0fd8f4fa576164ede7",
+        "adaptor_sig" : "03f2db6e9ed33092cc0b898fd6b282e99bdaeccb3de85c2d2512d8d507f9abab290210c01b5bed7094a12664aeaab3402d8709a8f362b140328d1b36dd7cb420d02fb66b1230d61c16d0cd0a2a02246d5ac7848dcd6f04fe627053cd3c7015a7d4aa6ac2b04347348bd67da43be8722515d99a7985fbfa66f0365c701de76ff0400dffdc9fa84dddf413a729823b16af60aa6361bc32e7cfd6701e32957c72ace67b",
+        "signature" : "f2db6e9ed33092cc0b898fd6b282e99bdaeccb3de85c2d2512d8d507f9abab2921811fe7b53becf3b7affa9442abaa93c0ab8a8e45cd7ee2ea8d258bfc25d464",
+        "decryption_key" : "9cf3ea9be594366b78c457162908af3c2ea177058177e9c6bf99047927773a06",
+        "comment" : "plain recovery"
+    },
+    {
+        "kind" : "recovery",
+        "adaptor_sig" : "03aa86d78059a91059c29ec1a757c4dc029ff636a1e6c1142fefe1e9d7339617c003a8153e50c0c8574a38d389e61bbb0b5815169e060924e4b5f2e78ff13aa7ad858e0c27c4b9eed9d60521b3f54ff83ca4774be5fb3a680f820a35e8840f4aaf2de88e7c5cff38a37b78725904ef97bb82341328d55987019bd38ae1745e3efe0f8ea8bdfede0d378fc1f96e944a7505249f41e93781509ee0bade77290d39cd12",
+        "signature" : "f7f7fe6bd056fc4abd70d335f72d0aa1e8406bba68f3e579e4789475323564a452c46176c7fb40aa37d5651341f55697dab27d84a213b30c93011a7790bace8c",
+        "encryption_key": "035176d24129741b0fcaa5fd6750727ce30860447e0a92c9ebebdeb7c3f93995ed",
+        "decryption_key" : null,
+        "error" : "the R value of the signature does not match"
+    },
+    {
+        "kind" : "recovery",
+        "adaptor_sig" : "032c637cd797dd8c2ce261907ed43e82d6d1a48cbabbbece801133dd8d70a01b1403eb615a3e59b1cbbf4f87acaf645be1eda32a066611f35dd5557802802b14b19c81c04c3fefac5783b2077bd43fa0a39ab8a64d4d78332a5d621ea23eca46bc011011ab82dda6deb85699f508744d70d4134bea03f784d285b5c6c15a56e4e1fab4bc356abbdebb3b8fe1e55e6dd6d2a9ea457e91b2e6642fae69f9dbb5258854",
+        "signature" : "2c637cd797dd8c2ce261907ed43e82d6d1a48cbabbbece801133dd8d70a01b14b5f24321f550b7b9dd06ee4fcfd82bdad8b142ff93a790cc4d9f7962b38c6a3b",
+        "encryption_key" : "02042537e913ad74c4bbd8da9607ad3b9cb297d08e014afc51133083f1bd687a62",
+        "decryption_key" : "324719b51ff2474c9438eb76494b0dc0bcceeb529f0a5428fd198ad8f886e99c",
+        "comment" : "recovery from high s signature"
+    },
+    {
+        "kind" : "serialization",
+        "adaptor_sig" : "03e6d51da7bc2bf24cf9dfd9acc6c4f0a3e74d8a6273ee5a573ed6818e3095b60903f33bc98f9d2ea3511f2e24f3358557c815abd7713c9318af9f4dfab4441898ecd619acb1cb75c1a5946fbaf716d227199a6479a678d10a6d95512d674fb7703d85b58980b8e6c54bd20616bdb9461dccd8eebb7d7e7c83a91452cc20edf53be5b0fe0db44dddaaafbe737678c684b6e89b9b4b679b1855aa6ed644498b89c918",
+        "error" : null
+    },
+    {
+        "kind" : "serialization",
+        "adaptor_sig" : "03fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2c03f33bc98f9d2ea3511f2e24f3358557c815abd7713c9318af9f4dfab4441898ecd619acb1cb75c1a5946fbaf716d227199a6479a678d10a6d95512d674fb7703d85b58980b8e6c54bd20616bdb9461dccd8eebb7d7e7c83a91452cc20edf53be5b0fe0db44dddaaafbe737678c684b6e89b9b4b679b1855aa6ed644498b89c918",
+        "error" : null,
+        "comment" : "R can be above curve order"
+    },
+    {
+        "kind" : "serialization",
+        "adaptor_sig" : "03e6d51da7bc2bf24cf9dfd9acc6c4f0a3e74d8a6273ee5a573ed6818e3095b60903fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2cd619acb1cb75c1a5946fbaf716d227199a6479a678d10a6d95512d674fb7703d85b58980b8e6c54bd20616bdb9461dccd8eebb7d7e7c83a91452cc20edf53be5b0fe0db44dddaaafbe737678c684b6e89b9b4b679b1855aa6ed644498b89c918",
+        "error" : null,
+        "comment" : "R_a can be above curve order"
+    },
+    {
+        "kind" : "serialization",
+        "adaptor_sig" : "03e6d51da7bc2bf24cf9dfd9acc6c4f0a3e74d8a6273ee5a573ed6818e3095b60903f33bc98f9d2ea3511f2e24f3358557c815abd7713c9318af9f4dfab4441898ec000000000000000000000000000000000000000000000000000000000000000085b58980b8e6c54bd20616bdb9461dccd8eebb7d7e7c83a91452cc20edf53be5b0fe0db44dddaaafbe737678c684b6e89b9b4b679b1855aa6ed644498b89c918",
+        "error" : "s_a cannot be zero"
+    },
+    {
+        "kind" : "serialization",
+        "adaptor_sig" : "03e6d51da7bc2bf24cf9dfd9acc6c4f0a3e74d8a6273ee5a573ed6818e3095b60903f33bc98f9d2ea3511f2e24f3358557c815abd7713c9318af9f4dfab4441898ecfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd036414185b58980b8e6c54bd20616bdb9461dccd8eebb7d7e7c83a91452cc20edf53be5b0fe0db44dddaaafbe737678c684b6e89b9b4b679b1855aa6ed644498b89c918",
+        "error" : "s_a too high"
+    }
+]

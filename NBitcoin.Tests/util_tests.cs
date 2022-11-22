@@ -677,6 +677,15 @@ namespace NBitcoin.Tests
 			Assert.Throws<OverflowException>(() => -1 * (Money)long.MinValue);
 		}
 
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void FeeRateCalculation()
+		{
+			Assert.Equal(Money.Satoshis(1L), new FeeRate(0.5m).GetFee(1));
+			Assert.Equal(Money.Satoshis(3L), new FeeRate(3m).GetFee(1));
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void FeeRateFormatting()

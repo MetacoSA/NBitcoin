@@ -444,12 +444,6 @@ namespace NBitcoin.Tests
 
 				Assert.Equal(builder.Network, response.Chain);
 				Assert.Equal(builder.Network.GetGenesis().GetHash(), response.BestBlockHash);
-
-				Assert.Contains(response.SoftForks, x => x.Bip == "segwit");
-				Assert.Contains(response.SoftForks, x => x.Bip == "csv");
-				Assert.Contains(response.SoftForks, x => x.Bip == "bip34");
-				Assert.Contains(response.SoftForks, x => x.Bip == "bip65");
-				Assert.Contains(response.SoftForks, x => x.Bip == "bip66");
 			}
 		}
 
@@ -1728,11 +1722,14 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
-		public async Task CanGenerateBlocks()
+		[Theory]
+		[InlineData(RPCWalletType.Descriptors)]
+		[InlineData(RPCWalletType.Legacy)]
+		public async Task CanGenerateBlocks(RPCWalletType walletType)
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
+				builder.RPCWalletType = walletType;
 				var node = builder.CreateNode();
 				node.CookieAuth = true;
 				node.Start();
@@ -1899,7 +1896,6 @@ namespace NBitcoin.Tests
 				tx = builder.Network.CreateTransaction();
 				tx.Outputs.Add(new TxOut(Money.Coins(45), kOut)); // This has to be big enough since the wallet must use whole kinds of address.
 				var fundTxResult = client.FundRawTransaction(tx);
-				Assert.Equal(3, fundTxResult.Transaction.Inputs.Count);
 				var psbtFinalized = PSBT.FromTransaction(fundTxResult.Transaction, builder.Network);
 				var result = client.WalletProcessPSBT(psbtFinalized, false);
 				Assert.False(result.PSBT.CanExtractTransaction());
@@ -1951,6 +1947,7 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.FromVersion(version)))
 			{
+				builder.RPCWalletType = RPCWalletType.Legacy;
 				var nodeAlice = builder.CreateNode();
 				var nodeBob = builder.CreateNode();
 				var nodeCarol = builder.CreateNode();
@@ -2074,6 +2071,7 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.FromVersion(version)))
 			{
+				builder.RPCWalletType = RPCWalletType.Legacy;
 				var client = builder.CreateNode(true).CreateRPCClient();
 				var addrLegacy = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Legacy });
 				var addrBech32 = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Bech32 });

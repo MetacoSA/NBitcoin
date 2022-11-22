@@ -20,6 +20,11 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Tests
 {
+	public enum RPCWalletType
+	{
+		Legacy,
+		Descriptors
+	}
 	public enum CoreNodeState
 	{
 		Stopped,
@@ -105,11 +110,14 @@ namespace NBitcoin.Tests
 			get; set;
 		}
 
+		public string WalletExecutable { get; set; } = "bitcoin-wallet";
+		public string GetWalletChainSpecifier = "-{0}";
+
 		/// <summary>
 		/// For blockchains that use an arbitrary chain (e.g. instead of main, testnet and regtest
 		/// Elements can use chain=elementsregtest).
 		/// </summary>
-		public string Chain { get; set; }
+		public string Chain { get; set; } = "regtest";
 
 		public NodeOSDownloadData GetCurrentOSDownloadData()
 		{
@@ -209,6 +217,7 @@ namespace NBitcoin.Tests
 			set;
 		} = Network.RegTest;
 		public NodeDownloadData NodeImplementation { get; private set; }
+		public RPCWalletType? RPCWalletType { get; set; }
 
 		public CoreNode CreateNode(bool start = false)
 		{
@@ -573,10 +582,19 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		public RPCWalletType? RPCWalletType { get; set; }
+
 		private void CreateDefaultWallet()
 		{
-			var walletToolPath = Path.Combine(Path.GetDirectoryName(this._Builder.BitcoinD), "bitcoin-wallet");
-			string walletToolArgs = $"-regtest -wallet=\"wallet.dat\" -datadir=\"{dataDir}\" create";
+			var walletToolPath = Path.Combine(Path.GetDirectoryName(this._Builder.BitcoinD), _Builder.NodeImplementation.WalletExecutable);
+
+			var walletType = (RPCWalletType ?? this._Builder.RPCWalletType) switch
+			{
+				Tests.RPCWalletType.Descriptors => " -descriptors",
+				Tests.RPCWalletType.Legacy => " -legacy",
+				_ => string.Empty
+			};
+			string walletToolArgs = $"{string.Format(_Builder.NodeImplementation.GetWalletChainSpecifier, _Builder.NodeImplementation.Chain)} -wallet=\"wallet.dat\"{walletType} -datadir=\"{dataDir}\" create";
 
 			var info = new ProcessStartInfo(walletToolPath, walletToolArgs)
 			{

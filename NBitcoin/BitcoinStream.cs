@@ -54,7 +54,7 @@ namespace NBitcoin
 	}
 	public partial class BitcoinStream
 	{
-		int _MaxArraySize = 1024 * 1024;
+		int _MaxArraySize = 1024 * 1024 * 4;
 		public int MaxArraySize
 		{
 			get

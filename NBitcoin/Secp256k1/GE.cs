@@ -194,6 +194,14 @@ namespace NBitcoin.Secp256k1
 			this.infinity = false;
 		}
 
+		public GE NormalizeVariable()
+		{
+			return new GE(
+				x.NormalizeVariable(),
+				y.NormalizeVariable()
+				);
+		}
+
 		public readonly void Deconstruct(out FE x, out FE y, out bool infinity)
 		{
 			x = this.x;

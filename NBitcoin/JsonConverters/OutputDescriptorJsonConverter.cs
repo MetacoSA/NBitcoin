@@ -24,14 +24,14 @@ namespace NBitcoin.JsonConverters
 		{
 			return typeof(OutputDescriptor).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
 		}
-		public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+		public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
 		{
-			if (reader.TokenType == JsonToken.Null)
+			if (reader.TokenType == JsonToken.Null || reader.Value is not string)
 				return null;
 			reader.AssertJsonType(JsonToken.String);
 			try
 			{
-				if (!OutputDescriptor.TryParse((string) reader.Value, Network, out var od, _requireChecksum, _signingRepository))
+				if (!OutputDescriptor.TryParse((string)reader.Value, Network, out var od, _requireChecksum, _signingRepository))
 					throw new JsonObjectException("Invalid OutputDescriptor", reader);
 				return od;
 			}
@@ -41,7 +41,7 @@ namespace NBitcoin.JsonConverters
 			}
 		}
 
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+		public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
 		{
 			string? str = null;
 			if (value is OutputDescriptor od)

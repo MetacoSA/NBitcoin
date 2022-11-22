@@ -21,6 +21,8 @@ using Encoders = NBitcoin.DataEncoders.Encoders;
 using static NBitcoin.Tests.Helpers.PrimitiveUtils;
 using Newtonsoft.Json.Schema;
 using Xunit.Sdk;
+using NBitcoin.Scripting;
+using NBitcoin.RPC;
 
 namespace NBitcoin.Tests
 {
@@ -801,7 +803,7 @@ namespace NBitcoin.Tests
 			var k = new Key();
 			var scriptCoin = RandomCoin(Money.Coins(0.0001m), k.PubKey.ScriptPubKey, true);
 			var builder = Network.CreateTransactionBuilder();
-			Assert.Throws<NotEnoughFundsException>(() => builder
+			Assert.Throws<OutputTooSmallException>(() => builder
 			.AddCoins(scriptCoin)
 			.Send(new Key(), scriptCoin.Amount)
 			.SubtractFees()
@@ -2190,22 +2192,6 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void AssertDogeHasAMinimumOf1DogeFee()
-		{
-			var k = new Key();
-			var txBuilder = Altcoins.Dogecoin.Instance.Regtest.CreateTransactionBuilder();
-			txBuilder.AddKeys(k);
-			txBuilder.AddCoins(RandomCoin(Money.Coins(10m), k.PubKey.Hash));
-			txBuilder.Send(new Key(), Money.Coins(4));
-			txBuilder.SetChange(new Key());
-			txBuilder.SendFees(Money.Coins(0.0001m));
-			var signed = txBuilder.BuildPSBT(true);
-			signed.TryGetFee(out var fee);
-			Assert.Equal(fee, Money.Coins(1.0m));
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
 		public void AssertCanSendBackSmallSegwitChange()
 		{
 			var k = new Key();
@@ -2658,9 +2644,7 @@ namespace NBitcoin.Tests
 			builder.DustPrevention = false;
 
 			TransactionPolicyError[] errors;
-			Assert.False(builder.Verify(signed, Money.Coins(0.0001m), out errors));
-			var ex = (NotEnoughFundsPolicyError)errors.Single();
-			Assert.True((Money)ex.Missing == Money.Parse("-0.00000500"));
+			Assert.True(builder.Verify(signed, Money.Coins(0.0001m), out errors));
 
 			builder = Network.CreateTransactionBuilder();
 			builder.MergeOutputs = false;
@@ -3116,7 +3100,6 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void Play()
 		{
-			
 		}
 
 

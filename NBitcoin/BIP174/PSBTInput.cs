@@ -289,13 +289,6 @@ namespace NBitcoin
 			}
 		}
 
-		public override void AddKeyPath(PubKey key, RootedKeyPath rootedKeyPath)
-		{
-			base.AddKeyPath(key, rootedKeyPath);
-			TrySlimUTXO();
-		}
-
-
 		public void UpdateFromCoin(ICoin coin)
 		{
 			if (coin == null)
@@ -1039,6 +1032,8 @@ namespace NBitcoin
 			{
 				ScriptVerify = scriptVerify
 			};
+			if (Transaction is IHasForkId)
+				eval.ScriptVerify |= NBitcoin.ScriptVerify.ForkId;
 			var txout = GetTxOut();
 			if (txout is null)
 			{
@@ -1071,12 +1066,15 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(keyPair));
 			if (this.IsFinalized())
 				return;
-
+			signingOptions = Parent.GetSigningOptions(signingOptions);
 			if (keyPair.PubKey is PubKey ecdsapk && PartialSigs.TryGetValue(ecdsapk, out var existingSig))
 			{
-				CheckCompatibleSigHash(this.Parent.Settings.SigningOptions.SigHash);
+				CheckCompatibleSigHash(signingOptions.SigHash);
 				var signature = PartialSigs[ecdsapk];
-				if (this.Parent.Settings.SigningOptions.SigHash != existingSig.SigHash)
+				var signatureSigHash = existingSig.SigHash;
+				if (Transaction is IHasForkId)
+					signatureSigHash = (SigHash)((uint)existingSig.SigHash & ~(0x40u));
+				if (!SameSigHash(signatureSigHash, signingOptions.SigHash))
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
 				return;
 			}
@@ -1117,9 +1115,19 @@ namespace NBitcoin
 			}
 		}
 
+		bool SameSigHash(SigHash a, SigHash b)
+		{
+			if (a == b)
+				return true;
+			if (Transaction is not IHasForkId)
+				return false;
+			a = (SigHash)((uint)a & ~(0x40u));
+			b = (SigHash)((uint)a & ~(0x40u));
+			return a == b;
+		}
 		private void CheckCompatibleSigHash(SigHash sigHash)
 		{
-			if (SighashType is SigHash s && s != sigHash)
+			if (SighashType is SigHash s && !SameSigHash(s,sigHash))
 				throw new InvalidOperationException($"The input assert the use of sighash {GetName(s)}");
 		}
 

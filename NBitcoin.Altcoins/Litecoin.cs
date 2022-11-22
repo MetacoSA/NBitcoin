@@ -116,6 +116,10 @@ namespace NBitcoin.Altcoins
 
 			public static LitecoinConsensusFactory Instance { get; } = new LitecoinConsensusFactory();
 
+			public override Transaction CreateTransaction()
+			{
+				return new LitecoinTransaction();
+			}
 			public override BlockHeader CreateBlockHeader()
 			{
 				return new LitecoinBlockHeader();
@@ -123,6 +127,115 @@ namespace NBitcoin.Altcoins
 			public override Block CreateBlock()
 			{
 				return new LitecoinBlock(new LitecoinBlockHeader());
+			}
+		}
+
+
+		public class LitecoinTransaction : Transaction
+		{
+			public LitecoinTransaction()
+			{
+
+			}
+			public override ConsensusFactory GetConsensusFactory()
+			{
+				return LitecoinConsensusFactory.Instance;
+			}
+			public override void ReadWrite(BitcoinStream stream)
+			{
+				var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
+									stream.ProtocolCapabilities.SupportWitness;
+
+				//var mwebSupported = false; //when mweb is supported in nbitcoin this is to be fixed
+
+				byte flags = 0;
+				if (!stream.Serializing)
+				{
+					stream.ReadWrite(ref nVersion);
+					/* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
+					stream.ReadWrite(ref vin);
+					vin.Transaction = this;
+					var hasNoDummy = (nVersion & NoDummyInput) != 0 && vin.Count == 0;
+					if (witSupported && hasNoDummy)
+						nVersion = nVersion & ~NoDummyInput;
+
+					if (vin.Count == 0 && witSupported && !hasNoDummy)
+					{
+						/* We read a dummy or an empty vin. */
+						stream.ReadWrite(ref flags);
+						if (flags != 0)
+						{
+							/* Assume we read a dummy and a flag. */
+							stream.ReadWrite(ref vin);
+							vin.Transaction = this;
+							stream.ReadWrite(ref vout);
+							vout.Transaction = this;
+						}
+						else
+						{
+							/* Assume read a transaction without output. */
+							vout = new TxOutList();
+							vout.Transaction = this;
+						}
+					}
+					else
+					{
+						/* We read a non-empty vin. Assume a normal vout follows. */
+						stream.ReadWrite(ref vout);
+						vout.Transaction = this;
+					}
+					if (((flags & 1) != 0) && witSupported)
+					{
+						/* The witness flag is present, and we support witnesses. */
+						flags ^= 1;
+						Witness wit = new Witness(Inputs);
+						wit.ReadWrite(stream);
+					}
+					if ((flags & 8) != 0) //MWEB extension tx flag
+					{
+						/* The MWEB flag is present, but currently no MWEB data is supported. 
+						 * This fix just prevent from throwing exception bellow so cannonical litecoin transaction can be read
+						 */
+						flags ^= 8;
+					}
+
+					if (flags != 0)
+					{
+						/* Unknown flag in the serialization */
+						throw new FormatException("Unknown transaction optional data");
+					}
+				}
+				else
+				{
+					var version = (witSupported && (vin.Count == 0 && vout.Count > 0)) ? nVersion | NoDummyInput : nVersion;
+					stream.ReadWrite(ref version);
+
+					if (witSupported)
+					{
+						/* Check whether witnesses need to be serialized. */
+						if (HasWitness)
+						{
+							flags |= 1;
+						}
+					}
+					if (flags != 0)
+					{
+						/* Use extended format in case witnesses are to be serialized. */
+						TxInList vinDummy = new TxInList();
+						stream.ReadWrite(ref vinDummy);
+						stream.ReadWrite(ref flags);
+					}
+					stream.ReadWrite(ref vin);
+					vin.Transaction = this;
+					stream.ReadWrite(ref vout);
+					vout.Transaction = this;
+					if ((flags & 1) != 0)
+					{
+						Witness wit = new Witness(this.Inputs);
+						wit.ReadWrite(stream);
+					}
+				}
+				stream.ReadWriteStruct(ref nLockTime);
 			}
 		}
 
@@ -237,6 +350,7 @@ namespace NBitcoin.Altcoins
 
 		protected override NetworkBuilder CreateMainnet()
 		{
+			var bech32 = Encoders.Bech32("ltc");
 			NetworkBuilder builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
 			{
@@ -255,7 +369,8 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				LitecoinWorkCalculation = true,
 				ConsensusFactory = LitecoinConsensusFactory.Instance,
-				SupportSegwit = true
+				SupportSegwit = true,
+				SupportTaproot = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 48 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 50 })
@@ -263,8 +378,9 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
 			.SetNetworkStringParser(new LitecoinMainnetAddressStringParser())
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("ltc"))
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("ltc"))
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, bech32)
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, bech32)
+			.SetBech32(Bech32Type.TAPROOT_ADDRESS, bech32)
 			.SetMagic(0xdbb6c0fb)
 			.SetPort(9333)
 			.SetRPCPort(9332)
@@ -288,6 +404,7 @@ namespace NBitcoin.Altcoins
 
 		protected override NetworkBuilder CreateTestnet()
 		{
+			var bech32 = Encoders.Bech32("tltc");
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
 			{
@@ -305,7 +422,8 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				LitecoinWorkCalculation = true,
 				ConsensusFactory = LitecoinConsensusFactory.Instance,
-				SupportSegwit = true
+				SupportSegwit = true,
+				SupportTaproot = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 58 })
@@ -313,8 +431,9 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetNetworkStringParser(new LitecoinTestnetAddressStringParser())
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tltc"))
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tltc"))
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, bech32)
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, bech32)
+			.SetBech32(Bech32Type.TAPROOT_ADDRESS, bech32)
 			.SetMagic(0xf1c8d2fd)
 			.SetPort(19335)
 			.SetRPCPort(19332)
@@ -336,6 +455,7 @@ namespace NBitcoin.Altcoins
 
 		protected override NetworkBuilder CreateRegtest()
 		{
+			var bech32 = Encoders.Bech32("rltc");
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
 			{
@@ -354,15 +474,17 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				LitecoinWorkCalculation = true,
 				ConsensusFactory = LitecoinConsensusFactory.Instance,
-				SupportSegwit = true
+				SupportSegwit = true,
+				SupportTaproot = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 58 })
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
-			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("rltc"))
-			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("rltc"))
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, bech32)
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, bech32)
+			.SetBech32(Bech32Type.TAPROOT_ADDRESS, bech32)
 			.SetMagic(0xdab5bffa)
 			.SetPort(19444)
 			.SetRPCPort(19443)

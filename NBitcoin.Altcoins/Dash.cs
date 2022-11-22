@@ -409,7 +409,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xBD6B0CBF)
 			.SetPort(9999)
 			.SetRPCPort(9998)
-			.SetMaxP2PVersion(70213)
+			.SetMaxP2PVersion(70223)
 			.SetName("dash-main")
 			.AddAlias("dash-mainnet")
 			.AddDNSSeeds(new[]
@@ -456,7 +456,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xFFCAE2CE)
 			.SetPort(19999)
 			.SetRPCPort(19998)
-			.SetMaxP2PVersion(70213)
+			.SetMaxP2PVersion(70223)
 		   .SetName("dash-test")
 		   .AddAlias("dash-testnet")
 		   .SetUriScheme("dash")
@@ -492,6 +492,7 @@ namespace NBitcoin.Altcoins
 				ConsensusFactory = DashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
+			.SetMaxP2PVersion(70223)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 140 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 19 })
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
@@ -502,7 +503,6 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xDCB7C1FC)
 			.SetPort(19994)
 			.SetRPCPort(19993)
-			.SetMaxP2PVersion(70213)
 			.SetName("dash-reg")
 			.AddAlias("dash-regtest")
 			.SetUriScheme("dash")

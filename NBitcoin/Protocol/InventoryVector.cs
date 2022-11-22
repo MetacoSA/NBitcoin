@@ -22,7 +22,7 @@ namespace NBitcoin.Protocol
 		MSG_WITNESS_TX = MSG_TX | MSG_WITNESS_FLAG,
 		MSG_FILTERED_WITNESS_BLOCK = MSG_FILTERED_BLOCK | MSG_WITNESS_FLAG
 	}
-	public class InventoryVector : Payload, IBitcoinSerializable
+	public class InventoryVector : IBitcoinSerializable
 	{
 		uint type;
 		uint256 hash = uint256.Zero;
@@ -61,7 +61,14 @@ namespace NBitcoin.Protocol
 
 		#region IBitcoinSerializable Members
 
-		public override void ReadWriteCore(BitcoinStream stream)
+		public void ReadWrite(BitcoinStream stream)
+		{
+			using (stream.SerializationTypeScope(SerializationType.Network))
+			{
+				ReadWriteCore(stream);
+			}
+		}
+		public void ReadWriteCore(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref type);
 			stream.ReadWrite(ref hash);

@@ -16,11 +16,11 @@ namespace NBitcoin.Tests
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.BCash.v23_0_0, Altcoins.BCash.Instance.Regtest, caller);
 
-			//var builder = NodeBuilder.Create(NodeDownloadData.Dogecoin.v1_10_0, Altcoins.Dogecoin.Instance.Regtest, caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.Dogecoin.v1_14_5, Altcoins.Dogecoin.Instance.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Verge.v6_0_2, Altcoins.Verge.Instance.Regtest, caller);
 
-			//var builder = NodeBuilder.Create(NodeDownloadData.Dash.v0_13_0, Altcoins.Dash.Instance.Regtest, caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.Dash.v18_0_1, Altcoins.Dash.Instance.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Terracoin.v0_12_2, Altcoins.Terracoin.Instance.Regtest, caller);
 
@@ -40,14 +40,13 @@ namespace NBitcoin.Tests
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Ufo.v0_16_0, Altcoins.AltNetworkSets.Ufo.Regtest, caller);
 
-			//var builder = NodeBuilder.Create(NodeDownloadData.Groestlcoin.v22_0, Altcoins.AltNetworkSets.Groestlcoin.Regtest, caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.Groestlcoin.v23_0, Altcoins.AltNetworkSets.Groestlcoin.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Mogwai.v0_12_2, Altcoins.AltNetworkSets.Mogwai.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Dystem.v1_0_9_9, Altcoins.Dystem.Instance.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Bitcoinplus.v2_7_0, Altcoins.AltNetworkSets.Bitcoinplus.Regtest, caller);
 
-			//var builder = NodeBuilder.Create(NodeDownloadData.Liquid.v3_14_1_21, Altcoins.AltNetworkSets.Liquid.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Bitcore.v0_90_9_10, Altcoins.Bitcore.Instance.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Gincoin.v1_1_0_0, Altcoins.Gincoin.Instance.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.Koto.v2_0_0, Altcoins.Koto.Regtest, caller);
@@ -56,7 +55,7 @@ namespace NBitcoin.Tests
 			//var builder = NodeBuilder.Create(NodeDownloadData.ZCoin.v0_13_8_3, Altcoins.ZCoin.Instance.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.DogeCash.v5_1_1, Altcoins.DogeCash.Instance.Regtest, caller);
 
-			//var builder = NodeBuilder.Create(NodeDownloadData.Elements.v0_18_1_12, Altcoins.AltNetworkSets.Liquid.Regtest, caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.Elements.v0_21_0_2, Altcoins.AltNetworkSets.Liquid.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Argoneum.v1_4_1, Altcoins.Argoneum.Instance.Regtest, caller);
 
@@ -70,7 +69,8 @@ namespace NBitcoin.Tests
 
 			//var builder = Create(NodeDownloadData.Bitcoin.v0_19_0_1, caller);
 
-			var builder = Create(NodeDownloadData.Bitcoin.v22_0, caller);
+			var builder = Create(NodeDownloadData.Bitcoin.v23_0, caller);
+			builder.RPCWalletType = RPCWalletType.Legacy;
 			return builder;
 		}
 

@@ -123,18 +123,19 @@ namespace NBitcoin.JsonConverters
 			return typeof(ICoin).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
 		}
 
-		public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+		public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
 		{
 			if (reader.TokenType == JsonToken.Null)
 				return default;
 			reader.AssertJsonType(JsonToken.StartObject);
 			var path = reader.Path;
-			return serializer.Deserialize<CoinJson>(reader).ToCoin(path);
+			return serializer.Deserialize<CoinJson>(reader)?.ToCoin(path);
 		}
 
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+		public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
 		{
-			serializer.Serialize(writer, new CoinJson((ICoin)value, Network));
+			if (value is ICoin c)
+				serializer.Serialize(writer, new CoinJson(c, Network));
 		}
 	}
 }

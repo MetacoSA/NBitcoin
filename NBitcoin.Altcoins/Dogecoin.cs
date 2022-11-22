@@ -38,10 +38,19 @@ namespace NBitcoin.Altcoins
 			{
 				return new DogecoinBlock(new DogecoinBlockHeader());
 			}
+			public override Transaction CreateTransaction()
+			{
+				return new DogeTransaction();
+			}
+			public override TxOut CreateTxOut()
+			{
+				return new DogeTxOut();
+			}
 			protected override TransactionBuilder CreateTransactionBuilderCore(Network network)
 			{
+				// https://github.com/dogecoin/dogecoin/blob/master/doc/fee-recommendation.md
 				var txBuilder = base.CreateTransactionBuilderCore(network);
-				txBuilder.StandardTransactionPolicy.MinFee = Money.Coins(1m);
+				txBuilder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(Money.Coins(0.001m), 1000);
 				// Around 3000 USD of fee for a transaction at ~0.4 USD per doge
 				txBuilder.StandardTransactionPolicy.MaxTxFee = new FeeRate(Money.Coins(56m), 1);
 				return txBuilder;
@@ -160,7 +169,25 @@ namespace NBitcoin.Altcoins
 				stream.ReadWrite(ref parentBlock);
 			}
 		}
-
+		public class DogeTransaction : Transaction
+		{
+			public override ConsensusFactory GetConsensusFactory()
+			{
+				return Dogecoin.DogeConsensusFactory.Instance;
+			}
+		}
+		public class DogeTxOut : TxOut
+		{
+			public override Money GetDustThreshold()
+			{
+				// https://github.com/dogecoin/dogecoin/blob/master/doc/fee-recommendation.md
+				return Money.Coins(0.01m);
+			}
+			public override ConsensusFactory GetConsensusFactory()
+			{
+				return Dogecoin.DogeConsensusFactory.Instance;
+			}
+		}
 		public class DogecoinBlock : Block
 		{
 			public DogecoinBlock(DogecoinBlockHeader header) : base(header)
@@ -379,9 +406,9 @@ namespace NBitcoin.Altcoins
 				ConsensusFactory = DogeConsensusFactory.Instance,
 				SupportSegwit = false
 			})
-			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 113 })
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
-			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 241 })
+			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tdoge"))

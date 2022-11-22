@@ -112,6 +112,19 @@ namespace NBitcoin.Tests
 				new ConcurrentChain(builder.Network);
 			}
 		}
+		[Theory]
+		[Trait("UnitTest", "UnitTest")]
+		[InlineData(1234)]
+		[InlineData(0.9)]
+		public void CanSerializeDeserializeFeeFilter(decimal satPerBytes)
+		{
+			var p = new FeeFilterPayload();
+			p.FeeRate = new FeeRate(satPerBytes);
+			var bytes = p.ToBytes();
+			p = new FeeFilterPayload();
+			p.ReadWrite(new BitcoinStream(bytes));
+			Assert.Equal(new FeeRate(satPerBytes), p.FeeRate);
+		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void ElementsAddressSerializationTest()
@@ -347,7 +360,6 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				node.Generate(builder.Network.Consensus.CoinbaseMaturity + 1);
 				var rpc = node.CreateRPCClient();
-
 				var alice = new Key().GetBitcoinSecret(builder.Network);
 				BitcoinAddress aliceAddress = alice.GetAddress(ScriptPubKeyType.Legacy);
 				var txid = rpc.SendToAddress(aliceAddress, Money.Coins(1.0m));

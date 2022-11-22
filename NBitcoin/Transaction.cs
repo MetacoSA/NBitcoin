@@ -650,7 +650,7 @@ namespace NBitcoin
 		}
 
 		static FeeRate dustRelayFee = new FeeRate(3.0m);
-		public Money GetDustThreshold()
+		public virtual Money GetDustThreshold()
 		{
 			// OutPoint (32 + 4) + script_size (1) + sequence (4)
 			int inputSize = 32 + 4 + 1 + 4;
@@ -1183,15 +1183,16 @@ namespace NBitcoin
 		}
 		void ReadCore(BitcoinStream stream)
 		{
-			List<byte[]> pushes = new List<byte[]>();
 			uint pushCount = 0;
 			stream.ReadWriteAsVarInt(ref pushCount);
+			if (pushCount > (uint)stream.MaxArraySize)
+				throw new ArgumentOutOfRangeException("Array size too big");
+			var pushes = new byte[pushCount][];
 			for (int i = 0; i < (int)pushCount; i++)
 			{
-				byte[] push = ReadPush(stream);
-				pushes.Add(push);
+				pushes[i] = ReadPush(stream);
 			}
-			_Pushes = pushes.ToArray();
+			_Pushes = pushes;
 		}
 		private static byte[] ReadPush(BitcoinStream stream)
 		{

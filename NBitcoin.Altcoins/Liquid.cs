@@ -103,7 +103,7 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("ert"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("ert"))
 			.SetBech32(Bech32Type.BLINDED_ADDRESS, NBitcoin.Altcoins.Elements.ElementsEncoders.Blech32("el"))
-			.SetMagic(0xdab5bffa)
+			.SetMagic(0x0EF21953)
 			.SetPort(19444)
 			.SetRPCPort(19332)
 			.SetName("liq-reg")
@@ -117,7 +117,7 @@ namespace NBitcoin.Altcoins
 
 		protected override void PostInit()
 		{
-			RegisterDefaultCookiePath("Liquid", new FolderName() { RegtestFolder = "liquidregtest", MainnetFolder = "liquidv1" });
+			RegisterDefaultCookiePath("Liquid", new FolderName() { RegtestFolder = "elementsregtest", MainnetFolder = "liquidv1" });
 		}
 	}
 }
