@@ -359,6 +359,34 @@ namespace NBitcoin.Tests
 				UseSectionInConfigFile = true,
 				CreateWallet = true
 			};
+
+			public NodeDownloadData v24_0 = new NodeDownloadData()
+			{
+				Version = "24.0",
+				Linux = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "fb86cf6af7a10bc5f3ae6cd6a5b0348854e1462102fe71e755d30b51b6e317d1"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-apple-darwin.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-apple-darwin.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "a2b7ba863e5536249a8e97b464bc9a91ad73a0b6340434bf1c09aa912ac52f29"
+				},
+				Windows = new NodeOSDownloadData()
+				{
+					Executable = "bitcoin-{0}/bin/bitcoind.exe",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win64.zip",
+					Archive = "bitcoin-{0}-win64.zip",
+					Hash = "09fa27956f2884434eee2ca1a9d2822712e8405c096e82ecedf64a638f42ca1a"
+				},
+				UseSectionInConfigFile = true,
+				CreateWallet = true
+			};
 		}
 
 		public class LitecoinNodeDownloadData : NodeDownloadDataBase
