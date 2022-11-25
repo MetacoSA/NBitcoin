@@ -141,7 +141,6 @@
     <None Include="data\SHA256SUMS.asc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
     <None Remove="data\liquid-block-mainnet-4a9c3c0fbb1cb8ff106f474e967bc5ec17a7ba066abd605bfc6f0c078e79b609" />
     <Content Include="data\liquid-block-mainnet-4a9c3c0fbb1cb8ff106f474e967bc5ec17a7ba066abd605bfc6f0c078e79b609">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
