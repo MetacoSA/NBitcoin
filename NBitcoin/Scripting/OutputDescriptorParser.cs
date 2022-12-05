@@ -281,11 +281,6 @@ namespace NBitcoin.Scripting
 				return false;
 			}
 			result = res.Value;
-			if (result is OutputDescriptor.Multi multi && multi.PkProviders.Count > 3)
-			{
-				whyFailure = "You can not have more than 3 pubkeys in top level multisig.";
-				return false;
-			}
 			return true;
 		}
 		internal static OutputDescriptor ParseOD(string str, Network network, bool requireCheckSum = false, ISigningRepository? repo = null)
