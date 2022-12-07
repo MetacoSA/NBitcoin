@@ -1,10 +1,12 @@
-﻿using System.Runtime.InteropServices;
+﻿#nullable enable
+using System.Runtime.InteropServices;
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 using NBitcoin.Crypto;
 
 namespace NBitcoin
@@ -407,6 +409,7 @@ namespace NBitcoin
 		public ScriptSigs()
 		{
 			WitSig = WitScript.Empty;
+			ScriptSig = Script.Empty;
 		}
 		public Script ScriptSig
 		{
@@ -612,7 +615,7 @@ namespace NBitcoin
 			return Encoders.Hex.EncodeData(_Script);
 		}
 
-		Script _PaymentScript;
+		Script? _PaymentScript;
 
 		/// <summary>
 		/// Get the P2SH scriptPubKey of this script
@@ -682,20 +685,22 @@ namespace NBitcoin
 			}
 		}
 
-		public static Script operator +(Script a, IEnumerable<byte> bytes)
+		public static Script operator +(Script? a, IEnumerable<byte> bytes)
 		{
-			if (a == null)
+			if (a is null)
 				return new Script(Op.GetPushOp(bytes.ToArray()));
 			return a + Op.GetPushOp(bytes.ToArray());
 		}
-		public static Script operator +(Script a, Op op)
+		public static Script operator +(Script? a, Op op)
 		{
-			return a == null ? new Script(op) : new Script(a._Script.Concat(op.ToBytes()));
+			if (op is null)
+				throw new ArgumentNullException(nameof(op));
+			return a is null ? new Script(op) : new Script(a._Script.Concat(op.ToBytes()));
 		}
 
-		public static Script operator +(Script a, IEnumerable<Op> ops)
+		public static Script operator +(Script? a, IEnumerable<Op> ops)
 		{
-			return a == null ? new Script(ops) : new Script(a._Script.Concat(new Script(ops)._Script));
+			return a is null ? new Script(ops) : new Script(a._Script.Concat(new Script(ops)._Script));
 		}
 
 		public IEnumerable<Op> ToOps()
@@ -707,7 +712,7 @@ namespace NBitcoin
 		public uint GetSigOpCount(bool fAccurate)
 		{
 			uint n = 0;
-			Op lastOpcode = null;
+			Op? lastOpcode = null;
 			foreach (var op in ToOps())
 			{
 				if (op.Code == OpcodeType.OP_CHECKSIG || op.Code == OpcodeType.OP_CHECKSIGVERIFY)
@@ -724,7 +729,7 @@ namespace NBitcoin
 			return n;
 		}
 
-		ScriptId _Hash;
+		ScriptId? _Hash;
 		public ScriptId Hash
 		{
 			get
@@ -732,7 +737,7 @@ namespace NBitcoin
 				return _Hash ?? (_Hash = new ScriptId(this));
 			}
 		}
-		WitScriptId _WitHash;
+		WitScriptId? _WitHash;
 		public WitScriptId WitHash
 		{
 			get
@@ -753,7 +758,7 @@ namespace NBitcoin
 			// ... and return its opcount:
 		}
 
-		public ScriptTemplate FindTemplate()
+		public ScriptTemplate? FindTemplate()
 		{
 			return StandardScripts.GetTemplateFromScriptPubKey(this);
 		}
@@ -795,7 +800,8 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="network">The network</param>
 		/// <returns></returns>
-		public BitcoinAddress GetSignerAddress(Network network)
+		[Obsolete("Do not use this, it isn't possible to get a signer's address from a script without taking heuristic which can be gamed by a malicious actor")]
+		public BitcoinAddress? GetSignerAddress(Network network)
 		{
 			var sig = GetSigner();
 			return sig == null ? null : sig.GetAddress(network);
@@ -805,7 +811,8 @@ namespace NBitcoin
 		/// Extract P2SH or P2PKH id from scriptSig
 		/// </summary>
 		/// <returns>The network</returns>
-		public IAddressableDestination GetSigner()
+		[Obsolete("Do not use this, it isn't possible to get a signer's address from a script without taking heuristic which can be gamed by a malicious actor")]
+		public IAddressableDestination? GetSigner()
 		{
 			var pubKey = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(this);
 			if (pubKey != null)
@@ -821,7 +828,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
-		public BitcoinAddress GetDestinationAddress(Network network)
+		public BitcoinAddress? GetDestinationAddress(Network network)
 		{
 			var dest = GetDestination();
 			return dest == null ? null : dest.GetAddress(network);
@@ -832,7 +839,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
-		public IAddressableDestination GetDestination()
+		public IAddressableDestination? GetDestination()
 		{
 			var pubKeyHashParams = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
 			if (pubKeyHashParams != null)
@@ -872,7 +879,7 @@ namespace NBitcoin
 			{
 				PubKey.TryCreatePubKey(op.PushData, out var pk);
 				return pk;
-			}).Where(pk => pk != null).ToArray();
+			}).Where(pk => pk != null).ToArray()!;
 
 		/// <summary>
 		/// Get script byte array
@@ -964,28 +971,30 @@ namespace NBitcoin
 			}
 		}
 
-		public static bool IsNullOrEmpty(Script script)
+		public static bool IsNullOrEmpty([NotNullWhen(false)] Script? script)
 		{
-			return script == null || script._Script.Length == 0;
+			return script is null || script._Script.Length == 0;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
-			Script item = obj as Script;
+			Script? item = obj as Script;
 			return Equals(item);
 		}
 
-		public bool Equals(Script item) => item != null && Utils.ArrayEqual(item._Script, _Script);
-		public static bool operator ==(Script a, Script b)
+		public bool Equals(Script? item) => item is not null && Utils.ArrayEqual(item._Script, _Script);
+		public static bool operator ==(Script? a, Script? b)
 		{
-			if (ReferenceEquals(a, b))
+			if (a is null && b is null)
 				return true;
-			if (((object)a == null) || ((object)b == null))
+			if (a is null)
+				return false;
+			if (b is null)
 				return false;
 			return Utils.ArrayEqual(a._Script, b._Script);
 		}
 
-		public static bool operator !=(Script a, Script b)
+		public static bool operator !=(Script? a, Script? b)
 		{
 			return !(a == b);
 		}
@@ -1055,7 +1064,7 @@ namespace NBitcoin
 			}
 		}
 
-		private static Script CombineSignatures(Script scriptPubKey, TransactionChecker checker, byte[][] sigs1, byte[][] sigs2, HashVersion hashVersion)
+		private static Script? CombineSignatures(Script scriptPubKey, TransactionChecker checker, byte[][] sigs1, byte[][] sigs2, HashVersion hashVersion)
 		{
 			var template = StandardScripts.GetTemplateFromScriptPubKey(scriptPubKey);
 
@@ -1084,7 +1093,7 @@ namespace NBitcoin
 				var redeem = new Script(redeemBytes);
 				sigs1 = sigs1.Take(sigs1.Length - 1).ToArray();
 				sigs2 = sigs2.Take(sigs2.Length - 1).ToArray();
-				Script result = CombineSignatures(redeem, checker, sigs1, sigs2, hashVersion);
+				var result = CombineSignatures(redeem, checker, sigs1, sigs2, hashVersion);
 				result += Op.GetPushOp(redeemBytes);
 				return result;
 			}
@@ -1171,9 +1180,10 @@ namespace NBitcoin
 			return s;
 		}
 
-		public static implicit operator WitScript(Script script)
+		[return: NotNullIfNotNull("script")]
+		public static implicit operator WitScript?(Script? script)
 		{
-			if (script == null)
+			if (script is null)
 				return null;
 			return new WitScript(script);
 		}

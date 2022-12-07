@@ -2195,7 +2195,7 @@ namespace NBitcoin.RPC
 		{
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
-			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network), amount, parameters, cancellationToken);
+			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network) ?? throw new ArgumentException("scriptPubKey can't be converted into an address", nameof(scriptPubKey)), amount, parameters, cancellationToken);
 		}
 
 		/// <summary>
@@ -2213,7 +2213,7 @@ namespace NBitcoin.RPC
 		{
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
-			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network), amount, null, cancellationToken);
+			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network) ?? throw new ArgumentException("scriptPubKey can't be converted into an address", nameof(scriptPubKey)), amount, null, cancellationToken);
 		}
 
 		/// <summary>
@@ -2233,7 +2233,7 @@ namespace NBitcoin.RPC
 		{
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
-			return SendToAddress(scriptPubKey.GetDestinationAddress(Network), amount, parameters, cancellationToken);
+			return SendToAddress(scriptPubKey.GetDestinationAddress(Network) ?? throw new ArgumentException("scriptPubKey can't be converted into an address", nameof(scriptPubKey)), amount, parameters, cancellationToken);
 		}
 
 		/// <summary>

@@ -16,7 +16,7 @@ namespace NBitcoin
 	{
 		// Those fields are not saved, but can be used as hint to solve more info for the PSBT
 		internal Script originalScriptSig = Script.Empty;
-		internal WitScript originalWitScript = Script.Empty;
+		internal WitScript originalWitScript = WitScript.Empty;
 		internal TxOut? orphanTxOut = null; // When this input is not segwit, but we don't have the previous tx
 
 		internal PSBTInput(PSBT parent, uint index, TxIn input) : base(parent)
