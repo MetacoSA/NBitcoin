@@ -4,6 +4,7 @@ using FsCheck;
 using System.Collections.Generic;
 using Microsoft.FSharp.Collections;
 using System.Linq;
+using Microsoft.FSharp.Core;
 using NBitcoin.Crypto;
 
 namespace NBitcoin.Tests.Generators
@@ -24,6 +25,16 @@ namespace NBitcoin.Tests.Generators
 			Arb.From(KeyPath());
 		public static Arbitrary<ECDSASignature> ECDSASignatureArb() =>
 			Arb.From(ECDSA());
+
+#if HAS_SPAN
+		public static Arbitrary<TaprootInternalPubKey> TaprootInternalPubKeyArb() =>
+			Arb.From(TaprootInternalPubKey());
+		public static Arbitrary<TaprootFullPubKey> TaprootFullPubKeyArb() =>
+			Arb.From(TaprootFullPubKey());
+#endif
+
+		public static Arbitrary<uint256> UInt256Arb() =>
+			Arb.From(Hash256());
 		public static Gen<Key> PrivateKey() => Gen.Fresh(() => new Key());
 
 		public static Gen<List<Key>> PrivateKeys(int n) =>
@@ -43,6 +54,16 @@ namespace NBitcoin.Tests.Generators
 		public static Gen<List<PubKey>> PublicKeys(int n) =>
 			from pks in Gen.ListOf(n, PublicKey())
 			select pks.ToList();
+
+#if HAS_SPAN
+		public static Gen<TaprootInternalPubKey> TaprootInternalPubKey() =>
+			from pk in PublicKey()
+			select pk.TaprootInternalKey;
+
+		public static Gen<TaprootFullPubKey> TaprootFullPubKey() =>
+			from pk in PublicKey()
+			select pk.GetTaprootFullPubKey();
+#endif
 
 		#region hash
 		public static Gen<uint256> Hash256() =>

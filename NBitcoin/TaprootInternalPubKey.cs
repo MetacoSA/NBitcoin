@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class TaprootInternalPubKey
+	public class TaprootInternalPubKey : IEquatable<TaprootInternalPubKey>
 	{
 #if HAS_SPAN
 		internal readonly ECXOnlyPubKey pubkey;
@@ -25,6 +25,17 @@ namespace NBitcoin
 		private byte[] pubkey = new byte[32];
 #endif
 
+
+#if HAS_SPAN
+		public static TaprootInternalPubKey Parse(string hex)
+		{
+			if (!TryParse(hex, out var result))
+				throw new FormatException($"Failed to parse TaprootInternalKey {hex}");
+			return result;
+		}
+		public static bool TryParse(string hex, [MaybeNullWhen(false)] out TaprootInternalPubKey result)
+			=> TryCreate(Encoders.Hex.DecodeData(hex), out result);
+#endif
 		public static bool TryCreate(byte[] pubkey, [MaybeNullWhen(false)] out TaprootInternalPubKey result)
 		{
 #if HAS_SPAN
@@ -67,6 +78,7 @@ namespace NBitcoin
 		{
 			return TaprootFullPubKey.Create(this, merkleRoot);
 		}
+
 #endif
 		public TaprootInternalPubKey(byte[] pubkey)
 		{
@@ -99,13 +111,27 @@ namespace NBitcoin
 			pubkey.WriteToSpan(out32);
 		}
 #endif
-#if HAS_SPAN
+
 		public override bool Equals(object? obj)
 		{
-			if (!(obj is TaprootInternalPubKey a))
-				return false;
-			return a.pubkey.Q.x == this.pubkey.Q.x;
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((TaprootInternalPubKey)obj);
 		}
+		public bool Equals(TaprootInternalPubKey? other)
+		{
+			if (ReferenceEquals(null, other)) return false;
+#if HAS_SPAN
+			return Utils.ArrayEqual(other.pubkey.ToBytes(), pubkey.ToBytes());
+#else
+		return Utils.ArrayEqual(other.pubkey, pubkey);
+#endif
+		}
+
+#if HAS_SPAN
+
+
 		public static bool operator ==(TaprootInternalPubKey a, TaprootInternalPubKey b)
 		{
 			if (a is TaprootInternalPubKey && b is TaprootInternalPubKey)
@@ -123,12 +149,7 @@ namespace NBitcoin
 			return pubkey.GetHashCode();
 		}
 #else
-		public override bool Equals(object obj)
-		{
-			if (!(obj is TaprootInternalPubKey a))
-				return false;
-			return Utils.ArrayEqual(pubkey, a.pubkey);
-		}
+
 		public static bool operator ==(TaprootInternalPubKey a, TaprootInternalPubKey b)
 		{
 			if (a is TaprootInternalPubKey && b is TaprootInternalPubKey)
