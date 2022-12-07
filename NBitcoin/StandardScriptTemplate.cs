@@ -204,7 +204,7 @@ namespace NBitcoin
 		{
 			if (signature == null)
 				throw new ArgumentNullException(nameof(signature));
-			return new Script(Op.GetPushOp(signature.ToBytes()));
+			return new WitScript(new[] { signature.ToBytes() });
 		}
 
 		public WitScript GenerateWitScript(TaprootSignature signature, byte[] annex)
@@ -215,8 +215,7 @@ namespace NBitcoin
 				return GenerateWitScript(signature);
 			if (!CheckAnnex(annex))
 				throw new ArgumentException("The first byte of annex must be 0x50", "annex");
-
-			return new Script(Op.GetPushOp(signature.ToBytes()), Op.GetPushOp(annex));
+			return new WitScript(new[] { signature.ToBytes(), annex });
 		}
 	}
 	public class PayToMultiSigTemplate : ScriptTemplate

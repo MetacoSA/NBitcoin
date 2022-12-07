@@ -2005,7 +2005,9 @@ namespace NBitcoin.Tests
 			Transaction signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+#pragma warning disable CS0618 // Type or member is obsolete
 			Assert.Equal(previousCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
+#pragma warning restore CS0618 // Type or member is obsolete
 
 			//P2WSH
 			previousTx = builder.Network.Consensus.ConsensusFactory.CreateTransaction();
@@ -2021,7 +2023,9 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+#pragma warning disable CS0618 // Type or member is obsolete
 			Assert.Equal(witnessCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
+#pragma warning restore CS0618 // Type or member is obsolete
 
 
 			//P2SH(P2WPKH)
@@ -2038,7 +2042,9 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+#pragma warning disable CS0618 // Type or member is obsolete
 			Assert.Equal(scriptCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
+#pragma warning restore CS0618 // Type or member is obsolete
 
 			//P2SH(P2WSH)
 			previousTx = Network.CreateTransaction();
@@ -2055,7 +2061,9 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+#pragma warning disable CS0618 // Type or member is obsolete
 			Assert.Equal(witnessCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
+#pragma warning restore CS0618 // Type or member is obsolete
 
 			//Can remove witness data from tx
 			var signedTx2 = signedTx.WithOptions(TransactionOptions.None);
