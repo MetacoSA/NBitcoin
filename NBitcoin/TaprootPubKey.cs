@@ -59,6 +59,13 @@ namespace NBitcoin
 				throw new ArgumentException("Invalid taproot pubkey");
 			this.pubkey = k;
 		}
+
+		public static TaprootPubKey Parse(string hex)
+		{
+			if (!TryCreate(Encoders.Hex.DecodeData(hex), out var result))
+				throw new FormatException($"Invalid x-only pubkey {hex}");
+			return result;
+		}
 #endif
 			public TaprootPubKey(byte[] pubkey)
 		{
