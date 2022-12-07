@@ -437,7 +437,11 @@ namespace NBitcoin
 		internal readonly byte[] _Script;
 		public Script()
 		{
+#if NO_ARRAY_EMPTY
 			_Script = new byte[0];
+#else
+			_Script = Array.Empty<byte>();
+#endif
 		}
 		public Script(params Op[] ops)
 			: this((IEnumerable<Op>)ops)
@@ -517,7 +521,7 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
-		private uint256 _leafHash;
+		private uint256? _leafHash;
 		public uint256 TaprootV1LeafHash
 		{
 			get

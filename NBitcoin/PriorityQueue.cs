@@ -1,3 +1,4 @@
+#if !NET6_0_OR_GREATER && !NO_TUPLE
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 namespace NBitcoin
 {
-#if !NET6_0_OR_GREATER
+
 #nullable enable
 	static class SR
 	{
@@ -730,7 +731,7 @@ namespace NBitcoin
             Debug.Assert(_comparer is not null);
             Debug.Assert(0 <= nodeIndex && nodeIndex < _size);
 
-            IComparer<TPriority> comparer = _comparer;
+            IComparer<TPriority> comparer = _comparer!;
             (TElement Element, TPriority Priority)[] nodes = _nodes;
 
             while (nodeIndex > 0)
@@ -738,7 +739,7 @@ namespace NBitcoin
                 int parentIndex = GetParentIndex(nodeIndex);
                 (TElement Element, TPriority Priority) parent = nodes[parentIndex];
 
-                if (comparer.Compare(node.Priority, parent.Priority) < 0)
+                if (comparer!.Compare(node.Priority, parent.Priority) < 0)
                 {
                     nodes[nodeIndex] = parent;
                     nodeIndex = parentIndex;
@@ -812,7 +813,7 @@ namespace NBitcoin
             Debug.Assert(_comparer is not null);
             Debug.Assert(0 <= nodeIndex && nodeIndex < _size);
 
-            IComparer<TPriority> comparer = _comparer;
+            IComparer<TPriority> comparer = _comparer!;
             (TElement Element, TPriority Priority)[] nodes = _nodes;
             int size = _size;
 
@@ -827,7 +828,7 @@ namespace NBitcoin
                 while (++i < childIndexUpperBound)
                 {
                     (TElement Element, TPriority Priority) nextChild = nodes[i];
-                    if (comparer.Compare(nextChild.Priority, minChild.Priority) < 0)
+                    if (comparer!.Compare(nextChild.Priority, minChild.Priority) < 0)
                     {
                         minChild = nextChild;
                         minChildIndex = i;
@@ -835,7 +836,7 @@ namespace NBitcoin
                 }
 
                 // Heap property is satisfied; insert node in this location.
-                if (comparer.Compare(node.Priority, minChild.Priority) <= 0)
+                if (comparer!.Compare(node.Priority, minChild.Priority) <= 0)
                 {
                     break;
                 }
@@ -1005,5 +1006,5 @@ namespace NBitcoin
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
     }
-#endif
 }
+#endif

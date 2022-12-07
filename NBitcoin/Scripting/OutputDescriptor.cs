@@ -365,7 +365,7 @@ namespace NBitcoin.Scripting
 			return keyProvider;
 		}
 
-		private ScriptPubKeyType? InferTemplate(ScriptTemplate template) => template switch
+		private ScriptPubKeyType? InferTemplate(ScriptTemplate? template) => template switch
 		{
 			PayToPubkeyHashTemplate _ => ScriptPubKeyType.Legacy,
 			PayToPubkeyTemplate _ => ScriptPubKeyType.Legacy,
