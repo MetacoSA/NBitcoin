@@ -430,14 +430,18 @@ namespace NBitcoin.Scripting
 				return false;
 			}
 
-			if (result is OutputDescriptor.Tr tr && repo is not null)
+#if HAS_SPAN
+		if (result is OutputDescriptor.Tr tr)
 			{
-				if (!tr.IsRange())
+				if (!tr.IsKeyPathSpendOnly)
+					throw new NotSupportedException($"We currently do not support tr() descriptor with tapscript");
+				if (!tr.IsRange() && repo is not null)
 				{
 					Debug.Assert(tr.TryGetSpendInfo(repo, out var spendInfo));
 					repo.SetTaprootInternalKey(spendInfo.OutputPubKey, spendInfo.InternalPubKey);
 				}
 			}
+#endif
 			return true;
 		}
 		internal static OutputDescriptor ParseOD(string str, Network network, bool requireCheckSum = false, ISigningRepository? repo = null)

@@ -375,19 +375,19 @@ namespace NBitcoin
 		}
 
 
-		TaprootPubKey? _TaprootOutputPubKey;
-		internal TaprootPubKey TaprootOutputPubKey
+		TaprootPubKey? _TaprootPubKey;
+		internal TaprootPubKey TaprootPubKey
 		{
 			get
 			{
-				if (_TaprootOutputPubKey is TaprootFullPubKey)
+				if (_TaprootPubKey is TaprootFullPubKey)
 				{
-					return _TaprootOutputPubKey;
+					return _TaprootPubKey;
 				}
 
 				var xonly = this.ECKey.ToXOnlyPubKey(out _);
-				_TaprootOutputPubKey = new TaprootPubKey(xonly);
-				return _TaprootOutputPubKey;
+				_TaprootPubKey = new TaprootPubKey(xonly);
+				return _TaprootPubKey;
 			}
 		}
 

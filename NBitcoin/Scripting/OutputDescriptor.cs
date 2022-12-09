@@ -268,7 +268,7 @@ namespace NBitcoin.Scripting
 				{
 					foreach (var (desc, depth) in this.TapLeafs.IterateScripts())
 					{
-						Debug.Assert(desc.TryExpand(0, _ => null, repo, out var scripts));
+						Debug.Assert(desc.TryExpand(0, _ => null, repo, out var scripts, true));
 						foreach (var s in scripts)
 						{
 							builder.AddLeaf((uint)depth, s);
@@ -339,7 +339,7 @@ namespace NBitcoin.Scripting
 			IDictionary<uint, ExtPubKey>? cache = null
 			)
 		{
-			return TryExpand(pos, repo.GetPrivateKey, repo, out outputScripts, cache);
+			return TryExpand(pos, repo.GetPrivateKey, repo, out outputScripts, false, cache);
 		}
 
 
@@ -357,13 +357,14 @@ namespace NBitcoin.Scripting
 			Func<KeyId, Key?> privateKeyProvider,
 			ISigningRepository repo,
 			out List<Script> outputScripts,
+			bool isTaproot = false,
 			IDictionary<uint, ExtPubKey>? cache = null
 			)
 		{
 			if (privateKeyProvider == null) throw new ArgumentNullException(nameof(privateKeyProvider));
 			if (repo == null) throw new ArgumentNullException(nameof(repo));
 			outputScripts = new List<Script>();
-			return TryExpand(pos, privateKeyProvider, repo, outputScripts, cache);
+			return TryExpand(pos, privateKeyProvider, repo, outputScripts, isTaproot, cache);
 		}
 
 		private bool ExpandPkHelper(
@@ -372,6 +373,7 @@ namespace NBitcoin.Scripting
 			uint pos,
 			ISigningRepository repo,
 			List<Script> outSc,
+			bool isTaproot,
 			IDictionary<uint, ExtPubKey>? cache = null)
 		{
 			if (!pkP.TryGetPubKey(pos, privateKeyProvider, out var keyOrigin1, out var pubkey1))
@@ -380,8 +382,9 @@ namespace NBitcoin.Scripting
 			{
 				repo.SetKeyOrigin(pubkey1.Hash, keyOrigin1);
 			}
+
 			repo.SetPubKey(pubkey1.Hash, pubkey1);
-			outSc.AddRange(MakeScripts(pubkey1, repo));
+			outSc.AddRange(MakeScripts(pubkey1, repo, isTaproot));
 			return true;
 		}
 
@@ -390,6 +393,7 @@ namespace NBitcoin.Scripting
 			Func<KeyId, Key?> privateKeyProvider,
 			ISigningRepository repo,
 			List<Script> outputScripts,
+			bool isTaproot,
 			IDictionary<uint, ExtPubKey>? cache = null
 			)
 		{
@@ -400,13 +404,13 @@ namespace NBitcoin.Scripting
 				case Raw _:
 					return false;
 				case PK self:
-					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
+					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts, isTaproot);
 				case PKH self:
-					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
+					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts, isTaproot);
 				case WPKH self:
-					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
+					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts, isTaproot);
 				case Combo self:
-					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts);
+					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts, isTaproot);
 				case Multi self:
 					// prepare temporary objects so that it won't affect the result in case
 					// it fails in the middle.
@@ -432,7 +436,7 @@ namespace NBitcoin.Scripting
 					return true;
 				case SH self:
 					var subRepo1 = new FlatSigningRepository();
-					if (!self.Inner.TryExpand(pos, privateKeyProvider, subRepo1, out var shInnerResult))
+					if (!self.Inner.TryExpand(pos, privateKeyProvider, subRepo1, out var shInnerResult, false))
 						return false;
 					repo.Merge(subRepo1);
 					foreach (var inner in shInnerResult)
@@ -443,7 +447,7 @@ namespace NBitcoin.Scripting
 					return true;
 				case WSH self:
 					var subRepo2 = new FlatSigningRepository();
-					if (!self.Inner.TryExpand(pos, privateKeyProvider, subRepo2, out var wshInnerResult))
+					if (!self.Inner.TryExpand(pos, privateKeyProvider, subRepo2, out var wshInnerResult, false))
 						return false;
 					repo.Merge(subRepo2);
 					foreach (var inner in wshInnerResult)
@@ -464,7 +468,7 @@ namespace NBitcoin.Scripting
 					{
 						foreach (var (od, depth) in self.TapLeafs.IterateScripts())
 						{
-							if (!od.TryExpand(pos, privateKeyProvider, repo, out var subScripts))
+							if (!od.TryExpand(pos, privateKeyProvider, repo, out var subScripts , true))
 								return false;
 							foreach (var s in subScripts)
 							{
@@ -477,7 +481,7 @@ namespace NBitcoin.Scripting
 					outputScripts.Add(spendInfo.OutputPubKey.OutputKey.ScriptPubKey);
 					return true;
 				case RawTr self:
-					return ExpandPkHelper(self.OutputPubKeyProvider, privateKeyProvider, pos, repo, outputScripts);
+					return ExpandPkHelper(self.OutputPubKeyProvider, privateKeyProvider, pos, repo, outputScripts, true);
 #endif
 			}
 			throw new Exception("Unreachable");
@@ -490,7 +494,7 @@ namespace NBitcoin.Scripting
 		/// <param name="repo"></param>
 		/// <returns></returns>
 		/// <exception cref="Exception"></exception>
-		private List<Script> MakeScripts(PubKey key, ISigningRepository repo)
+		private List<Script> MakeScripts(PubKey key, ISigningRepository repo, bool isTaproot)
 		{
 			switch (this)
 			{
@@ -499,7 +503,15 @@ namespace NBitcoin.Scripting
 				case Raw self:
 					return new List<Script> { self.Script };
 				case PK _:
-					return new List<Script> { key.ScriptPubKey };
+					return isTaproot ?
+						new List<Script>
+						{
+							new Script(
+								Op.GetPushOp(key.TaprootPubKey.ToBytes()),
+								OpcodeType.OP_CHECKSIG
+							)
+						} :
+						new List<Script> { key.ScriptPubKey };
 				case PKH _:
 					return new List<Script> { key.Hash.ScriptPubKey };
 				case WPKH _:
@@ -519,7 +531,7 @@ namespace NBitcoin.Scripting
 					return res;
 #if HAS_SPAN
 				case RawTr _:
-					return new List<Script> { key.TaprootOutputPubKey.ScriptPubKey };
+					return new List<Script> { key.TaprootPubKey.ScriptPubKey };
 #endif
 				// Other cases never calls this function. Because this method is just a helper for expanding above cases
 			}

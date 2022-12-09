@@ -275,7 +275,7 @@ namespace NBitcoin.Scripting
 #if HAS_SPAN
 					if (self.Xonly)
 					{
-						if (!secretProvider.TryGetSecret(self.Pk.TaprootOutputPubKey, out secretConst))
+						if (!secretProvider.TryGetSecret(self.Pk.TaprootPubKey, out secretConst))
 							return false;
 					}
 					else
