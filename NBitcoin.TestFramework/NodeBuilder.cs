@@ -10,6 +10,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -594,6 +595,8 @@ namespace NBitcoin.Tests
 				Tests.RPCWalletType.Legacy => " -legacy",
 				_ => string.Empty
 			};
+
+			retry:
 			string walletToolArgs = $"{string.Format(_Builder.NodeImplementation.GetWalletChainSpecifier, _Builder.NodeImplementation.Chain)} -wallet=\"wallet.dat\"{walletType} -datadir=\"{dataDir}\" create";
 
 			var info = new ProcessStartInfo(walletToolPath, walletToolArgs)
@@ -608,6 +611,12 @@ namespace NBitcoin.Tests
 			using (var walletToolProcess = Process.Start(info))
 			{ 
 				walletToolProcess.WaitForExit();
+				// Some doesn't support this
+				if (walletToolProcess.ExitCode != 0 && walletType != string.Empty)
+				{
+					walletType = string.Empty;
+					goto retry;
+				}
 			}
 		}
 
