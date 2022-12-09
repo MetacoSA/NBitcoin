@@ -147,21 +147,6 @@ namespace NBitcoin.Scripting
 			return result;
 		}
 
-#if HAS_SPAN
-		internal bool TryGetXOnlyPubkey(out TaprootInternalPubKey pk) =>
-			TryGetXOnlyPubkey(0, (h) => null, out var _, out pk);
-		public bool TryGetXOnlyPubkey(uint pos, Func<KeyId, Key> privateKeyProvider,
-			out RootedKeyPath keyOriginInfo,
-			[MaybeNullWhen(false)] out TaprootInternalPubKey pubkey)
-		{
-			pubkey = null;
-			if (!TryGetPubKey(pos, privateKeyProvider, out keyOriginInfo, out var pk))
-				return false;
-			pubkey = pk.TaprootInternalKey;
-			return true;
-		}
-#endif
-
 		/// <summary>
 		///
 		/// </summary>
@@ -287,14 +272,14 @@ namespace NBitcoin.Scripting
 					return true;
 				case Const self:
 					ISecret secretConst;
-					#if HAS_SPAN
+#if HAS_SPAN
 					if (self.Xonly)
 					{
 						if (!secretProvider.TryGetSecret(self.Pk.TaprootOutputPubKey, out secretConst))
 							return false;
 					}
 					else
-					#endif
+#endif
 					{
 						if (!secretProvider.TryGetSecret(self.Pk.Hash, out secretConst))
 							return false;

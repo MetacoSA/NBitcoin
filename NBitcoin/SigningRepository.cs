@@ -51,9 +51,9 @@ namespace NBitcoin
 
 #if HAS_SPAN
 		bool TryGetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, [MaybeNullWhen(false)] out RootedKeyPath keyorigin);
-		bool TryGetTaprootInternalKey(TaprootFullPubKey taprootOutput,  [MaybeNullWhen(false)] out TaprootInternalPubKey internalPubKey);
+		bool TryGetTaprootInternalKey(TaprootPubKey taprootOutput,  [MaybeNullWhen(false)] out TaprootInternalPubKey internalPubKey);
 		bool TryGetSecret(TaprootPubKey key, [MaybeNullWhen(false)] out ISecret secret);
-		void SetTaprootInternalKey(TaprootFullPubKey key, TaprootInternalPubKey value);
+		void SetTaprootInternalKey(TaprootPubKey key, TaprootInternalPubKey value);
 		void SetSecret(TaprootPubKey key, BitcoinSecret secret);
 		void SetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, RootedKeyPath keyOrigin);
 #endif
@@ -76,12 +76,12 @@ namespace NBitcoin
 #if HAS_SPAN
 			if (temp is PayToTaprootTemplate p2trT)
 			{
-				if (p2trT.ExtractScriptPubKeyParameters(scriptPubKey) is TaprootFullPubKey pk)
+				if (p2trT.ExtractScriptPubKeyParameters(scriptPubKey) is TaprootPubKey pk)
 				{
 					if (repo.TryGetTaprootInternalKey(pk, out var internalPubKey))
 					{
 						// We must make sure that this Taproot output does not have a script path.
-						return internalPubKey.GetTaprootFullPubKey(null).Equals(pk);
+						return internalPubKey.GetTaprootFullPubKey(null).OutputKey.Equals(pk);
 					}
 				}
 			}
@@ -156,13 +156,13 @@ namespace NBitcoin
 #if HAS_SPAN
 		public static bool TryGetKeyOrigin(
 			this ISigningRepository repo,
-			TaprootFullPubKey taprootFullPubKey,
+			TaprootPubKey taprootPubKey,
 			[MaybeNullWhen(false)] out RootedKeyPath rootedKeyPath
 		)
 		{
 			rootedKeyPath = null;
 			return
-				repo.TryGetTaprootInternalKey(taprootFullPubKey, out var internalKey)
+				repo.TryGetTaprootInternalKey(taprootPubKey, out var internalKey)
 				&& repo.TryGetKeyOrigin(internalKey, out rootedKeyPath);
 		}
 #endif
@@ -175,7 +175,7 @@ namespace NBitcoin
 		public ConcurrentDictionary<KeyId, RootedKeyPath> KeyOrigins { get; }
 		public ConcurrentDictionary<ScriptId, Script> Scripts { get; }
 #if HAS_SPAN
-		public ConcurrentDictionary<TaprootFullPubKey, TaprootInternalPubKey> TaprootKeys { get; }
+		public ConcurrentDictionary<TaprootPubKey, TaprootInternalPubKey> TaprootKeys { get; }
 		public ConcurrentDictionary<TaprootInternalPubKey, RootedKeyPath> TaprootKeyOrigins { get; }
 		public ConcurrentDictionary<TaprootPubKey, ISecret> TaprootKeysToSecret { get;  }
 #endif
@@ -187,7 +187,7 @@ namespace NBitcoin
 			KeyOrigins = new ConcurrentDictionary<KeyId, RootedKeyPath>();
 			Scripts = new ConcurrentDictionary<ScriptId, Script>();
 #if HAS_SPAN
-			TaprootKeys = new ConcurrentDictionary<TaprootFullPubKey, TaprootInternalPubKey>();
+			TaprootKeys = new ConcurrentDictionary<TaprootPubKey, TaprootInternalPubKey>();
 			TaprootKeyOrigins = new ConcurrentDictionary<TaprootInternalPubKey, RootedKeyPath>();
 			TaprootKeysToSecret = new ConcurrentDictionary<TaprootPubKey, ISecret>();
 #endif
@@ -271,13 +271,13 @@ namespace NBitcoin
 #if HAS_SPAN
 		public bool TryGetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, [MaybeNullWhen(false)]out RootedKeyPath keyorigin)
 			=> TaprootKeyOrigins.TryGetValue(taprootInternalPubKey, out keyorigin);
-		public bool TryGetTaprootInternalKey(TaprootFullPubKey taprootOutput, [MaybeNullWhen(false)] out TaprootInternalPubKey internalPubKey)
+		public bool TryGetTaprootInternalKey(TaprootPubKey taprootOutput, [MaybeNullWhen(false)] out TaprootInternalPubKey internalPubKey)
 			=> TaprootKeys.TryGetValue(taprootOutput, out internalPubKey);
 
 		public bool TryGetSecret(TaprootPubKey key, [MaybeNullWhen(false)]out ISecret secret)
 			=> TaprootKeysToSecret.TryGetValue(key, out secret);
 
-		public void SetTaprootInternalKey(TaprootFullPubKey key, TaprootInternalPubKey value)
+		public void SetTaprootInternalKey(TaprootPubKey key, TaprootInternalPubKey value)
 		{
 			if (key == null) throw new ArgumentNullException(nameof(key));
 			if (value == null) throw new ArgumentNullException(nameof(value));

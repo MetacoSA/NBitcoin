@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.VisualBasic;
 using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
@@ -184,6 +185,30 @@ namespace NBitcoin.Tests
 				}
 			}
 		}
-#endif
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ScriptPathSpendUnitTest1()
+		{
+			var builder = new TaprootBuilder();
+			builder
+				.AddLeaf(1, Script.FromHex("210203a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5ac"))
+				.AddLeaf(2, Script.FromHex("2102a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bdac"))
+				.AddLeaf(2, Script.FromHex("210203a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5ac"));
+
+			var internalKey = TaprootInternalPubKey.Parse("03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5");
+			var info = builder.Finalize(internalKey);
+			var expectedMerkleRoot =
+				new uint256(
+					Encoders.Hex.DecodeData("e5e302a2955fdd97403d9cfd15b86a4e7d4e17e0ff0a86baa2e02f5afdbad1b5"));
+			Assert.Equal(info.MerkleRoot!, expectedMerkleRoot);
+
+			var output = internalKey.GetTaprootFullPubKey(info.MerkleRoot);
+			Assert.Equal(info.OutputPubKey.OutputKey.ToString(), "003cdb72825a12ea62f5834f3c47f9bf48d58d27f5ad1e6576ac613b093125f3");
+			var spk = output.ScriptPubKey;
+			var expectedSpk = ("51201497ae16f30dacb88523ed9301bff17773b609e8a90518a3f96ea328a47d1500");
+			Assert.Equal( expectedSpk, spk.ToHex());
+		}
 	}
+#endif
 }

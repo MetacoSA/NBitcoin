@@ -340,12 +340,15 @@ namespace NBitcoin.Tests
 			Assert.True(EqualDescriptorStr(pub, pub2), $"pub: {pub}\npub2: {pub2}");
 
 			// 3. Check that both can be serialized with private key back to the private version, but not without private key.
-			Assert.True(parsePub.TryGetPrivateString(keysPriv, out var priv1));
-			Assert.True(EqualDescriptorStr(priv, priv1));
-			Assert.False(parsePriv.TryGetPrivateString(keysPub, out priv1));
-			Assert.True(parsePub.TryGetPrivateString(keysPriv, out priv1));
-			Assert.True(EqualDescriptorStr(priv, priv1));
-			Assert.False(parsePub.TryGetPrivateString(keysPub, out priv1));
+			if ((MISSING_PRIVKEYS & flags) == 0)
+			{
+				Assert.True(parsePub.TryGetPrivateString(keysPriv, out var priv1), $"original: {priv}\nre-created: {priv1}");
+				Assert.True(EqualDescriptorStr(priv, priv1));
+				Assert.False(parsePriv.TryGetPrivateString(keysPub, out priv1));
+				Assert.True(parsePub.TryGetPrivateString(keysPriv, out priv1));
+				Assert.True(EqualDescriptorStr(priv, priv1));
+				Assert.False(parsePub.TryGetPrivateString(keysPub, out priv1));
+			}
 
 			// Check that `IsRange()` on both returns the expected result.
 			Assert.Equal(parsePub.IsRange(), (flags & RANGE) != 0);
@@ -382,6 +385,7 @@ namespace NBitcoin.Tests
 					// for each of the produced scripts, verify solvability, and when possible, try to sign a transaction spending it.
 					for (int n = 0; n < spks.Count; ++n)
 					{
+						_testOutputHelper.WriteLine($"expected {expectedScript[n]}\n actual: {spks[n].ToHex()}");
 						Assert.Equal(expectedScript[n], spks[n].ToHex());
 						keysPriv.Merge(scriptProvider);
 						if ((flags & UNSOLVABLE) == 0)
@@ -434,7 +438,6 @@ namespace NBitcoin.Tests
 			/// Verify No exptected paths remain that were not observed.
 			if (leftPath != null && leftPath.Length != 0)
 			{
-				_testOutputHelper.WriteLine($"left path is");
 				foreach (var p in pathIndex ?? Enumerable.Empty<uint[]>())
 					_testOutputHelper.WriteLine($"{new KeyPath(p)}");
 				throw new Exception($"leftPath should be null: {pub}");
@@ -480,5 +483,22 @@ namespace NBitcoin.Tests
 			return OutputDescriptor.AddChecksum(retWithoutChecksum);
 		}
 
+/*
+#if HAS_SPAN
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TaprootParserTests()
+		{
+			var pk = (OutputDescriptor.Tr)OutputDescriptorParser.PTR(null, Network.Main).TryParse("tr(03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5,{pk(03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5),{pk(L4rK1yDtCWekvXuE6oXD9jCYfFNV2cWRpVuPLBcCU2z8TrisoyY1),pk(03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5)}})", Network.Main).Value;
+
+			Assert.Equal("03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5", pk.InnerPubkey.ToString());
+			foreach (var (tapScript, _depth) in pk.TapLeafs.IterateScripts())
+			{
+				var sc = (OutputDescriptor.PK)tapScript;
+				Assert.Equal("03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5", sc.PkProvider.ToString());
+			}
+		}
+#endif
+*/
 	}
 }
