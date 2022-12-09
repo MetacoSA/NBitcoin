@@ -60,7 +60,7 @@ namespace NBitcoin.Scripting
 					// This is not ideal since we set two redundant entries. TODO: refactor
 					if (r.Value is BitcoinSecret sc)
 					{
-						repo.SetSecret(sc.PubKey.TaprootOutputPubKey, sc);
+						repo.SetSecret(sc.PubKey.TaprootPubKey, sc);
 					}
 #endif
 				}
@@ -79,10 +79,10 @@ namespace NBitcoin.Scripting
 		/// <summary>
 		/// The handling of pubkey depends on where in tr() we are using it.
 		/// e.g. for InternalKey (P) in taproot, it must always be x-only.
-		/// But for Tapscript, it supports pubkey versioning, thus it is not always x-only.
+		/// But for Tapscript, it supports pubkey versioning, thus it is not always x-only in the future.
 		/// This enum is used to distinguish those context.
 		/// </summary>
-		internal enum PubKeyParsingContext
+		internal enum PubKeyContext
 		{
 			NonSegwit,
 			SegwitV0,
@@ -153,9 +153,9 @@ namespace NBitcoin.Scripting
 
 		#region PubKeyProvider
 
-		private static Parser<char, PubKeyProvider> PConstPubKeyProvider(ISigningRepository? repo, Network n, PubKeyParsingContext ctx)
+		private static Parser<char, PubKeyProvider> PConstPubKeyProvider(ISigningRepository? repo, Network n, PubKeyContext ctx)
 		{
-			var onlyCompressed = ctx != PubKeyParsingContext.NonSegwit;
+			var onlyCompressed = ctx != PubKeyContext.NonSegwit;
 
 			Func<bool, Parser<char, PubKeyProvider>> compressedOrWifParser = xOnly =>
 				from pk in PPubKeyCompressed(repo).Or(PWIF(repo, n, onlyCompressed))
@@ -170,15 +170,15 @@ namespace NBitcoin.Scripting
 
 			return ctx switch
 			{
-				PubKeyParsingContext.NonSegwit =>
+				PubKeyContext.NonSegwit =>
 					from pk in PPubKey(repo).Or(PWIF(repo, n, false))
 					select PubKeyProvider.NewConst(pk),
-				PubKeyParsingContext.SegwitV0 =>
+				PubKeyContext.SegwitV0 =>
 					from pk in PPubKey(repo).Or(PWIF(repo, n, true))
 					select PubKeyProvider.NewConst(pk),
-				PubKeyParsingContext.TaprootInternalKey =>
+				PubKeyContext.TaprootInternalKey =>
 					compressedOrWifParser(true).Or(xonlyParser),
-				PubKeyParsingContext.TapScript =>
+				PubKeyContext.TapScript =>
 					compressedOrWifParser(true).Or(xonlyParser),
 				_  => throw new Exception("Unreachable"),
 			};
@@ -213,12 +213,12 @@ namespace NBitcoin.Scripting
 			PHardendedHDPubKeyProvider(repo, n)
 				.Or(PUnHardendedHDPubKeyProvider(repo, n))
 				.Or(PStaticHDPubKeyProvider(repo, n));
-		private static Parser<char, PubKeyProvider> POriginPubkeyProvider(ISigningRepository? repo, Network n, PubKeyParsingContext ctx) =>
+		private static Parser<char, PubKeyProvider> POriginPubkeyProvider(ISigningRepository? repo, Network n, PubKeyContext ctx) =>
 			from rootedKeyPath in PRootedKeyPath(repo)
 			from inner in PConstPubKeyProvider(repo, n, ctx).Or(PHDPubKeyProvider(repo, n))
 			select PubKeyProvider.NewOrigin(rootedKeyPath, inner);
 
-		internal static Parser<char, PubKeyProvider> PPubKeyProvider(ISigningRepository? repo, Network n, PubKeyParsingContext ctx) =>
+		internal static Parser<char, PubKeyProvider> PPubKeyProvider(ISigningRepository? repo, Network n, PubKeyContext ctx) =>
 			PConstPubKeyProvider(repo, n, ctx)
 				.Or(PHDPubKeyProvider(repo, n))
 				.Or(POriginPubkeyProvider(repo, n, ctx));
@@ -257,22 +257,22 @@ namespace NBitcoin.Scripting
 			from _r in Parse.Char(')')
 			select constructor(item, n);
 
-		private static P PPKHelper(string name, Func<PubKeyProvider, Network, OutputDescriptor> constructor, ISigningRepository? repo, Network n, PubKeyParsingContext ctx) =>
+		private static P PPKHelper(string name, Func<PubKeyProvider, Network, OutputDescriptor> constructor, ISigningRepository? repo, Network n, PubKeyContext ctx) =>
 			PExprHelper(Parse.String(name).Text(), PPubKeyProvider(repo, n, ctx), constructor, n);
 
-		internal static P PPK(ISigningRepository? repo, Network n, PubKeyParsingContext ctx) =>
+		internal static P PPK(ISigningRepository? repo, Network n, PubKeyContext ctx) =>
 			PPKHelper("pk", OutputDescriptor.NewPK, repo, n, ctx);
 
-		internal static P PPKH(ISigningRepository? repo, Network n, PubKeyParsingContext ctx) =>
+		internal static P PPKH(ISigningRepository? repo, Network n, PubKeyContext ctx) =>
 			PPKHelper("pkh", OutputDescriptor.NewPKH, repo, n, ctx);
 
 		internal static P PWPKH(ISigningRepository? repo, Network n) =>
-			PPKHelper("wpkh", OutputDescriptor.NewWPKH, repo, n, PubKeyParsingContext.SegwitV0);
+			PPKHelper("wpkh", OutputDescriptor.NewWPKH, repo, n, PubKeyContext.SegwitV0);
 
 		internal static P PCombo(ISigningRepository? repo, Network n) =>
-			PPKHelper("combo", OutputDescriptor.NewCombo, repo, n, PubKeyParsingContext.NonSegwit);
+			PPKHelper("combo", OutputDescriptor.NewCombo, repo, n, PubKeyContext.NonSegwit);
 
-		internal static P PMulti(ISigningRepository? repo, Network n, uint? maxMultisigN, PubKeyParsingContext ctx) =>
+		internal static P PMulti(ISigningRepository? repo, Network n, uint? maxMultisigN, PubKeyContext ctx) =>
 			from name in Parse.String("sortedmulti").XOr(Parse.String("multi")).Text()
 			let isSorted = name.StartsWith("sorted")
 			from _l in Parse.Char('(')
@@ -288,7 +288,7 @@ namespace NBitcoin.Scripting
 #if HAS_SPAN
 
 		// uncompressed public key is not allowed in Taproot context, thus we use different pubkey provider parser here.
-		private static Parser<char, PubKeyProvider> PPubKeyProviderForTaproot(ISigningRepository? repo, Network n, PubKeyParsingContext ctx) =>
+		private static Parser<char, PubKeyProvider> PPubKeyProviderForTaproot(ISigningRepository? repo, Network n, PubKeyContext ctx) =>
 			PConstPubKeyProvider(repo, n: n, ctx)
 				.Or(PHDPubKeyProvider(repo, n))
 				.Or(POriginPubkeyProvider(repo, n, ctx));
@@ -299,16 +299,16 @@ namespace NBitcoin.Scripting
 			from m in Parse.Digit.XMany().Text().Then(d => Parse.TryConvert(d.Trim(), UInt32.Parse))
 			where m != 0
 			from _c in Parse.Char(',')
-			from pkProviders in PPubKeyProviderForTaproot(repo, n, PubKeyParsingContext.TapScript).DelimitedBy(Parse.Char(','))
+			from pkProviders in PPubKeyProviderForTaproot(repo, n, PubKeyContext.TapScript).DelimitedBy(Parse.Char(','))
 			where m <= pkProviders.Count()
 			from _r in Parse.Char(')')
 			select OutputDescriptor.NewMulti(m, pkProviders, isSorted, n, true);
 
-		// inside of `{}` of TapScript, happens to be the same of those of `wsh()`, but the support pubkey
-		// is a bit different, it allows x-only pubkey and disallows uncompressed.
+		// inside of `{}` of TapScript, happens to be the same of those of `wsh()`, but the supported pubkey types
+		// are bit different.
 		private static P PTapLeaf(ISigningRepository? repo, Network n) =>
-			PPK(repo, n, PubKeyParsingContext.TapScript)
-				.Or(PPKH(repo, n, PubKeyParsingContext.TapScript))
+			PPK(repo, n, PubKeyContext.TapScript)
+				.Or(PPKH(repo, n, PubKeyContext.TapScript))
 				.Or(PMultiA(repo, n));
 		private static Parser<char, OutputDescriptor.TapTree> PTapScript(ISigningRepository? repo, Network n)
 		{
@@ -327,35 +327,35 @@ namespace NBitcoin.Scripting
 		}
 
 		private static P PTRInner(ISigningRepository? repo, Network n) =>
-			from internalPk in PPubKeyProviderForTaproot(repo, n, PubKeyParsingContext.TaprootInternalKey)
+			from internalPk in PPubKeyProviderForTaproot(repo, n, PubKeyContext.TaprootInternalKey)
 			from _ in Parse.Char(',')
 			from tapTree in PTapScript(repo, n)
 			select OutputDescriptor.NewTr(internalPk, n, tapTree);
 
 		private static P PTapRootNoScriptInner(ISigningRepository repo, Network n) =>
-			from internalPk in PPubKeyProviderForTaproot(repo, n, PubKeyParsingContext.TaprootInternalKey)
+			from internalPk in PPubKeyProviderForTaproot(repo, n, PubKeyContext.TaprootInternalKey)
 			select OutputDescriptor.NewTr(internalPk, n);
 
 		private static P PRawTr(ISigningRepository? repo, Network n)
-			=> PExprHelper(Parse.String("rawtr").Text(), PPubKeyProviderForTaproot(repo, n, PubKeyParsingContext.TaprootInternalKey), OutputDescriptor.NewRawTr, n);
+			=> PExprHelper(Parse.String("rawtr").Text(), PPubKeyProviderForTaproot(repo, n, PubKeyContext.TaprootInternalKey), OutputDescriptor.NewRawTr, n);
 #endif
 
-		private static P PWSHInner(ISigningRepository? repo, Network n, PubKeyParsingContext ctx, uint? maxMultisigN = null) =>
+		private static P PWSHInner(ISigningRepository? repo, Network n, PubKeyContext ctx, uint? maxMultisigN = null) =>
 			PPK(repo, n, ctx)
 				.Or(PPKH(repo, n, ctx))
 				.Or(PMulti(repo, n, maxMultisigN, ctx));
 
-		private static P PInner(ISigningRepository? repo, Network n, PubKeyParsingContext ctx, uint? maxMultisigN = null) =>
+		private static P PInner(ISigningRepository? repo, Network n, PubKeyContext ctx, uint? maxMultisigN = null) =>
 			PWSHInner(repo, n, ctx, maxMultisigN)
 				.Or(PWPKH(repo, n));
 
 		private static P PWSH(ISigningRepository? repo, Network n) =>
-			PExprHelper(Parse.String("wsh").Text(), PWSHInner(repo, n, PubKeyParsingContext.SegwitV0), OutputDescriptor.NewWSH, n);
+			PExprHelper(Parse.String("wsh").Text(), PWSHInner(repo, n, PubKeyContext.SegwitV0), OutputDescriptor.NewWSH, n);
 
 		private static P PSH(ISigningRepository? repo, Network n) =>
 			PExprHelper(
 				(Parse.String("sh").Text()).Except(Parse.String("wsh")),
-				PInner(repo, n, PubKeyParsingContext.NonSegwit, 15).Or(PWSH(repo, n)),
+				PInner(repo, n, PubKeyContext.NonSegwit, 15).Or(PWSH(repo, n)),
 				OutputDescriptor.NewSH,
 				n);
 
@@ -371,7 +371,7 @@ namespace NBitcoin.Scripting
 			PAddr(n)
 				.Or(PRaw(repo, n))
 				.Or(PCombo(repo, n))
-				.Or(PInner(repo, n, PubKeyParsingContext.NonSegwit))
+				.Or(PInner(repo, n, PubKeyContext.NonSegwit))
 				.Or(PWSH(repo, n))
 				.Or(PSH(repo, n))
 #if HAS_SPAN
