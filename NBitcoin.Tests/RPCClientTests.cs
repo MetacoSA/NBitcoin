@@ -120,7 +120,7 @@ namespace NBitcoin.Tests
 				var block = rpc.GetBlock(blocks[0]);
 
 				rpc = rpc.PrepareBatch();
-				var w1b = rpc.GetWallet("w1");
+				var w1b = rpc.SetWalletContext("w1");
 				var b = w1b.GetBalanceAsync();
 				var b2 = rpc.GetBestBlockHashAsync();
 				var a = w1b.SendCommandAsync(RPCOperations.gettransaction, block.Transactions.First().GetHash().ToString());

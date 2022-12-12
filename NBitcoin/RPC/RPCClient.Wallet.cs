@@ -115,9 +115,13 @@ namespace NBitcoin.RPC
 
 	public partial class RPCClient
 	{
-		#nullable enable
-
+#nullable enable
+		[Obsolete("This method is being renamed, use SetWalletContext instead")]
 		public RPCClient GetWallet(string? walletName)
+		{
+			return SetWalletContext(walletName);
+		}
+		public RPCClient SetWalletContext(string? walletName)
 		{
 			RPCCredentialString credentialString;;
 
@@ -166,7 +170,7 @@ namespace NBitcoin.RPC
 			if (options?.LoadOnStartup is bool loadOnStartup)
 				parameters.Add("load_on_startup", loadOnStartup);
 			var result = await SendCommandWithNamedArgsAsync(RPCOperations.createwallet.ToString(), parameters, cancellationToken).ConfigureAwait(false);
-			return GetWallet(result.Result.Value<string>("name"));
+			return SetWalletContext(result.Result.Value<string>("name"));
 		}
 
 		public RPCClient CreateWallet(string walletNameOrPath, CreateWalletOptions? options = null)
@@ -188,7 +192,7 @@ namespace NBitcoin.RPC
 		{
 			var req = GetLoadUnloadWalletRequest("loadwallet", walletName, loadOnStartup);
 			var response = await SendCommandAsync(req, cancellationToken: cancellationToken).ConfigureAwait(false);
-			return GetWallet(response.Result.Value<string>("name"));
+			return SetWalletContext(response.Result.Value<string>("name"));
 		}
 
 		private RPCRequest GetLoadUnloadWalletRequest(string methodName, string? walletName, bool? loadOnStartup)
