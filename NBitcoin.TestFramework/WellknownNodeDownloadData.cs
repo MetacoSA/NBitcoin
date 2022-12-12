@@ -1356,6 +1356,33 @@ namespace NBitcoin.Tests
 				},
 				UseSectionInConfigFile = true
 			};
+
+			public NodeDownloadData v24_0_1 = new NodeDownloadData()
+			{
+				Version = "24.0.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-win64.zip",
+					Archive = "groestlcoin-{0}-win64.zip",
+					Executable = "groestlcoin-{0}/bin/groestlcoind.exe",
+					Hash = "0c603e4f29ac6eaf5562d74894b6f1b66d5a5d60db8cd8d78d98d99b8f361f1a"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "groestlcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "groestlcoin-{0}/bin/groestlcoind",
+					Hash = "4b69743190e2697d7b7772bf6f63cde595d590ff6664abf15a7201dab2a6098b"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-x86_64-apple-darwin.tar.gz",
+					Archive = "groestlcoin-{0}-x86_64-apple-darwin.tar.gz",
+					Executable = "groestlcoin-{0}/bin/groestlcoind",
+					Hash = "8a99765cd01686b81480dc29ee70aa5619d429402685f164e2a4b0b4d592ac10"
+				},
+				UseSectionInConfigFile = true
+			};
 		}
 
 		public class ZclassicNodeDownloadData
