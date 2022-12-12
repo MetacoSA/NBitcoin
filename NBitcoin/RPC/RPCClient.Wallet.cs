@@ -153,7 +153,8 @@ namespace NBitcoin.RPC
 
 		public async Task<RPCClient> CreateWalletAsync(string walletNameOrPath, CreateWalletOptions? options = null, CancellationToken cancellationToken = default)
 		{
-			if (string.IsNullOrEmpty(walletNameOrPath)) throw new ArgumentNullException(nameof(walletNameOrPath));
+			if (walletNameOrPath is null)
+				throw new ArgumentNullException(nameof(walletNameOrPath));
 
 			var parameters = new Dictionary<string, object>();
 			parameters.Add("wallet_name", walletNameOrPath);
@@ -175,7 +176,8 @@ namespace NBitcoin.RPC
 
 		public RPCClient CreateWallet(string walletNameOrPath, CreateWalletOptions? options = null)
 		{
-			if (string.IsNullOrEmpty(walletNameOrPath)) throw new ArgumentNullException(nameof(walletNameOrPath));
+			if (walletNameOrPath is null)
+				throw new ArgumentNullException(nameof(walletNameOrPath));
 
 			return CreateWalletAsync(walletNameOrPath, options).GetAwaiter().GetResult();
 		}
