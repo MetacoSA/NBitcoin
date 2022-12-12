@@ -108,6 +108,9 @@ namespace NBitcoin.Tests
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
+				var noWalletNode = builder.CreateNode();
+				noWalletNode.CreateWallet = false;
+				noWalletNode.Start();
 				node.Start();
 				var rpc = node.CreateRPCClient();
 				var w1 = rpc.CreateWallet("w1");
@@ -128,6 +131,11 @@ namespace NBitcoin.Tests
 				b.GetAwaiter().GetResult();
 				b2.GetAwaiter().GetResult();
 				a.GetAwaiter().GetResult();
+
+				var noWalletRPC = noWalletNode.CreateRPCClient();
+				Assert.Throws<RPCException>(() => noWalletRPC.GetNewAddress());
+				noWalletRPC.CreateWallet("");
+				noWalletRPC.GetNewAddress();
 			}
 		}
 

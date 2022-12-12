@@ -219,6 +219,7 @@ namespace NBitcoin.Tests
 		} = Network.RegTest;
 		public NodeDownloadData NodeImplementation { get; private set; }
 		public RPCWalletType? RPCWalletType { get; set; }
+		public bool CreateWallet { get; set; } = true;
 
 		public CoreNode CreateNode(bool start = false)
 		{
@@ -515,7 +516,7 @@ namespace NBitcoin.Tests
 					configStr.AppendLine($"[{NodeImplementation.Chain}]");
 				}
 			}
-			if (NodeImplementation.CreateWallet)
+			if (CreateWallet)
 				config.Add("wallet", "wallet.dat");
 
 			config.Add("rest", "1");
@@ -550,7 +551,7 @@ namespace NBitcoin.Tests
 		{
 			lock (l)
 			{
-				if (_Builder.NodeImplementation.CreateWallet)
+				if (CreateWallet)
 					CreateDefaultWallet();
 
 				string appPath = new FileInfo(this._Builder.BitcoinD).FullName;
@@ -704,6 +705,21 @@ namespace NBitcoin.Tests
 			get;
 			set;
 		} = true;
+
+		bool? _CreateWallet;
+		public bool CreateWallet
+		{
+			get
+			{
+				if (!NodeImplementation.CreateWallet)
+					return false;
+				return _CreateWallet ?? _Builder.CreateWallet;
+			}
+			set
+			{
+				_CreateWallet = value;
+			}
+		}
 
 		class TransactionNode
 		{
