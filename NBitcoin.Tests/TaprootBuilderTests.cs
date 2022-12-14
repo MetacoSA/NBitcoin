@@ -126,6 +126,24 @@ namespace NBitcoin.Tests
 			}
 			return builder;
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanHandleMultipleProofForSameScript()
+		{
+			var internalKey = TaprootInternalPubKey.Parse("93c7378d96518a75448821c4f7c8f4bae7ce60f804d03d1f0628dd5dd0f5de51");
+			var data = new byte[] { 0x01 };
+			var sc = new Script(OpcodeType.OP_RETURN, Op.GetPushOp(data));
+			var version = (byte)TaprootConstants.TAPROOT_LEAF_TAPSCRIPT;
+			var nodeInfoA = NodeInfo.NewLeafWithVersion(sc, version);
+			var nodeInfoB = NodeInfo.NewLeafWithVersion(sc, version);
+			var rootNode = nodeInfoA + nodeInfoB;
+			var info = TaprootSpendInfo.FromNodeInfo(internalKey, rootNode);
+			Assert.Single(info.ScriptToMerkleProofMap);
+			Assert.True(info.ScriptToMerkleProofMap.TryGetValue((sc, version), out var proofs));
+			Assert.Equal(2, proofs.Count);
+		}
+
 		[Fact]
 		[Trait("Core", "Core")]
 		public void BIP341Tests()
