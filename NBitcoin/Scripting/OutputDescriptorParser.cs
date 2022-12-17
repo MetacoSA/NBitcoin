@@ -445,8 +445,10 @@ namespace NBitcoin.Scripting
 				//	throw new NotSupportedException($"We currently do not support tr() descriptor with tapscript");
 				if (!tr.IsRange() && repo is not null)
 				{
-					Debug.Assert(tr.TryGetSpendInfo(repo, out var spendInfo));
-					repo.SetTaprootSpendInfo(spendInfo.OutputPubKey, spendInfo);
+					if (tr.TryGetSpendInfo(repo, out var spendInfo))
+					{
+						repo.SetTaprootSpendInfo(spendInfo.OutputPubKey, spendInfo);
+					}
 				}
 			}
 #endif

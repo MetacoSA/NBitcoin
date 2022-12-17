@@ -9,7 +9,9 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Text;
 using NBitcoin.DataEncoders;
+#if HAS_SPAN
 using NBitcoin.Secp256k1;
+#endif
 
 #nullable enable
 
@@ -537,7 +539,9 @@ namespace NBitcoin.Scripting
 				{
 					foreach (var (desc, depth) in this.TapLeafs.IterateScripts())
 					{
-						Debug.Assert(desc.TryExpand(0, _ => null, repo, out var scripts, true));
+						if (!desc.TryExpand(0, _ => null, repo, out var scripts, true))
+							throw new Exception($"Failed to expand descriptor {desc}. This should never happen");
+
 						foreach (var s in scripts)
 						{
 							builder.AddLeaf((uint)depth, s);
@@ -625,7 +629,7 @@ namespace NBitcoin.Scripting
 			uint pos,
 			Func<KeyId, Key?> privateKeyProvider,
 			ISigningRepository repo,
-			out List<Script> outputScripts,
+			[MaybeNullWhen(false)] out List<Script> outputScripts,
 			bool isTaproot = false,
 			IDictionary<uint, ExtPubKey>? cache = null
 			)
@@ -633,7 +637,7 @@ namespace NBitcoin.Scripting
 			if (privateKeyProvider == null) throw new ArgumentNullException(nameof(privateKeyProvider));
 			if (repo == null) throw new ArgumentNullException(nameof(repo));
 			outputScripts = new List<Script>();
-			return TryExpand(pos, privateKeyProvider, repo, outputScripts, isTaproot || (this is Tr || this is RawTr), cache);
+			return TryExpand(pos, privateKeyProvider, repo, outputScripts, isTaproot, cache);
 		}
 
 		private bool ExpandPkHelper(
@@ -775,7 +779,9 @@ namespace NBitcoin.Scripting
 				case Raw self:
 					return new List<Script> { self.Script };
 				case PK _:
-					return isTaproot ?
+					return
+#if HAS_SPAN
+						isTaproot ?
 						new List<Script>
 						{
 							new Script(
@@ -783,6 +789,7 @@ namespace NBitcoin.Scripting
 								OpcodeType.OP_CHECKSIG
 							)
 						} :
+#endif
 						new List<Script> { key.ScriptPubKey };
 				case PKH _:
 					return new List<Script> { key.Hash.ScriptPubKey };

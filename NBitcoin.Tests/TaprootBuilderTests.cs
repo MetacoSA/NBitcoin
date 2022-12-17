@@ -224,9 +224,9 @@ namespace NBitcoin.Tests
 			var output = internalKey.GetTaprootFullPubKey(info.MerkleRoot);
 			Assert.Equal(info.OutputPubKey.OutputKey.ToString(), "003cdb72825a12ea62f5834f3c47f9bf48d58d27f5ad1e6576ac613b093125f3");
 			var spk = output.ScriptPubKey;
-			var expectedSpk = ("51201497ae16f30dacb88523ed9301bff17773b609e8a90518a3f96ea328a47d1500");
+			var expectedSpk = "5120003cdb72825a12ea62f5834f3c47f9bf48d58d27f5ad1e6576ac613b093125f3";
 			Assert.Equal( expectedSpk, spk.ToHex());
 		}
-	}
 #endif
+	}
 }

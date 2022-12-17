@@ -256,8 +256,8 @@ namespace NBitcoin.Tests
 				"",
 				"rawtr(xpub68FQ9imX6mCWacw6eNRjaa8q8ynnHmUd5i7MVR51ZMPP5JycyfVHSLQVFPHMYiTybWJnSBL2tCBpy6aJTR2DYrshWYfwAxs8SosGXd66d8/*, xpub69Mvq3QMipdvnd9hAyeTnT5jrkcBuLErV212nsGf3qr7JPWysc9HnNhCsazdzj1etSx28hPSE8D7DnceFbNdw4Kg8SyRfjE2HFLv1P8TSGc/*)",
 				"rawtr(): only one key expected.");
-	}
 #endif
+	}
 
 		private const int DEFAULT = 0;
 		private const int RANGE = 1; // Expected to be ranged descriptor
@@ -268,7 +268,6 @@ namespace NBitcoin.Tests
 		private const int MIXED_PUBKEYS = 32;
 		private const int XONLY_KEYS = 64; // X-only pubkeys are in use (and thus inferring/caching may swap parity of pubkeys/keyids)
 		private const int MISSING_PRIVKEYS = 128; // Not all private keys are available, so ToPrivateString will fail.
-		System.Random Seed = new System.Random();
 
 		public Key DummyKey { get; }
 
