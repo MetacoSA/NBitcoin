@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
 #if HAS_SPAN
 using NBitcoin.Secp256k1;
@@ -50,12 +51,12 @@ namespace NBitcoin
 		void SetKeyOrigin(KeyId keyId, RootedKeyPath keyOrigin);
 
 #if HAS_SPAN
-		bool TryGetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, [MaybeNullWhen(false)] out RootedKeyPath keyorigin);
+		bool TryGetKeyOrigin(TaprootPubKey taprootPubKey, [MaybeNullWhen(false)] out RootedKeyPath keyorigin);
 		bool TryGetTaprootSpendInfo(TaprootPubKey taprootOutput,  [MaybeNullWhen(false)] out TaprootSpendInfo spendInfo);
 		bool TryGetSecret(TaprootPubKey key, [MaybeNullWhen(false)] out ISecret secret);
 		void SetTaprootSpendInfo(TaprootPubKey key, TaprootSpendInfo value);
 		void SetSecret(TaprootPubKey key, BitcoinSecret secret);
-		void SetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, RootedKeyPath keyOrigin);
+		void SetKeyOrigin(TaprootPubKey taprootPubKey, RootedKeyPath keyOrigin);
 #endif
 
 		/// <summary>
@@ -69,6 +70,7 @@ namespace NBitcoin
 	public static class ISigningRepositoryExtensions
 	{
 
+		[Obsolete("Use OutputDescriptor.IsSolvable")]
 		public static bool IsSolvable(this ISigningRepository repo, Script scriptPubKey)
 		{
 			var temp = scriptPubKey.FindTemplate();
@@ -80,8 +82,8 @@ namespace NBitcoin
 				{
 					if (repo.TryGetTaprootSpendInfo(pk, out var spendInfo))
 					{
-						// We must make sure that this Taproot output does not have a script path.
-						return spendInfo.OutputPubKey.OutputKey.Equals(pk);
+						if (spendInfo.OutputPubKey.OutputKey.Equals(pk))
+							return true;
 					}
 				}
 			}
@@ -153,42 +155,36 @@ namespace NBitcoin
 			return res.PrivateKey;
 		}
 
-#if HAS_SPAN
-		public static bool TryGetKeyOrigin(
-			this ISigningRepository repo,
-			TaprootPubKey taprootPubKey,
-			[MaybeNullWhen(false)] out RootedKeyPath rootedKeyPath
-		)
-		{
-			rootedKeyPath = null;
-			return
-				repo.TryGetTaprootSpendInfo(taprootPubKey, out var spendInfo)
-				&& repo.TryGetKeyOrigin(spendInfo.InternalPubKey, out rootedKeyPath);
-		}
-#endif
 	}
 
 	public class FlatSigningRepository : ISigningRepository
 	{
 		public ConcurrentDictionary<KeyId, ISecret> Secrets {get;}
 		public ConcurrentDictionary<KeyId, PubKey> Pubkeys { get; }
-		public ConcurrentDictionary<KeyId, RootedKeyPath> KeyOrigins { get; }
+		public ConcurrentDictionary<KeyId, RootedKeyPath> KeyIdToKeyOrigins { get; }
 		public ConcurrentDictionary<ScriptId, Script> Scripts { get; }
 #if HAS_SPAN
 		public ConcurrentDictionary<TaprootPubKey, TaprootSpendInfo> SpendInfos { get; }
-		public ConcurrentDictionary<TaprootInternalPubKey, RootedKeyPath> TaprootKeyOrigins { get; }
+		public ConcurrentDictionary<TaprootPubKey, RootedKeyPath> TaprootKeyOrigins { get; }
 		public ConcurrentDictionary<TaprootPubKey, ISecret> TaprootKeysToSecret { get;  }
 #endif
+
+		public RootedKeyPath [] KeyOrigins =>
+			KeyIdToKeyOrigins.Values.ToArray()
+#if HAS_SPAN
+				.Concat(this.TaprootKeyOrigins.Values.ToArray()).ToArray()
+#endif
+			;
 
 		public FlatSigningRepository()
 		{
 			Secrets = new ConcurrentDictionary<KeyId, ISecret>();
 			Pubkeys = new ConcurrentDictionary<KeyId, PubKey>();
-			KeyOrigins = new ConcurrentDictionary<KeyId, RootedKeyPath>();
+			KeyIdToKeyOrigins = new ConcurrentDictionary<KeyId, RootedKeyPath>();
 			Scripts = new ConcurrentDictionary<ScriptId, Script>();
 #if HAS_SPAN
 			SpendInfos = new ConcurrentDictionary<TaprootPubKey, TaprootSpendInfo>();
-			TaprootKeyOrigins = new ConcurrentDictionary<TaprootInternalPubKey, RootedKeyPath>();
+			TaprootKeyOrigins = new ConcurrentDictionary<TaprootPubKey, RootedKeyPath>();
 			TaprootKeysToSecret = new ConcurrentDictionary<TaprootPubKey, ISecret>();
 #endif
 		}
@@ -200,7 +196,7 @@ namespace NBitcoin
 			=> Pubkeys.TryGetValue(keyId, out pubkey);
 
 		public bool TryGetKeyOrigin(KeyId keyId, [MaybeNullWhen(false)] out RootedKeyPath keyOrigin)
-			=> KeyOrigins.TryGetValue(keyId, out keyOrigin);
+			=> KeyIdToKeyOrigins.TryGetValue(keyId, out keyOrigin);
 
 
 		public bool TryGetSecret(KeyId keyId, [MaybeNullWhen(false)] out ISecret key)
@@ -264,13 +260,13 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(keyOrigin));
 			}
 
-			KeyOrigins.AddOrReplace(keyId, keyOrigin);
+			KeyIdToKeyOrigins.AddOrReplace(keyId, keyOrigin);
 		}
 
 
 #if HAS_SPAN
-		public bool TryGetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, [MaybeNullWhen(false)]out RootedKeyPath keyorigin)
-			=> TaprootKeyOrigins.TryGetValue(taprootInternalPubKey, out keyorigin);
+		public bool TryGetKeyOrigin(TaprootPubKey taprootPubKey, [MaybeNullWhen(false)]out RootedKeyPath keyorigin)
+			=> TaprootKeyOrigins.TryGetValue(taprootPubKey, out keyorigin);
 
 		public bool TryGetTaprootSpendInfo(TaprootPubKey taprootOutput, [MaybeNullWhen(false)] out TaprootSpendInfo spendInfo)
 			=> SpendInfos.TryGetValue(taprootOutput, out spendInfo);
@@ -294,11 +290,11 @@ namespace NBitcoin
 			TaprootKeysToSecret.AddOrReplace(key, secret);
 		}
 
-		public void SetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, RootedKeyPath keyOrigin)
+		public void SetKeyOrigin(TaprootPubKey taprootPubKey, RootedKeyPath keyOrigin)
 		{
-			if (taprootInternalPubKey == null) throw new ArgumentNullException(nameof(taprootInternalPubKey));
+			if (taprootPubKey == null) throw new ArgumentNullException(nameof(taprootPubKey));
 			if (keyOrigin == null) throw new ArgumentNullException(nameof(keyOrigin));
-			TaprootKeyOrigins.AddOrReplace(taprootInternalPubKey, keyOrigin);
+			TaprootKeyOrigins.AddOrReplace(taprootPubKey, keyOrigin);
 		}
 #endif
 
@@ -313,10 +309,11 @@ namespace NBitcoin
 			MergeDict(Secrets, otherRepo.Secrets);
 			MergeDict(Pubkeys, otherRepo.Pubkeys);
 			MergeDict(Scripts, otherRepo.Scripts);
-			MergeDict(KeyOrigins, otherRepo.KeyOrigins);
+			MergeDict(KeyIdToKeyOrigins, otherRepo.KeyIdToKeyOrigins);
 #if HAS_SPAN
 			MergeDict(SpendInfos, otherRepo.SpendInfos);
 			MergeDict(TaprootKeyOrigins, otherRepo.TaprootKeyOrigins);
+			MergeDict(TaprootKeysToSecret, otherRepo.TaprootKeysToSecret);
 #endif
 		}
 

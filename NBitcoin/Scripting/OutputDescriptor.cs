@@ -19,14 +19,14 @@ namespace NBitcoin.Scripting
 	internal static class TaprootExtensions
 	{
 
-		public static (int, List<TaprootInternalPubKey>)? FindMultiATemplate(this Script sc)
+		public static (int, List<TaprootPubKey>)? FindMultiATemplate(this Script sc)
 		{
 			var b = sc.ToBytes();
 			// Redundant, but very fast and selective test.
 			if (b.Length == 0 || b[0] != 32 || b.Last() != (byte)(OpcodeType.OP_NUMEQUAL))
 				return null;
 
-			var keySpans = new List<TaprootInternalPubKey>();
+			var keySpans = new List<TaprootPubKey>();
 			int m = -1;
 			var ops = sc.ToOps().ToList();
 			var opsLength = ops.Count;
@@ -52,7 +52,7 @@ namespace NBitcoin.Scripting
 				else if (i % 2 == 0)
 				{
 					// must be pubkey push
-					if (!TaprootInternalPubKey.TryCreate(op.PushData, out var pk))
+					if (!TaprootPubKey.TryCreate(op.PushData, out var pk))
 						return null;
 					keySpans.Add(pk);
 				}
@@ -650,6 +650,9 @@ namespace NBitcoin.Scripting
 			if (keyOrigin1 != null)
 			{
 				repo.SetKeyOrigin(pubkey1.Hash, keyOrigin1);
+#if HAS_SPAN
+				repo.SetKeyOrigin(pubkey1.TaprootPubKey, keyOrigin1);
+#endif
 			}
 
 			repo.SetPubKey(pubkey1.Hash, pubkey1);
@@ -731,7 +734,7 @@ namespace NBitcoin.Scripting
 					if (!self.InnerPubkey.TryGetPubKey(pos, privateKeyProvider, out var keyOrigin2, out var pubkey2))
 						return false;
 					if (keyOrigin2 != null)
-						repo.SetKeyOrigin(pubkey2.TaprootInternalKey, keyOrigin2);
+						repo.SetKeyOrigin(pubkey2.TaprootPubKey, keyOrigin2);
 					var builder = new TaprootBuilder();
 					if (self.TapLeafs is not null)
 					{
@@ -825,9 +828,6 @@ namespace NBitcoin.Scripting
 				self.Inner.IsSolvable(),
 			WSH self =>
 				self.Inner.IsSolvable(),
-#if HAS_SPAN
-			RawTr _ => false,
-#endif
 			_ =>
 				true,
 		};
@@ -925,7 +925,7 @@ namespace NBitcoin.Scripting
 		};
 
 #if HAS_SPAN
-		private static PubKeyProvider InferXOnlyPubkey(TaprootInternalPubKey xkey, ISigningRepository repo)
+		private static PubKeyProvider InferXOnlyPubkey(TaprootPubKey xkey, ISigningRepository repo)
 		{
 			var keyProvider = PubKeyProvider.NewConst(xkey);
 			return
@@ -933,6 +933,10 @@ namespace NBitcoin.Scripting
 				PubKeyProvider.NewOrigin(origin, keyProvider) :
 				keyProvider;
 		}
+
+		private static PubKeyProvider InferXOnlyPubkey(TaprootInternalPubKey xkey, ISigningRepository repo)
+			=> InferXOnlyPubkey(new TaprootPubKey(xkey.pubkey), repo);
+
 
 		private static OutputDescriptor? InferMultiA(Script sc, ISigningRepository repo, Network network)
 		{
@@ -985,7 +989,7 @@ namespace NBitcoin.Scripting
 				var b = sc.ToBytes();
 				if (b.Length == 34 && b[0] == 32 && b[33] == (byte)OpcodeType.OP_CHECKSIG)
 				{
-					var xonlyKey = new TaprootInternalPubKey(b.AsSpan(1, 32));
+					var xonlyKey = new TaprootPubKey(b.AsSpan(1, 32));
 					return NewPK(InferXOnlyPubkey(xonlyKey, repo), network);
 				}
 

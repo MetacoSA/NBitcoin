@@ -54,13 +54,21 @@ namespace NBitcoin.Scripting
 						}
 					}
 #if HAS_SPAN
-					// in case of tr() descriptor, we may want to later fetch the secret
-					// with x-only pubkey, but BitcoinSecret.PubKey has additional parity byte so key can be different.
-					// So instead inject with additional key.
-					// This is not ideal since we set two redundant entries. TODO: refactor
 					if (r.Value is BitcoinSecret sc)
 					{
 						repo.SetSecret(sc.PubKey.TaprootPubKey, sc);
+					}
+
+					if (r.Value is Origin origin)
+					{
+						if (origin.Inner is HD hdPkPV)
+						{
+							repo.SetKeyOrigin(hdPkPV.Extkey.GetPublicKey().TaprootPubKey, origin.KeyOriginInfo);
+						}
+						if (origin.Inner is Const constPkPV)
+						{
+							repo.SetKeyOrigin(constPkPV.Pk.TaprootPubKey, origin.KeyOriginInfo);
+						}
 					}
 #endif
 				}
