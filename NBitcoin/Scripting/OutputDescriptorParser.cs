@@ -433,12 +433,12 @@ namespace NBitcoin.Scripting
 #if HAS_SPAN
 		if (result is OutputDescriptor.Tr tr)
 			{
-				if (!tr.IsKeyPathSpendOnly)
-					throw new NotSupportedException($"We currently do not support tr() descriptor with tapscript");
+				//if (!tr.IsKeyPathSpendOnly)
+				//	throw new NotSupportedException($"We currently do not support tr() descriptor with tapscript");
 				if (!tr.IsRange() && repo is not null)
 				{
 					Debug.Assert(tr.TryGetSpendInfo(repo, out var spendInfo));
-					repo.SetTaprootInternalKey(spendInfo.OutputPubKey, spendInfo.InternalPubKey);
+					repo.SetTaprootSpendInfo(spendInfo.OutputPubKey, spendInfo);
 				}
 			}
 #endif

@@ -1,14 +1,251 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Text;
+using NBitcoin.DataEncoders;
+using NBitcoin.Secp256k1;
 
 #nullable enable
 
 namespace NBitcoin.Scripting
 {
+#if HAS_SPAN
+	internal static class TaprootExtensions
+	{
+
+		public static (int, List<TaprootInternalPubKey>)? FindMultiATemplate(this Script sc)
+		{
+			var b = sc.ToBytes();
+			// Redundant, but very fast and selective test.
+			if (b.Length == 0 || b[0] != 32 || b.Last() != (byte)(OpcodeType.OP_NUMEQUAL))
+				return null;
+
+			var keySpans = new List<TaprootInternalPubKey>();
+			int m = -1;
+			var ops = sc.ToOps().ToList();
+			var opsLength = ops.Count;
+			foreach (var (op, i) in ops.Select((v, i) => (v, i)))
+			{
+				if (i == 1)
+				{
+					if (op.Code != OpcodeType.OP_CHECKSIG)
+						return null;
+				}
+				else if (opsLength - 2 == i)
+				{
+					var maybeM = op.GetInt();
+					if (maybeM == null)
+						return null;
+					m = maybeM.Value;
+				}
+				else if (opsLength - 1 == i)
+				{
+					if (op.Code != OpcodeType.OP_NUMEQUAL)
+						return null;
+				}
+				else if (i % 2 == 0)
+				{
+					// must be pubkey push
+					if (!TaprootInternalPubKey.TryCreate(op.PushData, out var pk))
+						return null;
+					keySpans.Add(pk);
+				}
+				else
+				{
+					if (op.Code != OpcodeType.OP_CHECKSIGADD)
+						return null;
+				}
+			}
+
+			return (m, keySpans);
+		}
+
+		internal class TreeNode
+		{
+			internal uint256? Hash { get; set; }
+			internal ScriptLeaf? Leaf;
+			internal Tuple<TreeNode, TreeNode>? Sub;
+
+			/// <summary>
+			/// Whether or not this node has been explored (is known to be a leaf, or known to have children).
+			/// </summary>
+			internal bool Explored;
+
+			/// <summary>
+			/// Whether or not this node is an inner node (unknown until explored = true)
+			/// </summary>
+			internal bool Inner;
+			/// <summary>
+			/// Whether or not we have produced output fo this subtree.
+			/// </summary>
+			internal bool Done;
+		}
+
+		public static bool InferTaprootTree(this TaprootSpendInfo info, TaprootPubKey outputKey, [MaybeNullWhen(false)]out List<Tuple<int, Script, byte>> result)
+		{
+			result = null;
+			if (!outputKey.CheckTapTweak(info.InternalPubKey, info.MerkleRoot, info.OutputPubKey.OutputKeyParity))
+				throw new ArgumentException($"TapTweak mismatch (outputKey: {outputKey}, internalKey: {info.InternalPubKey}, merkleRoot: {info.MerkleRoot})");
+
+			result = new List<Tuple<int, Script, byte>>();
+			if (info.IsKeyPathOnlySpend)
+				return true;
+
+			var root = new TreeNode();
+			root.Hash = info.MerkleRoot;
+
+			foreach (var kv in info.ScriptToMerkleProofMap)
+			{
+				foreach (var control in kv.Value)
+				{
+					var (script, leafVersion) = kv.Key;
+					var controlB = control.Select(h => h.ToBytes()).SelectMany(x => x).ToArray();
+					// Skip script records with invalid control block size.
+					if (controlB.Length % TaprootConstants.TAPROOT_CONTROL_NODE_SIZE != 0)
+					{
+						Debug.Fail($"invalid control block size {controlB.Length}");
+						continue;
+					}
+
+					var leafHash = new ScriptLeaf(script, leafVersion).LeafHash;
+
+					TreeNode node = root;
+					var levels = controlB.Length/ TaprootConstants.TAPROOT_CONTROL_NODE_SIZE;
+					for (int depth = 0; depth < levels; depth++)
+					{
+						// Can't descend into a node which we already know is a leaf.
+						Debug.Assert(!(node.Explored && !node.Inner));
+
+						// Extract partner hash from Merkle branch in control block.
+						byte[] hashB = new byte[32];
+						controlB.AsSpan((levels - 1 - depth) * TaprootConstants.TAPROOT_CONTROL_NODE_SIZE, 32).CopyTo(hashB);
+						var hash = new uint256(hashB);
+						if (node.Sub?.Item1 is not null)
+						{
+							bool desc = false;
+							// Descend into the existing left or right branch.
+							if (node.Sub.Item1.Hash == hash ||
+								(node.Sub.Item1.Hash is null && node.Sub.Item2!.Hash != hash))
+							{
+								node.Sub.Item1!.Hash = hash;
+								node = node.Sub.Item2!;
+								desc = true;
+							}
+							else if (node.Sub?.Item2.Hash == hash ||
+								(node.Sub?.Item2.Hash is null && node.Sub?.Item1.Hash != hash))
+							{
+								node.Sub!.Item2.Hash ??= hash;
+								node = node.Sub.Item1!;
+								desc = true;
+							}
+
+							if (!desc) return false;
+						}
+						else
+						{
+							node.Explored = true;
+							node.Inner = true;
+							node.Sub = new Tuple<TreeNode, TreeNode>(new TreeNode(), new TreeNode());
+							node.Sub.Item2.Hash = hash;
+							node = node.Sub.Item1;
+						}
+					}
+
+					// cannot turn a known inner node into a leaf.
+					if (node.Sub?.Item1 is not null) return false;
+					node.Explored = true;
+					node.Inner = false;
+					node.Leaf = new ScriptLeaf(script, leafVersion);
+					node.Hash = leafHash;
+				}
+			}
+
+
+			Func<TreeNode, bool> hasIdenticalSubtree = (node) =>
+			{
+				Debug.Assert(node.Inner);
+				using SHA256 sha = new SHA256();
+				sha.InitializeTagged("TapBranch");
+				sha.Write(node.Sub!.Item2.Hash!.ToBytes());
+				sha.Write(node.Sub!.Item2.Hash!.ToBytes());
+				var computedParent = sha.GetHash();
+				var actualParent = node.Hash!.ToBytes();
+				return computedParent.SequenceEqual(actualParent);
+			};
+			// Recursive processing to turn the tree into flattened output. Use an explicit stack
+			// here to aovid overflowing the call stack (the tree may be 128 levels deep).
+			var stack = new Stack<TreeNode>();
+			stack.Push(root);
+			while (stack.Count != 0)
+			{
+				var node = stack.Peek();
+				// Un explored node, which means the tree is incomplete.
+				if (!node.Explored)
+				{
+					Debug.Fail("Unexplored node");
+					return false;
+				}
+				else if (!node.Inner)
+				{
+					result.Add(new Tuple<int, Script, byte>((int)stack.Count - 1, node.Leaf.Script, node.Leaf.Version));
+					node.Done = true;
+					stack.Pop();
+				}
+				else if (
+					node.Sub is not null &&
+					node.Sub.Item1.Done && !node.Sub.Item2.Done &&
+					!node.Sub.Item2.Explored && !(node.Sub.Item2.Hash is null) &&
+					hasIdenticalSubtree(node)
+				)
+				{
+					// Whenever there are nodes with two identical subtrees under it, we run into a problem:
+					// the control blocks for the leaves underneath those will be identical as well, and thus
+					// they will all be matched to the same path in the tree. The result is that at the location
+					// where the duplicate occurred, the left child will contain a normal tree that can be explored
+					// and processed, but the right one will remain unexplored.
+					//
+					// This situation can be detected, by encountering an inner node with unexplored right subtree
+					// with known hash, and H_TapBranch(hash, hash) is equal to the parent node (this node)'s hash.
+					//
+					// To deal with this, simply process the left tree a second time (set its done flag to false;
+					// noting that the done flag of its children have already been set to false after processing
+					// those). To avoid ending up in an infinite loop, set the done flag of the right (unexplored)
+					// subtree to true.
+					node.Sub.Item1.Done = false;
+					node.Sub.Item2.Done = true;
+				}
+				else if (node.Sub is not null && node.Sub.Item1.Done && node.Sub.Item2.Done)
+				{
+					// an internal node which we're finished with.
+					node.Sub.Item1.Done = false;
+					node.Sub.Item2.Done = false;
+					node.Done = true;
+					stack.Pop();
+				}
+				else if (node.Sub is {} sub)
+				{
+					if (!sub.Item1.Done)
+					{
+						// An internal node whose left branch hasn't been processed yet. Do so first.
+						stack.Push(sub.Item1);
+					}
+					else if (!sub.Item2.Done)
+					{
+						stack.Push(sub.Item2);
+					}
+				}
+			}
+			return true;
+		}
+	}
+
+#endif
 
 	public abstract class OutputDescriptor : IEquatable<OutputDescriptor>
 	{
@@ -237,6 +474,38 @@ namespace NBitcoin.Scripting
 			/// </summary>
 			/// <returns></returns>
 			public IEnumerable<(OutputDescriptor, int)> IterateScripts() => IterateScriptsCore(0);
+
+			public static TapTree FromScriptDepths(IList<OutputDescriptor> scripts, IList<int> depths)
+			{
+				if (scripts == null) throw new ArgumentNullException(nameof(scripts));
+				if (depths == null) throw new ArgumentNullException(nameof(depths));
+				if (scripts.Count == 0)
+					throw new ArgumentException(nameof(scripts));
+				if (scripts.Count != depths.Count)
+					throw new ArgumentException($"{nameof(scripts)} and {nameof(depths)} must have same length");
+
+				TapTree? tree = null;
+				int prevDepth = -1;
+				foreach (var (sc, depth) in
+				         scripts
+					         .Zip(depths, (sc, dep) => (sc, dep))
+					         .OrderByDescending<ValueTuple<OutputDescriptor, int>, int>(i => i.Item2))
+				{
+					if (prevDepth == depth && tree is not null)
+					{
+						tree = TapTree.NewTree(tree, NewLeaf(sc));
+						prevDepth = depth - 1;
+					}
+					else
+					{
+						tree = NewLeaf(sc);
+						prevDepth = depth;
+					}
+				}
+				if (prevDepth != 0)
+					throw new InvalidDataException($"Malformed script and depths. the top most depth was: {prevDepth}");
+				return tree!;
+			}
 		}
 
 		public class Tr : OutputDescriptor
@@ -364,7 +633,7 @@ namespace NBitcoin.Scripting
 			if (privateKeyProvider == null) throw new ArgumentNullException(nameof(privateKeyProvider));
 			if (repo == null) throw new ArgumentNullException(nameof(repo));
 			outputScripts = new List<Script>();
-			return TryExpand(pos, privateKeyProvider, repo, outputScripts, isTaproot, cache);
+			return TryExpand(pos, privateKeyProvider, repo, outputScripts, isTaproot || (this is Tr || this is RawTr), cache);
 		}
 
 		private bool ExpandPkHelper(
@@ -477,7 +746,7 @@ namespace NBitcoin.Scripting
 						}
 					}
 					var spendInfo = builder.Finalize(pubkey2.TaprootInternalKey);
-					repo.SetTaprootInternalKey(spendInfo.OutputPubKey, spendInfo.InternalPubKey);
+					repo.SetTaprootSpendInfo(spendInfo.OutputPubKey, spendInfo);
 					outputScripts.Add(spendInfo.OutputPubKey.OutputKey.ScriptPubKey);
 					return true;
 				case RawTr self:
@@ -655,6 +924,36 @@ namespace NBitcoin.Scripting
 			_ => null
 		};
 
+#if HAS_SPAN
+		private static PubKeyProvider InferXOnlyPubkey(TaprootInternalPubKey xkey, ISigningRepository repo)
+		{
+			var keyProvider = PubKeyProvider.NewConst(xkey);
+			return
+				repo.TryGetKeyOrigin(xkey, out var origin) ?
+				PubKeyProvider.NewOrigin(origin, keyProvider) :
+				keyProvider;
+		}
+
+		private static OutputDescriptor? InferMultiA(Script sc, ISigningRepository repo, Network network)
+		{
+
+			var match = sc.FindMultiATemplate();
+			if (match is null)
+				return null;
+
+			(var m, var pks) = match.Value;
+			var keys = new List<PubKeyProvider>(pks.Count);
+
+			foreach (var key in pks)
+			{
+				keys.Add(InferXOnlyPubkey(key, repo));
+			}
+
+			return NewMulti((uint)m, keys, isSorted: false, network, isTapScript: true);
+
+		}
+#endif
+
 		/// <summary>
 		/// Check scriptpubkey and return (estimated) OutputDescriptor for it.
 		/// This may (wrongly) return `raw()` or `addr()` if it fails to infer it.
@@ -676,20 +975,63 @@ namespace NBitcoin.Scripting
 			if (sc == null) throw new ArgumentNullException(nameof(sc));
 			if (repo == null) throw new ArgumentNullException(nameof(repo));
 
+
 			var template = sc.FindTemplate();
 #if HAS_SPAN
+			// We need special treatment for tapscript, since it uses xonly pubkeys.
+			// It can not be checked by `FindTemplate`
+			if (ctx == ScriptContext.P2TR)
+			{
+				var b = sc.ToBytes();
+				if (b.Length == 34 && b[0] == 32 && b[33] == (byte)OpcodeType.OP_CHECKSIG)
+				{
+					var xonlyKey = new TaprootInternalPubKey(b.AsSpan(1, 32));
+					return NewPK(InferXOnlyPubkey(xonlyKey, repo), network);
+				}
+
+				var ret = InferMultiA(sc, repo, network);
+				if (ret is not null)
+					return ret;
+			}
+
 			if (template is PayToTaprootTemplate p2trTemplate)
 			{
 				if (p2trTemplate.ExtractScriptPubKeyParameters(sc) is { } pk)
 				{
-					if (repo.TryGetTaprootInternalKey(pk, out var taprootInternalPubKey))
+					if (repo.TryGetTaprootSpendInfo(pk, out var taprootSpendInfo))
 					{
-						var keyProvider = PubKeyProvider.NewConst(taprootInternalPubKey);
-						keyProvider =
-							repo.TryGetKeyOrigin(pk, out var keyOrigin)
-								? PubKeyProvider.NewOrigin(keyOrigin, keyProvider)
-								: keyProvider;
-						return NewTr(keyProvider, network);
+						var keyProvider =
+							InferXOnlyPubkey(taprootSpendInfo.InternalPubKey, repo);
+
+						if (taprootSpendInfo.InferTaprootTree(pk, out var tree))
+						{
+							bool ok = true;
+							var subScripts = new List<OutputDescriptor>();
+							var depths = new List<int>();
+							foreach (var (depth, script, leafVersion) in tree)
+							{
+								OutputDescriptor? subdesc =
+									(leafVersion == TaprootConstants.TAPROOT_LEAF_TAPSCRIPT)
+										? InferFromScript(script, repo, network, ScriptContext.P2TR)
+										: null;
+								if (subdesc is null)
+								{
+									ok = false;
+									break;
+								}
+								subScripts.Add(subdesc);
+								depths.Add(depth);
+							}
+							if (ok)
+							{
+								if (tree.Count != 0)
+								{
+									var tapTree = TapTree.FromScriptDepths(subScripts, depths);
+									return NewTr(keyProvider, network, tapTree);
+								}
+								return NewTr(keyProvider, network);
+							}
+						}
 					}
 					else
 					{

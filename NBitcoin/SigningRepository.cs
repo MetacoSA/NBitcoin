@@ -51,9 +51,9 @@ namespace NBitcoin
 
 #if HAS_SPAN
 		bool TryGetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, [MaybeNullWhen(false)] out RootedKeyPath keyorigin);
-		bool TryGetTaprootInternalKey(TaprootPubKey taprootOutput,  [MaybeNullWhen(false)] out TaprootInternalPubKey internalPubKey);
+		bool TryGetTaprootSpendInfo(TaprootPubKey taprootOutput,  [MaybeNullWhen(false)] out TaprootSpendInfo spendInfo);
 		bool TryGetSecret(TaprootPubKey key, [MaybeNullWhen(false)] out ISecret secret);
-		void SetTaprootInternalKey(TaprootPubKey key, TaprootInternalPubKey value);
+		void SetTaprootSpendInfo(TaprootPubKey key, TaprootSpendInfo value);
 		void SetSecret(TaprootPubKey key, BitcoinSecret secret);
 		void SetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, RootedKeyPath keyOrigin);
 #endif
@@ -78,10 +78,10 @@ namespace NBitcoin
 			{
 				if (p2trT.ExtractScriptPubKeyParameters(scriptPubKey) is TaprootPubKey pk)
 				{
-					if (repo.TryGetTaprootInternalKey(pk, out var internalPubKey))
+					if (repo.TryGetTaprootSpendInfo(pk, out var spendInfo))
 					{
 						// We must make sure that this Taproot output does not have a script path.
-						return internalPubKey.GetTaprootFullPubKey(null).OutputKey.Equals(pk);
+						return spendInfo.OutputPubKey.OutputKey.Equals(pk);
 					}
 				}
 			}
@@ -162,8 +162,8 @@ namespace NBitcoin
 		{
 			rootedKeyPath = null;
 			return
-				repo.TryGetTaprootInternalKey(taprootPubKey, out var internalKey)
-				&& repo.TryGetKeyOrigin(internalKey, out rootedKeyPath);
+				repo.TryGetTaprootSpendInfo(taprootPubKey, out var spendInfo)
+				&& repo.TryGetKeyOrigin(spendInfo.InternalPubKey, out rootedKeyPath);
 		}
 #endif
 	}
@@ -175,7 +175,7 @@ namespace NBitcoin
 		public ConcurrentDictionary<KeyId, RootedKeyPath> KeyOrigins { get; }
 		public ConcurrentDictionary<ScriptId, Script> Scripts { get; }
 #if HAS_SPAN
-		public ConcurrentDictionary<TaprootPubKey, TaprootInternalPubKey> TaprootKeys { get; }
+		public ConcurrentDictionary<TaprootPubKey, TaprootSpendInfo> SpendInfos { get; }
 		public ConcurrentDictionary<TaprootInternalPubKey, RootedKeyPath> TaprootKeyOrigins { get; }
 		public ConcurrentDictionary<TaprootPubKey, ISecret> TaprootKeysToSecret { get;  }
 #endif
@@ -187,7 +187,7 @@ namespace NBitcoin
 			KeyOrigins = new ConcurrentDictionary<KeyId, RootedKeyPath>();
 			Scripts = new ConcurrentDictionary<ScriptId, Script>();
 #if HAS_SPAN
-			TaprootKeys = new ConcurrentDictionary<TaprootPubKey, TaprootInternalPubKey>();
+			SpendInfos = new ConcurrentDictionary<TaprootPubKey, TaprootSpendInfo>();
 			TaprootKeyOrigins = new ConcurrentDictionary<TaprootInternalPubKey, RootedKeyPath>();
 			TaprootKeysToSecret = new ConcurrentDictionary<TaprootPubKey, ISecret>();
 #endif
@@ -271,18 +271,19 @@ namespace NBitcoin
 #if HAS_SPAN
 		public bool TryGetKeyOrigin(TaprootInternalPubKey taprootInternalPubKey, [MaybeNullWhen(false)]out RootedKeyPath keyorigin)
 			=> TaprootKeyOrigins.TryGetValue(taprootInternalPubKey, out keyorigin);
-		public bool TryGetTaprootInternalKey(TaprootPubKey taprootOutput, [MaybeNullWhen(false)] out TaprootInternalPubKey internalPubKey)
-			=> TaprootKeys.TryGetValue(taprootOutput, out internalPubKey);
+
+		public bool TryGetTaprootSpendInfo(TaprootPubKey taprootOutput, [MaybeNullWhen(false)] out TaprootSpendInfo spendInfo)
+			=> SpendInfos.TryGetValue(taprootOutput, out spendInfo);
 
 		public bool TryGetSecret(TaprootPubKey key, [MaybeNullWhen(false)]out ISecret secret)
 			=> TaprootKeysToSecret.TryGetValue(key, out secret);
 
-		public void SetTaprootInternalKey(TaprootPubKey key, TaprootInternalPubKey value)
+		public void SetTaprootSpendInfo(TaprootPubKey key, TaprootSpendInfo value)
 		{
 			if (key == null) throw new ArgumentNullException(nameof(key));
 			if (value == null) throw new ArgumentNullException(nameof(value));
 
-			TaprootKeys.AddOrReplace(key, value);
+			SpendInfos.AddOrReplace(key, value);
 		}
 
 		public void SetSecret(TaprootPubKey key, BitcoinSecret secret)
@@ -314,7 +315,7 @@ namespace NBitcoin
 			MergeDict(Scripts, otherRepo.Scripts);
 			MergeDict(KeyOrigins, otherRepo.KeyOrigins);
 #if HAS_SPAN
-			MergeDict(TaprootKeys, otherRepo.TaprootKeys);
+			MergeDict(SpendInfos, otherRepo.SpendInfos);
 			MergeDict(TaprootKeyOrigins, otherRepo.TaprootKeyOrigins);
 #endif
 		}
