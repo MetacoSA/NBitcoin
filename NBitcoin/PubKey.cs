@@ -328,6 +328,18 @@ namespace NBitcoin
 #else
 					return GetTaprootFullPubKey().GetAddress(network);
 #endif
+#pragma warning disable CS0618 // Type or member is obsolete
+				case ScriptPubKeyType.TaprootRaw:
+#pragma warning restore CS0618 // Type or member is obsolete
+					if (!network.Consensus.SupportTaproot)
+						throw new NotSupportedException("This network does not support taproot");
+#if !HAS_SPAN
+					throw new NotSupportedException("This feature of taproot is not supported in .NET Framework");
+#else
+					return GetTaprootFullPubKey().GetAddress(network);
+#endif
+				case ScriptPubKeyType.TaprootWithScript:
+					throw new NotSupportedException("Can not get address from pubkey without script.");
 				default:
 					throw new NotSupportedException("Unsupported ScriptPubKeyType");
 			}
