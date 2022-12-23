@@ -102,12 +102,12 @@ namespace NBitcoin
 		}
 	}
 
-	public class ScriptLeaf
+	public class TaprootScriptLeaf
 	{
 		internal Script Script { get; }
 		internal LeafVersion Version { get; }
 		internal TaprootMerkleBranch MerkleBranch { get; } = new ();
-		public ScriptLeaf(Script script, LeafVersion version)
+		public TaprootScriptLeaf(Script script, LeafVersion version)
 		{
 			Script = script ?? throw new ArgumentNullException(nameof(script));
 			Version = version;
@@ -120,40 +120,40 @@ namespace NBitcoin
 	/// <summary>
 	/// Represents from
 	/// </summary>
-	public class NodeInfo
+	public class TaprootNodeInfo
 	{
 		internal uint256 Hash { get; }
-		internal List<ScriptLeaf> Leaves { get; }
+		internal List<TaprootScriptLeaf> Leaves { get; }
 		internal bool HasHiddenNodes { get; }
 
-		internal NodeInfo(uint256 hash, List<ScriptLeaf> leaves, bool hasHiddenNodes)
+		internal TaprootNodeInfo(uint256 hash, List<TaprootScriptLeaf> leaves, bool hasHiddenNodes)
 		{
 			Hash = hash ?? throw new ArgumentNullException(nameof(hash));
 			Leaves = leaves ?? throw new ArgumentNullException(nameof(leaves));
 			HasHiddenNodes = hasHiddenNodes;
 		}
 
-		public static NodeInfo NewLeafWithVersion(Script sc, LeafVersion leafVersion)
+		public static TaprootNodeInfo NewLeafWithVersion(Script sc, LeafVersion leafVersion)
 		{
-			var leaf = new ScriptLeaf
+			var leaf = new TaprootScriptLeaf
 			(
 				script: sc,
 				version: leafVersion
 			);
 			return
-				new NodeInfo
+				new TaprootNodeInfo
 				(
 					hash: leaf.LeafHash,
-					leaves: new List<ScriptLeaf> { leaf },
+					leaves: new List<TaprootScriptLeaf> { leaf },
 					hasHiddenNodes: false
 				);
 		}
 
-		public static NodeInfo NewHiddenNode(uint256 hash) =>
-			new NodeInfo
+		public static TaprootNodeInfo NewHiddenNode(uint256 hash) =>
+			new TaprootNodeInfo
 			(
 				hash: hash,
-				leaves: new List<ScriptLeaf>(),
+				leaves: new List<TaprootScriptLeaf>(),
 				hasHiddenNodes: true
 			);
 
@@ -163,9 +163,9 @@ namespace NBitcoin
 		/// <param name="a"></param>
 		/// <param name="b"></param>
 		/// <returns></returns>
-		public static NodeInfo operator +(NodeInfo a, NodeInfo b)
+		public static TaprootNodeInfo operator +(TaprootNodeInfo a, TaprootNodeInfo b)
 		{
-			var allLeaves = new List<ScriptLeaf>(a.Leaves.Count + b.Leaves.Count);
+			var allLeaves = new List<TaprootScriptLeaf>(a.Leaves.Count + b.Leaves.Count);
 			foreach (var aLeaf in a.Leaves)
 			{
 				aLeaf.MerkleBranch.Add(b.Hash); // add hashing parameter.
@@ -189,7 +189,7 @@ namespace NBitcoin
 				sha.Write(b.Hash.ToBytes());
 				sha.Write(a.Hash.ToBytes());
 			}
-			return new NodeInfo
+			return new TaprootNodeInfo
 			(
 				hash: new uint256(sha.GetHash()),
 				leaves: allLeaves,
@@ -360,7 +360,7 @@ namespace NBitcoin
 		}
 
 
-		public static TaprootSpendInfo FromNodeInfo(TaprootInternalPubKey internalPubKey, NodeInfo node)
+		public static TaprootSpendInfo FromNodeInfo(TaprootInternalPubKey internalPubKey, TaprootNodeInfo node)
 		{
 			var rootHash = node.Hash;
 			var info = TaprootSpendInfo.CreateKeySpend(internalPubKey, rootHash);
@@ -423,7 +423,7 @@ namespace NBitcoin
 	public class TaprootBuilder
 	{
 
-		internal List<NodeInfo?> Branch
+		internal List<TaprootNodeInfo?> Branch
 		{
 			get;
 		} = new();
@@ -454,11 +454,11 @@ namespace NBitcoin
 		{
 			if (scriptWeights == null) throw new ArgumentNullException(nameof(scriptWeights));
 			if (scriptWeights.Length == 0) throw new ArgumentException("Scripts has 0 length.", nameof(scriptWeights));
-			var nodeWeights = new PriorityQueue<(UInt32, NodeInfo), UInt32>(initialCapacity:scriptWeights.Length);
+			var nodeWeights = new PriorityQueue<(UInt32, TaprootNodeInfo), UInt32>(initialCapacity:scriptWeights.Length);
 
 			foreach (var (p, leaf) in scriptWeights)
 			{
-				var nodeInfo = NodeInfo.NewLeafWithVersion(leaf, (byte)TAPROOT_LEAF_TAPSCRIPT);
+				var nodeInfo = TaprootNodeInfo.NewLeafWithVersion(leaf, (byte)TAPROOT_LEAF_TAPSCRIPT);
 				nodeWeights.Enqueue((p, nodeInfo), p);
 			}
 
@@ -492,7 +492,7 @@ namespace NBitcoin
 		/// <param name="version"></param>
 		/// <returns></returns>
 		public TaprootBuilder AddLeaf(uint depth, Script script, LeafVersion version) =>
-			Insert(NodeInfo.NewLeafWithVersion(script, version), depth);
+			Insert(TaprootNodeInfo.NewLeafWithVersion(script, version), depth);
 
 		public TaprootBuilder AddLeaf(uint depth, Script script) =>
 			AddLeaf(depth, script, (byte)TAPROOT_LEAF_TAPSCRIPT);
@@ -503,7 +503,7 @@ namespace NBitcoin
 		/// <param name="hash"></param>
 		/// <returns></returns>
 		public TaprootBuilder AddHiddenNode(uint depth, uint256 hash) =>
-			Insert(NodeInfo.NewHiddenNode(hash), depth);
+			Insert(TaprootNodeInfo.NewHiddenNode(hash), depth);
 
 		public bool IsFinalizable => Branch.Count == 0 || (Branch.Count == 1 && Branch[0] is not null);
 
@@ -523,7 +523,7 @@ namespace NBitcoin
 					? TaprootSpendInfo.FromNodeInfo(internalPubKey, Branch.Last()!)
 					: throw new InvalidOperationException($"Failed to finalize, maybe you forgot to add some scripts? Branch.Count: {Branch.Count}");
 
-		private TaprootBuilder Insert(NodeInfo node, uint depth)
+		private TaprootBuilder Insert(TaprootNodeInfo node, uint depth)
 		{
 			if (depth > TAPROOT_CONTROL_MAX_NODE_COUNT)
 				throw new InvalidDataException($"Invalid Merkle Tree Depth {depth}");
