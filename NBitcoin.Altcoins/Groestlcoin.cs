@@ -131,7 +131,7 @@ namespace NBitcoin.Altcoins
 					return GroestlcoinConsensusFactory.Instance;
 				}
 
-				protected override HashStreamBase CreateSignatureHashStream()
+				protected override HashStreamBase CreateSignatureHashStream(HashVersion hashVersion)
 				{
 					return BufferedHashStream.CreateFrom(Hashes.SHA256, 150);
 				}

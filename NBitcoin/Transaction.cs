@@ -1639,11 +1639,6 @@ namespace NBitcoin
 		{
 			return new HashStream();
 		}
-
-		protected virtual HashStreamBase CreateSignatureHashStream()
-		{
-			return new HashStream();
-		}
 		protected virtual HashStreamBase CreateSignatureHashStream(HashVersion hashVersion)
 		{
 			if (hashVersion == HashVersion.Taproot || hashVersion == HashVersion.Tapscript)
