@@ -687,6 +687,33 @@ namespace NBitcoin.Tests
 				},
 				UseSectionInConfigFile = true
 			};
+			public NodeDownloadData v26_0_0 = new NodeDownloadData()
+			{
+				Version = "26.0.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/bitcoin-cash-node/bitcoin-cash-node/releases/download/v{0}/bitcoin-cash-node-{0}-win64.zip",
+					Archive = "bitcoin-cash-node-{0}-win64.zip",
+					Executable = "bitcoin-cash-node-{0}/bin/bitcoind.exe",
+					Hash = "afb99b52434957b6d6989ce745c1c901253f7edd70b287c97402cd17ad351d67"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/bitcoin-cash-node/bitcoin-cash-node/releases/download/v{0}/bitcoin-cash-node-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "bitcoin-cash-node-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-cash-node-{0}/bin/bitcoind",
+					Hash = "e32e05fd63161f6f1fe717fca789448d2ee48e2017d3d4c6686b4222fe69497e"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/bitcoin-cash-node/bitcoin-cash-node/releases/download/v{0}/bitcoin-cash-node-{0}-osx64.tar.gz",
+					Archive = "bitcoin-cash-node-{0}-osx64.tar.gz",
+					Executable = "bitcoin-cash-node-{0}/bin/bitcoind",
+					Hash = "be3a1c93d8907142dbd4033cd4a7aa0c59f4aa2ef23e53d12dccf48e2e18f36e"
+				},
+				UseSectionInConfigFile = true,
+				Chain = null
+			};
 		}
 
 		public class FeathercoinNodeDownloadData : NodeDownloadDataBase

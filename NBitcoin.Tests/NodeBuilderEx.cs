@@ -14,7 +14,7 @@ namespace NBitcoin.Tests
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Viacoin.v0_15_1, Altcoins.Viacoin.Instance.Regtest, caller);
 
-			//var builder = NodeBuilder.Create(NodeDownloadData.BCash.v23_0_0, Altcoins.BCash.Instance.Regtest, caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.BCash.v26_0_0, Altcoins.BCash.Instance.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Dogecoin.v1_14_5, Altcoins.Dogecoin.Instance.Regtest, caller);
 
