@@ -104,6 +104,8 @@ namespace NBitcoin.Secp256k1
 		/// <returns>A schnorr signature</returns>
 		public SecpSchnorrSignature SignBIP340(ReadOnlySpan<byte> msg32, ReadOnlyMemory<byte> auxData32)
 		{
+			if (msg32.Length != 32)
+				throw new ArgumentException("msg32 should be 32 bytes", nameof(msg32));
 			return SignBIP340(msg32, new BIP340NonceFunction(auxData32));
 		}
 		public SecpSchnorrSignature SignBIP340(ReadOnlySpan<byte> msg32, INonceFunctionHardened? nonceFunction)
