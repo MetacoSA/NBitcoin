@@ -84,6 +84,20 @@
         },
         {
             "rand": "0000000000000000000000000000000000000000000000000000000000000000",
+            "aggothernonce": "0337C87821AFD50A8644D820A8F3E02E499C931865C2360FB43D0A0D20DAFE07EA0287BF891D2A6DEAEBADC909352AA9405D1428C15F4B75F04DAE642A95C2548480",
+            "key_indices": [1, 2],
+            "tweaks": [],
+            "is_xonly": [],
+            "msg_index": 0,
+            "signer_index": 1,
+            "error": {
+                "type": "value",
+                "message": "The signer's pubkey must be included in the list of pubkeys."
+            },
+            "comment": "The signers pubkey is not in the list of pubkeys"
+        },
+        {
+            "rand": "0000000000000000000000000000000000000000000000000000000000000000",
             "aggothernonce": "0437C87821AFD50A8644D820A8F3E02E499C931865C2360FB43D0A0D20DAFE07EA0287BF891D2A6DEAEBADC909352AA9405D1428C15F4B75F04DAE642A95C2548480",
             "key_indices": [1, 2, 0],
             "tweaks": [],

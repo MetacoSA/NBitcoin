@@ -3807,8 +3807,8 @@ namespace NBitcoin.Tests
 			};
 			var secnonce = new[]
 			{
-				MusigPrivNonce.GenerateMusigNonce(ctx, session_id[0], sk0, Array.Empty<byte>(), null, Array.Empty<byte>()),
-				MusigPrivNonce.GenerateMusigNonce(ctx, session_id[1], sk1, Array.Empty<byte>(), null, Array.Empty<byte>())
+				MusigPrivNonce.GenerateMusigNonce(sk0.CreatePubKey(), ctx, session_id[0], sk0, Array.Empty<byte>(), null, Array.Empty<byte>()),
+				MusigPrivNonce.GenerateMusigNonce(sk1.CreatePubKey(), ctx, session_id[1], sk1, Array.Empty<byte>(), null, Array.Empty<byte>())
 			};
 			var pubnonce = new[]
 			{
@@ -4073,7 +4073,8 @@ namespace NBitcoin.Tests
 		{
 			var b = Encoders.Hex.DecodeData(hex);
 			return new MusigPrivNonce(ECPrivKey.Create(b.AsSpan().Slice(0, 32)),
-									  ECPrivKey.Create(b.AsSpan().Slice(32, 32)));
+									  ECPrivKey.Create(b.AsSpan().Slice(32, 32)),
+									  ECPubKey.Create(b.AsSpan().Slice(64,33)));
 		}
 
 		[Fact]
@@ -4093,14 +4094,10 @@ namespace NBitcoin.Tests
 				var nonces = GetArray<int>(item["nonce_indices"]).Select(p => new MusigPubNonce(Encoders.Hex.DecodeData(pnonces[p]))).ToArray();
 				var agg_nonce = new MusigPubNonce(Encoders.Hex.DecodeData(aggnonces[item["aggnonce_index"].Value<int>()]));
 				var msg = Encoders.Hex.DecodeData(msgs[item["msg_index"].Value<int>()]);
-				var ctx = new MusigContext(keys, msg);
+				var ctx = new MusigContext(keys, msg, sk.CreatePubKey());
 				ctx.ProcessNonces(nonces);
 				AssertEx.EqualBytes(agg_nonce.ToBytes(), ctx.AggregateNonce.ToBytes());
-				var secnonce = Encoders.Hex.DecodeData(secnonces[0]).AsSpan();
-				var s = new MusigPrivNonce(
-					ECPrivKey.Create(secnonce.Slice(0, 32)),
-					ECPrivKey.Create(secnonce.Slice(32, 32))
-					);
+				var s = ToMusigPrivNonce(secnonces[0]);
 				AssertEx.EqualBytes(s.CreatePubNonce().ToBytes(), pnonces[0]);
 				var sig = ctx.Sign(sk, s);
 				var expected = item["expected"].Value<string>();
@@ -4113,6 +4110,7 @@ namespace NBitcoin.Tests
 				bool invalidNonceAgg = false;
 				bool invalidSecnonce = false;
 				bool invalidNonce = false;
+				bool invalidKeys = false;
 				var comment = item["comment"].Value<string>();
 				try
 				{
@@ -4132,25 +4130,33 @@ namespace NBitcoin.Tests
 					invalidNonceAgg = false;
 					var msg = Encoders.Hex.DecodeData(msgs[item["msg_index"].Value<int>()]);
 					invalidSecnonce = true;
-					var secnonce = Encoders.Hex.DecodeData(secnonces[item["secnonce_index"].Value<int>()]).AsSpan();
-					var s = new MusigPrivNonce(
-						ECPrivKey.Create(secnonce.Slice(0, 32)),
-						ECPrivKey.Create(secnonce.Slice(32, 32))
-						);
+					var s = ToMusigPrivNonce(secnonces[item["secnonce_index"].Value<int>()]);
 					invalidSecnonce = false;
+					invalidKeys = true;
+					new MusigContext(keys, msg, sk.CreatePubKey());
+					invalidKeys = false;
 					Assert.False(true, comment);
 				}
 				catch (Exception ex) when (!(ex is XunitException))
 				{
-					var err = item["error"]?["contrib"]?.Value<string>();
-					if (invalidPubKey != (err == "pubkey"))
-						Assert.False(true, comment);
-					if (invalidNonceAgg != (err == "aggnonce"))
-						Assert.False(true, comment);
-					if (invalidNonce != (err == "pubnonce"))
-						Assert.False(true, comment);
-					if (invalidSecnonce != (err == null))
-						Assert.False(true, comment);
+					if (comment.StartsWith("The signers pubkey is not in the list of pubkeys"))
+					{
+						var err = item["error"]?["type"]?.Value<string>();
+						if (invalidKeys != (err == "value"))
+							Assert.False(true, comment);
+					}
+					else
+					{
+						var err = item["error"]?["contrib"]?.Value<string>();
+						if (invalidPubKey != (err == "pubkey"))
+							Assert.False(true, comment);
+						if (invalidNonceAgg != (err == "aggnonce"))
+							Assert.False(true, comment);
+						if (invalidNonce != (err == "pubnonce"))
+							Assert.False(true, comment);
+						if (invalidSecnonce != (err == null))
+							Assert.False(true, comment);
+					}
 				}
 			}
 			foreach (var item in (JArray)root["verify_fail_test_cases"])
@@ -4523,15 +4529,17 @@ namespace NBitcoin.Tests
 			{
 				var rand_ = ParseHex(item["rand_"]);
 				var sk = ParseHex(item["sk"]);
+				var pk = ParseHex(item["pk"]);
 				var msg = ParseHex(item["msg"]);
 				var aggpk = ParseHex(item["aggpk"]);
 				var extra_in = ParseHex(item["extra_in"]);
 				var expected = item["expected"].Value<string>().ToLowerInvariant();
 				Scalar[] res = new Scalar[2];
-				MusigPrivNonce.secp256k1_nonce_function_musig(rand_, sk, aggpk, msg, extra_in, res);
-				var actual = new byte[64].AsSpan();
+				MusigPrivNonce.secp256k1_nonce_function_musig(rand_, sk, pk, aggpk, msg, extra_in, res);
+				var actual = new byte[64 + 33].AsSpan();
 				res[0].WriteToSpan(actual);
 				res[1].WriteToSpan(actual.Slice(32));
+				pk.AsSpan().CopyTo(actual.Slice(64));
 				AssertEx.EqualBytes(expected, actual);
 			}
 		}
