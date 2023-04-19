@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,38 +47,25 @@ namespace NBitcoin.Payment
 				throw new ArgumentNullException(nameof(uri));
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
-			scheme = network.UriScheme;
-			if (!uri.StartsWith($"{scheme}:", StringComparison.OrdinalIgnoreCase))
-			{
-				if (uri.StartsWith("bitcoin:", StringComparison.OrdinalIgnoreCase))
-					scheme = "bitcoin";
-				else
-					throw new FormatException("Invalid scheme");
-			}
-			Network = network;
-			uri = uri.Remove(0, $"{scheme}:".Length);
-			if (uri.StartsWith("//"))
-				uri = uri.Remove(0, 2);
 
-			var paramStart = uri.IndexOf('?');
-			string? address = null;
-			if (paramStart == -1)
-				address = uri;
-			else
-			{
-				address = uri.Substring(0, paramStart);
-				uri = uri.Remove(0, 1); //remove ?
-			}
-			if (address != String.Empty)
+			var parsedUri = new Uri(uri, UriKind.Absolute);
+
+			scheme = 
+				parsedUri.Scheme.Equals(network.UriScheme, StringComparison.OrdinalIgnoreCase) ? network.UriScheme :
+				parsedUri.Scheme.Equals("bitcoin", StringComparison.OrdinalIgnoreCase) ? "bitcoin" :
+				throw new FormatException("Invalid scheme");
+
+			Network = network;
+
+			if (parsedUri.AbsolutePath is { Length: > 0 } address)
 			{
 				Address = Network.Parse<BitcoinAddress>(address, network);
 			}
-			uri = uri.Remove(0, address.Length);
 
 			Dictionary<string, string> parameters;
 			try
 			{
-				parameters = UriHelper.DecodeQueryParameters(uri);
+				parameters = UriHelper.DecodeQueryParameters(parsedUri.GetComponents(UriComponents.Query, UriFormat.UriEscaped));
 			}
 			catch (ArgumentException)
 			{
