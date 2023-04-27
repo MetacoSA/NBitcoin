@@ -33,6 +33,15 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		public static void Add(string name, Type type)
+		{
+			if (!_NameToType.ContainsKey(name))
+			{
+				_NameToType.Add(name, type);
+				_TypeToName.Add(type, name);
+			}
+		}
+
 		static IEnumerable<TypeInfo> GetLoadableTypes(Assembly assembly)
 		{
 			try
