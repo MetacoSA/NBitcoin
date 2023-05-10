@@ -78,7 +78,7 @@ namespace NBitcoin.Protocol
 			public void ReadWrite(BitcoinStream stream)
 			{
 				stream.ReadWrite(ref _Address);
-				stream.ReadWrite(ref source);
+				stream.ReadWrite(source);
 				stream.ReadWrite(ref nLastSuccess);
 				stream.ReadWrite(ref nAttempts);
 			}

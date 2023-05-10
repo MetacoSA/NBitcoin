@@ -1,4 +1,4 @@
-﻿#if HAS_SPAN
+#if HAS_SPAN
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -473,7 +473,7 @@ namespace NBitcoin.Secp256k1
 		private readonly FE secp256k1_fe_sqr_inner(int times, int magnitude, bool normalized)
 		{
 			Span<uint> n = stackalloc uint[NCount];
-			this.Deconstruct(ref n, out _, out _);
+			this.Deconstruct(n, out _, out _);
 			ulong c, d;
 			ulong u0, u1, u2, u3, u4, u5, u6, u7, u8;
 			uint t9, t0, t1, t2, t3, t4, t5, t6, t7;
@@ -1192,7 +1192,7 @@ namespace NBitcoin.Secp256k1
 		}
 
 		public readonly void Deconstruct(
-			ref Span<uint> n,
+			Span<uint> n,
 			out int magnitude,
 			out bool normalized
 			)
@@ -1269,7 +1269,7 @@ namespace NBitcoin.Secp256k1
 			Span<uint> t = stackalloc uint[NCount];
 			int magnitude;
 			bool normalized;
-			this.Deconstruct(ref t, out magnitude, out normalized);
+			this.Deconstruct(t, out magnitude, out normalized);
 
 			/* Reduce t9 at the start so there will be at most a single carry from the first pass */
 			uint x = t[9] >> 22; t[9] &= 0x03FFFFFU;
@@ -1304,7 +1304,7 @@ namespace NBitcoin.Secp256k1
 			Span<uint> t = stackalloc uint[NCount];
 			int magnitude;
 			bool normalized;
-			this.Deconstruct(ref t, out magnitude, out normalized);
+			this.Deconstruct(t, out magnitude, out normalized);
 
 			/* Reduce t9 at the start so there will be at most a single carry from the first pass */
 			uint m;
@@ -1362,7 +1362,7 @@ namespace NBitcoin.Secp256k1
 			Span<uint> t = stackalloc uint[NCount];
 			int magnitude;
 			bool normalized;
-			this.Deconstruct(ref t, out magnitude, out normalized);
+			this.Deconstruct(t, out magnitude, out normalized);
 
 			/* Reduce t9 at the start so there will be at most a single carry from the first pass */
 			uint m;
@@ -1506,7 +1506,7 @@ namespace NBitcoin.Secp256k1
 		public readonly bool NormalizesToZero()
 		{
 			Span<uint> t = stackalloc uint[NCount];
-			this.Deconstruct(ref t, out _, out _);
+			this.Deconstruct(t, out _, out _);
 
 			/* z0 tracks a possible raw value of 0, z1 tracks a possible raw value of P */
 			uint z0, z1;

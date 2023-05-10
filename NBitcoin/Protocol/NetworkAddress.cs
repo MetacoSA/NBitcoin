@@ -1,4 +1,4 @@
-﻿#if !NOSOCKET
+#if !NOSOCKET
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -443,12 +443,12 @@ namespace NBitcoin.Protocol
 				if (stream.Serializing)
 				{
 					var localAddr = IsAddrV1Compatible ? SerializeV1Array() : IPV6_NONE;
-					stream.ReadWrite(ref localAddr);
+					stream.ReadWrite(localAddr);
 				}
 				else
 				{
 					var localAddr = new byte[ADDR_IPV6_SIZE];
-					stream.ReadWrite(ref localAddr);
+					stream.ReadWrite(localAddr);
 					SetLegacyIpv6(localAddr);
 				}
 			}

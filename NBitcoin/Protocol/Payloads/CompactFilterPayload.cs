@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace NBitcoin.Protocol
@@ -54,7 +54,7 @@ namespace NBitcoin.Protocol
 		{
 			stream.ReadWrite(ref _FilterType);
 			stream.ReadWrite(ref _BlockHash);
-			stream.ReadWrite(ref _FilterBytes);
+			stream.ReadWrite(_FilterBytes);
 		}
 	}
 

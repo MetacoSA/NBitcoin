@@ -875,9 +875,9 @@ namespace NBitcoin
 				stream.ReadWriteAsVarInt(ref len);
 				stream.ReadWrite(PSBTConstants.PSBT_GLOBAL_XPUB);
 				var vb = XPubVersionBytes;
-				stream.ReadWrite(ref vb);
+				stream.ReadWrite(vb);
 				var bytes = xpub.Key.ExtPubKey.ToBytes();
-				stream.ReadWrite(ref bytes);
+				stream.ReadWrite(bytes);
 				var path = xpub.Value.KeyPath.ToBytes();
 				var pathInfo = xpub.Value.MasterFingerprint.ToBytes().Concat(path);
 				stream.ReadWriteAsVarString(ref pathInfo);

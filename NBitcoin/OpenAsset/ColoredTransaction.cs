@@ -1,4 +1,4 @@
-﻿#if !NOJSONNET
+#if !NOJSONNET
 using Newtonsoft.Json.Linq;
 #endif
 using System;
@@ -55,14 +55,14 @@ namespace NBitcoin.OpenAsset
 			if (stream.Serializing)
 			{
 				byte[] assetId = Asset.Id.ToBytes();
-				stream.ReadWrite(ref assetId);
+				stream.ReadWrite(assetId);
 				long quantity = Asset.Quantity;
 				stream.ReadWrite(ref quantity);
 			}
 			else
 			{
 				byte[] assetId = new byte[20];
-				stream.ReadWrite(ref assetId);
+				stream.ReadWrite(assetId);
 				long quantity = 0;
 				stream.ReadWrite(ref quantity);
 				Asset = new AssetMoney(new AssetId(assetId), quantity);
