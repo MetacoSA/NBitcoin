@@ -1,4 +1,4 @@
-﻿using NBitcoin.Crypto;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using System;
 using System.Buffers;
@@ -80,7 +80,7 @@ namespace NBitcoin.Protocol
 			if (stream.Serializing || (!stream.Serializing && !_SkipMagic))
 				stream.ReadWrite(ref magic);
 
-			stream.ReadWrite(ref command);
+			stream.ReadWrite(command);
 
 			if (stream.Serializing)
 			{
@@ -123,7 +123,7 @@ namespace NBitcoin.Protocol
 					if (stream.ProtocolCapabilities.SupportCheckSum)
 						stream.ReadWrite(ref expectedChecksum);
 
-					stream.ReadWrite(ref payloadBytes, 0, length);
+					stream.ReadWrite(payloadBytes, 0, length);
 
 					//  We do not verify the checksum anymore because for 1000 blocks, it takes 80 seconds.
 

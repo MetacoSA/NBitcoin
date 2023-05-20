@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using NBitcoin.Protocol;
 
@@ -70,7 +70,7 @@ namespace NBitcoin.Altcoins.Elements
 					throw new ArgumentOutOfRangeException("Array size too big");
 				data = new byte[len];
 			}
-			bitcoinStream.ReadWriteBytes(ref data);
+			bitcoinStream.ReadWriteBytes(data);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using NBitcoin.Crypto;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using System;
@@ -348,7 +348,7 @@ namespace NBitcoin.Altcoins
 					stream.ReadWriteAsVarInt(ref extraPayloadSize);
 					if (ExtraPayload.Length != extraPayloadSize)
 						ExtraPayload = new byte[extraPayloadSize];
-					stream.ReadWrite(ref ExtraPayload);
+					stream.ReadWrite(ExtraPayload);
 				}
 			}
 		}

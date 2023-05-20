@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -188,9 +188,9 @@ namespace NBitcoin
 					bs.ReadWrite(hash);
 				}
 				var b = pathPair.Value.RootedKeyPath.MasterFingerprint.ToBytes();
-				bs.ReadWrite(ref b);
+				bs.ReadWrite(b);
 				b = pathPair.Value.RootedKeyPath.KeyPath.ToBytes();
-				bs.ReadWrite(ref b);
+				bs.ReadWrite(b);
 				b = ((MemoryStream)bs.Inner).ToArrayEfficient();
 				stream.ReadWriteAsVarString(ref b);
 			}

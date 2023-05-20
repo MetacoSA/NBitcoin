@@ -1,4 +1,4 @@
-﻿using NBitcoin.Protocol;
+using NBitcoin.Protocol;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -331,19 +331,19 @@ namespace NBitcoin
 			}
 		}
 
-		public void ReadWrite(ref byte[] arr)
+		public void ReadWrite(byte[] arr)
 		{
-			ReadWriteBytes(ref arr);
+			ReadWriteBytes(arr);
 		}
 #if HAS_SPAN
-		public void ReadWrite(ref Span<byte> arr)
+		public void ReadWrite(Span<byte> arr)
 		{
 			ReadWriteBytes(arr);
 		}
 #endif
-		public void ReadWrite(ref byte[] arr, int offset, int count)
+		public void ReadWrite(byte[] arr, int offset, int count)
 		{
-			ReadWriteBytes(ref arr, offset, count);
+			ReadWriteBytes(arr, offset, count);
 		}
 		public void ReadWrite<T>(ref T[] arr) where T : IBitcoinSerializable, new()
 		{
@@ -399,7 +399,7 @@ namespace NBitcoin
 			}
 			if (IsBigEndian)
 				Array.Reverse(bytes);
-			ReadWriteBytes(ref bytes);
+			ReadWriteBytes(bytes);
 			if (IsBigEndian)
 				Array.Reverse(bytes);
 			ulong valueTemp = 0;
@@ -412,7 +412,7 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
-		internal void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
+		internal void ReadWriteBytes(byte[] data, int offset = 0, int count = -1)
 		{
 			if(data == null)
 				throw new ArgumentNullException(nameof(data));
@@ -441,7 +441,7 @@ namespace NBitcoin
 			}
 		}
 #else
-		internal void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
+		internal void ReadWriteBytes(byte[] data, int offset = 0, int count = -1)
 		{
 			if (data == null)
 				throw new ArgumentNullException(nameof(data));

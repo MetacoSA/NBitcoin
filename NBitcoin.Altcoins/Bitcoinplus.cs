@@ -1,4 +1,4 @@
-﻿using NBitcoin;
+using NBitcoin;
 using NBitcoin.Altcoins.HashX11;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
@@ -278,7 +278,7 @@ namespace NBitcoin.Altcoins
                     if (stream.Serializing)
                     {
                         var bytes = (_Inputs[i].WitScript ?? WitScript.Empty).ToBytes();
-                        stream.ReadWrite(ref bytes);
+                        stream.ReadWrite(bytes);
                     }
                     else
                     {

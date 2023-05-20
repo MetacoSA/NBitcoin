@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -49,7 +49,7 @@ namespace NBitcoin.Protocol
 					throw new ArgumentOutOfRangeException("Array size not big");
 				_Bytes = new byte[len.ToLong()];
 			}
-			stream.ReadWrite(ref _Bytes);
+			stream.ReadWrite(_Bytes);
 		}
 
 		internal static void StaticWrite(BitcoinStream bs, byte[] bytes)
@@ -59,7 +59,7 @@ namespace NBitcoin.Protocol
 				throw new ArgumentOutOfRangeException("Array size too big");
 			VarInt.StaticWrite(bs, len);
 			if (bytes != null)
-				bs.ReadWrite(ref bytes);
+				bs.ReadWrite(bytes);
 		}
 
 		internal static void StaticRead(BitcoinStream bs, ref byte[] bytes)
@@ -68,7 +68,7 @@ namespace NBitcoin.Protocol
 			if (len > (uint)bs.MaxArraySize)
 				throw new ArgumentOutOfRangeException("Array size too big");
 			bytes = new byte[len];
-			bs.ReadWrite(ref bytes);
+			bs.ReadWrite(bytes);
 		}
 
 		#endregion
