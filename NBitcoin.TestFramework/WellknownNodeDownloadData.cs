@@ -1509,6 +1509,24 @@ namespace NBitcoin.Tests
 				WalletExecutable = "elements-wallet",
 				GetWalletChainSpecifier = "-chain={0}"
 			};
+			public NodeDownloadData v22_1_1 = new NodeDownloadData()
+			{
+				Version = "22.1.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/ElementsProject/elements/releases/download/elements-22.1.1/elements-22.1.1-win64.zip",
+					Archive = "elements-{0}-win64.zip",
+					Executable = "elements-22.1.1/bin/elementsd.exe",
+					Hash = "ce760ba6a81177b15e94f1c006afcd9c83c682c28aca485ab5a5ff684dcda632"
+				},
+				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0\n\ncon_dyna_deploy_start=0\n\ncon_dyna_deploy_signal=1\ncon_nminerconfirmationwindow=1\ncon_nrulechangeactivationthreshold=1",
+				RegtestFolderName = "elementsregtest",
+				Chain = "elementsregtest",
+				UseSectionInConfigFile = true,
+				CreateWallet = true,
+				WalletExecutable = "elements-wallet",
+				GetWalletChainSpecifier = "-chain={0}"
+			};
 
 		}
 		public class LiquidNodeDownloadData

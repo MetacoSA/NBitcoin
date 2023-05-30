@@ -11,6 +11,7 @@ namespace NBitcoin.Altcoins
 	public class Liquid : NetworkSetBase
 	{
 		public class LiquidRegtest { }
+		public class LiquidTestnet { }
 		static Liquid()
 		{
 			ElementsParams<Liquid>.PeggedAssetId = new uint256("6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d");
@@ -19,6 +20,9 @@ namespace NBitcoin.Altcoins
 			ElementsParams<LiquidRegtest>.PeggedAssetId = new uint256("b2e15d0d7a0c94e4e2ce0fe6e8691b9e451377f6e46e8045a86f7c4b5d4f0f23");
 			ElementsParams<LiquidRegtest>.SignedBlocks = true;
 			ElementsParams<LiquidRegtest>.BlockHeightInHeader = true;
+			ElementsParams<LiquidTestnet>.SignedBlocks = true;
+			ElementsParams<LiquidTestnet>.BlockHeightInHeader = true;
+			ElementsParams<LiquidTestnet>.PeggedAssetId = new uint256("144c654344aa716d6f3abcc1ca90e5641e4e2a7f633bc09fe3baf64585819a49");
 
 		}
 		public override string CryptoCode => "LBTC";
@@ -68,7 +72,44 @@ namespace NBitcoin.Altcoins
 
 		protected override NetworkBuilder CreateTestnet()
 		{
-			return null;
+					var builder = new NetworkBuilder();
+			builder.SetConsensus(new Consensus()
+			{
+				SubsidyHalvingInterval = 150,
+				MajorityEnforceBlockUpgrade = 51,
+				MajorityRejectBlockOutdated = 75,
+				MajorityWindow = 144,
+				PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
+				PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60),
+				PowTargetSpacing = TimeSpan.FromSeconds(1 * 60),
+				PowAllowMinDifficultyBlocks = true,
+				MinimumChainWork = uint256.Zero,
+				PowNoRetargeting = true,
+				RuleChangeActivationThreshold = 108,
+				MinerConfirmationWindow = 144,
+				CoinbaseMaturity = 100,
+				ConsensusFactory = ElementsConsensusFactory<LiquidTestnet>.Instance,
+				SupportSegwit = true
+			})
+			.SetNetworkStringParser(new ElementsStringParser())
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { (36) })
+			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { (19) })
+			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { (128) })
+			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { (0x04), (0x88), (0xB2), (0x1E) })
+			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { (0x04), (0x88), (0xAD), (0xE4) })
+			.SetBase58Bytes(Base58Type.BLINDED_ADDRESS, new byte[] { 23 })
+			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tex"))
+			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tex"))
+			.SetBech32(Bech32Type.BLINDED_ADDRESS, ElementsEncoders.Blech32("tlq"))
+			.SetMagic(0x410EDD62)
+			.SetPort(7042)
+
+			.SetRPCPort(7041)
+			.SetName("liquidtestnet")
+			.AddAlias("liquid-testnet")
+			.SetUriScheme("liquidnetwork")
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000F7C950D88A6C592649C8E0BC8762B49F75B1A61D452553052A098C5B216C8F17DAE5494D000000002551210217E403DDB181872C32A0CD468C710040B2F53D8CAC69F18DAD07985EE37E9A7151AE00020100000000010000000000000000000000000000000000000000000000000000000000000000FFFFFFFF2120523AA49351E29A924F519A1523C817AFCAD35DD1AF74FBE9009F5C6A52D2520CFFFFFFFF0101000000000000000000000000000000000000000000000000000000000000000001000000000000000000016A00000000010000000001523AA49351E29A924F519A1523C817AFCAD35DD1AF74FBE9009F5C6A52D2520C0000008000FFFFFFFF0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000775F05A0740000100000000000000000101499A818545F6BAE39FC03B637F2A4E1E64E590CAC1BC3A6F6D71AA4443654C1401000775F05A07400000015100000000");
+			return builder;
 		}
 
 		protected override NetworkBuilder CreateRegtest()
@@ -117,7 +158,7 @@ namespace NBitcoin.Altcoins
 
 		protected override void PostInit()
 		{
-			RegisterDefaultCookiePath("Liquid", new FolderName() { RegtestFolder = "elementsregtest", MainnetFolder = "liquidv1" });
+			RegisterDefaultCookiePath("Liquid", new FolderName() { RegtestFolder = "elementsregtest",TestnetFolder = "liquidtestnet", MainnetFolder = "liquidv1" });
 		}
 	}
 }
