@@ -469,7 +469,7 @@ namespace NBitcoin.RPC
 		{
 			try
 			{
-				await SendCommandAsync(RPCOperations.importprivkey, secret.ToWif(), label, rescan).ConfigureAwait(false);
+				await SendCommandAsync(RPCOperations.importprivkey, secret.ToWif(), label == "*" ? null : label, rescan).ConfigureAwait(false);
 			}
 			catch (RPCException ex) when (label is null && ex.RPCCode == RPCErrorCode.RPC_MISC_ERROR)
 			{
