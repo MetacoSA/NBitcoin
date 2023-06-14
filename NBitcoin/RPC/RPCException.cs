@@ -169,7 +169,15 @@ namespace NBitcoin.RPC
 		/// <summary>
 		/// No wallet specified (error when there are multiple wallets loaded)
 		/// </summary>
-		RPC_WALLET_NOT_SPECIFIED = -19
+		RPC_WALLET_NOT_SPECIFIED = -19,
+		/// <summary>
+		/// This same wallet is already loaded
+		/// </summary>
+		RPC_WALLET_ALREADY_LOADED = -35,
+		/// <summary>
+		/// There is already a wallet with the same name
+		/// </summary>
+		RPC_WALLET_ALREADY_EXISTS = -36
 	}
 
 
