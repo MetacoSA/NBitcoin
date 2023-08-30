@@ -814,64 +814,88 @@ namespace NBitcoin.Tests
 			var scriptCoin1 = RandomCoin(Money.Coins(0.0001m), k.PubKey.ScriptPubKey, true);
 			var scriptCoin2 = RandomCoin(Money.Coins(0.0001m), k.PubKey.ScriptPubKey, true);
 
-			var dust = builder.GetDust(scriptCoin2.ScriptPubKey);
+			var dust = builder.GetDust(new Key().GetScriptPubKey(ScriptPubKeyType.Legacy));
 			foreach (var segwitChange in new[] { true, false })
 				foreach (var dustPrevention in new[] { true, false })
 				{
-					builder = Network.CreateTransactionBuilder();
-					builder.DustPrevention = dustPrevention;
 					var substracted = new Key();
 					var change = new Key().PubKey.GetScriptPubKey(segwitChange ? ScriptPubKeyType.Segwit : ScriptPubKeyType.Legacy);
-					var feeAmount = scriptCoin2.Amount - dust - Money.Satoshis(1);
-					var remainingOfCoin2 = scriptCoin2.Amount - feeAmount;
-					var tx = builder
-					.AddCoins(scriptCoin1, scriptCoin2)
-					.Send(new Key(), scriptCoin1.Amount)
-					.Send(substracted, scriptCoin2.Amount)
-					.SubtractFees()
-					.SetChange(change)
-					.SendFees(feeAmount)
-					.BuildTransaction(false);
-					// The txout must be kicked out because of dust rule
-					var substractedExists = tx.Outputs.Any(o => o.ScriptPubKey == substracted.GetScriptPubKey(ScriptPubKeyType.Legacy));
-					var totalFee = tx.GetFee(builder.FindSpentCoins(tx));
-					var changeOutput = tx.Outputs.FirstOrDefault(o => o.ScriptPubKey == change);
 
-					// The substracted destination should be removed as it is below dust!
-					// But not the change (which is 541 bytes, ie, the overhead of removing subtracted destination)
-					// so above the segwit dust.
-					if (segwitChange && dustPrevention)
-						Assert.NotNull(changeOutput);
-
-					// The substracted destination is below dust, but not removed
-					// as a result, there is no change to send for the overhead
-					if (segwitChange && !dustPrevention)
-						Assert.Null(changeOutput);
-
-					// The change would be 540 satoshi, which is less than dust!
-					// or there would be no change if no dust prevention.
-					if (!segwitChange)
-						Assert.Null(changeOutput);
-
+					Money remainingOfCoin2 = null;
+					Money feeAmount;
+					Money totalFee = null;
+					Money changeAmount = Money.Zero;
+					TxOut changeOutput;
+					Transaction BuildTransaction(bool checkFee = true)
+					{
+						var builder = Network.CreateTransactionBuilder();
+						builder.DustPrevention = dustPrevention;
+						var tx = builder
+						.AddCoins(scriptCoin1, scriptCoin2)
+						.Send(new Key(), scriptCoin1.Amount - changeAmount)
+						.Send(substracted, scriptCoin2.Amount)
+						.SubtractFees()
+						.SetChange(change)
+						.SendFees(feeAmount)
+						.BuildTransaction(false);
+						remainingOfCoin2 = scriptCoin2.Amount - feeAmount;
+						changeOutput = tx.Outputs.FirstOrDefault(o => o.ScriptPubKey == change);
+						if (changeOutput != null)
+							Assert.Equal(changeAmount, changeOutput.Value);
+						totalFee = tx.GetFee(builder.FindSpentCoins(tx));
+						if (checkFee)
+							Assert.Equal(feeAmount, totalFee);
+						return tx;
+					};
+					Transaction tx;
+					
+					
 					if (dustPrevention)
 					{
-						if (changeOutput != null)
-							Assert.Equal(remainingOfCoin2, changeOutput.Value);
-						Assert.False(substractedExists);
+						feeAmount = scriptCoin2.Amount - dust + Money.Satoshis(1);
+						// feeAmount: 10000 - 546 + 1 = 9455
+						// remainingOfCoin2: 10000 - 9455 = 545
+						// remainingOfCoin2 is too small to be used as output
+						var ex = Assert.Throws<OutputTooSmallException>(() => BuildTransaction());
+						Assert.Equal(1, ((Money)ex.Missing).Satoshi);
+
+						feeAmount = feeAmount - Money.Satoshis(1);
+						// feeAmount: 10000 - 546 + 1 = 9454
+						// remainingOfCoin2: 10000 - 9454 = 546
+
+
+						// With one more satoshi, should be OK
+						tx = BuildTransaction();
+
+						// No change, because below dust
+						changeAmount = builder.GetDust(change) - Money.Satoshis(1);
+						tx = BuildTransaction(false);
+						Assert.Null(changeOutput);
+						Assert.Equal(feeAmount + changeAmount, totalFee);
+
+						// Change because equal to dust
+						changeAmount = builder.GetDust(change);
+						tx = BuildTransaction(false);
+						Assert.NotNull(changeOutput);
 					}
 					else
 					{
-						if (changeOutput != null)
-							Assert.Equal(feeAmount, changeOutput.Value);
-						Assert.True(substractedExists);
-					}
+						feeAmount = scriptCoin2.Amount + Money.Satoshis(1);
+						// Can't have a negative change, even with dust prevention disabled
+						var ex = Assert.Throws<OutputTooSmallException>(() => BuildTransaction());
+						Assert.Equal(1, ((Money)ex.Missing).Satoshi);
+						feeAmount = scriptCoin2.Amount;
 
-					// In this case, the substracted output should not exists nor does the change
-					// because both are below dust. The overhead should be added to fee.
-					if (!segwitChange && dustPrevention)
-						Assert.Equal(scriptCoin2.Amount, totalFee);
-					else
-						Assert.Equal(feeAmount, totalFee);
+						// Shouldn't have change
+						tx = BuildTransaction();
+						Assert.Null(changeOutput);
+
+
+						// one sat change
+						changeAmount = Money.Satoshis(1);
+						tx = BuildTransaction();
+						Assert.NotNull(changeOutput);
+					}
 				}
 		}
 
@@ -1079,22 +1103,17 @@ namespace NBitcoin.Tests
 					Assert.Equal(Money.Coins(0.5m), tx.Outputs.First(o => o.ScriptPubKey == alice.GetScriptPubKey(ScriptPubKeyType.Legacy)).Value);
 			}
 
-			// We test what happen if the substracted output is cleaned via dust prevention
-			// and that the build sweep the dust prevention
+			// The substracted fee output get below dust
 			{
 				var change = new Key();
 				var txbuilder = Network.Main.CreateTransactionBuilder();
 				txbuilder.AddCoins(new[] { c1 });
 				txbuilder.Send(alice, Money.Coins(0.6m));
-				txbuilder.Send(bob, Money.Satoshis(500));
+				txbuilder.Send(bob, Money.Satoshis(600));
 				txbuilder.SubtractFees();
-				txbuilder.SendFees(Money.Satoshis(300));
+				txbuilder.SendFees(Money.Satoshis(500));
 				txbuilder.SetChange(change);
-				var tx = txbuilder.BuildTransaction(false);
-				Assert.Equal(2, tx.Outputs.Count);
-				Assert.DoesNotContain(tx.Outputs, o => o.ScriptPubKey == bob);
-				var txout = tx.Outputs.First(o => o.ScriptPubKey == change.GetScriptPubKey(ScriptPubKeyType.Legacy));
-				Assert.Equal(Money.Coins(1.0m) - Money.Coins(0.6m) - Money.Satoshis(300), txout.Value);
+				Assert.Throws<OutputTooSmallException>(() => txbuilder.BuildTransaction(false));
 			}
 		}
 
@@ -2645,13 +2664,15 @@ namespace NBitcoin.Tests
 				.SetChange(bob)
 				.BuildTransaction(true);
 
-			var signed = create();
+			Assert.Throws<OutputTooSmallException>(() => create());
 
+			builder = Network.CreateTransactionBuilder();
+			builder.DustPrevention = false;
+			var signed = create();
 			Assert.True(signed.Outputs.Count == 3);
 			Assert.True(builder.Verify(signed, Money.Coins(0.0001m)));
-			builder.DustPrevention = false;
-
 			TransactionPolicyError[] errors;
+			builder.DustPrevention = true;
 			Assert.True(builder.Verify(signed, Money.Coins(0.0001m), out errors));
 
 			builder = Network.CreateTransactionBuilder();
