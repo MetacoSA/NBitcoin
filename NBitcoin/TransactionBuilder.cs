@@ -1189,23 +1189,18 @@ namespace NBitcoin
 				{
 					var fee = ctx.CurrentGroupContext.Fee.GetAmount(Money.Zero);
 					txout.Value -= fee;
-
-					var minimumTxOutValue = (parent.DustPrevention ? parent.GetDust(txout.ScriptPubKey) : Money.Zero);
-					if (txout.Value < Money.Zero)
-					{
-						throw new OutputTooSmallException("Can't substract fee from this output because the amount is too small",
-						ctx.Group.Name,
-						-txout.Value
-						);
-					}
 					ctx.CurrentGroupContext.FeePaid = true;
-					if (txout.Value < minimumTxOutValue)
-					{
-						// Between zero and dust, should strip this output.
-						ctx.CurrentGroupContext.DustPreventionTotalRemoved += txout.Value;
-						return;
-					}
 					ctx.CurrentGroupContext.FeeTxOut = txout;
+				}
+
+				var minimumTxOutValue = (parent.DustPrevention ? parent.GetDust(txout.ScriptPubKey) : Money.Zero);
+				if (txout.Value < minimumTxOutValue)
+				{
+					// If the txout is below dust, they throw an exception
+					throw new OutputTooSmallException("Can't substract fee from this output because the amount is too small",
+					ctx.Group.Name,
+					minimumTxOutValue - txout.Value
+					);
 				}
 
 				ctx.CurrentGroupContext.SentOutput += txout.Value;
