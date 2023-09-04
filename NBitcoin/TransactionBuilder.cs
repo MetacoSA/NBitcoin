@@ -340,10 +340,20 @@ namespace NBitcoin
 
 	public class OutputTooSmallException : NotEnoughFundsException
 	{
-		public OutputTooSmallException(string message, string? group, IMoney missing) : base(message, group, missing)
+		public enum ErrorType
 		{
-
+			TooSmallBeforeSubstractedFee,
+			TooSmallAfterSubstractedFee
 		}
+		public OutputTooSmallException(string message, string? group, IMoney missing, ErrorType reason, TxOut output) : base(message, group, missing)
+		{
+			Reason = reason;
+			Destination = output.ScriptPubKey;
+			Value = output.Value;
+		}
+		public ErrorType Reason { get; }
+		public Script Destination { get; }
+		public Money Value { get; }
 	}
 
 	/// <summary>
@@ -1185,22 +1195,35 @@ namespace NBitcoin
 			public void Build(TransactionBuildingContext ctx)
 			{
 				var txout = parent.CreateTxOut(amount, scriptPubKey);
+				var minimumTxOutValue = (parent.DustPrevention ? parent.GetDust(txout.ScriptPubKey) : Money.Zero);
+
+				if (txout.Value < minimumTxOutValue)
+				{
+					// If the txout is below dust, they throw an exception
+					throw new OutputTooSmallException("This output is too small",
+					ctx.Group.Name,
+					minimumTxOutValue - txout.Value,
+					OutputTooSmallException.ErrorType.TooSmallBeforeSubstractedFee,
+					txout
+					);
+				}
+
 				if (SubstractFee && !ctx.CurrentGroupContext.FeePaid)
 				{
 					var fee = ctx.CurrentGroupContext.Fee.GetAmount(Money.Zero);
 					txout.Value -= fee;
+					if (txout.Value < minimumTxOutValue)
+					{
+						// If the txout is below dust, they throw an exception
+						throw new OutputTooSmallException("Can't substract fee from this output because the amount is too small",
+						ctx.Group.Name,
+						minimumTxOutValue - txout.Value,
+						OutputTooSmallException.ErrorType.TooSmallAfterSubstractedFee,
+						txout
+						);
+					}
 					ctx.CurrentGroupContext.FeePaid = true;
 					ctx.CurrentGroupContext.FeeTxOut = txout;
-				}
-
-				var minimumTxOutValue = (parent.DustPrevention ? parent.GetDust(txout.ScriptPubKey) : Money.Zero);
-				if (txout.Value < minimumTxOutValue)
-				{
-					// If the txout is below dust, they throw an exception
-					throw new OutputTooSmallException("Can't substract fee from this output because the amount is too small",
-					ctx.Group.Name,
-					minimumTxOutValue - txout.Value
-					);
 				}
 
 				ctx.CurrentGroupContext.SentOutput += txout.Value;
