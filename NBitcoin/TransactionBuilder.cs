@@ -820,11 +820,6 @@ namespace NBitcoin
 				get;
 				set;
 			}
-			/// <summary>
-			/// Money which has been recovered from outputs that are too small to be included
-			/// we should be able to pay fees with that
-			/// </summary>
-			public Money SurrendedValue { get; set; } = Money.Zero;
 		}
 
 		List<BuilderGroup> _BuilderGroups = new List<BuilderGroup>();
@@ -1164,11 +1159,6 @@ namespace NBitcoin
 			if (amount < Money.Zero)
 				throw new ArgumentOutOfRangeException(nameof(amount), "amount can't be negative");
 			_LastSendBuilder = null; //If the amount is dust, we don't want the fee to be paid by the previous Send
-			if (DustPrevention && amount < GetDust(scriptPubKey) && !_OpReturnTemplate.CheckScriptPubKey(scriptPubKey))
-			{
-				CurrentGroup.SurrendedValue += amount;
-				return this;
-			}
 
 			var builder = new SendBuilder(this, amount, scriptPubKey);
 			CurrentGroup.Builders.Add(builder.Build);
@@ -1895,11 +1885,10 @@ namespace NBitcoin
 		{
 			var gctx = ctx.CurrentGroupContext;
 			IMoney zero = ctx.Zero;
-			IMoney surrendedMoney = zero is Money ? group.SurrendedValue : zero;
 			foreach (var builder in builders)
 				builder(ctx);
 
-			IMoney selectionTarget = (gctx.SentOutput + gctx.Fee - gctx.LeftOverChange + surrendedMoney).GetAmount(zero);
+			IMoney selectionTarget = (gctx.SentOutput + gctx.Fee - gctx.LeftOverChange).GetAmount(zero);
 
 			var unconsumed = coins.Where(c => !ctx.ConsumedOutpoints.Contains(c.Outpoint)).ToArray();
 
@@ -1917,7 +1906,7 @@ namespace NBitcoin
 						selectionTarget.Sub(unconsumed.Select(u => u.Amount).Sum(zero)));
 
 			var totalInput = selection.Select(s => s.Amount).Sum(zero);
-			var change = totalInput.Sub(selectionTarget).Add(surrendedMoney);
+			var change = totalInput.Sub(selectionTarget);
 			if (change.CompareTo(zero) == -1)
 				throw new NotEnoughFundsException(notEnoughFundsMessage,
 					group.Name,
