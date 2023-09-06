@@ -3136,6 +3136,28 @@ namespace NBitcoin.Tests
 			var tx = aa.ExtractTransaction();
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void DoNotGenerateTransactionWithDust()
+		{
+			var k = new Key();
+			var scriptCoin = RandomCoin(Money.Coins(0.0003m), k.PubKey.ScriptPubKey, true);
+
+			var builder = Network.CreateTransactionBuilder();
+
+			var dust = builder.GetDust(new Key().GetScriptPubKey(ScriptPubKeyType.Legacy));
+
+			var ex = Assert.Throws<OutputTooSmallException>(() => {
+				builder
+					.AddCoins(scriptCoin)
+					.Send(new Key(), dust - Money.Satoshis(1))
+					.SetChange(new Key())
+					.BuildTransaction(false);
+			}
+			);
+			Assert.Equal(OutputTooSmallException.ErrorType.TooSmallBeforeSubstractedFee, ex.Reason);
+		}
+
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
