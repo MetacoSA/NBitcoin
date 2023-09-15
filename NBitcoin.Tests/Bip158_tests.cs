@@ -79,10 +79,13 @@ namespace NBitcoin.Tests
 				.Build();
 
 			var testKey = key.ToBytes().SafeSubarray(0, 16);
+			var reader = filter.GetGRStreamReader();
+
 			// The filter should match all the values that were added.
 			foreach (var name in names)
 			{
 				Assert.True(filter.Match(name, testKey));
+				Assert.True(filter.Match(name, testKey, reader));
 			}
 
 			// The filter should NOT match any extra value.
@@ -445,9 +448,10 @@ namespace NBitcoin.Tests
 			var filter = builder.Build();
 
 			var keyMatch = key.ToBytes().SafeSubarray(0, 16);
+			var reader = filter.GetGRStreamReader();
 			foreach (var script in scripts)
 			{
-				var match = filter.MatchAny(new[] { script.ToBytes() }, keyMatch);
+				var match = filter.Match(script.ToBytes(), keyMatch, reader);
 				Assert.True(match);
 			}
 		}

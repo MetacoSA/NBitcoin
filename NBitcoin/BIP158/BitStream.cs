@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace NBitcoin
 {
@@ -170,7 +170,6 @@ namespace NBitcoin
 		}
 	}
 
-
 	internal class GRCodedStreamWriter
 	{
 		private readonly BitStream _stream;
@@ -204,14 +203,46 @@ namespace NBitcoin
 		}
 	}
 
-	internal class GRCodedStreamReader
+	public class CachedGRCodedStreamReader : GRCodedStreamReader
+	{
+		private List<ulong> _cachedValues;
+		private int _position;
+
+		internal CachedGRCodedStreamReader(BitStream stream, byte p, ulong lastValue) : base(stream, p, lastValue)
+		{
+			_cachedValues = new List<ulong>(10_000);
+			_position = 0;
+		}
+
+		public override bool TryRead(out ulong value)
+		{
+			if (_position >= _cachedValues.Count)
+			{
+				if (!base.TryRead(out var readedValue))
+				{
+					value = 0;
+					return false;
+				}
+				_cachedValues.Add(readedValue);
+			}
+			value = _cachedValues[_position++];
+			return true;
+		}
+
+		internal override void ResetPosition()
+		{
+			_position = 0;
+		}
+	}
+
+	public class GRCodedStreamReader
 	{
 		private readonly BitStream _stream;
 		private readonly byte _p;
 		private readonly ulong _modP;
 		private ulong _lastValue;
 
-		public GRCodedStreamReader(BitStream stream, byte p, ulong lastValue)
+		internal GRCodedStreamReader(BitStream stream, byte p, ulong lastValue)
 		{
 			_stream = stream;
 			_p = p;
@@ -219,7 +250,7 @@ namespace NBitcoin
 			_lastValue = lastValue;
 		}
 
-		public bool TryRead(out ulong value)
+		public virtual bool TryRead(out ulong value)
 		{
 			if (TryReadUInt64(out var readedValue))
 			{
@@ -232,6 +263,8 @@ namespace NBitcoin
 			value = 0;
 			return false;
 		}
+
+		internal virtual void ResetPosition () {}
 
 		private bool TryReadUInt64(out ulong value)
 		{
