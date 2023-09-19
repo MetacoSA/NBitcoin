@@ -79,7 +79,7 @@ namespace NBitcoin.Tests
 				.Build();
 
 			var testKey = key.ToBytes().SafeSubarray(0, 16);
-			var reader = filter.GetGRStreamReader();
+			var reader = filter.GetNewGRStreamReader();
 
 			// The filter should match all the values that were added.
 			foreach (var name in names)
@@ -448,7 +448,7 @@ namespace NBitcoin.Tests
 			var filter = builder.Build();
 
 			var keyMatch = key.ToBytes().SafeSubarray(0, 16);
-			var reader = filter.GetGRStreamReader();
+			var reader = filter.GetNewGRStreamReader();
 			foreach (var script in scripts)
 			{
 				var match = filter.Match(script.ToBytes(), keyMatch, reader);

@@ -205,7 +205,7 @@ namespace NBitcoin
 
 	public class CachedGRCodedStreamReader : GRCodedStreamReader
 	{
-		private List<ulong> _cachedValues;
+		private readonly List<ulong> _cachedValues;
 		private int _position;
 
 		internal CachedGRCodedStreamReader(BitStream stream, byte p, ulong lastValue) : base(stream, p, lastValue)
@@ -218,12 +218,12 @@ namespace NBitcoin
 		{
 			if (_position >= _cachedValues.Count)
 			{
-				if (!base.TryRead(out var readedValue))
+				if (!base.TryRead(out var readValue))
 				{
 					value = 0;
 					return false;
 				}
-				_cachedValues.Add(readedValue);
+				_cachedValues.Add(readValue);
 			}
 			value = _cachedValues[_position++];
 			return true;

@@ -295,7 +295,7 @@ namespace NBitcoin
 		/// Create a cached Golomb-Rice stream reader.
 		/// </summary>
 		/// <returns>A new cached Golomb-Rice stream reader instance</returns>
-		public CachedGRCodedStreamReader GetGRStreamReader()
+		public CachedGRCodedStreamReader GetNewGRStreamReader()
 		{
 			return new CachedGRCodedStreamReader(new BitStream(Data), P, 0);
 		}
