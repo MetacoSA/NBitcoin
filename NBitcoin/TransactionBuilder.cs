@@ -342,8 +342,8 @@ namespace NBitcoin
 	{
 		public enum ErrorType
 		{
-			TooSmallBeforeSubstractedFee,
-			TooSmallAfterSubstractedFee
+			TooSmallBeforeSubtractedFee,
+			TooSmallAfterSubtractedFee
 		}
 		public OutputTooSmallException(string message, string? group, IMoney missing, ErrorType reason, TxOut output) : base(message, group, missing)
 		{
@@ -1193,7 +1193,7 @@ namespace NBitcoin
 					throw new OutputTooSmallException("This output is too small",
 					ctx.Group.Name,
 					minimumTxOutValue - txout.Value,
-					OutputTooSmallException.ErrorType.TooSmallBeforeSubstractedFee,
+					OutputTooSmallException.ErrorType.TooSmallBeforeSubtractedFee,
 					txout
 					);
 				}
@@ -1208,7 +1208,7 @@ namespace NBitcoin
 						throw new OutputTooSmallException("Can't substract fee from this output because the amount is too small",
 						ctx.Group.Name,
 						minimumTxOutValue - txout.Value,
-						OutputTooSmallException.ErrorType.TooSmallAfterSubstractedFee,
+						OutputTooSmallException.ErrorType.TooSmallAfterSubtractedFee,
 						txout
 						);
 					}

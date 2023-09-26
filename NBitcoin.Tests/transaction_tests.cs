@@ -3155,7 +3155,7 @@ namespace NBitcoin.Tests
 					.BuildTransaction(false);
 			}
 			);
-			Assert.Equal(OutputTooSmallException.ErrorType.TooSmallBeforeSubstractedFee, ex.Reason);
+			Assert.Equal(OutputTooSmallException.ErrorType.TooSmallBeforeSubtractedFee, ex.Reason);
 		}
 
 
