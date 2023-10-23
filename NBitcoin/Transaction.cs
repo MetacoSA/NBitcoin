@@ -178,6 +178,27 @@ namespace NBitcoin
 			return (a.hash == b.hash && a.n == b.n);
 		}
 
+		public static bool OperatorEqualsEquals(bool newImpl, OutPoint? a, OutPoint? b)
+		{
+			if (Object.ReferenceEquals(a, null))
+			{
+				return Object.ReferenceEquals(b, null);
+			}
+			if (Object.ReferenceEquals(b, null))
+			{
+				return false;
+			}
+
+			if (newImpl)
+			{
+				return (a.hash == b.hash && a.n.CompareTo(b.n) == 0);
+			}
+			else
+			{
+				return (a.hash == b.hash && a.n == b.n);
+			}
+		}
+
 		public static bool operator !=(OutPoint? a, OutPoint? b)
 		{
 			return !(a == b);
@@ -206,6 +227,7 @@ namespace NBitcoin
 			return $"{Hash}-{N}";
 		}
 	}
+
 #nullable disable
 	public class TxIn : IBitcoinSerializable
 	{
