@@ -73,7 +73,7 @@ namespace NBitcoin.Secp256k1.Musig
 			return new MusigContext(this);
 		}
 
-		internal MusigContext(ECPubKey[] pubKeys, ReadOnlySpan<byte> msg32, ECPubKey? signingPubKey = null)
+		public MusigContext(ECPubKey[] pubKeys, ReadOnlySpan<byte> msg32, ECPubKey? signingPubKey = null)
 		{
 			if (pubKeys == null)
 				throw new ArgumentNullException(nameof(pubKeys));
