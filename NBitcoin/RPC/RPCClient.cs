@@ -1819,6 +1819,7 @@ namespace NBitcoin.RPC
 			var response = await SendCommandAsync(RPCOperations.gettxoutsetinfo, cancellationToken).ConfigureAwait(false);
 
 			var result = response.Result;
+#pragma warning disable CS0618 // Type or member is obsolete
 			return new GetTxOutSetInfoResponse
 			{
 				Height = result.Value<int>("height"),
@@ -1827,9 +1828,11 @@ namespace NBitcoin.RPC
 				Txouts = result.Value<long>("txouts"),
 				Bogosize = result.Value<long>("bogosize"),
 				HashSerialized2 = result.Value<string>("hash_serialized_2"),
+				HashSerialized3 = result.Value<string>("hash_serialized_3"),
 				DiskSize = result.Value<long>("disk_size"),
 				TotalAmount = Money.FromUnit(result.Value<decimal>("total_amount"), MoneyUnit.BTC)
 			};
+#pragma warning restore CS0618 // Type or member is obsolete
 		}
 
 		/// <summary>
