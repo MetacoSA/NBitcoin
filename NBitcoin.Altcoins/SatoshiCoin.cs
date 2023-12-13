@@ -334,15 +334,15 @@ namespace NBitcoin.Altcoins
 				PowTargetSpacing = TimeSpan.FromSeconds(1 * 60),
 				PowAllowMinDifficultyBlocks = true,
 				PowNoRetargeting = false,
-				RuleChangeActivationThreshold = 1512,
-				MinerConfirmationWindow = 2016,
-				CoinbaseMaturity = 100,
+				RuleChangeActivationThreshold = 3,
+				MinerConfirmationWindow = 4,
+				CoinbaseMaturity = 3,
 				SatoshiCoinWorkCalculation = true,
 				ConsensusFactory = SatoshiCoinConsensusFactory.Instance,
 				SupportSegwit = true,
 				SupportTaproot = true
 			})
-			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 50 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 58 })
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
@@ -351,8 +351,8 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, bech32)
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, bech32)
 			.SetBech32(Bech32Type.TAPROOT_ADDRESS, bech32)
-			.SetMagic(0xf1c8d2fd)
-			.SetPort(19335)
+			.SetMagic(0xa1e45cae)
+			.SetPort(24742)
 			.SetRPCPort(19332)
 			.SetName("sat-test")
 			.AddAlias("sat-testnet")
@@ -385,15 +385,15 @@ namespace NBitcoin.Altcoins
 				PowAllowMinDifficultyBlocks = true,
 				MinimumChainWork = uint256.Zero,
 				PowNoRetargeting = true,
-				RuleChangeActivationThreshold = 108,
-				MinerConfirmationWindow = 2016,
-				CoinbaseMaturity = 100,
+				RuleChangeActivationThreshold = 3,
+				MinerConfirmationWindow = 4,
+				CoinbaseMaturity = 3,
 				SatoshiCoinWorkCalculation = true,
 				ConsensusFactory = SatoshiCoinConsensusFactory.Instance,
 				SupportSegwit = true,
 				SupportTaproot = true
 			})
-			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
+			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 51 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 58 })
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 239 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x35, 0x87, 0xCF })
@@ -401,8 +401,8 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, bech32)
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, bech32)
 			.SetBech32(Bech32Type.TAPROOT_ADDRESS, bech32)
-			.SetMagic(0xdab5bffa)
-			.SetPort(19444)
+			.SetMagic(0x3eec4406)
+			.SetPort(35714)
 			.SetRPCPort(19443)
 			.SetName("sat-reg")
 			.AddAlias("sat-regtest")
