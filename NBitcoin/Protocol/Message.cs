@@ -130,18 +130,12 @@ namespace NBitcoin.Protocol
 					BitcoinStream payloadStream = new BitcoinStream(new MemoryStream(payloadBytes, 0, length, false), false);
 					payloadStream.CopyParameters(stream);
 
-					var payloadType = PayloadAttribute.GetCommandType(Command);
-					var unknown = payloadType == typeof(UnknownPayload);
-					if (unknown)
+					var payload = PayloadFactory.Create(Command);
+					if (payload is UnknownPayload)
 						Logs.NodeServer.LogWarning("Unknown command received {command}", Command);
 
-					IBitcoinSerializable payload = null;
-					if (!stream.ConsensusFactory.TryCreateNew(payloadType, out payload))
-						payload = (IBitcoinSerializable)Activator.CreateInstance(payloadType);
 					payload.ReadWrite(payloadStream);
-					if (unknown)
-						((UnknownPayload)payload)._Command = Command;
-					Payload = (Payload)payload;
+					Payload = payload;
 				}
 				finally
 				{
