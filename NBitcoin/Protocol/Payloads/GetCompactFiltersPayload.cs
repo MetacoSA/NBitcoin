@@ -62,7 +62,7 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// Represents the p2p message payload used for requesting a range of compact filter.
 	/// </summary>
-	[Payload("getcfilters")]
+
 	public class GetCompactFiltersPayload : CompactFiltersQueryPayload
 	{
 		public GetCompactFiltersPayload(FilterType filterType, uint startHeight, uint256 stopHash)
@@ -76,7 +76,7 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// Represents the p2p message payload used for requesting a range of compact filter headers.
 	/// </summary>
-	[Payload("getcfheaders")]
+
 	public class GetCompactFilterHeadersPayload : CompactFiltersQueryPayload
 	{
 		public GetCompactFilterHeadersPayload(FilterType filterType, uint startHeight, uint256 stopHash)
@@ -87,7 +87,7 @@ namespace NBitcoin.Protocol
 		public GetCompactFilterHeadersPayload() { }
 	}
 
-	[Payload("getcfcheckpt")]
+
 	public class GetCompactFilterCheckPointPayload : Payload
 	{
 		private byte _FilterType;

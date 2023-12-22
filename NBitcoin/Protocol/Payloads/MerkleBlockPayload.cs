@@ -9,7 +9,7 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// A merkle block received after being asked with a getdata message
 	/// </summary>
-	[Payload("merkleblock")]
+
 	public class MerkleBlockPayload : BitcoinSerializablePayload<MerkleBlock>
 	{
 		public MerkleBlockPayload()

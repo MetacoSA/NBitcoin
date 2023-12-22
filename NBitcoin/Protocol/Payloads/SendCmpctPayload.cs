@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("sendcmpct")]
+
 	public class SendCmpctPayload : Payload
 	{
 		public SendCmpctPayload()

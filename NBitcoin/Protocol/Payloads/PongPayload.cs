@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("pong")]
+
 	public class PongPayload : Payload
 	{
 		private ulong _Nonce;

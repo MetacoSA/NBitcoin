@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("getblocktxn")]
+
 	public class GetBlockTxnPayload : Payload
 	{
 

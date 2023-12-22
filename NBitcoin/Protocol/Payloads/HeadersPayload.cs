@@ -10,7 +10,7 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// Block headers received after a getheaders messages
 	/// </summary>
-	[Payload("headers")]
+
 	public class HeadersPayload : Payload
 	{
 		class BlockHeaderWithTxCount : IBitcoinSerializable

@@ -3,7 +3,7 @@ using System;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("feefilter")]
+
 	public class FeeFilterPayload : Payload
 	{
 		public FeeFilterPayload()

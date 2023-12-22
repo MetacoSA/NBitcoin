@@ -2,7 +2,7 @@
 
 namespace NBitcoin.Protocol.Payloads
 {
-	[Payload("utxos")]
+
 	public class UTxOutputPayload : Payload
 	{
 		private UTxOutputs _uTxOutputs;

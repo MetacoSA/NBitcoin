@@ -6,7 +6,7 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// Represents the p2p message payload used for sharing a block's compact filter.
 	/// </summary>
-	[Payload("cfilter")]
+
 	public class CompactFilterPayload : Payload
 	{
 		private byte _FilterType = (byte)FilterType.Basic;
@@ -58,7 +58,7 @@ namespace NBitcoin.Protocol
 		}
 	}
 
-	[Payload("cfcheckpt")]
+
 	public class CompactFilterCheckPointPayload : Payload
 	{
 		protected byte _FilterType = (byte)FilterType.Basic;
@@ -109,7 +109,7 @@ namespace NBitcoin.Protocol
 		}
 	}
 
-	[Payload("cfheaders")]
+
 	public class CompactFilterHeadersPayload: CompactFilterCheckPointPayload
 	{
 		private uint256 _PreviousFilterHeader = uint256.Zero;

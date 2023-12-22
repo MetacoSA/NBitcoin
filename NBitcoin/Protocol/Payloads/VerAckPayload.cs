@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("verack")]
+
 	public class VerAckPayload : Payload, IBitcoinSerializable
 	{
 		#region IBitcoinSerializable Members

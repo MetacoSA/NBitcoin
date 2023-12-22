@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("filteradd")]
+
 	public class FilterAddPayload : Payload
 	{
 		public FilterAddPayload()

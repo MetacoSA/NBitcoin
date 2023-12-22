@@ -9,7 +9,7 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// Ask for transaction, block or merkle block
 	/// </summary>
-	[Payload("getdata")]
+
 	public class GetDataPayload : Payload
 	{
 		public GetDataPayload()

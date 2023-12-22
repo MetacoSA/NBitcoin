@@ -9,7 +9,7 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// Ask block headers that happened since BlockLocators
 	/// </summary>
-	[Payload("getheaders")]
+
 	public class GetHeadersPayload : Payload
 	{
 		public GetHeadersPayload()

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("sendheaders")]
+
 	public class SendHeadersPayload : Payload
 	{
 	}

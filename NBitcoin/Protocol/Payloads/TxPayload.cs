@@ -9,7 +9,7 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// Represents a transaction being sent on the network, is sent after being requested by a getdata (of Transaction or MerkleBlock) message.
 	/// </summary>
-	[Payload("tx")]
+
 	public class TxPayload : Payload
 	{
 		public TxPayload()

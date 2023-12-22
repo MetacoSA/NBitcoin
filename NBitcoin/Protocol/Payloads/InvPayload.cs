@@ -9,7 +9,7 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// Announce the hash of a transaction or block
 	/// </summary>
-	[Payload("inv")]
+
 	public class InvPayload : Payload, IBitcoinSerializable, IEnumerable<InventoryVector>
 	{
 		public InvPayload()
