@@ -1,7 +1,8 @@
-
 using NBitcoin.DataEncoders;
 using System;
+#if HAS_SPAN
 using System.Buffers.Binary;
+#endif
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -162,6 +163,10 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
+
+		/// <summary>
+		/// Returns HEX string representation.
+		/// </summary>
 		/// <remarks>The method allocates a new 64 char array.</remarks>
 		public Span<char> ToSpanString()
 		{
@@ -171,6 +176,9 @@ namespace NBitcoin
 			return result;
 		}
 
+		/// <summary>
+		/// Returns HEX string representation.
+		/// </summary>
 		/// <remarks>The method does not allocate.</remarks>
 		public void ToSpanString(Span<char> destination)
 		{
@@ -193,6 +201,7 @@ namespace NBitcoin
 
 			Span<byte> bytes = MemoryMarshal.Cast<ulong, byte>(ulongs);
 
+			// Reverses order of bytes as pn0, pn1, pn2, and pn3 are set in a little endian manner.
 			for (int i = 31, j = 0; i >= 0; i--, j += 2)
 			{
 				HexEncoder.ToCharsBuffer(bytes[i], destination, startingIndex: j);
