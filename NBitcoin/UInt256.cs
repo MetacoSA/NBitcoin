@@ -1,6 +1,7 @@
 
 using NBitcoin.DataEncoders;
 using System;
+using System.Buffers.Binary;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -174,25 +175,27 @@ namespace NBitcoin
 		public void ToSpanString(Span<char> destination)
 		{
 			Span<ulong> ulongs = stackalloc ulong[4];
-			ulongs[0] = pn0;
-			ulongs[1] = pn1;
-			ulongs[2] = pn2;
-			ulongs[3] = pn3;
-			Span<byte> bytes = MemoryMarshal.Cast<ulong, byte>(ulongs);
 
 			if (BitConverter.IsLittleEndian)
 			{
-				for (int i = 31, j = 0; i >= 0; i--, j += 2)
-				{
-					HexEncoder.ToCharsBuffer(bytes[i], destination, startingIndex: j);
-				}
+				ulongs[0] = pn0;
+				ulongs[1] = pn1;
+				ulongs[2] = pn2;
+				ulongs[3] = pn3;
 			}
 			else
 			{
-				for (int i = 0; i < 32; i++)
-				{
-					HexEncoder.ToCharsBuffer(bytes[i], destination, startingIndex: i);
-				}
+				ulongs[0] = BinaryPrimitives.ReverseEndianness(pn0);
+				ulongs[1] = BinaryPrimitives.ReverseEndianness(pn1);
+				ulongs[2] = BinaryPrimitives.ReverseEndianness(pn2);
+				ulongs[3] = BinaryPrimitives.ReverseEndianness(pn3);
+			}
+
+			Span<byte> bytes = MemoryMarshal.Cast<ulong, byte>(ulongs);
+
+			for (int i = 31, j = 0; i >= 0; i--, j += 2)
+			{
+				HexEncoder.ToCharsBuffer(bytes[i], destination, startingIndex: j);
 			}
 		}
 #endif
