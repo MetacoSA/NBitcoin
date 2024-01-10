@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("verack")]
+
 	public class VerAckPayload : Payload, IBitcoinSerializable
 	{
+		public override string Command => "verack";
 		#region IBitcoinSerializable Members
 
 		public override void ReadWriteCore(BitcoinStream stream)

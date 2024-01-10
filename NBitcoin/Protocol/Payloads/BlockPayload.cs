@@ -9,9 +9,10 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// A block received after being asked with a getdata message
 	/// </summary>
-	[Payload("block")]
+
 	public class BlockPayload : BitcoinSerializablePayload<Block>
 	{
+		public override string Command => "block";
 		public BlockPayload()
 		{
 

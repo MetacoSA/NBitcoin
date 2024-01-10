@@ -9,9 +9,10 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// Ask for the block hashes (inv) that happened since BlockLocators
 	/// </summary>
-	[Payload("getblocks")]
+
 	public class GetBlocksPayload : Payload
 	{
+		public override string Command => "getblocks";
 		public GetBlocksPayload(BlockLocator locator)
 		{
 			BlockLocators = locator;

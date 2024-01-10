@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("blocktxn")]
+
 	public class BlockTxnPayload : Payload
 	{
+		public override string Command => "blocktxn";
 
 		uint256 _BlockId;
 		public uint256 BlockId

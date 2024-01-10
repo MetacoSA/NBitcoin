@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NBitcoin.Protocol;
-using NBitcoin.Protocol.Payloads;
 using Newtonsoft.Json.Linq;
 using System.Runtime.ExceptionServices;
 using System.Net.Http;
