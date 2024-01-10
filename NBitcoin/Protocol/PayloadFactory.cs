@@ -14,87 +14,90 @@ namespace NBitcoin.Protocol
 
 		public Payload Create(string command)
 		{
-			switch (command)
+			return command switch
 			{
 #if !NOSOCKET
-				case "addr": return new AddrPayload();
-				case "addrv2": return new AddrV2Payload();
-				case "version": return new VersionPayload();
+				"addr" => new AddrPayload(),
+				"addrv2" => new AddrV2Payload(),
+				"version" => new VersionPayload(),
 #endif
-				case "block": return new BlockPayload();
-				case "blocktxn": return new BlockTxnPayload();
-				case "cmpctblock": return new CmpctBlockPayload();
-				case "cfilter": return new CompactFilterPayload();
-				case "cfcheckpt": return new CompactFilterCheckPointPayload();
-				case "cfheaders": return new CompactFilterHeadersPayload();
-				case "feefilter": return new FeeFilterPayload();
-				case "filteradd": return new FilterAddPayload();
-				case "filterload": return new FilterLoadPayload();
-				case "getaddr": return new GetAddrPayload();
-				case "getblocktxn": return new GetBlockTxnPayload();
-				case "getblocks": return new GetBlocksPayload();
-				case "getcfilters": return new GetCompactFiltersPayload();
-				case "getcfheaders": return new GetCompactFilterHeadersPayload();
-				case "getcfcheckpt": return new GetCompactFilterCheckPointPayload();
-				case "getdata": return new GetDataPayload();
-				case "getheaders": return new GetHeadersPayload();
-				case "havewitness": return new HaveWitnessPayload();
-				case "headers": return new HeadersPayload();
-				case "inv": return new InvPayload();
-				case "mempool": return new MempoolPayload();
-				case "merkleblock": return new MerkleBlockPayload();
-				case "ping": return new PingPayload();
-				case "pong": return new PongPayload();
-				case "sendaddrv2": return new SendAddrV2Payload();
-				case "sendcmpct": return new SendCmpctPayload();
-				case "sendheaders": return new SendHeadersPayload();
-				case "tx": return new TxPayload();
-				case "utxos": return new UTxOutputPayload();
-				case "verack": return new VerAckPayload();
-				case "wtxidrelay": return new WTxIdRelayPayload();
-				default: return new UnknownPayload(command);
-			}
+				"ping" => new PingPayload(),
+				"pong" => new PongPayload(),
+				"inv" => new InvPayload(),
+				"getdata" => new GetDataPayload(),
+				"tx" => new TxPayload(),
+				"getaddr" => new GetAddrPayload(),
+				"headers" => new HeadersPayload(),
+				"block" => new BlockPayload(),
+				"blocktxn" => new BlockTxnPayload(),
+				"cmpctblock" => new CmpctBlockPayload(),
+				"cfilter" => new CompactFilterPayload(),
+				"cfcheckpt" => new CompactFilterCheckPointPayload(),
+				"cfheaders" => new CompactFilterHeadersPayload(),
+				"feefilter" => new FeeFilterPayload(),
+				"filteradd" => new FilterAddPayload(),
+				"filterload" => new FilterLoadPayload(),
+				"getblocktxn" => new GetBlockTxnPayload(),
+				"getblocks" => new GetBlocksPayload(),
+				"getcfilters" => new GetCompactFiltersPayload(),
+				"getcfheaders" => new GetCompactFilterHeadersPayload(),
+				"getcfcheckpt" => new GetCompactFilterCheckPointPayload(),
+				"getheaders" => new GetHeadersPayload(),
+				"havewitness" => new HaveWitnessPayload(),
+				"mempool" => new MempoolPayload(),
+				"merkleblock" => new MerkleBlockPayload(),
+				"sendaddrv2" => new SendAddrV2Payload(),
+				"sendcmpct" => new SendCmpctPayload(),
+				"sendheaders" => new SendHeadersPayload(),
+				"utxos" => new UTxOutputPayload(),
+				"verack" => new VerAckPayload(),
+				"wtxidrelay" => new WTxIdRelayPayload(),
+				_ =>  new UnknownPayload(command)
+			};
 		}
 
 		public string GetCommand(Payload payload)
 		{
+			return payload switch
+			{
 #if !NOSOCKET
-			if (payload is AddrV2Payload) return "addrv2";
-			if (payload is AddrPayload) return "addr";
-			if (payload is VersionPayload) return "version";
+				AddrV2Payload => "addrv2",
+				AddrPayload => "addr",
+				VersionPayload => "version",
 #endif
-			if (payload is BlockPayload) return "block";
-			if (payload is BlockTxnPayload) return "blocktxn";
-			if (payload is CmpctBlockPayload) return "cmpctblock";
-			if (payload is CompactFilterPayload) return "cfilter";
-			if (payload is CompactFilterHeadersPayload) return "cfheaders";
-			if (payload is CompactFilterCheckPointPayload) return "cfcheckpt";
-			if (payload is FeeFilterPayload) return "feefilter";
-			if (payload is FilterAddPayload) return "filteradd";
-			if (payload is FilterLoadPayload) return "filterload";
-			if (payload is GetAddrPayload) return "getaddr";
-			if (payload is GetBlockTxnPayload) return "getblocktxn";
-			if (payload is GetBlocksPayload) return "getblocks";
-			if (payload is GetCompactFiltersPayload) return "getcfilters";
-			if (payload is GetCompactFilterHeadersPayload) return "getcfheaders";
-			if (payload is GetCompactFilterCheckPointPayload) return "getcfcheckpt";
-			if (payload is GetDataPayload) return "getdata";
-			if (payload is GetHeadersPayload) return "getheaders";
-			if (payload is HaveWitnessPayload) return "havewitness";
-			if (payload is HeadersPayload) return "headers";
-			if (payload is InvPayload) return "inv";
-			if (payload is MempoolPayload) return "mempool";
-			if (payload is MerkleBlockPayload) return "merkleblock";
-			if (payload is PingPayload) return "ping";
-			if (payload is PongPayload) return "pong";
-			if (payload is SendAddrV2Payload) return "sendaddrv2";
-			if (payload is SendCmpctPayload) return "sendcmpct";
-			if (payload is SendHeadersPayload) return "sendheaders";
-			if (payload is TxPayload) return "tx";
-			if (payload is UTxOutputPayload) return "utxos";
-			if (payload is VerAckPayload) return "verack";
-			if (payload is WTxIdRelayPayload) return "wtxidrelay";
-			throw new NotSupportedException($"Unknown command for Payload type: {payload.GetType().Name}");
+				PingPayload => "ping",
+				PongPayload => "pong",
+				InvPayload => "inv",
+				TxPayload => "tx",
+				GetDataPayload => "getdata",
+				HeadersPayload => "headers",
+				BlockPayload => "block",
+				BlockTxnPayload => "blocktxn",
+				CmpctBlockPayload => "cmpctblock",
+				CompactFilterPayload => "cfilter",
+				CompactFilterHeadersPayload => "cfheaders",
+				CompactFilterCheckPointPayload => "cfcheckpt",
+				FeeFilterPayload => "feefilter",
+				FilterAddPayload => "filteradd",
+				FilterLoadPayload => "filterload",
+				GetAddrPayload => "getaddr",
+				GetBlockTxnPayload => "getblocktxn",
+				GetBlocksPayload => "getblocks",
+				GetCompactFiltersPayload => "getcfilters",
+				GetCompactFilterHeadersPayload => "getcfheaders",
+				GetCompactFilterCheckPointPayload => "getcfcheckpt",
+				GetHeadersPayload => "getheaders",
+				HaveWitnessPayload => "havewitness",
+				MempoolPayload => "mempool",
+				MerkleBlockPayload => "merkleblock",
+				SendAddrV2Payload => "sendaddrv2",
+				SendCmpctPayload => "sendcmpct",
+				SendHeadersPayload => "sendheaders",
+				UTxOutputPayload => "utxos",
+				VerAckPayload => "verack",
+				WTxIdRelayPayload => "wtxidrelay",
+				_ => throw new NotSupportedException($"Unknown command for Payload type: {payload.GetType().Name}")
+			};
 		}
 	}
 }
