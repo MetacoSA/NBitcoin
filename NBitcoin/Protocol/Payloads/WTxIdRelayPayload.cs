@@ -6,5 +6,6 @@ namespace NBitcoin.Protocol
 
 	public class WTxIdRelayPayload : Payload
 	{
+		public override string Command => "wtxidrelay";
 	}
 }

@@ -12,6 +12,7 @@ namespace NBitcoin.Protocol
 
 	public class GetBlocksPayload : Payload
 	{
+		public override string Command => "getblocks";
 		public GetBlocksPayload(BlockLocator locator)
 		{
 			BlockLocators = locator;

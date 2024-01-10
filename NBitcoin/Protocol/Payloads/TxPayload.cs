@@ -12,6 +12,7 @@ namespace NBitcoin.Protocol
 
 	public class TxPayload : Payload
 	{
+		public override string Command => "tx";
 		public TxPayload()
 		{
 

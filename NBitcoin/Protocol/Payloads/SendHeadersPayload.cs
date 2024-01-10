@@ -9,5 +9,6 @@ namespace NBitcoin.Protocol
 
 	public class SendHeadersPayload : Payload
 	{
+		public override string Command => "sendheaders";
 	}
 }

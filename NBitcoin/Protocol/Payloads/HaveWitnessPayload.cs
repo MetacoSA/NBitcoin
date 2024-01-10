@@ -9,6 +9,7 @@ namespace NBitcoin.Protocol
 
 	public class HaveWitnessPayload : Payload
 	{
+		public override string Command => "havewitness";
 		public HaveWitnessPayload()
 		{
 

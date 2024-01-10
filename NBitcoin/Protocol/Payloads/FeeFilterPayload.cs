@@ -6,6 +6,7 @@ namespace NBitcoin.Protocol
 
 	public class FeeFilterPayload : Payload
 	{
+		public override string Command => "feefilter";
 		public FeeFilterPayload()
 		{
 			_feeRate = FeeRate.Zero;

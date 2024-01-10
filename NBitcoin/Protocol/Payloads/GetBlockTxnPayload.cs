@@ -9,6 +9,7 @@ namespace NBitcoin.Protocol
 
 	public class GetBlockTxnPayload : Payload
 	{
+		public override string Command => "getblocktxn";
 
 		uint256 _BlockId = uint256.Zero;
 		public uint256 BlockId

@@ -12,6 +12,7 @@ namespace NBitcoin.Protocol
 
 	public class BlockPayload : BitcoinSerializablePayload<Block>
 	{
+		public override string Command => "block";
 		public BlockPayload()
 		{
 

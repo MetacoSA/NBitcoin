@@ -12,6 +12,7 @@ namespace NBitcoin.Protocol
 
 	public class FilterLoadPayload : BitcoinSerializablePayload<BloomFilter>
 	{
+		public override string Command => "filterload";
 		public FilterLoadPayload()
 		{
 

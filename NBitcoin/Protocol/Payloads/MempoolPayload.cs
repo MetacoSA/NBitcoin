@@ -12,5 +12,6 @@ namespace NBitcoin.Protocol
 
 	public class MempoolPayload : Payload
 	{
+		public override string Command => "mempool";
 	}
 }

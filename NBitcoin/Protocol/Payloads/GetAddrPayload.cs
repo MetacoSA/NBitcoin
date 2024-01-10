@@ -12,5 +12,6 @@ namespace NBitcoin.Protocol
 
 	public class GetAddrPayload : Payload
 	{
+		public override string Command => "getaddr";
 	}
 }

@@ -12,6 +12,7 @@ namespace NBitcoin.Protocol
 
 	public class MerkleBlockPayload : BitcoinSerializablePayload<MerkleBlock>
 	{
+		public override string Command => "merkleblock";
 		public MerkleBlockPayload()
 		{
 

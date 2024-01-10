@@ -57,6 +57,7 @@ namespace NBitcoin.Protocol
 
 	public class VersionPayload : Payload, IBitcoinSerializable
 	{
+		public override string Command => "version";
 		static string _NUserAgent;
 		public static string GetNBitcoinUserAgent()
 		{

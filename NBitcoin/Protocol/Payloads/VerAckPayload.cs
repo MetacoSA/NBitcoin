@@ -9,6 +9,7 @@ namespace NBitcoin.Protocol
 
 	public class VerAckPayload : Payload, IBitcoinSerializable
 	{
+		public override string Command => "verack";
 		#region IBitcoinSerializable Members
 
 		public override void ReadWriteCore(BitcoinStream stream)

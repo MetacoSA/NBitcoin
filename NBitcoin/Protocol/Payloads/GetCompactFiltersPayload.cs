@@ -65,6 +65,7 @@ namespace NBitcoin.Protocol
 
 	public class GetCompactFiltersPayload : CompactFiltersQueryPayload
 	{
+		public override string Command => "getcfilters";
 		public GetCompactFiltersPayload(FilterType filterType, uint startHeight, uint256 stopHash)
 			: base(filterType, startHeight, stopHash)
 		{
@@ -79,6 +80,7 @@ namespace NBitcoin.Protocol
 
 	public class GetCompactFilterHeadersPayload : CompactFiltersQueryPayload
 	{
+		public override string Command => "getcfheaders";
 		public GetCompactFilterHeadersPayload(FilterType filterType, uint startHeight, uint256 stopHash)
 			: base(filterType, startHeight, stopHash)
 		{
@@ -90,6 +92,7 @@ namespace NBitcoin.Protocol
 
 	public class GetCompactFilterCheckPointPayload : Payload
 	{
+		public override string Command => "getcfcheckpt";
 		private byte _FilterType;
 		private uint256 _StopHash;
 

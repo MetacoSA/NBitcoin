@@ -9,6 +9,7 @@ namespace NBitcoin.Protocol
 
 	public class FilterAddPayload : Payload
 	{
+		public override string Command => "filteradd";
 		public FilterAddPayload()
 		{
 

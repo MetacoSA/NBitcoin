@@ -13,6 +13,7 @@ namespace NBitcoin.Protocol
 
 	public class HeadersPayload : Payload
 	{
+		public override string Command => "headers";
 		class BlockHeaderWithTxCount : IBitcoinSerializable
 		{
 			public BlockHeaderWithTxCount()

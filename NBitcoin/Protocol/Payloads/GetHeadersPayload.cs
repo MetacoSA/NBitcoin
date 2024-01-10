@@ -12,6 +12,7 @@ namespace NBitcoin.Protocol
 
 	public class GetHeadersPayload : Payload
 	{
+		public override string Command => "getheaders";
 		public GetHeadersPayload()
 		{
 

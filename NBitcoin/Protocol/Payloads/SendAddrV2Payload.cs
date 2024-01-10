@@ -12,5 +12,6 @@ namespace NBitcoin.Protocol
 
 	public class SendAddrV2Payload : Payload
 	{
+		public override string Command => "sendaddrv2";
 	}
 }

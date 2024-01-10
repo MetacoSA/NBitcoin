@@ -12,6 +12,7 @@ namespace NBitcoin.Protocol
 
 	public class InvPayload : Payload, IBitcoinSerializable, IEnumerable<InventoryVector>
 	{
+		public override string Command => "inv";
 		public InvPayload()
 		{
 

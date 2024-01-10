@@ -9,6 +9,7 @@ namespace NBitcoin.Protocol
 
 	public class SendCmpctPayload : Payload
 	{
+		public override string Command => "sendcmpct";
 		public SendCmpctPayload()
 		{
 

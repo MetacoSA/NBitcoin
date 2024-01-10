@@ -12,6 +12,7 @@ namespace NBitcoin.Protocol
 
 	public class GetDataPayload : Payload
 	{
+		public override string Command => "getdata";
 		public GetDataPayload()
 		{
 		}

@@ -9,6 +9,7 @@ namespace NBitcoin.Protocol
 
 	public class PongPayload : Payload
 	{
+		public override string Command => "pong";
 		private ulong _Nonce;
 		public ulong Nonce
 		{

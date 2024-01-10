@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	public class Payload : IBitcoinSerializable
+	/// <summary>
+	/// A P2P Bitcoin payload
+	/// </summary>
+	public abstract class Payload : IBitcoinSerializable
 	{
-		public virtual string Command
+		public abstract string Command
 		{
-			get
-			{
-				return PayloadFactory.Instance.GetCommand(this);
-			}
+			get;
 		}
 
 		#region IBitcoinSerializable Members
@@ -34,7 +34,7 @@ namespace NBitcoin.Protocol
 
 		public override string ToString()
 		{
-			return this.GetType().Name;
+			return Command;
 		}
 	}
 }

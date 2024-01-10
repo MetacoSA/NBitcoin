@@ -11,6 +11,7 @@ namespace NBitcoin.Protocol
 
 	public class CmpctBlockPayload : Payload
 	{
+		public override string Command => "cmpctblock";
 		public CmpctBlockPayload()
 		{
 
