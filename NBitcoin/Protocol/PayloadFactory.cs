@@ -5,7 +5,14 @@ namespace NBitcoin.Protocol
 {
 	public class PayloadFactory
 	{
-		public static Payload Create(string command)
+		public static readonly PayloadFactory Instance = new PayloadFactory();
+
+		private PayloadFactory()
+		{
+		}
+
+
+		public Payload Create(string command)
 		{
 			switch (command)
 			{
@@ -49,7 +56,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public static string GetCommand(Payload payload)
+		public string GetCommand(Payload payload)
 		{
 #if !NOSOCKET
 			if (payload is AddrV2Payload) return "addrv2";

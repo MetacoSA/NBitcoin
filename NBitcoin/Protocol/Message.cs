@@ -130,7 +130,7 @@ namespace NBitcoin.Protocol
 					BitcoinStream payloadStream = new BitcoinStream(new MemoryStream(payloadBytes, 0, length, false), false);
 					payloadStream.CopyParameters(stream);
 
-					var payload = PayloadFactory.Create(Command);
+					var payload = PayloadFactory.Instance.Create(Command);
 					if (payload is UnknownPayload)
 						Logs.NodeServer.LogWarning("Unknown command received {command}", Command);
 

@@ -12,7 +12,7 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				return PayloadFactory.GetCommand(this);
+				return PayloadFactory.Instance.GetCommand(this);
 			}
 		}
 
