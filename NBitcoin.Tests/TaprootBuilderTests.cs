@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.VisualBasic;
 using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
@@ -125,6 +126,24 @@ namespace NBitcoin.Tests
 			}
 			return builder;
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanHandleMultipleProofForSameScript()
+		{
+			var internalKey = TaprootInternalPubKey.Parse("93c7378d96518a75448821c4f7c8f4bae7ce60f804d03d1f0628dd5dd0f5de51");
+			var data = new byte[] { 0x01 };
+			var sc = new Script(OpcodeType.OP_RETURN, Op.GetPushOp(data));
+			var version = (byte)TaprootConstants.TAPROOT_LEAF_TAPSCRIPT;
+			var nodeInfoA = NodeInfo.NewLeafWithVersion(sc, version);
+			var nodeInfoB = NodeInfo.NewLeafWithVersion(sc, version);
+			var rootNode = nodeInfoA + nodeInfoB;
+			var info = TaprootSpendInfo.FromNodeInfo(internalKey, rootNode);
+			Assert.Single(info.ScriptToMerkleProofMap);
+			Assert.True(info.ScriptToMerkleProofMap.TryGetValue((sc, version), out var proofs));
+			Assert.Equal(2, proofs.Count);
+		}
+
 		[Fact]
 		[Trait("Core", "Core")]
 		public void BIP341Tests()
@@ -183,6 +202,30 @@ namespace NBitcoin.Tests
 					Assert.Equal(spk, expectedSpk);
 				}
 			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ScriptPathSpendUnitTest1()
+		{
+			var builder = new TaprootBuilder();
+			builder
+				.AddLeaf(1, Script.FromHex("210203a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5ac"))
+				.AddLeaf(2, Script.FromHex("2102a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bdac"))
+				.AddLeaf(2, Script.FromHex("210203a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5ac"));
+
+			var internalKey = TaprootInternalPubKey.Parse("03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5");
+			var info = builder.Finalize(internalKey);
+			var expectedMerkleRoot =
+				new uint256(
+					Encoders.Hex.DecodeData("e5e302a2955fdd97403d9cfd15b86a4e7d4e17e0ff0a86baa2e02f5afdbad1b5"));
+			Assert.Equal(info.MerkleRoot!, expectedMerkleRoot);
+
+			var output = internalKey.GetTaprootFullPubKey(info.MerkleRoot);
+			Assert.Equal(info.OutputPubKey.OutputKey.ToString(), "003cdb72825a12ea62f5834f3c47f9bf48d58d27f5ad1e6576ac613b093125f3");
+			var spk = output.ScriptPubKey;
+			var expectedSpk = "5120003cdb72825a12ea62f5834f3c47f9bf48d58d27f5ad1e6576ac613b093125f3";
+			Assert.Equal( expectedSpk, spk.ToHex());
 		}
 #endif
 	}

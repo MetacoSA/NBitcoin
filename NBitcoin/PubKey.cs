@@ -35,13 +35,30 @@ namespace NBitcoin
 		/// Use this when you worry that your users do not support Bech address format.
 		/// </summary>
 		SegwitP2SH,
+
 		/// <summary>
 		/// Derive the taproot address of this pubkey following BIP86. This public key is used as the internal key, the output key is computed without script path. (The tweak is SHA256(internal_key))
 		/// </summary>
 #if !HAS_SPAN
 		[Obsolete("TaprootBIP86 is unavailable in .net framework")]
 #endif
-		TaprootBIP86
+		TaprootBIP86,
+
+		/// <summary>
+		/// Taproot with possible script-spend.
+		/// </summary>
+#if !HAS_SPAN
+		[Obsolete("TaprootWithScript is unavailable in .net framework")]
+#endif
+		TaprootWithScript,
+
+#if !HAS_SPAN
+		[Obsolete("TaprootRaw is unavailable in .net framework")]
+#endif
+		/// <summary>
+		/// Taproot output that we don't know if the script path exists or not.
+		/// </summary>
+		TaprootRaw
 	}
 	public class PubKey : IDestination, IComparable<PubKey>, IEquatable<PubKey>, IPubKey
 	{
@@ -79,6 +96,7 @@ namespace NBitcoin
 			pubKey = null;
 			return false;
 		}
+
 #endif
 #if !HAS_SPAN
 		public static bool TryCreatePubKey(byte[] bytes, [MaybeNullWhen(false)] out PubKey pubKey)
@@ -310,6 +328,18 @@ namespace NBitcoin
 #else
 					return GetTaprootFullPubKey().GetAddress(network);
 #endif
+#pragma warning disable CS0618 // Type or member is obsolete
+				case ScriptPubKeyType.TaprootRaw:
+#pragma warning restore CS0618 // Type or member is obsolete
+					if (!network.Consensus.SupportTaproot)
+						throw new NotSupportedException("This network does not support taproot");
+#if !HAS_SPAN
+					throw new NotSupportedException("This feature of taproot is not supported in .NET Framework");
+#else
+					return GetTaprootFullPubKey().GetAddress(network);
+#endif
+				case ScriptPubKeyType.TaprootWithScript:
+					throw new NotSupportedException("Can not get address from pubkey without script.");
 				default:
 					throw new NotSupportedException("Unsupported ScriptPubKeyType");
 			}
@@ -325,8 +355,23 @@ namespace NBitcoin
 			return TaprootInternalKey.GetTaprootFullPubKey(merkleRoot);
 		}
 
-		TaprootInternalPubKey? _InternalKey;
 		internal bool Parity => this.ECKey.Q.y.IsOdd;
+
+#if HAS_SPAN
+		private PubKey? _twin;
+		internal PubKey GetYCoordinateEvenPubKey()
+		{
+			if (!Parity)
+				return this;
+			var pkBytes = new byte[33];
+			pkBytes[0] = 0x02;
+			ToBytes().AsSpan().Slice(1, 32).CopyTo(pkBytes.AsSpan().Slice(1));
+			_twin = new PubKey(pkBytes);
+			return _twin;
+		}
+#endif
+
+		TaprootInternalPubKey? _InternalKey;
 		public TaprootInternalPubKey TaprootInternalKey
 		{
 			get
@@ -340,6 +385,24 @@ namespace NBitcoin
 				return _InternalKey;
 			}
 		}
+
+
+		TaprootPubKey? _TaprootPubKey;
+		internal TaprootPubKey TaprootPubKey
+		{
+			get
+			{
+				if (_TaprootPubKey is TaprootFullPubKey)
+				{
+					return _TaprootPubKey;
+				}
+
+				var xonly = this.ECKey.ToXOnlyPubKey(out _);
+				_TaprootPubKey = new TaprootPubKey(xonly);
+				return _TaprootPubKey;
+			}
+		}
+
 #endif
 		HDFingerprint? fp;
 		public HDFingerprint GetHDFingerPrint()

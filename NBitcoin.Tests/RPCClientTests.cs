@@ -730,10 +730,13 @@ namespace NBitcoin.Tests
 				{
 #if !HAS_SPAN
 #pragma warning disable CS0618
-					if (scriptPubKeyType == ScriptPubKeyType.TaprootBIP86)
+					if (scriptPubKeyType == ScriptPubKeyType.TaprootBIP86 ||
+						scriptPubKeyType == ScriptPubKeyType.TaprootRaw)
 						continue;
 #pragma warning restore CS0618
 #endif
+					if (scriptPubKeyType == ScriptPubKeyType.TaprootWithScript)
+						continue;
 					Transaction paid = builder.Network.CreateTransaction();
 					paid.Inputs.Add(coin.Outpoint);
 					var dest = new Key().GetAddress(scriptPubKeyType, builder.Network);

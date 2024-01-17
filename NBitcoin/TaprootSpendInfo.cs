@@ -118,7 +118,11 @@ namespace NBitcoin
 	}
 
 	/// <summary>
-	/// Represents from
+	/// Represents the node information in taproot script tree.
+	///
+	/// This is a helper type in merkle tree construction allowing to build sparse merkle trees.
+	/// The node represents part of the tree that has information about all of its descendants.
+	/// See how TaprootBuilder works for more details.
 	/// </summary>
 	public class TaprootNodeInfo
 	{

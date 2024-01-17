@@ -125,13 +125,10 @@ namespace NBitcoin
 #if HAS_SPAN
 			return Utils.ArrayEqual(other.pubkey.ToBytes(), pubkey.ToBytes());
 #else
-		return Utils.ArrayEqual(other.pubkey, pubkey);
+			return Utils.ArrayEqual(other.pubkey, pubkey);
 #endif
 		}
-
 #if HAS_SPAN
-
-
 		public static bool operator ==(TaprootInternalPubKey a, TaprootInternalPubKey b)
 		{
 			if (a is TaprootInternalPubKey && b is TaprootInternalPubKey)
