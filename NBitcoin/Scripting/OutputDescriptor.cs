@@ -925,8 +925,7 @@ namespace NBitcoin.Scripting
 			Tr self =>
 				self.TapLeafs is null ?
 				ScriptPubKeyType.TaprootBIP86 :
-				ScriptPubKeyType.TaprootWithScript,
-			RawTr => ScriptPubKeyType.TaprootRaw,
+				null,
 #endif
 			_ => null
 		};

@@ -12,7 +12,7 @@
 	</PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>net6.0;netstandard2.1</TargetFrameworks>
-    <Version Condition=" '$(Version)' == '' ">3.1.2</Version>
+    <Version Condition=" '$(Version)' == '' ">3.1.3</Version>
   </PropertyGroup>
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);SECP256K1_LIB;HAS_SPAN</DefineConstants>

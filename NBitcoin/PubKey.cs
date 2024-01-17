@@ -42,23 +42,7 @@ namespace NBitcoin
 #if !HAS_SPAN
 		[Obsolete("TaprootBIP86 is unavailable in .net framework")]
 #endif
-		TaprootBIP86,
-
-		/// <summary>
-		/// Taproot with possible script-spend.
-		/// </summary>
-#if !HAS_SPAN
-		[Obsolete("TaprootWithScript is unavailable in .net framework")]
-#endif
-		TaprootWithScript,
-
-		/// <summary>
-		/// Taproot output that we don't know if the script path exists or not.
-		/// </summary>
-#if !HAS_SPAN
-		[Obsolete("TaprootRaw is unavailable in .net framework")]
-#endif
-		TaprootRaw
+		TaprootBIP86
 	}
 	public class PubKey : IDestination, IComparable<PubKey>, IEquatable<PubKey>, IPubKey
 	{
@@ -328,20 +312,6 @@ namespace NBitcoin
 #else
 					return GetTaprootFullPubKey().GetAddress(network);
 #endif
-#pragma warning disable CS0618 // Type or member is obsolete
-				case ScriptPubKeyType.TaprootRaw:
-#pragma warning restore CS0618 // Type or member is obsolete
-					if (!network.Consensus.SupportTaproot)
-						throw new NotSupportedException("This network does not support taproot");
-#if !HAS_SPAN
-					throw new NotSupportedException("This feature of taproot is not supported in .NET Framework");
-#else
-					return GetTaprootFullPubKey().GetAddress(network);
-#endif
-#pragma warning disable CS0618 // Type or member is obsolete
-				case ScriptPubKeyType.TaprootWithScript:
-#pragma warning restore CS0618 // Type or member is obsolete
-					throw new NotSupportedException("Can not get address from pubkey without script.");
 				default:
 					throw new NotSupportedException("Unsupported ScriptPubKeyType");
 			}
