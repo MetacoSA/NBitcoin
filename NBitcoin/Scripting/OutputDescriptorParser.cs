@@ -340,7 +340,7 @@ namespace NBitcoin.Scripting
 			from tapTree in PTapScript(repo, n)
 			select OutputDescriptor.NewTr(internalPk, n, tapTree);
 
-		private static P PTapRootNoScriptInner(ISigningRepository repo, Network n) =>
+		private static P PTapRootNoScriptInner(ISigningRepository? repo, Network n) =>
 			from internalPk in PPubKeyProviderForTaproot(repo, n, PubKeyContext.TaprootInternalKey)
 			select OutputDescriptor.NewTr(internalPk, n);
 

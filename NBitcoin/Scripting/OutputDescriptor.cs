@@ -71,7 +71,7 @@ namespace NBitcoin.Scripting
 		internal class TreeNode
 		{
 			internal uint256? Hash { get; set; }
-			internal ScriptLeaf? Leaf;
+			internal TaprootScriptLeaf? Leaf;
 			internal Tuple<TreeNode, TreeNode>? Sub;
 
 			/// <summary>
@@ -115,7 +115,7 @@ namespace NBitcoin.Scripting
 						continue;
 					}
 
-					var leafHash = new ScriptLeaf(script, leafVersion).LeafHash;
+					var leafHash = new TaprootScriptLeaf(script, leafVersion).LeafHash;
 
 					TreeNode node = root;
 					var levels = controlB.Length/ TaprootConstants.TAPROOT_CONTROL_NODE_SIZE;
@@ -163,7 +163,7 @@ namespace NBitcoin.Scripting
 					if (node.Sub?.Item1 is not null) return false;
 					node.Explored = true;
 					node.Inner = false;
-					node.Leaf = new ScriptLeaf(script, leafVersion);
+					node.Leaf = new TaprootScriptLeaf(script, leafVersion);
 					node.Hash = leafHash;
 				}
 			}
@@ -195,7 +195,7 @@ namespace NBitcoin.Scripting
 				}
 				else if (!node.Inner)
 				{
-					result.Add(new Tuple<int, Script, byte>((int)stack.Count - 1, node.Leaf.Script, node.Leaf.Version));
+					result.Add(new Tuple<int, Script, byte>((int)stack.Count - 1, node.Leaf!.Script, node.Leaf.Version));
 					node.Done = true;
 					stack.Pop();
 				}
@@ -608,7 +608,7 @@ namespace NBitcoin.Scripting
 		public bool TryExpand(
 			uint pos,
 			ISigningRepository repo,
-			out List<Script> outputScripts,
+			[MaybeNullWhen(false)] out List<Script> outputScripts,
 			IDictionary<uint, ExtPubKey>? cache = null
 			)
 		{

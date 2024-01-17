@@ -135,8 +135,8 @@ namespace NBitcoin.Tests
 			var data = new byte[] { 0x01 };
 			var sc = new Script(OpcodeType.OP_RETURN, Op.GetPushOp(data));
 			var version = (byte)TaprootConstants.TAPROOT_LEAF_TAPSCRIPT;
-			var nodeInfoA = NodeInfo.NewLeafWithVersion(sc, version);
-			var nodeInfoB = NodeInfo.NewLeafWithVersion(sc, version);
+			var nodeInfoA = TaprootNodeInfo.NewLeafWithVersion(sc, version);
+			var nodeInfoB = TaprootNodeInfo.NewLeafWithVersion(sc, version);
 			var rootNode = nodeInfoA + nodeInfoB;
 			var info = TaprootSpendInfo.FromNodeInfo(internalKey, rootNode);
 			Assert.Single(info.ScriptToMerkleProofMap);
@@ -222,7 +222,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(info.MerkleRoot!, expectedMerkleRoot);
 
 			var output = internalKey.GetTaprootFullPubKey(info.MerkleRoot);
-			Assert.Equal(info.OutputPubKey.OutputKey.ToString(), "003cdb72825a12ea62f5834f3c47f9bf48d58d27f5ad1e6576ac613b093125f3");
+			Assert.Equal("003cdb72825a12ea62f5834f3c47f9bf48d58d27f5ad1e6576ac613b093125f3", info.OutputPubKey.OutputKey.ToString());
 			var spk = output.ScriptPubKey;
 			var expectedSpk = "5120003cdb72825a12ea62f5834f3c47f9bf48d58d27f5ad1e6576ac613b093125f3";
 			Assert.Equal( expectedSpk, spk.ToHex());

@@ -52,12 +52,12 @@ namespace NBitcoin
 #endif
 		TaprootWithScript,
 
-#if !HAS_SPAN
-		[Obsolete("TaprootRaw is unavailable in .net framework")]
-#endif
 		/// <summary>
 		/// Taproot output that we don't know if the script path exists or not.
 		/// </summary>
+#if !HAS_SPAN
+		[Obsolete("TaprootRaw is unavailable in .net framework")]
+#endif
 		TaprootRaw
 	}
 	public class PubKey : IDestination, IComparable<PubKey>, IEquatable<PubKey>, IPubKey
@@ -338,7 +338,9 @@ namespace NBitcoin
 #else
 					return GetTaprootFullPubKey().GetAddress(network);
 #endif
+#pragma warning disable CS0618 // Type or member is obsolete
 				case ScriptPubKeyType.TaprootWithScript:
+#pragma warning restore CS0618 // Type or member is obsolete
 					throw new NotSupportedException("Can not get address from pubkey without script.");
 				default:
 					throw new NotSupportedException("Unsupported ScriptPubKeyType");
