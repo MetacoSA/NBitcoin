@@ -4008,6 +4008,54 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void musig_tweaked_test()
+		{
+			var ctx = Context.Instance;
+			var msg32 = Encoders.Hex.DecodeData("502c616d9910774e00edb71f01b951962cc44ec67072757767f3906ff82ebfe8");
+
+			var ecPrivateKeys =
+			new[]{
+"c0655fae21a8b7fae19cfeac6135ded8090920f9640a148b0fd5ff9c15c6e948",
+"c8222b32a0189e5fa1f46700a9d0438c00feb279f0f2087cafe6f5b5ce9d224a",
+"b6f2920002873556366ad9f9a44711e4f34b596a892bd175427071e4064a89cc" }
+			.Select(Encoders.Hex.DecodeData)
+			.Select(c => ctx.CreateECPrivKey(c)).ToArray();
+
+			var peers = ecPrivateKeys.Length;
+
+			var ecPubKeys = ecPrivateKeys.Select(c => c.CreatePubKey()).ToArray();
+			var musig = new MusigContext(ecPubKeys, msg32);
+			var nonces = ecPubKeys.Select(c => musig.GenerateNonce(c)).ToArray();
+
+			var aggregatedKey = ECPubKey.MusigAggregate(ecPubKeys);
+
+			// This is an example of aggregated signature where the output key is directly signing with schnorr
+			musig = new MusigContext(ecPubKeys, msg32);
+			musig.ProcessNonces(nonces.Select(n => n.CreatePubNonce()).ToArray());
+			var sigs = ecPrivateKeys.Select((c, i) => musig.Sign(c, nonces[i])).ToArray();
+			var signature = musig.AggregateSignatures(sigs);
+			var schnorrSig = new SchnorrSignature(signature.ToBytes());
+			var taprootPubKey = new TaprootPubKey(aggregatedKey.ToXOnlyPubKey().ToBytes());
+			Assert.True(taprootPubKey.VerifySignature(msg32, schnorrSig));
+
+			// However, in Bitcoin, the musig pubkey is the internal key... not the output key directly
+			// Note that while using the aggregated key as an output key as above isn't impossible, it is not the standard way to use musig.
+			var builder = new TaprootBuilder();
+			// Add the scripts there
+			var treeInfo = builder.Finalize(new TaprootInternalPubKey(aggregatedKey.ToXOnlyPubKey().ToBytes()));
+			musig = new MusigContext(ecPubKeys, msg32);
+			nonces = ecPubKeys.Select(c => musig.GenerateNonce(c)).ToArray();
+			musig.Tweak(treeInfo.OutputPubKey.Tweak.Span);
+			musig.ProcessNonces(nonces.Select(n => n.CreatePubNonce()).ToArray());
+			sigs = ecPrivateKeys.Select((c, i) => musig.Sign(c, nonces[i])).ToArray();
+			signature = musig.AggregateSignatures(sigs);
+			schnorrSig = new SchnorrSignature(signature);
+			taprootPubKey = new TaprootPubKey(aggregatedKey.ToXOnlyPubKey());
+			Assert.True(treeInfo.OutputPubKey.VerifySignature(msg32, schnorrSig));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void musig_det_sign_vectors()
 		{
 			var root = JObject.Parse(File.ReadAllText("data/musig/det_sign_vectors.json"));
@@ -4074,7 +4122,7 @@ namespace NBitcoin.Tests
 			var b = Encoders.Hex.DecodeData(hex);
 			return new MusigPrivNonce(ECPrivKey.Create(b.AsSpan().Slice(0, 32)),
 									  ECPrivKey.Create(b.AsSpan().Slice(32, 32)),
-									  ECPubKey.Create(b.AsSpan().Slice(64,33)));
+									  ECPubKey.Create(b.AsSpan().Slice(64, 33)));
 		}
 
 		[Fact]

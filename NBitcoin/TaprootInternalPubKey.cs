@@ -78,6 +78,16 @@ namespace NBitcoin
 		{
 			return TaprootFullPubKey.Create(this, merkleRoot);
 		}
+		public byte[] ComputeTapTweak(uint256? merkleRoot)
+		{
+			Span<byte> bytes = stackalloc byte[32];
+			TaprootFullPubKey.ComputeTapTweak(this, merkleRoot, bytes);
+			return bytes.ToArray();
+		}
+		public void ComputeTapTweak(uint256? merkleRoot, Span<byte> tweak32)
+		{
+			TaprootFullPubKey.ComputeTapTweak(this, merkleRoot, tweak32);
+		}
 
 #endif
 		public TaprootInternalPubKey(byte[] pubkey)

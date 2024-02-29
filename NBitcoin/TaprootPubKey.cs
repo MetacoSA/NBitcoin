@@ -155,6 +155,10 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(signature));
 			return this.pubkey.SigVerifyBIP340(signature.secpShnorr, hash.ToBytes());
 		}
+		public bool VerifySignature(ReadOnlySpan<byte> hash, SchnorrSignature signature)
+		{
+			return this.pubkey.SigVerifyBIP340(signature.secpShnorr, hash);
+		}
 #else
 		public override bool Equals(object obj)
 		{
