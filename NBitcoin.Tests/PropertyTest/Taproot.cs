@@ -19,9 +19,9 @@ namespace NBitcoin.Tests.PropertyTest
 		[Trait("UnitTest", "UnitTest")]
 		public void SerializeDeserializeControlBlock(ControlBlock ctrl)
 		{
-			if ((ctrl.LeafVersion & 1) == 1)
+			if (((byte)ctrl.LeafVersion & 1) == 1)
 				return;
-			if (ctrl.LeafVersion == TaprootConstants.TAPROOT_LEAF_ANNEX)
+			if ((byte)ctrl.LeafVersion == TaprootConstants.TAPROOT_LEAF_ANNEX)
 				return;
 			Assert.Equal(ctrl, ControlBlock.FromSlice(ctrl.ToBytes()));
 		}

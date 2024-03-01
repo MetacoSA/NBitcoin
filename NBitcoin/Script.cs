@@ -520,29 +520,6 @@ namespace NBitcoin
 			}
 		}
 
-#if HAS_SPAN
-		private uint256? _leafHash;
-		public uint256 TaprootV1LeafHash
-		{
-			get
-			{
-				if (_leafHash is not null)
-					return _leafHash;
-				_leafHash = TaprootLeafHash((byte)TaprootConstants.TAPROOT_LEAF_TAPSCRIPT);
-				return _leafHash;
-			}
-		}
-
-		internal uint256 TaprootLeafHash(byte version)
-		{
-				var hash = new HashStream { SingleSHA256 = true };
-				hash.InitializeTagged("TapLeaf");
-				hash.WriteByte(version);
-				var bs = new BitcoinStream(hash, true);
-				bs.ReadWrite(this);
-				return hash.GetHash();
-		}
-#endif
 		/// <summary>
 		/// Extract the ScriptCode delimited by the codeSeparatorIndex th OP_CODESEPARATOR.
 		/// </summary>
@@ -905,7 +882,9 @@ namespace NBitcoin
 		}
 
 		public WitScript ToWitScript() => new WitScript(this);
-
+#if HAS_SPAN
+		public TapScript ToTapScript(TapLeafVersion version) => new TapScript(this, version);
+#endif
 		public byte[] ToCompressedBytes()
 		{
 			var compressor = new ScriptCompressor(this);
