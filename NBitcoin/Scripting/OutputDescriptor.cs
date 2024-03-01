@@ -89,13 +89,13 @@ namespace NBitcoin.Scripting
 			internal bool Done;
 		}
 
-		public static bool InferTaprootTree(this TaprootSpendInfo info, TaprootPubKey outputKey, [MaybeNullWhen(false)]out List<Tuple<int, Script, byte>> result)
+		public static bool InferTaprootTree(this TaprootSpendInfo info, TaprootPubKey outputKey, [MaybeNullWhen(false)]out List<Tuple<int, TapScript>> result)
 		{
 			result = null;
 			if (!outputKey.CheckTapTweak(info.InternalPubKey, info.MerkleRoot, info.OutputPubKey.OutputKeyParity))
 				throw new ArgumentException($"TapTweak mismatch (outputKey: {outputKey}, internalKey: {info.InternalPubKey}, merkleRoot: {info.MerkleRoot})");
 
-			result = new List<Tuple<int, Script, byte>>();
+			result = new List<Tuple<int, TapScript>>();
 			if (info.IsKeyPathOnlySpend)
 				return true;
 
@@ -106,7 +106,7 @@ namespace NBitcoin.Scripting
 			{
 				foreach (var control in kv.Value)
 				{
-					var (script, leafVersion) = kv.Key;
+					var script = kv.Key;
 					var controlB = control.Select(h => h.ToBytes()).SelectMany(x => x).ToArray();
 					// Skip script records with invalid control block size.
 					if (controlB.Length % TaprootConstants.TAPROOT_CONTROL_NODE_SIZE != 0)
@@ -115,7 +115,7 @@ namespace NBitcoin.Scripting
 						continue;
 					}
 
-					var leafHash = new TaprootScriptLeaf(script, leafVersion).LeafHash;
+					var leafHash = new TaprootScriptLeaf(script).LeafHash;
 
 					TreeNode node = root;
 					var levels = controlB.Length/ TaprootConstants.TAPROOT_CONTROL_NODE_SIZE;
@@ -163,7 +163,7 @@ namespace NBitcoin.Scripting
 					if (node.Sub?.Item1 is not null) return false;
 					node.Explored = true;
 					node.Inner = false;
-					node.Leaf = new TaprootScriptLeaf(script, leafVersion);
+					node.Leaf = new TaprootScriptLeaf(script);
 					node.Hash = leafHash;
 				}
 			}
@@ -195,7 +195,7 @@ namespace NBitcoin.Scripting
 				}
 				else if (!node.Inner)
 				{
-					result.Add(new Tuple<int, Script, byte>((int)stack.Count - 1, node.Leaf!.Script, node.Leaf.Version));
+					result.Add(new Tuple<int, TapScript>((int)stack.Count - 1, node.Leaf!.Script));
 					node.Done = true;
 					stack.Pop();
 				}
@@ -544,7 +544,7 @@ namespace NBitcoin.Scripting
 
 						foreach (var s in scripts)
 						{
-							builder.AddLeaf((uint)depth, s);
+							builder.AddLeaf((uint)depth, s.ToTapScript(TapLeafVersion.C0));
 						}
 					}
 				}
@@ -748,7 +748,7 @@ namespace NBitcoin.Scripting
 								return false;
 							foreach (var s in subScripts)
 							{
-								builder.AddLeaf((uint)depth, s);
+								builder.AddLeaf((uint)depth, s.ToTapScript(TapLeafVersion.C0));
 							}
 						}
 					}
@@ -1018,10 +1018,10 @@ namespace NBitcoin.Scripting
 							bool ok = true;
 							var subScripts = new List<OutputDescriptor>();
 							var depths = new List<int>();
-							foreach (var (depth, script, leafVersion) in tree)
+							foreach (var (depth, script) in tree)
 							{
 								OutputDescriptor? subdesc =
-									(leafVersion == TaprootConstants.TAPROOT_LEAF_TAPSCRIPT)
+									(script.Version == TapLeafVersion.C0)
 										? InferFromScript(script, repo, network, ScriptContext.P2TR)
 										: null;
 								if (subdesc is null)

@@ -28,11 +28,11 @@ namespace NBitcoin.Tests
 
 			var scriptWeights = new[]
 			{
-				(10u, Script.FromHex("51")),
-				(20u, Script.FromHex("52")),
-				(20u, Script.FromHex("53")),
-				(30u, Script.FromHex("54")),
-				(19u, Script.FromHex("55")),
+				(10u, Script.FromHex("51").ToTapScript(TapLeafVersion.C0)),
+				(20u, Script.FromHex("52").ToTapScript(TapLeafVersion.C0)),
+				(20u, Script.FromHex("53").ToTapScript(TapLeafVersion.C0)),
+				(30u, Script.FromHex("54").ToTapScript(TapLeafVersion.C0)),
+				(19u, Script.FromHex("55").ToTapScript(TapLeafVersion.C0)),
 			};
 
 			var treeInfo = TaprootSpendInfo.WithHuffmanTree(internalKey, scriptWeights);
@@ -52,7 +52,7 @@ namespace NBitcoin.Tests
 				Assert.True(
 					treeInfo
 						.ScriptToMerkleProofMap!
-						.TryGetValue((Script.FromHex(script), (byte)TaprootConstants.TAPROOT_LEAF_TAPSCRIPT), out var scriptSet)
+						.TryGetValue(Script.FromHex(script).ToTapScript(TapLeafVersion.C0), out var scriptSet)
 				);
 				var actualLength = scriptSet[0];
 				Assert.Equal(expectedLength, actualLength.Count);
@@ -62,7 +62,7 @@ namespace NBitcoin.Tests
 
 			foreach (var (_, script) in scriptWeights)
 			{
-				var ctrlBlock = treeInfo.GetControlBlock(script, (byte)TaprootConstants.TAPROOT_LEAF_TAPSCRIPT);
+				var ctrlBlock = treeInfo.GetControlBlock(script);
 				Assert.True(ctrlBlock.VerifyTaprootCommitment(outputKey, script));
 			}
 		}
@@ -82,11 +82,11 @@ namespace NBitcoin.Tests
 			//                                   /  \    /  \
 			//                                  A    B  C  / \
 			//                                            D   E
-			var a = Script.FromHex("51");
-			var b = Script.FromHex("52");
-			var c = Script.FromHex("53");
-			var d = Script.FromHex("54");
-			var e = Script.FromHex("55");
+			var a = Script.FromHex("51").ToTapScript(TapLeafVersion.C0);
+			var b = Script.FromHex("52").ToTapScript(TapLeafVersion.C0);
+			var c = Script.FromHex("53").ToTapScript(TapLeafVersion.C0);
+			var d = Script.FromHex("54").ToTapScript(TapLeafVersion.C0);
+			var e = Script.FromHex("55").ToTapScript(TapLeafVersion.C0);
 			builder
 				.AddLeaf(2, a)
 				.AddLeaf(2, b)
@@ -100,12 +100,12 @@ namespace NBitcoin.Tests
 			var outputKey = treeInfo.OutputPubKey;
 			foreach (var script in new[] { a, b, c, d, e })
 			{
-				var ctrlBlock = treeInfo.GetControlBlock(script, (byte)TaprootConstants.TAPROOT_LEAF_TAPSCRIPT);
+				var ctrlBlock = treeInfo.GetControlBlock(script);
 				Assert.True(ctrlBlock.VerifyTaprootCommitment(outputKey, script));
 			}
 		}
 
-		private TaprootBuilder ProcessScriptTrees(JToken v, TaprootBuilder builder, List<(Script, byte)> leaves,
+		private TaprootBuilder ProcessScriptTrees(JToken v, TaprootBuilder builder, List<TapScript> leaves,
 			uint depth)
 		{
 
@@ -119,10 +119,9 @@ namespace NBitcoin.Tests
 			}
 			else
 			{
-				var script = Script.FromHex(v["script"].ToString());
-				var ver = (byte)(ulong)v["leafVersion"];
-				leaves.Add((script, ver));
-				builder = builder.AddLeaf(depth, script, ver);
+				var script = Script.FromHex(v["script"].ToString()).ToTapScript((TapLeafVersion)(byte)(ulong)v["leafVersion"]);
+				leaves.Add(script);
+				builder = builder.AddLeaf(depth, script);
 			}
 			return builder;
 		}
@@ -133,14 +132,13 @@ namespace NBitcoin.Tests
 		{
 			var internalKey = TaprootInternalPubKey.Parse("93c7378d96518a75448821c4f7c8f4bae7ce60f804d03d1f0628dd5dd0f5de51");
 			var data = new byte[] { 0x01 };
-			var sc = new Script(OpcodeType.OP_RETURN, Op.GetPushOp(data));
-			var version = (byte)TaprootConstants.TAPROOT_LEAF_TAPSCRIPT;
-			var nodeInfoA = TaprootNodeInfo.NewLeafWithVersion(sc, version);
-			var nodeInfoB = TaprootNodeInfo.NewLeafWithVersion(sc, version);
+			var sc = new Script(OpcodeType.OP_RETURN, Op.GetPushOp(data)).ToTapScript(TapLeafVersion.C0);
+			var nodeInfoA = TaprootNodeInfo.NewLeaf(sc);
+			var nodeInfoB = TaprootNodeInfo.NewLeaf(sc);
 			var rootNode = nodeInfoA + nodeInfoB;
 			var info = TaprootSpendInfo.FromNodeInfo(internalKey, rootNode);
 			Assert.Single(info.ScriptToMerkleProofMap);
-			Assert.True(info.ScriptToMerkleProofMap.TryGetValue((sc, version), out var proofs));
+			Assert.True(info.ScriptToMerkleProofMap.TryGetValue(sc, out var proofs));
 			Assert.Equal(2, proofs.Count);
 		}
 
@@ -168,16 +166,16 @@ namespace NBitcoin.Tests
 					var leafHashes = arr["intermediary"]!["leafHashes"]!.ToArray();
 					var ctrlBlocks = arr["expected"]!["scriptPathControlBlocks"]!.ToArray();
 					var builder = new TaprootBuilder();
-					var leaves = new List<(Script, byte)>();
+					var leaves = new List<TapScript>();
 					builder = ProcessScriptTrees(scriptTree, builder, leaves, 0);
 					var spendInfo = builder.Finalize(internalKey);
-					foreach (var (i, (script, version)) in leaves.Select((v, i) => (i, v)))
+					foreach (var (i, script) in leaves.Select((v, i) => (i, v)))
 					{
 						var expectedLeafHash = new uint256(Encoders.Hex.DecodeData(leafHashes[i].ToString()));
 						var expectedControlBlockStr = ctrlBlocks[i].ToString();
 						var expectedControlBlock = ControlBlock.FromHex(expectedControlBlockStr);
-						var leafHash = script.TaprootLeafHash(version);
-						var ctrlBlock = spendInfo.GetControlBlock(script, version);
+						var leafHash = script.LeafHash;
+						var ctrlBlock = spendInfo.GetControlBlock(script);
 						Assert.Equal(expectedLeafHash, leafHash);
 						var ctrlStr = Encoders.Hex.EncodeData(ctrlBlock.ToBytes());
 						_testOutputHelper.WriteLine($"Control block str {ctrlStr}. expected {expectedControlBlockStr}");
@@ -210,9 +208,9 @@ namespace NBitcoin.Tests
 		{
 			var builder = new TaprootBuilder();
 			builder
-				.AddLeaf(1, Script.FromHex("210203a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5ac"))
-				.AddLeaf(2, Script.FromHex("2102a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bdac"))
-				.AddLeaf(2, Script.FromHex("210203a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5ac"));
+				.AddLeaf(1, Script.FromHex("210203a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5ac").ToTapScript(TapLeafVersion.C0))
+				.AddLeaf(2, Script.FromHex("2102a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bdac").ToTapScript(TapLeafVersion.C0))
+				.AddLeaf(2, Script.FromHex("210203a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5ac").ToTapScript(TapLeafVersion.C0));
 
 			var internalKey = TaprootInternalPubKey.Parse("03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5");
 			var info = builder.Finalize(internalKey);
