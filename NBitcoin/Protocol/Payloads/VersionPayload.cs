@@ -54,9 +54,10 @@ namespace NBitcoin.Protocol
 		/// </summary> 
 		NODE_NETWORK_LIMITED = (1 << 10)
 	}
-	[Payload("version")]
+
 	public class VersionPayload : Payload, IBitcoinSerializable
 	{
+		public override string Command => "version";
 		static string _NUserAgent;
 		public static string GetNBitcoinUserAgent()
 		{

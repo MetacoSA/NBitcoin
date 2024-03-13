@@ -1,8 +1,3 @@
-using System;
-#if HAS_SPAN
-using NBitcoin.Secp256k1;
-#endif
-
 namespace NBitcoin
 {
 	public static class TaprootConstants

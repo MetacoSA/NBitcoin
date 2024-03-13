@@ -340,10 +340,20 @@ namespace NBitcoin
 
 	public class OutputTooSmallException : NotEnoughFundsException
 	{
-		public OutputTooSmallException(string message, string? group, IMoney missing) : base(message, group, missing)
+		public enum ErrorType
 		{
-
+			TooSmallBeforeSubtractedFee,
+			TooSmallAfterSubtractedFee
 		}
+		public OutputTooSmallException(string message, string? group, IMoney missing, ErrorType reason, TxOut output) : base(message, group, missing)
+		{
+			Reason = reason;
+			Destination = output.ScriptPubKey;
+			Value = output.Value;
+		}
+		public ErrorType Reason { get; }
+		public Script Destination { get; }
+		public Money Value { get; }
 	}
 
 	/// <summary>
@@ -810,11 +820,6 @@ namespace NBitcoin
 				get;
 				set;
 			}
-			/// <summary>
-			/// Money which has been recovered from outputs that are too small to be included
-			/// we should be able to pay fees with that
-			/// </summary>
-			public Money SurrendedValue { get; set; } = Money.Zero;
 		}
 
 		List<BuilderGroup> _BuilderGroups = new List<BuilderGroup>();
@@ -1154,11 +1159,6 @@ namespace NBitcoin
 			if (amount < Money.Zero)
 				throw new ArgumentOutOfRangeException(nameof(amount), "amount can't be negative");
 			_LastSendBuilder = null; //If the amount is dust, we don't want the fee to be paid by the previous Send
-			if (DustPrevention && amount < GetDust(scriptPubKey) && !_OpReturnTemplate.CheckScriptPubKey(scriptPubKey))
-			{
-				CurrentGroup.SurrendedValue += amount;
-				return this;
-			}
 
 			var builder = new SendBuilder(this, amount, scriptPubKey);
 			CurrentGroup.Builders.Add(builder.Build);
@@ -1185,26 +1185,34 @@ namespace NBitcoin
 			public void Build(TransactionBuildingContext ctx)
 			{
 				var txout = parent.CreateTxOut(amount, scriptPubKey);
+				var minimumTxOutValue = (parent.DustPrevention ? parent.GetDust(txout.ScriptPubKey) : Money.Zero);
+
+				if (txout.Value < minimumTxOutValue)
+				{
+					// If the txout is below dust, they throw an exception
+					throw new OutputTooSmallException("This output is too small",
+					ctx.Group.Name,
+					minimumTxOutValue - txout.Value,
+					OutputTooSmallException.ErrorType.TooSmallBeforeSubtractedFee,
+					txout
+					);
+				}
+
 				if (SubstractFee && !ctx.CurrentGroupContext.FeePaid)
 				{
 					var fee = ctx.CurrentGroupContext.Fee.GetAmount(Money.Zero);
 					txout.Value -= fee;
-
-					var minimumTxOutValue = (parent.DustPrevention ? parent.GetDust(txout.ScriptPubKey) : Money.Zero);
-					if (txout.Value < Money.Zero)
+					if (txout.Value < minimumTxOutValue)
 					{
+						// If the txout is below dust, they throw an exception
 						throw new OutputTooSmallException("Can't substract fee from this output because the amount is too small",
 						ctx.Group.Name,
-						-txout.Value
+						minimumTxOutValue - txout.Value,
+						OutputTooSmallException.ErrorType.TooSmallAfterSubtractedFee,
+						txout
 						);
 					}
 					ctx.CurrentGroupContext.FeePaid = true;
-					if (txout.Value < minimumTxOutValue)
-					{
-						// Between zero and dust, should strip this output.
-						ctx.CurrentGroupContext.DustPreventionTotalRemoved += txout.Value;
-						return;
-					}
 					ctx.CurrentGroupContext.FeeTxOut = txout;
 				}
 
@@ -1877,11 +1885,10 @@ namespace NBitcoin
 		{
 			var gctx = ctx.CurrentGroupContext;
 			IMoney zero = ctx.Zero;
-			IMoney surrendedMoney = zero is Money ? group.SurrendedValue : zero;
 			foreach (var builder in builders)
 				builder(ctx);
 
-			IMoney selectionTarget = (gctx.SentOutput + gctx.Fee - gctx.LeftOverChange + surrendedMoney).GetAmount(zero);
+			IMoney selectionTarget = (gctx.SentOutput + gctx.Fee - gctx.LeftOverChange).GetAmount(zero);
 
 			var unconsumed = coins.Where(c => !ctx.ConsumedOutpoints.Contains(c.Outpoint)).ToArray();
 
@@ -1899,7 +1906,7 @@ namespace NBitcoin
 						selectionTarget.Sub(unconsumed.Select(u => u.Amount).Sum(zero)));
 
 			var totalInput = selection.Select(s => s.Amount).Sum(zero);
-			var change = totalInput.Sub(selectionTarget).Add(surrendedMoney);
+			var change = totalInput.Sub(selectionTarget);
 			if (change.CompareTo(zero) == -1)
 				throw new NotEnoughFundsException(notEnoughFundsMessage,
 					group.Name,

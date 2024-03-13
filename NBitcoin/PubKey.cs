@@ -35,6 +35,7 @@ namespace NBitcoin
 		/// Use this when you worry that your users do not support Bech address format.
 		/// </summary>
 		SegwitP2SH,
+
 		/// <summary>
 		/// Derive the taproot address of this pubkey following BIP86. This public key is used as the internal key, the output key is computed without script path. (The tweak is SHA256(internal_key))
 		/// </summary>
@@ -79,6 +80,7 @@ namespace NBitcoin
 			pubKey = null;
 			return false;
 		}
+
 #endif
 #if !HAS_SPAN
 		public static bool TryCreatePubKey(byte[] bytes, [MaybeNullWhen(false)] out PubKey pubKey)
@@ -325,8 +327,23 @@ namespace NBitcoin
 			return TaprootInternalKey.GetTaprootFullPubKey(merkleRoot);
 		}
 
-		TaprootInternalPubKey? _InternalKey;
 		internal bool Parity => this.ECKey.Q.y.IsOdd;
+
+#if HAS_SPAN
+		private PubKey? _twin;
+		internal PubKey GetYCoordinateEvenPubKey()
+		{
+			if (!Parity)
+				return this;
+			var pkBytes = new byte[33];
+			pkBytes[0] = 0x02;
+			ToBytes().AsSpan().Slice(1, 32).CopyTo(pkBytes.AsSpan().Slice(1));
+			_twin = new PubKey(pkBytes);
+			return _twin;
+		}
+#endif
+
+		TaprootInternalPubKey? _InternalKey;
 		public TaprootInternalPubKey TaprootInternalKey
 		{
 			get
@@ -340,6 +357,24 @@ namespace NBitcoin
 				return _InternalKey;
 			}
 		}
+
+
+		TaprootPubKey? _TaprootPubKey;
+		internal TaprootPubKey TaprootPubKey
+		{
+			get
+			{
+				if (_TaprootPubKey is TaprootFullPubKey)
+				{
+					return _TaprootPubKey;
+				}
+
+				var xonly = this.ECKey.ToXOnlyPubKey(out _);
+				_TaprootPubKey = new TaprootPubKey(xonly);
+				return _TaprootPubKey;
+			}
+		}
+
 #endif
 		HDFingerprint? fp;
 		public HDFingerprint GetHDFingerPrint()

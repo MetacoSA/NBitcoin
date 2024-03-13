@@ -234,7 +234,22 @@ namespace NBitcoin
 			return GenerateScriptPubKey(sigCount, false, keys);
 		}
 
-		public Script GenerateScriptPubKey(int sigCount, bool sort, params PubKey[] keys)
+		public Script GenerateScriptPubKey(int sigCount, bool sort, params PubKey[] keys) =>
+			GenerateScriptPubKey(sigCount, sort, true, keys);
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="sigCount"></param>
+		/// <param name="sort"></param>
+		/// <param name="forceSmallSigCount"> In case of P2SH or Bare Multisig Output Script, threshold value `k` for
+		/// "k-of-n" multisig must be less than 17, but otherwise (e.g. P2WSH or Taproot) there is no such restriction
+		/// This argument defines whether the function should check the `k` or not. </param>
+		/// <param name="keys"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		public Script GenerateScriptPubKey(int sigCount, bool sort, bool forceSmallSigCount, params PubKey[] keys)
 		{
 			if (keys == null)
 				throw new ArgumentNullException(nameof(keys));
@@ -242,11 +257,11 @@ namespace NBitcoin
 				Array.Sort(keys);
 			List<Op> ops = new List<Op>();
 			var push = Op.GetPushOp(sigCount);
-			if (!push.IsSmallUInt)
+			if (forceSmallSigCount && !push.IsSmallUInt)
 				throw new ArgumentOutOfRangeException("sigCount should be less or equal to 16");
 			ops.Add(push);
 			var keyCount = Op.GetPushOp(keys.Length);
-			if (!keyCount.IsSmallUInt)
+			if (forceSmallSigCount && !keyCount.IsSmallUInt)
 				throw new ArgumentOutOfRangeException("key count should be less or equal to 16");
 
 			foreach (var key in keys)

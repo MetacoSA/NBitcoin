@@ -78,6 +78,16 @@ namespace NBitcoin
 		{
 			return TaprootFullPubKey.Create(this, merkleRoot);
 		}
+		public byte[] ComputeTapTweak(uint256? merkleRoot)
+		{
+			Span<byte> bytes = stackalloc byte[32];
+			TaprootFullPubKey.ComputeTapTweak(this, merkleRoot, bytes);
+			return bytes.ToArray();
+		}
+		public void ComputeTapTweak(uint256? merkleRoot, Span<byte> tweak32)
+		{
+			TaprootFullPubKey.ComputeTapTweak(this, merkleRoot, tweak32);
+		}
 
 #endif
 		public TaprootInternalPubKey(byte[] pubkey)
@@ -125,13 +135,10 @@ namespace NBitcoin
 #if HAS_SPAN
 			return Utils.ArrayEqual(other.pubkey.ToBytes(), pubkey.ToBytes());
 #else
-		return Utils.ArrayEqual(other.pubkey, pubkey);
+			return Utils.ArrayEqual(other.pubkey, pubkey);
 #endif
 		}
-
 #if HAS_SPAN
-
-
 		public static bool operator ==(TaprootInternalPubKey a, TaprootInternalPubKey b)
 		{
 			if (a is TaprootInternalPubKey && b is TaprootInternalPubKey)

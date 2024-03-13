@@ -3,9 +3,10 @@ using System;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("feefilter")]
+
 	public class FeeFilterPayload : Payload
 	{
+		public override string Command => "feefilter";
 		public FeeFilterPayload()
 		{
 			_feeRate = FeeRate.Zero;

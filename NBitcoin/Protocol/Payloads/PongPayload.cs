@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("pong")]
+
 	public class PongPayload : Payload
 	{
+		public override string Command => "pong";
 		private ulong _Nonce;
 		public ulong Nonce
 		{

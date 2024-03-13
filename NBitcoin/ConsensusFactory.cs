@@ -79,6 +79,50 @@ namespace NBitcoin
 			return success;
 		}
 
+		public virtual Payload CreatePayload(string command)
+		{
+			return command switch
+			{
+				"inv" => new InvPayload(),
+				"tx" => new TxPayload(),
+				"getdata" => new GetDataPayload(),
+				"headers" => new HeadersPayload(),
+				"block" => new BlockPayload(),
+#if !NOSOCKET
+				"addr" => new AddrPayload(),
+				"addrv2" => new AddrV2Payload(),
+				"version" => new VersionPayload(),
+#endif
+				"ping" => new PingPayload(),
+				"pong" => new PongPayload(),
+				"getaddr" => new GetAddrPayload(),
+				"blocktxn" => new BlockTxnPayload(),
+				"cmpctblock" => new CmpctBlockPayload(),
+				"cfilter" => new CompactFilterPayload(),
+				"cfcheckpt" => new CompactFilterCheckPointPayload(),
+				"cfheaders" => new CompactFilterHeadersPayload(),
+				"feefilter" => new FeeFilterPayload(),
+				"filteradd" => new FilterAddPayload(),
+				"filterload" => new FilterLoadPayload(),
+				"getblocktxn" => new GetBlockTxnPayload(),
+				"getblocks" => new GetBlocksPayload(),
+				"getcfilters" => new GetCompactFiltersPayload(),
+				"getcfheaders" => new GetCompactFilterHeadersPayload(),
+				"getcfcheckpt" => new GetCompactFilterCheckPointPayload(),
+				"getheaders" => new GetHeadersPayload(),
+				"havewitness" => new HaveWitnessPayload(),
+				"mempool" => new MempoolPayload(),
+				"merkleblock" => new MerkleBlockPayload(),
+				"sendaddrv2" => new SendAddrV2Payload(),
+				"sendcmpct" => new SendCmpctPayload(),
+				"sendheaders" => new SendHeadersPayload(),
+				"utxos" => new UTxOutputPayload(),
+				"verack" => new VerAckPayload(),
+				"wtxidrelay" => new WTxIdRelayPayload(),
+				_ => new UnknownPayload(command)
+			};
+		}
+
 		public virtual ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)
 		{
 			return new ProtocolCapabilities()

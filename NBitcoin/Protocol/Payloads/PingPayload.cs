@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("ping")]
+
 	public class PingPayload : Payload
 	{
-
+		public override string Command => "ping";
 		public PingPayload()
 		{
 			_Nonce = RandomUtils.GetUInt64();

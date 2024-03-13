@@ -1622,20 +1622,21 @@ namespace NBitcoin.RPC
 							Sizes = p.Value.Value<ulong>("sizes"),
 							Count = p.Value.Value<uint>("count"),
 							Fees = Money.Satoshis(p.Value.Value<ulong>("fees")),
-							From = new FeeRate(Money.Satoshis(p.Value.Value<ulong>("from_feerate"))),
-							To = new FeeRate(Money.Satoshis(p.Value.Value<ulong>("to_feerate")))
+							From = new FeeRate(p.Value.Value<decimal>("from_feerate")),
+							To = new FeeRate(p.Value.Value<decimal>("to_feerate"))
 						}),
 					_ => Enumerable.Empty<FeeRateGroup>()
 				};
 
+			var info = response.Result;
 			return new MemPoolInfo()
 			{
-				Size = Int32.Parse((string)response.Result["size"], CultureInfo.InvariantCulture),
-				Bytes = Int32.Parse((string)response.Result["bytes"], CultureInfo.InvariantCulture),
-				Usage = Int32.Parse((string)response.Result["usage"], CultureInfo.InvariantCulture),
-				MaxMemPool = Double.Parse((string)response.Result["maxmempool"], CultureInfo.InvariantCulture),
-				MemPoolMinFee = Double.Parse((string)response.Result["mempoolminfee"], CultureInfo.InvariantCulture),
-				MinRelayTxFee = Double.Parse((string)response.Result["minrelaytxfee"], CultureInfo.InvariantCulture),
+				Size = info.Value<int>("size"),
+				Bytes = info.Value<int>("bytes"),
+				Usage = info.Value<int>("usage"),
+				MaxMemPool = info.Value<double>("maxmempool"),
+				MemPoolMinFee = info.Value<double>("mempoolminfee"),
+				MinRelayTxFee = info.Value<double>("minrelaytxfee"),
 				Histogram = ExtractFeeRateGroups(response.Result["fee_histogram"]).ToArray()
 			};
 		}
@@ -1818,6 +1819,7 @@ namespace NBitcoin.RPC
 			var response = await SendCommandAsync(RPCOperations.gettxoutsetinfo, cancellationToken).ConfigureAwait(false);
 
 			var result = response.Result;
+#pragma warning disable CS0618 // Type or member is obsolete
 			return new GetTxOutSetInfoResponse
 			{
 				Height = result.Value<int>("height"),
@@ -1826,9 +1828,11 @@ namespace NBitcoin.RPC
 				Txouts = result.Value<long>("txouts"),
 				Bogosize = result.Value<long>("bogosize"),
 				HashSerialized2 = result.Value<string>("hash_serialized_2"),
+				HashSerialized3 = result.Value<string>("hash_serialized_3"),
 				DiskSize = result.Value<long>("disk_size"),
 				TotalAmount = Money.FromUnit(result.Value<decimal>("total_amount"), MoneyUnit.BTC)
 			};
+#pragma warning restore CS0618 // Type or member is obsolete
 		}
 
 		/// <summary>
@@ -2690,7 +2694,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		public bool? SubstractFeeFromAmount { get; set; }
 		/// <summary>
-		/// Allow this transaction to be replaced by a transaction with higher fees. 
+		/// Allow this transaction to be replaced by a transaction with higher fees.
 		/// </summary>
 		public bool? Replaceable { get; set; }
 
@@ -2761,7 +2765,7 @@ namespace NBitcoin.RPC
 		public int Txs { get; set; }
 		public int UTXOIncrease { get; set; }
 		public int UTXOSizeInc { get; set; }
-		
+
 	}
 }
 #endif

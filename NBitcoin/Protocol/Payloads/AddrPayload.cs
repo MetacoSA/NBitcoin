@@ -10,9 +10,10 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// An available peer address in the bitcoin network is announced (unsolicited or after a getaddr)
 	/// </summary>
-	[Payload("addr")]
+
 	public class AddrPayload : Payload, IBitcoinSerializable
 	{
+		public override string Command => "addr";
 		NetworkAddress[] addr_list = new NetworkAddress[0];
 		public NetworkAddress[] Addresses
 		{
@@ -53,9 +54,10 @@ namespace NBitcoin.Protocol
 	/// <summary>
 	/// An available peer address in the bitcoin network is announced (unsolicited or after a getaddrv2)
 	/// </summary>
-	[Payload("addrv2")]
+
 	public class AddrV2Payload : AddrPayload
 	{
+		public override string Command => "addrv2";
 		public AddrV2Payload()
 			: base()
 		{

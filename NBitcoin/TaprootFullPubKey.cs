@@ -16,18 +16,19 @@ namespace NBitcoin
 		{
 			if (internalKey is null)
 				throw new ArgumentNullException(nameof(internalKey));
-			Span<byte> tweak32 = stackalloc byte[32];
+			var tweak32 = new byte[32];
 			ComputeTapTweak(internalKey, merkleRoot, tweak32);
 			var outputKey = internalKey.pubkey.AddTweak(tweak32).ToXOnlyPubKey(out var parity);
-			return new TaprootFullPubKey(outputKey, parity, internalKey, merkleRoot);
+			return new TaprootFullPubKey(outputKey, parity, internalKey, merkleRoot, tweak32);
 		}
 
-		private TaprootFullPubKey(ECXOnlyPubKey outputKey, bool outputParity, TaprootInternalPubKey internalKey, uint256? merkleRoot) : base(outputKey)
+		private TaprootFullPubKey(ECXOnlyPubKey outputKey, bool outputParity, TaprootInternalPubKey internalKey, uint256? merkleRoot, byte[] tweak32) : base(outputKey)
 		{
 			OutputKey = new TaprootPubKey(outputKey);
 			OutputKeyParity = outputParity;
 			InternalKey = internalKey;
 			MerkleRoot = merkleRoot;
+			Tweak = new ReadOnlyMemory<byte>(tweak32);
 		}
 
 		internal static void ComputeTapTweak(TaprootInternalPubKey internalKey, uint256? merkleRoot, Span<byte> tweak32)
@@ -46,6 +47,7 @@ namespace NBitcoin
 
 		public bool OutputKeyParity { get; }
 		public uint256? MerkleRoot { get; }
+		public ReadOnlyMemory<byte> Tweak { get; }
 		public TaprootInternalPubKey InternalKey { get; }
 		public TaprootPubKey OutputKey { get; }
 

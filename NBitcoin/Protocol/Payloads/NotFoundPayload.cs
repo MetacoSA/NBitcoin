@@ -11,6 +11,7 @@ namespace NBitcoin.Protocol
 	/// </summary>
 	public class NotFoundPayload : Payload, IEnumerable<InventoryVector>
 	{
+		public override string Command => "notfound";
 		public NotFoundPayload()
 		{
 

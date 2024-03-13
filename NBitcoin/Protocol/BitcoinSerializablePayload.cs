@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	public class BitcoinSerializablePayload<T> : Payload where T : IBitcoinSerializable, new()
+	public abstract class BitcoinSerializablePayload<T> : Payload where T : IBitcoinSerializable, new()
 	{
 		public BitcoinSerializablePayload()
 		{

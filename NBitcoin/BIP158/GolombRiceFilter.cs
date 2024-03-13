@@ -157,9 +157,22 @@ namespace NBitcoin
 		/// <returns>true if the element is in the filter, otherwise false.</returns>
 		public bool Match(byte[] data, byte[] key)
 		{
+			var reader = new GRCodedStreamReader(new BitStream(Data), P, 0);
+			return Match(data, key, reader);
+		}
+
+		/// <summary>
+		/// Checks if the value passed is in the filter.
+		/// </summary>
+		/// <param name="data">Data element to check in the filter.</param>
+		/// <param name="key">Key used for hashing the data elements.</param>
+		/// <param name="reader">Golomb-Rice stream reader.</param>
+		/// <returns>true if the element is in the filter, otherwise false.</returns>
+		public bool Match(byte[] data, byte[] key, GRCodedStreamReader reader)
+		{
 			if (data == null)
 				throw new ArgumentNullException(nameof(data));
-			return MatchAny(new[] { data }, 1, key);
+			return MatchAny(new[] { data }, 1, key, reader);
 		}
 
 		/// <summary>
@@ -170,7 +183,8 @@ namespace NBitcoin
 		/// <returns>true if at least one of the elements is in the filter, otherwise false.</returns>
 		public bool MatchAny(byte[][] data, byte[] key)
 		{
-			return MatchAny(data, data.Length, key);
+			var reader = new GRCodedStreamReader(new BitStream(Data), P, 0);
+			return MatchAny(data, data.Length, key, reader);
 		}
 
 		/// <summary>
@@ -181,19 +195,32 @@ namespace NBitcoin
 		/// <returns>true if at least one of the elements is in the filter, otherwise false.</returns>
 		public bool MatchAny(IEnumerable<byte[]> data, byte[] key)
 		{
+			var reader = new GRCodedStreamReader(new BitStream(Data), P, 0);
+			return MatchAny(data, key, reader);
+		}
+
+		/// <summary>
+		/// Checks if any of the provided elements is in the filter.
+		/// </summary>
+		/// <param name="data">Data elements to check in the filter.</param>
+		/// <param name="key">Key used for hashing the data elements.</param>
+		/// <param name="reader">Golomb-Rice stream reader.</param>
+		/// <returns>true if at least one of the elements is in the filter, otherwise false.</returns>
+		public bool MatchAny(IEnumerable<byte[]> data, byte[] key, GRCodedStreamReader reader)
+		{
 			if (data == null)
 				throw new ArgumentNullException(nameof(data));
 			if (data is byte[][] dataArray)
 			{
-				return MatchAny(dataArray, dataArray.Length, key);
+				return MatchAny(dataArray, dataArray.Length, key, reader);
 			}
 			else if (data is ICollection<byte[]> dataCollection)
 			{
-				return MatchAny(dataCollection, dataCollection.Count, key);
+				return MatchAny(dataCollection, dataCollection.Count, key, reader);
 			}
 			else
 			{
-				return MatchAny(data, data.Count(), key);
+				return MatchAny(data, data.Count(), key, reader);
 			}
 		}
 
@@ -203,7 +230,19 @@ namespace NBitcoin
 		/// <param name="data">Data elements to check in the filter.</param>
 		/// <param name="key">Key used for hashing the data elements.</param>
 		/// <returns>true if at least one of the elements is in the filter, otherwise false.</returns>
-		internal bool MatchAny(IEnumerable<byte[]> data, int dataCount, byte[] key)
+		internal bool MatchAny(IEnumerable<byte[]> data, int dataCount, byte[] key, GRCodedStreamReader reader)
+		{
+			try
+			{
+				return InternalMatchAny(data, dataCount, key, reader);
+			}
+			finally
+			{
+				reader.ResetPosition();
+			}
+		}
+
+		private bool InternalMatchAny(IEnumerable<byte[]> data, int dataCount, byte[] key, GRCodedStreamReader sr)
 		{
 			if (data == null || dataCount == 0)
 				throw new ArgumentException("data can not be null or empty array.", nameof(data));
@@ -211,9 +250,6 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(key));
 
 			var hs = ConstructHashedSet(P, N, M, key, data, dataCount);
-
-			var bitStream = new BitStream(Data);
-			var sr = new GRCodedStreamReader(bitStream, P, 0);
 
 			while(sr.TryRead(out var val))
 			{
@@ -253,6 +289,15 @@ namespace NBitcoin
 		public override string ToString()
 		{
 			return NBitcoin.DataEncoders.Encoders.Hex.EncodeData(ToBytes());
+		}
+
+		/// <summary>
+		/// Create a cached Golomb-Rice stream reader.
+		/// </summary>
+		/// <returns>A new cached Golomb-Rice stream reader instance</returns>
+		public CachedGRCodedStreamReader GetNewGRStreamReader()
+		{
+			return new CachedGRCodedStreamReader(new BitStream(Data), P, 0);
 		}
 
 		internal static ulong FastReduction(ulong value, ulong nhi, ulong nlo)

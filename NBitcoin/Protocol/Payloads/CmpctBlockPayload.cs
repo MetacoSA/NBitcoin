@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("cmpctblock")]
+
 	public class CmpctBlockPayload : Payload
 	{
+		public override string Command => "cmpctblock";
 		public CmpctBlockPayload()
 		{
 

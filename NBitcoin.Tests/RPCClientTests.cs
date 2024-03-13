@@ -534,7 +534,7 @@ namespace NBitcoin.Tests
 				var response = rpc.GetTxoutSetInfo();
 
 				Assert.Equal("0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206", response.Bestblock.ToString());
-				Assert.Equal("b32ec1dda5a53cd025b95387aad344a801825fe46a60ff952ce26528f01d3be8", response.HashSerialized2);
+				Assert.Equal("56944c5d3f98413ef45cf54545538103cc9f298e0575820ad3591376e2e0f65d", response.HashSerialized);
 
 				const int BLOCKS_TO_GENERATE = 10;
 				uint256[] blockHashes = await rpc.GenerateAsync(BLOCKS_TO_GENERATE);
@@ -1549,7 +1549,7 @@ namespace NBitcoin.Tests
 				var result = rpc.TestMempoolAccept(tx, new TestMempoolParameters() { MaxFeeRate = new FeeRate(1.0m) });
 				Assert.False(result.IsAllowed);
 				Assert.Equal(Protocol.RejectCode.INVALID, result.RejectCode);
-				Assert.Equal("non-mandatory-script-verify-flag (Witness program hash mismatch)", result.RejectReason);
+				Assert.Equal("mandatory-script-verify-flag-failed (Witness program hash mismatch)", result.RejectReason);
 
 				var signedTx = rpc.SignRawTransactionWithWallet(new SignRawTransactionRequest()
 				{

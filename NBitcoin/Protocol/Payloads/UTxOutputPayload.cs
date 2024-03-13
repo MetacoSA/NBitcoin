@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 
-namespace NBitcoin.Protocol.Payloads
+namespace NBitcoin.Protocol
 {
-	[Payload("utxos")]
+
 	public class UTxOutputPayload : Payload
 	{
+		public override string Command => "utxos";
 		private UTxOutputs _uTxOutputs;
 
 		public override void ReadWriteCore(BitcoinStream stream)
