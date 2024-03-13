@@ -15,7 +15,7 @@ namespace NBitcoin.Secp256k1.Musig
 #endif
 	class MusigPrivNonce : IDisposable
 	{
-		readonly static RandomNumberGenerator rand = new RNGCryptoServiceProvider();
+		readonly static RandomNumberGenerator rand = RandomNumberGenerator.Create();
 
 
 		/// <summary>
@@ -26,7 +26,7 @@ namespace NBitcoin.Secp256k1.Musig
 		/// <param name="sessionId32">A unique session_id32. It is a "number used once". If empty, it will be randomly generated.</param>
 		/// <param name="signingKey">Provide the message to be signed to increase misuse-resistance. If you do provide a signingKey, sessionId32 can instead be a counter (that must never repeat!). However, it is recommended to always choose session_id32 uniformly at random. Can be null.</param>
 		/// <param name="msg32">Provide the message to be signed to increase misuse-resistance. Can be empty.</param>
-		/// <param name="combinedKey">Provide the message to be signed to increase misuse-resistance. Can be null.</param>
+		/// <param name="aggregatePubKey">Provide the message to be signed to increase misuse-resistance. Can be null.</param>
 		/// <param name="extraInput32">Provide the message to be signed to increase misuse-resistance. The extra_input32 argument can be used to provide additional data that does not repeat in normal scenarios, such as the current time. Can be empty.</param>
 		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
 		public static MusigPrivNonce GenerateMusigNonce(
@@ -34,7 +34,7 @@ namespace NBitcoin.Secp256k1.Musig
 						   ReadOnlySpan<byte> sessionId32,
 						   ECPrivKey? signingKey,
 						   ReadOnlySpan<byte> msg32,
-						   ECXOnlyPubKey? combinedKey,
+						   ECXOnlyPubKey? aggregatePubKey,
 						   ReadOnlySpan<byte> extraInput32)
 		{
 			if (!(sessionId32.Length is 32) && !(sessionId32.Length is 0))
@@ -60,24 +60,24 @@ namespace NBitcoin.Secp256k1.Musig
 				signingKey.WriteToSpan(key32);
 			}
 
-			Span<byte> combined_pk = stackalloc byte[32];
-			if (combinedKey is null)
+			Span<byte> agg_pk = stackalloc byte[32];
+			if (aggregatePubKey is null)
 			{
-				combined_pk = combined_pk.Slice(0, 0);
+				agg_pk = agg_pk.Slice(0, 0);
 			}
 			else
 			{
-				combinedKey.WriteToSpan(combined_pk);
+				aggregatePubKey.WriteToSpan(agg_pk);
 			}
 
 			var k = new Scalar[2];
-			secp256k1_nonce_function_musig(k, sessionId32, key32, msg32, combined_pk, extraInput32);
+			secp256k1_nonce_function_musig(k, sessionId32, msg32, key32, agg_pk, extraInput32);
 			return new MusigPrivNonce(new ECPrivKey(k[0], context, true), new ECPrivKey(k[1], context, true));
 		}
 
 
 
-		static void secp256k1_nonce_function_musig(Span<Scalar> k, ReadOnlySpan<byte> session_id, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> combined_pk, ReadOnlySpan<byte> extra_input32)
+		internal static void secp256k1_nonce_function_musig(Span<Scalar> k, ReadOnlySpan<byte> session_id, ReadOnlySpan<byte> msg32, ReadOnlySpan<byte> key32, ReadOnlySpan<byte> agg_pk, ReadOnlySpan<byte> extra_input32)
 		{
 			using SHA256 sha = new SHA256();
 			Span<byte> seed = stackalloc byte[32];
@@ -87,15 +87,22 @@ namespace NBitcoin.Secp256k1.Musig
 			 * nonce function because the seckey feeds directly into SHA. */
 			sha.InitializeTagged("MuSig/nonce");
 			sha.Write(session_id.Slice(0, 32));
-
-
-
-
 			Span<byte> marker = stackalloc byte[1];
 
+			if (msg32.Length is 32)
+			{
+				marker[0] = 32;
+				sha.Write(marker);
+				sha.Write(msg32);
+			}
+			else
+			{
+				marker[0] = 0;
+				sha.Write(marker);
+			}
 			if (key32.Length is 32)
 			{
-				marker[0] = 1;
+				marker[0] = 32;
 				sha.Write(marker);
 				sha.Write(key32);
 			}
@@ -105,23 +112,11 @@ namespace NBitcoin.Secp256k1.Musig
 				sha.Write(marker);
 			}
 
-			if (combined_pk.Length is 32)
+			if (agg_pk.Length is 32)
 			{
-				marker[0] = 1;
+				marker[0] = 32;
 				sha.Write(marker);
-				sha.Write(combined_pk);
-			}
-			else
-			{
-				marker[0] = 0;
-				sha.Write(marker);
-			}
-
-			if (msg32.Length is 32)
-			{
-				marker[0] = 1;
-				sha.Write(marker);
-				sha.Write(msg32);
+				sha.Write(agg_pk);
 			}
 			else
 			{
@@ -131,7 +126,7 @@ namespace NBitcoin.Secp256k1.Musig
 
 			if (extra_input32.Length is 32)
 			{
-				marker[0] = 1;
+				marker[0] = 32;
 				sha.Write(marker);
 				sha.Write(extra_input32);
 			}
@@ -174,7 +169,7 @@ namespace NBitcoin.Secp256k1.Musig
 			}
 		}
 
-		MusigPrivNonce(ECPrivKey k1, ECPrivKey k2)
+		internal MusigPrivNonce(ECPrivKey k1, ECPrivKey k2)
 		{
 			this.k1 = k1;
 			this.k2 = k2;

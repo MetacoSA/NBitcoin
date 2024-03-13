@@ -13,6 +13,7 @@ using NBitcoin.Protocol;
 using NBitcoin.Protocol.Payloads;
 using Newtonsoft.Json.Linq;
 using System.Runtime.ExceptionServices;
+using System.Net.Http;
 
 namespace NBitcoin.RPC
 {
@@ -207,54 +208,50 @@ namespace NBitcoin.RPC
 			var request = BuildHttpRequest(resource, format, parms);
 			using (var response = await GetWebResponse(request).ConfigureAwait(false))
 			{
-				var stream = response.GetResponseStream();
-				var bytesToRead = (int)response.ContentLength;
-				var buffer = await stream.ReadBytesAsync(bytesToRead).ConfigureAwait(false);
+				var buffer = await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
 				return buffer;
 			}
 		}
 
 		#region Private methods
-		private WebRequest BuildHttpRequest(string resource, RestResponseFormat format, params string[] parms)
+		private static Lazy<HttpClient> _Shared = new Lazy<HttpClient>(() => new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan });
+		HttpClient _HttpClient;
+		public HttpClient HttpClient
+		{
+			get
+			{
+				return _HttpClient ?? _Shared.Value;
+			}
+			set
+			{
+				_HttpClient = value;
+			}
+		}
+		private HttpRequestMessage BuildHttpRequest(string resource, RestResponseFormat format, params string[] parms)
 		{
 			var hasParams = parms != null && parms.Length > 0;
 			var uriBuilder = new UriBuilder(_address);
 			uriBuilder.Path = "rest/" + resource + (hasParams ? "/" : "") + string.Join("/", parms) + "." + format.ToString().ToLowerInvariant();
-
-			var request = WebRequest.CreateHttp(uriBuilder.Uri);
-			request.Method = "GET";
-#if !NETSTANDARD1X
-			request.KeepAlive = false;
-#endif
-			return request;
+			return new HttpRequestMessage(HttpMethod.Get, uriBuilder.Uri);
 		}
 
-		private static async Task<WebResponse> GetWebResponse(WebRequest request)
+		private bool IsPlainText(HttpResponseMessage httpResponse)
 		{
-			WebResponse response = null;
-			WebException exception = null;
-			try
-			{
-				response = await request.GetResponseAsync().ConfigureAwait(false);
-			}
-			catch (WebException ex)
-			{
-				// "WebException status: {0}", ex.Status);
+			return httpResponse.Content?.Headers?.ContentType?.MediaType?.Equals("text/plain", StringComparison.Ordinal) is true;
+		}
 
-				// Even if the request "failed" we need to continue reading the response from the router
-				response = ex.Response as HttpWebResponse;
-
-				if (response == null)
-					throw;
-				exception = ex;
-			}
-			if (exception != null)
+		private async Task<HttpResponseMessage> GetWebResponse(HttpRequestMessage request)
+		{
+			var response = await HttpClient.SendAsync(request).ConfigureAwait(false);
+			if (!response.IsSuccessStatusCode)
 			{
-				var stream = response.GetResponseStream();
-				var bytesToRead = (int)response.ContentLength;
-				var buffer = await stream.ReadBytesAsync(bytesToRead).ConfigureAwait(false);
-				response.Dispose();
-				throw new RestApiException(Encoding.UTF8.GetString(buffer, 0, buffer.Length - 2), exception);
+				using (response)
+				{
+					if (!IsPlainText(response))
+						response.EnsureSuccessStatusCode();
+					var details = (await response.Content.ReadAsStringAsync().ConfigureAwait(false)).Trim();
+					throw new RestApiException(details, response.StatusCode);
+				}
 			}
 			return response;
 		}
@@ -263,10 +260,12 @@ namespace NBitcoin.RPC
 
 	public class RestApiException : Exception
 	{
-		public RestApiException(string message, WebException inner)
-			: base(message, inner)
+		public RestApiException(string message, HttpStatusCode httpStatusCode)
+			: base(message)
 		{
+			HttpStatusCode = httpStatusCode;
 		}
+		public HttpStatusCode HttpStatusCode { get; }
 	}
 
 	public class ChainInfo

@@ -1858,16 +1858,6 @@ namespace NBitcoin.Tests
 			AssertEx.CollectionEquals(Encoders.Hex.DecodeData("0102030405060708090102030405060708090102030405060708090102030405"), bytes.ToArray());
 			Assert.True(new uint256("0102030405060708090102030405060708090102030405060708090102030405") == new uint256(new uint256("0102030405060708090102030405060708090102030405060708090102030405")));
 		}
-#if !NOSOCKET
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void OtherCoverage()
-		{
-			Assert.Equal(System.Net.IPAddress.Parse("127.0.0.1").MapToIPv6(), Utils.MapToIPv6(System.Net.IPAddress.Parse("127.0.0.1")));
-			Assert.False(Utils.IsIPv4MappedToIPv6(System.Net.IPAddress.Parse("127.0.0.1")));
-			Assert.True(Utils.IsIPv4MappedToIPv6(Utils.MapToIPv6(System.Net.IPAddress.Parse("127.0.0.1"))));
-		}
-#endif
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void BitcoinStreamCoverage()
@@ -3137,7 +3127,7 @@ namespace NBitcoin.Tests
 			var k = new Key();
 			var addr = k.GetScriptPubKey(ScriptPubKeyType.Segwit);
 			var coins = Enumerable.Range(0, 100_000)
-				.Select(c => new Coin(new OutPoint(RandomUtils.GetUInt256(), 0), new TxOut(Money.Coins(1.0m) + Money.Satoshis((long)(RandomUtils.GetUInt32() % 1000)), addr)))
+				.Select(c => new Coin(new OutPoint(RandomUtils.GetUInt256(), 0), new TxOut(Money.Coins(1.0m) + Money.Satoshis(c), addr)))
 				.ToArray();
 
 			var builder = new TransactionBuilder(Network.Main);

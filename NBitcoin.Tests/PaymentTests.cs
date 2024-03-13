@@ -73,12 +73,12 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void BitcoinUrlKeepUnknowParameter()
+		public void BitcoinUrlKeepUnknownParameter()
 		{
 			BitcoinUrlBuilder url = new BitcoinUrlBuilder("bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe&idontknow=test", Network.Main);
 
-			Assert.Equal("test", url.UnknowParameters["idontknow"]);
-			Assert.Equal("https://merchant.com/pay.php?h=2a8628fc2fbe", url.UnknowParameters["r"]);
+			Assert.Equal("test", url.UnknownParameters["idontknow"]);
+			Assert.Equal("https://merchant.com/pay.php?h=2a8628fc2fbe", url.UnknownParameters["r"]);
 		}
 
 		private BitcoinUrlBuilder CreateBuilder(string uri)

@@ -114,8 +114,14 @@ namespace NBitcoin
 
 			}
 			public static BitcoinExtPubKeyComparer Instance { get; } = new BitcoinExtPubKeyComparer();
-			public int Compare(BitcoinExtPubKey x, BitcoinExtPubKey y)
+			public int Compare(BitcoinExtPubKey? x, BitcoinExtPubKey? y)
 			{
+				if (x is null && y is null)
+					return 0;
+				if (x is null)
+					return -1;
+				if (y is null)
+					return 1;
 				return BytesComparer.Instance.Compare(x.ExtPubKey.ToBytes(), y.ExtPubKey.ToBytes());
 			}
 		}
@@ -1019,7 +1025,7 @@ namespace NBitcoin
 		public string ToBase64() => Encoders.Base64.EncodeData(this.ToBytes());
 		public string ToHex() => Encoders.Hex.EncodeData(this.ToBytes());
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			var item = obj as PSBT;
 			if (item == null)
@@ -1027,7 +1033,7 @@ namespace NBitcoin
 			return item.Equals(this);
 		}
 
-		public bool Equals(PSBT b)
+		public bool Equals(PSBT? b)
 		{
 			if (b is null)
 				return false;

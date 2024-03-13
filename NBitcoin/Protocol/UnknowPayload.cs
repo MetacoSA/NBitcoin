@@ -7,13 +7,18 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	public class UnknowPayload : Payload
+	[Obsolete("Use UnknownPayload")]
+	public class UnknowPayload : UnknownPayload
 	{
-		public UnknowPayload()
+	}
+
+	public class UnknownPayload : Payload
+	{
+		public UnknownPayload()
 		{
 
 		}
-		public UnknowPayload(string command)
+		public UnknownPayload(string command)
 		{
 			_Command = command;
 		}

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 #nullable enable
 
 namespace NBitcoin
@@ -17,10 +18,10 @@ namespace NBitcoin
 		/// <param name="scriptId"></param>
 		/// <param name="script"></param>
 		/// <returns></returns>
-		bool TryGetScript(ScriptId scriptId, out Script script);
-		bool TryGetPubKey(KeyId keyId, out PubKey pubkey);
-		bool TryGetKeyOrigin(KeyId keyId, out RootedKeyPath keyorigin);
-		bool TryGetSecret(KeyId keyId, out ISecret secret);
+		bool TryGetScript(ScriptId scriptId, [MaybeNullWhen(false)] out Script script);
+		bool TryGetPubKey(KeyId keyId, [MaybeNullWhen(false)] out PubKey pubkey);
+		bool TryGetKeyOrigin(KeyId keyId, [MaybeNullWhen(false)] out RootedKeyPath keyorigin);
+		bool TryGetSecret(KeyId keyId, [MaybeNullWhen(false)] out ISecret secret);
 
 
 		/// <summary>
@@ -131,16 +132,16 @@ namespace NBitcoin
 			Scripts = new ConcurrentDictionary<ScriptId, Script>();
 		}
 
-		public bool TryGetScript(ScriptId scriptId, out Script script)
+		public bool TryGetScript(ScriptId scriptId, [MaybeNullWhen(false)] out Script script)
 			=> Scripts.TryGetValue(scriptId, out script);
 
-		public bool TryGetPubKey(KeyId keyId, out PubKey pubkey)
+		public bool TryGetPubKey(KeyId keyId, [MaybeNullWhen(false)] out PubKey pubkey)
 			=> Pubkeys.TryGetValue(keyId, out pubkey);
 
-		public bool TryGetKeyOrigin(KeyId keyId, out RootedKeyPath keyOrigin)
+		public bool TryGetKeyOrigin(KeyId keyId, [MaybeNullWhen(false)] out RootedKeyPath keyOrigin)
 			=> KeyOrigins.TryGetValue(keyId, out keyOrigin);
 
-		public bool TryGetSecret(KeyId keyId, out ISecret key)
+		public bool TryGetSecret(KeyId keyId, [MaybeNullWhen(false)] out ISecret key)
 			=> Secrets.TryGetValue(keyId, out key);
 		public void SetScript(ScriptId scriptId, Script script)
 		{
@@ -216,7 +217,7 @@ namespace NBitcoin
 			MergeDict(KeyOrigins, otherRepo.KeyOrigins);
 		}
 
-		private void MergeDict<U, T>(ConcurrentDictionary<U, T> a, ConcurrentDictionary<U, T> b)
+		private void MergeDict<U, T>(ConcurrentDictionary<U, T> a, ConcurrentDictionary<U, T> b) where U : notnull
 		{
 			foreach (var bItem in b)
 			{

@@ -57,7 +57,7 @@ namespace NBitcoin
 		}
 
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is KeyId id)
 				return this.v == id.v;
@@ -148,7 +148,7 @@ namespace NBitcoin
 		}
 
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is WitKeyId id)
 				return this.v == id.v;
@@ -253,7 +253,7 @@ namespace NBitcoin
 		{
 			return network.Consensus.SupportSegwit;
 		}
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is WitScriptId id)
 				return this.v == id.v;
@@ -342,7 +342,7 @@ namespace NBitcoin
 			return true;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is ScriptId id)
 				return this.v == id.v;

@@ -220,7 +220,7 @@ namespace NBitcoin
 			return b;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is ExtPubKey other)
 			{
@@ -273,7 +273,7 @@ namespace NBitcoin
 			return false;
 		}
 
-		public bool Equals(ExtPubKey other)
+		public bool Equals(ExtPubKey? other)
 		{
 			if (other is null)
 				return false;

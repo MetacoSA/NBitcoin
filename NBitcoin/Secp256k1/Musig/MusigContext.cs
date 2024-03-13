@@ -11,17 +11,23 @@ namespace NBitcoin.Secp256k1.Musig
 {
 	class MusigSessionCache
 	{
-		internal bool CombinedNonceParity;
-		internal Scalar B;
-		internal Scalar E;
+		internal bool FinalNonceParity;
+		internal Scalar NonceCoeff;
+		internal Scalar Challenge;
+		internal Scalar SPart;
+		internal byte[] FinalNonce = new byte[32];
+
 		internal MusigSessionCache Clone()
 		{
-			return new MusigSessionCache()
+			var c = new MusigSessionCache()
 			{
-				CombinedNonceParity = CombinedNonceParity,
-				B = B,
-				E = E
+				FinalNonceParity = FinalNonceParity,
+				NonceCoeff = NonceCoeff,
+				Challenge = Challenge,
+				SPart = SPart
 			};
+			FinalNonce.AsSpan().CopyTo(c.FinalNonce);
+			return c;
 		}
 	}
 #if SECP256K1_LIB
@@ -40,20 +46,20 @@ namespace NBitcoin.Secp256k1.Musig
 		internal bool internal_key_parity;
 		internal bool processed_nonce;
 		internal MusigSessionCache? SessionCache;
-		internal SecpSchnorrSignature? Template;
 
 		private ECXOnlyPubKey[] pubKeys;
-		private MusigPubNonce? combinedNonce;
-		public MusigPubNonce? CombinedNonce => combinedNonce;
-		public ECXOnlyPubKey CombinedPubKey => combinedPubKey;
+		private MusigPubNonce? aggregateNonce;
+		public MusigPubNonce? AggregateNonce => aggregateNonce;
+		public ECXOnlyPubKey AggregatePubKey => aggregatePubKey;
 		ECPubKey? tweakedPubKey;
 		ECXOnlyPubKey? xonlyTweakedPubKey;
 		public ECPubKey? TweakedPubKey => tweakedPubKey;
 		public ECXOnlyPubKey? XOnlyTweakedPubKey => xonlyTweakedPubKey ??= tweakedPubKey?.ToXOnlyPubKey();
 
 
-		public ECXOnlyPubKey SigningPubKey => XOnlyTweakedPubKey ?? CombinedPubKey;
-		private ECXOnlyPubKey combinedPubKey;
+		public ECXOnlyPubKey SigningPubKey => XOnlyTweakedPubKey ?? AggregatePubKey;
+
+		private ECXOnlyPubKey aggregatePubKey;
 		private Context ctx;
 
 
@@ -69,10 +75,9 @@ namespace NBitcoin.Secp256k1.Musig
 			internal_key_parity = musigContext.internal_key_parity;
 			processed_nonce = musigContext.processed_nonce;
 			SessionCache = musigContext.SessionCache?.Clone();
-			Template = musigContext.Template;
 			pubKeys = musigContext.pubKeys.ToArray();
-			combinedNonce = musigContext.combinedNonce;
-			combinedPubKey = musigContext.combinedPubKey;
+			aggregateNonce = musigContext.aggregateNonce;
+			aggregatePubKey = musigContext.aggregatePubKey;
 			tweakedPubKey = musigContext.tweakedPubKey;
 			ctx = musigContext.ctx;
 			msg32 = musigContext.msg32;
@@ -92,7 +97,7 @@ namespace NBitcoin.Secp256k1.Musig
 			if (!(msg32.Length is 32))
 				throw new ArgumentNullException(nameof(msg32), "msg32 should be 32 bytes.");
 			this.pubKeys = pubKeys;
-			this.combinedPubKey = ECXOnlyPubKey.MusigCombine(pubKeys, this);
+			this.aggregatePubKey = ECXOnlyPubKey.MusigAggregate(pubKeys, this);
 			this.ctx = pubKeys[0].ctx;
 			this.msg32 = msg32.ToArray();
 		}
@@ -108,7 +113,7 @@ namespace NBitcoin.Secp256k1.Musig
 			scalar_tweak = new Scalar(tweak32, out int overflow);
 			if (overflow == 1)
 				throw new ArgumentException(nameof(tweak32), "The tweak is overflowing");
-			var output = combinedPubKey.AddTweak(tweak32);
+			var output = aggregatePubKey.AddTweak(tweak32);
 			internal_key_parity = pk_parity;
 			pk_parity = output.Q.y.IsOdd;
 			is_tweaked = true;
@@ -125,100 +130,90 @@ namespace NBitcoin.Secp256k1.Musig
 
 		public void ProcessNonces(MusigPubNonce[] nonces)
 		{
-			Process(MusigPubNonce.Combine(nonces));
+			Process(MusigPubNonce.Aggregate(nonces));
 		}
-		public void Process(MusigPubNonce combinedNonce)
+		public void Process(MusigPubNonce aggregatedNonce)
 		{
 			if (processed_nonce)
 				throw new InvalidOperationException($"Nonce already processed");
-			var combined_pk = this.SigningPubKey;
+			var agg_pk = this.SigningPubKey;
 
 			MusigSessionCache session_cache = new MusigSessionCache();
-			Span<byte> noncehash = stackalloc byte[32];
-			Span<byte> sig_template_data = stackalloc byte[32];
+			Span<byte> fin_nonce = stackalloc byte[32];
 
-			Span<byte> combined_pk32 = stackalloc byte[32];
-			Span<GEJ> summed_nonces = stackalloc GEJ[2];
-			summed_nonces[0] = combinedNonce.K1.Q.ToGroupElementJacobian();
-			summed_nonces[1] = combinedNonce.K2.Q.ToGroupElementJacobian();
+			Span<byte> agg_pk32 = stackalloc byte[32];
+			Span<GEJ> aggnonce_ptj = stackalloc GEJ[2];
+			aggnonce_ptj[0] = aggregatedNonce.K1.Q.ToGroupElementJacobian();
+			aggnonce_ptj[1] = aggregatedNonce.K2.Q.ToGroupElementJacobian();
 
-			combined_pk.WriteToSpan(combined_pk32);
+			agg_pk.WriteToSpan(agg_pk32);
 			/* Add public adaptor to nonce */
 			if (adaptor != null)
 			{
-				summed_nonces[0] = summed_nonces[0].AddVariable(adaptor.Q);
+				aggnonce_ptj[0] = aggnonce_ptj[0].AddVariable(adaptor.Q);
 			}
-			var combined_nonce = secp256k1_musig_process_nonces_internal(
-				this.ctx.EcMultContext,
-				noncehash,
-				summed_nonces,
-				combined_pk32,
-				msg32);
-			session_cache.B = new Scalar(noncehash);
 
-			ECXOnlyPubKey.secp256k1_xonly_ge_serialize(sig_template_data, ref combined_nonce);
-			var rx = combined_nonce.x;
-			/* Negate nonce if Y coordinate is not square */
-			combined_nonce = combined_nonce.NormalizeYVariable();
-			/* Store nonce parity in session cache */
-			session_cache.CombinedNonceParity = combined_nonce.y.IsOdd;
+			secp256k1_musig_nonce_process_internal(this.ctx.EcMultContext, out session_cache.FinalNonceParity, fin_nonce, out session_cache.NonceCoeff, aggnonce_ptj, agg_pk32, msg32);
 
 			/* Compute messagehash and store in session cache */
-			ECXOnlyPubKey.secp256k1_musig_compute_messagehash(noncehash, sig_template_data, combined_pk32, msg32);
-			session_cache.E = new Scalar(noncehash);
+			ECXOnlyPubKey.secp256k1_schnorrsig_challenge(out session_cache.Challenge, fin_nonce, msg32, agg_pk32);
 
 			/* If there is a tweak then set `msghash` times `tweak` to the `s`-part of the sig template.*/
-			Scalar s = Scalar.Zero;
+			session_cache.SPart = Scalar.Zero;
 			if (is_tweaked)
 			{
-				Scalar e = session_cache.E;
-				if (!ECPrivKey.secp256k1_eckey_privkey_tweak_mul(ref e, scalar_tweak))
+				Scalar e_tmp = session_cache.Challenge;
+				if (!ECPrivKey.secp256k1_eckey_privkey_tweak_mul(ref e_tmp, scalar_tweak))
 					throw new InvalidOperationException("Impossible to sign (secp256k1_eckey_privkey_tweak_mul is false)");
 				if (pk_parity)
-					e = e.Negate();
-				s = s.Add(e);
+					e_tmp = e_tmp.Negate();
+				session_cache.SPart = session_cache.SPart.Add(e_tmp);
 			}
+			fin_nonce.CopyTo(session_cache.FinalNonce);
 			SessionCache = session_cache;
-			Template = new SecpSchnorrSignature(rx, s);
 			processed_nonce = true;
-			this.combinedNonce = combinedNonce;
+			this.aggregateNonce = aggregatedNonce;
 		}
 
-		internal static GE secp256k1_musig_process_nonces_internal(
+		internal static void secp256k1_musig_nonce_process_internal(
 			ECMultContext ecmult_ctx,
-			Span<byte> noncehash,
-			Span<GEJ> summed_noncesj,
-			ReadOnlySpan<byte> combined_pk32,
+			out bool fin_nonce_parity,
+			Span<byte> fin_nonce,
+			out Scalar b,
+			Span<GEJ> aggnoncej,
+			ReadOnlySpan<byte> agg_pk32,
 			ReadOnlySpan<byte> msg)
 		{
+			Span<byte> noncehash = stackalloc byte[32];
+			Span<GE> aggnonce = stackalloc GE[2];
+			aggnonce[0] = aggnoncej[0].ToGroupElement();
+			aggnonce[1] = aggnoncej[1].ToGroupElement();
+			secp256k1_musig_compute_noncehash(noncehash, aggnonce, agg_pk32, msg);
 
-			Scalar b;
-			GEJ combined_noncej;
-			Span<GE> summed_nonces = stackalloc GE[2];
-			summed_nonces[0] = summed_noncesj[0].ToGroupElement();
-			summed_nonces[1] = summed_noncesj[1].ToGroupElement();
-			secp256k1_musig_compute_noncehash(noncehash, summed_nonces, combined_pk32, msg);
-
-			/* combined_nonce = summed_nonces[0] + b*summed_nonces[1] */
+			/* aggnonce = aggnonces[0] + b*aggnonces[1] */
 			b = new Scalar(noncehash);
-			combined_noncej = ecmult_ctx.Mult(summed_noncesj[1], b, null);
-			combined_noncej = combined_noncej.Add(summed_nonces[0]);
-			return combined_noncej.ToGroupElement();
+			var fin_nonce_ptj = ecmult_ctx.Mult(aggnoncej[1], b, null);
+			fin_nonce_ptj = fin_nonce_ptj.Add(aggnonce[0]);
+			var fin_nonce_pt = fin_nonce_ptj.ToGroupElement();
+			ECXOnlyPubKey.secp256k1_xonly_ge_serialize(fin_nonce, ref fin_nonce_pt);
+
+			fin_nonce_pt = fin_nonce_pt.NormalizeYVariable();
+			fin_nonce_parity = fin_nonce_pt.y.IsOdd;
 		}
 
-		/* hash(summed_nonces[0], summed_nonces[1], combined_pk, msg) */
-		internal static void secp256k1_musig_compute_noncehash(Span<byte> noncehash, Span<GE> summed_nonces, ReadOnlySpan<byte> combined_pk32, ReadOnlySpan<byte> msg)
+		/* hash(summed_nonces[0], summed_nonces[1], agg_pk32, msg) */
+		internal static void secp256k1_musig_compute_noncehash(Span<byte> noncehash, Span<GE> aggnonce, ReadOnlySpan<byte> agg_pk32, ReadOnlySpan<byte> msg)
 		{
-			Span<byte> buf = stackalloc byte[32];
+			Span<byte> buf = stackalloc byte[33];
 			using SHA256 sha = new SHA256();
-			sha.Initialize();
+			sha.InitializeTagged("MuSig/noncecoef");
 			int i;
 			for (i = 0; i < 2; i++)
 			{
-				ECXOnlyPubKey.secp256k1_xonly_ge_serialize(buf, ref summed_nonces[i]);
+				ECPubKey.secp256k1_eckey_pubkey_serialize(buf, ref aggnonce[i], out _, true);
 				sha.Write(buf);
 			}
-			sha.Write(combined_pk32.Slice(0, 32));
+			sha.Write(agg_pk32.Slice(0, 32));
 			sha.Write(msg.Slice(0, 32));
 			sha.GetHash(noncehash);
 		}
@@ -238,7 +233,7 @@ namespace NBitcoin.Secp256k1.Musig
 			GEJ rj;
 			GEJ tmp;
 			GE pkp;
-			var b = SessionCache.B;
+			var b = SessionCache.NonceCoeff;
 			var pre_session = this;
 			/* Compute "effective" nonce rj = nonces[0] + b*nonces[1] */
 			/* TODO: use multiexp */
@@ -255,7 +250,7 @@ namespace NBitcoin.Secp256k1.Musig
 			 * to multiplying the signer's public key by the coefficient, except
 			 * much easier to do. */
 			var mu = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(pre_session, pkp.x);
-			var e = SessionCache.E * mu;
+			var e = SessionCache.Challenge * mu;
 			/* If the MuSig-combined point has an odd Y coordinate, the signers will
      * sign for the negation of their individual xonly public key such that the
      * combined signature is valid for the MuSig aggregated xonly key. If the
@@ -273,8 +268,8 @@ namespace NBitcoin.Secp256k1.Musig
 			s = s.Negate();
 			pkj = pkp.ToGroupElementJacobian();
 			tmp = ctx.EcMultContext.Mult(pkj, e, s);
-			var combined_nonce_parity = SessionCache.CombinedNonceParity;
-			if (combined_nonce_parity)
+			var fin_nonce_parity = SessionCache.FinalNonceParity;
+			if (fin_nonce_parity)
 			{
 				rj = rj.Negate();
 			}
@@ -282,18 +277,18 @@ namespace NBitcoin.Secp256k1.Musig
 			return tmp.IsInfinity;
 		}
 
-		public SecpSchnorrSignature Combine(MusigPartialSignature[] partialSignatures)
+		public SecpSchnorrSignature AggregateSignatures(MusigPartialSignature[] partialSignatures)
 		{
 			if (partialSignatures == null)
 				throw new ArgumentNullException(nameof(partialSignatures));
-			if (Template is null)
+			if (this.SessionCache?.SPart is null)
 				throw new InvalidOperationException("You need to run MusigContext.Process first");
-			var s = this.Template.s;
+			var s = this.SessionCache.SPart;
 			foreach (var sig in partialSignatures)
 			{
 				s = s + sig.E;
 			}
-			return new SecpSchnorrSignature(Template.rx, s);
+			return new SecpSchnorrSignature(new FE(this.SessionCache.FinalNonce), s);
 		}
 
 		public MusigPartialSignature Sign(ECPrivKey privKey, MusigPrivNonce privNonce)
@@ -355,7 +350,7 @@ namespace NBitcoin.Secp256k1.Musig
 				l++;
 			if (pre_session.pk_parity)
 				l++;
-			if (pre_session.is_tweaked && pre_session.internal_key_parity)
+			if (pre_session.internal_key_parity)
 				l++;
 			if (l % 2 == 1)
 				sk = sk.Negate();
@@ -364,14 +359,14 @@ namespace NBitcoin.Secp256k1.Musig
 			pk = pk.NormalizeXVariable();
 			var mu = ECXOnlyPubKey.secp256k1_musig_keyaggcoef(pre_session, pk.x);
 			sk = sk * mu;
-			if (session_cache.CombinedNonceParity)
+			if (session_cache.FinalNonceParity)
 			{
 				k[0] = k[0].Negate();
 				k[1] = k[1].Negate();
 			}
 
-			var e = session_cache.E * sk;
-			k[1] = session_cache.B * k[1];
+			var e = session_cache.Challenge * sk;
+			k[1] = session_cache.NonceCoeff * k[1];
 			k[0] = k[0] + k[1];
 			e = e + k[0];
 			Scalar.Clear(ref k[0]);
@@ -390,7 +385,7 @@ namespace NBitcoin.Secp256k1.Musig
 				throw new InvalidOperationException("You need to run MusigContext.Process first");
 			var s = signature.s;
 			var t = adaptorSecret.sec;
-			if (SessionCache.CombinedNonceParity)
+			if (SessionCache.FinalNonceParity)
 			{
 				t = t.Negate();
 			}
@@ -410,7 +405,7 @@ namespace NBitcoin.Secp256k1.Musig
 			{
 				t = t + sig.E;
 			}
-			if (!SessionCache.CombinedNonceParity)
+			if (!SessionCache.FinalNonceParity)
 			{
 				t = t.Negate();
 			}
@@ -476,7 +471,7 @@ namespace NBitcoin.Secp256k1.Musig
 		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
 		public MusigPrivNonce GenerateNonce(ReadOnlySpan<byte> sessionId32, ECPrivKey? signingKey, ReadOnlySpan<byte> extraInput32)
 		{
-			return MusigPrivNonce.GenerateMusigNonce(ctx, sessionId32, signingKey, this.msg32, this.combinedPubKey, extraInput32);
+			return MusigPrivNonce.GenerateMusigNonce(ctx, sessionId32, signingKey, this.msg32, this.aggregatePubKey, extraInput32);
 		}
 	}
 }

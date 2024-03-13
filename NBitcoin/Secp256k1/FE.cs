@@ -1574,7 +1574,7 @@ namespace NBitcoin.Secp256k1
 			}
 		}
 
-		public readonly override bool Equals(object obj)
+		public readonly override bool Equals(object? obj)
 		{
 			if (obj is FE other)
 			{

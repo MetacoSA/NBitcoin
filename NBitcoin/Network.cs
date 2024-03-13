@@ -90,7 +90,7 @@ namespace NBitcoin
 		}
 #endif
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			ChainName? item = obj as ChainName;
 			if (item is null)

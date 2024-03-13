@@ -219,7 +219,7 @@ namespace NBitcoin
 			return new KeyPath(indices);
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is KeyPath k)
 				return StructuralComparisons.StructuralEqualityComparer.Equals(_Indexes, k._Indexes);

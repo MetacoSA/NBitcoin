@@ -11,16 +11,13 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;netcoreapp2.1</TargetFrameworks>
-    <Version Condition=" '$(Version)' == '' ">2.0.0</Version>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
-    <DefineConstants>$(DefineConstants);NULLABLE_SHIMS</DefineConstants>
+    <TargetFrameworks>net6.0;netstandard2.1</TargetFrameworks>
+    <Version Condition=" '$(Version)' == '' ">2.0.2</Version>
   </PropertyGroup>
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);SECP256K1_LIB;HAS_SPAN</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>8.0</LangVersion>
+	  <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

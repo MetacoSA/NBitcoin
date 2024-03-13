@@ -31,8 +31,8 @@ namespace NBitcoin.Socks
 
 			if (endpoint.TryConvertToOnionDNSEndpoint(out var onionEndpoint))
 				endpoint = onionEndpoint;
-			else if (endpoint is IPEndPoint ip6mapped && ip6mapped.Address.IsIPv4MappedToIPv6Ex())
-				endpoint = new IPEndPoint(ip6mapped.Address.MapToIPv4Ex(), ip6mapped.Port);
+			else if (endpoint is IPEndPoint ip6mapped && ip6mapped.Address.IsIPv4MappedToIPv6)
+				endpoint = new IPEndPoint(ip6mapped.Address.MapToIPv4(), ip6mapped.Port);
 
 			if (endpoint is DnsEndPoint dns)
 			{

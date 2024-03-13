@@ -3,6 +3,7 @@ using NBitcoin.DataEncoders;
 using System.Linq;
 using System.Security;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 #if !NO_BC
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Crypto.Paddings;
@@ -86,19 +87,18 @@ namespace NBitcoin
 			}
 		}
 
-		public override Key GetKey(string password)
+		public override bool TryGetKey(string password, [MaybeNullWhen(false)] out Key key)
 		{
 			var derived = SCrypt.BitcoinComputeDerivedKey(password, AddressHash);
 			var bitcoinprivkey = DecryptKey(Encrypted, derived);
 
-			var key = new Key(bitcoinprivkey, fCompressedIn: IsCompressed);
+			key = new Key(bitcoinprivkey, fCompressedIn: IsCompressed);
 
 			var addressBytes = Encoders.ASCII.DecodeData(key.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network).ToString());
 			var salt = Hashes.DoubleSHA256(addressBytes).ToBytes().SafeSubarray(0, 4);
-
 			if (!Utils.ArrayEqual(salt, AddressHash))
-				throw new SecurityException("Invalid password (or invalid Network)");
-			return key;
+				key = null;
+			return key is Key;
 		}
 
 
@@ -119,7 +119,6 @@ namespace NBitcoin
 	}
 	public class BitcoinEncryptedSecretEC : BitcoinEncryptedSecret
 	{
-
 		public BitcoinEncryptedSecretEC(string wif, Network expectedNetwork = null)
 			: base(wif, expectedNetwork)
 		{
@@ -178,7 +177,7 @@ namespace NBitcoin
 			}
 		}
 
-		public override Key GetKey(string password)
+		public override bool TryGetKey(string password, [MaybeNullWhen(false)] out Key key)
 		{
 			var encrypted = PartialEncrypted.ToArray();
 			//Derive passfactor using scrypt with ownerentropy and the user's passphrase and use it to recompute passpoint
@@ -192,7 +191,7 @@ namespace NBitcoin
 			var factorb = Hashes.DoubleSHA256(seedb).ToBytes();
 #if HAS_SPAN
 			var eckey = NBitcoinContext.Instance.CreateECPrivKey(passfactor).TweakMul(factorb);
-			var key = new Key(eckey, IsCompressed);
+			key = new Key(eckey, IsCompressed);
 #else
 			var curve = ECKey.Secp256k1;
 
@@ -202,15 +201,14 @@ namespace NBitcoin
 			if (keyBytes.Length < 32)
 				keyBytes = new byte[32 - keyBytes.Length].Concat(keyBytes).ToArray();
 
-			var key = new Key(keyBytes, fCompressedIn: IsCompressed);
+			key = new Key(keyBytes, fCompressedIn: IsCompressed);
 #endif
 			var generatedaddress = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, Network);
 			var addresshash = HashAddress(generatedaddress);
 
 			if (!Utils.ArrayEqual(addresshash, AddressHash))
-				throw new SecurityException("Invalid password (or invalid Network)");
-
-			return key;
+				key = null;
+			return key is Key;
 		}
 
 		/// <summary>
@@ -324,7 +322,25 @@ namespace NBitcoin
 			}
 		}
 
-		public abstract Key GetKey(string password);
+		/// <summary>
+		/// Get the decrypted private key
+		/// </summary>
+		/// <param name="password">The password</param>
+		/// <returns>The decrypted key</returns>
+		/// <exception cref="SecurityException">Invalid password</exception>
+		public Key GetKey(string password)
+		{
+			if (TryGetKey(password, out var k))
+				return k;
+			throw new SecurityException("Invalid password (or invalid Network)");
+		}
+		/// <summary>
+		/// Get the decrypted private key
+		/// </summary>
+		/// <param name="password">The password</param>
+		/// <param name="key">The decrypted key if successfull</param>
+		/// <returns>True if successfull</returns>
+		public abstract bool TryGetKey(string password, [MaybeNullWhen(false)] out Key key);
 		public BitcoinSecret GetSecret(string password)
 		{
 			return new BitcoinSecret(GetKey(password), Network);

@@ -236,7 +236,7 @@ namespace NBitcoin.Secp256k1
 		}
 
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (obj is ECPubKey item)
 				return this == item;
@@ -428,7 +428,7 @@ namespace NBitcoin.Secp256k1
 			return 0;
 		}
 
-		public int CompareTo(ECPubKey other)
+		public int CompareTo(ECPubKey? other)
 		{
 			if (other is null)
 				throw new ArgumentNullException(nameof(other));
@@ -437,6 +437,26 @@ namespace NBitcoin.Secp256k1
 			Span<byte> pk1 = stackalloc byte[33];
 			other.WriteToSpan(true, pk1, out _);
 			return secp256k1_memcmp_var(pk0, pk1, 33);
+		}
+
+		internal static void secp256k1_eckey_pubkey_serialize(Span<byte> pub, ref GE elem, out int size, bool compressed)
+		{
+			if (elem.IsInfinity)
+				throw new InvalidOperationException("secp256k1_eckey_pubkey_serialize is impossible on an infinite point");
+			elem = elem.NormalizeXVariable();
+			elem = elem.NormalizeYVariable();
+			elem.x.WriteToSpan(pub.Slice(1));
+			if (compressed)
+			{
+				size = 33;
+				pub[0] = elem.y.IsOdd ? GE.SECP256K1_TAG_PUBKEY_ODD : GE.SECP256K1_TAG_PUBKEY_EVEN;
+			}
+			else
+			{
+				size = 65;
+				pub[0] = GE.SECP256K1_TAG_PUBKEY_UNCOMPRESSED;
+				elem.y.WriteToSpan(pub.Slice(33));
+			}
 		}
 	}
 }

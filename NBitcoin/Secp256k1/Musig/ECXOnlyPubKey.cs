@@ -18,27 +18,29 @@ namespace NBitcoin.Secp256k1
 	partial class ECXOnlyPubKey
 	{
 		/* Computes ell = SHA256(pk[0], ..., pk[np-1]) */
-		static void secp256k1_musig_compute_ell(Span<byte> ell32, ECXOnlyPubKey[] pk)
+		static void secp256k1_musig_compute_pk_hash(Span<byte> pk_hash, ECXOnlyPubKey[] pk)
 		{
 			using SHA256 sha = new SHA256();
-			sha.Initialize();
+			sha.InitializeTagged("KeyAgg list");
 			Span<byte> ser = stackalloc byte[32];
 			for (int i = 0; i < pk.Length; i++)
 			{
 				pk[i].WriteToSpan(ser);
 				sha.Write(ser);
 			}
-			sha.GetHash(ell32);
+			sha.GetHash(pk_hash);
 		}
 
-		internal static void secp256k1_musig_compute_messagehash(Span<byte> msghash, ReadOnlySpan<byte> combined_nonce32, ReadOnlySpan<byte> combined_pk32, ReadOnlySpan<byte> msg)
+		internal static void secp256k1_schnorrsig_challenge(out Scalar e, ReadOnlySpan<byte> r32, ReadOnlySpan<byte> msg, ReadOnlySpan<byte> pubkey32)
 		{
+			Span<byte> buff = stackalloc byte[32];
 			using SHA256 sha = new SHA256();
 			sha.InitializeTagged(TAG_BIP0340Challenge);
-			sha.Write(combined_nonce32.Slice(0, 32));
-			sha.Write(combined_pk32.Slice(0, 32));
-			sha.Write(msg.Slice(0, 32));
-			sha.GetHash(msghash);
+			sha.Write(r32.Slice(0, 32));
+			sha.Write(pubkey32.Slice(0, 32));
+			sha.Write(msg);
+			sha.GetHash(buff);
+			e = new Scalar(buff);
 		}
 
 		internal static void secp256k1_xonly_ge_serialize(Span<byte> output32, ref GE ge)
@@ -84,12 +86,12 @@ namespace NBitcoin.Secp256k1
 
 		const string MusigTag = "KeyAgg coefficient";
 
-		public static ECXOnlyPubKey MusigCombine(ECXOnlyPubKey[] pubkeys)
+		public static ECXOnlyPubKey MusigAggregate(ECXOnlyPubKey[] pubkeys)
 		{
-			return MusigCombine(pubkeys, null);
+			return MusigAggregate(pubkeys, null);
 		}
 
-		internal static ECXOnlyPubKey MusigCombine(ECXOnlyPubKey[] pubkeys, MusigContext? preSession)
+		internal static ECXOnlyPubKey MusigAggregate(ECXOnlyPubKey[] pubkeys, MusigContext? preSession)
 		{
 			if (pubkeys == null)
 				throw new ArgumentNullException(nameof(pubkeys));
@@ -106,8 +108,8 @@ namespace NBitcoin.Secp256k1
 				}
 			}
 
-			Span<byte> ell = stackalloc byte[32];
-			secp256k1_musig_compute_ell(ell, pubkeys);
+			Span<byte> pk_hash = stackalloc byte[32];
+			secp256k1_musig_compute_pk_hash(pk_hash, pubkeys);
 			var ctx = pubkeys[0].ctx;
 
 			var s = new Scalar[pubkeys.Length];
@@ -116,20 +118,20 @@ namespace NBitcoin.Secp256k1
 			for (int i = 0; i < pubkeys.Length; i++)
 			{
 				p[i] = pubkeys[i].Q;
-				s[i] = secp256k1_musig_keyaggcoef_internal(ell, p[i].x, second_pk_x);
+				s[i] = secp256k1_musig_keyaggcoef_internal(pk_hash, p[i].x, second_pk_x);
 			}
 			var pkj = ctx.EcMultContext.MultBatch(s, p);
 			var pkp = pkj.ToGroupElement().NormalizeYVariable();
 			pkp = pkp.ToEvenY(out var pk_parity);
-			var combined_pk = new ECXOnlyPubKey(pkp, ctx);
+			var agg_pk = new ECXOnlyPubKey(pkp, ctx);
 			if (preSession is MusigContext)
 			{
-				ell.CopyTo(preSession.pk_hash);
+				pk_hash.CopyTo(preSession.pk_hash);
 				preSession.pk_parity = pk_parity;
 				preSession.is_tweaked = false;
 				preSession.second_pk_x = second_pk_x;
 			}
-			return combined_pk;
+			return agg_pk;
 		}
 	}
 }

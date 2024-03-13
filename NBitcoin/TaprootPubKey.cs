@@ -117,20 +117,20 @@ namespace NBitcoin
 			return new TaprootAddress(this, network);
 		}
 #if HAS_SPAN
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			if (!(obj is TaprootPubKey a))
 				return false;
 			return a.pubkey.Q.x == this.pubkey.Q.x;
 		}
-		public static bool operator ==(TaprootPubKey a, TaprootPubKey b)
+		public static bool operator ==(TaprootPubKey? a, TaprootPubKey? b)
 		{
 			if (a is TaprootPubKey && b is TaprootPubKey)
 				return a.pubkey.Q.x == b.pubkey.Q.x;
 			return a is null && b is null;
 		}
 
-		public static bool operator !=(TaprootPubKey a, TaprootPubKey b)
+		public static bool operator !=(TaprootPubKey? a, TaprootPubKey? b)
 		{
 			return !(a == b);
 		}
@@ -190,9 +190,9 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
-		public int CompareTo(TaprootPubKey other)
+		public int CompareTo(TaprootPubKey? other)
 		{
-			return this.pubkey.CompareTo(other.pubkey);
+			return this.pubkey.CompareTo(other?.pubkey);
 		}
 #else
 		public int CompareTo(TaprootPubKey other)
