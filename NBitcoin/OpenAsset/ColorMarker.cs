@@ -1,4 +1,4 @@
-﻿using NBitcoin.DataEncoders;
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -164,7 +164,7 @@ namespace NBitcoin.OpenAsset
 			while ((value >>= 7) != 0uL);
 			Array.Resize(ref bytes, count);
 			bytes[bytes.Length - 1] &= 127;
-			stream.ReadWrite(ref bytes);
+			stream.ReadWrite(bytes);
 		}
 
 		public ColorMarker()

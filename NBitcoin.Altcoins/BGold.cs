@@ -1,4 +1,4 @@
-﻿using NBitcoin;
+using NBitcoin;
 using System.Reflection;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
@@ -160,7 +160,7 @@ namespace NBitcoin.Altcoins
 						{
 							nSolution = new byte[nSolutionSize];
 						}
-						stream.ReadWrite(ref nSolution);
+						stream.ReadWrite(nSolution);
 					}
 				}
 				else

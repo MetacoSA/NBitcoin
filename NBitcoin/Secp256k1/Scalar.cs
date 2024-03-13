@@ -1,4 +1,4 @@
-﻿#if HAS_SPAN
+#if HAS_SPAN
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -390,7 +390,7 @@ namespace NBitcoin.Secp256k1
 		int CondNegate(int flag, out Scalar r)
 		{
 			Span<uint> rd = stackalloc uint[DCount];
-			Deconstruct(ref rd);
+			Deconstruct(rd);
 			/* If we are flag = 0, mask = 00...00 and this is a no-op;
      * if we are flag = 1, mask = 11...11 and this is identical to secp256k1_scalar_negate */
 			uint mask = (flag == 0 ? 1U : 0) - 1;
@@ -908,7 +908,7 @@ namespace NBitcoin.Secp256k1
 		{
 			Span<uint> l = stackalloc uint[16];
 			Span<uint> d = stackalloc uint[DCount];
-			Deconstruct(ref d);
+			Deconstruct(d);
 			for (int i = 0; i < times; i++)
 			{
 				sqr_512(l, d);
@@ -1024,7 +1024,7 @@ namespace NBitcoin.Secp256k1
 		public readonly Scalar Multiply(in Scalar b)
 		{
 			Span<uint> d = stackalloc uint[DCount];
-			this.Deconstruct(ref d);
+			this.Deconstruct(d);
 			Span<uint> l = stackalloc uint[16];
 			mul_512(l, this, b);
 			reduce_512(d, l);
@@ -1109,8 +1109,7 @@ namespace NBitcoin.Secp256k1
 			return a.Add(b);
 		}
 
-		public readonly void Deconstruct(
-				ref Span<uint> d)
+		public readonly void Deconstruct(Span<uint> d)
 		{
 			d[0] = this.d0;
 			d[1] = this.d1;

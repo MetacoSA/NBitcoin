@@ -1,4 +1,4 @@
-﻿using NBitcoin;
+using NBitcoin;
 using NBitcoin.Altcoins.Elements;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
@@ -1878,7 +1878,7 @@ namespace NBitcoin.Tests
 			});
 			BitcoinStreamCoverageCore(new byte[] { 1, 2, 3, 4 }, (BitcoinStream bs, ref byte[] items) =>
 			{
-				bs.ReadWrite(ref items);
+				bs.ReadWrite(items);
 			});
 			BitcoinStreamCoverageCore(new uint160[] { new uint160(1), new uint160(2), new uint160(3), new uint160(4) }, (BitcoinStream bs, ref uint160[] items) =>
 			{

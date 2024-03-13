@@ -1,4 +1,4 @@
-﻿#if HAS_SPAN
+#if HAS_SPAN
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -112,7 +112,7 @@ namespace NBitcoin.Secp256k1
 				(r.n7 & mask0) | (a.n7 & mask1));
 		}
 
-		public void Deconstruct(ref Span<uint> n)
+		public void Deconstruct(Span<uint> n)
 		{
 			n[0] = n0;
 			n[1] = n1;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -45,7 +45,7 @@ namespace NBitcoin.Protocol
 		public override void ReadWriteCore(BitcoinStream stream)
 		{
 			if (stream.Serializing) {
-				stream.ReadWrite(ref _Data);
+				stream.ReadWrite(_Data);
 			} else {
 				MemoryStream ms = new MemoryStream();
 				stream.Inner.CopyTo(ms);

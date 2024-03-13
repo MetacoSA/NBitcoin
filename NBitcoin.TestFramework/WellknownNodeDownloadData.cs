@@ -24,6 +24,10 @@ namespace NBitcoin.Tests
 					return nodes.OrderBy(v => v.Version).Last();
 				return nodes.First(n => VersionMach(n.Version, version));
 			}
+			public NodeDownloadData GetLatest()
+			{
+				return FromVersion("latest");
+			}
 
 			private bool VersionMach(string v1, string v2)
 			{
@@ -383,6 +387,34 @@ namespace NBitcoin.Tests
 					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win64.zip",
 					Archive = "bitcoin-{0}-win64.zip",
 					Hash = "09fa27956f2884434eee2ca1a9d2822712e8405c096e82ecedf64a638f42ca1a"
+				},
+				UseSectionInConfigFile = true,
+				CreateWallet = true
+			};
+
+			public NodeDownloadData v25_0 = new NodeDownloadData()
+			{
+				Version = "25.0",
+				Linux = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "33930d432593e49d58a9bff4c30078823e9af5d98594d2935862788ce8a20aec"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-apple-darwin.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-apple-darwin.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "5708fc639cdfc27347cccfd50db9b73b53647b36fb5f3a4a93537cbe8828c27f"
+				},
+				Windows = new NodeOSDownloadData()
+				{
+					Executable = "bitcoin-{0}/bin/bitcoind.exe",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win64.zip",
+					Archive = "bitcoin-{0}-win64.zip",
+					Hash = "7154b35ecc8247589070ae739b7c73c4dee4794bea49eb18dc66faed65b819e7"
 				},
 				UseSectionInConfigFile = true,
 				CreateWallet = true

@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Collections;
 using System.Linq;
@@ -38,22 +38,22 @@ namespace NBitcoin
 				{
 #if !HAS_SPAN
 					var b = Value.ToBytes();
-					stream.ReadWrite(ref b);
+					stream.ReadWrite(b);
 #else
 					Span<byte> b = stackalloc byte[WIDTH_BYTE];
 					Value.ToBytes(b);
-					stream.ReadWrite(ref b);
+					stream.ReadWrite(b);
 #endif
 				}
 				else
 				{
 #if !HAS_SPAN
 					byte[] b = new byte[WIDTH_BYTE];
-					stream.ReadWrite(ref b);
+					stream.ReadWrite(b);
 					_Value = new uint256(b);
 #else
 					Span<byte> b = stackalloc byte[WIDTH_BYTE];
-					stream.ReadWrite(ref b);
+					stream.ReadWrite(b);
 					_Value = new uint256(b);
 #endif
 				}
@@ -583,12 +583,12 @@ namespace NBitcoin
 				if (stream.Serializing)
 				{
 					var b = Value.ToBytes();
-					stream.ReadWrite(ref b);
+					stream.ReadWrite(b);
 				}
 				else
 				{
 					byte[] b = new byte[WIDTH_BYTE];
-					stream.ReadWrite(ref b);
+					stream.ReadWrite(b);
 					_Value = new uint160(b);
 				}
 			}

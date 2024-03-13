@@ -1,4 +1,4 @@
-﻿using NBitcoin.Crypto;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
@@ -555,12 +555,12 @@ namespace NBitcoin
 				var compr = Compress();
 				if (compr != null)
 				{
-					stream.ReadWrite(ref compr);
+					stream.ReadWrite(compr);
 					return;
 				}
 				uint nSize = (uint)_Script.Length + nSpecialScripts;
 				stream.ReadWriteAsCompactVarInt(ref nSize);
-				stream.ReadWrite(ref _Script);
+				stream.ReadWrite(_Script);
 			}
 			else
 			{
@@ -569,13 +569,13 @@ namespace NBitcoin
 				if (nSize < nSpecialScripts)
 				{
 					byte[] vch = new byte[GetSpecialSize(nSize)];
-					stream.ReadWrite(ref vch);
+					stream.ReadWrite(vch);
 					_Script = Decompress(nSize, vch).ToBytes();
 					return;
 				}
 				nSize -= nSpecialScripts;
 				_Script = new byte[nSize];
-				stream.ReadWrite(ref _Script);
+				stream.ReadWrite(_Script);
 			}
 		}
 
@@ -1381,7 +1381,7 @@ namespace NBitcoin
 				if (stream.Serializing)
 				{
 					var bytes = (_Inputs[i].WitScript ?? WitScript.Empty).ToBytes();
-					stream.ReadWrite(ref bytes);
+					stream.ReadWrite(bytes);
 				}
 				else
 				{

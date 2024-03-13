@@ -1,4 +1,4 @@
-﻿using NBitcoin.BouncyCastle.Crypto.Digests;
+using NBitcoin.BouncyCastle.Crypto.Digests;
 using NBitcoin.Crypto;
 using System;
 using System.IO;
@@ -135,7 +135,7 @@ namespace NBitcoin.Altcoins.Elements
 
 			if (_Commitment.Length > 1)
 			{
-				stream.ReadWrite(ref _Commitment, 1, _Commitment.Length - 1);
+				stream.ReadWrite(_Commitment, 1, _Commitment.Length - 1);
 			}
 		}
 
@@ -696,10 +696,10 @@ namespace NBitcoin.Altcoins.Elements
 						stream.ReadWriteAsVarString(ref bytes);
 
 						bytes = (_Inputs[i].WitScript ?? WitScript.Empty).ToBytes();
-						stream.ReadWrite(ref bytes);
+						stream.ReadWrite(bytes);
 
 						bytes = (((ElementsTxIn)_Inputs[i]).PeginWitScript ?? WitScript.Empty).ToBytes();
-						stream.ReadWrite(ref bytes);
+						stream.ReadWrite(bytes);
 					}
 					else
 					{
