@@ -1585,8 +1585,8 @@ namespace NBitcoin
 				if (flags != 0)
 				{
 					/* Use extended format in case witnesses are to be serialized. */
-					TxInList vinDummy = new TxInList();
-					stream.ReadWrite(ref vinDummy);
+					byte marker = 0;
+					stream.ReadWrite(ref marker);
 					stream.ReadWrite(ref flags);
 				}
 				stream.ReadWrite(ref vin);
@@ -2039,7 +2039,7 @@ namespace NBitcoin
 		/// Context free transaction check
 		/// </summary>
 		/// <returns>The error or success of the check</returns>
-		public TransactionCheckResult Check()
+		public virtual TransactionCheckResult Check()
 		{
 			// Basic checks that don't depend on any context
 			if (Inputs.Count == 0)
