@@ -4,6 +4,7 @@ using NBitcoin.Protocol;
 using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
@@ -270,6 +271,7 @@ namespace NBitcoin
 		/// Try to get the expected scriptPubKey of this TxIn based on its scriptSig and witScript.
 		/// </summary>
 		/// <returns>Null if could not infer the scriptPubKey, else, the expected scriptPubKey</returns>
+		[Obsolete("Do not use this, it isn't possible to get a signer's address from a script without taking heuristic which can be gamed by a malicious actor")]
 		public IDestination GetSigner()
 		{
 			return scriptSig.GetSigner() ?? witScript.GetSigner();
@@ -650,7 +652,7 @@ namespace NBitcoin
 		}
 
 		static FeeRate dustRelayFee = new FeeRate(3.0m);
-		public Money GetDustThreshold()
+		public virtual Money GetDustThreshold()
 		{
 			// OutPoint (32 + 4) + script_size (1) + sequence (4)
 			int inputSize = 32 + 4 + 1 + 4;
@@ -1082,10 +1084,14 @@ namespace NBitcoin
 			return txOut;
 		}
 	}
-
+#nullable enable
 	public class WitScript : IEquatable<WitScript>
 	{
-		byte[][] _Pushes;
+#if NO_ARRAY_FILL
+		byte[][] _Pushes = new byte[0][];
+#else
+		byte[][] _Pushes = Array.Empty<byte[]>();
+#endif
 		public WitScript(string script)
 		{
 			var parts = script.Split(new[] { '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -1145,7 +1151,6 @@ namespace NBitcoin
 		}
 		WitScript()
 		{
-
 		}
 
 		public WitScript(Script scriptSig)
@@ -1160,7 +1165,7 @@ namespace NBitcoin
 			_Pushes = pushes.ToArray();
 		}
 
-		public static bool IsNullOrEmpty(WitScript witScript)
+		public static bool IsNullOrEmpty([NotNullWhen(false)] WitScript? witScript)
 		{
 			return witScript is null || witScript == WitScript.Empty;
 		}
@@ -1183,19 +1188,20 @@ namespace NBitcoin
 		}
 		void ReadCore(BitcoinStream stream)
 		{
-			List<byte[]> pushes = new List<byte[]>();
 			uint pushCount = 0;
 			stream.ReadWriteAsVarInt(ref pushCount);
+			if (pushCount > (uint)stream.MaxArraySize)
+				throw new ArgumentOutOfRangeException("Array size too big");
+			var pushes = new byte[pushCount][];
 			for (int i = 0; i < (int)pushCount; i++)
 			{
-				byte[] push = ReadPush(stream);
-				pushes.Add(push);
+				pushes[i] = ReadPush(stream);
 			}
-			_Pushes = pushes.ToArray();
+			_Pushes = pushes;
 		}
 		private static byte[] ReadPush(BitcoinStream stream)
 		{
-			byte[] push = null;
+			byte[]? push = null;
 			stream.ReadWriteAsVarString(ref push);
 			return push;
 		}
@@ -1226,16 +1232,18 @@ namespace NBitcoin
 			}
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
-			WitScript item = obj as WitScript;
-			if (item == null)
+			WitScript? item = obj as WitScript;
+			if (item is null)
 				return false;
 			return Equals(item);
 		}
 
-		public bool Equals(WitScript item)
+		public bool Equals(WitScript? item)
 		{
+			if (item is null)
+				return false;
 			if (_Pushes.Length != item._Pushes.Length)
 				return false;
 			for (int i = 0; i < _Pushes.Length; i++)
@@ -1245,28 +1253,31 @@ namespace NBitcoin
 			}
 			return true;
 		}
-		public static bool operator ==(WitScript a, WitScript b)
+		public static bool operator ==(WitScript? a, WitScript? b)
 		{
-			if (System.Object.ReferenceEquals(a, b))
+			if (a is null && b is null)
 				return true;
-			if (((object)a == null) || ((object)b == null))
+			if (a is null)
+				return false;
+			if (b is null)
 				return false;
 			return a.Equals(b);
 		}
 
-		public static bool operator !=(WitScript a, WitScript b)
+		public static bool operator !=(WitScript? a, WitScript? b)
 		{
 			return !(a == b);
 		}
-		public static WitScript operator +(WitScript a, WitScript b)
+		public static WitScript? operator +(WitScript? a, WitScript? b)
 		{
-			if (a == null)
+			if (a is null)
 				return b;
-			if (b == null)
+			if (b is null)
 				return a;
 			return new WitScript(a._Pushes.Concat(b._Pushes).ToArray());
 		}
-		public static implicit operator Script(WitScript witScript)
+		[return: NotNullIfNotNull("witScript")]
+		public static implicit operator Script?(WitScript? witScript)
 		{
 			if (witScript == null)
 				return null;
@@ -1330,8 +1341,8 @@ namespace NBitcoin
 		{
 			return new WitScript(ToBytes());
 		}
-
-		public IAddressableDestination GetSigner()
+		[Obsolete("Do not use this, it isn't possible to get a signer's address from a script without taking heuristic which can be gamed by a malicious actor")]
+		public IAddressableDestination? GetSigner()
 		{
 			var pubKey = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(this);
 			if (pubKey != null)
@@ -1339,10 +1350,10 @@ namespace NBitcoin
 				return pubKey.PublicKey.WitHash;
 			}
 			var p2sh = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(this);
-			return p2sh != null ? p2sh.WitHash : null;
+			return p2sh is not null ? p2sh.WitHash : null;
 		}
 	}
-
+#nullable restore
 	[Flags]
 	public enum TransactionOptions : uint
 	{
@@ -1502,7 +1513,7 @@ namespace NBitcoin
 		//Since it is impossible to serialize a transaction with 0 input without problems during deserialization with wit activated, we fit a flag in the version to workaround it
 		protected const uint NoDummyInput = (1 << 27);
 
-		#region IBitcoinSerializable Members
+#region IBitcoinSerializable Members
 
 		public virtual void ReadWrite(BitcoinStream stream)
 		{
@@ -1591,7 +1602,7 @@ namespace NBitcoin
 			stream.ReadWriteStruct(ref nLockTime);
 		}
 
-		#endregion
+#endregion
 
 		public uint256 GetHash()
 		{
@@ -1625,11 +1636,6 @@ namespace NBitcoin
 		}
 
 		protected virtual HashStreamBase CreateHashStream()
-		{
-			return new HashStream();
-		}
-
-		protected virtual HashStreamBase CreateSignatureHashStream()
 		{
 			return new HashStream();
 		}

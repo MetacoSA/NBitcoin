@@ -32,14 +32,14 @@ namespace NBitcoin.BuilderExtensions
 		public override int EstimateScriptSigSize(ICoin coin)
 		{
 			var scriptPubKey = coin.GetScriptCode();
-			var p2mk = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			var p2mk = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey)!;
 			return PayToMultiSigTemplate.Instance.GenerateScriptSig(Enumerable.Range(0, p2mk.SignatureCount).Select(o => DummySignature).ToArray()).Length;
 		}
 
 		public override void Sign(InputSigningContext inputSigningContext, IKeyRepository keyRepository, ISigner signer)
 		{
 			var scriptCode = inputSigningContext.Coin.GetScriptCode();
-			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptCode);
+			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptCode)!;
 			TransactionSignature?[] signatures = new TransactionSignature[multiSigParams.PubKeys.Length];
 			var keys = multiSigParams.PubKeys;
 			int sigcount = 0;
@@ -75,7 +75,7 @@ namespace NBitcoin.BuilderExtensions
 		{
 			var txIn = inputSigningContext.Input;
 			var scriptPubKey = inputSigningContext.Coin.GetScriptCode();
-			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey)!;
 			if (multiSigParams.SignatureCount > txIn.PartialSigs.Count)
 				return;
 			List<TransactionSignature> sigs = new List<TransactionSignature>();
@@ -104,7 +104,7 @@ namespace NBitcoin.BuilderExtensions
 				return;
 			var scriptSig = inputSigningContext.OriginalTxIn.ScriptSig;
 			var witScript = inputSigningContext.OriginalTxIn.WitScript;
-			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(inputSigningContext.Coin.GetScriptCode());
+			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(inputSigningContext.Coin.GetScriptCode())!;
 			var txIn = inputSigningContext.Input;
 			var scriptPubKey = inputSigningContext.Coin.GetScriptCode();
 
@@ -181,7 +181,7 @@ namespace NBitcoin.BuilderExtensions
 				return;
 			var scriptSig = inputSigningContext.OriginalTxIn.ScriptSig;
 			var witScript = inputSigningContext.OriginalTxIn.WitScript;
-			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(inputSigningContext.Coin.GetScriptCode());
+			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(inputSigningContext.Coin.GetScriptCode())!;
 			var txIn = inputSigningContext.Input;
 			var scriptPubKey = inputSigningContext.Coin.GetScriptCode();
 

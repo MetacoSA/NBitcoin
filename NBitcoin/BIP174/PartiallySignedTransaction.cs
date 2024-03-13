@@ -1247,7 +1247,7 @@ namespace NBitcoin
 				var coin = o.GetCoin();
 				if (coin == null)
 					continue;
-				if ((scriptPubKey != null && coin.ScriptPubKey == scriptPubKey) ||
+				if ((scriptPubKey is not null && coin.ScriptPubKey == scriptPubKey) ||
 					((o.GetSignableCoin() ?? coin.TryToScriptCoin(pubkey)) is Coin c && txBuilder.IsCompatibleKeyFromScriptCode(pubkey, c.GetScriptCode())) ||
 					  txBuilder.IsCompatibleKeyFromScriptCode(pubkey, coin.ScriptPubKey))
 				{

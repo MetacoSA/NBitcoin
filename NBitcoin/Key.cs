@@ -218,51 +218,32 @@ namespace NBitcoin
 		{
 			return new KeyPair(this, this.PubKey);
 		}
-		public string SignMessage(String message)
-		{
-			return SignMessage(Encoding.UTF8.GetBytes(message));
-		}
 
-		public string SignMessage(byte[] messageBytes)
-		{
-			return SignMessage(messageBytes, true);
-		}
-		public string SignMessage(byte[] messageBytes, bool forceLowR)
-		{
-			if (messageBytes is null)
-				throw new ArgumentNullException(nameof(messageBytes));
-			AssertNotDisposed();
-			byte[] data = Utils.FormatMessageForSigning(messageBytes);
-			var hash = Hashes.DoubleSHA256(data);
-			return Convert.ToBase64String(SignCompact(hash, forceLowR));
-		}
-
-
-		public byte[] SignCompact(uint256 hash)
+		public CompactSignature SignCompact(uint256 hash)
 		{
 			return SignCompact(hash, true);
 		}
 
-		public byte[] SignCompact(uint256 hash, bool forceLowR)
+		public CompactSignature SignCompact(uint256 hash, bool forceLowR)
 		{
 			if (hash is null)
 				throw new ArgumentNullException(nameof(hash));
+			if (!IsCompressed)
+				throw new InvalidOperationException("This operation is only supported on compressed pubkey");
 			AssertNotDisposed();
 #if HAS_SPAN
-			Span<byte> vchSig = stackalloc byte[65];
-			int rec = -1;
-			var sig = new Secp256k1.SecpRecoverableECDSASignature(_ECKey.Sign(hash, forceLowR, out rec), rec);
-			sig.WriteToSpanCompact(vchSig.Slice(1), out int recid);
-			vchSig[0] = (byte)(27 + rec + (IsCompressed ? 4 : 0));
-			return vchSig.ToArray();
+			byte[] sigBytes = new byte[64];
+			var sig = new Secp256k1.SecpRecoverableECDSASignature(_ECKey.Sign(hash, forceLowR, out var rec), rec);
+			sig.WriteToSpanCompact(sigBytes, out _);
+			return new CompactSignature(rec, sigBytes);
 #else
 			var sig = _ECKey.Sign(hash, forceLowR);
 			// Now we have to work backwards to figure out the recId needed to recover the signature.
 			int recId = -1;
 			for (int i = 0; i < 4; i++)
 			{
-				ECKey k = ECKey.RecoverFromSignature(i, sig, hash, IsCompressed);
-				if (k != null && k.GetPubKey(IsCompressed).ToHex() == PubKey.ToHex())
+				ECKey k = ECKey.RecoverFromSignature(i, sig, hash);
+				if (k != null && k.GetPubKey(true).ToHex() == PubKey.ToHex())
 				{
 					recId = i;
 					break;
@@ -271,17 +252,12 @@ namespace NBitcoin
 
 			if (recId == -1)
 				throw new InvalidOperationException("Could not construct a recoverable key. This should never happen.");
-
-			int headerByte = recId + 27 + (IsCompressed ? 4 : 0);
-
-			byte[] sigData = new byte[65];  // 1 header + 32 bytes for R + 32 bytes for S
-
-			sigData[0] = (byte)headerByte;
 #pragma warning disable 618
-			Array.Copy(Utils.BigIntegerToBytes(sig.R, 32), 0, sigData, 1, 32);
-			Array.Copy(Utils.BigIntegerToBytes(sig.S, 32), 0, sigData, 33, 32);
+			byte[] sigData = new byte[64];  // 1 header + 32 bytes for R + 32 bytes for S
+			Array.Copy(Utils.BigIntegerToBytes(sig.R, 32), 0, sigData, 0, 32);
+			Array.Copy(Utils.BigIntegerToBytes(sig.S, 32), 0, sigData, 32, 32);
 #pragma warning restore 618
-			return sigData;
+			return new CompactSignature(recId, sigData);
 #endif
 		}
 

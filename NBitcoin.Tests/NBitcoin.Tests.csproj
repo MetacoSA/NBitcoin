@@ -8,7 +8,7 @@
 	</PropertyGroup>
   <PropertyGroup>
 	  <TargetFrameworks>net6.0;netcoreapp3.1;net472</TargetFrameworks>
-	  <TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netcoreapp3.1</TargetFrameworks>
+	  <TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">net6.0</TargetFrameworks>
 	  <!--<StartupObject>NBitcoin.Tests.Program</StartupObject>-->
 	  <!--<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true' And '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp2.1</TargetFrameworks>-->
 	  <!--<NoWarn>CS0618</NoWarn>-->
@@ -141,7 +141,6 @@
     <None Include="data\SHA256SUMS.asc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
     <None Remove="data\liquid-block-mainnet-4a9c3c0fbb1cb8ff106f474e967bc5ec17a7ba066abd605bfc6f0c078e79b609" />
     <Content Include="data\liquid-block-mainnet-4a9c3c0fbb1cb8ff106f474e967bc5ec17a7ba066abd605bfc6f0c078e79b609">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -186,9 +185,18 @@
     <None Update="data\bip39_vectors.zh-TW.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="data\musig\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="data\bip-0341\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+	<None Update="data\ecdsaadaptor\*.json">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
   </ItemGroup>
   <ItemGroup>
     <None Update="data\SHA3TestVectors.txt">

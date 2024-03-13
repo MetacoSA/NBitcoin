@@ -12,7 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<Version Condition=" '$(Version)' == '' ">6.0.19</Version>
+		<Version Condition=" '$(Version)' == '' ">7.0.25</Version>
 		<LangVersion>9.0</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -31,7 +31,7 @@
 		<DocumentationFile>bin\Release\NBitcoin.XML</DocumentationFile>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">
-		<DefineConstants>$(DefineConstants);CLASSICDOTNET;NO_ARRAY_FILL;NULLABLE_SHIMS</DefineConstants>
+		<DefineConstants>$(DefineConstants);CLASSICDOTNET;NO_ARRAY_FILL;NULLABLE_SHIMS;NO_SOCKETASYNC</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'netstandard2.0'  Or '$(TargetFramework)' == 'net6.0'">
 		<DefineConstants>$(DefineConstants);NOCUSTOMSSLVALIDATION;NO_NATIVERIPEMD160</DefineConstants>
@@ -40,23 +40,23 @@
 		<DefineConstants>$(DefineConstants);NETCORE;HAS_SPAN;NO_BC</DefineConstants>
     <RemoveBC>true</RemoveBC>
 	</PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+	<DefineConstants>$(DefineConstants);NO_SOCKETASYNC</DefineConstants>
+  </PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-		<DefineConstants>$(DefineConstants);NETSTANDARD;NO_ARRAY_FILL;NULLABLE_SHIMS;NO_NATIVE_RFC2898_HMACSHA512;NO_NATIVERIPEMD160</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETSTANDARD;NO_ARRAY_FILL;NULLABLE_SHIMS;NO_NATIVE_RFC2898_HMACSHA512;NO_NATIVERIPEMD160;NO_SOCKETASYNC</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NULLABLE_SHIMS;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH;NO_BEGINCONNECT;NO_ARRAY_FILL;NO_NATIVE_RFC2898_HMACSHA512;NETSTANDARD13;NO_NATIVERIPEMD160;NO_NATIVESHA1</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NULLABLE_SHIMS;NO_MEM_BUFFER;NO_TUPLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH;NO_BEGINCONNECT;NO_ARRAY_FILL;NO_NATIVE_RFC2898_HMACSHA512;NETSTANDARD13;NO_NATIVERIPEMD160;NO_NATIVESHA1;NO_SOCKETASYNC;NO_TUPLE</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-		<DefineConstants>$(DefineConstants);NO_RCA;NOPARALLEL;NETSTANDARD;NETSTANDARD1X;NULLABLE_SHIMS;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH;NO_ARRAY_FILL;NO_NATIVE_HMACSHA512;NO_THREAD;NO_NATIVERIPEMD160;NO_NATIVESHA1</DefineConstants>
+		<DefineConstants>$(DefineConstants);NO_RCA;NOPARALLEL;NETSTANDARD;NETSTANDARD1X;NULLABLE_SHIMS;NO_TUPLE;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH;NO_ARRAY_FILL;NO_ARRAY_EMPTY;NO_NATIVE_HMACSHA512;NO_THREAD;NO_NATIVERIPEMD160;NO_NATIVESHA1;NO_SOCKETASYNC;NO_TUPLE</DefineConstants>
 	</PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
-    <DefineConstants>$(DefineConstants);NULLABLE_SHIMS</DefineConstants>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
 		<DefineConstants>$(DefineConstants);SECP256K1_VERIFY</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="System.Buffers" Version="4.5.0" Condition="'$(TargetFramework)' != 'netstandard2.1' And '$(TargetFramework)' != 'net6.0'" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.0.0" />
 	</ItemGroup>

@@ -6,7 +6,7 @@
 		<LangVersion>9.0</LangVersion>
     <PackageIcon>icon.png</PackageIcon>
 		<PackageId>NBitcoin.Altcoins</PackageId>
-		<PackageTags>bitcoin,altcoins,bcash,bgold,bitcore,dash,verge,terracoin,dogecoin,dystem,feathercoin,groestlcoin,litecoin,monacoin,polis,ufo,qtum,viacoin,zclassic,liquid,argoneum,monetaryunit,lbrycredits,xds,althash,neblio</PackageTags>
+		<PackageTags>bitcoin,altcoins,bcash,bgold,bitcore,dash,verge,terracoin,dogecoin,dystem,feathercoin,groestlcoin,litecoin,monacoin,polis,ufo,qtum,viacoin,zclassic,liquid,argoneum,monetaryunit,lbrycredits,xds,althash,neblio,opticalbitcoin</PackageTags>
 		<PackageProjectUrl>https://github.com/MetacoSA/NBitcoin</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryType>git</RepositoryType>
@@ -17,7 +17,7 @@
     <TargetFrameworks Condition="'$(TargetFrameworkOverride)' != ''">$(TargetFrameworkOverride)</TargetFrameworks>
 		<NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>3.0.8</Version>
+    <Version>3.0.18</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />

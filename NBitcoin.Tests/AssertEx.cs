@@ -33,7 +33,6 @@ namespace NBitcoin.Tests
 					Assert.False(true, "Actual[" + i + "](" + actual[i] + ") != Expected[" + i + "](" + expected[i] + ")");
 			}
 		}
-
 		[DebuggerHidden]
 		internal static void StackEquals(ContextStack<byte[]> stack1, ContextStack<byte[]> stack2)
 		{
@@ -41,10 +40,26 @@ namespace NBitcoin.Tests
 			var hash2 = stack2.Select(o => Hashes.DoubleSHA256(o)).ToArray();
 			AssertEx.CollectionEquals(hash1, hash2);
 		}
-
-		internal static void CollectionEquals(System.Collections.BitArray bitArray, int p)
+#if HAS_SPAN
+		[DebuggerHidden]
+		internal static void EqualBytes(ReadOnlySpan<byte> expected, ReadOnlySpan<byte> actual)
 		{
-			throw new NotImplementedException();
+			var aa = DataEncoders.Encoders.Hex.EncodeData(expected);
+			var bb = DataEncoders.Encoders.Hex.EncodeData(actual);
+			Assert.Equal(aa, bb);
 		}
+		[DebuggerHidden]
+		internal static void EqualBytes(string expected, ReadOnlySpan<byte> actual)
+		{
+			var bb = DataEncoders.Encoders.Hex.EncodeData(actual);
+			Assert.Equal(expected.ToLowerInvariant(), bb);
+		}
+		[DebuggerHidden]
+		internal static void EqualBytes(ReadOnlySpan<byte> expected, string actual)
+		{
+			var aa = DataEncoders.Encoders.Hex.EncodeData(expected);
+			Assert.Equal(aa, actual.ToLowerInvariant());
+		}
+#endif
 	}
 }

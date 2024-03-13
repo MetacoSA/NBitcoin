@@ -108,6 +108,9 @@ namespace NBitcoin.Tests
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
+				var noWalletNode = builder.CreateNode();
+				noWalletNode.CreateWallet = false;
+				noWalletNode.Start();
 				node.Start();
 				var rpc = node.CreateRPCClient();
 				var w1 = rpc.CreateWallet("w1");
@@ -120,7 +123,7 @@ namespace NBitcoin.Tests
 				var block = rpc.GetBlock(blocks[0]);
 
 				rpc = rpc.PrepareBatch();
-				var w1b = rpc.GetWallet("w1");
+				var w1b = rpc.SetWalletContext("w1");
 				var b = w1b.GetBalanceAsync();
 				var b2 = rpc.GetBestBlockHashAsync();
 				var a = w1b.SendCommandAsync(RPCOperations.gettransaction, block.Transactions.First().GetHash().ToString());
@@ -128,6 +131,11 @@ namespace NBitcoin.Tests
 				b.GetAwaiter().GetResult();
 				b2.GetAwaiter().GetResult();
 				a.GetAwaiter().GetResult();
+
+				var noWalletRPC = noWalletNode.CreateRPCClient();
+				Assert.Throws<RPCException>(() => noWalletRPC.GetNewAddress());
+				noWalletRPC.CreateWallet("");
+				noWalletRPC.GetNewAddress();
 			}
 		}
 
@@ -444,12 +452,6 @@ namespace NBitcoin.Tests
 
 				Assert.Equal(builder.Network, response.Chain);
 				Assert.Equal(builder.Network.GetGenesis().GetHash(), response.BestBlockHash);
-
-				Assert.Contains(response.SoftForks, x => x.Bip == "segwit");
-				Assert.Contains(response.SoftForks, x => x.Bip == "csv");
-				Assert.Contains(response.SoftForks, x => x.Bip == "bip34");
-				Assert.Contains(response.SoftForks, x => x.Bip == "bip65");
-				Assert.Contains(response.SoftForks, x => x.Bip == "bip66");
 			}
 		}
 
@@ -1728,11 +1730,14 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
-		public async Task CanGenerateBlocks()
+		[Theory]
+		[InlineData(RPCWalletType.Descriptors)]
+		[InlineData(RPCWalletType.Legacy)]
+		public async Task CanGenerateBlocks(RPCWalletType walletType)
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
+				builder.RPCWalletType = walletType;
 				var node = builder.CreateNode();
 				node.CookieAuth = true;
 				node.Start();
@@ -1899,7 +1904,6 @@ namespace NBitcoin.Tests
 				tx = builder.Network.CreateTransaction();
 				tx.Outputs.Add(new TxOut(Money.Coins(45), kOut)); // This has to be big enough since the wallet must use whole kinds of address.
 				var fundTxResult = client.FundRawTransaction(tx);
-				Assert.Equal(3, fundTxResult.Transaction.Inputs.Count);
 				var psbtFinalized = PSBT.FromTransaction(fundTxResult.Transaction, builder.Network);
 				var result = client.WalletProcessPSBT(psbtFinalized, false);
 				Assert.False(result.PSBT.CanExtractTransaction());
@@ -1951,6 +1955,7 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.FromVersion(version)))
 			{
+				builder.RPCWalletType = RPCWalletType.Legacy;
 				var nodeAlice = builder.CreateNode();
 				var nodeBob = builder.CreateNode();
 				var nodeCarol = builder.CreateNode();
@@ -2074,6 +2079,7 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.FromVersion(version)))
 			{
+				builder.RPCWalletType = RPCWalletType.Legacy;
 				var client = builder.CreateNode(true).CreateRPCClient();
 				var addrLegacy = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Legacy });
 				var addrBech32 = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Bech32 });

@@ -112,6 +112,19 @@ namespace NBitcoin.Tests
 				new ConcurrentChain(builder.Network);
 			}
 		}
+		[Theory]
+		[Trait("UnitTest", "UnitTest")]
+		[InlineData(1234)]
+		[InlineData(0.9)]
+		public void CanSerializeDeserializeFeeFilter(decimal satPerBytes)
+		{
+			var p = new FeeFilterPayload();
+			p.FeeRate = new FeeRate(satPerBytes);
+			var bytes = p.ToBytes();
+			p = new FeeFilterPayload();
+			p.ReadWrite(new BitcoinStream(bytes));
+			Assert.Equal(new FeeRate(satPerBytes), p.FeeRate);
+		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void ElementsAddressSerializationTest()
@@ -347,7 +360,6 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				node.Generate(builder.Network.Consensus.CoinbaseMaturity + 1);
 				var rpc = node.CreateRPCClient();
-
 				var alice = new Key().GetBitcoinSecret(builder.Network);
 				BitcoinAddress aliceAddress = alice.GetAddress(ScriptPubKeyType.Legacy);
 				var txid = rpc.SendToAddress(aliceAddress, Money.Coins(1.0m));
@@ -395,6 +407,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Obsolete]
 		public void GetSignerDontCrash()
 		{
 			var tx = Transaction.Parse("0100000001f227bcc52b801ac8459697d01c39da605b76fba2299c27b76de7e89ea385557b000000006441dd1908a47465e173f87c896987f1dcf67d14d04780a64f59d7338875fda2b06950bb53c234b7230ef8473af7fb668e31cf93ab71f40902cc7ca8837529970af64121033c34ca37a97d641a5d21761785092ad22e2f31e9f1820a7a10cdae88b131e303ffffffff028dce9700000000001976a91453e6c0067169defd9553b365337ea2e77c55d70288ac10270000000000001976a914d9fcb8501befb3e8a8f2391a33419edbe67d0f9a88ac00000000", NBitcoin.Altcoins.BCash.Instance.Testnet);

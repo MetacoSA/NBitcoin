@@ -61,7 +61,7 @@ namespace NBitcoin.BuilderExtensions
 			if (txIn.TaprootInternalKey is TaprootInternalPubKey &&
 				txIn.TaprootKeySignature is TaprootSignature)
 			{
-				txIn.FinalScriptWitness = PayToTaprootTemplate.Instance.GenerateScriptSig(txIn.TaprootKeySignature);
+				txIn.FinalScriptWitness = PayToTaprootTemplate.Instance.GenerateWitScript(txIn.TaprootKeySignature);
 			}
 		}
 		public override bool Match(ICoin coin, PSBTInput input)

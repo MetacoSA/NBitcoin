@@ -114,7 +114,7 @@ namespace NBitcoin.Crypto
 			}
 		}
 
-		public static ECKey RecoverFromSignature(int recId, ECDSASignature sig, uint256 message, bool compressed)
+		public static ECKey RecoverFromSignature(int recId, ECDSASignature sig, uint256 message)
 		{
 			if (recId < 0)
 				throw new ArgumentException("recId should be positive");
@@ -182,10 +182,7 @@ namespace NBitcoin.Crypto
 			var eInvrInv = rInv.Multiply(eInv).Mod(n);
 			ECPoint q = ECAlgorithms.SumOfTwoMultiplies(curve.G, eInvrInv, R, srInv);
 			q = q.Normalize();
-			if (compressed)
-			{
-				q = new SecP256K1Point(curve.Curve, q.XCoord, q.YCoord, true);
-			}
+			q = new SecP256K1Point(curve.Curve, q.XCoord, q.YCoord, true);
 			return new ECKey(q.GetEncoded(), false);
 		}
 		private static ECPoint DecompressKey(NBitcoin.BouncyCastle.Math.BigInteger xBN, bool yBit)

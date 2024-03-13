@@ -707,7 +707,7 @@ namespace NBitcoin.RPC
 				throw new ArgumentNullException(nameof(parameters));
 
 			JArray descriptorsJson = new JArray();
-			foreach (var descObj in parameters.Descriptors)
+			foreach (var descObj in parameters.Descriptors ?? new ScanTxoutDescriptor[0])
 			{
 				JObject descJson = new JObject();
 				descJson.Add(new JProperty("desc", descObj.Descriptor.ToString()));
@@ -1274,6 +1274,7 @@ namespace NBitcoin.RPC
 					?.ToList();
 			}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 			var blockchainInfo = new BlockchainInfo
 			{
 				Chain = Network.GetNetwork(result.Value<string>("chain")),
@@ -1290,6 +1291,7 @@ namespace NBitcoin.RPC
 				SoftForks = softForks,
 				Bip9SoftForks = bip9SoftForks
 			};
+#pragma warning restore CS0612 // Type or member is obsolete
 
 			return blockchainInfo;
 		}
@@ -1733,15 +1735,15 @@ namespace NBitcoin.RPC
 				response = await SendCommandAsync(RPCOperations.testmempoolaccept, cancellationToken, new[] { new[] { transaction.ToHex() } }).ConfigureAwait(false);
 			}
 
-			var first = response.Result[0];
-			var allowed = first["allowed"].Value<bool>();
+			var first = response.Result[0]!;
+			var allowed = first["allowed"]!.Value<bool>();
 
 			RejectCode rejectedCode = RejectCode.INVALID;
 			var rejectedReason = string.Empty;
 			if (!allowed)
 			{
-				var rejected = first["reject-reason"].Value<string>();
-				var separatorIdx = rejected.IndexOf(':');
+				var rejected = first["reject-reason"]!.Value<string>();
+				var separatorIdx = rejected!.IndexOf(':');
 				if (separatorIdx != -1)
 				{
 					rejectedCode = (RejectCode)int.Parse(rejected.Substring(0, separatorIdx));
@@ -1754,7 +1756,7 @@ namespace NBitcoin.RPC
 			}
 			return new MempoolAcceptResult
 			{
-				TxId = uint256.Parse(first["txid"].Value<string>()),
+				TxId = uint256.Parse(first["txid"]!.Value<string>()),
 				IsAllowed = allowed,
 				RejectCode = rejectedCode,
 				RejectReason = rejectedReason
@@ -2193,7 +2195,7 @@ namespace NBitcoin.RPC
 		{
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
-			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network), amount, parameters, cancellationToken);
+			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network) ?? throw new ArgumentException("scriptPubKey can't be converted into an address", nameof(scriptPubKey)), amount, parameters, cancellationToken);
 		}
 
 		/// <summary>
@@ -2211,7 +2213,7 @@ namespace NBitcoin.RPC
 		{
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
-			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network), amount, null, cancellationToken);
+			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network) ?? throw new ArgumentException("scriptPubKey can't be converted into an address", nameof(scriptPubKey)), amount, null, cancellationToken);
 		}
 
 		/// <summary>
@@ -2231,7 +2233,7 @@ namespace NBitcoin.RPC
 		{
 			if (scriptPubKey == null)
 				throw new ArgumentNullException(nameof(scriptPubKey));
-			return SendToAddress(scriptPubKey.GetDestinationAddress(Network), amount, parameters, cancellationToken);
+			return SendToAddress(scriptPubKey.GetDestinationAddress(Network) ?? throw new ArgumentException("scriptPubKey can't be converted into an address", nameof(scriptPubKey)), amount, parameters, cancellationToken);
 		}
 
 		/// <summary>
@@ -2566,7 +2568,9 @@ namespace NBitcoin.RPC
 		public ulong SizeOnDisk { get; set; }
 		public bool Pruned { get; set; }
 
+		[Obsolete]
 		public List<SoftFork> SoftForks { get; set; }
+		[Obsolete]
 		public List<Bip9SoftFork> Bip9SoftForks { get; set; }
 	}
 

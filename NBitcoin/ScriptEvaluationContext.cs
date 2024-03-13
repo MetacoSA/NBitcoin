@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using static NBitcoin.TaprootConstants;
 
 namespace NBitcoin
 {
@@ -623,15 +624,6 @@ namespace NBitcoin
 		}
 		const byte ANNEX_TAG = 0x50;
 		// How much weight budget is added to the witness size (Tapscript only, see BIP 342).
-#if HAS_SPAN
-		static long VALIDATION_WEIGHT_OFFSET = 50;
-		const int TAPROOT_CONTROL_BASE_SIZE = 33;
-		const int TAPROOT_CONTROL_NODE_SIZE = 32;
-		const int TAPROOT_CONTROL_MAX_NODE_COUNT = 128;
-		const int TAPROOT_CONTROL_MAX_SIZE = TAPROOT_CONTROL_BASE_SIZE + TAPROOT_CONTROL_NODE_SIZE * TAPROOT_CONTROL_MAX_NODE_COUNT;
-		const uint TAPROOT_LEAF_MASK = 0xfe;
-		const uint TAPROOT_LEAF_TAPSCRIPT = 0xc0;
-#endif
 		private bool VerifyWitnessProgram(WitScript witness, WitProgramParameters wit, TransactionChecker checker, bool isP2SH)
 		{
 			ContextStack<byte[]> stack = new ContextStack<byte[]>(witness.Pushes);
@@ -753,7 +745,7 @@ namespace NBitcoin
 			return q.CheckTapTweak(p, merkle_root, (control[0] & 1) != 0);
 		}
 
-		private uint256 ComputeTaprootMerkleRoot(ReadOnlySpan<byte> control, uint256 tapleafHash)
+		internal static uint256 ComputeTaprootMerkleRoot(ReadOnlySpan<byte> control, uint256 tapleafHash)
 		{
 			int path_len = (control.Length - TAPROOT_CONTROL_BASE_SIZE) / TAPROOT_CONTROL_NODE_SIZE;
 			uint256 k = tapleafHash;

@@ -331,6 +331,62 @@ namespace NBitcoin.Tests
 				UseSectionInConfigFile = true,
 				CreateWallet = true
 			};
+
+			public NodeDownloadData v23_0 = new NodeDownloadData()
+			{
+				Version = "23.0",
+				Linux = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "2cca490c1f2842884a3c5b0606f179f9f937177da4eadd628e3f7fd7e25d26d0"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-apple-darwin.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-apple-darwin.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "c816780583009a9dad426dc0c183c89be9da98906e1e2c7ebae91041c1aaaaf3"
+				},
+				Windows = new NodeOSDownloadData()
+				{
+					Executable = "bitcoin-{0}/bin/bitcoind.exe",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win64.zip",
+					Archive = "bitcoin-{0}-win64.zip",
+					Hash = "004b2e25b21e0f14cbcce6acec37f221447abbb3ea7931c689e508054bfc6cf6"
+				},
+				UseSectionInConfigFile = true,
+				CreateWallet = true
+			};
+
+			public NodeDownloadData v24_0 = new NodeDownloadData()
+			{
+				Version = "24.0",
+				Linux = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "fb86cf6af7a10bc5f3ae6cd6a5b0348854e1462102fe71e755d30b51b6e317d1"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-apple-darwin.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-apple-darwin.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "a2b7ba863e5536249a8e97b464bc9a91ad73a0b6340434bf1c09aa912ac52f29"
+				},
+				Windows = new NodeOSDownloadData()
+				{
+					Executable = "bitcoin-{0}/bin/bitcoind.exe",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win64.zip",
+					Archive = "bitcoin-{0}-win64.zip",
+					Hash = "09fa27956f2884434eee2ca1a9d2822712e8405c096e82ecedf64a638f42ca1a"
+				},
+				UseSectionInConfigFile = true,
+				CreateWallet = true
+			};
 		}
 
 		public class LitecoinNodeDownloadData : NodeDownloadDataBase
@@ -604,6 +660,60 @@ namespace NBitcoin.Tests
 				},
 				UseSectionInConfigFile = true
 			};
+
+			public NodeDownloadData v24_0_0 = new NodeDownloadData()
+			{
+				Version = "24.0.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/bitcoin-cash-node/bitcoin-cash-node/releases/download/v{0}/bitcoin-cash-node-{0}-win64.zip",
+					Archive = "bitcoin-cash-node-{0}-win64.zip",
+					Executable = "bitcoin-cash-node-{0}/bin/bitcoind.exe",
+					Hash = "ee70253c78269ca20b34d7c9c554cfd61f67f41db1c9cac319e778fbd0be7865"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/bitcoin-cash-node/bitcoin-cash-node/releases/download/v{0}/bitcoin-cash-node-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "bitcoin-cash-node-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-cash-node-{0}/bin/bitcoind",
+					Hash = "54ef3797a0cf3f0d0292e968d761b3480d15c9723954ce29b33ccbf5fa3ed4ff"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/bitcoin-cash-node/bitcoin-cash-node/releases/download/v{0}/bitcoin-cash-node-{0}-osx64.tar.gz",
+					Archive = "bitcoin-cash-node-{0}-osx64.tar.gz",
+					Executable = "bitcoin-cash-node-{0}/bin/bitcoind",
+					Hash = "1c7247a75113d9013959b46d68f81bc9a76f1f61d5c8185646e5ab61529a3858"
+				},
+				UseSectionInConfigFile = true
+			};
+			public NodeDownloadData v26_0_0 = new NodeDownloadData()
+			{
+				Version = "26.0.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/bitcoin-cash-node/bitcoin-cash-node/releases/download/v{0}/bitcoin-cash-node-{0}-win64.zip",
+					Archive = "bitcoin-cash-node-{0}-win64.zip",
+					Executable = "bitcoin-cash-node-{0}/bin/bitcoind.exe",
+					Hash = "afb99b52434957b6d6989ce745c1c901253f7edd70b287c97402cd17ad351d67"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/bitcoin-cash-node/bitcoin-cash-node/releases/download/v{0}/bitcoin-cash-node-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "bitcoin-cash-node-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-cash-node-{0}/bin/bitcoind",
+					Hash = "e32e05fd63161f6f1fe717fca789448d2ee48e2017d3d4c6686b4222fe69497e"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/bitcoin-cash-node/bitcoin-cash-node/releases/download/v{0}/bitcoin-cash-node-{0}-osx64.tar.gz",
+					Archive = "bitcoin-cash-node-{0}-osx64.tar.gz",
+					Executable = "bitcoin-cash-node-{0}/bin/bitcoind",
+					Hash = "be3a1c93d8907142dbd4033cd4a7aa0c59f4aa2ef23e53d12dccf48e2e18f36e"
+				},
+				UseSectionInConfigFile = true,
+				Chain = null
+			};
 		}
 
 		public class FeathercoinNodeDownloadData : NodeDownloadDataBase
@@ -663,6 +773,27 @@ namespace NBitcoin.Tests
 				},
 				SupportCookieFile = false
 			};
+			public NodeDownloadData v1_14_5 = new NodeDownloadData()
+			{
+				Version = "1.14.5",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dogecoin/dogecoin/releases/download/v{0}/dogecoin-{0}-win64.zip",
+					Archive = "dogecoin-{0}-win64.zip",
+					Executable = "dogecoin-{0}/bin/dogecoind.exe",
+					Hash = "d66906cb5c5b132ca7e126734c074345f1655a4f72205ed7c0bf028dbff41120"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dogecoin/dogecoin/releases/download/v{0}/dogecoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "dogecoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "dogecoin-{0}/bin/dogecoind",
+					Hash = "17a03f019168ec5283947ea6fbf1a073c1d185ea9edacc2b91f360e1c191428e"
+				},
+				Mac = null,
+				SupportCookieFile = false,
+				Chain = null
+			};
 		}
 
 		public class DashNodeDownloadData : NodeDownloadDataBase
@@ -693,34 +824,33 @@ namespace NBitcoin.Tests
 				}
 			};
 
-			// Note that Dash have DISABLED mining in their offical Windows and Mac binaries as per
-			// https://github.com/dashpay/dash/pull/2778 and https://github.com/dashpay/dash/issues/2998.
-			// Without generate or generatetoaddress RPC calls the ability to run automated tests is very limited.
-			//public NodeDownloadData v0_14_0_1 = new NodeDownloadData()
-			//{
-			//	Version = "0.14.0.1",
-			//	Windows = new NodeOSDownloadData()
-			//	{
-			//		DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-win64.zip",
-			//		Archive = "dashcore-{0}-win64.zip",
-			//		Executable = "dashcore-0.14.0/bin/dashd.exe",
-			//		Hash = "8d9a0d25cafb166dd49b75b63e059d2896d0162b3e32168c5dddb40c8ac3853b"
-			//	},
-			//	Linux = new NodeOSDownloadData()
-			//	{
-			//		DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-x86_64-linux-gnu.tar.gz",
-			//		Archive = "dashcore-{0}-x86_64-linux-gnu.tar.gz",
-			//		Executable = "dashcore-0.14.0/bin/dashd",
-			//		Hash = "c28881104ef7b3bdede7eb2b231b076a6e69213948695b4ec79ccb5621c04d97"
-			//	},
-			//	Mac = new NodeOSDownloadData()
-			//	{
-			//		DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-osx-unsigned.dmg",
-			//		Archive = "dashcore-{0}-osx-unsigned.dmg",
-			//		Executable = "dashcore-0.14.0/bin/dashd",
-			//		Hash = "51faffb422fbd3c659ef4b34e7e708174389d8493f2368db4d6c909b52db9115"
-			//	}
-			//};
+			public NodeDownloadData v18_0_1 = new NodeDownloadData()
+			{
+				Version = "18.0.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-win64.zip",
+					Archive = "dashcore-{0}-win64.zip",
+					Executable = "dashcore-{0}/bin/dashd.exe",
+					Hash = "b977afa493f42131047c6c9aad6381684234a34f48006269ce83ab1c4ac46b52"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "dashcore-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "dashcore-{0}/bin/dashd",
+					Hash = "99b4309c7f53b2a93d4b60a45885000b88947af2f329e24ca757ff8cf882ab18"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-osx-unsigned.dmg",
+					Archive = "dashcore-{0}-osx-unsigned.dmg",
+					Executable = "dashcore-{0}/bin/dashd",
+					Hash = "6f97f502732e5b63a431d0edb5a9d14e95ff8afb8e7eb94463566a75e7589a70"
+				},
+				UseSectionInConfigFile = true,
+				Chain = null
+			};
 		}
 
 		public class TerracoinNodeDownloadData : NodeDownloadDataBase
@@ -1226,6 +1356,60 @@ namespace NBitcoin.Tests
 				},
 				UseSectionInConfigFile = true
 			};
+
+			public NodeDownloadData v23_0 = new NodeDownloadData()
+			{
+				Version = "23.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-win64.zip",
+					Archive = "groestlcoin-{0}-win64.zip",
+					Executable = "groestlcoin-{0}/bin/groestlcoind.exe",
+					Hash = "19d2fbac651784c62981ae14e39de89b9f64bd202dcadc1db27cfc560264a418"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "groestlcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "groestlcoin-{0}/bin/groestlcoind",
+					Hash = "46ab078422d0d2aaf5b89ac9603cb61a6ebf6c26a73b9440365a4df5f9bce7de"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-x86_64-apple-darwin.tar.gz",
+					Archive = "groestlcoin-{0}-x86_64-apple-darwin.tar.gz",
+					Executable = "groestlcoin-{0}/bin/groestlcoind",
+					Hash = "ff80c843a29c515e052972019915fa302584b0c045ca69ee3a1572013743d385"
+				},
+				UseSectionInConfigFile = true
+			};
+
+			public NodeDownloadData v24_0_1 = new NodeDownloadData()
+			{
+				Version = "24.0.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-win64.zip",
+					Archive = "groestlcoin-{0}-win64.zip",
+					Executable = "groestlcoin-{0}/bin/groestlcoind.exe",
+					Hash = "0c603e4f29ac6eaf5562d74894b6f1b66d5a5d60db8cd8d78d98d99b8f361f1a"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "groestlcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "groestlcoin-{0}/bin/groestlcoind",
+					Hash = "4b69743190e2697d7b7772bf6f63cde595d590ff6664abf15a7201dab2a6098b"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-x86_64-apple-darwin.tar.gz",
+					Archive = "groestlcoin-{0}-x86_64-apple-darwin.tar.gz",
+					Executable = "groestlcoin-{0}/bin/groestlcoind",
+					Hash = "8a99765cd01686b81480dc29ee70aa5619d429402685f164e2a4b0b4d592ac10"
+				},
+				UseSectionInConfigFile = true
+			};
 		}
 
 		public class ZclassicNodeDownloadData
@@ -1307,6 +1491,25 @@ namespace NBitcoin.Tests
 				UseSectionInConfigFile = true,
 			};
 
+			public NodeDownloadData v0_21_0_2 = new NodeDownloadData()
+			{
+				Version = "0.21.0.2",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/ElementsProject/elements/releases/download/elements-0.21.0.2/elements-elements-0.21.0.2-win64.zip",
+					Archive = "elements-{0}-win64.zip",
+					Executable = "elements-elements-0.21.0.2/bin/elementsd.exe",
+					Hash = "7a8f427be448eaa89f87c31cce705069c2d9528cf54fdd838c104f1257f800d4"
+				},
+				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0\n\ncon_dyna_deploy_start=0\n\ncon_dyna_deploy_signal=1\ncon_nminerconfirmationwindow=1\ncon_nrulechangeactivationthreshold=1",
+				RegtestFolderName = "elementsregtest",
+				Chain = "elementsregtest",
+				UseSectionInConfigFile = true,
+				CreateWallet = true,
+				WalletExecutable = "elements-wallet",
+				GetWalletChainSpecifier = "-chain={0}"
+			};
+
 		}
 		public class LiquidNodeDownloadData
  : NodeDownloadDataBase
@@ -1328,7 +1531,6 @@ namespace NBitcoin.Tests
 					Executable = "liquid-{0}/bin/liquidd",
 					Hash = "ea2836aa267b32b29e890acdd5e724b4be225c34891fd26426ce741c12c1e166"
 				},
-				RegtestFolderName = "liquidregtest",
 				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0"
 			};
 
@@ -1356,7 +1558,6 @@ namespace NBitcoin.Tests
 					Executable = "liquid-{0}/bin/liquidd",
 					Hash = "91f5859414d6bce99695c2de01317ec1454d3d99615f81f301b85f767b5e2cf2  "
 				},
-				RegtestFolderName = "liquidregtest",
 				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0"
 			};
 		}

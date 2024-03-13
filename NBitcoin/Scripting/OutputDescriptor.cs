@@ -365,7 +365,7 @@ namespace NBitcoin.Scripting
 			return keyProvider;
 		}
 
-		private ScriptPubKeyType? InferTemplate(ScriptTemplate template) => template switch
+		private ScriptPubKeyType? InferTemplate(ScriptTemplate? template) => template switch
 		{
 			PayToPubkeyHashTemplate _ => ScriptPubKeyType.Legacy,
 			PayToPubkeyTemplate _ => ScriptPubKeyType.Legacy,
@@ -409,18 +409,18 @@ namespace NBitcoin.Scripting
 			var template = sc.FindTemplate();
 			if (template is PayToPubkeyTemplate p2pkTemplate)
 			{
-				var pk = p2pkTemplate.ExtractScriptPubKeyParameters(sc);
+				var pk = p2pkTemplate.ExtractScriptPubKeyParameters(sc)!;
 				return OutputDescriptor.NewPK(InferPubKey(pk, repo, ctx), network);
 			}
 			if (template is PayToPubkeyHashTemplate p2pkhTemplate)
 			{
-				var pkHash = p2pkhTemplate.ExtractScriptPubKeyParameters(sc);
+				var pkHash = p2pkhTemplate.ExtractScriptPubKeyParameters(sc)!;
 				if (repo.TryGetPubKey(pkHash, out var pk))
 					return OutputDescriptor.NewPKH(InferPubKey(pk, repo, ctx), network);
 			}
 			if (template is PayToMultiSigTemplate p2MultiSigTemplate)
 			{
-				var data = p2MultiSigTemplate.ExtractScriptPubKeyParameters(sc);
+				var data = p2MultiSigTemplate.ExtractScriptPubKeyParameters(sc)!;
 				var pks = data.PubKeys;
 				var orderedPks = pks.OrderBy(pk => pk);
 				var isOrdered = orderedPks.SequenceEqual(pks);
@@ -429,7 +429,7 @@ namespace NBitcoin.Scripting
 			}
 			if (template is PayToScriptHashTemplate p2shTemplate && ctx == ScriptContext.TOP)
 			{
-				var scriptId = p2shTemplate.ExtractScriptPubKeyParameters(sc);
+				var scriptId = p2shTemplate.ExtractScriptPubKeyParameters(sc)!;
 				if (repo.TryGetScript(scriptId, out var nextScript))
 				{
 					var sub = InferFromScript(nextScript, repo, network, ScriptContext.P2SH);
@@ -459,7 +459,7 @@ namespace NBitcoin.Scripting
 			// Otherwise, Raw.
 			if (template is PayToWitTemplate unknownWitnessTemplate)
 			{
-				var dest = unknownWitnessTemplate.ExtractScriptPubKeyParameters(sc);
+				var dest = unknownWitnessTemplate.ExtractScriptPubKeyParameters(sc)!;
 				return OutputDescriptor.NewAddr(dest, network);
 			}
 
@@ -676,8 +676,11 @@ namespace NBitcoin.Scripting
 
 		static readonly char[] INPUT_CHARSET = INPUT_CHARSET_STRING.ToCharArray();
 
-		internal static string GetCheckSum(string desc)
+		public static string AddChecksum(string desc) => $"{desc}#{GetCheckSum(desc)}"; 
+		public static string GetCheckSum(string desc)
 		{
+			if (desc is null)
+				throw new ArgumentNullException(nameof(desc));
 			ulong c = 1;
 			int cls = 0;
 			int clscount = 0;

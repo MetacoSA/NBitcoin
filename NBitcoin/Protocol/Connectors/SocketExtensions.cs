@@ -11,7 +11,12 @@ namespace NBitcoin.Protocol.Connectors
 {
 	static class SocketExtensions
 	{
-#if !NO_BEGINCONNECT
+#if !NO_SOCKETASYNC
+		public static Task ConnectAsync(this Socket socket, EndPoint remoteEP, CancellationToken cancellationToken)
+		{
+			return socket.ConnectAsync(remoteEP, cancellationToken).AsTask();
+		}
+#elif !NO_BEGINCONNECT
 		public static Task ConnectAsync(this Socket socket, EndPoint remoteEP, CancellationToken cancellationToken)
 		{
 			var tcs = new TaskCompletionSource<bool>(socket);

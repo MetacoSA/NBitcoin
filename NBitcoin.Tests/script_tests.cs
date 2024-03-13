@@ -239,6 +239,63 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanParseAndGeneratePayToTaprootScripts()
+		{
+			var pubkey = new TaprootPubKey(Encoders.Hex.DecodeData("53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343"));
+			var scriptPubKey = new Script("1 53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343");
+#pragma warning disable CS0618 // Type or member is obsolete
+			Assert.Equal(scriptPubKey, PayToTaprootTemplate.Instance.GenerateScriptPubKey(pubkey));
+#pragma warning restore CS0618 // Type or member is obsolete
+			Assert.Equal(pubkey, PayToTaprootTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey));
+
+			// signature has wrong length
+			scriptPubKey = new Script("1 53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda34300");
+			Assert.Null(PayToTaprootTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey));
+
+			// segwit version is missing
+			scriptPubKey = new Script("53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343");
+			Assert.Null(PayToTaprootTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey));
+
+			// too many witnesses
+			scriptPubKey = new Script("1 53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343 00");
+			Assert.Null(PayToTaprootTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey));
+
+			var sig = TaprootSignature.Parse(Encoders.Hex.DecodeData("e907831f80848d1069a5371b402410364bdf1c5f8307b0084c55f1ce2dca821525f66a4a85ea8b71e482a74f382d2ce5ebeee8fdb2172f477df4900d310536c0"));
+			var witScript = new WitScript("e907831f80848d1069a5371b402410364bdf1c5f8307b0084c55f1ce2dca821525f66a4a85ea8b71e482a74f382d2ce5ebeee8fdb2172f477df4900d310536c0");
+			Assert.Equal(witScript, PayToTaprootTemplate.Instance.GenerateWitScript(sig));
+
+			var annex = new byte[] { 0x50 };
+			witScript = new WitScript("e907831f80848d1069a5371b402410364bdf1c5f8307b0084c55f1ce2dca821525f66a4a85ea8b71e482a74f382d2ce5ebeee8fdb2172f477df4900d310536c0 50");
+			Assert.Equal(witScript, PayToTaprootTemplate.Instance.GenerateWitScript(sig, annex));
+
+			// first byte of annex is not 0x50
+			annex = new byte[] { 0x00 };
+			Assert.Throws<ArgumentException>(() => PayToTaprootTemplate.Instance.GenerateWitScript(sig, annex));
+
+			// annex is empty
+			annex = new byte[] { };
+			Assert.Throws<ArgumentException>(() => PayToTaprootTemplate.Instance.GenerateWitScript(sig, annex));
+
+			witScript = new WitScript("e907831f80848d1069a5371b402410364bdf1c5f8307b0084c55f1ce2dca821525f66a4a85ea8b71e482a74f382d2ce5ebeee8fdb2172f477df4900d310536c0");
+			Assert.Equal(sig.ToBytes(), PayToTaprootTemplate.Instance.ExtractWitScriptParameters(witScript).TransactionSignature.ToBytes());
+			Assert.Null(PayToTaprootTemplate.Instance.ExtractWitScriptParameters(witScript).Annex);
+
+			witScript = new WitScript("e907831f80848d1069a5371b402410364bdf1c5f8307b0084c55f1ce2dca821525f66a4a85ea8b71e482a74f382d2ce5ebeee8fdb2172f477df4900d310536c0 50");
+			annex = new byte[] { 0x50 };
+			Assert.Equal(sig.ToBytes(), PayToTaprootTemplate.Instance.ExtractWitScriptParameters(witScript).TransactionSignature.ToBytes());
+			Assert.Equal(annex, PayToTaprootTemplate.Instance.ExtractWitScriptParameters(witScript).Annex);
+
+			// first byte of annex is not 0x50
+			witScript = new WitScript("e907831f80848d1069a5371b402410364bdf1c5f8307b0084c55f1ce2dca821525f66a4a85ea8b71e482a74f382d2ce5ebeee8fdb2172f477df4900d310536c0 10");
+			Assert.Null(PayToTaprootTemplate.Instance.ExtractWitScriptParameters(witScript));
+
+			// annex is empty
+			witScript = new WitScript("e907831f80848d1069a5371b402410364bdf1c5f8307b0084c55f1ce2dca821525f66a4a85ea8b71e482a74f382d2ce5ebeee8fdb2172f477df4900d310536c0");
+			Assert.Null(PayToTaprootTemplate.Instance.ExtractWitScriptParameters(witScript).Annex);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void PayToMultiSigTemplateShouldAcceptNonKeyParameters()
 		{
 			var tx = Transaction.Parse("0100000002f9cbafc519425637ba4227f8d0a0b7160b4e65168193d5af39747891de98b5b5000000006b4830450221008dd619c563e527c47d9bd53534a770b102e40faa87f61433580e04e271ef2f960220029886434e18122b53d5decd25f1f4acb2480659fea20aabd856987ba3c3907e0121022b78b756e2258af13779c1a1f37ea6800259716ca4b7f0b87610e0bf3ab52a01ffffffff42e7988254800876b69f24676b3e0205b77be476512ca4d970707dd5c60598ab00000000fd260100483045022015bd0139bcccf990a6af6ec5c1c52ed8222e03a0d51c334df139968525d2fcd20221009f9efe325476eb64c3958e4713e9eefe49bf1d820ed58d2112721b134e2a1a53034930460221008431bdfa72bc67f9d41fe72e94c88fb8f359ffa30b33c72c121c5a877d922e1002210089ef5fc22dd8bfc6bf9ffdb01a9862d27687d424d1fefbab9e9c7176844a187a014c9052483045022015bd0139bcccf990a6af6ec5c1c52ed8222e03a0d51c334df139968525d2fcd20221009f9efe325476eb64c3958e4713e9eefe49bf1d820ed58d2112721b134e2a1a5303210378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71210378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c7153aeffffffff01a08601000000000017a914d8dacdadb7462ae15cd906f1878706d0da8660e68700000000", Network.Main);
@@ -1062,11 +1119,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(scriptPubKey, PayToWitPubKeyHashTemplate.Instance.GenerateScriptPubKey(pubkey.WitHash));
 			Assert.Equal(scriptPubKey, PayToWitPubKeyHashTemplate.Instance.GenerateScriptPubKey((BitcoinWitPubKeyAddress)pubkey.WitHash.GetAddress(Network.Main)));
 			var expected = new WitScript("304402206104c335e4adbb920184957f9f710b09de17d015329fde6807b9d321fd2142db02200b24ad996b4aa4ff103000348b5ad690abfd9fddae546af9e568394ed4a8311301 03a65786c1a48d4167aca08cf6eb8eed081e13f45c02dc6000fd8f3bb16242579a");
-			var actual = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(new PayToWitPubkeyHashScriptSigParameters()
-			{
-				PublicKey = pubkey,
-				TransactionSignature = new TransactionSignature(Encoders.Hex.DecodeData("304402206104c335e4adbb920184957f9f710b09de17d015329fde6807b9d321fd2142db02200b24ad996b4aa4ff103000348b5ad690abfd9fddae546af9e568394ed4a8311301"))
-			});
+			var actual = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(new PayToWitPubkeyHashScriptSigParameters(new TransactionSignature(Encoders.Hex.DecodeData("304402206104c335e4adbb920184957f9f710b09de17d015329fde6807b9d321fd2142db02200b24ad996b4aa4ff103000348b5ad690abfd9fddae546af9e568394ed4a8311301")), pubkey));
 			Assert.Equal(expected, actual);
 
 			// should be able to parse if signature is empty in p2wpkh.
@@ -1129,6 +1182,7 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		[Obsolete]
 		public void CanExtractAddressesFromScript()
 		{
 			var payToMultiSig = new Script("1 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d 2 OP_CHECKMULTISIG");
@@ -1463,7 +1517,7 @@ namespace NBitcoin.Tests
 				}
 			}
 		}
-		
+
 		private static async IAsyncEnumerable<ScriptTest3Vector> GetScriptsTest3Vectors()
 		{
 			var testDataDir = Path.Combine("TestData", "script_tests");

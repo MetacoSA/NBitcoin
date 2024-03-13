@@ -10,6 +10,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -20,6 +21,11 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Tests
 {
+	public enum RPCWalletType
+	{
+		Legacy,
+		Descriptors
+	}
 	public enum CoreNodeState
 	{
 		Stopped,
@@ -105,11 +111,14 @@ namespace NBitcoin.Tests
 			get; set;
 		}
 
+		public string WalletExecutable { get; set; } = "bitcoin-wallet";
+		public string GetWalletChainSpecifier = "-{0}";
+
 		/// <summary>
 		/// For blockchains that use an arbitrary chain (e.g. instead of main, testnet and regtest
 		/// Elements can use chain=elementsregtest).
 		/// </summary>
-		public string Chain { get; set; }
+		public string Chain { get; set; } = "regtest";
 
 		public NodeOSDownloadData GetCurrentOSDownloadData()
 		{
@@ -209,6 +218,8 @@ namespace NBitcoin.Tests
 			set;
 		} = Network.RegTest;
 		public NodeDownloadData NodeImplementation { get; private set; }
+		public RPCWalletType? RPCWalletType { get; set; }
+		public bool CreateWallet { get; set; } = true;
 
 		public CoreNode CreateNode(bool start = false)
 		{
@@ -505,7 +516,7 @@ namespace NBitcoin.Tests
 					configStr.AppendLine($"[{NodeImplementation.Chain}]");
 				}
 			}
-			if (NodeImplementation.CreateWallet)
+			if (CreateWallet)
 				config.Add("wallet", "wallet.dat");
 
 			config.Add("rest", "1");
@@ -540,7 +551,7 @@ namespace NBitcoin.Tests
 		{
 			lock (l)
 			{
-				if (_Builder.NodeImplementation.CreateWallet)
+				if (CreateWallet)
 					CreateDefaultWallet();
 
 				string appPath = new FileInfo(this._Builder.BitcoinD).FullName;
@@ -573,10 +584,21 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		public RPCWalletType? RPCWalletType { get; set; }
+
 		private void CreateDefaultWallet()
 		{
-			var walletToolPath = Path.Combine(Path.GetDirectoryName(this._Builder.BitcoinD), "bitcoin-wallet");
-			string walletToolArgs = $"-regtest -wallet=\"wallet.dat\" -datadir=\"{dataDir}\" create";
+			var walletToolPath = Path.Combine(Path.GetDirectoryName(this._Builder.BitcoinD), _Builder.NodeImplementation.WalletExecutable);
+
+			var walletType = (RPCWalletType ?? this._Builder.RPCWalletType) switch
+			{
+				Tests.RPCWalletType.Descriptors => " -descriptors",
+				Tests.RPCWalletType.Legacy => " -legacy",
+				_ => string.Empty
+			};
+
+			retry:
+			string walletToolArgs = $"{string.Format(_Builder.NodeImplementation.GetWalletChainSpecifier, _Builder.NodeImplementation.Chain)} -wallet=\"wallet.dat\"{walletType} -datadir=\"{dataDir}\" create";
 
 			var info = new ProcessStartInfo(walletToolPath, walletToolArgs)
 			{
@@ -590,6 +612,12 @@ namespace NBitcoin.Tests
 			using (var walletToolProcess = Process.Start(info))
 			{ 
 				walletToolProcess.WaitForExit();
+				// Some doesn't support this
+				if (walletToolProcess.ExitCode != 0 && walletType != string.Empty)
+				{
+					walletType = string.Empty;
+					goto retry;
+				}
 			}
 		}
 
@@ -677,6 +705,21 @@ namespace NBitcoin.Tests
 			get;
 			set;
 		} = true;
+
+		bool? _CreateWallet;
+		public bool CreateWallet
+		{
+			get
+			{
+				if (!NodeImplementation.CreateWallet)
+					return false;
+				return _CreateWallet ?? _Builder.CreateWallet;
+			}
+			set
+			{
+				_CreateWallet = value;
+			}
+		}
 
 		class TransactionNode
 		{

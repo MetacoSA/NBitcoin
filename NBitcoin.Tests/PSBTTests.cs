@@ -43,66 +43,71 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public static void ShouldCalculateBalanceOfHDKey()
 		{
-			var aliceMaster = new ExtKey();
-			var bobMaster = new ExtKey();
+			foreach (var network in new[] { Network.Main, Altcoins.BGold.Instance.Mainnet })
+			{
+				var aliceMaster = new ExtKey();
+				var bobMaster = new ExtKey();
 
-			var alice = aliceMaster.Derive(new KeyPath("1/2/3"));
-			var bob = bobMaster.Derive(new KeyPath("4/5/6"));
+				var alice = aliceMaster.Derive(new KeyPath("1/2/3"));
+				var bob = bobMaster.Derive(new KeyPath("4/5/6"));
 
-			var funding = Network.Main.CreateTransaction();
-			funding.Outputs.Add(Money.Coins(1.0m), alice);
-			funding.Outputs.Add(Money.Coins(1.5m), bob);
+				var funding = network.CreateTransaction();
+				funding.Outputs.Add(Money.Coins(1.0m), alice);
+				funding.Outputs.Add(Money.Coins(1.5m), bob);
 
-			var coins = funding.Outputs.AsCoins().ToArray();
-			var aliceCoin = coins[0];
-			var bobCoin = coins[1];
+				var coins = funding.Outputs.AsCoins().ToArray();
+				var aliceCoin = coins[0];
+				var bobCoin = coins[1];
 
-			TransactionBuilder builder = Network.Main.CreateTransactionBuilder();
-			builder.SetGroupName("Alice");
-			builder.AddCoins(aliceCoin);
-			builder.AddKeys(alice);
-			builder.Send(new Key(), Money.Coins(0.2m));
-			builder.Send(new Key(), Money.Coins(0.1m));
-			builder.Send(bob, Money.Coins(0.123m));
-			builder.SetChange(alice);
+				TransactionBuilder builder = network.CreateTransactionBuilder();
+				builder.SetGroupName("Alice");
+				builder.AddCoins(aliceCoin);
+				builder.AddKeys(alice);
+				builder.Send(new Key(), Money.Coins(0.2m));
+				builder.Send(new Key(), Money.Coins(0.1m));
+				builder.Send(bob, Money.Coins(0.123m));
+				builder.SetChange(alice);
 
-			builder.Then();
-			builder.SetGroupName("Bob");
-			builder.AddCoins(bobCoin);
-			builder.AddKeys(bob);
-			builder.Send(new Key(), Money.Coins(0.25m));
-			builder.Send(new Key(), Money.Coins(0.01m));
-			builder.SetChange(bob);
-			builder.SendFees(Money.Coins(0.001m));
+				builder.Then();
+				builder.SetGroupName("Bob");
+				builder.AddCoins(bobCoin);
+				builder.AddKeys(bob);
+				builder.Send(new Key(), Money.Coins(0.25m));
+				builder.Send(new Key(), Money.Coins(0.01m));
+				builder.SetChange(bob);
+				builder.SendFees(Money.Coins(0.001m));
 
-			var psbt = builder.BuildPSBT(false);
-			psbt.AddKeyPath(aliceMaster, new KeyPath("1/2/3"));
-			psbt.AddKeyPath(bobMaster, new KeyPath("4/5/6"));
+				var psbt = builder.BuildPSBT(false);
+				psbt.AddKeyPath(aliceMaster, new KeyPath("1/2/3"));
+				psbt.AddKeyPath(bobMaster, new KeyPath("4/5/6"));
 
-			var actualBalance = psbt.GetBalance(ScriptPubKeyType.Legacy, aliceMaster);
-			var expectedChange = aliceCoin.Amount - (Money.Coins(0.2m) + Money.Coins(0.1m) + Money.Coins(0.123m));
-			var expectedBalance = -aliceCoin.Amount + expectedChange;
-			Assert.Equal(expectedBalance, actualBalance);
+				var actualBalance = psbt.GetBalance(ScriptPubKeyType.Legacy, aliceMaster);
+				var expectedChange = aliceCoin.Amount - (Money.Coins(0.2m) + Money.Coins(0.1m) + Money.Coins(0.123m));
+				var expectedBalance = -aliceCoin.Amount + expectedChange;
+				Assert.Equal(expectedBalance, actualBalance);
 
-			actualBalance = psbt.GetBalance(ScriptPubKeyType.Legacy, bobMaster);
-			expectedChange = bobCoin.Amount - (Money.Coins(0.25m) + Money.Coins(0.01m) + Money.Coins(0.001m)) + Money.Coins(0.123m);
-			expectedBalance = -bobCoin.Amount + expectedChange;
-			Assert.Equal(expectedBalance, actualBalance);
+				actualBalance = psbt.GetBalance(ScriptPubKeyType.Legacy, bobMaster);
+				expectedChange = bobCoin.Amount - (Money.Coins(0.25m) + Money.Coins(0.01m) + Money.Coins(0.001m)) + Money.Coins(0.123m);
+				expectedBalance = -bobCoin.Amount + expectedChange;
+				Assert.Equal(expectedBalance, actualBalance);
 
-			Assert.True(psbt.TryGetFee(out var fee));
-			Assert.Equal(Money.Coins(0.001m), fee);
+				Assert.True(psbt.TryGetFee(out var fee));
+				Assert.Equal(Money.Coins(0.001m), fee);
 
-			Assert.True(psbt.TryGetEstimatedFeeRate(out var estimated));
+				Assert.True(psbt.TryGetEstimatedFeeRate(out var estimated));
 
-			Assert.False(psbt.IsReadyToSign());
-			psbt.AddTransactions(funding);
-			Assert.True(psbt.IsReadyToSign());
-			psbt.SignAll(ScriptPubKeyType.Legacy, bobMaster);
-			psbt.SignAll(ScriptPubKeyType.Legacy, aliceMaster);
+				Assert.False(psbt.IsReadyToSign());
+				psbt.AddTransactions(funding);
+				Assert.True(psbt.IsReadyToSign());
+				psbt.SignAll(ScriptPubKeyType.Legacy, bobMaster);
+				psbt.SignAll(ScriptPubKeyType.Legacy, aliceMaster);
+				// Twice should be no-op
+				psbt.SignAll(ScriptPubKeyType.Legacy, bobMaster);
 
-			psbt.Finalize();
-			var result = psbt.ExtractTransaction();
-			Assert.True(builder.Verify(result));
+				psbt.Finalize();
+				var result = psbt.ExtractTransaction();
+				Assert.True(builder.Verify(result));
+			}
 		}
 
 		[Fact]
@@ -112,6 +117,10 @@ namespace NBitcoin.Tests
 				Altcoins.AltNetworkSets.Groestlcoin.Testnet);
 			var errors = psbt.CheckSanity();
 			Assert.Empty(errors);
+
+			psbt = PSBT.Parse("cHNidP8BAHEBAAAAAa5DWRuSCbbha7kDIp/LMMEZCYyyX4S6cBp7zWulUa/MAQAAAAD/////AhEoKgQAAAAAFgAU7nHAKjqvWjNf/8RQqlA77gFfVZcALTEBAAAAABYAFJetm1OALTie8TP5CY3/moUsteKlAAAAAAABAR8ljFsFAAAAABYAFO5xwCo6r1ozX//EUKpQO+4BX1WXIgIC1S6EeEs43Kpiqww0O0noYaUxYubyjtkZJIDCLyZBbx1HMEQCIG2DB/kiJIemnd1io2FH5YfmYbaYoUs0Yx5rujhTrYYJAiAM5uVbmbELCKssXXeVjKeD7hggtghj2OZcTIezwgfoTAEiBgLVLoR4SzjcqmKrDDQ7SehhpTFi5vKO2RkkgMIvJkFvHRgDOcj3VAAAgAEAAIAAAACAAQAAAAEAAAAAIgIC1S6EeEs43Kpiqww0O0noYaUxYubyjtkZJIDCLyZBbx0YAznI91QAAIABAACAAAAAgAEAAAABAAAAAAA=", Altcoins.AltNetworkSets.Groestlcoin.Testnet);
+			psbt.Finalize(); // Should be valid transaction
+			psbt.ExtractTransaction();
 		}
 
 		[Fact]

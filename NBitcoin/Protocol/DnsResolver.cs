@@ -23,7 +23,13 @@ namespace NBitcoin.Protocol
 			var dns = new DnsEndPoint(hostNameOrAddress, 0);
 			if (dns.IsTor() || dns.IsI2P())
 				throw new SocketException(11001);
+
+#if !NO_SOCKETASYNC
+			var addr = await Dns.GetHostAddressesAsync(hostNameOrAddress, cancellationToken).ConfigureAwait(false);
+#else
 			var addr = await Dns.GetHostAddressesAsync(hostNameOrAddress).WithCancellation(cancellationToken).ConfigureAwait(false);
+#endif
+
 			if (addr.Length is 0)
 				throw new SocketException(11001);
 			return addr;

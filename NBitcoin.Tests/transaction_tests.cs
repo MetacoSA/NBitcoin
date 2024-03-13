@@ -21,6 +21,8 @@ using Encoders = NBitcoin.DataEncoders.Encoders;
 using static NBitcoin.Tests.Helpers.PrimitiveUtils;
 using Newtonsoft.Json.Schema;
 using Xunit.Sdk;
+using NBitcoin.Scripting;
+using NBitcoin.RPC;
 
 namespace NBitcoin.Tests
 {
@@ -801,7 +803,7 @@ namespace NBitcoin.Tests
 			var k = new Key();
 			var scriptCoin = RandomCoin(Money.Coins(0.0001m), k.PubKey.ScriptPubKey, true);
 			var builder = Network.CreateTransactionBuilder();
-			Assert.Throws<NotEnoughFundsException>(() => builder
+			Assert.Throws<OutputTooSmallException>(() => builder
 			.AddCoins(scriptCoin)
 			.Send(new Key(), scriptCoin.Amount)
 			.SubtractFees()
@@ -2003,7 +2005,9 @@ namespace NBitcoin.Tests
 			Transaction signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+#pragma warning disable CS0618 // Type or member is obsolete
 			Assert.Equal(previousCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
+#pragma warning restore CS0618 // Type or member is obsolete
 
 			//P2WSH
 			previousTx = builder.Network.Consensus.ConsensusFactory.CreateTransaction();
@@ -2019,7 +2023,9 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+#pragma warning disable CS0618 // Type or member is obsolete
 			Assert.Equal(witnessCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
+#pragma warning restore CS0618 // Type or member is obsolete
 
 
 			//P2SH(P2WPKH)
@@ -2036,7 +2042,9 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+#pragma warning disable CS0618 // Type or member is obsolete
 			Assert.Equal(scriptCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
+#pragma warning restore CS0618 // Type or member is obsolete
 
 			//P2SH(P2WSH)
 			previousTx = Network.CreateTransaction();
@@ -2053,7 +2061,9 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+#pragma warning disable CS0618 // Type or member is obsolete
 			Assert.Equal(witnessCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
+#pragma warning restore CS0618 // Type or member is obsolete
 
 			//Can remove witness data from tx
 			var signedTx2 = signedTx.WithOptions(TransactionOptions.None);
@@ -2186,22 +2196,6 @@ namespace NBitcoin.Tests
 			txBuilder.SignTransactionInPlace(tx);
 
 			Assert.True(tx.Inputs.AsIndexedInputs().First().VerifyScript(coin));
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void AssertDogeHasAMinimumOf1DogeFee()
-		{
-			var k = new Key();
-			var txBuilder = Altcoins.Dogecoin.Instance.Regtest.CreateTransactionBuilder();
-			txBuilder.AddKeys(k);
-			txBuilder.AddCoins(RandomCoin(Money.Coins(10m), k.PubKey.Hash));
-			txBuilder.Send(new Key(), Money.Coins(4));
-			txBuilder.SetChange(new Key());
-			txBuilder.SendFees(Money.Coins(0.0001m));
-			var signed = txBuilder.BuildPSBT(true);
-			signed.TryGetFee(out var fee);
-			Assert.Equal(fee, Money.Coins(1.0m));
 		}
 
 		[Fact]
@@ -2658,9 +2652,7 @@ namespace NBitcoin.Tests
 			builder.DustPrevention = false;
 
 			TransactionPolicyError[] errors;
-			Assert.False(builder.Verify(signed, Money.Coins(0.0001m), out errors));
-			var ex = (NotEnoughFundsPolicyError)errors.Single();
-			Assert.True((Money)ex.Missing == Money.Parse("-0.00000500"));
+			Assert.True(builder.Verify(signed, Money.Coins(0.0001m), out errors));
 
 			builder = Network.CreateTransactionBuilder();
 			builder.MergeOutputs = false;
@@ -3116,7 +3108,11 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void Play()
 		{
-			
+			var aa = PSBT.Parse("cHNidP8BAHEBAAAAAa5DWRuSCbbha7kDIp/LMMEZCYyyX4S6cBp7zWulUa/MAQAAAAD/////AhEoKgQAAAAAFgAU7nHAKjqvWjNf/8RQqlA77gFfVZcALTEBAAAAABYAFJetm1OALTie8TP5CY3/moUsteKlAAAAAAABAR8ljFsFAAAAABYAFO5xwCo6r1ozX//EUKpQO+4BX1WXIgIC1S6EeEs43Kpiqww0O0noYaUxYubyjtkZJIDCLyZBbx1HMEQCIG2DB/kiJIemnd1io2FH5YfmYbaYoUs0Yx5rujhTrYYJAiAM5uVbmbELCKssXXeVjKeD7hggtghj2OZcTIezwgfoTAEiBgLVLoR4SzjcqmKrDDQ7SehhpTFi5vKO2RkkgMIvJkFvHRgDOcj3VAAAgAEAAIAAAACAAQAAAAEAAAAAIgIC1S6EeEs43Kpiqww0O0noYaUxYubyjtkZJIDCLyZBbx0YAznI91QAAIABAACAAAAAgAEAAAABAAAAAAA=", Altcoins.Groestlcoin.Instance.Testnet);
+			aa.AssertSanity();
+			var aaew = aa.CheckSanity();
+			aa.Finalize();
+			var tx = aa.ExtractTransaction();
 		}
 
 

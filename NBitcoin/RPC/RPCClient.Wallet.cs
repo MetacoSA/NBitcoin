@@ -115,9 +115,13 @@ namespace NBitcoin.RPC
 
 	public partial class RPCClient
 	{
-		#nullable enable
-
-		public RPCClient GetWallet(string walletName)
+#nullable enable
+		[Obsolete("This method is being renamed, use SetWalletContext instead")]
+		public RPCClient GetWallet(string? walletName)
+		{
+			return SetWalletContext(walletName);
+		}
+		public RPCClient SetWalletContext(string? walletName)
 		{
 			RPCCredentialString credentialString;;
 
@@ -149,29 +153,31 @@ namespace NBitcoin.RPC
 
 		public async Task<RPCClient> CreateWalletAsync(string walletNameOrPath, CreateWalletOptions? options = null, CancellationToken cancellationToken = default)
 		{
-			if (string.IsNullOrEmpty(walletNameOrPath)) throw new ArgumentNullException(nameof(walletNameOrPath));
+			if (walletNameOrPath is null)
+				throw new ArgumentNullException(nameof(walletNameOrPath));
 
 			var parameters = new Dictionary<string, object>();
 			parameters.Add("wallet_name", walletNameOrPath);
 			if (options?.DisablePrivateKeys is bool disablePrivateKeys)
-				parameters.Add("disable_private_keys", disablePrivateKeys.ToString());
+				parameters.Add("disable_private_keys", disablePrivateKeys);
 			if (options?.Blank is bool blank)
-				parameters.Add("blank", blank.ToString());
+				parameters.Add("blank", blank);
 			if (options?.Passphrase is string passphrase && passphrase.Length > 0)
 				parameters.Add("passphrase", passphrase);
 			if (options?.AvoidReuse is bool avoidReuse)
-				parameters.Add("avoid_reuse", avoidReuse.ToString());
+				parameters.Add("avoid_reuse", avoidReuse);
 			if (options?.Descriptors is bool descriptors)
-				parameters.Add("descriptors", descriptors.ToString());
+				parameters.Add("descriptors", descriptors);
 			if (options?.LoadOnStartup is bool loadOnStartup)
-				parameters.Add("load_on_startup", loadOnStartup.ToString());
+				parameters.Add("load_on_startup", loadOnStartup);
 			var result = await SendCommandWithNamedArgsAsync(RPCOperations.createwallet.ToString(), parameters, cancellationToken).ConfigureAwait(false);
-			return GetWallet(result.Result.Value<string>("name"));
+			return SetWalletContext(result.Result.Value<string>("name"));
 		}
 
 		public RPCClient CreateWallet(string walletNameOrPath, CreateWalletOptions? options = null)
 		{
-			if (string.IsNullOrEmpty(walletNameOrPath)) throw new ArgumentNullException(nameof(walletNameOrPath));
+			if (walletNameOrPath is null)
+				throw new ArgumentNullException(nameof(walletNameOrPath));
 
 			return CreateWalletAsync(walletNameOrPath, options).GetAwaiter().GetResult();
 		}
@@ -188,7 +194,7 @@ namespace NBitcoin.RPC
 		{
 			var req = GetLoadUnloadWalletRequest("loadwallet", walletName, loadOnStartup);
 			var response = await SendCommandAsync(req, cancellationToken: cancellationToken).ConfigureAwait(false);
-			return GetWallet(response.Result.Value<string>("name"));
+			return SetWalletContext(response.Result.Value<string>("name"));
 		}
 
 		private RPCRequest GetLoadUnloadWalletRequest(string methodName, string? walletName, bool? loadOnStartup)
@@ -565,7 +571,7 @@ namespace NBitcoin.RPC
 			foreach (var addr in addresses)
 			{
 				var obj = JObject.FromObject(addr, seria);
-				if (obj["timestamp"] == null || obj["timestamp"].Type == JTokenType.Null)
+				if (obj["timestamp"] == null || obj["timestamp"]?.Type is JTokenType.Null)
 					obj["timestamp"] = "now";
 				else
 					obj["timestamp"] = new JValue(Utils.DateTimeToUnixTime(addr.Timestamp!.Value));
