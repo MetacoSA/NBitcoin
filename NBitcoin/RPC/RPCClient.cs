@@ -809,8 +809,11 @@ namespace NBitcoin.RPC
 			if (batches == null)
 				throw new InvalidOperationException("This RPCClient instance is not a batch, use PrepareBatch");
 			_BatchedRequests = null;
+
+			int id = 0;
 			while (batches.TryDequeue(out req))
 			{
+				req.Item1.Id = ++id;
 				requests.Add(req);
 			}
 			if (requests.Count == 0)
