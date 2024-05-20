@@ -169,13 +169,6 @@ namespace NBitcoin
 		public ConcurrentDictionary<TaprootPubKey, ISecret> TaprootKeysToSecret { get;  }
 #endif
 
-		public RootedKeyPath [] KeyOrigins =>
-			KeyIdToKeyOrigins.Values.ToArray()
-#if HAS_SPAN
-				.Concat(this.TaprootKeyOrigins.Values.ToArray()).ToArray()
-#endif
-			;
-
 		public FlatSigningRepository()
 		{
 			Secrets = new ConcurrentDictionary<KeyId, ISecret>();

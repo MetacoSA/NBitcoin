@@ -20,7 +20,7 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 	</PropertyGroup>
 	<PropertyGroup>
-    <TargetFrameworks>net472;netstandard1.3;netstandard1.1;netstandard2.1;netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net472;netstandard1.3;netstandard1.1;netstandard2.1;netstandard2.0;net8.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetFrameworkOverride)' != ''">$(TargetFrameworkOverride)</TargetFrameworks>
 		<NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -33,10 +33,10 @@
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">
 		<DefineConstants>$(DefineConstants);CLASSICDOTNET;NO_ARRAY_FILL;NULLABLE_SHIMS;NO_SOCKETASYNC</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'netstandard2.0'  Or '$(TargetFramework)' == 'net6.0'">
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'netstandard2.0'  Or '$(TargetFramework)' == 'net8.0'">
 		<DefineConstants>$(DefineConstants);NOCUSTOMSSLVALIDATION;NO_NATIVERIPEMD160</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'net6.0'">
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'net8.0'">
 		<DefineConstants>$(DefineConstants);NETCORE;HAS_SPAN;NO_BC</DefineConstants>
     <RemoveBC>true</RemoveBC>
 	</PropertyGroup>
@@ -57,7 +57,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="System.Buffers" Version="4.5.0" Condition="'$(TargetFramework)' != 'netstandard2.1' And '$(TargetFramework)' != 'net6.0'" />
+		<PackageReference Include="System.Buffers" Version="4.5.0" Condition="'$(TargetFramework)' != 'netstandard2.1' And '$(TargetFramework)' != 'net8.0'" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.0.0" />
 	</ItemGroup>
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
