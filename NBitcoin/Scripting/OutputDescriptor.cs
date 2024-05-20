@@ -653,7 +653,8 @@ namespace NBitcoin.Scripting
 				return false;
 			if (keyOrigin1 != null)
 			{
-				repo.SetKeyOrigin(pubkey1.Hash, keyOrigin1);
+				if (!isTaproot)
+					repo.SetKeyOrigin(pubkey1.Hash, keyOrigin1);
 #if HAS_SPAN
 				repo.SetKeyOrigin(pubkey1.TaprootPubKey, keyOrigin1);
 #endif

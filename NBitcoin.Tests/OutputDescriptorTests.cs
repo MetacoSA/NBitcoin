@@ -411,17 +411,18 @@ namespace NBitcoin.Tests
 						Assert.Equal(spksInferred[0], spks[n]);
 						Assert.Equal(((flags & UNSOLVABLE) == 0), OutputDescriptor.InferFromScript(spksInferred[0], providerInferred, Network.RegTest).IsSolvable());
 
-						var originalKeyOrigins = scriptProvider.KeyOrigins;
-						var inferredKeyOrigins =
-							providerInferred.KeyOrigins;
-						Assert.Equal(originalKeyOrigins, inferredKeyOrigins);
+						AssertSameKeyOrigins(scriptProvider, providerInferred);
 					}
 
 					// Test whether the observed key path is present in the 'paths' variable (which contains expected,
 					// unobserved paths), and then removed it from the set.
 					if (pathIndex != null)
 					{
-						var rootedKPs = scriptProvider.KeyOrigins;
+#if HAS_SPAN
+						var rootedKPs = scriptProvider.TaprootKeyOrigins.Values.Concat(scriptProvider.KeyIdToKeyOrigins.Values);
+#else
+						var rootedKPs = scriptProvider.KeyIdToKeyOrigins.Values;
+#endif
 						foreach (var rootedKP in rootedKPs)
 						{
 							Assert.Contains(pathIndex, p => p.SequenceEqual(rootedKP.KeyPath.Indexes));
@@ -440,6 +441,26 @@ namespace NBitcoin.Tests
 				foreach (var p in pathIndex ?? Enumerable.Empty<uint[]>())
 					_testOutputHelper.WriteLine($"{new KeyPath(p)}");
 				throw new Exception($"leftPath should be null: {pub}");
+			}
+		}
+
+		private void AssertSameKeyOrigins(FlatSigningRepository expected, FlatSigningRepository actual)
+		{
+#if HAS_SPAN
+			Assert.Equal(expected.TaprootKeyOrigins.Count, actual.TaprootKeyOrigins.Count);
+			foreach (var k in expected.TaprootKeyOrigins)
+			{
+				Assert.True(actual.TaprootKeyOrigins.TryGetValue(k.Key, out var v));
+				Assert.Equal(k.Value.KeyPath, v.KeyPath);
+				Assert.Equal(k.Value.MasterFingerprint, v.MasterFingerprint);
+			}
+#endif
+			Assert.Equal(expected.KeyIdToKeyOrigins.Count, actual.KeyIdToKeyOrigins.Count);
+			foreach (var k in expected.KeyIdToKeyOrigins)
+			{
+				Assert.True(actual.KeyIdToKeyOrigins.TryGetValue(k.Key, out var v));
+				Assert.Equal(k.Value.KeyPath, v.KeyPath);
+				Assert.Equal(k.Value.MasterFingerprint, v.MasterFingerprint);
 			}
 		}
 

@@ -225,6 +225,11 @@ namespace NBitcoin
 			TaprootFullPubKey.ComputeTapTweak(internalPubKey, merkleRoot, tweak32);
 			return this.pubkey.CheckIsTweakedWith(internalPubKey.pubkey, tweak32, parity);
 		}
+
+		public string ToHex()
+		{
+			return ToString();
+		}
 #endif
 	}
 }

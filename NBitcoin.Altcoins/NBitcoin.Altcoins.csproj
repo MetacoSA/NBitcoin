@@ -12,7 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net472;netstandard1.3;netstandard2.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net8.0;net472;netstandard1.3;netstandard2.0;netstandard2.1</TargetFrameworks>
 		<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netstandard2.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetFrameworkOverride)' != ''">$(TargetFrameworkOverride)</TargetFrameworks>
 		<NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
@@ -22,7 +22,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
 	</ItemGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'net6.0'">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'net8.0'">
     <DefineConstants>$(DefineConstants);HAS_SPAN</DefineConstants>
     <RemoveBC>true</RemoveBC>
   </PropertyGroup>
