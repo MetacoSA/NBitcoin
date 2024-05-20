@@ -78,7 +78,7 @@ namespace NBitcoin.BuilderExtensions
 			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey)!;
 			if (multiSigParams.SignatureCount > txIn.PartialSigs.Count)
 				return;
-			List<ITransactionSignature> sigs = new List<ITransactionSignature>();
+			List<TransactionSignature> sigs = new List<TransactionSignature>();
 			int sigcount = 0;
 			foreach (var pk in multiSigParams.PubKeys)
 			{
@@ -185,7 +185,7 @@ namespace NBitcoin.BuilderExtensions
 			var txIn = inputSigningContext.Input;
 			var scriptPubKey = inputSigningContext.Coin.GetScriptCode();
 
-			var sigs = new ITransactionSignature?[multiSigParams.PubKeys.Length];
+			var sigs = new TransactionSignature?[multiSigParams.PubKeys.Length];
 			int sigCount = 0;
 			for (int i = 0; i < multiSigParams.PubKeys.Length; i++)
 			{

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
 using NBitcoin.DataEncoders;
-using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.ITransactionSignature>;
+using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.TransactionSignature>;
 using System.Diagnostics.CodeAnalysis;
 using NBitcoin.Crypto;
 using System.Text;
@@ -1094,12 +1094,8 @@ namespace NBitcoin
 #endif
 				CheckCompatibleSigHash(sigHash);
 				var signature = PartialSigs[ecdsapk];
-#if HAS_SPAN
-				var existingSigHash = existingSig is TaprootSignature ts ? (uint)ts.SigHash :
-									  (uint)((TransactionSignature)existingSig).SigHash;
-#else
-				var existingSigHash = (uint)((TransactionSignature)existingSig).SigHash;
-#endif
+
+				var existingSigHash = (uint)existingSig.SigHash;
 				if (Transaction is IHasForkId)
 					existingSigHash = existingSigHash & ~(0x40u);
 				if (!SameSigHash(existingSigHash, sigHash))
