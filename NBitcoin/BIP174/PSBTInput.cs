@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.IO;
 using NBitcoin.DataEncoders;
-using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.TransactionSignature>;
+using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.ITransactionSignature>;
 using System.Diagnostics.CodeAnalysis;
 using NBitcoin.Crypto;
 using System.Text;
@@ -98,9 +98,9 @@ namespace NBitcoin
 						if (v.Length != 4)
 							throw new FormatException("Invalid PSBTInput. SigHash Type is not 4 byte");
 						var value = Utils.ToUInt32(v, 0, true);
-						if (!Enum.IsDefined(typeof(SigHash), value))
+						if (value is not (1 or 2 or 3 or 0 or 1 | 0x80 or 2 | 0x80 or 3 | 0x80 or 0 | 0x80))
 							throw new FormatException($"Invalid PSBTInput Unknown SigHash Type {value}");
-						sighash_type = (SigHash)value;
+						sighash_type = value;
 						break;
 					case PSBTConstants.PSBT_IN_REDEEMSCRIPT:
 						if (k.Length != 1)
@@ -216,7 +216,7 @@ namespace NBitcoin
 		private WitScript? final_script_witness;
 		private PartialSigKVMap partial_sigs = new PartialSigKVMap(PubKeyComparer.Instance);
 
-		SigHash? sighash_type;
+		uint? sighash_type;
 
 		public Transaction? NonWitnessUtxo
 		{
@@ -246,11 +246,25 @@ namespace NBitcoin
 		{
 			get
 			{
-				return sighash_type;
+				if (sighash_type is null or 0)
+					return null;
+				return (SigHash)sighash_type;
 			}
 			set
 			{
-				sighash_type = value;
+				sighash_type = value is null ? null : ((uint)value.Value);
+			}
+		}
+
+		public TaprootSigHash? TaprootSighashType
+		{
+			get
+			{
+				return sighash_type is null ? null : (TaprootSigHash)sighash_type;
+			}
+			set
+			{
+				sighash_type = value is null ? null : ((uint)value.Value);
 			}
 		}
 
@@ -383,7 +397,7 @@ namespace NBitcoin
 			if (witness_utxo == null && other.witness_utxo != null)
 				witness_utxo = other.witness_utxo;
 
-			if (sighash_type == 0 && other.sighash_type > 0)
+			if (sighash_type is null && other.sighash_type is not null)
 				sighash_type = other.sighash_type;
 
 			if (redeem_script == null && other.redeem_script != null)
@@ -675,12 +689,12 @@ namespace NBitcoin
 			}
 
 			// Write the sighash type
-			if (sighash_type > 0)
+			if (sighash_type is not null)
 			{
 				stream.ReadWriteAsVarInt(ref defaultKeyLen);
 				var key = PSBTConstants.PSBT_IN_SIGHASH;
 				stream.ReadWrite(ref key);
-				var tmp = Utils.ToBytes((uint)sighash_type, true);
+				var tmp = Utils.ToBytes(sighash_type.Value, true);
 				stream.ReadWriteAsVarString(ref tmp);
 			}
 
@@ -847,7 +861,7 @@ namespace NBitcoin
 				jsonWriter.WritePropertyValue(sig.Key.ToString(), Encoders.Hex.EncodeData(sig.Value.ToBytes()));
 			}
 			jsonWriter.WriteEndObject();
-			if (SighashType is SigHash s)
+			if (sighash_type is uint s)
 				jsonWriter.WritePropertyValue("sighash", GetName(s));
 			if (this.FinalScriptSig != null)
 			{
@@ -887,21 +901,25 @@ namespace NBitcoin
 			jsonWriter.WriteEndObject();
 		}
 
-		private string GetName(SigHash sighashType)
+		private string GetName(uint sighashType)
 		{
 			switch (sighashType)
 			{
-				case SigHash.All:
+				case 0:
+					return "DEFAULT";
+				case 1:
 					return "ALL";
-				case SigHash.None:
+				case 2:
 					return "NONE";
-				case SigHash.Single:
+				case 3:
 					return "SINGLE";
-				case SigHash.All | SigHash.AnyoneCanPay:
+				case 0x80:
+					return "DEFAULT|ANYONECANPAY";
+				case 1 | 0x80:
 					return "ALL|ANYONECANPAY";
-				case SigHash.None | SigHash.AnyoneCanPay:
+				case 2 | 0x80:
 					return "NONE|ANYONECANPAY";
-				case SigHash.Single | SigHash.AnyoneCanPay:
+				case 3 | 0x80:
 					return "SINGLE|ANYONECANPAY";
 				default:
 					return sighashType.ToString();
@@ -1069,12 +1087,22 @@ namespace NBitcoin
 			signingOptions = Parent.GetSigningOptions(signingOptions);
 			if (keyPair.PubKey is PubKey ecdsapk && PartialSigs.TryGetValue(ecdsapk, out var existingSig))
 			{
-				CheckCompatibleSigHash(signingOptions.SigHash);
+#if HAS_SPAN
+				var sigHash = keyPair is TaprootKeyPair ? (uint)signingOptions.TaprootSigHash : (uint)signingOptions.SigHash;
+#else
+				var sigHash = (uint)signingOptions.SigHash;
+#endif
+				CheckCompatibleSigHash(sigHash);
 				var signature = PartialSigs[ecdsapk];
-				var signatureSigHash = existingSig.SigHash;
+#if HAS_SPAN
+				var existingSigHash = existingSig is TaprootSignature ts ? (uint)ts.SigHash :
+									  (uint)((TransactionSignature)existingSig).SigHash;
+#else
+				var existingSigHash = (uint)((TransactionSignature)existingSig).SigHash;
+#endif
 				if (Transaction is IHasForkId)
-					signatureSigHash = (SigHash)((uint)existingSig.SigHash & ~(0x40u));
-				if (!SameSigHash(signatureSigHash, signingOptions.SigHash))
+					existingSigHash = existingSigHash & ~(0x40u);
+				if (!SameSigHash(existingSigHash, sigHash))
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
 				return;
 			}
@@ -1115,19 +1143,19 @@ namespace NBitcoin
 			}
 		}
 
-		bool SameSigHash(SigHash a, SigHash b)
+		bool SameSigHash(uint a, uint b)
 		{
 			if (a == b)
 				return true;
 			if (Transaction is not IHasForkId)
 				return false;
-			a = (SigHash)((uint)a & ~(0x40u));
-			b = (SigHash)((uint)a & ~(0x40u));
+			a = ((uint)a & ~(0x40u));
+			b = ((uint)a & ~(0x40u));
 			return a == b;
 		}
-		private void CheckCompatibleSigHash(SigHash sigHash)
+		private void CheckCompatibleSigHash(uint sigHash)
 		{
-			if (SighashType is SigHash s && !SameSigHash(s,sigHash))
+			if (this.sighash_type is uint s && !SameSigHash(s,sigHash))
 				throw new InvalidOperationException($"The input assert the use of sighash {GetName(s)}");
 		}
 

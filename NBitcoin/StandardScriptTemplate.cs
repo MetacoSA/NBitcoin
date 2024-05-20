@@ -380,12 +380,12 @@ namespace NBitcoin
 			}
 		}
 
-		public Script GenerateScriptSig(TransactionSignature[] signatures)
+		public Script GenerateScriptSig(ITransactionSignature[] signatures)
 		{
-			return GenerateScriptSig((IEnumerable<TransactionSignature>)signatures);
+			return GenerateScriptSig((IEnumerable<ITransactionSignature>)signatures);
 		}
 
-		public Script GenerateScriptSig(IEnumerable<TransactionSignature> signatures)
+		public Script GenerateScriptSig(IEnumerable<ITransactionSignature> signatures)
 		{
 			List<Op> ops = new List<Op>();
 			ops.Add(OpcodeType.OP_0);
@@ -604,7 +604,7 @@ namespace NBitcoin
 		{
 			return GenerateScriptSig(new TransactionSignature(signature, SigHash.All));
 		}
-		public Script GenerateScriptSig(TransactionSignature signature)
+		public Script GenerateScriptSig(ITransactionSignature signature)
 		{
 			return new Script(
 				Op.GetPushOp(signature.ToBytes())
@@ -803,7 +803,7 @@ namespace NBitcoin
 				);
 		}
 
-		public Script GenerateScriptSig(TransactionSignature? signature, PubKey publicKey)
+		public Script GenerateScriptSig(ITransactionSignature? signature, PubKey publicKey)
 		{
 			if (publicKey == null)
 				throw new ArgumentNullException(nameof(publicKey));
