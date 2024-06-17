@@ -2574,6 +2574,7 @@ namespace NBitcoin.RPC
 		public uint256 ChainWork { get; set; }
 		public ulong SizeOnDisk { get; set; }
 		public bool Pruned { get; set; }
+		public ulong PruneHeight { get; set; }
 
 		[Obsolete]
 		public List<SoftFork> SoftForks { get; set; }
