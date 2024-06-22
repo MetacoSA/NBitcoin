@@ -29,6 +29,19 @@ namespace NBitcoin.Tests
 			{
 				if (network == Altcoins.AltNetworkSets.Liquid) // No testnet
 					continue;
+				if (network == Altcoins.AltNetworkSets.Bitcoin) // Replicate testnet tests on testnet4
+				{
+					var bitcoinNetwork = (Bitcoin) network;
+
+					Assert.NotEqual(network.Testnet, bitcoinNetwork.Testnet4);
+					Assert.NotEqual(network.Regtest, bitcoinNetwork.Testnet4);
+					Assert.Equal(network.Mainnet.NetworkSet, bitcoinNetwork.Testnet4.NetworkSet);
+					Assert.Equal(network.Testnet.NetworkSet, bitcoinNetwork.Testnet4.NetworkSet);
+					Assert.Equal(bitcoinNetwork, bitcoinNetwork.Testnet4.NetworkSet);
+					Assert.Equal(ChainName.Testnet4, bitcoinNetwork.Testnet4.ChainName);
+					Assert.Equal(bitcoinNetwork.Testnet4, Network.GetNetwork(network.CryptoCode.ToLowerInvariant() + "-testnet4"));
+					bitcoinNetwork.Testnet4.Parse(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, bitcoinNetwork.Testnet4).ToString());
+				}
 				Assert.True(coins.Add(network.CryptoCode.ToLowerInvariant()));
 				Assert.NotEqual(network.Mainnet, network.Regtest);
 				Assert.NotEqual(network.Regtest, network.Testnet);

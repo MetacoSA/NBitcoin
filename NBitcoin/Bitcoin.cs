@@ -88,6 +88,8 @@ namespace NBitcoin
 
 		public Network Testnet => Network.TestNet;
 
+		public Network Testnet4 => Network.TestNet4;
+
 		public Network Regtest => Network.RegTest;
 
 		public string CryptoCode => "BTC";
@@ -110,6 +112,8 @@ namespace NBitcoin
 				return Mainnet;
 			if (chainName == ChainName.Testnet)
 				return Testnet;
+			if (chainName == ChainName.Testnet4)
+				return Testnet4;
 			if (chainName == ChainName.Regtest)
 				return Regtest;
 			if (chainName == SignetName)

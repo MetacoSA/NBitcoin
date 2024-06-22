@@ -848,8 +848,8 @@ namespace NBitcoin.Tests
 						return tx;
 					};
 					Transaction tx;
-					
-					
+
+
 					if (dustPrevention)
 					{
 						feeAmount = scriptCoin2.Amount - dust + Money.Satoshis(1);
@@ -2788,9 +2788,11 @@ namespace NBitcoin.Tests
 		{
 			Block bip34Block = Block.Parse(File.ReadAllText("data/block-testnet-828575.txt"), Network.TestNet);
 			Block noBip34Block = Block.Parse(File.ReadAllText("data/block169482.txt"), Network.Main);
+			Block testnet4Block = Block.Parse(File.ReadAllText("data/block-testnet4-29550.txt"), Network.TestNet4);
 
 			Assert.Null(noBip34Block.GetCoinbaseHeight());
 			Assert.Equal(828575, bip34Block.GetCoinbaseHeight());
+			Assert.Equal(29550, testnet4Block.GetCoinbaseHeight());
 		}
 
 		[Trait("UnitTest", "UnitTest")]
