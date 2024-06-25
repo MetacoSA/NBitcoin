@@ -20,10 +20,10 @@
     <DefineConstants>$(DefineConstants);$(AdditionalDefineConstants)</DefineConstants>
   </PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">
-		<DefineConstants>$(DefineConstants);WIN</DefineConstants>
+		<DefineConstants>$(DefineConstants);WIN;NO_RECORDS</DefineConstants>
 	</PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netcoreapp3.1' ">
-    <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOHTTPSERVER</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOHTTPSERVER;NO_RECORDS</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" ('$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'netcoreapp3.1') And ( '$(TargetFrameworkOverride)' != 'netstandard2.0' ) ">
     <DefineConstants>$(DefineConstants);NETCORE;HAS_SPAN;NO_BC</DefineConstants>

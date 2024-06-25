@@ -13,7 +13,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<Version Condition=" '$(Version)' == '' ">7.0.37</Version>
-		<LangVersion>9.0</LangVersion>
+		<LangVersion>10.0</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -31,7 +31,7 @@
 		<DocumentationFile>bin\Release\NBitcoin.XML</DocumentationFile>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net472' ">
-		<DefineConstants>$(DefineConstants);CLASSICDOTNET;NO_ARRAY_FILL;NULLABLE_SHIMS;NO_SOCKETASYNC</DefineConstants>
+		<DefineConstants>$(DefineConstants);CLASSICDOTNET;NO_ARRAY_FILL;NULLABLE_SHIMS;NO_SOCKETASYNC;NO_RECORDS</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'netstandard2.0'  Or '$(TargetFramework)' == 'net6.0'">
 		<DefineConstants>$(DefineConstants);NOCUSTOMSSLVALIDATION;NO_NATIVERIPEMD160</DefineConstants>
@@ -41,16 +41,16 @@
     <RemoveBC>true</RemoveBC>
 	</PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
-	<DefineConstants>$(DefineConstants);NO_SOCKETASYNC</DefineConstants>
+	<DefineConstants>$(DefineConstants);NO_SOCKETASYNC;NO_RECORDS</DefineConstants>
   </PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-		<DefineConstants>$(DefineConstants);NETSTANDARD;NO_ARRAY_FILL;NULLABLE_SHIMS;NO_NATIVE_RFC2898_HMACSHA512;NO_NATIVERIPEMD160;NO_SOCKETASYNC</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETSTANDARD;NO_ARRAY_FILL;NULLABLE_SHIMS;NO_NATIVE_RFC2898_HMACSHA512;NO_NATIVERIPEMD160;NO_SOCKETASYNC;NO_RECORDS</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NULLABLE_SHIMS;NO_MEM_BUFFER;NO_TUPLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH;NO_BEGINCONNECT;NO_ARRAY_FILL;NO_NATIVE_RFC2898_HMACSHA512;NETSTANDARD13;NO_NATIVERIPEMD160;NO_NATIVESHA1;NO_SOCKETASYNC;NO_TUPLE</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NULLABLE_SHIMS;NO_MEM_BUFFER;NO_TUPLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH;NO_BEGINCONNECT;NO_ARRAY_FILL;NO_NATIVE_RFC2898_HMACSHA512;NETSTANDARD13;NO_NATIVERIPEMD160;NO_NATIVESHA1;NO_SOCKETASYNC;NO_TUPLE;NO_RECORDS</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-		<DefineConstants>$(DefineConstants);NO_RCA;NOPARALLEL;NETSTANDARD;NETSTANDARD1X;NULLABLE_SHIMS;NO_TUPLE;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH;NO_ARRAY_FILL;NO_ARRAY_EMPTY;NO_NATIVE_HMACSHA512;NO_THREAD;NO_NATIVERIPEMD160;NO_NATIVESHA1;NO_SOCKETASYNC;NO_TUPLE</DefineConstants>
+		<DefineConstants>$(DefineConstants);NO_RCA;NOPARALLEL;NETSTANDARD;NETSTANDARD1X;NULLABLE_SHIMS;NO_TUPLE;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH;NO_ARRAY_FILL;NO_ARRAY_EMPTY;NO_NATIVE_HMACSHA512;NO_THREAD;NO_NATIVERIPEMD160;NO_NATIVESHA1;NO_SOCKETASYNC;NO_TUPLE;NO_RECORDS</DefineConstants>
 	</PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
 		<DefineConstants>$(DefineConstants);SECP256K1_VERIFY</DefineConstants>
