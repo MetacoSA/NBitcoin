@@ -77,7 +77,13 @@ namespace NBitcoin.Crypto
 
 		public static uint160 Hash160(byte[] data, int offset, int count)
 		{
-			return new uint160(RIPEMD160(SHA256(data, offset, count)));
+			return new uint160(Hash160RawBytes(data, offset, count));
+		}
+		public static byte[] Hash160RawBytes(byte[] data)
+		=> Hash160RawBytes(data, 0, data.Length);
+		public static byte[] Hash160RawBytes(byte[] data, int offset, int count)
+		{
+			return RIPEMD160(SHA256(data, offset, count));
 		}
 		#endregion
 
