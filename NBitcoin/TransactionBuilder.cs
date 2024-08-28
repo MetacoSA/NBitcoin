@@ -1946,7 +1946,7 @@ namespace NBitcoin
 				{
 					input.Sequence = seq;
 				}
-				else if (OptInRBF)
+				else if (OptInRBF && ctx.Transaction.Version < 3)
 				{
 					input.Sequence = Sequence.OptInRBF;
 				}

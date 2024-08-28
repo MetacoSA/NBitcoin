@@ -1398,11 +1398,14 @@ namespace NBitcoin
 	//https://en.bitcoin.it/wiki/Protocol_specification
 	public class Transaction : IBitcoinSerializable
 	{
+		/// <summary>
+		/// True if the transaction is marked as replaceable (via nVersion >= 3 or BIP125)
+		/// </summary>
 		public bool RBF
 		{
 			get
 			{
-				return Inputs.Any(i => i.Sequence < 0xffffffff - 1);
+				return Version >= 3 || Inputs.Any(i => i.Sequence < 0xffffffff - 1);
 			}
 		}
 
