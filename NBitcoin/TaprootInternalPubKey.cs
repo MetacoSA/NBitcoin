@@ -78,6 +78,15 @@ namespace NBitcoin
 		{
 			return TaprootFullPubKey.Create(this, merkleRoot);
 		}
+		/// <summary>
+		/// Cast the type of this key into TaprootPubKey.
+		/// This is only needed to insert the internal key into the PSBT's HDTaprootKeyPaths
+		/// </summary>
+		/// <returns>The internal key casted to TaprootPubKey</returns>
+		public TaprootPubKey AsTaprootPubKey()
+		{
+			return new TaprootPubKey(pubkey);
+		}
 		public byte[] ComputeTapTweak(uint256? merkleRoot)
 		{
 			Span<byte> bytes = stackalloc byte[32];
