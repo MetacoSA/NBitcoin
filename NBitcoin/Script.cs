@@ -120,6 +120,9 @@ namespace NBitcoin
 		/// </summary>
 		WitnessPubkeyType = (1U << 15),
 
+		// Making OP_CODESEPARATOR and FindAndDelete fail any non-segwit scripts
+		Const_ScriptCode = (1U << 16),
+
 		/// <summary>
 		/// Some altcoins like BCash and BGold requires ForkId inside the sigHash
 		/// </summary>

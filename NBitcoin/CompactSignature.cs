@@ -9,18 +9,42 @@ namespace NBitcoin
 {
 	public class CompactSignature
 	{
-		public CompactSignature(int recoveryId, byte[] sig64)
+		public CompactSignature(int header, byte[] sig64)
 		{
 			if (sig64 is null)
 				throw new ArgumentNullException(nameof(sig64));
 			if (sig64.Length is not 64)
 				throw new ArgumentException("sig64 should be 64 bytes", nameof(sig64));
+
+			var recoveryId = header;
+			if(recoveryId>= 39) // this is a bech32 signature
+			{
+				recoveryId -= 12;
+			} // this is a segwit p2sh signature
+			else if (recoveryId >= 35)
+			{
+				recoveryId -= 8;
+			} // this is a compressed key signature
+			else if (recoveryId >= 31)
+			{
+				recoveryId -= 4;
+			}
+
+			if (!IsValidRecId(recoveryId))
+			{
+				recoveryId = recoveryId - 27;
+			}
+
+			if (!IsValidRecId(recoveryId))
+				throw new ArgumentOutOfRangeException(nameof(recoveryId),
+					$"recoveryId should be recoveryId >= 0 && recoveryId < 4 but was {recoveryId}");
 			RecoveryId = recoveryId;
 			Signature = sig64;
 		}
+		public static bool IsValidRecId(int recid) => recid >= 0 && recid < 4;
 
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		public int RecoveryId { get; }
 
