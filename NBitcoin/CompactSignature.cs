@@ -15,9 +15,12 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(sig64));
 			if (sig64.Length is not 64)
 				throw new ArgumentException("sig64 should be 64 bytes", nameof(sig64));
+			if (!IsValidRecId(recoveryId))
+				throw new ArgumentOutOfRangeException(nameof(recoveryId), "recoveryId should be recoveryId >= 0 && recoveryId < 4");
 			RecoveryId = recoveryId;
 			Signature = sig64;
 		}
+		public static bool IsValidRecId(int recid) => recid >= 0 && recid < 4;
 
 		/// <summary>
 		/// 

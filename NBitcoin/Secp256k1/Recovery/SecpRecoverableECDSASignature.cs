@@ -19,14 +19,20 @@ namespace NBitcoin.Secp256k1
 		{
 			if (sig == null)
 				throw new ArgumentNullException(nameof(sig));
+			if (!IsValidRecId(recid))
+				throw new ArgumentOutOfRangeException(nameof(recid), "recid should be recid >= 0 && recid < 4");
 			this.r = sig.r;
 			this.s = sig.s;
 			this.recid = recid;
 		}
 
+		static bool IsValidRecId(int recid) => recid >= 0 && recid < 4;
+
 		public static bool TryCreateFromCompact(ReadOnlySpan<byte> in64, int recid, [MaybeNullWhen(false)] out SecpRecoverableECDSASignature sig)
 		{
 			sig = null;
+			if (!IsValidRecId(recid))
+				return false;
 			if (SecpECDSASignature.TryCreateFromCompact(in64, out var compact) && compact is SecpECDSASignature)
 			{
 				sig = new SecpRecoverableECDSASignature(compact, recid);
