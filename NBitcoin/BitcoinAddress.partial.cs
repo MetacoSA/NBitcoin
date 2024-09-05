@@ -18,7 +18,6 @@ namespace NBitcoin
 		/// Users can take this PSBT, sign it, then call <see cref="NBitcoin.BIP322.BIP322Signature.FromPSBT(PSBT, SignatureType)"/> to create the signature.
 		/// </summary>
 		/// <param name="message"></param>
-		/// <param name="preferLegacy"></param>
 		/// <param name="version"></param>
 		/// <param name="lockTime"></param>
 		/// <param name="sequence"></param>
@@ -27,12 +26,9 @@ namespace NBitcoin
 		/// <exception cref="ArgumentNullException"></exception>
 		public PSBT CreateBIP322PSBT(
 			string message,
-			bool preferLegacy = false,
 			uint version = 0, uint lockTime = 0, uint sequence = 0, Coin[]? fundProofOutputs = null)
 		{
-			var messageHash = this is BitcoinPubKeyAddress pubKeyAddress
-				? Key.CreateBIP322MessageHash(message, preferLegacy)
-				: Key.CreateBIP322MessageHash(message);
+			var messageHash = Key.CreateBIP322MessageHash(message);
 
 			var toSpend = Network.CreateTransaction();
 			toSpend.Version = 0;

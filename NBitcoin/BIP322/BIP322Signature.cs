@@ -35,7 +35,7 @@ namespace NBitcoin.BIP322
 		}
 
 		/// <summary>
-		/// Check if the PSBT is a PSBT created by <see cref="NBitcoin.BitcoinAddress.CreateBIP322PSBT(string, bool, uint, uint, uint, Coin[])"/>
+		/// Check if the PSBT is a PSBT created by <see cref="NBitcoin.BitcoinAddress.CreateBIP322PSBT(string, uint, uint, uint, Coin[])"/>
 		/// </summary>
 		/// <param name="psbt"></param>
 		/// <returns></returns>
@@ -57,7 +57,7 @@ namespace NBitcoin.BIP322
 		}
 
 		/// <summary>
-		/// Create a BIP322Signature from a signed PSBT initially created by <see cref="NBitcoin.BitcoinAddress.CreateBIP322PSBT(string, bool, uint, uint, uint, Coin[])"/>
+		/// Create a BIP322Signature from a signed PSBT initially created by <see cref="NBitcoin.BitcoinAddress.CreateBIP322PSBT(string, uint, uint, uint, Coin[])"/>
 		/// </summary>
 		/// <param name="psbt">The signed PSBT</param>
 		/// <param name="signatureType">The type of signature (<see cref="NBitcoin.BIP322.SignatureType.Legacy"/>> isn't supported)</param>
