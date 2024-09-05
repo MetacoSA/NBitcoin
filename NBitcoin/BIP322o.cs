@@ -1,16 +1,18 @@
-﻿#nullable enable
+﻿#if HAS_SPAN
+#nullable enable
 using System;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NBitcoin.BIP322;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 
 namespace NBitcoin
 {
-	public static class BIP322
+	public static class BIP322o
 	{
 		public enum SignatureType
 		{
@@ -53,7 +55,7 @@ namespace NBitcoin
 			return new uint256(Hashes.SHA256(tagBytes.Concat(message).ToArray()), false);
 		}
 
-		public static Transaction CreateToSpendTransaction(Network network, uint256 messageHash, Script scriptPubKey)
+		internal static Transaction CreateToSpendTransaction(Network network, uint256 messageHash, Script scriptPubKey)
 		{
 			var tx = network.CreateTransaction();
 			tx.Version = 0;
@@ -67,7 +69,7 @@ namespace NBitcoin
 			return tx;
 		}
 
-		public static Transaction CreateToSignTransaction(Network network, uint256 toSpendTxId,
+		internal static Transaction CreateToSignTransaction(Network network, uint256 toSpendTxId,
 			WitScript? messageSignature = null,
 			uint version = 0, uint lockTime = 0, uint sequence = 0, ScriptCoin[]? additionalInputs = null)
 		{
@@ -93,11 +95,11 @@ namespace NBitcoin
 			tx.Outputs.Add(new TxOut(Money.Zero, new Script(OpcodeType.OP_RETURN)));
 			return tx;
 		}
-		public static async Task<string> SignEncoded(BitcoinAddress address, string message, SignatureType type,
-			Script? redeemScript = null, ICoin[]? additionalCoins = null, params Key[] keys) => Encoders.Base64.EncodeData(await Sign(address, Encoding.UTF8.GetBytes(message), type, keys, redeemScript, additionalCoins));
-		public static async Task<string> SignEncoded(BitcoinAddress address, string message, SignatureType type,
-			params Key[] keys) => Encoders.Base64.EncodeData(await Sign(address, Encoding.UTF8.GetBytes(message), type, keys));
-		public static async Task<byte[]> Sign(BitcoinAddress address, byte[] message, SignatureType type,
+		public static async Task<BIP322.BIP322Signature> SignEncoded(BitcoinAddress address, string message, SignatureType type,
+			Script? redeemScript = null, ICoin[]? additionalCoins = null, params Key[] keys) => await Sign(address, message, type, keys, redeemScript, additionalCoins);
+		public static async Task<BIP322.BIP322Signature> SignEncoded(BitcoinAddress address, string message, SignatureType type,
+			params Key[] keys) => await Sign(address, message, type, keys);
+		public static async Task<BIP322.BIP322Signature> Sign(BitcoinAddress address, string message, SignatureType type,
 			Key[] keys, Script? redeemScript = null, ICoin[]? additionalCoins = null)
 		{
 			// if(address.ScriptPubKey.IsScriptType(ScriptType.P2SH) && type == SignatureType.Simple)
@@ -125,11 +127,7 @@ namespace NBitcoin
 					{
 						throw new InvalidOperationException("Invalid signature.");
 					}
-
-					return new[]
-					{
-						(byte) sig.RecoveryId
-					}.Concat(sig.Signature).ToArray();
+					return new BIP322.BIP322Signature.Legacy(key.IsCompressed, sig, address.Network);
 				}
 			}
 
@@ -149,11 +147,13 @@ namespace NBitcoin
 
 			toSignTx.Sign(keys.Select(key=> key.GetBitcoinSecret(address.Network)), coins);
 
-			var result = type == SignatureType.Simple ? toSignTx.Inputs[0].WitScript.ToBytes() : toSignTx.ToBytes();
-			if (result.Length == 0)
+			BIP322.BIP322Signature result =
+				type == SignatureType.Simple ? new BIP322.BIP322Signature.Simple(toSignTx.Inputs[0].WitScript, address.Network)
+											 : new BIP322.BIP322Signature.Full(toSignTx, address.Network);
+			if (result is BIP322.BIP322Signature.Simple { WitnessScript : { PushCount: 0 } } ||
+				result is BIP322.BIP322Signature.Full full && full.SignedTransaction.Inputs[0].WitScript.PushCount == 0 && full.SignedTransaction.Inputs[0].ScriptSig.Length == 0)
 			{
-				if(type == SignatureType.Simple && address.ScriptPubKey.IsScriptType(ScriptType.P2SH))
-					throw new InvalidOperationException("Failed to sign the message. Did you forget to provide a redeem script?");
+				throw new InvalidOperationException("Failed to sign the message. Did you forget to provide a redeem script?");
 			}
 
 
@@ -164,34 +164,22 @@ namespace NBitcoin
 
 			return result;
 		}
-
-
-		private static CompactSignature ParseCompactSignature(byte[] signature)
-		{
-			if (signature.Length != 65)
-			{
-				throw new ArgumentException("Compact signature must be 65 bytes long.", nameof(signature));
-			}
-
-			var recoveryId = signature[0];
-			var sig = new byte[64];
-			Buffer.BlockCopy(signature, 1, sig, 0, 64);
-			return new CompactSignature(recoveryId, sig);
-		}
-
-		public static async Task<bool> Verify(string message, BitcoinAddress address, string signature,
-			Func<OutPoint[], Task<TxOut[]>>? proofOfFundsLookup = null) => await Verify(Encoding.UTF8.GetBytes(message),
-			address, Encoders.Base64.DecodeData(signature), proofOfFundsLookup);
-
-		public static async Task<bool> Verify(byte[] message, BitcoinAddress address, byte[] signature,
+		public static Task<bool> Verify(string message, BitcoinAddress address, string signature,
 			Func<OutPoint[], Task<TxOut[]>>? proofOfFundsLookup = null)
 		{
-			try
+			var sig = BIP322Signature.Parse(signature, address.Network);
+			return Verify(message, address, sig, proofOfFundsLookup);
+		}
+
+		public static async Task<bool> Verify(string message, BitcoinAddress address, BIP322.BIP322Signature signature,
+			Func<OutPoint[], Task<TxOut[]>>? proofOfFundsLookup = null)
+		{
+			var messageBytes = Encoding.UTF8.GetBytes(message);
+			if (signature is BIP322.BIP322Signature.Simple { WitnessScript: var script })
 			{
-				var script = new WitScript(signature);
 				if (script.PushCount < 2 && !address.ScriptPubKey.IsScriptType(ScriptType.Taproot))
 				{
-					throw new InvalidOperationException("Invalid signature.");
+					return false;
 				}
 
 				var toSpend = CreateToSpendTransaction(address.Network, CreateMessageHash(message, MessageType.BIP322),
@@ -200,15 +188,15 @@ namespace NBitcoin
 				ScriptEvaluationContext evalContext = new ScriptEvaluationContext()
 				{
 					ScriptVerify = ScriptVerify.Const_ScriptCode
-					               | ScriptVerify.LowS
-					               | ScriptVerify.StrictEnc
-					               | ScriptVerify.NullFail
-					               | ScriptVerify.MinimalData
-					               | ScriptVerify.CleanStack
-					               | ScriptVerify.P2SH
-					               | ScriptVerify.Witness
-					               | ScriptVerify.Taproot
-					               | ScriptVerify.MinimalIf
+								   | ScriptVerify.LowS
+								   | ScriptVerify.StrictEnc
+								   | ScriptVerify.NullFail
+								   | ScriptVerify.MinimalData
+								   | ScriptVerify.CleanStack
+								   | ScriptVerify.P2SH
+								   | ScriptVerify.Witness
+								   | ScriptVerify.Taproot
+								   | ScriptVerify.MinimalIf
 				};
 
 				if (address.ScriptPubKey.IsScriptType(ScriptType.P2SH))
@@ -218,41 +206,32 @@ namespace NBitcoin
 					toSign.Inputs[0].ScriptSig = PayToScriptHashTemplate.Instance.GenerateScriptSig(new Op[0], withScriptParams.Hash.ScriptPubKey);
 				}
 				// Create a checker for the signature
-				TransactionChecker checker = address.ScriptPubKey.IsScriptType(ScriptType.Taproot) ? new TransactionChecker(toSign, 0, toSpend.Outputs[0], new TaprootReadyPrecomputedTransactionData(toSign,toSpend.Outputs.ToArray())) : new TransactionChecker(toSign, 0, toSpend.Outputs[0]);
-				return evalContext.VerifyScript(toSign.Inputs[0].ScriptSig , script, address.ScriptPubKey, checker);
+				TransactionChecker checker = address.ScriptPubKey.IsScriptType(ScriptType.Taproot) ? new TransactionChecker(toSign, 0, toSpend.Outputs[0], new TaprootReadyPrecomputedTransactionData(toSign, toSpend.Outputs.ToArray())) : new TransactionChecker(toSign, 0, toSpend.Outputs[0]);
+				return evalContext.VerifyScript(toSign.Inputs[0].ScriptSig, script, address.ScriptPubKey, checker);
 			}
-			catch (Exception)
+			else if (signature is BIP322.BIP322Signature.Legacy { CompactSignature : var sig})
 			{
-				Transaction toSign;
 				try
 				{
-					toSign = Transaction.Load(signature, address.Network);
-				}
-				catch
-				{
-					try
-					{
-						if (!address.ScriptPubKey.IsScriptType(ScriptType.P2PKH))
-						{
-							return false;
-						}
-
-						var sig = ParseCompactSignature(signature);
-						var hash = CreateMessageHash(message, MessageType.Legacy);
-						var k = sig.RecoverPubKey(hash);
-						if (k.GetAddress(ScriptPubKeyType.Legacy, address.Network) != address)
-						{
-							return false;
-						}
-
-						return ECDSASignature.TryParseFromCompact(sig.Signature, out var ecSig) && k.Verify(hash, ecSig);
-					}
-					catch
+					if (!address.ScriptPubKey.IsScriptType(ScriptType.P2PKH))
 					{
 						return false;
 					}
+					var hash = CreateMessageHash(message, MessageType.Legacy);
+					var k = sig.RecoverPubKey(hash);
+					if (k.GetAddress(ScriptPubKeyType.Legacy, address.Network) != address)
+					{
+						return false;
+					}
+					return ECDSASignature.TryParseFromCompact(sig.Signature, out var ecSig) && k.Verify(hash, ecSig);
 				}
-
+				catch
+				{
+					return false;
+				}
+			}
+			else if (signature is BIP322.BIP322Signature.Full { SignedTransaction: var toSign })
+			{
 				var toSpend = CreateToSpendTransaction(address.Network, CreateMessageHash(message, MessageType.BIP322),
 					address.ScriptPubKey);
 				if (toSign!.Inputs[0].PrevOut.Hash != toSpend.GetHash())
@@ -280,6 +259,8 @@ namespace NBitcoin
 
 				return toSign.CreateValidator(toSpend.Outputs.ToArray()).ValidateInputs().All(x => x.Error is null);
 			}
+			return false;
 		}
 	}
 }
+#endif

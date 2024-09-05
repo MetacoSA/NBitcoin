@@ -36,6 +36,8 @@ namespace NBitcoin.Crypto
 		}
 		#endregion
 
+		public static byte[] DoubleSHA256RawBytes(byte[] data) => DoubleSHA256RawBytes(data, 0, data.Length);
+
 		public static byte[] DoubleSHA256RawBytes(byte[] data, int offset, int count)
 		{
 #if NONATIVEHASH
