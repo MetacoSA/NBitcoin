@@ -16,6 +16,7 @@ namespace NBitcoin.BIP322
 		Simple,
 		Full
 	}
+
 	public abstract class BIP322Signature
 	{
 		public Network Network { get; }
@@ -71,7 +72,7 @@ namespace NBitcoin.BIP322
 			var txin = psbt.Inputs.FirstOrDefault();
 			var toSpend = txin?.NonWitnessUtxo;
 			var txout = toSpend?.Outputs.FirstOrDefault();
-			if (!IsValidPSBT(psbt))
+			if (!IsValidPSBT(psbt) || txin is null || toSpend is null || txout is null)
 				throw new ArgumentException("This PSBT isn't BIP322 compatible", nameof(psbt));
 			
 			if (signatureType == SignatureType.Legacy)
@@ -120,37 +121,63 @@ namespace NBitcoin.BIP322
 				bool compressed = ((bytes[0] - 27) & 4) != 0;
 				result = new Legacy(compressed, new CompactSignature(recid, bytes[1..]), network);
 			}
-			else if (bytes.Length > 0 && bytes[0] == 0)
+			else if (TryParseTransaction(bytes, network, out var tx))
 			{
-				Transaction tx;
-				try
-				{
-					tx = Transaction.Load(bytes, network);
-				}
-				catch
-				{
-					return false;
-				}
 				if (tx.Inputs.Count != 1 || tx.Outputs.Count != 1)
 					return false;
 				if (!Full.IsValid(tx))
 					return false;
 				result = new Full(tx, network);
 			}
-			else
+			else if (TryParseWitScript(bytes, out var witScript))
 			{
-				WitScript witScript;
-				try
-				{
-					witScript = new WitScript(bytes);
-				}
-				catch
-				{
-					return false;
-				}
 				result = new Simple(witScript, network);
 			}
+			else
+			{
+				return false;
+			}
 			return true;
+		}
+
+		private static bool TryParseWitScript(byte[] bytes, [MaybeNullWhen(false)] out WitScript witScript)
+		{
+			try
+			{
+				witScript = new WitScript(bytes);
+				var bytes2 = witScript.ToBytes();
+				if (!Utils.ArrayEqual(bytes, bytes2))
+				{
+					witScript = null;
+					return false;
+				}
+				return true;
+			}
+			catch
+			{
+				witScript = null;
+				return false;
+			}
+		}
+
+		private static bool TryParseTransaction(byte[] bytes, Network network, [MaybeNullWhen(false)] out Transaction tx)
+		{			
+			try
+			{
+				tx = Transaction.Load(bytes, network);
+				var bytes2 = tx.ToBytes();
+				if (!Utils.ArrayEqual(bytes, bytes2))
+				{
+					tx = null;
+					return false;
+				}
+				return true;
+			}
+			catch
+			{
+				tx = null;
+				return false;
+			}
 		}
 
 		public class Legacy : BIP322Signature
