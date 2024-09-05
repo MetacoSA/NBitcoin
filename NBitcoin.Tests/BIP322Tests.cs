@@ -94,7 +94,7 @@ namespace NBitcoin.Tests
 				await BIP322.SignEncoded(p2shAddress, message2of3, BIP322.SignatureType.Full, redeem, null,k2, k3);
 			var p2sh_signature2of3_k1_k3 =
 				await BIP322.SignEncoded(p2shAddress, message2of3, BIP322.SignatureType.Full, redeem, null,k1, k3);
-			Assert.ThrowsAsync<InvalidOperationException>(async () =>
+			await Assert.ThrowsAsync<InvalidOperationException>(async () =>
 			{
 				await BIP322.SignEncoded(p2shAddress, message2of3, BIP322.SignatureType.Full, redeem, null,k1);
 			});
@@ -105,7 +105,7 @@ namespace NBitcoin.Tests
 				await BIP322.SignEncoded(p2wshAddress, message2of3, BIP322.SignatureType.Simple, redeem, null,k2, k3);
 			var p2wsh_signature2of3_k1_k3 =
 				await BIP322.SignEncoded(p2wshAddress, message2of3, BIP322.SignatureType.Simple, redeem, null,k1, k3);
-			Assert.ThrowsAsync<InvalidOperationException>(async () =>
+			await Assert.ThrowsAsync<InvalidOperationException>(async () =>
 			{
 				await BIP322.SignEncoded(p2wshAddress, message2of3, BIP322.SignatureType.Simple, redeem, null,k1);
 			});
@@ -141,8 +141,8 @@ namespace NBitcoin.Tests
 			Assert.Equal("b79d196740ad5217771c1098fc4a4b51e0535c32236c71f1ea4d61a2d603352b",
 				helloWorldToSpendTx.GetHash().ToString());
 
-			var emptyStringToSignTx = BIP322.CreateToiSignTransaction(Network.Main, emptyStringToSpendTx.GetHash());
-			var helloWorldToSignTx = BIP322.CreateToiSignTransaction(Network.Main, helloWorldToSpendTx.GetHash());
+			var emptyStringToSignTx = BIP322.CreateToSignTransaction(Network.Main, emptyStringToSpendTx.GetHash());
+			var helloWorldToSignTx = BIP322.CreateToSignTransaction(Network.Main, helloWorldToSpendTx.GetHash());
 
 			Assert.Equal("1e9654e951a5ba44c8604c4de6c67fd78a27e81dcadcfe1edf638ba3aaebaed6",
 				emptyStringToSignTx.GetHash().ToString());

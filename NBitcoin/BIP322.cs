@@ -67,7 +67,7 @@ namespace NBitcoin
 			return tx;
 		}
 
-		public static Transaction CreateToiSignTransaction(Network network, uint256 toSpendTxId,
+		public static Transaction CreateToSignTransaction(Network network, uint256 toSpendTxId,
 			WitScript? messageSignature = null,
 			uint version = 0, uint lockTime = 0, uint sequence = 0, ScriptCoin[]? additionalInputs = null)
 		{
@@ -94,11 +94,11 @@ namespace NBitcoin
 			return tx;
 		}
 		public static async Task<string> SignEncoded(BitcoinAddress address, string message, SignatureType type,
-			Script? redeemScript = null, ICoin[] additionalCoins = null, params Key[] keys) => Encoders.Base64.EncodeData(await Sign(address, Encoding.UTF8.GetBytes(message), type, keys, redeemScript, additionalCoins));
+			Script? redeemScript = null, ICoin[]? additionalCoins = null, params Key[] keys) => Encoders.Base64.EncodeData(await Sign(address, Encoding.UTF8.GetBytes(message), type, keys, redeemScript, additionalCoins));
 		public static async Task<string> SignEncoded(BitcoinAddress address, string message, SignatureType type,
 			params Key[] keys) => Encoders.Base64.EncodeData(await Sign(address, Encoding.UTF8.GetBytes(message), type, keys));
 		public static async Task<byte[]> Sign(BitcoinAddress address, byte[] message, SignatureType type,
-			Key[] keys, Script? redeemScript = null, ICoin[] additionalCoins = null)
+			Key[] keys, Script? redeemScript = null, ICoin[]? additionalCoins = null)
 		{
 			// if(address.ScriptPubKey.IsScriptType(ScriptType.P2SH) && type == SignatureType.Simple)
 			// 	throw new InvalidOperationException("Simple signatures are not supported for P2SH scripts.");
@@ -134,7 +134,7 @@ namespace NBitcoin
 			}
 
 			var toSpendTx = CreateToSpendTransaction(network, new uint256(messageHash), address.ScriptPubKey);
-			var toSignTx = CreateToiSignTransaction(network, toSpendTx.GetHash(), WitScript.Empty);
+			var toSignTx = CreateToSignTransaction(network, toSpendTx.GetHash(), WitScript.Empty);
 
 			Func<OutPoint[], Task<TxOut[]>>? proofOfFundsLookup = null;
 			if (additionalCoins is not null)
@@ -196,7 +196,7 @@ namespace NBitcoin
 
 				var toSpend = CreateToSpendTransaction(address.Network, CreateMessageHash(message, MessageType.BIP322),
 					address.ScriptPubKey);
-				var toSign = CreateToiSignTransaction(address.Network, toSpend.GetHash(), script);
+				var toSign = CreateToSignTransaction(address.Network, toSpend.GetHash(), script);
 				ScriptEvaluationContext evalContext = new ScriptEvaluationContext()
 				{
 					ScriptVerify = ScriptVerify.Const_ScriptCode
@@ -221,7 +221,7 @@ namespace NBitcoin
 				TransactionChecker checker = address.ScriptPubKey.IsScriptType(ScriptType.Taproot) ? new TransactionChecker(toSign, 0, toSpend.Outputs[0], new TaprootReadyPrecomputedTransactionData(toSign,toSpend.Outputs.ToArray())) : new TransactionChecker(toSign, 0, toSpend.Outputs[0]);
 				return evalContext.VerifyScript(toSign.Inputs[0].ScriptSig , script, address.ScriptPubKey, checker);
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				Transaction toSign;
 				try
@@ -247,7 +247,7 @@ namespace NBitcoin
 
 						return ECDSASignature.TryParseFromCompact(sig.Signature, out var ecSig) && k.Verify(hash, ecSig);
 					}
-					catch (Exception exception)
+					catch
 					{
 						return false;
 					}
