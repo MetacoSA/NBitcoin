@@ -82,10 +82,6 @@ namespace NBitcoin
 		{
 			if (signature is BIP322.BIP322Signature.Simple { WitnessScript: var script })
 			{
-				if (script.PushCount < 2 && !ScriptPubKey.IsScriptType(ScriptType.Taproot))
-				{
-					return false;
-				}
 				var psbtToSign = CreateBIP322PSBT(message);
 				psbtToSign.Inputs[0].FinalScriptWitness = script;
 				if (this is BitcoinScriptAddress)
@@ -101,16 +97,10 @@ namespace NBitcoin
 			{
 				try
 				{
-					if (!ScriptPubKey.IsScriptType(ScriptType.P2PKH))
-					{
-						return false;
-					}
 					var hash = Key.CreateBIP322MessageHash(message, true);
 					var k = sig.RecoverPubKey(hash);
 					if (k.GetAddress(ScriptPubKeyType.Legacy, Network) != this)
-					{
 						return false;
-					}
 					return ECDSASignature.TryParseFromCompact(sig.Signature, out var ecSig) && k.Verify(hash, ecSig);
 				}
 				catch
