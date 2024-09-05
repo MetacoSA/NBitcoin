@@ -1,9 +1,12 @@
 ﻿#if HAS_SPAN
 #nullable enable
 using NBitcoin.DataEncoders;
+using NBitcoin.Crypto;
+using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,7 +60,7 @@ namespace NBitcoin.BIP322
 		}
 
 		/// <summary>
-		/// Create a BIP322Signature from a signed PSBT initially created by <see cref="NBitcoin.BitcoinAddress.CreateBIP322PSBT(string, uint, uint, uint, Coin[])"/>
+		/// Create a BIP322Signature from a signed PSBT initially created by <see cref="CreatePSBT(BitcoinAddress, string, uint, uint, uint, Coin[])"/>
 		/// </summary>
 		/// <param name="psbt">The signed PSBT</param>
 		/// <param name="signatureType">The type of signature (<see cref="NBitcoin.BIP322.SignatureType.Legacy"/>> isn't supported)</param>
@@ -70,9 +73,7 @@ namespace NBitcoin.BIP322
 				throw new ArgumentNullException(nameof(psbt));
 			psbt = psbt.Clone();
 			var txin = psbt.Inputs.FirstOrDefault();
-			var toSpend = txin?.NonWitnessUtxo;
-			var txout = toSpend?.Outputs.FirstOrDefault();
-			if (!IsValidPSBT(psbt) || txin is null || toSpend is null || txout is null)
+			if (!IsValidPSBT(psbt) || txin is null)
 				throw new ArgumentException("This PSBT isn't BIP322 compatible", nameof(psbt));
 			
 			if (signatureType == SignatureType.Legacy)
@@ -80,11 +81,12 @@ namespace NBitcoin.BIP322
 				throw new ArgumentException("SignatureType.Legacy isn't supported for this operation", nameof(signatureType));
 			}
 
+			psbt.Settings.ScriptVerify = BIP322ScriptVerify;
 			psbt = psbt.Finalize();
 
 			if (signatureType == SignatureType.Simple)
 			{
-				var witness = txin.FinalScriptWitness!;
+				var witness = txin.FinalScriptWitness;
 				if (witness is null)
 					throw new ArgumentException("This PSBT isn't signed with segwith, SignatureType.Simple is not compatible", nameof(signatureType));
 				return new BIP322Signature.Simple(witness, psbt.Network);
@@ -92,6 +94,99 @@ namespace NBitcoin.BIP322
 			else //if (signatureType == SignatureType.Full)
 				return new BIP322Signature.Full(psbt.ExtractTransaction(), psbt.Network);
 		}
+
+		private static string TAG = "BIP0322-signed-message";
+
+		private static byte[] BITCOIN_SIGNED_MESSAGE_HEADER_BYTES =>
+			Encoding.UTF8.GetBytes("Bitcoin Signed Message:\n");
+		public static uint256 CreateMessageHash(string message, bool legacy = false)
+		{
+			var bytes = Encoding.UTF8.GetBytes(message);
+			if (legacy)
+			{
+				var ms = new MemoryStream();
+				ms.WriteByte((byte)BITCOIN_SIGNED_MESSAGE_HEADER_BYTES.Length);
+				ms.Write(BITCOIN_SIGNED_MESSAGE_HEADER_BYTES, 0, BITCOIN_SIGNED_MESSAGE_HEADER_BYTES.Length);
+
+				var size = new VarInt((ulong)message.Length).ToBytes();
+				ms.Write(size, 0, size.Length);
+				ms.Write(bytes, 0, bytes.Length);
+				return Hashes.DoubleSHA256(ms.ToArray());
+			}
+			else
+			{
+				using Secp256k1.SHA256 sha = new Secp256k1.SHA256();
+				sha.InitializeTagged(TAG);
+				sha.Write(bytes);
+				return new uint256(sha.GetHash(), false);
+			}
+		}
+
+		/// <summary>
+		/// This PSBT represent the to_sign transaction along with the to_spend one as the non_witness_utxo of the first input.
+		/// Users can take this PSBT, sign it, then call <see cref="FromPSBT(PSBT, SignatureType)"/> to create the signature.
+		/// </summary>
+		/// <param name="bitcoinAddress"></param>
+		/// <param name="message"></param>
+		/// <param name="version"></param>
+		/// <param name="lockTime"></param>
+		/// <param name="sequence"></param>
+		/// <param name="fundProofOutputs"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		public static PSBT CreatePSBT(
+			BitcoinAddress bitcoinAddress,
+			string message,
+			uint version = 0, uint lockTime = 0, uint sequence = 0, Coin[]? fundProofOutputs = null)
+		{
+			var messageHash = CreateMessageHash(message);
+
+			var toSpend = bitcoinAddress.Network.CreateTransaction();
+			toSpend.Version = 0;
+			toSpend.LockTime = 0;
+			toSpend.Inputs.Add(new TxIn(new OutPoint(uint256.Zero, 0xFFFFFFFF), new Script(OpcodeType.OP_0, Op.GetPushOp(messageHash.ToBytes(false))))
+			{
+				Sequence = 0,
+				WitScript = WitScript.Empty,
+			});
+			toSpend.Outputs.Add(new TxOut(Money.Zero, bitcoinAddress.ScriptPubKey));
+			var toSpendTxId = toSpend.GetHash();
+			var toSign = bitcoinAddress.Network.CreateTransaction();
+			toSign.Version = version;
+			toSign.LockTime = lockTime;
+			toSign.Inputs.Add(new TxIn(new OutPoint(toSpendTxId, 0))
+			{
+				Sequence = sequence
+			});
+			fundProofOutputs ??= fundProofOutputs ?? Array.Empty<Coin>();
+
+			foreach (var input in fundProofOutputs)
+			{
+				toSign.Inputs.Add(new TxIn(input.Outpoint, Script.Empty)
+				{
+					Sequence = sequence,
+				});
+			}
+			toSign.Outputs.Add(new TxOut(Money.Zero, new Script(OpcodeType.OP_RETURN)));
+			var psbt = PSBT.FromTransaction(toSign, bitcoinAddress.Network);
+			psbt.Settings.AutomaticUTXOTrimming = false;
+			psbt.Settings.ScriptVerify = BIP322ScriptVerify;
+			psbt.AddTransactions(toSpend);
+			psbt.AddCoins(fundProofOutputs);
+			return psbt;
+		}
+
+		internal static readonly ScriptVerify BIP322ScriptVerify = ScriptVerify.ConstScriptCode
+						   | ScriptVerify.LowS
+						   | ScriptVerify.StrictEnc
+						   | ScriptVerify.NullFail
+						   | ScriptVerify.MinimalData
+						   | ScriptVerify.CleanStack
+						   | ScriptVerify.P2SH
+						   | ScriptVerify.Witness
+						   | ScriptVerify.Taproot
+						   | ScriptVerify.MinimalIf;
+
 		public static bool TryParse(string str, Network network, [MaybeNullWhen(false)] out BIP322Signature result)
 		{
 			result = null;

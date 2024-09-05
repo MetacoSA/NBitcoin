@@ -1046,6 +1046,7 @@ namespace NBitcoin
 			return !coin.ScriptPubKey.IsScriptType(ScriptType.Taproot) || (signingOptions.PrecomputedTransactionData is TaprootReadyPrecomputedTransactionData);
 		}
 
+		public bool VerifyScript(PrecomputedTransactionData? precomputedTransactionData, out ScriptError err) => VerifyScript(Parent.Settings.ScriptVerify, precomputedTransactionData, out err);
 		public bool VerifyScript(ScriptVerify scriptVerify, PrecomputedTransactionData? precomputedTransactionData, out ScriptError err)
 		{
 			var eval = new ScriptEvaluationContext
