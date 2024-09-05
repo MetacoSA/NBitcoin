@@ -10,6 +10,18 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BIP322
 {
+	public enum SignatureType
+	{
+		Legacy,
+		Simple,
+		Full
+	}
+
+	public enum HashType
+	{
+		Legacy,
+		BIP322
+	}
 	public abstract class BIP322Signature
 	{
 		public Network Network { get; }
@@ -132,11 +144,16 @@ namespace NBitcoin.BIP322
 				if (!IsValid(signedTransaction))
 					throw new ArgumentException("This isn't a valid BIP0322 to_sign transaction", nameof(signedTransaction));
 				SignedTransaction = signedTransaction;
+				FundProofs = signedTransaction.Inputs.Skip(1).ToArray();
 			}
+
+			public TxIn[] FundProofs { get; }
 
 			public Transaction SignedTransaction { get; }
 			static Script OpReturn = new Script("OP_RETURN");
 			internal static bool IsValid(Transaction tx) =>
+				   tx.Outputs.Count == 1 &&
+				   tx.Inputs.Count > 0 &&
 				   tx.Inputs[0].Sequence == 0 &&
 				   tx.Outputs[0].Value == Money.Zero &&
 				   tx.Outputs[0].ScriptPubKey == OpReturn;
