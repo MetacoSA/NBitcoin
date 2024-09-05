@@ -361,12 +361,14 @@ namespace NBitcoin
 				!coin.IsMalleable || witness_script != null)
 			{
 				witness_utxo = coin.TxOut;
-				non_witness_utxo = null;
+				if (Parent.Settings.AutomaticUTXOTrimming)
+					non_witness_utxo = null;
 			}
 			else
 			{
 				orphanTxOut = coin.TxOut;
-				witness_utxo = null;
+				if (Parent.Settings.AutomaticUTXOTrimming)
+					witness_utxo = null;
 			}
 			if (IsFinalized())
 				ClearForFinalize();

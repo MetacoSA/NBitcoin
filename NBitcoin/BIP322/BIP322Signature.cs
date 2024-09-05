@@ -16,12 +16,6 @@ namespace NBitcoin.BIP322
 		Simple,
 		Full
 	}
-
-	public enum HashType
-	{
-		Legacy,
-		BIP322
-	}
 	public abstract class BIP322Signature
 	{
 		public Network Network { get; }
@@ -37,6 +31,65 @@ namespace NBitcoin.BIP322
 			if (TryParse(str, network, out var r))
 				return r;
 			throw new FormatException("Parsing error for expected BIP322 signature");
+		}
+
+		/// <summary>
+		/// Check if the PSBT is a PSBT created by <see cref="NBitcoin.BitcoinAddress.CreateBIP322PSBT(string, bool, uint, uint, uint, Coin[])"/>
+		/// </summary>
+		/// <param name="psbt"></param>
+		/// <returns></returns>
+		public static bool IsValidPSBT(PSBT psbt)
+		{
+			var txin = psbt.Inputs.FirstOrDefault();
+			var toSpend = txin?.NonWitnessUtxo;
+			var txout = toSpend?.Outputs.FirstOrDefault();
+			if (toSpend is null || txout is null || txin is null ||
+				toSpend.Inputs.Count != 1 || !toSpend.IsCoinBase ||
+				toSpend.Outputs.Count != 1 || toSpend.Outputs[0].Value != Money.Zero ||
+				toSpend.Version != 0 || toSpend.LockTime != LockTime.Zero ||
+				!WitScript.IsNullOrEmpty(toSpend.Inputs[0].WitScript) ||
+				toSpend.Inputs[0].ScriptSig.Length != 34 ||
+				toSpend.Inputs[0].ScriptSig._Script[0] != 0 ||
+				toSpend.Inputs[0].ScriptSig._Script[1] != 32)
+				return false;
+			return true;
+		}
+
+		/// <summary>
+		/// Create a BIP322Signature from a signed PSBT initially created by <see cref="NBitcoin.BitcoinAddress.CreateBIP322PSBT(string, bool, uint, uint, uint, Coin[])"/>
+		/// </summary>
+		/// <param name="psbt">The signed PSBT</param>
+		/// <param name="signatureType">The type of signature (<see cref="NBitcoin.BIP322.SignatureType.Legacy"/>> isn't supported)</param>
+		/// <returns>The Simple of Full signature</returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="ArgumentException"></exception>
+		public static BIP322Signature FromPSBT(PSBT psbt, SignatureType signatureType)
+		{
+			if (psbt is null)
+				throw new ArgumentNullException(nameof(psbt));
+			psbt = psbt.Clone();
+			var txin = psbt.Inputs.FirstOrDefault();
+			var toSpend = txin?.NonWitnessUtxo;
+			var txout = toSpend?.Outputs.FirstOrDefault();
+			if (!IsValidPSBT(psbt))
+				throw new ArgumentException("This PSBT isn't BIP322 compatible", nameof(psbt));
+			
+			if (signatureType == SignatureType.Legacy)
+			{
+				throw new ArgumentException("SignatureType.Legacy isn't supported for this operation", nameof(signatureType));
+			}
+
+			psbt = psbt.Finalize();
+
+			if (signatureType == SignatureType.Simple)
+			{
+				var witness = txin.FinalScriptWitness!;
+				if (witness is null)
+					throw new ArgumentException("This PSBT isn't signed with segwith, SignatureType.Simple is not compatible", nameof(signatureType));
+				return new BIP322Signature.Simple(witness, psbt.Network);
+			}
+			else //if (signatureType == SignatureType.Full)
+				return new BIP322Signature.Full(psbt.ExtractTransaction(), psbt.Network);
 		}
 		public static bool TryParse(string str, Network network, [MaybeNullWhen(false)] out BIP322Signature result)
 		{

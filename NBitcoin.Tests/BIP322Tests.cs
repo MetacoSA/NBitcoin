@@ -88,54 +88,80 @@ namespace NBitcoin.Tests
 			var p2shAddress = p2ShAddressScriptPubKey.GetDestinationAddress(Network.Main);
 			var p2wshAddress = p2wshScriptPubKey.GetDestinationAddress(Network.Main);
 
-			//var message2of3 = "This will be a 2-of-3 multisig BIP 322 signed message";
-			//Assert.Throws<InvalidOperationException>(() =>
-			//{
-			//	Key.SignEncoded(p2shAddress, message2of3, SignatureType.Simple, redeem, null,k2, k3);
-			//});
-			//var p2sh_signature2of3_k2_k3 =
-			//	Key.SignEncoded(p2shAddress, message2of3, SignatureType.Full, redeem, null,k2, k3);
-			//var p2sh_signature2of3_k1_k3 =
-			//	Key.SignEncoded(p2shAddress, message2of3, SignatureType.Full, redeem, null,k1, k3);
-			//Assert.Throws<InvalidOperationException>(() =>
-			//{
-			//	Key.SignEncoded(p2shAddress, message2of3, SignatureType.Full, redeem, null,k1);
-			//});
-			//Assert.True(p2shAddress.VerifyBIP322(message2of3, p2sh_signature2of3_k2_k3));
-			//Assert.True(p2shAddress.VerifyBIP322(message2of3, p2sh_signature2of3_k1_k3));
+			
 
-			//var p2wsh_signature2of3_k2_k3 =
-			//	Key.SignEncoded(p2wshAddress, message2of3, SignatureType.Simple, redeem, null,k2, k3);
-			//var p2wsh_signature2of3_k1_k3 =
-			//	Key.SignEncoded(p2wshAddress, message2of3, SignatureType.Simple, redeem, null,k1, k3);
-			//Assert.Throws<InvalidOperationException>(() =>
-			//{
-			//	Key.SignEncoded(p2wshAddress, message2of3, SignatureType.Simple, redeem, null,k1);
-			//});
-			//Assert.True(p2wshAddress.VerifyBIP322(message2of3, p2wsh_signature2of3_k2_k3));
-			//Assert.True(p2wshAddress.VerifyBIP322(message2of3, p2wsh_signature2of3_k1_k3));
+			var message2of3 = "This will be a 2-of-3 multisig BIP 322 signed message";
+
+			var toSign = p2shAddress.CreateBIP322PSBT(message2of3);
+			toSign.AddScripts(redeem);
+			toSign.SignWithKeys(k2, k3);
+
+			Assert.Throws<ArgumentException>(() =>
+			{
+				BIP322Signature.FromPSBT(toSign, SignatureType.Simple);
+			});
+			Assert.Throws<ArgumentException>(() =>
+			{
+				BIP322Signature.FromPSBT(toSign, SignatureType.Legacy);
+			});
+			
+			var p2sh_signature2of3_k2_k3 = BIP322Signature.FromPSBT(toSign, SignatureType.Full);
+
+
+			toSign = p2shAddress.CreateBIP322PSBT(message2of3);
+			toSign.AddScripts(redeem);
+			toSign.SignWithKeys(k1, k3);
+			var p2sh_signature2of3_k1_k3 = BIP322Signature.FromPSBT(toSign, SignatureType.Full);
+
+			Assert.Throws<PSBTException>(() =>
+			{
+				toSign = p2shAddress.CreateBIP322PSBT(message2of3);
+				toSign.AddScripts(redeem);
+				toSign.SignWithKeys(k1);
+				// Missing one sig out of 3
+				BIP322Signature.FromPSBT(toSign, SignatureType.Full);
+			});
+
+			Assert.True(p2shAddress.VerifyBIP322(message2of3, p2sh_signature2of3_k2_k3));
+			Assert.True(p2shAddress.VerifyBIP322(message2of3, p2sh_signature2of3_k1_k3));
+
+			toSign = p2wshAddress.CreateBIP322PSBT(message2of3);
+			toSign.AddScripts(redeem);
+			toSign.SignWithKeys(k2, k3);
+			var p2wsh_signature2of3_k2_k3 = BIP322Signature.FromPSBT(toSign, SignatureType.Simple);
+
+			toSign = p2wshAddress.CreateBIP322PSBT(message2of3);
+			toSign.AddScripts(redeem);
+			toSign.SignWithKeys(k1, k3);
+			var p2wsh_signature2of3_k1_k3 = BIP322Signature.FromPSBT(toSign, SignatureType.Simple);
+
+			Assert.True(p2wshAddress.VerifyBIP322(message2of3, p2wsh_signature2of3_k2_k3));
+			Assert.True(p2wshAddress.VerifyBIP322(message2of3, p2wsh_signature2of3_k1_k3));
+
+			p2wsh_signature2of3_k1_k3 = BIP322Signature.FromPSBT(toSign, SignatureType.Full);
+			Assert.True(p2wshAddress.VerifyBIP322(message2of3, p2wsh_signature2of3_k1_k3));
+
+			Assert.Throws<PSBTException>(() =>
+			{
+				toSign = p2wshAddress.CreateBIP322PSBT(message2of3);
+				toSign.AddScripts(redeem);
+				toSign.SignWithKeys(k1);
+				BIP322Signature.FromPSBT(toSign, SignatureType.Simple);
+			});
 		}
 
 
 		[Fact]
 		public void CanVerifyBIP322Message()
 		{
-			var emptyStringHash = Key.CreateMessageHash("");
-			var helloWorldHash = Key.CreateMessageHash("Hello World");
-
-			Assert.Equal(new uint256("c90c269c4f8fcbe6880f72a721ddfbf1914268a794cbb21cfafee13770ae19f1"),
-				emptyStringHash);
-			Assert.Equal(new uint256("f0eb03b1a75ac6d9847f55c624a99169b5dccba2a31f5b23bea77ba270de0a7a"),
-				helloWorldHash);
-
 			var key = new BitcoinSecret("L3VFeEujGtevx9w18HD1fhRbCH67Az2dpCymeRE1SoPK6XQtaN2k", Network.Main)
 				.PrivateKey;
 
 			var segwitAddress = key.GetAddress(ScriptPubKeyType.Segwit, Network.Main);
 			Assert.Equal("bc1q9vza2e8x573nczrlzms0wvx3gsqjx7vavgkx0l", segwitAddress.ToString());
 
-			var emptyStringPSBT = Key.CreateToSignPSBT(Network.Main, emptyStringHash, segwitAddress.ScriptPubKey);
-			var helloWorldToSpendPSBT = Key.CreateToSignPSBT(Network.Main, helloWorldHash, segwitAddress.ScriptPubKey);
+			var emptyStringPSBT = segwitAddress.CreateBIP322PSBT("");
+			var helloWorldToSpendPSBT = segwitAddress.CreateBIP322PSBT("Hello World");
 
 			Assert.Equal("c5680aa69bb8d860bf82d4e9cd3504b55dde018de765a91bb566283c545a99a7",
 				emptyStringPSBT.Inputs[0].NonWitnessUtxo.GetHash().ToString());
@@ -234,22 +260,27 @@ namespace NBitcoin.Tests
 			var p2shAddress = p2ShAddressScriptPubKey.GetDestinationAddress(Network.Main);
 			var p2wshAddress = p2wshScriptPubKey.GetDestinationAddress(Network.Main);
 
+
+			var toSpend = p2shAddress.Network.CreateTransaction();
+			toSpend.Inputs.Add(new TxIn(new OutPoint(uint256.Zero, 0xFFFFFFFF), new Script(OpcodeType.OP_0))); ;
+			toSpend.Outputs.Add(new TxOut(Money.Zero, p2shAddress.ScriptPubKey));
+
 			var coins = new Coin[]
 			{
 				new Coin(OutPoint.Zero, new TxOut(Money.Coins(1), addr2)),
-				new Coin(new OutPoint(uint256.One, 1), new TxOut(Money.Coins(1), addr3)),
-				new ScriptCoin(new OutPoint(uint256.One, 2), new TxOut(Money.Coins(1), p2shAddress), multisigRedeem),
+				new Coin(new OutPoint(uint256.One, 1), new TxOut(Money.Coins(1), addr3)).ToScriptCoin(addr2.ScriptPubKey),
+				new ScriptCoin(new OutPoint(toSpend, 0), new TxOut(Money.Coins(1), p2shAddress), multisigRedeem),
 				new ScriptCoin(new OutPoint(uint256.One, 4), new TxOut(Money.Coins(1), p2wshAddress), multisigRedeem)
-
 			};
 
 			var message = "I own these coins";
 
-			//var signature = Key.SignEncoded(addr, message, SignatureType.Full, null, coins, key, key2);
-
-
-
-
+			var psbt = addr.CreateBIP322PSBT(message, fundProofOutputs: coins);
+			psbt.AddScripts(multisigRedeem);
+			psbt.AddTransactions(toSpend);
+			psbt.SignWithKeys(key, key2);
+			var signature = BIP322Signature.FromPSBT(psbt, SignatureType.Full);
+			Assert.True(addr.VerifyBIP322(message, signature, coins));
 		}
 	}
 }
