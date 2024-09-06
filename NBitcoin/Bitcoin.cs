@@ -10,14 +10,23 @@ namespace NBitcoin
 {
 	public class Bitcoin : INetworkSet
 	{
+		public const string DEFAULT_SIGNET_NAME = "signet";
+
+		public const string DEFAULT_SIGNET_CHALLENGE = "512103ad5e0edad18cb1f0fc0d28a3d4f1f3e445640337489abb10404f2d1e086be430210359ef5021964fe22d6f8e05b2463c9540ce96883fe3b278760f048f5189f2e6c452ae";
+
+		public const string DEFAULT_SIGNET_GENESIS_BLOCK = "0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a008f4d5fae77031e8ad222030101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000";
+
 		private Bitcoin()
 		{
 		}
 
-		private Network CreateSignet()
+		private Network CreateSignet(
+			string name = DEFAULT_SIGNET_NAME,
+			string challenge = DEFAULT_SIGNET_CHALLENGE,
+			string genesisBlock = DEFAULT_SIGNET_GENESIS_BLOCK)
 		{
 			NetworkBuilder builder = new NetworkBuilder();
-			builder.SetChainName(SignetName);
+			builder.SetChainName(name == DEFAULT_SIGNET_NAME ? SignetName : new ChainName(name));
 			builder.SetNetworkSet(this);
 			builder.SetConsensus(new Consensus()
 			{
@@ -32,7 +41,7 @@ namespace NBitcoin
 				PowAllowMinDifficultyBlocks = false,
 				PowNoRetargeting = false,
 				RuleChangeActivationThreshold = 1916,
-				MinerConfirmationWindow = 2016,
+				MinerConfirmationWindow = 2016,  
 				CoinbaseMaturity = 100,
 				SupportSegwit = true,
 				SupportTaproot = true
@@ -45,12 +54,10 @@ namespace NBitcoin
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, "tb")
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, "tb")
 			.SetBech32(Bech32Type.TAPROOT_ADDRESS, "tb")
-			.SetMagic(GetSignetMagic())
+			.SetMagic(GetSignetMagic(challenge))
 			.SetPort(38333)
 			.SetRPCPort(38332)
-			.SetName("signet")
-			.AddAlias("bitcoin-signet")
-			.AddAlias("btc-signet")
+			.SetName(name)
 #if !NOSOCKET
 			.AddSeeds(new[]
 			{
@@ -58,22 +65,29 @@ namespace NBitcoin
 				"2a01:7c8:d005:390::5"
 			}.Select(o => new Protocol.NetworkAddress(System.Net.IPAddress.Parse(o))))
 #endif
-			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a008f4d5fae77031e8ad222030101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
+			.SetGenesis(genesisBlock);
+
+			if (name == DEFAULT_SIGNET_NAME)
+			{
+				builder.AddAlias("bitcoin-signet");
+				builder.AddAlias("btc-signet");
+			}
+
 			var network = builder.BuildAndRegister();
 #if !NOFILEIO
 			var data = Network.GetDefaultDataFolder("bitcoin");
 			if (data != null)
 			{
-				var signetCookie = Path.Combine(data, "signet", ".cookie");
+				var signetCookie = Path.Combine(data, DEFAULT_SIGNET_NAME, ".cookie");
 				RPC.RPCClient.RegisterDefaultCookiePath(network, signetCookie);
 			}
 #endif
 			return network;
 		}
 
-		private static uint GetSignetMagic()
+		private static uint GetSignetMagic(string challengeHex)
 		{
-			var challengeBytes = DataEncoders.Encoders.Hex.DecodeData("512103ad5e0edad18cb1f0fc0d28a3d4f1f3e445640337489abb10404f2d1e086be430210359ef5021964fe22d6f8e05b2463c9540ce96883fe3b278760f048f5189f2e6c452ae");
+			var challengeBytes = DataEncoders.Encoders.Hex.DecodeData(challengeHex);
 			var challenge = new Script(challengeBytes);
 			MemoryStream ms = new MemoryStream();
 			BitcoinStream bitcoinStream = new BitcoinStream(ms, true);
@@ -99,9 +113,12 @@ namespace NBitcoin
 		{
 			get
 			{
-				return _Signet ??= Network.GetNetwork("signet");
+				  return _Signet ??= Network.GetNetwork(DEFAULT_SIGNET_NAME);
 			}
 		}
+
+		static Dictionary<ChainName, Network> _CustomSignets = new Dictionary<ChainName, Network>();
+
 		public Network GetNetwork(ChainName chainName)
 		{
 			if (chainName == null)
@@ -114,12 +131,24 @@ namespace NBitcoin
 				return Regtest;
 			if (chainName == SignetName)
 				return Signet;
+			if (_CustomSignets.TryGetValue(chainName, out var network))
+				return network;
 			return null;
 		}
 
 		internal Network InitSignet()
 		{
 			return _Signet = CreateSignet();
+		}
+
+		public Network InitCustomSignet(string name, string challenge, string genesisBlock)
+		{
+			if (_CustomSignets.TryGetValue(new ChainName(name), out var network))
+				return network;
+
+			var customSignet = CreateSignet(name, challenge ?? DEFAULT_SIGNET_CHALLENGE, genesisBlock ?? DEFAULT_SIGNET_GENESIS_BLOCK);
+			_CustomSignets.Add(customSignet.ChainName, customSignet);
+			return customSignet;
 		}
 	}
 }
