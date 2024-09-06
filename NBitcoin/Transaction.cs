@@ -2103,7 +2103,7 @@ namespace NBitcoin
 			if (cache == null)
 				throw new ArgumentNullException(nameof(cache));
 			if (!(cache is TaprootReadyPrecomputedTransactionData transactionData))
-				throw new ArgumentException("The PrecomputedTransactionData should be created using PrecomputedTransactionData(Transaction tx, TxOut[] spentOutputs)", nameof(cache));
+				throw new ArgumentException("The PrecomputedTransactionData should be created using TaprootReadyPrecomputedTransactionData(Transaction tx, TxOut[] spentOutputs)", nameof(cache));
 			byte ext_flag, key_version = 0;
 			switch (executionData.HashVersion)
 			{

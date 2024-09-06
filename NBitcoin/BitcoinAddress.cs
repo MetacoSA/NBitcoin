@@ -85,7 +85,7 @@ namespace NBitcoin
 	/// <summary>
 	/// Base58 representation of a bitcoin address
 	/// </summary>
-	public abstract class BitcoinAddress : IDestination, IBitcoinString
+	public abstract partial class BitcoinAddress : IDestination, IBitcoinString
 	{
 		/// <summary>
 		/// Detect whether the input base58 is a pubkey hash or a script hash

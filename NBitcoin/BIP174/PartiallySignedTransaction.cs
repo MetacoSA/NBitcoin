@@ -84,14 +84,21 @@ namespace NBitcoin
 		public bool SkipVerifyScript { get; set; } = false;
 		public SigningOptions SigningOptions { get; set; } = new SigningOptions();
 		public ScriptVerify ScriptVerify { get; internal set; } = ScriptVerify.Standard;
-
+		/// <summary>
+		/// Some opereration may strip non_witness_utxo if deemed safe. This is to prevent the PSBT from growing too large.
+		/// Set this to false if you want to disable this behavior.
+		/// </summary>
+		public bool AutomaticUTXOTrimming { get; set; } = true;
 		public PSBTSettings Clone()
 		{
 			return new PSBTSettings()
 			{
 				SigningOptions = SigningOptions.Clone(),
 				CustomBuilderExtensions = CustomBuilderExtensions?.ToArray(),
-				IsSmart = IsSmart
+				IsSmart = IsSmart,
+				ScriptVerify = ScriptVerify,
+				SkipVerifyScript = SkipVerifyScript,
+				AutomaticUTXOTrimming = AutomaticUTXOTrimming
 			};
 		}
 	}
@@ -1074,14 +1081,14 @@ namespace NBitcoin
 					else if (txout.ScriptPubKey == p2wsh)
 					{
 						o.WitnessScript = redeem;
-						if (o is PSBTInput i)
+						if (o is PSBTInput i && Settings.AutomaticUTXOTrimming)
 							i.TrySlimUTXO();
 					}
 					else if (txout.ScriptPubKey == p2shp2wsh)
 					{
 						o.WitnessScript = redeem;
 						o.RedeemScript = redeem.WitHash.ScriptPubKey;
-						if (o is PSBTInput i)
+						if (o is PSBTInput i && Settings.AutomaticUTXOTrimming)
 							i.TrySlimUTXO();
 					}
 				}
