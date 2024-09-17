@@ -110,7 +110,11 @@ namespace NBitcoin
 			_Inner = inner;
 		}
 
-		public BitcoinStream(byte[] bytes)
+		public BitcoinStream(byte[] bytes, ConsensusFactory consensusFactory)
+			: this(new MemoryStream(bytes), false)
+		{
+			ConsensusFactory = consensusFactory;
+		}public BitcoinStream(byte[] bytes)
 			: this(new MemoryStream(bytes), false)
 		{
 		}
@@ -150,7 +154,7 @@ namespace NBitcoin
 		}
 
 
-		ConsensusFactory _ConsensusFactory = Consensus.Main.ConsensusFactory;
+		private ConsensusFactory _ConsensusFactory;
 
 		/// <summary>
 		/// Set the format to use when serializing and deserializing consensus related types.
@@ -159,7 +163,8 @@ namespace NBitcoin
 		{
 			get
 			{
-				return _ConsensusFactory;
+
+				return _ConsensusFactory ??=  Consensus.Main.ConsensusFactory;;
 			}
 			set
 			{
