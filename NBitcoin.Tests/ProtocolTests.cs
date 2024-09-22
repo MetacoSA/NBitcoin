@@ -710,10 +710,20 @@ namespace NBitcoin.Tests
 				PeersToDiscover = 50
 			});
 			watch.Start();
+			int retry = 5;
+			retry:
 			using (var node = Node.Connect(Network.Main, parameters))
 			{
 				var timeToFind = watch.Elapsed;
-				node.VersionHandshake();
+				try
+				{
+					node.VersionHandshake();
+				}
+				catch when (retry > 0)
+				{
+					retry--;
+					goto retry;
+				}
 				node.Dispose();
 				watch.Restart();
 				using (var node2 = Node.Connect(Network.Main, parameters))
