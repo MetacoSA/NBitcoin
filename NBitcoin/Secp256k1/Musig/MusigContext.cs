@@ -467,7 +467,7 @@ namespace NBitcoin.Secp256k1.Musig
 		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
 		public MusigPrivNonce GenerateNonce(ECPubKey signingPubKey)
 		{
-			return GenerateNonce(signingPubKey, Array.Empty<byte>());
+			return GenerateNonce(signingPubKey, null);
 		}
 		/// <summary>
 		/// This function derives a secret nonce that will be required for signing and
