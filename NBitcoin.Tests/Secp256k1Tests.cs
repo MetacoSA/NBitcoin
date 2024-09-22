@@ -3985,6 +3985,13 @@ namespace NBitcoin.Tests
 			// Add the scripts there
 			var treeInfo = builder.Finalize(new TaprootInternalPubKey(aggregatedKey.ToXOnlyPubKey().ToBytes()));
 			musig = new MusigContext(ecPubKeys, msg32);
+
+			// Sanity check that GenerateNonce do not reuse nonces
+			var n1 = musig.GenerateNonce(ecPubKeys[0]);
+			var n2 = musig.GenerateNonce(ecPubKeys[0]);
+			Assert.NotEqual(Encoders.Hex.EncodeData(n1.CreatePubNonce().ToBytes()), Encoders.Hex.EncodeData(n2.CreatePubNonce().ToBytes()));
+			//
+
 			nonces = ecPubKeys.Select(c => musig.GenerateNonce(c)).ToArray();
 			musig.Tweak(treeInfo.OutputPubKey.Tweak.Span);
 			musig.ProcessNonces(nonces.Select(n => n.CreatePubNonce()).ToArray());
