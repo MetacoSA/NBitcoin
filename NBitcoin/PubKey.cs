@@ -170,8 +170,7 @@ namespace NBitcoin
 		}
 #endif
 
-
-		public int CompareTo(PubKey? other) => other is null ? 1 : BytesComparer.Instance.Compare(this.ToBytes(), other.ToBytes());
+		public int CompareTo(PubKey? other) => other is null ? 1 : PubKeyComparer.Instance.Compare(this, other);
 
 		public PubKey Compress()
 		{
