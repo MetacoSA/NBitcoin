@@ -17,6 +17,7 @@ namespace NBitcoin
 		{
 			CreateMainnet();
 			CreateTestnet();
+			CreateTestnet4();
 			CreateRegtest();
 			CreateSignet();
 			CreateMutinyNet();
