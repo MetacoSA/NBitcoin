@@ -25,6 +25,25 @@ namespace NBitcoin.Bench
 		{
 			Value.ToString();
 		}
+
+#if HAS_SPAN
+		[Benchmark]
+		[Arguments(new char[] {
+			'0','0','0','0','0','0','0','0',
+			'0','0','0','0','0','0','0','0',
+			'0','0','0','0','0','0','0','0',
+			'0','0','0','0','0','0','0','0',
+			'0','0','0','0','0','0','0','0',
+			'0','0','0','0','0','0','0','0',
+			'0','0','0','0','0','0','0','0',
+			'0','0','0','0','0','0','0','0'
+		})]
+		public void WriteToSpanString(Span<char> destinationSpan)
+		{
+			Value.ToSpanString(destinationSpan);
+		}
+#endif
+
 		[Benchmark]
 		public void Read()
 		{
