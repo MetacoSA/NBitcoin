@@ -19,10 +19,6 @@ using Xunit;
 using Xunit.Abstractions;
 using Encoders = NBitcoin.DataEncoders.Encoders;
 using static NBitcoin.Tests.Helpers.PrimitiveUtils;
-using Newtonsoft.Json.Schema;
-using Xunit.Sdk;
-using NBitcoin.Scripting;
-using NBitcoin.RPC;
 
 namespace NBitcoin.Tests
 {
@@ -3129,11 +3125,6 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void Play()
 		{
-			var aa = PSBT.Parse("cHNidP8BAHEBAAAAAa5DWRuSCbbha7kDIp/LMMEZCYyyX4S6cBp7zWulUa/MAQAAAAD/////AhEoKgQAAAAAFgAU7nHAKjqvWjNf/8RQqlA77gFfVZcALTEBAAAAABYAFJetm1OALTie8TP5CY3/moUsteKlAAAAAAABAR8ljFsFAAAAABYAFO5xwCo6r1ozX//EUKpQO+4BX1WXIgIC1S6EeEs43Kpiqww0O0noYaUxYubyjtkZJIDCLyZBbx1HMEQCIG2DB/kiJIemnd1io2FH5YfmYbaYoUs0Yx5rujhTrYYJAiAM5uVbmbELCKssXXeVjKeD7hggtghj2OZcTIezwgfoTAEiBgLVLoR4SzjcqmKrDDQ7SehhpTFi5vKO2RkkgMIvJkFvHRgDOcj3VAAAgAEAAIAAAACAAQAAAAEAAAAAIgIC1S6EeEs43Kpiqww0O0noYaUxYubyjtkZJIDCLyZBbx0YAznI91QAAIABAACAAAAAgAEAAAABAAAAAAA=", Altcoins.Groestlcoin.Instance.Testnet);
-			aa.AssertSanity();
-			var aaew = aa.CheckSanity();
-			aa.Finalize();
-			var tx = aa.ExtractTransaction();
 		}
 
 		[Fact]

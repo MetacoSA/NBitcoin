@@ -180,6 +180,24 @@ namespace NBitcoin
 			return _ECKey.Sign(hash, true);
 		}
 #if HAS_SPAN
+		public TaprootSignature SignTaprootScriptSpend(uint256 hash, TaprootSigHash sigHash = TaprootSigHash.Default)
+		{
+			return SignTaprootScriptSpend(hash, null, sigHash);
+		}
+		public TaprootSignature SignTaprootScriptSpend(uint256 hash, uint256? merkleRoot, TaprootSigHash sigHash)
+		{
+			return SignTaprootScriptSpend(hash, merkleRoot, null, sigHash);
+		}
+		public TaprootSignature SignTaprootScriptSpend(uint256 hash, uint256? merkleRoot, uint256? aux, TaprootSigHash sigHash)
+		{
+			if (hash == null)
+				throw new ArgumentNullException(nameof(hash));
+			AssertNotDisposed();
+			Span<byte> buf = stackalloc byte[32];
+			hash.ToBytes(buf);
+			var sig = aux?.ToBytes() is byte[] auxbytes ? _ECKey.SignBIP340(buf, auxbytes) : _ECKey.SignBIP340(buf);
+			return new TaprootSignature(new SchnorrSignature(sig), sigHash);
+		}
 		public TaprootSignature SignTaprootKeySpend(uint256 hash, TaprootSigHash sigHash = TaprootSigHash.Default)
 		{
 			return SignTaprootKeySpend(hash, null, sigHash);
