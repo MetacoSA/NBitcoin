@@ -128,8 +128,25 @@ namespace NBitcoin.Altcoins
 			{
 				return new LitecoinBlock(new LitecoinBlockHeader());
 			}
+			public override TxOut CreateTxOut()
+			{
+				return new LitecoinTxOut();
+			}
 		}
 
+		public class LitecoinTxOut : TxOut
+		{
+			public override Money GetDustThreshold()
+			{
+				// https://github.com/litecoin-project/litecoin/issues/791#issuecomment-1171535527
+				// https://github.com/litecoin-project/litecoin/commit/a02856e36a261173bd14d56c34caa7066f2a9e32#diff-1fc0f6b5081e8ed5dfa8bf230744ad08cc6f4c1147e98552f1f424b0492fe9bdR48
+				return Money.Coins(0.00005460m);
+			}
+			public override ConsensusFactory GetConsensusFactory()
+			{
+				return LitecoinConsensusFactory.Instance;
+			}
+		}
 
 		public class LitecoinTransaction : Transaction
 		{
