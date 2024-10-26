@@ -170,7 +170,11 @@ namespace NBitcoin
 			{
 				if (value == null)
 					throw new ArgumentNullException(nameof(value));
-				_ConsensusFactory = value;
+				if (_ConsensusFactory != value)
+				{
+					_ProtocolCapabilities = null;
+					_ConsensusFactory = value;
+				}
 			}
 		}
 
@@ -529,8 +533,11 @@ namespace NBitcoin
 			}
 			set
 			{
-				_ProtocolVersion = value;
-				_ProtocolCapabilities = null;
+				if (value != _ProtocolVersion)
+				{
+					_ProtocolVersion = value;
+					_ProtocolCapabilities = null;
+				}
 			}
 		}
 
@@ -542,7 +549,7 @@ namespace NBitcoin
 				var capabilities = _ProtocolCapabilities;
 				if (capabilities == null)
 				{
-					capabilities = ProtocolVersion == null ? ProtocolCapabilities.CreateSupportAll() : ConsensusFactory.GetProtocolCapabilities(ProtocolVersion.Value);
+					capabilities = ConsensusFactory.GetProtocolCapabilities(ProtocolVersion ?? int.MaxValue);
 					_ProtocolCapabilities = capabilities;
 				}
 				return capabilities;

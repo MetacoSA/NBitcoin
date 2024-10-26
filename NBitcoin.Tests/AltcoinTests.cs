@@ -22,6 +22,13 @@ namespace NBitcoin.Tests
 	public class AltcoinTests
 	{
 		[Fact]
+		public void CanParseDashBlock()
+		{
+			var b = Block.Parse("000000206d63d58759c321528ce5ef133da089ebe5060bd1f8e14463b0eed903140000004a530a73824ac9004b342f25dc2907ab46c045120018470f5460a7db5f79d7b5b3000667c462061ea51a05000503000500010000000000000000000000000000000000000000000000000000000000000000ffffffff06038a0e110101ffffffff03aa681d04000000001976a914c69a0bda7daaae481be8def95e5f347a1d00a4b488ac8815a10400000000016a7324b707000000001976a91464f2b2b84f62d68a2cd7f7f5fb2b5aa75ef716d788ac00000000af03008a0e1100ec97f6c7c4114354a92840644cfb3db02b41ee725eb4dd91a4e02089e87ca9734653abaf225714f4f3ee2f4534b755c647950da1cdeb862dbc1e5a54eacb872c00a8cf7096926c61cbca71a11b150e951ba616991a13f673d0a2a02cfaa753b2cf833b4632ec4f2e723ba3105e144b119a0adabaf96608f6bd535996ce246386e24320d4c1608d62f3ad8767f5aee90caaf82f08bb7d18c9bdb1a956a482c4d6a2ceb27b95f903000003000600000000000000fd490101008a0e1100030001fd79add882c919350988a278db3db1b1d447bff61b9315d4eaa0aae34601000032000000000000003200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003000600000000000000fd550101008a0e1100030004fd79add882c919350988a278db3db1b1d447bff61b9315d4eaa0aae34601000064000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003000600000000000000fd430101008a0e1100030006fd79add882c919350988a278db3db1b1d447bff61b9315d4eaa0aae34601000019000000001900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003000900000180f0fa02000000001976a914a053585e3221877c0619468cf7abe3b8c69fd70988ac0000000091010000000000000000be000000890e1100d3c2de649a67063e0b5c9d8d7199059a320e84163563cbd00d23810833000000a26abc32997e8c8278f858bb553849a2db97679d33546822c5f2f566f4dd28bf39e0ada03d7840a324042a1e802797220c11199cdb3c96f69d051bf96d5d23d88cc9786cf7140240f8dc06b382b322906903777907b4d0680607b2a87cc6ae7d",
+			Altcoins.AltNetworkSets.Dash.Testnet);
+			Assert.Contains(b.Transactions, b => b.GetHash().ToString() == "6f0151cae1d5e65305fe2620a4f387108b054874a4ed9a23d4b004d5b08fbf79");
+		}
+		[Fact]
 		public void NoCrashQuickTest()
 		{
 			HashSet<string> coins = new HashSet<string>();
@@ -133,30 +140,30 @@ namespace NBitcoin.Tests
 			var network = Altcoins.Liquid.Instance.Regtest;
 			var address =
 				"el1qqvx2mprx8re8pd7xjeg9tu8w3jllhcty05l0hlyvlsaj0rce90nk97ze47dv3sy356nuxhjlpms73ztf8lalkerz9ndvg0rva";
-			var  bitcoinBlindedAddress=new BitcoinBlindedAddress(address, network);
+			var bitcoinBlindedAddress = new BitcoinBlindedAddress(address, network);
 			var seria = new JsonSerializerSettings();
 			Serializer.RegisterFrontConverters(seria, network);
 			var serializer = JsonSerializer.Create(seria);
 			using (var textWriter = new StringWriter())
 			{
-				 serializer.Serialize(textWriter, bitcoinBlindedAddress);
+				serializer.Serialize(textWriter, bitcoinBlindedAddress);
 
-				 Assert.Equal(address,textWriter.ToString().Trim('"'));
+				Assert.Equal(address, textWriter.ToString().Trim('"'));
 
-				 using (var textReader = new JsonTextReader(new StringReader(textWriter.ToString())))
-				 {
+				using (var textReader = new JsonTextReader(new StringReader(textWriter.ToString())))
+				{
 
-					 Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<BitcoinAddress>(textReader));
-					 Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<BitcoinBlindedAddress>(textReader));
-					 Assert.Throws<JsonObjectException>(() =>
-					 {
-						 Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<IDestination>(textReader));
-					 });
-					 Assert.Throws<JsonObjectException>(() =>
-					 {
-						 Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<IBitcoinString>(textReader));
-					 });
-				 }
+					Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<BitcoinAddress>(textReader));
+					Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<BitcoinBlindedAddress>(textReader));
+					Assert.Throws<JsonObjectException>(() =>
+					{
+						Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<IDestination>(textReader));
+					});
+					Assert.Throws<JsonObjectException>(() =>
+					{
+						Assert.Equal(bitcoinBlindedAddress, serializer.Deserialize<IBitcoinString>(textReader));
+					});
+				}
 			}
 
 		}
@@ -213,25 +220,25 @@ namespace NBitcoin.Tests
 		public void ElementsDynFedBlockTests()
 		{
 			var stream = File.ReadAllBytes(
-				$"data/liquid-block-mainnet-4a9c3c0fbb1cb8ff106f474e967bc5ec17a7ba066abd605bfc6f0c078e79b609");;
+				$"data/liquid-block-mainnet-4a9c3c0fbb1cb8ff106f474e967bc5ec17a7ba066abd605bfc6f0c078e79b609"); ;
 			var networkM = Altcoins.Liquid.Instance.Mainnet;
 			var h = "4a9c3c0fbb1cb8ff106f474e967bc5ec17a7ba066abd605bfc6f0c078e79b609";
 			var b = networkM.Consensus.ConsensusFactory.CreateBlock();
 			b.ReadWrite(stream, networkM.Consensus.ConsensusFactory);
-			Assert.Equal(h,b.GetHash().ToString() );
+			Assert.Equal(h, b.GetHash().ToString());
 
 			var network = Altcoins.Liquid.Instance.Regtest;
 			var dynFedBlockHash = "1d4cbd13031d7b0b140ae5e2b941c4a91a5715210cfee5a739125b8a437c157b";
 			var dynFedBlock =
 				"000000a001f95134430f3eacc4df49783a6089a54e6d8b4324426ae10aabde1fa700984cbc3709eacae2db87ccc9e93f6004822dd581b0180e610dffe3d74d266f632cc3a89e1b610e000000012200204ae81572f06e1b88fd5ced7a1a000945432e83e1551e6f721ee9c00b8cc3326088050000fbee9cea00d8efdc49cfbec328537e0d7032194de6ebf3cf42e5c05bb89a08b100010151010200000001010000000000000000000000000000000000000000000000000000000000000000ffffffff035e0101ffffffff0201336f29c87301854e72291060b1610b4de92e06f6f864c9309d52fdc7f158aa5801000000000000000000016a01336f29c87301854e72291060b1610b4de92e06f6f864c9309d52fdc7f158aa5801000000000000000000266a24aa21a9ed94f15ed3a62165e4a0b99699cc28b48e19cb5bc1b1f47155db62d63f1e047d45000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000";
 			var block = Block.Parse(dynFedBlock, network);
-			Assert.Equal(dynFedBlockHash,block.GetHash().ToString() );
+			Assert.Equal(dynFedBlockHash, block.GetHash().ToString());
 
 			var nonDynFedBlockHash = "403787c0b91bb0fdeacd3091f282cc0b44561855fa4ca9fd0f3697e8dccf410f";
 			var nonDynFedBlock =
 				"00000020a048b48d6be7b296edd0e0dc33a69940086107eb691df8961ec9ac39ad7f98ffcb9dab8e1ca3aef2c6ff17fae61907e3f45f669f184f440762c8cde2b1c270ce919e1b6105000000015100010200000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03550101ffffffff0201336f29c87301854e72291060b1610b4de92e06f6f864c9309d52fdc7f158aa5801000000000000000000016a01336f29c87301854e72291060b1610b4de92e06f6f864c9309d52fdc7f158aa5801000000000000000000266a24aa21a9ed94f15ed3a62165e4a0b99699cc28b48e19cb5bc1b1f47155db62d63f1e047d45000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000";
 			block = Block.Parse(nonDynFedBlock, network);
-			Assert.Equal(nonDynFedBlockHash,block.GetHash().ToString() );
+			Assert.Equal(nonDynFedBlockHash, block.GetHash().ToString());
 		}
 
 		[Fact]
@@ -239,7 +246,7 @@ namespace NBitcoin.Tests
 		{
 			var network = Altcoins.Liquid.Instance.Mainnet;
 			//p2sh-segwit blidned addresses mainnet
-			var key = Key.Parse("L22adb3BwuUxLoE8jDhNS7y9e92AYaHpXH5HSXZtFUKdJddEuFgm",network );
+			var key = Key.Parse("L22adb3BwuUxLoE8jDhNS7y9e92AYaHpXH5HSXZtFUKdJddEuFgm", network);
 			var blindingKey =
 				new Key(Encoders.Hex.DecodeData("bb1cbb24decbf8510c0db6ced89a0fca20382ef0aba1fcffc0f70b4310320892"));
 			var pubBlindingKey = new PubKey("0287bad01b847963609da945cd5a08a1937649f7adbfdba5dc7e9ff46a44e54bed");
@@ -247,18 +254,18 @@ namespace NBitcoin.Tests
 			var p2sh = key.PubKey.GetAddress(ScriptPubKeyType.SegwitP2SH, network);
 			Assert.Equal("GtqMkbR82hDis4EPKAaBNSKHY2ZR3ue4Ef", p2sh.ToString());
 			var blinded = new BitcoinBlindedAddress("VJL9DzChzwuw7Amnb1SL7M5WEq4TXmzZeAWzNFM5ULcr84gUEpu46Hbs1hZoYJXVkaqM5E3YxAyHy18N", network);
-			Assert.Equal(blinded.ToString(), new BitcoinBlindedAddress(pubBlindingKey, p2sh ).ToString());
+			Assert.Equal(blinded.ToString(), new BitcoinBlindedAddress(pubBlindingKey, p2sh).ToString());
 
 			//legacy blinded addresses mainnet
-			key = Key.Parse("L2EApGmxCemfhVHRmgXa1TWRoEaoiKfJHfvfmcPpRzF2v6neHqZv",network );
+			key = Key.Parse("L2EApGmxCemfhVHRmgXa1TWRoEaoiKfJHfvfmcPpRzF2v6neHqZv", network);
 			var legacy = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network);
 			Assert.Equal("QCAGkwismL6CZ8LR1Bvbzx1z3S7dfNsPwv", legacy.ToString());
 			blinded = new BitcoinBlindedAddress("VTpxFwLujc7Z8ufVaVxz1JJq7wVcmq6dxc4dDVBa9jK1zyHfuTUXQpZAhG4JJjv2DYGTKRW5r39RuHXF", network);
-			Assert.Equal(blinded.ToString(), new BitcoinBlindedAddress(new PubKey("029c293fbb855b709d7af1b696f26b16de06de6746616ebee32aee07be9aadc5f0"), legacy ).ToString());
+			Assert.Equal(blinded.ToString(), new BitcoinBlindedAddress(new PubKey("029c293fbb855b709d7af1b696f26b16de06de6746616ebee32aee07be9aadc5f0"), legacy).ToString());
 
 
 			//segwit blinded addresses mainnet
-			key = Key.Parse("KxYLpF8yCrphfji3AFzDFurjFfZum9wFhqzpQVeGAFRi4Gtewu6z",network );
+			key = Key.Parse("KxYLpF8yCrphfji3AFzDFurjFfZum9wFhqzpQVeGAFRi4Gtewu6z", network);
 			var segwit = key.PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
 			Assert.Equal("ex1qrqm9fah7lu9vf6t8v8tsjg0ul9gdtd89gwqcfz", segwit.ToString());
 			blinded = new BitcoinBlindedAddress("lq1qqds20c9qasz0y9fup3wc8xca6ceeyf7e4w6wd9l4qd4vwh887l76gxpk2nm0alc2cn5kwcwhpysle72s6k6w2uhhtgwsltf66", network);
@@ -608,7 +615,7 @@ namespace NBitcoin.Tests
 				{
 					Assert.Equal(Money.Zero, await rpc.GetBalanceAsync());
 					node.Generate(1);
-					Assert.NotEqual(Money.Zero,await rpc.GetBalanceAsync());
+					Assert.NotEqual(Money.Zero, await rpc.GetBalanceAsync());
 				}
 			}
 		}
