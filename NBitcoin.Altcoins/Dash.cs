@@ -38,6 +38,13 @@ namespace NBitcoin.Altcoins
 				return new DashBlock(new DashBlockHeader());
 			}
 
+			public override ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)
+			{
+				var capabilities = base.GetProtocolCapabilities(protocolVersion);
+				capabilities.SupportWitness = false;
+				return capabilities;
+			}
+
 			public override Transaction CreateTransaction()
 			{
 				return new DashTransaction();
