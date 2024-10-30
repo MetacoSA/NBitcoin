@@ -18,6 +18,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(Network.GetNetwork("regtest"), Network.RegTest);
 			Assert.Equal(Network.GetNetwork("testnet"), Network.TestNet);
 			Assert.Equal(Network.GetNetwork("testnet3"), Network.TestNet);
+			Assert.Equal(Network.GetNetwork("testnet4"), Bitcoin.Instance.Testnet4);
 			Assert.Equal(Network.GetNetwork("signet"), Bitcoin.Instance.Signet);
 			Assert.Equal(Network.GetNetwork("mutinynet"), Bitcoin.Instance.Mutinynet);
 			Assert.Null(Network.GetNetwork("invalid"));
