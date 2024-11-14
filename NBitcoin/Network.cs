@@ -1307,7 +1307,9 @@ namespace NBitcoin
 			if (name == null)
 				throw new ArgumentNullException(nameof(name));
 			name = name.ToLowerInvariant();
-
+			// Init Bitcoin networks
+			if (_OtherAliases.Count is 0)
+				Bitcoin.Instance.GetNetwork(ChainName.Regtest);
 			return _OtherAliases.TryGet(name);
 		}
 
