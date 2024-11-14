@@ -1,7 +1,7 @@
 # NBitcoin
 
 [![Join the chat at https://chat.btcpayserver.org/btcpayserver/channels/nbitcoin](https://img.shields.io/badge/Community%20Chat-Mattermost-%230058cc)](https://chat.btcpayserver.org/btcpayserver/channels/nbitcoin)
-[![Build status](https://github.com/MetacoSA/NBitcoin/workflows/CI/badge.svg?branch=master&event=push)](https://github.com/MetacoSA/NBitcoin/actions?query=branch%3Amaster)
+[![Build status](https://github.com/MetacoSA/NBitcoin/actions/workflows/master.yml/badge.svg?branch=master&event=push)](https://github.com/MetacoSA/NBitcoin/actions?query=branch%3Amaster)
 
 NBitcoin is the most complete Bitcoin library for the .NET platform. It implements all most relevant Bitcoin Improvement Proposals (BIPs). It also provides low level access to Bitcoin primitives so you can easily build your application on top of it. Join us in our [mattermost chat room](https://chat.btcpayserver.org/btcpayserver/channels/nbitcoin).
 It works on Windows, Mac and Linux with Xamarin, Unity, .NET Core or CLR. (Porting to Unity should not be that hard if you need it)
