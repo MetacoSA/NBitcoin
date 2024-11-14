@@ -11,6 +11,20 @@ namespace NBitcoin.Tests
 	{
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void NetworkListIsInitialized()
+		{
+			Assert.NotEmpty(Network.GetNetworks());
+		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void NetworkListHasNoDuplicates()
+		{
+			var uniqueNetworkCount = Network.GetNetworks().DistinctBy(n => n.Name + n.ChainName).Count();
+			Assert.Equal(Network.GetNetworks().Count(), uniqueNetworkCount);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanGetNetworkFromName()
 		{
 			Assert.Equal(Network.GetNetwork("main"), Network.Main);

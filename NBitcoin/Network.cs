@@ -1283,10 +1283,6 @@ namespace NBitcoin
 
 		public static IEnumerable<Network> GetNetworks()
 		{
-			yield return Main;
-			yield return TestNet;
-			yield return RegTest;
-
 			if (_OtherNetworks.Count != 0)
 			{
 				List<Network> others = new List<Network>();
