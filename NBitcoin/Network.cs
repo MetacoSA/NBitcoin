@@ -148,6 +148,10 @@ namespace NBitcoin
 
 	public partial class Network
 	{
+		static Network()
+		{
+			Bitcoin.Instance.Init();
+		}
 		internal byte[][] base58Prefixes = new byte[13][];
 		internal Bech32Encoder[] bech32Encoders = new Bech32Encoder[3];
 
@@ -1307,9 +1311,6 @@ namespace NBitcoin
 			if (name == null)
 				throw new ArgumentNullException(nameof(name));
 			name = name.ToLowerInvariant();
-			// Init Bitcoin networks
-			if (_OtherAliases.Count is 0)
-				Bitcoin.Instance.GetNetwork(ChainName.Regtest);
 			return _OtherAliases.TryGet(name);
 		}
 

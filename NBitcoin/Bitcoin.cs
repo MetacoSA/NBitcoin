@@ -13,8 +13,12 @@ namespace NBitcoin
  			Instance.Init();
 		}
 
+		static bool init = false;
 		internal void Init()
 		{
+			if (init)
+				return;
+			init = true;
 			CreateMainnet();
 			CreateTestnet();
 			CreateTestnet4();
