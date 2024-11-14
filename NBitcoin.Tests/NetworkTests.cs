@@ -19,7 +19,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void NetworkListHasNoDuplicates()
 		{
-			var uniqueNetworkCount = Network.GetNetworks().DistinctBy(n => n.Name + n.ChainName).Count();
+			var uniqueNetworkCount = Network.GetNetworks().Select(n => n.Name + n.ChainName).ToHashSet().Count();
 			Assert.Equal(Network.GetNetworks().Count(), uniqueNetworkCount);
 		}
 
