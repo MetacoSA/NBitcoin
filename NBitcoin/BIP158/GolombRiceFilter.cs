@@ -251,9 +251,9 @@ namespace NBitcoin
 
 			var hs = ConstructHashedSet(P, N, M, key, data, dataCount);
 
-			while(sr.TryRead(out var val))
+			var dataIndex = 0;
+			while (sr.TryRead(out var val))
 			{
-				var dataIndex = 0;
 				while(true)
 				{
 					if (dataIndex == dataCount)
