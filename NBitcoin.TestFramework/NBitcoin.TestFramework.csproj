@@ -27,6 +27,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
+		<PackageReference Include="System.IO.Compression" Version="4.3.0" />
 		<PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
 	</ItemGroup>
 
