@@ -1,9 +1,10 @@
-
+using NBitcoin.DataEncoders;
 using System;
-using System.Collections;
+#if HAS_SPAN
+using System.Buffers.Binary;
+#endif
 using System.Linq;
 using System.Runtime.InteropServices;
-using NBitcoin.DataEncoders;
 
 namespace NBitcoin
 {
@@ -160,6 +161,53 @@ namespace NBitcoin
 			Array.Reverse(bytes);
 			return Encoder.EncodeData(bytes);
 		}
+
+#if HAS_SPAN
+
+		/// <summary>
+		/// Returns HEX string representation.
+		/// </summary>
+		/// <remarks>The method allocates a new 64 char array.</remarks>
+		public Span<char> ToSpanString()
+		{
+			Span<char> result = new char[64];
+
+			ToSpanString(result);
+			return result;
+		}
+
+		/// <summary>
+		/// Returns HEX string representation.
+		/// </summary>
+		/// <remarks>The method does not allocate.</remarks>
+		public void ToSpanString(Span<char> destination)
+		{
+			Span<ulong> ulongs = stackalloc ulong[4];
+
+			if (BitConverter.IsLittleEndian)
+			{
+				ulongs[0] = pn0;
+				ulongs[1] = pn1;
+				ulongs[2] = pn2;
+				ulongs[3] = pn3;
+			}
+			else
+			{
+				ulongs[0] = BinaryPrimitives.ReverseEndianness(pn0);
+				ulongs[1] = BinaryPrimitives.ReverseEndianness(pn1);
+				ulongs[2] = BinaryPrimitives.ReverseEndianness(pn2);
+				ulongs[3] = BinaryPrimitives.ReverseEndianness(pn3);
+			}
+
+			Span<byte> bytes = MemoryMarshal.Cast<ulong, byte>(ulongs);
+
+			// Reverses order of bytes as pn0, pn1, pn2, and pn3 are set in a little endian manner.
+			for (int i = 31, j = 0; i >= 0; i--, j += 2)
+			{
+				HexEncoder.ToCharsBuffer(bytes[i], destination, startingIndex: j);
+			}
+		}
+#endif
 
 		public uint256(ulong b)
 		{

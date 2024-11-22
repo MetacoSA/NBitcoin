@@ -1,11 +1,7 @@
-﻿using NBitcoin.Protocol;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -115,7 +111,7 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void uitnSerializationTests2()
+		public void uintSerializationTests2()
 		{
 			var v = new uint256("0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20");
 			var vr = new uint256("201f1e1d1c1b1a191817161514131211100f0e0d0c0b0a090807060504030201");
@@ -147,7 +143,7 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void uitnSerializationTests()
+		public void uintSerializationTests()
 		{
 			MemoryStream ms = new MemoryStream();
 			BitcoinStream stream = new BitcoinStream(ms, true);
@@ -192,6 +188,18 @@ namespace NBitcoin.Tests
 			stream.ReadWrite(ref vs2);
 			Assert.True(vs2.SequenceEqual(vs));
 		}
+
+#if HAS_SPAN && NET6_0_OR_GREATER // .NET Core 3.1 cannot compile this.
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void uintSpanSerializationTests()
+		{
+			var v1 = new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+
+			Assert.Equal("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff", v1.ToString());
+			Assert.Equal("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff".AsSpan(), v1.ToSpanString());
+		}
+#endif
 
 		private void AssertEquals(uint256 a, uint256 b)
 		{
