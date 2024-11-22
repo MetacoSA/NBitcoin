@@ -15,7 +15,7 @@ using NBitcoin.Protocol;
 
 namespace NBitcoin
 {
-	public class PSBTOutput : PSBTCoin
+	public partial class PSBTOutput : PSBTCoin
 	{
 		internal TxOut TxOut { get; }
 		public Script ScriptPubKey => TxOut.ScriptPubKey;
@@ -108,9 +108,19 @@ namespace NBitcoin
 							throw new FormatException("Invalid PSBTOutput. Contains invalid internal taproot pubkey");
 						TaprootInternalKey = tpk;
 						break;
+#if HAS_SPAN
+					case PSBTConstants.PSBT_OUT_MUSIG2_PARTICIPANT_PUBKEYS:
+						if (k.Length != 34)
+							throw new FormatException("Invalid PSBTOutput. Unexpected key length for PSBT_IN_MUSIG2_PARTICIPANT_PUBKEYS");
+						if (v.Length % 33 != 0 || v.Length == 0)
+							throw new FormatException("Invalid PSBTOutput. Unexpected value length for PSBT_IN_MUSIG2_PARTICIPANT_PUBKEYS");
+						var pk = NBitcoin.MusigParticipantPubKeys.Parse(k, v);
+						this.MusigParticipantPubKeys.Add(pk.Aggregated, pk.PubKeys);
+						break;
+#endif
 					default:
 						if (unknown.ContainsKey(k))
-							throw new FormatException("Invalid PSBTInput, duplicate key for unknown value");
+							throw new FormatException("Invalid PSBTOutput, duplicate key for unknown value");
 						unknown.Add(k, v);
 						break;
 				}
@@ -137,6 +147,11 @@ namespace NBitcoin
 
 			foreach (var uk in other.Unknown)
 				unknown.TryAdd(uk.Key, uk.Value);
+
+#if HAS_SPAN
+			foreach (var o in other.MusigParticipantPubKeys)
+				MusigParticipantPubKeys.TryAdd(o.Key, o.Value);
+#endif
 		}
 
 		#region IBitcoinSerializable Members
@@ -194,7 +209,18 @@ namespace NBitcoin
 				b = ((MemoryStream)bs.Inner).ToArrayEfficient();
 				stream.ReadWriteAsVarString(ref b);
 			}
-
+#if HAS_SPAN
+			foreach (var mpk in MusigParticipantPubKeys)
+			{
+				var key = new byte[] { PSBTConstants.PSBT_IN_MUSIG2_PARTICIPANT_PUBKEYS }.Concat(mpk.Key.ToBytes());
+				stream.ReadWriteAsVarString(ref key);
+				foreach (var pk in mpk.Value)
+				{
+					var b = pk.ToBytes();
+					stream.ReadWriteAsVarString(ref b);
+				}
+			}
+#endif
 			foreach (var entry in unknown)
 			{
 				var k = entry.Key;
@@ -277,6 +303,24 @@ namespace NBitcoin
 			{
 				jsonWriter.WritePropertyValue("witness_script", witness_script.ToString());
 			}
+#if HAS_SPAN
+			if (MusigParticipantPubKeys.Count != 0)
+			{
+				jsonWriter.WritePropertyName("musig_participant_pubkeys");
+				jsonWriter.WriteStartObject();
+				foreach (var o in MusigParticipantPubKeys)
+				{
+					jsonWriter.WritePropertyName(o.Key.ToHex());
+					jsonWriter.WriteStartArray();
+					foreach (var k in o.Value)
+					{
+						jsonWriter.WriteValue(k.ToHex());
+					}
+					jsonWriter.WriteEndArray();
+				}
+				jsonWriter.WriteEndObject();
+			}
+#endif
 			jsonWriter.WriteBIP32Derivations(this.hd_keypaths);
 			jsonWriter.WriteBIP32Derivations(this.hd_taprootkeypaths);
 			jsonWriter.WriteEndObject();
