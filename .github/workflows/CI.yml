@@ -29,6 +29,10 @@ jobs:
       - uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.x'
+      - name: Install libssl
+        run: |
+          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
+          sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
       - run: ./Build/CI/tests.sh
         env:
           BUILD_ARGS: /p:AdditionalDefineConstants=SECP256K1_VERIFY
