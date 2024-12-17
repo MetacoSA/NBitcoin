@@ -33,6 +33,8 @@ jobs:
         env:
           BUILD_ARGS: /p:AdditionalDefineConstants=SECP256K1_VERIFY
           Framework: netcoreapp3.1
+          # to avoid error "Couldn't find a valid ICU package installed on the system."
+          DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 1
   dotnetcore60standard20:
     name: '6.0 with netstandard2.0'
     runs-on: ubuntu-latest
