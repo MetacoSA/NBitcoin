@@ -277,7 +277,7 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
-		public void CanHandshakeRestrictNodes()
+		public async Task CanHandshakeRestrictNodes()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -303,7 +303,7 @@ namespace NBitcoin.Tests
 				try
 				{
 					group.Connect();
-					connecting.GetAwaiter().GetResult();
+					await connecting;
 				}
 				catch (TaskCanceledException)
 				{
@@ -322,7 +322,7 @@ namespace NBitcoin.Tests
 				try
 				{
 					group.Connect();
-					connecting.GetAwaiter().GetResult();
+					await connecting;
 					Eventually(() =>
 					{
 						Assert.NotEmpty(group.ConnectedNodes);
@@ -339,7 +339,7 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
-		public void CanHandshakeWithSeveralTemplateBehaviors()
+		public async Task CanHandshakeWithSeveralTemplateBehaviors()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -371,7 +371,7 @@ namespace NBitcoin.Tests
 				{
 
 					group.Connect();
-					connecting.GetAwaiter().GetResult();
+					await connecting;
 					Eventually(() =>
 					{
 						Assert.Equal(101, chain.Height);
@@ -670,7 +670,7 @@ namespace NBitcoin.Tests
 					{
 						ConnectCancellation = cts.Token
 					});
-					Assert.False(true, "Should have thrown");
+					Assert.Fail("Should have thrown");
 				}
 				catch (OperationCanceledException)
 				{

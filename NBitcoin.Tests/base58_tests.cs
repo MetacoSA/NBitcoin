@@ -89,7 +89,7 @@ namespace NBitcoin.Tests
 				string strTest = test.ToString();
 				if (test.Count < 3) // Allow for extra stuff (useful for comments)
 				{
-					Assert.True(false, "Bad test " + strTest);
+					Assert.Fail("Bad test " + strTest);
 					continue;
 				}
 
@@ -149,7 +149,7 @@ namespace NBitcoin.Tests
 				string strTest = test.ToString();
 				if (test.Count < 3) // Allow for extra stuff (useful for comments)
 				{
-					Assert.False(true, "Bad test: " + strTest);
+					Assert.Fail("Bad test: " + strTest);
 					continue;
 				}
 				string exp_base58string = (string)test[0];
@@ -196,7 +196,7 @@ namespace NBitcoin.Tests
 					}
 					else
 					{
-						Assert.True(false, "Bad addrtype: " + strTest);
+						Assert.Fail("Bad addrtype: " + strTest);
 						continue;
 					}
 					BitcoinAddress addrOut = dest.GetAddress(network);

@@ -18,11 +18,8 @@ namespace NBitcoin.Tests
 {
 	public class OutputDescriptorTests
 	{
-		private readonly ITestOutputHelper _testOutputHelper;
-
-		public OutputDescriptorTests(ITestOutputHelper testOutputHelper)
+		public OutputDescriptorTests()
 		{
-			_testOutputHelper = testOutputHelper;
 			Arb.Register<OutputDescriptorGenerator>();
 			DummyKey = new Key();
 		}
@@ -437,8 +434,6 @@ namespace NBitcoin.Tests
 			// Verify No exptected paths remain that were not observed.
 			if (leftPath != null && leftPath.Length != 0)
 			{
-				foreach (var p in pathIndex ?? Enumerable.Empty<uint[]>())
-					_testOutputHelper.WriteLine($"{new KeyPath(p)}");
 				throw new Exception($"leftPath should be null: {pub}");
 			}
 		}

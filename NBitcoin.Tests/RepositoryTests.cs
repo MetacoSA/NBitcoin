@@ -180,16 +180,13 @@ namespace NBitcoin.Tests
 			Assert.Equal(3, tx.Outputs.Count);
 			Assert.Single(tx.Outputs
 								.Where(o => o.ScriptPubKey == bob.GetScriptPubKey(ScriptPubKeyType.Legacy))
-								.Where(o => o.Value == Money.Coins(0.3m) + Money.Coins(0.1m))
-);
+, o => o.Value == Money.Coins(0.3m) + Money.Coins(0.1m));
 			Assert.Single(tx.Outputs
 							  .Where(o => o.ScriptPubKey == alice.GetScriptPubKey(ScriptPubKeyType.Legacy))
-							  .Where(o => o.Value == Money.Coins(0.7m))
-);
+, o => o.Value == Money.Coins(0.7m));
 			Assert.Single(tx.Outputs
 								.Where(o => o.ScriptPubKey == carol.GetScriptPubKey(ScriptPubKeyType.Legacy))
-								.Where(o => o.Value == Money.Coins(1.0m))
-);
+, o => o.Value == Money.Coins(1.0m));
 		}
 
 		[Fact]

@@ -4131,7 +4131,7 @@ namespace NBitcoin.Tests
 					invalidKeys = true;
 					new MusigContext(keys, msg, sk.CreatePubKey());
 					invalidKeys = false;
-					Assert.False(true, comment);
+					Assert.Fail(comment);
 				}
 				catch (Exception ex) when (!(ex is XunitException))
 				{
@@ -4139,19 +4139,19 @@ namespace NBitcoin.Tests
 					{
 						var err = item["error"]?["type"]?.Value<string>();
 						if (invalidKeys != (err == "value"))
-							Assert.False(true, comment);
+							Assert.Fail(comment);
 					}
 					else
 					{
 						var err = item["error"]?["contrib"]?.Value<string>();
 						if (invalidPubKey != (err == "pubkey"))
-							Assert.False(true, comment);
+							Assert.Fail(comment);
 						if (invalidNonceAgg != (err == "aggnonce"))
-							Assert.False(true, comment);
+							Assert.Fail(comment);
 						if (invalidNonce != (err == "pubnonce"))
-							Assert.False(true, comment);
+							Assert.Fail(comment);
 						if (invalidSecnonce != (err == null))
-							Assert.False(true, comment);
+							Assert.Fail(comment);
 					}
 				}
 			}

@@ -103,7 +103,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void CanUseMultipleWallets()
+		public async Task CanUseMultipleWallets()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -114,7 +114,7 @@ namespace NBitcoin.Tests
 				node.Start();
 				var rpc = node.CreateRPCClient();
 				var w1 = rpc.CreateWallet("w1");
-				w1.SendCommandAsync(RPCOperations.getwalletinfo).GetAwaiter().GetResult().ThrowIfError();
+				(await w1.SendCommandAsync(RPCOperations.getwalletinfo)).ThrowIfError();
 				Assert.NotNull(w1.GetBalance());
 				Assert.NotNull(rpc.GetBestBlockHash());
 				var address = w1.GetNewAddress();
@@ -128,9 +128,9 @@ namespace NBitcoin.Tests
 				var b2 = rpc.GetBestBlockHashAsync();
 				var a = w1b.SendCommandAsync(RPCOperations.gettransaction, block.Transactions.First().GetHash().ToString());
 				rpc.SendBatch();
-				b.GetAwaiter().GetResult();
-				b2.GetAwaiter().GetResult();
-				a.GetAwaiter().GetResult();
+				await b;
+				await b2;
+				await a;
 
 				var noWalletRPC = noWalletNode.CreateRPCClient();
 				Assert.Throws<RPCException>(() => noWalletRPC.GetNewAddress());
@@ -271,7 +271,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void CanUseAsyncRPC()
+		public async Task CanUseAsyncRPC()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -279,7 +279,7 @@ namespace NBitcoin.Tests
 				var rpc = node.CreateRPCClient();
 				builder.StartAll();
 				node.Generate(10);
-				var blkCount = rpc.GetBlockCountAsync().Result;
+				var blkCount = await rpc.GetBlockCountAsync();
 				Assert.Equal(10, blkCount);
 			}
 		}
@@ -588,7 +588,7 @@ namespace NBitcoin.Tests
 						index = i;
 					}
 				}
-				Assert.NotEqual(index, -1);
+				Assert.NotEqual(-1, index);
 
 				// 5. Make sure the expected amounts are received for unconfirmed transactions
 				getTxOutResponse = await rpc.GetTxOutAsync(txId, index, true);
@@ -1236,7 +1236,7 @@ namespace NBitcoin.Tests
 			}
 		}
 		[Fact]
-		public void CanUseBatchedRequests()
+		public async Task CanUseBatchedRequests()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -1261,7 +1261,7 @@ namespace NBitcoin.Tests
 				int blockIndex = 0;
 				foreach (var req in requests)
 				{
-					Assert.Equal(blocks[blockIndex], req.Result);
+					Assert.Equal(blocks[blockIndex], await req);
 					Assert.Equal(TaskStatus.RanToCompletion, req.Status);
 					blockIndex++;
 				}
@@ -1628,7 +1628,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void CanAuthWithCookieFile()
+		public async Task CanAuthWithCookieFile()
 		{
 #if NOFILEIO
 			Assert.Throws<NotSupportedException>(() => new RPCClient(Network.Main));
@@ -1656,14 +1656,14 @@ namespace NBitcoin.Tests
 				rpc = rpc.PrepareBatch();
 				var blockCountAsync = rpc.GetBlockCountAsync();
 				rpc.SendBatch();
-				var blockCount = blockCountAsync.GetAwaiter().GetResult();
+				var blockCount = await blockCountAsync;
 
 				node.Restart();
 
 				rpc = rpc.PrepareBatch();
 				blockCountAsync = rpc.GetBlockCountAsync();
 				rpc.SendBatch();
-				blockCount = blockCountAsync.GetAwaiter().GetResult();
+				blockCount = await blockCountAsync;
 
 				rpc = new RPCClient("bla:bla", "http://toto/", Network.RegTest);
 			}
@@ -1681,13 +1681,13 @@ namespace NBitcoin.Tests
 				try
 				{
 					rpcClient.SendCommand("whatever");
-					Assert.False(true, "Should have thrown");
+					Assert.Fail("Should have thrown");
 				}
 				catch (RPCException ex)
 				{
 					if (ex.RPCCode != RPCErrorCode.RPC_METHOD_NOT_FOUND)
 					{
-						Assert.False(true, "Should have thrown RPC_METHOD_NOT_FOUND");
+						Assert.Fail("Should have thrown RPC_METHOD_NOT_FOUND");
 					}
 				}
 			}
@@ -1951,7 +1951,7 @@ namespace NBitcoin.Tests
 		// 3. In version 0.17, `importmulti` can not handle witness script so only p2sh are considered here. TODO: fix
 		[Theory]
 		[InlineData("latest")]
-		public void ShouldPerformMultisigProcessingWithCore(string version)
+		public async Task ShouldPerformMultisigProcessingWithCore(string version)
 		{
 			using (var builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.FromVersion(version)))
 			{
@@ -2027,7 +2027,7 @@ namespace NBitcoin.Tests
 				// first carol creates psbt
 				var carol = clients[2];
 				// check if we have enough balance
-				var info = carol.GetBlockchainInfoAsync().Result;
+				var info = await carol.GetBlockchainInfoAsync();
 				Assert.Equal((ulong)104, info.Blocks);
 				var balance = carol.GetBalance(0, true);
 				// Assert.Equal(Money.Coins(120), balance);
@@ -2196,7 +2196,7 @@ namespace NBitcoin.Tests
 			try
 			{
 				act();
-				Assert.False(true, "Should have thrown an exception");
+				Assert.Fail("Should have thrown an exception");
 			}
 			catch (T ex)
 			{

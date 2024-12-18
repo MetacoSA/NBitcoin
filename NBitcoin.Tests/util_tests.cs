@@ -331,18 +331,18 @@ namespace NBitcoin.Tests
 			Assert.Equal(16307.420938523983D, packed.Difficulty, "420938523983".Length);
 
 			Assert.Equal(packed, new Target(0x1b0404cb));
-			Assert.Equal((uint)packed, (uint)0x1b0404cb);
+			Assert.Equal((uint)0x1b0404cb, (uint)packed);
 
 			packed = new Target(0x1b0404d1);
 			Assert.Equal(16307.04943863739, packed.Difficulty, "420938523983".Length);
 
 			packed = new Target(0x1d00ffff);
-			Assert.Equal((uint)packed, (uint)0x1d00ffff);
+			Assert.Equal((uint)0x1d00ffff, (uint)packed);
 
 			//Check http://blockchain.info/block-index/392672/0000000000000000511e193e22d2dfc02aea8037988f0c58e9834f4550e97702
 			packed = new Target(419470732);
 			Assert.Equal(6978842649.592383, packed.Difficulty, "592383".Length);
-			Assert.Equal((uint)packed, (uint)419470732);
+			Assert.Equal((uint)419470732, (uint)packed);
 			Assert.True(uint256.Parse("0x0000000000000000511e193e22d2dfc02aea8037988f0c58e9834f4550e97702") < packed.ToUInt256());
 
 			//Check http://blockchain.info/block-index/394713/0000000000000000729a4a7e084c90f932d038c407a6535a51dfecdfba1c8906
