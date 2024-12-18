@@ -29,10 +29,16 @@ jobs:
       - uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.x'
+      - name: Install libssl
+        run: |
+          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
+          sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
       - run: ./Build/CI/tests.sh
         env:
           BUILD_ARGS: /p:AdditionalDefineConstants=SECP256K1_VERIFY
           Framework: netcoreapp3.1
+          # to avoid error "Couldn't find a valid ICU package installed on the system."
+          DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 1
   dotnetcore60standard20:
     name: '6.0 with netstandard2.0'
     runs-on: ubuntu-latest
