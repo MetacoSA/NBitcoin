@@ -3,7 +3,7 @@
 		<Company>Metaco SA</Company>
 		<Copyright>Copyright © Metaco SA 2017</Copyright>
 		<Description>The C# Bitcoin Library</Description>
-		<LangVersion>9.0</LangVersion>
+		<LangVersion>12.0</LangVersion>
     <PackageIcon>icon.png</PackageIcon>
 		<PackageId>NBitcoin.Altcoins</PackageId>
 		<PackageTags>bitcoin,altcoins,bcash,bgold,bitcore,dash,verge,terracoin,dogecoin,dystem,feathercoin,groestlcoin,litecoin,monacoin,polis,ufo,qtum,viacoin,zclassic,liquid,argoneum,monetaryunit,lbrycredits,xds,althash,neblio,opticalbitcoin</PackageTags>
