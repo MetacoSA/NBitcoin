@@ -58,6 +58,10 @@ namespace NBitcoin
 		public const byte PSBT_IN_TAP_BIP32_DERIVATION = 0x16;
 		public const byte PSBT_OUT_TAP_BIP32_DERIVATION = 0x07;
 		public const byte PSBT_IN_TAP_MERKLE_ROOT = 0x18;
+		public const byte PSBT_IN_MUSIG2_PARTICIPANT_PUBKEYS = 0x1a;
+		public const byte PSBT_IN_MUSIG2_PUB_NONCE = 0x1b;
+		public const byte PSBT_IN_MUSIG2_PARTIAL_SIG = 0x1c;
+		public const byte PSBT_OUT_MUSIG2_PARTICIPANT_PUBKEYS = 0x08;
 
 		// Output types
 		public const byte PSBT_OUT_REDEEMSCRIPT = 0x00;
