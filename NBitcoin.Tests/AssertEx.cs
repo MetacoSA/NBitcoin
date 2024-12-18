@@ -14,7 +14,7 @@ namespace NBitcoin.Tests
 		[DebuggerHidden]
 		internal static void Error(string msg)
 		{
-			Assert.False(true, msg);
+			Assert.Fail(msg);
 		}
 		[DebuggerHidden]
 		internal static void Equal<T>(T actual, T expected)
@@ -25,12 +25,12 @@ namespace NBitcoin.Tests
 		internal static void CollectionEquals<T>(T[] actual, T[] expected)
 		{
 			if (actual.Length != expected.Length)
-				Assert.False(true, "Actual.Length(" + actual.Length + ") != Expected.Length(" + expected.Length + ")");
+				Assert.Fail("Actual.Length(" + actual.Length + ") != Expected.Length(" + expected.Length + ")");
 
 			for (int i = 0; i < actual.Length; i++)
 			{
 				if (!Object.Equals(actual[i], expected[i]))
-					Assert.False(true, "Actual[" + i + "](" + actual[i] + ") != Expected[" + i + "](" + expected[i] + ")");
+					Assert.Fail("Actual[" + i + "](" + actual[i] + ") != Expected[" + i + "](" + expected[i] + ")");
 			}
 		}
 		[DebuggerHidden]

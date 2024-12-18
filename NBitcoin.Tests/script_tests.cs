@@ -80,7 +80,7 @@ namespace NBitcoin.Tests
 				}
 				else
 				{
-					Assert.True(false, "Invalid test");
+					Assert.Fail("Invalid test");
 					return null;
 				}
 			}
@@ -1508,9 +1508,9 @@ namespace NBitcoin.Tests
 					if (expectedSuccess != result.Error is null)
 					{
 						if (expectedSuccess)
-							Assert.False(true, $"Expected success, but got {result.Error.Value}");
+							Assert.Fail($"Expected success, but got {result.Error.Value}");
 						else
-							Assert.False(true, "Expected failed but passed");
+							Assert.Fail("Expected failed but passed");
 					}
 					Assert.Equal(expectedSuccess, result.Error is null);
 					expectedSuccess = false;

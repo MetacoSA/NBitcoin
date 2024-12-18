@@ -4,7 +4,7 @@
 		<Company>Metaco SA</Company>
 		<Copyright>Copyright © Metaco SA 2017</Copyright>
 		<Description>The C# Bitcoin Library</Description>
-		<LangVersion>9.0</LangVersion>
+		<LangVersion>12.0</LangVersion>
 	</PropertyGroup>
   <PropertyGroup>
 	  <TargetFrameworks>net6.0;netcoreapp3.1;net472</TargetFrameworks>
@@ -30,33 +30,30 @@
     <RemoveBC>true</RemoveBC>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="coverlet.collector" Version="3.1.0">
+		<PackageReference Include="coverlet.collector" Version="3.2.0">
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		  <PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="FsCheck" Version="2.13.0" />
-		<PackageReference Include="FsCheck.Xunit" Version="2.13.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+		<PackageReference Include="FsCheck" Version="2.16.6" />
+		<PackageReference Include="FsCheck.Xunit" Version="2.16.6" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
 		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
 		<ProjectReference Include="..\NBitcoin.Altcoins\NBitcoin.Altcoins.csproj" />
 		<ProjectReference Include="..\NBitcoin.TestFramework\NBitcoin.TestFramework.csproj" />
-		<PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
-		<PackageReference Include="xunit" Version="2.4.1" />
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="xunit" Version="2.9.2" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
-		<PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />
-		<PackageReference Include="System.ValueTuple" Version="4.5.0"></PackageReference>
+	
 	</ItemGroup>
-	<ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
-		<PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
-		<PackageReference Include="System.Globalization.Extensions" Version="4.3.0" />
-		<PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
-		<PackageReference Include="System.Threading.Tasks.Parallel" Version="4.3.0" />
-		<PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-	</ItemGroup>
+
+  <!--Those package must be removed once FsCheck is removed or can be updated to non vulnerable version-->
+  <ItemGroup>
+	<PackageReference Include="System.Net.Http" Version="4.3.4" />
+	<PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
+  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <Reference Include="System.Net.Http" />
   </ItemGroup>

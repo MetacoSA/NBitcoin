@@ -607,7 +607,7 @@ namespace NBitcoin.Tests
 						if (equal_sets(setCoinsRet, setCoinsRet2))
 							fails++;
 					}
-					Assert.NotEqual(fails, RANDOM_REPEATS);
+					Assert.NotEqual(RANDOM_REPEATS, fails);
 				}
 
 				// add 75 cents in small change.  not enough to make 90 cents,
@@ -631,7 +631,7 @@ namespace NBitcoin.Tests
 						if (equal_sets(setCoinsRet, setCoinsRet2))
 							fails++;
 					}
-					Assert.NotEqual(fails, RANDOM_REPEATS);
+					Assert.NotEqual(RANDOM_REPEATS, fails);
 				}
 			}
 
@@ -1479,7 +1479,7 @@ namespace NBitcoin.Tests
 					.SendAsset(alice.PubKey.Hash, new AssetMoney(goldId, 40UL))
 					.SetChange(bob.PubKey.Hash)
 					.BuildTransaction(true);
-				Assert.False(true, "Should have thrown");
+				Assert.Fail("Should have thrown");
 			}
 			catch (NotEnoughFundsException ex) //Not enough dust to send the change
 			{
@@ -3734,7 +3734,7 @@ namespace NBitcoin.Tests
 				JArray inputs = (JArray)test[0];
 				if (test.Count != 3 || !(test[1] is string) || !(test[2] is string))
 				{
-					Assert.False(true, "Bad test: " + strTest);
+					Assert.Fail("Bad test: " + strTest);
 					continue;
 				}
 
@@ -3755,7 +3755,7 @@ namespace NBitcoin.Tests
 				{
 					if (!mapprevOutScriptPubKeys.ContainsKey(input.PrevOut))
 					{
-						Assert.False(true, "Bad test: " + strTest);
+						Assert.Fail("Bad test: " + strTest);
 						continue;
 					}
 
@@ -3792,7 +3792,7 @@ namespace NBitcoin.Tests
 			foreach (string word in words)
 			{
 				if (!mapFlagNames.ContainsKey(word))
-					Assert.False(true, "Bad test: unknown verification flag '" + word + "'");
+					Assert.Fail("Bad test: unknown verification flag '" + word + "'");
 				flags |= mapFlagNames[word];
 			}
 
@@ -3867,7 +3867,7 @@ namespace NBitcoin.Tests
 				JArray inputs = (JArray)test[0];
 				if (test.Count != 3 || !(test[1] is string) || !(test[2] is string))
 				{
-					Assert.False(true, "Bad test: " + strTest);
+					Assert.Fail("Bad test: " + strTest);
 					continue;
 				}
 				Dictionary<OutPoint, Script> mapprevOutScriptPubKeys = new Dictionary<OutPoint, Script>();
@@ -3888,7 +3888,7 @@ namespace NBitcoin.Tests
 						break;
 					if (!mapprevOutScriptPubKeys.ContainsKey(input.PrevOut))
 					{
-						Assert.False(true, "Bad test: " + strTest);
+						Assert.Fail("Bad test: " + strTest);
 						continue;
 					}
 					var txOut = new TxOut(mapprevOutScriptPubKeysAmount.TryGet(input.PrevOut), mapprevOutScriptPubKeys[input.PrevOut]);

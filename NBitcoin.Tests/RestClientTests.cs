@@ -1,6 +1,7 @@
 ﻿using NBitcoin.RPC;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -14,19 +15,19 @@ namespace NBitcoin.Tests
 		private static readonly Block RegNetGenesisBlock = Network.RegTest.GetGenesis();
 
 		[Fact]
-		public void CanGetChainInfo()
+		public async Task CanGetChainInfo()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
 				builder.StartAll();
-				var info = client.GetChainInfoAsync().Result;
+				var info = await client.GetChainInfoAsync();
 				Assert.Equal("regtest", info.Chain);
 			}
 		}
 
 		[Fact]
-		public void CanCalculateChainWork()
+		public async Task CanCalculateChainWork()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -34,30 +35,30 @@ namespace NBitcoin.Tests
 				var client = node.CreateRESTClient();
 				var rpc = node.CreateRPCClient();
 				builder.StartAll();
-				var info = client.GetChainInfoAsync().Result;
+				var info = await client.GetChainInfoAsync();
 				Assert.Equal("regtest", info.Chain);
 				Assert.Equal(new ChainedBlock(Network.RegTest.GetGenesis().Header, 0).GetChainWork(false), info.ChainWork);
 				rpc.Generate(10);
 				var chain = node.CreateNodeClient().GetChain();
-				info = client.GetChainInfoAsync().Result;
+				info = await client.GetChainInfoAsync();
 				Assert.Equal(info.ChainWork, chain.Tip.GetChainWork(false));
 			}
 		}
 
 		[Fact]
-		public void CanGetBlock()
+		public async Task CanGetBlock()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
 				builder.StartAll();
-				var block = client.GetBlockAsync(RegNetGenesisBlock.GetHash()).Result;
+				var block = await client.GetBlockAsync(RegNetGenesisBlock.GetHash());
 				Assert.Equal(block.GetHash(), RegNetGenesisBlock.GetHash());
 			}
 		}
 
 		[Fact]
-		public void CanGetBlockHeader()
+		public async Task CanGetBlockHeader()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -65,7 +66,7 @@ namespace NBitcoin.Tests
 				var rpc = builder.Nodes[0].CreateRPCClient();
 				builder.StartAll();
 				rpc.Generate(2);
-				var result = client.GetBlockHeadersAsync(RegNetGenesisBlock.GetHash(), 3).Result;
+				var result = await client.GetBlockHeadersAsync(RegNetGenesisBlock.GetHash(), 3);
 				var headers = result.ToArray();
 				var last = headers.Last();
 				Assert.Equal(3, headers.Length);
@@ -76,7 +77,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void CanGetTransaction()
+		public async Task CanGetTransaction()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -85,14 +86,14 @@ namespace NBitcoin.Tests
 				builder.Nodes[0].Generate(1);
 				var block = builder.Nodes[0].CreateRPCClient().GetBestBlockHash();
 				var txId = builder.Nodes[0].CreateRPCClient().GetBlock(block).Transactions[0].GetHash();
-				var tx = client.GetTransactionAsync(txId).Result;
+				var tx = await client.GetTransactionAsync(txId);
 				Assert.True(tx.IsCoinBase);
 				Assert.Equal(Money.Coins(50), tx.TotalOut);
 			}
 		}
 
 		[Fact]
-		public void CanGetUTXOsMempool()
+		public async Task CanGetUTXOsMempool()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -107,7 +108,7 @@ namespace NBitcoin.Tests
 				var c = rpc.ListUnspent().First();
 				c = rpc.ListUnspent(0, 999999, k.GetAddress(ScriptPubKeyType.Legacy)).First();
 				var outPoint = c.OutPoint;
-				var utxos = client.GetUnspentOutputsAsync(new[] { outPoint }, true).Result;
+				var utxos = await client.GetUnspentOutputsAsync(new[] { outPoint }, true);
 				Assert.Single(utxos.Outputs);
 				Assert.Equal(0, (int)utxos.Outputs[0].Version);
 				Assert.Equal(Money.Coins(50m), utxos.Outputs[0].Output.Value);
@@ -120,7 +121,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void CanGetUTXOs()
+		public async Task CanGetUTXOs()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -128,7 +129,7 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				var txId = uint256.Parse("3a3422dfd155f1d2ffc3e46cf978a9c5698c17c187f04cfa1b93358699c4ed3f");
 				var outPoint = new OutPoint(txId, 0);
-				var utxos = client.GetUnspentOutputsAsync(new[] { outPoint }, false).Result;
+				var utxos = await client.GetUnspentOutputsAsync(new[] { outPoint }, false);
 				Assert.True(utxos.Bitmap[0]);
 				Assert.False(utxos.Bitmap[1]);
 				Assert.Empty(utxos.Outputs);

@@ -22,7 +22,7 @@ namespace NBitcoin.Tests
 				var strTest = test.ToString();
 				if (test.Count < 1) // Allow for extra stuff (useful for comments)
 				{
-					Assert.True(false, "Bad test: " + strTest);
+					Assert.Fail("Bad test: " + strTest);
 					continue;
 				}
 				if (test.Count == 1)
