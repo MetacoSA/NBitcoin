@@ -1,8 +1,12 @@
 #!/bin/bash
 set -e
 
+export PATH="$PATH:$HOME/.dotnet"
+
 : "${BUILD_ARGS:=}"
 
+export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+dotnet --info
 dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj \
              $BUILD_ARGS \
              -c Release \

@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'
+      - run: ./Build/CI/install-env.sh
+        env:
+          ADDITIONAL_RUNTIME: 6.0.36
       - run: ./Build/CI/tests.sh
         env:
           BUILD_ARGS: /p:AdditionalDefineConstants=SECP256K1_VERIFY
@@ -23,16 +23,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '3.1.x'
       - name: Install libssl
         run: |
           wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
           sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
+      - run: ./Build/CI/install-env.sh
+        env:
+          ADDITIONAL_RUNTIME: 3.1.32
       - run: ./Build/CI/tests.sh
         env:
           BUILD_ARGS: /p:AdditionalDefineConstants=SECP256K1_VERIFY
@@ -44,9 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'
+      - run: ./Build/CI/install-env.sh
+        env:
+          ADDITIONAL_RUNTIME: 6.0.36
       - run: ./Build/CI/tests.sh
         env:
           BUILD_ARGS: /p:TargetFrameworkOverride=netstandard2.0
@@ -56,9 +53,9 @@ jobs:
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'
+      - run: ./Build/CI/install-env.sh
+        env:
+          ADDITIONAL_RUNTIME: 6.0.36
       - run: ./Build/CI/tests.sh
         env:
           Framework: net6.0
@@ -67,8 +64,5 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'
       - run: dotnet clean -c Release ./NBitcoin.Tests/NBitcoin.Tests.csproj && dotnet nuget locals all --clear
       - run: dotnet test -c Release -v n ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest|Altcoins=Altcoins|PropertyTest=PropertyTest" -p:ParallelizeTestCollections=false -f net472
