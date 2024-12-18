@@ -12,7 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net472;netstandard1.3;netstandard2.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>net6.0;net472;netstandard2.0;netstandard2.1</TargetFrameworks>
 		<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netstandard2.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(TargetFrameworkOverride)' != ''">$(TargetFrameworkOverride)</TargetFrameworks>
 		<NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
