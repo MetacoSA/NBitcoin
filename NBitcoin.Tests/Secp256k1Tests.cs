@@ -6,16 +6,12 @@ using System.Text;
 using Xunit;
 using NBitcoin.Secp256k1;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Xunit.Abstractions;
-using System.Security.Cryptography;
 using System.IO;
 using NBitcoin.Crypto;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 using NBitcoin.Secp256k1.Musig;
 using NBitcoin.DataEncoders;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
 using Newtonsoft.Json.Linq;
 using Xunit.Sdk;
 
@@ -4033,6 +4029,56 @@ namespace NBitcoin.Tests
 				AssertEx.EqualBytes(expected[0], sig.PubNonce.ToBytes());
 				AssertEx.EqualBytes(expected[1], sig.Signature.ToBytes());
 				Assert.True(ctx.Verify(sk.CreatePubKey(), sig.PubNonce, sig.Signature));
+			}
+		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		// https://github.com/bitcoin/bips/blob/master/bip-0327.mediawiki#modifications-to-nonce-generation
+		public void musig_det()
+		{
+			var keys = Enumerable.Range(0, 5).Select(k => new ECPrivKey(random_scalar_order(), ctx, true)).ToArray();
+			var pks = keys.Select(k => k.CreatePubKey()).ToArray();
+			var aggKeys = ECPubKey.MusigAggregate(pks, null);
+			var nonces = new MusigPrivNonce[keys.Length];
+			var msg = RandomUtils.GetBytes(32);
+
+			int detSigner = 4;
+			for (int i = 0; i < keys.Length; i++)
+			{
+				if (i == detSigner)
+					continue;
+				var musig = new MusigContext(pks, msg, pks[i]);
+				nonces[i] = musig.GenerateNonce(pks[i]);
+			}
+
+			var sigs = new MusigPartialSignature[keys.Length];
+			var aggothernonce = MusigPubNonce.Aggregate(nonces.Where(n => n is not null).Select(n => n.CreatePubNonce()).ToArray());
+			var aggNonce = aggothernonce;
+
+			// The deterministic signer sign
+			{
+				var musigDet = new MusigContext(pks, msg, pks[detSigner]);
+				musigDet.Process(aggothernonce);
+				var s = musigDet.DeterministicSign(keys[detSigner]);
+				sigs[detSigner] = s.Signature;
+				aggNonce = MusigPubNonce.Aggregate([aggothernonce, s.PubNonce]);
+			}
+
+			for (int i = 0; i < keys.Length; i++)
+			{
+				if (i == detSigner)
+					continue;
+				var musig = new MusigContext(pks, msg, pks[i]);
+				musig.Process(aggNonce);
+				sigs[i] = musig.Sign(keys[i], nonces[i]);
+			}
+
+			for (int i = 0; i < keys.Length; i++)
+			{
+				var musig = new MusigContext(pks, msg, pks[i]);
+				musig.Process(aggNonce);
+				var fullSig = musig.AggregateSignatures(sigs);
+				Assert.True(aggKeys.ToXOnlyPubKey().SigVerifyBIP340(fullSig, msg));
 			}
 		}
 
