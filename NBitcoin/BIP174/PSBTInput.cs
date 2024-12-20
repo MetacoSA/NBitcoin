@@ -12,7 +12,7 @@ using System.Text;
 
 namespace NBitcoin
 {
-	public class PSBTInput : PSBTCoin
+	public partial class PSBTInput : PSBTCoin
 	{
 		// Those fields are not saved, but can be used as hint to solve more info for the PSBT
 		internal Script originalScriptSig = Script.Empty;
@@ -159,6 +159,32 @@ namespace NBitcoin
 							throw new FormatException("Invalid PSBTInput. Unexpected value length for PSBT_IN_TAP_MERKLE_ROOT");
 						TaprootMerkleRoot = new uint256(v);
 						break;
+#if HAS_SPAN
+					case PSBTConstants.PSBT_IN_MUSIG2_PARTICIPANT_PUBKEYS:
+						if (k.Length != 34)
+							throw new FormatException("Invalid PSBTInput. Unexpected key length for PSBT_IN_MUSIG2_PARTICIPANT_PUBKEYS");
+						if (v.Length % 33 != 0 || v.Length == 0)
+							throw new FormatException("Invalid PSBTInput. Unexpected value length for PSBT_IN_MUSIG2_PARTICIPANT_PUBKEYS");
+						var pk = NBitcoin.MusigParticipantPubKeys.Parse(k, v);
+						this.MusigParticipantPubKeys.Add(pk.Aggregated, pk.PubKeys);
+						break;
+					case PSBTConstants.PSBT_IN_MUSIG2_PUB_NONCE:
+						if (k.Length is not (1 + 33 + 33 or 1 + 33 + 33 + 32))
+							throw new FormatException("Invalid PSBTInput. Unexpected key length for PSBT_IN_MUSIG2_PUB_NONCE");
+						if (k.Length is not 66)
+							throw new FormatException("Invalid PSBTInput. Unexpected value length for PSBT_IN_MUSIG2_PUB_NONCE");
+						var musigNonceKey = MusigTarget.Parse(k);
+ 						this.MusigPubNonces.Add(musigNonceKey, v);
+						break;
+					case PSBTConstants.PSBT_IN_MUSIG2_PARTIAL_SIG:
+						if (k.Length is not (1 + 33 + 33 or 1 + 33 + 33 + 32))
+							throw new FormatException("Invalid PSBTInput. Unexpected key length for PSBT_IN_MUSIG2_PARTIAL_SIG");
+						if (k.Length is not 32)
+							throw new FormatException("Invalid PSBTInput. Unexpected value length for PSBT_IN_MUSIG2_PARTIAL_SIG");
+						var musigSigKey = MusigTarget.Parse(k);
+						this.MusigPartialSigs.Add(musigSigKey, v);
+						break;
+#endif
 					case PSBTConstants.PSBT_IN_SCRIPTSIG:
 						if (k.Length != 1)
 							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for final scriptsig");
@@ -416,7 +442,14 @@ namespace NBitcoin
 
 			foreach (var keyPath in other.HDTaprootKeyPaths)
 				HDTaprootKeyPaths.TryAdd(keyPath.Key, keyPath.Value);
-
+#if HAS_SPAN
+			foreach (var o in other.MusigParticipantPubKeys)
+				MusigParticipantPubKeys.TryAdd(o.Key, o.Value);
+			foreach (var o in other.MusigPartialSigs)
+				MusigPartialSigs.TryAdd(o.Key, o.Value);
+			foreach (var o in other.MusigPubNonces)
+				MusigPubNonces.TryAdd(o.Key, o.Value);
+#endif
 			TaprootInternalKey ??= other.TaprootInternalKey;
 			TaprootKeySignature ??= other.TaprootKeySignature;
 			TaprootMerkleRoot ??= other.TaprootMerkleRoot;
@@ -728,7 +761,32 @@ namespace NBitcoin
 				var value = merkleRoot.ToBytes();
 				stream.ReadWriteAsVarString(ref value);
 			}
-
+#if HAS_SPAN
+			foreach (var mpk in MusigParticipantPubKeys)
+			{
+				var key = new byte[] { PSBTConstants.PSBT_IN_MUSIG2_PARTICIPANT_PUBKEYS }.Concat(mpk.Key.ToBytes());
+				stream.ReadWriteAsVarString(ref key);
+				foreach (var pk in mpk.Value)
+				{
+					var b = pk.ToBytes();
+					stream.ReadWriteAsVarString(ref b);
+				}
+			}
+			foreach (var mpn in MusigPubNonces)
+			{
+				var key = mpn.Key.ToBytes(PSBTConstants.PSBT_IN_MUSIG2_PUB_NONCE);
+				stream.ReadWriteAsVarString(ref key);
+				var v = mpn.Value;
+				stream.ReadWriteAsVarString(ref v);
+			}
+			foreach (var mpn in MusigPartialSigs)
+			{
+				var key = mpn.Key.ToBytes(PSBTConstants.PSBT_IN_MUSIG2_PARTIAL_SIG);
+				stream.ReadWriteAsVarString(ref key);
+				var v = mpn.Value;
+				stream.ReadWriteAsVarString(ref v);
+			}
+#endif
 			if (this.TaprootInternalKey is TaprootInternalPubKey tp)
 			{
 				stream.ReadWriteAsVarInt(ref defaultKeyLen);
@@ -856,6 +914,7 @@ namespace NBitcoin
 			{
 				jsonWriter.WritePropertyValue("taproot_key_signature", tsig.ToString());
 			}
+			
 			jsonWriter.WritePropertyName("partial_signatures");
 			jsonWriter.WriteStartObject();
 			foreach (var sig in partial_sigs)
@@ -863,6 +922,45 @@ namespace NBitcoin
 				jsonWriter.WritePropertyValue(sig.Key.ToString(), Encoders.Hex.EncodeData(sig.Value.ToBytes()));
 			}
 			jsonWriter.WriteEndObject();
+#if HAS_SPAN
+			if (MusigParticipantPubKeys.Count != 0)
+			{
+				jsonWriter.WritePropertyName("musig_participant_pubkeys");
+				jsonWriter.WriteStartObject();
+				foreach (var o in MusigParticipantPubKeys)
+				{
+					jsonWriter.WritePropertyName(o.Key.ToHex());
+					jsonWriter.WriteStartArray();
+					foreach (var k in o.Value)
+					{
+						jsonWriter.WriteValue(k.ToHex());
+					}
+					jsonWriter.WriteEndArray();
+				}
+				jsonWriter.WriteEndObject();
+			}
+
+			if (MusigPartialSigs.Count != 0)
+			{
+				jsonWriter.WritePropertyName("musig_partial_signatures");
+				jsonWriter.WriteStartObject();
+				foreach (var sig in MusigPartialSigs)
+				{
+					jsonWriter.WritePropertyValue(Encoders.Hex.EncodeData(sig.Key.ToBytes(0)[1..]), Encoders.Hex.EncodeData(sig.Value));
+				}
+				jsonWriter.WriteEndObject();
+			}
+			if (MusigPartialSigs.Count != 0)
+			{
+				jsonWriter.WritePropertyName("musig_pub_nonces");
+				jsonWriter.WriteStartObject();
+				foreach (var sig in MusigPubNonces)
+				{
+					jsonWriter.WritePropertyValue(Encoders.Hex.EncodeData(sig.Key.ToBytes(0)[1..]), Encoders.Hex.EncodeData(sig.Value));
+				}
+				jsonWriter.WriteEndObject();
+			}
+#endif
 			if (sighash_type is uint s)
 				jsonWriter.WritePropertyValue("sighash", GetName(s));
 			if (this.FinalScriptSig != null)
