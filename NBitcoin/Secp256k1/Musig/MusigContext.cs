@@ -48,6 +48,7 @@ namespace NBitcoin.Secp256k1.Musig
 
 		private ECPubKey aggregatePubKey;
 		private Context ctx;
+		public ECPubKey? SigningPubKey { get; }
 
 
 		public MusigContext(MusigContext musigContext)
@@ -66,6 +67,7 @@ namespace NBitcoin.Secp256k1.Musig
 			aggregatePubKey = musigContext.aggregatePubKey;
 			ctx = musigContext.ctx;
 			msg32 = musigContext.msg32;
+			SigningPubKey = musigContext.SigningPubKey;
 		}
 
 		public MusigContext Clone()
@@ -81,6 +83,7 @@ namespace NBitcoin.Secp256k1.Musig
 				throw new ArgumentException(nameof(pubKeys), "There should be at least one pubkey in pubKeys");
 			if (signingPubKey != null && !pubKeys.Contains(signingPubKey))
 				throw new InvalidOperationException("The pubkeys do not contain the signing public key");
+			this.SigningPubKey = signingPubKey;
 			this.aggregatePubKey = ECPubKey.MusigAggregate(pubKeys, this);
 			this.ctx = pubKeys[0].ctx;
 			this.msg32 = msg32.ToArray();
@@ -130,6 +133,11 @@ namespace NBitcoin.Secp256k1.Musig
 		ECPubKey? adaptor;
 		private Scalar tacc = Scalar.Zero;
 
+		/// <summary>
+		/// The aggregated signature will need to be adapted by the adaptor secret to be valid signature for the message.
+		/// </summary>
+		/// <param name="adaptor">The adaptor</param>
+		/// <exception cref="InvalidOperationException"></exception>
 		public void UseAdaptor(ECPubKey adaptor)
 		{
 			if (processed_nonce)
@@ -274,15 +282,36 @@ namespace NBitcoin.Secp256k1.Musig
 		}
 
 		/// <summary>
-		/// To deterministically sign, you need to call <see cref="Process(MusigPubNonce)"/> or <see cref="ProcessNonces(MusigPubNonce[])"/> with the nonces of all other participants.
-		/// See the BIP for more information about deterministic signer.
+		/// <para>Generates a deterministic nonce and sign with it.</para>
+		/// <para>You need to call <see cref="Process(MusigPubNonce)"/> or <see cref="ProcessNonces(MusigPubNonce[])"/> with the nonces of all other participants.</para>
+		/// <para>After calling <see cref="DeterministicSign(ECPrivKey, byte[])"/>, the generated nonce is processed with the other nonces of this <see cref="MusigContext" />.</para>
+		/// <para>You need to share the public nonce with other signers before they can sign.</para>
+		/// <para>See <a href="https://github.com/bitcoin/bips/blob/master/bip-0327.mediawiki#modifications-to-nonce-generation">BIP0327</a> for more information about deterministic signer.</para>
 		/// </summary>
 		/// <param name="privKey">The private key of the stateless signer</param>
-		/// <param name="rand">An optional random data</param>
-		/// <returns>The partial signature with the derived public nonce of this signer</returns>
+		/// <param name="rand">Additional entropy</param>
+		/// <returns>The partial signature with the deterministic public nonce of this signer</returns>
 		/// <exception cref="ArgumentNullException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
-		public (MusigPartialSignature Signature, MusigPubNonce PubNonce) DeterministicSign(ECPrivKey privKey, byte[]? rand)
+		public (MusigPartialSignature Signature, MusigPubNonce PubNonce) DeterministicSign(ECPrivKey privKey, byte[]? rand = null)
+		{
+			var nonce = GenerateDeterministicNonce(privKey, rand);
+			return (Sign(privKey, nonce), nonce.CreatePubNonce());
+		}
+
+		/// <summary>
+		/// <para>Generates a deterministic nonce for a signer.</para>
+		/// <para>You need to call <see cref="Process(MusigPubNonce)"/> or <see cref="ProcessNonces(MusigPubNonce[])"/> with the nonces of all other participants.</para>
+		/// <para>After calling <see cref="GenerateDeterministicNonce"/>, the generated nonce is processed with the other nonces of this <see cref="MusigContext" />, so you can proceed to sign with <see cref="Sign(ECPrivKey, MusigPrivNonce)"/></para>
+		/// <para>You need to share the public nonce with other signers before they can sign.</para>
+		/// <para>See <a href="https://github.com/bitcoin/bips/blob/master/bip-0327.mediawiki#modifications-to-nonce-generation">BIP0327</a> for more information about deterministic signer.</para>
+		/// </summary>
+		/// <param name="privKey"></param>
+		/// <param name="rand">Additional entropy</param>
+		/// <returns>The deterministic private nonce of this signer</returns>
+		/// <exception cref="InvalidOperationException"></exception>
+		/// <exception cref="ArgumentNullException"></exception>
+		public MusigPrivNonce GenerateDeterministicNonce(ECPrivKey privKey, byte[]? rand = null)
 		{
 			if (!processed_nonce)
 				throw new InvalidOperationException("You need to call Process or ProcessNonces with the nonces of all other participants");
@@ -304,7 +333,7 @@ namespace NBitcoin.Secp256k1.Musig
 			var pubnonce = secnonce.CreatePubNonce();
 			processed_nonce = false;
 			ProcessNonces(new[] { pubnonce, aggregateNonce });
-			return (Sign(privKey, secnonce), pubnonce);
+			return secnonce;
 		}
 
 		private Scalar det_nonce_hash(byte[] sk_, MusigPubNonce aggothernonce, ECPubKey aggregatePubKey, ReadOnlySpan<byte> msg, int i)
@@ -422,6 +451,14 @@ namespace NBitcoin.Secp256k1.Musig
 			return sig;
 		}
 
+		/// <summary>
+		/// Adapt a <paramref name="signature"/> with the <paramref name="adaptorSecret"/> (ie. private key of the key passed to <see cref="UseAdaptor(ECPubKey)"/>) to be a valid signature for the message.
+		/// </summary>
+		/// <param name="signature">The published signature</param>
+		/// <param name="adaptorSecret">The adaptor secret retrieved by <see cref="Extract(SecpSchnorrSignature, MusigPartialSignature[])"/></param>
+		/// <returns>A valid signature for the message</returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		public SecpSchnorrSignature Adapt(SecpSchnorrSignature signature, ECPrivKey adaptorSecret)
 		{
 			if (adaptorSecret == null)
@@ -430,6 +467,8 @@ namespace NBitcoin.Secp256k1.Musig
 				throw new ArgumentNullException(nameof(signature));
 			if (!processed_nonce || SessionCache is null)
 				throw new InvalidOperationException("You need to run MusigContext.Process first");
+			if (adaptor != null && adaptor != adaptorSecret.CreatePubKey())
+				throw new ArgumentException("The adaptor secret is not the one used in UseAdaptor", paramName: nameof(adaptorSecret));
 			var s = signature.s;
 			var t = adaptorSecret.sec;
 			if (SessionCache.r.y.IsOdd)
@@ -440,6 +479,14 @@ namespace NBitcoin.Secp256k1.Musig
 			return new SecpSchnorrSignature(signature.rx, s);
 		}
 
+		/// <summary>
+		/// Extract adaptor secret from <paramref name="signature"/> and <paramref name="partialSignatures"/>.
+		/// </summary>
+		/// <param name="signature">Published signature</param>
+		/// <param name="partialSignatures">Partial signatures</param>
+		/// <returns>The adaptor</returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		public ECPrivKey Extract(SecpSchnorrSignature signature, MusigPartialSignature[] partialSignatures)
 		{
 			if (partialSignatures == null)
@@ -459,35 +506,15 @@ namespace NBitcoin.Secp256k1.Musig
 			return new ECPrivKey(t, this.ctx, true);
 		}
 
-		/// <summary>
-		/// This function derives a random secret nonce that will be required for signing and
-		/// creates a private nonce whose public part intended to be sent to other signers.
-		/// </summary>
-		/// <param name="signingPubKey">The individual signing public key (see BIP Modifications to Nonce Generation for the reason that this argument is mandatory)</param>
-		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
-		public MusigPrivNonce GenerateNonce(ECPubKey signingPubKey)
-		{
-			return GenerateNonce(signingPubKey, null);
-		}
-		/// <summary>
-		/// This function derives a secret nonce that will be required for signing and
-		/// creates a private nonce whose public part intended to be sent to other signers.
-		/// </summary>
-		/// <param name="signingPubKey">The individual signing public key (see BIP Modifications to Nonce Generation for the reason that this argument is mandatory)</param>
-		/// <param name="sessionId">A unique session_id. It is a "number used once". If null, it will be randomly generated.</param>
-		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
-		public MusigPrivNonce GenerateNonce(ECPubKey signingPubKey, byte[]? sessionId)
-		{
-			return GenerateNonce(signingPubKey, sessionId, null, null);
-		}
+		/// <inheritdoc cref="GenerateNonce(byte[], ECPrivKey, byte[])"/>
+		public MusigPrivNonce GenerateNonce() => GenerateNonce(null, null, null);
 
-		/// <summary>
-		/// This function derives a secret nonce that will be required for signing and
-		/// creates a private nonce whose public part intended to be sent to other signers.
-		/// </summary>
+		/// <inheritdoc cref="GenerateNonce(byte[], ECPrivKey, byte[])"/>
+		public MusigPrivNonce GenerateNonce(byte[]? sessionId) => GenerateNonce(sessionId, null, null);
+
+
+		/// <inheritdoc cref="GenerateNonce(byte[], ECPrivKey, byte[])"/>
 		/// <param name="counter">A unique counter. Never reuse the same value twice for the same msg32/pubkeys.</param>
-		/// <param name="signingKey">Provide the message to be signed to increase misuse-resistance. If you do provide a signingKey, sessionId32 can instead be a counter (that must never repeat!). However, it is recommended to always choose session_id32 uniformly at random. Can be null.</param>
-		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
 		public MusigPrivNonce GenerateNonce(ulong counter, ECPrivKey signingKey)
 		{
 			if (signingKey == null)
@@ -496,33 +523,26 @@ namespace NBitcoin.Secp256k1.Musig
 			byte[] sessionId = new byte[32];
 			for (int i = 0; i < 8; i++)
 				sessionId[i] = (byte)(counter >> (8*i));
-			return GenerateNonce(signingKey.CreatePubKey(), sessionId, signingKey, Array.Empty<byte>());
+			return GenerateNonce(sessionId, signingKey, null);
 		}
 
+		/// <inheritdoc cref="GenerateNonce(byte[], ECPrivKey, byte[])"/>
+		public MusigPrivNonce GenerateNonce(byte[]? sessionId, ECPrivKey? signingKey) => GenerateNonce(sessionId, signingKey, null);
+
+		/// <inheritdoc cref="GenerateNonce(byte[], ECPrivKey, byte[])"/>
+		public MusigPrivNonce GenerateNonce(ECPrivKey? signingKey) => GenerateNonce(null, signingKey, null);
 		/// <summary>
 		/// This function derives a secret nonce that will be required for signing and
 		/// creates a private nonce whose public part intended to be sent to other signers.
 		/// </summary>
-		/// <param name="signingPubKey">The individual signing public key (see BIP Modifications to Nonce Generation for the reason that this argument is mandatory)</param>
-		/// <param name="sessionId">A unique session_id32. It is a "number used once". If null, it will be randomly generated.</param>
-		/// <param name="signingKey">Provide the message to be signed to increase misuse-resistance. If you do provide a signingKey, sessionId32 can instead be a counter (that must never repeat!). However, it is recommended to always choose session_id32 uniformly at random. Can be null.</param>
-		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
-		public MusigPrivNonce GenerateNonce(ECPubKey signingPubKey, byte[]? sessionId, ECPrivKey? signingKey)
-		{
-			return GenerateNonce(signingPubKey, sessionId, signingKey, Array.Empty<byte>());
-		}
-		/// <summary>
-		/// This function derives a secret nonce that will be required for signing and
-		/// creates a private nonce whose public part intended to be sent to other signers.
-		/// </summary>
-		/// <param name="signingPubKey">The individual signing public key (see BIP Modifications to Nonce Generation for the reason that this argument is mandatory)</param>
 		/// <param name="sessionId">A unique session_id. It is a "number used once". If null, it will be randomly generated.</param>
 		/// <param name="signingKey">Provide the message to be signed to increase misuse-resistance. If you do provide a signingKey, sessionId32 can instead be a counter (that must never repeat!). However, it is recommended to always choose session_id32 uniformly at random. Can be null.</param>
 		/// <param name="extraInput">Provide the message to be signed to increase misuse-resistance. The extra_input32 argument can be used to provide additional data that does not repeat in normal scenarios, such as the current time. Can be null.</param>
 		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
-		public MusigPrivNonce GenerateNonce(ECPubKey signingPubKey, byte[]? sessionId, ECPrivKey? signingKey, byte[]? extraInput)
+		public MusigPrivNonce GenerateNonce(byte[]? sessionId, ECPrivKey? signingKey, byte[]? extraInput)
 		{
-			return MusigPrivNonce.GenerateMusigNonce(signingPubKey, ctx, sessionId, signingKey, this.msg32, this.aggregatePubKey.ToXOnlyPubKey(), extraInput);
+			var pubkey = signingKey?.CreatePubKey() ?? SigningPubKey ?? throw new InvalidOperationException("SigningPubKey or signingKey isn't passed to this context");
+			return MusigPrivNonce.GenerateMusigNonce(pubkey, ctx, sessionId, signingKey, this.msg32, this.aggregatePubKey.ToXOnlyPubKey(), extraInput);
 		}
 	}
 }

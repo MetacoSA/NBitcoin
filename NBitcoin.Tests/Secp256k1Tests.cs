@@ -3962,7 +3962,7 @@ namespace NBitcoin.Tests
 
 			var ecPubKeys = ecPrivateKeys.Select(c => c.CreatePubKey()).ToArray();
 			var musig = new MusigContext(ecPubKeys, msg32);
-			var nonces = ecPubKeys.Select(c => musig.GenerateNonce(c)).ToArray();
+			var nonces = ecPrivateKeys.Select(c => musig.GenerateNonce(c)).ToArray();
 
 			var aggregatedKey = ECPubKey.MusigAggregate(ecPubKeys);
 
@@ -3980,15 +3980,15 @@ namespace NBitcoin.Tests
 			var builder = new TaprootBuilder();
 			// Add the scripts there
 			var treeInfo = builder.Finalize(new TaprootInternalPubKey(aggregatedKey.ToXOnlyPubKey().ToBytes()));
-			musig = new MusigContext(ecPubKeys, msg32);
+			musig = new MusigContext(ecPubKeys, msg32, ecPubKeys[0]);
 
 			// Sanity check that GenerateNonce do not reuse nonces
-			var n1 = musig.GenerateNonce(ecPubKeys[0]);
-			var n2 = musig.GenerateNonce(ecPubKeys[0]);
+			var n1 = musig.GenerateNonce();
+			var n2 = musig.GenerateNonce();
 			Assert.NotEqual(Encoders.Hex.EncodeData(n1.CreatePubNonce().ToBytes()), Encoders.Hex.EncodeData(n2.CreatePubNonce().ToBytes()));
 			//
 
-			nonces = ecPubKeys.Select(c => musig.GenerateNonce(c)).ToArray();
+			nonces = ecPrivateKeys.Select(c => musig.GenerateNonce(c)).ToArray();
 			musig.Tweak(treeInfo.OutputPubKey.Tweak.Span);
 			musig.ProcessNonces(nonces.Select(n => n.CreatePubNonce()).ToArray());
 			sigs = ecPrivateKeys.Select((c, i) => musig.Sign(c, nonces[i])).ToArray();
@@ -4048,7 +4048,7 @@ namespace NBitcoin.Tests
 				if (i == detSigner)
 					continue;
 				var musig = new MusigContext(pks, msg, pks[i]);
-				nonces[i] = musig.GenerateNonce(pks[i]);
+				nonces[i] = musig.GenerateNonce();
 			}
 
 			var sigs = new MusigPartialSignature[keys.Length];
