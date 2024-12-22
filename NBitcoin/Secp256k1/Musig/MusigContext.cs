@@ -39,10 +39,14 @@ namespace NBitcoin.Secp256k1.Musig
 		internal Scalar scalar_tweak;
 		internal readonly byte[] msg32;
 		internal Scalar gacc;
-		internal bool processed_nonce;
 		internal SessionValues? SessionCache;
+		SessionValues GetSessionCacheOrThrow() => SessionCache ?? throw InvalidOperationCallNonceProcess();
 
 		private MusigPubNonce? aggregateNonce;
+		MusigPubNonce GetAggregateNonceOrThrow() => aggregateNonce ?? throw InvalidOperationCallNonceProcess();
+
+		private static Exception InvalidOperationCallNonceProcess() => new InvalidOperationException("You need to run MusigContext.Process or MusigContext.ProcessNonces first");
+
 		public MusigPubNonce? AggregateNonce => aggregateNonce;
 		public ECPubKey AggregatePubKey => aggregatePubKey;
 
@@ -61,7 +65,6 @@ namespace NBitcoin.Secp256k1.Musig
 			scalar_tweak = musigContext.scalar_tweak;
 			gacc = musigContext.gacc;
 			tacc = musigContext.tacc;
-			processed_nonce = musigContext.processed_nonce;
 			SessionCache = musigContext.SessionCache?.Clone();
 			aggregateNonce = musigContext.aggregateNonce;
 			aggregatePubKey = musigContext.aggregatePubKey;
@@ -111,8 +114,7 @@ namespace NBitcoin.Secp256k1.Musig
 		/// <exception cref="ArgumentException"></exception>
 		public ECPubKey Tweak(ReadOnlySpan<byte> tweak32, bool xOnly)
 		{
-			if (processed_nonce)
-				throw new InvalidOperationException("This function can only be called before MusigContext.Process");
+			AssertNonceNotProcessed();
 			if (tweak32.Length != 32)
 				throw new ArgumentException(nameof(tweak32), "The tweak should have a size of 32 bytes");
 			scalar_tweak = new Scalar(tweak32, out int overflow);
@@ -140,9 +142,14 @@ namespace NBitcoin.Secp256k1.Musig
 		/// <exception cref="InvalidOperationException"></exception>
 		public void UseAdaptor(ECPubKey adaptor)
 		{
-			if (processed_nonce)
-				throw new InvalidOperationException("This function can only be called before MusigContext.Process");
+			AssertNonceNotProcessed();
 			this.adaptor = adaptor;
+		}
+
+		private void AssertNonceNotProcessed()
+		{
+			if (SessionCache is not null)
+				throw new InvalidOperationException("This function can only be called before MusigContext.Process or MusigContext.ProcessNonces");
 		}
 
 		public void ProcessNonces(MusigPubNonce[] nonces)
@@ -151,10 +158,7 @@ namespace NBitcoin.Secp256k1.Musig
 		}
 		public void Process(MusigPubNonce aggregatedNonce)
 		{
-			if (processed_nonce)
-				throw new InvalidOperationException($"Nonce already processed");
 			var q = this.AggregatePubKey;
-
 			SessionValues session_cache = new SessionValues();
 			Span<byte> qbytes = stackalloc byte[32];
 			Span<GEJ> aggnonce_ptj = stackalloc GEJ[2];
@@ -183,7 +187,6 @@ namespace NBitcoin.Secp256k1.Musig
 			session_cache.r = r;
 
 			SessionCache = session_cache;
-			processed_nonce = true;
 			this.aggregateNonce = aggregatedNonce;
 		}
 
@@ -237,21 +240,20 @@ namespace NBitcoin.Secp256k1.Musig
 				throw new ArgumentNullException(nameof(pubNonce));
 			if (pubKey == null)
 				throw new ArgumentNullException(nameof(pubKey));
-			if (SessionCache is null)
-				throw new InvalidOperationException("You need to run MusigContext.Process first");
+			var sessionCache = GetSessionCacheOrThrow();
 
 			var s = partialSignature.E;
 			var R_s1 = pubNonce.K1;
 			var R_s2 = pubNonce.K2;
-			var Re_s_ = ctx.EcMultContext.Mult(R_s2.ToGroupElementJacobian(), SessionCache.b, null).AddVariable(R_s1).ToGroupElement().NormalizeVariable();
-			var Re_s = SessionCache.r.y.IsOdd ? Re_s_.Negate() : Re_s_;
+			var Re_s_ = ctx.EcMultContext.Mult(R_s2.ToGroupElementJacobian(), sessionCache.b, null).AddVariable(R_s1).ToGroupElement().NormalizeVariable();
+			var Re_s = sessionCache.r.y.IsOdd ? Re_s_.Negate() : Re_s_;
 			var P = pubKey.Q;
 			var a = ECPubKey.secp256k1_musig_keyaggcoef(this, pubKey);
 			var g = aggregatePubKey.Q.y.IsOdd ? Scalar.MinusOne : Scalar.One;
 			var g_ = g * gacc;
 
 			/* Compute -s*G + e*pkj + rj */
-			var res = ctx.EcMultContext.Mult(P.ToGroupElementJacobian(), SessionCache.e * a * g_, s.Negate()).AddVariable(Re_s);
+			var res = ctx.EcMultContext.Mult(P.ToGroupElementJacobian(), sessionCache.e * a * g_, s.Negate()).AddVariable(Re_s);
 			return res.IsInfinity;
 		}
 
@@ -259,16 +261,15 @@ namespace NBitcoin.Secp256k1.Musig
 		{
 			if (partialSignatures == null)
 				throw new ArgumentNullException(nameof(partialSignatures));
-			if (this.SessionCache is null)
-				throw new InvalidOperationException("You need to run MusigContext.Process first");
+			var sessionCache = GetSessionCacheOrThrow();
 			var s = Scalar.Zero;
 			foreach (var sig in partialSignatures)
 			{
 				s = s + sig.E;
 			}
 			var g = pk_parity ? Scalar.MinusOne : Scalar.One;
-			s = s + g * SessionCache.e * tacc;
-			return new SecpSchnorrSignature(this.SessionCache.r.x, s);
+			s = s + g * sessionCache.e * tacc;
+			return new SecpSchnorrSignature(sessionCache.r.x, s);
 		}
 
 		/// <summary>
@@ -313,12 +314,10 @@ namespace NBitcoin.Secp256k1.Musig
 		/// <exception cref="ArgumentNullException"></exception>
 		public MusigPrivNonce GenerateDeterministicNonce(ECPrivKey privKey, byte[]? rand = null)
 		{
-			if (!processed_nonce)
-				throw new InvalidOperationException("You need to call Process or ProcessNonces with the nonces of all other participants");
 			if (privKey is null)
 				throw new ArgumentNullException(nameof(privKey));
-			if (SessionCache is null || aggregateNonce is null)
-				throw new InvalidOperationException("You need to run MusigContext.Process first");
+			var sessionCache = GetSessionCacheOrThrow();
+			var aggregateNonce = GetAggregateNonceOrThrow();
 
 			var sk_ = rand is null ? privKey.sec.ToBytes() : xor32(privKey.sec.ToBytes(), tagged_hash("MuSig/aux", rand));
 			var aggothernonce = aggregateNonce;
@@ -331,7 +330,6 @@ namespace NBitcoin.Secp256k1.Musig
 
 			var secnonce = new MusigPrivNonce(new ECPrivKey(k_1, ctx, false), new ECPrivKey(k_2, ctx, false), privKey.CreatePubKey());
 			var pubnonce = secnonce.CreatePubNonce();
-			processed_nonce = false;
 			ProcessNonces(new[] { pubnonce, aggregateNonce });
 			return secnonce;
 		}
@@ -382,17 +380,6 @@ namespace NBitcoin.Secp256k1.Musig
 				throw new ArgumentNullException(nameof(privNonce), "Nonce already used, a nonce should never be used to sign twice");
 			if (SessionCache is null)
 				throw new InvalidOperationException("You need to run MusigContext.Process first");
-
-			//{
-			//	/* Check in constant time if secnonce has been zeroed. */
-			//	size_t i;
-			//	unsigned char secnonce_acc = 0;
-			//	for (i = 0; i < sizeof(*secnonce) ; i++) {
-			//		secnonce_acc |= secnonce->data[i];
-			//	}
-			//	secp256k1_declassify(ctx, &secnonce_acc, sizeof(secnonce_acc));
-			//	ARG_CHECK(secnonce_acc != 0);
-			//}
 
 			var pre_session = this;
 			var session_cache = SessionCache;
@@ -465,13 +452,12 @@ namespace NBitcoin.Secp256k1.Musig
 				throw new ArgumentNullException(nameof(adaptorSecret));
 			if (signature == null)
 				throw new ArgumentNullException(nameof(signature));
-			if (!processed_nonce || SessionCache is null)
-				throw new InvalidOperationException("You need to run MusigContext.Process first");
+			var sessionCache = GetSessionCacheOrThrow();
 			if (adaptor != null && adaptor != adaptorSecret.CreatePubKey())
 				throw new ArgumentException("The adaptor secret is not the one used in UseAdaptor", paramName: nameof(adaptorSecret));
 			var s = signature.s;
 			var t = adaptorSecret.sec;
-			if (SessionCache.r.y.IsOdd)
+			if (sessionCache.r.y.IsOdd)
 			{
 				t = t.Negate();
 			}
@@ -522,7 +508,7 @@ namespace NBitcoin.Secp256k1.Musig
 
 			byte[] sessionId = new byte[32];
 			for (int i = 0; i < 8; i++)
-				sessionId[i] = (byte)(counter >> (8*i));
+				sessionId[i] = (byte)(counter >> (8 * i));
 			return GenerateNonce(sessionId, signingKey, null);
 		}
 
@@ -541,8 +527,14 @@ namespace NBitcoin.Secp256k1.Musig
 		/// <returns>A private nonce whose public part intended to be sent to other signers</returns>
 		public MusigPrivNonce GenerateNonce(byte[]? sessionId, ECPrivKey? signingKey, byte[]? extraInput)
 		{
-			var pubkey = signingKey?.CreatePubKey() ?? SigningPubKey ?? throw new InvalidOperationException("SigningPubKey or signingKey isn't passed to this context");
-			return MusigPrivNonce.GenerateMusigNonce(pubkey, ctx, sessionId, signingKey, this.msg32, this.aggregatePubKey.ToXOnlyPubKey(), extraInput);
+			ECPubKey pk = (signingKey?.CreatePubKey(), SigningPubKey) switch
+			{
+				({ } k1, null) => k1,
+				(null, { } k2) => k2,
+				({ } k1, { } k2) => k1 == k2 ? k1 : throw new ArgumentException(paramName: nameof(signingKey), message: "The signing pubkey passed in the context's constructor doesn't match the public key of the signingKey"),
+				(null, null) => throw new ArgumentNullException(paramName: nameof(signingKey), message: "Either the signing pubkey should be passed in the context's constructor or the signingKey should be passed"),
+			};
+			return MusigPrivNonce.GenerateMusigNonce(pk, ctx, sessionId, signingKey, this.msg32, this.aggregatePubKey.ToXOnlyPubKey(), extraInput);
 		}
 	}
 }

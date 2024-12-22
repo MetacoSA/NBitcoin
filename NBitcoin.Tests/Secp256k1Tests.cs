@@ -3987,7 +3987,7 @@ namespace NBitcoin.Tests
 			var n2 = musig.GenerateNonce();
 			Assert.NotEqual(Encoders.Hex.EncodeData(n1.CreatePubNonce().ToBytes()), Encoders.Hex.EncodeData(n2.CreatePubNonce().ToBytes()));
 			//
-
+			musig = new MusigContext(ecPubKeys, msg32);
 			nonces = ecPrivateKeys.Select(c => musig.GenerateNonce(c)).ToArray();
 			musig.Tweak(treeInfo.OutputPubKey.Tweak.Span);
 			musig.ProcessNonces(nonces.Select(n => n.CreatePubNonce()).ToArray());
