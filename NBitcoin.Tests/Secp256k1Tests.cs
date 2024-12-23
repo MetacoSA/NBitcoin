@@ -4038,7 +4038,7 @@ namespace NBitcoin.Tests
 		{
 			var keys = Enumerable.Range(0, 5).Select(k => new ECPrivKey(random_scalar_order(), ctx, true)).ToArray();
 			var pks = keys.Select(k => k.CreatePubKey()).ToArray();
-			var aggKeys = ECPubKey.MusigAggregate(pks, null);
+			var aggKeys = ECPubKey.MusigAggregate(pks);
 			var nonces = new MusigPrivNonce[keys.Length];
 			var msg = RandomUtils.GetBytes(32);
 
@@ -4522,6 +4522,7 @@ namespace NBitcoin.Tests
 			var pubkeys2 = GetArray<string>(root["pubkeys"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(p))).ToArray();
 			var sorted_pubkeys2 = GetArray<string>(root["sorted_pubkeys"]).Select(p => ECPubKey.Create(Encoders.Hex.DecodeData(p))).ToArray();
 			Array.Sort(pubkeys2);
+			AssertEx.CollectionEquals(pubkeys2, sorted_pubkeys2);
 		}
 
 		[Fact]

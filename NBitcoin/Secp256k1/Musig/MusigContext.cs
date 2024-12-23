@@ -54,7 +54,46 @@ namespace NBitcoin.Secp256k1.Musig
 		private Context ctx;
 		public ECPubKey? SigningPubKey { get; }
 
+		public MusigContext Clone()
+		{
+			return new MusigContext(this);
+		}
 
+
+		/// <inheritdoc cref="MusigContext.MusigContext(ECPubKey[], bool, ReadOnlySpan{byte}, ECPubKey?)"/>
+		public MusigContext(ECPubKey[] pubkeys, ReadOnlySpan<byte> msg32, ECPubKey? signingPubKey = null)
+			: this(pubkeys, false, msg32, signingPubKey)
+		{
+		}
+		/// <summary>
+		/// Create a new musig context
+		/// </summary>
+		/// <param name="pubkeys"><inheritdoc cref="ECPubKey.MusigAggregate(ECPubKey[], bool)" path="/param[@name='pubkeys']"/></param>
+		/// <param name="sort"><inheritdoc cref="ECPubKey.MusigAggregate(ECPubKey[], bool)" path="/param[@name='sort']"/></param>
+		/// <param name="msg32">The 32 bytes message to sign</param>
+		/// <param name="signingPubKey">The pubkey of the key that will sign in this context</param>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="ArgumentException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
+		public MusigContext(ECPubKey[] pubkeys, bool sort, ReadOnlySpan<byte> msg32, ECPubKey? signingPubKey = null)
+		{
+			if (pubkeys == null)
+				throw new ArgumentNullException(nameof(pubkeys));
+			if (pubkeys.Length is 0)
+				throw new ArgumentException(nameof(pubkeys), "There should be at least one pubkey in pubKeys");
+			if (signingPubKey != null && !pubkeys.Contains(signingPubKey))
+				throw new InvalidOperationException("The pubkeys do not contain the signing public key");
+			this.SigningPubKey = signingPubKey;
+			this.aggregatePubKey = ECPubKey.MusigAggregate(pubkeys, this, sort);
+			this.ctx = pubkeys[0].ctx;
+			this.msg32 = msg32.ToArray();
+		}
+
+		/// <summary>
+		/// Clone a musig context
+		/// </summary>
+		/// <param name="musigContext"></param>
+		/// <exception cref="ArgumentNullException"></exception>
 		public MusigContext(MusigContext musigContext)
 		{
 			if (musigContext == null)
@@ -71,25 +110,6 @@ namespace NBitcoin.Secp256k1.Musig
 			ctx = musigContext.ctx;
 			msg32 = musigContext.msg32;
 			SigningPubKey = musigContext.SigningPubKey;
-		}
-
-		public MusigContext Clone()
-		{
-			return new MusigContext(this);
-		}
-
-		public MusigContext(ECPubKey[] pubKeys, ReadOnlySpan<byte> msg32, ECPubKey? signingPubKey = null)
-		{
-			if (pubKeys == null)
-				throw new ArgumentNullException(nameof(pubKeys));
-			if (pubKeys.Length is 0)
-				throw new ArgumentException(nameof(pubKeys), "There should be at least one pubkey in pubKeys");
-			if (signingPubKey != null && !pubKeys.Contains(signingPubKey))
-				throw new InvalidOperationException("The pubkeys do not contain the signing public key");
-			this.SigningPubKey = signingPubKey;
-			this.aggregatePubKey = ECPubKey.MusigAggregate(pubKeys, this);
-			this.ctx = pubKeys[0].ctx;
-			this.msg32 = msg32.ToArray();
 		}
 
 		/// <summary>
@@ -275,12 +295,9 @@ namespace NBitcoin.Secp256k1.Musig
 		/// <summary>
 		/// <inheritdoc cref="DeterministicSign(ECPrivKey, byte[])"/>
 		/// </summary>
-		/// <param name="privKey"><inheritdoc cref="DeterministicSign(ECPrivKey, byte[])" path="/param/[@name='privKey']"></inheritdoc>/></param>
+		/// <param name="privKey"><inheritdoc cref="DeterministicSign(ECPrivKey, byte[])" path="/param[@name='privKey']"></inheritdoc></param>
 		/// <returns></returns>
-		public (MusigPartialSignature Signature, MusigPubNonce PubNonce) DeterministicSign(ECPrivKey privKey)
-		{
-			return DeterministicSign(privKey, null);
-		}
+		public (MusigPartialSignature Signature, MusigPubNonce PubNonce) DeterministicSign(ECPrivKey privKey) => DeterministicSign(privKey, null);
 
 		/// <summary>
 		/// <para>Generates a deterministic nonce and sign with it.</para>
@@ -294,7 +311,7 @@ namespace NBitcoin.Secp256k1.Musig
 		/// <returns>The partial signature with the deterministic public nonce of this signer</returns>
 		/// <exception cref="ArgumentNullException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
-		public (MusigPartialSignature Signature, MusigPubNonce PubNonce) DeterministicSign(ECPrivKey privKey, byte[]? rand = null)
+		public (MusigPartialSignature Signature, MusigPubNonce PubNonce) DeterministicSign(ECPrivKey privKey, byte[]? rand)
 		{
 			var nonce = GenerateDeterministicNonce(privKey, rand);
 			return (Sign(privKey, nonce), nonce.CreatePubNonce());

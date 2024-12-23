@@ -74,17 +74,28 @@ namespace NBitcoin.Secp256k1
 
 		const string MusigTag = "KeyAgg coefficient";
 
-		public static ECPubKey MusigAggregate(ECPubKey[] pubkeys)
+		/// <summary>
+		/// Aggregate the public keys into a single one
+		/// </summary>
+		/// <param name="pubkeys">The public keys to aggregate</param>
+		/// <param name="sort">If true, the pubkeys will be sorted before being aggregated</param>
+		/// <returns></returns>
+		public static ECPubKey MusigAggregate(ECPubKey[] pubkeys, bool sort = false)
 		{
-			return MusigAggregate(pubkeys, null);
+			return MusigAggregate(pubkeys, null, sort);
 		}
 
-		internal static ECPubKey MusigAggregate(ECPubKey[] pubkeys, MusigContext? preSession)
+		internal static ECPubKey MusigAggregate(ECPubKey[] pubkeys, MusigContext? preSession, bool sort)
 		{
 			if (pubkeys == null)
 				throw new ArgumentNullException(nameof(pubkeys));
 			if (pubkeys.Length is 0)
 				throw new ArgumentNullException(nameof(pubkeys), "At least one pubkey should be passed");
+			if (sort)
+			{
+				pubkeys = pubkeys.ToArray();
+				Array.Sort(pubkeys);
+			}
 			/* No point on the curve has an X coordinate equal to 0 */
 			var second_pk_x = FE.Zero;
 			for (int i = 1; i < pubkeys.Length; i++)
