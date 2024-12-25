@@ -8,7 +8,7 @@ sudo ln "$HOME/.dotnet/dotnet" /usr/bin/dotnet
 
 wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
 
-# https://dotnetcli.azureedge.net/dotnet/release-metadata/releases-index.json
+# https://builds.dotnet.microsoft.com/dotnet/release-metadata/releases-index.json
 chmod +x ./dotnet-install.sh
 ./dotnet-install.sh --version 9.0.101 --channel LTS
 
