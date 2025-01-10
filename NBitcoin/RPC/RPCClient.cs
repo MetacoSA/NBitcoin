@@ -904,12 +904,7 @@ namespace NBitcoin.RPC
 							}
 							return;
 						}
-						if (httpResponse.Content == null ||
-							(httpResponse.Content.Headers.ContentLength == null || httpResponse.Content.Headers.ContentLength.Value == 0) ||
-							!httpResponse.Content.Headers.ContentType.MediaType.Equals("application/json", StringComparison.Ordinal))
-						{
-							httpResponse.EnsureSuccessStatusCode(); // Let's throw
-						}
+						httpResponse.EnsureSuccessStatusCode(); // Let's throw
 					}
 				}
 			}
