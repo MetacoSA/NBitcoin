@@ -996,7 +996,10 @@ namespace NBitcoin.RPC
 						{
 							response = RPCResponse.Load(await httpResponse.Content.ReadAsStreamAsync());
 							if (request.ThrowIfRPCError)
+							{
 								response.ThrowIfError();
+								httpResponse.EnsureSuccessStatusCode();
+							}
 						}
 						else if (await IsWorkQueueFull(httpResponse))
 						{
