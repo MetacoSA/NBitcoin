@@ -165,5 +165,31 @@ namespace NBitcoin.Tests
 			var v = witver > 0 ? witver + 0x50 : 0;
 			return (new[] { (byte)v, (byte)witprog.Length }).Concat(witprog);
 		}
+
+[Fact]
+		public void GenericDataTests()
+		{
+			var bech32Test =
+				"LNURL1DP68GURN8GHJ7UM9WFMXJCM99E3K7MF0V9CXJ0M385EKVCENXC6R2C35XVUKXEFCV5MKVV34X5EKZD3EV56NYD3HXQURZEPEXEJXXEPNXSCRVWFNV9NXZCN9XQ6XYEFHVGCXXCMYXYMNSERXFQ5FNS";
+			var lnurlBech32 = Bech32Encoder.ExtractEncoderFromString(bech32Test);
+			lnurlBech32.StrictLength = false;
+			var lnurlData = lnurlBech32.DecodeDataRaw(bech32Test, out var bech32EncodingType);
+			Assert.Equal(Bech32EncodingType.BECH32, bech32EncodingType);
+			Assert.Equal("https://service.com/api?q=3fc3645b439ce8e7f2553a69e5267081d96dcd340693afabe04be7b0ccd178df",
+					Encoding.UTF8.GetString(lnurlData));
+
+			var bechm32Test =
+				"tark1x0lm8hhr2wc6n6lyemtyh9rz8rg2ftpkfun46aca56kjg3ws0tsztfpuanaquxc6faedvjk3tax0575y6perapg3e95654pk8r4fjecs5fyd2";
+			var arkBech32m = Bech32Encoder.ExtractEncoderFromString(bechm32Test);
+			arkBech32m.StrictLength = false;
+			var arkData = arkBech32m.DecodeDataRaw(bechm32Test, out var bech32mEncodingType);
+			Assert.Equal(Bech32EncodingType.BECH32M, bech32mEncodingType);
+			Assert.Equal(64, arkData.Length);
+
+			var key1 = arkData.Take(32).ToArray();
+			var key2 = arkData.Skip(32).ToArray();
+			Assert.Equal("33ffb3dee353b1a9ebe4ced64b946238d0a4ac364f275d771da6ad2445d07ae0", Encoders.Hex.EncodeData(key1));
+			Assert.Equal("25a43cecfa0e1b1a4f72d64ad15f4cfa7a84d0723e8511c969aa543638ea9967", Encoders.Hex.EncodeData(key2));
+		}
 	}
 }
