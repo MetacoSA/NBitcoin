@@ -1724,7 +1724,7 @@ namespace NBitcoin.RPC
 			{
 				try
 				{
-					var feeRateDecimal = feeRate.FeePerK.ToDecimal(MoneyUnit.Satoshi);
+					var feeRateDecimal = feeRate.FeePerK.ToDecimal(MoneyUnit.BTC);
 					response = await SendCommandAsync(RPCOperations.testmempoolaccept, cancellationToken, new[] { transaction.ToHex() }, feeRateDecimal).ConfigureAwait(false);
 				}
 				catch (RPCException ex) when (ex.Message == "Expected type bool, got number")
