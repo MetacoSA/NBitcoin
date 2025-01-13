@@ -1915,7 +1915,10 @@ namespace NBitcoin.Tests
 				tx = builder.Network.CreateTransaction();
 				foreach (var coin in spendableCoins)
 					tx.Inputs.Add(coin.Outpoint);
+				var total = spendableCoins.Sum(c => c.Amount);
 				tx.Outputs.Add(new TxOut(Money.Coins(45), kOut));
+				// Change output
+				tx.Outputs.Add(new TxOut(total - Money.Coins(45) - Money.Satoshis(5000), spendableCoins.First().ScriptPubKey));
 				var psbtUnFinalized = PSBT.FromTransaction(tx, builder.Network);
 
 				var type = SigHash.All;
@@ -1939,8 +1942,12 @@ namespace NBitcoin.Tests
 				result.PSBT.Finalize();
 
 				var txResult = result.PSBT.ExtractTransaction();
-				var acceptResult = client.TestMempoolAccept(txResult, new TestMempoolParameters() { MaxFeeRate = new FeeRate(10_000m) });
+				var estimatedFeeRate = result.PSBT.GetEstimatedFeeRate();
+				var acceptResult = client.TestMempoolAccept(txResult, new TestMempoolParameters() { MaxFeeRate = new FeeRate(estimatedFeeRate.FeePerK + new Money(1)) });
 				Assert.True(acceptResult.IsAllowed, acceptResult.RejectReason);
+				acceptResult = client.TestMempoolAccept(txResult, new TestMempoolParameters() { MaxFeeRate = new FeeRate(estimatedFeeRate.FeePerK - Money.Satoshis(10)) });
+				Assert.False(acceptResult.IsAllowed, acceptResult.RejectReason);
+				Assert.Equal("max-fee-exceeded", acceptResult.RejectReason);
 			}
 		}
 
