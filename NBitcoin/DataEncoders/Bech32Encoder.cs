@@ -420,6 +420,13 @@ namespace NBitcoin.DataEncoders
 			if (encodingType == null)
 				throw new ArgumentNullException(nameof(encodingType));
 #if HAS_SPAN
+			if (SquashBytes)
+				data = ByteSquasher(data, 8, 5).AsSpan();
+#else
+				data = ByteSquasher(data, 8, 5);
+#endif
+
+#if HAS_SPAN
 			Span<byte> combined = _Hrp.Length + 1 + data.Length + 6 is int v && v > 256 ? new byte[v] :
 																	  stackalloc byte[v];
 #else
@@ -434,6 +441,7 @@ namespace NBitcoin.DataEncoders
 			combinedOffset += _Hrp.Length;
 			combined[combinedOffset] = 49;
 			combinedOffset++;
+
 #if HAS_SPAN
 			data.CopyTo(combined.Slice(combinedOffset));
 #else
@@ -446,9 +454,11 @@ namespace NBitcoin.DataEncoders
 #else
 			var checkSum = CreateChecksum(data, offset, count, encodingType);
 #endif
+
 #if HAS_SPAN
 			checkSum.CopyTo(combined.Slice(combinedOffset, 6));
 			combinedOffset += 6;
+
 			for (int i = 0; i < data.Length + 6; i++)
 #else
 			Array.Copy(checkSum, 0, combined, combinedOffset, 6);
@@ -486,6 +496,8 @@ namespace NBitcoin.DataEncoders
 			return DecodeDataCore(encoded, out encodingType);
 		}
 		public bool StrictLength { get; set; } = true;
+		public bool SquashBytes { get; set; } = false;
+
 		protected virtual byte[] DecodeDataCore(string encoded, out Bech32EncodingType encodingType)
 		{
 			if (encoded == null)
@@ -543,11 +555,60 @@ namespace NBitcoin.DataEncoders
 					throw new Bech32FormatException($"Error in Bech32 string at {String.Join(",", error)}", error);
 			}
 #if HAS_SPAN
-			return data.Slice(0, data.Length - 6).ToArray();
+			var arr = data.Slice(0, data.Length - 6).ToArray();
 #else
-			return data.Take(data.Length - 6).ToArray();
+			var arr = data.Take(data.Length - 6).ToArray();
 #endif
+			if (SquashBytes)
+			{
+				arr = ByteSquasher(arr, 5, 8);
+				if (arr is null)
+					throw new FormatException("Invalid squashed bech32");
+			}
+			return arr;
 		}
+#if HAS_SPAN
+		private static byte[] ByteSquasher(ReadOnlySpan<byte> input, int inputWidth, int outputWidth)
+#else
+		private static byte[] ByteSquasher(byte[] input, int inputWidth, int outputWidth)
+#endif
+		{
+			var bitstash = 0;
+			var accumulator = 0;
+			var output = new List<byte>();
+			var maxOutputValue = (1 << outputWidth) - 1;
+
+			for (var i = 0; i < input.Length; i++)
+			{
+				var c = input[i];
+				if (c >> inputWidth != 0)
+				{
+					return null;
+				}
+
+				accumulator = (accumulator << inputWidth) | c;
+				bitstash += inputWidth;
+				while (bitstash >= outputWidth)
+				{
+					bitstash -= outputWidth;
+					output.Add((byte)((accumulator >> bitstash) & maxOutputValue));
+				}
+			}
+
+			// pad if going from 8 to 5
+			if (inputWidth == 8 && outputWidth == 5)
+			{
+				if (bitstash != 0) output.Add((byte)((accumulator << (outputWidth - bitstash)) & maxOutputValue));
+			}
+			else if (bitstash >= inputWidth || ((accumulator << (outputWidth - bitstash)) & maxOutputValue) != 0)
+			{
+				// no pad from 5 to 8 allowed
+				return null;
+			}
+
+			return output.ToArray();
+		}
+
 #if HAS_SPAN
 		// We don't use this one, but old version of NBitcoin.Altcoins does, we prefer not causing problems if there is a mismatch of
 		// assembly between NBitcoin.Altcoins and NBitcoin.
