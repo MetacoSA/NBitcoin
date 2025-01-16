@@ -423,7 +423,12 @@ namespace NBitcoin.DataEncoders
 			if (SquashBytes)
 				data = ByteSquasher(data, 8, 5).AsSpan();
 #else
-				data = ByteSquasher(data, 8, 5);
+			if (SquashBytes)
+			{
+				data = ByteSquasher(data, offset, count, 8, 5);
+				count = data.Length;
+				offset = 0;
+			}
 #endif
 
 #if HAS_SPAN
@@ -561,7 +566,11 @@ namespace NBitcoin.DataEncoders
 #endif
 			if (SquashBytes)
 			{
+#if HAS_SPAN
 				arr = ByteSquasher(arr, 5, 8);
+#else
+				arr = ByteSquasher(arr, 0, arr.Length, 5, 8);
+#endif
 				if (arr is null)
 					throw new FormatException("Invalid squashed bech32");
 			}
@@ -570,15 +579,18 @@ namespace NBitcoin.DataEncoders
 #if HAS_SPAN
 		private static byte[] ByteSquasher(ReadOnlySpan<byte> input, int inputWidth, int outputWidth)
 #else
-		private static byte[] ByteSquasher(byte[] input, int inputWidth, int outputWidth)
+		private static byte[] ByteSquasher(byte[] input, int offset, int count, int inputWidth, int outputWidth)
 #endif
 		{
 			var bitstash = 0;
 			var accumulator = 0;
 			var output = new List<byte>();
 			var maxOutputValue = (1 << outputWidth) - 1;
-
+#if HAS_SPAN
 			for (var i = 0; i < input.Length; i++)
+#else
+			for (var i = offset; i < count; i++)
+#endif
 			{
 				var c = input[i];
 				if (c >> inputWidth != 0)
