@@ -1478,13 +1478,13 @@ namespace NBitcoin.Tests
 
 				var tx = Transaction.Create(network);
 				tx.Inputs.Add(coinBaseTx, 0);
-				tx.Outputs.Add(Money.Coins(49.9999m), new Key().PubKey.WitHash.GetAddress(network));
+				tx.Outputs.Add(Money.Coins(49.998m), new Key().PubKey.WitHash.GetAddress(network));
 				tx.Sign(key.GetBitcoinSecret(network), coinBaseTx.Outputs.AsCoins().First());
 				var valid = tx.Check();
 
 				var doubleSpend = Transaction.Create(network);
 				doubleSpend.Inputs.Add(coinBaseTx, 0);
-				doubleSpend.Outputs.Add(Money.Coins(49.998m), new Key().PubKey.WitHash.GetAddress(network));
+				doubleSpend.Outputs.Add(Money.Coins(49.9999m), new Key().PubKey.WitHash.GetAddress(network));
 				doubleSpend.Sign(key.GetBitcoinSecret(network), coinBaseTx.Outputs.AsCoins().First());
 				valid = doubleSpend.Check();
 
