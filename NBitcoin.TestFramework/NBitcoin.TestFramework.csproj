@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<VersionPrefix>3.0.32</VersionPrefix>
+		<VersionPrefix>3.0.33</VersionPrefix>
 		<LangVersion>12.0</LangVersion>
 		<TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
 		<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netstandard2.1</TargetFrameworks>
