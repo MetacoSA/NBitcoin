@@ -810,6 +810,7 @@ namespace NBitcoin
 		public static Network Main => Bitcoin.Instance.Mainnet;
 
 		public static Network TestNet => Bitcoin.Instance.Testnet;
+		public static Network TestNet4 => Bitcoin.Instance.Testnet4;
 
 		public static Network RegTest => Bitcoin.Instance.Regtest;
 		internal const uint BITCOIN_MAX_P2P_VERSION = 70016;
