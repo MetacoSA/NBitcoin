@@ -5,9 +5,10 @@ using System.IO;
 using System.Linq;
 using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
-using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
+using Map = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
 using NBitcoin.BuilderExtensions;
 using System.Diagnostics.CodeAnalysis;
+using NBitcoin.BIP370;
 
 namespace NBitcoin
 {
@@ -18,7 +19,7 @@ namespace NBitcoin
 		public static byte[] PSBT_OUT_ALL { get; }
 		static PSBTConstants()
 		{
-			PSBT_GLOBAL_ALL = new byte[] { PSBT_GLOBAL_UNSIGNED_TX, PSBT_GLOBAL_XPUB };
+			PSBT_GLOBAL_ALL = new byte[] { PSBT_GLOBAL_VERSION, PSBT_GLOBAL_UNSIGNED_TX, PSBT_GLOBAL_XPUB };
 			PSBT_IN_ALL = new byte[]
 				{
 					PSBT_IN_NON_WITNESS_UTXO,
@@ -39,6 +40,8 @@ namespace NBitcoin
 		}
 		// Note: These constants are in reverse byte order because serialization uses LSB
 		// Global types
+
+		public const byte PSBT_GLOBAL_VERSION = 0xFB;
 		public const byte PSBT_GLOBAL_UNSIGNED_TX = 0x00;
 		public const byte PSBT_GLOBAL_XPUB = 0x01;
 
@@ -103,6 +106,7 @@ namespace NBitcoin
 		}
 	}
 
+
 	public class PSBT : IEquatable<PSBT>
 	{
 		// Magic bytes
@@ -111,7 +115,8 @@ namespace NBitcoin
 
 		byte[] XPubVersionBytes => _XPubVersionBytes = _XPubVersionBytes ?? Network.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, true)
 																		 ?? throw new InvalidOperationException("The network does not allow xpubs");
-		internal Transaction tx;
+
+		internal virtual Transaction tx { get; set; }
 
 		public SortedDictionary<BitcoinExtPubKey, RootedKeyPath> GlobalXPubs { get; } = new SortedDictionary<BitcoinExtPubKey, RootedKeyPath>(BitcoinExtPubKeyComparer.Instance);
 		internal class BitcoinExtPubKeyComparer : IComparer<BitcoinExtPubKey>
@@ -133,10 +138,10 @@ namespace NBitcoin
 			}
 		}
 
-		public PSBTInputList Inputs { get; }
-		public PSBTOutputList Outputs { get; }
+		public PSBTInputList Inputs { get; } = new();
+		public PSBTOutputList Outputs { get; } = new();
 
-		internal UnKnownKVMap unknown = new UnKnownKVMap(BytesComparer.Instance);
+		internal virtual Map unknown { get; set; } = new Map(BytesComparer.Instance);
 		public static PSBT Parse(string hexOrBase64, Network network)
 		{
 			if (network == null)
@@ -177,7 +182,30 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(network));
 			var stream = new BitcoinStream(rawBytes);
 			stream.ConsensusFactory = network.Consensus.ConsensusFactory;
-			var ret = new PSBT(stream, network);
+
+			var magicBytes = stream.Inner.ReadBytes(PSBT_MAGIC_BYTES.Length);
+			if (!magicBytes.SequenceEqual(PSBT_MAGIC_BYTES))
+			{
+				throw new FormatException("Invalid PSBT magic bytes");
+			}
+			var maps = new List<Map>();
+			while(stream.Inner.CanRead)
+			{
+				maps.Add(PSBTUtils.ParseRawMap(stream));
+			}
+			var globalMap = maps[0];
+			if (globalMap.TryGetValue([PSBTConstants.PSBT_GLOBAL_VERSION], out var psbtVersion) &&
+			    psbtVersion.SequenceEqual(new byte[] { 2 }))
+			{
+				return new PSBT2(maps, network);
+			}
+			if(psbtVersion is not null && !psbtVersion.SequenceEqual(new byte[] { 0 }))
+			{
+				throw new FormatException("Invalid PSBT version");
+			}
+
+
+			var ret = new PSBT(maps, network);
 			return ret;
 		}
 
@@ -209,25 +237,19 @@ namespace NBitcoin
 			}
 		}
 
-		internal PSBT(BitcoinStream stream, Network network)
+		internal PSBT(List<Map> maps, Network network)
 		{
-			if (network == null)
-				throw new ArgumentNullException(nameof(network));
-			Network = network;
-			Inputs = new PSBTInputList();
-			Outputs = new PSBTOutputList();
-			var magicBytes = stream.Inner.ReadBytes(PSBT_MAGIC_BYTES.Length);
-			if (!magicBytes.SequenceEqual(PSBT_MAGIC_BYTES))
-			{
-				throw new FormatException("Invalid PSBT magic bytes");
-			}
+			Network = network ?? throw new ArgumentNullException(nameof(network));
+			Load(maps);
+		}
 
-			// It will be reassigned in `ReadWriteAsVarString` so no worry to assign 0 length array here.
-			byte[] k = new byte[0];
-			byte[] v = new byte[0];
-			stream.ReadWriteAsVarString(ref k);
-			while (k.Length != 0)
+		protected virtual void Load(List<Map> maps)
+		{
+			var globalMap = maps[0];
+
+			while (globalMap.Pop(out byte[] k, out byte[] v))
 			{
+
 				switch (k[0])
 				{
 					case PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX:
@@ -235,13 +257,7 @@ namespace NBitcoin
 							throw new FormatException("Invalid PSBT. Contains illegal value in key global tx");
 						if (tx != null)
 							throw new FormatException("Duplicate Key, unsigned tx already provided");
-						tx = stream.ConsensusFactory.CreateTransaction();
-						uint size = 0;
-						stream.ReadWriteAsVarInt(ref size);
-						var pos = stream.Counter.ReadenBytes;
-						tx.ReadWrite(stream);
-						if (stream.Counter.ReadenBytes - pos != size)
-							throw new FormatException("Malformed global tx. Unexpected size.");
+						tx = Transaction.Load(v, Network);
 						if (tx.Inputs.Any(txin => txin.ScriptSig != Script.Empty || txin.WitScript != WitScript.Empty))
 							throw new FormatException("Malformed global tx. It should not contain any scriptsig or witness by itself");
 						break;
@@ -253,44 +269,38 @@ namespace NBitcoin
 							if (k[1 + ii] != XPubVersionBytes[ii])
 								throw new FormatException("Malformed global xpub.");
 						}
-						stream.ReadWriteAsVarString(ref v);
 						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
 						var rootedKeyPath = new RootedKeyPath(new HDFingerprint(v.Take(4).ToArray()), path);
 						GlobalXPubs.Add(new ExtPubKey(k, 1 + XPubVersionBytes.Length, 74).GetWif(Network), rootedKeyPath);
 						break;
 					default:
-						if (unknown.ContainsKey(k))
+						if (!unknown.TryAdd(k,v))
 							throw new FormatException("Invalid PSBTInput, duplicate key for unknown value");
-						stream.ReadWriteAsVarString(ref v);
-						unknown.Add(k, v);
 						break;
 				}
-				stream.ReadWriteAsVarString(ref k);
 			}
+
+
 			if (tx is null)
 				throw new FormatException("Invalid PSBT. No global TX");
 
-			int i = 0;
-			while (stream.Inner.CanRead && i < tx.Inputs.Count)
-			{
-				var psbtin = new PSBTInput(stream, this, (uint)i, tx.Inputs[i]);
-				Inputs.Add(psbtin);
-				i++;
-			}
-			if (i != tx.Inputs.Count)
-				throw new FormatException("Invalid PSBT. Number of input does not match to the global tx");
+			if(tx.Inputs.Count + tx.Outputs.Count +1 != maps.Count)
+				throw new FormatException("Invalid PSBT. Number of inputs and outputs does not match to the global tx");
 
-			i = 0;
-			while (stream.Inner.CanRead && i < tx.Outputs.Count)
+			LoadInputsOutputs(maps);
+		}
+
+		protected virtual void LoadInputsOutputs(List<Map> maps)
+		{
+			foreach (var indexedInput in tx.Inputs.AsIndexedInputs())
 			{
-				var psbtout = new PSBTOutput(stream, this, (uint)i, tx.Outputs[i]);
-				Outputs.Add(psbtout);
-				i++;
+				Inputs.Add(new PSBTInput(maps[(int)(indexedInput.Index + 1)], this, indexedInput.Index, indexedInput.TxIn));
 			}
-			if (i != tx.Outputs.Count)
-				throw new FormatException("Invalid PSBT. Number of outputs does not match to the global tx");
-			// tx should never be null, but dotnet compiler complains...
-			tx = tx ?? Network.CreateTransaction();
+			foreach (var indexedOutput in tx.Outputs.AsIndexedOutputs())
+			{
+				var index = (int)(1 + Inputs.Count + indexedOutput.N);
+				Outputs.Add(new PSBTOutput(maps[index], this, indexedOutput.N, indexedOutput.TxOut));
+			}
 		}
 
 		public PSBT AddCoins(params ICoin?[] coins)
@@ -858,21 +868,32 @@ namespace NBitcoin
 
 		#region IBitcoinSerializable Members
 
-		private static uint defaultKeyLen = 1;
-		public void Serialize(BitcoinStream stream)
-		{
-			// magic bytes
-			stream.Inner.Write(PSBT_MAGIC_BYTES, 0, PSBT_MAGIC_BYTES.Length);
+		protected static uint DefaultKeyLen = 1;
 
+		protected virtual void ParseGlobals(Map map)
+		{
+
+		}
+
+		protected virtual void SerializeGlobals(BitcoinStream stream)
+		{
 			// unsigned tx flag
-			stream.ReadWriteAsVarInt(ref defaultKeyLen);
-			stream.ReadWrite(PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX);
+			var psbtGlobalUnsignedTx = new byte[] { PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX };
+			stream.ReadWriteAsVarString(ref psbtGlobalUnsignedTx);
 
 			// Write serialized tx to a stream
 			stream.TransactionOptions &= TransactionOptions.None;
 			uint txLength = (uint)tx.GetSerializedSize(TransactionOptions.None);
 			stream.ReadWriteAsVarInt(ref txLength);
 			stream.ReadWrite(tx);
+
+		}
+		public void Serialize(BitcoinStream stream)
+		{
+			// magic bytes
+			stream.Inner.Write(PSBT_MAGIC_BYTES, 0, PSBT_MAGIC_BYTES.Length);
+
+			SerializeGlobals(stream);
 
 			foreach (var xpub in GlobalXPubs)
 			{
@@ -889,7 +910,6 @@ namespace NBitcoin
 				var pathInfo = xpub.Value.MasterFingerprint.ToBytes().Concat(path);
 				stream.ReadWriteAsVarString(ref pathInfo);
 			}
-
 			// Write the unknown things
 			foreach (var kv in unknown)
 			{
@@ -1313,7 +1333,7 @@ namespace NBitcoin
 
 		public Transaction GetOriginalTransaction()
 		{
-			var clone = tx.Clone();
+			var clone = GetGlobalTransaction();
 			for (int i = 0; i < Inputs.Count; i++)
 			{
 				clone.Inputs[i].ScriptSig = Inputs[i].originalScriptSig;
