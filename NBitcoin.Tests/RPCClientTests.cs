@@ -1800,7 +1800,7 @@ namespace NBitcoin.Tests
 				var funds = PSBTTests.CreateDummyFunds(Network.TestNet, keys, redeem);
 
 				// case1: PSBT from already fully signed tx
-				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, true);
+				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys);
 				var psbt = PSBT.FromTransaction(tx, builder.Network);
 				psbt.AddCoins(funds);
 				CheckPSBTIsAcceptableByRealRPC(psbt.ToBase64(), client);
@@ -1811,13 +1811,13 @@ namespace NBitcoin.Tests
 				CheckPSBTIsAcceptableByRealRPC(psbt.ToBase64(), client);
 
 				// case2: PSBT from tx with script (but without signatures)
-				tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, false);
+				tx = PSBTTests.CreateTxToSpendFunds(funds, keys);
 				psbt = PSBT.FromTransaction(tx, builder.Network);
 				psbt.AddCoins(funds);
 				CheckPSBTIsAcceptableByRealRPC(psbt.ToBase64(), client);
 
 				// case3: PSBT from tx without script nor signatures.
-				tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, false, false);
+				tx = PSBTTests.CreateTxToSpendFunds(funds, keys);
 				psbt = PSBT.FromTransaction(tx, builder.Network);
 				// This time, it will not throw an error at the first place.
 				// Since sanity check for witness input will not complain about witness-script-without-witnessUtxo
@@ -1891,7 +1891,7 @@ namespace NBitcoin.Tests
 				var keys = new Key[] { new Key(), new Key(), new Key() }.Select(k => k.GetWif(Network.RegTest)).ToArray();
 				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(ki => ki.PubKey).ToArray());
 				var funds = PSBTTests.CreateDummyFunds(Network.TestNet, keys, redeem);
-				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, true);
+				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys);
 				var psbt = PSBT.FromTransaction(tx, builder.Network)
 					.AddTransactions(funds)
 					.AddScripts(redeem);

@@ -26,13 +26,7 @@ namespace NBitcoin
 			Parent = parent;
 		}
 
-		public SortedDictionary<byte[], byte[]> Unknown
-		{
-			get
-			{
-				return unknown;
-			}
-		}
+		public SortedDictionary<byte[], byte[]> Unknown => unknown;
 
 		public HDKeyPathKVMap HDKeyPaths
 		{

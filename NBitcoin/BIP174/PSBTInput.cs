@@ -7,213 +7,135 @@ using System.IO;
 using NBitcoin.DataEncoders;
 using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.TransactionSignature>;
 using System.Diagnostics.CodeAnalysis;
-using NBitcoin.Crypto;
-using System.Text;
+using NBitcoin.BIP370;
 
 namespace NBitcoin
 {
-	public class PSBTInput : PSBTCoin
+
+
+	public abstract class PSBTInput : PSBTCoin
 	{
-		// Those fields are not saved, but can be used as hint to solve more info for the PSBT
-		internal Script originalScriptSig = Script.Empty;
-		internal WitScript originalWitScript = WitScript.Empty;
-		internal TxOut? orphanTxOut = null; // When this input is not segwit, but we don't have the previous tx
-
-		internal PSBTInput(PSBT parent, uint index, TxIn input) : base(parent)
+		internal PSBTInput(PSBT parent, uint index) : base(parent)
 		{
-			TxIn = input;
 			Index = index;
-			originalScriptSig = TxIn.ScriptSig ?? Script.Empty;
-			originalWitScript = TxIn.WitScript ?? WitScript.Empty;
 		}
 
-		internal PSBTInput(BitcoinStream stream, PSBT parent, uint index, TxIn input) : base(parent)
+		internal PSBTInput(Map map, PSBT parent, uint index) : base(parent)
 		{
-			TxIn = input;
 			Index = index;
-			originalScriptSig = TxIn.ScriptSig ?? Script.Empty;
-			originalWitScript = TxIn.WitScript ?? WitScript.Empty;
-			byte[] k = new byte[0];
-			byte[] v = new byte[0];
-			try
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_IN_NON_WITNESS_UTXO, out var b))
 			{
-				stream.ReadWriteAsVarString(ref k);
+				non_witness_utxo = Parent.GetConsensusFactory().CreateTransaction();
+				non_witness_utxo.FromBytes(b);
 			}
-			catch (EndOfStreamException e)
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_IN_WITNESS_UTXO, out b))
 			{
-				throw new FormatException("Invalid PSBTInput. Failed to Parse key.", e);
+				if (Parent.GetConsensusFactory().TryCreateNew<TxOut>(out var txout))
+				{
+					witness_utxo = txout;
+				}
+				else
+				{
+					witness_utxo = new TxOut();
+				}
+
+				witness_utxo.FromBytes(b);
 			}
-			while (k.Length != 0)
+
+			foreach (var kv in map.RemoveAll<byte[]>(PSBTConstants.PSBT_IN_PARTIAL_SIG))
 			{
-				try
+				var pkbytes = kv.Key.Skip(1).ToArray();
+				if (pkbytes.Length == 33)
 				{
-					stream.ReadWriteAsVarString(ref v);
+					var pubkey = new PubKey(pkbytes);
+					if (partial_sigs.ContainsKey(pubkey))
+						throw new FormatException("Invalid PSBTInput. Duplicate key for partial_sigs");
+					partial_sigs.Add(pubkey, new TransactionSignature(kv.Value));
 				}
-				catch (EndOfStreamException e)
-				{
-					throw new FormatException("Invalid PSBTInput. Failed to parse key.", e);
-				}
-				switch (k.First())
-				{
-					case PSBTConstants.PSBT_IN_NON_WITNESS_UTXO:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for NonWitnessUTXO");
-						if (non_witness_utxo != null)
-							throw new FormatException("Invalid PSBTInput. Duplicate non_witness_utxo");
-						non_witness_utxo = Parent.GetConsensusFactory().CreateTransaction();
-						non_witness_utxo.FromBytes(v);
-						break;
-					case PSBTConstants.PSBT_IN_WITNESS_UTXO:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for WitnessUTXO");
-						if (witness_utxo != null)
-							throw new FormatException("Invalid PSBTInput. Duplicate witness_utxo");
-						if (Parent.GetConsensusFactory().TryCreateNew<TxOut>(out var txout))
-						{
-							witness_utxo = txout;
-						}
-						else
-						{
-							witness_utxo = new TxOut();
-						}
-						witness_utxo.FromBytes(v);
-						break;
-					case PSBTConstants.PSBT_IN_PARTIAL_SIG:
-						var pkbytes = k.Skip(1).ToArray();
-						if (pkbytes.Length == 33)
-						{
-							var pubkey = new PubKey(pkbytes);
-							if (partial_sigs.ContainsKey(pubkey))
-								throw new FormatException("Invalid PSBTInput. Duplicate key for partial_sigs");
-							partial_sigs.Add(pubkey, new TransactionSignature(v));
-						}
-						else
-							throw new FormatException("Unexpected public key size in the PSBT");
-						break;
-					case PSBTConstants.PSBT_IN_SIGHASH:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for SigHash type");
-						if (!(sighash_type is null))
-							throw new FormatException("Invalid PSBTInput. Duplicate key for sighash_type");
-						if (v.Length != 4)
-							throw new FormatException("Invalid PSBTInput. SigHash Type is not 4 byte");
-						var value = Utils.ToUInt32(v, 0, true);
-						if (value is not (1 or 2 or 3 or 0 or 1 | 0x80 or 2 | 0x80 or 3 | 0x80 or 0 | 0x80))
-							throw new FormatException($"Invalid PSBTInput Unknown SigHash Type {value}");
-						sighash_type = value;
-						break;
-					case PSBTConstants.PSBT_IN_REDEEMSCRIPT:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for redeem script");
-						if (redeem_script != null)
-							throw new FormatException("Invalid PSBTInput. Duplicate key for redeem_script");
-						redeem_script = Script.FromBytesUnsafe(v);
-						break;
-					case PSBTConstants.PSBT_IN_WITNESSSCRIPT:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for witness script");
-						if (witness_script != null)
-							throw new FormatException("Invalid PSBTInput. Duplicate key for redeem_script");
-						witness_script = Script.FromBytesUnsafe(v);
-						break;
-					case PSBTConstants.PSBT_IN_TAP_KEY_SIG:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTInput. Unexpected key length for PSBT_IN_TAP_KEY_SIG");
-						if (!TaprootSignature.TryParse(v, out var sig))
-							throw new FormatException("Invalid PSBTInput. Contains invalid TaprootSignature");
-						TaprootKeySignature = sig;
-						break;
-					case PSBTConstants.PSBT_IN_TAP_INTERNAL_KEY:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTInput. Unexpected key length for PSBT_IN_TAP_INTERNAL_KEY");
-						if (!TaprootInternalPubKey.TryCreate(v, out var tpk))
-							throw new FormatException("Invalid PSBTInput. Contains invalid internal taproot pubkey");
-						TaprootInternalKey = tpk;
-						break;
-					case PSBTConstants.PSBT_IN_BIP32_DERIVATION:
-						var pubkey2 = new PubKey(k.Skip(1).ToArray());
-						if (hd_keypaths.ContainsKey(pubkey2))
-							throw new FormatException("Invalid PSBTInput. Duplicate key for hd_keypaths");
-						var masterFingerPrint = new HDFingerprint(v.Take(4).ToArray());
-						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
-						hd_keypaths.Add(pubkey2, new RootedKeyPath(masterFingerPrint, path));
-						break;
-					case PSBTConstants.PSBT_IN_TAP_BIP32_DERIVATION:
-						var pubkey3 = new TaprootPubKey(k.Skip(1).ToArray());
-						if (hd_taprootkeypaths.ContainsKey(pubkey3))
-							throw new FormatException("Invalid PSBTOutput, duplicate key for PSBT_IN_TAP_BIP32_DERIVATION");
-						var bs = new BitcoinStream(v);
-						List<uint256> hashes = null!;
-						bs.ReadWrite(ref hashes);
-						var pos = (int)bs.Inner.Position;
-						KeyPath path2 = KeyPath.FromBytes(v.Skip(pos + 4).ToArray());
-						hd_taprootkeypaths.Add(pubkey3,
-							new TaprootKeyPath(
-								new RootedKeyPath(new HDFingerprint(v.Skip(pos).Take(4).ToArray()), path2),
-								hashes.ToArray()));
-						break;
-					case PSBTConstants.PSBT_IN_TAP_MERKLE_ROOT:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTInput. Unexpected key length for PSBT_IN_TAP_MERKLE_ROOT");
-						if (v.Length != 32)
-							throw new FormatException("Invalid PSBTInput. Unexpected value length for PSBT_IN_TAP_MERKLE_ROOT");
-						TaprootMerkleRoot = new uint256(v);
-						break;
-					case PSBTConstants.PSBT_IN_SCRIPTSIG:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for final scriptsig");
-						if (final_script_sig != null)
-							throw new FormatException("Invalid PSBTInput. Duplicate key for final_script_sig");
-						final_script_sig = Script.FromBytesUnsafe(v);
-						break;
-					case PSBTConstants.PSBT_IN_SCRIPTWITNESS:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for final script witness");
-						if (final_script_witness != null)
-							throw new FormatException("Invalid PSBTInput. Duplicate key for final_script_witness");
-						final_script_witness = new WitScript(v);
-						break;
-					default:
-						if (unknown.ContainsKey(k))
-							throw new FormatException("Invalid PSBTInput. Duplicate key for unknown value");
-						unknown.Add(k, v);
-						break;
-				}
-				stream.ReadWriteAsVarString(ref k);
+				else
+					throw new FormatException("Unexpected public key size in the PSBT");
 			}
+
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_IN_SIGHASH, out b))
+			{
+				if (b.Length != 4)
+					throw new FormatException("Invalid PSBTInput. SigHash Type is not 4 byte");
+				var value = Utils.ToUInt32(b, 0, true);
+				if (value is not (1 or 2 or 3 or 0 or 1 | 0x80 or 2 | 0x80 or 3 | 0x80 or 0 | 0x80))
+					throw new FormatException($"Invalid PSBTInput Unknown SigHash Type {value}");
+				sighash_type = value;
+			}
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_IN_REDEEMSCRIPT, out b))
+				redeem_script = Script.FromBytesUnsafe(b);
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_IN_WITNESSSCRIPT, out b))
+				witness_script = Script.FromBytesUnsafe(b);
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_IN_TAP_KEY_SIG, out b))
+			{
+				if (!TaprootSignature.TryParse(b, out var sig))
+					throw new FormatException("Invalid PSBTInput. Contains invalid TaprootSignature");
+				TaprootKeySignature = sig;
+			}
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_IN_TAP_INTERNAL_KEY, out b))
+			{
+				if (!TaprootInternalPubKey.TryCreate(b, out var tpk))
+					throw new FormatException("Invalid PSBTInput. Contains invalid internal taproot pubkey");
+				TaprootInternalKey = tpk;
+			}
+			foreach (var kv in map.RemoveAll<byte[]>(PSBTConstants.PSBT_IN_BIP32_DERIVATION))
+			{
+				var pubkey2 = new PubKey(kv.Key.Skip(1).ToArray());
+				if (hd_keypaths.ContainsKey(pubkey2))
+					throw new FormatException("Invalid PSBTInput. Duplicate key for hd_keypaths");
+				var masterFingerPrint = new HDFingerprint(kv.Value.Take(4).ToArray());
+				KeyPath path = KeyPath.FromBytes(kv.Value.Skip(4).ToArray());
+				hd_keypaths.Add(pubkey2, new RootedKeyPath(masterFingerPrint, path));
+			}
+			foreach (var kv in map.RemoveAll<byte[]>(PSBTConstants.PSBT_IN_TAP_BIP32_DERIVATION))
+			{
+				var pubkey3 = new TaprootPubKey(kv.Key.Skip(1).ToArray());
+				if (hd_taprootkeypaths.ContainsKey(pubkey3))
+					throw new FormatException(
+						"Invalid PSBTOutput, duplicate key for PSBT_IN_TAP_BIP32_DERIVATION");
+				var bs = new BitcoinStream(kv.Value);
+				List<uint256> hashes = null!;
+				bs.ReadWrite(ref hashes);
+				var pos = (int)bs.Inner.Position;
+				KeyPath path2 = KeyPath.FromBytes(kv.Value.Skip(pos + 4).ToArray());
+				hd_taprootkeypaths.Add(pubkey3,
+					new TaprootKeyPath(
+						new RootedKeyPath(new HDFingerprint(kv.Value.Skip(pos).Take(4).ToArray()), path2),
+						hashes.ToArray()));
+			}
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_IN_TAP_MERKLE_ROOT, out b))
+			{
+				if (b.Length != 32)
+					throw new FormatException(
+						"Invalid PSBTInput. Unexpected value length for PSBT_IN_TAP_MERKLE_ROOT");
+				TaprootMerkleRoot = new uint256(b);
+			}
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_IN_SCRIPTSIG, out b))
+				FinalScriptSig = Script.FromBytesUnsafe(b);
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_IN_SCRIPTWITNESS, out b))
+				FinalScriptWitness = new WitScript(b);
+			unknown = map;
 		}
 
-		/// <summary>
-		/// Changes the nSequence field of the corresponding TxIn.
-		/// You should not call this method if any PSBTInput in the same PSBT has a signature.
-		/// Because the siagnature usually commits to the old nSequence value.
-		/// </summary>
-		/// <exception cref="InvalidOperationException">When at least one signature exists in any other inputs in the PSBT</exception>
-		public void SetSequence(ushort sequence)
-		{
-			for (int i = 0; i < this.Parent.Inputs.Count; i++)
-			{
-				var txIn = this.Parent.Inputs[i];
-				if (txIn.partial_sigs.Count > 0 || txIn.final_script_sig != null || txIn.final_script_witness != null)
-				{
-					throw new InvalidOperationException($"You should not change the transaction's input nSequence after signing. In case of particular type of SIGHASH, this will make your signature invalid. PSBTInput in index {i} had signature");
-				}
-			}
-			Transaction.Inputs[this.Index].Sequence = sequence;
-		}
+		public abstract Sequence Sequence { get; set; }
 
-		internal TxIn TxIn { get; }
-		internal IndexedTxIn GetIndexedInput() => new IndexedTxIn() { Transaction = Transaction, Index = Index, TxIn = TxIn, PrevOut = PrevOut, ScriptSig = TxIn.ScriptSig, WitScript = TxIn.WitScript };
+		internal IndexedTxIn GetIndexedInput() => GetTransaction().Inputs.FindIndexedInput((int)Index);
 
-		public OutPoint PrevOut => TxIn.PrevOut;
+		public abstract OutPoint PrevOut { get; }
 
 		public uint Index { get; }
-		internal Transaction Transaction => Parent.tx;
+		internal Transaction GetTransaction() => Parent.GetGlobalTransaction(true);
 
 		private Transaction? non_witness_utxo;
+		// Record the hash of the last time we checked the non_witness_utxo correspond to the outpoint of the input
+		// If NonWitnessUTXO change, we unset this.
+		// If the Outpoint change, then non_witness_utxo_check != prevout.Hash
+		// This is optimization to not have to calculate the hash of non_witness_utxo every time.
+		internal uint256? non_witness_utxo_check;
 		private TxOut? witness_utxo;
-		private Script? final_script_sig;
-		private WitScript? final_script_witness;
 		private PartialSigKVMap partial_sigs = new PartialSigKVMap(PubKeyComparer.Instance);
 
 		uint? sighash_type;
@@ -227,6 +149,7 @@ namespace NBitcoin
 			set
 			{
 				non_witness_utxo = value;
+				non_witness_utxo_check = null;
 			}
 		}
 
@@ -268,29 +191,9 @@ namespace NBitcoin
 			}
 		}
 
-		public Script? FinalScriptSig
-		{
-			get
-			{
-				return final_script_sig;
-			}
-			set
-			{
-				final_script_sig = value;
-			}
-		}
+		public Script? FinalScriptSig { get; set; }
 
-		public WitScript? FinalScriptWitness
-		{
-			get
-			{
-				return final_script_witness;
-			}
-			set
-			{
-				final_script_witness = value;
-			}
-		}
+		public WitScript? FinalScriptWitness { get; set; }
 
 		public TaprootSignature? TaprootKeySignature { get; set; }
 		public uint256? TaprootMerkleRoot { get; set; }
@@ -309,7 +212,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(coin));
 			if (coin.Outpoint != PrevOut)
 				throw new ArgumentException("This coin does not match the input", nameof(coin));
-			
+
 			if (coin is ScriptCoin scriptCoin)
 			{
 				if (scriptCoin.RedeemType == RedeemType.P2SH)
@@ -328,9 +231,9 @@ namespace NBitcoin
 				if (coin.TxOut.ScriptPubKey.IsScriptType(ScriptType.P2SH) && redeem_script == null)
 				{
 					// Let's try to be smart by finding the redeemScript in the global tx
-					if (Parent.Settings.IsSmart && redeem_script == null)
+					if (Parent.Settings.IsSmart && redeem_script == null && FinalScriptSig is not null)
 					{
-						var redeemScript = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(originalScriptSig, coin.TxOut.ScriptPubKey)?.RedeemScript;
+						var redeemScript = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(FinalScriptSig, coin.TxOut.ScriptPubKey)?.RedeemScript;
 						if (redeemScript != null)
 						{
 							redeem_script = redeemScript;
@@ -346,9 +249,9 @@ namespace NBitcoin
 						var witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey);
 						if (witScriptId == null && redeem_script != null)
 							witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(redeem_script);
-						if (witScriptId != null)
+						if (witScriptId != null && FinalScriptWitness is not null)
 						{
-							var redeemScript = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(originalWitScript, witScriptId);
+							var redeemScript = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(FinalScriptWitness, witScriptId);
 							if (redeemScript != null)
 							{
 								witness_script = redeemScript;
@@ -357,19 +260,9 @@ namespace NBitcoin
 					}
 				}
 			}
-			if (Parent.Network.Consensus.NeverNeedPreviousTxForSigning ||
-				!coin.IsMalleable || witness_script != null)
-			{
-				witness_utxo = coin.TxOut;
-				if (Parent.Settings.AutomaticUTXOTrimming)
-					non_witness_utxo = null;
-			}
-			else
-			{
-				orphanTxOut = coin.TxOut;
-				if (Parent.Settings.AutomaticUTXOTrimming)
-					witness_utxo = null;
-			}
+			witness_utxo = coin.TxOut;
+			if (Parent.Settings.AutomaticUTXOTrimming)
+				this.TrySlimUTXO();
 			if (IsFinalized())
 				ClearForFinalize();
 		}
@@ -378,7 +271,7 @@ namespace NBitcoin
 		/// Import informations contained by <paramref name="other"/> into this instance.
 		/// </summary>
 		/// <param name="other"></param>
-		public void UpdateFrom(PSBTInput other)
+		public virtual void UpdateFrom(PSBTInput other)
 		{
 			if (other == null)
 				throw new ArgumentNullException(nameof(other));
@@ -387,11 +280,11 @@ namespace NBitcoin
 				unknown.TryAdd(uk.Key, uk.Value);
 
 
-			if (other.final_script_sig != null)
-				final_script_sig = other.final_script_sig;
+			if (other.FinalScriptSig != null)
+				FinalScriptSig = other.FinalScriptSig;
 
-			if (other.final_script_witness != null)
-				final_script_witness = other.final_script_witness;
+			if (other.FinalScriptWitness != null)
+				FinalScriptWitness = other.FinalScriptWitness;
 
 			if (non_witness_utxo == null && other.non_witness_utxo != null)
 				non_witness_utxo = other.non_witness_utxo;
@@ -427,19 +320,19 @@ namespace NBitcoin
 		public uint256 GetSignatureHash(TaprootSigHash sigHash, PrecomputedTransactionData precomputedTransactionData)
 		{
 			if (GetSignableCoin() is ICoin coin)
-				return this.Transaction.Inputs.FindIndexedInput((int)Index)
+				return this.GetTransaction().Inputs.FindIndexedInput((int)Index)
 									   .GetSignatureHashTaproot(coin, sigHash, precomputedTransactionData);
 			throw new InvalidOperationException("WitnessUtxo, NonWitnessUtxo, WitnessScript or redeemScript is required to get the signature hash");
 		}
 		public uint256 GetSignatureHash(SigHash sigHash, PrecomputedTransactionData? precomputedTransactionData)
 		{
 			if (GetSignableCoin() is ICoin coin)
-				return this.Transaction.Inputs.FindIndexedInput((int)Index)
+				return this.GetTransaction().Inputs.FindIndexedInput((int)Index)
 									   .GetSignatureHash(coin, sigHash, precomputedTransactionData);
 			throw new InvalidOperationException("WitnessUtxo, NonWitnessUtxo, WitnessScript or redeemScript is required to get the signature hash");
 		}
 
-		public bool IsFinalized() => final_script_sig != null || final_script_witness != null;
+		public bool IsFinalized() => FinalScriptSig != null || FinalScriptWitness != null;
 
 		/// <summary>
 		/// conovert partial sigs to suitable form for ScriptSig (or Witness).
@@ -581,26 +474,28 @@ namespace NBitcoin
 			if (witness_script != null && witness_utxo is null && non_witness_utxo is null)
 				errors.Add(new PSBTError(Index, "witness script present but not witness_utxo or non_witness_utxo"));
 
-			if (final_script_witness != null && witness_utxo is null && non_witness_utxo is null)
+			if (FinalScriptWitness != null && witness_utxo is null && non_witness_utxo is null)
 				errors.Add(new PSBTError(Index, "final witness script present but not witness_utxo or non_witness_utxo"));
 
 			if (NonWitnessUtxo != null)
 			{
 				var prevOutTxId = NonWitnessUtxo.GetHash();
 				bool validOutpoint = true;
-				if (TxIn.PrevOut.Hash != prevOutTxId)
+				if (PrevOut.Hash != prevOutTxId)
 				{
 					errors.Add(new PSBTError(Index, "non_witness_utxo does not match the transaction id referenced by the global transaction sign"));
 					validOutpoint = false;
 				}
-				if (TxIn.PrevOut.N >= NonWitnessUtxo.Outputs.Count)
+				else
+					non_witness_utxo_check = prevOutTxId;
+				if (PrevOut.N >= NonWitnessUtxo.Outputs.Count)
 				{
 					errors.Add(new PSBTError(Index, "Global transaction referencing an out of bound output in non_witness_utxo"));
 					validOutpoint = false;
 				}
 				if (redeem_script != null && validOutpoint)
 				{
-					if (redeem_script.Hash.ScriptPubKey != NonWitnessUtxo.Outputs[TxIn.PrevOut.N].ScriptPubKey)
+					if (redeem_script.Hash.ScriptPubKey != NonWitnessUtxo.Outputs[PrevOut.N].ScriptPubKey)
 						errors.Add(new PSBTError(Index, "The redeem_script is not coherent with the scriptPubKey of the non_witness_utxo"));
 				}
 			}
@@ -618,14 +513,21 @@ namespace NBitcoin
 				}
 			}
 
-			if (witness_utxo?.ScriptPubKey is Script s)
-			{
-				if (!s.IsScriptType(ScriptType.P2SH) && !s.IsScriptType(ScriptType.Witness))
-					errors.Add(new PSBTError(Index, "A Witness UTXO is provided for a non-witness input"));
-				if (s.IsScriptType(ScriptType.P2SH) && redeem_script is Script r && !r.IsScriptType(ScriptType.Witness))
-					errors.Add(new PSBTError(Index, "A Witness UTXO is provided for a non-witness input"));
-			}
+			if (IsNonWitnessUTXOMissing() is true)
+				errors.Add(new PSBTError(Index, "A NonWitnessUtxo is required but hasn't been provided"));
 			return errors;
+		}
+
+		public bool? IsNonWitnessUTXOMissing()
+		{
+			if (Parent.Network.Consensus.NeverNeedPreviousTxForSigning || non_witness_utxo is not null)
+				return false;
+			if (witness_utxo?.ScriptPubKey is not Script s)
+				return null;
+			var p2sh = s.IsScriptType(ScriptType.P2SH);
+			var needNonWitnessUTXO = p2sh && redeem_script is Script r && !r.IsScriptType(ScriptType.Witness);
+			needNonWitnessUTXO |= !p2sh && !s.IsScriptType(ScriptType.Witness);
+			return needNonWitnessUTXO;
 		}
 
 		public void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath)
@@ -659,117 +561,53 @@ namespace NBitcoin
 
 		#region IBitcoinSerializable Members
 
-		private static uint defaultKeyLen = 1;
+		protected static uint defaultKeyLen = 1;
 
-		public void Serialize(BitcoinStream stream)
+		internal virtual void FillMap(Map map)
 		{
-			if (stream == null)
-				throw new ArgumentNullException(nameof(stream));
-			// Write the utxo
-			// If there is a non-witness utxo, then don't serialize the witness one.
-			if (witness_utxo != null)
-			{
-				// key
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				var key = PSBTConstants.PSBT_IN_WITNESS_UTXO;
-				stream.ReadWrite(ref key);
-
-				// value
-				var data = witness_utxo.ToBytes();
-				stream.ReadWriteAsVarString(ref data);
-			}
-
 			if (non_witness_utxo != null)
-			{
-				// key
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				var key = PSBTConstants.PSBT_IN_NON_WITNESS_UTXO;
-				stream.ReadWrite(ref key);
-				// value
-				byte[] data = non_witness_utxo.ToBytes();
-				stream.ReadWriteAsVarString(ref data);
-			}
+				map.Add([PSBTConstants.PSBT_IN_NON_WITNESS_UTXO], non_witness_utxo.ToBytes());
 
-			// Write the sighash type
+			if (witness_utxo != null)
+				map.Add([PSBTConstants.PSBT_IN_WITNESS_UTXO], witness_utxo.ToBytes());
+
 			if (sighash_type is not null)
-			{
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				var key = PSBTConstants.PSBT_IN_SIGHASH;
-				stream.ReadWrite(ref key);
-				var tmp = Utils.ToBytes(sighash_type.Value, true);
-				stream.ReadWriteAsVarString(ref tmp);
-			}
+				map.Add([PSBTConstants.PSBT_IN_SIGHASH], (uint)sighash_type.Value);
 
-			// Write the redeem script
 			if (redeem_script != null)
-			{
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				var key = PSBTConstants.PSBT_IN_REDEEMSCRIPT;
-				stream.ReadWrite(ref key);
-				var value = redeem_script.ToBytes();
-				stream.ReadWriteAsVarString(ref value);
-			}
+				map.Add([PSBTConstants.PSBT_IN_REDEEMSCRIPT], redeem_script.ToBytes());
 
-			// Write the witness script
 			if (witness_script != null)
-			{
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				var key = PSBTConstants.PSBT_IN_WITNESSSCRIPT;
-				stream.ReadWrite(ref key);
-				var value = witness_script.ToBytes();
-				stream.ReadWriteAsVarString(ref value);
-			}
+				map.Add([PSBTConstants.PSBT_IN_WITNESSSCRIPT], witness_script.ToBytes());
 
 			if (this.TaprootMerkleRoot is uint256 merkleRoot)
-			{
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				var key = PSBTConstants.PSBT_IN_TAP_MERKLE_ROOT;
-				stream.ReadWrite(ref key);
-				var value = merkleRoot.ToBytes();
-				stream.ReadWriteAsVarString(ref value);
-			}
-
+				map.Add([PSBTConstants.PSBT_IN_TAP_MERKLE_ROOT], TaprootMerkleRoot.ToBytes());
+			
 			if (this.TaprootInternalKey is TaprootInternalPubKey tp)
-			{
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				var key = PSBTConstants.PSBT_IN_TAP_INTERNAL_KEY;
-				stream.ReadWrite(ref key);
-				var b = tp.ToBytes();
-				stream.ReadWriteAsVarString(ref b);
-			}
+				map.Add([PSBTConstants.PSBT_IN_TAP_INTERNAL_KEY], tp.ToBytes());
 
 			if (this.TaprootKeySignature is TaprootSignature tsig)
-			{
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				var key = PSBTConstants.PSBT_IN_TAP_KEY_SIG;
-				stream.ReadWrite(ref key);
-				var b = tsig.ToBytes();
-				stream.ReadWriteAsVarString(ref b);
-			}
+				map.Add([PSBTConstants.PSBT_IN_TAP_KEY_SIG], tsig.ToBytes());
 
 			// Write any partial signatures
 			foreach (var sig_pair in partial_sigs)
 			{
 				var key = new byte[] { PSBTConstants.PSBT_IN_PARTIAL_SIG }.Concat(sig_pair.Key.ToBytes());
-				stream.ReadWriteAsVarString(ref key);
-				var sig = sig_pair.Value.ToBytes();
-				stream.ReadWriteAsVarString(ref sig);
+				map.Add(key, sig_pair.Value.ToBytes());
 			}
 
 			// Write any hd keypaths
 			foreach (var pathPair in hd_keypaths)
 			{
 				var key = new byte[] { PSBTConstants.PSBT_IN_BIP32_DERIVATION }.Concat(pathPair.Key.ToBytes());
-				stream.ReadWriteAsVarString(ref key);
 				var masterFingerPrint = pathPair.Value.MasterFingerprint;
 				var path = pathPair.Value.KeyPath.ToBytes();
 				var pathInfo = masterFingerPrint.ToBytes().Concat(path);
-				stream.ReadWriteAsVarString(ref pathInfo);
+				map.Add(key, pathInfo);
 			}
 			foreach (var pathPair in hd_taprootkeypaths)
 			{
 				var key = new byte[] { PSBTConstants.PSBT_IN_TAP_BIP32_DERIVATION }.Concat(pathPair.Key.ToBytes());
-				stream.ReadWriteAsVarString(ref key);
 				uint leafCount = (uint)pathPair.Value.LeafHashes.Length;
 				BitcoinStream bs = new BitcoinStream(new MemoryStream(), true);
 				bs.ReadWriteAsVarInt(ref leafCount);
@@ -782,51 +620,32 @@ namespace NBitcoin
 				b = pathPair.Value.RootedKeyPath.KeyPath.ToBytes();
 				bs.ReadWrite(b);
 				b = ((MemoryStream)bs.Inner).ToArrayEfficient();
-				stream.ReadWriteAsVarString(ref b);
+				map.Add(key, b);
 			}
 
-			// Write script sig
-			if (final_script_sig != null)
-			{
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				var key = PSBTConstants.PSBT_IN_SCRIPTSIG;
-				stream.ReadWrite(ref key);
-				byte[] value = final_script_sig.ToBytes();
-				stream.ReadWriteAsVarString(ref value);
-			}
+			if (FinalScriptSig != null)
+				map.Add([PSBTConstants.PSBT_IN_SCRIPTSIG], FinalScriptSig.ToBytes());
 
 			// write script witness
-			if (final_script_witness != null)
-			{
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				var key = PSBTConstants.PSBT_IN_SCRIPTWITNESS;
-				stream.ReadWrite(ref key);
-				var stack = final_script_witness.ToBytes();
-				stream.ReadWriteAsVarString(ref stack);
-			}
+			if (FinalScriptWitness != null)
+				map.Add([PSBTConstants.PSBT_IN_SCRIPTWITNESS], FinalScriptWitness.ToBytes());
 
 			// Write unknown things
 			foreach (var entry in unknown)
 			{
 				var k = entry.Key;
 				var v = entry.Value;
-				stream.ReadWriteAsVarString(ref k);
-				stream.ReadWriteAsVarString(ref v);
+				map.Add(k, v);
 			}
-
-			var sep = PSBTConstants.PSBT_SEPARATOR;
-			stream.ReadWrite(ref sep);
 		}
 
 		#endregion
 
 		public byte[] ToBytes()
 		{
-			MemoryStream ms = new MemoryStream();
-			var bs = new BitcoinStream(ms, true);
-			bs.ConsensusFactory = Parent.GetConsensusFactory();
-			this.Serialize(bs);
-			return ms.ToArrayEfficient();
+			Map m = new();
+			this.FillMap(m);
+			return m.ToBytes();
 		}
 
 		internal void Write(JsonTextWriter jsonWriter)
@@ -898,9 +717,14 @@ namespace NBitcoin
 				jsonWriter.WritePropertyValue("scriptPubKey", WitnessUtxo.ScriptPubKey.ToString());
 				jsonWriter.WriteEndObject();
 			}
+			WriteCore(jsonWriter);
 			jsonWriter.WriteBIP32Derivations(this.hd_keypaths);
 			jsonWriter.WriteBIP32Derivations(this.hd_taprootkeypaths);
 			jsonWriter.WriteEndObject();
+		}
+
+		protected virtual void WriteCore(JsonTextWriter jsonWriter)
+		{
 		}
 
 		private string GetName(uint sighashType)
@@ -929,16 +753,21 @@ namespace NBitcoin
 		}
 		public TxOut? GetTxOut()
 		{
-			if (WitnessUtxo != null)
-				return WitnessUtxo;
 			if (NonWitnessUtxo != null)
 			{
-				if (TxIn.PrevOut.N >= NonWitnessUtxo.Outputs.Count)
+				if (PrevOut.N >= NonWitnessUtxo.Outputs.Count)
 					return null;
-				return NonWitnessUtxo.Outputs[TxIn.PrevOut.N];
+				if (non_witness_utxo_check != PrevOut.Hash)
+				{
+					if (NonWitnessUtxo.GetHash() != PrevOut.Hash)
+						return null;
+					non_witness_utxo_check = PrevOut.Hash;
+				}
+				non_witness_utxo_check = PrevOut.Hash;
+				return NonWitnessUtxo.Outputs[PrevOut.N];
 			}
-			if (orphanTxOut != null)
-				return orphanTxOut;
+			if (WitnessUtxo != null)
+				return WitnessUtxo;
 			return null;
 		}
 
@@ -1003,7 +832,7 @@ namespace NBitcoin
 				transactionBuilder.FinalizePSBTInput(this);
 				if (!finalizedInput.IsFinalized() && Parent.Settings.IsSmart)
 				{
-					transactionBuilder.ExtractSignatures(finalizedInput.PSBT, Parent.GetOriginalTransaction());
+					transactionBuilder.ExtractSignatures(finalizedInput.PSBT, Parent.ForceExtractTransaction());
 					transactionBuilder.FinalizePSBTInput(finalizedInput);
 				}
 			}
@@ -1053,7 +882,7 @@ namespace NBitcoin
 			{
 				ScriptVerify = scriptVerify
 			};
-			if (Transaction is IHasForkId)
+			if (GetTransaction() is IHasForkId)
 				eval.ScriptVerify |= NBitcoin.ScriptVerify.ForkId;
 			var txout = GetTxOut();
 			if (txout is null)
@@ -1061,7 +890,7 @@ namespace NBitcoin
 				err = ScriptError.UnknownError;
 				return false;
 			}
-			var checker = new TransactionChecker(Transaction, (int)Index, GetTxOut(), precomputedTransactionData);
+			var checker = new TransactionChecker(GetTransaction(), (int)Index, GetTxOut(), precomputedTransactionData);
 			var result = eval.VerifyScript(this.FinalScriptSig, this.FinalScriptWitness, txout.ScriptPubKey, checker);
 			err = eval.Error;
 			return result;
@@ -1099,7 +928,7 @@ namespace NBitcoin
 				var signature = PartialSigs[ecdsapk];
 
 				var existingSigHash = (uint)existingSig.SigHash;
-				if (Transaction is IHasForkId)
+				if (GetTransaction() is IHasForkId)
 					existingSigHash = existingSigHash & ~(0x40u);
 				if (!SameSigHash(existingSigHash, sigHash))
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
@@ -1119,6 +948,7 @@ namespace NBitcoin
 			builder.SetSigningOptions(signingOptions);
 			builder.SignPSBTInput(this);
 		}
+
 		internal void Sign(Key key, SigningOptions? signingOptions)
 		{
 			if (key == null)
@@ -1146,7 +976,7 @@ namespace NBitcoin
 		{
 			if (a == b)
 				return true;
-			if (Transaction is not IHasForkId)
+			if (GetTransaction() is not IHasForkId)
 				return false;
 			a = ((uint)a & ~(0x40u));
 			b = ((uint)a & ~(0x40u));
@@ -1178,12 +1008,13 @@ namespace NBitcoin
 			{
 				if (WitnessUtxo == null)
 				{
-					if (TxIn.PrevOut.N < NonWitnessUtxo.Outputs.Count)
-						WitnessUtxo = NonWitnessUtxo.Outputs[TxIn.PrevOut.N];
+					if (PrevOut.N < NonWitnessUtxo.Outputs.Count)
+						WitnessUtxo = NonWitnessUtxo.Outputs[PrevOut.N];
 				}
 				NonWitnessUtxo = null;
 				return true;
 			}
+			WitnessUtxo = null;
 			return false;
 		}
 
@@ -1197,7 +1028,7 @@ namespace NBitcoin
 			var txout = GetTxOut();
 			if (txout == null)
 				return null;
-			return new Coin(TxIn.PrevOut, txout);
+			return new Coin(PrevOut, txout);
 		}
 
 		public override string ToString()
@@ -1223,7 +1054,7 @@ namespace NBitcoin
 
 		internal void Add(PSBTInput input)
 		{
-			if (!_InputsByOutpoint.TryAdd(input.TxIn.PrevOut, input))
+			if (!_InputsByOutpoint.TryAdd(input.PrevOut, input))
 				throw new InvalidOperationException("Two inputs are spending the same output in the same transaction");
 			_Inner.Add(input);
 		}

@@ -49,7 +49,7 @@ namespace NBitcoin.Tests.Generators
 			from TxsToAdd in Gen.SubListOf(prevTxs)
 			from CoinsToAdd in Gen.SubListOf(prevTxs.SelectMany(tx => tx.Outputs.AsCoins()))
 			from scriptsToAdd in Gen.SubListOf<Script>(scripts)
-			let psbt = tx.CreatePSBT(network)
+			let psbt = tx.CreatePSBT(network, PSBTVersion.PSBTv0)
 				.AddTransactions(prevTxs.ToArray())
 				.AddCoins(CoinsToAdd.ToArray())
 				.AddScripts(scriptsToAdd.ToArray())

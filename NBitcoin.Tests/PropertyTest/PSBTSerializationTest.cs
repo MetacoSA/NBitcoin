@@ -42,8 +42,11 @@ namespace NBitcoin.Tests.PropertyTest
 			var result = a.CoinJoin(b);
 			Assert.Equal(result.Inputs.Count, a.Inputs.Count + b.Inputs.Count);
 			Assert.Equal(result.Outputs.Count, a.Outputs.Count + b.Outputs.Count);
-			Assert.Equal(result.tx.Inputs.Count, a.tx.Inputs.Count + b.tx.Inputs.Count);
-			Assert.Equal(result.tx.Outputs.Count, a.tx.Outputs.Count + b.tx.Outputs.Count);
+			var tx = result.GetGlobalTransaction();
+			var atx = a.GetGlobalTransaction();
+			var btx = b.GetGlobalTransaction();
+			Assert.Equal(tx.Inputs.Count, atx.Inputs.Count + btx.Inputs.Count);
+			Assert.Equal(tx.Outputs.Count, atx.Outputs.Count + btx.Outputs.Count);
 			// These will work in netcoreapp2.1, but not in net472 ... :(
 			// Assert.Subset<PSBTInput>(result.inputs.ToHashSet(), a.inputs.ToHashSet());
 			// Assert.Subset<PSBTInput>(result.inputs.ToHashSet(), b.inputs.ToHashSet());
