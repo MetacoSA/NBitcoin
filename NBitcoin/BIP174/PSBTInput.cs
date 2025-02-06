@@ -35,6 +35,11 @@ namespace NBitcoin
 			originalScriptSig = TxIn.ScriptSig ?? Script.Empty;
 			originalWitScript = TxIn.WitScript ?? WitScript.Empty;
 
+			Load(map);
+		}
+
+		protected virtual void Load(SortedDictionary<byte[], byte[]> map)
+		{
 			while (map.Pop(out byte[] k, out byte[] v))
 			{
 
@@ -636,7 +641,7 @@ namespace NBitcoin
 
 		#region IBitcoinSerializable Members
 
-		private static uint defaultKeyLen = 1;
+		protected static uint defaultKeyLen = 1;
 
 		public virtual void Serialize(BitcoinStream stream)
 		{

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, NBitcoin.RootedKeyPath>;
 using Map = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
@@ -10,100 +11,6 @@ using HDTaprootKeyPathKVMap =
 
 namespace NBitcoin
 {
-
-	public class PSBTSerializer : IBitcoinSerializable
-	{
-		private Func<(int inputCount, int outputCount)> _expectedInputOutputCount;
-
-		protected PSBTSerializer()
-		{
-
-		}
-		public PSBTSerializer(Map globalMap, List<Map> inputMap, List<Map> outputMap)
-		{
-			GlobalMap = globalMap;
-			InputMap = inputMap;
-			OutputMap = outputMap;
-		}
-
-		public PSBTSerializer( Func<(int inputCount, int outputCount)> expectedInputOutputCount)
-		{
-			_expectedInputOutputCount = expectedInputOutputCount;
-			GlobalMap = new Map();
-			InputMap = new List<Map>();
-			OutputMap = new List<Map>();
-		}
-		public virtual List<Map> OutputMap { get; private set; }
-
-		public virtual List<Map> InputMap { get; private set; }
-		public virtual Map GlobalMap { get; private set; }
-
-
-		static readonly byte[] PSBT_MAGIC_BYTES = Encoders.ASCII.DecodeData("psbt\xff");
-
-		public void ReadWrite(BitcoinStream stream)
-		{
-			if (stream.Serializing)
-			{
-				stream.ReadWrite(PSBT_MAGIC_BYTES);
-				var globalMap = GlobalMap;
-				ReadWrite(stream, ref globalMap);
-				foreach (var m in InputMap)
-				{
-					var inputMap = m;
-					ReadWrite(stream, ref inputMap);
-				}
-
-				foreach (var m in OutputMap)
-				{
-					var outputMap = m;
-					ReadWrite(stream, ref outputMap);
-				}
-			}
-			else
-			{
-				var magicBytes = stream.Inner.ReadBytes(PSBT_MAGIC_BYTES.Length);
-				if (!magicBytes.SequenceEqual(PSBT_MAGIC_BYTES))
-				{
-					throw new FormatException("Invalid PSBT magic bytes");
-				}
-
-				GlobalMap = PSBTUtils.ParseRawMap(stream);
-				var expected = _expectedInputOutputCount.Invoke();
-				var inMap = new List<Map>();
-				for (int i = 0; i < expected.inputCount; i++)
-				{
-					inMap.Add(PSBTUtils.ParseRawMap(stream));
-				}
-				InputMap = inMap;
-				var outMap = new List<Map>();
-				for (int i = 0; i < expected.outputCount; i++)
-				{
-					outMap.Add(PSBTUtils.ParseRawMap(stream));
-				}
-
-				OutputMap = outMap;
-			}
-		}
-
-		protected virtual void ReadWrite(BitcoinStream stream, ref Map map)
-		{
-			if (stream.Serializing)
-			{
-				foreach (var mapItem in map)
-				{
-					stream.ReadWrite(mapItem.Key);
-					stream.ReadWrite(mapItem.Value);
-				}
-			}
-			else
-			{
-				map = PSBTUtils.ParseRawMap(stream);
-			}
-		}
-
-	}
-
 	internal static class PSBTUtils
 	{
 		public static Map ParseRawMap(BitcoinStream data)
@@ -127,9 +34,20 @@ namespace NBitcoin
 				}
 
 				data.Inner.Position--;
-				data.ReadWriteAsVarString(ref key);
-				data.ReadWriteAsVarString(ref value);
-				result.Add(key, value);
+				try
+				{
+
+					data.ReadWriteAsVarString(ref key);
+					data.ReadWriteAsVarString(ref value);
+				}
+				catch (EndOfStreamException e)
+				{
+					throw new FormatException("Malformed PSBT", e);
+				}
+				if (!result.TryAdd(key, value))
+				{
+					throw new FormatException("Duplicate key in PSBT");
+				}
 			}
 
 			return result;

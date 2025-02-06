@@ -18,7 +18,7 @@ namespace NBitcoin
 		public uint Index { get; set; }
 		internal Transaction Transaction => Parent.tx;
 
-		private static uint defaultKeyLen = 1;
+		protected static uint defaultKeyLen = 1;
 
 		internal PSBTOutput(PSBT parent, uint index, TxOut txOut) : base(parent)
 		{
@@ -118,7 +118,7 @@ namespace NBitcoin
 
 		#region IBitcoinSerializable Members
 
-		public void Serialize(BitcoinStream stream)
+		public virtual void Serialize(BitcoinStream stream)
 		{
 			if (redeem_script != null)
 			{

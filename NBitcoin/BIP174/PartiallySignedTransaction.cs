@@ -189,21 +189,32 @@ namespace NBitcoin
 				throw new FormatException("Invalid PSBT magic bytes");
 			}
 			var maps = new List<Map>();
-			while(stream.Inner.CanRead)
+			while(stream.Inner.CanRead && stream.Inner.Position < stream.Inner.Length)
 			{
 				maps.Add(PSBTUtils.ParseRawMap(stream));
 			}
+
 			var globalMap = maps[0];
-			if (globalMap.TryGetValue([PSBTConstants.PSBT_GLOBAL_VERSION], out var psbtVersion) &&
-			    psbtVersion.SequenceEqual(new byte[] { 2 }))
+			int psbtVersion = 0;
+			if (globalMap.TryGetValue([PSBTConstants.PSBT_GLOBAL_VERSION], out var psbtVersionBytes))
+			{
+				new BitcoinStream(psbtVersionBytes).ReadWrite(ref psbtVersion);
+			}
+
+			if (psbtVersion == 2)
 			{
 				return new PSBT2(maps, network);
 			}
-			if(psbtVersion is not null && !psbtVersion.SequenceEqual(new byte[] { 0 }))
+
+			if (psbtVersion != 0)
 			{
 				throw new FormatException("Invalid PSBT version");
 			}
 
+			if (globalMap.Keys.Any(bytes => PSBT2Constants.PSBT_V0_GLOBAL_EXCLUSIONSET.Contains(bytes[0])))
+			{
+				throw new FormatException("Invalid PSBT v0. Contains v2 fields");
+			}
 
 			var ret = new PSBT(maps, network);
 			return ret;
@@ -262,16 +273,8 @@ namespace NBitcoin
 							throw new FormatException("Malformed global tx. It should not contain any scriptsig or witness by itself");
 						break;
 					case PSBTConstants.PSBT_GLOBAL_XPUB when XPubVersionBytes != null:
-						if (k.Length != 1 + XPubVersionBytes.Length + 74)
-							throw new FormatException("Malformed global xpub.");
-						for (int ii = 0; ii < XPubVersionBytes.Length; ii++)
-						{
-							if (k[1 + ii] != XPubVersionBytes[ii])
-								throw new FormatException("Malformed global xpub.");
-						}
-						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
-						var rootedKeyPath = new RootedKeyPath(new HDFingerprint(v.Take(4).ToArray()), path);
-						GlobalXPubs.Add(new ExtPubKey(k, 1 + XPubVersionBytes.Length, 74).GetWif(Network), rootedKeyPath);
+						var (xpub, rootedKeyPath) = ParseXpub(k, v);
+						GlobalXPubs.Add(xpub.GetWif(Network), rootedKeyPath);
 						break;
 					default:
 						if (!unknown.TryAdd(k,v))
@@ -290,16 +293,41 @@ namespace NBitcoin
 			LoadInputsOutputs(maps);
 		}
 
+		protected (ExtPubKey, RootedKeyPath) ParseXpub(byte[] k, byte[] v)
+		{
+			if( XPubVersionBytes == null)
+				throw new FormatException("Invalid PSBT. No xpub version bytes");
+			var expectedLength = 1 + XPubVersionBytes.Length + 74;
+			if (k.Length != expectedLength)
+				throw new FormatException("Malformed global xpub.");
+			if (!k.Skip(1).Take(XPubVersionBytes.Length).SequenceEqual(XPubVersionBytes))
+			{
+				throw new FormatException("Malformed global xpub.");
+			}
+			var xpub = new ExtPubKey(k, 1 + XPubVersionBytes.Length, 74);
+
+			KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
+			var rootedKeyPath = new RootedKeyPath(new HDFingerprint(v.Take(4).ToArray()), path);
+			return (xpub, rootedKeyPath);
+
+		}
+
 		protected virtual void LoadInputsOutputs(List<Map> maps)
 		{
 			foreach (var indexedInput in tx.Inputs.AsIndexedInputs())
 			{
-				Inputs.Add(new PSBTInput(maps[(int)(indexedInput.Index + 1)], this, indexedInput.Index, indexedInput.TxIn));
+				var map = maps[(int)(indexedInput.Index + 1)];
+				if(map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_INPUT_EXCLUSIONSET.Contains(bytes[0])))
+					throw new FormatException("Invalid PSBT v0. Contains v2 fields");
+				Inputs.Add(new PSBTInput(map, this, indexedInput.Index, indexedInput.TxIn));
 			}
 			foreach (var indexedOutput in tx.Outputs.AsIndexedOutputs())
 			{
 				var index = (int)(1 + Inputs.Count + indexedOutput.N);
-				Outputs.Add(new PSBTOutput(maps[index], this, indexedOutput.N, indexedOutput.TxOut));
+				var map = maps[index];
+				if(map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_OUTPUT_EXCLUSIONSET.Contains(bytes[0])))
+					throw new FormatException("Invalid PSBT v0. Contains v2 fields");
+				Outputs.Add(new PSBTOutput(map, this, indexedOutput.N, indexedOutput.TxOut));
 			}
 		}
 
