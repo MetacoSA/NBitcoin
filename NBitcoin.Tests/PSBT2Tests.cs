@@ -149,7 +149,7 @@ namespace NBitcoin.Tests
 		{
 			Assert.ThrowsAny<FormatException>(() =>
 			{
-				PSBT.Parse(psbt, Network.Main);
+				PSBT.Parse(psbt, Network.Main, true);
 			});
 		}
 
