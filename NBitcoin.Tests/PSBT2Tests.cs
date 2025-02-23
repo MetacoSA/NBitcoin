@@ -175,7 +175,48 @@ namespace NBitcoin.Tests
 
 		}
 
+		[Fact]
+		public void PSBT2_SerializationRoundTrip()
+		{
+			// Arrange
+			// A valid PSBT2 hex string used in other PSBT2 tests
+			string psbtHex =
+				"70736274ff01020402000000010401010105010201fb040200000000010e200b0ad921419c1c8719735d72dc739f9ea9e0638d1fe4c1eef0f9944084815fc8010f0400000000000103080008af2f000000000104160014c430f64c4756da310dbd1a085572ef299926272c000103088bbdeb0b0000000001041600144dd193ac964a56ac1b9e1cca8454fe2f474f851300";
+			PSBT2 original = Assert.IsType<PSBT2>(PSBT.Parse(psbtHex, Network.Main));
+
+			// Act
+			string serialized = original.ToHex();
+			PSBT2 roundtrip = Assert.IsType<PSBT2>(PSBT.Parse(serialized, Network.Main));
+
+			// Assert
+			// Use PSBTComparer to verify that the original and roundtripped PSBT2 match.
+			PSBTComparer comparer = new PSBTComparer();
+			Assert.True(comparer.Equals(original, roundtrip), "The PSBT2 did not roundtrip correctly.");
+		}
+
+		[Fact]
+		public void PSBT2_CreateAndSerialize()
+		{
+			// Arrange
+			// Create a simple dummy unsigned transaction with more inputs and outputs.
+			Transaction tx = Network.Main.CreateTransaction();
 
 
+			tx.Inputs.Add(new TxIn(new OutPoint(uint256.Zero, 0)));
+			tx.Outputs.Add(new TxOut(Money.Coins(1.0m), new Script()));
+			tx.Inputs.Add(new TxIn(new OutPoint(uint256.Zero, 1)));
+			tx.Outputs.Add(new TxOut(Money.Coins(1.0m), new Script()));
+
+			// Create a new PSBT2 from the unsinged transaction.
+			var psbt = Assert.IsType<PSBT2>(PSBT.FromTransaction(tx, Network.Main, true));
+
+			// Act
+			string hex = psbt.ToHex();
+			PSBT2 parsed = Assert.IsType<PSBT2>(PSBT.Parse(hex, Network.Main));
+
+			// Assert
+			// Verify that the UnsignedTransaction is preserved during serializtion roundtrip.
+			Assert.Equal(psbt.tx.ToHex(), parsed.tx.ToHex());
+		}
 	}
 }

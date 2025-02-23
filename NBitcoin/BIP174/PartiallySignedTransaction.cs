@@ -107,8 +107,11 @@ namespace NBitcoin
 	}
 
 
-	public class PSBT : IEquatable<PSBT>
+	public class
+		PSBT : IEquatable<PSBT>
 	{
+		private readonly bool _strict;
+
 		// Magic bytes
 		readonly static byte[] PSBT_MAGIC_BYTES = Encoders.ASCII.DecodeData("psbt\xff");
 		internal byte[]? _XPubVersionBytes;
@@ -138,11 +141,11 @@ namespace NBitcoin
 			}
 		}
 
-		public PSBTInputList Inputs { get; } = new();
-		public PSBTOutputList Outputs { get; } = new();
+		public PSBTInputList Inputs { get; protected set; } = new();
+		public PSBTOutputList Outputs { get; protected set;} = new();
 
 		internal virtual Map unknown { get; set; } = new Map(BytesComparer.Instance);
-		public static PSBT Parse(string hexOrBase64, Network network)
+		public static PSBT Parse(string hexOrBase64, Network network, bool strict = false)
 		{
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
@@ -156,9 +159,9 @@ namespace NBitcoin
 			else
 				raw = Encoders.Base64.DecodeData(hexOrBase64);
 
-			return Load(raw, network);
+			return Load(raw, network, strict);
 		}
-		public static bool TryParse(string hexOrBase64, Network network, [MaybeNullWhen(false)] out PSBT psbt)
+		public static bool TryParse(string hexOrBase64, Network network, [MaybeNullWhen(false)] out PSBT psbt, bool strict = false)
 		{
 			if (hexOrBase64 == null)
 				throw new ArgumentNullException(nameof(hexOrBase64));
@@ -166,7 +169,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(network));
 			try
 			{
-				psbt = Parse(hexOrBase64, network);
+				psbt = Parse(hexOrBase64, network, strict);
 				return true;
 			}
 			catch
@@ -176,7 +179,7 @@ namespace NBitcoin
 			}
 		}
 
-		public static PSBT Load(byte[] rawBytes, Network network)
+		public static PSBT Load(byte[] rawBytes, Network network, bool strict = false)
 		{
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
@@ -194,9 +197,8 @@ namespace NBitcoin
 				maps.Add(PSBTUtils.ParseRawMap(stream));
 			}
 
-			var globalMap = maps[0];
 			int psbtVersion = 0;
-			if (globalMap.TryGetValue([PSBTConstants.PSBT_GLOBAL_VERSION], out var psbtVersionBytes))
+			if (maps[0].TryRemove([PSBTConstants.PSBT_GLOBAL_VERSION], out var psbtVersionBytes))
 			{
 				new BitcoinStream(psbtVersionBytes).ReadWrite(ref psbtVersion);
 			}
@@ -211,12 +213,12 @@ namespace NBitcoin
 				throw new FormatException("Invalid PSBT version");
 			}
 
-			if (globalMap.Keys.Any(bytes => PSBT2Constants.PSBT_V0_GLOBAL_EXCLUSIONSET.Contains(bytes[0])))
+			if (maps[0].Keys.Any(bytes => PSBT2Constants.PSBT_V0_GLOBAL_EXCLUSIONSET.Contains(bytes[0])))
 			{
 				throw new FormatException("Invalid PSBT v0. Contains v2 fields");
 			}
 
-			var ret = new PSBT(maps, network);
+			var ret = new PSBT(maps, network, strict);
 			return ret;
 		}
 
@@ -227,7 +229,17 @@ namespace NBitcoin
 
 		public Network Network { get; }
 
-		private PSBT(Transaction transaction, Network network)
+		protected virtual PSBTInput CreatePSBTInput(uint index, TxIn txIn)
+		{
+			return new PSBTInput(this, index, txIn);
+		}
+
+		protected virtual PSBTOutput CreatePSBTOutput(uint index, TxOut txOut)
+		{
+			return new PSBTOutput(this, index, txOut);
+		}
+
+		protected PSBT(Transaction transaction, Network network)
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
@@ -238,9 +250,9 @@ namespace NBitcoin
 			Inputs = new PSBTInputList();
 			Outputs = new PSBTOutputList();
 			for (var i = 0; i < tx.Inputs.Count; i++)
-				this.Inputs.Add(new PSBTInput(this, (uint)i, tx.Inputs[i]));
+				Inputs.Add(CreatePSBTInput((uint)i, tx.Inputs[i]));
 			for (var i = 0; i < tx.Outputs.Count; i++)
-				this.Outputs.Add(new PSBTOutput(this, (uint)i, tx.Outputs[i]));
+				Outputs.Add(CreatePSBTOutput((uint)i, tx.Outputs[i]));
 			foreach (var input in tx.Inputs)
 			{
 				input.ScriptSig = Script.Empty;
@@ -248,11 +260,13 @@ namespace NBitcoin
 			}
 		}
 
-		internal PSBT(List<Map> maps, Network network)
+		internal PSBT(List<Map> maps, Network network, bool strict = false)
 		{
+			_strict = strict;
 			Network = network ?? throw new ArgumentNullException(nameof(network));
 			Load(maps);
 		}
+
 
 		protected virtual void Load(List<Map> maps)
 		{
@@ -278,7 +292,7 @@ namespace NBitcoin
 						break;
 					default:
 						if (!unknown.TryAdd(k,v))
-							throw new FormatException("Invalid PSBTInput, duplicate key for unknown value");
+							throw new FormatException($"Invalid PSBT, duplicate key ({Encoders.Hex.EncodeData(k)}) for unknown value");
 						break;
 				}
 			}
@@ -317,7 +331,7 @@ namespace NBitcoin
 			foreach (var indexedInput in tx.Inputs.AsIndexedInputs())
 			{
 				var map = maps[(int)(indexedInput.Index + 1)];
-				if(map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_INPUT_EXCLUSIONSET.Contains(bytes[0])))
+				if(_strict && map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_INPUT_EXCLUSIONSET.Contains(bytes[0])))
 					throw new FormatException("Invalid PSBT v0. Contains v2 fields");
 				Inputs.Add(new PSBTInput(map, this, indexedInput.Index, indexedInput.TxIn));
 			}
@@ -325,7 +339,7 @@ namespace NBitcoin
 			{
 				var index = (int)(1 + Inputs.Count + indexedOutput.N);
 				var map = maps[index];
-				if(map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_OUTPUT_EXCLUSIONSET.Contains(bytes[0])))
+				if(_strict && map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_OUTPUT_EXCLUSIONSET.Contains(bytes[0])))
 					throw new FormatException("Invalid PSBT v0. Contains v2 fields");
 				Outputs.Add(new PSBTOutput(map, this, indexedOutput.N, indexedOutput.TxOut));
 			}
@@ -903,50 +917,39 @@ namespace NBitcoin
 
 		}
 
-		protected virtual void SerializeGlobals(BitcoinStream stream)
+		protected virtual Map GetGlobalMap()
 		{
-			// unsigned tx flag
-			var psbtGlobalUnsignedTx = new byte[] { PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX };
-			stream.ReadWriteAsVarString(ref psbtGlobalUnsignedTx);
-
-			// Write serialized tx to a stream
-			stream.TransactionOptions &= TransactionOptions.None;
-			uint txLength = (uint)tx.GetSerializedSize(TransactionOptions.None);
-			stream.ReadWriteAsVarInt(ref txLength);
-			stream.ReadWrite(tx);
-
+			var map = new Map(BytesComparer.Instance);
+			map.Add([PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX], tx.ToBytes());
+			return map;
 		}
 		public void Serialize(BitcoinStream stream)
 		{
 			// magic bytes
 			stream.Inner.Write(PSBT_MAGIC_BYTES, 0, PSBT_MAGIC_BYTES.Length);
 
-			SerializeGlobals(stream);
+			var globalMap = GetGlobalMap();
 
 			foreach (var xpub in GlobalXPubs)
 			{
 				if (xpub.Key.Network != Network)
 					throw new InvalidOperationException("Invalid key inside the global xpub collection");
-				var len = (uint)(1 + XPubVersionBytes.Length + 74);
-				stream.ReadWriteAsVarInt(ref len);
-				stream.ReadWrite(PSBTConstants.PSBT_GLOBAL_XPUB);
-				var vb = XPubVersionBytes;
-				stream.ReadWrite(vb);
-				var bytes = xpub.Key.ExtPubKey.ToBytes();
-				stream.ReadWrite(bytes);
 				var path = xpub.Value.KeyPath.ToBytes();
 				var pathInfo = xpub.Value.MasterFingerprint.ToBytes().Concat(path);
-				stream.ReadWriteAsVarString(ref pathInfo);
+
+				byte[] key = [PSBTConstants.PSBT_GLOBAL_XPUB, ..XPubVersionBytes, ..xpub.Key.ExtPubKey.ToBytes()];
+				var value = pathInfo;
+				globalMap.Add(key, value);
+
 			}
+
 			// Write the unknown things
 			foreach (var kv in unknown)
 			{
-				byte[] k = kv.Key;
-				byte[] v = kv.Value;
-				stream.ReadWriteAsVarString(ref k);
-				stream.ReadWriteAsVarString(ref v);
+				globalMap.Add(kv.Key, kv.Value);
 			}
 
+			stream.SerializeMap(globalMap);
 			// Separator
 			var sep = PSBTConstants.PSBT_SEPARATOR;
 			stream.ReadWrite(ref sep);
@@ -1096,12 +1099,14 @@ namespace NBitcoin
 		}
 		public override int GetHashCode() => Utils.GetHashCode(this.ToBytes());
 
-		public static PSBT FromTransaction(Transaction transaction, Network network)
+		public static PSBT FromTransaction(Transaction transaction, Network network, bool v2 = false)
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
+			if (v2)
+				return new PSBT2(transaction, network);
 			return new PSBT(transaction, network);
 		}
 

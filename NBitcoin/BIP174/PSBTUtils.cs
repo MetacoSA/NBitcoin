@@ -13,6 +13,37 @@ namespace NBitcoin
 {
 	internal static class PSBTUtils
 	{
+		internal static byte[] ToBytes(this uint value)
+		{
+
+			using var ms = new MemoryStream();
+			var stream = new BitcoinStream(ms, true);
+			stream.ReadWrite(ref value);
+			return ms.ToArray();
+		}
+		internal static byte[] ToBytes(this int value)
+		{
+
+			using var ms = new MemoryStream();
+			var stream = new BitcoinStream(ms, true);
+			stream.ReadWrite(ref value);
+			return ms.ToArray();
+		}
+		public static void SerializeMap(this BitcoinStream stream, Map map)
+		{
+			if (!stream.Serializing)
+			{
+				throw new InvalidOperationException("This method is for serialization only");
+			}
+			foreach (var entry in map)
+			{
+				var k = entry.Key;
+				var v = entry.Value;
+				stream.ReadWriteAsVarString(ref k);
+				stream.ReadWriteAsVarString(ref v);
+			}
+		}
+
 		public static Map ParseRawMap(BitcoinStream data)
 		{
 			if (data.Serializing)

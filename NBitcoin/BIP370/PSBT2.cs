@@ -1,13 +1,27 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using Map = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
 namespace NBitcoin.BIP370;
 
 public class PSBT2 : PSBT
 {
-	internal PSBT2(List<SortedDictionary<byte[], byte[]>> maps, Network network) : base(maps, network)
+	internal PSBT2(Transaction transaction, Network network):base(transaction, network)
 	{
+	}
+
+	internal PSBT2(List<Map> maps, Network network) : base(maps, network)
+	{
+	}
+
+	protected override PSBTInput CreatePSBTInput(uint index, TxIn txIn)
+	{
+		return new PSBT2Input(new (), this, index, txIn);
+	}
+
+	protected override PSBTOutput CreatePSBTOutput(uint index, TxOut txOut)
+	{
+		return new PSBT2Output(new(), this, index, txOut);
 	}
 
 	protected override void Load(List<SortedDictionary<byte[], byte[]>> maps)
@@ -22,6 +36,13 @@ public class PSBT2 : PSBT
 		{
 			FallbackLockTime = new LockTime();
 			FallbackLockTime.FromBytes(lockTimeBytes);
+		}
+
+		if (globalMap.TryRemove([PSBT2Constants.PSBT_GLOBAL_TX_VERSION], out var txVersion))
+		{
+			uint version = 0;
+			new BitcoinStream(txVersion).ReadWrite(ref version);
+			TransactionVersion = version;
 		}
 
 		if (globalMap.TryRemove([PSBT2Constants.PSBT_GLOBAL_TX_MODIFIABLE], out var modifiableFlagsBytes))
@@ -106,7 +127,7 @@ public class PSBT2 : PSBT
 			var txOut = Network.Consensus.ConsensusFactory.CreateTxOut();
 			txOut.Value = amount;
 			txOut.ScriptPubKey = script;
-			Outputs.Add(new PSBTOutput(map, this, (uint)outputIndex, txOut));
+			Outputs.Add(new PSBT2Output(map, this, (uint)outputIndex, txOut));
 		}
 
 		base.Load(maps);
@@ -134,7 +155,27 @@ public class PSBT2 : PSBT
 
 			return tx;
 		}
-		set { throw new Exception("PSBT2 does not support setting a global transaction"); }
+		set
+		{
+			TransactionVersion = value.Version;
+			FallbackLockTime = value.LockTime;
+			unknown.Clear();
+
+			Inputs = new PSBTInputList();
+			Outputs = new PSBTOutputList();
+			foreach (var input in value.Inputs.AsIndexedInputs())
+			{
+				var psbtInput = CreatePSBTInput(input.Index, input.TxIn);
+				Inputs.Add(psbtInput);
+			}
+
+			foreach (var output in value.Outputs.AsIndexedOutputs())
+			{
+				var psbtOutput = CreatePSBTOutput(output.N, output.TxOut);
+				Outputs.Add(psbtOutput);
+			}
+
+		}
 	}
 
 
@@ -195,41 +236,24 @@ public class PSBT2 : PSBT
 	PSBTModifiable ModifiableFlags { get; set; }
 
 
-	protected override void SerializeGlobals(BitcoinStream stream)
+	protected override Map GetGlobalMap()
 	{
-		var psbtGlobalVersion = new byte[] { PSBTConstants.PSBT_GLOBAL_VERSION };
-		stream.ReadWriteAsVarString(ref psbtGlobalVersion);
+		var map = new Map(BytesComparer.Instance);
+		map.Add([PSBTConstants.PSBT_GLOBAL_VERSION],  PSBT2Constants.PSBT2Version.ToBytes());
+		map.Add([PSBT2Constants.PSBT_GLOBAL_TX_VERSION],  TransactionVersion.ToBytes());
 
-		var version = PSBT2Constants.PSBT2Version;
-		stream.ReadWriteAsVarInt(ref version);
-
-
-		stream.ReadWriteAsVarInt(ref DefaultKeyLen);
-		stream.ReadWrite(PSBT2Constants.PSBT_GLOBAL_TX_VERSION);
-		stream.ReadWriteAsVarInt(ref DefaultKeyLen);
-		stream.ReadWrite(TransactionVersion);
 
 
 		if (FallbackLockTime != null)
 		{
-			stream.ReadWriteAsVarInt(ref DefaultKeyLen);
-			stream.ReadWrite(PSBT2Constants.PSBT_GLOBAL_FALLBACK_LOCKTIME);
-			stream.ReadWrite(FallbackLockTime.Value);
+
+			map.Add([PSBT2Constants.PSBT_GLOBAL_FALLBACK_LOCKTIME],  FallbackLockTime.ToBytes());
+
 		}
+		map.Add([PSBT2Constants.PSBT_GLOBAL_INPUT_COUNT],  Inputs.Count.ToBytes());
+		map.Add([PSBT2Constants.PSBT_GLOBAL_OUTPUT_COUNT],  Outputs.Count.ToBytes());
+		map.Add([PSBT2Constants.PSBT_GLOBAL_TX_MODIFIABLE], [(byte)ModifiableFlags]);
 
-		stream.ReadWriteAsVarInt(ref DefaultKeyLen);
-		stream.ReadWrite(PSBT2Constants.PSBT_GLOBAL_INPUT_COUNT);
-		stream.ReadWriteAsVarInt(ref DefaultKeyLen);
-		stream.ReadWrite((uint)Inputs.Count);
-
-		stream.ReadWriteAsVarInt(ref DefaultKeyLen);
-		stream.ReadWrite(PSBT2Constants.PSBT_GLOBAL_OUTPUT_COUNT);
-		stream.ReadWriteAsVarInt(ref DefaultKeyLen);
-		stream.ReadWrite((uint)Outputs.Count);
-
-		stream.ReadWriteAsVarInt(ref DefaultKeyLen);
-		stream.ReadWrite(PSBT2Constants.PSBT_GLOBAL_TX_MODIFIABLE);
-		stream.ReadWriteAsVarInt(ref DefaultKeyLen);
-		stream.ReadWrite((byte)ModifiableFlags);
+		return map;
 	}
 }

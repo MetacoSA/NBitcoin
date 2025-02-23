@@ -1,11 +1,12 @@
 using System;
-using System.Collections.Generic;
+using Map = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
 
 namespace NBitcoin.BIP370;
 
 public class PSBT2Output: PSBTOutput
 {
-	internal PSBT2Output(SortedDictionary<byte[], byte[]> map, PSBT parent, uint index, TxOut output) : base(map, parent, index, output)
+
+	internal PSBT2Output(Map map, PSBT parent, uint index, TxOut output) : base(map, parent, index, output)
 	{
 	}
 
