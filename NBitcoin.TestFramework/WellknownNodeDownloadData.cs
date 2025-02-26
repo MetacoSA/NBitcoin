@@ -913,6 +913,36 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class PepecoinNodeDownloadData : NodeDownloadDataBase
+		{
+			public NodeDownloadData v1_1_0 = new NodeDownloadData()
+			{
+				Version = "1.1.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/pepecoinppc/pepecoin/releases/download/v{0}/pepecoin-{0}-win64.zip",
+					Archive = "pepecoin-{0}-win64.zip",
+					Executable = "pepecoin-{0}/bin/pepecoind.exe",
+					Hash = "0df90ce84518f1bd827f67fb4900785ce4bfa422304f1a0bc768c0d2489fdf63"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/pepecoinppc/pepecoin/releases/download/v{0}/pepecoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "pepecoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "pepecoin-{0}/bin/pepecoind",
+					Hash = "9d7ef948e5726c9941cbc5307b4a0b725edc715bc10ed5515154485faecd710b"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/pepecoinppc/pepecoin/releases/download/v{0}/pepecoin-{0}-osx-unsigned.dmg",
+					Archive = "pepecoin-{0}-osx64.tar.gz",
+					Executable = "pepecoin-{0}/bin/pepecoind",
+					Hash = "9c8cb2c59d96e7db95ca1e6d19ae31de5e81ba326be1b6065882c239a6220c32"
+				},
+				SupportCookieFile = false
+			};
+		}
+
 		public class DashNodeDownloadData : NodeDownloadDataBase
 		{
 			public NodeDownloadData v0_13_0 = new NodeDownloadData()
@@ -2287,6 +2317,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new DogecoinNodeDownloadData();
+
+		public static PepecoinNodeDownloadData Pepecoin
+		{
+			get; set;
+		} = new PepecoinNodeDownloadData();
 
 		public static DashNodeDownloadData Dash
 		{
