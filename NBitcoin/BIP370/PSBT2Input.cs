@@ -6,8 +6,34 @@ namespace NBitcoin.BIP370;
 
 public class PSBT2Input : PSBTInput
 {
-	public DateTimeOffset? LockTime { get; set; }
-	public int? LockTimeHeight { get; set; }
+	DateTimeOffset? _LockTime;
+	public DateTimeOffset? LockTime
+	{
+		get
+		{
+			return _LockTime;
+		}
+		set
+		{
+			if (value is { } d && !new LockTime(d).IsTimeLock)
+				throw new ArgumentOutOfRangeException("PSBT v2 input locktime must be a time lock", nameof(value));
+			_LockTime = value;
+		}
+	}
+	int? _LockTimeHeight;
+	public int? LockTimeHeight
+	{
+		get
+		{
+			return _LockTimeHeight;
+		}
+		set
+		{
+			if (value is { } d && !new LockTime(d).IsHeightLock)
+				throw new ArgumentOutOfRangeException("PSBT v2 input locktime must be a height lock", nameof(value));
+			_LockTimeHeight = value;
+		}
+	}
 
 	/// <summary>
 	/// Convert <see cref="LockTime"/> or <see cref="LockTimeHeight"/> to a locktime.
@@ -17,7 +43,7 @@ public class PSBT2Input : PSBTInput
 		get =>
 			this switch
 			{
-				{ LockTimeHeight: { } v } when new NBitcoin.LockTime(v) is { IsHeightLock: true } l => l,
+				{ LockTimeHeight: { } v } => new NBitcoin.LockTime(v),
 				{ LockTimeHeight: null, LockTime: { } v } => new NBitcoin.LockTime(v),
 				_ => null
 			};
@@ -53,10 +79,8 @@ public class PSBT2Input : PSBTInput
 		{
 			var locktime = new LockTime();
 			new BitcoinStream(timeLockTimeBytes).ReadWrite(ref locktime);
-			if(locktime != 0 && !locktime.IsTimeLock)
-			{
+			if (!locktime.IsTimeLock)
 				throw new FormatException("PSBT v2 input locktime must be a time lock");
-			}
 			LockTime = locktime.Date;
 		}
 
@@ -64,10 +88,8 @@ public class PSBT2Input : PSBTInput
 		{
 			var locktime = new LockTime();
 			new BitcoinStream(locktimeBytes).ReadWrite(ref locktime);
-			if(locktime != 0 && !locktime.IsHeightLock)
-			{
+			if (!locktime.IsHeightLock)
 				throw new FormatException("PSBT v2 input locktime must be a height lock");
-			}
 			LockTimeHeight = locktime.Height;
 		}
 		base.Load(map);
@@ -103,7 +125,7 @@ public class PSBT2Input : PSBTInput
 		stream.ReadWriteAsVarString(ref data);
 
 		// key
-		if(LockTime is not null)
+		if (LockTime is not null)
 		{
 			stream.ReadWriteAsVarInt(ref defaultKeyLen);
 			key = PSBT2Constants.PSBT_IN_REQUIRED_TIME_LOCKTIME;
@@ -113,7 +135,7 @@ public class PSBT2Input : PSBTInput
 			data = new LockTime(LockTime.Value).ToBytes();
 			stream.ReadWriteAsVarString(ref data);
 		}
-		if(LockTimeHeight is not null)
+		if (LockTimeHeight is not null)
 		{
 			var h = new LockTime(LockTimeHeight.Value);
 			if (!h.IsHeightLock)

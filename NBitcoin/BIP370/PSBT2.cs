@@ -155,7 +155,8 @@ public class PSBT2 : PSBT
 	{
 		if (other == null)
 			throw new ArgumentNullException(nameof(other));
-
+		if (other is not PSBT2)
+			throw new ArgumentException("PSBT2 can only coinjoin with PSBT2", nameof(other));
 		other.AssertSanity();
 
 		var result = this.Clone();
@@ -169,6 +170,8 @@ public class PSBT2 : PSBT
 		}
 		return result;
 	}
+
+	public new PSBT2 Clone() => (PSBT2)Clone();
 
 
 	public LockTime EffectiveLockTime()

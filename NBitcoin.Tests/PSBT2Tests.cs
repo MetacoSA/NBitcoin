@@ -12,6 +12,7 @@ using Xunit.Abstractions;
 
 namespace NBitcoin.Tests
 {
+	[Trait("UnitTest", "UnitTest")]
 	public class PSBT2Tests
 	{
 		private readonly ITestOutputHelper Output;
@@ -149,7 +150,7 @@ namespace NBitcoin.Tests
 		{
 			Assert.ThrowsAny<FormatException>(() =>
 			{
-				PSBT.Parse(psbt, Network.Main, true);
+				PSBT.Parse(psbt, Network.Main);
 			});
 		}
 

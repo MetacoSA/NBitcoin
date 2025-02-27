@@ -35,6 +35,8 @@ public class PSBT1 : PSBT
 	{
 		if (other == null)
 			throw new ArgumentNullException(nameof(other));
+		if (other is not PSBT1)
+			throw new ArgumentException("PSBT1 can only coinjoin with PSBT1", nameof(other));
 
 		other.AssertSanity();
 
@@ -53,7 +55,7 @@ public class PSBT1 : PSBT
 		return result;
 	}
 
-	internal PSBT1(List<Map> maps, Network network, bool strict = false) : base(network)
+	internal PSBT1(List<Map> maps, Network network) : base(network)
 	{
 		var globalMap = maps[0];
 		var xpubBytes = Network.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, false);
@@ -94,7 +96,7 @@ public class PSBT1 : PSBT
 		foreach (var indexedInput in tx.Inputs.AsIndexedInputs())
 		{
 			var map = maps[(int)(indexedInput.Index + 1)];
-			if (strict && map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_INPUT_EXCLUSIONSET.Contains(bytes[0])))
+			if (map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_INPUT_EXCLUSIONSET.Contains(bytes[0])))
 				throw new FormatException("Invalid PSBT v0. Contains v2 fields");
 			Inputs.Add(new PSBTInput1(map, this, indexedInput.Index, indexedInput.TxIn));
 		}
@@ -102,7 +104,7 @@ public class PSBT1 : PSBT
 		{
 			var index = (int)(1 + Inputs.Count + indexedOutput.N);
 			var map = maps[index];
-			if (strict && map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_OUTPUT_EXCLUSIONSET.Contains(bytes[0])))
+			if (map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_OUTPUT_EXCLUSIONSET.Contains(bytes[0])))
 				throw new FormatException("Invalid PSBT v0. Contains v2 fields");
 			Outputs.Add(new PSBTOutput(map, this, indexedOutput.N, indexedOutput.TxOut));
 		}

@@ -136,7 +136,7 @@ namespace NBitcoin
 		public PSBTOutputList Outputs { get; protected set;} = new();
 
 		internal Map unknown { get; set; } = new Map(BytesComparer.Instance);
-		public static PSBT Parse(string hexOrBase64, Network network, bool strict = false)
+		public static PSBT Parse(string hexOrBase64, Network network)
 		{
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
@@ -150,9 +150,9 @@ namespace NBitcoin
 			else
 				raw = Encoders.Base64.DecodeData(hexOrBase64);
 
-			return Load(raw, network, strict);
+			return Load(raw, network);
 		}
-		public static bool TryParse(string hexOrBase64, Network network, [MaybeNullWhen(false)] out PSBT psbt, bool strict = false)
+		public static bool TryParse(string hexOrBase64, Network network, [MaybeNullWhen(false)] out PSBT psbt)
 		{
 			if (hexOrBase64 == null)
 				throw new ArgumentNullException(nameof(hexOrBase64));
@@ -160,7 +160,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(network));
 			try
 			{
-				psbt = Parse(hexOrBase64, network, strict);
+				psbt = Parse(hexOrBase64, network);
 				return true;
 			}
 			catch
@@ -170,7 +170,7 @@ namespace NBitcoin
 			}
 		}
 
-		public static PSBT Load(byte[] rawBytes, Network network, bool strict = false)
+		public static PSBT Load(byte[] rawBytes, Network network)
 		{
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
@@ -209,7 +209,7 @@ namespace NBitcoin
 				throw new FormatException("Invalid PSBT v0. Contains v2 fields");
 			}
 
-			var ret = new PSBT1(maps, network, strict);
+			var ret = new PSBT1(maps, network);
 			return ret;
 		}
 
