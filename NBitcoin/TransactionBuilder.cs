@@ -495,11 +495,12 @@ namespace NBitcoin
 				if (signingOptions.PrecomputedTransactionData is null)
 				{
 					signingOptions = signingOptions.Clone();
-					var prevTxous = psbt.tx.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
+					var tx = psbt.GetGlobalTransaction(true);
+					var prevTxous = tx.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
 					if (prevTxous.All(p => p != null))
-						signingOptions.PrecomputedTransactionData = psbt.tx.PrecomputeTransactionData(prevTxous!);
+						signingOptions.PrecomputedTransactionData = tx.PrecomputeTransactionData(prevTxous!);
 					else
-						signingOptions.PrecomputedTransactionData = psbt.tx.PrecomputeTransactionData();
+						signingOptions.PrecomputedTransactionData = tx.PrecomputeTransactionData();
 				}
 				SigningOptions = signingOptions;
 			}

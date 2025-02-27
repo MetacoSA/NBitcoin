@@ -28,7 +28,7 @@ namespace NBitcoin.Tests
 			Output = output;
 		}
 
-		public void AssertDetermineLockTime(string hex, string base64, LockTime want)
+		void AssertDetermineLockTime(string hex, string base64, LockTime want)
 		{
 
 			var psbt = Assert.IsType<PSBT2>(PSBT.Parse(hex, Network.Main));
@@ -216,7 +216,7 @@ namespace NBitcoin.Tests
 
 			// Assert
 			// Verify that the UnsignedTransaction is preserved during serializtion roundtrip.
-			Assert.Equal(psbt.tx.ToHex(), parsed.tx.ToHex());
+			Assert.Equal(psbt.GetGlobalTransaction().ToHex(), parsed.GetGlobalTransaction().ToHex());
 		}
 	}
 }

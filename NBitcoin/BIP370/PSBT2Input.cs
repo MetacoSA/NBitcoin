@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 
@@ -5,26 +6,40 @@ namespace NBitcoin.BIP370;
 
 public class PSBT2Input : PSBTInput
 {
-	public LockTime LockTime { get; set; } = LockTime.Zero;
-	public LockTime LockTimeHeight { get; set; } = LockTime.Zero;
+	public DateTimeOffset? LockTime { get; set; }
+	public int? LockTimeHeight { get; set; }
 
-	public bool IsSatisfiedWithHeightBasedLockTime()
+	/// <summary>
+	/// Convert <see cref="LockTime"/> or <see cref="LockTimeHeight"/> to a locktime.
+	/// </summary>
+	public LockTime? UnifiedTimeLock
 	{
-		return LockTimeHeight != LockTime.Zero ||
-		       (LockTime != 0 && LockTimeHeight != 0) ||
-		       (LockTime == 0 && LockTimeHeight == 0);
+		get =>
+			this switch
+			{
+				{ LockTimeHeight: { } v } when new NBitcoin.LockTime(v) is { IsHeightLock: true } l => l,
+				{ LockTimeHeight: null, LockTime: { } v } => new NBitcoin.LockTime(v),
+				_ => null
+			};
+		set
+		{
+			if (value is null)
+			{
+				LockTime = null;
+				LockTimeHeight = null;
+			}
+			else if (value.Value.IsTimeLock)
+			{
+				LockTime = value.Value.Date;
+				LockTimeHeight = null;
+			}
+			else if (value.Value.IsHeightLock)
+			{
+				LockTime = null;
+				LockTimeHeight = value.Value.Height;
+			}
+		}
 	}
-
-	public bool RequiresTimeBasedLockTime()
-	{
-	    return LockTime != LockTime.Zero && LockTimeHeight == LockTime.Zero;
-	}
-
-	public bool RequiresHeightBasedLockTime()
-	{
-	    return LockTime == LockTime.Zero && LockTimeHeight != LockTime.Zero;
-	}
-
 
 	internal PSBT2Input(SortedDictionary<byte[], byte[]> map, PSBT parent, uint index, TxIn input) : base(map, parent, index, input)
 	{
@@ -42,7 +57,7 @@ public class PSBT2Input : PSBTInput
 			{
 				throw new FormatException("PSBT v2 input locktime must be a time lock");
 			}
-			LockTime = locktime;
+			LockTime = locktime.Date;
 		}
 
 		if (map.TryRemove([PSBT2Constants.PSBT_IN_REQUIRED_HEIGHT_LOCKTIME], out var locktimeBytes))
@@ -53,7 +68,7 @@ public class PSBT2Input : PSBTInput
 			{
 				throw new FormatException("PSBT v2 input locktime must be a height lock");
 			}
-			LockTimeHeight = locktime;
+			LockTimeHeight = locktime.Height;
 		}
 		base.Load(map);
 	}
@@ -88,27 +103,35 @@ public class PSBT2Input : PSBTInput
 		stream.ReadWriteAsVarString(ref data);
 
 		// key
-		if(LockTime != LockTime.Zero)
+		if(LockTime is not null)
 		{
 			stream.ReadWriteAsVarInt(ref defaultKeyLen);
 			key = PSBT2Constants.PSBT_IN_REQUIRED_TIME_LOCKTIME;
 			stream.ReadWrite(ref key);
 
 			// value
-			data = LockTime.ToBytes();
+			data = new LockTime(LockTime.Value).ToBytes();
 			stream.ReadWriteAsVarString(ref data);
 		}
-		if(LockTimeHeight != LockTime.Zero)
+		if(LockTimeHeight is not null)
 		{
+			var h = new LockTime(LockTimeHeight.Value);
+			if (!h.IsHeightLock)
+				throw new FormatException("LockTimeHeight is out of bounds");
 			stream.ReadWriteAsVarInt(ref defaultKeyLen);
 			key = PSBT2Constants.PSBT_IN_REQUIRED_HEIGHT_LOCKTIME;
 			stream.ReadWrite(ref key);
 
 			// value
-			data = LockTimeHeight.ToBytes();
+			data = h.ToBytes();
 			stream.ReadWriteAsVarString(ref data);
 		}
 		base.Serialize(stream);
 
+	}
+
+	protected override void SetSequenceCore(Sequence sequence)
+	{
+		TxIn.Sequence = sequence;
 	}
 }

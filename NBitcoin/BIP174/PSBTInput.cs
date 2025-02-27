@@ -13,7 +13,7 @@ namespace NBitcoin
 {
 
 
-	public class PSBTInput : PSBTCoin
+	public abstract class PSBTInput : PSBTCoin
 	{
 		// Those fields are not saved, but can be used as hint to solve more info for the PSBT
 		internal Script originalScriptSig = Script.Empty;
@@ -203,16 +203,18 @@ namespace NBitcoin
 					throw new InvalidOperationException($"You should not change the transaction's input nSequence after signing. In case of particular type of SIGHASH, this will make your signature invalid. PSBTInput in index {i} had signature");
 				}
 			}
-			Transaction.Inputs[this.Index].Sequence = sequence;
+			SetSequenceCore(sequence);
 		}
 
+		protected abstract void SetSequenceCore(Sequence sequence);
+
 		internal TxIn TxIn { get; }
-		internal IndexedTxIn GetIndexedInput() => new IndexedTxIn() { Transaction = Transaction, Index = Index, TxIn = TxIn, PrevOut = PrevOut, ScriptSig = TxIn.ScriptSig, WitScript = TxIn.WitScript };
+		internal IndexedTxIn GetIndexedInput() => new IndexedTxIn() { Transaction = GetTransaction(), Index = Index, TxIn = TxIn, PrevOut = PrevOut, ScriptSig = TxIn.ScriptSig, WitScript = TxIn.WitScript };
 
 		public OutPoint PrevOut => TxIn.PrevOut;
 
 		public uint Index { get; }
-		internal Transaction Transaction => Parent.tx;
+		internal Transaction GetTransaction() => Parent.GetGlobalTransaction(true);
 
 		private Transaction? non_witness_utxo;
 		private TxOut? witness_utxo;
@@ -409,14 +411,14 @@ namespace NBitcoin
 		public uint256 GetSignatureHash(TaprootSigHash sigHash, PrecomputedTransactionData precomputedTransactionData)
 		{
 			if (GetSignableCoin() is ICoin coin)
-				return this.Transaction.Inputs.FindIndexedInput((int)Index)
+				return this.GetTransaction().Inputs.FindIndexedInput((int)Index)
 									   .GetSignatureHashTaproot(coin, sigHash, precomputedTransactionData);
 			throw new InvalidOperationException("WitnessUtxo, NonWitnessUtxo, WitnessScript or redeemScript is required to get the signature hash");
 		}
 		public uint256 GetSignatureHash(SigHash sigHash, PrecomputedTransactionData? precomputedTransactionData)
 		{
 			if (GetSignableCoin() is ICoin coin)
-				return this.Transaction.Inputs.FindIndexedInput((int)Index)
+				return this.GetTransaction().Inputs.FindIndexedInput((int)Index)
 									   .GetSignatureHash(coin, sigHash, precomputedTransactionData);
 			throw new InvalidOperationException("WitnessUtxo, NonWitnessUtxo, WitnessScript or redeemScript is required to get the signature hash");
 		}
@@ -1035,7 +1037,7 @@ namespace NBitcoin
 			{
 				ScriptVerify = scriptVerify
 			};
-			if (Transaction is IHasForkId)
+			if (GetTransaction() is IHasForkId)
 				eval.ScriptVerify |= NBitcoin.ScriptVerify.ForkId;
 			var txout = GetTxOut();
 			if (txout is null)
@@ -1043,7 +1045,7 @@ namespace NBitcoin
 				err = ScriptError.UnknownError;
 				return false;
 			}
-			var checker = new TransactionChecker(Transaction, (int)Index, GetTxOut(), precomputedTransactionData);
+			var checker = new TransactionChecker(GetTransaction(), (int)Index, GetTxOut(), precomputedTransactionData);
 			var result = eval.VerifyScript(this.FinalScriptSig, this.FinalScriptWitness, txout.ScriptPubKey, checker);
 			err = eval.Error;
 			return result;
@@ -1081,7 +1083,7 @@ namespace NBitcoin
 				var signature = PartialSigs[ecdsapk];
 
 				var existingSigHash = (uint)existingSig.SigHash;
-				if (Transaction is IHasForkId)
+				if (GetTransaction() is IHasForkId)
 					existingSigHash = existingSigHash & ~(0x40u);
 				if (!SameSigHash(existingSigHash, sigHash))
 					throw new InvalidOperationException("A signature with a different sighash is already in the partial sigs");
@@ -1128,7 +1130,7 @@ namespace NBitcoin
 		{
 			if (a == b)
 				return true;
-			if (Transaction is not IHasForkId)
+			if (GetTransaction() is not IHasForkId)
 				return false;
 			a = ((uint)a & ~(0x40u));
 			b = ((uint)a & ~(0x40u));

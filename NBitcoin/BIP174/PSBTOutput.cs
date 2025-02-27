@@ -16,7 +16,6 @@ namespace NBitcoin
 		public Script ScriptPubKey => TxOut.ScriptPubKey;
 		public Money Value => TxOut.Value;
 		public uint Index { get; set; }
-		internal Transaction Transaction => Parent.tx;
 
 		protected static uint defaultKeyLen = 1;
 

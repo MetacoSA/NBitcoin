@@ -1,3 +1,5 @@
+using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,25 +8,11 @@ namespace NBitcoin.BIP370;
 
 public class PSBT2 : PSBT
 {
-	internal PSBT2(Transaction transaction, Network network):base(transaction, network)
+	internal PSBT2(Transaction transaction, Network network):base(network)
 	{
 	}
 
-	internal PSBT2(List<Map> maps, Network network) : base(maps, network)
-	{
-	}
-
-	protected override PSBTInput CreatePSBTInput(uint index, TxIn txIn)
-	{
-		return new PSBT2Input(new (), this, index, txIn);
-	}
-
-	protected override PSBTOutput CreatePSBTOutput(uint index, TxOut txOut)
-	{
-		return new PSBT2Output(new(), this, index, txOut);
-	}
-
-	protected override void Load(List<SortedDictionary<byte[], byte[]>> maps)
+	internal PSBT2(List<Map> maps, Network network) : base(network)
 	{
 		var globalMap = maps[0];
 		if (globalMap.ContainsKey([PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX]))
@@ -52,13 +40,19 @@ public class PSBT2 : PSBT
 			ModifiableFlags = (PSBTModifiable)modifiableFlags;
 		}
 
-		if(!globalMap.TryRemove([PSBT2Constants.PSBT_GLOBAL_INPUT_COUNT], out var inputCountBytes))
+		if (!globalMap.TryRemove([PSBT2Constants.PSBT_GLOBAL_INPUT_COUNT], out var inputCountBytes))
 		{
 			throw new FormatException("PSBT v2 must contain PSBT_GLOBAL_INPUT_COUNT");
 		}
-		if(!globalMap.TryRemove([PSBT2Constants.PSBT_GLOBAL_OUTPUT_COUNT], out var outputCountBytes))
+		if (!globalMap.TryRemove([PSBT2Constants.PSBT_GLOBAL_OUTPUT_COUNT], out var outputCountBytes))
 		{
 			throw new FormatException("PSBT v2 must contain PSBT_GLOBAL_OUTPUT_COUNT");
+		}
+
+		while (globalMap.Pop(out byte[] k, out byte[] v))
+		{
+			if (!unknown.TryAdd(k, v))
+				throw new FormatException($"Invalid PSBT, duplicate key ({Encoders.Hex.EncodeData(k)}) for unknown value");
 		}
 
 		uint inputCount = 0U;
@@ -97,16 +91,11 @@ public class PSBT2 : PSBT
 				txIn.Sequence = sequence;
 			}
 
-
-
 			var input = new PSBT2Input(map, this, (uint)(mapIndex - 1), txIn);
-
-
-
 			Inputs.Add(input);
 		}
 
-		for (; mapIndex <= outputCount+ inputCount; mapIndex++)
+		for (; mapIndex <= outputCount + inputCount; mapIndex++)
 		{
 			var outputIndex = mapIndex - inputCount;
 			var map = maps[mapIndex];
@@ -129,61 +118,64 @@ public class PSBT2 : PSBT
 			txOut.ScriptPubKey = script;
 			Outputs.Add(new PSBT2Output(map, this, (uint)outputIndex, txOut));
 		}
-
-		base.Load(maps);
 	}
 
-	internal override Transaction tx
+	protected override PSBTInput CreatePSBTInput(uint index, TxIn txIn)
 	{
-		get
+		return new PSBT2Input(new (), this, index, txIn);
+	}
+
+	protected override PSBTOutput CreatePSBTOutput(uint index, TxOut txOut)
+	{
+		return new PSBT2Output(new(), this, index, txOut);
+	}
+
+	public override Transaction GetGlobalTransaction(bool @unsafe)
+	{
+		var tx = Network.CreateTransaction();
+		tx.Version = TransactionVersion;
+
+		foreach (var input in Inputs.OrderBy(input => input.Index))
 		{
-			var tx = Network.CreateTransaction();
-			tx.Version = TransactionVersion;
-
-			foreach (var input in Inputs.OrderBy(input => input.Index))
-			{
-				tx.Inputs.Add(input.TxIn);
-			}
-
-			foreach (var output in Outputs.OrderBy(output => output.Index))
-			{
-				tx.Outputs.Add(output.TxOut);
-			}
-
-			tx.LockTime = EffectiveLockTime();
-			tx.Version = TransactionVersion;
-
-			return tx;
+			tx.Inputs.Add(input.TxIn);
 		}
-		set
+
+		foreach (var output in Outputs.OrderBy(output => output.Index))
 		{
-			TransactionVersion = value.Version;
-			FallbackLockTime = value.LockTime;
-			unknown.Clear();
-
-			Inputs = new PSBTInputList();
-			Outputs = new PSBTOutputList();
-			foreach (var input in value.Inputs.AsIndexedInputs())
-			{
-				var psbtInput = CreatePSBTInput(input.Index, input.TxIn);
-				Inputs.Add(psbtInput);
-			}
-
-			foreach (var output in value.Outputs.AsIndexedOutputs())
-			{
-				var psbtOutput = CreatePSBTOutput(output.N, output.TxOut);
-				Outputs.Add(psbtOutput);
-			}
-
+			tx.Outputs.Add(output.TxOut);
 		}
+
+		tx.LockTime = EffectiveLockTime();
+		tx.Version = TransactionVersion;
+
+		return tx;
+	}
+
+	public override PSBT CoinJoin(PSBT other)
+	{
+		if (other == null)
+			throw new ArgumentNullException(nameof(other));
+
+		other.AssertSanity();
+
+		var result = this.Clone();
+		for (int i = 0; i < other.Inputs.Count; i++)
+		{
+			result.Inputs.Add(other.Inputs[i]);
+		}
+		for (int i = 0; i < other.Outputs.Count; i++)
+		{
+			result.Outputs.Add(other.Outputs[i]);
+		}
+		return result;
 	}
 
 
 	public LockTime EffectiveLockTime()
 	{
 		// Check if any input requires time-based or height-based lock time.
-		bool requireTimeBasedLockTime = Inputs.Any(input => input is PSBT2Input psbt2Input && psbt2Input.RequiresTimeBasedLockTime());
-		bool requireHeightBasedLockTime =  Inputs.Any(input => input is PSBT2Input psbt2Input && psbt2Input.RequiresHeightBasedLockTime());
+		bool requireTimeBasedLockTime = Inputs.Any(input => input is PSBT2Input { UnifiedTimeLock: { IsTimeLock: true } });
+		bool requireHeightBasedLockTime = Inputs.Any(input => input is PSBT2Input { UnifiedTimeLock: { IsHeightLock: true } });
 
 		// If both types of lock time are required, return the fallback.
 		if (requireTimeBasedLockTime && requireHeightBasedLockTime)
@@ -191,25 +183,25 @@ public class PSBT2 : PSBT
 			throw new Exception("Cannot determine lock time due to conflicting constraints on inputs");
 		}
 
-
-		LockTime lockTime;
-		if (Inputs.Any(input => input is PSBT2Input psbt2Input && ( psbt2Input.LockTime != LockTime.Zero || psbt2Input.LockTimeHeight != LockTime.Zero)))
+		LockTime? lockTime;
+		if (requireTimeBasedLockTime || requireHeightBasedLockTime)
 		{
-			// Determine if all inputs are satisfied with height-based lock time.
-			bool allInputsSatisfiedWithHeightBasedLockTime = Inputs.All(input => input is not PSBT2Input psbt2Input || psbt2Input.IsSatisfiedWithHeightBasedLockTime());
-
 			// Choose the maximum value of the chosen type of lock time.
-			if (allInputsSatisfiedWithHeightBasedLockTime)
+			if (requireHeightBasedLockTime)
 			{
 				// Use height-based lock time.
-				uint height = Inputs.Max(input => input is PSBT2Input psbt2Input ? psbt2Input.LockTimeHeight.Value : 0);
+				int height = Inputs.Max(input => input is PSBT2Input { LockTimeHeight: { } v } ? v : 0);
 				lockTime = new LockTime(height);
+				if (!lockTime.Value.IsHeightLock)
+					throw new InvalidOperationException("This is not a height based lock");
 			}
-			else
+			else // if (requireTimeBasedLockTime)
 			{
 				// Use time-based lock time.
-				uint time = Inputs.Max(input => input is PSBT2Input psbt2Input ? psbt2Input.LockTime.Value : 0);
+				uint time = Inputs.Max(input => input is PSBT2Input { LockTime: { } v } ? Utils.DateTimeToUnixTime(v) : 0);
 				lockTime = new LockTime(time);
+				if (!lockTime.Value.IsTimeLock)
+					throw new InvalidOperationException("This is not a time based lock");
 			}
 		}
 		else
@@ -218,19 +210,12 @@ public class PSBT2 : PSBT
 			lockTime = FallbackLockTime;
 		}
 
-		return lockTime;
-	}
-
-
-
-	protected override void LoadInputsOutputs(List<SortedDictionary<byte[], byte[]>> maps)
-	{
-		//we ovveride this method to avoid loading inputs and outputs here as we load them beforehand.
+		return lockTime ?? LockTime.Zero;
 	}
 
 	public uint TransactionVersion { get; set; }
 
-	LockTime FallbackLockTime { get; set; } = LockTime.Zero;
+	LockTime? FallbackLockTime { get; set; }
 
 	//An 8 bit unsigned integer as a bitfield for various transaction modification flags. Bit 0 is the Inputs Modifiable Flag, set to 1 to indicate whether inputs can be added or removed. Bit 1 is the Outputs Modifiable Flag, set to 1 to indicate whether outputs can be added or removed. Bit 2 is the Has SIGHASH_SINGLE flag, set to 1 to indicate whether the transaction has a SIGHASH_SINGLE signature who's input and output pairing must be preserved. Bit 2 essentially indicates that the Constructor must iterate the inputs to determine whether and how to add or remove an input.
 	PSBTModifiable ModifiableFlags { get; set; }

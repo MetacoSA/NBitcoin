@@ -1,0 +1,156 @@
+﻿#nullable enable
+using NBitcoin.BIP370;
+using NBitcoin.DataEncoders;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Map = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
+
+namespace NBitcoin.BIP370;
+
+public class PSBT1 : PSBT
+{
+
+	internal PSBT1(Transaction transaction, Network network) : base(network)
+	{
+		if (transaction == null)
+			throw new ArgumentNullException(nameof(transaction));
+		tx = transaction.Clone();
+		Inputs = new PSBTInputList();
+		Outputs = new PSBTOutputList();
+		for (var i = 0; i < tx.Inputs.Count; i++)
+			Inputs.Add(CreatePSBTInput((uint)i, tx.Inputs[i]));
+		for (var i = 0; i < tx.Outputs.Count; i++)
+			Outputs.Add(CreatePSBTOutput((uint)i, tx.Outputs[i]));
+		foreach (var input in tx.Inputs)
+		{
+			input.ScriptSig = Script.Empty;
+			input.WitScript = WitScript.Empty;
+		}
+	}
+
+	public override PSBT CoinJoin(PSBT other)
+	{
+		if (other == null)
+			throw new ArgumentNullException(nameof(other));
+
+		other.AssertSanity();
+
+		var result = (PSBT1)this.Clone();
+		var otx = other.GetGlobalTransaction(false);
+		for (int i = 0; i < other.Inputs.Count; i++)
+		{
+			result.tx.Inputs.Add(otx.Inputs[i]);
+			result.Inputs.Add(other.Inputs[i]);
+		}
+		for (int i = 0; i < other.Outputs.Count; i++)
+		{
+			result.tx.Outputs.Add(otx.Outputs[i]);
+			result.Outputs.Add(other.Outputs[i]);
+		}
+		return result;
+	}
+
+	internal PSBT1(List<Map> maps, Network network, bool strict = false) : base(network)
+	{
+		var globalMap = maps[0];
+		var xpubBytes = Network.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, false);
+		if (xpubBytes is null)
+			throw new FormatException("Invalid PSBT. No xpub version bytes");
+		while (globalMap.Pop(out byte[] k, out byte[] v))
+		{
+
+			switch (k[0])
+			{
+				case PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX:
+					if (k.Length != 1)
+						throw new FormatException("Invalid PSBT. Contains illegal value in key global tx");
+					if (tx != null)
+						throw new FormatException("Duplicate Key, unsigned tx already provided");
+					tx = Transaction.Load(v, Network);
+					if (tx.Inputs.Any(txin => txin.ScriptSig != Script.Empty || txin.WitScript != WitScript.Empty))
+						throw new FormatException("Malformed global tx. It should not contain any scriptsig or witness by itself");
+					break;
+				case PSBTConstants.PSBT_GLOBAL_XPUB when xpubBytes != null:
+					var (xpub, rootedKeyPath) = ParseXpub(xpubBytes, k, v);
+					GlobalXPubs.Add(xpub.GetWif(Network), rootedKeyPath);
+					break;
+				default:
+					if (!unknown.TryAdd(k, v))
+						throw new FormatException($"Invalid PSBT, duplicate key ({Encoders.Hex.EncodeData(k)}) for unknown value");
+					break;
+			}
+		}
+
+
+		if (tx is null)
+			throw new FormatException("Invalid PSBT. No global TX");
+
+		if (tx.Inputs.Count + tx.Outputs.Count + 1 != maps.Count)
+			throw new FormatException("Invalid PSBT. Number of inputs and outputs does not match to the global tx");
+
+		foreach (var indexedInput in tx.Inputs.AsIndexedInputs())
+		{
+			var map = maps[(int)(indexedInput.Index + 1)];
+			if (strict && map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_INPUT_EXCLUSIONSET.Contains(bytes[0])))
+				throw new FormatException("Invalid PSBT v0. Contains v2 fields");
+			Inputs.Add(new PSBTInput1(map, this, indexedInput.Index, indexedInput.TxIn));
+		}
+		foreach (var indexedOutput in tx.Outputs.AsIndexedOutputs())
+		{
+			var index = (int)(1 + Inputs.Count + indexedOutput.N);
+			var map = maps[index];
+			if (strict && map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_OUTPUT_EXCLUSIONSET.Contains(bytes[0])))
+				throw new FormatException("Invalid PSBT v0. Contains v2 fields");
+			Outputs.Add(new PSBTOutput(map, this, indexedOutput.N, indexedOutput.TxOut));
+		}
+	}
+
+	static (ExtPubKey, RootedKeyPath) ParseXpub(byte[] xpubBytes, byte[] k, byte[] v)
+	{
+		if (xpubBytes is null)
+			throw new FormatException("Invalid PSBT. No xpub version bytes");
+		var expectedLength = 1 + xpubBytes.Length + 74;
+		if (k.Length != expectedLength)
+			throw new FormatException("Malformed global xpub.");
+		if (!k.Skip(1).Take(xpubBytes.Length).SequenceEqual(xpubBytes))
+		{
+			throw new FormatException("Malformed global xpub.");
+		}
+		var xpub = new ExtPubKey(k, 1 + xpubBytes.Length, 74);
+
+		KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
+		var rootedKeyPath = new RootedKeyPath(new HDFingerprint(v.Take(4).ToArray()), path);
+		return (xpub, rootedKeyPath);
+	}
+
+	Transaction tx;
+
+	public override Transaction GetGlobalTransaction(bool @unsafe) => @unsafe ? tx : tx.Clone();
+
+	class PSBTInput1 : PSBTInput
+	{
+		public PSBTInput1(PSBT1 parent, uint index, TxIn txIn) : base(parent, index, txIn)
+		{
+		}
+		internal PSBTInput1(SortedDictionary<byte[], byte[]> map, PSBT parent, uint index, TxIn input) : base(map, parent, index, input)
+		{
+		}
+
+		protected override void SetSequenceCore(Sequence sequence)
+		{
+			GetTransaction().Inputs[this.Index].Sequence = sequence;
+		}
+	}
+	protected override PSBTInput CreatePSBTInput(uint index, TxIn txIn)
+	{
+		return new PSBTInput1(this, index, txIn);
+	}
+
+	protected override PSBTOutput CreatePSBTOutput(uint index, TxOut txOut)
+	{
+		return new PSBTOutput(this, index, txOut);
+	}
+}
