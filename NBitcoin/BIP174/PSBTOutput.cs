@@ -2,16 +2,11 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using Newtonsoft.Json;
 using System.IO;
 using NBitcoin.DataEncoders;
-using NBitcoin.Crypto;
-using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
-using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>;
-using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.KeyId, System.Tuple<NBitcoin.PubKey, NBitcoin.Crypto.ECDSASignature>>;
-using System.Collections;
-using NBitcoin.Protocol;
+using Map = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
+using NBitcoin.BIP370;
 
 namespace NBitcoin
 {
@@ -21,9 +16,8 @@ namespace NBitcoin
 		public Script ScriptPubKey => TxOut.ScriptPubKey;
 		public Money Value => TxOut.Value;
 		public uint Index { get; set; }
-		internal Transaction Transaction => Parent.tx;
 
-		private static uint defaultKeyLen = 1;
+		protected static uint defaultKeyLen = 1;
 
 		internal PSBTOutput(PSBT parent, uint index, TxOut txOut) : base(parent)
 		{
@@ -34,7 +28,7 @@ namespace NBitcoin
 			TxOut = txOut;
 			Index = index;
 		}
-		internal PSBTOutput(BitcoinStream stream, PSBT parent, uint index, TxOut txOut) : base(parent)
+		internal PSBTOutput(Map map, PSBT parent, uint index, TxOut txOut) : base(parent)
 		{
 			if (txOut == null)
 				throw new ArgumentNullException(nameof(txOut));
@@ -44,26 +38,9 @@ namespace NBitcoin
 			TxOut = txOut;
 			Index = index;
 
-			byte[] k = new byte[0];
-			byte[] v = new byte[0];
-			try
+
+			while (map.Pop(out byte[] k, out byte[] v))
 			{
-				stream.ReadWriteAsVarString(ref k);
-			}
-			catch (EndOfStreamException e)
-			{
-				throw new FormatException("Invalid PSBTOutput. Could not read key", e);
-			}
-			while (k.Length != 0)
-			{
-				try
-				{
-					stream.ReadWriteAsVarString(ref v);
-				}
-				catch (EndOfStreamException e)
-				{
-					throw new FormatException("Invalid PSBTOutput. Could not read value", e);
-				}
 				switch (k.First())
 				{
 					case PSBTConstants.PSBT_OUT_REDEEMSCRIPT:
@@ -114,7 +91,6 @@ namespace NBitcoin
 						unknown.Add(k, v);
 						break;
 				}
-				stream.ReadWriteAsVarString(ref k);
 			}
 		}
 
@@ -141,7 +117,7 @@ namespace NBitcoin
 
 		#region IBitcoinSerializable Members
 
-		public void Serialize(BitcoinStream stream)
+		internal void Serialize(BitcoinStream stream)
 		{
 			if (redeem_script != null)
 			{
@@ -202,10 +178,12 @@ namespace NBitcoin
 				stream.ReadWriteAsVarString(ref k);
 				stream.ReadWriteAsVarString(ref v);
 			}
-
+			SerializeCore(stream);
 			var sep = PSBTConstants.PSBT_SEPARATOR;
 			stream.ReadWrite(ref sep);
 		}
+
+		protected virtual void SerializeCore(BitcoinStream stream) { }
 
 		#endregion
 
