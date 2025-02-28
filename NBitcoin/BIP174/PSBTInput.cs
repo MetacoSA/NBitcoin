@@ -1108,6 +1108,7 @@ namespace NBitcoin
 			builder.SetSigningOptions(signingOptions);
 			builder.SignPSBTInput(this);
 		}
+
 		internal void Sign(Key key, SigningOptions? signingOptions)
 		{
 			if (key == null)

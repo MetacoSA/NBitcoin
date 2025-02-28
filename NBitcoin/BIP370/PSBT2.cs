@@ -1,5 +1,6 @@
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -218,10 +219,22 @@ public class PSBT2 : PSBT
 
 	public uint TransactionVersion { get; set; }
 
-	LockTime? FallbackLockTime { get; set; }
+	public LockTime? FallbackLockTime { get; set; }
 
 	//An 8 bit unsigned integer as a bitfield for various transaction modification flags. Bit 0 is the Inputs Modifiable Flag, set to 1 to indicate whether inputs can be added or removed. Bit 1 is the Outputs Modifiable Flag, set to 1 to indicate whether outputs can be added or removed. Bit 2 is the Has SIGHASH_SINGLE flag, set to 1 to indicate whether the transaction has a SIGHASH_SINGLE signature who's input and output pairing must be preserved. Bit 2 essentially indicates that the Constructor must iterate the inputs to determine whether and how to add or remove an input.
-	PSBTModifiable ModifiableFlags { get; set; }
+	public PSBTModifiable? ModifiableFlags { get; set; }
+
+	protected override void WriteCore(JsonTextWriter jsonWriter)
+	{
+		if (FallbackLockTime is { } fallbackLockTime)
+		{
+			jsonWriter.WritePropertyValue("fallback_locktime", fallbackLockTime.ToString());
+		}
+		if (ModifiableFlags is { } f)
+		{
+			jsonWriter.WritePropertyValue("modifiableFlags", f.ToString());
+		}
+	}
 
 
 	protected override Map GetGlobalMap()
@@ -229,18 +242,16 @@ public class PSBT2 : PSBT
 		var map = new Map(BytesComparer.Instance);
 		map.Add([PSBTConstants.PSBT_GLOBAL_VERSION],  PSBT2Constants.PSBT2Version.ToBytes());
 		map.Add([PSBT2Constants.PSBT_GLOBAL_TX_VERSION],  TransactionVersion.ToBytes());
-
-
-
 		if (FallbackLockTime != null)
 		{
 
 			map.Add([PSBT2Constants.PSBT_GLOBAL_FALLBACK_LOCKTIME],  FallbackLockTime.ToBytes());
 
 		}
-		map.Add([PSBT2Constants.PSBT_GLOBAL_INPUT_COUNT],  Inputs.Count.ToBytes());
-		map.Add([PSBT2Constants.PSBT_GLOBAL_OUTPUT_COUNT],  Outputs.Count.ToBytes());
-		map.Add([PSBT2Constants.PSBT_GLOBAL_TX_MODIFIABLE], [(byte)ModifiableFlags]);
+		map.Add([PSBT2Constants.PSBT_GLOBAL_INPUT_COUNT], new VarInt((ulong)Inputs.Count).ToBytes());
+		map.Add([PSBT2Constants.PSBT_GLOBAL_OUTPUT_COUNT], new VarInt((ulong)Outputs.Count).ToBytes());
+		if (ModifiableFlags is { } v)
+			map.Add([PSBT2Constants.PSBT_GLOBAL_TX_MODIFIABLE], [(byte)v]);
 
 		return map;
 	}

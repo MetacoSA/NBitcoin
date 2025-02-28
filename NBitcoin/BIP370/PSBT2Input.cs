@@ -99,7 +99,7 @@ public class PSBT2Input : PSBTInput
 	protected override void WriteCore(JsonTextWriter jsonWriter)
 	{
 		jsonWriter.WritePropertyValue("outpoint", this.TxIn.PrevOut.ToString());
-		jsonWriter.WritePropertyValue("sequence", this.TxIn.Sequence);
+		jsonWriter.WritePropertyValue("sequence", this.TxIn.Sequence.ToString());
 		if (LockTime is { } lockTime)
 		{
 			jsonWriter.WritePropertyValue("locktime", lockTime);
