@@ -140,7 +140,7 @@ public class PSBT0 : PSBT
 
 	Transaction tx;
 
-	public override Transaction GetGlobalTransaction(bool @unsafe) => @unsafe ? tx : tx.Clone();
+	internal override Transaction GetGlobalTransaction(bool @unsafe) => @unsafe ? tx : tx.Clone();
 
 	class PSBT0Input : PSBTInput
 	{

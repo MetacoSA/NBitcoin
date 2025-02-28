@@ -149,7 +149,7 @@ public class PSBT2 : PSBT
 		return new PSBT2Output(new(), this, index, txOut);
 	}
 
-	public override Transaction GetGlobalTransaction(bool @unsafe)
+	internal override Transaction GetGlobalTransaction(bool @unsafe)
 	{
 		var tx = Network.CreateTransaction();
 		tx.Version = TransactionVersion;

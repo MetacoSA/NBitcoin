@@ -1266,9 +1266,8 @@ namespace NBitcoin
 			}
 			return clone;
 		}
-
-		public Transaction GetGlobalTransaction() => GetGlobalTransaction(true);
-		public abstract Transaction GetGlobalTransaction(bool @unsafe);
+		public Transaction GetGlobalTransaction() => GetGlobalTransaction(false);
+		internal abstract Transaction GetGlobalTransaction(bool @unsafe);
 	}
 }
 #nullable disable
