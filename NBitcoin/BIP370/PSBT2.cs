@@ -5,13 +5,21 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Map = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
 namespace NBitcoin.BIP370;
 
 public class PSBT2 : PSBT
 {
-	internal PSBT2(Transaction transaction, Network network):base(network, PSBTVersion.PSBTv2)
+	internal PSBT2(Transaction tx, Network network):base(network, PSBTVersion.PSBTv2)
 	{
+		TransactionVersion = tx.Version;
+		Inputs = new PSBTInputList();
+		Outputs = new PSBTOutputList();
+		for (var i = 0; i < tx.Inputs.Count; i++)
+			Inputs.Add(new PSBT2Input(new(), this, (uint)i, tx.Inputs[i]));
+		for (var i = 0; i < tx.Outputs.Count; i++)
+			Outputs.Add(new PSBT2Output(new(), this, (uint)i, tx.Outputs[i]));
 	}
 
 	internal PSBT2(List<Map> maps, Network network) : base(network, PSBTVersion.PSBTv2)
@@ -107,7 +115,7 @@ public class PSBT2 : PSBT
 				sequence = seq;
 			}
 
-			var input = new PSBT2Input(map, this, (uint)(mapIndex - 1), outpoint)
+			var input = new PSBT2Input(map, this, (uint)(mapIndex - 1), new TxIn(outpoint))
 			{
 				Sequence = sequence
 			};
@@ -137,16 +145,6 @@ public class PSBT2 : PSBT
 			txOut.ScriptPubKey = script;
 			Outputs.Add(new PSBT2Output(map, this, (uint)outputIndex, txOut));
 		}
-	}
-
-	protected override PSBTInput CreatePSBTInput(uint index, TxIn txIn)
-	{
-		return new PSBT2Input(new (), this, index, txIn.PrevOut);
-	}
-
-	protected override PSBTOutput CreatePSBTOutput(uint index, TxOut txOut)
-	{
-		return new PSBT2Output(new(), this, index, txOut);
 	}
 
 	internal override Transaction GetGlobalTransaction(bool @unsafe)

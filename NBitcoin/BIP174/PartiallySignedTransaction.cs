@@ -242,10 +242,6 @@ namespace NBitcoin
 
 		public Network Network { get; }
 
-		protected abstract PSBTInput CreatePSBTInput(uint index, TxIn txIn);
-
-		protected abstract PSBTOutput CreatePSBTOutput(uint index, TxOut txOut);
-
 		protected PSBT(Network network, PSBTVersion version)
 		{
 			if (network == null)
@@ -991,15 +987,19 @@ namespace NBitcoin
 		}
 		public override int GetHashCode() => Utils.GetHashCode(this.ToBytes());
 
-		public static PSBT FromTransaction(Transaction transaction, Network network, bool v2 = false)
+		public static PSBT FromTransaction(Transaction transaction, Network network) => FromTransaction(transaction, network, PSBTVersion.PSBTv0);
+		public static PSBT FromTransaction(Transaction transaction, Network network, PSBTVersion version)
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
-			if (v2)
-				return new PSBT2(transaction, network);
-			return new PSBT0(transaction, network);
+			return version switch
+			{
+				PSBTVersion.PSBTv0 => new PSBT0(transaction, network),
+				PSBTVersion.PSBTv2 => new PSBT2(transaction, network),
+				_ => throw new NotSupportedException("Unsupported PSBT version")
+			};
 		}
 
 		public PSBT AddScripts(params Script[] redeems)

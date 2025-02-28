@@ -1789,11 +1789,12 @@ namespace NBitcoin
 			return new PrecomputedTransactionData(this);
 		}
 
-		public virtual PSBT CreatePSBT(Network network)
+		public PSBT CreatePSBT(Network network) => CreatePSBT(network, PSBTVersion.PSBTv0);
+		public virtual PSBT CreatePSBT(Network network, PSBTVersion version)
 		{
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
-			var psbt = PSBT.FromTransaction(this, network);
+			var psbt = PSBT.FromTransaction(this, network, version);
 			return psbt;
 		}
 

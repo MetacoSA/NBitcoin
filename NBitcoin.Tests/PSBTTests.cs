@@ -176,9 +176,11 @@ namespace NBitcoin.Tests
 			Assert.False(psbt.TryGetFinalizedHash(out actualHash));
 		}
 
-		[Fact]
+		[Theory]
+		[InlineData(PSBTVersion.PSBTv2)]
+		[InlineData(PSBTVersion.PSBTv0)]
 		[Trait("UnitTest", "UnitTest")]
-		public void ShouldPreserveOriginalTxPropertyAsPossible()
+		public void ShouldPreserveOriginalTxPropertyAsPossible(PSBTVersion version)
 		{
 			var keys = new Key[] { new Key(), new Key(), new Key() }.Select(k => k.GetWif(Network.RegTest)).ToArray();
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
@@ -190,7 +192,7 @@ namespace NBitcoin.Tests
 
 			// 2. with (unsigned) scriptSig and witness.
 			tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
-			var psbt = PSBT.FromTransaction(tx, Network.Main).AddCoins(funds);
+			var psbt = PSBT.FromTransaction(tx, Network.Main, version).AddCoins(funds);
 			Assert.Null(psbt.Inputs[0].FinalScriptSig); // it is not finalized since it is not signed
 			Assert.Null(psbt.Inputs[1].FinalScriptWitness); // This too
 			Assert.NotNull(psbt.Inputs[2].RedeemScript); // But it holds redeem script.
@@ -200,7 +202,7 @@ namespace NBitcoin.Tests
 
 			// 3. with finalized scriptSig and witness
 			tx = CreateTxToSpendFunds(funds, keys, redeem, true, true);
-			psbt = PSBT.FromTransaction(tx, Network.Main)
+			psbt = PSBT.FromTransaction(tx, Network.Main, version)
 				.AddTransactions(funds)
 				.Finalize();
 

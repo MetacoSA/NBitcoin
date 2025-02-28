@@ -214,7 +214,7 @@ namespace NBitcoin.Tests
 			tx.Outputs.Add(new TxOut(Money.Coins(1.0m), new Script()));
 
 			// Create a new PSBT2 from the unsinged transaction.
-			var psbt = Assert.IsType<PSBT2>(PSBT.FromTransaction(tx, Network.Main, true));
+			var psbt = Assert.IsType<PSBT2>(PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv2));
 
 			// Act
 			string hex = psbt.ToHex();

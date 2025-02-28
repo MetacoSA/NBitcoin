@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Map = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
@@ -22,9 +23,9 @@ public class PSBT0 : PSBT
 		Inputs = new PSBTInputList();
 		Outputs = new PSBTOutputList();
 		for (var i = 0; i < tx.Inputs.Count; i++)
-			Inputs.Add(CreatePSBTInput((uint)i, tx.Inputs[i]));
+			Inputs.Add(new PSBT0Input(this, (uint)i));
 		for (var i = 0; i < tx.Outputs.Count; i++)
-			Outputs.Add(CreatePSBTOutput((uint)i, tx.Outputs[i]));
+			Outputs.Add(new PSBTOutput(this, (uint)i, tx.Outputs[i]));
 		foreach (var input in tx.Inputs)
 		{
 			input.ScriptSig = Script.Empty;
@@ -163,14 +164,5 @@ public class PSBT0 : PSBT
 		{
 			txIn.Sequence = sequence;
 		}
-	}
-	protected override PSBTInput CreatePSBTInput(uint index, TxIn txIn)
-	{
-		return new PSBT0Input(this, index);
-	}
-
-	protected override PSBTOutput CreatePSBTOutput(uint index, TxOut txOut)
-	{
-		return new PSBTOutput(this, index, txOut);
 	}
 }

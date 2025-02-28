@@ -2213,9 +2213,11 @@ namespace NBitcoin.Tests
 			Assert.True(tx.Inputs.AsIndexedInputs().First().VerifyScript(coin));
 		}
 
-		[Fact]
+		[Theory]
+		[InlineData(PSBTVersion.PSBTv2)]
+		[InlineData(PSBTVersion.PSBTv0)]
 		[Trait("UnitTest", "UnitTest")]
-		public void AssertCanSendBackSmallSegwitChange()
+		public void AssertCanSendBackSmallSegwitChange(PSBTVersion version)
 		{
 			var k = new Key();
 			var txBuilder = Bitcoin.Instance.Regtest.CreateTransactionBuilder();
@@ -2224,7 +2226,7 @@ namespace NBitcoin.Tests
 			txBuilder.SetChange(new Key().PubKey.WitHash);
 			// The dust should be 294, so should have 2 outputs
 			txBuilder.SendFees(Money.Satoshis(400 - 294));
-			var signed = txBuilder.BuildPSBT(false);
+			var signed = txBuilder.BuildPSBT(false, version);
 			Assert.Equal(2, signed.Outputs.Count);
 
 			txBuilder = Bitcoin.Instance.Regtest.CreateTransactionBuilder();
@@ -2233,8 +2235,9 @@ namespace NBitcoin.Tests
 			txBuilder.SetChange(new Key().PubKey.WitHash);
 			// The dust should be 293, so should have 1 outputs
 			txBuilder.SendFees(Money.Satoshis(400 - 293));
-			signed = txBuilder.BuildPSBT(false);
+			signed = txBuilder.BuildPSBT(false, version);
 			Assert.Single(signed.Outputs);
+			Assert.Equal(signed.Version, version);
 		}
 
 		[Fact]
@@ -2274,9 +2277,11 @@ namespace NBitcoin.Tests
 			Assert.Equal(new FeeRate(1.0m).SatoshiPerByte, rate.SatoshiPerByte, 1);
 		}
 
-		[Fact]
+		[Theory]
+		[InlineData(PSBTVersion.PSBTv0)]
+		[InlineData(PSBTVersion.PSBTv2)]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanBuildTransaction()
+		public void CanBuildTransaction(PSBTVersion version)
 		{
 			var keys = Enumerable.Range(0, 5).Select(i => new Key()).ToArray();
 
@@ -2416,7 +2421,7 @@ namespace NBitcoin.Tests
 					.SignTransaction(tx);
 			Assert.True(txBuilder.Verify(partiallySigned));
 
-			var partiallySignedPSBT = partiallySigned.CreatePSBT(txBuilder.Network);
+			var partiallySignedPSBT = partiallySigned.CreatePSBT(txBuilder.Network, version);
 			txBuilder.ExtractSignatures(partiallySignedPSBT, partiallySigned);
 			partiallySignedPSBT.AddCoins(allCoins);
 			partiallySignedPSBT.AddTransactions(fundingTx);

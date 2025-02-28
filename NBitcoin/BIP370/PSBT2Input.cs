@@ -68,9 +68,11 @@ public class PSBT2Input : PSBTInput
 		}
 	}
 
-	internal PSBT2Input(SortedDictionary<byte[], byte[]> map, PSBT parent, uint index, OutPoint outPoint) : base(map, parent, index)
+	internal PSBT2Input(SortedDictionary<byte[], byte[]> map, PSBT parent, uint index, TxIn txIn) : base(map, parent, index)
 	{
-		this.PrevOut = outPoint;
+		this.PrevOut = txIn.PrevOut;
+		originalScriptSig = txIn.ScriptSig ?? Script.Empty;
+		originalWitScript = txIn.WitScript ?? WitScript.Empty;
 	}
 
 	public override OutPoint PrevOut { get; }
@@ -180,6 +182,7 @@ public class PSBT2Input : PSBTInput
 	{
 		var txin = Parent.Network.Consensus.ConsensusFactory.CreateTxIn();
 		txin.Sequence = Sequence ?? NBitcoin.Sequence.Final;
+		txin.PrevOut = PrevOut;
 		return txin;
 	}
 }
