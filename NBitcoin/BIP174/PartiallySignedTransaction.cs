@@ -814,7 +814,7 @@ namespace NBitcoin
 			stream.Inner.Write(PSBT_MAGIC_BYTES, 0, PSBT_MAGIC_BYTES.Length);
 
 			var globalMap = GetGlobalMap();
-			var xpubVersionBytes = Network.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, false)!;
+			byte[]? xpubVersionBytes = null;
 			foreach (var xpub in GlobalXPubs)
 			{
 				if (xpub.Key.Network != Network)
@@ -822,6 +822,7 @@ namespace NBitcoin
 				var path = xpub.Value.KeyPath.ToBytes();
 				var pathInfo = xpub.Value.MasterFingerprint.ToBytes().Concat(path);
 
+				xpubVersionBytes ??= Network.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, false)!;
 				byte[] key = [PSBTConstants.PSBT_GLOBAL_XPUB, .. xpubVersionBytes, ..xpub.Key.ExtPubKey.ToBytes()];
 				var value = pathInfo;
 				globalMap.Add(key, value);

@@ -67,9 +67,7 @@ public class PSBT1 : PSBT
 	internal PSBT1(List<Map> maps, Network network) : base(network, 1)
 	{
 		var globalMap = maps[0];
-		var xpubBytes = Network.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, false);
-		if (xpubBytes is null)
-			throw new FormatException("Invalid PSBT. No xpub version bytes");
+		byte[]? xpubBytes = null;
 		while (globalMap.Pop(out byte[] k, out byte[] v))
 		{
 
@@ -85,6 +83,9 @@ public class PSBT1 : PSBT
 						throw new FormatException("Malformed global tx. It should not contain any scriptsig or witness by itself");
 					break;
 				case PSBTConstants.PSBT_GLOBAL_XPUB when xpubBytes != null:
+					xpubBytes ??= Network.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, false);
+					if (xpubBytes is null)
+						throw new FormatException("Invalid PSBT. No xpub version bytes");
 					var (xpub, rootedKeyPath) = ParseXpub(xpubBytes, k, v);
 					GlobalXPubs.Add(xpub.GetWif(Network), rootedKeyPath);
 					break;
