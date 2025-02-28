@@ -12,6 +12,11 @@ using NBitcoin.BIP370;
 
 namespace NBitcoin
 {
+	public enum PSBTVersion
+	{
+		PSBTv0 = 0,
+		PSBTv2 = 2
+	}
 	static class PSBTConstants
 	{
 		public static byte[] PSBT_GLOBAL_ALL { get; }
@@ -109,7 +114,7 @@ namespace NBitcoin
 
 	public abstract class PSBT : IEquatable<PSBT>
 	{
-		public int Version { get; private set; }
+		public PSBTVersion Version { get; private set; }
 		// Magic bytes
 		readonly static byte[] PSBT_MAGIC_BYTES = Encoders.ASCII.DecodeData("psbt\xff");
 
@@ -143,7 +148,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="hexOrBase64"></param>
 		/// <param name="network"></param>
-		/// <returns>A <see cref="PSBT1"/> or <see cref="PSBT2"/> instance.</returns>
+		/// <returns>A <see cref="PSBT0"/> or <see cref="PSBT2"/> instance.</returns>
 		/// <exception cref="ArgumentNullException"></exception>
 		public static PSBT Parse(string hexOrBase64, Network network)
 		{
@@ -184,7 +189,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="rawBytes"></param>
 		/// <param name="network"></param>
-		/// <returns>A <see cref="PSBT1"/> or <see cref="PSBT2"/> instance.</returns>
+		/// <returns>A <see cref="PSBT0"/> or <see cref="PSBT2"/> instance.</returns>
 		/// <exception cref="ArgumentNullException"></exception>
 		/// <exception cref="FormatException"></exception>
 		public static PSBT Load(byte[] rawBytes, Network network)
@@ -226,7 +231,7 @@ namespace NBitcoin
 				throw new FormatException("Invalid PSBT v0. Contains v2 fields");
 			}
 
-			var ret = new PSBT1(maps, network);
+			var ret = new PSBT0(maps, network);
 			return ret;
 		}
 
@@ -241,7 +246,7 @@ namespace NBitcoin
 
 		protected abstract PSBTOutput CreatePSBTOutput(uint index, TxOut txOut);
 
-		protected PSBT(Network network, int version)
+		protected PSBT(Network network, PSBTVersion version)
 		{
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
@@ -994,7 +999,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(network));
 			if (v2)
 				return new PSBT2(transaction, network);
-			return new PSBT1(transaction, network);
+			return new PSBT0(transaction, network);
 		}
 
 		public PSBT AddScripts(params Script[] redeems)

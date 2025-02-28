@@ -11,10 +11,10 @@ using Map = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
 
 namespace NBitcoin.BIP370;
 
-public class PSBT1 : PSBT
+public class PSBT0 : PSBT
 {
 
-	internal PSBT1(Transaction transaction, Network network) : base(network, 1)
+	internal PSBT0(Transaction transaction, Network network) : base(network, PSBTVersion.PSBTv0)
 	{
 		if (transaction == null)
 			throw new ArgumentNullException(nameof(transaction));
@@ -36,12 +36,12 @@ public class PSBT1 : PSBT
 	{
 		if (other == null)
 			throw new ArgumentNullException(nameof(other));
-		if (other is not PSBT1)
+		if (other is not PSBT0)
 			throw new ArgumentException("PSBT1 can only coinjoin with PSBT1", nameof(other));
 
 		other.AssertSanity();
 
-		var result = (PSBT1)this.Clone();
+		var result = (PSBT0)this.Clone();
 		var otx = other.GetGlobalTransaction(false);
 		for (int i = 0; i < other.Inputs.Count; i++)
 		{
@@ -64,7 +64,7 @@ public class PSBT1 : PSBT
 		jsonWriter.WriteEndObject();
 	}
 
-	internal PSBT1(List<Map> maps, Network network) : base(network, 1)
+	internal PSBT0(List<Map> maps, Network network) : base(network, PSBTVersion.PSBTv0)
 	{
 		var globalMap = maps[0];
 		byte[]? xpubBytes = null;
@@ -106,15 +106,15 @@ public class PSBT1 : PSBT
 		foreach (var indexedInput in tx.Inputs.AsIndexedInputs())
 		{
 			var map = maps[(int)(indexedInput.Index + 1)];
-			if (map.Keys.Any(bytes => bytes.Length == 0 && PSBT2Constants.PSBT_V0_INPUT_EXCLUSIONSET.Contains(bytes[0])))
+			if (map.Keys.Any(bytes => bytes.Length == 1 && PSBT2Constants.PSBT_V0_INPUT_EXCLUSIONSET.Contains(bytes[0])))
 				throw new FormatException("Invalid PSBT v0. Contains v2 fields");
-			Inputs.Add(new PSBTInput1(map, this, indexedInput.Index));
+			Inputs.Add(new PSBT0Input(map, this, indexedInput.Index));
 		}
 		foreach (var indexedOutput in tx.Outputs.AsIndexedOutputs())
 		{
 			var index = (int)(1 + Inputs.Count + indexedOutput.N);
 			var map = maps[index];
-			if (map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_OUTPUT_EXCLUSIONSET.Contains(bytes[0])))
+			if (map.Keys.Any(bytes => bytes.Length == 1 && PSBT2Constants.PSBT_V0_OUTPUT_EXCLUSIONSET.Contains(bytes[0])))
 				throw new FormatException("Invalid PSBT v0. Contains v2 fields");
 			Outputs.Add(new PSBTOutput(map, this, indexedOutput.N, indexedOutput.TxOut));
 		}
@@ -142,15 +142,15 @@ public class PSBT1 : PSBT
 
 	public override Transaction GetGlobalTransaction(bool @unsafe) => @unsafe ? tx : tx.Clone();
 
-	class PSBTInput1 : PSBTInput
+	class PSBT0Input : PSBTInput
 	{
-		public PSBTInput1(PSBT1 parent, uint index) : base(parent, index)
+		public PSBT0Input(PSBT0 parent, uint index) : base(parent, index)
 		{
 			txIn = parent.tx.Inputs[index];
 			originalScriptSig = txIn.ScriptSig ?? Script.Empty;
 			originalWitScript = txIn.WitScript ?? WitScript.Empty;
 		}
-		internal PSBTInput1(SortedDictionary<byte[], byte[]> map, PSBT1 parent, uint index) : base(map, parent, index)
+		internal PSBT0Input(SortedDictionary<byte[], byte[]> map, PSBT0 parent, uint index) : base(map, parent, index)
 		{
 			txIn = parent.tx.Inputs[index];
 			originalScriptSig = txIn.ScriptSig ?? Script.Empty;
@@ -166,7 +166,7 @@ public class PSBT1 : PSBT
 	}
 	protected override PSBTInput CreatePSBTInput(uint index, TxIn txIn)
 	{
-		return new PSBTInput1(this, index);
+		return new PSBT0Input(this, index);
 	}
 
 	protected override PSBTOutput CreatePSBTOutput(uint index, TxOut txOut)

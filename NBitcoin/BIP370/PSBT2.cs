@@ -10,11 +10,11 @@ namespace NBitcoin.BIP370;
 
 public class PSBT2 : PSBT
 {
-	internal PSBT2(Transaction transaction, Network network):base(network, 2)
+	internal PSBT2(Transaction transaction, Network network):base(network, PSBTVersion.PSBTv2)
 	{
 	}
 
-	internal PSBT2(List<Map> maps, Network network) : base(network, 2)
+	internal PSBT2(List<Map> maps, Network network) : base(network, PSBTVersion.PSBTv2)
 	{
 		var globalMap = maps[0];
 		if (globalMap.ContainsKey([PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX]))
@@ -33,6 +33,10 @@ public class PSBT2 : PSBT
 			uint version = 0;
 			new BitcoinStream(txVersion).ReadWrite(ref version);
 			TransactionVersion = version;
+		}
+		else
+		{
+			throw new FormatException("PSBT v2 must contain PSBT_GLOBAL_TX_VERSION");
 		}
 
 		if (globalMap.TryRemove([PSBT2Constants.PSBT_GLOBAL_TX_MODIFIABLE], out var modifiableFlagsBytes))
@@ -60,7 +64,7 @@ public class PSBT2 : PSBT
 					xpubBytes ??= Network.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, false);
 					if (xpubBytes is null)
 						throw new FormatException("Invalid PSBT. No xpub version bytes");
-					var (xpub, rootedKeyPath) = PSBT1.ParseXpub(xpubBytes, k, v);
+					var (xpub, rootedKeyPath) = PSBT0.ParseXpub(xpubBytes, k, v);
 					GlobalXPubs.Add(xpub.GetWif(Network), rootedKeyPath);
 					break;
 				default:
