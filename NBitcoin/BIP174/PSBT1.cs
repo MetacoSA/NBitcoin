@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using NBitcoin.BIP370;
 using NBitcoin.DataEncoders;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace NBitcoin.BIP370;
 public class PSBT1 : PSBT
 {
 
-	internal PSBT1(Transaction transaction, Network network) : base(network)
+	internal PSBT1(Transaction transaction, Network network) : base(network, 1)
 	{
 		if (transaction == null)
 			throw new ArgumentNullException(nameof(transaction));
@@ -55,7 +56,15 @@ public class PSBT1 : PSBT
 		return result;
 	}
 
-	internal PSBT1(List<Map> maps, Network network) : base(network)
+	protected override void WriteCore(JsonTextWriter jsonWriter)
+	{
+		jsonWriter.WritePropertyName("tx");
+		jsonWriter.WriteStartObject();
+		RPC.BlockExplorerFormatter.WriteTransaction(jsonWriter, tx);
+		jsonWriter.WriteEndObject();
+	}
+
+	internal PSBT1(List<Map> maps, Network network) : base(network, 1)
 	{
 		var globalMap = maps[0];
 		var xpubBytes = Network.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, false);

@@ -8,11 +8,11 @@ namespace NBitcoin.BIP370;
 
 public class PSBT2 : PSBT
 {
-	internal PSBT2(Transaction transaction, Network network):base(network)
+	internal PSBT2(Transaction transaction, Network network):base(network, 2)
 	{
 	}
 
-	internal PSBT2(List<Map> maps, Network network) : base(network)
+	internal PSBT2(List<Map> maps, Network network) : base(network, 2)
 	{
 		var globalMap = maps[0];
 		if (globalMap.ContainsKey([PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX]))

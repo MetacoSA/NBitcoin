@@ -882,9 +882,14 @@ namespace NBitcoin
 				jsonWriter.WritePropertyValue("scriptPubKey", WitnessUtxo.ScriptPubKey.ToString());
 				jsonWriter.WriteEndObject();
 			}
+			WriteCore(jsonWriter);
 			jsonWriter.WriteBIP32Derivations(this.hd_keypaths);
 			jsonWriter.WriteBIP32Derivations(this.hd_taprootkeypaths);
 			jsonWriter.WriteEndObject();
+		}
+
+		protected virtual void WriteCore(JsonTextWriter jsonWriter)
+		{
 		}
 
 		private string GetName(uint sighashType)

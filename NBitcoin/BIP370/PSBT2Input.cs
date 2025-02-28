@@ -1,4 +1,5 @@
 #nullable enable
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
@@ -93,6 +94,20 @@ public class PSBT2Input : PSBTInput
 			LockTimeHeight = locktime.Height;
 		}
 		base.Load(map);
+	}
+
+	protected override void WriteCore(JsonTextWriter jsonWriter)
+	{
+		jsonWriter.WritePropertyValue("outpoint", this.TxIn.PrevOut.ToString());
+		jsonWriter.WritePropertyValue("sequence", this.TxIn.Sequence);
+		if (LockTime is { } lockTime)
+		{
+			jsonWriter.WritePropertyValue("locktime", lockTime);
+		}
+		if (LockTimeHeight is { } lockTimeHeight)
+		{
+			jsonWriter.WritePropertyValue("locktime_height", lockTimeHeight);
+		}
 	}
 
 	public override void Serialize(BitcoinStream stream)

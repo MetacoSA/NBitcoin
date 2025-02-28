@@ -109,6 +109,7 @@ namespace NBitcoin
 
 	public abstract class PSBT : IEquatable<PSBT>
 	{
+		public int Version { get; private set; }
 		// Magic bytes
 		readonly static byte[] PSBT_MAGIC_BYTES = Encoders.ASCII.DecodeData("psbt\xff");
 
@@ -224,10 +225,11 @@ namespace NBitcoin
 
 		protected abstract PSBTOutput CreatePSBTOutput(uint index, TxOut txOut);
 
-		protected PSBT(Network network)
+		protected PSBT(Network network, int version)
 		{
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
+			Version = version;
 			Network = network;
 		}
 
@@ -840,6 +842,7 @@ namespace NBitcoin
 			var jsonWriter = new JsonTextWriter(strWriter);
 			jsonWriter.Formatting = Formatting.Indented;
 			jsonWriter.WriteStartObject();
+			jsonWriter.WritePropertyValue("version", Version);
 			if (TryGetFee(out var fee))
 			{
 				jsonWriter.WritePropertyValue("fee", $"{fee} BTC");
@@ -858,10 +861,7 @@ namespace NBitcoin
 				jsonWriter.WritePropertyName("feeRate");
 				jsonWriter.WriteToken(JsonToken.Null);
 			}
-			jsonWriter.WritePropertyName("tx");
-			jsonWriter.WriteStartObject();
-			RPC.BlockExplorerFormatter.WriteTransaction(jsonWriter, this.GetGlobalTransaction(true));
-			jsonWriter.WriteEndObject();
+			this.WriteCore(jsonWriter);
 			if (GlobalXPubs.Count != 0)
 			{
 				jsonWriter.WritePropertyName("xpubs");
@@ -901,10 +901,13 @@ namespace NBitcoin
 				output.Write(jsonWriter);
 			}
 			jsonWriter.WriteEndArray();
-
 			jsonWriter.WriteEndObject();
 			jsonWriter.Flush();
 			return strWriter.ToString();
+		}
+
+		protected virtual void WriteCore(JsonTextWriter jsonWriter)
+		{
 		}
 
 		public byte[] ToBytes()
