@@ -82,7 +82,7 @@ public class PSBT1 : PSBT
 					if (tx.Inputs.Any(txin => txin.ScriptSig != Script.Empty || txin.WitScript != WitScript.Empty))
 						throw new FormatException("Malformed global tx. It should not contain any scriptsig or witness by itself");
 					break;
-				case PSBTConstants.PSBT_GLOBAL_XPUB when xpubBytes != null:
+				case PSBTConstants.PSBT_GLOBAL_XPUB:
 					xpubBytes ??= Network.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, false);
 					if (xpubBytes is null)
 						throw new FormatException("Invalid PSBT. No xpub version bytes");
@@ -120,7 +120,7 @@ public class PSBT1 : PSBT
 		}
 	}
 
-	static (ExtPubKey, RootedKeyPath) ParseXpub(byte[] xpubBytes, byte[] k, byte[] v)
+	internal static (ExtPubKey, RootedKeyPath) ParseXpub(byte[] xpubBytes, byte[] k, byte[] v)
 	{
 		if (xpubBytes is null)
 			throw new FormatException("Invalid PSBT. No xpub version bytes");

@@ -1,3 +1,4 @@
+#nullable enable
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using Newtonsoft.Json;
@@ -52,8 +53,21 @@ public class PSBT2 : PSBT
 
 		while (globalMap.Pop(out byte[] k, out byte[] v))
 		{
-			if (!Unknown.TryAdd(k, v))
-				throw new FormatException($"Invalid PSBT, duplicate key ({Encoders.Hex.EncodeData(k)}) for unknown value");
+			byte[]? xpubBytes = null;
+			switch (k[0])
+			{
+				case PSBTConstants.PSBT_GLOBAL_XPUB:
+					xpubBytes ??= Network.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, false);
+					if (xpubBytes is null)
+						throw new FormatException("Invalid PSBT. No xpub version bytes");
+					var (xpub, rootedKeyPath) = PSBT1.ParseXpub(xpubBytes, k, v);
+					GlobalXPubs.Add(xpub.GetWif(Network), rootedKeyPath);
+					break;
+				default:
+					if (!Unknown.TryAdd(k, v))
+						throw new FormatException($"Invalid PSBT, duplicate key ({Encoders.Hex.EncodeData(k)}) for unknown value");
+					break;
+			}
 		}
 
 		uint inputCount = 0U;
