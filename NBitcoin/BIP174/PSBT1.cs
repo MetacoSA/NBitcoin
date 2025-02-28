@@ -90,7 +90,7 @@ public class PSBT1 : PSBT
 					GlobalXPubs.Add(xpub.GetWif(Network), rootedKeyPath);
 					break;
 				default:
-					if (!unknown.TryAdd(k, v))
+					if (!Unknown.TryAdd(k, v))
 						throw new FormatException($"Invalid PSBT, duplicate key ({Encoders.Hex.EncodeData(k)}) for unknown value");
 					break;
 			}
@@ -106,7 +106,7 @@ public class PSBT1 : PSBT
 		foreach (var indexedInput in tx.Inputs.AsIndexedInputs())
 		{
 			var map = maps[(int)(indexedInput.Index + 1)];
-			if (map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_INPUT_EXCLUSIONSET.Contains(bytes[0])))
+			if (map.Keys.Any(bytes => bytes.Length == 0 && PSBT2Constants.PSBT_V0_INPUT_EXCLUSIONSET.Contains(bytes[0])))
 				throw new FormatException("Invalid PSBT v0. Contains v2 fields");
 			Inputs.Add(new PSBTInput1(map, this, indexedInput.Index));
 		}

@@ -52,7 +52,7 @@ public class PSBT2 : PSBT
 
 		while (globalMap.Pop(out byte[] k, out byte[] v))
 		{
-			if (!unknown.TryAdd(k, v))
+			if (!Unknown.TryAdd(k, v))
 				throw new FormatException($"Invalid PSBT, duplicate key ({Encoders.Hex.EncodeData(k)}) for unknown value");
 		}
 

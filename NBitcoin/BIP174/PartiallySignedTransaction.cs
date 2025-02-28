@@ -136,7 +136,7 @@ namespace NBitcoin
 		public PSBTInputList Inputs { get; protected set; } = new();
 		public PSBTOutputList Outputs { get; protected set;} = new();
 
-		internal Map unknown { get; set; } = new Map(BytesComparer.Instance);
+		public Map Unknown { get; private set; } = new Map(BytesComparer.Instance);
 
 		/// <summary>
 		/// Parse PSBT from a hex or base64 string.
@@ -340,8 +340,8 @@ namespace NBitcoin
 			for (int i = 0; i < Outputs.Count; i++)
 				this.Outputs[i].UpdateFrom(other.Outputs[i]);
 
-			foreach (var uk in other.unknown)
-				this.unknown.TryAdd(uk.Key, uk.Value);
+			foreach (var uk in other.Unknown)
+				this.Unknown.TryAdd(uk.Key, uk.Value);
 
 			return this;
 		}
@@ -372,8 +372,8 @@ namespace NBitcoin
 				foreach (var thisOutput in this.Outputs.Where(o => o.ScriptPubKey == otherOutput.ScriptPubKey))
 					thisOutput.UpdateFrom(otherOutput);
 
-			foreach (var uk in other.unknown)
-				this.unknown.TryAdd(uk.Key, uk.Value);
+			foreach (var uk in other.Unknown)
+				this.Unknown.TryAdd(uk.Key, uk.Value);
 
 			return this;
 		}
@@ -830,7 +830,7 @@ namespace NBitcoin
 			}
 
 			// Write the unknown things
-			foreach (var kv in unknown)
+			foreach (var kv in Unknown)
 			{
 				globalMap.Add(kv.Key, kv.Value);
 			}
@@ -892,11 +892,11 @@ namespace NBitcoin
 				}
 				jsonWriter.WriteEndArray();
 			}
-			if (unknown.Count != 0)
+			if (Unknown.Count != 0)
 			{
 				jsonWriter.WritePropertyName("unknown");
 				jsonWriter.WriteStartObject();
-				foreach (var el in unknown)
+				foreach (var el in Unknown)
 				{
 					jsonWriter.WritePropertyValue(Encoders.Hex.EncodeData(el.Key), Encoders.Hex.EncodeData(el.Value));
 				}

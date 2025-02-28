@@ -15,20 +15,6 @@ namespace NBitcoin.Tests
 	[Trait("UnitTest", "UnitTest")]
 	public class PSBT2Tests
 	{
-		private readonly ITestOutputHelper Output;
-
-		private static PSBTComparer ComparerInstance { get; }
-
-		static PSBT2Tests()
-		{
-			ComparerInstance = new PSBTComparer();
-		}
-
-		public PSBT2Tests(ITestOutputHelper output)
-		{
-			Output = output;
-		}
-
 		void AssertDetermineLockTime(string hex, string base64, LockTime want)
 		{
 
