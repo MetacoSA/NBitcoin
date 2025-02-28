@@ -117,7 +117,7 @@ namespace NBitcoin
 
 		#region IBitcoinSerializable Members
 
-		public virtual void Serialize(BitcoinStream stream)
+		internal void Serialize(BitcoinStream stream)
 		{
 			if (redeem_script != null)
 			{
@@ -178,10 +178,12 @@ namespace NBitcoin
 				stream.ReadWriteAsVarString(ref k);
 				stream.ReadWriteAsVarString(ref v);
 			}
-
+			SerializeCore(stream);
 			var sep = PSBTConstants.PSBT_SEPARATOR;
 			stream.ReadWrite(ref sep);
 		}
+
+		protected virtual void SerializeCore(BitcoinStream stream) { }
 
 		#endregion
 

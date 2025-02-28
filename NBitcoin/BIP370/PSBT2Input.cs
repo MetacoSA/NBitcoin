@@ -68,11 +68,12 @@ public class PSBT2Input : PSBTInput
 		}
 	}
 
-	internal PSBT2Input(SortedDictionary<byte[], byte[]> map, PSBT parent, uint index, TxIn input) : base(map, parent, index, input)
+	internal PSBT2Input(SortedDictionary<byte[], byte[]> map, PSBT parent, uint index, OutPoint outPoint) : base(map, parent, index)
 	{
-
-
+		this.PrevOut = outPoint;
 	}
+
+	public override OutPoint PrevOut { get; }
 
 	protected override void Load(SortedDictionary<byte[], byte[]> map)
 	{
@@ -98,8 +99,9 @@ public class PSBT2Input : PSBTInput
 
 	protected override void WriteCore(JsonTextWriter jsonWriter)
 	{
-		jsonWriter.WritePropertyValue("outpoint", this.TxIn.PrevOut.ToString());
-		jsonWriter.WritePropertyValue("sequence", this.TxIn.Sequence.ToString());
+		jsonWriter.WritePropertyValue("outpoint", PrevOut.ToString());
+		if (Sequence is { } sequence)
+			jsonWriter.WritePropertyValue("sequence", sequence.ToString());
 		if (LockTime is { } lockTime)
 		{
 			jsonWriter.WritePropertyValue("locktime", lockTime);
@@ -110,7 +112,7 @@ public class PSBT2Input : PSBTInput
 		}
 	}
 
-	public override void Serialize(BitcoinStream stream)
+	protected override void SerializeCore(BitcoinStream stream)
 	{
 		// key
 		stream.ReadWriteAsVarInt(ref defaultKeyLen);
@@ -118,7 +120,7 @@ public class PSBT2Input : PSBTInput
 		stream.ReadWrite(ref key);
 
 		// value
-		var data = TxIn.PrevOut.Hash.ToBytes();
+		var data = PrevOut.Hash.ToBytes();
 		stream.ReadWriteAsVarString(ref data);
 
 		// key
@@ -127,17 +129,20 @@ public class PSBT2Input : PSBTInput
 		stream.ReadWrite(ref key);
 
 		// value
-		data = BitConverter.GetBytes(TxIn.PrevOut.N);
+		data = BitConverter.GetBytes(PrevOut.N);
 		stream.ReadWriteAsVarString(ref data);
 
-		// key
-		stream.ReadWriteAsVarInt(ref defaultKeyLen);
-		key = PSBT2Constants.PSBT_IN_SEQUENCE;
-		stream.ReadWrite(ref key);
+		if (Sequence is { } s)
+		{
+			// key
+			stream.ReadWriteAsVarInt(ref defaultKeyLen);
+			key = PSBT2Constants.PSBT_IN_SEQUENCE;
+			stream.ReadWrite(ref key);
 
-		// value
-		data = BitConverter.GetBytes(TxIn.Sequence);
-		stream.ReadWriteAsVarString(ref data);
+			// value
+			var seqData = Utils.ToBytes((uint)s, true);
+			stream.ReadWriteAsVarString(ref seqData);
+		}
 
 		// key
 		if (LockTime is not null)
@@ -163,12 +168,18 @@ public class PSBT2Input : PSBTInput
 			data = h.ToBytes();
 			stream.ReadWriteAsVarString(ref data);
 		}
-		base.Serialize(stream);
-
 	}
 
+	public Sequence? Sequence { get; set; }
 	protected override void SetSequenceCore(Sequence sequence)
 	{
-		TxIn.Sequence = sequence;
+		Sequence = sequence;
+	}
+
+	internal TxIn CreateTxIn()
+	{
+		var txin = Parent.Network.Consensus.ConsensusFactory.CreateTxIn();
+		txin.Sequence = Sequence ?? NBitcoin.Sequence.Final;
+		return txin;
 	}
 }

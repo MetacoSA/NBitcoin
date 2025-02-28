@@ -20,21 +20,14 @@ namespace NBitcoin
 		internal WitScript originalWitScript = WitScript.Empty;
 		internal TxOut? orphanTxOut = null; // When this input is not segwit, but we don't have the previous tx
 
-		internal PSBTInput(PSBT parent, uint index, TxIn input) : base(parent)
+		internal PSBTInput(PSBT parent, uint index) : base(parent)
 		{
-			TxIn = input;
 			Index = index;
-			originalScriptSig = TxIn.ScriptSig ?? Script.Empty;
-			originalWitScript = TxIn.WitScript ?? WitScript.Empty;
 		}
 
-		internal PSBTInput(SortedDictionary<byte[], byte[]> map, PSBT parent, uint index, TxIn input) : base(parent)
+		internal PSBTInput(SortedDictionary<byte[], byte[]> map, PSBT parent, uint index) : base(parent)
 		{
-			TxIn = input;
 			Index = index;
-			originalScriptSig = TxIn.ScriptSig ?? Script.Empty;
-			originalWitScript = TxIn.WitScript ?? WitScript.Empty;
-
 			Load(map);
 		}
 
@@ -208,10 +201,9 @@ namespace NBitcoin
 
 		protected abstract void SetSequenceCore(Sequence sequence);
 
-		internal TxIn TxIn { get; }
-		internal IndexedTxIn GetIndexedInput() => new IndexedTxIn() { Transaction = GetTransaction(), Index = Index, TxIn = TxIn, PrevOut = PrevOut, ScriptSig = TxIn.ScriptSig, WitScript = TxIn.WitScript };
+		internal IndexedTxIn GetIndexedInput() => GetTransaction().Inputs.FindIndexedInput((int)Index);
 
-		public OutPoint PrevOut => TxIn.PrevOut;
+		public abstract OutPoint PrevOut { get; }
 
 		public uint Index { get; }
 		internal Transaction GetTransaction() => Parent.GetGlobalTransaction(true);
@@ -572,19 +564,19 @@ namespace NBitcoin
 			{
 				var prevOutTxId = NonWitnessUtxo.GetHash();
 				bool validOutpoint = true;
-				if (TxIn.PrevOut.Hash != prevOutTxId)
+				if (PrevOut.Hash != prevOutTxId)
 				{
 					errors.Add(new PSBTError(Index, "non_witness_utxo does not match the transaction id referenced by the global transaction sign"));
 					validOutpoint = false;
 				}
-				if (TxIn.PrevOut.N >= NonWitnessUtxo.Outputs.Count)
+				if (PrevOut.N >= NonWitnessUtxo.Outputs.Count)
 				{
 					errors.Add(new PSBTError(Index, "Global transaction referencing an out of bound output in non_witness_utxo"));
 					validOutpoint = false;
 				}
 				if (redeem_script != null && validOutpoint)
 				{
-					if (redeem_script.Hash.ScriptPubKey != NonWitnessUtxo.Outputs[TxIn.PrevOut.N].ScriptPubKey)
+					if (redeem_script.Hash.ScriptPubKey != NonWitnessUtxo.Outputs[PrevOut.N].ScriptPubKey)
 						errors.Add(new PSBTError(Index, "The redeem_script is not coherent with the scriptPubKey of the non_witness_utxo"));
 				}
 			}
@@ -645,23 +637,10 @@ namespace NBitcoin
 
 		protected static uint defaultKeyLen = 1;
 
-		public virtual void Serialize(BitcoinStream stream)
+		internal void Serialize(BitcoinStream stream)
 		{
 			if (stream == null)
 				throw new ArgumentNullException(nameof(stream));
-			// Write the utxo
-			// If there is a non-witness utxo, then don't serialize the witness one.
-			if (witness_utxo != null)
-			{
-				// key
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				var key = PSBTConstants.PSBT_IN_WITNESS_UTXO;
-				stream.ReadWrite(ref key);
-
-				// value
-				var data = witness_utxo.ToBytes();
-				stream.ReadWriteAsVarString(ref data);
-			}
 
 			if (non_witness_utxo != null)
 			{
@@ -671,6 +650,18 @@ namespace NBitcoin
 				stream.ReadWrite(ref key);
 				// value
 				byte[] data = non_witness_utxo.ToBytes();
+				stream.ReadWriteAsVarString(ref data);
+			}
+
+			if (witness_utxo != null)
+			{
+				// key
+				stream.ReadWriteAsVarInt(ref defaultKeyLen);
+				var key = PSBTConstants.PSBT_IN_WITNESS_UTXO;
+				stream.ReadWrite(ref key);
+
+				// value
+				var data = witness_utxo.ToBytes();
 				stream.ReadWriteAsVarString(ref data);
 			}
 
@@ -797,10 +788,12 @@ namespace NBitcoin
 				stream.ReadWriteAsVarString(ref k);
 				stream.ReadWriteAsVarString(ref v);
 			}
-
+			SerializeCore(stream);
 			var sep = PSBTConstants.PSBT_SEPARATOR;
 			stream.ReadWrite(ref sep);
 		}
+
+		protected virtual void SerializeCore(BitcoinStream stream) { }
 
 		#endregion
 
@@ -922,9 +915,9 @@ namespace NBitcoin
 				return WitnessUtxo;
 			if (NonWitnessUtxo != null)
 			{
-				if (TxIn.PrevOut.N >= NonWitnessUtxo.Outputs.Count)
+				if (PrevOut.N >= NonWitnessUtxo.Outputs.Count)
 					return null;
-				return NonWitnessUtxo.Outputs[TxIn.PrevOut.N];
+				return NonWitnessUtxo.Outputs[PrevOut.N];
 			}
 			if (orphanTxOut != null)
 				return orphanTxOut;
@@ -1168,8 +1161,8 @@ namespace NBitcoin
 			{
 				if (WitnessUtxo == null)
 				{
-					if (TxIn.PrevOut.N < NonWitnessUtxo.Outputs.Count)
-						WitnessUtxo = NonWitnessUtxo.Outputs[TxIn.PrevOut.N];
+					if (PrevOut.N < NonWitnessUtxo.Outputs.Count)
+						WitnessUtxo = NonWitnessUtxo.Outputs[PrevOut.N];
 				}
 				NonWitnessUtxo = null;
 				return true;
@@ -1187,7 +1180,7 @@ namespace NBitcoin
 			var txout = GetTxOut();
 			if (txout == null)
 				return null;
-			return new Coin(TxIn.PrevOut, txout);
+			return new Coin(PrevOut, txout);
 		}
 
 		public override string ToString()
@@ -1213,7 +1206,7 @@ namespace NBitcoin
 
 		internal void Add(PSBTInput input)
 		{
-			if (!_InputsByOutpoint.TryAdd(input.TxIn.PrevOut, input))
+			if (!_InputsByOutpoint.TryAdd(input.PrevOut, input))
 				throw new InvalidOperationException("Two inputs are spending the same output in the same transaction");
 			_Inner.Add(input);
 		}

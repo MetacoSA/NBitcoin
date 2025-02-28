@@ -10,7 +10,7 @@ public class PSBT2Output: PSBTOutput
 	{
 	}
 
-	public override void Serialize(BitcoinStream stream)
+	protected override void SerializeCore(BitcoinStream stream)
 	{
 		// key
 		stream.ReadWriteAsVarInt(ref defaultKeyLen);
@@ -18,7 +18,7 @@ public class PSBT2Output: PSBTOutput
 		stream.ReadWrite(ref key);
 
 		// value
-		var data = BitConverter.GetBytes(TxOut.Value.Satoshi);
+		var data = Utils.ToBytes((ulong)TxOut.Value.Satoshi, true);
 		stream.ReadWriteAsVarString(ref data);
 
 		// key
@@ -29,7 +29,5 @@ public class PSBT2Output: PSBTOutput
 		// value
 		data = TxOut.ScriptPubKey.ToBytes();
 		stream.ReadWriteAsVarString(ref data);
-
-		base.Serialize(stream);
 	}
 }

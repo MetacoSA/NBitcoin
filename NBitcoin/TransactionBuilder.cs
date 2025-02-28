@@ -553,7 +553,7 @@ namespace NBitcoin
 					if (Transaction is null)
 					{
 						txin = null;
-						coin = coin ?? Builder.FindSignableCoin(input.TxIn);
+						coin = coin ?? Builder.FindSignableCoin(new TxIn(input.PrevOut));
 					}
 					else
 					{

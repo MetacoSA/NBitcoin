@@ -107,7 +107,7 @@ public class PSBT1 : PSBT
 			var map = maps[(int)(indexedInput.Index + 1)];
 			if (map.Keys.Any(bytes => PSBT2Constants.PSBT_V0_INPUT_EXCLUSIONSET.Contains(bytes[0])))
 				throw new FormatException("Invalid PSBT v0. Contains v2 fields");
-			Inputs.Add(new PSBTInput1(map, this, indexedInput.Index, indexedInput.TxIn));
+			Inputs.Add(new PSBTInput1(map, this, indexedInput.Index));
 		}
 		foreach (var indexedOutput in tx.Outputs.AsIndexedOutputs())
 		{
@@ -143,21 +143,29 @@ public class PSBT1 : PSBT
 
 	class PSBTInput1 : PSBTInput
 	{
-		public PSBTInput1(PSBT1 parent, uint index, TxIn txIn) : base(parent, index, txIn)
+		public PSBTInput1(PSBT1 parent, uint index) : base(parent, index)
 		{
+			txIn = parent.tx.Inputs[index];
+			originalScriptSig = txIn.ScriptSig ?? Script.Empty;
+			originalWitScript = txIn.WitScript ?? WitScript.Empty;
 		}
-		internal PSBTInput1(SortedDictionary<byte[], byte[]> map, PSBT parent, uint index, TxIn input) : base(map, parent, index, input)
+		internal PSBTInput1(SortedDictionary<byte[], byte[]> map, PSBT1 parent, uint index) : base(map, parent, index)
 		{
+			txIn = parent.tx.Inputs[index];
+			originalScriptSig = txIn.ScriptSig ?? Script.Empty;
+			originalWitScript = txIn.WitScript ?? WitScript.Empty;
 		}
+		TxIn txIn;
+		public override OutPoint PrevOut => txIn.PrevOut;
 
 		protected override void SetSequenceCore(Sequence sequence)
 		{
-			GetTransaction().Inputs[this.Index].Sequence = sequence;
+			txIn.Sequence = sequence;
 		}
 	}
 	protected override PSBTInput CreatePSBTInput(uint index, TxIn txIn)
 	{
-		return new PSBTInput1(this, index, txIn);
+		return new PSBTInput1(this, index);
 	}
 
 	protected override PSBTOutput CreatePSBTOutput(uint index, TxOut txOut)

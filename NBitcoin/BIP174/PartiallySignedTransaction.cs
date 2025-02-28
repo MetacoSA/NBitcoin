@@ -137,6 +137,14 @@ namespace NBitcoin
 		public PSBTOutputList Outputs { get; protected set;} = new();
 
 		internal Map unknown { get; set; } = new Map(BytesComparer.Instance);
+
+		/// <summary>
+		/// Parse PSBT from a hex or base64 string.
+		/// </summary>
+		/// <param name="hexOrBase64"></param>
+		/// <param name="network"></param>
+		/// <returns>A <see cref="PSBT1"/> or <see cref="PSBT2"/> instance.</returns>
+		/// <exception cref="ArgumentNullException"></exception>
 		public static PSBT Parse(string hexOrBase64, Network network)
 		{
 			if (network == null)
@@ -171,6 +179,14 @@ namespace NBitcoin
 			}
 		}
 
+		/// <summary>
+		/// Load PSBT from raw bytes.
+		/// </summary>
+		/// <param name="rawBytes"></param>
+		/// <param name="network"></param>
+		/// <returns>A <see cref="PSBT1"/> or <see cref="PSBT2"/> instance.</returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="FormatException"></exception>
 		public static PSBT Load(byte[] rawBytes, Network network)
 		{
 			if (network == null)
@@ -283,11 +299,11 @@ namespace NBitcoin
 				txsById.TryAdd(tx.GetHash(), tx);
 			foreach (var input in Inputs)
 			{
-				if (txsById.TryGetValue(input.TxIn.PrevOut.Hash, out var tx))
+				if (txsById.TryGetValue(input.PrevOut.Hash, out var tx))
 				{
-					if (input.TxIn.PrevOut.N >= tx.Outputs.Count)
+					if (input.PrevOut.N >= tx.Outputs.Count)
 						continue;
-					var output = tx.Outputs[input.TxIn.PrevOut.N];
+					var output = tx.Outputs[input.PrevOut.N];
 					input.NonWitnessUtxo = tx;
 					if (input.GetCoin()?.IsMalleable is false)
 						input.WitnessUtxo = output;
@@ -792,7 +808,7 @@ namespace NBitcoin
 			map.Add([PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX], this.GetGlobalTransaction(true).ToBytes());
 			return map;
 		}
-		public void Serialize(BitcoinStream stream)
+		internal void Serialize(BitcoinStream stream)
 		{
 			// magic bytes
 			stream.Inner.Write(PSBT_MAGIC_BYTES, 0, PSBT_MAGIC_BYTES.Length);

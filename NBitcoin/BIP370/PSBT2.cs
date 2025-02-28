@@ -81,18 +81,18 @@ public class PSBT2 : PSBT
 
 			var outpoint = new OutPoint(txId, index);
 
-			var txIn = Network.Consensus.ConsensusFactory.CreateTxIn();
-			txIn.PrevOut = outpoint;
-
+			Sequence? sequence = null;
 			if (map.TryRemove([PSBT2Constants.PSBT_IN_SEQUENCE], out var sequenceBytes))
 			{
-				uint sequence = 0;
-				new BitcoinStream(sequenceBytes).ReadWrite(ref sequence);
-
-				txIn.Sequence = sequence;
+				uint seq = 0;
+				new BitcoinStream(sequenceBytes).ReadWrite(ref seq);
+				sequence = seq;
 			}
 
-			var input = new PSBT2Input(map, this, (uint)(mapIndex - 1), txIn);
+			var input = new PSBT2Input(map, this, (uint)(mapIndex - 1), outpoint)
+			{
+				Sequence = sequence
+			};
 			Inputs.Add(input);
 		}
 
@@ -123,7 +123,7 @@ public class PSBT2 : PSBT
 
 	protected override PSBTInput CreatePSBTInput(uint index, TxIn txIn)
 	{
-		return new PSBT2Input(new (), this, index, txIn);
+		return new PSBT2Input(new (), this, index, txIn.PrevOut);
 	}
 
 	protected override PSBTOutput CreatePSBTOutput(uint index, TxOut txOut)
@@ -138,7 +138,7 @@ public class PSBT2 : PSBT
 
 		foreach (var input in Inputs.OrderBy(input => input.Index))
 		{
-			tx.Inputs.Add(input.TxIn);
+			tx.Inputs.Add(((PSBT2Input)input).CreateTxIn());
 		}
 
 		foreach (var output in Outputs.OrderBy(output => output.Index))
@@ -179,12 +179,19 @@ public class PSBT2 : PSBT
 	{
 		// Check if any input requires time-based or height-based lock time.
 		bool requireTimeBasedLockTime = Inputs.Any(input => input is PSBT2Input { UnifiedTimeLock: { IsTimeLock: true } });
-		bool requireHeightBasedLockTime = Inputs.Any(input => input is PSBT2Input { UnifiedTimeLock: { IsHeightLock: true } });
+		bool requireHeightBasedLockTime = Inputs.Any(input => input is PSBT2Input { LockTime: null, UnifiedTimeLock: { IsHeightLock: true } });
 
 		// If both types of lock time are required, return the fallback.
 		if (requireTimeBasedLockTime && requireHeightBasedLockTime)
 		{
-			throw new Exception("Cannot determine lock time due to conflicting constraints on inputs");
+			throw new InvalidOperationException("Cannot determine lock time due to conflicting constraints on inputs");
+		}
+
+		if (!requireHeightBasedLockTime && !requireTimeBasedLockTime)
+		{
+			requireHeightBasedLockTime = Inputs.Any(output => output is PSBT2Input { LockTimeHeight: not null });
+			if (!requireHeightBasedLockTime)
+				requireTimeBasedLockTime = Inputs.Any(output => output is PSBT2Input { LockTime: not null });
 		}
 
 		LockTime? lockTime;
