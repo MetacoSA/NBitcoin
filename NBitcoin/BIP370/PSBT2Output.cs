@@ -37,13 +37,8 @@ public class PSBT2Output : PSBTOutput
 		map.Add([PSBT2Constants.PSBT_OUT_AMOUNT], Value.Satoshi);
 		map.Add([PSBT2Constants.PSBT_OUT_SCRIPT], ScriptPubKey.ToBytes());
 	}
-	public override Coin GetCoin()
-	{
-		var outpoint = new OutPoint(Parent.GetGlobalTransaction(true).GetHash(), this.Index);
-		return new Coin(outpoint, GetTxOut());
-	}
 
-	internal TxOut GetTxOut()
+	public override TxOut GetTxOut()
 	{
 		var txOut = Parent.Network.Consensus.ConsensusFactory.CreateTxOut();
 		txOut.Value = Value;

@@ -92,7 +92,7 @@ namespace NBitcoin
 			// Let's try to be smart, if the added key match the scriptPubKey then we are in p2psh p2wpkh
 			if (Parent.Settings.IsSmart && redeem_script == null)
 			{
-				var output = GetCoin();
+				var output = GetTxOut();
 				if (output != null)
 				{
 					if (pubKey.WitHash.ScriptPubKey.Hash.ScriptPubKey == output.ScriptPubKey)
@@ -101,103 +101,6 @@ namespace NBitcoin
 					}
 				}
 			}
-		}
-
-		public abstract Coin? GetCoin();
-
-		public Coin? GetSignableCoin()
-		{
-			return GetSignableCoin(out _);
-		}
-		public virtual Coin? GetSignableCoin(out string? error)
-		{
-			var coin = GetCoin();
-			if (coin == null)
-			{
-				error = "Impossible to know the TxOut this coin refers to";
-				return null;
-			}
-			if (PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey) is ScriptId scriptId)
-			{
-				var redeemScript = GetRedeemScript();
-				if (redeemScript == null)
-				{
-					error = "Spending p2sh output but redeem_script is not set";
-					return null;
-				}
-
-				if (redeemScript.Hash != scriptId)
-				{
-					error = "Spending p2sh output but redeem_script is not matching the utxo scriptPubKey";
-					return null;
-				}
-
-				if (PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(redeemScript) is WitProgramParameters prog
-					&& prog.NeedWitnessRedeemScript())
-				{
-					var witnessScript = GetWitnessScript();
-					if (witnessScript == null)
-					{
-						error = "Spending p2sh-p2wsh output but witness_script is not set";
-						return null;
-					}
-					if (!prog.VerifyWitnessRedeemScript(witnessScript))
-					{
-						error = "Spending p2sh-p2wsh output but witness_script does not match redeem_script";
-						return null;
-					}
-					coin = coin.ToScriptCoin(witnessScript);
-					error = null;
-					return coin;
-				}
-				else
-				{
-					coin = coin.ToScriptCoin(redeemScript);
-					error = null;
-					return coin;
-				}
-			}
-			else
-			{
-				if (GetRedeemScript() != null)
-				{
-					error = "Spending non p2sh output but redeem_script is set";
-					return null;
-				}
-				if (PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(coin.ScriptPubKey) is WitProgramParameters prog
-					&& prog.NeedWitnessRedeemScript())
-				{
-					var witnessScript = GetWitnessScript();
-					if (witnessScript == null)
-					{
-						error = "Spending p2wsh output but witness_script is not set";
-						return null;
-					}
-					if (!prog.VerifyWitnessRedeemScript(witnessScript))
-					{
-						error = "Spending p2wsh output but witness_script does not match the scriptPubKey";
-						return null;
-					}
-					coin = coin.ToScriptCoin(witnessScript);
-					error = null;
-					return coin;
-				}
-				else
-				{
-					error = null;
-					return coin;
-				}
-			}
-		}
-
-
-		internal virtual Script? GetRedeemScript()
-		{
-			return RedeemScript;
-		}
-		internal virtual Script? GetWitnessScript()
-		{
-			return WitnessScript;
 		}
 
 		/// <summary>
@@ -220,7 +123,7 @@ namespace NBitcoin
 		{
 			accountKey = accountKey.AsHDKeyCache();
 			accountHDScriptPubKey = accountHDScriptPubKey?.AsHDKeyCache();
-			var coinScriptPubKey = this.GetCoin()?.ScriptPubKey;
+			var coinScriptPubKey = this.GetTxOut()?.ScriptPubKey;
 			foreach (var hdKey in EnumerateKeyPaths())
 			{
 				bool matched = false;
@@ -278,6 +181,8 @@ namespace NBitcoin
 		}
 
 		protected abstract PSBTHDKeyMatch CreateHDKeyMatch(IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<IPubKey, RootedKeyPath> kv);
+
+		public abstract TxOut? GetTxOut();
 	}
 }
 #nullable disable

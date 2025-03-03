@@ -156,11 +156,8 @@ public class PSBT0 : PSBT
 				((PSBT0)Parent).tx.PrecomputeHash(true, true);
 			}
 		}
-		public override Coin? GetCoin()
-		{
-			var outpoint = new OutPoint(((PSBT0)Parent).tx.GetHash(), this.Index);
-			return new Coin(outpoint, TxOut);
-		}
+
+		public override TxOut GetTxOut() => TxOut.Clone();
 	}
 	internal class PSBT0Input : PSBTInput
 	{
