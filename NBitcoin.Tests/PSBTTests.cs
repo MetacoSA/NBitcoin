@@ -91,14 +91,19 @@ namespace NBitcoin.Tests
 				expectedBalance = -bobCoin.Amount + expectedChange;
 				Assert.Equal(expectedBalance, actualBalance);
 
+				Assert.False(psbt.TryGetFee(out _));
+				Assert.False(psbt.IsReadyToSign());
+				psbt.Settings.AllowUntrustedFeeCalculation = true;
+				Assert.True(psbt.TryGetFee(out _));
+				psbt.Settings.AllowUntrustedFeeCalculation = false;
+				Assert.False(psbt.TryGetFee(out _));
+				psbt.AddTransactions(funding);
 				Assert.True(psbt.TryGetFee(out var fee));
+				Assert.True(psbt.IsReadyToSign());
 				Assert.Equal(Money.Coins(0.001m), fee);
 
 				Assert.True(psbt.TryGetEstimatedFeeRate(out var estimated));
 
-				Assert.False(psbt.IsReadyToSign());
-				psbt.AddTransactions(funding);
-				Assert.True(psbt.IsReadyToSign());
 				psbt.SignAll(ScriptPubKeyType.Legacy, bobMaster);
 				psbt.SignAll(ScriptPubKeyType.Legacy, aliceMaster);
 				// Twice should be no-op
@@ -108,6 +113,38 @@ namespace NBitcoin.Tests
 				var result = psbt.ExtractTransaction();
 				Assert.True(builder.Verify(result));
 			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CantCalculateUnsafeFee()
+		{
+			var funding = Network.Main.Consensus.ConsensusFactory.CreateTransaction();
+			funding.Inputs.Add(OutPoint.Zero);
+			funding.Outputs.Add(new TxOut(Money.Coins(1.0m), new Key()));
+
+			var tx = Network.Main.Consensus.ConsensusFactory.CreateTransaction();
+			tx.Inputs.Add(funding, 0);
+			tx.Outputs.Add(new TxOut(Money.Coins(0.5m), new Key()));
+
+			var psbt = PSBT.FromTransaction(tx, Network.Main);
+			Assert.False(psbt.TryGetFee(out _));
+			Assert.False(psbt.TryGetVirtualSize(out _));
+
+			psbt.AddCoins(funding.Outputs.AsCoins().ToArray());
+			Assert.False(psbt.TryGetFee(out _));
+			Assert.True(psbt.TryGetVirtualSize(out _));
+
+			psbt.AddTransactions(funding);
+			Assert.True(psbt.TryGetFee(out _));
+			Assert.True(psbt.TryGetVirtualSize(out _));
+
+			psbt.Inputs[0].NonWitnessUtxo = tx;
+			Assert.False(psbt.TryGetFee(out _));
+			Assert.NotEmpty(psbt.Inputs[0].CheckSanity());
+			psbt.Inputs[0].NonWitnessUtxo = funding;
+			Assert.True(psbt.TryGetFee(out _));
+			Assert.Empty(psbt.Inputs[0].CheckSanity());
 		}
 
 		[Fact]
@@ -186,11 +223,11 @@ namespace NBitcoin.Tests
 			var funds = CreateDummyFunds(network, keys, redeem);
 
 			// 1. without signature nor scripts.
-			var tx = CreateTxToSpendFunds(funds, keys, redeem, false, false);
+			var tx = CreateTxToSpendFunds(funds, keys);
 
 			// 2. with (unsigned) scriptSig and witness.
-			tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
-			var psbt = PSBT.FromTransaction(tx, Network.Main).AddCoins(funds);
+			tx = CreateTxToSpendFunds(funds, keys);
+			var psbt = PSBT.FromTransaction(tx, Network.Main).AddCoins(funds).AddScripts(redeem);
 			Assert.Null(psbt.Inputs[0].FinalScriptSig); // it is not finalized since it is not signed
 			Assert.Null(psbt.Inputs[1].FinalScriptWitness); // This too
 			Assert.NotNull(psbt.Inputs[2].RedeemScript); // But it holds redeem script.
@@ -199,12 +236,12 @@ namespace NBitcoin.Tests
 			Assert.NotNull(psbt.Inputs[5].RedeemScript);
 
 			// 3. with finalized scriptSig and witness
-			tx = CreateTxToSpendFunds(funds, keys, redeem, true, true);
+			tx = CreateTxToSpendFunds(funds, keys);
 			psbt = PSBT.FromTransaction(tx, Network.Main)
-				.AddTransactions(funds)
+				.AddCoins(funds)
+				.AddScripts(redeem, keys[0].PubKey.WitHash.ScriptPubKey)
+				.SignWithKeys(keys)
 				.Finalize();
-
-			Assert.Equal(tx.ToHex(), psbt.GetOriginalTransaction().ToHex()); // Check that we can still get the original tx
 
 			Assert.NotNull(psbt.Inputs[0].FinalScriptSig); // it should be finalized
 			Assert.NotNull(psbt.Inputs[0].NonWitnessUtxo);
@@ -235,17 +272,13 @@ namespace NBitcoin.Tests
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
 			var funds = CreateDummyFunds(network, keys, redeem);
 
-			var tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
+			var tx = CreateTxToSpendFunds(funds, keys);
 			var coins = DummyFundsToCoins(funds, redeem, alice);
 			var psbtWithCoins = PSBT.FromTransaction(tx, Network.Main)
 				.AddCoins(coins);
 
-			Assert.Null(psbtWithCoins.Inputs[0].WitnessUtxo);
-			Assert.NotNull(psbtWithCoins.Inputs[1].WitnessUtxo);
-			Assert.Null(psbtWithCoins.Inputs[2].WitnessUtxo);
-			Assert.NotNull(psbtWithCoins.Inputs[3].WitnessUtxo);
-			Assert.NotNull(psbtWithCoins.Inputs[4].WitnessUtxo);
-			Assert.NotNull(psbtWithCoins.Inputs[5].WitnessUtxo);
+			foreach (var input in psbtWithCoins.Inputs)
+				Assert.NotNull(input.WitnessUtxo);
 
 			// Check if it holds scripts as expected.
 			Assert.Null(psbtWithCoins.Inputs[0].RedeemScript); // p2pkh
@@ -345,7 +378,7 @@ namespace NBitcoin.Tests
 			foreach (string i in testcases)
 			{
 				var psbt = PSBT.Parse(i, Network.Main);
-				Assert.Throws<PSBTException>(() => psbt.SignWithKeys(new Key()));
+				Assert.False(psbt.IsReadyToSign());
 			}
 		}
 
@@ -398,7 +431,7 @@ namespace NBitcoin.Tests
 			var network = Network.Main;
 			var funds = CreateDummyFunds(network, keys, redeem);
 
-			var tx = CreateTxToSpendFunds(funds, keys, redeem, false, false);
+			var tx = CreateTxToSpendFunds(funds, keys);
 			var psbt = PSBT.FromTransaction(tx, Network.Main);
 			var ex = Assert.Throws<PSBTException>(() => psbt.Finalize());
 			Assert.Equal(6, ex.Errors.GroupBy(e => e.InputIndex).Count());
@@ -413,7 +446,7 @@ namespace NBitcoin.Tests
 			var network = Network.Main;
 			var funds = CreateDummyFunds(network, keys, redeem);
 
-			var tx = CreateTxToSpendFunds(funds, keys, redeem, false, false);
+			var tx = CreateTxToSpendFunds(funds, keys);
 			var psbt = PSBT.FromTransaction(tx, Network.Main);
 
 			// case 1: Check that it will result to more info by adding ScriptCoin in case of p2sh-p2wpkh
@@ -432,7 +465,7 @@ namespace NBitcoin.Tests
 				{
 					Assert.NotEqual(a.ToBytes(), e.ToBytes());
 					Assert.Null(a.RedeemScript);
-					Assert.Null(a.WitnessUtxo);
+					Assert.NotNull(a.WitnessUtxo);
 					Assert.NotNull(e.RedeemScript);
 					Assert.NotNull(e.WitnessUtxo);
 				}
@@ -454,7 +487,7 @@ namespace NBitcoin.Tests
 				if (i == 2 || i == 5) // p2sh, p2sh-p2wsh
 				{
 					Assert.NotEqual<byte[]>(a.ToBytes(), e.ToBytes());
-					Assert.Null(a.WitnessUtxo);
+					Assert.NotNull(a.WitnessUtxo);
 					Assert.Null(a.RedeemScript);
 					Assert.NotNull(e.RedeemScript);
 					if (i == 5) // p2sh-p2wsh
@@ -584,6 +617,8 @@ namespace NBitcoin.Tests
 			data1.Combine(data2);
 			var expected = PSBT.Parse((string)testdata["psbtUnknown2"], Network.Main);
 			Assert.Equal(data1, expected, ComparerInstance);
+
+
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -755,11 +790,7 @@ namespace NBitcoin.Tests
 
 		static internal Transaction CreateTxToSpendFunds(
 				Transaction[] funds,
-				BitcoinSecret[] keys,
-				Script redeem,
-				bool withScript,
-				bool sign
-			)
+				BitcoinSecret[] keys)
 		{
 			var tx = Network.Main.CreateTransaction();
 			tx.Inputs.Add(new OutPoint(funds[0].GetHash(), 0)); // p2pkh
@@ -771,25 +802,6 @@ namespace NBitcoin.Tests
 
 			var dummyOut = new TxOut(Money.Coins(0.599m), keys[0].PrivateKey);
 			tx.Outputs.Add(dummyOut);
-
-			if (withScript)
-			{
-				// OP_0 + three empty signatures
-				var emptySigPush = new Script(OpcodeType.OP_0, OpcodeType.OP_0, OpcodeType.OP_0, OpcodeType.OP_0);
-				tx.Inputs[0].ScriptSig = PayToPubkeyHashTemplate.Instance.GenerateScriptSig(null, keys[0].PubKey);
-				tx.Inputs[1].WitScript = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(null, keys[0].PubKey);
-				tx.Inputs[2].ScriptSig = emptySigPush + Op.GetPushOp(redeem.ToBytes());
-				tx.Inputs[3].WitScript = PayToWitScriptHashTemplate.Instance.GenerateWitScript(emptySigPush, redeem);
-				tx.Inputs[4].ScriptSig = new Script(Op.GetPushOp(keys[0].PubKey.WitHash.ScriptPubKey.ToBytes()));
-				tx.Inputs[4].WitScript = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(null, keys[0].PubKey);
-				tx.Inputs[5].ScriptSig = new Script(Op.GetPushOp(redeem.WitHash.ScriptPubKey.ToBytes()));
-				tx.Inputs[5].WitScript = PayToWitScriptHashTemplate.Instance.GenerateWitScript(emptySigPush, redeem);
-			}
-
-			if (sign)
-			{
-				tx.Sign(keys, DummyFundsToCoins(funds, redeem, keys[0]));
-			}
 			return tx;
 		}
 

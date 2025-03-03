@@ -2,120 +2,71 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using Newtonsoft.Json;
 using System.IO;
 using NBitcoin.DataEncoders;
-using NBitcoin.Crypto;
-using UnKnownKVMap = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
-using HDKeyPathKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.PubKey, System.Tuple<NBitcoin.HDFingerprint, NBitcoin.KeyPath>>;
-using PartialSigKVMap = System.Collections.Generic.SortedDictionary<NBitcoin.KeyId, System.Tuple<NBitcoin.PubKey, NBitcoin.Crypto.ECDSASignature>>;
-using System.Collections;
-using NBitcoin.Protocol;
+using Map = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
+using NBitcoin.BIP370;
 
 namespace NBitcoin
 {
-	public class PSBTOutput : PSBTCoin
+	public abstract class PSBTOutput : PSBTCoin
 	{
-		internal TxOut TxOut { get; }
-		public Script ScriptPubKey => TxOut.ScriptPubKey;
-		public Money Value => TxOut.Value;
+		
+		public abstract Script ScriptPubKey { get; set; }
+		public abstract Money Value { get; set; }
 		public uint Index { get; set; }
-		internal Transaction Transaction => Parent.tx;
 
-		private static uint defaultKeyLen = 1;
+		protected static uint defaultKeyLen = 1;
 
-		internal PSBTOutput(PSBT parent, uint index, TxOut txOut) : base(parent)
+		internal PSBTOutput(PSBT parent, uint index) : base(parent)
 		{
-			if (txOut == null)
-				throw new ArgumentNullException(nameof(txOut));
+			
 			if (parent == null)
 				throw new ArgumentNullException(nameof(parent));
-			TxOut = txOut;
+			
 			Index = index;
 		}
-		internal PSBTOutput(BitcoinStream stream, PSBT parent, uint index, TxOut txOut) : base(parent)
+		internal PSBTOutput(Map map, PSBT parent, uint index) : base(parent)
 		{
-			if (txOut == null)
-				throw new ArgumentNullException(nameof(txOut));
 			if (parent == null)
 				throw new ArgumentNullException(nameof(parent));
-
-			TxOut = txOut;
 			Index = index;
 
-			byte[] k = new byte[0];
-			byte[] v = new byte[0];
-			try
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_OUT_REDEEMSCRIPT, out var b))
+				redeem_script = Script.FromBytesUnsafe(b);
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_OUT_WITNESSSCRIPT, out b))
+				witness_script = Script.FromBytesUnsafe(b);
+			if (map.TryRemove<byte[]>(PSBTConstants.PSBT_OUT_TAP_INTERNAL_KEY, out b))
 			{
-				stream.ReadWriteAsVarString(ref k);
+				if (!TaprootInternalPubKey.TryCreate(b, out var tpk))
+					throw new FormatException("Invalid PSBTOutput. Contains invalid internal taproot pubkey");
+				TaprootInternalKey = tpk;
 			}
-			catch (EndOfStreamException e)
+			foreach (var kv in map.RemoveAll<byte[]>(PSBTConstants.PSBT_OUT_BIP32_DERIVATION))
 			{
-				throw new FormatException("Invalid PSBTOutput. Could not read key", e);
+				var pubkey2 = new PubKey(kv.Key.Skip(1).ToArray());
+				if (hd_keypaths.ContainsKey(pubkey2))
+					throw new FormatException("Invalid PSBTOutput, duplicate key for hd_keypaths");
+				KeyPath path = KeyPath.FromBytes(kv.Value.Skip(4).ToArray());
+				hd_keypaths.Add(pubkey2, new RootedKeyPath(new HDFingerprint(kv.Value.Take(4).ToArray()), path));
 			}
-			while (k.Length != 0)
+			foreach (var kv in map.RemoveAll<byte[]>(PSBTConstants.PSBT_OUT_TAP_BIP32_DERIVATION))
 			{
-				try
-				{
-					stream.ReadWriteAsVarString(ref v);
-				}
-				catch (EndOfStreamException e)
-				{
-					throw new FormatException("Invalid PSBTOutput. Could not read value", e);
-				}
-				switch (k.First())
-				{
-					case PSBTConstants.PSBT_OUT_REDEEMSCRIPT:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTOutput. Contains illegal value in key for redeem script");
-						if (redeem_script != null)
-							throw new FormatException("Invalid PSBTOutput, duplicate key for redeem_script");
-						redeem_script = Script.FromBytesUnsafe(v);
-						break;
-					case PSBTConstants.PSBT_OUT_WITNESSSCRIPT:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTOutput. Unexpected key length for PSBT_OUT_BIP32_DERIVATION");
-						if (witness_script != null)
-							throw new FormatException("Invalid PSBTOutput, duplicate key for redeem_script");
-						witness_script = Script.FromBytesUnsafe(v);
-						break;
-					case PSBTConstants.PSBT_OUT_BIP32_DERIVATION:
-						var pubkey2 = new PubKey(k.Skip(1).ToArray());
-						if (hd_keypaths.ContainsKey(pubkey2))
-							throw new FormatException("Invalid PSBTOutput, duplicate key for hd_keypaths");
-						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
-						hd_keypaths.Add(pubkey2, new RootedKeyPath(new HDFingerprint(v.Take(4).ToArray()), path));
-						break;
-					case PSBTConstants.PSBT_OUT_TAP_BIP32_DERIVATION:
-						var pubkey3 = new TaprootPubKey(k.Skip(1).ToArray());
-						if (hd_taprootkeypaths.ContainsKey(pubkey3))
-							throw new FormatException("Invalid PSBTOutput, duplicate key for hd_taproot_keypaths");
-						var bs = new BitcoinStream(v);
-						List<uint256> hashes = null!;
-						bs.ReadWrite(ref hashes);
-						var pos = (int)bs.Inner.Position;
-						KeyPath path2 = KeyPath.FromBytes(v.Skip(pos + 4).ToArray());
-						hd_taprootkeypaths.Add(pubkey3,
-							new TaprootKeyPath(
-								new RootedKeyPath(new HDFingerprint(v.Skip(pos).Take(4).ToArray()), path2),
-								hashes.ToArray()));
-						break;
-					case PSBTConstants.PSBT_OUT_TAP_INTERNAL_KEY:
-						if (k.Length != 1)
-							throw new FormatException("Invalid PSBTOutput. Contains illegal value in key for internal taproot pubkey");
-						if (!TaprootInternalPubKey.TryCreate(v, out var tpk))
-							throw new FormatException("Invalid PSBTOutput. Contains invalid internal taproot pubkey");
-						TaprootInternalKey = tpk;
-						break;
-					default:
-						if (unknown.ContainsKey(k))
-							throw new FormatException("Invalid PSBTInput, duplicate key for unknown value");
-						unknown.Add(k, v);
-						break;
-				}
-				stream.ReadWriteAsVarString(ref k);
+				var pubkey3 = new TaprootPubKey(kv.Key.Skip(1).ToArray());
+				if (hd_taprootkeypaths.ContainsKey(pubkey3))
+					throw new FormatException("Invalid PSBTOutput, duplicate key for hd_taproot_keypaths");
+				var bs = new BitcoinStream(kv.Value);
+				List<uint256> hashes = null!;
+				bs.ReadWrite(ref hashes);
+				var pos = (int)bs.Inner.Position;
+				KeyPath path2 = KeyPath.FromBytes(kv.Value.Skip(pos + 4).ToArray());
+				hd_taprootkeypaths.Add(pubkey3,
+					new TaprootKeyPath(
+						new RootedKeyPath(new HDFingerprint(kv.Value.Skip(pos).Take(4).ToArray()), path2),
+						hashes.ToArray()));
 			}
+			unknown = map;
 		}
 
 		/// <summary>
@@ -141,45 +92,27 @@ namespace NBitcoin
 
 		#region IBitcoinSerializable Members
 
-		public void Serialize(BitcoinStream stream)
+		internal virtual void FillMap(Map map)
 		{
 			if (redeem_script != null)
-			{
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				stream.ReadWrite(PSBTConstants.PSBT_OUT_REDEEMSCRIPT);
-				var value = redeem_script.ToBytes();
-				stream.ReadWriteAsVarString(ref value);
-			}
+				map.Add([PSBTConstants.PSBT_OUT_REDEEMSCRIPT], redeem_script.ToBytes());
 
 			if (witness_script != null)
-			{
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				stream.ReadWrite(PSBTConstants.PSBT_OUT_WITNESSSCRIPT);
-				var value = witness_script.ToBytes();
-				stream.ReadWriteAsVarString(ref value);
-			}
+				map.Add([PSBTConstants.PSBT_OUT_WITNESSSCRIPT], witness_script.ToBytes());
 
 			if (this.TaprootInternalKey is TaprootInternalPubKey tp)
-			{
-				stream.ReadWriteAsVarInt(ref defaultKeyLen);
-				var key = PSBTConstants.PSBT_OUT_TAP_INTERNAL_KEY;
-				stream.ReadWrite(ref key);
-				var b = tp.ToBytes();
-				stream.ReadWriteAsVarString(ref b);
-			}
+				map.Add([PSBTConstants.PSBT_OUT_TAP_INTERNAL_KEY], tp.ToBytes());
 
 			foreach (var pathPair in hd_keypaths)
 			{
 				var key = new byte[] { PSBTConstants.PSBT_OUT_BIP32_DERIVATION }.Concat(pathPair.Key.ToBytes());
-				stream.ReadWriteAsVarString(ref key);
 				var path = pathPair.Value.KeyPath.ToBytes();
 				var pathInfo = pathPair.Value.MasterFingerprint.ToBytes().Concat(path);
-				stream.ReadWriteAsVarString(ref pathInfo);
+				map.Add(key, pathInfo);
 			}
 			foreach (var pathPair in hd_taprootkeypaths)
 			{
 				var key = new byte[] { PSBTConstants.PSBT_OUT_TAP_BIP32_DERIVATION }.Concat(pathPair.Key.ToBytes());
-				stream.ReadWriteAsVarString(ref key);
 				uint leafCount = (uint)pathPair.Value.LeafHashes.Length;
 				BitcoinStream bs = new BitcoinStream(new MemoryStream(), true);
 				bs.ReadWriteAsVarInt(ref leafCount);
@@ -192,19 +125,9 @@ namespace NBitcoin
 				b = pathPair.Value.RootedKeyPath.KeyPath.ToBytes();
 				bs.ReadWrite(b);
 				b = ((MemoryStream)bs.Inner).ToArrayEfficient();
-				stream.ReadWriteAsVarString(ref b);
+				map.Add(key, b);
 			}
-
-			foreach (var entry in unknown)
-			{
-				var k = entry.Key;
-				var v = entry.Value;
-				stream.ReadWriteAsVarString(ref k);
-				stream.ReadWriteAsVarString(ref v);
-			}
-
-			var sep = PSBTConstants.PSBT_SEPARATOR;
-			stream.ReadWrite(ref sep);
+			unknown = map;
 		}
 
 		#endregion
@@ -223,11 +146,9 @@ namespace NBitcoin
 
 		public byte[] ToBytes()
 		{
-			MemoryStream ms = new MemoryStream();
-			var bs = new BitcoinStream(ms, true);
-			bs.ConsensusFactory = Parent.GetConsensusFactory();
-			this.Serialize(bs);
-			return ms.ToArrayEfficient();
+			var m = new Map();
+			this.FillMap(m);
+			return m.ToBytes();
 		}
 
 		public void UpdateFromCoin(ICoin coin)
@@ -290,11 +211,6 @@ namespace NBitcoin
 			Write(jsonWriter);
 			jsonWriter.Flush();
 			return strWriter.ToString();
-		}
-
-		public override Coin GetCoin()
-		{
-			return new Coin(OutPoint.Zero, TxOut);
 		}
 
 		protected override PSBTHDKeyMatch CreateHDKeyMatch(IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<IPubKey, RootedKeyPath> kv)

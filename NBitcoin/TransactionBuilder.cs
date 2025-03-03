@@ -483,10 +483,28 @@ namespace NBitcoin
 				: this(builder, psbt, null, psbt.GetSigningOptions(signingOptions))
 			{
 			}
-			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, SigningOptions signingOptions)
-				: this(builder, transaction.CreatePSBT(builder.Network), transaction, signingOptions)
+			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction, PSBTVersion psbtVersion, SigningOptions signingOptions)
+				: this(builder, RemoveSigs(transaction).CreatePSBT(builder.Network, psbtVersion), transaction, signingOptions)
 			{
 			}
+
+			private static Transaction RemoveSigs(Transaction tx)
+			{
+				Transaction? clone = null;
+				for (int i = 0; i < tx.Inputs.Count; i++)
+				{
+					var input = tx.Inputs[i];
+					if (!WitScript.IsNullOrEmpty(input.WitScript) || !Script.IsNullOrEmpty(input.ScriptSig))
+					{
+						clone ??= tx.Clone();
+						input = clone.Inputs[i];
+						input.WitScript = WitScript.Empty;
+						input.ScriptSig = Script.Empty;
+					}
+				}
+				return clone ?? tx;
+			}
+
 			public TransactionSigningContext(TransactionBuilder builder, PSBT psbt, Transaction? transaction, SigningOptions signingOptions)
 			{
 				Builder = builder;
@@ -495,11 +513,12 @@ namespace NBitcoin
 				if (signingOptions.PrecomputedTransactionData is null)
 				{
 					signingOptions = signingOptions.Clone();
-					var prevTxous = psbt.tx.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
+					var tx = psbt.GetGlobalTransaction(true);
+					var prevTxous = tx.Inputs.Select(txin => builder.FindCoin(txin.PrevOut)?.TxOut).ToArray();
 					if (prevTxous.All(p => p != null))
-						signingOptions.PrecomputedTransactionData = psbt.tx.PrecomputeTransactionData(prevTxous!);
+						signingOptions.PrecomputedTransactionData = tx.PrecomputeTransactionData(prevTxous!);
 					else
-						signingOptions.PrecomputedTransactionData = psbt.tx.PrecomputeTransactionData();
+						signingOptions.PrecomputedTransactionData = tx.PrecomputeTransactionData();
 				}
 				SigningOptions = signingOptions;
 			}
@@ -552,7 +571,7 @@ namespace NBitcoin
 					if (Transaction is null)
 					{
 						txin = null;
-						coin = coin ?? Builder.FindSignableCoin(input.TxIn);
+						coin = coin ?? Builder.FindSignableCoin(new TxIn(input.PrevOut));
 					}
 					else
 					{
@@ -1454,7 +1473,7 @@ namespace NBitcoin
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
-			var ctx = new TransactionSigningContext(this, transaction.Clone(), signingOptions);
+			var ctx = new TransactionSigningContext(this, transaction.Clone(), PSBTVersion.PSBTv0, signingOptions);
 			ctx.SignOnlyInputIndex = index;
 			this.SignTransactionContext(ctx);
 			var input = ctx.PSBT.Inputs[(int)index];
@@ -1591,31 +1610,37 @@ namespace NBitcoin
 		/// Build a PSBT (Partially signed bitcoin transaction)
 		/// </summary>
 		/// <param name="sign">True if signs all inputs with the available keys</param>
-		/// <param name="sigHash">The sighash for signing (ignored if sign is false)</param>
+		/// <param name="version">The version of the PSBT to create</param>
 		/// <returns>A PSBT</returns>
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
-		public PSBT BuildPSBT(bool sign)
+		public PSBT BuildPSBT(bool sign, PSBTVersion version)
 		{
 			var tx = BuildTransaction(false);
-			return CreatePSBTFromCore(tx, sign);
+			return CreatePSBTFromCore(tx, version, sign);
 		}
+		/// <inheritdoc cref="BuildPSBT(bool, PSBTVersion)"/>
+		public PSBT BuildPSBT(bool sign) => BuildPSBT(sign, PSBTVersion.PSBTv0);
 
 		/// <summary>
 		/// Create a PSBT from a transaction
 		/// </summary>
 		/// <param name="tx">The transaction</param>
+		/// <param name="version">The version of the PSBT to create</param>
 		/// <param name="sign">If true, the transaction builder will sign this transaction</param>
 		/// <returns></returns>
-		public PSBT CreatePSBTFrom(Transaction tx, bool sign)
+		public PSBT CreatePSBTFrom(Transaction tx, PSBTVersion version, bool sign)
 		{
 			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
-			return CreatePSBTFromCore(tx.Clone(), sign);
+			return CreatePSBTFromCore(tx.Clone(), version, sign);
 		}
 
-		PSBT CreatePSBTFromCore(Transaction tx, bool sign)
+		/// <inheritdoc cref="CreatePSBTFrom(Transaction, PSBTVersion, bool)"/>
+		public PSBT CreatePSBTFrom(Transaction tx, bool sign) => CreatePSBTFrom(tx, PSBTVersion.PSBTv0, sign);
+
+		PSBT CreatePSBTFromCore(Transaction tx, PSBTVersion version, bool sign)
 		{
-			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, signingOptions);
+			TransactionSigningContext signingContext = new TransactionSigningContext(this, tx, version, signingOptions);
 			if (sign)
 				SignTransactionContext(signingContext);
 			var psbt = signingContext.PSBT;
@@ -1661,9 +1686,7 @@ namespace NBitcoin
 			if (psbtInput is null)
 				throw new ArgumentNullException(nameof(psbtInput));
 			var psbt = psbtInput.PSBT;
-			var tx = psbt.Settings.IsSmart && (!Script.IsNullOrEmpty(psbtInput.originalScriptSig) ||
-					 !WitScript.IsNullOrEmpty(psbtInput.originalWitScript)) ? psbt.GetOriginalTransaction() : null;
-			var signingContext = new TransactionSigningContext(this, psbtInput.PSBT, tx, signingOptions)
+			var signingContext = new TransactionSigningContext(this, psbtInput.PSBT, null, signingOptions)
 			{
 				SignOnlyInputIndex = psbtInput.Index
 			};
@@ -1683,7 +1706,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(psbt));
 			if (transaction is null)
 				throw new ArgumentNullException(nameof(transaction));
-			var signingContext = new TransactionSigningContext(this, transaction, signingOptions);
+			var signingContext = new TransactionSigningContext(this, transaction, psbt.Version, signingOptions);
 			ExtractExistingSignatures(signingContext);
 			psbt.Combine(signingContext.PSBT);
 			return this;
@@ -1697,7 +1720,7 @@ namespace NBitcoin
 		{
 			if (psbt == null)
 				throw new ArgumentNullException(nameof(psbt));
-			var tx = psbt.GetOriginalTransaction();
+			var tx = psbt.ForceExtractTransaction();
 			psbt.AddCoins(tx.Inputs.AsIndexedInputs()
 				.Select(i => this.FindSignableCoin(i) ?? this.FindCoin(i.PrevOut))
 				.ToArray());
@@ -1977,7 +2000,7 @@ namespace NBitcoin
 		/// <returns>The transaction object as the one passed as parameter</returns>
 		public Transaction SignTransactionInPlace(Transaction transaction)
 		{
-			var ctx = new TransactionSigningContext(this, transaction, signingOptions);
+			var ctx = new TransactionSigningContext(this, transaction, PSBTVersion.PSBTv0, signingOptions);
 			ExtractExistingSignatures(ctx);
 			SignTransactionContext(ctx);
 			FinalizeTransactionContext(ctx);
@@ -2656,7 +2679,7 @@ namespace NBitcoin
 
 			for (int i = 0; i < psbts.Length; i++)
 			{
-				var ctx = new TransactionSigningContext(this, transactions[i], signingOptions);
+				var ctx = new TransactionSigningContext(this, transactions[i], PSBTVersion.PSBTv0, signingOptions);
 				ExtractExistingSignatures(ctx);
 				psbts[i] = ctx.PSBT;
 			}
@@ -2665,7 +2688,7 @@ namespace NBitcoin
 			{
 				psbt = psbt.Combine(psbts[i]);
 			}
-			var ctx2 = new TransactionSigningContext(this, psbt, psbt.GetOriginalTransaction(), signingOptions);
+			var ctx2 = new TransactionSigningContext(this, psbt, psbt.ForceExtractTransaction(), signingOptions);
 			FinalizeTransactionContext(ctx2);
 			MergePartialSignatures(ctx2);
 			var tx = ctx2.Transaction!;
