@@ -1025,7 +1025,7 @@ namespace NBitcoin
 				{
 					if (o is PSBTInput ii && ii.IsFinalized())
 						continue;
-					var txout = o.GetCoin()?.TxOut;
+					var txout = o.GetTxOut();
 					if (txout == null)
 						continue;
 					if (txout.ScriptPubKey == p2sh)
@@ -1080,7 +1080,7 @@ namespace NBitcoin
 			Money total = Money.Zero;
 			foreach (var o in CoinsFor(accountHDScriptPubKey, accountKey, accountKeyPath))
 			{
-				var amount = o.GetCoin()?.Amount;
+				var amount = o.GetTxOut()?.Value;
 				if (amount == null)
 					continue;
 				total += o is PSBTInput ? -amount : amount;
@@ -1205,12 +1205,13 @@ namespace NBitcoin
 			{
 				if (o is PSBTInput i && i.IsFinalized())
 					continue;
-				var coin = o.GetCoin();
-				if (coin == null)
+				var txout = o.GetTxOut();
+				if (txout == null)
 					continue;
-				if ((scriptPubKey is not null && coin.ScriptPubKey == scriptPubKey) ||
-					((o.GetSignableCoin() ?? coin.TryToScriptCoin(pubkey)) is Coin c && txBuilder.IsCompatibleKeyFromScriptCode(pubkey, c.GetScriptCode())) ||
-					  txBuilder.IsCompatibleKeyFromScriptCode(pubkey, coin.ScriptPubKey))
+				
+				if ((scriptPubKey is not null && txout.ScriptPubKey == scriptPubKey) ||
+					(GetScriptCode(o, pubkey) is Script s && txBuilder.IsCompatibleKeyFromScriptCode(pubkey, s)) ||
+					  txBuilder.IsCompatibleKeyFromScriptCode(pubkey, txout.ScriptPubKey))
 				{
 					o.AddKeyPath(pubkey, rootedKeyPath);
 				}
@@ -1218,6 +1219,22 @@ namespace NBitcoin
 			return this;
 		}
 
+		private Script? GetScriptCode(PSBTCoin coin, PubKey pubKey)
+		{
+			var input = coin switch
+			{
+				PSBTInput i => i,
+				PSBTOutput o => new PSBT2Input(OutPoint.Zero, this, 0)
+				{
+					WitnessScript = o.WitnessScript,
+					RedeemScript = o.RedeemScript,
+					WitnessUtxo = o.GetTxOut()
+				},
+				_ => null
+			};
+			return (input?.GetSignableCoin() ?? input?.GetCoin()?.TryToScriptCoin(pubKey))?.GetScriptCode();
+		}
+		
 		/// <summary>
 		/// Rebase the keypaths.
 		/// If a PSBT updater only know the child HD public key but not the root one, another updater knowing the parent master key it is based on

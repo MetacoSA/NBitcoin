@@ -379,39 +379,10 @@ namespace NBitcoin
 			this.TaprootInternalKey = null;
 		}
 
-		/// <summary>
-		/// Represent this input as a coin that can be used for signing operations.
-		/// Returns null if <see cref="WitnessUtxo"/>, <see cref="NonWitnessUtxo"/> are not set
-		/// or if <see cref="PSBTCoin.WitnessScript"/> or <see cref="PSBTCoin.RedeemScript"/> are missing but needed.
-		/// </summary>
-		/// <returns>The input as a signable coin</returns>
-		public new Coin? GetSignableCoin()
+		internal Script? GetRedeemScript()
 		{
-			return base.GetSignableCoin();
-		}
-
-		/// <summary>
-		/// Represent this input as a coin that can be used for signing operations.
-		/// Returns null if <see cref="WitnessUtxo"/>, <see cref="NonWitnessUtxo"/> are not set
-		/// or if <see cref="PSBTCoin.WitnessScript"/> or <see cref="PSBTCoin.RedeemScript"/> are missing but needed.
-		/// </summary>
-		/// <param name="error">If it is not possible to retrieve the signable coin, a human readable reason.</param>
-		/// <returns>The input as a signable coin</returns>
-		public override Coin? GetSignableCoin(out string? error)
-		{
-			if (witness_utxo is null && non_witness_utxo is null)
-			{
-				error = "Neither witness_utxo nor non_witness_output is set";
-				return null;
-			}
-			return base.GetSignableCoin(out error);
-		}
-
-		internal override Script? GetRedeemScript()
-		{
-			var redeemScript = base.GetRedeemScript();
-			if (redeemScript != null)
-				return redeem_script;
+			if (RedeemScript != null)
+				return RedeemScript;
 			if (FinalScriptSig is null)
 				return null;
 			var coin = GetCoin();
@@ -423,11 +394,10 @@ namespace NBitcoin
 			return PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(FinalScriptSig, scriptId)?.RedeemScript;
 		}
 
-		internal override Script? GetWitnessScript()
+		internal Script? GetWitnessScript()
 		{
-			var witnessScript = base.GetWitnessScript();
-			if (witnessScript != null)
-				return witness_script;
+			if (WitnessScript != null)
+				return WitnessScript;
 			if (FinalScriptWitness is null)
 				return null;
 			var coin = GetCoin();
@@ -751,7 +721,7 @@ namespace NBitcoin
 					return sighashType.ToString();
 			}
 		}
-		public TxOut? GetTxOut()
+		public override TxOut? GetTxOut()
 		{
 			if (NonWitnessUtxo != null)
 			{
@@ -1023,7 +993,7 @@ namespace NBitcoin
 		/// Returns null if <see cref="WitnessUtxo"/> or <see cref="NonWitnessUtxo"/> is not set.
 		/// </summary>
 		/// <returns>The input as a coin</returns>
-		public override Coin? GetCoin()
+		public Coin? GetCoin()
 		{
 			var txout = GetTxOut();
 			if (txout == null)
@@ -1039,6 +1009,96 @@ namespace NBitcoin
 			Write(jsonWriter);
 			jsonWriter.Flush();
 			return strWriter.ToString();
+		}
+
+		public Coin? GetSignableCoin()
+		{
+			return GetSignableCoin(out _);
+		}
+		public virtual Coin? GetSignableCoin(out string? error)
+		{
+			if (witness_utxo is null && non_witness_utxo is null)
+			{
+				error = "Neither witness_utxo nor non_witness_output is set";
+				return null;
+			}
+			var coin = GetCoin();
+			if (coin == null)
+			{
+				error = "Impossible to know the TxOut this coin refers to";
+				return null;
+			}
+			if (PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey) is ScriptId scriptId)
+			{
+				var redeemScript = GetRedeemScript();
+				if (redeemScript == null)
+				{
+					error = "Spending p2sh output but redeem_script is not set";
+					return null;
+				}
+
+				if (redeemScript.Hash != scriptId)
+				{
+					error = "Spending p2sh output but redeem_script is not matching the utxo scriptPubKey";
+					return null;
+				}
+
+				if (PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(redeemScript) is WitProgramParameters prog
+					&& prog.NeedWitnessRedeemScript())
+				{
+					var witnessScript = GetWitnessScript();
+					if (witnessScript == null)
+					{
+						error = "Spending p2sh-p2wsh output but witness_script is not set";
+						return null;
+					}
+					if (!prog.VerifyWitnessRedeemScript(witnessScript))
+					{
+						error = "Spending p2sh-p2wsh output but witness_script does not match redeem_script";
+						return null;
+					}
+					coin = coin.ToScriptCoin(witnessScript);
+					error = null;
+					return coin;
+				}
+				else
+				{
+					coin = coin.ToScriptCoin(redeemScript);
+					error = null;
+					return coin;
+				}
+			}
+			else
+			{
+				if (GetRedeemScript() != null)
+				{
+					error = "Spending non p2sh output but redeem_script is set";
+					return null;
+				}
+				if (PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(coin.ScriptPubKey) is WitProgramParameters prog
+					&& prog.NeedWitnessRedeemScript())
+				{
+					var witnessScript = GetWitnessScript();
+					if (witnessScript == null)
+					{
+						error = "Spending p2wsh output but witness_script is not set";
+						return null;
+					}
+					if (!prog.VerifyWitnessRedeemScript(witnessScript))
+					{
+						error = "Spending p2wsh output but witness_script does not match the scriptPubKey";
+						return null;
+					}
+					coin = coin.ToScriptCoin(witnessScript);
+					error = null;
+					return coin;
+				}
+				else
+				{
+					error = null;
+					return coin;
+				}
+			}
 		}
 
 		protected override PSBTHDKeyMatch CreateHDKeyMatch(IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<IPubKey, RootedKeyPath> kv)
