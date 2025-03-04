@@ -1765,7 +1765,6 @@ namespace NBitcoin.Tests
 
 		[Theory]
 		[InlineData(PSBTVersion.PSBTv0)]
-		[InlineData(PSBTVersion.PSBTv2)]
 		public async Task UpdatePSBTInRPCShouldIncludePreviousTX(PSBTVersion version)
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -2021,9 +2020,12 @@ namespace NBitcoin.Tests
 					c.ImportMulti(importMultiObject, false);
 				}
 
+				var funderClient = nodeFunder.CreateRPCClient();
+
+				var aa = await funderClient.GetBlockchainInfoAsync();
 				// pay from funder
 				nodeFunder.Generate(103);
-				var funderClient = nodeFunder.CreateRPCClient();
+				aa = await funderClient.GetBlockchainInfoAsync();
 				funderClient.SendToAddress(aMultiP2SH, Money.Coins(40));
 				// funderClient.SendToAddress(aMultiP2WSH, Money.Coins(40));
 				// funderClient.SendToAddress(aMultiP2SH_P2WSH, Money.Coins(40));

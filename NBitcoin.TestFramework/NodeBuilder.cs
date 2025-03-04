@@ -396,7 +396,6 @@ namespace NBitcoin.Tests
 			rpc.AddNode(node.Endpoint, true);
 			while (rpc.GetBestBlockHash() != rpc1.GetBestBlockHash())
 			{
-				rpc.Generate(1);
 				Task.Delay(200).GetAwaiter().GetResult();
 			}
 			if (!keepConnection)
