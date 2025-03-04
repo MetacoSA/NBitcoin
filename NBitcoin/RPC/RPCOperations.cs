@@ -123,5 +123,7 @@ namespace NBitcoin.RPC
 		unloadwallet,
 		addpeeraddress,
 		savemempool,
+		getblockfrompeer,
+		disconnectnode,
 	}
 }

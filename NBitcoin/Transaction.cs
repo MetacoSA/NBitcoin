@@ -340,6 +340,9 @@ namespace NBitcoin
 			return txin;
 		}
 
+		/// <summary>
+		/// Remove <see cref="ScriptSig"/> and <see cref="WitScript"/> from this input.
+		/// </summary>
 		public void RemoveSignatures()
 		{
 			ScriptSig = Script.Empty;
@@ -1450,7 +1453,9 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(network));
 			return Load(Encoders.Hex.DecodeData(hex), network);
 		}
-
+		/// <summary>
+		/// Remove <see cref="TxIn.ScriptSig"/> and <see cref="TxIn.WitScript"/> from all inputs.
+		/// </summary>
 		public void RemoveSignatures()
 		{
 			foreach (var input in Inputs)

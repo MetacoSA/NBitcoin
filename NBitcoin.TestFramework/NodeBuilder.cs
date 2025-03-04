@@ -221,6 +221,11 @@ namespace NBitcoin.Tests
 		public RPCWalletType? RPCWalletType { get; set; }
 		public bool CreateWallet { get; set; } = true;
 
+		/// <summary>
+		/// All nodes will be whitebind (default: false)
+		/// </summary>
+		public bool WhiteBind { get; set; }
+
 		public CoreNode CreateNode(bool start = false)
 		{
 			var child = Path.Combine(_Root, last.ToString());
@@ -295,7 +300,7 @@ namespace NBitcoin.Tests
 			this._Builder = builder;
 			this._Folder = folder;
 			_State = CoreNodeState.Stopped;
-
+			this.WhiteBind = builder.WhiteBind;
 			dataDir = Path.Combine(folder, "data");
 			var pass = Hashes.DoubleSHA256(Encoding.UTF8.GetBytes(folder)).ToString();
 			creds = new NetworkCredential(pass, pass);
@@ -391,10 +396,11 @@ namespace NBitcoin.Tests
 			rpc.AddNode(node.Endpoint, true);
 			while (rpc.GetBestBlockHash() != rpc1.GetBestBlockHash())
 			{
+				rpc.Generate(1);
 				Task.Delay(200).GetAwaiter().GetResult();
 			}
 			if (!keepConnection)
-				rpc.RemoveNode(node.Endpoint);
+				rpc.DisconnectNode(node.Endpoint).GetAwaiter().GetResult();
 		}
 #endif
 		private CoreNodeState _State;

@@ -17,6 +17,7 @@ namespace NBitcoin.RPC
 		public bool SupportEstimateSmartFee { get; set; }
 		public bool SupportGenerateToAddress { get; set; }
 		public bool SupportTestMempoolAccept { get; set; }
+		public bool CanGetBlockFromPeer { get; set; }
 
 		public RPCCapabilities Clone(int newVersion)
 		{
@@ -29,7 +30,8 @@ namespace NBitcoin.RPC
 				SupportSignRawTransactionWith = SupportSignRawTransactionWith,
 				SupportGetNetworkInfo = SupportGetNetworkInfo,
 				SupportEstimateSmartFee = SupportEstimateSmartFee,
-				SupportGenerateToAddress = SupportGenerateToAddress
+				SupportGenerateToAddress = SupportGenerateToAddress,
+				CanGetBlockFromPeer = CanGetBlockFromPeer
 			};
 		}
 
@@ -42,7 +44,8 @@ namespace NBitcoin.RPC
 				$"SupportSignRawTransactionWith: {SupportSignRawTransactionWith}{Environment.NewLine}" +
 				$"SupportGetNetworkInfo: {SupportGetNetworkInfo}{Environment.NewLine}" +
 				$"SupportEstimateSmartFee: {SupportEstimateSmartFee}{Environment.NewLine}" +
-				$"SupportGenerateToAddress: {SupportGenerateToAddress}{Environment.NewLine}";
+				$"SupportGenerateToAddress: {SupportGenerateToAddress}{Environment.NewLine}" +
+				$"CanGetBlockFromPeer: {CanGetBlockFromPeer}{Environment.NewLine} ";
 		}
 	}
 }

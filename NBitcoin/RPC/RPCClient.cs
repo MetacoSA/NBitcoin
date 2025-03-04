@@ -320,6 +320,7 @@ namespace NBitcoin.RPC
 			CheckCapabilitiesAsync(rpc, "scantxoutset", v => capabilities.SupportScanUTXOSet = v, cancellationToken),
 			CheckCapabilitiesAsync(rpc, "signrawtransactionwithkey", v => capabilities.SupportSignRawTransactionWith = v, cancellationToken),
 			CheckCapabilitiesAsync(rpc, "testmempoolaccept", v => capabilities.SupportTestMempoolAccept = v, cancellationToken),
+			CheckCapabilitiesAsync(rpc, "getblockfrompeer", v => capabilities.CanGetBlockFromPeer = v, cancellationToken),
 			CheckCapabilitiesAsync(rpc, "estimatesmartfee", v => capabilities.SupportEstimateSmartFee = v, cancellationToken),
 			CheckCapabilitiesAsync(rpc, "generatetoaddress", v => capabilities.SupportGenerateToAddress = v, cancellationToken),
 			CheckSegwitCapabilitiesAsync(rpc, v => capabilities.SupportSegwit = v, ScriptPubKeyType.Segwit, cancellationToken),
@@ -579,6 +580,32 @@ namespace NBitcoin.RPC
 		{
 			var result = await SendCommandAsync(RPCOperations.getnewaddress, cancellationToken).ConfigureAwait(false);
 			return BitcoinAddress.Create(result.Result.ToString(), Network);
+		}
+
+		/// <summary>
+		/// Attempt to fetch block from a given peer.
+		/// </summary>
+		/// <param name="blockHash">The block hash to try to fetch</param>
+		/// <param name="peerId">The peer to fetch it from (see <see cref="GetPeersInfo"></see> for peer IDs)</param>
+		/// <param name="cancellationToken"></param>
+		/// <exception cref="RPCException">Fetching the block wasn't successful, for other reason</exception>
+		/// <returns>The result of this operation. You can then query it with <see cref="GetBlockAsync(uint256, CancellationToken)"/>. If the result is unknown <see cref="RPCException"></see> is thrown./></returns>
+		public async Task<GetBlockFromPeerResult> GetBlockFromPeer(uint256 blockHash, int peerId, CancellationToken cancellationToken = default)
+		{
+			if (blockHash is null)
+				throw new ArgumentNullException(nameof(blockHash));
+			var r = new RPCRequest(RPCOperations.getblockfrompeer, new object[] { blockHash.ToString(), peerId });
+			r.ThrowIfRPCError = false;
+			var result = await SendCommandAsync(r, cancellationToken).ConfigureAwait(false);
+			return result.Error switch
+			{
+				null => RPC.GetBlockFromPeerResult.Fetched,
+				{ Message: "Block already downloaded" } => RPC.GetBlockFromPeerResult.AlreadyDownloaded,
+				{ Message: "Block header missing" } => RPC.GetBlockFromPeerResult.BlockHeaderMissing,
+				{ Message: "Peer does not exist" } => RPC.GetBlockFromPeerResult.UnknownPeerId,
+				{ Message: "In prune mode, only blocks that the node has already synced previously can be fetched from a peer" } => RPC.GetBlockFromPeerResult.NeverSynched,
+				{ } e => throw new RPCException(e.Code, e.Message, result)
+			};
 		}
 
 		public async Task<BitcoinAddress> GetNewAddressAsync(GetNewAddressRequest request, CancellationToken cancellationToken = default)
@@ -1095,6 +1122,7 @@ namespace NBitcoin.RPC
 					Address = addressEnpoint,
 					LocalAddress = localEndpoint,
 					Services = (NodeServices)services,
+					ServicesNames = (peer["servicesnames"] as JArray)?.Select(a => a.ToString()).ToArray(),
 					LastSend = Utils.UnixTimeToDateTime((uint)peer["lastsend"]),
 					LastReceive = Utils.UnixTimeToDateTime((uint)peer["lastrecv"]),
 					BytesSent = (long)peer["bytessent"],
@@ -1118,6 +1146,11 @@ namespace NBitcoin.RPC
 			}
 			return result;
 		}
+
+		public Task DisconnectNode(EndPoint endPoint, CancellationToken cancellationToken = default)
+		=> SendCommandAsync(RPCOperations.disconnectnode, cancellationToken, new object[] { endPoint.ToString() });
+		public Task DisconnectNode(int peerId, CancellationToken cancellationToken = default)
+			=> SendCommandAsync(RPCOperations.disconnectnode, cancellationToken, new object[] { "", peerId });
 
 		public void AddNode(EndPoint nodeEndPoint, bool onetry = false)
 		{
@@ -2435,6 +2468,7 @@ namespace NBitcoin.RPC
 		{
 			get; internal set;
 		}
+		public string[] ServicesNames { get; set; }
 		public DateTimeOffset LastSend
 		{
 			get; internal set;

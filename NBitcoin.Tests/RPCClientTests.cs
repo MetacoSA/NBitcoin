@@ -21,6 +21,7 @@ using NBitcoin.Tests.Generators;
 using static NBitcoin.Tests.Comparer;
 using System.Net.Http;
 using NBitcoin.Scripting;
+using NBitcoin.Protocol;
 
 namespace NBitcoin.Tests
 {
