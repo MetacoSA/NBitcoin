@@ -495,6 +495,7 @@ namespace NBitcoin
 				if (!hasSig)
 					return tx;
 				tx = tx.Clone();
+				tx.RemoveSignatures();
 				return tx;
 			}
 
@@ -1699,7 +1700,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(psbt));
 			if (transaction is null)
 				throw new ArgumentNullException(nameof(transaction));
-			var signingContext = new TransactionSigningContext(this, transaction, psbt.Version, signingOptions);
+			var signingContext = new TransactionSigningContext(this, psbt, transaction, signingOptions);
 			ExtractExistingSignatures(signingContext);
 			psbt.Combine(signingContext.PSBT);
 			return this;

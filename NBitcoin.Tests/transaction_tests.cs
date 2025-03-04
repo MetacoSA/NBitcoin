@@ -2358,6 +2358,7 @@ namespace NBitcoin.Tests
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			txBuilder.MergeOutputs = false;
 			var tx = txBuilder
+				.SetLockTime(1)
 				.AddCoins(allCoins)
 				.AddKeys(keys)
 				.Send(destinations[0], Money.Parse("6") * 2)
@@ -2370,7 +2371,8 @@ namespace NBitcoin.Tests
 			Assert.True(txBuilder.Verify(tx, "0.0001"));
 
 			// Let's check if PSBT can be finalized
-			var psbt = txBuilder.BuildPSBT(true);
+			var psbt = txBuilder.BuildPSBT(true, version);
+			Assert.Equal(new LockTime(1), psbt.GetGlobalTransaction().LockTime);
 			Assert.All(psbt.Inputs, input => input.PartialSigs.Any()); // All inputs should have partial sigs
 			Assert.False(psbt.IsAllFinalized());
 			Assert.False(psbt.TryFinalize(out _));
@@ -3191,9 +3193,11 @@ namespace NBitcoin.Tests
 			var ex = Assert.Throws<NotEnoughFundsException>(() => tx = builder.BuildTransaction(true));
 			Assert.Contains("You may have", ex.Message);
 		}
-		[Fact]
+		[Theory]
+		[InlineData(PSBTVersion.PSBTv0)]
+		[InlineData(PSBTVersion.PSBTv2)]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanSignWithCoinSpecificKey()
+		public void CanSignWithCoinSpecificKey(PSBTVersion version)
 		{
 			var k = new Key();
 			var addr = k.GetScriptPubKey(ScriptPubKeyType.Segwit);
@@ -3206,7 +3210,7 @@ namespace NBitcoin.Tests
 			builder.SetChange(new Key());
 			builder.SendAllRemainingToChange();
 			builder.SendEstimatedFees(new FeeRate(1.0m));
-			var psbt = builder.BuildPSBT(true);
+			var psbt = builder.BuildPSBT(true, version);
 			Assert.True(psbt.Inputs.FindIndexedInput(coins[0].Outpoint).TryFinalizeInput(out _));
 			Assert.False(psbt.Inputs.FindIndexedInput(coins[1].Outpoint).TryFinalizeInput(out _));
 		}
@@ -3281,10 +3285,12 @@ namespace NBitcoin.Tests
 			Assert.Equal(3, tx.Inputs.Count);
 		}
 
-		[Fact]
+		[Theory]
+		[InlineData(PSBTVersion.PSBTv0)]
+		[InlineData(PSBTVersion.PSBTv2)]
 		[Trait("UnitTest", "UnitTest")]
 		// Fix https://github.com/MetacoSA/NBitcoin/issues/746
-		public void TransactionBuilderDoesNotCreateInvalidTx()
+		public void TransactionBuilderDoesNotCreateInvalidTx(PSBTVersion version)
 		{
 			var masterKey = new ExtKey();
 			var keys = Enumerable.Range(0, 4).Select(x => masterKey.Derive((uint)x)).ToArray();
@@ -3300,7 +3306,7 @@ namespace NBitcoin.Tests
 			builder.SendAllRemaining(new Key());
 			builder.SendEstimatedFees(new FeeRate(10m));
 
-			var psbt = builder.BuildPSBT(false);
+			var psbt = builder.BuildPSBT(false, version);
 			builder = builder.AddKeys(keys.ToArray());
 			builder.SignPSBT(psbt);
 			psbt.Finalize();

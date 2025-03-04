@@ -39,9 +39,11 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		[Theory]
+		[InlineData(PSBTVersion.PSBTv0)]
+		[InlineData(PSBTVersion.PSBTv2)]
 		[Trait("UnitTest", "UnitTest")]
-		public static void ShouldCalculateBalanceOfHDKey()
+		public static void ShouldCalculateBalanceOfHDKey(PSBTVersion version)
 		{
 			foreach (var network in new[] { Network.Main, Altcoins.BGold.Instance.Mainnet })
 			{
@@ -77,7 +79,7 @@ namespace NBitcoin.Tests
 				builder.SetChange(bob);
 				builder.SendFees(Money.Coins(0.001m));
 
-				var psbt = builder.BuildPSBT(false);
+				var psbt = builder.BuildPSBT(false, version);
 				psbt.AddKeyPath(aliceMaster, new KeyPath("1/2/3"));
 				psbt.AddKeyPath(bobMaster, new KeyPath("4/5/6"));
 
@@ -382,9 +384,11 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		[Theory]
+		[InlineData(PSBTVersion.PSBTv0)]
+		[InlineData(PSBTVersion.PSBTv2)]
 		[Trait("UnitTest", "UnitTest")]
-		public void OutputKeyPathCorrect()
+		public void OutputKeyPathCorrect(PSBTVersion version)
 		{
 			var keys = Enumerable.Range(0, 5).Select(_ => new ExtKey()).ToArray();
 
@@ -403,7 +407,7 @@ namespace NBitcoin.Tests
 			builder.SendEstimatedFees(new FeeRate(1.0m));
 			builder.Send(BitcoinAddress.Create("bc1qeef3jecqytj8j2xnjzduf5mu9c6jsqwd4hmvyv2zw8hzpf7a47nqrws5sn", Network.Main), Money.Coins(0.2m));
 			builder.SetChange(changeRedeem.WitHash.ScriptPubKey);
-			var psbt = builder.BuildPSBT(false);
+			var psbt = builder.BuildPSBT(false, version);
 			psbt.AddScripts(changeRedeem);
 			foreach (var k in accountKeys)
 			{

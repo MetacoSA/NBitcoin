@@ -19,10 +19,11 @@ public class PSBT2 : PSBT
 	{
 		var m = new Maps();
 		var global = m.NewMap();
-		global.Add([PSBT2Constants.PSBT_GLOBAL_TX_VERSION], tx.Version);
-		global.Add([PSBT2Constants.PSBT_GLOBAL_INPUT_COUNT], new VarInt((uint)tx.Inputs.Count));
-		global.Add([PSBT2Constants.PSBT_GLOBAL_OUTPUT_COUNT], new VarInt((uint)tx.Outputs.Count));
-
+		global.Add(PSBT2Constants.PSBT_GLOBAL_TX_VERSION, tx.Version);
+		global.Add(PSBT2Constants.PSBT_GLOBAL_INPUT_COUNT, new VarInt((uint)tx.Inputs.Count));
+		global.Add(PSBT2Constants.PSBT_GLOBAL_OUTPUT_COUNT, new VarInt((uint)tx.Outputs.Count));
+		if (tx.LockTime != LockTime.Zero)
+			global.Add(PSBT2Constants.PSBT_GLOBAL_FALLBACK_LOCKTIME, (uint)tx.LockTime);
 		foreach (var txin in tx.Inputs)
 		{
 			PSBT2Input.FillMap(m.NewMap(), txin);

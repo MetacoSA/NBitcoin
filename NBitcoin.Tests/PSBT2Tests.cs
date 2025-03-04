@@ -206,7 +206,6 @@ namespace NBitcoin.Tests
 			// Create a simple dummy unsigned transaction with more inputs and outputs.
 			Transaction tx = Network.Main.CreateTransaction();
 
-
 			tx.Inputs.Add(new TxIn(new OutPoint(uint256.Zero, 0)));
 			tx.Outputs.Add(new TxOut(Money.Coins(1.0m), new Script()));
 			tx.Inputs.Add(new TxIn(new OutPoint(uint256.Zero, 1)));

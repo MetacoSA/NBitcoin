@@ -83,7 +83,7 @@ public class Map : System.Collections.Generic.SortedDictionary<byte[], byte[]>
 	{
 
 	}
-
+	public void Add<T>(byte key, T val) => Add<T>([key], val);
 	public void Add<T>(byte[] key, T val)
 	{
 		if (typeof(T) == typeof(byte[]))
@@ -110,6 +110,8 @@ public class Map : System.Collections.Generic.SortedDictionary<byte[], byte[]>
 		{
 			base.Add(key, ((VarInt)(object)val!).ToBytes());
 		}
+		else
+			throw new NotSupportedException("Does not support adding " + typeof(T).Name);
 	}
 
 	public IEnumerable<KeyValuePair<byte[], T>> RemoveAll<T>(byte prefixKey) => RemoveAll<T>([prefixKey]);

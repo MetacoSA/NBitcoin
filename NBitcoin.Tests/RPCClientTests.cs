@@ -1763,8 +1763,10 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
-		public async Task UpdatePSBTInRPCShouldIncludePreviousTX()
+		[Theory]
+		[InlineData(PSBTVersion.PSBTv0)]
+		[InlineData(PSBTVersion.PSBTv2)]
+		public async Task UpdatePSBTInRPCShouldIncludePreviousTX(PSBTVersion version)
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -1779,7 +1781,7 @@ namespace NBitcoin.Tests
 				txbuilder.SetChange(await client.GetNewAddressAsync());
 				txbuilder.SendFees(Money.Satoshis(1000));
 				txbuilder.Send(new Key().PubKey.GetScriptPubKey(ScriptPubKeyType.Legacy), Money.Coins(1.0m));
-				var psbt = txbuilder.BuildPSBT(false);
+				var psbt = txbuilder.BuildPSBT(false, version);
 
 				var resp = await client.WalletProcessPSBTAsync(psbt, false);
 				Assert.NotNull(resp.PSBT.Inputs[0].NonWitnessUtxo);
