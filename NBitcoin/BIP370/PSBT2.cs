@@ -220,6 +220,7 @@ public class PSBT2 : PSBT
 
 	internal override void FillMap(Map map)
 	{
+		base.FillMap(map);
 		map.Add([PSBTConstants.PSBT_GLOBAL_VERSION],  PSBT2Constants.PSBT2Version.ToBytes());
 		map.Add([PSBT2Constants.PSBT_GLOBAL_TX_VERSION],  TransactionVersion.ToBytes());
 		if (FallbackLockTime != null)

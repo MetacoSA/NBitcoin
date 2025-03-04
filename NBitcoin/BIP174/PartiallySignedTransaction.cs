@@ -210,6 +210,11 @@ namespace NBitcoin
 
 
 			var maps = Maps.Load(stream);
+			return Load(maps, network);
+		}
+
+		private static PSBT Load(Maps maps, Network network)
+		{
 			if (maps.Global.TryRemove<int>(PSBTConstants.PSBT_GLOBAL_VERSION, out var psbtVersion) && psbtVersion == 0)
 				throw new FormatException("PSBTv0 should not include PSBT_GLOBAL_VERSION");
 			return psbtVersion switch
@@ -964,10 +969,11 @@ namespace NBitcoin
 		/// <returns>A cloned PSBT</returns>
 		public PSBT Clone()
 		{
-			var bytes = ToBytes();
-			var psbt = PSBT.Load(bytes, Network);
-			psbt.Settings = Settings.Clone();
-			return psbt;
+			var maps = new Maps();
+			FillMaps(maps);
+			var clone = PSBT.Load(maps, Network);
+			clone.Settings = Settings.Clone();
+			return clone;
 		}
 
 		public string ToBase64() => Encoders.Base64.EncodeData(this.ToBytes());
