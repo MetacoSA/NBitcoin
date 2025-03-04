@@ -339,6 +339,12 @@ namespace NBitcoin
 			txin.ScriptSig = new Script(Op.GetPushOp(height)) + OpcodeType.OP_0;
 			return txin;
 		}
+
+		public void RemoveSignatures()
+		{
+			ScriptSig = Script.Empty;
+			WitScript = WitScript.Empty;
+		}
 	}
 
 	public class TxOutCompressor : IBitcoinSerializable
@@ -1443,6 +1449,12 @@ namespace NBitcoin
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			return Load(Encoders.Hex.DecodeData(hex), network);
+		}
+
+		public void RemoveSignatures()
+		{
+			foreach (var input in Inputs)
+				input.RemoveSignatures();
 		}
 
 		public static bool TryParse(string hex, Network network, out Transaction transaction)

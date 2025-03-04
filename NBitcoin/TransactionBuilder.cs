@@ -15,6 +15,7 @@ using AssetBuilder = System.Action<NBitcoin.TransactionBuilder.TransactionBuildi
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Diagnostics.CodeAnalysis;
+using NBitcoin.Scripting.Parser;
 
 namespace NBitcoin
 {
@@ -490,19 +491,11 @@ namespace NBitcoin
 
 			private static Transaction RemoveSigs(Transaction tx)
 			{
-				Transaction? clone = null;
-				for (int i = 0; i < tx.Inputs.Count; i++)
-				{
-					var input = tx.Inputs[i];
-					if (!WitScript.IsNullOrEmpty(input.WitScript) || !Script.IsNullOrEmpty(input.ScriptSig))
-					{
-						clone ??= tx.Clone();
-						input = clone.Inputs[i];
-						input.WitScript = WitScript.Empty;
-						input.ScriptSig = Script.Empty;
-					}
-				}
-				return clone ?? tx;
+				var hasSig = tx.Inputs.Any(input => !WitScript.IsNullOrEmpty(input.WitScript) || !Script.IsNullOrEmpty(input.ScriptSig));
+				if (!hasSig)
+					return tx;
+				tx = tx.Clone();
+				return tx;
 			}
 
 			public TransactionSigningContext(TransactionBuilder builder, PSBT psbt, Transaction? transaction, SigningOptions signingOptions)

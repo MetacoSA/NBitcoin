@@ -28,11 +28,7 @@ public class PSBT0 : PSBT
 		var maps = new Maps();
 		var global = maps.NewMap();
 		var noSigTx = transaction.Clone();
-		foreach (var input in noSigTx.Inputs)
-		{
-			input.ScriptSig = Script.Empty;
-			input.WitScript = WitScript.Empty;
-		}
+		noSigTx.RemoveSignatures();
 		global.Add([PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX], noSigTx.ToBytes());
 		foreach (var input in transaction.Inputs)
 		{
