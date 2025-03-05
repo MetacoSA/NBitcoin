@@ -49,7 +49,7 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageReference>
-	
+
 	</ItemGroup>
 
   <!--Those package must be removed once FsCheck is removed or can be updated to non vulnerable version-->
@@ -197,9 +197,10 @@
 	<None Update="data\ecdsaadaptor\*.json">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
-  </ItemGroup>
-  <ItemGroup>
     <None Update="data\SHA3TestVectors.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="data\SilentPaymentTestVectors.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
