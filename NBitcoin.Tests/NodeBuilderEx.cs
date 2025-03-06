@@ -18,6 +18,8 @@ namespace NBitcoin.Tests
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Dogecoin.v1_14_5, Altcoins.Dogecoin.Instance.Regtest, caller);
 
+			//var builder = NodeBuilder.Create(NodeDownloadData.Pepecoin.v1_1_0, Altcoins.Pepecoin.Instance.Regtest, caller);
+
 			//var builder = NodeBuilder.Create(NodeDownloadData.Verge.v6_0_2, Altcoins.Verge.Instance.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Dash.v18_0_1, Altcoins.Dash.Instance.Regtest, caller);
