@@ -9,6 +9,7 @@ using Map = System.Collections.Generic.SortedDictionary<byte[], byte[]>;
 using NBitcoin.BuilderExtensions;
 using System.Diagnostics.CodeAnalysis;
 using NBitcoin.BIP370;
+using NBitcoin.Protocol;
 
 namespace NBitcoin
 {
@@ -1286,6 +1287,65 @@ namespace NBitcoin
 		}
 		public Transaction GetGlobalTransaction() => GetGlobalTransaction(false);
 		internal abstract Transaction GetGlobalTransaction(bool @unsafe);
+
+		/// <summary>
+		/// If this instance is <see cref="PSBT0"/>, returns it.
+		/// Else, converts to a <see cref="PSBT0"/> instance.
+		/// </summary>
+		/// <returns>This instance, or a conversion</returns>
+		public PSBT0 ToPSBTv0()
+		{
+			if (this is PSBT0 p)
+				return p;
+			var maps = new Maps();
+			FillMaps(maps);
+			var global = this.GetGlobalTransaction(true);
+			int i = 0;
+			foreach (var b in PSBT2Constants.PSBT_V0_GLOBAL_EXCLUSIONSET)
+				maps[i].Remove([b]);
+			maps[i].Add(PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX, global.ToBytes());
+			i++;
+			for (int o = 0; o < this.Inputs.Count; o++)
+			{
+				foreach (var b in PSBT2Constants.PSBT_V0_INPUT_EXCLUSIONSET)
+					maps[i].Remove([b]);
+				i++;
+			}
+			for (int o = 0; o < this.Outputs.Count; o++)
+			{
+				foreach (var b in PSBT2Constants.PSBT_V0_OUTPUT_EXCLUSIONSET)
+					maps[i].Remove([b]);
+				i++;
+			}
+			return new PSBT0(maps, Network);
+		}
+		/// <summary>
+		/// If this instance is <see cref="PSBT2"/>, returns it.
+		/// Else, converts to a <see cref="PSBT2"/> instance.
+		/// </summary>
+		/// <returns>This instance, or a conversion</returns>
+		public PSBT2 ToPSBTv2()
+		{
+			if (this is PSBT2 p)
+				return p;
+			var maps = new Maps();
+			FillMaps(maps);
+			var tx = GetGlobalTransaction(true);
+			maps[0].Remove([PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX]);
+			maps[0].Add(PSBT2Constants.PSBT_GLOBAL_TX_VERSION, tx.Version);
+			maps[0].Add(PSBT2Constants.PSBT_GLOBAL_INPUT_COUNT, new VarInt((uint)tx.Inputs.Count));
+			maps[0].Add(PSBT2Constants.PSBT_GLOBAL_OUTPUT_COUNT, new VarInt((uint)tx.Outputs.Count));
+			int i = 1;
+			foreach (var txin in tx.Inputs)
+			{
+				PSBT2Input.FillMap(maps[i++], txin);
+			}
+			foreach (var txout in tx.Outputs)
+			{
+				PSBT2Output.FillMap(maps[i++], txout);
+			}
+			return new PSBT2(maps, Network);
+		}
 	}
 }
 #nullable disable

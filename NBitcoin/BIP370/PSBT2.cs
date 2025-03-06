@@ -15,7 +15,7 @@ public class PSBT2 : PSBT
 	{
 	}
 
-	private static Maps CreateMap(Transaction tx, Network network)
+	internal static Maps CreateMap(Transaction tx, Network network)
 	{
 		var m = new Maps();
 		var global = m.NewMap();
@@ -39,9 +39,9 @@ public class PSBT2 : PSBT
 	{
 		var globalMap = maps[0];
 		if (globalMap.ContainsKey([PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX]))
-		{
 			throw new FormatException("PSBT v2 must not contain PSBT_GLOBAL_UNSIGNED_TX");
-		}
+		if (globalMap.TryRemove<int>(PSBTConstants.PSBT_GLOBAL_VERSION, out var psbtVersion) && psbtVersion != 2)
+			throw new FormatException("PSBTv2 should have PSBT_GLOBAL_VERSION set to 2");
 
 		if (globalMap.TryRemove<uint>(PSBT2Constants.PSBT_GLOBAL_FALLBACK_LOCKTIME, out var v))
 			FallbackLockTime = new LockTime(v);
