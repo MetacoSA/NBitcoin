@@ -621,8 +621,6 @@ namespace NBitcoin.Tests
 			data1.Combine(data2);
 			var expected = PSBT.Parse((string)testdata["psbtUnknown2"], Network.Main);
 			Assert.Equal(data1, expected, ComparerInstance);
-
-
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

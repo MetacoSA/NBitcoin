@@ -128,7 +128,7 @@ namespace NBitcoin
 				map.Add(key, b);
 			}
 			foreach (var kv in unknown)
-				unknown.Add(kv.Key, kv.Value);
+				map.Add(kv.Key, kv.Value);
 		}
 
 		#endregion

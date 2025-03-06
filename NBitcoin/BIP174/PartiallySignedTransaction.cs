@@ -855,18 +855,12 @@ namespace NBitcoin
 				map.Add(key, value);
 			}
 			foreach (var kv in Unknown)
-			{
 				map.Add(kv.Key, kv.Value);
-			}
 		}
 		internal void FillMaps(Maps maps)
 		{
 			var globalMap = maps.NewMap();
 			FillMap(globalMap);
-			foreach (var kv in Unknown)
-			{
-				globalMap.Add(kv.Key, kv.Value);
-			}
 			// Write inputs
 			foreach (var psbtin in Inputs)
 			{

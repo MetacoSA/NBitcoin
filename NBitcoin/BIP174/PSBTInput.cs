@@ -602,9 +602,7 @@ namespace NBitcoin
 
 			// Write unknown things
 			foreach (var kv in unknown)
-			{
 				map.Add(kv.Key, kv.Value);
-			}
 		}
 
 		#endregion
