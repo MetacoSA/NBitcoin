@@ -160,8 +160,11 @@ namespace NBitcoin.Tests
 		{
 			var p = PSBT.Parse(psbt, Network.Main);
 			Assert.IsType<PSBT2>(p);
+			Assert.Empty(p.Outputs.SelectMany(o => o.Unknown));
 			var bytes = p.ToBytes();
 			Assert.Equal(psbt, Encoders.Hex.EncodeData(bytes));
+			Assert.Empty(p.Outputs.SelectMany(o => o.Unknown));
+			Assert.Empty(p.Inputs.SelectMany(o => o.Unknown));
 		}
 
 		[Fact]

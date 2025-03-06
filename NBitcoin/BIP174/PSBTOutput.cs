@@ -127,7 +127,8 @@ namespace NBitcoin
 				b = ((MemoryStream)bs.Inner).ToArrayEfficient();
 				map.Add(key, b);
 			}
-			unknown = map;
+			foreach (var kv in unknown)
+				unknown.Add(kv.Key, kv.Value);
 		}
 
 		#endregion

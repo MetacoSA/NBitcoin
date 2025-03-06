@@ -601,11 +601,9 @@ namespace NBitcoin
 				map.Add([PSBTConstants.PSBT_IN_SCRIPTWITNESS], FinalScriptWitness.ToBytes());
 
 			// Write unknown things
-			foreach (var entry in unknown)
+			foreach (var kv in unknown)
 			{
-				var k = entry.Key;
-				var v = entry.Value;
-				map.Add(k, v);
+				map.Add(kv.Key, kv.Value);
 			}
 		}
 

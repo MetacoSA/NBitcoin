@@ -853,7 +853,10 @@ namespace NBitcoin
 				byte[] key = [PSBTConstants.PSBT_GLOBAL_XPUB, .. xpubVersionBytes, .. xpub.Key.ExtPubKey.ToBytes()];
 				var value = pathInfo;
 				map.Add(key, value);
-
+			}
+			foreach (var kv in Unknown)
+			{
+				map.Add(kv.Key, kv.Value);
 			}
 		}
 		internal void FillMaps(Maps maps)
