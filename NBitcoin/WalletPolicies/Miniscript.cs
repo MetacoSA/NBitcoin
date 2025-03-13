@@ -555,6 +555,7 @@ namespace NBitcoin.WalletPolicies
 					"sortedmulti" => TryParseParameters(ctx, 1, TryParsePubKeys<Value.PubKeyValue>, out error, out var p) ? FragmentUnboundedParameters.sortedmulti(p) : null,
 					"multi" => TryParseParameters(ctx, 1, TryParsePubKeys<Value.PubKeyValue>, out error, out var p) ? FragmentUnboundedParameters.multi(p) : null,
 					"multi_a" => ctx.Network.Consensus.SupportTaproot && TryParseParameters(ctx, 1, TryParsePubKeys<Value.TaprootPubKeyValue>, out error, out var p) ? FragmentUnboundedParameters.multi_a(p) : null,
+					"sortedmulti_a" => ctx.Network.Consensus.SupportTaproot && TryParseParameters(ctx, 1, TryParsePubKeys<Value.TaprootPubKeyValue>, out error, out var p) ? FragmentUnboundedParameters.sortedmulti_a(p) : null,
 					_ => null
 				};
 				if (node is null && error is null)

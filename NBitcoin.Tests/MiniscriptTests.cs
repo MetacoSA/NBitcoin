@@ -328,6 +328,34 @@ namespace NBitcoin.Tests
 			var expectedPubKey = new ExtPubKey(new PubKey(musig, true), DeriveVisitor.BIP0328CC).Derive(0).Derive(1).GetPublicKey();
 			var expectedScript = expectedPubKey.GetScriptPubKey(ScriptPubKeyType.TaprootBIP86);
 			Assert.Equal(expectedScript, m.ToScripts().ScriptPubKey);
+
+			var pks1 =
+				Enumerable.Range(0, 3)
+				.Select(i => ExtPubKey.Parse("xpub6ERApfZwUNrhLCkDtcHTcxd75RbzS1ed54G1LkBUHQVHQKqhMkhgbmJbZRkrgZw4koxb5JaHWkY4ALHY2grBGRjaDMzQLcgJvLJuZZvRcEL", Network.Main).Derive((uint)i))
+				.ToArray();
+			var pks2 =
+				Enumerable.Range(0, 3)
+				.Select(i => ExtPubKey.Parse("xpub68NZiKmJWnxxS6aaHmn81bvJeTESw724CRDs6HbuccFQN9Ku14VQrADWgqbhhTHBaohPX4CjNLf9fq9MYo6oDaPPLPxSb7gwQN3ih19Zm4Y", Network.Main).Derive(new KeyPath("0/0")).Derive((uint)i))
+				.ToArray();
+			string[] expectedScripts =
+				[
+				"5120abd47468515223f58a1a18edfde709a7a2aab2b696d59ecf8c34f0ba274ef772",
+				"5120fe62e7ed20705bd1d3678e072bc999acb014f07795fa02cb8f25a7aa787e8cbd",
+				"51201311093750f459039adaa2a5ed23b0f7a8ae2c2ffb07c5390ea37e2fb1050b41"
+				];
+			miniscript = "tr(50929b74c1a04954b78b4b6035e97a5e078a5a0f28ec96d547bfee9ace803ac0,sortedmulti_a(2,A,B))";
+			m = Miniscript.Parse(miniscript, settings);
+			Assert.Equal(miniscript, m.ToString());
+			for (int i = 0; i < pks1.Length; i++)
+			{
+				var pm = m.ReplaceParameters(new()
+				{
+					["A"] = MiniscriptNode.Create(pks1[i].GetPublicKey().TaprootPubKey),
+					["B"] = MiniscriptNode.Create(pks2[i].GetPublicKey().TaprootPubKey)
+				});
+				var generated = Encoders.Hex.EncodeData(pm.ToScripts().ScriptPubKey.ToBytes());
+				Assert.Equal(expectedScripts[i], generated);
+			}
 		}
 
 		[Fact]

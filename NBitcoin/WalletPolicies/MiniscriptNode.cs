@@ -214,6 +214,27 @@ namespace NBitcoin.WalletPolicies
 				ops.Add(v[0][0]);
 				ops.Add(OpcodeType.OP_NUMEQUAL);
 			});
+		public readonly static FragmentDescriptor sortedmulti_a = new(
+			"sortedmulti_a",
+			(v, ops) =>
+			{
+				var pks = new byte[v.Length - 1][];
+				for (int x = 1; x < v.Length; x++)
+				{
+					pks[x - 1] = v[x][0].PushData;
+				}
+				Array.Sort(pks, BytesComparer.Instance);
+
+				ops.Add(Op.GetPushOp(pks[0]));
+				ops.Add(OpcodeType.OP_CHECKSIG);
+				for (int i = 1; i < pks.Length; i++)
+				{
+					ops.Add(Op.GetPushOp(pks[i]));
+					ops.Add(OpcodeType.OP_CHECKSIGADD);
+				}
+				ops.Add(v[0][0]);
+				ops.Add(OpcodeType.OP_NUMEQUAL);
+			});
 
 		public readonly static FragmentDescriptor a = new(
 			"a",
@@ -697,6 +718,7 @@ namespace NBitcoin.WalletPolicies
 			public static FragmentUnboundedParameters multi(MiniscriptNode[] parameters) => new FragmentUnboundedParameters(FragmentDescriptor.multi, parameters);
 			public static FragmentUnboundedParameters sortedmulti(MiniscriptNode[] parameters) => new FragmentUnboundedParameters(FragmentDescriptor.sortedmulti, parameters);
 			public static FragmentUnboundedParameters multi_a(MiniscriptNode[] parameters) => new FragmentUnboundedParameters(FragmentDescriptor.multi_a, parameters);
+			public static FragmentUnboundedParameters sortedmulti_a(MiniscriptNode[] parameters) => new FragmentUnboundedParameters(FragmentDescriptor.sortedmulti_a, parameters);
 
 
 			private readonly MiniscriptNode[] parameters;
