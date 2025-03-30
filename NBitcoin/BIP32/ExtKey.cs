@@ -103,8 +103,8 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Constructor. Reconstructs an extended key from the Base58 representations of 
-		/// the public key and corresponding private key.  
+		/// Constructor. Reconstructs an extended key from the Base58 representations of
+		/// the public key and corresponding private key.
 		/// </summary>
 		public ExtKey(BitcoinExtPubKey extPubKey, BitcoinSecret key)
 			: this(extPubKey.ExtPubKey, key.PrivateKey)
@@ -112,7 +112,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Constructor. Creates an extended key from the public key and corresponding private key.  
+		/// Constructor. Creates an extended key from the public key and corresponding private key.
 		/// </summary>
 		/// <remarks>
 		/// <para>
@@ -366,7 +366,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Derives a new extended key in the hierarchy as the given child number, 
+		/// Derives a new extended key in the hierarchy as the given child number,
 		/// setting the high bit if hardened is specified.
 		/// </summary>
 		public ExtKey Derive(int index, bool hardened)
@@ -451,7 +451,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Recreates the private key of the parent from the private key of the child 
+		/// Recreates the private key of the parent from the private key of the child
 		/// combinated with the public key of the parent (hardened children cannot be
 		/// used to recreate the parent).
 		/// </summary>
