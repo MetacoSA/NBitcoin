@@ -245,9 +245,9 @@ namespace NBitcoin
 				i += 32;
 				if (bytes[i++] != 0)
 					throw new FormatException($"Invalid ExtKey");
-				var pk = new byte[32];
-				Array.Copy(bytes, i, pk, 0, 32);
-				key = new Key(pk);
+				var sk = new byte[32];
+				Array.Copy(bytes, i, sk, 0, 32);
+				key = new Key(sk);
 			}
 		}
 
@@ -285,9 +285,9 @@ namespace NBitcoin
 				i += 32;
 				if (bytes[i++] != 0)
 					throw new FormatException($"Invalid ExtKey");
-				Span<byte> pk = stackalloc byte[32];
-				bytes.Slice(i, 32).CopyTo(pk);
-				key = new Key(pk);
+				Span<byte> sk = stackalloc byte[32];
+				bytes.Slice(i, 32).CopyTo(sk);
+				key = new Key(sk);
 			}
 		}
 		private static Key CalculateKey(ReadOnlySpan<byte> seed, out byte[] chainCode)
