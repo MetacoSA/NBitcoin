@@ -119,6 +119,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanSignUsingTapscriptAndKeySpend()
 		{
 			var ctx = Context.Instance;

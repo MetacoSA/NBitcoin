@@ -79,8 +79,8 @@ namespace NBitcoin.RPC
 			foreach (var txout in tx.Outputs)
 			{
 				writer.WriteStartObject();
-				WritePropertyValue(writer, "value", txout.Value.ToString(false, false));
-				WritePropertyValue(writer, "scriptPubKey", txout.ScriptPubKey.ToString());
+				WritePropertyValue(writer, "value", txout.Value?.ToString(false, false));
+				WritePropertyValue(writer, "scriptPubKey", txout.ScriptPubKey?.ToString());
 				writer.WriteEndObject();
 			}
 			writer.WriteEndArray();

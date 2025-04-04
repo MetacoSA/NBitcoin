@@ -19,6 +19,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Encoders = NBitcoin.DataEncoders.Encoders;
 using static NBitcoin.Tests.Helpers.PrimitiveUtils;
+using NBitcoin.Altcoins;
 
 namespace NBitcoin.Tests
 {
@@ -2624,6 +2625,7 @@ namespace NBitcoin.Tests
 			tx = (ElementsTransaction)Transaction.Parse(txStr, Altcoins.Liquid.Instance.Mainnet);
 			var id = ((ElementsTxIn)tx.Inputs[0]).GetIssuedAssetId();
 			Assert.Equal("140ad0392c3aa83f8fa31722ca2ecfcf582499a4dc9e63a8e44c9b405cb148fe", id.ToString());
+			tx.ToString();
 		}
 
 		[Fact]
@@ -3136,6 +3138,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void DoNotCrashOnRegtest()
 		{
 			Assert.NotNull(Network.GetNetwork("regtest"));
