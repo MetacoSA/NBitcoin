@@ -1,6 +1,8 @@
 ﻿using NBitcoin.DataEncoders;
 using NBitcoin.JsonConverters;
 using NBitcoin.OpenAsset;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +14,6 @@ namespace NBitcoin.Tests
 {
 	public class JsonConverterTests
 	{
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanSerializeInJson()
@@ -34,6 +35,9 @@ namespace NBitcoin.Tests
 			CanSerializeInJsonCore(new Key().PubKey.WitHash.ScriptPubKey.WitHash.GetAddress(Network.Main), Network.Main);
 			var sig = k.Sign(new uint256(RandomUtils.GetBytes(32)));
 			CanSerializeInJsonCore(sig);
+			CanSerializeInJsonCore(DateTimeOffset.UtcNow);
+			CanSerializeInJsonCore(NBitcoin.Utils.UnixTimeToDateTime(0));
+			CanSerializeInJsonCore(NBitcoin.Utils.UnixTimeToDateTime(10));
 			CanSerializeInJsonCore(new TransactionSignature(sig, SigHash.All));
 			CanSerializeInJsonCore(k.PubKey.Hash);
 			CanSerializeInJsonCore(k.PubKey.ScriptPubKey.Hash);
