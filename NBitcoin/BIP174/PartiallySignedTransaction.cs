@@ -1269,6 +1269,12 @@ namespace NBitcoin
 							o.Key.HDKeyPaths.Remove(ecdsa);
 							o.Key.HDKeyPaths.Add(ecdsa, newRoot.Derive(keyPath.RootedKeyPath.KeyPath));
 						}
+						else if (keyPath.PubKey is TaprootPubKey taproot)
+						{
+							var kp = o.Key.HDTaprootKeyPaths[taproot];
+							o.Key.HDTaprootKeyPaths.Remove(taproot);
+							o.Key.HDTaprootKeyPaths.Add(taproot, new TaprootKeyPath(newRoot.Derive(keyPath.RootedKeyPath.KeyPath), kp.LeafHashes));
+						}
 					}
 				}
 			}
