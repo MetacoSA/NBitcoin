@@ -224,6 +224,39 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanGenerateScripts()
+		{
+			var settings = new MiniscriptParsingSettings(Network.RegTest)
+			{
+				Dialect = MiniscriptDialect.BIP388,
+				AllowedParameters = ParameterTypeFlags.All
+			};
+			var script = Miniscript.Parse("pkh([aaaaaaaa/44h/1h/0h]tpubDDV486pBqkML6Ywhznz8DS3VS95h3q4A2pUMCc6yy739QpKMg3gA8EXGrjraDBDxrhLsezepjCEfBtak5wngDH4vMh6aXKV8hPN7JsMtdEf/<0;1>/*)", settings);
+			var expectedScripts = script.Derive(AddressIntent.Deposit, 0).Miniscript.ToScripts();
+			Assert.Equal("76a914bc1bf603880f28ffaf9c888b5660e9adf8dcadac88ac", expectedScripts.ScriptPubKey.ToHex());
+			Assert.Equal("76a914bc1bf603880f28ffaf9c888b5660e9adf8dcadac88ac", expectedScripts.ScriptCode.ToHex());
+			Assert.Null(expectedScripts.RedeemScript);
+
+			script = Miniscript.Parse("sh(pkh([aaaaaaaa/44h/1h/0h]tpubDDV486pBqkML6Ywhznz8DS3VS95h3q4A2pUMCc6yy739QpKMg3gA8EXGrjraDBDxrhLsezepjCEfBtak5wngDH4vMh6aXKV8hPN7JsMtdEf/<0;1>/*))", settings);
+			expectedScripts = script.Derive(AddressIntent.Deposit, 0).Miniscript.ToScripts();
+			Assert.Equal("a91498062e6879a7b6643735a626ac129db470087a2f87", expectedScripts.ScriptPubKey.ToHex());
+			Assert.Equal("76a914bc1bf603880f28ffaf9c888b5660e9adf8dcadac88ac", expectedScripts.ScriptCode.ToHex());
+			Assert.Equal("76a914bc1bf603880f28ffaf9c888b5660e9adf8dcadac88ac", expectedScripts.RedeemScript.ToHex());
+
+			script = Miniscript.Parse("wsh(pkh([aaaaaaaa/44h/1h/0h]tpubDDV486pBqkML6Ywhznz8DS3VS95h3q4A2pUMCc6yy739QpKMg3gA8EXGrjraDBDxrhLsezepjCEfBtak5wngDH4vMh6aXKV8hPN7JsMtdEf/<0;1>/*))", settings);
+			expectedScripts = script.Derive(AddressIntent.Deposit, 0).Miniscript.ToScripts();
+			Assert.Equal("0020df3d2f624d5744aa959d0e87cfdfb33dec486a329aee2aeee8da17c98f7e999f", expectedScripts.ScriptPubKey.ToHex());
+			Assert.Equal("76a914bc1bf603880f28ffaf9c888b5660e9adf8dcadac88ac", expectedScripts.ScriptCode.ToHex());
+			Assert.Equal("76a914bc1bf603880f28ffaf9c888b5660e9adf8dcadac88ac", expectedScripts.RedeemScript.ToHex());
+
+			script = Miniscript.Parse("sh(wsh(pkh([aaaaaaaa/44h/1h/0h]tpubDDV486pBqkML6Ywhznz8DS3VS95h3q4A2pUMCc6yy739QpKMg3gA8EXGrjraDBDxrhLsezepjCEfBtak5wngDH4vMh6aXKV8hPN7JsMtdEf/<0;1>/*)))", settings);
+			expectedScripts = script.Derive(AddressIntent.Deposit, 0).Miniscript.ToScripts();
+			Assert.Equal("a914151fd2c5490f9a6488a72fad3d8fa7bd1e3fab3387", expectedScripts.ScriptPubKey.ToHex());
+			Assert.Equal("76a914bc1bf603880f28ffaf9c888b5660e9adf8dcadac88ac", expectedScripts.ScriptCode.ToHex());
+			Assert.Equal("76a914bc1bf603880f28ffaf9c888b5660e9adf8dcadac88ac", expectedScripts.RedeemScript.ToHex());
+		}
+
+		[Fact]
 		public void CanGenerateSH()
 		{
 			var root = new ExtKey().GetWif(Network.TestNet);
