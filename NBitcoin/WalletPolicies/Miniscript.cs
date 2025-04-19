@@ -740,9 +740,8 @@ namespace NBitcoin.WalletPolicies
 			Script? redeem = null;
 			if (GetScriptCodeNode(RootNode) is { } n)
 				scriptCode = n.GetScript();
-			if (RootNode is Fragment f &&
-				(f.Descriptor == FragmentDescriptor.wsh || f.Descriptor == FragmentDescriptor.sh))
-				redeem = scriptCode;
+			if (GetRedeemNode(RootNode) is { } n2)
+				redeem = n2.GetScript();
 			return new(scriptPubKey, redeem, scriptCode);
 		}
 
@@ -766,6 +765,17 @@ namespace NBitcoin.WalletPolicies
 			Fragment f when f.Descriptor == FragmentDescriptor.sh => GetScriptCodeNode(f.Parameters.First()),
 			Fragment f when f.Descriptor == FragmentDescriptor.tr => null,
 			_ => node
+		};
+		private MiniscriptNode? GetRedeemNode(MiniscriptNode node) =>
+		node switch
+		{
+			FragmentSingleParameter
+			{
+				Descriptor: { Name: "sh" },
+				X: FragmentSingleParameter { Descriptor: { Name: "wsh" } } wsh
+			} => wsh.X,
+			FragmentSingleParameter { Descriptor: { Name: "wsh" or "sh" } } f => f.X,
+			_ => null
 		};
 
 		public Miniscript Rewrite(MiniscriptRewriterVisitor rewriterVisitor)

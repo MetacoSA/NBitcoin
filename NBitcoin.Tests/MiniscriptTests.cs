@@ -254,6 +254,19 @@ namespace NBitcoin.Tests
 			Assert.Equal("a914151fd2c5490f9a6488a72fad3d8fa7bd1e3fab3387", expectedScripts.ScriptPubKey.ToHex());
 			Assert.Equal("76a914bc1bf603880f28ffaf9c888b5660e9adf8dcadac88ac", expectedScripts.ScriptCode.ToHex());
 			Assert.Equal("76a914bc1bf603880f28ffaf9c888b5660e9adf8dcadac88ac", expectedScripts.RedeemScript.ToHex());
+
+			script = Miniscript.Parse("sh(wpkh([aaaaaaaa/49h/1h/0h]tpubDDJa9q5audQLxtPyhrgapyByEHHSWQxKrADKA8dX8xNqAV5zrnnCVyHP9aNxojxi27Beus36V8D4Lqd6dZEDonxVMofgDK92zNLfeKhC54J/<0;1>/*))", settings);
+			expectedScripts = script.Derive(AddressIntent.Deposit, 0).Miniscript.ToScripts();
+			var pk = new PubKey("035bb92b75b376aa23a6ce7a19c2957b43b7b99377d88017bc113c65eb021253f6");
+			var expectedScriptPubKey = pk.GetScriptPubKey(ScriptPubKeyType.SegwitP2SH);
+			var expectedRedeem = pk.GetScriptPubKey(ScriptPubKeyType.Segwit);
+			var expectedScriptCode = pk.GetScriptPubKey(ScriptPubKeyType.Legacy);
+			Assert.Equal(expectedScriptPubKey, expectedScripts.ScriptPubKey);
+			Assert.Equal(expectedRedeem, expectedScripts.RedeemScript);
+			Assert.Equal(expectedScriptCode, expectedScripts.ScriptCode);
+			// This check coherency
+			var scriptCoin = new ScriptCoin(OutPoint.Zero, new TxOut(Money.Zero, expectedScriptPubKey), expectedRedeem);
+			Assert.Equal(scriptCoin.GetScriptCode(), expectedScriptCode);
 		}
 
 		[Fact]
