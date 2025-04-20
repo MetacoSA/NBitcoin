@@ -212,7 +212,7 @@ namespace NBitcoin.WalletPolicies
 			error = null;
 			node = null;
 			var match = Regex.Match(ctx.Remaining, @"^[0-9]+");
-			if (uint.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v) && v < 100 && v > 0)
+			if (uint.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
 			{
 				ctx.Advance(match.Length);
 				node = new Value.CountValue((int)v);
