@@ -396,7 +396,7 @@ namespace NBitcoin.RPC
 				return;
 			}
 #endif
-			var address = new Key().GetAddress(type, rpc.Network);
+				var address = new Key().GetAddress(type, rpc.Network);
 			if (address == null)
 			{
 				setResult(false);
@@ -1084,7 +1084,7 @@ namespace NBitcoin.RPC
 			return ms;
 		}
 
-		#region P2P Networking
+#region P2P Networking
 #if !NOSOCKET
 		public PeerInfo[] GetPeersInfo()
 		{
@@ -1242,9 +1242,9 @@ namespace NBitcoin.RPC
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Block chain and UTXO
+#region Block chain and UTXO
 
 		public async Task<BlockchainInfo> GetBlockchainInfoAsync(CancellationToken cancellationToken = default)
 		{
@@ -1899,13 +1899,13 @@ namespace NBitcoin.RPC
 			return GetTransactions(GetBlockHash(height));
 		}
 
-		#endregion
+#endregion
 
-		#region Coin generation
+#region Coin generation
 
-		#endregion
+#endregion
 
-		#region Raw Transaction
+#region Raw Transaction
 
 		public Transaction DecodeRawTransaction(string rawHex)
 		{
@@ -2042,15 +2042,15 @@ namespace NBitcoin.RPC
 		}
 
 
-		#endregion
+#endregion
 
-		#region Utility functions
+#region Utility functions
 
 		// Estimates the approximate fee per kilobyte needed for a transaction to begin
 		// confirmation within conf_target blocks if possible and return the number of blocks
 		// for which the estimate is valid.Uses virtual transaction size as defined
 		// in BIP 141 (witness data is discounted).
-		#region Fee Estimation
+#region Fee Estimation
 
 		/// <summary>
 		/// (>= Bitcoin Core v0.14) Get the estimated fee per kb for being confirmed in nblock
@@ -2159,7 +2159,7 @@ namespace NBitcoin.RPC
 			}
 		}
 
-		#endregion
+#endregion
 
 
 #nullable enable
@@ -2345,7 +2345,7 @@ namespace NBitcoin.RPC
 			return SendCommand(RPCOperations.settxfee, cancellationToken, new[] { feeRate.FeePerK.ToString() }).Result.ToString() == "true";
 		}
 
-		#endregion
+#endregion
 
 		public async Task<uint256[]> GenerateAsync(int nBlocks, CancellationToken cancellationToken = default)
 		{
@@ -2396,7 +2396,7 @@ namespace NBitcoin.RPC
 			return GenerateToAddressAsync(nBlocks, address).GetAwaiter().GetResult();
 		}
 
-		#region Region Hidden Methods
+#region Region Hidden Methods
 
 		/// <summary>
 		/// Permanently marks a block as invalid, as if it violated a consensus rule.
@@ -2442,7 +2442,7 @@ namespace NBitcoin.RPC
 
 #endif
 
-		#endregion
+#endregion
 	}
 
 #if !NOSOCKET
