@@ -2060,7 +2060,7 @@ namespace NBitcoin.RPC
 		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
 		/// <returns>The estimated fee rate, block number where estimate was found</returns>
 		/// <exception cref="NoEstimationException">The Fee rate couldn't be estimated because of insufficient data from Bitcoin Core</exception>
-		public EstimateSmartFeeResponse EstimateSmartFee(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative)
+		public EstimateSmartFeeResponse EstimateSmartFee(int confirmationTarget, EstimateSmartFeeMode? estimateMode = null)
 		{
 			return EstimateSmartFeeAsync(confirmationTarget, estimateMode).GetAwaiter().GetResult();
 		}
@@ -2072,7 +2072,7 @@ namespace NBitcoin.RPC
 		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
 		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
 		/// <returns>The estimated fee rate, block number where estimate was found or null</returns>
-		public async Task<EstimateSmartFeeResponse> TryEstimateSmartFeeAsync(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative, CancellationToken cancellationToken = default)
+		public async Task<EstimateSmartFeeResponse> TryEstimateSmartFeeAsync(int confirmationTarget, EstimateSmartFeeMode? estimateMode = null, CancellationToken cancellationToken = default)
 		{
 			return await EstimateSmartFeeImplAsync(confirmationTarget, estimateMode, cancellationToken).ConfigureAwait(false);
 		}
@@ -2084,7 +2084,7 @@ namespace NBitcoin.RPC
 		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
 		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
 		/// <returns>The estimated fee rate, block number where estimate was found or null</returns>
-		public EstimateSmartFeeResponse TryEstimateSmartFee(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative)
+		public EstimateSmartFeeResponse TryEstimateSmartFee(int confirmationTarget, EstimateSmartFeeMode? estimateMode = null)
 		{
 			return TryEstimateSmartFeeAsync(confirmationTarget, estimateMode).GetAwaiter().GetResult();
 		}
@@ -2097,7 +2097,7 @@ namespace NBitcoin.RPC
 		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
 		/// <returns>The estimated fee rate, block number where estimate was found</returns>
 		/// <exception cref="NoEstimationException">when fee couldn't be estimated</exception>
-		public async Task<EstimateSmartFeeResponse> EstimateSmartFeeAsync(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative, CancellationToken cancellationToken = default)
+		public async Task<EstimateSmartFeeResponse> EstimateSmartFeeAsync(int confirmationTarget, EstimateSmartFeeMode? estimateMode = null, CancellationToken cancellationToken = default)
 		{
 			var feeRate = await EstimateSmartFeeImplAsync(confirmationTarget, estimateMode, cancellationToken);
 			if (feeRate == null)
@@ -2108,12 +2108,12 @@ namespace NBitcoin.RPC
 		/// <summary>
 		/// (>= Bitcoin Core v0.14)
 		/// </summary>
-		private async Task<EstimateSmartFeeResponse> EstimateSmartFeeImplAsync(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative, CancellationToken cancellationToken = default)
+		private async Task<EstimateSmartFeeResponse> EstimateSmartFeeImplAsync(int confirmationTarget, EstimateSmartFeeMode? estimateMode = null, CancellationToken cancellationToken = default)
 		{
 			if (Capabilities == null || Capabilities.SupportEstimateSmartFee)
 			{
 				var parameters = new List<object>() { confirmationTarget };
-				if (estimateMode != EstimateSmartFeeMode.Conservative)
+				if (estimateMode != null)
 				{
 					parameters.Add(estimateMode.ToString().ToUpperInvariant());
 				}
