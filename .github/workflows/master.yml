@@ -23,6 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install libssl
+        run: |
+          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl1.0/libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
+          sudo dpkg -i libssl1.0.0_1.0.2n-1ubuntu5_amd64.deb
       - uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
