@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using System.Collections.Concurrent;
@@ -744,6 +745,24 @@ namespace NBitcoin
 			}
 		}
 
+		private int nWalletRPCPort;
+		public int WalletRPCPort
+		{
+			get
+			{
+				return nWalletRPCPort;
+			}
+		}
+
+		private bool nIsDecred;
+		public bool IsDecred
+		{
+			get
+			{
+				return nIsDecred;
+			}
+		}
+
 		private int nDefaultPort;
 		public int DefaultPort
 		{
@@ -857,8 +876,11 @@ namespace NBitcoin
 			network.consensus = builder._Consensus;
 			network.nDefaultPort = builder._Port;
 			network.nRPCPort = builder._RPCPort;
+			network.nWalletRPCPort = builder._WalletRPCPort;
+			network.nIsDecred = builder._IsDecred;
 			network.NetworkStringParser = builder._NetworkStringParser;
 			network.MaxP2PVersion = builder._MaxP2PVersion == null ? BITCOIN_MAX_P2P_VERSION : builder._MaxP2PVersion.Value;
+			network.Hash160 = builder._Hash160;
 
 #if !NOSOCKET
 			foreach (var seed in builder.vSeeds)
@@ -1148,6 +1170,11 @@ namespace NBitcoin
 			return null;
 		}
 
+		public Func<byte[], int, int, uint160> Hash160
+		{
+			get;
+			set;
+		} = Hashes.Hash160;
 
 		internal NetworkStringParser NetworkStringParser
 		{

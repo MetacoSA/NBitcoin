@@ -151,7 +151,7 @@ namespace NBitcoin.RPC
 			};
 		}
 
-		public async Task<RPCClient> CreateWalletAsync(string walletNameOrPath, CreateWalletOptions? options = null, CancellationToken cancellationToken = default)
+		public virtual async Task<RPCClient> CreateWalletAsync(string walletNameOrPath, CreateWalletOptions? options = null, CancellationToken cancellationToken = default)
 		{
 			if (walletNameOrPath is null)
 				throw new ArgumentNullException(nameof(walletNameOrPath));
@@ -170,6 +170,7 @@ namespace NBitcoin.RPC
 				parameters.Add("descriptors", descriptors);
 			if (options?.LoadOnStartup is bool loadOnStartup)
 				parameters.Add("load_on_startup", loadOnStartup);
+
 			var result = await SendCommandWithNamedArgsAsync(RPCOperations.createwallet.ToString(), parameters, cancellationToken).ConfigureAwait(false);
 			return SetWalletContext(result.Result.Value<string>("name"));
 		}
