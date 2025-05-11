@@ -328,7 +328,7 @@ namespace NBitcoin.Altcoins
 			{
 				new DNSSeedData("dogecoin.com", "seed.dogecoin.com"),
 				new DNSSeedData("multidoge.org", "seed.multidoge.org"),
-				new DNSSeedData("multidoge.org", "seed.multidoge.org"),
+				new DNSSeedData("multidoge.org", "seed2.multidoge.org"),
 				new DNSSeedData("doger.dogecoin.com", "seed.doger.dogecoin.com")
 			})
 			.AddSeeds(new NetworkAddress[0])
