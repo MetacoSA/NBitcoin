@@ -77,16 +77,16 @@ namespace NBitcoin.Altcoins
 
         protected override NetworkBuilder CreateRegtest()
         {
-            var builder = new NetworkBuilder();
-
-            builder.SetName("dgb-regtest")
+            var builder = new NetworkBuilder()
+	            .SetName("dgb-regtest")
 	            .AddAlias("digibyte-regtest")
+	            .AddAlias("digibyte-reg")
 	            .SetConsensus(new Consensus
 	            {
 		            SubsidyHalvingInterval = 150,
 		            MajorityEnforceBlockUpgrade = 750,
 		            MajorityRejectBlockOutdated = 950,
-		            MajorityWindow = 1000,
+		            MajorityWindow = 1000
 	            })
 	            .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [126])
 	            .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, [140])
@@ -97,7 +97,9 @@ namespace NBitcoin.Altcoins
 	            .SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("dgbrt"))
 	            .SetMagic(0xDAB5BFFA)
 	            .SetPort(18444)
-	            .SetRPCPort(18443);
+	            .SetRPCPort(18443)
+	            .SetGenesis(
+		            "01000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d01045468652054696d65732030332f4a616e2f32303039204368616e63656c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff010040b743ba000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
 
             return builder;
         }
