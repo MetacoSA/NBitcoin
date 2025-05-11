@@ -12,6 +12,7 @@ namespace NBitcoin.Altcoins
 		public static BCash BCash { get; } = BCash.Instance;
 		public static BGold BGold { get; } = BGold.Instance;
 		public static Dash Dash { get; } = Dash.Instance;
+		public static DigiByte DigiByte { get; } = DigiByte.Instance;
 		public static Verge Verge { get; } = Verge.Instance;
 		public static Terracoin Terracoin { get; } = Terracoin.Instance;
 		public static Mogwai Mogwai { get; } = Mogwai.Instance;
@@ -53,6 +54,7 @@ namespace NBitcoin.Altcoins
 			yield return Viacoin;
 			yield return Dogecoin;
 			yield return Dystem;
+			yield return DigiByte;
 			yield return BCash;
 			yield return BGold;
 			yield return Polis;

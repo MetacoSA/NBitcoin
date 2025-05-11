@@ -648,5 +648,25 @@ namespace NBitcoin.Tests
 		{
 			return nodeNetwork.NetworkSet == Altcoins.Liquid.Instance;
 		}
+
+		[Fact]
+		public void GIVEN_Digibyte_WHEN_ProvidedAddressForSpecificNetwork_THEN_ShouldParseAddress()
+		{
+			// Main net
+			Network mainnet = AltNetworkSets.DigiByte.Mainnet;
+			var mainnetAddress = "DSdh4rXmRZizpZh7zKGSsyMqHmFE137G96";
+
+			var mainnetAddressParsed = BitcoinAddress.Create(mainnetAddress, mainnet);
+			Assert.NotNull(mainnetAddressParsed);
+			Assert.NotNull(mainnetAddressParsed.ScriptPubKey);
+
+			// Testnet
+			Network testnet = AltNetworkSets.DigiByte.Testnet;
+			var testnetAddress = "dgbt1q6j07ktmykusmkj6qng2x2cs6a4hlnn9d8h3s02";
+
+			var testnetAddressParsed = BitcoinAddress.Create(testnetAddress, testnet);
+			Assert.NotNull(testnetAddressParsed);
+			Assert.NotNull(testnetAddressParsed.ScriptPubKey);
+		}
 	}
 }
