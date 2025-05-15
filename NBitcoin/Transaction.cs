@@ -339,6 +339,15 @@ namespace NBitcoin
 			txin.ScriptSig = new Script(Op.GetPushOp(height)) + OpcodeType.OP_0;
 			return txin;
 		}
+
+		/// <summary>
+		/// Remove <see cref="ScriptSig"/> and <see cref="WitScript"/> from this input.
+		/// </summary>
+		public void RemoveSignatures()
+		{
+			ScriptSig = Script.Empty;
+			WitScript = WitScript.Empty;
+		}
 	}
 
 	public class TxOutCompressor : IBitcoinSerializable
@@ -1445,6 +1454,12 @@ namespace NBitcoin
 			return Load(Encoders.Hex.DecodeData(hex), network);
 		}
 
+		public void RemoveSignatures()
+		{
+			foreach (var input in Inputs)
+				input.RemoveSignatures();
+		}
+
 		public static bool TryParse(string hex, Network network, out Transaction transaction)
 		{
 			if (hex == null)
@@ -1513,9 +1528,6 @@ namespace NBitcoin
 			}
 		}
 
-		//Since it is impossible to serialize a transaction with 0 input without problems during deserialization with wit activated, we fit a flag in the version to workaround it
-		protected const uint NoDummyInput = (1 << 27);
-
 #region IBitcoinSerializable Members
 
 		public virtual void ReadWrite(BitcoinStream stream)
@@ -1530,11 +1542,8 @@ namespace NBitcoin
 				/* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
 				stream.ReadWrite(ref vin);
 				vin.Transaction = this;
-				var hasNoDummy = (nVersion & NoDummyInput) != 0 && vin.Count == 0;
-				if (witSupported && hasNoDummy)
-					nVersion = nVersion & ~NoDummyInput;
 
-				if (vin.Count == 0 && witSupported && !hasNoDummy)
+				if (vin.Count == 0 && witSupported)
 				{
 					/* We read a dummy or an empty vin. */
 					stream.ReadWrite(ref flags);
@@ -1574,8 +1583,9 @@ namespace NBitcoin
 			}
 			else
 			{
-				var version = (witSupported && (vin.Count == 0 && vout.Count > 0)) ? nVersion | NoDummyInput : nVersion;
-				stream.ReadWrite(ref version);
+				if (Inputs.Count == 0 && !stream.AllowNoInputs)
+					throw new InvalidOperationException("The transaction must have at least one input");
+				stream.ReadWrite(ref nVersion);
 
 				if (witSupported)
 				{
@@ -1624,6 +1634,7 @@ namespace NBitcoin
 				{
 					TransactionOptions = TransactionOptions.None,
 					ConsensusFactory = GetConsensusFactory(),
+					AllowNoInputs = true
 				};
 				stream.SerializationTypeScope(SerializationType.Hash);
 				this.ReadWrite(stream);
