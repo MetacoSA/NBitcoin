@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using static NBitcoin.Tests.Comparer;
 using Xunit.Abstractions;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace NBitcoin.Tests
 {
@@ -192,6 +194,15 @@ namespace NBitcoin.Tests
 				Assert.Equal(psbt, psbt2, ComparerInstance);
 			}
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void FixVersionParsingBug()
+		{
+			var tx = Transaction.Parse("39a75f190001010000000000000000000000000000000000000000000000000000000000000000ffffffff4903d7ae0d04970a256861627a637862fabe6d6d86846e235af48afb776d0a32cb278930b7dd601fb0e05011789ef233a3e0e7d1010000000000000012b299f4e40000000000ffffffffffffffff02ec12bb1200000000160014b6f3cfc20084e3b9f0d12b0e6f9da8fcbcf5a2d90000000000000000266a24aa21a9edc8a9c6157fb538507480083f8f5144e2f73d1bd9b6b5fabde17bd08ff524b7100120000000000000000000000000000000000000000000000000000000000000000000000000", Network.Main);
+			Assert.Equal("889d4fed1ec4a775d02082b5ff727f48d93013469db709d8d435e15b173118f3", tx.GetHash().ToString());
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void AddCoinsShouldNotRemoveInfoFromPSBT()
