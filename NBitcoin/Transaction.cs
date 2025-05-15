@@ -1557,11 +1557,8 @@ namespace NBitcoin
 				{
 					/* The witness flag is present, and we support witnesses. */
 					flags ^= 1;
-					if (Inputs.Count != 0)
-					{
-						Witness wit = new Witness(Inputs);
-						wit.ReadWrite(stream);
-					}
+					Witness wit = new Witness(Inputs);
+					wit.ReadWrite(stream);
 				}
 				if (flags != 0)
 				{
@@ -1571,6 +1568,8 @@ namespace NBitcoin
 			}
 			else
 			{
+				if (Inputs.Count == 0 && !stream.AllowNoInputs)
+					throw new InvalidOperationException("The transaction must have at least one input");
 				stream.ReadWrite(ref nVersion);
 
 				if (witSupported)
@@ -1620,6 +1619,7 @@ namespace NBitcoin
 				{
 					TransactionOptions = TransactionOptions.None,
 					ConsensusFactory = GetConsensusFactory(),
+					AllowNoInputs = true
 				};
 				stream.SerializationTypeScope(SerializationType.Hash);
 				this.ReadWrite(stream);

@@ -592,6 +592,7 @@ namespace NBitcoin
 			IsBigEndian = from.IsBigEndian;
 			MaxArraySize = from.MaxArraySize;
 			Type = from.Type;
+			AllowNoInputs = from.AllowNoInputs;
 		}
 
 		public SerializationType Type
@@ -629,6 +630,13 @@ namespace NBitcoin
 			get;
 			set;
 		}
+
+		/// <summary>
+		/// Allows serialization of transactions with no inputs.
+		/// Such transactions are not valid for deserialization, but may still be useful,
+		/// for example, when computing a transaction hash or estimating size.
+		/// </summary>
+		public bool AllowNoInputs { get; set; }
 
 		public void ReadWriteAsVarInt(ref uint val)
 		{

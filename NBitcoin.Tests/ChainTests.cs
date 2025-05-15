@@ -608,7 +608,9 @@ namespace NBitcoin.Tests
 			var nonce = RandomUtils.GetUInt32();
 			foreach (var chain in chains)
 			{
-				var block = TestUtils.CreateFakeBlock(Network.Main.CreateTransaction());
+				var tx = Network.Main.CreateTransaction();
+				tx.Inputs.Add();
+				var block = TestUtils.CreateFakeBlock(tx);
 				block.Header.HashPrevBlock = previous == null ? chain.Tip.HashBlock : previous.HashBlock;
 				block.Header.Nonce = nonce;
 				if (!chain.TrySetTip(block.Header, out last))
