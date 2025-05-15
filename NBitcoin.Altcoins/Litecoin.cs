@@ -161,9 +161,7 @@ namespace NBitcoin.Altcoins
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
-									stream.ProtocolCapabilities.SupportWitness;
-
-				//var mwebSupported = false; //when mweb is supported in nbitcoin this is to be fixed
+								stream.ProtocolCapabilities.SupportWitness;
 
 				byte flags = 0;
 				if (!stream.Serializing)
@@ -172,11 +170,8 @@ namespace NBitcoin.Altcoins
 					/* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
 					stream.ReadWrite(ref vin);
 					vin.Transaction = this;
-					var hasNoDummy = (nVersion & NoDummyInput) != 0 && vin.Count == 0;
-					if (witSupported && hasNoDummy)
-						nVersion = nVersion & ~NoDummyInput;
 
-					if (vin.Count == 0 && witSupported && !hasNoDummy)
+					if (vin.Count == 0 && witSupported)
 					{
 						/* We read a dummy or an empty vin. */
 						stream.ReadWrite(ref flags);
@@ -224,8 +219,7 @@ namespace NBitcoin.Altcoins
 				}
 				else
 				{
-					var version = (witSupported && (vin.Count == 0 && vout.Count > 0)) ? nVersion | NoDummyInput : nVersion;
-					stream.ReadWrite(ref version);
+					stream.ReadWrite(ref nVersion);
 
 					if (witSupported)
 					{
@@ -238,8 +232,8 @@ namespace NBitcoin.Altcoins
 					if (flags != 0)
 					{
 						/* Use extended format in case witnesses are to be serialized. */
-						TxInList vinDummy = new TxInList();
-						stream.ReadWrite(ref vinDummy);
+						byte marker = 0;
+						stream.ReadWrite(ref marker);
 						stream.ReadWrite(ref flags);
 					}
 					stream.ReadWrite(ref vin);

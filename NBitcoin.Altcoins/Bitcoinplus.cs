@@ -338,11 +338,7 @@ namespace NBitcoin.Altcoins
                 stream.ReadWrite(ref vinTemp);
 				vinTemp.Transaction = this;
 
-				var hasNoDummy = (nVersionTemp & NoDummyInput) != 0 && vinTemp.Count == 0;
-                if (witSupported && hasNoDummy)
-                    nVersionTemp = nVersionTemp & ~NoDummyInput;
-
-                if (vinTemp.Count == 0 && witSupported && !hasNoDummy)
+                if (vinTemp.Count == 0 && witSupported)
                 {
                     /* We read a dummy or an empty vin. */
                     stream.ReadWrite(ref flags);
@@ -392,8 +388,7 @@ namespace NBitcoin.Altcoins
             private void SerializeTxn(BitcoinStream stream, bool witSupported)
             {
                 byte flags = 0;
-                var version = (witSupported && (this.Inputs.Count == 0 && this.Outputs.Count > 0)) ? this.Version | NoDummyInput : this.Version;
-                stream.ReadWrite(ref version);
+                stream.ReadWrite(ref nVersion);
 
                 // POS Timestamp
                 var time = this.Time;
