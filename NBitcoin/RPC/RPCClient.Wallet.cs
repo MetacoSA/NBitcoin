@@ -380,8 +380,12 @@ namespace NBitcoin.RPC
 			// if there is inputs, then it can't be confusing
 			if (tx.Inputs.Count > 0)
 				return tx.ToHex();
-			// if there is, do this ACK so that NBitcoin does not change the version number
-			return Encoders.Hex.EncodeData(tx.ToBytes(70012 - 1));
+
+			var ms = new MemoryStream();
+			BitcoinStream bs = new BitcoinStream(ms, true);
+			bs.AllowNoInputs = true;
+			tx.ReadWrite(bs);
+			return Encoders.Hex.EncodeData(ms.ToArrayEfficient());
 		}
 
 

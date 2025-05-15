@@ -151,6 +151,7 @@ namespace NBitcoin.Tests
 			Assert.True(destroyed[0].Id == a2.Id);
 
 			var prior = Network.Main.CreateTransaction();
+			prior.Inputs.Add();
 			prior.Outputs.Add(new TxOut(dust, a1.ScriptPubKey));
 			prior.Outputs.Add(new TxOut(dust, a2.ScriptPubKey));
 			prior.Outputs.Add(new TxOut(dust, h.ScriptPubKey));

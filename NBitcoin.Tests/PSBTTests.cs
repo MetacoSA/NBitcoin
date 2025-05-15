@@ -56,6 +56,7 @@ namespace NBitcoin.Tests
 				var bob = bobMaster.Derive(new KeyPath("4/5/6"));
 
 				var funding = network.CreateTransaction();
+				funding.Inputs.Add();
 				funding.Outputs.Add(Money.Coins(1.0m), alice);
 				funding.Outputs.Add(Money.Coins(1.5m), bob);
 
@@ -642,8 +643,9 @@ namespace NBitcoin.Tests
 			var accountExtKey = masterExtkey.Derive(new KeyPath("0'/0'/0'"));
 			var accountRootedKeyPath = new KeyPath("0'/0'/0'").ToRootedKeyPath(masterExtkey);
 			uint hardenedFlag = 0x80000000U;
-		retry:
+			retry:
 			Transaction funding = masterExtkey.Network.CreateTransaction();
+			funding.Inputs.Add();
 			funding.Outputs.Add(Money.Coins(2.0m), accountExtKey.Derive(0 | hardenedFlag).ScriptPubKey);
 			funding.Outputs.Add(Money.Coins(2.0m), accountExtKey.Derive(1 | hardenedFlag).ScriptPubKey);
 #if HAS_SPAN

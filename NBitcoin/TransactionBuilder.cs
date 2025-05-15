@@ -2443,10 +2443,9 @@ namespace NBitcoin
 			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
 			var clone = tx.Clone();
-			clone.Inputs.Clear();
-			baseSize = clone.GetSerializedSize() - 1;
-			baseSize += new Protocol.VarInt((ulong)tx.Inputs.Count).GetSerializedSize();
-
+			clone.RemoveSignatures();
+			baseSize = clone.GetSerializedSize();
+			baseSize -= clone.Inputs.Count; // The varint to push scriptSig is accounted later
 			witSize = 0;
 			int nonWitnessCount = 0;
 			bool hasWitness = tx.HasWitness;
@@ -2460,9 +2459,7 @@ namespace NBitcoin
 				else
 					nonWitnessCount++;
 				EstimateScriptSigSize(coin, ref witSize, ref baseSize);
-				baseSize += (32 + 4) + 4;
 			}
-
 
 			if (hasWitness)
 			{
