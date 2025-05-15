@@ -1102,7 +1102,9 @@ namespace NBitcoin.Tests
 		public void CanRoundtripCmpctBlock()
 		{
 			Block block = Network.Main.Consensus.ConsensusFactory.CreateBlock();
-			block.Transactions.Add(Network.Main.Consensus.ConsensusFactory.CreateTransaction());
+			var tx = Network.Main.Consensus.ConsensusFactory.CreateTransaction();
+			tx.Inputs.Add();
+			block.Transactions.Add(tx);
 			var cmpct = new CmpctBlockPayload(block);
 			cmpct.Clone();
 		}

@@ -38,7 +38,7 @@ namespace NBitcoin.Tests.Generators
 		/// <param name="network"></param>
 		/// <returns></returns>
 		public static Gen<PSBT> SanePSBT(Network network) =>
-			from inputN in Gen.Choose(0, 8)
+			from inputN in Gen.Choose(1, 8)
 			from scripts in Gen.ListOf(inputN, ScriptGenerator.RandomScriptSig())
 			from txOuts in Gen.Sequence(scripts.Select(sc => OutputFromRedeem(sc)))
 			from prevN in Gen.Choose(0, 5)

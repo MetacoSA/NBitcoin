@@ -988,6 +988,7 @@ namespace NBitcoin.Tests
 			var repo = new NoSqlColoredTransactionRepository(new NoSqlTransactionRepository(), new InMemoryNoSqlRepository());
 
 			var init = Network.CreateTransaction();
+			init.Inputs.Add();
 			init.Outputs.Add("1.0", gold.PubKey);
 			init.Outputs.Add("1.0", silver.PubKey);
 			init.Outputs.Add("1.0", satoshi.PubKey);
@@ -1279,6 +1280,7 @@ namespace NBitcoin.Tests
 			var repo = new NoSqlColoredTransactionRepository();
 
 			var init = Network.CreateTransaction();
+			init.Inputs.Add();
 			init.Outputs.Add("1.0", gold.PubKey);
 			init.Outputs.Add("1.0", silver.PubKey);
 			init.Outputs.Add("1.0", satoshi.PubKey);
@@ -1375,6 +1377,7 @@ namespace NBitcoin.Tests
 
 			//Gold receive 2.5 BTC
 			tx = txBuilder.Network.Consensus.ConsensusFactory.CreateTransaction();
+			tx.Inputs.Add();
 			tx.Outputs.Add("2.5", gold.PubKey);
 			repo.Transactions.Put(tx.GetHash(), tx);
 
@@ -1762,6 +1765,7 @@ namespace NBitcoin.Tests
 			builder.SendEstimatedFees(rate);
 			signed = builder.BuildTransaction(true);
 			Assert.True(builder.Verify(signed, estimatedFees));
+			Assert.Equal(1174, builder.EstimateSize(signed));
 		}
 
 		private Coin RandomCoin(Money amount, IDestination dest, bool p2sh)
@@ -1924,23 +1928,6 @@ namespace NBitcoin.Tests
 			AssertEx.CollectionEquals(before, input);
 		}
 
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanSerializeInvalidTransactionsBackAndForth()
-		{
-			Transaction before = Network.CreateTransaction();
-			var versionBefore = before.Version;
-			before.Outputs.Add(new TxOut());
-			Transaction after = AssertClone(before);
-			Assert.Equal(before.Version, after.Version);
-			Assert.Equal(versionBefore, after.Version);
-			Assert.True(after.Outputs.Count == 1);
-
-			before = Network.CreateTransaction();
-			after = AssertClone(before);
-			Assert.Equal(before.Version, versionBefore);
-		}
-
 		private Transaction AssertClone(Transaction before)
 		{
 			Transaction after = before.Clone();
@@ -2100,6 +2087,7 @@ namespace NBitcoin.Tests
 			var bob = new Key();
 			//P2SH(P2WSH)
 			var previousTx = Network.CreateTransaction();
+			previousTx.Inputs.Add();
 			previousTx.Outputs.Add(new TxOut(Money.Coins(1.0m), alice.PubKey.ScriptPubKey.WitHash.ScriptPubKey.Hash));
 			var previousCoin = previousTx.Outputs.AsCoins().First();
 
@@ -2658,6 +2646,7 @@ namespace NBitcoin.Tests
 			var bob = new Key();
 			var alice = new Key();
 			var tx = Network.CreateTransaction();
+			tx.Inputs.Add();
 			tx.Outputs.Add(Money.Coins(1.0m), bob);
 			var coins = tx.Outputs.AsCoins().ToArray();
 
@@ -2852,6 +2841,7 @@ namespace NBitcoin.Tests
 		public void CanUseLockTime()
 		{
 			var tx = Network.CreateTransaction();
+			tx.Inputs.Add();
 			tx.LockTime = new LockTime(4);
 			var clone = tx.Clone();
 			Assert.Equal(tx.LockTime, clone.LockTime);
@@ -3082,6 +3072,7 @@ namespace NBitcoin.Tests
 		{
 			var bob = new Key().GetWif(Network.RegTest);
 			Transaction tx = Network.CreateTransaction();
+			tx.Inputs.Add();
 			tx.Outputs.Add(new TxOut(Money.Coins(1.0m), bob.PubKey.ScriptPubKey.WitHash));
 			ScriptCoin coin = new ScriptCoin(tx.Outputs.AsCoins().First(), bob.PubKey.ScriptPubKey);
 

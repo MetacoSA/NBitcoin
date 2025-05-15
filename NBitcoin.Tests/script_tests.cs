@@ -149,6 +149,7 @@ namespace NBitcoin.Tests
 		private void BIP65_testsCore(LockTime target, LockTime now, bool expectedResult)
 		{
 			Transaction tx = Network.CreateTransaction();
+			tx.Inputs.Add();
 			tx.Outputs.Add(new TxOut()
 			{
 				ScriptPubKey = new Script(Op.GetPushOp(target.Value), OpcodeType.OP_CHECKLOCKTIMEVERIFY)
@@ -736,6 +737,7 @@ namespace NBitcoin.Tests
 				);
 
 			Transaction txFrom12 = Network.CreateTransaction();
+			txFrom12.Inputs.Add();
 			txFrom12.Outputs.Add(new TxOut());
 			txFrom12.Outputs[0].ScriptPubKey = scriptPubKey12;
 
@@ -780,6 +782,7 @@ namespace NBitcoin.Tests
 
 
 			var txFrom23 = Network.CreateTransaction();
+			txFrom23.Inputs.Add();
 			txFrom23.Outputs.Add(new TxOut());
 			txFrom23.Outputs[0].ScriptPubKey = scriptPubKey23;
 

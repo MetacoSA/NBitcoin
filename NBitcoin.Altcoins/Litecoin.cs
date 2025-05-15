@@ -219,6 +219,9 @@ namespace NBitcoin.Altcoins
 				}
 				else
 				{
+					if (Inputs.Count == 0 && !stream.AllowNoInputs)
+						throw new InvalidOperationException("The transaction must have at least one input");
+
 					stream.ReadWrite(ref nVersion);
 
 					if (witSupported)
