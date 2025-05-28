@@ -1,6 +1,7 @@
 ﻿#if !NO_RECORDS
 #nullable enable
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.WalletPolicies
 {
+	public class DerivationCache : ConcurrentDictionary<(IHDKey, int), Lazy<IHDKey>>
+	{
+	}
 	public class DeriveParameters
 	{
 		/// <summary>
@@ -54,6 +58,7 @@ namespace NBitcoin.WalletPolicies
 		}
 		public AddressIntent Intent { get; }
 		public int[] AddressIndexes { get; set; }
+		public DerivationCache? DervivationCache { get; set; }
 	}
 }
 #endif

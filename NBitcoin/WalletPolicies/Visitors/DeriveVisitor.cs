@@ -11,7 +11,7 @@ using static NBitcoin.WalletPolicies.MiniscriptNode;
 
 namespace NBitcoin.WalletPolicies.Visitors;
 
-internal class DeriveVisitor(AddressIntent Intent, int[] Indexes, KeyType KeyType) : MiniscriptRewriterVisitor
+internal class DeriveVisitor(AddressIntent Intent, int[] Indexes, DerivationCache DerivationCache, KeyType KeyType) : MiniscriptRewriterVisitor
 {
 	Dictionary<MiniscriptNode.MultipathNode, BitcoinExtPubKey[]> _Replacements = new();
 	int idx = -1;
@@ -21,10 +21,9 @@ internal class DeriveVisitor(AddressIntent Intent, int[] Indexes, KeyType KeyTyp
 		DerivationResult[] result = new DerivationResult[Indexes.Length];
 		Parallel.For(0, Indexes.Length, i =>
 		{
-			var visitor = new DeriveVisitor(Intent, Indexes, KeyType)
+			var visitor = new DeriveVisitor(Intent, Indexes, DerivationCache, KeyType)
 			{
-				idx = Indexes[i],
-				_DerivedCache = _DerivedCache,
+				idx = Indexes[i]
 			};
 			var miniscript = new Miniscript(visitor.Visit(node), network, KeyType);
 			result[i] = new DerivationResult(miniscript, visitor._Derivations);
@@ -83,14 +82,13 @@ internal class DeriveVisitor(AddressIntent Intent, int[] Indexes, KeyType KeyTyp
 		});
 	}
 	Dictionary<HDKeyNode, Derivation> _Derivations = new();
-	ConcurrentDictionary<(IHDKey, int), Lazy<IHDKey>> _DerivedCache = new();
 
 	public bool _nestedMusig = false;
 
 	private IHDKey DeriveIntent(IHDKey k, int typeIndex)
 	{
 		// When we derive 0/1/*, "0/1" is common to multiple derivations, so we cache it
-		return _DerivedCache.GetOrAdd((k, typeIndex), new Lazy<IHDKey>(() => k.Derive((uint)typeIndex))).Value;
+		return DerivationCache.GetOrAdd((k, typeIndex), new Lazy<IHDKey>(() => k.Derive((uint)typeIndex))).Value;
 	}
 }
 #endif

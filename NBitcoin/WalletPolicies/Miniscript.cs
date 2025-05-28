@@ -819,7 +819,7 @@ namespace NBitcoin.WalletPolicies
 		/// <exception cref="InvalidOperationException"></exception>
 		public DerivationResult[] Derive(DeriveParameters parameters)
 		{
-			var visitor = new DeriveVisitor(parameters.Intent, parameters.AddressIndexes, KeyType);
+			var visitor = new DeriveVisitor(parameters.Intent, parameters.AddressIndexes, parameters.DervivationCache ?? new(), KeyType);
 			return visitor.Derive(RootNode, Network);
 		}
 
