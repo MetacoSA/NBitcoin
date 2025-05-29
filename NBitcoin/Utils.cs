@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿#nullable enable
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +16,7 @@ using NBitcoin.BouncyCastle.Math;
 using System.Runtime.InteropServices;
 #if !NOSOCKET
 using System.Net.Sockets;
+using System.Diagnostics.CodeAnalysis;
 #endif
 #if WINDOWS_UWP
 using System.Net.Sockets;
@@ -35,14 +37,14 @@ namespace NBitcoin
 		{
 			Span<byte> hash = stackalloc byte[32];
 			h.ToBytes(hash);
-			byte[] extra_entropy = null;
-			Secp256k1.RFC6979NonceFunction nonceFunction = null;
+			byte[]? extra_entropy = null;
+			Secp256k1.RFC6979NonceFunction? nonceFunction = null;
 			Span<byte> vchSig = stackalloc byte[Secp256k1.SecpECDSASignature.MaxLength];
-			Secp256k1.SecpECDSASignature sig;
+			Secp256k1.SecpECDSASignature? sig;
 			uint counter = 0;
-			bool ret = key.TrySignECDSA(hash, null, out recid, out sig);
+			key.TrySignECDSA(hash, null, out recid, out sig);
 			// Grind for low R
-			while (ret && sig.r.IsHigh && enforceLowR)
+			while (sig is not null && sig.r.IsHigh && enforceLowR)
 			{
 				if (extra_entropy == null || nonceFunction == null)
 				{
@@ -50,9 +52,9 @@ namespace NBitcoin
 					nonceFunction = new Secp256k1.RFC6979NonceFunction(extra_entropy);
 				}
 				Utils.ToBytes(++counter, true, extra_entropy.AsSpan());
-				ret = key.TrySignECDSA(hash, nonceFunction, out recid, out sig);
+				key.TrySignECDSA(hash, nonceFunction, out recid, out sig);
 			}
-			return sig;
+			return sig!;
 		}
 #endif
 		/// <summary>
@@ -174,7 +176,7 @@ namespace NBitcoin
 		{
 			if (obj == null)
 				throw new ArgumentNullException(nameof(obj));
-			if (chainName == null)
+			if (chainName is null)
 				throw new ArgumentNullException(nameof(chainName));
 			if (obj.Network.ChainName == chainName)
 				return obj;
@@ -183,7 +185,7 @@ namespace NBitcoin
 
 		public static T ToNetwork<T>(this T obj, Network network) where T : IBitcoinString
 		{
-			if (network == null)
+			if (network is null)
 				throw new ArgumentNullException(nameof(network));
 			if (obj == null)
 				throw new ArgumentNullException(nameof(obj));
@@ -195,7 +197,7 @@ namespace NBitcoin
 				if (b58.Type != Base58Type.COLORED_ADDRESS)
 				{
 
-					byte[] version = network.GetVersionBytes(b58.Type, true);
+					byte[] version = network.GetVersionBytes(b58.Type, true)!;
 					var enc = network.NetworkStringParser.GetBase58CheckEncoder();
 					var inner = enc.DecodeData(b58.ToString()).Skip(version.Length).ToArray();
 					var newBase58 = enc.EncodeData(version.Concat(inner).ToArray());
@@ -211,10 +213,10 @@ namespace NBitcoin
 			else if (obj is IBech32Data)
 			{
 				var b32 = (IBech32Data)obj;
-				var encoder = b32.Network.GetBech32Encoder(b32.Type, true);
+				var encoder = b32.Network.GetBech32Encoder(b32.Type, true)!;
 				byte wit;
 				var data = encoder.Decode(b32.ToString(), out wit);
-				encoder = network.GetBech32Encoder(b32.Type, true);
+				encoder = network.GetBech32Encoder(b32.Type, true)!;
 				var str = encoder.Encode(wit, data);
 				return (T)(object)Network.Parse<T>(str, network);
 			}
@@ -257,12 +259,12 @@ namespace NBitcoin
 			result = new byte[count];
 			return stream.Read(result, 0, count);
 		}
-		public static IEnumerable<T> Resize<T>(this List<T> list, int count)
+		public static IEnumerable<T?> Resize<T>(this List<T?> list, int count)
 		{
 			if (list.Count == count)
 				return new T[0];
 
-			List<T> removed = new List<T>();
+			var removed = new List<T?>();
 
 			for (int i = list.Count - 1; i + 1 > count; i--)
 			{
@@ -419,9 +421,9 @@ namespace NBitcoin
 				dico.Add(key, value);
 		}
 
-		public static TValue TryGet<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+		public static TValue? TryGet<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
 		{
-			TValue value;
+			TValue? value;
 			dictionary.TryGetValue(key, out value);
 			return value;
 		}
@@ -568,10 +570,6 @@ namespace NBitcoin
 #if !HAS_SPAN
 		internal static byte[] BigIntegerToBytes(BigInteger b, int numBytes)
 		{
-			if (b == null)
-			{
-				return null;
-			}
 			byte[] bytes = new byte[numBytes];
 			byte[] biBytes = b.ToByteArray();
 			int start = (biBytes.Length == numBytes + 1) ? 1 : 0;
@@ -653,7 +651,7 @@ namespace NBitcoin
 
 		public static string ExceptionToString(Exception exception)
 		{
-			Exception ex = exception;
+			Exception? ex = exception;
 			StringBuilder stringBuilder = new StringBuilder(128);
 			while (ex != null)
 			{
@@ -670,7 +668,7 @@ namespace NBitcoin
 			return stringBuilder.ToString();
 		}
 
-		public static void Shuffle<T>(T[] arr, Random rand)
+		public static void Shuffle<T>(T[] arr, Random? rand)
 		{
 			rand = rand ?? new Random();
 			for (int i = 0; i < arr.Length; i++)
@@ -1000,7 +998,7 @@ namespace NBitcoin
 
 #if !NOSOCKET
 
-		public static bool TryParseEndpoint(string hostPort, int defaultPort, out EndPoint endpoint)
+		public static bool TryParseEndpoint(string hostPort, int defaultPort, [MaybeNullWhen(false)] out EndPoint endpoint)
 		{
 			if (hostPort == null)
 				throw new ArgumentNullException(nameof(hostPort));

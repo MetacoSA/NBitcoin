@@ -711,7 +711,7 @@ namespace NBitcoin.Secp256k1
 		{
 			return TrySignECDSA(msg32, nonceFunction, out _, out signature);
 		}
-		public bool TrySignECDSA(ReadOnlySpan<byte> msg32, INonceFunction? nonceFunction, out int recid, out SecpECDSASignature? signature)
+		public bool TrySignECDSA(ReadOnlySpan<byte> msg32, INonceFunction? nonceFunction, out int recid, [MaybeNullWhen(false)] out SecpECDSASignature signature)
 		{
 			AssertNotDisposed();
 			recid = 0;

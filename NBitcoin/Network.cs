@@ -203,7 +203,7 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(network));
 			if (bytes == null)
 				throw new ArgumentNullException(nameof(bytes));
-			var versionBytes = network.GetVersionBytes(type, true);
+			var versionBytes = network.GetVersionBytes(type, true)!;
 			return network.NetworkStringParser.GetBase58CheckEncoder().EncodeData(versionBytes.Concat(bytes));
 		}
 

@@ -106,7 +106,7 @@ namespace NBitcoin
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
 		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>Inputs with HD keys matching masterFingerprint and account key</returns>
-		public IEnumerable<T> CoinsFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
+		public IEnumerable<T> CoinsFor(IHDScriptPubKey? accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
 		{
 			return GetPSBTCoins(accountHDScriptPubKey, accountKey, accountKeyPath);
 		}
@@ -119,7 +119,7 @@ namespace NBitcoin
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
 		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>HD Keys matching master root key</returns>
-		public IEnumerable<PSBTHDKeyMatch<T>> HDKeysFor(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
+		public IEnumerable<PSBTHDKeyMatch<T>> HDKeysFor(IHDScriptPubKey? accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
 		{
 			return GetHDKeys(accountHDScriptPubKey, accountKey, accountKeyPath);
 		}
@@ -135,7 +135,7 @@ namespace NBitcoin
 			return GetHDKeys(null, accountKey, accountKeyPath);
 		}
 
-		internal IEnumerable<T> GetPSBTCoins(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
+		internal IEnumerable<T> GetPSBTCoins(IHDScriptPubKey? accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
 		{
 			return GetHDKeys(accountHDScriptPubKey, accountKey, accountKeyPath)
 							.Select(c => c.Coin)
@@ -147,7 +147,6 @@ namespace NBitcoin
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
 			accountKey = accountKey.AsHDKeyCache();
-			hdScriptPubKey = hdScriptPubKey?.AsHDKeyCache();
 			var accountFingerprint = accountKey.GetPublicKey().GetHDFingerPrint();
 			foreach (var c in this)
 			{

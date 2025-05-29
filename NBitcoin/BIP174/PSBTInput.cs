@@ -504,16 +504,13 @@ namespace NBitcoin
 		{
 			TrySign(accountHDScriptPubKey, accountKey, accountKeyPath, null);
 		}
-		internal void TrySign(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, SigningOptions? signingOptions)
+		internal void TrySign(IHDScriptPubKey? accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath, SigningOptions? signingOptions)
 		{
 			if (accountKey == null)
 				throw new ArgumentNullException(nameof(accountKey));
-			if (accountHDScriptPubKey == null)
-				throw new ArgumentNullException(nameof(accountHDScriptPubKey));
 			if (IsFinalized())
 				return;
 			var cache = accountKey.AsHDKeyCache();
-			accountHDScriptPubKey = accountHDScriptPubKey.AsHDKeyCache();
 			foreach (var hdk in this.HDKeysFor(accountHDScriptPubKey, cache, accountKeyPath))
 			{
 				if (((HDKeyCache)cache.Derive(hdk.AddressKeyPath)).Inner is ISecret k)
