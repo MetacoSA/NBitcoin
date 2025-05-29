@@ -32,8 +32,22 @@ internal class DeriveVisitor(AddressIntent Intent, int[] Indexes, DerivationCach
 	}
 
 	internal static readonly byte[] BIP0328CC = Encoders.Hex.DecodeData("868087ca02a6f974c4598924c36b57762d32cb45717167e300622c7167e38965");
+	Stack<TaprootBranchNode> _TaprootBranches = new();
+	TaprootBranchNode? TaprootBranch => _TaprootBranches.Count > 0 ? _TaprootBranches.Peek() : null;
 	public override MiniscriptNode Visit(MiniscriptNode node)
 	{
+		if (node is TaprootBranchNode b)
+		{
+			_TaprootBranches.Push(b);
+			try
+			{
+				return base.Visit(b);
+			}
+			finally
+			{
+				_TaprootBranches.Pop();
+			}
+		}
 		if (node is MultipathNode { Target: MusigNode })
 		{
 			var wasNestedMusig = _nestedMusig;
@@ -53,10 +67,10 @@ internal class DeriveVisitor(AddressIntent Intent, int[] Indexes, DerivationCach
 		}
 		if (node is MiniscriptNode.MultipathNode mki && mki.CanDerive(Intent))
 		{
-			if (mki.Target is HDKeyNode { Key: var pk } xpub)
+			if (mki.Target is HDKeyNode xpub)
 			{
-				var value = GetPublicKey(mki, pk);
-				_Derivations.TryAdd(xpub, value);
+				var value = GetPublicKey(mki, xpub.Key, xpub);
+				_Derivations.Add(new(value.KeyPath, value.Pubkey, TaprootBranch, xpub));
 				node = value.Pubkey;
 			}
 			else if (mki.Target is MusigNode musig)
@@ -69,19 +83,21 @@ internal class DeriveVisitor(AddressIntent Intent, int[] Indexes, DerivationCach
 		return node;
 	}
 
-	private Derivation GetPublicKey(MiniscriptNode.MultipathNode mki, IHDKey k)
+	private (KeyPath KeyPath, Value Pubkey) GetPublicKey(MiniscriptNode.MultipathNode mki, IHDKey k, HDKeyNode? source = null)
 	{
 		var type = mki.GetTypeIndex(Intent);
 		k = DeriveIntent(k, type);
 		k = k.Derive((uint)idx);
 		var keyType = _nestedMusig ? KeyType.Classic : KeyType;
-		return new Derivation(new KeyPath([(uint)type, (uint)idx]), keyType switch
-		{
-			KeyType.Taproot => MiniscriptNode.Create(k.GetPublicKey().TaprootPubKey),
-			_ => MiniscriptNode.Create(k.GetPublicKey())
-		});
+		return (
+			new KeyPath([(uint)type, (uint)idx]),
+			keyType switch
+			{
+				KeyType.Taproot => MiniscriptNode.Create(k.GetPublicKey().TaprootPubKey),
+				_ => MiniscriptNode.Create(k.GetPublicKey())
+			});
 	}
-	Dictionary<HDKeyNode, Derivation> _Derivations = new();
+	List<Derivation> _Derivations = new();
 
 	public bool _nestedMusig = false;
 
