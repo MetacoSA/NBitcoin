@@ -524,7 +524,7 @@ namespace NBitcoin.Tests
 			var expected = $"multi(2,{a},{b},{c})";
 			Assert.Equal(expected, derived.ToString());
 
-			var derivedKey = allMiniscripts[3].DerivedKeys[keys[0]];
+			var derivedKey = allMiniscripts[3].DerivedKeys[0];
 			Assert.Equal(new KeyPath($"{typeIdx[0]}/{15 + 3}"), derivedKey.KeyPath);
 			Assert.Equal(a, ((Value.PubKeyValue)derivedKey.Pubkey).PubKey);
 		}
