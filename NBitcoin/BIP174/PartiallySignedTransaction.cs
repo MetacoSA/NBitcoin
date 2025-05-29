@@ -1075,10 +1075,8 @@ namespace NBitcoin
 		/// <param name="accountKey">The account key that will be used to sign (ie. 49'/0'/0')</param>
 		/// <param name="accountKeyPath">The account key path</param>
 		/// <returns>The balance change</returns>
-		public Money GetBalance(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
+		public Money GetBalance(IHDScriptPubKey? accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
 		{
-			if (accountHDScriptPubKey == null)
-				throw new ArgumentNullException(nameof(accountHDScriptPubKey));
 			Money total = Money.Zero;
 			foreach (var o in CoinsFor(accountHDScriptPubKey, accountKey, accountKeyPath))
 			{
