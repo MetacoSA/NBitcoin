@@ -46,9 +46,12 @@ namespace NBitcoin.WalletPolicies
 			var miniscript = Miniscript.Parse(str, new MiniscriptParsingSettings(network) { Dialect = MiniscriptDialect.BIP388, AllowedParameters = ParameterTypeFlags.None });
 			return new WalletPolicy(miniscript);
 		}
+
 		public static bool TryParse(string str, Network network,[MaybeNullWhen(false)] out WalletPolicy policy)
 		{
-			var miniscript = Miniscript.Parse(str, new MiniscriptParsingSettings(network) { Dialect = MiniscriptDialect.BIP388, AllowedParameters = ParameterTypeFlags.None });
+			policy = null;
+			if (!Miniscript.TryParse(str, new MiniscriptParsingSettings(network) { Dialect = MiniscriptDialect.BIP388, AllowedParameters = ParameterTypeFlags.None }, out var miniscript))
+				return false;
 			policy = new WalletPolicy(miniscript);
 			return true;
 		}
