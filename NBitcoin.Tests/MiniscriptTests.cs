@@ -117,6 +117,9 @@ namespace NBitcoin.Tests
 					}
 				}
 			});
+
+			settings = new MiniscriptParsingSettings(Network.Main) { Dialect = MiniscriptDialect.BIP388, AllowedParameters = ParameterTypeFlags.NamedParameter };
+			Miniscript.Parse("tr(musig(xpub661MyMwAqRbcFqyJE6zy5jMF7bjUtvNHgHJPbENEZtEQKRrukKWJP5xLMKntBaNya7CLMLL6u1KEk8GnrEv8pur5DFSgEMf1hRGjsJrcQKS), { pkh([aaaaaaaa]xpub661MyMwAqRbcFiadHioAunPTeic3C17HKPABCBvURz3W2ivn63jzEYYXWpDePLGncjLuRvQKx7jrKweSkoEvgQTvAo5zw4z8HPGC8Y4E4Wr/**), pkh([aaaaaaaa]xpub661MyMwAqRbcFqyJE6zy5jMF7bjUtvNHgHJPbENEZtEQKRrukKWJP5xLMKntBaNya7CLMLL6u1KEk8GnrEv8pur5DFSgEMf1hRGjsJrcQKS/**) })", settings);
 		}
 		[Fact]
 		public void CanGenerateTrScript()
