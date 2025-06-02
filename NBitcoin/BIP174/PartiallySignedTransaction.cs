@@ -518,7 +518,7 @@ namespace NBitcoin
 		/// <param name="accountKey">The account key with which to sign</param>
 		/// <param name="sigHash">The SigHash</param>
 		/// <returns>This PSBT</returns>
-		public PSBT SignAll(IHDScriptPubKey accountHDScriptPubKey, IHDKey accountKey)
+		public PSBT SignAll(IHDScriptPubKey? accountHDScriptPubKey, IHDKey accountKey)
 		{
 			return SignAll(accountHDScriptPubKey, accountKey, null);
 		}
