@@ -86,8 +86,8 @@ internal class DeriveVisitor(AddressIntent Intent, int[] Indexes, DerivationCach
 	private (KeyPath KeyPath, Value Pubkey) GetPublicKey(MiniscriptNode.MultipathNode mki, IHDKey k, HDKeyNode? source = null)
 	{
 		var type = mki.GetTypeIndex(Intent);
-		k = DeriveIntent(k, type);
-		k = k.Derive((uint)idx);
+		k = DeriveIntent(k, type) ?? throw new InvalidOperationException($"Unable to derive the key for {type}");
+		k = k.Derive((uint)idx) ?? throw new InvalidOperationException($"Unable to derive the key for {type}:{idx}");
 		var keyType = _nestedMusig ? KeyType.Classic : KeyType;
 		return (
 			new KeyPath([(uint)type, (uint)idx]),
@@ -101,10 +101,10 @@ internal class DeriveVisitor(AddressIntent Intent, int[] Indexes, DerivationCach
 
 	public bool _nestedMusig = false;
 
-	private IHDKey DeriveIntent(IHDKey k, int typeIndex)
+	private IHDKey? DeriveIntent(IHDKey k, int typeIndex)
 	{
 		// When we derive 0/1/*, "0/1" is common to multiple derivations, so we cache it
-		return DerivationCache.GetOrAdd((k, typeIndex), new Lazy<IHDKey>(() => k.Derive((uint)typeIndex))).Value;
+		return DerivationCache.GetOrAdd((k, typeIndex), new Lazy<IHDKey?>(() => k.Derive((uint)typeIndex))).Value;
 	}
 }
 #endif

@@ -125,10 +125,17 @@ namespace NBitcoin
 				if (expectedMasterFp is not null &&
 					hdKey.Value.MasterFingerprint != expectedMasterFp.Value)
 					return false;
-				if (accountHDScriptPubKey is not null &&
-					accountHDScriptPubKey.Derive(addressPath).ScriptPubKey != coinScriptPubKey)
-					return false;
+				if (accountHDScriptPubKey is not null)
+				{
+					var derivedScript = accountHDScriptPubKey.Derive(addressPath);
+					if (derivedScript is null)
+						return false;
+					if (derivedScript.ScriptPubKey != coinScriptPubKey)
+						return false;
+				}
 				var derived = accountKey.Derive(addressPath);
+				if (derived is null)
+					return false;
 				return hdKey.Key switch
 				{
 					PubKey pk => derived.GetPublicKey().Equals(pk),

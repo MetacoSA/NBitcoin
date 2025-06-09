@@ -513,7 +513,10 @@ namespace NBitcoin
 			var cache = accountKey.AsHDKeyCache();
 			foreach (var hdk in this.HDKeysFor(accountHDScriptPubKey, cache, accountKeyPath))
 			{
-				if (((HDKeyCache)cache.Derive(hdk.AddressKeyPath)).Inner is ISecret k)
+				var key = cache.Derive(hdk.AddressKeyPath);
+				if (key is null)
+					continue;
+				if (((HDKeyCache)key).Inner is ISecret k)
 					Sign(k.PrivateKey, signingOptions);
 				else
 					throw new ArgumentException(paramName: nameof(accountKey), message: "This should be a private key");

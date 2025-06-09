@@ -91,7 +91,7 @@ namespace NBitcoin
 			return new HDKeyScriptPubKey(hdKey, type);
 		}
 
-		public static IHDKey Derive(this IHDKey hdkey, uint index)
+		public static IHDKey? Derive(this IHDKey hdkey, uint index)
 		{
 			if (hdkey == null)
 				throw new ArgumentNullException(nameof(hdkey));
@@ -104,13 +104,13 @@ namespace NBitcoin
 		/// <param name="hdkey">The hdKey to derive</param>
 		/// <param name="keyPaths">keyPaths to derive</param>
 		/// <returns>An array of keyPaths.Length size with the derived keys</returns>
-		public static IHDKey[] Derive(this IHDKey hdkey, KeyPath[] keyPaths)
+		public static IHDKey?[] Derive(this IHDKey hdkey, KeyPath[] keyPaths)
 		{
 			if (hdkey == null)
 				throw new ArgumentNullException(nameof(hdkey));
 			if (keyPaths == null)
 				throw new ArgumentNullException(nameof(keyPaths));
-			var result = new IHDKey[keyPaths.Length];
+			var result = new IHDKey?[keyPaths.Length];
 			var cache = (HDKeyCache)hdkey.AsHDKeyCache();
 #if !NOPARALLEL
 			Parallel.For(0, keyPaths.Length, i =>

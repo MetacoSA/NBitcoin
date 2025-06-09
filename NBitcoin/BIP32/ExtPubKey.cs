@@ -258,10 +258,7 @@ namespace NBitcoin
 			return new BitcoinExtPubKey(this, network).ToString();
 		}
 
-		IHDKey IHDKey.Derive(KeyPath keyPath)
-		{
-			return this.Derive(keyPath);
-		}
+		IHDKey? IHDKey.Derive(KeyPath keyPath) => keyPath?.IsHardenedPath is true ? null : Derive(keyPath!);
 
 		public PubKey GetPublicKey()
 		{

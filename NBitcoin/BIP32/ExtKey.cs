@@ -33,10 +33,12 @@ namespace NBitcoin
 		Script? _ScriptPubKey;
 		public Script ScriptPubKey => _ScriptPubKey = _ScriptPubKey ?? hdKey.GetPublicKey().GetScriptPubKey(type);
 
-		public IHDScriptPubKey Derive(KeyPath keyPath)
+		public IHDScriptPubKey? Derive(KeyPath keyPath)
+		=> this.hdKey.Derive(keyPath) switch
 		{
-			return new HDKeyScriptPubKey(this.hdKey.Derive(keyPath), type);
-		}
+			{ } k => new HDKeyScriptPubKey(k, type),
+			_ => null
+		};
 
 		public bool CanDeriveHardenedPath()
 		{
@@ -526,10 +528,7 @@ namespace NBitcoin
 					   StructuralComparisons.StructuralEqualityComparer.Equals(vchChainCode, other.vchChainCode);
 		}
 
-		IHDKey IHDKey.Derive(KeyPath keyPath)
-		{
-			return this.Derive(keyPath);
-		}
+		IHDKey? IHDKey.Derive(KeyPath keyPath) => this.Derive(keyPath);
 
 		public PubKey GetPublicKey()
 		{

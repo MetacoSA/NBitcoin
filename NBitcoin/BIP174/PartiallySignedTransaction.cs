@@ -1163,6 +1163,8 @@ namespace NBitcoin
 			foreach (var path in paths)
 			{
 				var key = masterKey.Derive(path.Item1);
+				if (key is null)
+					continue;
 				AddKeyPath(key.GetPublicKey(), new RootedKeyPath(masterKeyFP, path.Item1), path.Item2);
 			}
 			return this;
