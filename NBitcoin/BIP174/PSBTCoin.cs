@@ -125,10 +125,17 @@ namespace NBitcoin
 				if (expectedMasterFp is not null &&
 					hdKey.Value.MasterFingerprint != expectedMasterFp.Value)
 					return false;
-				if (accountHDScriptPubKey is not null &&
-					accountHDScriptPubKey.Derive(addressPath).ScriptPubKey != coinScriptPubKey)
-					return false;
+				if (accountHDScriptPubKey is not null)
+				{
+					var derivedScript = accountHDScriptPubKey.Derive(addressPath);
+					if (derivedScript is null)
+						return false;
+					if (derivedScript.ScriptPubKey != coinScriptPubKey)
+						return false;
+				}
 				var derived = accountKey.Derive(addressPath);
+				if (derived is null)
+					return false;
 				return hdKey.Key switch
 				{
 					PubKey pk => derived.GetPublicKey().Equals(pk),
@@ -142,20 +149,14 @@ namespace NBitcoin
 			accountHDScriptPubKey = accountHDScriptPubKey?.AsHDKeyCache();
 			foreach (var hdKey in EnumerateKeyPaths())
 			{
-				bool matched = false;
-				var canDeriveHardenedPath = (accountKey.CanDeriveHardenedPath() && (accountHDScriptPubKey == null || accountHDScriptPubKey.CanDeriveHardenedPath()));
 				// The case where the fingerprint of the hdkey is exactly equal to the accountKey
-				if (!hdKey.Value.KeyPath.IsHardenedPath || canDeriveHardenedPath)
+				if (Match(hdKey, accountFingerprint, accountKey, hdKey.Value.KeyPath))
 				{
-					if (Match(hdKey, accountFingerprint, accountKey, hdKey.Value.KeyPath))
-					{
-						yield return CreateHDKeyMatch(accountKey, hdKey.Value.KeyPath, hdKey);
-						matched = true;
-					}
+					yield return CreateHDKeyMatch(accountKey, hdKey.Value.KeyPath, hdKey);
 				}
 
 				// The typical case where accountkey is based on an hardened derivation (eg. 49'/0'/0')
-				if (!matched && accountKeyPath?.MasterFingerprint is HDFingerprint mp)
+				else if (accountKeyPath?.MasterFingerprint is HDFingerprint mp)
 				{
 					var addressPath = hdKey.Value.KeyPath.GetAddressKeyPath();
 					// The cases where addresses are generated on a non-hardened path below it (eg. 49'/0'/0'/0/1)
@@ -164,12 +165,11 @@ namespace NBitcoin
 						if (Match(hdKey, mp, accountKey, addressPath))
 						{
 							yield return CreateHDKeyMatch(accountKey, addressPath, hdKey);
-							matched = true;
 						}
 					}
 					// in some cases addresses are generated on a hardened path below the account key (eg. 49'/0'/0'/0'/1') in which case we
 					// need to brute force what the address key path is
-					else if (canDeriveHardenedPath) // We can only do this if we can derive hardened paths
+					else
 					{
 						int addressPathSize = 0;
 						var hdKeyIndexes = hdKey.Value.KeyPath.Indexes;
@@ -181,7 +181,6 @@ namespace NBitcoin
 							if (Match(hdKey, null, accountKey, addressPath))
 							{
 								yield return CreateHDKeyMatch(accountKey, addressPath, hdKey);
-								matched = true;
 								break;
 							}
 							addressPathSize++;

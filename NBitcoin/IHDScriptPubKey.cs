@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,8 +10,7 @@ namespace NBitcoin
 	/// </summary>
 	public interface IHDScriptPubKey
 	{
-		IHDScriptPubKey Derive(KeyPath keyPath);
-		bool CanDeriveHardenedPath();
+		IHDScriptPubKey? Derive(KeyPath keyPath);
 		Script ScriptPubKey { get; }
 	}
 }

@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using static NBitcoin.Tests.Comparer;
 using Xunit.Abstractions;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace NBitcoin.Tests
 {
@@ -41,6 +39,27 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public static void CanDeriveHDKey()
+		{
+			var k = new ExtKey();
+			var kwif = k.GetWif(Network.Main);
+			var pk = k.Neuter();
+			var pkwif = pk.GetWif(Network.Main);
+			static void AssertEqualKey(IHDKey a, IHDKey b)
+			{
+				Assert.Equal(a.GetPublicKey(), b.GetPublicKey());
+			}
+			AssertEqualKey(((IHDKey)k).Derive(new KeyPath("1")), ((IHDKey)pk).Derive(new KeyPath("1")));
+			AssertEqualKey(((IHDKey)kwif).Derive(new KeyPath("1")), ((IHDKey)pkwif).Derive(new KeyPath("1")));
+			AssertEqualKey(((IHDKey)k).Derive(new KeyPath("1")), ((IHDKey)kwif).Derive(new KeyPath("1")));
+			Assert.Null(((IHDKey)pk).Derive(new KeyPath("1'")));
+			Assert.Null(((IHDKey)pkwif).Derive(new KeyPath("1'")));
+			Assert.NotNull(((IHDKey)k).Derive(new KeyPath("1'")));
+			Assert.NotNull(((IHDKey)kwif).Derive(new KeyPath("1'")));
+		}
+
 		[Theory]
 		[InlineData(PSBTVersion.PSBTv0)]
 		[InlineData(PSBTVersion.PSBTv2)]
@@ -52,7 +71,7 @@ namespace NBitcoin.Tests
 				var aliceMaster = new ExtKey();
 				var bobMaster = new ExtKey();
 
-				var alice = aliceMaster.Derive(new KeyPath("1/2/3"));
+				var alice = aliceMaster.Derive(new KeyPath("1'/2/3"));
 				var bob = bobMaster.Derive(new KeyPath("4/5/6"));
 
 				var funding = network.CreateTransaction();
@@ -83,18 +102,21 @@ namespace NBitcoin.Tests
 				builder.SendFees(Money.Coins(0.001m));
 
 				var psbt = builder.BuildPSBT(false, version);
-				psbt.AddKeyPath(aliceMaster, new KeyPath("1/2/3"));
+				psbt.AddKeyPath(aliceMaster, new KeyPath("1'/2/3"));
 				psbt.AddKeyPath(bobMaster, new KeyPath("4/5/6"));
 
 				var actualBalance = psbt.GetBalance(ScriptPubKeyType.Legacy, aliceMaster);
 				var expectedChange = aliceCoin.Amount - (Money.Coins(0.2m) + Money.Coins(0.1m) + Money.Coins(0.123m));
 				var expectedBalance = -aliceCoin.Amount + expectedChange;
 				Assert.Equal(expectedBalance, actualBalance);
+				// We can't derive Alice's balance from the xpub only
+				Assert.Equal(Money.Zero, psbt.GetBalance(ScriptPubKeyType.Legacy, aliceMaster.Neuter()));
 
 				actualBalance = psbt.GetBalance(ScriptPubKeyType.Legacy, bobMaster);
 				expectedChange = bobCoin.Amount - (Money.Coins(0.25m) + Money.Coins(0.01m) + Money.Coins(0.001m)) + Money.Coins(0.123m);
 				expectedBalance = -bobCoin.Amount + expectedChange;
 				Assert.Equal(expectedBalance, actualBalance);
+				Assert.Equal(expectedBalance, psbt.GetBalance(ScriptPubKeyType.Legacy, bobMaster.Neuter()));
 
 				Assert.False(psbt.TryGetFee(out _));
 				Assert.False(psbt.IsReadyToSign());

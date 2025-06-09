@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,7 @@ namespace NBitcoin
 	{
 		private readonly IHDKey hdKey;
 		private readonly KeyPath _PathFromRoot;
-		private readonly ConcurrentDictionary<KeyPath, IHDKey> derivationCache;
+		private readonly ConcurrentDictionary<KeyPath, IHDKey?> derivationCache;
 		public IHDKey Inner
 		{
 			get
@@ -21,16 +22,16 @@ namespace NBitcoin
 		{
 			this.hdKey = masterKey;
 			_PathFromRoot = new KeyPath();
-			derivationCache = new ConcurrentDictionary<KeyPath, IHDKey>();
+			derivationCache = new ConcurrentDictionary<KeyPath, IHDKey?>();
 		}
-		HDKeyCache(IHDKey hdKey, KeyPath childPath, ConcurrentDictionary<KeyPath, IHDKey> cache)
+		HDKeyCache(IHDKey hdKey, KeyPath childPath, ConcurrentDictionary<KeyPath, IHDKey?> cache)
 		{
 			this.derivationCache = cache;
 			_PathFromRoot = childPath;
 			this.hdKey = hdKey;
 		}
 
-		public IHDKey Derive(KeyPath keyPath)
+		public IHDKey? Derive(KeyPath keyPath)
 		{
 			if (keyPath == null)
 				throw new ArgumentNullException(nameof(keyPath));
@@ -39,7 +40,11 @@ namespace NBitcoin
 			foreach (var index in keyPath.Indexes)
 			{
 				childPath = childPath.Derive(index);
-				key = derivationCache.GetOrAdd(childPath, _ => key.Derive(new KeyPath(index)));
+				if (childPath is null)
+					return null;
+				key = derivationCache.GetOrAdd(childPath, _ => key?.Derive(new KeyPath(index)));
+				if (key is null)
+					return null;
 			}
 			return new HDKeyCache(key, childPath, derivationCache);
 		}
@@ -50,17 +55,12 @@ namespace NBitcoin
 		{
 			return this.hdKey.GetPublicKey();
 		}
-
-		public bool CanDeriveHardenedPath()
-		{
-			return Inner.CanDeriveHardenedPath();
-		}
 	}
 	class HDScriptPubKeyCache : IHDScriptPubKey
 	{
 		private readonly IHDScriptPubKey hdKey;
 		private readonly KeyPath _PathFromRoot;
-		private readonly ConcurrentDictionary<KeyPath, IHDScriptPubKey> derivationCache;
+		private readonly ConcurrentDictionary<KeyPath, IHDScriptPubKey?> derivationCache;
 		public IHDScriptPubKey Inner
 		{
 			get
@@ -72,16 +72,16 @@ namespace NBitcoin
 		{
 			this.hdKey = masterKey;
 			_PathFromRoot = new KeyPath();
-			derivationCache = new ConcurrentDictionary<KeyPath, IHDScriptPubKey>();
+			derivationCache = new ConcurrentDictionary<KeyPath, IHDScriptPubKey?>();
 		}
-		HDScriptPubKeyCache(IHDScriptPubKey hdKey, KeyPath childPath, ConcurrentDictionary<KeyPath, IHDScriptPubKey> cache)
+		HDScriptPubKeyCache(IHDScriptPubKey hdKey, KeyPath childPath, ConcurrentDictionary<KeyPath, IHDScriptPubKey?> cache)
 		{
 			this.derivationCache = cache;
 			_PathFromRoot = childPath;
 			this.hdKey = hdKey;
 		}
 
-		public IHDScriptPubKey Derive(KeyPath keyPath)
+		public IHDScriptPubKey? Derive(KeyPath keyPath)
 		{
 			if (keyPath == null)
 				throw new ArgumentNullException(nameof(keyPath));
@@ -90,7 +90,9 @@ namespace NBitcoin
 			foreach (var index in keyPath.Indexes)
 			{
 				childPath = childPath.Derive(index);
-				key = derivationCache.GetOrAdd(childPath, _ => key.Derive(new KeyPath(index)));
+				key = derivationCache.GetOrAdd(childPath, _ => key?.Derive(new KeyPath(index)));
+				if (key is null)
+					return null;
 			}
 			return new HDScriptPubKeyCache(key, childPath, derivationCache);
 		}
@@ -98,10 +100,5 @@ namespace NBitcoin
 		internal int Cached => derivationCache.Count;
 
 		public Script ScriptPubKey => Inner.ScriptPubKey;
-
-		public bool CanDeriveHardenedPath()
-		{
-			return Inner.CanDeriveHardenedPath();
-		}
 	}
 }

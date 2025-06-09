@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NBitcoin
 {
@@ -60,7 +62,7 @@ namespace NBitcoin
 			}
 		}
 
-		ExtKey _Key;
+		ExtKey? _Key;
 
 		/// <summary>
 		/// Gets the extended key, converting from the Base58 representation.
@@ -113,10 +115,7 @@ namespace NBitcoin
 			return new BitcoinExtKey(ExtKey.Derive(index), Network);
 		}
 
-		IHDKey IHDKey.Derive(KeyPath keyPath)
-		{
-			return Derive(keyPath);
-		}
+		IHDKey? IHDKey.Derive(KeyPath keyPath) => Derive(keyPath);
 
 		public BitcoinExtKey Derive(KeyPath keyPath)
 		{
@@ -138,11 +137,6 @@ namespace NBitcoin
 			return ExtKey.PrivateKey.PubKey;
 		}
 
-		bool IHDKey.CanDeriveHardenedPath()
-		{
-			return true;
-		}
-
 		#region ISecret Members
 
 		/// <summary>
@@ -158,15 +152,10 @@ namespace NBitcoin
 
 		#endregion
 
-		/// <summary>
-		/// Implicit cast from BitcoinExtKey to ExtKey.
-		/// </summary>
-		public static implicit operator ExtKey(BitcoinExtKey key)
-		{
-			if (key == null)
-				return null;
-			return key.ExtKey;
-		}
+
+#nullable disable
+		public static implicit operator ExtKey(BitcoinExtKey key) => key?.ExtKey;
+#nullable enable
 	}
 
 	/// <summary>
@@ -190,7 +179,7 @@ namespace NBitcoin
 		{
 		}
 
-		ExtPubKey _PubKey;
+		ExtPubKey? _PubKey;
 
 		/// <summary>
 		/// Gets the extended public key, converting from the Base58 representation.
@@ -246,20 +235,11 @@ namespace NBitcoin
 			}
 		}
 
-		/// <summary>
-		/// Implicit cast from BitcoinExtPubKey to ExtPubKey.
-		/// </summary>
-		public static implicit operator ExtPubKey(BitcoinExtPubKey key)
-		{
-			if (key == null)
-				return null;
-			return key.ExtPubKey;
-		}
+#nullable disable
+		public static implicit operator ExtPubKey(BitcoinExtPubKey key) => key?.ExtPubKey;
+#nullable enable
 
-		IHDKey IHDKey.Derive(KeyPath keyPath)
-		{
-			return Derive(keyPath);
-		}
+		IHDKey? IHDKey.Derive(KeyPath keyPath) => keyPath?.IsHardenedPath is true ? null : Derive(keyPath!);
 
 		public BitcoinExtPubKey Derive(uint index)
 		{
@@ -276,11 +256,6 @@ namespace NBitcoin
 		public PubKey GetPublicKey()
 		{
 			return ExtPubKey.pubkey;
-		}
-
-		bool IHDKey.CanDeriveHardenedPath()
-		{
-			return false;
 		}
 	}
 }

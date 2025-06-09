@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.WalletPolicies
 {
-	public class DerivationCache : ConcurrentDictionary<(IHDKey, int), Lazy<IHDKey>>
+	public class DerivationCache : ConcurrentDictionary<(IHDKey, int), Lazy<IHDKey?>>
 	{
 	}
 	public class DeriveParameters
