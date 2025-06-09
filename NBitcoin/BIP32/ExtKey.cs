@@ -39,11 +39,6 @@ namespace NBitcoin
 			{ } k => new HDKeyScriptPubKey(k, type),
 			_ => null
 		};
-
-		public bool CanDeriveHardenedPath()
-		{
-			return this.hdKey.CanDeriveHardenedPath();
-		}
 	}
 
 	/// <summary>
@@ -533,11 +528,6 @@ namespace NBitcoin
 		public PubKey GetPublicKey()
 		{
 			return PrivateKey.PubKey;
-		}
-
-		bool IHDKey.CanDeriveHardenedPath()
-		{
-			return true;
 		}
 
 		public override bool Equals(object? obj)

@@ -55,11 +55,6 @@ namespace NBitcoin
 		{
 			return this.hdKey.GetPublicKey();
 		}
-
-		public bool CanDeriveHardenedPath()
-		{
-			return Inner.CanDeriveHardenedPath();
-		}
 	}
 	class HDScriptPubKeyCache : IHDScriptPubKey
 	{
@@ -105,10 +100,5 @@ namespace NBitcoin
 		internal int Cached => derivationCache.Count;
 
 		public Script ScriptPubKey => Inner.ScriptPubKey;
-
-		public bool CanDeriveHardenedPath()
-		{
-			return Inner.CanDeriveHardenedPath();
-		}
 	}
 }

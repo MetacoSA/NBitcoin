@@ -9,6 +9,5 @@ namespace NBitcoin
 	{
 		IHDKey? Derive(KeyPath keyPath);
 		PubKey GetPublicKey();
-		bool CanDeriveHardenedPath();
 	}
 }

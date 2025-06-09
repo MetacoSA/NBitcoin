@@ -11,7 +11,6 @@ namespace NBitcoin
 	public interface IHDScriptPubKey
 	{
 		IHDScriptPubKey? Derive(KeyPath keyPath);
-		bool CanDeriveHardenedPath();
 		Script ScriptPubKey { get; }
 	}
 }

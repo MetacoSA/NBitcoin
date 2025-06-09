@@ -137,11 +137,6 @@ namespace NBitcoin
 			return ExtKey.PrivateKey.PubKey;
 		}
 
-		bool IHDKey.CanDeriveHardenedPath()
-		{
-			return true;
-		}
-
 		#region ISecret Members
 
 		/// <summary>
@@ -261,11 +256,6 @@ namespace NBitcoin
 		public PubKey GetPublicKey()
 		{
 			return ExtPubKey.pubkey;
-		}
-
-		bool IHDKey.CanDeriveHardenedPath()
-		{
-			return false;
 		}
 	}
 }
