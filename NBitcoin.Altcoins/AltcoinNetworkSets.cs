@@ -43,6 +43,7 @@ namespace NBitcoin.Altcoins
 		public static Althash Althash { get; } = Althash.Instance;
 		public static Neblio Neblio { get; } = Neblio.Instance;
 		public static Triptourcoin Triptourcoin { get; } = Triptourcoin.Instance;
+		public static Decred Decred { get; } = Decred.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
@@ -81,6 +82,7 @@ namespace NBitcoin.Altcoins
 			yield return Althash;
 			yield return Neblio;
 			yield return Triptourcoin;
+			yield return Decred;
 		}
 	}
 }

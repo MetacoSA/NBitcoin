@@ -213,6 +213,12 @@ namespace NBitcoin
 					);
 		}
 
+		public Func<byte[], int, int, uint160> Hash160
+		{
+			get;
+			set;
+		} = Hashes.Hash160;
+
 #if HAS_SPAN
 		KeyId? _ID;
 		public KeyId Hash
@@ -224,7 +230,8 @@ namespace NBitcoin
 					Span<byte> tmp = stackalloc byte[65];
 					_ECKey.WriteToSpan(compressed, tmp, out int len);
 					tmp = tmp.Slice(0, len);
-					_ID = new KeyId(Hashes.Hash160(tmp));
+					var data = tmp.ToArray();
+					_ID = new KeyId(this.Hash160(data, 0, data.Length));
 				}
 				return _ID;
 			}
@@ -253,7 +260,7 @@ namespace NBitcoin
 			{
 				if (_ID == null)
 				{
-					_ID = new KeyId(Hashes.Hash160(vch, 0, vch.Length));
+					_ID = new KeyId(this.Hash160(vch, 0, vch.Length));
 				}
 				return _ID;
 			}
@@ -292,6 +299,7 @@ namespace NBitcoin
 			switch (type)
 			{
 				case ScriptPubKeyType.Legacy:
+					this.Hash160 = network.Hash160;
 					return this.Hash.GetAddress(network);
 				case ScriptPubKeyType.Segwit:
 					if (!network.Consensus.SupportSegwit)
@@ -605,6 +613,7 @@ namespace NBitcoin
 				if (_ScriptPubKey is null)
 				{
 					_ScriptPubKey = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(this);
+					_ScriptPubKey.Hash160 = Hash160;
 				}
 				return _ScriptPubKey;
 			}

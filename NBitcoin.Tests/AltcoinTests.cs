@@ -21,6 +21,23 @@ namespace NBitcoin.Tests
 	[Trait("Altcoins", "Altcoins")]
 	public class AltcoinTests
 	{
+		// For decred tests run the test harness at
+		// https://github.com/decred/dcrdex/tree/master/dex/testing/dcr
+		// and set this to true.
+		const bool isDecred = false;
+
+		// Wallet should be used when sending funds but it cannot do batch requests.
+		private DecredRPCClient decredRPC(bool wallet)
+		{
+			var auth = "user:pass";
+			var uri = new Uri("https://127.0.0.1:19561/");
+			if (wallet)
+			{
+				uri = new Uri("https://127.0.0.1:19562/");
+			}
+			return new DecredRPCClient(auth, uri, Altcoins.Decred.Instance.Regtest);
+		}
+
 		[Fact]
 		public void CanParseDashBlock()
 		{
@@ -63,11 +80,24 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
-				var rpc = builder.CreateNode().CreateRPCClient();
-				builder.StartAll();
-				var blockHash = (await rpc.GenerateAsync(10))[0];
-				var block = rpc.GetBlock(blockHash);
+				RPCClient rpc;
+				CoreNode node;
+				var blockHash = new uint256();
 
+				if (isDecred)
+				{
+					rpc = decredRPC(true);
+					builder.Network = Altcoins.Decred.Instance.Regtest;
+					blockHash = rpc.GetBestBlockHash();
+				}
+				else
+				{
+					node = builder.CreateNode();
+					rpc = node.CreateRPCClient();
+					builder.StartAll();
+					blockHash = (await rpc.GenerateAsync(10))[0];
+				}
+				var block = rpc.GetBlock(blockHash);
 				Transaction walletTx = null;
 				try
 				{
@@ -87,8 +117,17 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
-				var rpc = builder.CreateNode().CreateRPCClient();
-				builder.StartAll();
+				RPCClient rpc;
+				if (isDecred)
+				{
+					rpc = decredRPC(true);
+					builder.Network = Altcoins.Decred.Instance.Regtest;
+				}
+				else
+				{
+					rpc = builder.CreateNode().CreateRPCClient();
+					builder.StartAll();
+				}
 				var genesis = rpc.GetBlock(0);
 				if (IsElements(builder.Network))
 				{
@@ -106,11 +145,23 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
+				RPCClient rpc;
+				CoreNode node;
+				var blockHash = new uint256();
 
-				var node = builder.CreateNode();
-				builder.StartAll();
-				var rpc = node.CreateRPCClient();
-				await rpc.GenerateAsync(10);
+				if (isDecred)
+				{
+					rpc = decredRPC(true);
+					builder.Network = Altcoins.Decred.Instance.Regtest;
+					blockHash = rpc.GetBestBlockHash();
+				}
+				else
+				{
+					node = builder.CreateNode();
+					rpc = node.CreateRPCClient();
+					builder.StartAll();
+					blockHash = (await rpc.GenerateAsync(10))[0];
+				}
 				var hash = await rpc.GetBestBlockHashAsync();
 				var b = await rpc.GetBlockAsync(hash);
 				Assert.NotNull(b);
@@ -136,7 +187,6 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void ElementsAddressSerializationTest()
 		{
-
 			var network = Altcoins.Liquid.Instance.Regtest;
 			var address =
 				"el1qqvx2mprx8re8pd7xjeg9tu8w3jllhcty05l0hlyvlsaj0rce90nk97ze47dv3sy356nuxhjlpms73ztf8lalkerz9ndvg0rva";
@@ -320,6 +370,11 @@ namespace NBitcoin.Tests
 		[Fact(Timeout = 30000)]
 		public async Task CanSyncSlimChain()
 		{
+			if (isDecred)
+			{
+				// node not implemented for decred
+				return;
+			}
 			using var builder = NodeBuilderEx.Create();
 			var node = builder.CreateNode();
 			builder.StartAll();
@@ -363,10 +418,19 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
-				var node = builder.CreateNode();
-				builder.StartAll();
-				node.Generate(builder.Network.Consensus.CoinbaseMaturity + 1);
-				var rpc = node.CreateRPCClient();
+				RPCClient rpc;
+				if (isDecred)
+				{
+					rpc = decredRPC(true);
+					builder.Network = Altcoins.Decred.Instance.Regtest;
+				}
+				else
+				{
+					var node = builder.CreateNode();
+					builder.StartAll();
+					node.Generate(builder.Network.Consensus.CoinbaseMaturity + 1);
+					rpc = node.CreateRPCClient();
+				}
 				var alice = new Key().GetBitcoinSecret(builder.Network);
 				BitcoinAddress aliceAddress = alice.GetAddress(ScriptPubKeyType.Legacy);
 				var txid = rpc.SendToAddress(aliceAddress, Money.Coins(1.0m));
@@ -401,9 +465,16 @@ namespace NBitcoin.Tests
 								.AddCoins(new[] { coin.ToScriptCoin(alice.PubKey.ScriptPubKey), coin2.ToScriptCoin(alice.PubKey.ScriptPubKey) })
 								.AddKeys(alice)
 								.SendAll(new Key())
-								.SendFees(Money.Coins(0.00001m))
 								.SubtractFees()
 								.SetChange(aliceAddress);
+				if (isDecred)
+				{
+					txbuilder.SendFees(Money.Coins(0.001m));
+				}
+				else
+				{
+					txbuilder.SendFees(Money.Coins(0.00001m));
+				}
 
 				signed = txbuilder.BuildTransaction(false);
 				txbuilder.SignTransactionInPlace(signed);
@@ -429,21 +500,32 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
-				var node = builder.CreateNode();
+				RPCClient rpc;
+				if (isDecred)
+				{
+					rpc = decredRPC(true);
+					builder.Network = Altcoins.Decred.Instance.Regtest;
+				}
+				else
+				{
+					var node = builder.CreateNode();
+					builder.StartAll();
+					rpc = node.CreateRPCClient();
+				}
 				builder.StartAll();
-				var addr = node.CreateRPCClient().SendCommand(RPC.RPCOperations.getnewaddress).Result.ToString();
+				var addr = rpc.SendCommand(RPC.RPCOperations.getnewaddress).Result.ToString();
 				var addr2 = BitcoinAddress.Create(addr, builder.Network).ToString();
 				Assert.Equal(addr, addr2);
 
 				var address = new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, builder.Network);
 
 				// Test normal address
-				var isValid = ((JObject)node.CreateRPCClient().SendCommand("validateaddress", address.ToString()).Result)["isvalid"].Value<bool>();
+				var isValid = ((JObject)rpc.SendCommand("validateaddress", address.ToString()).Result)["isvalid"].Value<bool>();
 				Assert.True(isValid);
 
 				// Test p2sh
 				address = new Key().PubKey.ScriptPubKey.Hash.ScriptPubKey.GetDestinationAddress(builder.Network);
-				isValid = ((JObject)node.CreateRPCClient().SendCommand("validateaddress", address.ToString()).Result)["isvalid"].Value<bool>();
+				isValid = ((JObject)rpc.SendCommand("validateaddress", address.ToString()).Result)["isvalid"].Value<bool>();
 				Assert.True(isValid);
 			}
 		}
@@ -456,10 +538,19 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
-				var node = builder.CreateNode();
-				builder.StartAll();
-				node.Generate(node.Network.Consensus.CoinbaseMaturity + 1);
-				var rpc = node.CreateRPCClient();
+				RPCClient rpc;
+				if (isDecred)
+				{
+					rpc = decredRPC(false);
+					builder.Network = Altcoins.Decred.Instance.Regtest;
+				}
+				else
+				{
+					var node = builder.CreateNode();
+					builder.StartAll();
+					node.Generate(node.Network.Consensus.CoinbaseMaturity + 1);
+					rpc = node.CreateRPCClient();
+				}
 				rpc.ScanRPCCapabilities();
 				Assert.NotNull(rpc.Capabilities);
 
@@ -531,9 +622,9 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
-				if (IsElements(builder.Network))
+				if (IsElements(builder.Network) || isDecred)
 				{
-					//no pow in liquid
+					//no pow in liquid and node not implemented for decred
 					return;
 				}
 				var node = builder.CreateNode();
@@ -553,10 +644,19 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
-				var node = builder.CreateNode();
-				builder.StartAll();
-				var rpc = node.CreateRPCClient();
-				rpc.Generate(builder.Network.Consensus.CoinbaseMaturity + 1);
+				RPCClient rpc;
+				if (isDecred)
+				{
+					rpc = decredRPC(true);
+					builder.Network = Altcoins.Decred.Instance.Regtest;
+				}
+				else
+				{
+					var node = builder.CreateNode();
+					builder.StartAll();
+					rpc = node.CreateRPCClient();
+					rpc.Generate(builder.Network.Consensus.CoinbaseMaturity + 1);
+				}
 				var key = new Key();
 				var addr = key.GetAddress(ScriptPubKeyType.Legacy, builder.Network);
 				var txid = await rpc.SendToAddressAsync(addr, Money.Coins(1.0m));
@@ -597,6 +697,11 @@ namespace NBitcoin.Tests
 		[Fact]
 		public async Task CorrectCoinMaturity()
 		{
+			if (isDecred)
+			{
+				// node not implemented for decred
+				return;
+			}
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
@@ -623,6 +728,11 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanSyncWithoutPoW()
 		{
+			if (isDecred)
+			{
+				// node not implemented for decred
+				return;
+			}
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();

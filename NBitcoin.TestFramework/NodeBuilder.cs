@@ -548,7 +548,7 @@ namespace NBitcoin.Tests
 			if (NodeImplementation.AdditionalRegtestConfig != null)
 				configStr.AppendLine(NodeImplementation.AdditionalRegtestConfig);
 			File.WriteAllText(_Config, configStr.ToString());
-			
+
 			await Run();
 		}
 

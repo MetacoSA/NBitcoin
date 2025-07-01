@@ -713,12 +713,18 @@ namespace NBitcoin
 			return n;
 		}
 
+		public Func<byte[], int, int, uint160> Hash160
+		{
+			get;
+			set;
+		} = Hashes.Hash160;
+
 		ScriptId? _Hash;
 		public ScriptId Hash
 		{
 			get
 			{
-				return _Hash ?? (_Hash = new ScriptId(this));
+				return _Hash ?? (_Hash = new ScriptId(this, this.Hash160));
 			}
 		}
 		WitScriptId? _WitHash;

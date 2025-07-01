@@ -316,8 +316,9 @@ namespace NBitcoin
 			v = new uint160(bytes);
 		}
 
-		public ScriptId(Script script)
-			: this(Hashes.Hash160(script._Script))
+
+		public ScriptId(Script script, Func<byte[], int, int, uint160> hash160)
+			: this(hash160(script._Script, 0, script._Script.Length))
 		{
 		}
 

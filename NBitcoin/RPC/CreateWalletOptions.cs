@@ -10,6 +10,9 @@ namespace NBitcoin.RPC
 		public bool? AvoidReuse { get; set; }
 		public bool? Descriptors { get; set; }
 		public bool? LoadOnStartup { get; set; }
+		// A decred wallet cannot be created from a node and should be
+		// already started and synced.
+		public int? Port { get; set; }
 	}
 }
 
