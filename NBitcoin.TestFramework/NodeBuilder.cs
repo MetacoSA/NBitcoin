@@ -548,7 +548,7 @@ namespace NBitcoin.Tests
 			if (NodeImplementation.AdditionalRegtestConfig != null)
 				configStr.AppendLine(NodeImplementation.AdditionalRegtestConfig);
 			File.WriteAllText(_Config, configStr.ToString());
-			
+
 			await Run();
 		}
 
@@ -615,7 +615,7 @@ namespace NBitcoin.Tests
 				info.RedirectStandardOutput = true;
 			}
 			using (var walletToolProcess = Process.Start(info))
-			{ 
+			{
 				walletToolProcess.WaitForExit();
 				// Some doesn't support this
 				if (walletToolProcess.ExitCode != 0 && walletType != string.Empty)
