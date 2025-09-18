@@ -18,6 +18,8 @@ namespace NBitcoin.Tests
 		{
 			using (var nodeBuilder = NodeBuilderEx.Create())
 			{
+				if (!nodeBuilder.Network.Consensus.SupportTaproot) return;
+
 				var rpc = nodeBuilder.CreateNode().CreateRPCClient();
 				nodeBuilder.StartAll();
 				rpc.Generate(102);
@@ -197,6 +199,8 @@ namespace NBitcoin.Tests
 		{
 			using (var nodeBuilder = NodeBuilderEx.Create())
 			{
+				if (!nodeBuilder.Network.Consensus.SupportSegwit) return;
+
 				var rpc = nodeBuilder.CreateNode().CreateRPCClient();
 				nodeBuilder.StartAll();
 				rpc.Generate(102);
@@ -258,6 +262,8 @@ namespace NBitcoin.Tests
 		{
 			using (var nodeBuilder = NodeBuilderEx.Create())
 			{
+				if (!nodeBuilder.Network.Consensus.SupportSegwit) return;
+
 				var rpc = nodeBuilder.CreateNode().CreateRPCClient();
 				nodeBuilder.StartAll();
 				rpc.Generate(102);
@@ -318,6 +324,8 @@ namespace NBitcoin.Tests
 		{
 			using (var nodeBuilder = NodeBuilderEx.Create())
 			{
+				if (!nodeBuilder.Network.Consensus.SupportSegwit) return;
+
 				var rpc = nodeBuilder.CreateNode().CreateRPCClient();
 				nodeBuilder.StartAll();
 				rpc.Generate(102);

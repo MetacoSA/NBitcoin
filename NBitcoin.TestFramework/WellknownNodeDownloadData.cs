@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace NBitcoin.Tests
 {
@@ -2411,21 +2413,21 @@ namespace NBitcoin.Tests
 				{
 					DownloadLink = "https://github.com/decred/decred-binaries/releases/download/v2.0.6/decred-windows-amd64-v2.0.6.zip",
 					Archive = "decred-windows-amd64-v2.0.6.zip",
-					Executable = "dcrd.exe",
+					Executable = "dcrwallet.exe",
 					Hash = ""
 				},
 				Linux = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://github.com/decred/decred-binaries/releases/download/v2.0.6/decred-linux-amd64-v2.0.6.tar.gz",
 					Archive = "decred-linux-amd64-v2.0.6.tar.gz",
-					Executable = "decred-linux-amd64-v2.0.6/dcrd",
+					Executable = "decred-linux-amd64-v2.0.6/dcrwallet",
 					Hash = "cd4854fe353a9d1ea10a6df188d30cdc8ba21a2b62cbf865da7e31123ec0b135"
 				},
 				Mac = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://github.com/decred/decred-binaries/releases/download/v2.0.6/decred-darwin-arm64-v2.0.6.tar.gz",
 					Archive = "decred-darwin-arm64-v2.0.6.tar.gz",
-					Executable = "decred-darwin-arm64-v2.0.6/dcrd",
+					Executable = "decred-darwin-arm64-v2.0.6/dcrwallet",
 					Hash = "28121f1a6233c940721279679abacbdbdb260d40716f08b88d21d08fc23efb2f"
 				},
 				SupportCookieFile = false,

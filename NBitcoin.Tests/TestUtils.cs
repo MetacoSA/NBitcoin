@@ -9,9 +9,27 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Tests
 {
+	public static class Extensions
+	{
+		/// <summary>
+		/// Returns this value after a brief delay. Decred nodes and wallets may
+		/// require a brief delay after certain operations to allow the
+		/// node/wallet complete processing the operation. Without this delay,
+		/// the next step in a test may fail.
+		/// </summary>
+		/// <param name="value">The value to be returned after the
+		/// delay.</param>
+		/// <param name="delay">How many milliseconds to delay before returning
+		/// the value.</param>
+		public static async Task<T> WithDelay<T>(this T value, int delay)
+		{
+			if (delay > 0) await Task.Delay(delay);
+			return value;
+		}
+	}
+
 	class TestUtils
 	{
-
 		public static void Eventually(Func<bool> act)
 		{
 			var cancel = new CancellationTokenSource(20000);

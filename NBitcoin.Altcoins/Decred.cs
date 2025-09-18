@@ -341,9 +341,11 @@ namespace NBitcoin.Altcoins
 						stream.ReadWriteAsVarInt(ref txInCount);
 						for (int i = 0; i < txInCount; i++)
 						{
-							DecredTxIn input = (DecredTxIn)this.Inputs[i];
+							TxIn input = this.Inputs[i];
+							uint prevOutTree = 0; // assume regular tree
+							if (input is DecredTxIn decredTxIn) prevOutTree = decredTxIn.PrevOutTree;
 							var prevOutIndexB = BitConverter.GetBytes(input.PrevOut.N);
-							var prevOutTreeB = BitConverter.GetBytes(input.PrevOutTree);
+							var prevOutTreeB = BitConverter.GetBytes(prevOutTree);
 							var prevOutSequenceB = BitConverter.GetBytes(input.Sequence);
 							stream.ReadWrite(input.PrevOut.Hash);
 							stream.ReadWriteBytes(prevOutIndexB, 0, 4);
@@ -354,9 +356,11 @@ namespace NBitcoin.Altcoins
 						stream.ReadWriteAsVarInt(ref txOutCount);
 						for (int i = 0; i < txOutCount; i++)
 						{
-							DecredTxOut output = (DecredTxOut)this.Outputs[i];
+							TxOut output = this.Outputs[i];
+							uint outputVersion = 0; // 0 is a sane default
+							if (output is DecredTxOut decredTxOut) outputVersion = decredTxOut.Version;
 							var txOutValueB = BitConverter.GetBytes(output.Value);
-							var txOutVersionB = BitConverter.GetBytes(output.Version);
+							var txOutVersionB = BitConverter.GetBytes(outputVersion);
 							stream.ReadWriteBytes(txOutValueB, 0, 8);
 							stream.ReadWriteBytes(txOutVersionB, 0, 2);
 							var script = output.ScriptPubKey;
@@ -785,7 +789,10 @@ namespace NBitcoin.Altcoins
 			{
 				PowLimit = new Target(new uint256("0x00000000ffff0000000000000000000000000000000000000000000000000000")),
 				MinimumChainWork = new uint256("0x000000000000000000000000000000000000000000243845fb2fb3d8f20ddfeb"),
+				PowTargetTimespan = TimeSpan.FromMinutes(144 * 5), // 144 blocks
+				PowTargetSpacing = TimeSpan.FromMinutes(5), // TargetTimePerBlock
 				ConsensusFactory = DecredConsensusFactory.Instance,
+				CoinbaseMaturity = 256,
 			}
 			)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [0x07, 0x3f]) // starts with Ds (pubkey hash)
@@ -800,6 +807,7 @@ namespace NBitcoin.Altcoins
 			.SetRPCPort(9109)
 			.SetWalletRPCPort(9110)
 			.SetName("dcr-main")
+			.AddAlias("dcr-mainnet")
 			.SetIsDecred(true)
 			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000000dc101dfc3c6a2eb10ca0c5374e10d28feb53f7eabcc850511ceadb99174aa66000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffff011b00c2eb0b000000000000000000000000a0d7b856000000000000000000000000000000000000000000000000000000000000000000000000000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff00ffffffff010000000000000000000020801679e98561ada96caec2949a5d41c4cab3851eb740d951c10ecbcf265c1fd9000000000000000001ffffffffffffffff00000000ffffffff02000000");
 		}
@@ -811,7 +819,10 @@ namespace NBitcoin.Altcoins
 			.SetConsensus(new Consensus()
 			{
 				PowLimit = new Target(new uint256("0x7fffff0000000000000000000000000000000000000000000000000000000000")),
+				PowTargetTimespan = TimeSpan.FromSeconds(8 * 1), // 8 blocks
+				PowTargetSpacing = TimeSpan.FromSeconds(1), // TargetTimePerBlock
 				ConsensusFactory = DecredConsensusFactory.Instance,
+				CoinbaseMaturity = 16,
 			}
 			)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [0x0e, 0x91]) // starts with Ss (pubkey hash)
@@ -826,6 +837,7 @@ namespace NBitcoin.Altcoins
 			.SetRPCPort(19561)
 			.SetWalletRPCPort(19562)
 			.SetName("dcr-reg")
+			.AddAlias("dcr-simnet")
 			.SetIsDecred(true)
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000925629c5582bbfc3609d71a2f4a887443c80d54a1fe31e95e95d42f3e288945c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffff7f200000000000000000000000000000000045068653000000000000000000000000000000000000000000000000000000000000000000000000000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff00ffffffff0100000000000000000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac000000000000000001000000000000000000000000000000004d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b7300");
 		}
@@ -837,7 +849,10 @@ namespace NBitcoin.Altcoins
 			.SetConsensus(new Consensus()
 			{
 				PowLimit = new Target(new uint256("0x000000ffff000000000000000000000000000000000000000000000000000000")),
+				PowTargetTimespan = TimeSpan.FromMinutes(144 * 2), // 144 blocks
+				PowTargetSpacing = TimeSpan.FromMinutes(2), // TargetTimePerBlock
 				ConsensusFactory = DecredConsensusFactory.Instance,
+				CoinbaseMaturity = 16,
 			}
 			)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [0x0f, 0x21]) // starts with Ts (pubkey hash)
@@ -852,6 +867,7 @@ namespace NBitcoin.Altcoins
 			.SetRPCPort(19109)
 			.SetWalletRPCPort(19110)
 			.SetName("dcr-test")
+			.AddAlias("dcr-testnet")
 			.SetIsDecred(true)
 			.SetGenesis("0600000000000000000000000000000000000000000000000000000000000000000000002c0ad603d44a16698ac951fa22aab5e7b30293fa1d0ac72560cdfcc9eabcdfe7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffff001e002d3101000000000000000000000000808f675b1aa4ae180000000000000000000000000000000000000000000000000000000000000000060000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff00ffffffff010000000000000000000020801679e98561ada96caec2949a5d41c4cab3851eb740d951c10ecbcf265c1fd9000000000000000001ffffffffffffffff00000000ffffffff02000000");
 		}
