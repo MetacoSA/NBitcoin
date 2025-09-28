@@ -164,7 +164,7 @@ namespace NBitcoin
 			get
 			{
 
-				return _ConsensusFactory ??=  Consensus.Main.ConsensusFactory;;
+				return _ConsensusFactory ??=  Consensus.Main.ConsensusFactory;
 			}
 			set
 			{

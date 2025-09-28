@@ -46,6 +46,14 @@ namespace NBitcoin.Altcoins
 			{
 				return new DogeTxOut();
 			}
+
+			public override ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)
+			{
+				var capabilities = base.GetProtocolCapabilities(protocolVersion);
+				capabilities.SupportWitness = false;
+				return capabilities;
+			}
+
 			protected override TransactionBuilder CreateTransactionBuilderCore(Network network)
 			{
 				// https://github.com/dogecoin/dogecoin/blob/master/doc/fee-recommendation.md

@@ -78,9 +78,12 @@ namespace NBitcoin
 		public static byte[] ToBytes(this IBitcoinSerializable serializable, uint? version = null)
 		{
 			MemoryStream ms = new MemoryStream();
+			var consensusFactory =
+				(serializable as Transaction)?.GetConsensusFactory() ?? Consensus.Main.ConsensusFactory;
 			serializable.ReadWrite(new BitcoinStream(ms, true)
 			{
-				ProtocolVersion = version
+				ProtocolVersion = version,
+				ConsensusFactory = consensusFactory
 			});
 			return ToArrayEfficient(ms);
 		}

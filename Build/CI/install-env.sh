@@ -15,3 +15,4 @@ chmod +x ./dotnet-install.sh
 [[ "${ADDITIONAL_RUNTIME:-}" ]] \
     && echo "Additional Runtime needed: $ADDITIONAL_RUNTIME" \
     && ./dotnet-install.sh --version "$ADDITIONAL_RUNTIME" --runtime dotnet --channel LTS
+
