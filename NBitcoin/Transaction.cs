@@ -1585,7 +1585,7 @@ namespace NBitcoin
 			}
 			else
 			{
-				if (Inputs.Count == 0 && !stream.AllowNoInputs)
+				if (Inputs.Count == 0 && !stream.AllowNoInputs && witSupported)
 					throw new InvalidOperationException("The transaction must have at least one input");
 				stream.ReadWrite(ref nVersion);
 
@@ -1679,7 +1679,22 @@ namespace NBitcoin
 		public Transaction Clone(bool cloneCache)
 		{
 			var clone = GetConsensusFactory().CreateTransaction();
-			clone.ReadWrite(this.ToBytes(), GetConsensusFactory());
+			MemoryStream ms = new MemoryStream();
+			var txOptions = this.Inputs.Count is 0 ? TransactionOptions.None : TransactionOptions.All;
+			var stream = new BitcoinStream(ms, true)
+			{
+				TransactionOptions = txOptions,
+				ConsensusFactory = GetConsensusFactory(),
+				AllowNoInputs = true
+			};
+			this.ReadWrite(stream);
+			ms.Position = 0;
+			stream = new BitcoinStream(ms, false)
+			{
+				TransactionOptions = txOptions,
+				ConsensusFactory = GetConsensusFactory()
+			};
+			clone.ReadWrite(stream);
 			if (cloneCache)
 				clone._Hashes = _Hashes.ToArray();
 			return clone;
@@ -2463,11 +2478,7 @@ namespace NBitcoin
 		}
 
 		public Transaction Clone()
-		{
-			var instance = GetConsensusFactory().CreateTransaction();
-			instance.ReadWrite(new BitcoinStream(this.ToBytes()) { ConsensusFactory = GetConsensusFactory() });
-			return instance;
-		}
+			=> Clone(false);
 
 		public void FromBytes(byte[] bytes)
 		{

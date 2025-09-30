@@ -845,8 +845,8 @@ namespace NBitcoin.Tests
 						return tx;
 					};
 					Transaction tx;
-					
-					
+
+
 					if (dustPrevention)
 					{
 						feeAmount = scriptCoin2.Amount - dust + Money.Satoshis(1);
@@ -3084,6 +3084,26 @@ namespace NBitcoin.Tests
 			spending.Inputs[0].WitScript = new WitScript((new[] { new byte[521] }).Concat(spending.Inputs[0].WitScript.Pushes).ToArray());
 			Assert.False(spending.Inputs.AsIndexedInputs().First().VerifyScript(coin, out error));
 			Assert.Equal(ScriptError.PushSize, error);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanParseCloneTxWithoutInput()
+		{
+			var tx = Transaction.Create(Dogecoin.Instance.Mainnet);
+			for (int i = 0; i < 5; i++)
+			{
+				tx.Outputs.Add(new TxOut(Money.Satoshis(500), new Key()));
+			}
+			tx.Clone();
+			var psbt = PSBT.FromTransaction(tx, Dogecoin.Instance.Mainnet);
+
+			tx = Transaction.Create(Network.Main);
+			for (int i = 0; i < 5; i++)
+			{
+				tx.Outputs.Add(new TxOut(Money.Satoshis(500), new Key()));
+			}
+			tx.Clone();
 		}
 
 		[Fact]
