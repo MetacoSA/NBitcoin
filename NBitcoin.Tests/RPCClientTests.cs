@@ -701,7 +701,7 @@ namespace NBitcoin.Tests
 
 				var k = new Key();
 				var tx = builder.Network.CreateTransaction();
-				tx.Outputs.Add(new TxOut(Money.Coins(1), k));
+				tx.Outputs.Add(Money.Coins(1), k);
 				var result = rpc.FundRawTransaction(tx);
 				TestFundRawTransactionResult(rpc.Network, tx, result);
 
@@ -734,9 +734,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(inputCount * amountPerInput - result.Transaction.Outputs.Select(txout => txout.Value).Sum(), result.Fee);
 		}
 
-		// TODO(decred): Fix decred pow check that occasionally fails because of
-		// DCP0011 that produces a powhash that is different from blockhash.
-		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
+		[Fact]
 		public void CanGetTransactionBlockFromRPC()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -2263,9 +2261,8 @@ namespace NBitcoin.Tests
 			Assert.Throws<RPCException>(() => wallet0.GetNewAddress());
 		}
 
-		// TODO: decred's "getblock" rpc response includes stake txs that must
-		// be accounted for.
-		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
+		// test uses hardcoded btc values
+		[ConditionalNetworkTest(NetworkTestRule.Only, "btc")]
 		public async Task GetBlockVerboseTests()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -2314,6 +2311,58 @@ namespace NBitcoin.Tests
 				await cli.GenerateToAddressAsync(1, addr);
 				verboseBestBlock = await cli.GetBlockAsync(secondBlockHash, GetBlockVerbosity.WithOnlyTxId);
 				Assert.NotNull(verboseBestBlock.NextBlockHash);
+			}
+		}
+
+		// test uses hardcoded dcr values
+		[ConditionalNetworkTest(NetworkTestRule.Only, "dcr")]
+		public async Task DecredGetBlockVerboseTests()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				await node.StartAsync();
+				var cli = node.CreateRPCClient();
+
+				// case 1: genesis block
+				var verboseGenesis = await cli.GetBlockAsync(node.Network.GenesisHash, GetBlockVerbosity.WithFullTx);
+				Assert.True(verboseGenesis.Block.ToBytes().SequenceEqual(node.Network.GetGenesis().ToBytes()));
+				Assert.Equal(0, verboseGenesis.Height);
+				var height = await cli.GetBlockCountAsync();
+				Assert.Equal(height + 1, verboseGenesis.Confirmations);
+				Assert.Equal(0, verboseGenesis.StrippedSize); // decred getblock doesn't return strippedsize
+				Assert.Equal(0, verboseGenesis.Size); // decred geneis block size is 0
+				Assert.Equal(0, verboseGenesis.Weight); // decred getblock doesn't return weight
+				Assert.Equal(0, verboseGenesis.Height);
+				Assert.Null(verboseGenesis.VersionHex); // decred getblock doesn't return versionhex
+				Assert.Equal(1, verboseGenesis.Block.Header.Version);
+				Assert.Equal(node.Network.GenesisHash, verboseGenesis.Block.GetHash());
+				Assert.Equal(uint256.Parse("a216ea043f0d481a072424af646787794c32bcefd3ed181a090319bbf8a37105"), verboseGenesis.Block.Transactions.First().GetHash());
+				Assert.Single(verboseGenesis.Block.Transactions);
+				Assert.Equal(verboseGenesis.MedianTime, verboseGenesis.Block.Header.BlockTime);
+				Assert.Equal(0u, verboseGenesis.Block.Header.Nonce); // decred geneis block nonce is 0
+				Assert.Equal(new Target(0x207fffff), verboseGenesis.Block.Header.Bits);
+				Assert.Equal(1, verboseGenesis.Difficulty);
+				Assert.Equal(uint256.Parse("0000000000000000000000000000000000000000000000000000000000000002"), verboseGenesis.ChainWork);
+
+				// NextBlockHash must be included iff the block is not on the
+				// tip. Decred node starts with 3 blocks (heights 0-2).
+				Assert.NotNull(verboseGenesis.NextBlockHash);
+
+				verboseGenesis = await cli.GetBlockAsync(node.Network.GenesisHash, GetBlockVerbosity.WithOnlyTxId);
+				Assert.Null(verboseGenesis.Block); // there will be no Block if we specify false to second argument.
+				Assert.NotNull(verboseGenesis.TxIds); // But txids are still there.
+				Assert.Single(verboseGenesis.TxIds);
+
+				// case 2: next block.
+				var bestBlockHash = await cli.GetBestBlockHashAsync();
+				var verboseBestBlock = await cli.GetBlockAsync(bestBlockHash, GetBlockVerbosity.WithOnlyTxId);
+				Assert.Null(verboseBestBlock.NextBlockHash);
+
+				var newBestHash = await cli.Generate(1).WithDelay(500); // delay a bit after mining 1 block
+				verboseBestBlock = await cli.GetBlockAsync(bestBlockHash, GetBlockVerbosity.WithOnlyTxId);
+				Assert.NotNull(verboseBestBlock.NextBlockHash);
+				Assert.Equal(newBestHash[0], verboseBestBlock.NextBlockHash);
 			}
 		}
 

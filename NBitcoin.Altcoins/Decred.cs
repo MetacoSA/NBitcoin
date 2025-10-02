@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using NBitcoin.Altcoins.HashX11.Crypto.SHA3;
 using NBitcoin.Protocol;
 using System.IO;
+using System.Linq;
+using Newtonsoft.Json.Linq;
 
 
 
@@ -27,6 +29,7 @@ namespace NBitcoin.Altcoins
 			var blake = new Blake256();
 			return blake.ComputeBytes(bCopy).GetBytes();
 		}
+
 		private static byte[] DoubleBlake256(byte[] b, int offset, int length)
 		{
 			byte[] bCopy = new byte[length];
@@ -36,18 +39,138 @@ namespace NBitcoin.Altcoins
 			return blake.ComputeBytes(passA).GetBytes();
 		}
 
+		private static MerkleNode BlakeHashedMerkleNode(MerkleNode node)
+		{
+			var right = node.Right ?? node.Left;
+			if (node.Left != null && node.Left.Hash != null && right.Hash != null)
+			{
+				var both = node.Left.Hash.ToBytes().Concat(right.Hash.ToBytes()).ToArray();
+				node.Hash = new uint256(Blake256(both, 0, both.Length), 0, 32);
+			}
+			return node;
+		}
+
+		public class DecredConsensus : Consensus
+		{
+			// DCP0005ActivationHeight is the block height that the DCP0005
+			// (Block Header Commitments) deployment activates at.
+			public uint DCP0005ActivationHeight { get; set; }
+
+			public static DecredConsensus Instance(ChainName chainName)
+			{
+				return Decred.Instance.GetNetwork(chainName).Consensus as DecredConsensus;
+			}
+
+			// IsBlockHeaderCommitmentsAgendaActive checks if the block header
+			// commitment agenda (DCP0005) is active at for specified block and
+			// network chain.
+			//
+			// Prior to the activation of the header commitments agenda, the
+			// block's merkle root field is the merkle root of the block's
+			// regular transactions alone, while the stake root field is the
+			// merkle root of the block's stake transactions.
+			//
+			// Conversely, when the header commitments agenda is active, the
+			// merkle root field of the header is required to be the root of a
+			// merkle tree that has the individual merkle roots of the regular
+			// and stake transactions as leaves. The block's stake root field
+			// then houses the block's header commitments.
+			public static bool IsBlockHeaderCommitmentsAgendaActive(DecredBlockHeader blockHeader)
+			{
+				return blockHeader.Height >= Instance(blockHeader.ChainName).DCP0005ActivationHeight;
+			}
+
+			public override Consensus Clone()
+			{
+				var consensus = new DecredConsensus();
+				Fill(consensus);
+				consensus.DCP0005ActivationHeight = this.DCP0005ActivationHeight;
+				return consensus;
+			}
+		}
 
 		public class DecredConsensusFactory : ConsensusFactory
 		{
-			private DecredConsensusFactory()
+			private ChainName chainName;
+
+			public DecredConsensusFactory(ChainName chainName)
 			{
+				this.chainName = chainName;
 			}
 
-			public static DecredConsensusFactory Instance { get; } = new DecredConsensusFactory();
+			public override bool ParseGetBlockRPCRespose(JObject json, bool withFullTx, out BlockHeader blockHeader, out Block block, out List<uint256> txids)
+			{
+				// Parse the header first.
+				var decredBH = new DecredBlockHeader(chainName);
+				decredBH.Bits = new Target(Encoders.Hex.DecodeData(json.Value<string>("bits")));
+				decredBH.Version = json.Value<int>("version");
+				decredBH.HashMerkleRoot = new uint256(json.Value<string>("merkleroot"));
+				decredBH.BlockTime = Utils.UnixTimeToDateTime(json.Value<uint>("time"));
+				decredBH.Nonce = json.Value<uint>("nonce");
+				// prevblock field does not exist for the genesis.
+				if (json.TryGetValue("previousblockhash", StringComparison.Ordinal, out var prevBlockHash))
+				{
+					decredBH.HashPrevBlock = uint256.Parse(prevBlockHash.ToString());
+				}
+				else
+				{
+					decredBH.HashPrevBlock = null;
+				}
+
+				// Load decred-specific header properties
+				decredBH.BlockSize = json.Value<uint>("nonce");
+				decredBH.ExtraData = Encoders.Hex.DecodeData(json.Value<string>("extradata"));
+				decredBH.FinalState = Encoders.Hex.DecodeData(json.Value<string>("finalstate"));
+				decredBH.FreshStake = json.Value<byte>("freshstake");
+				decredBH.Height = json.Value<uint>("height");
+				decredBH.PoolSize = json.Value<uint>("poolsize");
+				decredBH.Revocations = json.Value<byte>("revocations");
+				decredBH.SBits = json.Value<long>("sbits");
+				decredBH.StakeRoot = new uint256(json.Value<string>("stakeroot"));
+				decredBH.StakeVersion = json.Value<uint>("stakeversion");
+				decredBH.VoteBits = json.Value<ushort>("votebits");
+				decredBH.Voters = json.Value<ushort>("voters");
+
+				blockHeader = decredBH;
+				block = null; // overwritten below if the rpc response includes full txs
+				txids = new List<uint256>();
+
+				if (withFullTx)
+				{
+					var decredBlock = new DecredBlock(decredBH);
+					decredBlock.Transactions = new List<Transaction>();
+					foreach (var txInfo in json.Value<JArray>("rawtx"))
+					{
+						var tx = CreateTransaction();
+						tx.FromBytes(Encoders.Hex.DecodeData(txInfo.Value<string>("hex")));
+						decredBlock.Transactions.Add(tx);
+						txids.Add(tx.GetHash());
+					}
+
+					decredBlock.STransactions = new List<Transaction>();
+					foreach (var txInfo in json.Value<JArray>("rawstx") ?? [])
+					{
+						var tx = CreateTransaction();
+						tx.FromBytes(Encoders.Hex.DecodeData(txInfo.Value<string>("hex")));
+						decredBlock.STransactions.Add(tx);
+						// TODO: append tx ids from json.Value<JArray>("rawstx") too?
+					}
+					block = decredBlock;
+				}
+				else
+				{
+					foreach (var tx in json.Value<JArray>("tx"))
+					{
+						txids.Add(uint256.Parse(tx.ToString()));
+					}
+					// TODO: append tx ids from json.Value<JArray>("stx") too?
+				}
+
+				return true;
+			}
 
 			class DecredProtocolCapabilities : ProtocolCapabilities
 			{
-
 				private static readonly DecredProtocolCapabilities _Instance = new DecredProtocolCapabilities();
 				public static DecredProtocolCapabilities Instance
 				{
@@ -56,6 +179,7 @@ namespace NBitcoin.Altcoins
 						return _Instance;
 					}
 				}
+
 				public DecredProtocolCapabilities()
 				{
 					PeerTooOld = false;
@@ -68,13 +192,14 @@ namespace NBitcoin.Altcoins
 					SupportSendHeaders = true;
 					SupportTimeAddress = true;
 					SupportUserAgent = true;
-					SupportWitness = false;
+					SupportWitness = true; // i.e. witness tx, not segwit addresses which we don't support
 				}
 
 				public override HashStreamBase GetChecksumHashStream(int hintSize)
 				{
 					return BufferedHashStream.CreateFrom(Blake256, hintSize);
 				}
+
 				public override HashStreamBase GetChecksumHashStream()
 				{
 					return BufferedHashStream.CreateFrom(Blake256, 32);
@@ -88,7 +213,7 @@ namespace NBitcoin.Altcoins
 
 			public override BlockHeader CreateBlockHeader()
 			{
-				return new DecredBlockHeader();
+				return new DecredBlockHeader(chainName);
 			}
 
 			public override Block CreateBlock()
@@ -98,25 +223,27 @@ namespace NBitcoin.Altcoins
 
 			public override Transaction CreateTransaction()
 			{
-				return new DecredTransaction();
+				return new DecredTransaction(chainName);
 			}
 
 			public override TxOut CreateTxOut()
 			{
-				return new DecredTxOut();
+				return new DecredTxOut(chainName);
 			}
 
 			public override TxIn CreateTxIn()
 			{
-				return new DecredTxIn();
+				return new DecredTxIn(chainName);
 			}
 		}
 
 		public class DecredTxIn : TxIn
 		{
-			protected uint nPrevOutTree = 0;
+			private ChainName chainName;
 
-			public uint PrevOutTree
+			protected byte nPrevOutTree = 0;
+
+			public byte PrevOutTree
 			{
 				get
 				{
@@ -169,9 +296,14 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
+			public DecredTxIn(ChainName chainName) : base()
+			{
+				this.chainName = chainName;
+			}
+
 			public override TxIn Clone()
 			{
-				var txIn = new DecredTxIn();
+				var txIn = new DecredTxIn(chainName);
 				txIn.Sequence = this.Sequence;
 				txIn.PrevOutTree = this.PrevOutTree;
 				txIn.PrevOut = this.PrevOut;
@@ -184,13 +316,13 @@ namespace NBitcoin.Altcoins
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return DecredConsensusFactory.Instance;
+				return DecredConsensus.Instance(chainName).ConsensusFactory;
 			}
 		}
 
 		public class DecredTxOut : TxOut
 		{
-
+			private ChainName chainName;
 			protected uint nVersion = 0;
 
 			public uint Version
@@ -205,26 +337,47 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
+			public DecredTxOut(ChainName chainName)
+			{
+				this.chainName = chainName;
+			}
+
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return DecredConsensusFactory.Instance;
+				return DecredConsensus.Instance(chainName).ConsensusFactory;
 			}
 		}
 
 		public class DecredTransaction : Transaction
 		{
+			private ChainName chainName;
 
-			protected uint nSerType = 0;
+			public enum TxSerializeType : ushort
+			{
+				// Full indicates a transaction be serialized with the prefix
+				// and all witness data.
+				Full = 0,
 
-			public uint SerType
+				// NoWitness indicates a transaction be serialized with only the
+				// prefix.
+				NoWitness = 1,
+
+				// OnlyWitness indicates a transaction be serialized with only
+				// the witness data.
+				OnlyWitness = 2,
+			}
+
+			protected TxSerializeType nSerializeType = 0;
+
+			public TxSerializeType SerializeType
 			{
 				get
 				{
-					return nSerType;
+					return nSerializeType;
 				}
 				set
 				{
-					nSerType = value;
+					nSerializeType = value;
 				}
 			}
 
@@ -242,160 +395,275 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
-			private enum serType : uint
+			public override bool HasWitness => SerializeType == TxSerializeType.Full;
+
+			public DecredTransaction(ChainName chainName) : base()
 			{
-				All = 0,
-				Prefix = 1,
-				Witness = 3,
-			};
+				this.chainName = chainName;
+			}
+
+			/// GetWitnessOnlyHash returns the hash of the witness portion of
+			/// the tx alone. This differs from GetWitHash which returns the
+			/// hash of the full tx (prefix + witness portions).
+			/// 
+			/// TODO: Use this to override GetWitHash?
+			public virtual uint256 GetWitnessOnlyHash()
+			{
+				using (var hs = this.CreateHashStream())
+				{
+					var stream = new BitcoinStream(hs, true);
+					this.serialize(stream, TxSerializeType.OnlyWitness);
+					return hs.GetHash();
+				}
+			}
+
+			// GetFullHash generates the hash for the transaction prefix ||
+			// witness. It first obtains the hashes for both the transaction
+			// prefix and witness, then concatenates them and hashes the result.
+			public uint256 GetFullHash()
+			{
+				var prefixHash = this.GetHash();
+				var witnessHash = this.GetWitnessOnlyHash();
+				return BlakeHashedMerkleNode(MerkleNode.GetRoot([prefixHash, witnessHash])).Hash;
+			}
 
 			public override void ReadWrite(BitcoinStream stream)
 			{
-				var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
-								stream.ProtocolCapabilities.SupportWitness;
-				var sType = witSupported ? serType.All : serType.Prefix;
-				this.readWrite(stream, sType, 0, null);
-			}
-
-			private void readWrite(BitcoinStream stream, serType sType, int signInput, Script signScript)
-			{
-				var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
-								stream.ProtocolCapabilities.SupportWitness;
-				if (!stream.Serializing)
+				if (stream.Serializing)
 				{
-					var versionB = new byte[2];
-					var serTypeB = new byte[2];
-					stream.ReadWriteBytes(versionB, 0, 2);
-					stream.ReadWriteBytes(serTypeB, 0, 2);
-					this.Version = BitConverter.ToUInt16(versionB, 0);
-					this.SerType = BitConverter.ToUInt16(serTypeB, 0);
-					uint txInCount = 0;
-					stream.ReadWriteAsVarInt(ref txInCount);
-					for (int i = 0; i < txInCount; i++)
+					var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
+									stream.ProtocolCapabilities.SupportWitness;
+					var sType = witSupported ? TxSerializeType.Full : TxSerializeType.NoWitness;
+					if (sType == TxSerializeType.Full && !this.HasWitness)
 					{
-						var input = new DecredTxIn();
-						var prevOutIndexB = new byte[4];
-						var prevOutTreeB = new byte[1];
-						var prevOutSequenceB = new byte[4];
-						var prevOutHash = new uint256();
-						stream.ReadWrite(ref prevOutHash);
-						stream.ReadWriteBytes(prevOutIndexB, 0, 4);
-						stream.ReadWriteBytes(prevOutTreeB, 0, 1);
-						stream.ReadWriteBytes(prevOutSequenceB, 0, 4);
-						input.PrevOut.N = BitConverter.ToUInt32(prevOutIndexB, 0);
-						input.PrevOutTree = prevOutTreeB[0];
-						input.Sequence = BitConverter.ToUInt32(prevOutSequenceB, 0);
-						input.PrevOut.Hash = prevOutHash;
-						this.Inputs.Add(input);
+						// We can only serialize prefix because witness data is
+						// not available.
+						sType = TxSerializeType.NoWitness;
 					}
-					uint txOutCount = 0;
-					stream.ReadWriteAsVarInt(ref txOutCount);
-					for (int i = 0; i < txOutCount; i++)
-					{
-						var output = new DecredTxOut();
-						var txOutValueB = new byte[8];
-						var txOutVersionB = new byte[2];
-						stream.ReadWriteBytes(txOutValueB, 0, 8);
-						stream.ReadWriteBytes(txOutVersionB, 0, 2);
-						var script = new Script();
-						stream.ReadWrite(ref script);
-						output.ScriptPubKey = script;
-						output.Value = BitConverter.ToUInt64(txOutValueB, 0);
-						output.Version = BitConverter.ToUInt16(txOutVersionB, 0);
-						this.Outputs.Add(output);
-					}
-					var locktimeB = new byte[4];
-					var expiryB = new byte[4];
-					stream.ReadWriteBytes(locktimeB, 0, 4);
-					stream.ReadWriteBytes(expiryB, 0, 4);
-					this.LockTime = BitConverter.ToUInt32(locktimeB, 0);
-					this.Expiry = BitConverter.ToUInt32(expiryB, 0);
-					uint witnessCount = 0;
-					stream.ReadWriteAsVarInt(ref witnessCount);
-					for (int i = 0; i < witnessCount; i++)
-					{
-						var input = (DecredTxIn)this.vin[i];
-						var witnessValueB = new byte[8];
-						var witnessHeightB = new byte[4];
-						var witnessIndexB = new byte[4];
-						var script = new Script();
-						stream.ReadWriteBytes(witnessValueB);
-						stream.ReadWriteBytes(witnessHeightB);
-						stream.ReadWriteBytes(witnessIndexB);
-						stream.ReadWrite(ref script);
-						input.ScriptSig = script;
-						input.Value = BitConverter.ToUInt64(witnessValueB, 0);
-						input.Height = BitConverter.ToUInt32(witnessHeightB, 0);
-						input.Index = BitConverter.ToUInt32(witnessIndexB, 0);
-					}
+					this.serialize(stream, sType);
 				}
 				else
 				{
-					var versionB = BitConverter.GetBytes(this.Version);
-					var serTypeB = BitConverter.GetBytes((uint)sType);
-					stream.ReadWriteBytes(versionB, 0, 2);
-					stream.ReadWriteBytes(serTypeB, 0, 2);
-					var txInCount = (uint)this.Inputs.Count;
-					if (sType != serType.Witness)
+					this.deserialize(stream);
+				}
+			}
+
+			private void serialize(BitcoinStream stream, TxSerializeType serializeType)
+			{
+				// The serialized encoding of the version includes the real transaction
+				// version in the lower 16 bits and the transaction serialization type
+				// in the upper 16 bits.
+				ushort version = (ushort)this.Version, sType = (ushort)serializeType;
+				stream.ReadWrite(ref version);
+				stream.ReadWrite(ref sType);
+
+				switch (serializeType)
+				{
+					case TxSerializeType.NoWitness:
+						this.encodePrefix(stream);
+						break;
+
+					case TxSerializeType.OnlyWitness:
+						this.encodeWitness(stream);
+						break;
+
+					case TxSerializeType.Full:
+						this.encodePrefix(stream);
+						this.encodeWitness(stream);
+						break;
+				}
+			}
+
+			private void encodePrefix(BitcoinStream stream)
+			{
+				var txInCount = (ulong)this.Inputs.Count;
+				stream.ReadWriteAsVarInt(ref txInCount);
+
+				for (int i = 0; i < this.Inputs.Count; i++)
+				{
+					DecredTxIn input = (DecredTxIn)this.Inputs[i];
+					stream.ReadWrite(input.PrevOut); // prevout (hash and index)
+					stream.ReadWriteBytes([input.PrevOutTree]); // prevout tree
+					stream.ReadWrite(input.Sequence); // sequence
+				}
+
+				var txOutCount = (uint)this.Outputs.Count;
+				stream.ReadWriteAsVarInt(ref txOutCount);
+
+				for (int i = 0; i < txOutCount; i++)
+				{
+					DecredTxOut output = (DecredTxOut)this.Outputs[i];
+					stream.ReadWrite(output.Value); // value
+					stream.ReadWrite((ushort)output.Version); // version
+					stream.ReadWrite(output.ScriptPubKey); // script
+				}
+
+				stream.ReadWrite(this.LockTime.Value); // locktime
+				stream.ReadWrite(this.Expiry); // expiry
+			}
+
+			private void encodeWitness(BitcoinStream stream)
+			{
+				var txInCount = (uint)this.Inputs.Count;
+				stream.ReadWriteAsVarInt(ref txInCount);
+				for (int i = 0; i < txInCount; i++)
+				{
+					DecredTxIn input = (DecredTxIn)this.Inputs[i];
+					stream.ReadWrite(input.Value); // ValueIn
+					stream.ReadWrite(input.Height); // BlockHeight
+					stream.ReadWrite(input.Index); // BlockIndex
+					stream.ReadWrite(input.ScriptSig); // SignatureScript
+				}
+			}
+
+			private void deserialize(BitcoinStream stream)
+			{
+				// The serialized encoding of the version includes the real
+				// transaction version in the lower 16 bits and the transaction
+				// serialization type in the upper 16 bits.
+				var version = new byte[4];
+				stream.ReadWriteBytes(version, 0, 4);
+				this.Version = BitConverter.ToUInt16(version, 0);
+				this.SerializeType = (TxSerializeType)BitConverter.ToUInt16(version, 2);
+
+				switch (this.SerializeType)
+				{
+					case TxSerializeType.NoWitness:
+						this.decodePrefix(stream);
+						break;
+
+					case TxSerializeType.OnlyWitness:
+						this.decodeWitness(stream, false);
+						break;
+
+					case TxSerializeType.Full:
+						this.decodePrefix(stream);
+						this.decodeWitness(stream, true);
+						break;
+				}
+			}
+
+			private void decodePrefix(BitcoinStream stream)
+			{
+				// TxIns.
+				uint txInCount = 0;
+				stream.ReadWriteAsVarInt(ref txInCount);
+				for (int i = 0; i < txInCount; i++)
+				{
+					// prevout (hash and index)
+					OutPoint prevOut = new();
+					stream.ReadWrite(ref prevOut);
+					// prevout tree
+					var prevOutTreeB = new byte[1];
+					stream.ReadWriteBytes(prevOutTreeB);
+					// sequence
+					uint sequence = new();
+					stream.ReadWrite(ref sequence);
+
+					var input = new DecredTxIn(chainName)
 					{
-						stream.ReadWriteAsVarInt(ref txInCount);
-						for (int i = 0; i < txInCount; i++)
-						{
-							TxIn input = this.Inputs[i];
-							uint prevOutTree = 0; // assume regular tree
-							if (input is DecredTxIn decredTxIn) prevOutTree = decredTxIn.PrevOutTree;
-							var prevOutIndexB = BitConverter.GetBytes(input.PrevOut.N);
-							var prevOutTreeB = BitConverter.GetBytes(prevOutTree);
-							var prevOutSequenceB = BitConverter.GetBytes(input.Sequence);
-							stream.ReadWrite(input.PrevOut.Hash);
-							stream.ReadWriteBytes(prevOutIndexB, 0, 4);
-							stream.ReadWriteBytes(prevOutTreeB, 0, 1);
-							stream.ReadWriteBytes(prevOutSequenceB, 0, 4);
-						}
-						var txOutCount = (uint)this.Outputs.Count;
-						stream.ReadWriteAsVarInt(ref txOutCount);
-						for (int i = 0; i < txOutCount; i++)
-						{
-							TxOut output = this.Outputs[i];
-							uint outputVersion = 0; // 0 is a sane default
-							if (output is DecredTxOut decredTxOut) outputVersion = decredTxOut.Version;
-							var txOutValueB = BitConverter.GetBytes(output.Value);
-							var txOutVersionB = BitConverter.GetBytes(outputVersion);
-							stream.ReadWriteBytes(txOutValueB, 0, 8);
-							stream.ReadWriteBytes(txOutVersionB, 0, 2);
-							var script = output.ScriptPubKey;
-							stream.ReadWrite(ref script);
-						}
-						var locktimeB = BitConverter.GetBytes(this.LockTime);
-						var expiryB = BitConverter.GetBytes(this.Expiry);
-						stream.ReadWriteBytes(locktimeB, 0, 4);
-						stream.ReadWriteBytes(expiryB, 0, 4);
-					}
-					if (sType == serType.Prefix) { return; }
-					stream.ReadWriteAsVarInt(ref txInCount);
-					for (int i = 0; i < txInCount; i++)
+						PrevOut = prevOut,
+						PrevOutTree = prevOutTreeB[0],
+						Sequence = sequence
+					};
+					this.Inputs.Add(input);
+				}
+
+				// TxOuts.
+				uint txOutCount = 0;
+				stream.ReadWriteAsVarInt(ref txOutCount);
+				for (int i = 0; i < txOutCount; i++)
+				{
+					// value
+					ulong value = new();
+					stream.ReadWrite(ref value);
+					// version
+					ushort version = new();
+					stream.ReadWrite(ref version);
+					// script
+					var script = new Script();
+					stream.ReadWrite(ref script);
+
+					var output = new DecredTxOut(chainName)
 					{
-						DecredTxIn input = (DecredTxIn)this.Inputs[i];
-						if (sType == serType.All)
-						{
-							var witnessValueB = BitConverter.GetBytes(input.Value);
-							var witnessHeightB = BitConverter.GetBytes(input.Height);
-							var witnessIndexB = BitConverter.GetBytes(input.Index);
-							stream.ReadWriteBytes(witnessValueB, 0, 8);
-							stream.ReadWriteBytes(witnessHeightB, 0, 4);
-							stream.ReadWriteBytes(witnessIndexB, 0, 4);
-						}
+						Value = new Money(value),
+						Version = version,
+						ScriptPubKey = script
+					};
+					this.Outputs.Add(output);
+				}
+
+				// Locktime and expiry.
+				uint locktime = 0, expiry = 0;
+				stream.ReadWrite(ref locktime);
+				stream.ReadWrite(ref expiry);
+				this.LockTime = locktime;
+				this.Expiry = expiry;
+			}
+
+			private void decodeWitness(BitcoinStream stream, bool isFull)
+			{
+				// Read in the number of signature scripts.
+				uint witnessCount = 0;
+				stream.ReadWriteAsVarInt(ref witnessCount);
+
+				if (!isFull)
+				{
+					// Witness only; generate the TxIn list and fill out only
+					// the witness data.
+					for (int i = 0; i < witnessCount; i++)
+					{
+						// ValueIn.
+						ulong valueIn = new();
+						stream.ReadWrite(ref valueIn);
+						// BlockHeight.
+						uint blockHeight = new();
+						stream.ReadWrite(ref blockHeight);
+						// BlockIndex. uint32
+						uint blockIndex = new();
+						stream.ReadWrite(ref blockIndex);
+						// Signature script.
 						var script = new Script();
-						if (sType == serType.All)
-						{
-							script = input.ScriptSig;
-						}
-						if (sType == serType.Witness && i == signInput)
-						{
-							script = signScript;
-						}
 						stream.ReadWrite(ref script);
+
+						var input = new DecredTxIn(chainName);
+						input.Value = valueIn;
+						input.Height = blockHeight;
+						input.Index = blockIndex;
+						input.ScriptSig = script;
+						this.Inputs.Add(input);
 					}
+					return;
+				}
+
+				// We're decoding witnesses from a full transaction, so check to
+				// make sure that the witness count is the same as the number of
+				// TxIns we currently have, then fill in the signature scripts.
+				if (witnessCount != this.Inputs.Count)
+					throw new Exception($"non equal witness and prefix txin quantities (witness {witnessCount}, prefix {this.Inputs.Count})");
+
+				// Read in the witnesses, and copy them into the already
+				// generated Inputs.
+				for (int i = 0; i < witnessCount; i++)
+				{
+					// ValueIn.
+					ulong valueIn = new();
+					stream.ReadWrite(ref valueIn);
+					// BlockHeight.
+					uint blockHeight = new();
+					stream.ReadWrite(ref blockHeight);
+					// BlockIndex. uint32
+					uint blockIndex = new();
+					stream.ReadWrite(ref blockIndex);
+					// Signature script.
+					var script = new Script();
+					stream.ReadWrite(ref script);
+
+					var input = (DecredTxIn)this.vin[i];
+					input.Value = valueIn;
+					input.Height = blockHeight;
+					input.Index = blockIndex;
+					input.ScriptSig = script;
 				}
 			}
 
@@ -406,19 +674,20 @@ namespace NBitcoin.Altcoins
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return DecredConsensusFactory.Instance;
+				return DecredConsensus.Instance(chainName).ConsensusFactory;
 			}
+
 			public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 			{
 				// TODO: Correctly handle hash types.
 				var hs = this.CreateHashStream();
 				var stream = new BitcoinStream(hs, true);
-				this.readWrite(stream, serType.Prefix, 0, null);
+				this.serialize(stream, TxSerializeType.NoWitness);
 				var prefixHash = hs.GetHash();
 
 				hs = this.CreateHashStream();
 				stream = new BitcoinStream(hs, true);
-				this.readWrite(stream, serType.Witness, nIn, scriptCode);
+				this.serializeSpecificInputWitnessData(stream, scriptCode, nIn);
 				var witnessHash = hs.GetHash();
 
 				hs = this.CreateHashStream();
@@ -430,11 +699,37 @@ namespace NBitcoin.Altcoins
 				var sigHash = hs.GetHash();
 				return sigHash;
 			}
+
+			private void serializeSpecificInputWitnessData(BitcoinStream stream, Script scriptCode, int nIn)
+			{
+				// Serialize the version and serialization type values. This is
+				// an unorthodox serialization, so don't use any of the known
+				// serialization types.
+				var knownSerializationTypes = (ushort[])Enum.GetValues(typeof(TxSerializeType));
+				var randomSerializationType = knownSerializationTypes.Max() + 1;
+				ushort version = (ushort)this.Version, sType = (ushort)randomSerializationType;
+				stream.ReadWrite(ref version);
+				stream.ReadWrite(ref sType);
+
+				// Serialize inputs witness data, using an empty script for
+				// inputs at index != nIn.
+				var txInCount = (uint)this.Inputs.Count;
+				stream.ReadWriteAsVarInt(ref txInCount);
+				for (int i = 0; i < txInCount; i++)
+				{
+					var script = new Script();
+					if (i == nIn)
+						script = scriptCode;
+					stream.ReadWrite(ref script);
+				}
+			}
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
 		public class DecredBlockHeader : BlockHeader
 		{
+			private ChainName chainName;
+			public ChainName ChainName => chainName;
 
 			protected uint256 nStakeRoot = new uint256();
 
@@ -603,6 +898,12 @@ namespace NBitcoin.Altcoins
 					nStakeVersion = value;
 				}
 			}
+
+			public DecredBlockHeader(ChainName chainName) : base()
+			{
+				this.chainName = chainName;
+			}
+
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				if (!stream.Serializing)
@@ -694,9 +995,8 @@ namespace NBitcoin.Altcoins
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
-		public class DecredBlock(Decred.DecredBlockHeader header) : Block(header)
+		public class DecredBlock : Block
 		{
-
 			List<Transaction> svtx = [];
 
 			public List<Transaction> STransactions
@@ -711,25 +1011,46 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
+			public DecredBlock(DecredBlockHeader header) : base(header) { }
+
+			/// GetMerkleRoot calculates and returns a merkle root depending on
+			/// the result of the header commitments agenda vote. In particular,
+			/// before the agenda is active, it returns the merkle root of the
+			/// regular transaction tree. Once the agenda is active, it returns
+			/// the combined merkle root for the regular and stake transaction
+			/// trees in accordance with DCP0005.
+			public override MerkleNode GetMerkleRoot()
+			{
+				var isDCP0005Active = DecredConsensus.IsBlockHeaderCommitmentsAgendaActive(Header as DecredBlockHeader);
+				var txFullHash = (Transaction tx) => (tx as DecredTransaction).GetFullHash();
+				if (!isDCP0005Active)
+					return BlakeHashedMerkleNode(MerkleNode.GetRoot(Transactions.Select(txFullHash)));
+
+				var regularRoot = MerkleNode.GetRoot(Transactions.Select(txFullHash));
+				var stakeRoot = MerkleNode.GetRoot(STransactions.Select(txFullHash));
+				return BlakeHashedMerkleNode(new MerkleNode(regularRoot, stakeRoot));
+			}
+
 			public override void ReadWrite(BitcoinStream stream)
 			{
+				var chainName = (Header as DecredBlockHeader).ChainName;
 				if (!stream.Serializing)
 				{
-					DecredBlockHeader header = new DecredBlockHeader();
+					DecredBlockHeader header = new DecredBlockHeader(chainName);
 					stream.ReadWrite(ref header);
 					this.Header = header;
 					uint txCount = 0;
 					stream.ReadWriteAsVarInt(ref txCount);
 					for (int i = 0; i < txCount; i++)
 					{
-						DecredTransaction tx = new DecredTransaction();
+						DecredTransaction tx = new DecredTransaction(chainName);
 						stream.ReadWrite(ref tx);
 						this.Transactions.Add(tx);
 					}
 					stream.ReadWriteAsVarInt(ref txCount);
 					for (int i = 0; i < txCount; i++)
 					{
-						DecredTransaction tx = new DecredTransaction();
+						DecredTransaction tx = new DecredTransaction(chainName);
 						stream.ReadWrite(ref tx);
 						this.STransactions.Add(tx);
 					}
@@ -737,7 +1058,6 @@ namespace NBitcoin.Altcoins
 				else
 				{
 					stream.ReadWrite(this.Header);
-					this.Header = header;
 					uint txCount = (uint)this.Transactions.Count;
 					stream.ReadWriteAsVarInt(ref txCount);
 					for (int i = 0; i < txCount; i++)
@@ -755,7 +1075,7 @@ namespace NBitcoin.Altcoins
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return DecredConsensusFactory.Instance;
+				return DecredConsensus.Instance((Header as DecredBlockHeader).ChainName).ConsensusFactory;
 			}
 		}
 
@@ -785,14 +1105,17 @@ namespace NBitcoin.Altcoins
 		{
 			return new NetworkBuilder()
 			.SetNetworkSet(this)
-			.SetConsensus(new Consensus()
+			.SetConsensus(new DecredConsensus()
 			{
 				PowLimit = new Target(new uint256("0x00000000ffff0000000000000000000000000000000000000000000000000000")),
 				MinimumChainWork = new uint256("0x000000000000000000000000000000000000000000243845fb2fb3d8f20ddfeb"),
 				PowTargetTimespan = TimeSpan.FromMinutes(144 * 5), // 144 blocks
 				PowTargetSpacing = TimeSpan.FromMinutes(5), // TargetTimePerBlock
-				ConsensusFactory = DecredConsensusFactory.Instance,
+				ConsensusFactory = new DecredConsensusFactory(ChainName.Mainnet),
 				CoinbaseMaturity = 256,
+
+				// Activation block heights for relevant DCPs.
+				DCP0005ActivationHeight = 431488,
 			}
 			)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [0x07, 0x3f]) // starts with Ds (pubkey hash)
@@ -816,13 +1139,16 @@ namespace NBitcoin.Altcoins
 		{
 			return new NetworkBuilder()
 			.SetNetworkSet(this)
-			.SetConsensus(new Consensus()
+			.SetConsensus(new DecredConsensus()
 			{
 				PowLimit = new Target(new uint256("0x7fffff0000000000000000000000000000000000000000000000000000000000")),
 				PowTargetTimespan = TimeSpan.FromSeconds(8 * 1), // 8 blocks
 				PowTargetSpacing = TimeSpan.FromSeconds(1), // TargetTimePerBlock
-				ConsensusFactory = DecredConsensusFactory.Instance,
+				ConsensusFactory = new DecredConsensusFactory(ChainName.Regtest),
 				CoinbaseMaturity = 16,
+
+				// Activation block heights for relevant DCPs.
+				DCP0005ActivationHeight = 1, // always active after genesis block, for simnet
 			}
 			)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [0x0e, 0x91]) // starts with Ss (pubkey hash)
@@ -846,13 +1172,16 @@ namespace NBitcoin.Altcoins
 		{
 			return new NetworkBuilder()
 			.SetNetworkSet(this)
-			.SetConsensus(new Consensus()
+			.SetConsensus(new DecredConsensus()
 			{
 				PowLimit = new Target(new uint256("0x000000ffff000000000000000000000000000000000000000000000000000000")),
 				PowTargetTimespan = TimeSpan.FromMinutes(144 * 2), // 144 blocks
 				PowTargetSpacing = TimeSpan.FromMinutes(2), // TargetTimePerBlock
-				ConsensusFactory = DecredConsensusFactory.Instance,
+				ConsensusFactory = new DecredConsensusFactory(ChainName.Testnet),
 				CoinbaseMaturity = 16,
+
+				// Activation block heights for relevant DCPs.
+				DCP0005ActivationHeight = 323328,
 			}
 			)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [0x0f, 0x21]) // starts with Ts (pubkey hash)

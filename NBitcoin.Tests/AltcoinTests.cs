@@ -419,6 +419,33 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[ConditionalNetworkTest(NetworkTestRule.Only, "dcr")]
+		public void DecredCanSerializeAndDeserializeTx()
+		{
+			var network = Decred.Instance.Testnet;
+			var tx = network.CreateTransaction() as Decred.DecredTransaction;
+			Assert.NotNull(tx);
+
+			// tx with witness data
+			var hex = "0100000002e85982f19bb440f0e6b7f11a0257c70533d2f88fc7e13ef5309e60b7970b848f0100000000fffffffffd80b3e2145731a52163d45620fb10b2edee8aefbd78bf98833b6f3dc0e2e4360300000001ffffffff028f68f8080500000000001976a91467f8d59f8833ea52329d8d29d5517dd86d48680c88ac345c04000000000000001976a914f145cb59392c2fc0a0f4f486f3071fe9de86ccb188ac00000000000000000280c56f4b02000000b8700f000f0000006a47304402207b4b112c48ec92b6cb060327a782f8ae0c38b618e3bea784c844b673b5c75efe02202bc1b3967698db41638f9a8374f77cbd8c4c49199d285b50c36665ae296d2a2e0121024ae8aced12ac3dae6c626c7320c0efa68c38ddd0630a8938595f4f25a50ebd18a10f8dbd0200000040710f00060000006a47304402201acaf6c82ab1c63bdd508cfb28b0f2e46d420f7fcd1461b165d5d55e41d8735202201a7a0eb006ed4b4873fa9d656a942e23a6a1c83769f571bdb6b098562c30169c012102aa04fccfd2b2fca5c34cd2a0aed3020d2d0dd4aed591adbf9c765865427df662";
+			tx.FromBytes(Encoders.Hex.DecodeData(hex));
+			Assert.Equal(Decred.DecredTransaction.TxSerializeType.Full, tx.SerializeType);
+			Assert.Equal(hex, tx.ToHex());
+			Assert.Equal("c89bab9a004c434ceacd34c334604cbb3d3aed0a483620242fcacf21cab887ad", tx.GetHash().ToString());
+			Assert.Equal(2, tx.Inputs.Count);
+			Assert.Equal(11770072993UL, (tx.Inputs[1] as Decred.DecredTxIn).Value);
+			Assert.Equal(2, tx.Outputs.Count);
+			Assert.Equal("TsaVtAe5xEt1oZgnoxwVzVXLvsZnREJnsV7", tx.Outputs[0].ScriptPubKey.GetDestinationAddress(network).ToString());
+
+			tx.SerializeType = Decred.DecredTransaction.TxSerializeType.NoWitness;
+			Assert.NotEqual(hex, tx.ToHex());
+			// same tx with no witness data
+			hex = "0100010002e85982f19bb440f0e6b7f11a0257c70533d2f88fc7e13ef5309e60b7970b848f0100000000fffffffffd80b3e2145731a52163d45620fb10b2edee8aefbd78bf98833b6f3dc0e2e4360300000001ffffffff028f68f8080500000000001976a91467f8d59f8833ea52329d8d29d5517dd86d48680c88ac345c04000000000000001976a914f145cb59392c2fc0a0f4f486f3071fe9de86ccb188ac0000000000000000";
+			Assert.Equal(hex, tx.ToHex());
+			tx.FromBytes(Encoders.Hex.DecodeData(hex));
+			Assert.Equal(Decred.DecredTransaction.TxSerializeType.NoWitness, tx.SerializeType);
+		}
+
 		[Fact]
 		[Obsolete]
 		public void GetSignerDontCrash()

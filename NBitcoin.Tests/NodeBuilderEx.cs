@@ -55,7 +55,7 @@ namespace NBitcoin.Tests
 			//var builder = NodeBuilder.Create(NodeDownloadData.ZCoin.v0_13_8_3, Altcoins.ZCoin.Instance.Regtest, caller);
 			//var builder = NodeBuilder.Create(NodeDownloadData.DogeCash.v5_1_1, Altcoins.DogeCash.Instance.Regtest, caller);
 
-			//var builder = NodeBuilder.Create(NodeDownloadData.Elements.v0_21_0_2, Altcoins.AltNetworkSets.Liquid.Regtest, caller);
+			// var builder = NodeBuilder.Create(NodeDownloadData.Elements.v0_21_0_2, Altcoins.AltNetworkSets.Liquid.Regtest, useNetwork, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Argoneum.v1_4_1, Altcoins.Argoneum.Instance.Regtest, caller);
 
@@ -71,16 +71,16 @@ namespace NBitcoin.Tests
 
 			//var builder = Create(NodeDownloadData.Bitcoin.v0_19_0_1, caller);
 
-			var builder = Create(NodeDownloadData.Bitcoin.GetLatest(), caller);
+			var builder = Create(NodeDownloadData.Bitcoin.GetLatest(), useNetwork, caller);
 			if (builder != null) builder.RPCWalletType = RPCWalletType.Legacy;
 			return builder;
 		}
 
-		public static NodeBuilder Create(NodeDownloadData nodeDownloadData, [CallerMemberName] string caller = null)
+		public static NodeBuilder Create(NodeDownloadData nodeDownloadData, Func<Network, bool> useNetwork = null, [CallerMemberName] string caller = null)
 		{
 			ServicePointManager.Expect100Continue = true;
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-			var builder = NodeBuilder.Create(nodeDownloadData, Altcoins.AltNetworkSets.Bitcoin.Regtest, null, caller);
+			var builder = NodeBuilder.Create(nodeDownloadData, Altcoins.AltNetworkSets.Bitcoin.Regtest, useNetwork, caller);
 			return builder;
 		}
 	}

@@ -120,7 +120,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// btc only; specifically requires/uses NodeDownloadData.Bitcoin.v25_0
+		[ConditionalNetworkTest(NetworkTestRule.Only, "btc")]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanSignUsingTapscriptAndKeySpend()
 		{

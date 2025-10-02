@@ -1126,9 +1126,7 @@ namespace NBitcoin.Tests
 			cmpct.Clone();
 		}
 
-		// TODO(decred): Fix decred pow check that occasionally fails because of
-		// DCP0011 that produces a powhash that is different from blockhash.
-		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
+		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlock()
 		{

@@ -1527,7 +1527,13 @@ namespace NBitcoin.RPC
 		private GetBlockRPCResponse ParseVerboseBlock(RPCResponse resp, int verbosity)
 		{
 			var json = (JObject)resp.Result;
-			var blockHeader = Network.Consensus.ConsensusFactory.CreateBlockHeader();
+			var customParse = Network.Consensus.ConsensusFactory.ParseGetBlockRPCRespose;
+			if (customParse(json, verbosity == 2, out var blockHeader, out var block, out var txids))
+			{
+				return MakeGetBlockRPCResponse(json, blockHeader, block, txids);
+			}
+
+			blockHeader = Network.Consensus.ConsensusFactory.CreateBlockHeader();
 			blockHeader.Bits = new Target(Encoders.Hex.DecodeData(json.Value<string>("bits")));
 			blockHeader.Version = json.Value<int>("version");
 			blockHeader.HashMerkleRoot = new uint256(json.Value<string>("merkleroot"));
@@ -1543,19 +1549,12 @@ namespace NBitcoin.RPC
 			{
 				blockHeader.HashPrevBlock = null;
 			}
-			// nextblockhash field does not exist for the chain tip.
-			uint256 nextBlockHash = null;
-			if (json.TryGetValue("nextblockhash", StringComparison.Ordinal, out var nextBlockHashHex))
-			{
-				nextBlockHash = uint256.Parse(nextBlockHashHex.ToString());
-			}
 
-			Block block = null;
-			var txids = new List<uint256>();
+			txids = new List<uint256>();
 			if (verbosity == 2)
 			{
 				var txs = new List<Transaction>();
-				foreach (var txInfo in json.Value<JArray>(Network.IsDecred ? "rawtx" : "tx"))
+				foreach (var txInfo in json.Value<JArray>("tx"))
 				{
 
 					var tx = ParseTxHex(txInfo.Value<string>("hex"));
@@ -1565,7 +1564,6 @@ namespace NBitcoin.RPC
 				block = Network.Consensus.ConsensusFactory.CreateBlock();
 				block.Header = blockHeader;
 				block.Transactions = txs;
-				// TODO: GetMerkleRoot() for decred blocks requires stake txs.
 				if (!block.GetMerkleRoot().Hash.Equals(blockHeader.HashMerkleRoot))
 				{
 					throw new FormatException($"Bogus GetBlockRPCResponse! merkle root mistmach (expected: {blockHeader.HashMerkleRoot}. actual: {block.GetMerkleRoot().Hash})");
@@ -1588,6 +1586,19 @@ namespace NBitcoin.RPC
 			{
 				throw new FormatException($"Bogus GetBlockRPCResponse! nTx mismatch (expected: {nTx}. actual: {txids.Count})");
 			}
+
+			return MakeGetBlockRPCResponse(json, blockHeader, block, txids);
+		}
+
+		private GetBlockRPCResponse MakeGetBlockRPCResponse(JObject json, BlockHeader blockHeader, Block block, List<uint256> txids)
+		{
+			// nextblockhash field does not exist for the chain tip.
+			uint256 nextBlockHash = null;
+			if (json.TryGetValue("nextblockhash", StringComparison.Ordinal, out var nextBlockHashHex))
+			{
+				nextBlockHash = uint256.Parse(nextBlockHashHex.ToString());
+			}
+
 			return new GetBlockRPCResponse()
 			{
 				Confirmations = json.Value<int>("confirmations"),
