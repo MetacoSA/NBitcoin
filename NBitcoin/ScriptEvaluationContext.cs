@@ -854,6 +854,12 @@ namespace NBitcoin
 			return true;
 		}
 
+		public Func<byte[], int, int, uint160> Hash160
+		{
+			get;
+			set;
+		} = Hashes.Hash160;
+
 		private bool IsOpSuccess(OpcodeType code)
 		{
 			var opcode = (byte)code;
@@ -1544,7 +1550,7 @@ namespace NBitcoin
 									else if (opcode.Code == OpcodeType.OP_SHA256)
 										vchHash = Hashes.SHA256(vch, 0, vch.Length);
 									else if (opcode.Code == OpcodeType.OP_HASH160)
-										vchHash = Hashes.Hash160(vch, 0, vch.Length).ToBytes();
+										vchHash = this.Hash160(vch, 0, vch.Length).ToBytes();
 									else if (opcode.Code == OpcodeType.OP_HASH256)
 										vchHash = Hashes.DoubleSHA256(vch, 0, vch.Length).ToBytes();
 									_stack.Pop();

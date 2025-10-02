@@ -527,8 +527,19 @@ namespace NBitcoin.RPC
 		}
 
 		ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> _BatchedRequests;
+		public ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> BatchedRequests
+		{
+			get
+			{
+				return _BatchedRequests;
+			}
+			set
+			{
+				_BatchedRequests = value;
+			}
+		}
 
-		public RPCClient PrepareBatch()
+		public virtual RPCClient PrepareBatch()
 		{
 			return new RPCClient(CredentialString, Address, Network)
 			{
@@ -538,7 +549,7 @@ namespace NBitcoin.RPC
 				AllowBatchFallback = AllowBatchFallback
 			};
 		}
-		public RPCClient Clone()
+		public virtual RPCClient Clone()
 		{
 			return new RPCClient(CredentialString, Address, Network)
 			{
@@ -1136,12 +1147,12 @@ namespace NBitcoin.RPC
 					SubVersion = (string)peer["subver"],
 					Inbound = (bool)peer["inbound"],
 					StartingHeight = (int)peer["startingheight"],
-					SynchronizedBlocks = (int)peer["synced_blocks"],
-					SynchronizedHeaders = (int)peer["synced_headers"],
+					SynchronizedBlocks = peer["synced_blocks"] != null ? (int)peer["synced_blocks"] : -1,
+					SynchronizedHeaders = peer["synced_headers"] != null ? (int)peer["synced_headers"] : -1,
 					IsWhiteListed = peer["whitelisted"] != null ? (bool)peer["whitelisted"] : false,
 					BanScore = peer["banscore"] == null ? 0 : (int)peer["banscore"],
 					Permissions = peer["permissions"] is JArray permissions ? permissions.Select(p => p.Value<string>()).ToArray() : new string[0],
-					Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
+					Inflight = peer["inflight"] != null ? peer["inflight"].Select(x => uint.Parse((string)x)).ToArray() : new uint[0]
 				};
 			}
 			return result;
@@ -2298,7 +2309,7 @@ namespace NBitcoin.RPC
 		/// <param name="parameters"></param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>The TXID of the sent transaction</returns>
-		public async Task<uint256> SendToAddressAsync(
+		public virtual async Task<uint256> SendToAddressAsync(
 			BitcoinAddress address,
 			Money amount,
 			SendToAddressParameters? parameters,

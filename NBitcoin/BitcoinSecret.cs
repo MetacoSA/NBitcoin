@@ -12,6 +12,7 @@ namespace NBitcoin
 		public BitcoinSecret(Key key, Network network)
 			: base(ToBytes(key), network)
 		{
+			this.PubKey.Hash160 = network.Hash160;
 		}
 
 		private static byte[] ToBytes(Key key)

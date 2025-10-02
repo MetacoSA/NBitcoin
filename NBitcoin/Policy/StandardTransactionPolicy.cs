@@ -191,7 +191,9 @@ namespace NBitcoin.Policy
 				if (!ok)
 				{
 					if (!validator.TryValidateInput(inputIndex, out var res) && res.Error is ScriptError err)
+					{
 						error = err;
+					}
 					else
 						error = ScriptError.UnknownError;
 					return false;
