@@ -33,6 +33,9 @@
     <None Include="..\icon.png" Pack="true" PackagePath="\" />
 	  <Compile Remove="HashX11\NeoScrypt.cs" />
 	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Blake3" Version="0.6.1" />
+	</ItemGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>portable</DebugType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

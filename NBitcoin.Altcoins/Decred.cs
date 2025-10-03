@@ -7,8 +7,12 @@ using NBitcoin.Protocol;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-
-
+using Blake3;
+#if NO_NATIVE_BIGNUM
+using NBitcoin.BouncyCastle.Math;
+#else
+using System.Numerics;
+#endif
 
 namespace NBitcoin.Altcoins
 {
@@ -39,6 +43,14 @@ namespace NBitcoin.Altcoins
 			return blake.ComputeBytes(passA).GetBytes();
 		}
 
+		private static byte[] Blake3Hash(byte[] b, int offset, int length)
+		{
+			byte[] bCopy = new byte[length];
+			Array.Copy(b, bCopy, length);
+			var hash = Blake3.Hasher.Hash(bCopy);
+			return hash.AsSpanUnsafe().ToArray();
+		}
+
 		private static MerkleNode BlakeHashedMerkleNode(MerkleNode node)
 		{
 			var right = node.Right ?? node.Left;
@@ -55,6 +67,49 @@ namespace NBitcoin.Altcoins
 			// DCP0005ActivationHeight is the block height that the DCP0005
 			// (Block Header Commitments) deployment activates at.
 			public uint DCP0005ActivationHeight { get; set; }
+
+			// DCP0011ActivationHeight is the block height that the DCP0011
+			// (Change PoW to BLAKE3 and ASERT) deployment activates at.
+			public uint DCP0011ActivationHeight { get; set; }
+
+			// WorkDiffV2Blake3StartBits is the starting difficulty bits to use
+			// for proof of work under BLAKE3.
+			public uint WorkDiffV2Blake3StartBits { get; set; }
+
+			// WorkDiffV2HalfLife is the number of seconds to use for the
+			// relaxation time when calculating how difficult it is to solve a
+			// block.  The algorithm sets the difficulty exponentially such that
+			// it is halved or doubled for every multiple of this value the most
+			// recent block is behind or ahead of the ideal schedule.
+			public long WorkDiffV2HalfLifeSecs { get; set; }
+
+			private TimeSpan TargetTimePerBlock => PowTargetSpacing;
+
+			private ChainName chainName => (ConsensusFactory as DecredConsensusFactory).ChainName;
+
+			private uint? _minTestNetDiffBits;
+
+			private uint? minTestNetDiffBits()
+			{
+				// Impose a maximum difficulty target on the test network to
+				// prevent runaway difficulty on testnet by ASICs and GPUs since
+				// it's not reasonable to require high-powered hardware to keep
+				// the test network running smoothly.
+				if (chainName == ChainName.Testnet && _minTestNetDiffBits == null)
+				{
+					// This equates to a maximum difficulty of 2^6 = 64.
+					const int maxTestDiffShift = 6;
+					BigInteger minTestNetTarget;
+#if NO_NATIVE_BIGNUM
+					minTestNetTarget = PowLimit.ToBigInteger().ShiftRight(maxTestDiffShift);
+#else
+					minTestNetTarget = PowLimit.ToBigInteger() >> maxTestDiffShift;
+#endif
+					_minTestNetDiffBits = BigToCompact(minTestNetTarget);
+				}
+
+				return _minTestNetDiffBits;
+			}
 
 			public static DecredConsensus Instance(ChainName chainName)
 			{
@@ -80,11 +135,252 @@ namespace NBitcoin.Altcoins
 				return blockHeader.Height >= Instance(blockHeader.ChainName).DCP0005ActivationHeight;
 			}
 
+			// IsBlake3PowAgendaActive returns whether or not the agenda to
+			// change the proof of work hash function to blake3, as defined in
+			// DCP0011, has passed and is now active for the specified block
+			// height.
+			//
+			// When active, the block's PoWHash will be solved using blake3 and
+			// will be different from the block's hash. Also, the block
+			// difficulty will be calculated using the difficulty retarget rules
+			// defined in DCP0011.
+			public static bool IsBlake3PowAgendaActive(DecredBlockHeader blockHeader)
+			{
+				return blockHeader.Height >= Instance(blockHeader.ChainName).DCP0011ActivationHeight;
+			}
+
+			private bool isBlake3PowAgendaForcedActive()
+			{
+				return chainName == ChainName.Regtest; // true for simnet/regtest
+			}
+
+			public override Target GetWorkRequired(ChainedBlock block)
+			{
+				if (block.Height == 0)
+					return PowLimit;
+
+				if (block.Height >= DCP0011ActivationHeight) // blake3 pow agenda is active
+					return calcNextBlake3Diff(block.Previous, block.Header.Bits.ToCompact());
+
+				throw new Exception("pre dcp0011 block difficulty calculation not yet implemented");
+			}
+
+			private uint calcNextBlake3Diff(ChainedBlock prevNode, uint expected)
+			{
+				// Determine the block to treat as the anchor block for the
+				// purposes of determining how far ahead or behind the ideal
+				// schedule the provided block is when calculating the blake3
+				// target difficulty.
+				ChainedBlock blake3Anchor;
+
+				// Apply special handling for networks where the agenda is
+				// always active to always require the initial starting
+				// difficulty for the first block and to treat the first block
+				// as the anchor once it has been mined.
+				//
+				// This is to done to help provide better difficulty target
+				// behavior for the initial blocks on such networks since the
+				// genesis block will necessarily have a hard-coded timestamp
+				// that will very likely be outdated by the time mining starts.
+				// As a result, merely using the genesis block as the anchor for
+				// all blocks would likely result in a lot of the initial blocks
+				// having a significantly lower difficulty than desired because
+				// they would all be behind the ideal schedule relative to that
+				// outdated timestamp.
+				if (isBlake3PowAgendaForcedActive())
+				{
+					// Use the initial starting difficulty for the first block.
+					if (prevNode.Height == 0)
+						return WorkDiffV2Blake3StartBits;
+
+					// Treat the first block as the anchor for all descendants of it.
+					blake3Anchor = prevNode.EnumerateToGenesis().FirstOrDefault(o => o.Height == 1);
+				}
+				else
+				{
+					// This will be the block just prior to the activation of the blake3 proof
+					// of work agenda.
+					blake3Anchor = prevNode.EnumerateToGenesis().FirstOrDefault(
+						o => o.Height == DCP0011ActivationHeight - 1);
+				}
+
+				// Calculate the time and height deltas as the difference
+				// between the provided block and the blake3 anchor block.
+				//
+				// Notice that if the difficulty prior to the activation point
+				// were being maintained, this would need to be the timestamp
+				// and height of the parent of the blake3 anchor block (except
+				// when the anchor is the genesis block) in order for the
+				// absolute calculations to exactly match the behavior of
+				// relative calculations.
+				//
+				// However, since the initial difficulty is reset with the
+				// agenda, no additional offsets are needed.
+				var timeDelta = prevNode.Header.BlockTime.ToUnixTimeSeconds() - blake3Anchor.Header.BlockTime.ToUnixTimeSeconds();
+				var heightDelta = prevNode.Height - blake3Anchor.Height;
+
+				// Calculate the next target difficulty using the ASERT
+				// algorithm.
+				//
+				// Note that the difficulty of the anchor block is NOT used for
+				// the initial difficulty because the difficulty must be reset
+				// due to the change to blake3 for proof of work.  The initial
+				// difficulty comes from the chain parameters instead.
+				var nextDiff = CalcASERTDiff(WorkDiffV2Blake3StartBits, PowLimit.ToBigInteger(),
+					TargetTimePerBlock.Seconds, timeDelta, heightDelta, WorkDiffV2HalfLifeSecs);
+
+				// Prevent the difficulty from going higher than a maximum
+				// allowed difficulty on the test network.  This is to prevent
+				// runaway difficulty on testnet by ASICs and GPUs since it's
+				// not reasonable to require high-powered hardware to keep the
+				// test network running smoothly.
+				//
+				// Smaller numbers result in a higher difficulty, so imposing a
+				// maximum difficulty equates to limiting the minimum target
+				// value.
+				var minTestNetDiffBits = this.minTestNetDiffBits();
+				if (minTestNetDiffBits != null && nextDiff < minTestNetDiffBits)
+					nextDiff = (uint)minTestNetDiffBits;
+
+				return nextDiff;
+			}
+
+			uint CalcASERTDiff(uint startDiffBits, BigInteger powLimit, long targetSecsPerBlock, long timeDelta, long heightDelta, long halfLife)
+			{
+				// Calculate the target difficulty by multiplying the provided
+				// starting target difficulty by an exponential scaling factor
+				// that is determined based on how far ahead or behind the ideal
+				// schedule the given time delta is along with a half life that
+				// acts as a smoothing factor.
+
+				// NOTE: The division by the half life must be truncated
+				// division.
+				var idealTimeDelta = heightDelta * targetSecsPerBlock;
+				BigInteger exponentBig;
+#if NO_NATIVE_BIGNUM
+				exponentBig = BigInteger.ValueOf(timeDelta - idealTimeDelta)
+					.ShiftLeft(16)
+					.Divide(BigInteger.ValueOf(halfLife));
+#else
+				exponentBig = new BigInteger(timeDelta - idealTimeDelta);
+				exponentBig <<= 16;
+				exponentBig /= new BigInteger(halfLife);
+#endif
+
+				// Decompose the exponent into integer and fractional parts.  Since
+				// the exponent is using 64.16 fixed point, the bottom 16 bits are
+				// the fractional part and the integer part is the exponent
+				// arithmetic right shifted by 16.
+				ulong frac64; long shifts;
+#if NO_NATIVE_BIGNUM
+				frac64 = (ulong)(exponentBig.LongValue & 0xffff);
+				shifts = exponentBig.ShiftRight(16).LongValue;
+#else
+				frac64 = (ulong)(((long)exponentBig) & 0xffff);
+				shifts = (long)(exponentBig >> 16);
+#endif
+
+				// Calculate 2^16 * 2^(fractional part) of the exponent.
+				//
+				// Note that a full unsigned 64-bit type is required to avoid
+				// overflow in the internal 16.48 fixed point calculation.
+				// Also, the overall result is guaranteed to be positive and a
+				// maximum of 17 bits, so it is safe to cast to a uint32.
+				const ulong polyCoeff1 = 195766423245049, // ceil(0.695502049712533 * 2^48)
+					polyCoeff2 = 971821376, // ceil(0.2262697964 * 2^32)
+					polyCoeff3 = 5127; // ceil(0.0782318 * 2^16)
+
+				var fracFactor = (uint)((1 << 16) + ((polyCoeff1 * frac64 +
+					polyCoeff2 * frac64 * frac64 +
+					polyCoeff3 * frac64 * frac64 * frac64 +
+					((ulong)1 << 47)) >> 48));
+
+				// Calculate the target difficulty:
+				var nextDiff = new Target(startDiffBits).ToBigInteger();
+#if NO_NATIVE_BIGNUM
+				nextDiff = nextDiff.Multiply(BigInteger.ValueOf((long)fracFactor));
+#else
+				nextDiff *= new BigInteger((long)fracFactor);
+#endif
+				shifts -= 16;
+				if (shifts >= 0)
+				{
+#if NO_NATIVE_BIGNUM
+					nextDiff = nextDiff.ShiftLeft((int)shifts);
+#else
+					nextDiff <<= (int)shifts;
+#endif
+				}
+				else
+				{
+#if NO_NATIVE_BIGNUM
+					nextDiff = nextDiff.ShiftRight((int)shifts);
+#else
+					nextDiff >>= (int)-shifts;
+#endif
+				}
+
+				// Limit the target difficulty to the valid hardest and easiest
+				// values. The valid range is [1, powLimit].
+				int signValue;
+#if NO_NATIVE_BIGNUM
+				signValue = nextDiff.SignValue;
+#else
+				signValue = nextDiff.Sign;
+#endif
+				if (signValue == 0)
+				{
+					// The hardest valid target difficulty is 1 since it would
+					// be impossible to find a non-negative integer less than 0.
+#if NO_NATIVE_BIGNUM
+					nextDiff = BigInteger.ValueOf((long)1);
+#else
+					nextDiff = new BigInteger((long)1);
+#endif
+				}
+				else if (nextDiff.CompareTo(powLimit) > 0)
+				{
+					nextDiff = powLimit;
+				}
+
+				// Convert the difficulty to the compact representation and
+				// return it.
+				return BigToCompact(nextDiff);
+			}
+
+			static uint BigToCompact(BigInteger nextDiff)
+			{
+				string hex;
+#if NO_NATIVE_BIGNUM
+				hex = nextDiff.ToString(16);
+#else
+				hex = nextDiff.ToString("x"); // ensure it's at least 64 chars, adding leading 0s as needed
+#endif
+				if (hex.Length < 64)
+				{
+					hex = hex.PadLeft(64, '0');
+				}
+				else if (hex.Length > 64)
+				{
+					// hex will have a leading 0 for positive BigInteger values,
+					// if the most significant bit of the first byte would
+					// otherwise indicate a negative number. This is the default
+					// behaviour to ensure correct interpretation when parsing
+					// the hexadecimal string back into a BigInteger.
+					hex = hex.TrimStart('0');
+				}
+				return new Target(new uint256(hex)).ToCompact();
+			}
+
 			public override Consensus Clone()
 			{
 				var consensus = new DecredConsensus();
 				Fill(consensus);
+				consensus._minTestNetDiffBits = this._minTestNetDiffBits;
 				consensus.DCP0005ActivationHeight = this.DCP0005ActivationHeight;
+				consensus.DCP0011ActivationHeight = this.DCP0011ActivationHeight;
+				consensus.WorkDiffV2Blake3StartBits = this.WorkDiffV2Blake3StartBits;
+				consensus.WorkDiffV2HalfLifeSecs = this.WorkDiffV2HalfLifeSecs;
 				return consensus;
 			}
 		}
@@ -92,6 +388,7 @@ namespace NBitcoin.Altcoins
 		public class DecredConsensusFactory : ConsensusFactory
 		{
 			private ChainName chainName;
+			public ChainName ChainName => chainName;
 
 			public DecredConsensusFactory(ChainName chainName)
 			{
@@ -904,6 +1201,37 @@ namespace NBitcoin.Altcoins
 				this.chainName = chainName;
 			}
 
+			public override uint256 GetPoWHash()
+			{
+				if (DecredConsensus.IsBlake3PowAgendaActive(this))
+					return powHashV2();
+				return powHashV1();
+			}
+
+			// powHashV2 calculates and returns the version 2 proof of work hash
+			// as defined in DCP0011 for the block header.
+			private uint256 powHashV2()
+			{
+				using (var hs = BufferedHashStream.CreateFrom(Blake3Hash, 32))
+				{
+					var stream = new BitcoinStream(hs, true);
+					stream.SerializationTypeScope(SerializationType.Hash);
+					this.ReadWrite(stream);
+					return hs.GetHash();
+				}
+			}
+
+			// powHashV1 calculates and returns the version 1 proof of work hash
+			// for the block header.
+			//
+			// NOTE: This is the original proof of work hash function used at
+			// Decred launch and applies to all blocks prior to the activation
+			// of DCP0011.
+			private uint256 powHashV1()
+			{
+				return GetHash();
+			}
+
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				if (!stream.Serializing)
@@ -1107,6 +1435,7 @@ namespace NBitcoin.Altcoins
 			.SetNetworkSet(this)
 			.SetConsensus(new DecredConsensus()
 			{
+				// Base Consensus properties.
 				PowLimit = new Target(new uint256("0x00000000ffff0000000000000000000000000000000000000000000000000000")),
 				MinimumChainWork = new uint256("0x000000000000000000000000000000000000000000243845fb2fb3d8f20ddfeb"),
 				PowTargetTimespan = TimeSpan.FromMinutes(144 * 5), // 144 blocks
@@ -1116,6 +1445,11 @@ namespace NBitcoin.Altcoins
 
 				// Activation block heights for relevant DCPs.
 				DCP0005ActivationHeight = 431488,
+				DCP0011ActivationHeight = 794368,
+
+				// Version 2 difficulty algorithm (ASERT + BLAKE3) parameters.
+				WorkDiffV2Blake3StartBits = 0x1b00a5a6,
+				WorkDiffV2HalfLifeSecs = 43200, // 144 * TimePerBlock (12 hours)
 			}
 			)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [0x07, 0x3f]) // starts with Ds (pubkey hash)
@@ -1141,6 +1475,7 @@ namespace NBitcoin.Altcoins
 			.SetNetworkSet(this)
 			.SetConsensus(new DecredConsensus()
 			{
+				// Base Consensus properties.
 				PowLimit = new Target(new uint256("0x7fffff0000000000000000000000000000000000000000000000000000000000")),
 				PowTargetTimespan = TimeSpan.FromSeconds(8 * 1), // 8 blocks
 				PowTargetSpacing = TimeSpan.FromSeconds(1), // TargetTimePerBlock
@@ -1149,6 +1484,11 @@ namespace NBitcoin.Altcoins
 
 				// Activation block heights for relevant DCPs.
 				DCP0005ActivationHeight = 1, // always active after genesis block, for simnet
+				DCP0011ActivationHeight = 1, // always active after genesis block, for simnet
+
+				// Version 2 difficulty algorithm (ASERT + BLAKE3) parameters.
+				WorkDiffV2Blake3StartBits = 0x207fffff,
+				WorkDiffV2HalfLifeSecs = 6, // 6 * TimePerBlock
 			}
 			)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [0x0e, 0x91]) // starts with Ss (pubkey hash)
@@ -1174,6 +1514,7 @@ namespace NBitcoin.Altcoins
 			.SetNetworkSet(this)
 			.SetConsensus(new DecredConsensus()
 			{
+				// Base Consensus properties.
 				PowLimit = new Target(new uint256("0x000000ffff000000000000000000000000000000000000000000000000000000")),
 				PowTargetTimespan = TimeSpan.FromMinutes(144 * 2), // 144 blocks
 				PowTargetSpacing = TimeSpan.FromMinutes(2), // TargetTimePerBlock
@@ -1182,6 +1523,11 @@ namespace NBitcoin.Altcoins
 
 				// Activation block heights for relevant DCPs.
 				DCP0005ActivationHeight = 323328,
+				DCP0011ActivationHeight = 1170048,
+
+				// Version 2 difficulty algorithm (ASERT + BLAKE3) parameters.
+				WorkDiffV2Blake3StartBits = 0x1e00ffff,
+				WorkDiffV2HalfLifeSecs = 720, // 6 * TimePerBlock (12 minutes)
 			}
 			)
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [0x0f, 0x21]) // starts with Ts (pubkey hash)

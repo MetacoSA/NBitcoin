@@ -125,6 +125,9 @@ namespace NBitcoin
 			};
 		}
 
+		// Altcoins can override to provide a unique data parsing. If this
+		// method returns false, the default parsing in RPCClient >
+		// ParseVerboseBlock will be used.
 		public virtual bool ParseGetBlockRPCRespose(JObject json, bool withFullTx, out BlockHeader blockHeader, out Block block, out List<uint256> txids)
 		{
 			blockHeader = null;

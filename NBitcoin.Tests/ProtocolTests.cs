@@ -755,9 +755,7 @@ namespace NBitcoin.Tests
 		}
 #endif
 
-		// TODO(decred): Fix decred pow check that occasionally fails because of
-		// DCP0011 that produces a powhash that is different from blockhash.
-		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
+		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void CanGetBlocksWithProtocol()
 		{
@@ -773,8 +771,9 @@ namespace NBitcoin.Tests
 				Assert.Equal(chain.GetBlock(20).HashBlock, blocks.Last().Header.GetHash());
 
 				blocks = client.GetBlocksFromFork(chain.GetBlock(45)).ToArray();
-				Assert.Equal(5, blocks.Length);
-				Assert.Equal(chain.GetBlock(50).HashBlock, blocks.Last().Header.GetHash());
+				var initialBlocksCount = rpc.Network.IsDecred ? 2 : 0;
+				Assert.Equal(5 + initialBlocksCount, blocks.Length);
+				Assert.Equal(chain.GetBlock(50 + initialBlocksCount).HashBlock, blocks.Last().Header.GetHash());
 			}
 		}
 
@@ -824,19 +823,18 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		// TODO(decred): Fix decred pow check that occasionally fails because of
-		// DCP0011 that produces a powhash that is different from blockhash.
-		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
+		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void SynchronizeChainSurviveReorg()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
-				ConcurrentChain chain = new ConcurrentChain(Network.RegTest);
+				ConcurrentChain chain = new ConcurrentChain(builder.Network);
 				var node1 = builder.CreateNode(true);
 				node1.Generate(10);
 				node1.CreateNodeClient().SynchronizeChain(chain);
-				Assert.Equal(10, chain.Height);
+				var initialBlocksCount = builder.Network.IsDecred ? 2 : 0;
+				Assert.Equal(10 + initialBlocksCount, chain.Height);
 
 
 				var node2 = builder.CreateNode(true);
@@ -845,13 +843,11 @@ namespace NBitcoin.Tests
 				var node2c = node2.CreateNodeClient();
 				node2c.PollHeaderDelay = TimeSpan.FromSeconds(2);
 				node2c.SynchronizeChain(chain);
-				Assert.Equal(12, chain.Height);
+				Assert.Equal(12 + initialBlocksCount, chain.Height);
 			}
 		}
 
-		// TODO(decred): Fix decred pow check that occasionally fails because of
-		// DCP0011 that produces a powhash that is different from blockhash.
-		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
+		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void CanGetChainsConcurrenty()
 		{
@@ -860,9 +856,15 @@ namespace NBitcoin.Tests
 				bool generating = true;
 				var node = builder.CreateNode(true);
 				var rpc = node.CreateRPCClient();
+				int blocksToGenerate = 600, finalBlockCount = 600;
+				if (rpc.Network.IsDecred)
+				{
+					blocksToGenerate = 100;
+					finalBlockCount = 102;
+				}
 				Task.Run(() =>
 				{
-					rpc.Generate(600);
+					rpc.Generate(blocksToGenerate);
 					generating = false;
 				});
 				var nodeClient = node.CreateNodeClient();
@@ -886,7 +888,7 @@ namespace NBitcoin.Tests
 				SyncAll(nodeClient, rand, chains);
 				foreach (var c in chains)
 				{
-					Assert.Equal(600, c.Height);
+					Assert.Equal(finalBlockCount, c.Height);
 				}
 
 				var chainNoHeader = nodeClient.GetChain(new SynchronizeChainOptions() { SkipPoWCheck = true, StripHeaders = true });
@@ -1147,9 +1149,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		// TODO(decred): Fix decred pow check that occasionally fails because of
-		// DCP0011 that produces a powhash that is different from blockhash.
-		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
+		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadHeaders()
 		{
@@ -1169,9 +1169,7 @@ namespace NBitcoin.Tests
 		}
 
 
-		// TODO(decred): Fix decred pow check that occasionally fails because of
-		// DCP0011 that produces a powhash that is different from blockhash.
-		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
+		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlocks()
 		{
@@ -1190,16 +1188,14 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		// TODO(decred): Fix decred pow check that occasionally fails because of
-		// DCP0011 that produces a powhash that is different from blockhash.
-		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
+		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadLastBlocks()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode(true).CreateNodeClient();
-				builder.Nodes[0].Generate(150);
+				builder.Nodes[0].Generate(node.Network.IsDecred ? 120 : 150);
 				var chain = node.GetChain();
 
 				Assert.True(node.PeerVersion.StartHeight <= chain.Height);

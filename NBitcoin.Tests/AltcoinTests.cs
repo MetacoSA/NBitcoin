@@ -560,9 +560,7 @@ namespace NBitcoin.Tests
 			CheckCapabilities(() => rpc.SendCommand(command, "random"), supported);
 		}
 
-		// TODO(decred): Fix decred pow check that occasionally fails because of
-		// DCP0011 that produces a powhash that is different from blockhash.
-		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
+		[Fact]
 		public void CanSyncWithPoW()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -579,8 +577,9 @@ namespace NBitcoin.Tests
 				var nodeClient = node.CreateNodeClient();
 				nodeClient.VersionHandshake();
 				ConcurrentChain chain = new ConcurrentChain(builder.Network);
-				nodeClient.SynchronizeChain(chain, new Protocol.SynchronizeChainOptions() { SkipPoWCheck = false });
-				Assert.Equal(100, chain.Height);
+				nodeClient.SynchronizeChain(chain, new SynchronizeChainOptions() { SkipPoWCheck = false });
+				var finalHeight = builder.Network.IsDecred ? 102 : 100;
+				Assert.Equal(finalHeight, chain.Height);
 			}
 		}
 

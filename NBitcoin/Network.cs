@@ -675,6 +675,14 @@ namespace NBitcoin
 			}
 		}
 
+		// Altcoins can override to provide a unique calculation. If this method
+		// returns null, the default calculation in ChainedBlock.GetWorkRequired
+		// will be used.
+		public virtual Target? GetWorkRequired(ChainedBlock block)
+		{
+			return null;
+		}
+
 		public virtual Consensus Clone()
 		{
 			var consensus = new Consensus();
@@ -892,12 +900,12 @@ namespace NBitcoin
 				network.vFixedSeeds.Add(seed);
 			}
 #endif
-			network.base58Prefixes = builder._Name == "Main" ?network.base58Prefixes :  Main.base58Prefixes.ToArray();
+			network.base58Prefixes = builder._Name == "Main" ? network.base58Prefixes : Main.base58Prefixes.ToArray();
 			foreach (var kv in builder._Base58Prefixes)
 			{
 				network.base58Prefixes[(int)kv.Key] = kv.Value;
 			}
-			var bech32Encoders =  builder._Name == "Main" ? new List<Bech32Encoder>() : new List<Bech32Encoder>(Main.bech32Encoders);
+			var bech32Encoders = builder._Name == "Main" ? new List<Bech32Encoder>() : new List<Bech32Encoder>(Main.bech32Encoders);
 			foreach (var kv in builder._Bech32Prefixes)
 			{
 				var index = (int)kv.Key;
@@ -912,13 +920,13 @@ namespace NBitcoin
 			}
 			network.bech32Encoders = bech32Encoders.ToArray();
 
-				foreach (var alias in builder._Aliases)
-				{
-					_OtherAliases.TryAdd(alias.ToLowerInvariant(), network);
-				}
-				_OtherAliases.TryAdd(network.name.ToLowerInvariant(), network);
-				var defaultAlias = network._NetworkSet.CryptoCode.ToLowerInvariant() + "-" + network.ChainName.ToString().ToLowerInvariant();
-				_OtherAliases.TryAdd(defaultAlias, network);
+			foreach (var alias in builder._Aliases)
+			{
+				_OtherAliases.TryAdd(alias.ToLowerInvariant(), network);
+			}
+			_OtherAliases.TryAdd(network.name.ToLowerInvariant(), network);
+			var defaultAlias = network._NetworkSet.CryptoCode.ToLowerInvariant() + "-" + network.ChainName.ToString().ToLowerInvariant();
+			_OtherAliases.TryAdd(defaultAlias, network);
 
 
 			lock (_OtherNetworks)

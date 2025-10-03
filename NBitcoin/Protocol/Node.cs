@@ -589,7 +589,7 @@ namespace NBitcoin.Protocol
 				int socksFail = 0;
 				while (true)
 				{
-					
+
 					if (groupFail > 50 || socksFail > 50)
 					{
 						parameters.ConnectCancellation.WaitHandle.WaitOne((int)TimeSpan.FromSeconds(60).TotalMilliseconds);
@@ -759,6 +759,9 @@ namespace NBitcoin.Protocol
 
 			parameters = parameters ?? new NodeConnectionParameters();
 			var addrman = AddressManagerBehavior.GetAddrman(parameters);
+
+			if (network.IsDecred)
+				parameters.TemplateBehaviors.Add(new DecredGetInitStateBehavior());
 
 			var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
 			parameters.SocketSettings.SetSocketProperties(socket);
