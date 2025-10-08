@@ -23,69 +23,71 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParsePaymentUrl()
 		{
-			Assert.Equal("bitcoin:", new BitcoinUrlBuilder(Network.Main).Uri.ToString());
+			Assert.Equal("bitcoin:", new BitcoinUriBuilder(Network.Main).Uri.ToString());
 
-			var url = CreateBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha");
-			Assert.Equal("129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha", url.Address.ToString());
+			var uri = CreateBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha");
+			Assert.Equal("129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha", uri.Address.ToString());
 
-			url = CreateBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=0.06");
-			Assert.Equal("129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha", url.Address.ToString());
-			Assert.Equal(Money.Parse("0.06"), url.Amount);
+			uri = CreateBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=0.06");
+			Assert.Equal("129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha", uri.Address.ToString());
+			Assert.Equal(Money.Parse("0.06"), uri.Amount);
 
-			url = new BitcoinUrlBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=0.06&label=Tom%20%26%20Jerry", Network.Main);
-			Assert.Equal("129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha", url.Address.ToString());
-			Assert.Equal(Money.Parse("0.06"), url.Amount);
-			Assert.Equal("Tom & Jerry", url.Label);
-			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString(), Network.Main).ToString());
+			uri = new BitcoinUriBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=0.06&label=Tom%20%26%20Jerry", Network.Main);
+			Assert.Equal("129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha", uri.Address.ToString());
+			Assert.Equal(Money.Parse("0.06"), uri.Amount);
+			Assert.Equal("Tom & Jerry", uri.Label);
+			Assert.Equal(uri.ToString(), new BitcoinUriBuilder(uri.ToString(), Network.Main).ToString());
 
 			//Request 50 BTC with message: 
-			url = new BitcoinUrlBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=50&label=Luke-Jr&message=Donation%20for%20project%20xyz", Network.Main);
-			Assert.Equal(Money.Parse("50"), url.Amount);
-			Assert.Equal("Luke-Jr", url.Label);
-			Assert.Equal("Donation for project xyz", url.Message);
-			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString(), Network.Main).ToString());
+			uri = new BitcoinUriBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=50&label=Luke-Jr&message=Donation%20for%20project%20xyz", Network.Main);
+			Assert.Equal(Money.Parse("50"), uri.Amount);
+			Assert.Equal("Luke-Jr", uri.Label);
+			Assert.Equal("Donation for project xyz", uri.Message);
+			Assert.Equal(uri.ToString(), new BitcoinUriBuilder(uri.ToString(), Network.Main).ToString());
 
 			//Some future version that has variables which are (currently) not understood and required and thus invalid: 
-			url = new BitcoinUrlBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=50&label=Luke-Jr&message=Donation%20for%20project%20xyz&unknownparam=lol", Network.Main);
+			uri = new BitcoinUriBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=50&label=Luke-Jr&message=Donation%20for%20project%20xyz&unknownparam=lol", Network.Main);
 
 			//Some future version that has variables which are (currently) not understood but not required and thus valid: 
-			Assert.Throws<FormatException>(() => new BitcoinUrlBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=50&label=Luke-Jr&message=Donation%20for%20project%20xyz&req-unknownparam=lol", Network.Main));
-			Assert.Throws<FormatException>(() => new BitcoinUrlBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=50&amount=50", Network.Main));
+			Assert.Throws<FormatException>(() => new BitcoinUriBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=50&label=Luke-Jr&message=Donation%20for%20project%20xyz&req-unknownparam=lol", Network.Main));
+			Assert.Throws<FormatException>(() => new BitcoinUriBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=50&amount=50", Network.Main));
 
-			url = new BitcoinUrlBuilder("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&r=https://merchant.com/pay.php?h%3D2a8628fc2fbe", Network.TestNet);
-			Assert.Equal("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&r=https://merchant.com/pay.php?h%3d2a8628fc2fbe", url.ToString());
-			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString(), Network.TestNet).ToString());
+			uri = new BitcoinUriBuilder("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&r=https://merchant.com/pay.php?h%3D2a8628fc2fbe", Network.TestNet);
+			Assert.Equal("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&r=https://merchant.com/pay.php?h%3d2a8628fc2fbe", uri.ToString());
+			Assert.Equal(uri.ToString(), new BitcoinUriBuilder(uri.ToString(), Network.TestNet).ToString());
 
 			//Support no address
-			url = new BitcoinUrlBuilder("bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe", Network.Main);
-			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString(), Network.Main).ToString());
+			uri = new BitcoinUriBuilder("bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe", Network.Main);
+			Assert.Equal(uri.ToString(), new BitcoinUriBuilder(uri.ToString(), Network.Main).ToString());
 
 			//Support shitcoins
-			url = new BitcoinUrlBuilder("litecoin:LeLAhU5S7vbVxL4rsT69eMoMrpgV9SNbns", Altcoins.Litecoin.Instance.Mainnet);
-			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString(), Altcoins.Litecoin.Instance.Mainnet).ToString());
-			Assert.Equal("litecoin:LeLAhU5S7vbVxL4rsT69eMoMrpgV9SNbns", url.ToString());
+			uri = new BitcoinUriBuilder("litecoin:LeLAhU5S7vbVxL4rsT69eMoMrpgV9SNbns", Altcoins.Litecoin.Instance.Mainnet);
+			Assert.Equal(uri.ToString(), new BitcoinUriBuilder(uri.ToString(), Altcoins.Litecoin.Instance.Mainnet).ToString());
+			Assert.Equal("litecoin:LeLAhU5S7vbVxL4rsT69eMoMrpgV9SNbns", uri.ToString());
 
 			// Old verison of BitcoinUrl was only supporting bitcoin: to not break existing code, we should support this
-			url = new BitcoinUrlBuilder("bitcoin:LeLAhU5S7vbVxL4rsT69eMoMrpgV9SNbns", Altcoins.Litecoin.Instance.Mainnet);
-			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString(), Altcoins.Litecoin.Instance.Mainnet).ToString());
-			Assert.Equal("bitcoin:LeLAhU5S7vbVxL4rsT69eMoMrpgV9SNbns", url.ToString());
+			#pragma warning disable 0618
+			uri = new BitcoinUrlBuilder("bitcoin:LeLAhU5S7vbVxL4rsT69eMoMrpgV9SNbns", Altcoins.Litecoin.Instance.Mainnet);
+			Assert.Equal(uri.ToString(), new BitcoinUrlBuilder(uri.ToString(), Altcoins.Litecoin.Instance.Mainnet).ToString());
+			Assert.Equal("bitcoin:LeLAhU5S7vbVxL4rsT69eMoMrpgV9SNbns", uri.ToString());
+			#pragma warning restore 0618
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void BitcoinUrlKeepUnknownParameter()
+		public void BitcoinUriKeepUnknownParameter()
 		{
-			BitcoinUrlBuilder url = new BitcoinUrlBuilder("bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe&idontknow=test", Network.Main);
+			BitcoinUriBuilder uri = new BitcoinUriBuilder("bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe&idontknow=test", Network.Main);
 
-			Assert.Equal("test", url.UnknownParameters["idontknow"]);
-			Assert.Equal("https://merchant.com/pay.php?h=2a8628fc2fbe", url.UnknownParameters["r"]);
+			Assert.Equal("test", uri.UnknownParameters["idontknow"]);
+			Assert.Equal("https://merchant.com/pay.php?h=2a8628fc2fbe", uri.UnknownParameters["r"]);
 		}
 
-		private BitcoinUrlBuilder CreateBuilder(string uri)
+		private BitcoinUriBuilder CreateBuilder(string uri)
 		{
-			var builder = new BitcoinUrlBuilder(uri, Network.Main);
+			var builder = new BitcoinUriBuilder(uri, Network.Main);
 			Assert.Equal(builder.Uri.ToString(), uri);
-			builder = new BitcoinUrlBuilder(new Uri(uri, UriKind.Absolute), Network.Main);
+			builder = new BitcoinUriBuilder(new Uri(uri, UriKind.Absolute), Network.Main);
 			Assert.Equal(builder.ToString(), uri);
 			return builder;
 		}
