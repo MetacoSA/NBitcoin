@@ -2323,7 +2323,6 @@ namespace NBitcoin.Tests
 				new TxOut(new Money((i + 1) * Money.COIN), _.redeem.WitHash.ScriptPubKey.Hash),
 				_.redeem
 				)).ToList();
-			var a = witCoins.Select(c => c.Amount).Sum();
 			var allCoins = coins.Concat(scriptCoins).Concat(witCoins).ToArray();
 
 			// Let's create a fake funding Tx with all those coins

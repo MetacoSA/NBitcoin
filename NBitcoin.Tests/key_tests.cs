@@ -71,9 +71,6 @@ namespace NBitcoin.Tests
 
 				var compressedSec = secret.Copy(true);
 
-				var a = secret.PrivateKey.PubKey;
-				var b = compressedSec.PrivateKey.PubKey;
-
 				Assert.Equal(test.CompressedPrivateKeyWIF, compressedSec.ToWif());
 				Assert.Equal(test.CompressedPubKey, compressedSec.PrivateKey.PubKey.ToHex());
 				Assert.True(compressedSec.PrivateKey.PubKey.IsCompressed);
