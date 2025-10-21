@@ -173,7 +173,7 @@ namespace NBitcoin.RPC
 				BestBlockHash = uint256.Parse((string)o["bestblockhash"]),
 				Blocks = (int)o["blocks"],
 				ChainWork = uint256.Parse((string)o["chainwork"]),
-				Difficulty = (int)o["difficulty"],
+				Difficulty = (ulong)o["difficulty"],
 				Headers = (int)o["headers"],
 				VerificationProgress = (decimal)o["verificationprogress"],
 				IsPruned = (bool)o["pruned"]
@@ -301,7 +301,7 @@ namespace NBitcoin.RPC
 			get;
 			internal set;
 		}
-		public int Difficulty
+		public ulong Difficulty
 		{
 			get;
 			internal set;
