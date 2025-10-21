@@ -17,7 +17,9 @@ namespace NBitcoin.RPC
 		getnettotals,
 
 		dumpprivkey,
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		importprivkey,
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		importaddress,
 		dumpwallet,
 		importwallet,
@@ -125,5 +127,6 @@ namespace NBitcoin.RPC
 		savemempool,
 		getblockfrompeer,
 		disconnectnode,
+		importdescriptors
 	}
 }

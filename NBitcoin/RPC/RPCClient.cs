@@ -145,6 +145,8 @@ namespace NBitcoin.RPC
 	*/
 	public partial class RPCClient : IBlockRepository
 	{
+		internal const string UnsupportedByBitcoinCore = "Unsupported by new versions of Bitcoin Core";
+
 		public static string GetRPCAuth(NetworkCredential credentials)
 		{
 			if (credentials == null)
@@ -723,6 +725,48 @@ namespace NBitcoin.RPC
 		{
 			var res = await SendCommandAsync(RPCOperations.uptime, cancellationToken).ConfigureAwait(false);
 			return TimeSpan.FromSeconds(res.Result.Value<double>());
+		}
+
+		public async Task<ImportDescriptorResult[]> ImportDescriptors(IEnumerable<ImportDescriptorParameters> descriptors, CancellationToken cancellationToken = default)
+		{
+			var array = new JArray();
+			foreach (var descriptor in descriptors)
+			{
+				var obj = new JObject();
+				array.Add(obj);
+
+				// Bitcoin core asking for the checksum... this is a PITA, so let's
+				// sneakily add it to the descriptor
+				var desc = descriptor.Desc.IndexOf('#') != -1
+					? descriptor.Desc
+					: OutputDescriptor.AddChecksum(descriptor.Desc);
+
+				obj.Add("desc", desc);
+				if (descriptor.Active is not null)
+					obj.Add("active", descriptor.Active.Value);
+				if (descriptor.Range != null)
+				{
+					if (descriptor.Range.Begin != null)
+						obj.Add("range", new JArray(descriptor.Range.Begin.Value, descriptor.Range.End));
+					else
+						obj.Add("range", descriptor.Range.End);
+				}
+				if (descriptor.NextIndex != 0)
+					obj.Add("next_index", descriptor.NextIndex);
+				if (descriptor.Timestamp is BlockchainTimestamp.Now or null)
+					obj.Add("timestamp", "now");
+				else if (descriptor.Timestamp is BlockchainTimestamp.Date date)
+					obj.Add("timestamp", date.Timestamp.ToUnixTimeSeconds());
+				if (descriptor.Internal is not null)
+					obj.Add("internal", descriptor.Internal.Value);
+				if (!string.IsNullOrEmpty(descriptor.Label))
+					obj.Add("label", descriptor.Label);
+			}
+
+
+			var result = await SendCommandAsync(RPCOperations.importdescriptors, cancellationToken, array).ConfigureAwait(false);
+			result.ThrowIfError();
+			return JsonConvert.DeserializeObject<ImportDescriptorResult[]>(result.ResultString);
 		}
 
 		public ScanTxoutSetResponse StartScanTxoutSet(ScanTxoutSetParameters parameters, CancellationToken cancellationToken = default)
