@@ -453,22 +453,22 @@ namespace NBitcoin.RPC
 
 
 		// importprivkey
-
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public void ImportPrivKey(BitcoinSecret secret)
 		{
 			SendCommand(RPCOperations.importprivkey, secret.ToWif());
 		}
-
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public void ImportPrivKey(BitcoinSecret secret, string label, bool rescan)
 		{
 			ImportPrivKeyAsync(secret, label, rescan).GetAwaiter().GetResult();
 		}
-
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public async Task ImportPrivKeyAsync(BitcoinSecret secret)
 		{
 			await SendCommandAsync(RPCOperations.importprivkey, secret.ToWif()).ConfigureAwait(false);
 		}
-
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public async Task ImportPrivKeyAsync(BitcoinSecret secret, string label, bool rescan)
 		{
 			try
@@ -485,41 +485,42 @@ namespace NBitcoin.RPC
 
 		// importaddress
 
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public void ImportAddress(IDestination address)
 		{
 			SendCommand(RPCOperations.importaddress, address.ScriptPubKey.ToHex());
 		}
-
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public void ImportAddress(IDestination address, string label, bool rescan)
 		{
 			SendCommand(RPCOperations.importaddress, address.ScriptPubKey.ToHex(), label, rescan);
 		}
-
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public void ImportAddress(Script scriptPubKey)
 		{
 			SendCommand(RPCOperations.importaddress, scriptPubKey.ToHex());
 		}
-
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public void ImportAddress(Script scriptPubKey, string label, bool rescan)
 		{
 			SendCommand(RPCOperations.importaddress, scriptPubKey.ToHex(), label, rescan);
 		}
-
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public async Task ImportAddressAsync(Script scriptPubKey)
 		{
 			await SendCommandAsync(RPCOperations.importaddress, scriptPubKey.ToHex()).ConfigureAwait(false);
 		}
-
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public async Task ImportAddressAsync(Script scriptPubKey, string label, bool rescan)
 		{
 			await SendCommandAsync(RPCOperations.importaddress, scriptPubKey.ToHex(), label, rescan).ConfigureAwait(false);
 		}
-
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public async Task ImportAddressAsync(BitcoinAddress address)
 		{
 			await SendCommandAsync(RPCOperations.importaddress, address.ToString()).ConfigureAwait(false);
 		}
-
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public async Task ImportAddressAsync(BitcoinAddress address, string label, bool rescan)
 		{
 			await SendCommandAsync(RPCOperations.importaddress, address.ToString(), label, rescan).ConfigureAwait(false);
@@ -527,14 +528,17 @@ namespace NBitcoin.RPC
 
 
 		// importmulti
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public void ImportMulti(ImportMultiAddress[] addresses, bool rescan) =>
 			ImportMulti(addresses, rescan, null);
 
 		#nullable enable
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public void ImportMulti(ImportMultiAddress[] addresses, bool rescan, ISigningRepository? signingRepository)
 		{
 			ImportMultiAsync(addresses, rescan, signingRepository).GetAwaiter().GetResult();
 		}
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public Task ImportMultiAsync(ImportMultiAddress[] addresses, bool rescan)
 			=> ImportMultiAsync(addresses, rescan, null);
 		/// <summary>
@@ -545,6 +549,7 @@ namespace NBitcoin.RPC
 		/// <param name="signingRepository">If you specify this, This method tries to serialize OutputDescriptor with the private key (If there is any entry in the repository).</param>
 		/// <returns></returns>
 		/// <exception cref="RPCException"></exception>
+		[Obsolete(RPCClient.UnsupportedByBitcoinCore)]
 		public async Task ImportMultiAsync(ImportMultiAddress[] addresses, bool rescan, ISigningRepository? signingRepository, CancellationToken cancellationToken = default)
 		{
 			var parameters = new List<object>();

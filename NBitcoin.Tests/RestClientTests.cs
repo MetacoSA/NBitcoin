@@ -7,8 +7,8 @@ using Xunit;
 namespace NBitcoin.Tests
 {
 	//Require a rpc server on test network running on default port with -rest -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword
-	//For me : 
-	//"bitcoin-qt.exe" -testnet -server -rest 
+	//For me :
+	//"bitcoin-qt.exe" -testnet -server -rest
 	[Trait("RestClient", "RestClient")]
 	public class RestClientTests
 	{
@@ -101,21 +101,21 @@ namespace NBitcoin.Tests
 				var rpc = builder.Nodes[0].CreateRPCClient();
 				builder.StartAll();
 				var k = new Key().GetBitcoinSecret(Network.RegTest);
-				rpc.Generate(102);
-				rpc.ImportPrivKey(k);
-				rpc.SendToAddress(k.GetAddress(ScriptPubKeyType.Legacy), Money.Coins(50m));
-				rpc.Generate(1);
-				var c = rpc.ListUnspent().First();
-				c = rpc.ListUnspent(0, 999999, k.GetAddress(ScriptPubKeyType.Legacy)).First();
+				await rpc.GenerateAsync(102);
+				await rpc.ImportDescriptors([new($"pkh({k})")]);
+				await rpc.SendToAddressAsync(k.GetAddress(ScriptPubKeyType.Legacy), Money.Coins(50m));
+				await rpc.GenerateAsync(1);
+				var c = (await rpc.ListUnspentAsync()).First();
+				c = (await rpc.ListUnspentAsync(0, 999999, k.GetAddress(ScriptPubKeyType.Legacy))).First();
 				var outPoint = c.OutPoint;
 				var utxos = await client.GetUnspentOutputsAsync(new[] { outPoint }, true);
 				Assert.Single(utxos.Outputs);
 				Assert.Equal(0, (int)utxos.Outputs[0].Version);
 				Assert.Equal(Money.Coins(50m), utxos.Outputs[0].Output.Value);
 
-				var countBefore = rpc.ListUnspent().Length;
-				rpc.LockUnspent(outPoint);
-				var countAfter = rpc.ListUnspent().Length;
+				var countBefore = (await rpc.ListUnspentAsync()).Length;
+				await rpc.LockUnspentAsync(outPoint);
+				var countAfter = (await rpc.ListUnspentAsync()).Length;
 				Assert.Equal(countBefore - 1, countAfter);
 			}
 		}

@@ -380,7 +380,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void CanSignWithWallet()
+		public async Task CanSignWithWallet()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -390,8 +390,8 @@ namespace NBitcoin.Tests
 				node.Generate(101);
 				var key = new Key();
 				var dest = key.PubKey.Hash.GetAddress(builder.Network);
-				var txid = rpc.SendToAddress(dest, Money.Coins(1.0m));
-				var funding = rpc.GetRawTransaction(txid);
+				var txid = await rpc.SendToAddressAsync(dest, Money.Coins(1.0m));
+				var funding = await rpc.GetRawTransactionAsync(txid);
 				var coin = funding.Outputs.AsCoins().Single(o => o.ScriptPubKey == dest.ScriptPubKey);
 
 
@@ -399,7 +399,7 @@ namespace NBitcoin.Tests
 				spent.Inputs.Add(new TxIn(coin.Outpoint));
 				spent.Outputs.Add(new TxOut(Money.Coins(1.0m), new Key().PubKey.Hash.ScriptPubKey));
 
-				var response = rpc.SignRawTransactionWithWallet(new SignRawTransactionRequest()
+				var response = await rpc.SignRawTransactionWithWalletAsync(new SignRawTransactionRequest()
 				{
 					Transaction = spent
 				});
@@ -407,8 +407,8 @@ namespace NBitcoin.Tests
 				Assert.False(response.Complete);
 				Assert.Single(response.Errors);
 
-				rpc.ImportPrivKey(key.GetBitcoinSecret(builder.Network), "*", false);
-				response = rpc.SignRawTransactionWithWallet(new SignRawTransactionRequest()
+				var aa = await rpc.ImportDescriptors([new ImportDescriptorParameters($"pkh({key.GetBitcoinSecret(builder.Network)})")]);
+				response = await rpc.SignRawTransactionWithWalletAsync(new SignRawTransactionRequest()
 				{
 					Transaction = spent
 				});
@@ -756,364 +756,6 @@ namespace NBitcoin.Tests
 					result = rpc.TestMempoolAccept(paid);
 					Assert.Equal("dust", result.RejectReason);
 				}
-			}
-		}
-
-		[Fact]
-		public void CanImportMultiAddresses()
-		{
-			// Test cases borrowed from: https://github.com/bitcoin/bitcoin/blob/master/test/functional/wallet_importmulti.py
-			// TODO: Those tests need to be rewritten to test warnings
-			using (var builder = NodeBuilderEx.Create())
-			{
-				var rpc = builder.CreateNode().CreateRPCClient();
-				builder.StartAll();
-
-				Key key;
-				RPCException response;
-				List<ImportMultiAddress> multiAddresses;
-				Network network = Network.RegTest;
-
-				// 20 total test cases
-
-				#region Bitcoin Address
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
-						Timestamp = Utils.UnixTimeToDateTime(0)
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-
-				#endregion
-
-				#region ScriptPubKey + internal
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject (key.GetScriptPubKey(ScriptPubKeyType.Legacy)),
-						Internal = true
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region ScriptPubKey + internal  + label
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(key.GetScriptPubKey(ScriptPubKeyType.Legacy)),
-						Internal = true,
-						Label = "Unsuccessful labelling for internal addresses"
-					}
-				};
-				Assert.Throws<RPCException>(() => rpc.ImportMulti(multiAddresses.ToArray(), false));
-				#endregion
-
-				#region ScriptPubKey + !internal
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy)},
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region Address + Public key + !internal
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network)),
-						PubKeys = new [] { key.PubKey }
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region ScriptPubKey + Public key + internal
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy)},
-						PubKeys = new[] { key.PubKey },
-						Internal = true
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region Nonstandard scriptPubKey + Public key + !internal
-				key = new Key();
-				var nonStandardSpk = Script.FromHex(key.GetScriptPubKey(ScriptPubKeyType.Legacy).ToHex() + new Script(OpcodeType.OP_NOP).ToHex());
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(nonStandardSpk),
-					}
-				};
-				Assert.Throws<RPCException>(() => rpc.ImportMulti(multiAddresses.ToArray(), false));
-				#endregion
-
-				#region ScriptPubKey + Public key + !internal
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy)},
-						PubKeys = new [] { key.PubKey }
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region Address + Private key + !watchonly
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
-						Keys = new [] { key.GetWif(network) }
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
-						Keys = new [] { key.GetWif(network) }
-					}
-				};
-
-				response = Assert.Throws<RPCException>(() => rpc.ImportMulti(multiAddresses.ToArray(), false));
-
-				//Assert.False(response.Result[0].Value<bool>());
-
-				#endregion
-
-				#region Address + Private key + watchonly
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
-						Keys = new [] { key.GetWif(network) },
-						WatchOnly = true
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region ScriptPubKey + Private key + internal
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy)},
-						Keys = new [] { key.GetWif(network) },
-						Internal = true
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region ScriptPubKey + Private key + !internal
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy)},
-						Keys = new [] { key.GetWif(network) }
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region P2SH address
-				//Blocked : Dependent on implementation of rpc.CreateMultiSig()
-				#endregion
-
-				#region P2SH + Redeem script
-				//Blocked : Dependent on implementation of rpc.CreateMultiSig()
-				#endregion
-
-				#region P2SH + Redeem script + Private Keys + !Watchonly
-				//Blocked : Dependent on implementation of rpc.CreateMultiSig()
-				#endregion
-
-				#region P2SH + Redeem script + Private Keys + Watchonly
-				//Blocked : Dependent on implementation of rpc.CreateMultiSig()
-				#endregion
-
-				#region Address + Public key + !Internal + Wrong pubkey
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
-						PubKeys = new [] { new Key().PubKey }
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region ScriptPubKey + Public key + internal + Wrong pubkey
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy) },
-						PubKeys = new [] { new Key().PubKey },
-						Internal = true
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region Address + Private key + !watchonly + Wrong private key
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network) },
-						Keys = new [] { new Key().GetWif(network) }
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region ScriptPubKey + Private key + internal + Wrong private key
-				key = new Key();
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.GetScriptPubKey(ScriptPubKeyType.Legacy)},
-						Keys = new [] { new Key().GetWif(network) },
-						Internal = true
-					}
-				};
-
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region Importing existing watch only address with new timestamp should replace saved timestamp.
-				//TODO
-				#endregion
-
-				#region restart nodes to check for proper serialization/deserialization of watch only address
-				//TODO
-				#endregion
-
-				#region Test importing of a P2SH-P2WPKH address via descriptor + private key
-				key = new Key();
-				var p2shP2wpkhLabel = "Successful P2SH-P2wPKH descriptor import";
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						Desc = OutputDescriptor.Parse($"sh(wpkh({key.PubKey}))", Network.RegTest),
-						Label = p2shP2wpkhLabel,
-						Keys = new [] { new BitcoinSecret(key, rpc.Network)},
-					}
-				};
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				#endregion
-
-				#region Test ranged descriptor fails if range is not specified
-
-				var xpriv =
-					"tprv8ZgxMBicQKsPeuVhWwi6wuMQGfPKi9Li5GtX35jVNknACgqe3CY4g5xgkfDDJcmtF7o1QnxWDRYw4H5P26PXq7sbcUkEqeR4fg3Kxp2tigg";
-				var addresses = new List<string>() { "2N7yv4p8G8yEaPddJxY41kPihnWvs39qCMf", "2MsHxyb2JS3pAySeNUsJ7mNnurtpeenDzLA" }; // hdkeypath=m/0'/0'/0' and 1'a
-				addresses.AddRange(new[]
-				{
-					"bcrt1qrd3n235cj2czsfmsuvqqpr3lu6lg0ju7scl8gn", "bcrt1qfqeppuvj0ww98r6qghmdkj70tv8qpchehegrg8"
-				}); // wpkh subscripts corresponding to the above addresses
-
-				// keyRepo to store xpriv
-				var keyRepo = new FlatSigningRepository();
-				var desc = OutputDescriptor.Parse($"sh(wpkh({xpriv}/0'/0'/*'))", Network.RegTest, false, keyRepo);
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						Desc = desc,
-					}
-				};
-				// Must fail without range
-				Assert.Throws<RPCException>(() => rpc.ImportMulti(multiAddresses.ToArray(), false));
-
-				// Successful case
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						Desc = desc,
-						Range = 1
-					}
-				};
-				rpc.ImportMulti(multiAddresses.ToArray(), false, keyRepo);
-				foreach (var addr in addresses)
-				{
-					TestAddress(rpc, addr, solvable: true, isMine: true);
-				}
-
-				#endregion
-				#region Test importing a descriptor containing a WIF private key
-
-				var wifPriv = "cTe1f5rdT8A8DFgVWTjyPwACsDPJM9ff4QngFxUixCSvvbg1x6sh";
-				var address = "2MuhcG52uHPknxDgmGPsV18jSHFBnnRgjPg";
-				desc = OutputDescriptor.Parse($"sh(wpkh({wifPriv}))", Network.TestNet);
-				multiAddresses = new List<ImportMultiAddress>
-				{
-					new ImportMultiAddress
-					{
-						Desc = desc,
-						Keys = new [] {new BitcoinSecret(wifPriv, Network.TestNet) }
-					}
-				};
-				rpc.ImportMulti(multiAddresses.ToArray(), false);
-				TestAddress(rpc, address, true, true);
-
-				#endregion
-
 			}
 		}
 
@@ -1550,7 +1192,7 @@ namespace NBitcoin.Tests
 				var result = rpc.TestMempoolAccept(tx, new TestMempoolParameters() { MaxFeeRate = new FeeRate(1.0m) });
 				Assert.False(result.IsAllowed);
 				Assert.Equal(Protocol.RejectCode.INVALID, result.RejectCode);
-				Assert.Equal("mandatory-script-verify-flag-failed (Witness program hash mismatch)", result.RejectReason);
+				Assert.Equal("mempool-script-verify-flag-failed (Witness program hash mismatch)", result.RejectReason);
 
 				var signedTx = rpc.SignRawTransactionWithWallet(new SignRawTransactionRequest()
 				{
@@ -1973,51 +1615,28 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 
 				// prepare multisig script and watch with node.
-				var nodes = new CoreNode[] { nodeAlice, nodeBob, nodeCarol };
+				var nodes = new[] { nodeAlice, nodeBob, nodeCarol };
+				var keys = nodes.Select(_ => new Key().GetBitcoinSecret(builder.Network)).ToList();
+				var pubkeys = keys.Select(k => k.PubKey).ToList();
+				pubkeys.Add(david.PubKey);
 				var clients = nodes.Select(n => n.CreateRPCClient()).ToArray();
-				var addresses = clients.Select(c => c.GetNewAddress());
-				var addrInfos = addresses.Select((a, i) => clients[i].GetAddressInfo(a));
-				var pubkeys = new List<PubKey> { david.PubKey };
-				pubkeys.AddRange(addrInfos.Select(i => i.PubKey).ToArray());
+
+				// IMPORT KEYS HERE
 				var script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(4, pubkeys.ToArray());
 				var aMultiP2SH = script.Hash.ScriptPubKey;
-				// var aMultiP2WSH = script.WitHash.ScriptPubKey;
-				// var aMultiP2SH_P2WSH = script.WitHash.ScriptPubKey.Hash.ScriptPubKey;
-				var multiAddresses = new BitcoinAddress[] { aMultiP2SH.GetDestinationAddress(builder.Network) };
-				var importMultiObject = new ImportMultiAddress[] {
-						new ImportMultiAddress()
-						{
-							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(multiAddresses[0]),
-							RedeemScript = script,
-							Internal = true,
-						},
-						/*
-						new ImportMultiAddress()
-						{
-							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2WSH),
-							RedeemScript = script.ToHex(),
-							Internal = true,
-						},
-						new ImportMultiAddress()
-						{
-							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2SH_P2WSH),
-							RedeemScript = script.WitHash.ScriptPubKey.ToHex(),
-							Internal = true,
-						},
-						new ImportMultiAddress()
-						{
-							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2SH_P2WSH),
-							RedeemScript = script.ToHex(),
-							Internal = true,
-						}
-						*/
-					};
+
+				var multiAddresses = new[] { aMultiP2SH.GetDestinationAddress(builder.Network) };
 
 				for (var i = 0; i < clients.Length; i++)
 				{
 					var c = clients[i];
+					var keysStr = pubkeys.Select(p => p.ToHex()).ToArray();
+					keysStr[i] = keys[i].ToString();
+					var multiStr = String.Join(",", keysStr);
 					Output.WriteLine($"Importing for {i}");
-					c.ImportMulti(importMultiObject, false);
+					// Import descript
+					await c.ImportDescriptors([new($"sh(multi(4,{multiStr}))")]);
+					var aa2 = await c.GetAddressInfoAsync(multiAddresses[0]);
 				}
 
 				var funderClient = nodeFunder.CreateRPCClient();
@@ -2026,7 +1645,7 @@ namespace NBitcoin.Tests
 				// pay from funder
 				nodeFunder.Generate(103);
 				aa = await funderClient.GetBlockchainInfoAsync();
-				funderClient.SendToAddress(aMultiP2SH, Money.Coins(40));
+				await funderClient.SendToAddressAsync(aMultiP2SH, Money.Coins(40));
 				// funderClient.SendToAddress(aMultiP2WSH, Money.Coins(40));
 				// funderClient.SendToAddress(aMultiP2SH_P2WSH, Money.Coins(40));
 				nodeFunder.Generate(1);
@@ -2041,7 +1660,7 @@ namespace NBitcoin.Tests
 				// check if we have enough balance
 				var info = await carol.GetBlockchainInfoAsync();
 				Assert.Equal((ulong)104, info.Blocks);
-				var balance = carol.GetBalance(0, true);
+				var balance = await carol.GetBalanceAsync(0, true);
 				// Assert.Equal(Money.Coins(120), balance);
 				Assert.Equal(Money.Coins(40), balance);
 
@@ -2050,7 +1669,7 @@ namespace NBitcoin.Tests
 				outputs.Add(aSend, Money.Coins(10));
 				var fundOptions = new FundRawTransactionOptions() { SubtractFeeFromOutputs = new int[] { 0 }, IncludeWatching = true };
 				PSBT psbt = carol.WalletCreateFundedPSBT(null, outputs, 0, fundOptions).PSBT;
-				psbt = carol.WalletProcessPSBT(psbt).PSBT;
+				psbt = (await carol.WalletProcessPSBTAsync(psbt)).PSBT;
 
 				// second, Bob checks and process psbt.
 				var bob = clients[1];
@@ -2058,12 +1677,12 @@ namespace NBitcoin.Tests
 					psbt.Inputs.Any(psbtin => psbtin.WitnessUtxo?.ScriptPubKey == a.ScriptPubKey) ||
 					psbt.Inputs.Any(psbtin => (bool)psbtin.NonWitnessUtxo?.Outputs.Any(o => a.ScriptPubKey == o.ScriptPubKey))
 					);
-				var psbt1 = bob.WalletProcessPSBT(psbt.Clone()).PSBT;
+				var psbt1 = (await bob.WalletProcessPSBTAsync(psbt.Clone())).PSBT;
 
 				// at the same time, David may do the ;
 				psbt.SignWithKeys(david);
 				var alice = clients[0];
-				var psbt2 = alice.WalletProcessPSBT(psbt).PSBT;
+				var psbt2 = (await alice.WalletProcessPSBTAsync(psbt)).PSBT;
 
 				// not enough signatures
 				Assert.Throws<PSBTException>(() => psbt.Finalize());
@@ -2073,11 +1692,10 @@ namespace NBitcoin.Tests
 
 				// Finally, anyone can finalize and broadcast the psbt.
 				var tx = psbtCombined.Finalize().ExtractTransaction();
-				var result = alice.TestMempoolAccept(tx);
+				var result = await alice.TestMempoolAcceptAsync(tx);
 				Assert.True(result.IsAllowed, result.RejectReason);
 			}
 		}
-
 
 		[Theory]
 		[InlineData("latest")]
@@ -2087,27 +1705,37 @@ namespace NBitcoin.Tests
 		/// but importmulti can not handle witness script(in v0.17).
 		/// TODO: add test for solvable scripts.
 		/// </summary>
-		public void ShouldGetAddressInfo(string version)
+		public async Task ShouldGetAddressInfo(string version)
 		{
 			using (var builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.FromVersion(version)))
 			{
 				builder.RPCWalletType = RPCWalletType.Legacy;
 				var client = builder.CreateNode(true).CreateRPCClient();
-				var addrLegacy = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Legacy });
-				var addrBech32 = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Bech32 });
-				var addrP2SHSegwit = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.P2SHSegwit });
-				var pubkeys = new PubKey[] { new Key().PubKey, new Key().PubKey, new Key().PubKey };
+				var addrLegacy = await client.GetNewAddressAsync(new GetNewAddressRequest() { AddressType = AddressType.Legacy });
+				var addrBech32 = await client.GetNewAddressAsync(new GetNewAddressRequest() { AddressType = AddressType.Bech32 });
+				var addrP2SHSegwit = await client.GetNewAddressAsync(new GetNewAddressRequest() { AddressType = AddressType.P2SHSegwit });
+				var pkeys = new [] { new Key(), new Key(), new Key() };
+				var keys = pkeys.Select(k => k.GetWif(Network.RegTest)).ToArray();
+				var pubkeys = keys.Select(k => k.PubKey).ToArray();
 				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, pubkeys);
-				client.ImportAddress(redeem.Hash);
-				client.ImportAddress(redeem.WitHash);
-				client.ImportAddress(redeem.WitHash.ScriptPubKey.Hash);
+				var multi = $"multi(2,{keys[0]},{keys[1]},{keys[2]})";
+				var all =await client.ImportDescriptors([
+					new($"sh({multi})"),
+					new($"wsh({multi})"),
+					new($"sh(wsh({multi}))")
+				]);
 
-				Assert.NotNull(client.GetAddressInfo(addrLegacy));
-				Assert.NotNull(client.GetAddressInfo(addrBech32));
-				Assert.NotNull(client.GetAddressInfo(addrP2SHSegwit));
-				Assert.NotNull(client.GetAddressInfo(redeem.Hash));
-				Assert.NotNull(client.GetAddressInfo(redeem.WitHash));
-				Assert.NotNull(client.GetAddressInfo(redeem.WitHash.ScriptPubKey.Hash));
+				Assert.True(all.Select(a => a.Success).All(s => s));
+
+				Assert.NotNull(await client.GetAddressInfoAsync(addrLegacy));
+				Assert.NotNull(await client.GetAddressInfoAsync(addrBech32));
+				Assert.NotNull(await client.GetAddressInfoAsync(addrP2SHSegwit));
+				var addrInfo = await client.GetAddressInfoAsync(redeem.Hash.GetAddress(Network.RegTest));
+				Assert.NotNull(addrInfo);
+				Assert.NotNull(addrInfo.PubKeys);
+				Assert.Equal(3, addrInfo.PubKeys.Count);
+				Assert.NotNull(await client.GetAddressInfoAsync(redeem.WitHash.GetAddress(Network.RegTest)));
+				Assert.NotNull(await client.GetAddressInfoAsync(redeem.WitHash.ScriptPubKey.Hash.GetAddress(Network.RegTest)));
 			}
 		}
 

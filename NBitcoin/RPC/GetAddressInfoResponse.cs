@@ -72,6 +72,7 @@ namespace NBitcoin.RPC
 			var pubkeys = raw.Property("pubkeys");
 			if (pubkeys != null)
 			{
+				target.PubKeys = new List<PubKey>();
 				foreach (var pk in pubkeys.Value.Values<string>())
 					target.PubKeys.Add(new PubKey(pk));
 			}
