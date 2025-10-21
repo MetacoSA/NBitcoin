@@ -1,6 +1,7 @@
 #if !NOSOCKET
 using NBitcoin.Protocol;
 #endif
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
@@ -19,9 +20,12 @@ namespace NBitcoin
 		internal Dictionary<Bech32Type, Bech32Encoder> _Bech32Prefixes = new Dictionary<Bech32Type, Bech32Encoder>();
 		internal List<string> _Aliases = new List<string>();
 		internal int _RPCPort;
+		internal int _WalletRPCPort;
+		internal bool _IsDecred;
 		internal int _Port;
 		internal uint _Magic;
 		internal Consensus _Consensus;
+		internal Func<byte[], int, int, uint160> _Hash160 = Hashes.Hash160;
 #if !NOSOCKET
 		internal List<DNSSeedData> vSeeds = new List<DNSSeedData>();
 		internal List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
@@ -74,6 +78,8 @@ namespace NBitcoin
 			SetMagic(_Magic).
 			SetPort(network.DefaultPort).
 			SetRPCPort(network.RPCPort);
+			SetWalletRPCPort(network.WalletRPCPort);
+			SetIsDecred(network.IsDecred);
 			SetNetworkStringParser(network.NetworkStringParser);
 			SetNetworkSet(network.NetworkSet);
 			SetChainName(network.ChainName);
@@ -93,6 +99,18 @@ namespace NBitcoin
 		public NetworkBuilder SetRPCPort(int port)
 		{
 			_RPCPort = port;
+			return this;
+		}
+
+		public NetworkBuilder SetWalletRPCPort(int port)
+		{
+			_WalletRPCPort = port;
+			return this;
+		}
+
+		public NetworkBuilder SetIsDecred(bool isDecred)
+		{
+			_IsDecred = isDecred;
 			return this;
 		}
 
@@ -154,6 +172,12 @@ namespace NBitcoin
 		public NetworkBuilder SetChainName(ChainName chainName)
 		{
 			_ChainName = chainName;
+			return this;
+		}
+
+		public NetworkBuilder SetHasher160(Func<byte[], int, int, uint160> hash160)
+		{
+			_Hash160 = hash160;
 			return this;
 		}
 

@@ -62,13 +62,14 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
-				var rpc = builder.CreateNode().CreateRPCClient();
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
 				builder.StartAll();
 				var response = rpc.SendCommand(RPCOperations.getblockchaininfo);
 				Assert.NotNull(response.Result);
 				var copy = RPCCredentialString.Parse(rpc.CredentialString.ToString());
 				copy.Server = rpc.Address.AbsoluteUri;
-				rpc = new RPCClient(copy, null as string, builder.Network);
+				rpc = new RPCClient(copy, null as string, node.TLSCertFilePath, builder.Network);
 				response = rpc.SendCommand(RPCOperations.getblockchaininfo);
 				Assert.NotNull(response.Result);
 			}
@@ -81,18 +82,22 @@ namespace NBitcoin.Tests
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
-				var address = rpc.GetNewAddress(new GetNewAddressRequest()
+				BitcoinAddress address;
+				if (!rpc.Network.IsDecred)
 				{
-					AddressType = AddressType.Bech32
-				});
-				Assert.IsType<BitcoinWitPubKeyAddress>(address);
+					// decred doesn't support address type parameter
+					address = rpc.GetNewAddress(new GetNewAddressRequest()
+					{
+						AddressType = AddressType.Bech32
+					});
+					Assert.IsType<BitcoinWitPubKeyAddress>(address);
 
-				address = rpc.GetNewAddress(new GetNewAddressRequest()
-				{
-					AddressType = AddressType.P2SHSegwit
-				});
-
-				Assert.IsType<BitcoinScriptAddress>(address);
+					address = rpc.GetNewAddress(new GetNewAddressRequest()
+					{
+						AddressType = AddressType.P2SHSegwit
+					});
+					Assert.IsType<BitcoinScriptAddress>(address);
+				}
 
 				address = rpc.GetNewAddress(new GetNewAddressRequest()
 				{
@@ -103,7 +108,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred does not have a createwallet rpc command.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task CanUseMultipleWallets()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -149,8 +155,9 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				var response = rpc.SendCommand(RPCOperations.getblockhash, 0);
 				var actualGenesis = (string)response.Result;
-				Assert.Equal(Network.RegTest.GetGenesis().GetHash().ToString(), actualGenesis);
-				Assert.Equal(Network.RegTest.GetGenesis().GetHash(), rpc.GetBestBlockHash());
+				Assert.Equal(rpc.Network.GetGenesis().GetHash().ToString(), actualGenesis);
+				if (!rpc.Network.IsDecred) // decred node starts with 2 blocks, not 0
+					Assert.Equal(rpc.Network.GetGenesis().GetHash(), rpc.GetBestBlockHash());
 			}
 		}
 
@@ -170,7 +177,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred node/wallet does not have a --rpcauth arg.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanUseRPCAuth()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -180,26 +188,28 @@ namespace NBitcoin.Tests
 				var str = RPCClient.GetRPCAuth(creds);
 				node.ConfigParameters.Add("rpcauth", str);
 				node.Start();
-				var rpc = new RPCClient(creds, node.RPCUri, node.Network);
+				var rpc = new RPCClient(creds, node.RPCUri, node.TLSCertFilePath, node.Network);
 				rpc.GetBlockCount();
 			}
 		}
 
 		[Fact]
-		public void CanGetMemPool()
+		public async Task CanGetMemPool()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
+				var delay = builder.Network.IsDecred ? 500 : 0; // some actions require a brief delay on decred network
 				var node = builder.CreateNode();
 				var rpc = node.CreateRPCClient();
 				builder.StartAll();
-				node.Generate(101);
+				await node.Generate(101).WithDelay(delay); // decred needs delay after mining for funds to become spendable
 
-				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), new SendToAddressParameters() { Comment = "hello", CommentTo = "world" });
+				// decred wallet does not support additional send parameters
+				var sendParams = rpc.Network.IsDecred ? null : new SendToAddressParameters() { Comment = "hello", CommentTo = "world" };
+				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m), sendParams);
 				var memPoolInfo = rpc.GetMemPool();
 				Assert.NotNull(memPoolInfo);
 				Assert.Equal(1, memPoolInfo.Size);
-
 
 				foreach (var param in new[]
 				{
@@ -208,22 +218,33 @@ namespace NBitcoin.Tests
 					(ConfTarget : (int?)null, FeeRate: null as FeeRate, EstimateMode: (EstimateSmartFeeMode?)EstimateSmartFeeMode.Conservative),
 				})
 				{
+					if (builder.Network.IsDecred)
+					{
+						// Need to mine new block(s) so that the change from the
+						// previous send tx becomes spendable attempting to send
+						// more funds.
+						await node.Generate(1).WithDelay(delay);
+					}
+
+					// decred wallet does not support additional send parameters
+					sendParams = rpc.Network.IsDecred ? null : new SendToAddressParameters()
+					{
+						Comment = "hello",
+						CommentTo = "world",
+						ConfTarget = param.ConfTarget,
+						EstimateMode = param.EstimateMode,
+						Replaceable = true,
+						SubstractFeeFromAmount = true,
+						FeeRate = param.FeeRate
+					};
 					rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network), Money.Coins(1.0m),
-						new SendToAddressParameters()
-						{
-							Comment = "hello",
-							CommentTo = "world",
-							ConfTarget = param.ConfTarget,
-							EstimateMode = param.EstimateMode,
-							Replaceable = true,
-							SubstractFeeFromAmount = true,
-							FeeRate = param.FeeRate
-						});
+						sendParams);
 				}
 			}
 		}
 
-		[Fact]
+		// decred does not have a savemempool rpc command.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanSaveMemPool()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -242,7 +263,9 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred does not support rpcwhitelist arg and does not return access
+		// forbidden response.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task RPCBatchingCanFallbackIfAccessForbidden()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -281,11 +304,13 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				node.Generate(10);
 				var blkCount = await rpc.GetBlockCountAsync();
-				Assert.Equal(10, blkCount);
+				var initialBlkCount = rpc.Network.IsDecred ? 2 : 0;
+				Assert.Equal(initialBlkCount + 10, blkCount);
 			}
 		}
 
-		[Fact]
+		// decred does not support signrawtransactionwithkey rpc command.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanSignWithKey()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -324,7 +349,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred does not support signrawtransactionwithkey rpc command.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanScanTxoutSet()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -379,7 +405,9 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// rpc.SignRawTransactionWithWallet is not compatible with decred;
+		// decred rpc server does not accept named params.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanSignWithWallet()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -418,7 +446,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred does not support RBF.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanRBFTransaction()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -452,7 +481,8 @@ namespace NBitcoin.Tests
 				var response = await rpc.GetBlockchainInfoAsync();
 
 				Assert.Equal(builder.Network, response.Chain);
-				Assert.Equal(builder.Network.GetGenesis().GetHash(), response.BestBlockHash);
+				if (!builder.Network.IsDecred) // decred node starts with bestblock at height 2
+					Assert.Equal(builder.Network.GetGenesis().GetHash(), response.BestBlockHash);
 			}
 		}
 
@@ -478,9 +508,13 @@ namespace NBitcoin.Tests
 				Assert.Equal(secondBlock.Header.BlockTime, txInfo.BlockTime);
 				Assert.Equal(firstTx.Version, txInfo.Version);
 				Assert.Equal(firstTx.LockTime, txInfo.LockTime);
-				Assert.Equal(firstTx.GetWitHash(), txInfo.Hash);
-				Assert.Equal((uint)firstTx.GetSerializedSize(), txInfo.Size);
-				Assert.Equal((uint)firstTx.GetVirtualSize(), txInfo.VirtualSize);
+				if (!rpc.Network.IsDecred)
+				{
+					// decred getrawtransaction rpc does not return these...
+					Assert.Equal(firstTx.GetWitHash(), txInfo.Hash);
+					Assert.Equal((uint)firstTx.GetSerializedSize(), txInfo.Size);
+					Assert.Equal((uint)firstTx.GetVirtualSize(), txInfo.VirtualSize);
+				}
 
 				// unconfirmed tx doesn't have blockhash, blocktime nor transactiontime.
 				var mempoolTxId = rpc.SendToAddress(new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, builder.Network), Money.Coins(1));
@@ -500,14 +534,15 @@ namespace NBitcoin.Tests
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
 				var response = rpc.GetBlockHeader(0);
-				AssertEx.CollectionEquals(Network.RegTest.GetGenesis().Header.ToBytes(), response.ToBytes());
+				AssertEx.CollectionEquals(rpc.Network.GetGenesis().Header.ToBytes(), response.ToBytes());
 
 				response = rpc.GetBlockHeader(0);
-				Assert.Equal(Network.RegTest.GenesisHash, response.GetHash());
+				Assert.Equal(rpc.Network.GenesisHash, response.GetHash());
 			}
 		}
 
-		[Fact]
+		// decred does not support getblockstats rpc command.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanGetStatsFromRPC()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -530,21 +565,38 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
+				var delay = builder.Network.IsDecred ? 500 : 0; // some actions require a brief delay on decred network
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
-				var response = rpc.GetTxoutSetInfo();
+				GetTxOutSetInfoResponse response;
 
-				Assert.Equal("0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206", response.Bestblock.ToString());
-				Assert.Equal("56944c5d3f98413ef45cf54545538103cc9f298e0575820ad3591376e2e0f65d", response.HashSerialized);
+				if (!rpc.Network.IsDecred)
+				{
+					// BestBlock hash for decred cannot be pre-determined
+					// because the best block starts at height 2, not genesis.
+					response = rpc.GetTxoutSetInfo();
+					Assert.Equal("0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206", response.Bestblock.ToString());
+					Assert.Equal("56944c5d3f98413ef45cf54545538103cc9f298e0575820ad3591376e2e0f65d", response.HashSerialized);
+				}
 
-				const int BLOCKS_TO_GENERATE = 10;
-				uint256[] blockHashes = await rpc.GenerateAsync(BLOCKS_TO_GENERATE);
+				const int EXCPECTED_BLOCKS_COUNT = 20;
+				var BLOCKS_TO_GENERATE = EXCPECTED_BLOCKS_COUNT;
+				var EXPECTED_TX_OUT_COUNT = EXCPECTED_BLOCKS_COUNT;
+				var EXPECTED_TOTAL_AMOUNT = EXCPECTED_BLOCKS_COUNT * 50M;
+				if (rpc.Network.IsDecred)
+				{
+					BLOCKS_TO_GENERATE = EXCPECTED_BLOCKS_COUNT - 2;
+					EXPECTED_TX_OUT_COUNT = EXCPECTED_BLOCKS_COUNT + 2;
+					EXPECTED_TOTAL_AMOUNT = 300000 + (EXCPECTED_BLOCKS_COUNT - 1) * 5; // 300000 dcr in block 1, 5 dcr in every other block
+				}
+
+				uint256[] blockHashes = await rpc.Generate(BLOCKS_TO_GENERATE).WithDelay(delay);
 
 				response = rpc.GetTxoutSetInfo();
-				Assert.Equal(BLOCKS_TO_GENERATE, response.Height);
-				Assert.Equal(BLOCKS_TO_GENERATE, response.Transactions);
-				Assert.Equal(BLOCKS_TO_GENERATE, response.Txouts);
-				Assert.Equal(BLOCKS_TO_GENERATE * 50M, response.TotalAmount.ToDecimal(MoneyUnit.BTC));
+				Assert.Equal(EXCPECTED_BLOCKS_COUNT, response.Height);
+				Assert.Equal(EXCPECTED_BLOCKS_COUNT, response.Transactions);
+				Assert.Equal(EXPECTED_TX_OUT_COUNT, response.Txouts);
+				Assert.Equal(EXPECTED_TOTAL_AMOUNT, response.TotalAmount.ToDecimal(MoneyUnit.BTC));
 			}
 		}
 
@@ -559,24 +611,28 @@ namespace NBitcoin.Tests
 				// 1. Generate some blocks and check if gettxout gives the right outputs for the first coin
 				var blocksToGenerate = 101;
 				uint256[] blockHashes = await rpc.GenerateAsync(blocksToGenerate);
-				var txId = rpc.GetTransactions(blockHashes.First()).First().GetHash();
-				GetTxOutResponse getTxOutResponse = await rpc.GetTxOutAsync(txId, 0);
+				var firstTx = rpc.GetTransactions(blockHashes.First()).First();
+				var txId = firstTx.GetHash();
+				// The first output may not be spendable, e.g. the first output
+				// of the first tx in a decred block is unspendable.
+				var txOutIndex = firstTx.Outputs.FindIndex((o) => !o.ScriptPubKey.IsUnspendable);
+				GetTxOutResponse getTxOutResponse = await rpc.GetTxOutAsync(txId, txOutIndex, 0);
 				Assert.NotNull(getTxOutResponse); // null if spent
 				Assert.Equal(blockHashes.Last(), getTxOutResponse.BestBlock);
 				Assert.Equal(getTxOutResponse.Confirmations, blocksToGenerate);
-				Assert.Equal(Money.Coins(50), getTxOutResponse.TxOut.Value);
+				Assert.Equal(Money.Coins(rpc.Network.IsDecred ? 5 : 50), getTxOutResponse.TxOut.Value);
 				Assert.NotNull(getTxOutResponse.TxOut.ScriptPubKey);
 				string scriptPubKeyType = getTxOutResponse.ScriptPubKeyType;
-				Assert.True(scriptPubKeyType == "pubkey" || scriptPubKeyType == "scripthash" || scriptPubKeyType == "witness_v0_keyhash");
+				Assert.True(scriptPubKeyType == "pubkey" || scriptPubKeyType == "pubkeyhash" || scriptPubKeyType == "scripthash" || scriptPubKeyType == "witness_v0_keyhash");
 				Assert.True(getTxOutResponse.IsCoinBase);
 
 				// 2. Spend the first coin
 				var address = new Key().PubKey.GetAddress(ScriptPubKeyType.Legacy, rpc.Network);
-				Money sendAmount = Money.Parse("49");
+				Money sendAmount = Money.Parse(rpc.Network.IsDecred ? "4.9" : "49");
 				txId = await rpc.SendToAddressAsync(address, sendAmount);
 
 				// 3. Make sure if we don't include the mempool into the database the txo will not be considered utxo
-				getTxOutResponse = await rpc.GetTxOutAsync(txId, 0, false);
+				getTxOutResponse = await rpc.GetTxOutAsync(txId, 0, 0, false);
 				Assert.Null(getTxOutResponse);
 
 				// 4. Find the output index we want to check
@@ -592,30 +648,31 @@ namespace NBitcoin.Tests
 				Assert.NotEqual(-1, index);
 
 				// 5. Make sure the expected amounts are received for unconfirmed transactions
-				getTxOutResponse = await rpc.GetTxOutAsync(txId, index, true);
+				getTxOutResponse = await rpc.GetTxOutAsync(txId, index, 0, true);
 				Assert.NotNull(getTxOutResponse); // null if spent
 				Assert.Equal(blockHashes.Last(), getTxOutResponse.BestBlock);
 				Assert.Equal(0, getTxOutResponse.Confirmations);
-				Assert.Equal(Money.Coins(49), getTxOutResponse.TxOut.Value);
+				Assert.Equal(sendAmount, getTxOutResponse.TxOut.Value);
 				Assert.NotNull(getTxOutResponse.TxOut.ScriptPubKey);
-				Assert.Equal("witness_v0_keyhash", scriptPubKeyType);
 				Assert.False(getTxOutResponse.IsCoinBase);
 			}
 		}
 
 
 		[Fact]
-		public void EstimateSmartFee()
+		public async Task EstimateSmartFee()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
+				var delay = builder.Network.IsDecred ? 500 : 0; // some actions require a brief delay on decred network
 				var node = builder.CreateNode();
 				node.Start();
-				node.Generate(101);
+				await node.Generate(101).WithDelay(delay);
 				var rpc = node.CreateRPCClient();
 				Assert.Throws<NoEstimationException>(() => rpc.EstimateSmartFee(1));
-				Assert.Equal(Money.Coins(50m), rpc.GetBalance(1, false));
-				Assert.Equal(Money.Coins(50m), rpc.GetBalance());
+				var expectedBalance = rpc.Network.IsDecred ? 430m : 50m;
+				Assert.Equal(Money.Coins(expectedBalance), rpc.GetBalance(1, false));
+				Assert.Equal(Money.Coins(expectedBalance), rpc.GetBalance());
 			}
 		}
 
@@ -644,12 +701,12 @@ namespace NBitcoin.Tests
 
 				var k = new Key();
 				var tx = builder.Network.CreateTransaction();
-				tx.Outputs.Add(new TxOut(Money.Coins(1), k));
+				tx.Outputs.Add(Money.Coins(1), k);
 				var result = rpc.FundRawTransaction(tx);
-				TestFundRawTransactionResult(tx, result);
+				TestFundRawTransactionResult(rpc.Network, tx, result);
 
 				result = rpc.FundRawTransaction(tx, new FundRawTransactionOptions());
-				TestFundRawTransactionResult(tx, result);
+				TestFundRawTransactionResult(rpc.Network, tx, result);
 				var result1 = result;
 
 				var change = rpc.GetNewAddress();
@@ -660,19 +717,21 @@ namespace NBitcoin.Tests
 					IncludeWatching = true,
 					ChangeAddress = change,
 				});
-				TestFundRawTransactionResult(tx, result);
+				TestFundRawTransactionResult(rpc.Network, tx, result);
 				Assert.True(result1.Fee < result.Fee);
 				Assert.Contains(result.Transaction.Outputs, o => o.ScriptPubKey == change.ScriptPubKey);
 			}
 		}
 
-		private static void TestFundRawTransactionResult(Transaction tx, FundRawTransactionResponse result)
+		private static void TestFundRawTransactionResult(Network network, Transaction tx, FundRawTransactionResponse result)
 		{
+			var inputCount = result.Transaction.Inputs.Count;
+			var amountPerInput = Money.Coins(network.IsDecred ? 5m : 50m);
 			Assert.Equal(tx.Version, result.Transaction.Version);
 			Assert.True(result.Transaction.Inputs.Count > 0);
 			Assert.True(result.Transaction.Outputs.Count > 1);
 			Assert.True(result.ChangePos != -1);
-			Assert.Equal(Money.Coins(50m) - result.Transaction.Outputs.Select(txout => txout.Value).Sum(), result.Fee);
+			Assert.Equal(inputCount * amountPerInput - result.Transaction.Outputs.Select(txout => txout.Value).Sum(), result.Fee);
 		}
 
 		[Fact]
@@ -693,19 +752,21 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
+				var satoshis = builder.Network.IsDecred ? 10_000 : 1000; // 1000 is too small for decred.
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
 				rpc.Generate(101);
 				var receiver = new Key();
-				var receiverAddress = receiver.PubKey.WitHash.GetAddress(builder.Network);
-				var txid = rpc.SendToAddress(receiverAddress, Money.Satoshis(1000));
+				var scriptType = builder.Network.IsDecred ? ScriptPubKeyType.Legacy : ScriptPubKeyType.Segwit;
+				var receiverAddress = receiver.GetAddress(scriptType, builder.Network);
+				var txid = rpc.SendToAddress(receiverAddress, Money.Satoshis(satoshis));
 				var tx = rpc.GetRawTransaction(txid);
 				var coin = tx.Outputs.AsCoins().Where(c => c.ScriptPubKey == receiverAddress.ScriptPubKey);
 				var txBuilder = builder.Network.CreateTransactionBuilder();
 				txBuilder.AddCoins(coin);
 				txBuilder.AddKeys(receiver);
-				txBuilder.Send(new Key(), Money.Satoshis(600));
-				txBuilder.SetChange(new Key().PubKey.WitHash);
+				txBuilder.Send(new Key(), Money.Satoshis(0.6m * satoshis));
+				txBuilder.SetChange(new Key().GetAddress(scriptType, builder.Network));
 				// The dust should be 294, so should have 2 outputs
 				txBuilder.SendFees(Money.Satoshis(400 - 294));
 				var signed = txBuilder.BuildTransaction(true);
@@ -713,7 +774,9 @@ namespace NBitcoin.Tests
 				Assert.NotNull(rpc.SendRawTransaction(tx));
 			}
 		}
-		[Fact]
+
+		// decred does not have "testmempoolaccept" rpc.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanCalculateDustCorrectly()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -759,7 +822,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred does not have importmulti rpc.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanImportMultiAddresses()
 		{
 			// Test cases borrowed from: https://github.com/bitcoin/bitcoin/blob/master/test/functional/wallet_importmulti.py
@@ -1196,7 +1260,9 @@ namespace NBitcoin.Tests
 			Assert.NotNull(unspentCoin.RedeemScript);
 		}
 
-		[Fact]
+		// decred node performs the block invalidation but the wallet doesn't
+		// get updated for some resaon.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void InvalidateBlockToRPC()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1218,8 +1284,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-
-		[Fact]
+		// decred does not support batching.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task CanBatchRequestPartiallySucceed()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1236,7 +1302,9 @@ namespace NBitcoin.Tests
 				Assert.Equal(RPCErrorCode.RPC_METHOD_NOT_FOUND, err.RPCCode);
 			}
 		}
-		[Fact]
+
+		// decred does not support batching.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task CanUseBatchedRequests()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1290,7 +1358,10 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred getpeerinfo does not return expected results because the
+		// getpeerinfo rpc request is handled by the wallet which is only
+		// connected to a dcrd node.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanGetPeersInfo()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1309,7 +1380,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred node does not support "getmempoolentry" rpc.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanGetMemPoolEntry()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1373,7 +1445,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred node does not support "getmempoolentry" rpc.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void GetMemPoolEntryThrows()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1386,7 +1459,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred node does not support "getmempoolentry" rpc.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void GetMemPoolEntryDoesntThrow()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1463,40 +1537,64 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void DoubleSpendThrows()
+		public async Task DoubleSpendThrows()
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
+				var delay = builder.Network.IsDecred ? 500 : 0; // some actions require a brief delay on decred network
 				var node = builder.CreateNode();
 				var rpc = node.CreateRPCClient();
 				builder.StartAll();
 				var network = node.Network;
 
 				var key = new Key();
-				var blockId = rpc.GenerateToAddress(1, key.PubKey.WitHash.GetAddress(network));
-				var block = rpc.GetBlock(blockId[0]);
-				var coinBaseTx = block.Transactions[0];
+				Transaction fundingTx;
+				int outputIndex;
+				decimal spendableAmount;
+				if (network.IsDecred)
+				{
+					// decred does not support generatetoaddress rpc, so
+					// manually send some funds to the address.
+					var address = key.GetAddress(ScriptPubKeyType.Legacy, network);
+					// generate some blocks to ensure the wallet has funds to send
+					await rpc.Generate(50).WithDelay(delay);
+					// send some funds to the key to be spent below
+					var txid = await rpc.SendToAddress(address, Money.Coins(2.0m)).WithDelay(delay);
+					fundingTx = rpc.GetRawTransaction(txid);
+					outputIndex = fundingTx.Outputs.FindIndex((output) => output.IsTo(address));
+					spendableAmount = 1.998m;
+				}
+				else
+				{
+					var blockId = rpc.GenerateToAddress(1, key.PubKey.WitHash.GetAddress(network));
+					var block = rpc.GetBlock(blockId[0]);
+					fundingTx = block.Transactions[0];
+					outputIndex = 0;
+					spendableAmount = 49.998m;
+				}
 
 				var tx = Transaction.Create(network);
-				tx.Inputs.Add(coinBaseTx, 0);
-				tx.Outputs.Add(Money.Coins(49.998m), new Key().PubKey.WitHash.GetAddress(network));
-				tx.Sign(key.GetBitcoinSecret(network), coinBaseTx.Outputs.AsCoins().First());
+				tx.Inputs.Add(fundingTx, outputIndex);
+				tx.Outputs.Add(Money.Coins(spendableAmount), new Key().PubKey.WitHash.GetAddress(network));
+				tx.Sign(key.GetBitcoinSecret(network), fundingTx.Outputs.AsCoins().ElementAt(outputIndex));
 				var valid = tx.Check();
 
 				var doubleSpend = Transaction.Create(network);
-				doubleSpend.Inputs.Add(coinBaseTx, 0);
-				doubleSpend.Outputs.Add(Money.Coins(49.9999m), new Key().PubKey.WitHash.GetAddress(network));
-				doubleSpend.Sign(key.GetBitcoinSecret(network), coinBaseTx.Outputs.AsCoins().First());
+				doubleSpend.Inputs.Add(fundingTx, outputIndex);
+				doubleSpend.Outputs.Add(Money.Coins(spendableAmount + 0.001m), new Key().PubKey.WitHash.GetAddress(network));
+				doubleSpend.Sign(key.GetBitcoinSecret(network), fundingTx.Outputs.AsCoins().ElementAt(outputIndex));
 				valid = doubleSpend.Check();
 
-				rpc.Generate(101);
+				rpc.Generate(network.Consensus.CoinbaseMaturity + 1);
 
 				var txId = rpc.SendRawTransaction(tx);
 				Assert.Throws<RPCException>(() => rpc.SendRawTransaction(doubleSpend));
 			}
 		}
 
-		[Fact]
+		// decred node does not support "getblockfilter" rpc and
+		// blockfilterindex cli arg. TODO: use "getcfilterv2" rpc.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task GetBlockFilterAsync()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1530,7 +1628,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred does not have "testmempoolaccept" rpc.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanTestMempoolAccept()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1628,7 +1727,8 @@ namespace NBitcoin.Tests
 			Assert.Throws<FormatException>(() => Utils.ParseEndpoint("", 90));
 		}
 
-		[Fact]
+		// decred does not support cookie auth.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task CanAuthWithCookieFile()
 		{
 #if NOFILEIO
@@ -1647,10 +1747,10 @@ namespace NBitcoin.Tests
 				rpc.GetBlockCount();
 				node.Restart();
 				rpc.GetBlockCount();
-				new RPCClient("cookiefile=data/tx_valid.json", new Uri("http://localhost/"), Network.RegTest);
-				new RPCClient("cookiefile=data/efpwwie.json", new Uri("http://localhost/"), Network.RegTest);
+				new RPCClient("cookiefile=data/tx_valid.json", new Uri("http://localhost/"), node.TLSCertFilePath, Network.RegTest);
+				new RPCClient("cookiefile=data/efpwwie.json", new Uri("http://localhost/"), node.TLSCertFilePath, Network.RegTest);
 
-				rpc = new RPCClient("bla:bla", null as Uri, Network.RegTest);
+				rpc = new RPCClient("bla:bla", null as Uri, node.TLSCertFilePath, Network.RegTest);
 				Assert.Equal("http://127.0.0.1:" + Network.RegTest.RPCPort + "/", rpc.Address.AbsoluteUri);
 
 				rpc = node.CreateRPCClient();
@@ -1666,7 +1766,7 @@ namespace NBitcoin.Tests
 				rpc.SendBatch();
 				blockCount = await blockCountAsync;
 
-				rpc = new RPCClient("bla:bla", "http://toto/", Network.RegTest);
+				rpc = new RPCClient("bla:bla", "http://toto/", node.TLSCertFilePath, Network.RegTest);
 			}
 #endif
 		}
@@ -1694,7 +1794,8 @@ namespace NBitcoin.Tests
 			}
 		}
 #endif
-		[Fact]
+		// decred node does not support "backupwallet" rpc.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void CanBackupWallet()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1717,7 +1818,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred does not support "uptime" rpc.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task CanQueryUptimeAsync()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1738,32 +1840,48 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
+				var isDecred = builder.Network.IsDecred;
+				var delay = isDecred ? 500 : 0; // some actions require a brief delay on decred network
 				builder.RPCWalletType = walletType;
 				var node = builder.CreateNode();
-				node.CookieAuth = true;
+				if (!isDecred) // decred does not support cookie auth
+					node.CookieAuth = true;
 				node.Start();
 				var rpc = node.CreateRPCClient();
 				var capabilities = await rpc.ScanRPCCapabilitiesAsync();
 
-				var address = new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, Network.RegTest);
-				var blockHash1 = rpc.GenerateToAddress(1, address);
-				var block = rpc.GetBlock(blockHash1[0]);
+				int initialBlocksCount = 0, blocksGenerated = 0;
+				if (isDecred)
+				{
+					initialBlocksCount = 2;
+				}
+				else
+				{
+					// decred does not support generate to address
+					var address = new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, Network.RegTest);
+					var blockHash1 = rpc.GenerateToAddress(1, address);
+					var block = rpc.GetBlock(blockHash1[0]);
+					blocksGenerated++;
 
-				var coinbaseScriptPubKey = block.Transactions[0].Outputs[0].ScriptPubKey;
-				Assert.Equal(address, coinbaseScriptPubKey.GetDestinationAddress(Network.RegTest));
+					var coinbaseScriptPubKey = block.Transactions[0].Outputs[0].ScriptPubKey;
+					Assert.Equal(address, coinbaseScriptPubKey.GetDestinationAddress(Network.RegTest));
 
-				rpc.Capabilities.SupportGenerateToAddress = true;
-				var blockHash2 = rpc.Generate(1);
+					rpc.Capabilities.SupportGenerateToAddress = true;
+					var blockHash2 = rpc.Generate(1);
+					blocksGenerated++;
+				}
 
 				rpc.Capabilities.SupportGenerateToAddress = false;
-				var blockHash3 = rpc.Generate(1);
+				var blockHash3 = await rpc.Generate(1).WithDelay(delay); // decred needs a bit of delay here
+				blocksGenerated++;
 
 				var heigh = rpc.GetBlockCount();
-				Assert.Equal(3, heigh);
+				Assert.Equal(initialBlocksCount + blocksGenerated, heigh);
 			}
 		}
 
-		[Theory]
+		// decred does not support psbt.
+		[ConditionalNetworkTheory(NetworkTestRule.Skip, "dcr")]
 		[InlineData(PSBTVersion.PSBTv0)]
 		public async Task UpdatePSBTInRPCShouldIncludePreviousTX(PSBTVersion version)
 		{
@@ -1788,7 +1906,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred does not support psbt.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void ShouldCreatePSBTAcceptableByRPCAsExpected()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1869,7 +1988,8 @@ namespace NBitcoin.Tests
 		private void CheckPSBTIsAcceptableByRealRPC(string base64, RPCClient client)
 			=> client.SendCommand(RPCOperations.decodepsbt, base64);
 
-		[Fact]
+		// decred does not support generatetoaddress rpc and psbt.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void ShouldWalletProcessPSBTAndExtractMempoolAcceptableTX()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -1958,7 +2078,7 @@ namespace NBitcoin.Tests
 		// 1. one user (David) do not use bitcoin core (only NBitcoin)
 		// 2. 4-of-4 instead of 2-of-3
 		// 3. In version 0.17, `importmulti` can not handle witness script so only p2sh are considered here. TODO: fix
-		[Theory]
+		[ConditionalNetworkTheory(NetworkTestRule.Only, "btc")]
 		[InlineData("latest")]
 		public async Task ShouldPerformMultisigProcessingWithCore(string version)
 		{
@@ -2079,7 +2199,7 @@ namespace NBitcoin.Tests
 		}
 
 
-		[Theory]
+		[ConditionalNetworkTheory(NetworkTestRule.Only, "btc")]
 		[InlineData("latest")]
 		/// <summary>
 		/// For p2sh, p2wsh, p2sh-p2wsh, we must also test the case for `solvable` to the wallet.
@@ -2111,7 +2231,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// decred does not have a "createwallet" rpc command.
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void ShouldCreateLoadAndUnloadWallet()
 		{
 			using var builder = NodeBuilderEx.Create();
@@ -2140,7 +2261,8 @@ namespace NBitcoin.Tests
 			Assert.Throws<RPCException>(() => wallet0.GetNewAddress());
 		}
 
-		[Fact]
+		// test uses hardcoded btc values
+		[ConditionalNetworkTest(NetworkTestRule.Only, "btc")]
 		public async Task GetBlockVerboseTests()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -2150,8 +2272,8 @@ namespace NBitcoin.Tests
 				var cli = node.CreateRPCClient();
 
 				// case 1: genesis block
-				var verboseGenesis = await cli.GetBlockAsync(Network.RegTest.GenesisHash, GetBlockVerbosity.WithFullTx);
-				Assert.True(verboseGenesis.Block.ToBytes().SequenceEqual(Network.RegTest.GetGenesis().ToBytes()));
+				var verboseGenesis = await cli.GetBlockAsync(node.Network.GenesisHash, GetBlockVerbosity.WithFullTx);
+				Assert.True(verboseGenesis.Block.ToBytes().SequenceEqual(node.Network.GetGenesis().ToBytes()));
 				Assert.Equal(0, verboseGenesis.Height);
 				var height = await cli.GetBlockCountAsync();
 				Assert.Equal(height + 1, verboseGenesis.Confirmations);
@@ -2189,6 +2311,58 @@ namespace NBitcoin.Tests
 				await cli.GenerateToAddressAsync(1, addr);
 				verboseBestBlock = await cli.GetBlockAsync(secondBlockHash, GetBlockVerbosity.WithOnlyTxId);
 				Assert.NotNull(verboseBestBlock.NextBlockHash);
+			}
+		}
+
+		// test uses hardcoded dcr values
+		[ConditionalNetworkTest(NetworkTestRule.Only, "dcr")]
+		public async Task DecredGetBlockVerboseTests()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				await node.StartAsync();
+				var cli = node.CreateRPCClient();
+
+				// case 1: genesis block
+				var verboseGenesis = await cli.GetBlockAsync(node.Network.GenesisHash, GetBlockVerbosity.WithFullTx);
+				Assert.True(verboseGenesis.Block.ToBytes().SequenceEqual(node.Network.GetGenesis().ToBytes()));
+				Assert.Equal(0, verboseGenesis.Height);
+				var height = await cli.GetBlockCountAsync();
+				Assert.Equal(height + 1, verboseGenesis.Confirmations);
+				Assert.Equal(0, verboseGenesis.StrippedSize); // decred getblock doesn't return strippedsize
+				Assert.Equal(0, verboseGenesis.Size); // decred geneis block size is 0
+				Assert.Equal(0, verboseGenesis.Weight); // decred getblock doesn't return weight
+				Assert.Equal(0, verboseGenesis.Height);
+				Assert.Null(verboseGenesis.VersionHex); // decred getblock doesn't return versionhex
+				Assert.Equal(1, verboseGenesis.Block.Header.Version);
+				Assert.Equal(node.Network.GenesisHash, verboseGenesis.Block.GetHash());
+				Assert.Equal(uint256.Parse("a216ea043f0d481a072424af646787794c32bcefd3ed181a090319bbf8a37105"), verboseGenesis.Block.Transactions.First().GetHash());
+				Assert.Single(verboseGenesis.Block.Transactions);
+				Assert.Equal(verboseGenesis.MedianTime, verboseGenesis.Block.Header.BlockTime);
+				Assert.Equal(0u, verboseGenesis.Block.Header.Nonce); // decred geneis block nonce is 0
+				Assert.Equal(new Target(0x207fffff), verboseGenesis.Block.Header.Bits);
+				Assert.Equal(1, verboseGenesis.Difficulty);
+				Assert.Equal(uint256.Parse("0000000000000000000000000000000000000000000000000000000000000002"), verboseGenesis.ChainWork);
+
+				// NextBlockHash must be included iff the block is not on the
+				// tip. Decred node starts with 3 blocks (heights 0-2).
+				Assert.NotNull(verboseGenesis.NextBlockHash);
+
+				verboseGenesis = await cli.GetBlockAsync(node.Network.GenesisHash, GetBlockVerbosity.WithOnlyTxId);
+				Assert.Null(verboseGenesis.Block); // there will be no Block if we specify false to second argument.
+				Assert.NotNull(verboseGenesis.TxIds); // But txids are still there.
+				Assert.Single(verboseGenesis.TxIds);
+
+				// case 2: next block.
+				var bestBlockHash = await cli.GetBestBlockHashAsync();
+				var verboseBestBlock = await cli.GetBlockAsync(bestBlockHash, GetBlockVerbosity.WithOnlyTxId);
+				Assert.Null(verboseBestBlock.NextBlockHash);
+
+				var newBestHash = await cli.Generate(1).WithDelay(500); // delay a bit after mining 1 block
+				verboseBestBlock = await cli.GetBlockAsync(bestBlockHash, GetBlockVerbosity.WithOnlyTxId);
+				Assert.NotNull(verboseBestBlock.NextBlockHash);
+				Assert.Equal(newBestHash[0], verboseBestBlock.NextBlockHash);
 			}
 		}
 

@@ -373,6 +373,10 @@ namespace NBitcoin
 		public Target GetWorkRequired(Consensus consensus)
 		{
 			AssertHasHeader();
+
+			var target = consensus.GetWorkRequired(this);
+			if (target != null) return target;
+
 			// Genesis block
 			if (Height == 0)
 				return consensus.PowLimit;

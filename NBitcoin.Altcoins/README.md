@@ -32,6 +32,7 @@ Currently supported altcoins are:
 * Althash
 * Neblio
 * Optical Bitcoin
+* Decred (experimental)
 
 ## How to use?
 

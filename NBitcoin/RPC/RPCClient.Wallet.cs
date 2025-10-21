@@ -123,7 +123,7 @@ namespace NBitcoin.RPC
 		}
 		public RPCClient SetWalletContext(string? walletName)
 		{
-			RPCCredentialString credentialString;;
+			RPCCredentialString credentialString;
 
 			if (_BatchedRequests is null)
 			{
@@ -142,7 +142,7 @@ namespace NBitcoin.RPC
 			}
 			credentialString.WalletName = walletName;
 
-			return new RPCClient(credentialString, Address, Network)
+			return new RPCClient(credentialString, Address, TLSCertFile, Network)
 			{
 				_BatchedRequests = _BatchedRequests,
 				Capabilities = Capabilities,
@@ -151,7 +151,7 @@ namespace NBitcoin.RPC
 			};
 		}
 
-		public async Task<RPCClient> CreateWalletAsync(string walletNameOrPath, CreateWalletOptions? options = null, CancellationToken cancellationToken = default)
+		public virtual async Task<RPCClient> CreateWalletAsync(string walletNameOrPath, CreateWalletOptions? options = null, CancellationToken cancellationToken = default)
 		{
 			if (walletNameOrPath is null)
 				throw new ArgumentNullException(nameof(walletNameOrPath));
@@ -170,6 +170,7 @@ namespace NBitcoin.RPC
 				parameters.Add("descriptors", descriptors);
 			if (options?.LoadOnStartup is bool loadOnStartup)
 				parameters.Add("load_on_startup", loadOnStartup);
+
 			var result = await SendCommandWithNamedArgsAsync(RPCOperations.createwallet.ToString(), parameters, cancellationToken).ConfigureAwait(false);
 			return SetWalletContext(result.Result.Value<string>("name"));
 		}
@@ -316,13 +317,36 @@ namespace NBitcoin.RPC
 		public async Task<Money> GetBalanceAsync()
 		{
 			var data = await SendCommandAsync(RPCOperations.getbalance, "*").ConfigureAwait(false);
-			return Money.Coins(data.Result.Value<decimal>());
+			return parseGetBalanceResponse(data);
 		}
 
 		public async Task<Money> GetBalanceAsync(int minConf, bool includeWatchOnly)
 		{
-			var data = await SendCommandAsync(RPCOperations.getbalance, "*", minConf, includeWatchOnly).ConfigureAwait(false);
-			return Money.Coins(data.Result.Value<decimal>());
+			var parameters = new Object[] { "*", minConf, includeWatchOnly };
+			if (Network.IsDecred)
+				parameters = ["*", minConf];
+			var data = await SendCommandAsync(RPCOperations.getbalance, parameters).ConfigureAwait(false);
+			return parseGetBalanceResponse(data);
+		}
+
+		private Money parseGetBalanceResponse(RPCResponse data)
+		{
+			if (!data.Result.HasValues) return Money.Coins(data.Result.Value<decimal>());
+
+			// Decred response is an object like {"balances": [...]}.
+			var balancesObj = data.Result.Value<JToken>("balances");
+			if (balancesObj != null && balancesObj.Type == JTokenType.Array)
+			{
+				decimal totalBalance = 0;
+				var balances = balancesObj as JArray;
+				foreach (var balance in balances)
+				{
+					totalBalance += balance.Value<decimal>("spendable");
+				}
+				return Money.Coins(totalBalance);
+			}
+
+			throw new RPCException(RPCErrorCode.RPC_PARSE_ERROR, "Unexpected response", data);
 		}
 
 		public async Task<FundRawTransactionResponse> FundRawTransactionAsync(Transaction transaction, FundRawTransactionOptions options = null, CancellationToken cancellationToken = default)
@@ -330,22 +354,18 @@ namespace NBitcoin.RPC
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
 
-			RPCResponse response = null;
+			var args = new List<Object> { ToHex(transaction) };
+			if (Network.IsDecred)
+				args.Add("default"); // decred requires an account name
 			if (options != null)
-			{
-				var jOptions = FundRawTransactionOptionsToJson(options);
-				response = await SendCommandAsync("fundrawtransaction", cancellationToken, ToHex(transaction), jOptions).ConfigureAwait(false);
-			}
-			else
-			{
-				response = await SendCommandAsync("fundrawtransaction", cancellationToken, ToHex(transaction)).ConfigureAwait(false);
-			}
+				args.Add(FundRawTransactionOptionsToJson(options));
+			var response = await SendCommandAsync("fundrawtransaction", cancellationToken, args.ToArray()).ConfigureAwait(false);
 			var r = (JObject)response.Result;
 			return new FundRawTransactionResponse()
 			{
 				Transaction = ParseTxHex(r["hex"].Value<string>()),
 				Fee = Money.Coins(r["fee"].Value<decimal>()),
-				ChangePos = r["changepos"].Value<int>()
+				ChangePos = r["changepos"]?.Value<int>()
 			};
 		}
 
@@ -530,7 +550,7 @@ namespace NBitcoin.RPC
 		public void ImportMulti(ImportMultiAddress[] addresses, bool rescan) =>
 			ImportMulti(addresses, rescan, null);
 
-		#nullable enable
+#nullable enable
 		public void ImportMulti(ImportMultiAddress[] addresses, bool rescan, ISigningRepository? signingRepository)
 		{
 			ImportMultiAsync(addresses, rescan, signingRepository).GetAwaiter().GetResult();
@@ -599,7 +619,7 @@ namespace NBitcoin.RPC
 			}
 		}
 
-		#nullable  disable
+#nullable disable
 
 
 		JsonSerializerSettings _JsonSerializer;

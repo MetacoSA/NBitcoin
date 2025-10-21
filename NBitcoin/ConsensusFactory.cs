@@ -1,5 +1,7 @@
 ﻿using NBitcoin.Protocol;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace NBitcoin
@@ -121,6 +123,17 @@ namespace NBitcoin
 				"wtxidrelay" => new WTxIdRelayPayload(),
 				_ => new UnknownPayload(command)
 			};
+		}
+
+		// Altcoins can override to provide a unique data parsing. If this
+		// method returns false, the default parsing in RPCClient >
+		// ParseVerboseBlock will be used.
+		public virtual bool ParseGetBlockRPCRespose(JObject json, bool withFullTx, out BlockHeader blockHeader, out Block block, out List<uint256> txids)
+		{
+			blockHeader = null;
+			block = null;
+			txids = null;
+			return false;
 		}
 
 		public virtual ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)

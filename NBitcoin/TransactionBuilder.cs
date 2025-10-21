@@ -2288,6 +2288,7 @@ namespace NBitcoin
 		{
 			if (validator == null)
 				throw new ArgumentNullException(nameof(validator));
+			validator.Hash160 = this.Network.Hash160;
 			List<TransactionPolicyError> exceptions = new List<TransactionPolicyError>();
 			var policyErrors = MinerTransactionPolicy.Instance.Check(validator);
 			exceptions.AddRange(policyErrors);
@@ -2651,6 +2652,7 @@ namespace NBitcoin
 		{
 			foreach (var redeem in knownRedeems)
 			{
+				redeem.Hash160 = Network.Hash160;
 				_ScriptPubKeyToRedeem.AddOrReplace(redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey, redeem); //Might be P2SH(PWSH)
 				_ScriptPubKeyToRedeem.AddOrReplace(redeem.Hash.ScriptPubKey, redeem); //Might be P2SH
 				_ScriptPubKeyToRedeem.AddOrReplace(redeem.WitHash.ScriptPubKey, redeem); //Might be PWSH
@@ -2727,6 +2729,7 @@ namespace NBitcoin
 			var p2sh = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(scriptSig);
 			if (p2sh != null && p2sh.RedeemScript != null)
 			{
+				p2sh.RedeemScript.Hash160 = Network.Hash160;
 				return p2sh.RedeemScript.Hash.ScriptPubKey;
 			}
 			foreach (var extension in Extensions)

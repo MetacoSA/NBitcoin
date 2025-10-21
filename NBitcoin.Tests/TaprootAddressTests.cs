@@ -79,6 +79,8 @@ namespace NBitcoin.Tests
 		{
 			using (var nodeBuilder = NodeBuilderEx.Create())
 			{
+				if (!nodeBuilder.Network.Consensus.SupportTaproot) return;
+
 				var rpc = nodeBuilder.CreateNode().CreateRPCClient();
 				nodeBuilder.StartAll();
 				rpc.Generate(102);
@@ -118,7 +120,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		// btc only; specifically requires/uses NodeDownloadData.Bitcoin.v25_0
+		[ConditionalNetworkTest(NetworkTestRule.Only, "btc")]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanSignUsingTapscriptAndKeySpend()
 		{

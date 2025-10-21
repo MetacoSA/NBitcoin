@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using NBitcoin.RPC;
+using NBitcoin.Crypto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,11 @@ namespace NBitcoin
 			result = ValidateInput(index);
 			return result.Error is null;
 		}
+		public Func<byte[], int, int, uint160> Hash160
+		{
+			get;
+			set;
+		} = Hashes.Hash160;
 		public InputValidationResult ValidateInput(int index)
 		{
 			if (index < 0 || index >= SpentOutputs.Length)
@@ -37,6 +43,7 @@ namespace NBitcoin
 			{
 				ScriptVerify = ScriptVerify
 			};
+			ctx.Hash160 = this.Hash160;
 
 			if (Transaction is IHasForkId)
 				ctx.ScriptVerify |= NBitcoin.ScriptVerify.ForkId;
@@ -44,7 +51,8 @@ namespace NBitcoin
 			var scriptSig = Transaction.Inputs[index].ScriptSig;
 			var txout = this.SpentOutputs[index];
 
-			var ok = ctx.VerifyScript(scriptSig, txout.ScriptPubKey, new TransactionChecker(Transaction, index, txout, PrecomputedTransactionData));
+			var txChecker = new TransactionChecker(Transaction, index, txout, PrecomputedTransactionData);
+			var ok = ctx.VerifyScript(scriptSig, txout.ScriptPubKey, txChecker);
 			if (!ok)
 				return new InputValidationResult(index, ctx.Error, ctx.ExecutionData);
 			return new InputValidationResult(index, ctx.ExecutionData);

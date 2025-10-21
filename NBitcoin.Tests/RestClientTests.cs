@@ -1,5 +1,4 @@
 ﻿using NBitcoin.RPC;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -8,13 +7,13 @@ namespace NBitcoin.Tests
 {
 	//Require a rpc server on test network running on default port with -rest -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword
 	//For me : 
-	//"bitcoin-qt.exe" -testnet -server -rest 
+	//"bitcoin-qt.exe" -testnet -server -rest
 	[Trait("RestClient", "RestClient")]
 	public class RestClientTests
 	{
 		private static readonly Block RegNetGenesisBlock = Network.RegTest.GetGenesis();
 
-		[Fact]
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task CanGetChainInfo()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -26,7 +25,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task CanCalculateChainWork()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -45,7 +44,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task CanGetBlock()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -57,7 +56,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task CanGetBlockHeader()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -76,7 +75,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task CanGetTransaction()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -92,7 +91,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task CanGetUTXOsMempool()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -120,7 +119,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public async Task CanGetUTXOs()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -136,7 +135,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		[ConditionalNetworkTest(NetworkTestRule.Skip, "dcr")]
 		public void ThrowsRestApiClientException()
 		{
 			using (var builder = NodeBuilderEx.Create())

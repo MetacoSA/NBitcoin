@@ -16,6 +16,7 @@ using System.Security.Cryptography;
 
 namespace NBitcoin.Crypto
 {
+
 	public static class Hashes
 	{
 		#region DoubleSHA256

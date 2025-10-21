@@ -196,7 +196,7 @@ namespace NBitcoin
 				return (nBits == 0);
 			}
 		}
-#region IBitcoinSerializable Members
+		#region IBitcoinSerializable Members
 
 		public virtual void ReadWrite(BitcoinStream stream)
 		{
@@ -210,8 +210,7 @@ namespace NBitcoin
 		}
 
 
-#endregion
-
+		#endregion
 
 		public virtual uint256 GetPoWHash()
 		{
@@ -388,7 +387,7 @@ namespace NBitcoin
 			}
 		}
 
-		public MerkleNode GetMerkleRoot()
+		public virtual MerkleNode GetMerkleRoot()
 		{
 			return MerkleNode.GetRoot(Transactions.Select(t => t.GetHash()));
 		}

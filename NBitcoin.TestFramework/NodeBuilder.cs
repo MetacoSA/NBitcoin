@@ -130,14 +130,15 @@ namespace NBitcoin.Tests
 	}
 	public class NodeBuilder : IDisposable
 	{
-		public static NodeBuilder Create(NodeDownloadData downloadData, Network network = null, [CallerMemberNameAttribute]string caller = null, bool showNodeConsole = false)
+		public static NodeBuilder Create(NodeDownloadData downloadData, Network network = null, Func<Network, bool> useNetwork = null, [CallerMemberNameAttribute] string caller = null, Func<NodeRunner> customNodeRunner = null, bool showNodeConsole = false)
 		{
 			network = network ?? Network.RegTest;
+			if (useNetwork != null && useNetwork(network) == false) return null;
 			var isFilePath = downloadData.Version.Length >= 2 && downloadData.Version[1] == ':';
 			var path = isFilePath ? downloadData.Version : EnsureDownloaded(downloadData);
 			if (!Directory.Exists(caller))
 				Directory.CreateDirectory(caller);
-			return new NodeBuilder(caller, path) { Network = network, NodeImplementation = downloadData, ShowNodeConsole = showNodeConsole };
+			return new NodeBuilder(caller, path) { Network = network, NodeImplementation = downloadData, CustomNodeRunner = customNodeRunner, ShowNodeConsole = showNodeConsole };
 		}
 
 		public static string EnsureDownloaded(NodeDownloadData downloadData)
@@ -218,6 +219,7 @@ namespace NBitcoin.Tests
 			set;
 		} = Network.RegTest;
 		public NodeDownloadData NodeImplementation { get; private set; }
+		public Func<NodeRunner> CustomNodeRunner { get; private set; }
 		public RPCWalletType? RPCWalletType { get; set; }
 		public bool CreateWallet { get; set; } = true;
 
@@ -295,6 +297,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		private readonly NodeRunner _NodeRunner;
+
 		public CoreNode(string folder, NodeBuilder builder)
 		{
 			this._Builder = builder;
@@ -307,6 +311,19 @@ namespace NBitcoin.Tests
 			_Config = Path.Combine(dataDir, "bitcoin.conf");
 			ConfigParameters.Import(builder.ConfigParameters, true);
 			ports = new int[2];
+
+			// Some coins (such as decred) have a (slightly) different way of
+			// running their nodes. They may require more than 2 ports, for
+			// example. And they'd usually require a (slightly) different
+			// cleanup proceedure than the one doen below.
+			if (builder.CustomNodeRunner != null)
+			{
+				this._NodeRunner = builder.CustomNodeRunner();
+				if (_NodeRunner.PortsNeeded > 2)
+					ports = new int[_NodeRunner.PortsNeeded];
+				if (builder.CleanBeforeStartingNode)
+					_NodeRunner.StopPreviouslyRunningProcesses(dataDir);
+			}
 
 			if (builder.CleanBeforeStartingNode && File.Exists(_Config))
 			{
@@ -330,6 +347,15 @@ namespace NBitcoin.Tests
 						throw new InvalidOperationException("A running instance of bitcoind of a previous run prevent this test from starting. Please close bitcoind process manually and restart the test.");
 					}
 				}
+			}
+
+			// If cleaning previous process(es) is required, it would have been
+			// done above by `builder.NodeRunner.StopPreviouslyRunningProcesses`
+			// if applicable or by the if block just above. Now repeatedly try
+			// to delete the data directory for about 10 seconds, since it may
+			// take a while for all process(es) to fully stop.
+			if (builder.CleanBeforeStartingNode)
+			{
 				CancellationTokenSource cts = new CancellationTokenSource();
 				cts.CancelAfter(10000);
 				while (!cts.IsCancellationRequested && Directory.Exists(_Folder))
@@ -441,16 +467,23 @@ namespace NBitcoin.Tests
 				creds = value;
 			}
 		}
+
+		public string TLSCertFilePath => _NodeRunner == null ? null : _NodeRunner.TLSCertFilePath(dataDir);
+
 		public RPCClient CreateRPCClient()
 		{
-			return new RPCClient(GetRPCAuth(), RPCUri, Network);
+			// Some coins (like decred) require a tls cert for rpc connections.
+			return new RPCClient(GetRPCAuth(), RPCUri, TLSCertFilePath, Network);
 		}
 
 		public Uri RPCUri
 		{
 			get
 			{
-				return new Uri("http://127.0.0.1:" + ports[1].ToString() + "/");
+				// Some coins (like decred) require a tls cert for rpc
+				// connections. In such cases, use https.
+				var uriScheme = TLSCertFilePath == null ? "http" : "https";
+				return new Uri(uriScheme + "://127.0.0.1:" + ports[1].ToString() + "/");
 			}
 		}
 
@@ -466,6 +499,7 @@ namespace NBitcoin.Tests
 		{
 			return new RestClient(new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"));
 		}
+
 #if !NOSOCKET
 		public Node CreateNodeClient()
 		{
@@ -500,6 +534,16 @@ namespace NBitcoin.Tests
 
 		public async Task StartAsync()
 		{
+			// Some coins (such as decred) use different configuration options
+			// and values. For such coins, do not use the generic config builder
+			// below.
+			if (_NodeRunner != null)
+			{
+				_NodeRunner.WriteConfigFile(dataDir, creds, ports, ConfigParameters);
+				await Run();
+				return;
+			}
+
 			NodeConfigParameters config = new NodeConfigParameters();
 			StringBuilder configStr = new StringBuilder();
 			if (String.IsNullOrEmpty(NodeImplementation.Chain))
@@ -562,7 +606,14 @@ namespace NBitcoin.Tests
 				string appPath = new FileInfo(this._Builder.BitcoinD).FullName;
 				string args = "-conf=bitcoin.conf" + " -datadir=" + dataDir + " -debug=net";
 
-				if (_Builder.ShowNodeConsole)
+				// Some coins (such as decred) have a (slightly) different way
+				// of running their nodes. Use the custom node runner for such
+				// coins.
+				if (_NodeRunner != null)
+				{
+					_Process = _NodeRunner.Run(appPath, dataDir, _Builder.ShowNodeConsole).GetAwaiter().GetResult();
+				}
+				else if (_Builder.ShowNodeConsole)
 				{
 					ProcessStartInfo info = new ProcessStartInfo(appPath, args);
 					info.UseShellExecute = true;
@@ -602,7 +653,7 @@ namespace NBitcoin.Tests
 				_ => string.Empty
 			};
 
-			retry:
+		retry:
 			string walletToolArgs = $"{string.Format(_Builder.NodeImplementation.GetWalletChainSpecifier, _Builder.NodeImplementation.Chain)} -wallet=\"wallet.dat\"{walletType} -datadir=\"{dataDir}\" create";
 
 			var info = new ProcessStartInfo(walletToolPath, walletToolArgs)
@@ -684,6 +735,10 @@ namespace NBitcoin.Tests
 				{
 					_Process.Kill();
 					_Process.WaitForExit();
+				}
+				if (_NodeRunner != null)
+				{
+					_NodeRunner.Kill();
 				}
 				_State = CoreNodeState.Killed;
 				if (cleanFolder)
