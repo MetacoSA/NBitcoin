@@ -154,5 +154,28 @@ namespace NBitcoin.Tests
 				Assert.Empty(headers);
 			}
 		}
+
+		[Fact]
+		public async Task CanGetBlockHashByHeight()
+		{			
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var client = node.CreateRESTClient();
+				builder.StartAll();
+								
+				var genesisHash = await client.GetBlockHashByHeightAsync(0);
+				Assert.Equal(RegNetGenesisBlock.GetHash(), genesisHash);
+				
+				var expectedHash = node.Generate(1).FirstOrDefault();
+								
+				var actualHash = await client.GetBlockHashByHeightAsync(1);
+				Assert.Equal(expectedHash, actualHash);
+
+				// Should throw exception for non-existent block height
+				await Assert.ThrowsAsync<RestApiException>(async () => 
+					await client.GetBlockHashByHeightAsync(2));
+			}
+		}
 	}
 }
