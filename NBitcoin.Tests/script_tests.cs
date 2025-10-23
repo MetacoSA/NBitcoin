@@ -1012,6 +1012,20 @@ namespace NBitcoin.Tests
 			AssertEx.StackEquals(pushdata4Stack.Stack, directStack.Stack);
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void script_OPNIP()
+		{
+			var context = new ScriptEvaluationContext()
+			{
+				ScriptVerify = ScriptVerify.P2SH
+			};
+			var directStack = context.Clone();
+			var direct = new Script(Encoders.Hex.DecodeData("000360670000005b770100000000005b770100000000000008777760779f00000877776077"));
+			var res = directStack.EvalScript(direct, new TransactionChecker(Network.CreateTransaction(), 0), HashVersion.Original);
+			Assert.True(res);
+		}
+
 		static Network Network => Network.Main;
 
 		[Fact]

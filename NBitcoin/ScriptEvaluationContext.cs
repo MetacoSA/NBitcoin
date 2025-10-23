@@ -2491,9 +2491,9 @@ namespace NBitcoin
 		public void Remove(int from, int to)
 		{
 			int toRemove = to - from;
-			for (int i = Count + from; i < Count + from + toRemove; i++)
+			for (int i = 0; i < toRemove; i++)
 			{
-				for (int y = Count + from; y < Count; y++)
+				for (int y = Count + from; y < Count - 1; y++)
 					_array[y] = _array[y + 1];
 			}
 			_position -= toRemove;
