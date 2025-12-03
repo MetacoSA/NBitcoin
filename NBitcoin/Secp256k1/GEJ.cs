@@ -41,14 +41,14 @@ namespace NBitcoin.Secp256k1
 				);
 		}
 
-		public GEJ(in FE x, in FE y, in FE z, bool infinity)
+		public GEJ(FE x, FE y, FE z, bool infinity)
 		{
 			this.x = x;
 			this.y = y;
 			this.z = z;
 			this.infinity = infinity;
 		}
-		public GEJ(in FE x, in FE y, in FE z)
+		public GEJ(FE x, FE y, FE z)
 		{
 			this.x = x;
 			this.y = y;

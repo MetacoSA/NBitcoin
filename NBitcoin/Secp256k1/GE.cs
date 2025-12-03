@@ -181,13 +181,13 @@ namespace NBitcoin.Secp256k1
 			return new GE(x * beta, y, infinity);
 		}
 
-		public GE(in FE x, in FE y, bool infinity)
+		public GE(FE x, FE y, bool infinity)
 		{
 			this.x = x;
 			this.y = y;
 			this.infinity = infinity;
 		}
-		public GE(in FE x, in FE y)
+		public GE(FE x, FE y)
 		{
 			this.x = x;
 			this.y = y;

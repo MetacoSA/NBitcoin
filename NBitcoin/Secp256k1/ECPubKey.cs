@@ -401,25 +401,9 @@ namespace NBitcoin.Secp256k1
 			Secp256k1.GE pt = this.Q;
 			ref readonly Secp256k1.Scalar s = ref key.sec;
 			key.AssertNotDisposed();
-			// Can't happen, NBitcoin enforces invariants.
-			//secp256k1_scalar_set_b32(&s, scalar, &overflow);
-			//if (overflow || secp256k1_scalar_is_zero(&s))
-			//{
-			//	ret = 0;
-			//}
-			Span<byte> x = stackalloc byte[32];
-			Span<byte> y = stackalloc byte[32];
-
 			res = pt.MultConst(s, 256);
 			pt = res.ToGroupElement();
-
 			return new ECPubKey(new GE(pt.x.Normalize(), pt.y.Normalize()), ctx);
-			/* Compute a hash of the point */
-			//ret = hashfp(output, x, y, data);
-
-			// We have a ref over an undisposed secret here
-			//secp256k1_scalar_clear(&s);
-			//return ret;
 		}
 
 		internal static int secp256k1_memcmp_var(ReadOnlySpan<byte> s1, ReadOnlySpan<byte> s2, int n)
