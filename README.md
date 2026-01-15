@@ -6,7 +6,7 @@
 NBitcoin is the most complete Bitcoin library for .NET. It implements all most relevant Bitcoin Improvement Proposals (BIPs). It also provides low level access to Bitcoin primitives so you can easily build your application on top of it. Join us in our [mattermost chat room](https://chat.btcpayserver.org/btcpayserver/channels/nbitcoin).
 It works on Windows, Mac and Linux with Xamarin, Unity, .NET or Framework. (Porting to Unity should not be that hard if you need it)
 
-The best documentation available is our [eBook](https://programmingblockchain.gitbooks.io/programmingblockchain/content/), and the excellent unit tests. There are also some more resources below.
+The best documentation available is our [eBook](https://programmingblockchain.gitbook.io/programmingblockchain/), and the excellent unit tests. There are also some more resources below.
 
 You can also browse the API easily through [the API reference](https://metacosa.github.io/NBitcoin/api/index.html).
 
@@ -35,7 +35,7 @@ To compile it by yourself, you can git clone, open the project and hit the compi
  # How to get started? 
  
  First, you need to understand Bitcoin, for this read:
- * [Programming The Blockchain in C#](https://programmingblockchain.gitbooks.io/programmingblockchain/content/)
+ * [Programming The Blockchain in C#](https://programmingblockchain.gitbook.io/programmingblockchain/)
 
  Once you get familiar with Bitcoin terminology with this book, follow up by reading:
 
@@ -159,7 +159,7 @@ NBitcoin notably includes:
 * Full Bitcoin P2P implementation with SOCKS5 support for connecting through Tor
 * [A C# implementation of secp256k1](NBitcoin.Secp256k1/README.md)
 
-Please read our [ebook](https://programmingblockchain.gitbooks.io/programmingblockchain/content/) to understand the capabilities.
+Please read our [ebook](https://programmingblockchain.gitbook.io/programmingblockchain/) to understand the capabilities.
 
 NBitcoin is inspired by Bitcoin Core code but provides a simpler object oriented API (e.g., new Key().PubKey.Address.ToString() to generate a key and get the associated address). It relies on the BouncyCastle cryptography library instead of OpenSSL, yet replicates OpenSSL bugs to guarantee compatibility. NBitcoin also ports the integrality of Bitcoin Core unit tests with their original data in order to validate the compatibility of the two implementations.
 
@@ -213,7 +213,7 @@ node.VersionHandshake();
 
 ## Useful doc :
 
-* **Ebook** [Programming The Blockchain in C#](https://www.gitbook.com/book/programmingblockchain/programmingblockchain/details)
+* **Ebook** [Programming The Blockchain in C#](https://programmingblockchain.gitbook.io/programmingblockchain/)
 
 * **NBitcoin Github** : [https://github.com/NicolasDorier/NBitcoin](https://github.com/NicolasDorier/NBitcoin "https://github.com/NicolasDorier/NBitcoin")
 
