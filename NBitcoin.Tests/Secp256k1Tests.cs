@@ -4114,9 +4114,7 @@ namespace NBitcoin.Tests
 		private MusigPrivNonce ToMusigPrivNonce(string hex)
 		{
 			var b = Encoders.Hex.DecodeData(hex);
-			return new MusigPrivNonce(ECPrivKey.Create(b.AsSpan().Slice(0, 32)),
-									  ECPrivKey.Create(b.AsSpan().Slice(32, 32)),
-									  ECPubKey.Create(b.AsSpan().Slice(64, 33)));
+			return MusigPrivNonce.Load(b);
 		}
 
 		[Fact]

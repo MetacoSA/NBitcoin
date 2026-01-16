@@ -17,7 +17,6 @@ namespace NBitcoin.Secp256k1.Musig
 	{
 		readonly static RandomNumberGenerator rand = RandomNumberGenerator.Create();
 
-
 		/// <summary>
 		/// This function derives a secret nonce that will be required for signing and
 		/// creates a private nonce whose public part intended to be sent to other signers.
@@ -173,6 +172,16 @@ namespace NBitcoin.Secp256k1.Musig
 			this.k1 = k1;
 			this.k2 = k2;
 			this.pk = pk;
+		}
+
+		public static MusigPrivNonce Load(Span<byte> bytes)
+		{
+			if(bytes.Length != 97)
+				throw new FormatException("Invalid private nonce, expected 97 bytes");
+			var k1 = ECPrivKey.Create(bytes[..32]);
+			var k2 = ECPrivKey.Create(bytes[32..64]);
+			var pk = ECPubKey.Create(bytes[64..]);
+			return new MusigPrivNonce(k1, k2, pk);
 		}
 
 		public void Dispose()
