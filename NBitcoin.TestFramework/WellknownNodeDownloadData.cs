@@ -560,29 +560,29 @@ namespace NBitcoin.Tests
 				CreateWallet = true
 			};
 
-			public NodeDownloadData v30_0 = new NodeDownloadData()
+			public NodeDownloadData v30_2 = new NodeDownloadData()
 			{
-				Version = "30.0",
+				Version = "30.2",
 				Linux = new NodeOSDownloadData()
 				{
 					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
 					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
 					Executable = "bitcoin-{0}/bin/bitcoind",
-					Hash = "00964ae375084113b1162f2f493b9372421608af23539766e315a3cb0ee54248"
+					Hash = "6aa7bb4feb699c4c6262dd23e4004191f6df7f373b5d5978b5bcdd4bb72f75d8"
 				},
 				Mac = new NodeOSDownloadData()
 				{
 					Archive = "bitcoin-{0}-x86_64-apple-darwin.tar.gz",
 					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-apple-darwin.tar.gz",
 					Executable = "bitcoin-{0}/bin/bitcoind",
-					Hash = "4eadf7b06dca695b940ad30f46247aacbd439544a1be25b0ef3baab73777b3d2"
+					Hash = "99d5cee9b9c37be506396c30837a4b98e320bfea71c474d6120a7e8eb6075c7b"
 				},
 				Windows = new NodeOSDownloadData()
 				{
 					Executable = "bitcoin-{0}/bin/bitcoind.exe",
 					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win64.zip",
 					Archive = "bitcoin-{0}-win64.zip",
-					Hash = "3d6f3af2cbfbeaf1958d0ffd77e04da6b8b82f26bb67aaa9111247620d5c95db"
+					Hash = "0d7e1f16f8823aa26d29b44855ff6dbac11c03d75631a6c1d2ea5fab3a84fdf8"
 				},
 				UseSectionInConfigFile = true,
 				CreateWallet = true
