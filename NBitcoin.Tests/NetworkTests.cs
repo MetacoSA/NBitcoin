@@ -81,5 +81,48 @@ namespace NBitcoin.Tests
 				Assert.True(found);
 			}
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanGetDefaultSignet()
+		{
+			var signet = Network.GetNetwork("signet");
+
+			Assert.NotNull(signet);
+
+			var consensusFactory = new ConsensusFactory();
+			var block = consensusFactory.CreateBlock();
+			block.ReadWrite(DataEncoders.Encoders.Hex.DecodeData(SignetSettings.DEFAULT_SIGNET_GENESIS_BLOCK), consensusFactory);
+
+			Assert.Equal(block.GetHash(), signet.GenesisHash);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanGetCustomSignet()
+		{
+			var customSignetName = "signet-custom";
+			var customSignetChallenge = "5121033da06bd7068e9859ee902a0608df9b948829718c60c587f2e497ad4d7420e43151AE";
+			var customSignetGenesisBlock = "0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a008f4d5fae77031e8ad222030101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000";
+			var customSignetSeeds = new[]
+			{
+				"127.0.0.1",
+				"[::1]"
+			};
+
+			var signetSettings = new SignetSettings(customSignetName, customSignetChallenge, customSignetGenesisBlock, customSignetSeeds);
+
+			var initSignet = Bitcoin.Instance.InitCustomSignet(signetSettings);
+
+			Assert.NotNull(initSignet);
+
+			var customSignet = Network.GetNetwork(customSignetName);
+
+			var consensusFactory = new ConsensusFactory();
+			var block = consensusFactory.CreateBlock();
+			block.ReadWrite(DataEncoders.Encoders.Hex.DecodeData(customSignetGenesisBlock), consensusFactory);
+
+			Assert.Equal(block.GetHash(), customSignet.GenesisHash);
+		}
 	}
 }
