@@ -338,5 +338,42 @@ namespace NBitcoin.Tests
 			Assert.Equal(0x80000000U, uint.Parse("2147483648"));
 			Assert.Throws<FormatException>(() => KeyPath.Parse("/2147483648"));
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ShouldRejectInvalidExtendedKeys_BIP32TestVector5()
+		{
+			// BIP-32 Test Vector 5: These vectors test that invalid extended keys are recognized as invalid
+
+			// pubkey version / prvkey mismatch
+			Assert.Throws<FormatException>(() => ExtKey.Parse("xpub661MyMwAqRbcEYS8w7XLSVeEsBXy79zSzH1J8vCdxAZningWLdN3zgtU6LBpB85b3D2yc8sfvZU521AAwdZafEz7mnzBBsz4wKY5fTtTQBm", Network.Main));
+			// prvkey version / pubkey mismatch
+			Assert.Throws<FormatException>(() => ExtPubKey.Parse("xprv9s21ZrQH143K24Mfq5zL5MhWK9hUhhGbd45hLXo2Pq2oqzMMo63oStZzFGTQQD3dC4H2D5GBj7vWvSQaaBv5cxi9gafk7NF3pnBju6dwKvH", Network.Main));
+			// invalid pubkey prefix 04
+			Assert.Throws<FormatException>(() => ExtPubKey.Parse("xpub661MyMwAqRbcEYS8w7XLSVeEsBXy79zSzH1J8vCdxAZningWLdN3zgtU6Txnt3siSujt9RCVYsx4qHZGc62TG4McvMGcAUjeuwZdduYEvFn", Network.Main));
+			// invalid prvkey prefix 04
+			Assert.Throws<FormatException>(() => ExtKey.Parse("xprv9s21ZrQH143K24Mfq5zL5MhWK9hUhhGbd45hLXo2Pq2oqzMMo63oStZzFGpWnsj83BHtEy5Zt8CcDr1UiRXuWCmTQLxEK9vbz5gPstX92JQ", Network.Main));
+			// invalid pubkey prefix 01
+			Assert.Throws<FormatException>(() => ExtPubKey.Parse("xpub661MyMwAqRbcEYS8w7XLSVeEsBXy79zSzH1J8vCdxAZningWLdN3zgtU6N8ZMMXctdiCjxTNq964yKkwrkBJJwpzZS4HS2fxvyYUA4q2Xe4", Network.Main));
+			// invalid prvkey prefix 01
+			Assert.Throws<FormatException>(() => ExtKey.Parse("xprv9s21ZrQH143K24Mfq5zL5MhWK9hUhhGbd45hLXo2Pq2oqzMMo63oStZzFAzHGBP2UuGCqWLTAPLcMtD9y5gkZ6Eq3Rjuahrv17fEQ3Qen6J", Network.Main));
+			// zero depth with non-zero parent fingerprint
+			Assert.Throws<ArgumentException>(() => ExtKey.Parse("xprv9s2SPatNQ9Vc6GTbVMFPFo7jsaZySyzk7L8n2uqKXJen3KUmvQNTuLh3fhZMBoG3G4ZW1N2kZuHEPY53qmbZzCHshoQnNf4GvELZfqTUrcv", Network.Main));
+			Assert.Throws<FormatException>(() => ExtPubKey.Parse("xpub661no6RGEX3uJkY4bNnPcw4URcQTrSibUZ4NqJEw5eBkv7ovTwgiT91XX27VbEXGENhYRCf7hyEbWrR3FewATdCEebj6znwMfQkhRYHRLpJ", Network.Main));
+			// zero depth with non-zero index
+			Assert.Throws<ArgumentException>(() => ExtKey.Parse("xprv9s21ZrQH4r4TsiLvyLXqM9P7k1K3EYhA1kkD6xuquB5i39AU8KF42acDyL3qsDbU9NmZn6MsGSUYZEsuoePmjzsB3eFKSUEh3Gu1N3cqVUN", Network.Main));
+			Assert.Throws<FormatException>(() => ExtPubKey.Parse("xpub661MyMwAuDcm6CRQ5N4qiHKrJ39Xe1R1NyfouMKTTWcguwVcfrZJaNvhpebzGerh7gucBvzEQWRugZDuDXjNDRmXzSZe4c7mnTK97pTvGS8", Network.Main));
+			// unknown extended key version
+			Assert.Throws<FormatException>(() => ExtKey.Parse("DMwo58pR1QLEFihHiXPVykYB6fJmsTeHvyTp7hRThAtCX8CvYzgPcn8XnmdfHGMQzT7ayAmfo4z3gY5KfbrZWZ6St24UVf2Qgo6oujFktLHdHY4", Network.Main));
+			Assert.Throws<FormatException>(() => ExtPubKey.Parse("DMwo58pR1QLEFihHiXPVykYB6fJmsTeHvyTp7hRThAtCX8CvYzgPcn8XnmdfHPmHJiEDXkTiJTVV9rHEBUem2mwVbbNfvT2MTcAqj3nesx8uBf9", Network.Main));
+			// private key 0 not in 1..n-1
+			Assert.Throws<ArgumentException>(() => ExtKey.Parse("xprv9s21ZrQH143K24Mfq5zL5MhWK9hUhhGbd45hLXo2Pq2oqzMMo63oStZzF93Y5wvzdUayhgkkFoicQZcP3y52uPPxFnfoLZB21Teqt1VvEHx", Network.Main));
+			// private key n not in 1..n-1
+			Assert.Throws<ArgumentException>(() => ExtKey.Parse("xprv9s21ZrQH143K24Mfq5zL5MhWK9hUhhGbd45hLXo2Pq2oqzMMo63oStZzFAzHGBP2UuGCqWLTAPLcMtD5SDKr24z3aiUvKr9bJpdrcLg1y3G", Network.Main));
+			// invalid pubkey 020000000000000000000000000000000000000000000000000000000000000007
+			Assert.Throws<FormatException>(() => ExtPubKey.Parse("xpub661MyMwAqRbcEYS8w7XLSVeEsBXy79zSzH1J8vCdxAZningWLdN3zgtU6Q5JXayek4PRsn35jii4veMimro1xefsM58PgBMrvdYre8QyULY", Network.Main));
+			// invalid checksum
+			Assert.Throws<FormatException>(() => ExtKey.Parse("xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHL", Network.Main));
+		}
 	}
 }
