@@ -77,6 +77,11 @@ namespace NBitcoin
 			{
 				builder.AddAlias("bitcoin-signet");
 				builder.AddAlias("btc-signet");
+				builder.AddDNSSeeds(new[]
+				{
+					new DNSSeedData("bitcoin.sprovoost.nl", "seed.signet.bitcoin.sprovoost.nl"),
+					new DNSSeedData("achownodes.xyz", "seed.signet.achownodes.xyz")
+				});
 			}
 
 #if !NOSOCKET
