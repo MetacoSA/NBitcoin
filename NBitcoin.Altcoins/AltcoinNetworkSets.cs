@@ -17,6 +17,7 @@ namespace NBitcoin.Altcoins
 		public static Terracoin Terracoin { get; } = Terracoin.Instance;
 		public static Mogwai Mogwai { get; } = Mogwai.Instance;
 		public static Dogecoin Dogecoin { get; } = Dogecoin.Instance;
+		public static Pepecoin Pepecoin { get; } = Pepecoin.Instance;
 		public static Dystem Dystem { get; } = Dystem.Instance;
 		public static Litecoin Litecoin { get; } = Litecoin.Instance;
 		public static Feathercoin Feathercoin { get; } = Feathercoin.Instance;
