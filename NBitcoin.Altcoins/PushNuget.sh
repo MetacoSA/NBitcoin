@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -euo pipefail
 rm -rf "bin/release/"
 dotnet pack --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg
