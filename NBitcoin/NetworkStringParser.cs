@@ -43,6 +43,11 @@ namespace NBitcoin
 			return new BitcoinPubKeyAddress(keyId, network);
 		}
 
+		public virtual BitcoinPubKeyAddress CreateP2PKH(PubKey pubKey, Network network)
+		{
+			return CreateP2PKH(pubKey.Hash, network);
+		}
+
 		public virtual BitcoinScriptAddress CreateP2SH(ScriptId scriptId, Network network)
 		{
 			return new BitcoinScriptAddress(scriptId, network);

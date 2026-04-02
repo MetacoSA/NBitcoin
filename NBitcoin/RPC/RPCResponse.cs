@@ -18,6 +18,11 @@ namespace NBitcoin.RPC
 			Code = (RPCErrorCode)((int)error.GetValue("code"));
 			Message = (string)error.GetValue("message");
 		}
+		public RPCError(RPCErrorCode code, string message)
+		{
+			Code = code;
+			Message = message;
+		}
 		public RPCErrorCode Code
 		{
 			get;
@@ -33,6 +38,11 @@ namespace NBitcoin.RPC
 	//{"result":null,"error":{"code":-32601,"message":"Method not found"},"id":1}
 	public class RPCResponse
 	{
+		public RPCResponse(JToken result, RPCError error)
+		{
+			Result = result;
+			Error = error;
+		}
 #if !NOJSONNET
 		public
 #else

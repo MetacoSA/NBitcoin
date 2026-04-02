@@ -388,7 +388,7 @@ namespace NBitcoin
 			}
 		}
 
-		public MerkleNode GetMerkleRoot()
+		public virtual MerkleNode GetMerkleRoot()
 		{
 			return MerkleNode.GetRoot(Transactions.Select(t => t.GetHash()));
 		}

@@ -316,13 +316,13 @@ namespace NBitcoin.RPC
 		public async Task<Money> GetBalanceAsync()
 		{
 			var data = await SendCommandAsync(RPCOperations.getbalance, "*").ConfigureAwait(false);
-			return Money.Coins(data.Result.Value<decimal>());
+			return Network.Consensus.ConsensusFactory.ParseGetBalanceResponse(data.Result);
 		}
 
 		public async Task<Money> GetBalanceAsync(int minConf, bool includeWatchOnly)
 		{
 			var data = await SendCommandAsync(RPCOperations.getbalance, "*", minConf, includeWatchOnly).ConfigureAwait(false);
-			return Money.Coins(data.Result.Value<decimal>());
+			return Network.Consensus.ConsensusFactory.ParseGetBalanceResponse(data.Result);
 		}
 
 		public async Task<FundRawTransactionResponse> FundRawTransactionAsync(Transaction transaction, FundRawTransactionOptions options = null, CancellationToken cancellationToken = default)
@@ -345,7 +345,7 @@ namespace NBitcoin.RPC
 			{
 				Transaction = ParseTxHex(r["hex"].Value<string>()),
 				Fee = Money.Coins(r["fee"].Value<decimal>()),
-				ChangePos = r["changepos"].Value<int>()
+				ChangePos = r["changepos"]?.Value<int>()
 			};
 		}
 

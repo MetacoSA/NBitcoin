@@ -292,7 +292,7 @@ namespace NBitcoin
 			switch (type)
 			{
 				case ScriptPubKeyType.Legacy:
-					return this.Hash.GetAddress(network);
+					return network.NetworkStringParser.CreateP2PKH(this, network);
 				case ScriptPubKeyType.Segwit:
 					if (!network.Consensus.SupportSegwit)
 						throw new NotSupportedException("This network does not support segwit");

@@ -16,7 +16,7 @@ namespace NBitcoin.RPC
 		{
 			get; set;
 		}
-		public int ChangePos
+		public int? ChangePos
 		{
 			get; set;
 		}

@@ -1,5 +1,8 @@
 ﻿using NBitcoin.Protocol;
+using NBitcoin.RPC;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace NBitcoin
@@ -121,6 +124,59 @@ namespace NBitcoin
 				"wtxidrelay" => new WTxIdRelayPayload(),
 				_ => new UnknownPayload(command)
 			};
+		}
+
+		// Altcoins can override to modify some aspects of an rpc request or
+		// return a pre-defined response.
+		public virtual RPCResponse RPCRequestHook(ref RPCRequest request)
+		{
+			return null;
+		}
+
+		// Altcoins can override to provide a unique data parsing. If this
+		// method returns false, the default parsing in RPCClient >
+		// ParseVerboseBlock will be used.
+		public virtual bool ParseGetBlockRPCResponse(JObject json, bool withFullTx, out BlockHeader blockHeader, out Block block, out List<uint256> txids)
+		{
+			blockHeader = null;
+			block = null;
+			txids = null;
+			return false;
+		}
+
+		// Whether the RPC server supports batch requests.
+		public virtual bool SupportsBatchRPC => true;
+
+		// Altcoins can override to provide custom getblock arguments.
+		public virtual object[] GetBlockRPCArgs(uint256 blockHash, int verbosity)
+		{
+			return new object[] { blockHash, verbosity };
+		}
+
+		// Altcoins can override to provide custom gettxout arguments.
+		public virtual object[] GetTxOutRPCArgs(uint256 txid, int index, int tree, bool includeMempool)
+		{
+			return new object[] { txid, index, includeMempool };
+		}
+
+		// Altcoins can override to provide custom getrawtransaction verbose param.
+		public virtual object GetRawTransactionVerboseParam => (object)true;
+
+		// Whether getrawtransaction accepts a blockId hint parameter.
+		public virtual bool SupportsGetRawTransactionBlockId => true;
+
+		// Parse getbalance RPC response. Altcoins can override if their
+		// response format differs from Bitcoin's decimal result.
+		public virtual Money ParseGetBalanceResponse(JToken result)
+		{
+			return Money.Coins(result.Value<decimal>());
+		}
+
+		// Format a Money amount for RPC. Bitcoin uses string, some
+		// altcoins require numeric.
+		public virtual object FormatRPCAmount(Money amount)
+		{
+			return amount.ToString();
 		}
 
 		public virtual ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)

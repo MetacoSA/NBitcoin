@@ -674,6 +674,11 @@ namespace NBitcoin
 			}
 		}
 
+		public virtual Target? GetWorkRequired(ChainedBlock block)
+		{
+			return null;
+		}
+
 		public virtual Consensus Clone()
 		{
 			var consensus = new Consensus();

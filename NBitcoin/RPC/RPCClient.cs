@@ -157,6 +157,22 @@ namespace NBitcoin.RPC
 			return $"{credentials.UserName}:{salt}${Encoders.Hex.EncodeData(result)}";
 		}
 
+		public void UseCustomTLSCert(String tlsCertFile)
+		{
+#if !NOFILEIO
+			var validServerCert = new System.Security.Cryptography.X509Certificates.X509Certificate2(tlsCertFile);
+#else
+			throw new NotSupportedException("TLS cert file is not supported for this platform");
+#endif
+
+			var handler = new HttpClientHandler()
+			{
+				ClientCertificateOptions = ClientCertificateOption.Manual,
+				ServerCertificateCustomValidationCallback = (_, cert, _, _) => cert.Equals(validServerCert)
+			};
+			_HttpClient = new HttpClient(handler);
+		}
+
 		private static Lazy<HttpClient> _Shared = new Lazy<HttpClient>(() => new HttpClient() { Timeout = System.Threading.Timeout.InfiniteTimeSpan });
 
 		HttpClient _HttpClient;
@@ -907,6 +923,15 @@ namespace NBitcoin.RPC
 
 		private async Task SendBatchAsyncCore(List<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> requests, CancellationToken cancellationToken)
 		{
+			if (!Network.Consensus.ConsensusFactory.SupportsBatchRPC)
+			{
+				if (AllowBatchFallback)
+					await batchFallback(requests, cancellationToken);
+				else
+					throw new Exception("Batch requests not supported");
+				return;
+			}
+
 			var writer = new StringWriter();
 			writer.Write("[");
 			bool first = true;
@@ -991,6 +1016,22 @@ namespace NBitcoin.RPC
 			await Task.Delay(1);
 		}
 
+		private async Task batchFallback(List<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> requests, CancellationToken cancellationToken)
+		{
+			foreach (var req in requests)
+			{
+				try
+				{
+					var resp = await SendCommandAsync(req.Item1, cancellationToken);
+					req.Item2.TrySetResult(resp);
+				}
+				catch (Exception ex)
+				{
+					req.Item2.TrySetException(ex);
+				}
+			}
+		}
+
 		private bool TryRenewCookie()
 		{
 			var cookiePath = GetCookiePath();
@@ -1019,7 +1060,13 @@ namespace NBitcoin.RPC
 		static Encoding NoBOMUTF8 = new UTF8Encoding(false);
 		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, CancellationToken cancellationToken = default)
 		{
-			RPCResponse response = null;
+			RPCResponse response = Network.Consensus.ConsensusFactory.RPCRequestHook(ref request);
+			if (response != null)
+			{
+				if (request.ThrowIfRPCError)
+					response.ThrowIfError();
+				return response;
+			}
 			var batches = _BatchedRequests;
 			if (batches != null)
 			{
@@ -1151,10 +1198,11 @@ namespace NBitcoin.RPC
 
 				localAddr = string.IsNullOrEmpty(localAddr) ? "127.0.0.1:8333" : localAddr;
 
-				ulong services;
-				if (!ulong.TryParse((string)peer["services"], out services))
+				ulong services = 0;
+				var servicesStr = (string)peer["services"];
+				if (servicesStr != null && !ulong.TryParse(servicesStr, out services))
 				{
-					services = Utils.ToUInt64(Encoders.Hex.DecodeData((string)peer["services"]), false);
+					services = Utils.ToUInt64(Encoders.Hex.DecodeData(servicesStr), false);
 				}
 
 				Utils.TryParseEndpoint((string)peer["addr"], this.Network.DefaultPort, out var addressEnpoint);
@@ -1162,30 +1210,30 @@ namespace NBitcoin.RPC
 
 				result[i++] = new PeerInfo
 				{
-					Id = (int)peer["id"],
+					Id = peer["id"] != null ? (int)peer["id"] : 0,
 					Address = addressEnpoint,
 					LocalAddress = localEndpoint,
 					Services = (NodeServices)services,
 					ServicesNames = (peer["servicesnames"] as JArray)?.Select(a => a.ToString()).ToArray(),
-					LastSend = Utils.UnixTimeToDateTime((uint)peer["lastsend"]),
-					LastReceive = Utils.UnixTimeToDateTime((uint)peer["lastrecv"]),
-					BytesSent = (long)peer["bytessent"],
-					BytesReceived = (long)peer["bytesrecv"],
-					ConnectionTime = Utils.UnixTimeToDateTime((uint)peer["conntime"]),
-					TimeOffset = TimeSpan.FromSeconds(Math.Min((long)int.MaxValue, (long)peer["timeoffset"])),
+					LastSend = peer["lastsend"] != null ? Utils.UnixTimeToDateTime((uint)peer["lastsend"]) : DateTimeOffset.MinValue,
+					LastReceive = peer["lastrecv"] != null ? Utils.UnixTimeToDateTime((uint)peer["lastrecv"]) : DateTimeOffset.MinValue,
+					BytesSent = peer["bytessent"] != null ? (long)peer["bytessent"] : 0,
+					BytesReceived = peer["bytesrecv"] != null ? (long)peer["bytesrecv"] : 0,
+					ConnectionTime = peer["conntime"] != null ? Utils.UnixTimeToDateTime((uint)peer["conntime"]) : DateTimeOffset.MinValue,
+					TimeOffset = peer["timeoffset"] != null ? TimeSpan.FromSeconds(Math.Min((long)int.MaxValue, (long)peer["timeoffset"])) : TimeSpan.Zero,
 					PingTime = peer["pingtime"] == null ? (TimeSpan?)null : TimeSpan.FromSeconds((double)peer["pingtime"]),
 					PingWait = TimeSpan.FromSeconds(pingWait),
 					Blocks = peer["blocks"] != null ? (int)peer["blocks"] : -1,
-					Version = (int)peer["version"],
+					Version = peer["version"] != null ? (int)peer["version"] : 0,
 					SubVersion = (string)peer["subver"],
-					Inbound = (bool)peer["inbound"],
-					StartingHeight = (int)peer["startingheight"],
-					SynchronizedBlocks = (int)peer["synced_blocks"],
-					SynchronizedHeaders = (int)peer["synced_headers"],
+					Inbound = peer["inbound"] != null ? (bool)peer["inbound"] : false,
+					StartingHeight = peer["startingheight"] != null ? (int)peer["startingheight"] : 0,
+					SynchronizedBlocks = peer["synced_blocks"] != null ? (int)peer["synced_blocks"] : -1,
+					SynchronizedHeaders = peer["synced_headers"] != null ? (int)peer["synced_headers"] : -1,
 					IsWhiteListed = peer["whitelisted"] != null ? (bool)peer["whitelisted"] : false,
 					BanScore = peer["banscore"] == null ? 0 : (int)peer["banscore"],
 					Permissions = peer["permissions"] is JArray permissions ? permissions.Select(p => p.Value<string>()).ToArray() : new string[0],
-					Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
+					Inflight = peer["inflight"] != null ? peer["inflight"].Select(x => uint.Parse((string)x)).ToArray() : new uint[0]
 				};
 			}
 			return result;
@@ -1355,7 +1403,7 @@ namespace NBitcoin.RPC
 #pragma warning disable CS0612 // Type or member is obsolete
 			var blockchainInfo = new BlockchainInfo
 			{
-				Chain = Network.GetNetwork(result.Value<string>("chain")),
+				Chain = Network.GetNetwork(result.Value<string>("chain")) ?? this.Network,
 				Blocks = result.Value<ulong>("blocks"),
 				Headers = result.Value<ulong>("headers"),
 				BestBlockHash = new uint256(result.Value<string>("bestblockhash")), // the block hash
@@ -1484,72 +1532,83 @@ namespace NBitcoin.RPC
 
 		public async Task<GetBlockRPCResponse> GetBlockAsync(uint256 blockHash, GetBlockVerbosity verbosity, CancellationToken cancellationToken = default)
 		{
-			var resp = await SendCommandAsync("getblock", cancellationToken, blockHash, (int)verbosity).ConfigureAwait(false);
+			var args = Network.Consensus.ConsensusFactory.GetBlockRPCArgs(blockHash, (int)verbosity);
+			var resp = await SendCommandAsync("getblock", cancellationToken, args).ConfigureAwait(false);
 			return ParseVerboseBlock(resp, (int)verbosity);
 		}
 
 		private GetBlockRPCResponse ParseVerboseBlock(RPCResponse resp, int verbosity)
 		{
 			var json = (JObject)resp.Result;
-			var blockHeader = Network.Consensus.ConsensusFactory.CreateBlockHeader();
-			blockHeader.Bits = new Target(Encoders.Hex.DecodeData(json.Value<string>("bits")));
-			blockHeader.Version = json.Value<int>("version");
-			blockHeader.HashMerkleRoot = new uint256(json.Value<string>("merkleroot"));
-			blockHeader.BlockTime = Utils.UnixTimeToDateTime(json.Value<uint>("time"));
-			blockHeader.Nonce = json.Value<uint>("nonce");
+			var factory = Network.Consensus.ConsensusFactory;
 
-			// prevblock field does not exist for the genesis.
-			if (json.TryGetValue("previousblockhash", StringComparison.Ordinal, out var prevBlockHash))
+			BlockHeader blockHeader;
+			Block block;
+			List<uint256> txids;
+
+			if (!factory.ParseGetBlockRPCResponse(json, verbosity == 2, out blockHeader, out block, out txids))
 			{
-				blockHeader.HashPrevBlock = uint256.Parse(prevBlockHash.ToString());
+				blockHeader = factory.CreateBlockHeader();
+				blockHeader.Bits = new Target(Encoders.Hex.DecodeData(json.Value<string>("bits")));
+				blockHeader.Version = json.Value<int>("version");
+				blockHeader.HashMerkleRoot = new uint256(json.Value<string>("merkleroot"));
+				blockHeader.BlockTime = Utils.UnixTimeToDateTime(json.Value<uint>("time"));
+				blockHeader.Nonce = json.Value<uint>("nonce");
+
+				// prevblock field does not exist for the genesis.
+				if (json.TryGetValue("previousblockhash", StringComparison.Ordinal, out var prevBlockHash))
+				{
+					blockHeader.HashPrevBlock = uint256.Parse(prevBlockHash.ToString());
+				}
+				else
+				{
+					blockHeader.HashPrevBlock = null;
+				}
+
+				block = null;
+				txids = new List<uint256>();
+				if (verbosity == 2)
+				{
+					var txs = new List<Transaction>();
+					foreach (var txInfo in json.Value<JArray>("tx"))
+					{
+
+						var tx = ParseTxHex(txInfo.Value<string>("hex"));
+						txs.Add(tx);
+						txids.Add(tx.GetHash());
+					}
+					block = Network.Consensus.ConsensusFactory.CreateBlock();
+					block.Header = blockHeader;
+					block.Transactions = txs;
+					if (!block.GetMerkleRoot().Hash.Equals(blockHeader.HashMerkleRoot))
+					{
+						throw new FormatException($"Bogus GetBlockRPCResponse! merkle root mistmach (expected: {blockHeader.HashMerkleRoot}. actual: {block.GetMerkleRoot().Hash})");
+					}
+				}
+				else if (verbosity == 1)
+				{
+					foreach (var tx in json.Value<JArray>("tx"))
+					{
+						txids.Add(uint256.Parse(tx.ToString()));
+					}
+				}
+				else
+				{
+					throw new Exception("Unreachable!");
+				}
+
+				var nTx = json.Value<int>("nTx");
+				if (nTx != txids.Count)
+				{
+					throw new FormatException($"Bogus GetBlockRPCResponse! nTx mismatch (expected: {nTx}. actual: {txids.Count})");
+				}
 			}
-			else
-			{
-				blockHeader.HashPrevBlock = null;
-			}
+
 			// nextblockhash field does not exist for the chain tip.
 			uint256 nextBlockHash = null;
 			if (json.TryGetValue("nextblockhash", StringComparison.Ordinal, out var nextBlockHashHex))
 			{
 				nextBlockHash = uint256.Parse(nextBlockHashHex.ToString());
-			}
-
-			Block block = null;
-			var txids = new List<uint256>();
-			if (verbosity == 2)
-			{
-				var txs = new List<Transaction>();
-				foreach (var txInfo in json.Value<JArray>("tx"))
-				{
-
-					var tx = ParseTxHex(txInfo.Value<string>("hex"));
-					txs.Add(tx);
-					txids.Add(tx.GetHash());
-				}
-				block = Network.Consensus.ConsensusFactory.CreateBlock();
-				block.Header = blockHeader;
-				block.Transactions = txs;
-				if (!block.GetMerkleRoot().Hash.Equals(blockHeader.HashMerkleRoot))
-				{
-					throw new FormatException($"Bogus GetBlockRPCResponse! merkle root mistmach (expected: {blockHeader.HashMerkleRoot}. actual: {block.GetMerkleRoot().Hash})");
-				}
-			}
-			else if (verbosity == 1)
-			{
-				foreach (var tx in json.Value<JArray>("tx"))
-				{
-					txids.Add(uint256.Parse(tx.ToString()));
-				}
-			}
-			else
-			{
-				throw new Exception("Unreachable!");
-			}
-
-			var nTx = json.Value<int>("nTx");
-			if (nTx != txids.Count)
-			{
-				throw new FormatException($"Bogus GetBlockRPCResponse! nTx mismatch (expected: {nTx}. actual: {txids.Count})");
 			}
 			return new GetBlockRPCResponse()
 			{
@@ -1863,7 +1922,8 @@ namespace NBitcoin.RPC
 		/// <returns>null if spent or never existed</returns>
 		public async Task<GetTxOutResponse> GetTxOutAsync(uint256 txid, int index, bool includeMempool = true, CancellationToken cancellationToken = default)
 		{
-			var response = await SendCommandAsync(RPCOperations.gettxout, cancellationToken, txid, index, includeMempool).ConfigureAwait(false);
+			var args = Network.Consensus.ConsensusFactory.GetTxOutRPCArgs(txid, index, 0, includeMempool);
+			var response = await SendCommandAsync(RPCOperations.gettxout, cancellationToken, args).ConfigureAwait(false);
 			if (string.IsNullOrWhiteSpace(response?.ResultString))
 			{
 				return null;
@@ -1995,7 +2055,7 @@ namespace NBitcoin.RPC
 			List<object> args = new List<object>(3);
 			args.Add(txid);
 			args.Add(0);
-			if (blockId != null)
+			if (blockId != null && Network.Consensus.ConsensusFactory.SupportsGetRawTransactionBlockId)
 				args.Add(blockId);
 			var response = await SendCommandAsync(new RPCRequest(RPCOperations.getrawtransaction, args.ToArray()) { ThrowIfRPCError = throwIfNotFound }, cancellationToken).ConfigureAwait(false);
 			if (throwIfNotFound)
@@ -2023,7 +2083,7 @@ namespace NBitcoin.RPC
 
 		public async Task<RawTransactionInfo> GetRawTransactionInfoAsync(uint256 txId, CancellationToken cancellationToken = default)
 		{
-			var request = new RPCRequest(RPCOperations.getrawtransaction, new object[] { txId, true });
+			var request = new RPCRequest(RPCOperations.getrawtransaction, new object[] { txId, Network.Consensus.ConsensusFactory.GetRawTransactionVerboseParam });
 			var response = await SendCommandAsync(request, cancellationToken: cancellationToken);
 			var json = response.Result;
 
@@ -2359,7 +2419,7 @@ namespace NBitcoin.RPC
 			{
 				List<object> list = new List<object>();
 				list.Add(address.ToString());
-				list.Add(amount.ToString());
+				list.Add(Network.Consensus.ConsensusFactory.FormatRPCAmount(amount));
 				var resp = await SendCommandAsync(RPCOperations.sendtoaddress, cancellationToken, list.ToArray()).ConfigureAwait(false);
 				return uint256.Parse(resp.Result.ToString());
 			}
