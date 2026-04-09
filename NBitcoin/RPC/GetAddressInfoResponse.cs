@@ -1,7 +1,6 @@
 #if !NOJSONNET
 using System;
 using System.Collections.Generic;
-using NBitcoin.Scripting;
 using Newtonsoft.Json.Linq;
 
 namespace NBitcoin.RPC
@@ -12,7 +11,7 @@ namespace NBitcoin.RPC
 		public bool? Solvable { get; private set; }
 
 # nullable enable
-		public OutputDescriptor? Descriptor { get; private set; }
+		public string? Descriptor { get; private set; }
 #nullable disable
 
 		// present only in p2sh-nested case
@@ -38,7 +37,7 @@ namespace NBitcoin.RPC
 			Solvable = raw.Property("solvable")?.Value.Value<bool>();
 			Descriptor = raw.Property("desc") == null
 				? null
-				: OutputDescriptor.Parse(raw.Property("desc").Value.Value<string>(), network);
+				: raw.Property("desc").Value.Value<string>();
 			IsWatchOnly = raw.Property("iswatchonly").Value.Value<bool>();
 			IsScript = raw.Property("isscript").Value.Value<bool>();
 			IsWitness = raw.Property("iswitness").Value.Value<bool>();

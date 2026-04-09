@@ -15,7 +15,6 @@ using AssetBuilder = System.Action<NBitcoin.TransactionBuilder.TransactionBuildi
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Diagnostics.CodeAnalysis;
-using NBitcoin.Scripting.Parser;
 
 namespace NBitcoin
 {
@@ -77,7 +76,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Providing the PrecomputedTransactionData speed up signing time, by pre computing one several hashes need
 		/// for the calculation of the signatures of every input.
-		/// 
+		///
 		/// For taproot transaction signing, the precomputed transaction data is required if some of the inputs does not
 		/// belong to the signer.
 		/// </summary>

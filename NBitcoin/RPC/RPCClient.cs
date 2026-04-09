@@ -16,7 +16,7 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NBitcoin.Scripting;
+using NBitcoin.WalletPolicies;
 using static NBitcoin.RPC.BlockchainInfo;
 
 namespace NBitcoin.RPC
@@ -739,7 +739,7 @@ namespace NBitcoin.RPC
 				// sneakily add it to the descriptor
 				var desc = descriptor.Desc.IndexOf('#') != -1
 					? descriptor.Desc
-					: OutputDescriptor.AddChecksum(descriptor.Desc);
+					: Miniscript.AddChecksum(descriptor.Desc);
 
 				obj.Add("desc", desc);
 				if (descriptor.Active is not null)
@@ -781,18 +781,14 @@ namespace NBitcoin.RPC
 			foreach (var descObj in parameters.Descriptors ?? new ScanTxoutDescriptor[0])
 			{
 				JObject descJson = new JObject();
-				descJson.Add(new JProperty("desc", descObj.Descriptor.ToString()));
-				if (descObj.Descriptor.IsRange())
+				descJson.Add(new JProperty("desc", descObj.Descriptor));
+				if (descObj.Begin is null && descObj.End is int end)
 				{
-					var r = new JArray();
-					if (descObj.Begin is null && descObj.End is int end)
-					{
-						descJson.Add(new JProperty("range", end));
-					}
-					if (descObj.Begin is int begin && descObj.End is int end2)
-					{
-						descJson.Add(new JProperty("range", new[] { begin, end2 }));
-					}
+					descJson.Add(new JProperty("range", end));
+				}
+				if (descObj.Begin is int begin && descObj.End is int end2)
+				{
+					descJson.Add(new JProperty("range", new[] { begin, end2 }));
 				}
 				descriptorsJson.Add(descJson);
 			}

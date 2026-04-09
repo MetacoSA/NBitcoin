@@ -1,15 +1,11 @@
 ﻿#if !NO_RECORDS
 using NBitcoin.DataEncoders;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using NBitcoin.WalletPolicies;
 using static NBitcoin.WalletPolicies.MiniscriptNode;
-using static NBitcoin.WalletPolicies.Miniscript;
-using NBitcoin.Scripting;
 using Xunit.Abstractions;
-using System.Net;
 using NBitcoin.Secp256k1;
 using NBitcoin.WalletPolicies.Visitors;
 

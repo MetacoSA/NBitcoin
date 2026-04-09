@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
-using NBitcoin.Scripting;
 
 namespace NBitcoin.RPC
 {
@@ -21,11 +19,22 @@ namespace NBitcoin.RPC
 		{
 
 		}
-		public ScanTxoutSetParameters(OutputDescriptor descriptor, int? begin = null, int? end = null)
+		public ScanTxoutSetParameters(string descriptor, int? begin = null, int? end = null)
 		{
-			Descriptors = new ScanTxoutDescriptor[1] { new ScanTxoutDescriptor(descriptor) { Begin = begin, End = end } };
+			Descriptors = new[] { new ScanTxoutDescriptor(descriptor) { Begin = begin, End = end } };
 		}
-		public ScanTxoutSetParameters(IEnumerable<OutputDescriptor> descriptors, int? begin = null, int? end = null)
+		public ScanTxoutSetParameters(BitcoinAddress address, int? begin = null, int? end = null)
+		: this(ScanTxoutDescriptor.ToDescriptor(address), begin, end)
+		{
+		}
+		public ScanTxoutSetParameters(Script script, int? begin = null, int? end = null)
+			: this(ScanTxoutDescriptor.ToDescriptor(script), begin, end)
+		{
+		}
+
+
+
+		public ScanTxoutSetParameters(IEnumerable<string> descriptors, int? begin = null, int? end = null)
 		{
 			Descriptors = descriptors.Select(descriptor => new ScanTxoutDescriptor(descriptor) { Begin = begin, End = end } ).ToArray();
 		}
@@ -37,15 +46,27 @@ namespace NBitcoin.RPC
 	}
 	public class ScanTxoutDescriptor
 	{
-		public ScanTxoutDescriptor(OutputDescriptor desc)
+		internal static string ToDescriptor(BitcoinAddress address)
+		=> address is null ? throw new ArgumentNullException(nameof(address)) : $"addr({address})";
+		internal static string ToDescriptor(Script script)
+			=> script is null ? throw new ArgumentNullException(nameof(script)) : $"raw({script})";
+		public ScanTxoutDescriptor(string descriptor)
 		{
-			Descriptor = desc;
+			Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
 		}
+
+		public ScanTxoutDescriptor(BitcoinAddress address) : this(ToDescriptor(address))
+		{
+		}
+		public ScanTxoutDescriptor(Script script) : this(ToDescriptor(script))
+		{
+		}
+
 		public ScanTxoutDescriptor()
 		{
 
 		}
-		public OutputDescriptor Descriptor { get; set; }
+		public string Descriptor { get; set; }
 		/// <summary>
 		/// The range of HD chain indexes to explore
 		/// </summary>

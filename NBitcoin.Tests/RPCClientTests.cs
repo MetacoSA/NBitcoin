@@ -10,17 +10,10 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NBitcoin.Logging;
-using NBitcoin.Tests.Helpers;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
-using FsCheck.Xunit;
-using FsCheck;
-using NBitcoin.Tests.Generators;
 using static NBitcoin.Tests.Comparer;
 using System.Net.Http;
-using NBitcoin.Scripting;
 using NBitcoin.Protocol;
 
 namespace NBitcoin.Tests
@@ -36,8 +29,6 @@ namespace NBitcoin.Tests
 
 		public RPCClientTests(ITestOutputHelper output)
 		{
-			Arb.Register<PSBTGenerator>();
-			Arb.Register<SegwitTransactionGenerators>();
 			PSBTComparerInstance = new PSBTComparer();
 			Output = output;
 		}
@@ -339,9 +330,8 @@ namespace NBitcoin.Tests
 				var dest = key.PubKey.Hash.GetAddress(builder.Network);
 				var txid = rpc.SendToAddress(dest, Money.Coins(1.0m));
 				var funding = rpc.GetRawTransaction(txid);
-				var coin = funding.Outputs.AsCoins().Single(o => o.ScriptPubKey == dest.ScriptPubKey);
 
-				var result = rpc.StartScanTxoutSet(new ScanTxoutSetParameters(OutputDescriptor.NewAddr(dest, builder.Network)));
+				var result = rpc.StartScanTxoutSet(new ScanTxoutSetParameters(dest));
 
 				Assert.Equal(101, result.SearchedItems);
 				Assert.True(result.Success);
@@ -352,7 +342,7 @@ namespace NBitcoin.Tests
 				Assert.Null(rpc.GetStatusScanTxoutSet());
 
 				rpc.Generate(1);
-				result = rpc.StartScanTxoutSet(new ScanTxoutSetParameters(OutputDescriptor.NewAddr(dest, builder.Network)));
+				result = rpc.StartScanTxoutSet(new ScanTxoutSetParameters(dest));
 				Assert.True(result.SearchedItems > 100);
 				Assert.True(result.Success);
 				Assert.Single(result.Outputs);
@@ -365,7 +355,7 @@ namespace NBitcoin.Tests
 
 				var extkey = new ExtKey().GetWif(builder.Network);
 
-				var outputDesc = OutputDescriptor.NewPKH(PubKeyProvider.NewHD(extkey.Neuter(), new KeyPath("0/0"), PubKeyProvider.DeriveType.UNHARDENED), builder.Network);
+				var outputDesc = $"pkh({extkey.Neuter()}/0/0/*)";
 				foreach (var item in new[]
 				{
 					(Begin: (int?)null, End: (int?)500, SearchedItem: 500),
