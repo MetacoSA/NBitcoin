@@ -412,27 +412,24 @@ namespace NBitcoin.Scripting
 			};
 
 
-			private bool TryGetPrivateStringCore(
-				ISigningRepository secretProvider,
-				StringBuilder sb
-			)
+			private bool TryGetPrivateStringCore(StringBuilder sb)
 			{
 				switch (this)
 				{
 					case Tree self:
 					{
 						sb.Append("{");
-						if (!self.Child1.TryGetPrivateStringCore(secretProvider, sb))
+						if (!self.Child1.TryGetPrivateStringCore(sb))
 							return false;
 						sb.Append(",");
-						if (!self.Child2.TryGetPrivateStringCore(secretProvider, sb))
+						if (!self.Child2.TryGetPrivateStringCore(sb))
 							return false;
 						sb.Append("}");
 						return true;
 					}
 					case Leaf self:
 					{
-						if (!self.Inner.TryGetPrivateStringHelper(secretProvider, out var substring))
+						if (!self.Inner.TryGetPrivateStringHelper(out var substring))
 							return false;
 						sb.Append(substring);
 						return true;
@@ -442,17 +439,19 @@ namespace NBitcoin.Scripting
 			}
 
 			internal bool TryGetPrivateString(
-				ISigningRepository secretProvider,
 				[MaybeNullWhen(false)] out string ret
 			)
 			{
 				ret = null;
 				var sb = new StringBuilder();
-				if (!TryGetPrivateStringCore(secretProvider, sb))
+				if (!TryGetPrivateStringCore(sb))
 					return false;
 				ret = sb.ToString();
 				return true;
 			}
+
+			internal bool TryGetPrivateString(object? secretProvider, [MaybeNullWhen(false)] out string ret)
+				=> TryGetPrivateString(out ret);
 
 			private IEnumerable<(OutputDescriptor, int)> IterateScriptsCore(int depth)
 			{
@@ -529,7 +528,7 @@ namespace NBitcoin.Scripting
 			/// </summary>
 			/// <param name="taprootSpendInfo"></param>
 			/// <returns></returns>
-			internal bool TryGetSpendInfo(ISigningRepository repo, [MaybeNullWhen(false)] out TaprootSpendInfo taprootSpendInfo)
+			internal bool TryGetSpendInfo([MaybeNullWhen(false)] out TaprootSpendInfo taprootSpendInfo)
 			{
 				Debug.Assert(!IsRange());
 				taprootSpendInfo = null;
@@ -539,7 +538,7 @@ namespace NBitcoin.Scripting
 				{
 					foreach (var (desc, depth) in this.TapLeafs.IterateScripts())
 					{
-						if (!desc.TryExpand(0, _ => null, repo, out var scripts, true))
+						if (!desc.TryExpand(0, _ => null, out var scripts, true))
 							throw new Exception($"Failed to expand descriptor {desc}. This should never happen");
 
 						foreach (var s in scripts)
@@ -602,17 +601,15 @@ namespace NBitcoin.Scripting
 		/// </summary>
 		/// <param name="pos">position index to expand</param>
 		/// <param name="privateKeyProvider">provider to inject private keys in case of hardened derivation</param>
-		/// <param name="repo">repository to which to put resulted information.</param>
 		/// <param name="outputScripts">resulted scriptPubKey</param>
 		/// <returns></returns>
 		public bool TryExpand(
 			uint pos,
-			ISigningRepository repo,
 			[MaybeNullWhen(false)] out List<Script> outputScripts,
 			IDictionary<uint, ExtPubKey>? cache = null
 			)
 		{
-			return TryExpand(pos, repo.GetPrivateKey, repo, out outputScripts, false, cache);
+			return TryExpand(pos, _ => null, out outputScripts, false, cache);
 		}
 
 
@@ -622,52 +619,38 @@ namespace NBitcoin.Scripting
 		/// </summary>
 		/// <param name="pos">position index to expand</param>
 		/// <param name="privateKeyProvider">provider to inject private keys in case of hardened derivation</param>
-		/// <param name="repo">repository to which to put resulted information.</param>
 		/// <param name="outputScripts">resulted scriptPubKey</param>
 		/// <returns></returns>
 		public bool TryExpand(
 			uint pos,
 			Func<KeyId, Key?> privateKeyProvider,
-			ISigningRepository repo,
 			[MaybeNullWhen(false)] out List<Script> outputScripts,
 			bool isTaproot = false,
 			IDictionary<uint, ExtPubKey>? cache = null
 			)
 		{
 			if (privateKeyProvider == null) throw new ArgumentNullException(nameof(privateKeyProvider));
-			if (repo == null) throw new ArgumentNullException(nameof(repo));
 			outputScripts = new List<Script>();
-			return TryExpand(pos, privateKeyProvider, repo, outputScripts, isTaproot, cache);
+			return TryExpand(pos, privateKeyProvider, outputScripts, isTaproot, cache);
 		}
 
 		private bool ExpandPkHelper(
 			PubKeyProvider pkP,
 			Func<KeyId, Key?> privateKeyProvider,
 			uint pos,
-			ISigningRepository repo,
 			List<Script> outSc,
 			bool isTaproot,
 			IDictionary<uint, ExtPubKey>? cache = null)
 		{
 			if (!pkP.TryGetPubKey(pos, privateKeyProvider, out var keyOrigin1, out var pubkey1))
 				return false;
-			if (keyOrigin1 != null)
-			{
-				repo.SetKeyOrigin(pubkey1.Hash, keyOrigin1);
-#if HAS_SPAN
-				repo.SetKeyOrigin(pubkey1.TaprootPubKey, keyOrigin1);
-#endif
-			}
-
-			repo.SetPubKey(pubkey1.Hash, pubkey1);
-			outSc.AddRange(MakeScripts(pubkey1, repo, isTaproot));
+			outSc.AddRange(MakeScripts(pubkey1, isTaproot));
 			return true;
 		}
 
 		private bool TryExpand(
 			uint pos,
 			Func<KeyId, Key?> privateKeyProvider,
-			ISigningRepository repo,
 			List<Script> outputScripts,
 			bool isTaproot,
 			IDictionary<uint, ExtPubKey>? cache = null
@@ -680,26 +663,20 @@ namespace NBitcoin.Scripting
 				case Raw _:
 					return false;
 				case PK self:
-					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts, isTaproot);
+					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, outputScripts, isTaproot);
 				case PKH self:
-					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts, isTaproot);
+					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, outputScripts, isTaproot);
 				case WPKH self:
-					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts, isTaproot);
+					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, outputScripts, isTaproot);
 				case Combo self:
-					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, repo, outputScripts, isTaproot);
+					return ExpandPkHelper(self.PkProvider, privateKeyProvider, pos, outputScripts, isTaproot);
 				case Multi self:
-					// prepare temporary objects so that it won't affect the result in case
-					// it fails in the middle.
-					var tmpRepo = new FlatSigningRepository();
 					var keys = new PubKey[self.PkProviders.Count];
 					for (int i = 0; i < self.PkProviders.Count; ++i)
 					{
 						var pkP = self.PkProviders[i];
 						if (!pkP.TryGetPubKey(pos, privateKeyProvider, out var keyOrigin1, out var pubkey1))
 							return false;
-						if (keyOrigin1 != null)
-							tmpRepo.SetKeyOrigin(pubkey1.Hash, keyOrigin1);
-						tmpRepo.SetPubKey(pubkey1.Hash, pubkey1);
 						keys[i] = pubkey1;
 					}
 
@@ -707,29 +684,21 @@ namespace NBitcoin.Scripting
 					{
 						keys = keys.OrderBy(x => x).ToArray();
 					}
-					repo.Merge(tmpRepo);
 					outputScripts.Add(PayToMultiSigTemplate.Instance.GenerateScriptPubKey((int)self.Threshold, sort: false, forceSmallSigCount: false, keys));
 					return true;
 				case SH self:
-					var subRepo1 = new FlatSigningRepository();
-					if (!self.Inner.TryExpand(pos, privateKeyProvider, subRepo1, out var shInnerResult, false))
+					if (!self.Inner.TryExpand(pos, privateKeyProvider, out var shInnerResult, false))
 						return false;
-					repo.Merge(subRepo1);
 					foreach (var inner in shInnerResult)
 					{
-						repo.SetScript(inner.Hash, inner);
 						outputScripts.Add(inner.Hash.ScriptPubKey);
 					}
 					return true;
 				case WSH self:
-					var subRepo2 = new FlatSigningRepository();
-					if (!self.Inner.TryExpand(pos, privateKeyProvider, subRepo2, out var wshInnerResult, false))
+					if (!self.Inner.TryExpand(pos, privateKeyProvider, out var wshInnerResult, false))
 						return false;
-					repo.Merge(subRepo2);
 					foreach (var inner in wshInnerResult)
 					{
-						repo.SetScript(inner.Hash, inner);
-						repo.SetScript(inner.WitHash.HashForLookUp, inner);
 						outputScripts.Add(inner.WitHash.ScriptPubKey);
 					}
 					return true;
@@ -737,14 +706,12 @@ namespace NBitcoin.Scripting
 				case Tr self:
 					if (!self.InnerPubkey.TryGetPubKey(pos, privateKeyProvider, out var keyOrigin2, out var pubkey2))
 						return false;
-					if (keyOrigin2 != null)
-						repo.SetKeyOrigin(pubkey2.TaprootPubKey, keyOrigin2);
 					var builder = new TaprootBuilder();
 					if (self.TapLeafs is not null)
 					{
 						foreach (var (od, depth) in self.TapLeafs.IterateScripts())
 						{
-							if (!od.TryExpand(pos, privateKeyProvider, repo, out var subScripts , true))
+							if (!od.TryExpand(pos, privateKeyProvider, out var subScripts , true))
 								return false;
 							foreach (var s in subScripts)
 							{
@@ -753,11 +720,10 @@ namespace NBitcoin.Scripting
 						}
 					}
 					var spendInfo = builder.Finalize(pubkey2.TaprootInternalKey);
-					repo.SetTaprootSpendInfo(spendInfo.OutputPubKey, spendInfo);
 					outputScripts.Add(spendInfo.OutputPubKey.OutputKey.ScriptPubKey);
 					return true;
 				case RawTr self:
-					return ExpandPkHelper(self.OutputPubKeyProvider, privateKeyProvider, pos, repo, outputScripts, true);
+					return ExpandPkHelper(self.OutputPubKeyProvider, privateKeyProvider, pos, outputScripts, true);
 #endif
 			}
 			throw new Exception("Unreachable");
@@ -767,10 +733,9 @@ namespace NBitcoin.Scripting
 		///  Make output scirptpubkey from expanded pubkey.
 		/// </summary>
 		/// <param name="key"></param>
-		/// <param name="repo"></param>
 		/// <returns></returns>
 		/// <exception cref="Exception"></exception>
-		private List<Script> MakeScripts(PubKey key, ISigningRepository repo, bool isTaproot)
+		private List<Script> MakeScripts(PubKey key, bool isTaproot)
 		{
 			switch (this)
 			{
@@ -805,7 +770,6 @@ namespace NBitcoin.Scripting
 					{
 						res.Add(key.WitHash.ScriptPubKey);
 						res.Add(key.WitHash.ScriptPubKey.Hash.ScriptPubKey);
-						repo.SetScript(key.WitHash.ScriptPubKey.Hash, key.WitHash.ScriptPubKey);
 					}
 					return res;
 #if HAS_SPAN
@@ -880,14 +844,8 @@ namespace NBitcoin.Scripting
 #endif
 		}
 
-		private static PubKeyProvider InferPubKey(PubKey pk, ISigningRepository repo)
-		{
-			var keyProvider = PubKeyProvider.NewConst(pk);
-			return
-				repo.TryGetKeyOrigin(pk.Hash, out var keyOrigin)
-				? PubKeyProvider.NewOrigin(keyOrigin, keyProvider)
-				: keyProvider;
-		}
+		private static PubKeyProvider InferPubKey(PubKey pk)
+			=> PubKeyProvider.NewConst(pk);
 
 		private ScriptPubKeyType? InferTemplate(ScriptTemplate? template) => template switch
 		{
@@ -931,20 +889,14 @@ namespace NBitcoin.Scripting
 		};
 
 #if HAS_SPAN
-		private static PubKeyProvider InferXOnlyPubkey(TaprootPubKey xkey, ISigningRepository repo)
-		{
-			var keyProvider = PubKeyProvider.NewConst(xkey);
-			return
-				repo.TryGetKeyOrigin(xkey, out var origin) ?
-				PubKeyProvider.NewOrigin(origin, keyProvider) :
-				keyProvider;
-		}
+		private static PubKeyProvider InferXOnlyPubkey(TaprootPubKey xkey)
+			=> PubKeyProvider.NewConst(xkey);
 
-		private static PubKeyProvider InferXOnlyPubkey(TaprootInternalPubKey xkey, ISigningRepository repo)
-			=> InferXOnlyPubkey(new TaprootPubKey(xkey.pubkey), repo);
+		private static PubKeyProvider InferXOnlyPubkey(TaprootInternalPubKey xkey)
+			=> InferXOnlyPubkey(new TaprootPubKey(xkey.pubkey));
 
 
-		private static OutputDescriptor? InferMultiA(Script sc, ISigningRepository repo, Network network)
+		private static OutputDescriptor? InferMultiA(Script sc, Network network)
 		{
 
 			var match = sc.FindMultiATemplate();
@@ -955,9 +907,7 @@ namespace NBitcoin.Scripting
 			var keys = new List<PubKeyProvider>(pks.Count);
 
 			foreach (var key in pks)
-			{
-				keys.Add(InferXOnlyPubkey(key, repo));
-			}
+				keys.Add(InferXOnlyPubkey(key));
 
 			return NewMulti((uint)m, keys, isSorted: false, network, isTapScript: true);
 
@@ -970,20 +920,18 @@ namespace NBitcoin.Scripting
 		/// In case of Taproot, all we can do is to return `rawtr()` instead of `tr()`
 		/// </summary>
 		/// <param name="sc"></param>
-		/// <param name="repo"></param>
 		/// <param name="network"></param>
 		/// <param name="ctx"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentNullException"></exception>
-		public static OutputDescriptor InferFromScript(Script sc, ISigningRepository repo, Network network)
-			=> InferFromScript(sc, repo, network, ScriptContext.TOP);
+		public static OutputDescriptor InferFromScript(Script sc, Network network)
+			=> InferFromScript(sc, network, ScriptContext.TOP);
 
-		private static OutputDescriptor InferFromScript(Script sc, ISigningRepository repo, Network network, ScriptContext ctx)
+		private static OutputDescriptor InferFromScript(Script sc, Network network, ScriptContext ctx)
 		{
 			if (network is null)
 				throw new ArgumentNullException(nameof(network));
 			if (sc == null) throw new ArgumentNullException(nameof(sc));
-			if (repo == null) throw new ArgumentNullException(nameof(repo));
 
 
 			var template = sc.FindTemplate();
@@ -996,10 +944,10 @@ namespace NBitcoin.Scripting
 				if (b.Length == 34 && b[0] == 32 && b[33] == (byte)OpcodeType.OP_CHECKSIG)
 				{
 					var xonlyKey = new TaprootPubKey(b.AsSpan(1, 32));
-					return NewPK(InferXOnlyPubkey(xonlyKey, repo), network);
+					return NewPK(InferXOnlyPubkey(xonlyKey), network);
 				}
 
-				var ret = InferMultiA(sc, repo, network);
+				var ret = InferMultiA(sc, network);
 				if (ret is not null)
 					return ret;
 			}
@@ -1008,50 +956,7 @@ namespace NBitcoin.Scripting
 			{
 				if (p2trTemplate.ExtractScriptPubKeyParameters(sc) is { } pk)
 				{
-					if (repo.TryGetTaprootSpendInfo(pk, out var taprootSpendInfo))
-					{
-						var keyProvider =
-							InferXOnlyPubkey(taprootSpendInfo.InternalPubKey, repo);
-
-						if (taprootSpendInfo.InferTaprootTree(pk, out var tree))
-						{
-							bool ok = true;
-							var subScripts = new List<OutputDescriptor>();
-							var depths = new List<int>();
-							foreach (var (depth, script) in tree)
-							{
-								OutputDescriptor? subdesc =
-									(script.Version == TapLeafVersion.C0)
-										? InferFromScript(script, repo, network, ScriptContext.P2TR)
-										: null;
-								if (subdesc is null)
-								{
-									ok = false;
-									break;
-								}
-								subScripts.Add(subdesc);
-								depths.Add(depth);
-							}
-							if (ok)
-							{
-								if (tree.Count != 0)
-								{
-									var tapTree = TapTree.FromScriptDepths(subScripts, depths);
-									return NewTr(keyProvider, network, tapTree);
-								}
-								return NewTr(keyProvider, network);
-							}
-						}
-					}
-					else
-					{
-						var keyProvider = PubKeyProvider.NewConst(pk);
-						keyProvider =
-							repo.TryGetKeyOrigin(pk, out var keyOrigin)
-								? PubKeyProvider.NewOrigin(keyOrigin, keyProvider)
-								: keyProvider;
-						return NewRawTr(keyProvider, network);
-					}
+					return NewRawTr(PubKeyProvider.NewConst(pk), network);
 				}
 			}
 #endif
@@ -1059,13 +964,7 @@ namespace NBitcoin.Scripting
 			if (template is PayToPubkeyTemplate p2pkTemplate)
 			{
 				var pk = p2pkTemplate.ExtractScriptPubKeyParameters(sc)!;
-				return OutputDescriptor.NewPK(InferPubKey(pk, repo), network);
-			}
-			if (template is PayToPubkeyHashTemplate p2pkhTemplate)
-			{
-				var pkHash = p2pkhTemplate.ExtractScriptPubKeyParameters(sc)!;
-				if (repo.TryGetPubKey(pkHash, out var pk))
-					return OutputDescriptor.NewPKH(InferPubKey(pk, repo), network);
+				return OutputDescriptor.NewPK(InferPubKey(pk), network);
 			}
 			if (template is PayToMultiSigTemplate p2MultiSigTemplate)
 			{
@@ -1073,36 +972,15 @@ namespace NBitcoin.Scripting
 				var pks = data.PubKeys;
 				var orderedPks = pks.OrderBy(pk => pk);
 				var isOrdered = orderedPks.SequenceEqual(pks);
-				var providers = pks.Select(pk => InferPubKey(pk, repo));
+				var providers = pks.Select(pk => InferPubKey(pk));
 				return OutputDescriptor.NewMulti((uint)data.SignatureCount, providers, isOrdered, network);
 			}
-			if (template is PayToScriptHashTemplate p2shTemplate && ctx == ScriptContext.TOP)
-			{
-				var scriptId = p2shTemplate.ExtractScriptPubKeyParameters(sc)!;
-				if (repo.TryGetScript(scriptId, out var nextScript))
-				{
-					var sub = InferFromScript(nextScript, repo, network, ScriptContext.P2SH);
-					return OutputDescriptor.NewSH(sub, network);
-				}
-			}
+			if (template is PayToPubkeyHashTemplate)
+				return OutputDescriptor.NewRaw(sc, network);
+			if (template is PayToScriptHashTemplate && ctx == ScriptContext.TOP)
+				return OutputDescriptor.NewRaw(sc, network);
 			if (template is PayToWitTemplate)
-			{
-				var witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(sc);
-				if (witScriptId != null && ctx != ScriptContext.P2WSH)
-				{
-					if (repo.TryGetScript(witScriptId.HashForLookUp, out var nextScript))
-					{
-						var sub = InferFromScript(nextScript, repo, network, ScriptContext.P2WSH);
-						return OutputDescriptor.NewWSH(sub, network);
-					}
-				}
-				var witKeyId = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(sc);
-				if (witKeyId != null && ctx != ScriptContext.P2WSH)
-				{
-					if (repo.TryGetPubKey(witKeyId.AsKeyId(), out var pk))
-						return OutputDescriptor.NewWPKH(InferPubKey(pk, repo), network);
-				}
-			}
+				return OutputDescriptor.NewAddr(sc.GetDestinationAddress(network)!, network);
 
 			// Incase of unknown witness Output, we recover it to Addr,
 			// Otherwise, Raw.
@@ -1130,21 +1008,19 @@ namespace NBitcoin.Scripting
 		/// To get an string representation with private key, use this method with a private data DB you have injected
 		/// when you were parsing.
 		/// </summary>
-		/// <param name="secretProvider"></param>
 		/// <param name="result"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentNullException"></exception>
-		public bool TryGetPrivateString(ISigningRepository secretProvider, out string? result)
+		public bool TryGetPrivateString(out string? result)
 		{
-			if (secretProvider == null) throw new ArgumentNullException(nameof(secretProvider));
 			result = null;
-			if (!TryGetPrivateStringHelper(secretProvider, out var inner) || inner is null)
+			if (!TryGetPrivateStringHelper(out var inner) || inner is null)
 				return false;
 			result = $"{inner}#{GetCheckSum(inner)}";
 			return true;
 		}
 
-		private bool TryGetPrivateStringHelper(ISigningRepository secretProvider, out string? result)
+		private bool TryGetPrivateStringHelper(out string? result)
 		{
 			result = null;
 			switch (this)
@@ -1153,67 +1029,26 @@ namespace NBitcoin.Scripting
 				case Raw _:
 					result = this.ToStringHelper();
 					return true;
-				case PK self:
-					if (!self.PkProvider.TryGetPrivateString(secretProvider, out var privStr1))
-						return false;
-					result = $"pk({privStr1})";
-					return true;
-				case PKH self:
-					if (!self.PkProvider.TryGetPrivateString(secretProvider, out var privStr2))
-						return false;
-					result = $"pkh({privStr2})";
-					return true;
-				case WPKH self:
-					if (!self.PkProvider.TryGetPrivateString(secretProvider, out var privStr3))
-						return false;
-					result = $"wpkh({privStr3})";
-					return true;
-				case Combo self:
-					if (!self.PkProvider.TryGetPrivateString(secretProvider, out var privStr4))
-						return false;
-					result = $"combo({privStr4})";
-					return true;
-				case Multi self:
-					var subKeyList = new List<string>();
-					foreach (var prov in (self.PkProviders))
-					{
-						if (!prov.TryGetPrivateString(secretProvider, out var tmp))
-							return false;
-						subKeyList.Add(tmp);
-					}
-					result = $"{(self.IsSorted ? "sortedmulti" : "multi")}({self.Threshold},{String.Join(",", subKeyList)})";
-					return true;
+				case PK _:
+				case PKH _:
+				case WPKH _:
+				case Combo _:
+				case Multi _:
+					return false;
 				case SH self:
-					if (!self.Inner.TryGetPrivateStringHelper(secretProvider, out var shInner))
+					if (!self.Inner.TryGetPrivateStringHelper(out var shInner))
 						return false;
 					result = $"sh({shInner})";
 					return true;
 				case WSH self:
-					if (!self.Inner.TryGetPrivateStringHelper(secretProvider, out var wshInner))
+					if (!self.Inner.TryGetPrivateStringHelper(out var wshInner))
 						return false;
 					result = $"wsh({wshInner})";
 					return true;
 #if HAS_SPAN
-				case Tr self:
-					var sb = new StringBuilder();
-					if (!self.InnerPubkey.TryGetPrivateString(secretProvider, out var internalPubKeyString))
-						return false;
-					sb.Append($"tr({internalPubKeyString}");
-					if (self.TapLeafs is { } tapTree)
-					{
-						sb.Append(",");
-						if (!tapTree.TryGetPrivateString(secretProvider, out var tapTreeString))
-							return false;
-						sb.Append(tapTreeString);
-					}
-					sb.Append(")");
-					result = sb.ToString();
-					return true;
-				case RawTr self:
-					if (!self.OutputPubKeyProvider.TryGetPrivateString(secretProvider, out var rawTrPrivateString))
-						return false;
-					result = $"rawtr({rawTrPrivateString})";
-					return true;
+				case Tr _:
+				case RawTr _:
+					return false;
 #endif
 
 			}
@@ -1254,33 +1089,29 @@ namespace NBitcoin.Scripting
 
 		/// <summary>
 		/// Parse descriptor from string representation.
-		/// OutputDescriptor class does not hold private key data in memory, so if you want to parse
-		/// private key, you must pass the reference to the DB with `repo` argument.
-		/// Parser will inject private keys they've found into the DB. this can later be used with other methods
-		/// such as `TryGetPrivateString`
 		/// </summary>
 		/// <param name="desc">descriptor to parse</param>
 		/// <param name="network">Network for the descriptor.</param>
 		/// <param name="requireCheckSum">if true, Do not parse descriptors without checksum. default: false</param>
-		/// <param name="repo">repository to inject private key information.</param>
 		/// <returns></returns>
-		public static OutputDescriptor Parse(string desc, Network network, bool requireCheckSum = false, ISigningRepository? repo = null)
-			=> OutputDescriptorParser.ParseOD(desc, network, requireCheckSum, repo);
+		public static OutputDescriptor Parse(string desc, Network network)
+			=> OutputDescriptorParser.ParseOD(desc, network, false);
+
+		public static OutputDescriptor Parse(string desc, Network network, bool requireCheckSum)
+			=> OutputDescriptorParser.ParseOD(desc, network, requireCheckSum);
 
 		/// <summary>
 		/// Parse descriptor from string representation.
-		/// OutputDescriptor class does not hold private key data in memory, so if you want to parse
-		/// private key, you must pass the reference to the DB with `repo` argument.
-		/// Parser will inject private keys they've found into the DB. this can later be used with other methods
-		/// such as `TryGetPrivateString`
 		/// </summary>
 		/// <param name="desc">descriptor to parse</param>
 		/// <param name="network">Network for the descriptor.</param>
 		/// <param name="requireCheckSum">If true, Do not parse descriptors without checksum. Default: false</param>
-		/// <param name="repo">repository to inject private key information.</param>
 		/// <returns></returns>
-		public static bool TryParse(string desc, Network network, out OutputDescriptor? result, bool requireCheckSum = false, ISigningRepository? repo = null)
-			=> OutputDescriptorParser.TryParseOD(desc, network, out result, requireCheckSum, repo);
+		public static bool TryParse(string desc, Network network, out OutputDescriptor? result)
+			=> OutputDescriptorParser.TryParseOD(desc, network, out result, false);
+
+		public static bool TryParse(string desc, Network network, out OutputDescriptor? result, bool requireCheckSum)
+			=> OutputDescriptorParser.TryParseOD(desc, network, out result, requireCheckSum);
 
 		#endregion
 

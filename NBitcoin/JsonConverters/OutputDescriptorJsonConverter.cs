@@ -9,12 +9,10 @@ namespace NBitcoin.JsonConverters
 	public class OutputDescriptorJsonConverter : JsonConverter
 	{
 		private readonly bool _requireChecksum;
-		private readonly ISigningRepository? _signingRepository;
 
-		public OutputDescriptorJsonConverter(Network network, bool requireChecksum = false, ISigningRepository? signingRepository = null) : base()
+		public OutputDescriptorJsonConverter(Network network, bool requireChecksum = false) : base()
 		{
 			_requireChecksum = requireChecksum;
-			_signingRepository = signingRepository;
 			this.Network = network;
 		}
 
@@ -31,7 +29,7 @@ namespace NBitcoin.JsonConverters
 			reader.AssertJsonType(JsonToken.String);
 			try
 			{
-				if (!OutputDescriptor.TryParse((string)reader.Value, Network, out var od, _requireChecksum, _signingRepository))
+				if (!OutputDescriptor.TryParse((string)reader.Value, Network, out var od, _requireChecksum))
 					throw new JsonObjectException("Invalid OutputDescriptor", reader);
 				return od;
 			}
@@ -46,20 +44,7 @@ namespace NBitcoin.JsonConverters
 			string? str = null;
 			if (value is OutputDescriptor od)
 			{
-				if (_signingRepository is null)
-				{
-					str = od.ToString();
-				}
-				else
-				{
-					if (od.TryGetPrivateString(_signingRepository, out str ) || str != null)
-					{
-					}
-					else
-					{
-						str = od.ToString();
-					}
-				}
+				str = od.ToString();
 			}
 			if (str != null)
 				writer.WriteValue(str);

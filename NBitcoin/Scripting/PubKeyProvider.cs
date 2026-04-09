@@ -250,51 +250,6 @@ namespace NBitcoin.Scripting
 				throw new Exception("Unreachable!"),
 		};
 
-		/// <summary>
-		/// Get the descriptor string form including the private data (If available in arg).
-		/// </summary>
-		/// <param name=extKeyProvider>Should return null if it could not find any corresponding ExtKey</param>
-		/// <returns></returns>
-		internal bool TryGetPrivateString(
-			ISigningRepository secretProvider,
-			out string ret)
-		{
-			if (secretProvider == null)
-				throw new ArgumentNullException(nameof(secretProvider));
-
-			ret = null;
-			switch (this)
-			{
-				case Origin self:
-					if (!self.Inner.TryGetPrivateString(secretProvider, out ret))
-						return false;
-					ret = $"[{self.KeyOriginInfo.ToStringWithEmptyKeyPathAware()}]{ret}";
-					return true;
-				case Const self:
-					ISecret secretConst;
-#if HAS_SPAN
-					if (self.Xonly)
-					{
-						if (!secretProvider.TryGetSecret(self.Pk.TaprootPubKey, out secretConst))
-							return false;
-					}
-					else
-#endif
-					{
-						if (!secretProvider.TryGetSecret(self.Pk.Hash, out secretConst))
-							return false;
-					}
-					ret = secretConst.ToString();
-					return true;
-				case HD self:
-					if (!secretProvider.TryGetSecret(self.Extkey.ExtPubKey.PubKey.Hash, out var secretHD))
-						return false;
-					ret = $"{secretHD}{self.GetPathString()}";
-					return true;
-			}
-			throw new Exception("Unreachable!");
-		}
-
 		public sealed override bool Equals(object obj)
 			=> Equals(obj as PubKeyProvider);
 

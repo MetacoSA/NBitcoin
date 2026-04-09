@@ -59,16 +59,15 @@ namespace NBitcoin.Tests
 			od.IsRange();
 			for (uint i = 0; i < 4; i++)
 			{
-				var repo = new FlatSigningRepository();
-				od.TryExpand(i, (keyId) => null, repo, out var scripts);
+
+				od.TryExpand(i, (keyId) => null, out var scripts);
 				foreach (var sc in scripts)
 				{
-					OutputDescriptor.InferFromScript(sc, repo, od.Network);
+					OutputDescriptor.InferFromScript(sc, od.Network);
 				}
 			}
-			var repo2 = new FlatSigningRepository();
-			OutputDescriptor.Parse(od.ToString(), od.Network, false, repo2);
-			od.TryGetPrivateString(repo2, out var res);
+			OutputDescriptor.Parse(od.ToString(), od.Network, false);
+			od.TryGetPrivateString(out var res);
 		}
 
 
@@ -308,27 +307,21 @@ namespace NBitcoin.Tests
 			bool replaceApostrophesInPub = false
 		)
 		{
-			var keysPriv = new FlatSigningRepository();
-			var keysPub = new FlatSigningRepository();
 			var leftPath = pathIndex;
 
 			var parsePriv =
 				replaceApostrophesInPriv
-					? OutputDescriptor.Parse(UseHInsteadOfApostrophe(priv), network, false, keysPriv)
-					: OutputDescriptor.Parse(priv, network, false, keysPriv);
+					? OutputDescriptor.Parse(UseHInsteadOfApostrophe(priv), network, false)
+					: OutputDescriptor.Parse(priv, network, false);
 
 			var parsePub =
 				replaceApostrophesInPub
-					? OutputDescriptor.Parse(UseHInsteadOfApostrophe(pub), network, false, keysPub)
-					: OutputDescriptor.Parse(pub, network, false, keysPub);
+					? OutputDescriptor.Parse(UseHInsteadOfApostrophe(pub), network, false)
+					: OutputDescriptor.Parse(pub, network, false);
 
 			// Check that correct output type is inferred
 			Assert.Equal(parsePriv.GetScriptPubKeyType(), spkType);
 			Assert.Equal(parsePub.GetScriptPubKeyType(), spkType);
-
-			// 1. Check private keys are extracted from the private version but not the public one.
-			Assert.True(keysPriv.Secrets.Count > 0);
-			Assert.True(keysPub.Secrets.Count == 0);
 
 			// 2. Check both will serialize back to the public version.
 			string pub1 = parsePriv.ToString();
@@ -339,12 +332,12 @@ namespace NBitcoin.Tests
 			// 3. Check that both can be serialized with private key back to the private version, but not without private key.
 			if ((MISSING_PRIVKEYS & flags) == 0)
 			{
-				Assert.True(parsePub.TryGetPrivateString(keysPriv, out var priv1), $"original: {priv}\nre-created: {priv1}");
+				Assert.True(parsePub.TryGetPrivateString(out var priv1), $"original: {priv}\nre-created: {priv1}");
 				Assert.True(EqualDescriptorStr(priv, priv1));
-				Assert.False(parsePriv.TryGetPrivateString(keysPub, out priv1));
-				Assert.True(parsePub.TryGetPrivateString(keysPriv, out priv1));
+				Assert.False(parsePriv.TryGetPrivateString(out priv1));
+				Assert.True(parsePub.TryGetPrivateString(out priv1));
 				Assert.True(EqualDescriptorStr(priv, priv1));
-				Assert.False(parsePub.TryGetPrivateString(keysPub, out priv1));
+				Assert.False(parsePub.TryGetPrivateString(out priv1));
 			}
 
 			// Check that `IsRange()` on both returns the expected result.
@@ -362,71 +355,6 @@ namespace NBitcoin.Tests
 			if (!isRange) Assert.Single(scripts);
 			var max = isRange ? scripts.Length : 3;
 
-			for (int i = 0; i < max; ++i)
-			{
-				var expectedScript = scripts[isRange ? i : 0];
-				// when t == 0, evaluate the `priv` descriptor, when t == 1, evaluate `pub`.
-				for (int t = 0; t < 2; ++t)
-				{
-					bool isHardend = (flags & HARDENED) != 0;
-					var keyProvider = isHardend ? keysPriv : keysPub;
-
-					var scriptProvider = new FlatSigningRepository();
-					Assert.True((t != 0 ? parsePriv : parsePub).TryExpand((uint)i, keyProvider.GetPrivateKey, scriptProvider, out var spks));
-					Assert.Equal(spks.Count, expectedScript.Length);
-
-					// --- cache ---
-					// skip cache-related operations for now.
-					// ---  ---
-
-					// for each of the produced scripts, verify solvability, and when possible, try to sign a transaction spending it.
-					for (int n = 0; n < spks.Count; ++n)
-					{
-						Assert.Equal(expectedScript[n], spks[n].ToHex());
-						keysPriv.Merge(scriptProvider);
-
-						// Check that the information necessary to sign tx has been set to repository.
-						if ((flags & SIGNABLE) != 0)
-						{
-							var b = Network.Main.CreateTransactionBuilder();
-							var coin = new Coin(RandOutpoint(), new TxOut(Money.Coins(1.0m), spks[n]));
-							b.AddCoins(coin);
-							b.SendFees(Money.Coins(0.0001m));
-							b.SendAll(DummyKey);
-							b.AddKeys(keysPriv.Secrets.Values.Select(s => s.PrivateKey).ToArray());
-							b.AddKnownRedeems(keysPriv.Scripts.Values.ToArray());
-							var tx = b.BuildTransaction(true);
-							Assert.Empty(b.Check(tx));
-						}
-
-						var inferred = OutputDescriptor.InferFromScript(spks[n], scriptProvider, Network.RegTest);
-						Assert.Equal((flags & UNSOLVABLE) == 0, inferred.IsSolvable());
-						Func<KeyId, Key> dummyKeyProvider = (keyId) => null;
-						var providerInferred = new FlatSigningRepository();
-						Assert.True(inferred.TryExpand(0, dummyKeyProvider, providerInferred, out var spksInferred));
-						Assert.Single(spksInferred);
-						Assert.Equal(spksInferred[0], spks[n]);
-						Assert.Equal(((flags & UNSOLVABLE) == 0), OutputDescriptor.InferFromScript(spksInferred[0], providerInferred, Network.RegTest).IsSolvable());
-
-						var originalKeyOrigins = scriptProvider.KeyOrigins;
-						var inferredKeyOrigins =
-							providerInferred.KeyOrigins;
-						Assert.Equal(originalKeyOrigins, inferredKeyOrigins);
-					}
-
-					// Test whether the observed key path is present in the 'paths' variable (which contains expected,
-					// unobserved paths), and then removed it from the set.
-					if (pathIndex != null)
-					{
-						var rootedKPs = scriptProvider.KeyOrigins;
-						foreach (var rootedKP in rootedKPs)
-						{
-							Assert.Contains(pathIndex, p => p.SequenceEqual(rootedKP.KeyPath.Indexes));
-							leftPath = leftPath.Where(p => !p.SequenceEqual(rootedKP.KeyPath.Indexes)).ToArray();
-						}
-					}
-				}
-			}
 
 			// we can ignore the empty KeyPath.
 			leftPath = leftPath?.Where(p => p.Length != 0).ToArray();
@@ -440,10 +368,8 @@ namespace NBitcoin.Tests
 
 		private void CheckUnparsable(Network network, string prv, string pub, string maybeErrorMsg = null)
 		{
-			var keysPrv = new FlatSigningRepository();
-			var keysPub = new FlatSigningRepository();
-			var isSuccessPriv = OutputDescriptor.TryParse(prv, network, out var resultPrv, false, keysPrv);
-			var isSuccessPub = OutputDescriptor.TryParse(prv, network, out var resultPub, false, keysPub);
+			var isSuccessPriv = OutputDescriptor.TryParse(prv, network, out var resultPrv, false);
+			var isSuccessPub = OutputDescriptor.TryParse(prv, network, out var resultPub, false);
 			Assert.False(isSuccessPriv, prv);
 			Assert.False(isSuccessPub, pub);
 
