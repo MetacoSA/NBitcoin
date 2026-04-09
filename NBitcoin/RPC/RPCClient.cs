@@ -1131,17 +1131,19 @@ namespace NBitcoin.RPC
 					TimeOffset = TimeSpan.FromSeconds(Math.Min((long)int.MaxValue, (long)peer["timeoffset"])),
 					PingTime = peer["pingtime"] == null ? (TimeSpan?)null : TimeSpan.FromSeconds((double)peer["pingtime"]),
 					PingWait = TimeSpan.FromSeconds(pingWait),
-					Blocks = peer["blocks"] != null ? (int)peer["blocks"] : -1,
 					Version = (int)peer["version"],
 					SubVersion = (string)peer["subver"],
 					Inbound = (bool)peer["inbound"],
-					StartingHeight = (int)peer["startingheight"],
 					SynchronizedBlocks = (int)peer["synced_blocks"],
 					SynchronizedHeaders = (int)peer["synced_headers"],
-					IsWhiteListed = peer["whitelisted"] != null ? (bool)peer["whitelisted"] : false,
-					BanScore = peer["banscore"] == null ? 0 : (int)peer["banscore"],
 					Permissions = peer["permissions"] is JArray permissions ? permissions.Select(p => p.Value<string>()).ToArray() : new string[0],
-					Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
+					Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray(),
+#pragma warning disable CS0618 // Type or member is obsolete
+					Blocks = peer["blocks"] != null ? (int)peer["blocks"] : -1,
+					StartingHeight = peer["startingheight"] != null ? (int)peer["startingheight"] : 0,
+					IsWhiteListed = peer["whitelisted"] != null && (bool)peer["whitelisted"],
+					BanScore = peer["banscore"] == null ? 0 : (int)peer["banscore"]
+#pragma warning restore CS0618 // Type or member is obsolete
 				};
 			}
 			return result;
@@ -2505,10 +2507,12 @@ namespace NBitcoin.RPC
 		{
 			get; internal set;
 		}
+		[Obsolete("The getpeerinfo RPC no longer returns the startingheight field unless the configuration option -deprecatedrpc=startingheight is used. The startingheight field will be fully removed in the next major release. (31.0)")]
 		public int StartingHeight
 		{
 			get; internal set;
 		}
+		[Obsolete("banscore` has been deprecated in 0.21")]
 		public int BanScore
 		{
 			get; internal set;
@@ -2525,6 +2529,7 @@ namespace NBitcoin.RPC
 		{
 			get; internal set;
 		}
+		[Obsolete("whitelisted` has been deprecated in 0.21")]
 		public bool IsWhiteListed
 		{
 			get; internal set;
@@ -2533,6 +2538,7 @@ namespace NBitcoin.RPC
 		{
 			get; internal set;
 		}
+		[Obsolete("Obsolete in bitcoin core")]
 		public int Blocks
 		{
 			get; internal set;
