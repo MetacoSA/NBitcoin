@@ -236,12 +236,9 @@ namespace NBitcoin.Altcoins
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				base.ReadWrite(stream);
-				if((Version & VERSION_AUXPOW) != 0)
+				if((Version & VERSION_AUXPOW) != 0 && stream.Type != SerializationType.Hash)
 				{
-					if(!stream.Serializing)
-					{
-						stream.ReadWrite(ref auxPow);
-					}
+					stream.ReadWrite(ref auxPow);
 				}
 			}
 		}
