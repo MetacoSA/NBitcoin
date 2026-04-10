@@ -32,7 +32,7 @@ namespace NBitcoin.Altcoins
 
 			public override Block CreateBlock()
 			{
-				return new DogecoinBlock(new BlockHeader());
+				return new DogecoinBlock(this.CreateBlockHeader());
 			}
 			public override Transaction CreateTransaction()
 			{
