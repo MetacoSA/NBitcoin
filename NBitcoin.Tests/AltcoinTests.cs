@@ -39,6 +39,10 @@ namespace NBitcoin.Tests
 				Dogecoin.Instance.Mainnet);
 			 Assert.Equal(hex, Encoders.Hex.EncodeData(b.ToBytes()));
 			Assert.Equal("07a956c15d4086cde65441890983f985919c6b616c9de9a2d11735d60511ad22", b.GetHash().ToString());
+
+			var headerBytes = b.Header.ToBytes();
+			var h2 = new BlockHeader(headerBytes, Dogecoin.Instance.Mainnet);
+			Assert.Equal("07a956c15d4086cde65441890983f985919c6b616c9de9a2d11735d60511ad22", h2.GetHash().ToString());
 		}
 
 		[Fact]

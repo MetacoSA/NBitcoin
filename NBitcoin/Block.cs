@@ -327,7 +327,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="now">The expected date</param>
 		/// <param name="consensus">Consensus</param>
-		/// <param name="prev">previous block</param>		
+		/// <param name="prev">previous block</param>
 		public void UpdateTime(DateTimeOffset now, Consensus consensus, ChainedBlock prev)
 		{
 			var nOldTime = this.BlockTime;
@@ -347,7 +347,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="now">The expected date</param>
 		/// <param name="network">Network</param>
-		/// <param name="prev">previous block</param>		
+		/// <param name="prev">previous block</param>
 		public void UpdateTime(DateTimeOffset now, Network network, ChainedBlock prev)
 		{
 			UpdateTime(now, network.Consensus, prev);
@@ -368,13 +368,13 @@ namespace NBitcoin
 
 	public class Block : IBitcoinSerializable
 	{
-		private BlockHeader header;
+		internal BlockHeader header;
 
-		//FIXME: it needs to be changed when Gavin Andresen increase the max block size. 
+		//FIXME: it needs to be changed when Gavin Andresen increase the max block size.
 		public const uint MAX_BLOCK_SIZE = 1000 * 1000;
 
 		// network and disk
-		List<Transaction> vtx = new List<Transaction>();
+		internal List<Transaction> vtx = new List<Transaction>();
 
 		public List<Transaction> Transactions
 		{
