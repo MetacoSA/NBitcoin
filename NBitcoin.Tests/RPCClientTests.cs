@@ -126,7 +126,7 @@ namespace NBitcoin.Tests
 
 				var noWalletRPC = noWalletNode.CreateRPCClient();
 				Assert.Throws<RPCException>(() => noWalletRPC.GetNewAddress());
-				noWalletRPC.CreateWallet("");
+				noWalletRPC.CreateWallet("test");
 				noWalletRPC.GetNewAddress();
 			}
 		}
