@@ -966,6 +966,10 @@ namespace NBitcoin.Tests
 				Assert.Equal(7, mempoolEntry.DescendantCount);
 				Assert.Single(mempoolEntry.SpentBy);
 				Assert.Single(mempoolEntry.Depends);
+				Assert.NotNull(mempoolEntry.ChunkFees);
+				Assert.NotEqual(0, mempoolEntry.ChunkFees.Satoshi);
+				Assert.NotEqual(0, mempoolEntry.Weight);
+				Assert.NotEqual(0, mempoolEntry.ChunkWeight);
 
 				// Here we spend the change of the second transaction
 				var funding = rpc.GetRawTransaction(txs[1]);

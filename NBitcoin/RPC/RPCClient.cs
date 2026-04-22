@@ -1762,6 +1762,9 @@ namespace NBitcoin.RPC
 				ModifiedFee = new Money(jobj["fees"]["modified"].Value<decimal>(), MoneyUnit.BTC),
 				DescendantFees = new Money(jobj["fees"]["descendant"].Value<decimal>(), MoneyUnit.BTC),
 				AncestorFees = new Money(jobj["fees"]["ancestor"].Value<decimal>(), MoneyUnit.BTC),
+				ChunkWeight = jobj["chunkweight"] is null ? 0 : jobj["chunkweight"].Value<int>(),
+				Weight = jobj["weight"] is null ? 0 : jobj["weight"].Value<int>(),
+				ChunkFees = jobj["fees"]["chunk"] is null ? null : new Money(jobj["fees"]["chunk"].Value<decimal>(), MoneyUnit.BTC),
 				Depends = jobj["depends"]?.Select(x => uint256.Parse((string)x)).ToArray(),
 				SpentBy = jobj["spentby"]?.Select(x => uint256.Parse((string)x)).ToArray()
 			};
@@ -2740,6 +2743,7 @@ namespace NBitcoin.RPC
 		/// Modified fees (see above) of in-mempool ancestors (including this one.)
 		/// </summary>
 		public Money AncestorFees { get; set; }
+		public Money ChunkFees { get; set; }
 		/// <summary>
 		/// Modified fees (see above) of in-mempool descendants (including this one.)
 		/// </summary>
@@ -2752,6 +2756,9 @@ namespace NBitcoin.RPC
 		/// Unconfirmed transactions spending outputs from this transaction.
 		/// </summary>
 		public uint256[] SpentBy { get; set; }
+
+		public int ChunkWeight { get; set; }
+		public int Weight { get; set; }
 	}
 
 #nullable enable
