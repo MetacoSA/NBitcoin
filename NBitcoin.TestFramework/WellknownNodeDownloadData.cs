@@ -613,7 +613,8 @@ namespace NBitcoin.Tests
 					Hash = "82fd2c504a0f20a31d4d13bd407783d6fc7bf17622d0ce85228a9b92694e03f0"
 				},
 				UseSectionInConfigFile = true,
-				CreateWallet = true
+				CreateWallet = true,
+				AdditionalRegtestConfig = "unsafesqlitesync=1"
 			};
 		}
 
