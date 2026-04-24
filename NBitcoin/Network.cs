@@ -1048,7 +1048,7 @@ namespace NBitcoin
 					var candidate = GetCandidate(str, decoded!);
 					if (candidate != null && targetType.GetTypeInfo().IsAssignableFrom((candidate.GetType().GetTypeInfo())))
 						return candidate;
-					throw new FormatException("Invalid base58 string");
+					throw new FormatException($"Invalid '{targetType.Name}' string");
 				}
 			}
 

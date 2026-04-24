@@ -75,6 +75,7 @@ namespace NBitcoin
 		{
 		}
 
+		public static bool SkipInvalidMasterExtPubKeyCheck = false;
 		/// <summary>
 		/// Creates a new extended public key from the specified extended public key bytes.
 		/// </summary>
@@ -91,8 +92,13 @@ namespace NBitcoin
 			i += 4;
 			nChild = Utils.ToUInt32(bytes, i, false);
 			i += 4;
-			if (nDepth == 0 && (parentFingerprint != default || nChild != 0))
-				throw new ArgumentException("Invalid ExtPubKey: Master key (depth 0) must have zero parent fingerprint and zero child number");
+			if (!SkipInvalidMasterExtPubKeyCheck)
+			{
+				if (nDepth == 0 && (parentFingerprint != default || nChild != 0))
+					throw new ArgumentException(
+						"Invalid ExtPubKey: Master key (depth 0) must have zero parent fingerprint and zero child number (Set ExtPubkey.SkipInvalidMasterExtPubKeyCheck to skip this check)");
+			}
+
 			vchChainCode = new byte[32];
 			Array.Copy(bytes, i, vchChainCode, 0, 32);
 			i += 32;
