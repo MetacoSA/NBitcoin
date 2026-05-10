@@ -225,6 +225,33 @@ namespace NBitcoin.Tests
 			var expectedSpk = "5120003cdb72825a12ea62f5834f3c47f9bf48d58d27f5ad1e6576ac613b093125f3";
 			Assert.Equal( expectedSpk, spk.ToHex());
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ComputeTapTweak_DoesNotProduceAllZeroOutputKey()
+		{
+			// Regression test for .NET 10 ARM64 JIT span-aliasing bug.
+			// ComputeTapTweak previously reused the same Span<byte> for
+			// WriteToSpan serialization and GetHash output, which caused
+			// AddTweak to return an all-zero key on ARM64.
+			// BIP341 test vector: internal key with no script tree (key-path only).
+			var hex = Encoders.Hex;
+			var internalKey = TaprootInternalPubKey.Parse(
+				"d6889cb081036e0faefa3a35157ad71086b123b2b144b649798b494c300a961d");
+			var fullPubKey = internalKey.GetTaprootFullPubKey();
+
+			var outputBytes = new byte[32];
+			fullPubKey.OutputKey.pubkey.WriteToSpan(outputBytes);
+
+			// Output key must not be all zeros
+			Assert.False(Array.TrueForAll(outputBytes, b => b == 0),
+				"TaprootFullPubKey output key is all zeros — ComputeTapTweak span aliasing bug");
+
+			// Expected output key for this internal key with null merkle root (BIP341)
+			Assert.Equal(
+				"53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343",
+				hex.EncodeData(outputBytes));
+		}
 #endif
 	}
 }
