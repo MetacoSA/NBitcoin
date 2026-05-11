@@ -33,14 +33,19 @@ namespace NBitcoin
 
 		internal static void ComputeTapTweak(TaprootInternalPubKey internalKey, uint256? merkleRoot, Span<byte> tweak32)
 		{
+			// Use a separate buffer for serialization to avoid reusing tweak32
+			// as both scratch space and output. Reusing the same Span<byte> for
+			// WriteToSpan/ToBytes input and GetHash output triggers a .NET 10
+			// ARM64 JIT miscompilation due to span aliasing.
+			Span<byte> buf = stackalloc byte[32];
 			using Secp256k1.SHA256 sha = new Secp256k1.SHA256();
 			sha.InitializeTagged("TapTweak");
-			internalKey.pubkey.WriteToSpan(tweak32);
-			sha.Write(tweak32);
+			internalKey.pubkey.WriteToSpan(buf);
+			sha.Write(buf);
 			if (merkleRoot is uint256)
 			{
-				merkleRoot.ToBytes(tweak32);
-				sha.Write(tweak32);
+				merkleRoot.ToBytes(buf);
+				sha.Write(buf);
 			}
 			sha.GetHash(tweak32);
 		}
