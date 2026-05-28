@@ -206,6 +206,8 @@ namespace NBitcoin
 		{
 			if (seed == null)
 				throw new ArgumentNullException(nameof(seed));
+			if (seed.Length < 16 || seed.Length > 64)
+				throw new ArgumentOutOfRangeException(nameof(seed), "A BIP32 seed should be between 16 and 64 bytes.");
 			return new ExtKey(seed, true);
 		}
 		public static ExtKey CreateFromBytes(byte[] bytes)
@@ -259,6 +261,8 @@ namespace NBitcoin
 
 		public static ExtKey CreateFromSeed(ReadOnlySpan<byte> seed)
 		{
+			if (seed.Length < 16 || seed.Length > 64)
+				throw new ArgumentOutOfRangeException(nameof(seed), "A BIP32 seed should be between 16 and 64 bytes.");
 			return new ExtKey(seed, true);
 		}
 		public static ExtKey CreateFromBytes(ReadOnlySpan<byte> bytes)
