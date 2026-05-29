@@ -375,5 +375,14 @@ namespace NBitcoin.Tests
 			// invalid checksum
 			Assert.Throws<FormatException>(() => ExtKey.Parse("xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHL", Network.Main));
 		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CreateFromSeed_ShouldRejectSeedLengthsOutsideBIP32Range()
+		{
+		    Assert.Throws<ArgumentOutOfRangeException>(() => ExtKey.CreateFromSeed(Array.Empty<byte>()));
+			Assert.Throws<ArgumentOutOfRangeException>(() => ExtKey.CreateFromSeed(new byte[1]));
+		    Assert.Throws<ArgumentOutOfRangeException>(() => ExtKey.CreateFromSeed(new byte[15]));
+		    Assert.Throws<ArgumentOutOfRangeException>(() => ExtKey.CreateFromSeed(new byte[65]));
+		}
 	}
 }
