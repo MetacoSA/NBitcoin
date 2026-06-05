@@ -1068,70 +1068,14 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		[Obsolete("Use VersionHandshakeAsync instead")]
 		public void VersionHandshake(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			VersionHandshake(null, cancellationToken);
 		}
 
-		[Obsolete("Use VersionHandshakeAsync instead")]
 		public void VersionHandshake(NodeRequirement requirements, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			if (State == NodeState.HandShaked)
-				throw new InvalidOperationException("Already handshaked");
-			requirements = requirements ?? new NodeRequirement();
-			using (var listener = CreateListener()
-									.Where(p => p.Message.Payload is VersionPayload ||
-												p.Message.Payload is VerAckPayload))
-			{
-
-				SendMessageAsync(MyVersion);
-				var version = listener.ReceivePayload<VersionPayload>(cancellationToken);
-				_PeerVersion = version;
-				SetVersion(Math.Min(MyVersion.Version, version.Version));
-
-				var receiverAddress = version.AddressReceiver.GetStringAddress();
-				var addressFrom = MyVersion.AddressFrom.GetStringAddress();
-				if (receiverAddress != addressFrom)
-					Logs.NodeServer.LogWarning($"Different external address detected by the node {receiverAddress} instead of {addressFrom}");
-
-				if (ProtocolCapabilities.PeerTooOld)
-				{
-					Logs.NodeServer.LogWarning("Outdated version {version} disconnecting", version.Version);
-					Disconnect("Outdated version");
-					return;
-				}
-
-				if (!requirements.Check(version, ProtocolCapabilities))
-				{
-					Disconnect("The peer does not support the required services requirement");
-					return;
-				}
-
-				// As a cortesy we do not send sendaddr to nodes that do not support it.
-				if (ProtocolCapabilities.SupportAddrv2)
-				{
-					// Signal ADDRv2 support (BIP155).
-					SendMessageAsync(new SendAddrV2Payload());
-				}
-
-				SendMessageAsync(new VerAckPayload());
-
-				listener.ReceivePayload<VerAckPayload>(cancellationToken);
-
-				State = NodeState.HandShaked;
-
-				if (Advertize)
-				{
-					if (MyVersion.AddressFrom is IPEndPoint iPEndPoint && !iPEndPoint.Address.IsRoutable(true))
-						return;
-
-					SendMessageAsync(new AddrPayload(new NetworkAddress(MyVersion.AddressFrom)
-					{
-						Time = DateTimeOffset.UtcNow
-					}));
-				}
-			}
+			VersionHandshakeAsync(requirements, cancellationToken).GetAwaiter().GetResult();
 		}
 
 #nullable enable
