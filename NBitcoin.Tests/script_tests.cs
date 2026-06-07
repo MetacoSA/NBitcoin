@@ -1105,17 +1105,15 @@ namespace NBitcoin.Tests
 			}
 
 			// Test on non canonic values
-			testCases = new (byte[] Bytes, ulong Value)[]
+			var nonCanonicalTestCases = new byte[][]
 			{
-				(Bytes: new byte[] { 0xFD, 0x01, 0x00 }, Value: 0x01),
-				(Bytes: new byte[] { 0xFE, 0x01, 0x00, 0x00, 0x00 }, Value: 0x01),
-				(Bytes: new byte[] { 0xFF, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, Value: 0x01)
+				new byte[] { 0xFD, 0x01, 0x00 },
+				new byte[] { 0xFE, 0x01, 0x00, 0x00, 0x00 },
+				new byte[] { 0xFF, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
 			};
-			foreach (var testCase in testCases)
-			{
-				var stream = new BitcoinStream(testCase.Bytes);
-				Assert.Equal(testCase.Value, VarInt.StaticRead(stream));
-			}
+			Assert.All(nonCanonicalTestCases,
+				testCase => Assert.Throws<InvalidDataException>(
+					()=> VarInt.StaticRead(new BitcoinStream(testCase))));
 		}
 
 		[Fact]

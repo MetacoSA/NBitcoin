@@ -141,18 +141,24 @@ namespace NBitcoin.Protocol
 			{
 				var value = (ushort)0;
 				bs.ReadWrite(ref value);
+				if (value < 0xFD)
+					throw new InvalidDataException("non-canonical representation for varint");
 				return value;
 			}
 			else if (prefix == 0xFE)
 			{
 				var value = (uint)0;
 				bs.ReadWrite(ref value);
+				if (value < 0x10000)
+					throw new InvalidDataException("non-canonical representation for varint");
 				return value;
 			}
 			else
 			{
 				var value = (ulong)0;
 				bs.ReadWrite(ref value);
+				if (value < 0x100000000)
+					throw new InvalidDataException("non-canonical representation for varint");
 				return value;
 			}
 		}
