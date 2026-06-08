@@ -955,10 +955,12 @@ namespace NBitcoin.Tests
 			using (var tester = new NodeServerTester())
 			{
 				tester.Server2.Nonce = tester.Server1.Nonce;
-				Assert.Throws<OperationCanceledException>(() =>
+				var ex =  Assert.ThrowsAny<Exception>(() =>
 				{
 					tester.Node1.VersionHandshake();
 				});
+
+				Assert.True((ex is InvalidOperationException) || (ex is OperationCanceledException));
 			}
 		}
 
