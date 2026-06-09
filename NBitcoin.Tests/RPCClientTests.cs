@@ -906,10 +906,10 @@ namespace NBitcoin.Tests
 				requests.Add(rpc.GetBlockHashAsync(8));
 				rpc.SendBatch();
 				rpc = rpc.PrepareBatch();
-				Assert.Equal(TaskStatus.RanToCompletion, requests[0].Status);
-				Assert.Equal(TaskStatus.Faulted, requests[1].Status);
-				Assert.Equal(TaskStatus.RanToCompletion, requests[2].Status);
-				Assert.Equal(TaskStatus.RanToCompletion, requests[3].Status);
+				await requests[0];
+				await Assert.ThrowsAsync<RPCException>(async () => await requests[1]);
+				await requests[2];
+				await requests[3];
 				requests.Clear();
 
 				requests.Add(rpc.GetBlockHashAsync(10));
