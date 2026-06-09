@@ -1023,16 +1023,31 @@ namespace NBitcoin.Protocol
 				return _MessageProducer;
 			}
 		}
-
+#if !NO_CHANNELS
+		public TPayload ReceiveMessage<TPayload>(TimeSpan timeout) where TPayload : Payload
+		{
+			var source = new CancellationTokenSource();
+			source.CancelAfter(timeout);
+			return ReceiveMessageAsync<TPayload>(source.Token).GetAwaiter().GetResult();
+		}
+		public TPayload ReceiveMessage<TPayload>(CancellationToken cancellationToken = default(CancellationToken)) where TPayload : Payload
+		{
+			return ReceiveMessageAsync<TPayload>(cancellationToken).GetAwaiter().GetResult();
+		}
+		public async Task<TPayload> ReceiveMessageAsync<TPayload>(CancellationToken cancellationToken = default(CancellationToken)) where TPayload : Payload
+		{
+			using (var listener = new NodeListener(this))
+			{
+				return await listener.ReceivePayloadAsync<TPayload>(cancellationToken).ConfigureAwait(false);
+			}
+		}
+#else
 		public TPayload ReceiveMessage<TPayload>(TimeSpan timeout) where TPayload : Payload
 		{
 			var source = new CancellationTokenSource();
 			source.CancelAfter(timeout);
 			return ReceiveMessage<TPayload>(source.Token);
 		}
-
-
-
 		public TPayload ReceiveMessage<TPayload>(CancellationToken cancellationToken = default(CancellationToken)) where TPayload : Payload
 		{
 			using (var listener = new NodeListener(this))
@@ -1040,7 +1055,7 @@ namespace NBitcoin.Protocol
 				return listener.ReceivePayload<TPayload>(cancellationToken);
 			}
 		}
-
+#endif
 		/// <summary>
 		/// Send addr unsolicited message of the AddressFrom peer when passing to Handshaked state
 		/// </summary>
@@ -1090,7 +1105,11 @@ namespace NBitcoin.Protocol
 			{
 
 				await SendMessageAsync(MyVersion).ConfigureAwait(false);
+				#if !NO_CHANNELS
+				var version = await listener.ReceivePayloadAsync<VersionPayload>(cancellationToken);
+				#else
 				var version = listener.ReceivePayload<VersionPayload>(cancellationToken);
+				#endif
 				_PeerVersion = version;
 				SetVersion(Math.Min(MyVersion.Version, version.Version));
 
@@ -1121,7 +1140,11 @@ namespace NBitcoin.Protocol
 
 				await SendMessageAsync(new VerAckPayload()).ConfigureAwait(false);
 
+				#if !NO_CHANNELS
+				await listener.ReceivePayloadAsync<VerAckPayload>(cancellationToken);
+				#else
 				listener.ReceivePayload<VerAckPayload>(cancellationToken);
+				#endif
 
 				State = NodeState.HandShaked;
 
@@ -1591,7 +1614,7 @@ namespace NBitcoin.Protocol
 					while (remaining.Count != 0)
 					{
 						var block = listener.ReceivePayload<BlockPayload>(cancellationToken).Object;
-						maxQueued = Math.Max(listener.MessageQueue.Count, maxQueued);
+						maxQueued = Math.Max(listener.Count, maxQueued);
 						if (remaining.Peek() == block.GetHash())
 						{
 							remaining.Dequeue();
