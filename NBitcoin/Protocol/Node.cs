@@ -1092,6 +1092,10 @@ namespace NBitcoin.Protocol
 		{
 			VersionHandshakeAsync(requirements, cancellationToken).GetAwaiter().GetResult();
 		}
+		public Task VersionHandshakeAsync(CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return VersionHandshakeAsync(null, cancellationToken);
+		}
 
 #nullable enable
 		public async Task VersionHandshakeAsync(NodeRequirement? requirements, CancellationToken cancellationToken = default(CancellationToken))
@@ -1106,7 +1110,7 @@ namespace NBitcoin.Protocol
 
 				await SendMessageAsync(MyVersion).ConfigureAwait(false);
 				#if !NO_CHANNELS
-				var version = await listener.ReceivePayloadAsync<VersionPayload>(cancellationToken);
+				var version = await listener.ReceivePayloadAsync<VersionPayload>(cancellationToken).ConfigureAwait(false);
 				#else
 				var version = listener.ReceivePayload<VersionPayload>(cancellationToken);
 				#endif
@@ -1141,7 +1145,7 @@ namespace NBitcoin.Protocol
 				await SendMessageAsync(new VerAckPayload()).ConfigureAwait(false);
 
 				#if !NO_CHANNELS
-				await listener.ReceivePayloadAsync<VerAckPayload>(cancellationToken);
+				await listener.ReceivePayloadAsync<VerAckPayload>(cancellationToken).ConfigureAwait(false);
 				#else
 				listener.ReceivePayload<VerAckPayload>(cancellationToken);
 				#endif
