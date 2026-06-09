@@ -271,7 +271,7 @@ namespace NBitcoin.Protocol
 						{
 							Logs.NodeServer.LogTrace("The connection cancelled before the message was sent");
 						}
-						pending.Completion.SetException(new OperationCanceledException("The peer has been disconnected"));
+						pending.Completion.SetException(new InvalidOperationException("The peer has been disconnected"));
 					}
 					Messages = new BlockingCollection<SentMessage>(new ConcurrentQueue<SentMessage>());
 					Logs.NodeServer.LogInformation("Stop sending");
