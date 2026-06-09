@@ -302,7 +302,6 @@ namespace NBitcoin
 			}
 		}
 
-#if !NETSTANDARD1X
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
 			if (stream == null)
@@ -316,6 +315,17 @@ namespace NBitcoin
 			if (offset > buffer.Length - count)
 				throw new ArgumentOutOfRangeException("count");
 
+#if NET8_0_OR_GREATER
+			try
+			{
+				stream.ReadExactlyAsync(buffer, offset, count, cancellation).GetAwaiter().GetResult();
+				return count;
+			}
+			catch (EndOfStreamException)
+			{
+				return 0;
+			}
+#else
 			int totalReadCount = 0;
 
 			while (totalReadCount < count)
@@ -354,45 +364,8 @@ namespace NBitcoin
 			}
 
 			return totalReadCount;
+#endif
 		}
-#else
-
-		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
-		{
-			if(stream == null) throw new ArgumentNullException(nameof(stream));
-			if(buffer == null) throw new ArgumentNullException(nameof(buffer));
-			if(offset < 0 || offset > buffer.Length) throw new ArgumentOutOfRangeException("offset");
-			if(count <= 0 || count > buffer.Length) throw new ArgumentOutOfRangeException("count"); //Disallow 0 as a debugging aid.
-			if(offset > buffer.Length - count) throw new ArgumentOutOfRangeException("count");
-
-			//IO interruption not supported on these platforms.
-
-			int totalReadCount = 0;
-#if !NOSOCKET
-			var interruptable = stream is NetworkStream && cancellation.CanBeCanceled;
-#endif
-			while(totalReadCount < count)
-			{
-				cancellation.ThrowIfCancellationRequested();
-				int currentReadCount = 0;
-#if !NOSOCKET
-				if(interruptable)
-				{
-					currentReadCount = stream.ReadAsync(buffer, offset + totalReadCount, count - totalReadCount, cancellation).GetAwaiter().GetResult();
-				}
-				else
-#endif
-				{
-					currentReadCount = stream.Read(buffer, offset + totalReadCount, count - totalReadCount);
-				}
-				if(currentReadCount == 0)
-					return 0;
-				totalReadCount += currentReadCount;
-			}
-
-			return totalReadCount;
-		}
-#endif
 
 #if HAS_SPAN
 		public static int ReadEx(this Stream stream, Span<byte> buffer, CancellationToken cancellation = default(CancellationToken))
