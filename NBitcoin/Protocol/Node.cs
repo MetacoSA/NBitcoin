@@ -589,7 +589,7 @@ namespace NBitcoin.Protocol
 				int socksFail = 0;
 				while (true)
 				{
-					
+
 					if (groupFail > 50 || socksFail > 50)
 					{
 						parameters.ConnectCancellation.WaitHandle.WaitOne((int)TimeSpan.FromSeconds(60).TotalMilliseconds);
@@ -930,7 +930,7 @@ namespace NBitcoin.Protocol
 		/// Send a message to the peer asynchronously
 		/// </summary>
 		/// <param name="payload">The payload to send</param>
-		/// <param name="System.OperationCanceledException">The node has been disconnected</param>
+		/// <param name="System.InvalidOperationException">The node has been disconnected</param>
 		public Task SendMessageAsync(Payload payload)
 		{
 			if (payload is null)
@@ -943,7 +943,7 @@ namespace NBitcoin.Protocol
 #endif
 			if (!IsConnected)
 			{
-				completion.SetException(new OperationCanceledException("The peer has been disconnected"));
+				completion.SetException(new InvalidOperationException("The peer has been disconnected"));
 				return completion.Task;
 			}
 
@@ -1140,7 +1140,7 @@ namespace NBitcoin.Protocol
 #nullable disable
 
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="cancellation"></param>
 		public void RespondToHandShake(CancellationToken cancellation = default(CancellationToken))

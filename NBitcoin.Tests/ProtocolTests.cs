@@ -326,7 +326,7 @@ namespace NBitcoin.Tests
 					Eventually(() =>
 					{
 						Assert.NotEmpty(group.ConnectedNodes);
-						Assert.All(group.ConnectedNodes, connectedNode => 
+						Assert.All(group.ConnectedNodes, connectedNode =>
 							Assert.True(connectedNode.RemoteSocketEndpoint.IsEqualTo(node.NodeEndpoint)));
 					});
 				}
@@ -955,12 +955,10 @@ namespace NBitcoin.Tests
 			using (var tester = new NodeServerTester())
 			{
 				tester.Server2.Nonce = tester.Server1.Nonce;
-				var ex =  Assert.ThrowsAny<Exception>(() =>
+				Assert.Throws<InvalidOperationException>(() =>
 				{
 					tester.Node1.VersionHandshake();
 				});
-
-				Assert.True((ex is InvalidOperationException) || (ex is OperationCanceledException));
 			}
 		}
 
