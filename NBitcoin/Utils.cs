@@ -319,35 +319,7 @@ namespace NBitcoin
 
 			while (totalReadCount < count)
 			{
-#if NET8_0_OR_GREATER
 				int currentReadCount = stream.ReadAsync(buffer, offset + totalReadCount, count - totalReadCount, cancellation).GetAwaiter().GetResult();
-#else
-				int currentReadCount;
-				cancellation.ThrowIfCancellationRequested();
-
-				//Big performance problem with BeginRead for other stream types than NetworkStream.
-				//Only take the slow path if cancellation is possible.
-				if (stream is NetworkStream && cancellation.CanBeCanceled)
-				{
-					var ar = stream.BeginRead(buffer, offset + totalReadCount, count - totalReadCount, null, null);
-					if (!ar.CompletedSynchronously)
-					{
-						WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, cancellation.WaitHandle }, -1);
-					}
-
-					//EndRead might block, so we need to test cancellation before calling it.
-					//This also is a bug because calling EndRead after BeginRead is contractually required.
-					//A potential fix is to use the ReadAsync API. Another fix is to register a callback with BeginRead that calls EndRead in all cases.
-					cancellation.ThrowIfCancellationRequested();
-
-					currentReadCount = stream.EndRead(ar);
-				}
-				else
-				{
-					//IO interruption not supported in this path.
-					currentReadCount = stream.Read(buffer, offset + totalReadCount, count - totalReadCount);
-				}
-#endif
 
 				if (currentReadCount == 0)
 					return 0;
