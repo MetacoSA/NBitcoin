@@ -324,15 +324,10 @@ namespace NBitcoin
 				op.Code = (OpcodeType)(byte)data.Length;
 			else if (data.Length <= 0xFF)
 				op.Code = OpcodeType.OP_PUSHDATA1;
-#if !NETSTANDARD1X
 			else if (data.LongLength <= 0xFFFF)
 				op.Code = OpcodeType.OP_PUSHDATA2;
 			else if (data.LongLength <= 0xFFFFFFFF)
 				op.Code = OpcodeType.OP_PUSHDATA4;
-#else
-			else if(data.Length <= 0xFFFF)
-				op.Code = OpcodeType.OP_PUSHDATA2;
-#endif
 			else
 				throw new NotSupportedException("Data length should not be bigger than 0xFFFFFFFF");
 			return op;

@@ -32,7 +32,7 @@ namespace NBitcoin.BouncyCastle.Utilities
 			return ToUpperInvariant(a) == ToUpperInvariant(b);
 		}
 
-#if NETCF_1_0 || NETCF_2_0 || NETSTANDARD1X
+#if NETCF_1_0 || NETCF_2_0
 		internal static string GetEnvironmentVariable(
 			string variable)
 		{
@@ -122,30 +122,16 @@ namespace NBitcoin.BouncyCastle.Utilities
 
 		internal static string ToLowerInvariant(string s)
 		{
-#if NETSTANDARD1X
-            return s.ToLowerInvariant();
-#else
 			return s.ToLower(CultureInfo.InvariantCulture);
-#endif
 		}
 
 		internal static string ToUpperInvariant(string s)
 		{
-#if NETSTANDARD1X
-            return s.ToUpperInvariant();
-#else
 			return s.ToUpper(CultureInfo.InvariantCulture);
-#endif
 		}
 
 		internal static readonly string NewLine = GetNewLine();
 
-#if NETSTANDARD1X
-        internal static void Dispose(IDisposable d)
-        {
-            d.Dispose();
-        }
-#else
 		internal static void Dispose(Stream s)
 		{
 			s.Close();
@@ -154,7 +140,6 @@ namespace NBitcoin.BouncyCastle.Utilities
 		{
 			t.Close();
 		}
-#endif
 
 		internal static int IndexOf(string source, string value)
 		{

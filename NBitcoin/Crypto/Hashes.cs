@@ -656,7 +656,7 @@ namespace NBitcoin.Crypto
 
 		public static byte[] SHA256(byte[] data, int offset, int count)
 		{
-#if USEBC || WINDOWS_UWP || NETSTANDARD1X || NONATIVEHASH
+#if USEBC || WINDOWS_UWP || NONATIVEHASH
 			Sha256Digest sha256 = new Sha256Digest();
 			sha256.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[32];
@@ -678,7 +678,7 @@ namespace NBitcoin.Crypto
 
 		public static byte[] SHA512(byte[] data, int offset, int count)
 		{
-#if USEBC || WINDOWS_UWP || NETSTANDARD1X || NONATIVEHASH
+#if USEBC || WINDOWS_UWP || NONATIVEHASH
 			Sha512Digest sha512 = new Sha512Digest();
 			sha512.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[32];
