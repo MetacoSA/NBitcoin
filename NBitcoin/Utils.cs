@@ -315,24 +315,15 @@ namespace NBitcoin
 			if (offset > buffer.Length - count)
 				throw new ArgumentOutOfRangeException("count");
 
-#if NET8_0_OR_GREATER
-			try
-			{
-				stream.ReadExactlyAsync(buffer, offset, count, cancellation).GetAwaiter().GetResult();
-				return count;
-			}
-			catch (EndOfStreamException)
-			{
-				return 0;
-			}
-#else
 			int totalReadCount = 0;
 
 			while (totalReadCount < count)
 			{
-				cancellation.ThrowIfCancellationRequested();
-
+#if NET8_0_OR_GREATER
+				int currentReadCount = stream.ReadAsync(buffer, offset + totalReadCount, count - totalReadCount, cancellation).GetAwaiter().GetResult();
+#else
 				int currentReadCount;
+				cancellation.ThrowIfCancellationRequested();
 
 				//Big performance problem with BeginRead for other stream types than NetworkStream.
 				//Only take the slow path if cancellation is possible.
@@ -356,6 +347,7 @@ namespace NBitcoin
 					//IO interruption not supported in this path.
 					currentReadCount = stream.Read(buffer, offset + totalReadCount, count - totalReadCount);
 				}
+#endif
 
 				if (currentReadCount == 0)
 					return 0;
@@ -364,7 +356,6 @@ namespace NBitcoin
 			}
 
 			return totalReadCount;
-#endif
 		}
 
 #if HAS_SPAN
