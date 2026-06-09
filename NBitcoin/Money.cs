@@ -523,11 +523,8 @@ namespace NBitcoin
 			Money m = obj as Money;
 			if (m != null)
 				return _Satoshis.CompareTo(m._Satoshis);
-#if !NETSTANDARD1X
+
 			return _Satoshis.CompareTo(obj);
-#else
-			return _Satoshis.CompareTo((long)obj);
-#endif
 		}
 
 		#endregion

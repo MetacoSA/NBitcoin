@@ -302,61 +302,6 @@ namespace NBitcoin
 			}
 		}
 
-#if !NETSTANDARD1X
-		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
-		{
-			if (stream == null)
-				throw new ArgumentNullException(nameof(stream));
-			if (buffer == null)
-				throw new ArgumentNullException(nameof(buffer));
-			if (offset < 0 || offset > buffer.Length)
-				throw new ArgumentOutOfRangeException("offset");
-			if (count <= 0 || count > buffer.Length)
-				throw new ArgumentOutOfRangeException("count"); //Disallow 0 as a debugging aid.
-			if (offset > buffer.Length - count)
-				throw new ArgumentOutOfRangeException("count");
-
-			int totalReadCount = 0;
-
-			while (totalReadCount < count)
-			{
-				cancellation.ThrowIfCancellationRequested();
-
-				int currentReadCount;
-
-				//Big performance problem with BeginRead for other stream types than NetworkStream.
-				//Only take the slow path if cancellation is possible.
-				if (stream is NetworkStream && cancellation.CanBeCanceled)
-				{
-					var ar = stream.BeginRead(buffer, offset + totalReadCount, count - totalReadCount, null, null);
-					if (!ar.CompletedSynchronously)
-					{
-						WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, cancellation.WaitHandle }, -1);
-					}
-
-					//EndRead might block, so we need to test cancellation before calling it.
-					//This also is a bug because calling EndRead after BeginRead is contractually required.
-					//A potential fix is to use the ReadAsync API. Another fix is to register a callback with BeginRead that calls EndRead in all cases.
-					cancellation.ThrowIfCancellationRequested();
-
-					currentReadCount = stream.EndRead(ar);
-				}
-				else
-				{
-					//IO interruption not supported in this path.
-					currentReadCount = stream.Read(buffer, offset + totalReadCount, count - totalReadCount);
-				}
-
-				if (currentReadCount == 0)
-					return 0;
-
-				totalReadCount += currentReadCount;
-			}
-
-			return totalReadCount;
-		}
-#else
-
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
 			if(stream == null) throw new ArgumentNullException(nameof(stream));
@@ -392,7 +337,6 @@ namespace NBitcoin
 
 			return totalReadCount;
 		}
-#endif
 
 #if HAS_SPAN
 		public static int ReadEx(this Stream stream, Span<byte> buffer, CancellationToken cancellation = default(CancellationToken))
@@ -522,12 +466,8 @@ namespace NBitcoin
 		{
 			try
 			{
-#if !NETSTANDARD1X
 				if (!ar.SafeWaitHandle.IsClosed && !ar.SafeWaitHandle.IsInvalid)
 					ar.Set();
-#else
-				ar.Set();
-#endif
 			}
 			catch { }
 		}

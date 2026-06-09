@@ -69,11 +69,8 @@ namespace NBitcoin.Protocol
 				var version = package.Id.Version;
 				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.Minor + "." + version.Build + "/";
 #else
-#if !NETSTANDARD1X
+
 				var version = typeof(VersionPayload).Assembly.GetName().Version;
-#else
-				var version = typeof(VersionPayload).GetTypeInfo().Assembly.GetName().Version;
-#endif
 				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.MajorRevision + "." + version.Build + "/";
 #endif
 

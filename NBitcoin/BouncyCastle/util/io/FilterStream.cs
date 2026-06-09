@@ -47,22 +47,11 @@ namespace NBitcoin.BouncyCastle.Utilities.IO
 				s.Position = value;
 			}
 		}
-#if NETSTANDARD1X
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                Platform.Dispose(s);
-            }
-            base.Dispose(disposing);
-        }
-#else
 		public override void Close()
 		{
 			Platform.Dispose(s);
 			base.Close();
 		}
-#endif
 		public override void Flush()
 		{
 			s.Flush();

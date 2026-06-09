@@ -332,9 +332,9 @@ namespace NBitcoin.RPC
 			);
 			await rpc.SendBatchAsync().ConfigureAwait(false);
 			await waiting.ConfigureAwait(false);
-#if !NETSTANDARD1X
+
 			Thread.MemoryBarrier();
-#endif
+
 			if (!capabilities.SupportGetNetworkInfo)
 			{
 #pragma warning disable CS0618 // Type or member is obsolete
