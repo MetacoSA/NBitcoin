@@ -328,6 +328,9 @@ namespace NBitcoin
 				//Only take the slow path if cancellation is possible.
 				if (stream is NetworkStream && cancellation.CanBeCanceled)
 				{
+#if !NO_SOCKETASYNC
+					currentReadCount = stream.ReadAsync(buffer, offset + totalReadCount, count - totalReadCount, cancellation).GetAwaiter().GetResult();
+#else
 					var ar = stream.BeginRead(buffer, offset + totalReadCount, count - totalReadCount, null, null);
 					if (!ar.CompletedSynchronously)
 					{
@@ -340,6 +343,7 @@ namespace NBitcoin
 					cancellation.ThrowIfCancellationRequested();
 
 					currentReadCount = stream.EndRead(ar);
+#endif
 				}
 				else
 				{
