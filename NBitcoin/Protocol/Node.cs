@@ -589,7 +589,7 @@ namespace NBitcoin.Protocol
 				int socksFail = 0;
 				while (true)
 				{
-					
+
 					if (groupFail > 50 || socksFail > 50)
 					{
 						parameters.ConnectCancellation.WaitHandle.WaitOne((int)TimeSpan.FromSeconds(60).TotalMilliseconds);
@@ -930,7 +930,7 @@ namespace NBitcoin.Protocol
 		/// Send a message to the peer asynchronously
 		/// </summary>
 		/// <param name="payload">The payload to send</param>
-		/// <param name="System.OperationCanceledException">The node has been disconnected</param>
+		/// <param name="System.InvalidOperationException">The node has been disconnected</param>
 		public Task SendMessageAsync(Payload payload)
 		{
 			if (payload is null)
@@ -943,7 +943,7 @@ namespace NBitcoin.Protocol
 #endif
 			if (!IsConnected)
 			{
-				completion.SetException(new OperationCanceledException("The peer has been disconnected"));
+				completion.SetException(new InvalidOperationException("The peer has been disconnected"));
 				return completion.Task;
 			}
 
@@ -1023,16 +1023,31 @@ namespace NBitcoin.Protocol
 				return _MessageProducer;
 			}
 		}
-
+#if !NO_CHANNELS
+		public TPayload ReceiveMessage<TPayload>(TimeSpan timeout) where TPayload : Payload
+		{
+			var source = new CancellationTokenSource();
+			source.CancelAfter(timeout);
+			return ReceiveMessageAsync<TPayload>(source.Token).GetAwaiter().GetResult();
+		}
+		public TPayload ReceiveMessage<TPayload>(CancellationToken cancellationToken = default(CancellationToken)) where TPayload : Payload
+		{
+			return ReceiveMessageAsync<TPayload>(cancellationToken).GetAwaiter().GetResult();
+		}
+		public async Task<TPayload> ReceiveMessageAsync<TPayload>(CancellationToken cancellationToken = default(CancellationToken)) where TPayload : Payload
+		{
+			using (var listener = new NodeListener(this))
+			{
+				return await listener.ReceivePayloadAsync<TPayload>(cancellationToken).ConfigureAwait(false);
+			}
+		}
+#else
 		public TPayload ReceiveMessage<TPayload>(TimeSpan timeout) where TPayload : Payload
 		{
 			var source = new CancellationTokenSource();
 			source.CancelAfter(timeout);
 			return ReceiveMessage<TPayload>(source.Token);
 		}
-
-
-
 		public TPayload ReceiveMessage<TPayload>(CancellationToken cancellationToken = default(CancellationToken)) where TPayload : Payload
 		{
 			using (var listener = new NodeListener(this))
@@ -1040,7 +1055,7 @@ namespace NBitcoin.Protocol
 				return listener.ReceivePayload<TPayload>(cancellationToken);
 			}
 		}
-
+#endif
 		/// <summary>
 		/// Send addr unsolicited message of the AddressFrom peer when passing to Handshaked state
 		/// </summary>
@@ -1072,7 +1087,18 @@ namespace NBitcoin.Protocol
 		{
 			VersionHandshake(null, cancellationToken);
 		}
+
 		public void VersionHandshake(NodeRequirement requirements, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			VersionHandshakeAsync(requirements, cancellationToken).GetAwaiter().GetResult();
+		}
+		public Task VersionHandshakeAsync(CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return VersionHandshakeAsync(null, cancellationToken);
+		}
+
+#nullable enable
+		public async Task VersionHandshakeAsync(NodeRequirement? requirements, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			if (State == NodeState.HandShaked)
 				throw new InvalidOperationException("Already handshaked");
@@ -1082,8 +1108,12 @@ namespace NBitcoin.Protocol
 												p.Message.Payload is VerAckPayload))
 			{
 
-				SendMessageAsync(MyVersion);
+				await SendMessageAsync(MyVersion).ConfigureAwait(false);
+				#if !NO_CHANNELS
+				var version = await listener.ReceivePayloadAsync<VersionPayload>(cancellationToken).ConfigureAwait(false);
+				#else
 				var version = listener.ReceivePayload<VersionPayload>(cancellationToken);
+				#endif
 				_PeerVersion = version;
 				SetVersion(Math.Min(MyVersion.Version, version.Version));
 
@@ -1105,16 +1135,20 @@ namespace NBitcoin.Protocol
 					return;
 				}
 
-				// As a cortesy we do not send sendaddr to nodes that do not support it.
+				// As a courtesy we do not send sendaddr to nodes that do not support it.
 				if (ProtocolCapabilities.SupportAddrv2)
 				{
 					// Signal ADDRv2 support (BIP155).
-					SendMessageAsync(new SendAddrV2Payload());
+					await SendMessageAsync(new SendAddrV2Payload()).ConfigureAwait(false);
 				}
 
-				SendMessageAsync(new VerAckPayload());
+				await SendMessageAsync(new VerAckPayload()).ConfigureAwait(false);
 
+				#if !NO_CHANNELS
+				await listener.ReceivePayloadAsync<VerAckPayload>(cancellationToken).ConfigureAwait(false);
+				#else
 				listener.ReceivePayload<VerAckPayload>(cancellationToken);
+				#endif
 
 				State = NodeState.HandShaked;
 
@@ -1123,18 +1157,17 @@ namespace NBitcoin.Protocol
 					if (MyVersion.AddressFrom is IPEndPoint iPEndPoint && !iPEndPoint.Address.IsRoutable(true))
 						return;
 
-					SendMessageAsync(new AddrPayload(new NetworkAddress(MyVersion.AddressFrom)
+					await SendMessageAsync(new AddrPayload(new NetworkAddress(MyVersion.AddressFrom)
 					{
 						Time = DateTimeOffset.UtcNow
-					}));
+					})).ConfigureAwait(false);
 				}
 			}
 		}
-
-
+#nullable disable
 
 		/// <summary>
-		/// 
+		///
 		/// </summary>
 		/// <param name="cancellation"></param>
 		public void RespondToHandShake(CancellationToken cancellation = default(CancellationToken))
@@ -1585,7 +1618,7 @@ namespace NBitcoin.Protocol
 					while (remaining.Count != 0)
 					{
 						var block = listener.ReceivePayload<BlockPayload>(cancellationToken).Object;
-						maxQueued = Math.Max(listener.MessageQueue.Count, maxQueued);
+						maxQueued = Math.Max(listener.Count, maxQueued);
 						if (remaining.Peek() == block.GetHash())
 						{
 							remaining.Dequeue();

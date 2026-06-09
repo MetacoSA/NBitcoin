@@ -326,7 +326,7 @@ namespace NBitcoin.Tests
 					Eventually(() =>
 					{
 						Assert.NotEmpty(group.ConnectedNodes);
-						Assert.All(group.ConnectedNodes, connectedNode => 
+						Assert.All(group.ConnectedNodes, connectedNode =>
 							Assert.True(connectedNode.RemoteSocketEndpoint.IsEqualTo(node.NodeEndpoint)));
 					});
 				}

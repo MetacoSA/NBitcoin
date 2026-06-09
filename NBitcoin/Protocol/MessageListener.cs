@@ -1,10 +1,10 @@
 ﻿#if !NOSOCKET
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
+#if !NO_CHANNELS
+using System.Threading.Channels;
+#endif
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NBitcoin.Logging;
@@ -119,11 +119,12 @@ namespace NBitcoin.Protocol
 		#endregion
 
 	}
-
+#if NO_CHANNELS
 	public class PollMessageListener<T> : MessageListener<T>
 	{
 
 		BlockingCollection<T> _MessageQueue = new BlockingCollection<T>(new ConcurrentQueue<T>());
+		public int Count => _MessageQueue.Count;
 		public BlockingCollection<T> MessageQueue
 		{
 			get
@@ -146,5 +147,39 @@ namespace NBitcoin.Protocol
 
 		#endregion
 	}
+#else
+	public class PollMessageListener<T> : MessageListener<T>
+	{
+
+		Channel<T> _MessageQueue = Channel.CreateUnbounded<T>();
+		public int Count => _MessageQueue.Reader.Count;
+		public Channel<T> MessageQueue
+		{
+			get
+			{
+				return _MessageQueue;
+			}
+		}
+
+		public T ReceiveMessage(CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return ReceiveMessageAsync(cancellationToken).GetAwaiter().GetResult();
+		}
+
+		public virtual async Task<T> ReceiveMessageAsync(CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return await _MessageQueue.Reader.ReadAsync(cancellationToken).ConfigureAwait(false);
+		}
+
+		#region MessageListener Members
+
+		public virtual void PushMessage(T message)
+		{
+			_MessageQueue.Writer.TryWrite(message);
+		}
+
+		#endregion
+	}
+#endif
 }
 #endif
