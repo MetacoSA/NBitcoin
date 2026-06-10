@@ -1,20 +1,16 @@
-﻿using NBitcoin.DataEncoders;
-using NBitcoin.RPC;
+﻿using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using static NBitcoin.Tests.Comparer;
 using System.Net.Http;
-using NBitcoin.Protocol;
 
 namespace NBitcoin.Tests
 {

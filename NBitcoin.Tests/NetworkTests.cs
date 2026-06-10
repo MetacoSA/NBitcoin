@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Threading;
-using NBitcoin;
 using Xunit;
 using System;
 

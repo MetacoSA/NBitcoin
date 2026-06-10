@@ -1,12 +1,10 @@
-﻿using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
+﻿using NBitcoin.DataEncoders;
 #if HAS_SPAN
 using NBitcoin.Secp256k1;
 #endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace NBitcoin.Tests

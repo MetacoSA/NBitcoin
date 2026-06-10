@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using NBitcoin.DataEncoders;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace NBitcoin.Tests
 {

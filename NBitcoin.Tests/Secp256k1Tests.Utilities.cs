@@ -1,8 +1,6 @@
 ﻿#if HAS_SPAN
 using NBitcoin.Secp256k1;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using Xunit.Abstractions;
 

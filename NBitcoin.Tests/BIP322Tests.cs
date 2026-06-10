@@ -1,7 +1,6 @@
 ﻿#if HAS_SPAN
 using NBitcoin.BIP322;
 using System;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests

@@ -1,5 +1,4 @@
 ﻿using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
 #if !NO_BC
 using NBitcoin.BouncyCastle.Asn1.Sec;
 using NBitcoin.BouncyCastle.Asn1.X9;
@@ -9,14 +8,8 @@ using NBitcoin.BouncyCastle.Math.EC;
 using NBitcoin.BouncyCastle.Asn1;
 #endif
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Xunit;
-using System.Security;
 
 namespace NBitcoin.Tests
 {
