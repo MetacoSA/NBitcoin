@@ -22,10 +22,7 @@ using NBitcoin.Crypto.Internal;
 using System;
 using System.Diagnostics;
 using System.IO;
-
-#if !NO_NATIVE_HMACSHA512 || NETSTANDARD13
 using System.Security.Cryptography;
-#endif
 
 namespace NBitcoin.Crypto
 {
@@ -56,11 +53,7 @@ namespace NBitcoin.Crypto
 		#region PBKDF2
 		byte[] _saltBuffer, _digest, _digestT1;
 
-#if NO_NATIVE_HMACSHA512
-		IMac _hmacAlgorithm;
-#else
 		KeyedHashAlgorithm _hmacAlgorithm;
-#endif
 
 		int _iterations;
 
@@ -74,22 +67,6 @@ namespace NBitcoin.Crypto
 		///     A unique salt means a unique PBKDF2 stream, even if the original key is identical.
 		/// </param>
 		/// <param name="iterations">The number of iterations to apply.</param>
-#if NO_NATIVE_HMACSHA512
-		internal Pbkdf2(IMac hmacAlgorithm, byte[] salt, int iterations)
-		{
-			NBitcoin.Crypto.Internal.Check.Null("hmacAlgorithm", hmacAlgorithm);
-			NBitcoin.Crypto.Internal.Check.Null("salt", salt);
-			NBitcoin.Crypto.Internal.Check.Length("salt", salt, 0, int.MaxValue - 4);
-			NBitcoin.Crypto.Internal.Check.Range("iterations", iterations, 1, int.MaxValue);
-			int hmacLength = hmacAlgorithm.GetMacSize();
-			_saltBuffer = new byte[salt.Length + 4];
-			Array.Copy(salt, _saltBuffer, salt.Length);
-			_iterations = iterations;
-			_hmacAlgorithm = hmacAlgorithm;
-			_digest = new byte[hmacLength];
-			_digestT1 = new byte[hmacLength];
-		}
-#else
 		public Pbkdf2(KeyedHashAlgorithm hmacAlgorithm, byte[] salt, int iterations)
 		{
 			NBitcoin.Crypto.Internal.Check.Null("hmacAlgorithm", hmacAlgorithm);
@@ -109,7 +86,7 @@ namespace NBitcoin.Crypto
 			_digest = new byte[hmacLength];
 			_digestT1 = new byte[hmacLength];
 		}
-#endif
+
 		/// <summary>
 		/// Reads from the derived key stream.
 		/// </summary>
@@ -141,18 +118,6 @@ namespace NBitcoin.Crypto
 		/// <param name="iterations">The number of iterations to apply.</param>
 		/// <param name="derivedKeyLength">The desired length of the derived key.</param>
 		/// <returns>The derived key.</returns>
-#if NO_NATIVE_HMACSHA512
-		internal static byte[] ComputeDerivedKey(IMac hmacAlgorithm, byte[] salt, int iterations,
-											   int derivedKeyLength)
-		{
-			NBitcoin.Crypto.Internal.Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
-
-			using(Pbkdf2 kdf = new Pbkdf2(hmacAlgorithm, salt, iterations))
-			{
-				return kdf.Read(derivedKeyLength);
-			}
-		}
-#else
 		public static byte[] ComputeDerivedKey(KeyedHashAlgorithm hmacAlgorithm, byte[] salt, int iterations,
 											   int derivedKeyLength)
 		{
@@ -163,22 +128,10 @@ namespace NBitcoin.Crypto
 				return kdf.Read(derivedKeyLength);
 			}
 		}
-#endif
-
 
 		/// <summary>
 		/// Closes the stream, clearing memory and disposing of the HMAC algorithm.
 		/// </summary>
-#if NO_NATIVE_HMACSHA512 || NETSTANDARD13
-		protected override void Dispose(bool disposing)
-		{
-			Security.Clear(_saltBuffer);
-			Security.Clear(_digest);
-			Security.Clear(_digestT1);
-
-			DisposeHmac();
-		}
-#else
 		public override void Close()
 		{
 			NBitcoin.Crypto.Internal.Security.Clear(_saltBuffer);
@@ -187,15 +140,10 @@ namespace NBitcoin.Crypto
 
 			DisposeHmac();
 		}
-#endif
 
 		private void DisposeHmac()
 		{
-#if NO_NATIVE_HMACSHA512
-			_hmacAlgorithm.Reset();
-#else
 			_hmacAlgorithm.Dispose();
-#endif
 		}
 
 		void ComputeBlock(uint pos)
@@ -216,22 +164,6 @@ namespace NBitcoin.Crypto
 			NBitcoin.Crypto.Internal.Security.Clear(_digestT1);
 		}
 
-#if NO_NATIVE_HMACSHA512
-		void ComputeHmac(byte[] input, byte[] output)
-		{
-			var hash = new byte[_hmacAlgorithm.GetMacSize()];
-			_hmacAlgorithm.BlockUpdate(input, 0, input.Length);
-			_hmacAlgorithm.DoFinal(hash, 0);
-			Array.Copy(hash, output, output.Length);
-		}
-#elif NETSTANDARD13
-		void ComputeHmac(byte[] input, byte[] output)
-		{
-			_hmacAlgorithm.Initialize();
-			var hash = _hmacAlgorithm.ComputeHash(input);
-			Array.Copy(hash, output, hash.Length);
-		}
-#else
 		void ComputeHmac(byte[] input, byte[] output)
 		{
 			_hmacAlgorithm.Initialize();
@@ -239,7 +171,7 @@ namespace NBitcoin.Crypto
 			_hmacAlgorithm.TransformFinalBlock(new byte[0], 0, 0);
 			Array.Copy(_hmacAlgorithm.Hash, output, output.Length);
 		}
-#endif
+
 		#endregion
 
 		#region Stream
