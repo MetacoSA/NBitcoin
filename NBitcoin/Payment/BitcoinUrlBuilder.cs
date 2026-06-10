@@ -18,6 +18,7 @@ namespace NBitcoin.Payment
 	/// <summary>
 	/// https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki
 	/// </summary>
+	[Obsolete("Use BitcoinUriBuilder")]
 	public class BitcoinUrlBuilder
 	{
 		[Obsolete("Use BitcoinUrlBuilder(Network) instead")]
