@@ -16,7 +16,7 @@ namespace NBitcoin.Protocol.Connectors
 		{
 			return socket.ConnectAsync(remoteEP, cancellationToken).AsTask();
 		}
-#elif !NO_BEGINCONNECT
+#else
 		public static Task ConnectAsync(this Socket socket, EndPoint remoteEP, CancellationToken cancellationToken)
 		{
 			var tcs = new TaskCompletionSource<bool>(socket);
@@ -31,38 +31,6 @@ namespace NBitcoin.Protocol.Connectors
 				catch (Exception e) { innerTcs.TrySetException(e); }
 			}, tcs);
 			return tcs.Task.WithCancellation(cancellationToken);
-		}
-#else
-		public static async Task ConnectAsync(this Socket socket, EndPoint remoteEP, CancellationToken cancellationToken)
-		{
-			var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-			var args = new SocketAsyncEventArgs();
-			using (cancellationToken.Register(() =>
-			{
-				completion.TrySetCanceled();
-			}, false))
-			{
-				args.RemoteEndPoint = remoteEP;
-				args.Completed += (s, a) =>
-				{
-					completion.TrySetResult(true);
-				};
-				if (!socket.ConnectAsync(args))
-				{
-					completion.TrySetResult(true);
-				}
-				try
-				{
-					await completion.Task.ConfigureAwait(false);
-				}
-				catch
-				{
-					cancellationToken.ThrowIfCancellationRequested();
-					throw;
-				}
-			}
-			if (args.SocketError != SocketError.Success)
-				throw new SocketException((int)args.SocketError);
 		}
 #endif
 	}
