@@ -98,11 +98,8 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
-#if NO_RCA
-			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>();
-#else
-			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-#endif
+
+			var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 			var hash = transaction.GetHash();
 			if (BroadcastedTransaction.TryAdd(hash, transaction))
 			{

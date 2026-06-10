@@ -1019,11 +1019,7 @@ namespace NBitcoin.RPC
 			var batches = _BatchedRequests;
 			if (batches != null)
 			{
-#if NO_RCA
-				TaskCompletionSource<RPCResponse> source = new TaskCompletionSource<RPCResponse>();
-#else
-				TaskCompletionSource<RPCResponse> source = new TaskCompletionSource<RPCResponse>(TaskCreationOptions.RunContinuationsAsynchronously);
-#endif
+				var source = new TaskCompletionSource<RPCResponse>(TaskCreationOptions.RunContinuationsAsynchronously);
 				batches.Enqueue(Tuple.Create(request, source));
 				response = await source.Task.ConfigureAwait(false);
 				if (request.ThrowIfRPCError)

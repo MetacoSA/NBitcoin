@@ -35,11 +35,7 @@ namespace NBitcoin.Protocol.Connectors
 #else
 		public static async Task ConnectAsync(this Socket socket, EndPoint remoteEP, CancellationToken cancellationToken)
 		{
-#if NO_RCA
-			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>();
-#else
-			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-#endif
+			var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 			var args = new SocketAsyncEventArgs();
 			using (cancellationToken.Register(() =>
 			{
