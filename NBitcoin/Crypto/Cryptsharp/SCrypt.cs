@@ -75,7 +75,7 @@ namespace NBitcoin.Crypto
 											   int derivedKeyLength)
 		{
 			Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
-#if NO_NATIVE_RFC2898_HMACSHA512 || NO_NATIVE_HMACSHA512
+#if NO_NATIVE_RFC2898_HMACSHA512
 			using (Pbkdf2 kdf = GetStream(key, salt, cost, blockSize, parallel, maxThreads))
 			{
 				return kdf.Read(derivedKeyLength);
@@ -150,18 +150,7 @@ namespace NBitcoin.Crypto
 		///     <c>null</c> will use as many threads as possible.
 		/// </param>
 		/// <returns>The derived key stream.</returns>
-#if NO_NATIVE_HMACSHA512
-		internal static Pbkdf2 GetStream(byte[] key, byte[] salt,
-									   int cost, int blockSize, int parallel, int? maxThreads)
-		{
-			byte[] B = GetEffectivePbkdf2Salt(key, salt, cost, blockSize, parallel, maxThreads);
-			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest());
-			mac.Init(new KeyParameter(key));
-			Pbkdf2 kdf = new Pbkdf2(mac, B, 1);
-			Security.Clear(B);
-			return kdf;
-		}
-#elif NO_NATIVE_RFC2898_HMACSHA512
+#if NO_NATIVE_RFC2898_HMACSHA512
 		internal static Pbkdf2 GetStream(byte[] key, byte[] salt, int cost, int blockSize, int parallel, int? maxThreads)
 		{
 			byte[] B = GetEffectivePbkdf2Salt(key, salt, cost, blockSize, parallel, maxThreads);
@@ -188,11 +177,7 @@ namespace NBitcoin.Crypto
 			Check.Range("parallel", parallel, 1, int.MaxValue / MFLen);
 			Check.Range("maxThreads", (int)maxThreads, 1, int.MaxValue);
 
-#if NO_NATIVE_HMACSHA512
-			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest());
-			mac.Init(new KeyParameter(P));
-			byte[] B = Pbkdf2.ComputeDerivedKey(mac, S, 1, parallel * MFLen);
-#elif NO_NATIVE_RFC2898_HMACSHA512
+#if NO_NATIVE_RFC2898_HMACSHA512
 			byte[] B = Pbkdf2.ComputeDerivedKey(new HMACSHA256(P), S, 1, parallel * MFLen);
 #else
 			byte[] B = null;

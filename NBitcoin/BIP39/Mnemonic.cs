@@ -146,11 +146,7 @@ namespace NBitcoin
 			passphrase = passphrase ?? "";
 			var salt = Concat(NoBOMUTF8.GetBytes("mnemonic"), Normalize(passphrase));
 			var bytes = Normalize(_Mnemonic);
-#if NO_NATIVE_HMACSHA512
-			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest());
-			mac.Init(new NBitcoin.BouncyCastle.Crypto.Parameters.KeyParameter(bytes));
-			return Pbkdf2.ComputeDerivedKey(mac, salt, 2048, 64);
-#elif NO_NATIVE_RFC2898_HMACSHA512
+#if NO_NATIVE_RFC2898_HMACSHA512
 			return NBitcoin.Crypto.Pbkdf2.ComputeDerivedKey(new System.Security.Cryptography.HMACSHA512(bytes), salt, 2048, 64);
 #else
 			using System.Security.Cryptography.Rfc2898DeriveBytes derive = new System.Security.Cryptography.Rfc2898DeriveBytes(bytes, salt, 2048, System.Security.Cryptography.HashAlgorithmName.SHA512);
