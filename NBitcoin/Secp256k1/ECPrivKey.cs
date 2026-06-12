@@ -116,7 +116,7 @@ namespace NBitcoin.Secp256k1
 #if SECP256K1_LIB
 	public
 #endif
-	partial class ECPrivKey : IDisposable
+	partial class ECPrivKey : IDisposable, IEquatable<ECPrivKey>
 	{
 		internal bool cleared = false;
 #if SECP256K1_LIB
@@ -811,6 +811,15 @@ namespace NBitcoin.Secp256k1
 			return true;
 		}
 
+		public bool Equals(ECPrivKey? other)
+		{
+			if (other is ECPrivKey item)
+			{
+				return this == item;
+			}
+			return false;
+		}
+
 		public override bool Equals(object? obj)
 		{
 			if (obj is ECPrivKey item)
@@ -894,7 +903,7 @@ namespace NBitcoin.Secp256k1
 		{
 			if (this.cleared)
 				return;
-				
+
 			Clear();
 		}
 

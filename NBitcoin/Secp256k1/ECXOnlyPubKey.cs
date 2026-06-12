@@ -15,7 +15,7 @@ namespace NBitcoin.Secp256k1
 #if SECP256K1_LIB
 	public
 #endif
-	partial class ECXOnlyPubKey : IComparable<ECXOnlyPubKey>
+	partial class ECXOnlyPubKey : IComparable<ECXOnlyPubKey>, IEquatable<ECXOnlyPubKey>
 	{
 		internal static byte[] TAG_BIP0340Challenge = ASCIIEncoding.ASCII.GetBytes("BIP0340/challenge");
 #if SECP256K1_LIB
@@ -179,7 +179,35 @@ namespace NBitcoin.Secp256k1
 
 		public override int GetHashCode()
 		{
-			return this.Q.x.GetHashCode();
+			return Q.x.GetHashCode();
+		}
+
+		public bool Equals(ECXOnlyPubKey? other)
+		{
+			if (other is ECXOnlyPubKey)
+				return this == other;
+			return false;
+		}
+
+		public override bool Equals(object? obj)
+		{
+			if (obj is ECXOnlyPubKey item)
+				return this == item;
+			return false;
+		}
+
+		public static bool operator ==(ECXOnlyPubKey? a, ECXOnlyPubKey? b)
+		{
+			if (a is ECXOnlyPubKey aa && b is ECXOnlyPubKey bb)
+			{
+				return aa.Q.x == bb.Q.x;
+			}
+			return a is null && b is null;
+		}
+
+		public static bool operator !=(ECXOnlyPubKey? a, ECXOnlyPubKey? b)
+		{
+			return !(a == b);
 		}
 	}
 }
