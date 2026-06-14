@@ -1,6 +1,4 @@
 using Xunit;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.IO;
 using System;
 using NBitcoin.DataEncoders;
@@ -8,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NBitcoin.BIP370;
 using static NBitcoin.Tests.Comparer;
-using Xunit.Abstractions;
 
 namespace NBitcoin.Tests
 {
