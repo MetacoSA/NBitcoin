@@ -16,6 +16,15 @@ namespace NBitcoin.Tests
 	{
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void ReadWasabiHeaders()
+		{
+			string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WalletWasabi", "Client", "BitcoinP2pNetwork", "BlockHeadersMain.dat");
+			var bytes = File.ReadAllBytes(appDataPath);
+			var chain = new ConcurrentChain(bytes, Network.Main.Consensus.ConsensusFactory);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCloneConcurrentChain()
 		{
 			var chain = new ConcurrentChain(Network.Main);
