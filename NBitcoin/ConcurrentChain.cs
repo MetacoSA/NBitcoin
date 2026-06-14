@@ -289,10 +289,12 @@ namespace NBitcoin
 				height--;
 			}
 			var fork = GetBlockNoLock(height);
-			foreach (var newBlock in block.EnumerateToGenesis()
-				.TakeWhile(c => c != fork))
+			foreach (var newBlock in block.EnumerateToGenesis())
 			{
-				_BlocksById.AddOrReplace(newBlock.HashBlock, newBlock);
+				if (newBlock == fork)
+					break;
+
+				_BlocksById[newBlock.HashBlock] = newBlock;
 				AddOrReplaceBlocksByHeight(newBlock.Height, newBlock);
 			}
 			_Tip = block;
