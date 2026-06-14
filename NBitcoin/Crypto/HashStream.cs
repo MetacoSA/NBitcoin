@@ -5,9 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NBitcoin.DataEncoders;
-#if !NONATIVEHASH
 using System.Security.Cryptography;
-#endif
 
 namespace NBitcoin.Crypto
 {
@@ -132,11 +130,7 @@ namespace NBitcoin.Crypto
 			}
 		}
 
-#if NONATIVEHASH
-		byte[] _Buffer = new byte[32];
-#else
 		byte[] _Buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(32);
-#endif
 
 		int _Pos;
 		public override void WriteByte(byte value)
@@ -155,27 +149,6 @@ namespace NBitcoin.Crypto
 			return false;
 		}
 
-#if NONATIVEHASH
-		BouncyCastle.Crypto.Digests.Sha256Digest sha = new BouncyCastle.Crypto.Digests.Sha256Digest();
-		private void ProcessBlock()
-		{
-			sha.BlockUpdate(_Buffer, 0, _Pos);
-			_Pos = 0;
-		}
-
-		public override uint256 GetHash()
-		{
-			ProcessBlock();
-			sha.DoFinal(_Buffer, 0);
-			if (SingleSHA256)
-				return new uint256(_Buffer);
-			_Pos = 32;
-			ProcessBlock();
-			sha.DoFinal(_Buffer, 0);
-			return new uint256(_Buffer);
-		}
-
-#else
 		System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create();
 		private void ProcessBlock()
 		{
@@ -225,7 +198,6 @@ namespace NBitcoin.Crypto
 				sha.Dispose();
 			base.Dispose(disposing);
 		}
-#endif
 	}
 
 	/// <summary>
