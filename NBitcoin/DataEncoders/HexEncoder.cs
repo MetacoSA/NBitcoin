@@ -128,6 +128,10 @@ namespace NBitcoin.DataEncoders
 			if (output.Length < (encoded.Length >> 1))
 				throw new ArgumentException("output should be bigger", nameof(output));
 
+#if NET8_0_OR_GREATER
+			var decoded = Convert.FromHexString(encoded);
+			decoded.CopyTo(output);
+#else
 			// TODO: Convert.FromHexString(string source, Span<byte> destination) (.NET 10+) once available.
 			try
 			{
@@ -141,6 +145,7 @@ namespace NBitcoin.DataEncoders
 				}
 			}
 			catch(IndexOutOfRangeException) { throw new FormatException("Invalid Hex String"); }
+#endif
 		}
 #endif
 		public bool IsValid(string str)
