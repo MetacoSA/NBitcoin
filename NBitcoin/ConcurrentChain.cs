@@ -290,7 +290,7 @@ namespace NBitcoin
 			}
 			var fork = GetBlockNoLock(height);
 
-			// The while loop was manually changed from more idiomatic (but 20% slower):
+			// The while loop was manually changed from more idiomatic but slower:
 			//   foreach (var newBlock in block.EnumerateToGenesis().TakeWhile(c => c != fork))
 			var newBlock = block;
 			while (newBlock != fork)
