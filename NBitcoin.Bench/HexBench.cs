@@ -37,7 +37,7 @@ public class HexBench
 	{
 		Span<byte> tmp = stackalloc byte[hexString.Length / 2];
 		HexEncoder hex = (HexEncoder)Encoders.Hex;
-		hex.DecodeData(uint256_str, tmp);
+		hex.DecodeData(hexString, tmp);
 	}
 
 	[Benchmark]
