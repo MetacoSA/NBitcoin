@@ -7,8 +7,9 @@ namespace NBitcoin.Bench;
 [MemoryDiagnoser]
 public class HexBench
 {
-	readonly string str = "d54994ece1d11b19785c7248868696250ab195605b469632b7bd68130e880c9a";
-	readonly string uint256_str = "00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+	const string str = "d54994ece1d11b19785c7248868696250ab195605b469632b7bd68130e880c9a";
+	const string uint256_str = "00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+
 	private byte[] bytes;
 
 	[GlobalSetup]
@@ -24,9 +25,12 @@ public class HexBench
 	}
 
 	[Benchmark]
-	public void DecodeDataSpan()
+	[Arguments(uint256_str)] // 32 bytes
+	[Arguments(uint256_str + uint256_str)] // 64 bytes
+	[Arguments(uint256_str + uint256_str + uint256_str)] // 96 bytes
+	public void DecodeDataSpan(string hexString)
 	{
-		Span<byte> tmp = stackalloc byte[32];
+		Span<byte> tmp = stackalloc byte[hexString.Length / 2];
 		HexEncoder hex = (HexEncoder)Encoders.Hex;
 		hex.DecodeData(uint256_str, tmp);
 	}
