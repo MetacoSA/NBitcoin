@@ -1,5 +1,4 @@
-﻿#if !NOFILEIO
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Protocol;
@@ -227,4 +226,3 @@ namespace NBitcoin.Tests
 		}
 	}
 }
-#endif

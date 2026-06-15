@@ -1267,9 +1267,6 @@ namespace NBitcoin.Tests
 		[Fact]
 		public async Task CanAuthWithCookieFile()
 		{
-#if NOFILEIO
-			Assert.Throws<NotSupportedException>(() => new RPCClient(Network.Main));
-#else
 			using (var builder = NodeBuilderEx.Create())
 			{
 				//Sanity check that it does not throw
@@ -1304,7 +1301,6 @@ namespace NBitcoin.Tests
 
 				rpc = new RPCClient("bla:bla", "http://toto/", Network.RegTest);
 			}
-#endif
 		}
 
 		[Fact]

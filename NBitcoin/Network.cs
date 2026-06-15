@@ -826,9 +826,9 @@ namespace NBitcoin
 				return _NetworkSet;
 			}
 		}
-#if !NOFILEIO
+
 		/// <summary>
-		/// Returns the default data directory of bitcoin correctly accross OS
+		/// Returns the default data directory of bitcoin correctly across OS
 		/// </summary>
 		/// <param name="folderName">The name of the folder</param>
 		/// <returns>The full path to the data directory of Bitcoin</returns>
@@ -844,7 +844,6 @@ namespace NBitcoin
 				return Path.Combine(localAppData, char.ToUpperInvariant(folderName[0]) + folderName.Substring(1));
 			return null;
 		}
-#endif
 
 		internal static Network Register(NetworkBuilder builder)
 		{
