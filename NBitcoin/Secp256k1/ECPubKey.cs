@@ -12,7 +12,7 @@ namespace NBitcoin.Secp256k1
 #if SECP256K1_LIB
 	public
 #endif
-	partial class ECPubKey : IComparable<ECPubKey>
+	partial class ECPubKey : IComparable<ECPubKey>, IEquatable<ECPubKey>
 	{
 
 #if SECP256K1_LIB
@@ -242,6 +242,12 @@ namespace NBitcoin.Secp256k1
 			return new ECPubKey(Q.Negate(), ctx);
 		}
 
+		public bool Equals(ECPubKey? other)
+		{
+			if (other is ECPubKey item)
+				return this == item;
+			return false;
+		}
 
 		public override bool Equals(object? obj)
 		{
