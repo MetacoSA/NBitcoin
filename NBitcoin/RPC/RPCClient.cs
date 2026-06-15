@@ -270,8 +270,6 @@ namespace NBitcoin.RPC
 		static ConcurrentDictionary<Network, string> _DefaultPaths = new ConcurrentDictionary<Network, string>();
 		static RPCClient()
 		{
-
-#if !NOFILEIO
 			var bitcoinFolder = Network.GetDefaultDataFolder("bitcoin");
 			if (bitcoinFolder is null)
 				return;
@@ -284,8 +282,8 @@ namespace NBitcoin.RPC
 
 			var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
 			RegisterDefaultCookiePath(Network.RegTest, regtest);
-#endif
 		}
+
 		public static void RegisterDefaultCookiePath(Network network, string path)
 		{
 			_DefaultPaths.TryAdd(network, path);
@@ -993,7 +991,6 @@ namespace NBitcoin.RPC
 			if (cookiePath == null)
 				return false;
 
-#if !NOFILEIO
 			try
 			{
 				var newCookie = File.ReadAllText(cookiePath);
@@ -1007,9 +1004,6 @@ namespace NBitcoin.RPC
 			{
 				return false;
 			}
-#else
-			throw new NotSupportedException("Cookie authentication is not supported for this platform");
-#endif
 		}
 
 		static Encoding NoBOMUTF8 = new UTF8Encoding(false);

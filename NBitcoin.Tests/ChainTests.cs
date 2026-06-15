@@ -277,7 +277,6 @@ namespace NBitcoin.Tests
 			Assert.Equal(expectedFork, fork);
 		}
 
-#if !NOFILEIO
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCalculateDifficulty()
@@ -403,7 +402,6 @@ namespace NBitcoin.Tests
 			}
 			return File.ReadAllBytes("MainChain1.dat");
 		}
-#endif
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

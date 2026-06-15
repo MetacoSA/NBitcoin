@@ -469,7 +469,6 @@ namespace NBitcoin.Altcoins.HashX11
 
         public void TransformFile(string a_file_name, long a_from = 0, long a_length = -1)
         {
-#if !NOFILEIO
 			Debug.Assert(new FileInfo(a_file_name).Exists);
             Debug.Assert(a_from >= 0);
             Debug.Assert((a_length == -1) || (a_length > 0));
@@ -479,10 +478,6 @@ namespace NBitcoin.Altcoins.HashX11
                 stream.Seek(a_from, SeekOrigin.Begin);
                 TransformStream(stream, a_length);
             }
-
-#else
-			throw new NotSupportedException();
-#endif
 		}
 
 		public void TransformBytes(byte[] a_data)

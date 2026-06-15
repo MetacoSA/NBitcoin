@@ -134,8 +134,6 @@ namespace NBitcoin
 			get;
 		}
 
-#if !NOFILEIO
-
 		protected class FolderName
 		{
 			public string TestnetFolder
@@ -173,10 +171,6 @@ namespace NBitcoin
 			}
 		}
 
-#else
-		public static void RegisterDefaultCookiePath(Network network, params string[] subfolders) {}
-		protected void RegisterDefaultCookiePath(string folderName) {}
-#endif
 #if !NOSOCKET
 		protected static IEnumerable<NetworkAddress> ToSeed(Tuple<byte[], int>[] tuples)
 		{

@@ -697,7 +697,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-#if !NOFILEIO
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanConnectToRandomNode()
@@ -742,7 +741,6 @@ namespace NBitcoin.Tests
 			}
 			return new AddressManager();
 		}
-#endif
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]

@@ -327,7 +327,6 @@ namespace NBitcoin.Protocol
 		const int ADDRMAN_GETADDR_MAX = 2500;
 
 
-#if !NOFILEIO
 		public static AddressManager LoadPeerFile(string filePath, Network expectedNetwork = null)
 		{
 			var addrman = new AddressManager();
@@ -377,7 +376,6 @@ namespace NBitcoin.Protocol
 			}
 			File.WriteAllBytes(filePath, ms.ToArray());
 		}
-#endif
 
 		AddressInfo Find(NetworkAddress addr)
 		{
