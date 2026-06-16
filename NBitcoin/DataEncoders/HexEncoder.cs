@@ -57,7 +57,8 @@ namespace NBitcoin.DataEncoders
 			if (data == null)
 				throw new ArgumentNullException(nameof(data));
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
+			// TODO: Convert.ToHexStringLower (.NET 9+) once available.
 			return Convert.ToHexString(data, offset, count).ToLowerInvariant();
 #elif !HAS_SPAN
 			int pos = 0;
@@ -98,6 +99,10 @@ namespace NBitcoin.DataEncoders
 		{
 			if (encoded == null)
 				throw new ArgumentNullException(nameof(encoded));
+
+#if NET8_0_OR_GREATER
+			return Convert.FromHexString(encoded);
+#else
 			if (encoded.Length % 2 == 1)
 				throw new FormatException("Invalid Hex String");
 
@@ -111,6 +116,7 @@ namespace NBitcoin.DataEncoders
 				result[j] = (byte)((hi << 4) | lo);
 			}
 			return result;
+#endif
 		}
 #if HAS_SPAN
 		public void DecodeData(string encoded, Span<byte> output)
@@ -121,6 +127,12 @@ namespace NBitcoin.DataEncoders
 				throw new FormatException("Invalid Hex String");
 			if (output.Length < (encoded.Length >> 1))
 				throw new ArgumentException("output should be bigger", nameof(output));
+
+#if NET8_0_OR_GREATER
+			var decoded = Convert.FromHexString(encoded);
+			decoded.CopyTo(output);
+#else
+			// TODO: Convert.FromHexString(string source, Span<byte> destination) (.NET 10+) once available.
 			try
 			{
 				for (int i = 0, j = 0; i < encoded.Length; i += 2, j++)
@@ -133,6 +145,7 @@ namespace NBitcoin.DataEncoders
 				}
 			}
 			catch(IndexOutOfRangeException) { throw new FormatException("Invalid Hex String"); }
+#endif
 		}
 #endif
 		public bool IsValid(string str)
