@@ -268,6 +268,37 @@ namespace NBitcoin.Tests
 			Assert.Equal(scriptCoin.GetScriptCode(), expectedScriptCode);
 		}
 
+		[Theory]
+		[InlineData("pkh({key})")]
+		[InlineData("wpkh({key})")]
+		[InlineData("sh(wpkh({key}))")]
+		[InlineData("wsh(pkh({key}))")]
+		[InlineData("wsh(multi(1,{key},03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd))")]
+		[InlineData("wsh(sortedmulti(1,{key},03a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd))")]
+		public void CannotGenerateScriptsFromRootedHDKeyWithoutMultiPath(string descriptorTemplate)
+		{
+			const string rootedHDKey = "[aaaaaaaa/44h/1h/0h]tpubDDV486pBqkML6Ywhznz8DS3VS95h3q4A2pUMCc6yy739QpKMg3gA8EXGrjraDBDxrhLsezepjCEfBtak5wngDH4vMh6aXKV8hPN7JsMtdEf";
+			var descriptor = descriptorTemplate.Replace("{key}", rootedHDKey);
+			var miniscript = Miniscript.Parse(descriptor, new MiniscriptParsingSettings(Network.RegTest) { Dialect = MiniscriptDialect.BIP388 });
+
+			Assert.Equal(descriptor.Replace("/44h/1h/0h", "/44'/1'/0'"), miniscript.ToString());
+			var exception = Assert.Throws<InvalidOperationException>(() => miniscript.ToScripts());
+			Assert.Contains("multipath derivation", exception.Message);
+			Assert.DoesNotContain("Expected 1 parameters", exception.Message);
+		}
+
+		[Fact]
+		public void CannotGenerateScriptsFromUnderivedMultiPathHDKey()
+		{
+			var miniscript = Miniscript.Parse(
+				"pkh([aaaaaaaa/44h/1h/0h]tpubDDV486pBqkML6Ywhznz8DS3VS95h3q4A2pUMCc6yy739QpKMg3gA8EXGrjraDBDxrhLsezepjCEfBtak5wngDH4vMh6aXKV8hPN7JsMtdEf/<0;1>/*)",
+				new MiniscriptParsingSettings(Network.RegTest) { Dialect = MiniscriptDialect.BIP388 });
+
+			var exception = Assert.Throws<InvalidOperationException>(() => miniscript.ToScripts());
+			Assert.Contains("Call Derive(...)", exception.Message);
+			Assert.DoesNotContain("Expected 1 parameters", exception.Message);
+		}
+
 		[Fact]
 		public void CanGenerateSH()
 		{
