@@ -176,7 +176,13 @@ namespace NBitcoin.WalletPolicies
 				return TryParseExpression(ctx, out error, out node);
 			}
 		}
-		private static bool TryParsePubKeys<T>(ParsingContext ctx, [MaybeNullWhen(true)] out MiniscriptError error, [MaybeNullWhen(false)] out MiniscriptNode node)
+		private static bool TryParseCheckMultiSigPubKeys(ParsingContext ctx, [MaybeNullWhen(true)] out MiniscriptError error, [MaybeNullWhen(false)] out MiniscriptNode node) =>
+			TryParsePubKeys<Value.PubKeyValue>(ctx, FragmentDescriptor.MaxCheckMultiSigPubKeys, out error, out node);
+
+		private static bool TryParsePubKeys<T>(ParsingContext ctx, [MaybeNullWhen(true)] out MiniscriptError error, [MaybeNullWhen(false)] out MiniscriptNode node) =>
+			TryParsePubKeys<T>(ctx, null, out error, out node);
+
+		private static bool TryParsePubKeys<T>(ParsingContext ctx, int? maxPubKeys, [MaybeNullWhen(true)] out MiniscriptError error, [MaybeNullWhen(false)] out MiniscriptNode node)
 		{
 			node = null;
 			error = null;
@@ -200,6 +206,12 @@ namespace NBitcoin.WalletPolicies
 			}
 			else
 			{
+				var parsedPubKeyCount = ctx.CurrentFrame.Parameters.Count - 1;
+				if (maxPubKeys is { } max && parsedPubKeyCount >= max)
+				{
+					error = new MiniscriptError.TooManyKeys(ctx.Offset, max);
+					return false;
+				}
 				if (ctx.CurrentFrame.ExpectedParameterCount == ctx.CurrentFrame.Parameters.Count + 1)
 					ctx.CurrentFrame.ExpectedParameterCount = -1;
 				return TryParseKey(ctx, out error, out node);
@@ -556,8 +568,8 @@ namespace NBitcoin.WalletPolicies
 					"or_d" => TryParseParameters(ctx, 2, TryParseExpression, out error, out var p) ? FragmentTwoParameters.or_d(p[0], p[1]) : null,
 					"or_i" => TryParseParameters(ctx, 2, TryParseExpression, out error, out var p) ? FragmentTwoParameters.or_i(p[0], p[1]) : null,
 					"thresh" => TryParseParameters(ctx, 1, TryParseExpressions, out error, out var p) ? FragmentUnboundedParameters.thresh(p) : null,
-					"sortedmulti" => TryParseParameters(ctx, 1, TryParsePubKeys<Value.PubKeyValue>, out error, out var p) ? FragmentUnboundedParameters.sortedmulti(p) : null,
-					"multi" => TryParseParameters(ctx, 1, TryParsePubKeys<Value.PubKeyValue>, out error, out var p) ? FragmentUnboundedParameters.multi(p) : null,
+					"sortedmulti" => TryParseParameters(ctx, 1, TryParseCheckMultiSigPubKeys, out error, out var p) ? FragmentUnboundedParameters.sortedmulti(p) : null,
+					"multi" => TryParseParameters(ctx, 1, TryParseCheckMultiSigPubKeys, out error, out var p) ? FragmentUnboundedParameters.multi(p) : null,
 					"multi_a" => ctx.Network.Consensus.SupportTaproot && TryParseParameters(ctx, 1, TryParsePubKeys<Value.TaprootPubKeyValue>, out error, out var p) ? FragmentUnboundedParameters.multi_a(p) : null,
 					"sortedmulti_a" => ctx.Network.Consensus.SupportTaproot && TryParseParameters(ctx, 1, TryParsePubKeys<Value.TaprootPubKeyValue>, out error, out var p) ? FragmentUnboundedParameters.sortedmulti_a(p) : null,
 					_ => null
@@ -923,6 +935,10 @@ namespace NBitcoin.WalletPolicies
 		public record TooManyParameters(int Index, int Expected) : MiniscriptError
 		{
 			public override string ToString() => $"Too many parameters at index {Index}, expected {Expected}";
+		}
+		public record TooManyKeys(int Index, int Maximum) : MiniscriptError
+		{
+			public override string ToString() => $"Too many keys at index {Index}, maximum {Maximum}";
 		}
 		public record TooFewParameters(int Index, int Expected) : MiniscriptError
 		{
