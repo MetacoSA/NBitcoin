@@ -13,6 +13,14 @@ internal class ScriptVisitor : MiniscriptVisitor
 	internal Stack<List<Op>> ops = new();
 	public override void Visit(MiniscriptNode node)
 	{
+		if (node is MultipathNode)
+		{
+			throw new InvalidOperationException("Impossible to generate a script from an underived multipath key expression. Call Derive(...) before generating scripts.");
+		}
+		if (node is HDKeyNode)
+		{
+			throw new InvalidOperationException("Impossible to generate a script from a rooted HD key expression without a multipath derivation. Add a multipath suffix such as /<0;1>/* and call Derive(...) before generating scripts.");
+		}
 		if (node is TaprootNode trn)
 		{
 			this.Visit(trn.InternalKeyNode);
