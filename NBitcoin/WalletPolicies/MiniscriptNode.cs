@@ -25,6 +25,8 @@ namespace NBitcoin.WalletPolicies
 {
 	public class FragmentDescriptor
 	{
+		internal const int MaxCheckMultiSigPubKeys = 20;
+
 		public bool IsOr() =>
 			this == or_b ||
 			this == or_c ||
@@ -40,6 +42,12 @@ namespace NBitcoin.WalletPolicies
 			this == hash256 ||
 			this == hash160;
 		private static Op HASH160(List<Op> node) => Op.GetPushOp(Hashes.Hash160(node[0].PushData).ToBytes());
+		private static void AssertCheckMultiSigPubKeyCount(List<Op>[] v)
+		{
+			var pubKeyCount = v.Length - 1;
+			if (pubKeyCount > MaxCheckMultiSigPubKeys)
+				throw new InvalidOperationException($"CHECKMULTISIG supports at most {MaxCheckMultiSigPubKeys} public keys.");
+		}
 		FragmentDescriptor(string name,
 			Action<List<Op>[], List<Op>> addOps)
 		{
@@ -172,6 +180,7 @@ namespace NBitcoin.WalletPolicies
 			"multi",
 			(v, ops) =>
 			{
+				AssertCheckMultiSigPubKeyCount(v);
 				int i = 0;
 				while (i < v.Length)
 				{
@@ -184,6 +193,7 @@ namespace NBitcoin.WalletPolicies
 			"sortedmulti",
 			(v, ops) =>
 			{
+				AssertCheckMultiSigPubKeyCount(v);
 				var pks = new byte[v.Length - 1][];
 				for (int i = 1; i < v.Length; i++)
 				{

@@ -332,6 +332,29 @@ namespace NBitcoin.Tests
 			Assert.Equal(expected, parsed.ToScriptCodeString());
 		}
 
+		[Theory]
+		[InlineData("multi")]
+		[InlineData("sortedmulti")]
+		public void RejectsCheckMultiSigWithMoreThanTwentyKeys(string fragment)
+		{
+			var settings = new MiniscriptParsingSettings(Network.Main, KeyType.Classic)
+			{
+				Dialect = MiniscriptDialect.Strict,
+				AllowedParameters = ParameterTypeFlags.All
+			};
+			var valid = $"{fragment}(2,{string.Join(",", GeneratePubKeys(20))})";
+			var invalid = $"{fragment}(2,{string.Join(",", GeneratePubKeys(21))})";
+
+			var parsed = Miniscript.Parse(valid, settings);
+			Assert.Equal(valid, parsed.ToString());
+			parsed.ToScripts();
+
+			Assert.False(Miniscript.TryParse(invalid, settings, out var error, out _));
+			Assert.IsType<MiniscriptError.TooManyKeys>(error);
+			var exception = Assert.Throws<MiniscriptFormatException>(() => Miniscript.Parse(invalid, settings));
+			Assert.IsType<MiniscriptError.TooManyKeys>(exception.Error);
+		}
+
 		[Fact]
 		public void CanParseMusigExpression()
 		{
@@ -534,6 +557,16 @@ namespace NBitcoin.Tests
 			{
 				var root = new ExtKey().GetWif(Network.RegTest);
 				return new HDKeyNode(new KeyPath("48'/1'/0'").ToRootedKeyPath(root.ExtKey), root.Neuter());
+			}).ToArray();
+		}
+
+		private static string[] GeneratePubKeys(int count)
+		{
+			return Enumerable.Range(1, count).Select(i =>
+			{
+				var data = new byte[32];
+				data[31] = (byte)i;
+				return new Key(data).PubKey.ToHex();
 			}).ToArray();
 		}
 
