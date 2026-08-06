@@ -233,11 +233,8 @@ namespace NBitcoin.Tests
 			{
 				Dialect = MiniscriptDialect.Strict
 			};
-			var parsed = Miniscript.Parse(miniscript, settings);
-			parsed.ToScripts();
-
-			var exception = Assert.Throws<InvalidOperationException>(() => parsed.Derive(AddressIntent.Deposit, 0));
-			Assert.Contains("maximum derivation depth", exception.Message);
+			var ex = Assert.Throws<FormatException>(() =>  Miniscript.Parse(miniscript, settings));
+			Assert.Contains("Too many frames", ex.Message);
 		}
 
 		[Fact]

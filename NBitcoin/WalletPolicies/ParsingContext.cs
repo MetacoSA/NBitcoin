@@ -67,6 +67,8 @@ namespace NBitcoin.WalletPolicies
 		public Frame PushFrame()
 		{
 			Frame f = new Frame(this);
+			if (_frames.Count > 100)
+				throw new FormatException("Too many frames");
 			_frames.Push(f);
 			return f;
 		}

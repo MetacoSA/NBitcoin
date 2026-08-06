@@ -534,7 +534,6 @@ namespace NBitcoin.WalletPolicies
 
 			ctx.SkipSpaces();
 
-			int endOffset = ctx.Offset;
 			var match = Regex.Match(ctx.Remaining, @"^([a-z0-9_]+?:)?([a-zA-Z0-9_]+)");
 
 			var wrapperGroup = match.Groups[1];
