@@ -1,5 +1,6 @@
 ﻿using NBitcoin.Altcoins;
 using NBitcoin.DataEncoders;
+using System;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -11,6 +12,64 @@ namespace NBitcoin.Tests
 	/// </summary>
 	public class DashTests
 	{
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanReadAndWriteAssetUnlockTransaction()
+		{
+			// Mainnet AssetUnlockTx c84ef8acba47d55cff09e97ed2e29da25c954b8c40cc5c41cb73a6e1e06b5e74.
+			const string Hex =
+				"03000900000100e1f505000000001976a9144896e2562449a24c34d62b96ffa6eb7c5c46304c88ac0000000091012532000000000000be000000a45d2600a93805ff7993853995722f6d588bb01c7ab8e589fe2ac0b51500000000000000b97a005155c132d14964fdf8d15464262f9d332e28fa4cb8e6556da84e5e0da8fc8d345fe0e0908d10e75ee1a6e201870cc815d0c78fab4a70416a82d64d87bea6adb647e93a8516fcfbb1f907a9cfb38571bf59f60a1017cdb78b268d710af0";
+			var tx = new Dash.DashTransaction();
+
+			tx.ReadWrite(new BitcoinStream(Encoders.Hex.DecodeData(Hex)));
+
+			Assert.Equal((uint)3, tx.DashVersion);
+			Assert.Equal(Dash.DashTransactionType.AssetUnlock, tx.DashType);
+			Assert.Empty(tx.Inputs);
+			Assert.Single(tx.Outputs);
+			Assert.Equal(Money.Coins(1.0m), tx.Outputs[0].Value);
+			Assert.Equal(145, tx.ExtraPayload.Length);
+			Assert.Equal("c84ef8acba47d55cff09e97ed2e29da25c954b8c40cc5c41cb73a6e1e06b5e74", tx.GetHash().ToString());
+			Assert.Equal(Hex, Encoders.Hex.EncodeData(tx.ToBytes()));
+		}
+
+		[Theory]
+		[InlineData(Dash.DashTransactionType.QuorumCommitment, 329)]
+		[InlineData(Dash.DashTransactionType.MasternodeHardForkSignal, 130)]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanReadAndWriteDashTransactionsWithoutInputs(Dash.DashTransactionType type, int payloadSize)
+		{
+			var tx = new Dash.DashTransaction
+			{
+				Version = 3 | ((uint)type << 16),
+				ExtraPayload = new byte[payloadSize]
+			};
+			tx.ExtraPayload[0] = 1;
+			var bytes = tx.ToBytes();
+			var roundTripped = new Dash.DashTransaction();
+
+			roundTripped.ReadWrite(new BitcoinStream(bytes));
+
+			Assert.Equal(type, roundTripped.DashType);
+			Assert.Empty(roundTripped.Inputs);
+			Assert.Empty(roundTripped.Outputs);
+			Assert.Equal(tx.ExtraPayload, roundTripped.ExtraPayload);
+			Assert.Equal(bytes, roundTripped.ToBytes());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void StillRejectsOtherDashTransactionsWithoutInputs()
+		{
+			var tx = new Dash.DashTransaction
+			{
+				Version = 3
+			};
+			tx.Outputs.Add(Money.Coins(1.0m), new Key().PubKey.Hash);
+
+			Assert.Throws<InvalidOperationException>(() => tx.ToBytes());
+		}
+
 		/// <summary>
 		/// https://github.com/dashevo/dashcore-lib/blob/master/test/transaction/payload/proregtxpayload.js
 		/// </summary>

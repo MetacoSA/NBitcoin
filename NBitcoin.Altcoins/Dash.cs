@@ -79,7 +79,10 @@ namespace NBitcoin.Altcoins
 			UpdateMasternodeOperator = 3,
 			MasternodeRevocation = 4,
 			MasternodeListMerkleProof = 5,
-			QuorumCommitment = 6
+			QuorumCommitment = 6,
+			MasternodeHardForkSignal = 7,
+			AssetLock = 8,
+			AssetUnlock = 9
 		}
 
 		public abstract class SpecialTransaction
@@ -345,7 +348,28 @@ namespace NBitcoin.Altcoins
 
 			public override void ReadWrite(BitcoinStream stream)
 			{
-				base.ReadWrite(stream);
+				var allowNoInputs = stream.AllowNoInputs;
+				var transactionOptions = stream.TransactionOptions;
+				var allowNoInputsForType =
+					DashType == DashTransactionType.QuorumCommitment ||
+					DashType == DashTransactionType.MasternodeHardForkSignal ||
+					DashType == DashTransactionType.AssetUnlock;
+				if (stream.Serializing && Inputs.Count == 0 && !allowNoInputsForType && !allowNoInputs)
+					throw new InvalidOperationException("The transaction must have at least one input");
+
+				stream.TransactionOptions &= ~TransactionOptions.Witness;
+				if (stream.Serializing && allowNoInputsForType)
+					stream.AllowNoInputs = true;
+
+				try
+				{
+					base.ReadWrite(stream);
+				}
+				finally
+				{
+					stream.AllowNoInputs = allowNoInputs;
+					stream.TransactionOptions = transactionOptions;
+				}
 				// Support for Dash 0.13 extraPayload for Special Transactions
 				// https://github.com/dashpay/dips/blob/master/dip-0002-special-transactions.md
 				if (DashVersion >= 3 && DashType != DashTransactionType.StandardTransaction)
