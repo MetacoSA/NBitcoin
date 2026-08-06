@@ -13,11 +13,13 @@ namespace NBitcoin.WalletPolicies.Visitors;
 
 internal class DeriveVisitor(AddressIntent Intent, int[] Indexes, DerivationCache DerivationCache, KeyType KeyType) : MiniscriptRewriterVisitor
 {
+	const int MaxDerivationDepth = 100;
 	Dictionary<MiniscriptNode.MultipathNode, BitcoinExtPubKey[]> _Replacements = new();
 	int idx = -1;
 
 	public DerivationResult[] Derive(MiniscriptNode node, Network network)
 	{
+		EnsureDerivationDepth(node);
 		DerivationResult[] result = new DerivationResult[Indexes.Length];
 		Parallel.For(0, Indexes.Length, i =>
 		{
@@ -29,6 +31,32 @@ internal class DeriveVisitor(AddressIntent Intent, int[] Indexes, DerivationCach
 			result[i] = new DerivationResult(miniscript, visitor._Derivations);
 		});
 		return result;
+	}
+
+	private static void EnsureDerivationDepth(MiniscriptNode node)
+	{
+		var nodes = new Stack<(MiniscriptNode Node, int Depth)>();
+		nodes.Push((node, 1));
+		while (nodes.TryPop(out var current))
+		{
+			if (current.Depth > MaxDerivationDepth)
+				throw new InvalidOperationException($"Miniscript exceeds the maximum derivation depth of {MaxDerivationDepth}.");
+
+			if (current.Node is Fragment fragment)
+			{
+				foreach (var parameter in fragment.Parameters)
+					nodes.Push((parameter, current.Depth + 1));
+			}
+			else if (current.Node is TaprootBranchNode branch)
+			{
+				nodes.Push((branch.Left, current.Depth + 1));
+				nodes.Push((branch.Right, current.Depth + 1));
+			}
+			else if (current.Node is MultipathNode multipath)
+			{
+				nodes.Push((multipath.Target, current.Depth + 1));
+			}
+		}
 	}
 
 	internal static readonly byte[] BIP0328CC = Encoders.Hex.DecodeData("868087ca02a6f974c4598924c36b57762d32cb45717167e300622c7167e38965");

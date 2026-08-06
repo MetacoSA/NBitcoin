@@ -223,6 +223,24 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void DeriveRejectsDeeplyNestedMiniscript()
+		{
+			var miniscript = "0";
+			for (var i = 0; i < 200; i++)
+				miniscript = $"t:or_i(v:and_v(vdv:after(1),{miniscript}),v:ripemd160(8d33f520a3c4cef80d2453aef81b612bfe1cb44c))";
+
+			var settings = new MiniscriptParsingSettings(Network.Main, KeyType.Classic)
+			{
+				Dialect = MiniscriptDialect.Strict
+			};
+			var parsed = Miniscript.Parse(miniscript, settings);
+			parsed.ToScripts();
+
+			var exception = Assert.Throws<InvalidOperationException>(() => parsed.Derive(AddressIntent.Deposit, 0));
+			Assert.Contains("maximum derivation depth", exception.Message);
+		}
+
+		[Fact]
 		public void CanGenerateScripts()
 		{
 			var settings = new MiniscriptParsingSettings(Network.RegTest)
