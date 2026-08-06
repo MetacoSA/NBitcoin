@@ -33,6 +33,30 @@ namespace NBitcoin.Tests
 			Assert.Equal(Hex, Encoders.Hex.EncodeData(tx.ToBytes()));
 		}
 
+		[Theory]
+		[InlineData(Dash.DashTransactionType.QuorumCommitment, 329)]
+		[InlineData(Dash.DashTransactionType.MasternodeHardForkSignal, 130)]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanReadAndWriteDashTransactionsWithoutInputs(Dash.DashTransactionType type, int payloadSize)
+		{
+			var tx = new Dash.DashTransaction
+			{
+				Version = 3 | ((uint)type << 16),
+				ExtraPayload = new byte[payloadSize]
+			};
+			tx.ExtraPayload[0] = 1;
+			var bytes = tx.ToBytes();
+			var roundTripped = new Dash.DashTransaction();
+
+			roundTripped.ReadWrite(new BitcoinStream(bytes));
+
+			Assert.Equal(type, roundTripped.DashType);
+			Assert.Empty(roundTripped.Inputs);
+			Assert.Empty(roundTripped.Outputs);
+			Assert.Equal(tx.ExtraPayload, roundTripped.ExtraPayload);
+			Assert.Equal(bytes, roundTripped.ToBytes());
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void StillRejectsOtherDashTransactionsWithoutInputs()

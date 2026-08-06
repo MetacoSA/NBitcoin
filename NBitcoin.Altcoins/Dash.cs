@@ -350,11 +350,15 @@ namespace NBitcoin.Altcoins
 			{
 				var allowNoInputs = stream.AllowNoInputs;
 				var transactionOptions = stream.TransactionOptions;
-				if (stream.Serializing && Inputs.Count == 0 && DashType != DashTransactionType.AssetUnlock && !allowNoInputs)
+				var allowNoInputsForType =
+					DashType == DashTransactionType.QuorumCommitment ||
+					DashType == DashTransactionType.MasternodeHardForkSignal ||
+					DashType == DashTransactionType.AssetUnlock;
+				if (stream.Serializing && Inputs.Count == 0 && !allowNoInputsForType && !allowNoInputs)
 					throw new InvalidOperationException("The transaction must have at least one input");
 
 				stream.TransactionOptions &= ~TransactionOptions.Witness;
-				if (stream.Serializing && DashType == DashTransactionType.AssetUnlock)
+				if (stream.Serializing && allowNoInputsForType)
 					stream.AllowNoInputs = true;
 
 				try
