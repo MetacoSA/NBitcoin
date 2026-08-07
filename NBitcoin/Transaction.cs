@@ -2486,7 +2486,10 @@ namespace NBitcoin
 		}
 		public void FromBytes(byte[] bytes, uint? version)
 		{
-			this.ReadWrite(new BitcoinStream(bytes) { ConsensusFactory = GetConsensusFactory(), ProtocolVersion = version });
+			var s = new BitcoinStream(bytes) { ConsensusFactory = GetConsensusFactory(), ProtocolVersion = version };
+			this.ReadWrite(s);
+			if (s.Inner.Position != s.Inner.Length)
+				throw new FormatException("Malformed transaction: Unexpected trailing bytes");
 		}
 
 		public TransactionValidator CreateValidator(ICoin[] spentCoins)

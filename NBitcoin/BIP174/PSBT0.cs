@@ -4,6 +4,7 @@ using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -77,7 +78,7 @@ public class PSBT0 : PSBT
 	{
 		if (!maps.Global.TryRemove<byte[]>(PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX, out var txBytes))
 			throw new FormatException("Invalid PSBT. No global TX");
-		tx = Transaction.Load(txBytes, Network);
+		tx = Transaction.Load(txBytes, network);
 		tx.PrecomputeHash(true, true);
 		if (tx.Inputs.Any(txin => txin.ScriptSig != Script.Empty || txin.WitScript != WitScript.Empty))
 			throw new FormatException("Malformed global tx. It should not contain any scriptsig or witness by itself");
