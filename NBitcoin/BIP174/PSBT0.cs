@@ -4,6 +4,7 @@ using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -77,7 +78,21 @@ public class PSBT0 : PSBT
 	{
 		if (!maps.Global.TryRemove<byte[]>(PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX, out var txBytes))
 			throw new FormatException("Invalid PSBT. No global TX");
-		tx = Transaction.Load(txBytes, Network);
+
+		var consensusFactory = GetConsensusFactory();
+		tx = consensusFactory.CreateTransaction();
+
+		using var txValueStream = new MemoryStream(txBytes, writable: false);
+		var txStream = new BitcoinStream(txValueStream, false)
+		{
+			ConsensusFactory = consensusFactory,
+			TransactionOptions = TransactionOptions.None
+		};
+		tx.ReadWrite(txStream);
+
+		if (txValueStream.Position != txValueStream.Length)
+			throw new FormatException("Malformed global tx. Transaction did not consume the entire value");
+
 		tx.PrecomputeHash(true, true);
 		if (tx.Inputs.Any(txin => txin.ScriptSig != Script.Empty || txin.WitScript != WitScript.Empty))
 			throw new FormatException("Malformed global tx. It should not contain any scriptsig or witness by itself");
