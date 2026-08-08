@@ -2300,6 +2300,10 @@ namespace NBitcoin
 					if (!pubkey.Verify(sighash, sig2))
 						return false;
 				}
+				else
+				{
+					return false;
+				}
 #pragma warning restore 618
 #endif
 			}
