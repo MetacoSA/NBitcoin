@@ -4022,9 +4022,6 @@ namespace NBitcoin.Tests
 				CheckFee = false,
 				MinRelayTxFee = null,
 				CheckDust = false,
-#if !NOCONSENSUSLIB
-				UseConsensusLib = false,
-#endif
 				CheckScriptPubKey = false
 			};
 

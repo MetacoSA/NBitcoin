@@ -49,13 +49,7 @@ namespace NBitcoin.Policy
 			get;
 			set;
 		}
-#if !NOCONSENSUSLIB
-		public bool UseConsensusLib
-		{
-			get;
-			set;
-		}
-#endif
+
 		public const int MaxScriptSigLength = 1650;
 		#region ITransactionPolicy Members
 
@@ -167,42 +161,14 @@ namespace NBitcoin.Policy
 
 		private bool VerifyScript(TransactionValidator validator, int inputIndex, out ScriptError? error)
 		{
-
-#if !NOCONSENSUSLIB
-			if (!UseConsensusLib)
-#endif
+			var res = validator.ValidateInput(inputIndex);
+			if (res.Error is ScriptError err)
 			{
-				var res = validator.ValidateInput(inputIndex);
-				if (res.Error is ScriptError err)
-				{
-					error = err;
-					return false;
-				}
-				error = null;
-				return true;
+				error = err;
+				return false;
 			}
-#if !NOCONSENSUSLIB
-			else
-			{
-				var scriptVerify = validator.ScriptVerify;
-				if (validator.Transaction is IHasForkId)
-					scriptVerify |= (NBitcoin.ScriptVerify)(1U << 16);
-				var ok = Script.VerifyScriptConsensus(validator.SpentOutputs[inputIndex].ScriptPubKey, validator.Transaction, (uint)inputIndex, scriptVerify);
-				if (!ok)
-				{
-					if (!validator.TryValidateInput(inputIndex, out var res) && res.Error is ScriptError err)
-						error = err;
-					else
-						error = ScriptError.UnknownError;
-					return false;
-				}
-				else
-				{
-					error = ScriptError.OK;
-				}
-				return true;
-			}
-#endif
+			error = null;
+			return true;
 		}
 
 		#endregion
@@ -217,9 +183,6 @@ namespace NBitcoin.Policy
 				MaxTxFee = MaxTxFee,
 				MinRelayTxFee = MinRelayTxFee,
 				ScriptVerify = ScriptVerify,
-#if !NOCONSENSUSLIB
-				UseConsensusLib = UseConsensusLib,
-#endif
 				CheckScriptPubKey = CheckScriptPubKey,
 				CheckFee = CheckFee,
 				Strategy = Strategy,

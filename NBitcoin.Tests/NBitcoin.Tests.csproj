@@ -10,9 +10,6 @@
 	  <TargetFrameworks>net8.0;net472</TargetFrameworks>
 	  <TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">net8.0</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup>
-    <DefineConstants>$(DefineConstants);NOCONSENSUSLIB</DefineConstants>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(AdditionalDefineConstants)' != '' ">
     <DefineConstants>$(DefineConstants);$(AdditionalDefineConstants)</DefineConstants>
   </PropertyGroup>

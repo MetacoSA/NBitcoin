@@ -387,7 +387,6 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void script_json_tests()
 		{
-			EnsureHasLibConsensus();
 			var tests = TestCase.read_json("data/script_tests.json");
 			foreach (var test in tests)
 			{
@@ -433,54 +432,6 @@ namespace NBitcoin.Tests
 
 			spendingTransaction.Inputs.FindIndexedInput(0).VerifyScript(new TxOut(amount, scriptPubKey), flags, out var actual);
 			Assert.True(expectedError == actual, "Test : " + testIndex + " " + comment);
-#if !NOCONSENSUSLIB
-			var ok = Script.VerifyScriptConsensus(scriptPubKey, spendingTransaction, 0, amount, flags);
-
-			// If the spendingTransaction correctly spends the scriptPubKey but the expected error is not okay
-			// because of a policy flags then, we ignore the test; otherwise assert everything the expected result
-			// is the expected one.
-			if (ok && (expectedError != ScriptError.OK) && (flags & ~ScriptVerify.Consensus) != 0)
-				return;
-			Assert.True(ok == (expectedError == ScriptError.OK), "[ConsensusLib] Test : " + testIndex + " " + comment);
-#endif
-		}
-
-
-		private void EnsureHasLibConsensus()
-		{
-#if !NOCONSENSUSLIB
-			var bitcoinPath = NodeBuilder.EnsureDownloaded(NodeDownloadData.Bitcoin.v0_17_0);
-
-			string libConsensusDll = null;
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-			{
-				libConsensusDll = "libbitcoinconsensus-0.dll";
-			}
-			else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-			{
-				libConsensusDll = "libbitcoinconsensus.0.dylib";
-			}
-			else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-			{
-				libConsensusDll = "libbitcoinconsensus.so";
-			}
-			else
-			{
-				throw new NotSupportedException("Unknown operating system");
-			}
-
-			bitcoinPath = Path.GetDirectoryName(bitcoinPath);
-			var libConsensusPath = Path.Combine(bitcoinPath, "..", "lib", libConsensusDll);
-			libConsensusPath = Path.GetFullPath(libConsensusPath);
-			try
-			{
-				File.Copy(libConsensusPath, $"./{libConsensusDll}", overwrite: false);
-			}
-			catch (IOException)
-			{
-
-			}
-#endif
 		}
 
 		private static Transaction CreateSpendingTransaction(WitScript wit, Script scriptSig, Transaction creditingTransaction)
@@ -715,7 +666,6 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void script_CHECKMULTISIG12()
 		{
-			EnsureHasLibConsensus();
 			Key key1 = new Key(true);
 			Key key2 = new Key(false);
 			Key key3 = new Key(true);
@@ -757,7 +707,6 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void script_CHECKMULTISIG23()
 		{
-			EnsureHasLibConsensus();
 			Key key1 = new Key(true);
 			Key key2 = new Key(false);
 			Key key3 = new Key(true);
@@ -825,17 +774,11 @@ namespace NBitcoin.Tests
 		private void AssertInvalidScript(TxOut txOut, Transaction tx, int n, ScriptVerify verify)
 		{
 			Assert.False(tx.Inputs.FindIndexedInput(n).VerifyScript(txOut, verify, out _));
-#if !NOCONSENSUSLIB
-			Assert.False(Script.VerifyScriptConsensus(txOut.ScriptPubKey, tx, (uint)n, flags));
-#endif
 		}
 
 		private void AssertValidScript(TxOut txOut, Transaction tx, int n, ScriptVerify verify)
 		{
 			Assert.True(tx.Inputs.FindIndexedInput(n).VerifyScript(txOut, verify, out _));
-#if !NOCONSENSUSLIB
-			Assert.True(Script.VerifyScriptConsensus(txOut.ScriptPubKey, tx, (uint)n, flags & ScriptVerify.Consensus));
-#endif
 		}
 
 		[Fact]
