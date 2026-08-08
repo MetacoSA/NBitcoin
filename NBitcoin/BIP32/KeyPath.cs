@@ -88,8 +88,10 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(data));
 
 			if (data.Length % 4 != 0)
-				throw new ArgumentOutOfRangeException("data length is not suited for KeyPath");
+				throw new ArgumentOutOfRangeException(paramName: nameof(data), message: "data length is not suited for KeyPath");
 			var depth = data.Length / 4;
+			if (depth > 255)
+				throw new ArgumentOutOfRangeException(paramName: nameof(data), message: "A KeyPath should have at most 255 indices");
 			uint[] result = new uint[depth];
 			for (int i = 0; i < depth; i++)
 			{
