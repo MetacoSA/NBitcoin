@@ -1,4 +1,4 @@
-﻿#if NO_NATIVE_BIGNUM
+#if NO_NATIVE_BIGNUM
 using NBitcoin.BouncyCastle.Math;
 #else
 using System.Numerics;
@@ -431,7 +431,10 @@ namespace NBitcoin
 				nActualTimespan = TimeSpan.FromTicks(consensus.PowTargetTimespan.Ticks * 4);
 
 			// Retarget
-			var bnNew = pindexLast.Header.Bits.ToBigInteger();
+			// TestNet4 (BIP 94) uses the first block of the previous period instead of the last block.
+			var baseBlock = consensus.EnforceBIP94 ? pindexFirst : pindexLast;
+			var bnNew = baseBlock.Header.Bits.ToBigInteger();
+
 #if NO_NATIVE_BIGNUM
 			bnNew = bnNew.Multiply(BigInteger.ValueOf((long)nActualTimespan.TotalSeconds));
 			bnNew = bnNew.Divide(BigInteger.ValueOf((long)consensus.PowTargetTimespan.TotalSeconds));

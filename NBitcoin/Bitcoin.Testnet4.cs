@@ -65,6 +65,7 @@ namespace NBitcoin
 				SupportTaproot = true,
 				SupportSegwit = true,
 				CoinType = 1,
+				EnforceBIP94 = true, // Testnet4 a different difficulty adjustment rule
 			};
 
 			// Modify the testnet genesis block so the timestamp is valid for a later start.
