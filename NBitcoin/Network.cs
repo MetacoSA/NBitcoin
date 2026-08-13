@@ -674,6 +674,20 @@ namespace NBitcoin
 			}
 		}
 
+		bool _EnforceBIP94;
+		public bool EnforceBIP94
+		{
+			get
+			{
+				return _EnforceBIP94;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_EnforceBIP94 = value;
+			}
+		}
+
 		public virtual Consensus Clone()
 		{
 			var consensus = new Consensus();
@@ -715,6 +729,7 @@ namespace NBitcoin
 			consensus._SupportSegwit = _SupportSegwit;
 			consensus._SupportTaproot = _SupportTaproot;
 			consensus._NeverNeedPreviousTxForSigning = _NeverNeedPreviousTxForSigning;
+			consensus._EnforceBIP94 = _EnforceBIP94;
 		}
 	}
 	public partial class Network
