@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 using NBitcoin.DataEncoders;
-using System;
 using System.Collections.Generic;
 
 namespace NBitcoin.Bench;
@@ -27,30 +26,10 @@ public class UtilsBench
 		}
 	}
 
-	[Benchmark(Baseline = true)]
-	[BenchmarkCategory("Master")]
-	[ArgumentsSource(nameof(ArrayEqualArgs))]
-	public bool ArrayEqual_Master(byte[] a, byte[] b)
-	{
-		return ArrayEqual_OldImpl(a, b);
-	}
-
 	[Benchmark]
 	[ArgumentsSource(nameof(ArrayEqualArgs))]
 	public bool ArrayEqual(byte[] a, byte[] b)
 	{
 		return Utils.ArrayEqual(a, b);
-	}
-
-	private static bool ArrayEqual_OldImpl(byte[] a, byte[] b)
-	{
-		if (a == null && b == null)
-			return true;
-		if (a == null)
-			return false;
-		if (b == null)
-			return false;
-
-		return Utils.ArrayEqual(a, 0, b, 0, Math.Max(a.Length, b.Length));
 	}
 }
