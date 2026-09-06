@@ -52,6 +52,14 @@ namespace NBitcoin.DataEncoders
 		private static readonly string[] HexTbl = Enumerable.Range(0, 256).Select(v => v.ToString("x2")).ToArray();
 #endif
 
+#if NET8_0_OR_GREATER
+		public override string EncodeData(ReadOnlySpan<byte> data)
+		{
+			// TODO: Convert.ToHexStringLower (.NET 9+) once available.
+			return Convert.ToHexString(data).ToLowerInvariant();
+		}
+#endif
+
 		public override string EncodeData(byte[] data, int offset, int count)
 		{
 			if (data == null)
