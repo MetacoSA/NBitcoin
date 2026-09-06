@@ -298,7 +298,7 @@ namespace NBitcoin.Secp256k1
 		/// </summary>
 		/// <param name="tweak">32 bytes tweak</param>
 		/// <param name="tweakedPrivKey">False If the tweak is not 32 bytes or if the tweak was out of range (chance of around 1 in 2^128 for uniformly random 32-byte arrays, or if the resulting private key would be invalid(only when the tweak is the complement of the private key)</param>
-		/// <exception cref="System.ObjectDisposedException">This instance has been disposed</exception>
+		/// <exception cref="ObjectDisposedException">This instance has been disposed</exception>
 		/// <returns>A tweaked private key</returns>
 		public bool TryTweakAdd(ReadOnlySpan<byte> tweak, out ECPrivKey? tweakedPrivKey)
 		{
@@ -877,9 +877,8 @@ namespace NBitcoin.Secp256k1
 			tweakedPrivkey = null;
 			if (tweak.Length != 32)
 				return false;
-			Scalar factor;
-			int overflow;
-			factor = new Scalar(tweak, out overflow);
+
+			var factor = new Scalar(tweak, out int overflow);
 			var sec = this.sec;
 			bool ret = overflow == 0 && secp256k1_eckey_privkey_tweak_mul(ref sec, factor);
 			if (ret)
