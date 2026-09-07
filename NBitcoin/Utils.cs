@@ -479,7 +479,7 @@ namespace NBitcoin
 				return false;
 
 			if (a.Length != b.Length)
-				return a.Length == 0 && b.Length == 0;
+				return false;
 
 			return ArrayEqual(a, 0, b, 0, a.Length);
 		}
