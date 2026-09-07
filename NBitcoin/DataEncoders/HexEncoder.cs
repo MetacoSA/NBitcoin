@@ -57,7 +57,7 @@ namespace NBitcoin.DataEncoders
 			if (data == null)
 				throw new ArgumentNullException(nameof(data));
 
-#if NET8_0_OR_GREATER
+#if NET10_0_OR_GREATER
 			// TODO: Convert.ToHexStringLower (.NET 9+) once available.
 			return Convert.ToHexString(data, offset, count).ToLowerInvariant();
 #elif !HAS_SPAN
@@ -100,7 +100,7 @@ namespace NBitcoin.DataEncoders
 			if (encoded == null)
 				throw new ArgumentNullException(nameof(encoded));
 
-#if NET8_0_OR_GREATER
+#if NET10_0_OR_GREATER
 			return Convert.FromHexString(encoded);
 #else
 			if (encoded.Length % 2 == 1)
@@ -128,7 +128,7 @@ namespace NBitcoin.DataEncoders
 			if (output.Length < (encoded.Length >> 1))
 				throw new ArgumentException("output should be bigger", nameof(output));
 
-#if NET8_0_OR_GREATER
+#if NET10_0_OR_GREATER
 			var decoded = Convert.FromHexString(encoded);
 			decoded.CopyTo(output);
 #else

@@ -106,7 +106,7 @@ namespace NBitcoin.Crypto
 			byte[] rv = new byte[20];
 			sha1.DoFinal(rv, 0);
 			return rv;
-#elif NET8_0_OR_GREATER
+#elif NET10_0_OR_GREATER
 			return System.Security.Cryptography.SHA1.HashData(data.AsSpan(offset, count));
 #else
 			using (var sha1 = System.Security.Cryptography.SHA1.Create())
@@ -636,7 +636,7 @@ namespace NBitcoin.Crypto
 #if HAS_SPAN
 		public static byte[] SHA256(ReadOnlySpan<byte> data)
 		{
-#if NET8_0_OR_GREATER
+#if NET10_0_OR_GREATER
 			return System.Security.Cryptography.SHA256.HashData(data);
 #else
 			return SHA256(data.ToArray(), 0, data.Length);
@@ -652,7 +652,7 @@ namespace NBitcoin.Crypto
 			byte[] rv = new byte[32];
 			sha256.DoFinal(rv, 0);
 			return rv;
-#elif NET8_0_OR_GREATER
+#elif NET10_0_OR_GREATER
 			return System.Security.Cryptography.SHA256.HashData(data.AsSpan(offset, count));
 #else
 			using (var sha = System.Security.Cryptography.SHA256.Create())
@@ -676,7 +676,7 @@ namespace NBitcoin.Crypto
 			byte[] rv = new byte[32];
 			sha512.DoFinal(rv, 0);
 			return rv;
-#elif NET8_0_OR_GREATER
+#elif NET10_0_OR_GREATER
 			return System.Security.Cryptography.SHA512.HashData(data.AsSpan(offset, count));
 #else
 			using (var sha = System.Security.Cryptography.SHA512.Create())
