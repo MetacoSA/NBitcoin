@@ -938,7 +938,7 @@ namespace NBitcoin.Tests
 				Assert.True(Utils.ArrayEqual(text1, plainText));
 				Assert.Equal(text2, Encoders.ASCII.EncodeData(plainText));
 
-				// Encrypt twice, should not give twice same cypher
+				// Encrypt twice, should not give twice same cipher
 				var cipherText3 = key.PubKey.Encrypt(plainText);
 				Assert.True(!Utils.ArrayEqual(cipherText1, cipherText3));
 			}

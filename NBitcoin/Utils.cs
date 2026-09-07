@@ -471,24 +471,26 @@ namespace NBitcoin
 			}
 			catch { }
 		}
-		public static bool ArrayEqual(byte[] a, byte[] b)
+		public static bool ArrayEqual(byte[]? a, byte[]? b)
 		{
 			if (a == null && b == null)
 				return true;
-			if (a == null)
+			if (a == null || b == null)
 				return false;
-			if (b == null)
+
+			if (a.Length != b.Length)
 				return false;
-			return ArrayEqual(a, 0, b, 0, Math.Max(a.Length, b.Length));
+
+			return ArrayEqual(a, 0, b, 0, a.Length);
 		}
-		public static bool ArrayEqual(byte[] a, int startA, byte[] b, int startB, int length)
+
+		public static bool ArrayEqual(byte[]? a, int startA, byte[]? b, int startB, int length)
 		{
 			if (a == null && b == null)
 				return true;
-			if (a == null)
+			if (a == null || b == null)
 				return false;
-			if (b == null)
-				return false;
+
 			var alen = a.Length - startA;
 			var blen = b.Length - startB;
 
