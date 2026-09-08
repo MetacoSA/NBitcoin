@@ -334,9 +334,9 @@ namespace NBitcoin.Protocol
 			using (var fs = File.Open(filePath, FileMode.Open, FileAccess.Read))
 			{
 				data = new byte[fs.Length - 32];
-				fs.Read(data, 0, data.Length);
+				fs.ReadEx(data, 0, data.Length);
 				hash = new byte[32];
-				fs.Read(hash, 0, 32);
+				fs.ReadEx(hash, 0, 32);
 			}
 			var actual = Hashes.DoubleSHA256(data);
 			var expected = new uint256(hash);

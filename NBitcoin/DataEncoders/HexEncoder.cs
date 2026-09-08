@@ -52,14 +52,20 @@ namespace NBitcoin.DataEncoders
 		private static readonly string[] HexTbl = Enumerable.Range(0, 256).Select(v => v.ToString("x2")).ToArray();
 #endif
 
+#if NET10_0_OR_GREATER
+		public override string EncodeData(ReadOnlySpan<byte> data)
+		{
+			return Convert.ToHexStringLower(data);
+		}
+#endif
+
 		public override string EncodeData(byte[] data, int offset, int count)
 		{
 			if (data == null)
 				throw new ArgumentNullException(nameof(data));
 
-#if NET8_0_OR_GREATER
-			// TODO: Convert.ToHexStringLower (.NET 9+) once available.
-			return Convert.ToHexString(data, offset, count).ToLowerInvariant();
+#if NET10_0_OR_GREATER
+			return Convert.ToHexStringLower(data.AsSpan(offset, count));
 #elif !HAS_SPAN
 			int pos = 0;
 			var s = new char[2 * count];
@@ -100,7 +106,7 @@ namespace NBitcoin.DataEncoders
 			if (encoded == null)
 				throw new ArgumentNullException(nameof(encoded));
 
-#if NET8_0_OR_GREATER
+#if NET10_0_OR_GREATER
 			return Convert.FromHexString(encoded);
 #else
 			if (encoded.Length % 2 == 1)
@@ -128,11 +134,11 @@ namespace NBitcoin.DataEncoders
 			if (output.Length < (encoded.Length >> 1))
 				throw new ArgumentException("output should be bigger", nameof(output));
 
-#if NET8_0_OR_GREATER
-			var decoded = Convert.FromHexString(encoded);
-			decoded.CopyTo(output);
+#if NET10_0_OR_GREATER
+			var result = Convert.FromHexString(encoded, output, charsConsumed: out _, bytesWritten: out _);
+			if (result != System.Buffers.OperationStatus.Done)
+				throw new FormatException($"Decoding HEX failed with {result}");
 #else
-			// TODO: Convert.FromHexString(string source, Span<byte> destination) (.NET 10+) once available.
 			try
 			{
 				for (int i = 0, j = 0; i < encoded.Length; i += 2, j++)

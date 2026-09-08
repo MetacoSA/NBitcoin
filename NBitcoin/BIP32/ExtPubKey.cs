@@ -112,8 +112,6 @@ namespace NBitcoin
 		/// </summary>
 		public ExtPubKey(ReadOnlySpan<byte> bytes)
 		{
-			if (bytes == null)
-				throw new ArgumentNullException(nameof(bytes));
 			if (bytes.Length != Length)
 				throw new FormatException($"An extpubkey should be {Length} bytes");
 			int i = 0;

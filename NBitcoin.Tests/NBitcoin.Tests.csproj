@@ -7,8 +7,8 @@
 		<LangVersion>12.0</LangVersion>
 	</PropertyGroup>
   <PropertyGroup>
-	  <TargetFrameworks>net8.0;net472</TargetFrameworks>
-	  <TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">net8.0</TargetFrameworks>
+	  <TargetFrameworks>net10.0;net472</TargetFrameworks>
+	  <TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">net10.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(AdditionalDefineConstants)' != '' ">
     <DefineConstants>$(DefineConstants);$(AdditionalDefineConstants)</DefineConstants>
@@ -19,22 +19,22 @@
   <PropertyGroup Condition="'$(TargetFrameworkOverride)' == 'netstandard2.0'">
 	<DefineConstants>$(DefineConstants);NO_RECORDS</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" ('$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'net8.0' ) And ( '$(TargetFrameworkOverride)' != 'netstandard2.0' ) ">
+  <PropertyGroup Condition=" ('$(TargetFramework)' == 'netstandard2.1' Or '$(TargetFramework)' == 'net10.0') And ( '$(TargetFrameworkOverride)' != 'netstandard2.0' ) ">
     <DefineConstants>$(DefineConstants);NETCORE;HAS_SPAN;NO_BC</DefineConstants>
     <RemoveBC>true</RemoveBC>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="coverlet.collector" Version="3.2.0">
+		<PackageReference Include="coverlet.collector" Version="10.0.1">
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		  <PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
 		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
 		<ProjectReference Include="..\NBitcoin.Altcoins\NBitcoin.Altcoins.csproj" />
 		<ProjectReference Include="..\NBitcoin.TestFramework\NBitcoin.TestFramework.csproj" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-		<PackageReference Include="xunit" Version="2.9.2" />
-		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+		<PackageReference Include="xunit" Version="2.9.3" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
 		</PackageReference>

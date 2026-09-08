@@ -1,4 +1,4 @@
-#if !NET6_0_OR_GREATER && !NO_TUPLE
+#if !NET10_0_OR_GREATER && !NO_TUPLE
 using System;
 using System.Collections;
 using System.Collections.Generic;
