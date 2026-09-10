@@ -140,10 +140,25 @@ namespace NBitcoin.RPC
 				throw new ArgumentOutOfRangeException("count", "count must be greater or equal to one.");
 
 			var result = await SendRequestAsync("headers", RestResponseFormat.Bin, count.ToString(CultureInfo.InvariantCulture), blockId.ToString()).ConfigureAwait(false);
-			const int hexSize = (BlockHeader.Size);
-			return Enumerable
-				.Range(0, result.Length / hexSize)
-				.Select(i => new BlockHeader(result.SafeSubarray(i * hexSize, hexSize), Network));
+			var headers = new List<BlockHeader>();
+			var consensusFactory = Network.Consensus.ConsensusFactory;
+			using (var memoryStream = new MemoryStream(result))
+			{
+				var stream = new BitcoinStream(memoryStream, false)
+				{
+					ConsensusFactory = consensusFactory
+				};
+				while (memoryStream.Position < memoryStream.Length)
+				{
+					var position = memoryStream.Position;
+					var header = consensusFactory.CreateBlockHeader();
+					header.ReadWrite(stream);
+					if (memoryStream.Position == position)
+						throw new FormatException("Block header deserialization did not consume any data");
+					headers.Add(header);
+				}
+			}
+			return headers;
 		}
 
 		/// <summary>
