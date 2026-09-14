@@ -30,6 +30,11 @@ namespace NBitcoin.Altcoins
 			}
 			public static DogeConsensusFactory Instance { get; } = new DogeConsensusFactory();
 
+			public override Payload CreatePayload(string command)
+			{
+				return command == "headers" ? new DogecoinHeadersPayload() : base.CreatePayload(command);
+			}
+
 			public override Block CreateBlock()
 			{
 				return new DogecoinBlock(this.CreateBlockHeader());
@@ -229,6 +234,27 @@ namespace NBitcoin.Altcoins
 			public override ConsensusFactory GetConsensusFactory()
 			{
 				return DogeConsensusFactory.Instance;
+			}
+		}
+		class DogecoinHeadersPayload : HeadersPayload
+		{
+			List<DogecoinBlock> blocks = new List<DogecoinBlock>();
+
+			public override void ReadWriteCore(BitcoinStream stream)
+			{
+				if (stream.Serializing)
+				{
+					if (blocks.Count == Headers.Count && blocks.Select(b => b.Header).SequenceEqual(Headers))
+						stream.ReadWrite(ref blocks);
+					else
+						base.ReadWriteCore(stream);
+					return;
+				}
+
+				// Dogecoin serializes headers as blocks with empty transaction vectors.
+				stream.ReadWrite(ref blocks);
+				Headers.Clear();
+				Headers.AddRange(blocks.Select(b => b.Header));
 			}
 		}
 
