@@ -1461,7 +1461,7 @@ namespace NBitcoin.RPC
 		{
 			var header = Network.Consensus.ConsensusFactory.CreateBlockHeader();
 			var hex = Encoders.Hex.DecodeData(resp.Result.Value<string>());
-			header.ReadWrite(new BitcoinStream(hex));
+			header.ReadWrite(hex, Network);
 			return header;
 		}
 

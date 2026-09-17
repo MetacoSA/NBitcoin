@@ -47,7 +47,10 @@ namespace NBitcoin
 		{
 			if (consensusFactory == null)
 				throw new ArgumentNullException(nameof(consensusFactory));
-			return new BlockHeader(Encoders.Hex.DecodeData(hex), consensusFactory);
+			var data = Encoders.Hex.DecodeData(hex);
+			var header = consensusFactory.CreateBlockHeader();
+			header.ReadWrite(data, consensusFactory);
+			return header;
 		}
 
 		[Obsolete("You should instantiate BlockHeader from ConsensusFactory.CreateBlockHeader")]
