@@ -12,14 +12,21 @@ namespace NBitcoin.RPC
 	public enum GetBlockVerbosity
 	{
 		/// <summary>
-		/// Verbosity `1` for the rpc call. Block itself will not be included in response if you specify this.
+		/// Verbosity `1` for the `getblock` RPC call. Block itself will not be included in response if you specify this.
 		/// However, txids in the block will be included in `TxIds` field in the response anyway.
 		/// </summary>
 		WithOnlyTxId = 1,
+
 		/// <summary>
-		/// Verbosity `2` for the rpc call. Use this if you want *both* full block and its metadata.
+		/// Verbosity `2` for the `getblock` RPC call. Use this if you want *both* full block and its metadata.
 		/// </summary>
-		WithFullTx = 2
+		WithFullTx = 2,
+
+		/// <summary>
+		/// Verbosity `3` for the `getblock` RPC call. Use this if you want *both* full block, its metadata, and prevout information for inputs.
+		/// </summary>
+		/// <remarks>Only available for unpruned blocks in the current best chain in Bitcoin Core 23.0 and newer.</remarks>
+		WithFullTxAndPrevouts = 3,
 	}
 
 	public class GetBlockRPCResponse
