@@ -169,7 +169,20 @@ namespace NBitcoin.Altcoins
 
 			public void ReadWrite(BitcoinStream stream)
 			{
-				stream.ReadWrite(ref tx);
+				var transactionOptions = stream.TransactionOptions;
+				var supportWitness = stream.ProtocolCapabilities.SupportWitness;
+				try
+				{
+					// The parent chain may use SegWit even though Dogecoin does not.
+					stream.TransactionOptions |= TransactionOptions.Witness;
+					stream.ProtocolCapabilities.SupportWitness = true;
+					stream.ReadWrite(ref tx);
+				}
+				finally
+				{
+					stream.TransactionOptions = transactionOptions;
+					stream.ProtocolCapabilities.SupportWitness = supportWitness;
+				}
 				stream.ReadWrite(ref hashBlock);
 				stream.ReadWrite(ref vMerkelBranch);
 				stream.ReadWrite(ref nIndex);
