@@ -218,15 +218,19 @@ namespace NBitcoin.Altcoins
 				}
 			}
 			const int VERSION_AUXPOW = (1 << 8);
+			internal void ReadWriteHeader(BitcoinStream stream)
+			{
+				stream.ReadWrite(ref header);
+				if((header.Version & VERSION_AUXPOW) != 0)
+				{
+					stream.ReadWrite(ref auxPow);
+				}
+			}
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				using (stream.ConsensusFactoryScope(GetConsensusFactory()))
 				{
-					stream.ReadWrite(ref header);
-					if((header.Version & VERSION_AUXPOW) != 0)
-					{
-						stream.ReadWrite(ref auxPow);
-					}
+					ReadWriteHeader(stream);
 					stream.ReadWrite(ref vtx);
 				}
 			}
@@ -238,23 +242,40 @@ namespace NBitcoin.Altcoins
 		}
 		class DogecoinHeadersPayload : HeadersPayload
 		{
-			List<DogecoinBlock> blocks = new List<DogecoinBlock>();
+			class DogecoinHeaderWithTxCount : IBitcoinSerializable
+			{
+				internal DogecoinBlock Block = (DogecoinBlock)DogeConsensusFactory.Instance.CreateBlock();
+
+				public void ReadWrite(BitcoinStream stream)
+				{
+					using (stream.ConsensusFactoryScope(DogeConsensusFactory.Instance))
+					{
+						Block.ReadWriteHeader(stream);
+						if (stream.Serializing)
+							VarInt.StaticWrite(stream, 0);
+						else
+							VarInt.StaticRead(stream);
+					}
+				}
+			}
+
+			List<DogecoinHeaderWithTxCount> headers = new List<DogecoinHeaderWithTxCount>();
 
 			public override void ReadWriteCore(BitcoinStream stream)
 			{
 				if (stream.Serializing)
 				{
-					if (blocks.Count == Headers.Count && blocks.Select(b => b.Header).SequenceEqual(Headers))
-						stream.ReadWrite(ref blocks);
+					if (headers.Count == Headers.Count && headers.Select(h => h.Block.Header).SequenceEqual(Headers))
+						stream.ReadWrite(ref headers);
 					else
 						base.ReadWriteCore(stream);
 					return;
 				}
 
-				// Dogecoin serializes headers as blocks with empty transaction vectors.
-				stream.ReadWrite(ref blocks);
+				// Dogecoin Core parses each header and ignores its assumed-zero transaction count.
+				stream.ReadWrite(ref headers);
 				Headers.Clear();
-				Headers.AddRange(blocks.Select(b => b.Header));
+				Headers.AddRange(headers.Select(h => h.Block.Header));
 			}
 		}
 

@@ -66,6 +66,27 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void DogeHeadersIgnoreTransactionCount()
+		{
+			var network = Dogecoin.Instance.Mainnet;
+			var block = Block.Parse(DogecoinAuxPowBlockHex, network);
+			block.Transactions.Clear();
+			var header = block.ToBytes();
+			header[header.Length - 1] = 1;
+			var headersBytes = new byte[] { 2 }
+				.Concat(header)
+				.Concat(block.ToBytes())
+				.ToArray();
+
+			var payload = network.Consensus.ConsensusFactory.CreatePayload("headers");
+			payload.ReadWrite(headersBytes, network);
+			var headers = Assert.IsAssignableFrom<HeadersPayload>(payload);
+
+			Assert.Equal(2, headers.Headers.Count);
+			Assert.All(headers.Headers, h => Assert.Equal(block.GetHash(), h.GetHash()));
+		}
+
+		[Fact]
 		public void NoCrashQuickTest()
 		{
 			HashSet<string> coins = new HashSet<string>();
