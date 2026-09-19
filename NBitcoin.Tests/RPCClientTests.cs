@@ -1767,46 +1767,111 @@ namespace NBitcoin.Tests
 			await node.StartAsync();
 			var cli = node.CreateRPCClient();
 
+			BitcoinAddress addr;
+
 			// case 1: genesis block
-			var verboseGenesis = await cli.GetBlockAsync(Network.RegTest.GenesisHash, GetBlockVerbosity.WithFullTx);
-			Assert.True(verboseGenesis.Block.ToBytes().SequenceEqual(Network.RegTest.GetGenesis().ToBytes()));
-			Assert.Equal(0, verboseGenesis.Height);
-			var height = await cli.GetBlockCountAsync();
-			Assert.Equal(height + 1, verboseGenesis.Confirmations);
-			Assert.Equal(285, verboseGenesis.StrippedSize);
-			Assert.Equal(285, verboseGenesis.Size);
-			Assert.Equal(1140, verboseGenesis.Weight);
-			Assert.Equal(0, verboseGenesis.Height);
-			Assert.Equal("00000001", verboseGenesis.VersionHex);
-			Assert.Equal(1, verboseGenesis.Block.Header.Version);
-			Assert.Equal(Network.RegTest.GenesisHash, verboseGenesis.Block.GetHash());
-			Assert.Equal(uint256.Parse("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"), verboseGenesis.Block.Transactions.First().GetHash());
-			Assert.Single(verboseGenesis.Block.Transactions);
-			Assert.Equal(verboseGenesis.MedianTime, verboseGenesis.Block.Header.BlockTime);
-			Assert.Equal(2u, verboseGenesis.Block.Header.Nonce);
-			Assert.Equal(new Target(0x207fffff), verboseGenesis.Block.Header.Bits);
-			Assert.Equal(4.656542373906925e-10, verboseGenesis.Difficulty);
-			Assert.Equal(uint256.Parse("0000000000000000000000000000000000000000000000000000000000000002"), verboseGenesis.ChainWork);
+			{
+				var verboseGenesis = await cli.GetBlockAsync(Network.RegTest.GenesisHash, GetBlockVerbosity.WithFullTx);
+				Assert.True(verboseGenesis.Block.ToBytes().SequenceEqual(Network.RegTest.GetGenesis().ToBytes()));
+				Assert.Equal(0, verboseGenesis.Height);
+				var height = await cli.GetBlockCountAsync();
+				Assert.Equal(height + 1, verboseGenesis.Confirmations);
+				Assert.Equal(285, verboseGenesis.StrippedSize);
+				Assert.Equal(285, verboseGenesis.Size);
+				Assert.Equal(1140, verboseGenesis.Weight);
+				Assert.Equal(0, verboseGenesis.Height);
+				Assert.Equal("00000001", verboseGenesis.VersionHex);
+				Assert.Equal(1, verboseGenesis.Block.Header.Version);
+				Assert.Equal(Network.RegTest.GenesisHash, verboseGenesis.Block.GetHash());
+				Assert.Equal(uint256.Parse("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"), verboseGenesis.Block.Transactions.First().GetHash());
+				Assert.Single(verboseGenesis.Block.Transactions);
+				Assert.Equal(verboseGenesis.MedianTime, verboseGenesis.Block.Header.BlockTime);
+				Assert.Equal(2u, verboseGenesis.Block.Header.Nonce);
+				Assert.Equal(new Target(0x207fffff), verboseGenesis.Block.Header.Bits);
+				Assert.Equal(4.656542373906925e-10, verboseGenesis.Difficulty);
+				Assert.Equal(uint256.Parse("0000000000000000000000000000000000000000000000000000000000000002"), verboseGenesis.ChainWork);
 
-			// NextBlockHash must be included iff the block is not on the tip.
-			Assert.Null(verboseGenesis.NextBlockHash);
-			var addr = await cli.GetNewAddressAsync();
-			await cli.GenerateToAddressAsync(1, addr);
-			verboseGenesis = await cli.GetBlockAsync(Network.RegTest.GenesisHash, GetBlockVerbosity.WithOnlyTxId);
-			Assert.NotNull(verboseGenesis.NextBlockHash);
-			Assert.Null(verboseGenesis.Block); // there will be no Block if we specify false to second argument.
-			Assert.NotNull(verboseGenesis.TxIds); // But txids are still there.
-			Assert.Single(verboseGenesis.TxIds);
+				// NextBlockHash must be included iff the block is not on the tip.
+				Assert.Null(verboseGenesis.NextBlockHash);
+				addr = await cli.GetNewAddressAsync();
+				await cli.GenerateToAddressAsync(1, addr);
+				verboseGenesis = await cli.GetBlockAsync(Network.RegTest.GenesisHash, GetBlockVerbosity.WithOnlyTxId);
+				Assert.NotNull(verboseGenesis.NextBlockHash);
+				Assert.Null(verboseGenesis.Block); // there will be no Block if we specify false to second argument.
+				Assert.NotNull(verboseGenesis.TxIds); // But txids are still there.
+				Assert.Single(verboseGenesis.TxIds);
+			}
 
-			// case 2: next block.
-			var secondBlockHash = await cli.GetBestBlockHashAsync();
-			var verboseBestBlock = await cli.GetBlockAsync(secondBlockHash, GetBlockVerbosity.WithOnlyTxId);
-			Assert.Equal(Network.RegTest.GenesisHash, verboseBestBlock.Header.HashPrevBlock);
-			Assert.Null(verboseBestBlock.NextBlockHash);
+			// case 2: Get second block with information about transaction (verbosity 2).
+			{
+				var secondBlockHash = await cli.GetBestBlockHashAsync();
+				GetBlockRPCResponse verboseBestBlock = await cli.GetBlockAsync(secondBlockHash, GetBlockVerbosity.WithOnlyTxId);
+				Assert.Equal(Network.RegTest.GenesisHash, verboseBestBlock.Header.HashPrevBlock);
+				Assert.Null(verboseBestBlock.NextBlockHash);
 
-			await cli.GenerateToAddressAsync(1, addr);
-			verboseBestBlock = await cli.GetBlockAsync(secondBlockHash, GetBlockVerbosity.WithOnlyTxId);
-			Assert.NotNull(verboseBestBlock.NextBlockHash);
+				await cli.GenerateToAddressAsync(1, addr);
+				verboseBestBlock = await cli.GetBlockAsync(secondBlockHash, GetBlockVerbosity.WithOnlyTxId);
+				Assert.NotNull(verboseBestBlock.NextBlockHash);
+				Assert.Null(verboseBestBlock.PrevOuts);
+			}
+
+			// case 3: Get third block with information about transaction and prevOuts (verbosity 3).
+			{
+				await cli.GenerateToAddressAsync(1, addr);
+
+				var thirdBlockHash = await cli.GetBestBlockHashAsync();
+				GetBlockRPCResponse verboseBestBlock = await cli.GetBlockAsync(thirdBlockHash, GetBlockVerbosity.WithFullTxAndPrevouts);
+
+				var coinbaseTx = Assert.Single(verboseBestBlock.Block.Transactions);
+				Assert.True(coinbaseTx.IsCoinBase);
+
+				// There is only coinbase transaction.
+				Assert.NotNull(verboseBestBlock.PrevOuts);
+				var prevOutInfos = Assert.Single(verboseBestBlock.PrevOuts);
+				var prevOutInfo = Assert.Single(prevOutInfos);
+				Assert.Null(prevOutInfo);
+			}
+
+			// case 4: Send a transaction to ourselves and verify the prevout is populated (verbosity 3).
+			{
+				// Coinbase outputs need 100 confirmations before they're spendable.
+				await cli.GenerateToAddressAsync(98, addr);
+				var spendTxid = await cli.SendToAddressAsync(addr, Money.Coins(1m));
+				await cli.GenerateToAddressAsync(1, addr);
+
+				var latestBlockHash = await cli.GetBestBlockHashAsync();
+				GetBlockRPCResponse verboseBestBlock = await cli.GetBlockAsync(latestBlockHash, GetBlockVerbosity.WithFullTxAndPrevouts);
+
+				// There are just two transactions: coinbase and our transaction.
+				Assert.Equal(2, verboseBestBlock.Block.Transactions.Count);
+
+				var spendTxIndex = verboseBestBlock.Block.Transactions.FindIndex(tx => tx.GetHash() == spendTxid);
+				Assert.Equal(1, spendTxIndex);
+				Assert.NotNull(verboseBestBlock.PrevOuts);
+
+				// Assert prevOuts for the coinbase transaction.
+				{
+					var prevOutInfos = verboseBestBlock.PrevOuts[0];
+					var prevOutInfo = Assert.Single(prevOutInfos);
+					Assert.Null(prevOutInfo);
+				}
+
+				// Assert the prevOut for our transaction.
+				{
+					var ourTx = verboseBestBlock.Block.Transactions[spendTxIndex];
+					var txPrevOuts = verboseBestBlock.PrevOuts[spendTxIndex];
+
+					_ = Assert.Single(ourTx.Inputs);
+					PrevOutInfo prevOutInfo = Assert.Single(txPrevOuts);
+
+					// Spending coinbase coins.
+					Assert.True(prevOutInfo.Generated);
+					Assert.Equal(1, prevOutInfo.Height);
+					Assert.NotNull(prevOutInfo.ScriptPubKey);
+					Assert.Equal(addr.ScriptPubKey, prevOutInfo.ScriptPubKey);
+					Assert.Equal(Money.Coins(50m), prevOutInfo.Value);
+				}
+			}
 		}
 
 		static void AssertException<T>(Action act, Action<T> assert) where T : Exception

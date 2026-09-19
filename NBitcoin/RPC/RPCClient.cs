@@ -1476,9 +1476,15 @@ namespace NBitcoin.RPC
 			return ParseVerboseBlock(resp, (int)verbosity);
 		}
 
+#nullable enable
 		private GetBlockRPCResponse ParseVerboseBlock(RPCResponse resp, int verbosity)
 		{
 			var json = (JObject)resp.Result;
+			if (json is null)
+			{
+				throw new ArgumentException("Expected 'result' to be non-null.");
+			}
+
 			var blockHeader = Network.Consensus.ConsensusFactory.CreateBlockHeader();
 			blockHeader.Bits = new Target(Encoders.Hex.DecodeData(json.Value<string>("bits")));
 			blockHeader.Version = json.Value<int>("version");
@@ -1495,27 +1501,69 @@ namespace NBitcoin.RPC
 			{
 				blockHeader.HashPrevBlock = null;
 			}
+
 			// nextblockhash field does not exist for the chain tip.
-			uint256 nextBlockHash = null;
+			uint256? nextBlockHash = null;
 			if (json.TryGetValue("nextblockhash", StringComparison.Ordinal, out var nextBlockHashHex))
 			{
 				nextBlockHash = uint256.Parse(nextBlockHashHex.ToString());
 			}
 
-			Block block = null;
+			Block? block = null;
 			var txids = new List<uint256>();
-			if (verbosity == 2)
+			List<List<PrevOutInfo?>>? prevOuts = null;
+
+			if (verbosity == 2 || verbosity == 3)
 			{
 				var txs = new List<Transaction>();
-				foreach (var txInfo in json.Value<JArray>("tx"))
+				var txArray = json.Value<JArray>("tx") ?? throw new ArgumentNullException("'tx' must be an array. Null given.");
+
+				if (verbosity == 3)
+					prevOuts = new();
+
+				foreach (var txInfo in txArray)
 				{
 					var tx = Transaction.Parse(txInfo.Value<string>("hex"), Network);
 					txs.Add(tx);
 					txids.Add(tx.GetHash());
+
+					// Gather prevOut info for this transaction.
+					if (verbosity == 3)
+					{
+						var inputPrevOuts = new List<PrevOutInfo?>();
+						var vinArray = txInfo.Value<JArray>("vin");
+
+						if (vinArray is not null)
+						{
+							foreach (var vin in vinArray)
+							{
+								var prevOutJson = vin["prevout"] as JObject;
+								if (prevOutJson is null)
+								{
+									// Coinbase input, or a pruned node omitted this field.
+									inputPrevOuts.Add(null);
+									continue;
+								}
+
+								var scriptPubKeyJson = prevOutJson.Value<JObject>("scriptPubKey");
+								var scriptHex = scriptPubKeyJson?.Value<string>("hex");
+
+								var generated = prevOutJson.Value<bool>("height");
+								var height = prevOutJson.Value<int>("height");
+								var money = Money.Coins(prevOutJson.Value<decimal>("value"));
+								var scriptPubKey = scriptHex is null ? null : new Script(Encoders.Hex.DecodeData(scriptHex));
+								inputPrevOuts.Add(new PrevOutInfo(generated, height, money, scriptPubKey));
+							}
+						}
+
+						prevOuts!.Add(inputPrevOuts);
+					}
 				}
+
 				block = Network.Consensus.ConsensusFactory.CreateBlock();
 				block.Header = blockHeader;
 				block.Transactions = txs;
+
 				if (!block.GetMerkleRoot().Hash.Equals(blockHeader.HashMerkleRoot))
 				{
 					throw new FormatException($"Bogus GetBlockRPCResponse! merkle root mistmach (expected: {blockHeader.HashMerkleRoot}. actual: {block.GetMerkleRoot().Hash})");
@@ -1523,7 +1571,9 @@ namespace NBitcoin.RPC
 			}
 			else if (verbosity == 1)
 			{
-				foreach (var tx in json.Value<JArray>("tx"))
+				var txArray = json.Value<JArray>("tx") ?? throw new ArgumentNullException("'tx' must be an array. Null given.");
+
+				foreach (var tx in txArray)
 				{
 					txids.Add(uint256.Parse(tx.ToString()));
 				}
@@ -1553,8 +1603,10 @@ namespace NBitcoin.RPC
 				Block = block,
 				Header = blockHeader,
 				TxIds = txids,
+				PrevOuts = prevOuts,
 			};
 		}
+#nullable disable
 
 		public uint256 GetBlockHash(int height)
 		{
