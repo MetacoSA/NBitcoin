@@ -1509,8 +1509,7 @@ namespace NBitcoin.RPC
 				var txs = new List<Transaction>();
 				foreach (var txInfo in json.Value<JArray>("tx"))
 				{
-
-					var tx = ParseTxHex(txInfo.Value<string>("hex"));
+					var tx = Transaction.Parse(txInfo.Value<string>("hex"), Network);
 					txs.Add(tx);
 					txids.Add(tx.GetHash());
 				}
@@ -1944,7 +1943,7 @@ namespace NBitcoin.RPC
 
 		public Transaction DecodeRawTransaction(string rawHex)
 		{
-			return ParseTxHex(rawHex);
+			return Transaction.Parse(rawHex, Network);
 		}
 
 		public Transaction DecodeRawTransaction(byte[] raw)
@@ -1953,7 +1952,7 @@ namespace NBitcoin.RPC
 		}
 		public Task<Transaction> DecodeRawTransactionAsync(string rawHex)
 		{
-			return Task.FromResult(ParseTxHex(rawHex));
+			return Task.FromResult(Transaction.Parse(rawHex, Network));
 		}
 
 		public Task<Transaction> DecodeRawTransactionAsync(byte[] raw)
@@ -2005,13 +2004,6 @@ namespace NBitcoin.RPC
 			return GetRawTransactionInfoAsync(txid).GetAwaiter().GetResult();
 		}
 
-		private Transaction ParseTxHex(string hex)
-		{
-			var tx = Network.Consensus.ConsensusFactory.CreateTransaction();
-			tx.ReadWrite(Encoders.Hex.DecodeData(hex), Network);
-			return tx;
-		}
-
 		public async Task<RawTransactionInfo> GetRawTransactionInfoAsync(uint256 txId, CancellationToken cancellationToken = default)
 		{
 			var request = new RPCRequest(RPCOperations.getrawtransaction, new object[] { txId, true });
@@ -2020,7 +2012,7 @@ namespace NBitcoin.RPC
 
 			return new RawTransactionInfo
 			{
-				Transaction = ParseTxHex(json.Value<string>("hex")),
+				Transaction = Transaction.Parse(json.Value<string>("hex"), Network),
 				TransactionId = uint256.Parse(json.Value<string>("txid")),
 				TransactionTime = json["time"] != null ? NBitcoin.Utils.UnixTimeToDateTime(json.Value<long>("time")) : (DateTimeOffset?)null,
 				Hash = json["hash"] is JToken token ? uint256.Parse(token.Value<string>()) : null,
