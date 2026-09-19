@@ -1810,18 +1810,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		private void AssertJsonEquals(string json1, string json2)
-		{
-			foreach (var c in new[] { "\r\n", " ", "\t" })
-			{
-				json1 = json1.Replace(c, "");
-				json2 = json2.Replace(c, "");
-			}
-
-			Assert.Equal(json1, json2);
-		}
-
-		void AssertException<T>(Action act, Action<T> assert) where T : Exception
+		static void AssertException<T>(Action act, Action<T> assert) where T : Exception
 		{
 			try
 			{
