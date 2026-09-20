@@ -1805,7 +1805,7 @@ namespace NBitcoin.Tests
 			// case 2: Get second block with information about transaction (verbosity 2).
 			{
 				var secondBlockHash = await cli.GetBestBlockHashAsync();
-				GetBlockRPCResponse verboseBestBlock = await cli.GetBlockAsync(secondBlockHash, GetBlockVerbosity.WithOnlyTxId);
+				var verboseBestBlock = await cli.GetBlockAsync(secondBlockHash, GetBlockVerbosity.WithOnlyTxId);
 				Assert.Equal(Network.RegTest.GenesisHash, verboseBestBlock.Header.HashPrevBlock);
 				Assert.Null(verboseBestBlock.NextBlockHash);
 
@@ -1820,7 +1820,7 @@ namespace NBitcoin.Tests
 				await cli.GenerateToAddressAsync(1, addr);
 
 				var thirdBlockHash = await cli.GetBestBlockHashAsync();
-				GetBlockRPCResponse verboseBestBlock = await cli.GetBlockAsync(thirdBlockHash, GetBlockVerbosity.WithFullTxAndPrevouts);
+				var verboseBestBlock = await cli.GetBlockAsync(thirdBlockHash, GetBlockVerbosity.WithFullTxAndPrevouts);
 
 				var coinbaseTx = Assert.Single(verboseBestBlock.Block.Transactions);
 				Assert.True(coinbaseTx.IsCoinBase);
@@ -1832,15 +1832,17 @@ namespace NBitcoin.Tests
 				Assert.Null(prevOutInfo);
 			}
 
-			// case 4: Send a transaction to ourselves and verify the prevout is populated (verbosity 3).
+			Script scriptPubKeyForCase5;
+			OutPoint coinToSpendInCase5;
+
+			// case 4: Send a transaction (spending a coinbase UTXO) to ourselves and verify the prevout is populated (verbosity 3).
 			{
-				// Coinbase outputs need 100 confirmations before they're spendable.
 				await cli.GenerateToAddressAsync(98, addr);
-				var spendTxid = await cli.SendToAddressAsync(addr, Money.Coins(1m));
+				var spendTxid = await cli.SendToAddressAsync(addr, Money.Coins(1.234m));
 				await cli.GenerateToAddressAsync(1, addr);
 
 				var latestBlockHash = await cli.GetBestBlockHashAsync();
-				GetBlockRPCResponse verboseBestBlock = await cli.GetBlockAsync(latestBlockHash, GetBlockVerbosity.WithFullTxAndPrevouts);
+				var verboseBestBlock = await cli.GetBlockAsync(latestBlockHash, GetBlockVerbosity.WithFullTxAndPrevouts);
 
 				// There are just two transactions: coinbase and our transaction.
 				Assert.Equal(2, verboseBestBlock.Block.Transactions.Count);
@@ -1862,14 +1864,69 @@ namespace NBitcoin.Tests
 					var txPrevOuts = verboseBestBlock.PrevOuts[spendTxIndex];
 
 					_ = Assert.Single(ourTx.Inputs);
-					PrevOutInfo prevOutInfo = Assert.Single(txPrevOuts);
+					var prevOutInfo = Assert.Single(txPrevOuts);
 
-					// Spending coinbase coins.
 					Assert.True(prevOutInfo.Generated);
 					Assert.Equal(1, prevOutInfo.Height);
 					Assert.NotNull(prevOutInfo.ScriptPubKey);
 					Assert.Equal(addr.ScriptPubKey, prevOutInfo.ScriptPubKey);
 					Assert.Equal(Money.Coins(50m), prevOutInfo.Value);
+
+					scriptPubKeyForCase5 = prevOutInfo.ScriptPubKey;
+
+					var outIndex = ourTx.Outputs.FindIndex(o => o.ScriptPubKey == addr.ScriptPubKey && o.Value == Money.Coins(1.234m));
+					Assert.True(outIndex >= 0);
+					coinToSpendInCase5 = new OutPoint(ourTx.GetHash(), outIndex);
+				}
+			}
+
+			// case 5: Send a transaction (spending a non-coinbase UTXO) to assert "generated=false" in "getblock" verbosity 3.
+			{
+				var coin = new Coin(coinToSpendInCase5, new TxOut(Money.Coins(1.234m), addr.ScriptPubKey));
+				var destinationAddress = await cli.GetNewAddressAsync();
+				var changeAddress = await cli.GetNewAddressAsync();
+
+				var unsignedTx = Network.RegTest.CreateTransactionBuilder()
+					.AddCoins(coin)
+					.Send(destinationAddress, Money.Coins(0.5m))
+					.SendFees(Money.Satoshis(1000))
+					.SetChange(changeAddress)
+					.BuildTransaction(false);
+
+				var signedTx = cli.SignRawTransactionWithWallet(new SignRawTransactionRequest() { Transaction = unsignedTx });
+
+				await cli.SendRawTransactionAsync(signedTx.SignedTransaction);
+				await cli.GenerateToAddressAsync(1, addr);
+
+				var latestBlockHash = await cli.GetBestBlockHashAsync();
+				var verboseBestBlock = await cli.GetBlockAsync(latestBlockHash, GetBlockVerbosity.WithFullTxAndPrevouts);
+
+				Assert.Equal(2, verboseBestBlock.Block.Transactions.Count);
+
+				// The second transaction is the our one.
+				Assert.Equal(signedTx.SignedTransaction.ToBytes(), verboseBestBlock.Block.Transactions[1].ToBytes());
+
+				// Assert prevOuts for the coinbase transaction.
+				{
+					var prevOutInfos = verboseBestBlock.PrevOuts[0];
+					var prevOutInfo = Assert.Single(prevOutInfos);
+					Assert.Null(prevOutInfo);
+				}
+
+				// Assert the prevOut for our transaction.
+				{
+					var ourTx = verboseBestBlock.Block.Transactions[1];
+					var txPrevOuts = verboseBestBlock.PrevOuts[1];
+
+					_ = Assert.Single(ourTx.Inputs);
+					var prevOutInfo = Assert.Single(txPrevOuts);
+
+					// Notably this is spending a non-coinbase UTXO.
+					Assert.False(prevOutInfo.Generated);
+					Assert.Equal(102, prevOutInfo.Height);
+					Assert.NotNull(prevOutInfo.ScriptPubKey);
+					Assert.Equal(scriptPubKeyForCase5, prevOutInfo.ScriptPubKey);
+					Assert.Equal(Money.Coins(1.234m), prevOutInfo.Value);
 				}
 			}
 		}

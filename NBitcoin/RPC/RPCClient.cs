@@ -1548,7 +1548,7 @@ namespace NBitcoin.RPC
 								var scriptPubKeyJson = prevOutJson.Value<JObject>("scriptPubKey");
 								var scriptHex = scriptPubKeyJson?.Value<string>("hex");
 
-								var generated = prevOutJson.Value<bool>("height");
+								var generated = prevOutJson.Value<bool>("generated");
 								var height = prevOutJson.Value<int>("height");
 								var money = Money.Coins(prevOutJson.Value<decimal>("value"));
 								var scriptPubKey = scriptHex is null ? null : new Script(Encoders.Hex.DecodeData(scriptHex));
