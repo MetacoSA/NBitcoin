@@ -1761,13 +1761,16 @@ namespace NBitcoin.Tests
 		[Fact]
 		public async Task GetBlockVerboseTests()
 		{
-			using (var builder = NodeBuilderEx.Create())
-			{
-				var node = builder.CreateNode();
-				await node.StartAsync();
-				var cli = node.CreateRPCClient();
+			using var builder = NodeBuilderEx.Create();
 
-				// case 1: genesis block
+			var node = builder.CreateNode();
+			await node.StartAsync();
+			var cli = node.CreateRPCClient();
+
+			BitcoinAddress addr;
+
+			// case 1: genesis block
+			{
 				var verboseGenesis = await cli.GetBlockAsync(Network.RegTest.GenesisHash, GetBlockVerbosity.WithFullTx);
 				Assert.True(verboseGenesis.Block.ToBytes().SequenceEqual(Network.RegTest.GetGenesis().ToBytes()));
 				Assert.Equal(0, verboseGenesis.Height);
@@ -1790,15 +1793,17 @@ namespace NBitcoin.Tests
 
 				// NextBlockHash must be included iff the block is not on the tip.
 				Assert.Null(verboseGenesis.NextBlockHash);
-				var addr = await cli.GetNewAddressAsync();
+				addr = await cli.GetNewAddressAsync();
 				await cli.GenerateToAddressAsync(1, addr);
 				verboseGenesis = await cli.GetBlockAsync(Network.RegTest.GenesisHash, GetBlockVerbosity.WithOnlyTxId);
 				Assert.NotNull(verboseGenesis.NextBlockHash);
 				Assert.Null(verboseGenesis.Block); // there will be no Block if we specify false to second argument.
 				Assert.NotNull(verboseGenesis.TxIds); // But txids are still there.
 				Assert.Single(verboseGenesis.TxIds);
+			}
 
-				// case 2: next block.
+			// case 2: Get second block with information about transaction (verbosity 2).
+			{
 				var secondBlockHash = await cli.GetBestBlockHashAsync();
 				var verboseBestBlock = await cli.GetBlockAsync(secondBlockHash, GetBlockVerbosity.WithOnlyTxId);
 				Assert.Equal(Network.RegTest.GenesisHash, verboseBestBlock.Header.HashPrevBlock);
@@ -1807,21 +1812,126 @@ namespace NBitcoin.Tests
 				await cli.GenerateToAddressAsync(1, addr);
 				verboseBestBlock = await cli.GetBlockAsync(secondBlockHash, GetBlockVerbosity.WithOnlyTxId);
 				Assert.NotNull(verboseBestBlock.NextBlockHash);
+				Assert.Null(verboseBestBlock.PrevOuts);
 			}
-		}
 
-		private void AssertJsonEquals(string json1, string json2)
-		{
-			foreach (var c in new[] { "\r\n", " ", "\t" })
+			// case 3: Get third block with information about transaction and prevOuts (verbosity 3).
 			{
-				json1 = json1.Replace(c, "");
-				json2 = json2.Replace(c, "");
+				await cli.GenerateToAddressAsync(1, addr);
+
+				var thirdBlockHash = await cli.GetBestBlockHashAsync();
+				var verboseBestBlock = await cli.GetBlockAsync(thirdBlockHash, GetBlockVerbosity.WithFullTxAndPrevouts);
+
+				var coinbaseTx = Assert.Single(verboseBestBlock.Block.Transactions);
+				Assert.True(coinbaseTx.IsCoinBase);
+
+				// There is only coinbase transaction.
+				Assert.NotNull(verboseBestBlock.PrevOuts);
+				var prevOutInfos = Assert.Single(verboseBestBlock.PrevOuts);
+				var prevOutInfo = Assert.Single(prevOutInfos);
+				Assert.Null(prevOutInfo);
 			}
 
-			Assert.Equal(json1, json2);
+			Script scriptPubKeyForCase5;
+			OutPoint coinToSpendInCase5;
+
+			// case 4: Send a transaction (spending a coinbase UTXO) to ourselves and verify the prevout is populated (verbosity 3).
+			{
+				await cli.GenerateToAddressAsync(98, addr);
+				var spendTxid = await cli.SendToAddressAsync(addr, Money.Coins(1.234m));
+				await cli.GenerateToAddressAsync(1, addr);
+
+				var latestBlockHash = await cli.GetBestBlockHashAsync();
+				var verboseBestBlock = await cli.GetBlockAsync(latestBlockHash, GetBlockVerbosity.WithFullTxAndPrevouts);
+
+				// There are just two transactions: coinbase and our transaction.
+				Assert.Equal(2, verboseBestBlock.Block.Transactions.Count);
+
+				var spendTxIndex = verboseBestBlock.Block.Transactions.FindIndex(tx => tx.GetHash() == spendTxid);
+				Assert.Equal(1, spendTxIndex);
+				Assert.NotNull(verboseBestBlock.PrevOuts);
+
+				// Assert prevOuts for the coinbase transaction.
+				{
+					var prevOutInfos = verboseBestBlock.PrevOuts[0];
+					var prevOutInfo = Assert.Single(prevOutInfos);
+					Assert.Null(prevOutInfo);
+				}
+
+				// Assert the prevOut for our transaction.
+				{
+					var ourTx = verboseBestBlock.Block.Transactions[spendTxIndex];
+					var txPrevOuts = verboseBestBlock.PrevOuts[spendTxIndex];
+
+					_ = Assert.Single(ourTx.Inputs);
+					var prevOutInfo = Assert.Single(txPrevOuts);
+
+					Assert.True(prevOutInfo.Generated);
+					Assert.Equal(1, prevOutInfo.Height);
+					Assert.NotNull(prevOutInfo.ScriptPubKey);
+					Assert.Equal(addr.ScriptPubKey, prevOutInfo.ScriptPubKey);
+					Assert.Equal(Money.Coins(50m), prevOutInfo.Value);
+
+					scriptPubKeyForCase5 = prevOutInfo.ScriptPubKey;
+
+					var outIndex = ourTx.Outputs.FindIndex(o => o.ScriptPubKey == addr.ScriptPubKey && o.Value == Money.Coins(1.234m));
+					Assert.True(outIndex >= 0);
+					coinToSpendInCase5 = new OutPoint(ourTx.GetHash(), outIndex);
+				}
+			}
+
+			// case 5: Send a transaction (spending a non-coinbase UTXO) to assert "generated=false" in "getblock" verbosity 3.
+			{
+				var coin = new Coin(coinToSpendInCase5, new TxOut(Money.Coins(1.234m), addr.ScriptPubKey));
+				var destinationAddress = await cli.GetNewAddressAsync();
+				var changeAddress = await cli.GetNewAddressAsync();
+
+				var unsignedTx = Network.RegTest.CreateTransactionBuilder()
+					.AddCoins(coin)
+					.Send(destinationAddress, Money.Coins(0.5m))
+					.SendFees(Money.Satoshis(1000))
+					.SetChange(changeAddress)
+					.BuildTransaction(false);
+
+				var signedTx = cli.SignRawTransactionWithWallet(new SignRawTransactionRequest() { Transaction = unsignedTx });
+
+				await cli.SendRawTransactionAsync(signedTx.SignedTransaction);
+				await cli.GenerateToAddressAsync(1, addr);
+
+				var latestBlockHash = await cli.GetBestBlockHashAsync();
+				var verboseBestBlock = await cli.GetBlockAsync(latestBlockHash, GetBlockVerbosity.WithFullTxAndPrevouts);
+
+				Assert.Equal(2, verboseBestBlock.Block.Transactions.Count);
+
+				// The second transaction is the our one.
+				Assert.Equal(signedTx.SignedTransaction.ToBytes(), verboseBestBlock.Block.Transactions[1].ToBytes());
+
+				// Assert prevOuts for the coinbase transaction.
+				{
+					var prevOutInfos = verboseBestBlock.PrevOuts[0];
+					var prevOutInfo = Assert.Single(prevOutInfos);
+					Assert.Null(prevOutInfo);
+				}
+
+				// Assert the prevOut for our transaction.
+				{
+					var ourTx = verboseBestBlock.Block.Transactions[1];
+					var txPrevOuts = verboseBestBlock.PrevOuts[1];
+
+					_ = Assert.Single(ourTx.Inputs);
+					var prevOutInfo = Assert.Single(txPrevOuts);
+
+					// Notably this is spending a non-coinbase UTXO.
+					Assert.False(prevOutInfo.Generated);
+					Assert.Equal(102, prevOutInfo.Height);
+					Assert.NotNull(prevOutInfo.ScriptPubKey);
+					Assert.Equal(scriptPubKeyForCase5, prevOutInfo.ScriptPubKey);
+					Assert.Equal(Money.Coins(1.234m), prevOutInfo.Value);
+				}
+			}
 		}
 
-		void AssertException<T>(Action act, Action<T> assert) where T : Exception
+		static void AssertException<T>(Action act, Action<T> assert) where T : Exception
 		{
 			try
 			{

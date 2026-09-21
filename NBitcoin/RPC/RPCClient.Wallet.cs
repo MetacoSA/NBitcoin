@@ -343,7 +343,7 @@ namespace NBitcoin.RPC
 			var r = (JObject)response.Result;
 			return new FundRawTransactionResponse()
 			{
-				Transaction = ParseTxHex(r["hex"].Value<string>()),
+				Transaction = Transaction.Parse(r["hex"].Value<string>(), Network),
 				Fee = Money.Coins(r["fee"].Value<decimal>()),
 				ChangePos = r["changepos"].Value<int>()
 			};
@@ -818,7 +818,7 @@ namespace NBitcoin.RPC
 			else
 			{
 				var result = await SendCommandAsync(RPCOperations.signrawtransaction, tx.ToHex()).ConfigureAwait(false);
-				return ParseTxHex(result.Result["hex"].Value<string>());
+				return Transaction.Parse(result.Result["hex"].Value<string>(), Network);
 			}
 		}
 
@@ -874,7 +874,7 @@ namespace NBitcoin.RPC
 
 			var result = await SendCommandWithNamedArgsAsync("signrawtransactionwithkey", values, cancellationToken).ConfigureAwait(false);
 			var response = new SignRawTransactionResponse();
-			response.SignedTransaction = ParseTxHex(result.Result["hex"].Value<string>());
+			response.SignedTransaction = Transaction.Parse(result.Result["hex"].Value<string>(), Network);
 			response.Complete = result.Result["complete"].Value<bool>();
 			var errors = result.Result["errors"] as JArray;
 			var errorList = new List<SignRawTransactionResponse.ScriptError>();
@@ -940,7 +940,7 @@ namespace NBitcoin.RPC
 
 			var result = await SendCommandWithNamedArgsAsync("signrawtransactionwithwallet", values, cancellationToken).ConfigureAwait(false);
 			var response = new SignRawTransactionResponse();
-			response.SignedTransaction = ParseTxHex(result.Result["hex"].Value<string>());
+			response.SignedTransaction = Transaction.Parse(result.Result["hex"].Value<string>(), Network);
 			response.Complete = result.Result["complete"].Value<bool>();
 			var errors = result.Result["errors"] as JArray;
 			var errorList = new List<SignRawTransactionResponse.ScriptError>();
