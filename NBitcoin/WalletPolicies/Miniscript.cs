@@ -222,6 +222,11 @@ namespace NBitcoin.WalletPolicies
 			error = null;
 			node = null;
 			var match = Regex.Match(ctx.Remaining, @"^[0-9]+");
+			if (match.Value.Length > 1 && match.Value[0] == '0')
+			{
+				error = new MiniscriptError.CountExpected(ctx.Offset);
+				return false;
+			}
 			if (uint.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v) && v < Int32.MaxValue)
 			{
 				ctx.Advance(match.Length);
@@ -257,6 +262,11 @@ namespace NBitcoin.WalletPolicies
 			node = null;
 			error = null;
 			var match = Regex.Match(ctx.Remaining, @"^[0-9]+");
+			if (match.Value.Length > 1 && match.Value[0] == '0')
+			{
+				error = new MiniscriptError.LocktimeExpected(ctx.Offset);
+				return false;
+			}
 			if (uint.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v))
 			{
 				ctx.Advance(match.Length);
