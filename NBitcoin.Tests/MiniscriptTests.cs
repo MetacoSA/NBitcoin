@@ -72,6 +72,21 @@ namespace NBitcoin.Tests
 		}
 
 		[Theory]
+		// https://github.com/MetacoSA/NBitcoin/issues/1283
+		[InlineData("older(000000002088829000)", false)]
+		[InlineData("older(01)", false)]
+		[InlineData("after(01)", false)]
+		[InlineData("multi(01,A,B)", false)]
+		[InlineData("older(0)", true)]
+		[InlineData("older(1000)", true)]
+		[InlineData("after(1000)", true)]
+		public void RejectsNonCanonicalNumbers(string miniscript, bool expected)
+		{
+			var settings = new MiniscriptParsingSettings(Network.RegTest, KeyType.Classic) { AllowedParameters = ParameterTypeFlags.All };
+			Assert.Equal(expected, Miniscript.TryParse(miniscript, settings, out _));
+		}
+
+		[Theory]
 		[InlineData(ParameterTypeFlags.All, "pkh(A)", true)]
 		[InlineData(ParameterTypeFlags.All, "pkh(@0/**)", true)]
 		[InlineData(ParameterTypeFlags.NamedParameter, "pkh(A)", true)]
