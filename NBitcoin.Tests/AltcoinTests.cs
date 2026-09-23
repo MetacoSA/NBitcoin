@@ -741,6 +741,95 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void LitecoinCashAddressesCanRoundTrip()
+		{
+			var key = new Key(Encoders.Hex.DecodeData("0000000000000000000000000000000000000000000000000000000000000001"));
+
+			foreach (var network in new[]
+			{
+                            AltNetworkSets.LitecoinCash.Mainnet,
+                            AltNetworkSets.LitecoinCash.Testnet,
+                            AltNetworkSets.LitecoinCash.Regtest
+			})
+			{
+				var legacy = key.PubKey.GetAddress(ScriptPubKeyType.Legacy, network);
+				Assert.Equal(legacy, BitcoinAddress.Create(legacy.ToString(), network));
+
+				var p2sh = key.PubKey.GetAddress(ScriptPubKeyType.SegwitP2SH, network);
+				Assert.Equal(p2sh, BitcoinAddress.Create(p2sh.ToString(), network));
+
+				var segwit = key.PubKey.GetAddress(ScriptPubKeyType.Segwit, network);
+				Assert.Equal(segwit, BitcoinAddress.Create(segwit.ToString(), network));
+			}
+		}
+
+		[Fact]
+		public void LitecoinCashAddressPrefixesAreCorrect()
+		{
+			var mainnet = AltNetworkSets.LitecoinCash.Mainnet;
+			Assert.Equal(new byte[] { 28 }, mainnet.GetVersionBytes(Base58Type.PUBKEY_ADDRESS, true));
+			Assert.Equal(new byte[] { 50 }, mainnet.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, true));
+			Assert.Equal(new byte[] { 176 }, mainnet.GetVersionBytes(Base58Type.SECRET_KEY, true));
+			Assert.Equal(new byte[] { 0x04, 0x88, 0xB2, 0x1E }, mainnet.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, true));
+			Assert.Equal(new byte[] { 0x04, 0x88, 0xAD, 0xE4 }, mainnet.GetVersionBytes(Base58Type.EXT_SECRET_KEY, true));
+			Assert.Equal("lcc", Encoders.ASCII.EncodeData(mainnet.GetBech32Encoder(Bech32Type.WITNESS_PUBKEY_ADDRESS, true).HumanReadablePart));
+
+			var testnet = AltNetworkSets.LitecoinCash.Testnet;
+			Assert.Equal(new byte[] { 127 }, testnet.GetVersionBytes(Base58Type.PUBKEY_ADDRESS, true));
+			Assert.Equal(new byte[] { 58 }, testnet.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, true));
+			Assert.Equal(new byte[] { 239 }, testnet.GetVersionBytes(Base58Type.SECRET_KEY, true));
+			Assert.Equal(new byte[] { 0x04, 0x35, 0x87, 0xCF }, testnet.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, true));
+			Assert.Equal(new byte[] { 0x04, 0x35, 0x83, 0x94 }, testnet.GetVersionBytes(Base58Type.EXT_SECRET_KEY, true));
+			Assert.Equal("tlcc", Encoders.ASCII.EncodeData(testnet.GetBech32Encoder(Bech32Type.WITNESS_PUBKEY_ADDRESS, true).HumanReadablePart));
+
+			var regtest = AltNetworkSets.LitecoinCash.Regtest;
+			Assert.Equal(new byte[] { 111 }, regtest.GetVersionBytes(Base58Type.PUBKEY_ADDRESS, true));
+			Assert.Equal(new byte[] { 58 }, regtest.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, true));
+			Assert.Equal(new byte[] { 239 }, regtest.GetVersionBytes(Base58Type.SECRET_KEY, true));
+			Assert.Equal(new byte[] { 0x04, 0x35, 0x87, 0xCF }, regtest.GetVersionBytes(Base58Type.EXT_PUBLIC_KEY, true));
+			Assert.Equal(new byte[] { 0x04, 0x35, 0x83, 0x94 }, regtest.GetVersionBytes(Base58Type.EXT_SECRET_KEY, true));
+			Assert.Equal("rlcc", Encoders.ASCII.EncodeData(regtest.GetBech32Encoder(Bech32Type.WITNESS_PUBKEY_ADDRESS, true).HumanReadablePart));
+		}
+
+		[Fact]
+		public void LitecoinCashNetworkParametersAreCorrect()
+		{
+			var mainnet = AltNetworkSets.LitecoinCash.Mainnet;
+			Assert.Equal(0xF8BAE4C7u, mainnet.Magic);
+			Assert.Equal(new byte[] { 0xC7, 0xE4, 0xBA, 0xF8 }, mainnet.MagicBytes);
+			Assert.Equal(62458, mainnet.DefaultPort);
+			Assert.Equal(62457, mainnet.RPCPort);
+
+			var testnet = AltNetworkSets.LitecoinCash.Testnet;
+			Assert.Equal(0xCFD3F5B6u, testnet.Magic);
+			Assert.Equal(new byte[] { 0xB6, 0xF5, 0xD3, 0xCF }, testnet.MagicBytes);
+			Assert.Equal(62456, testnet.DefaultPort);
+			Assert.Equal(62455, testnet.RPCPort);
+
+			var regtest = AltNetworkSets.LitecoinCash.Regtest;
+			Assert.Equal(0xDAB5BFFAu, regtest.Magic);
+			Assert.Equal(new byte[] { 0xFA, 0xBF, 0xB5, 0xDA }, regtest.MagicBytes);
+			Assert.Equal(19444, regtest.DefaultPort);
+			Assert.Equal(19443, regtest.RPCPort);
+		}
+
+		[Fact]
+		public void LitecoinCashGenesisHashesAreCorrect()
+		{
+			Assert.Equal(
+					uint256.Parse("12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2"),
+					AltNetworkSets.LitecoinCash.Mainnet.GetGenesis().GetHash());
+
+			Assert.Equal(
+					uint256.Parse("4966625a4b2851d9fdee139e56211a0d88575f59ed816ff5e6a63deb4e3e29a0"),
+					AltNetworkSets.LitecoinCash.Testnet.GetGenesis().GetHash());
+
+			Assert.Equal(
+					uint256.Parse("530827f38f93b43ed12af0b3ad25a288dc02ed74d6d7857862df51fc56c416f9"),
+					AltNetworkSets.LitecoinCash.Regtest.GetGenesis().GetHash());
+		}
+
+		[Fact]
 		public void GIVEN_Digibyte_WHEN_ProvidedAddressForSpecificNetwork_THEN_ShouldParseAddress()
 		{
 			// Main net
