@@ -986,6 +986,7 @@ namespace NBitcoin
 		{
 			return GetBase58Type(NetworkStringParser.GetBase58CheckEncoder().DecodeData(base58), out _);
 		}
+
 		private Base58Type? GetBase58Type(byte[] bytes, out int prefixLength)
 		{
 			for (int i = 0; i < base58Prefixes.Length; i++)
@@ -1004,7 +1005,6 @@ namespace NBitcoin
 			prefixLength = 0;
 			return null;
 		}
-
 
 		internal static Network? GetNetworkFromBase58Data(string base58, Base58Type? expectedType = null)
 		{
@@ -1035,10 +1035,12 @@ namespace NBitcoin
 		{
 			return (T)Parse(str, typeof(T));
 		}
+
 		public IBitcoinString Parse(string str)
 		{
 			return Parse(str, null);
 		}
+
 		public IBitcoinString Parse(string str, Type? targetType)
 		{
 			if (str == null)
@@ -1067,9 +1069,8 @@ namespace NBitcoin
 			}
 
 			int i = -1;
-#if !NO_TUPLE
 			(Bech32Encoder? encoder, byte[]? bytes, byte witVersion) cache = (null, null, 0);
-#endif
+
 			foreach (var encoder in bech32Encoders)
 			{
 				i++;
@@ -1078,7 +1079,6 @@ namespace NBitcoin
 				var type = (Bech32Type)i;
 				try
 				{
-#if !NO_TUPLE
 					byte witVersion;
 					byte[] bytes;
 					if (cache.encoder == encoder && cache.bytes is not null)
@@ -1091,9 +1091,7 @@ namespace NBitcoin
 						bytes = encoder.Decode(str, out witVersion);
 						cache = (encoder, bytes, witVersion);
 					}
-#else
-					byte[] bytes = encoder.Decode(str, out var witVersion);
-#endif
+
 					IBitcoinString? candidate = null;
 					if (witVersion == 0 && bytes.Length == 20 && type == Bech32Type.WITNESS_PUBKEY_ADDRESS)
 						candidate = new BitcoinWitPubKeyAddress(str.ToLowerInvariant(), bytes, this);

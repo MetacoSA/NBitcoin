@@ -1,4 +1,4 @@
-#if !NET10_0_OR_GREATER && !NO_TUPLE
+#if !NET10_0_OR_GREATER
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+
 namespace NBitcoin
 {
 
