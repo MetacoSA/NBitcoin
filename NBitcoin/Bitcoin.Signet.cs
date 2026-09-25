@@ -84,7 +84,6 @@ namespace NBitcoin
 				});
 			}
 
-#if !NOSOCKET
 			if (networkSeeds != null)
 			{
 				builder.AddSeeds(networkSeeds.Select(o => new Protocol.NetworkAddress(System.Net.IPAddress.Parse(o))));
@@ -93,7 +92,6 @@ namespace NBitcoin
 			{
 				builder.AddSeeds(SignetSettings.DEFAULT_SIGNET_NETWORK_SEEDS.Select(o => new Protocol.NetworkAddress(System.Net.IPAddress.Parse(o))));
 			}
-#endif
 
 			var network = builder.BuildAndRegister();
 

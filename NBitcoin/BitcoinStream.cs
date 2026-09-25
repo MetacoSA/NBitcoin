@@ -4,9 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-#if !NOSOCKET
 using System.Net.Sockets;
-#endif
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -81,9 +79,7 @@ namespace NBitcoin
 			.First();
 		}
 
-#if !NOSOCKET
 		private readonly bool _IsNetworkStream;
-#endif
 		private readonly Stream _Inner;
 		public Stream Inner
 		{
@@ -104,9 +100,7 @@ namespace NBitcoin
 		public BitcoinStream(Stream inner, bool serializing)
 		{
 			_Serializing = serializing;
-#if !NOSOCKET
 			_IsNetworkStream = inner is NetworkStream;
-#endif
 			_Inner = inner;
 		}
 

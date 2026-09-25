@@ -1,4 +1,3 @@
-#if !NOSOCKET
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
@@ -235,4 +234,3 @@ namespace NBitcoin.Protocol
 		}
 	}
 }
-#endif

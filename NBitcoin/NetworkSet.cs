@@ -171,13 +171,11 @@ namespace NBitcoin
 			}
 		}
 
-#if !NOSOCKET
 		protected static IEnumerable<NetworkAddress> ToSeed(Tuple<byte[], int>[] tuples)
 		{
 			return tuples
 					.Select(t => new NetworkAddress(new IPAddress(t.Item1), t.Item2))
 					.ToArray();
 		}
-#endif
 	}
 }

@@ -37,17 +37,18 @@ namespace NBitcoin
 			this.name = name;
 			this.host = host;
 		}
-#if !NOSOCKET
+
 		public Task<IPEndPoint[]> GetAddressNodesAsync(int port)
 		{
 			return GetAddressNodesAsync(port, null, default);
 		}
+
 		public Task<IPEndPoint[]> GetAddressNodesAsync(int port, IDnsResolver? dnsResolver, CancellationToken cancellationToken = default)
 		{
 			var dns = new DnsEndPoint(Host, port);
 			return dns.ResolveToIPEndpointsAsync(dnsResolver, cancellationToken);
 		}
-#endif
+
 		public override string ToString()
 		{
 			return name + " (" + host + ")";
@@ -734,20 +735,11 @@ namespace NBitcoin
 	}
 	public partial class Network
 	{
-
-
-
-
-
 		readonly uint magic;
 
-#if !NOSOCKET
 		List<DNSSeedData> vSeeds = new List<DNSSeedData>();
 		List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
-#else
-		List<string> vSeeds = new List<string>();
-		List<string> vFixedSeeds = new List<string>();
-#endif
+
 		readonly byte[] _GenesisBytes;
 
 		private int nRPCPort;
@@ -767,7 +759,6 @@ namespace NBitcoin
 				return nDefaultPort;
 			}
 		}
-
 
 		private Consensus consensus = new Consensus();
 		public Consensus Consensus
@@ -874,16 +865,16 @@ namespace NBitcoin
 			network.NetworkStringParser = builder._NetworkStringParser;
 			network.MaxP2PVersion = builder._MaxP2PVersion == null ? BITCOIN_MAX_P2P_VERSION : builder._MaxP2PVersion.Value;
 
-#if !NOSOCKET
 			foreach (var seed in builder.vSeeds)
 			{
 				network.vSeeds.Add(seed);
 			}
+
 			foreach (var seed in builder.vFixedSeeds)
 			{
 				network.vFixedSeeds.Add(seed);
 			}
-#endif
+
 			network.base58Prefixes = builder._Name == "Main" ?network.base58Prefixes :  Main.base58Prefixes.ToArray();
 			foreach (var kv in builder._Base58Prefixes)
 			{
@@ -986,6 +977,7 @@ namespace NBitcoin
 		{
 			return GetBase58Type(NetworkStringParser.GetBase58CheckEncoder().DecodeData(base58), out _);
 		}
+
 		private Base58Type? GetBase58Type(byte[] bytes, out int prefixLength)
 		{
 			for (int i = 0; i < base58Prefixes.Length; i++)
@@ -1004,7 +996,6 @@ namespace NBitcoin
 			prefixLength = 0;
 			return null;
 		}
-
 
 		internal static Network? GetNetworkFromBase58Data(string base58, Base58Type? expectedType = null)
 		{
@@ -1035,10 +1026,12 @@ namespace NBitcoin
 		{
 			return (T)Parse(str, typeof(T));
 		}
+
 		public IBitcoinString Parse(string str)
 		{
 			return Parse(str, null);
 		}
+
 		public IBitcoinString Parse(string str, Type? targetType)
 		{
 			if (str == null)
@@ -1067,9 +1060,8 @@ namespace NBitcoin
 			}
 
 			int i = -1;
-#if !NO_TUPLE
 			(Bech32Encoder? encoder, byte[]? bytes, byte witVersion) cache = (null, null, 0);
-#endif
+
 			foreach (var encoder in bech32Encoders)
 			{
 				i++;
@@ -1078,7 +1070,6 @@ namespace NBitcoin
 				var type = (Bech32Type)i;
 				try
 				{
-#if !NO_TUPLE
 					byte witVersion;
 					byte[] bytes;
 					if (cache.encoder == encoder && cache.bytes is not null)
@@ -1091,9 +1082,7 @@ namespace NBitcoin
 						bytes = encoder.Decode(str, out witVersion);
 						cache = (encoder, bytes, witVersion);
 					}
-#else
-					byte[] bytes = encoder.Decode(str, out var witVersion);
-#endif
+
 					IBitcoinString? candidate = null;
 					if (witVersion == 0 && bytes.Length == 20 && type == Bech32Type.WITNESS_PUBKEY_ADDRESS)
 						candidate = new BitcoinWitPubKeyAddress(str.ToLowerInvariant(), bytes, this);
@@ -1355,7 +1344,6 @@ namespace NBitcoin
 			return message;
 		}
 
-#if !NOSOCKET
 		public IEnumerable<NetworkAddress> SeedNodes
 		{
 			get
@@ -1363,6 +1351,7 @@ namespace NBitcoin
 				return this.vFixedSeeds;
 			}
 		}
+
 		public IEnumerable<DNSSeedData> DNSSeeds
 		{
 			get
@@ -1370,7 +1359,7 @@ namespace NBitcoin
 				return this.vSeeds;
 			}
 		}
-#endif
+
 		readonly byte[] _MagicBytes;
 		public byte[] MagicBytes
 		{

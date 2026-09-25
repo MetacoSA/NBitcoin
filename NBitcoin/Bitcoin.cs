@@ -41,8 +41,6 @@ namespace NBitcoin
 			return _Networks.TryGetValue(chainName, out var network) ? network : null;
 		}
 
-
-#if !NOSOCKET
 		private static IEnumerable<NetworkAddress> LoadNetworkAddresses(byte[] payload, NetworkBuilder builder)
 		{
 			// Convert the pnSeeds array into usable address objects.
@@ -77,6 +75,5 @@ namespace NBitcoin
 				}
 			}
 		}
-#endif
 	}
 }

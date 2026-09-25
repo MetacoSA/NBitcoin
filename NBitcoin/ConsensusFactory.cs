@@ -88,11 +88,9 @@ namespace NBitcoin
 				"getdata" => new GetDataPayload(),
 				"headers" => new HeadersPayload(),
 				"block" => new BlockPayload(),
-#if !NOSOCKET
 				"addr" => new AddrPayload(),
 				"addrv2" => new AddrV2Payload(),
 				"version" => new VersionPayload(),
-#endif
 				"ping" => new PingPayload(),
 				"pong" => new PongPayload(),
 				"getaddr" => new GetAddrPayload(),

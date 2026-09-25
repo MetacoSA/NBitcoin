@@ -79,7 +79,6 @@ namespace NBitcoin
 
 			builder.SetConsensus(consensus);
 
-#if !NOSOCKET
 			builder.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be"), // Pieter Wuille
@@ -91,7 +90,6 @@ namespace NBitcoin
 			});
 
 			builder.AddSeeds(LoadNetworkAddresses(GetMainnetSeeds(), builder));
-#endif
 
 			var result = builder.BuildAndRegister();
 
@@ -107,9 +105,6 @@ namespace NBitcoin
 			if (!v)
 				throw new InvalidOperationException("Invalid network");
 		}
-
-
-#if !NOSOCKET
 
 		// https://github.com/bitcoin/bitcoin/blob/master/src/chainparamsseeds.h
 		// All these entries were prefixed with 0x00 because NBitcoin expects the service flags.
@@ -1492,7 +1487,5 @@ namespace NBitcoin
 			0x9f, 0xf4, 0x72, 0x7a, 0x9b, 0x20, 0x0c, 0x5c, 0x11, 0x3d, 0x22, 0xd6, 0x13, 0x88, 0x66, 0x74, 0xbf, 0x20,
 			0x8d
 		};
-
-#endif
 	}
 }

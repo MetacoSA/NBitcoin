@@ -5,9 +5,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-#if !NOSOCKET
 using System.Net.Sockets;
-#endif
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -155,7 +153,6 @@ namespace NBitcoin.Protocol
 			return String.Format("{0} : {1}", Command, Payload);
 		}
 
-#if !NOSOCKET
 		public static Message ReadNext(Socket socket, Network network, uint version, CancellationToken cancellationToken)
 		{
 			PerformanceCounter counter;
@@ -166,7 +163,7 @@ namespace NBitcoin.Protocol
 		{
 			return ReadNext(socket, network, version, cancellationToken, out counter);
 		}
-#endif
+
 		public static Message ReadNext(Stream stream, Network network, uint version, CancellationToken cancellationToken)
 		{
 			PerformanceCounter counter;

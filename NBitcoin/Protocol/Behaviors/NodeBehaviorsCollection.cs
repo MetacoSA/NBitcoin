@@ -1,5 +1,4 @@
-﻿#if !NOSOCKET
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,4 +52,3 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 	}
 }
-#endif

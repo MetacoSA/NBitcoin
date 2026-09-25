@@ -1,4 +1,3 @@
-#if !NOSOCKET
 using NBitcoin.Crypto;
 using NBitcoin.Protocol.Behaviors;
 using System;
@@ -1313,4 +1312,3 @@ namespace NBitcoin.Protocol
 		}
 	}
 }
-#endif

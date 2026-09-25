@@ -1,5 +1,4 @@
-﻿#if !NOSOCKET
-using NBitcoin.Protocol.Behaviors;
+﻿using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Protocol.Filters;
 using System;
 using System.Collections.Concurrent;
@@ -1781,4 +1780,3 @@ namespace NBitcoin.Protocol
 		}
 	}
 }
-#endif

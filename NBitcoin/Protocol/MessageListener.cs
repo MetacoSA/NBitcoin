@@ -1,5 +1,4 @@
-﻿#if !NOSOCKET
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
 #if !NO_CHANNELS
@@ -182,4 +181,3 @@ namespace NBitcoin.Protocol
 	}
 #endif
 }
-#endif
