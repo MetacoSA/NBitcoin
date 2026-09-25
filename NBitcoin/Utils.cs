@@ -14,10 +14,8 @@ using System.Threading.Tasks;
 using NBitcoin.BouncyCastle.Math;
 #endif
 using System.Runtime.InteropServices;
-#if !NOSOCKET
 using System.Net.Sockets;
 using System.Diagnostics.CodeAnalysis;
-#endif
 #if WINDOWS_UWP
 using System.Net.Sockets;
 using Windows.Networking;
@@ -313,20 +311,18 @@ namespace NBitcoin
 			//IO interruption not supported on these platforms.
 
 			int totalReadCount = 0;
-#if !NOSOCKET
 			var interruptable = stream is NetworkStream && cancellation.CanBeCanceled;
-#endif
-			while(totalReadCount < count)
+
+			while (totalReadCount < count)
 			{
 				cancellation.ThrowIfCancellationRequested();
 				int currentReadCount = 0;
-#if !NOSOCKET
-				if(interruptable)
+
+				if (interruptable)
 				{
 					currentReadCount = stream.ReadAsync(buffer, offset + totalReadCount, count - totalReadCount, cancellation).GetAwaiter().GetResult();
 				}
 				else
-#endif
 				{
 					currentReadCount = stream.Read(buffer, offset + totalReadCount, count - totalReadCount);
 				}
@@ -655,8 +651,6 @@ namespace NBitcoin
 			Shuffle(arr, null);
 		}
 
-
-#if !NOSOCKET
 		internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
 		{
 			try
@@ -681,7 +675,7 @@ namespace NBitcoin
 				return endpoint;
 			return new IPEndPoint(endpoint.Address.MapToIPv6(), endpoint.Port);
 		}
-#endif
+
 		public static byte[] ToBytes(uint value, bool littleEndian)
 		{
 #if HAS_SPAN
@@ -937,9 +931,6 @@ namespace NBitcoin
 			return ToUInt64(value, 0, littleEndian);
 		}
 
-
-#if !NOSOCKET
-
 		public static bool TryParseEndpoint(string hostPort, int defaultPort, [MaybeNullWhen(false)] out EndPoint endpoint)
 		{
 			if (hostPort == null)
@@ -993,7 +984,6 @@ namespace NBitcoin
 			return endpoint;
 		}
 
-#endif
 		public static int GetHashCode(byte[] array)
 		{
 			return NBitcoin.BouncyCastle.Utilities.Arrays.GetHashCode(array);

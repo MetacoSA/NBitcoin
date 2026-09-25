@@ -388,7 +388,7 @@ namespace NBitcoin.Tests
 			}
 			catch (DirectoryNotFoundException) { }
 		}
-#if !NOSOCKET
+
 		public void Sync(CoreNode node, bool keepConnection = false)
 		{
 			var rpc = CreateRPCClient();
@@ -401,7 +401,7 @@ namespace NBitcoin.Tests
 			if (!keepConnection)
 				rpc.DisconnectNode(node.Endpoint).GetAwaiter().GetResult();
 		}
-#endif
+
 		private CoreNodeState _State;
 		public CoreNodeState State
 		{
@@ -466,16 +466,16 @@ namespace NBitcoin.Tests
 		{
 			return new RestClient(new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"));
 		}
-#if !NOSOCKET
+
 		public Node CreateNodeClient()
 		{
 			return Node.Connect(Network, NodeEndpoint);
 		}
+
 		public Node CreateNodeClient(NodeConnectionParameters parameters)
 		{
 			return Node.Connect(Network, "127.0.0.1:" + ports[0].ToString(), parameters);
 		}
-#endif
 
 		/// <summary>
 		/// Nodes connecting to this node will be whitelisted (default: false)

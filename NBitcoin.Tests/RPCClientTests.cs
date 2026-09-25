@@ -1200,8 +1200,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-#if !NOSOCKET
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void onioncat_test()
@@ -1325,7 +1323,7 @@ namespace NBitcoin.Tests
 				}
 			}
 		}
-#endif
+
 		[Fact]
 		public void CanBackupWallet()
 		{

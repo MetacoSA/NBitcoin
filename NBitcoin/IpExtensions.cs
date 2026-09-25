@@ -1,5 +1,4 @@
-﻿#if !NOSOCKET
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -23,7 +22,6 @@ namespace NBitcoin
 				(bytes[15 - 3] == 192 && bytes[15 - 2] == 168) ||
 				(bytes[15 - 3] == 172 && (bytes[15 - 2] >= 16 && bytes[15 - 2] <= 31)));
 		}
-
 
 		public static bool IsIPv4(this IPAddress address)
 		{
@@ -522,4 +520,3 @@ namespace NBitcoin
 		}
 	}
 }
-#endif

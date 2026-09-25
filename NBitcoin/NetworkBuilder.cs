@@ -1,6 +1,4 @@
-#if !NOSOCKET
 using NBitcoin.Protocol;
-#endif
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
@@ -22,10 +20,8 @@ namespace NBitcoin
 		internal int _Port;
 		internal uint _Magic;
 		internal Consensus _Consensus;
-#if !NOSOCKET
 		internal List<DNSSeedData> vSeeds = new List<DNSSeedData>();
 		internal List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
-#endif
 		internal byte[] _Genesis;
 		internal uint? _MaxP2PVersion;
 		internal INetworkSet _NetworkSet;
@@ -109,18 +105,17 @@ namespace NBitcoin
 			return this;
 		}
 
-#if !NOSOCKET
 		public NetworkBuilder AddDNSSeeds(IEnumerable<DNSSeedData> seeds)
 		{
 			vSeeds.AddRange(seeds);
 			return this;
 		}
+
 		public NetworkBuilder AddSeeds(IEnumerable<NetworkAddress> seeds)
 		{
 			vFixedSeeds.AddRange(seeds);
 			return this;
 		}
-#endif
 
 		public NetworkBuilder SetConsensus(Consensus consensus)
 		{

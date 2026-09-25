@@ -1115,7 +1115,6 @@ namespace NBitcoin.RPC
 		}
 
 #region P2P Networking
-#if !NOSOCKET
 		public PeerInfo[] GetPeersInfo()
 		{
 			PeerInfo[] peers = null;
@@ -1272,7 +1271,6 @@ namespace NBitcoin.RPC
 				throw;
 			}
 		}
-#endif
 
 #endregion
 
@@ -2500,8 +2498,6 @@ namespace NBitcoin.RPC
 			await SendCommandAsync(RPCOperations.invalidateblock, cancellationToken, blockhash).ConfigureAwait(false);
 		}
 
-#if !NOSOCKET
-
 		/// <summary>
 		/// Add the address of a potential peer to the address manager. This RPC is for testing only.
 		/// </summary>
@@ -2523,12 +2519,9 @@ namespace NBitcoin.RPC
 			return result.Result["success"].Value<bool>();
 		}
 
-#endif
-
 #endregion
 	}
 
-#if !NOSOCKET
 	public class PeerInfo
 	{
 		public int Id
@@ -2654,8 +2647,6 @@ namespace NBitcoin.RPC
 			get; internal set;
 		}
 	}
-
-#endif
 
 	public class BlockchainInfo
 	{

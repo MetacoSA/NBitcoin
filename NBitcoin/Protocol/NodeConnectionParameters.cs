@@ -1,5 +1,4 @@
-﻿#if !NOSOCKET
-using NBitcoin.Protocol.Behaviors;
+﻿using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
@@ -144,4 +143,3 @@ namespace NBitcoin.Protocol
 		}
 	}
 }
-#endif

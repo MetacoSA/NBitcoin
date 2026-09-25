@@ -81,11 +81,8 @@ namespace NBitcoin
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1456790400, 1493596800);
 			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 1462060800, 1493596800);
 
-
 			builder.SetConsensus(consensus);
 
-
-#if !NOSOCKET
 			builder.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("bitcoin.jonasschnelli.ch", "testnet-seed.bitcoin.jonasschnelli.ch"),
@@ -107,7 +104,6 @@ namespace NBitcoin
 			};
 
 			builder.AddSeeds(LoadNetworkAddresses(pnSeed6_test,  builder));
-#endif
 
 			var result =    builder.BuildAndRegister();
 

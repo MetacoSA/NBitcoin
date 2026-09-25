@@ -81,8 +81,6 @@ namespace NBitcoin
 
 			builder.SetConsensus(consensus);
 
-
-#if !NOSOCKET
 			builder.AddDNSSeeds(new[]
 			{
 				new DNSSeedData("bitcoin.sprovoost.nl", "seed.testnet4.bitcoin.sprovoost.nl"),
@@ -102,7 +100,6 @@ namespace NBitcoin
 			};
 
 			builder.AddSeeds(LoadNetworkAddresses(pnSeed6_test,  builder));
-#endif
 
 			var result = builder.BuildAndRegister();
 

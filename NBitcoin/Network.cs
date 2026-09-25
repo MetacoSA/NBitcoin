@@ -37,17 +37,18 @@ namespace NBitcoin
 			this.name = name;
 			this.host = host;
 		}
-#if !NOSOCKET
+
 		public Task<IPEndPoint[]> GetAddressNodesAsync(int port)
 		{
 			return GetAddressNodesAsync(port, null, default);
 		}
+
 		public Task<IPEndPoint[]> GetAddressNodesAsync(int port, IDnsResolver? dnsResolver, CancellationToken cancellationToken = default)
 		{
 			var dns = new DnsEndPoint(Host, port);
 			return dns.ResolveToIPEndpointsAsync(dnsResolver, cancellationToken);
 		}
-#endif
+
 		public override string ToString()
 		{
 			return name + " (" + host + ")";
@@ -734,20 +735,11 @@ namespace NBitcoin
 	}
 	public partial class Network
 	{
-
-
-
-
-
 		readonly uint magic;
 
-#if !NOSOCKET
 		List<DNSSeedData> vSeeds = new List<DNSSeedData>();
 		List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
-#else
-		List<string> vSeeds = new List<string>();
-		List<string> vFixedSeeds = new List<string>();
-#endif
+
 		readonly byte[] _GenesisBytes;
 
 		private int nRPCPort;
@@ -767,7 +759,6 @@ namespace NBitcoin
 				return nDefaultPort;
 			}
 		}
-
 
 		private Consensus consensus = new Consensus();
 		public Consensus Consensus
@@ -874,16 +865,16 @@ namespace NBitcoin
 			network.NetworkStringParser = builder._NetworkStringParser;
 			network.MaxP2PVersion = builder._MaxP2PVersion == null ? BITCOIN_MAX_P2P_VERSION : builder._MaxP2PVersion.Value;
 
-#if !NOSOCKET
 			foreach (var seed in builder.vSeeds)
 			{
 				network.vSeeds.Add(seed);
 			}
+
 			foreach (var seed in builder.vFixedSeeds)
 			{
 				network.vFixedSeeds.Add(seed);
 			}
-#endif
+
 			network.base58Prefixes = builder._Name == "Main" ?network.base58Prefixes :  Main.base58Prefixes.ToArray();
 			foreach (var kv in builder._Base58Prefixes)
 			{
@@ -1353,7 +1344,6 @@ namespace NBitcoin
 			return message;
 		}
 
-#if !NOSOCKET
 		public IEnumerable<NetworkAddress> SeedNodes
 		{
 			get
@@ -1361,6 +1351,7 @@ namespace NBitcoin
 				return this.vFixedSeeds;
 			}
 		}
+
 		public IEnumerable<DNSSeedData> DNSSeeds
 		{
 			get
@@ -1368,7 +1359,7 @@ namespace NBitcoin
 				return this.vSeeds;
 			}
 		}
-#endif
+
 		readonly byte[] _MagicBytes;
 		public byte[] MagicBytes
 		{

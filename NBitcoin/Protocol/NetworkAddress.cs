@@ -1,4 +1,3 @@
-#if !NOSOCKET
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -627,4 +626,3 @@ namespace NBitcoin.Protocol
 			Utils.ArrayEqual(arr, 0, prefix, 0, prefix.Length);
 	}
 }
-#endif

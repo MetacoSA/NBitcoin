@@ -1,5 +1,4 @@
-﻿#if !NOSOCKET
-using NBitcoin.Protocol.Behaviors;
+﻿using NBitcoin.Protocol.Behaviors;
 using NBitcoin.Socks;
 using System;
 using System.Collections.Generic;
@@ -76,4 +75,3 @@ namespace NBitcoin.Protocol.Connectors
 		}
 	}
 }
-#endif

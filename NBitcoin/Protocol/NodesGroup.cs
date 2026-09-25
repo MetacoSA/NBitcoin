@@ -1,5 +1,4 @@
-﻿#if !NOSOCKET
-using NBitcoin.Protocol.Behaviors;
+﻿using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Text;
 using System.Linq;
@@ -303,4 +302,3 @@ namespace NBitcoin.Protocol
 		#endregion
 	}
 }
-#endif
