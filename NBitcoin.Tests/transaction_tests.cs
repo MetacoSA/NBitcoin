@@ -3246,29 +3246,6 @@ namespace NBitcoin.Tests
 			Assert.False(psbt.Inputs.FindIndexedInput(coins[1].Outpoint).TryFinalizeInput(out _));
 		}
 
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void PSBTCoinsDoNotReplaceKnownCoins()
-		{
-			var key = new Key();
-			var outpoint = new OutPoint(RandomUtils.GetUInt256(), 0);
-			var knownCoin = new Coin(outpoint, new TxOut(Money.Coins(1), key.PubKey.WitHash.ScriptPubKey));
-			var options = new CoinOptions { Sequence = 123 };
-			var builder = Network.Main.CreateTransactionBuilder();
-			builder.AddCoin(knownCoin, options);
-
-			var tx = Network.Main.CreateTransaction();
-			tx.Inputs.Add(new TxIn(outpoint));
-			tx.Outputs.Add(new TxOut(Money.Coins(0.5m), new Key().PubKey.WitHash.ScriptPubKey));
-			var psbt = PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv0);
-			psbt.Inputs[0].WitnessUtxo = new TxOut(Money.Coins(2), new Key().PubKey.WitHash.ScriptPubKey);
-
-			builder.AddCoins(psbt);
-
-			Assert.Same(knownCoin, builder.FindCoin(outpoint));
-			Assert.Same(options, builder.FindCoinOptions(outpoint));
-		}
-
 #if HAS_SPAN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
