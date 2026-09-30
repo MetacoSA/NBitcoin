@@ -1104,7 +1104,7 @@ namespace NBitcoin
 			var pubKey = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(this);
 			if (pubKey != null)
 			{
-				return pubKey.PublicKey.IsCompressed ? pubKey.PublicKey.WitHash : null;
+				return pubKey.PublicKey.WitHash;
 			}
 			var p2sh = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(this);
 			return p2sh is not null ? p2sh.WitHash : null;

@@ -1054,6 +1054,9 @@ namespace NBitcoin.Tests
 			var actualParam2 = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(script);
 			Assert.NotNull(actualParam2);
 			Assert.Equal(pubkey, actualParam2.PublicKey);
+			var uncompressedPubKey = pubkey.Decompress();
+			var uncompressedWitScript = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(null, uncompressedPubKey);
+			Assert.Null(PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(uncompressedWitScript));
 
 			var scriptSig = new Script("304402206b782f095f52f12133a96c078b558458b84c925afdb620d96c5f5bbf483e28d502206206796ff45d80216b83c77bafc4e7951fdb10a5bf3e4041c0e6c0938079b22b01 2103");
 			var redeem = new Script(Encoders.Hex.DecodeData("2103a65786c1a48d4167aca08cf6eb8eed081e13f45c02dc6000fd8f3bb16242579aac"));

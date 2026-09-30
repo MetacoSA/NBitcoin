@@ -968,7 +968,7 @@ namespace NBitcoin
 		{
 			if (!CheckWitScriptCore(witScript))
 				return null;
-			if (PubKey.TryCreatePubKey(witScript[1], out var pk))
+			if (PubKey.TryCreatePubKey(witScript[1], out var pk) && pk.IsCompressed)
 				return new PayToWitPubkeyHashScriptSigParameters((witScript[0].Length == 0) ? null : new TransactionSignature(witScript[0]), pk);
 			return null;
 		}
