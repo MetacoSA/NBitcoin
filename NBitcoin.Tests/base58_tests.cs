@@ -77,6 +77,17 @@ namespace NBitcoin.Tests
 			AssertEx.CollectionEquals(result, expected2);
 		}
 
+		[Fact]
+		public void ShouldRejectOversizedBase58()
+		{
+			var encoded = new string('1', Base58Encoder.DefaultMaxEncodedLength + 1);
+			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData(encoded));
+			Assert.Throws<FormatException>(() => Encoders.Base58Check.DecodeData(encoded));
+
+			var decoded = new Base58Encoder().DecodeData(encoded, encoded.Length);
+			Assert.Equal(encoded.Length, decoded.Length);
+		}
+
 
 		[Fact]
 		[Trait("Core", "Core")]

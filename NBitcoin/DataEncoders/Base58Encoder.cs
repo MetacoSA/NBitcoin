@@ -32,7 +32,12 @@ namespace NBitcoin.DataEncoders
 
 		public override byte[] DecodeData(string encoded)
 		{
-			var vchRet = InternalEncoder.DecodeData(encoded);
+			return DecodeData(encoded, DefaultMaxEncodedLength);
+		}
+
+		public override byte[] DecodeData(string encoded, int maximumEncodedLength)
+		{
+			var vchRet = InternalEncoder.DecodeData(encoded, maximumEncodedLength);
 			if (vchRet.Length < 4)
 			{
 				Array.Clear(vchRet, 0, vchRet.Length);
@@ -57,6 +62,8 @@ namespace NBitcoin.DataEncoders
 
 	public class Base58Encoder : DataEncoder
 	{
+		public const int DefaultMaxEncodedLength = 1024;
+
 		static readonly char[] pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".ToCharArray();
 		static readonly int[] mapBase58 = new int[]{
 	-1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
@@ -83,6 +90,8 @@ namespace NBitcoin.DataEncoders
 		/// <returns></returns>
 		public virtual bool IsMaybeEncoded(string str)
 		{
+			if (str.Length > DefaultMaxEncodedLength)
+				return false;
 			bool maybeb58 = true;
 			if (maybeb58)
 			{
@@ -169,8 +178,17 @@ namespace NBitcoin.DataEncoders
 
 		public override byte[] DecodeData(string encoded)
 		{
+			return DecodeData(encoded, DefaultMaxEncodedLength);
+		}
+
+		public virtual byte[] DecodeData(string encoded, int maximumEncodedLength)
+		{
 			if (encoded == null)
 				throw new ArgumentNullException(nameof(encoded));
+			if (maximumEncodedLength < 0)
+				throw new ArgumentOutOfRangeException(nameof(maximumEncodedLength));
+			if (encoded.Length > maximumEncodedLength)
+				throw new FormatException("Invalid base58 data");
 			int psz = 0;
 			// Skip leading spaces.
 			while (psz < encoded.Length && IsSpace(encoded[psz]))
@@ -184,7 +202,7 @@ namespace NBitcoin.DataEncoders
 				psz++;
 			}
 			// Allocate enough space in big-endian base256 representation.
-			int size = (encoded.Length - psz) * 733 / 1000 + 1; // log(58) / log(256), rounded up.
+			int size = (int)(((long)encoded.Length - psz) * 733 / 1000 + 1); // log(58) / log(256), rounded up.
 #if HAS_SPAN
 			Span<byte> b256 = size <= 128 ? stackalloc byte[size] : new byte[size];
 #else
@@ -204,6 +222,8 @@ namespace NBitcoin.DataEncoders
 					b256[it] = (byte)(carry % 256);
 					carry /= 256;
 				}
+				if (carry != 0)
+					throw new FormatException("Invalid base58 data");
 				length = i;
 				psz++;
 			}
