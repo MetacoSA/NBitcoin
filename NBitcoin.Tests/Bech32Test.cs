@@ -190,6 +190,16 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		public void EmptyWitnessPayloadThrowsFormatException()
+		{
+			var encoder = Encoders.Bech32("bc");
+			var encoded = encoder.EncodeRaw(Array.Empty<byte>(), Bech32EncodingType.BECH32);
+			Assert.Empty(encoder.DecodeDataRaw(encoded, out _));
+
+			Assert.Throws<FormatException>(() => encoder.Decode(encoded, out _));
+		}
+
 		private static byte[] Scriptpubkey(byte witver, byte[] witprog)
 		{
 			var v = witver > 0 ? witver + 0x50 : 0;

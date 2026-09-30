@@ -156,6 +156,7 @@ namespace NBitcoin.Tests
 			valid.Add(maxKeypath.ToString());
 			valid.Add("m/" + maxKeypath.ToString());
 			invalid.Add("m/" + maxKeypath.ToString() + "/0");
+			invalid.Add(string.Join("/", Enumerable.Repeat("0", 10_000)));
 			foreach (var v in valid)
 			{
 				KeyPath.Parse(v);
@@ -164,7 +165,8 @@ namespace NBitcoin.Tests
 			foreach (var v in invalid)
 			{
 				Assert.Throws<FormatException>(() => KeyPath.Parse(v));
-				Assert.False(KeyPath.TryParse(v, out _));
+				Assert.False(KeyPath.TryParse(v, out var parsed));
+				Assert.Null(parsed);
 			}
 		}
 
@@ -231,7 +233,10 @@ namespace NBitcoin.Tests
 
 			//Example of the BIP
 			pubkey = new PubKey("0450863AD64A87AE8A2FE83C1AF1A8403CB53F53E486D8511DAD8A04887E5B23522CD470243453A299FA9E77237716103ABC11A1DF38855ED6F2EE187E9C582BA6");
-			Assert.Equal(new Script("OP_0 010966776006953D5567439E5E39F86A0D273BEE"), pubkey.GetAddress(ScriptPubKeyType.Segwit, Network.Main).ScriptPubKey);
+			Assert.Throws<InvalidOperationException>(() => pubkey.GetAddress(ScriptPubKeyType.Segwit, Network.Main));
+			Assert.Throws<InvalidOperationException>(() => pubkey.GetAddress(ScriptPubKeyType.SegwitP2SH, Network.Main));
+			Assert.Throws<InvalidOperationException>(() => pubkey.GetDestination(ScriptPubKeyType.Segwit));
+			Assert.Throws<InvalidOperationException>(() => pubkey.GetScriptPubKey(ScriptPubKeyType.SegwitP2SH));
 
 
 			//Test .ToNetwork()
@@ -431,6 +436,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(Money.Coins(5), Money.Coins(1.0m) * data);
 			Assert.Equal(500000000L, Money.Coins(5).Satoshi);
 			Assert.Equal(500000000U, (uint)Money.Coins(5).Satoshi);
+			Assert.Equal(100L, Money.Bits(1).Satoshi);
 			Assert.Equal("5.00000000", Money.Coins(5).ToString());
 		}
 

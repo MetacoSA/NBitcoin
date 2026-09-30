@@ -121,12 +121,12 @@ namespace NBitcoin.OpenAsset
 
 		private static int Pow10(int divisibility)
 		{
-			if (divisibility < 0)
-				throw new ArgumentOutOfRangeException("divisibility", "divisibility should be higher than 0");
+			if (divisibility < 0 || divisibility > 9)
+				throw new ArgumentOutOfRangeException(nameof(divisibility), "divisibility should be between 0 and 9");
 			int dec = 1;
 			for (int i = 0; i < divisibility; i++)
 			{
-				dec = dec * 10;
+				dec = checked(dec * 10);
 			}
 			return dec;
 		}

@@ -76,6 +76,14 @@ public class PSBT2 : PSBT
 			Outputs.Add(new PSBT2Output(map, this, (uint)outputIndex));
 		}
 		maps.ThrowIfInvalidKeysLeft();
+		try
+		{
+			EffectiveLockTime();
+		}
+		catch (InvalidOperationException ex)
+		{
+			throw new FormatException("PSBT v2 contains incompatible locktime requirements", ex);
+		}
 	}
 
 	internal override Transaction GetGlobalTransaction(bool @unsafe)

@@ -58,5 +58,19 @@ namespace NBitcoin.Tests
 			Assert.True(smallAssetMoney < largeAssetMoney);
 			Assert.False(largeAssetMoney < smallAssetMoney);
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void AssetMoneyRejectsUnsupportedDivisibility()
+		{
+			var assetId = new OpenAsset.AssetId("8f316d9a09");
+			var amount = new OpenAsset.AssetMoney(assetId, 1);
+
+			Assert.Equal(1m, new OpenAsset.AssetMoney(assetId, 1m, 9).ToDecimal(9));
+			Assert.Throws<ArgumentOutOfRangeException>(() => new OpenAsset.AssetMoney(assetId, 1m, -1));
+			Assert.Throws<ArgumentOutOfRangeException>(() => new OpenAsset.AssetMoney(assetId, 1m, 10));
+			Assert.Throws<ArgumentOutOfRangeException>(() => new OpenAsset.AssetMoney(assetId, 1m, 32));
+			Assert.Throws<ArgumentOutOfRangeException>(() => amount.ToDecimal(int.MaxValue));
+		}
 	}
 }

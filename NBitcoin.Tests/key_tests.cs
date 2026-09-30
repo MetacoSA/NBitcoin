@@ -82,6 +82,18 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void InvalidCompactSignatureRecoveryFailsCleanly()
+		{
+			var signature = Encoders.Hex.DecodeData(
+				"fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f" +
+				"0000000000000000000000000000000000000000000000000000000000000001");
+			var compact = new CompactSignature(0, signature);
+
+			Assert.Throws<InvalidOperationException>(() => PubKey.RecoverCompact(uint256.Zero, compact));
+		}
+
+		[Fact]
 		[Trait("Core", "Core")]
 		public void RejectsPointAtInfinityAsPubKey()
 		{

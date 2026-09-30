@@ -970,6 +970,12 @@ namespace NBitcoin.Tests
 			pub = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(new Script(scriptPubKey));
 			Assert.Null(pub);
 
+			var malformedBytes = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(new Key().PubKey).ToBytes();
+			malformedBytes[0] = (byte)OpcodeType.OP_NOP;
+			var malformed = Script.FromBytesUnsafe(malformedBytes);
+			Assert.False(PayToPubkeyTemplate.Instance.CheckScriptPubKey(malformed));
+			Assert.Null(PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(malformed));
+
 			string scriptSig = "3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301";
 			var sig = PayToPubkeyTemplate.Instance.ExtractScriptSigParameters(new Script(scriptSig));
 			Assert.NotNull(sig);

@@ -136,6 +136,7 @@ namespace NBitcoin.Tests
 		private ChainedBlock CreateBlock(DateTimeOffset now, int offset, ChainBase chain = null)
 		{
 			Block b = Consensus.Main.ConsensusFactory.CreateBlock();
+			b.Header.BlockTime = now.AddSeconds(offset);
 			if (chain != null)
 			{
 				b.Header.HashPrevBlock = chain.Tip.HashBlock;
@@ -188,6 +189,16 @@ namespace NBitcoin.Tests
 			Assert.True(tx.IsFinal(time - TimeSpan.FromSeconds(1), 0));
 			tx.Inputs[0].Sequence = 1;
 			//////////
+
+			var chain = new ConcurrentChain(Network.Main);
+			var medianTime = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero);
+			for (int i = -5; i <= 5; i++)
+				chain.SetTip(CreateBlock(medianTime, i, chain));
+			var candidate = CreateBlock(medianTime, 10_000, chain);
+			tx.LockTime = new LockTime(medianTime.AddSeconds(1));
+			Assert.False(tx.IsFinal(candidate));
+			Assert.True(tx.IsFinal(candidate.Header.BlockTime, candidate.Height));
+			Assert.Throws<InvalidOperationException>(() => tx.IsFinal(new ChainedBlock(candidate.Header, candidate.Height)));
 		}
 
 		private OutPoint CanParseOutpointCore(string str, bool valid)
@@ -3226,6 +3237,29 @@ namespace NBitcoin.Tests
 			var psbt = builder.BuildPSBT(true, version);
 			Assert.True(psbt.Inputs.FindIndexedInput(coins[0].Outpoint).TryFinalizeInput(out _));
 			Assert.False(psbt.Inputs.FindIndexedInput(coins[1].Outpoint).TryFinalizeInput(out _));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void PSBTCoinsDoNotReplaceKnownCoins()
+		{
+			var key = new Key();
+			var outpoint = new OutPoint(RandomUtils.GetUInt256(), 0);
+			var knownCoin = new Coin(outpoint, new TxOut(Money.Coins(1), key.PubKey.WitHash.ScriptPubKey));
+			var options = new CoinOptions { Sequence = 123 };
+			var builder = Network.Main.CreateTransactionBuilder();
+			builder.AddCoin(knownCoin, options);
+
+			var tx = Network.Main.CreateTransaction();
+			tx.Inputs.Add(new TxIn(outpoint));
+			tx.Outputs.Add(new TxOut(Money.Coins(0.5m), new Key().PubKey.WitHash.ScriptPubKey));
+			var psbt = PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv0);
+			psbt.Inputs[0].WitnessUtxo = new TxOut(Money.Coins(2), new Key().PubKey.WitHash.ScriptPubKey);
+
+			builder.AddCoins(psbt);
+
+			Assert.Same(knownCoin, builder.FindCoin(outpoint));
+			Assert.Same(options, builder.FindCoinOptions(outpoint));
 		}
 
 #if HAS_SPAN

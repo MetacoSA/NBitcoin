@@ -589,10 +589,12 @@ namespace NBitcoin
 		protected override bool FastCheckScriptPubKey(Script scriptPubKey, out bool needMoreCheck)
 		{
 			needMoreCheck = false;
+			var bytes = scriptPubKey.ToBytes(true);
 			return
 				 scriptPubKey.Length > 3 &&
-				 PubKey.SanityCheck(scriptPubKey.ToBytes(true), 1, scriptPubKey.Length - 2) &&
-				 scriptPubKey.ToBytes(true)[scriptPubKey.Length - 1] == 0xac;
+				 bytes[0] == scriptPubKey.Length - 2 &&
+				 PubKey.SanityCheck(bytes, 1, scriptPubKey.Length - 2) &&
+				 bytes[scriptPubKey.Length - 1] == 0xac;
 		}
 
 		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
