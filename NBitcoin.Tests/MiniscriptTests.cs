@@ -87,6 +87,19 @@ namespace NBitcoin.Tests
 		}
 
 		[Theory]
+		[InlineData("thresh(0)", KeyType.Classic)]
+		[InlineData("multi(0)", KeyType.Classic)]
+		[InlineData("sortedmulti(0)", KeyType.Classic)]
+		[InlineData("multi_a(0)", KeyType.Taproot)]
+		[InlineData("sortedmulti_a(0)", KeyType.Taproot)]
+		public void RejectsZeroThreshold(string miniscript, KeyType keyType)
+		{
+			var settings = new MiniscriptParsingSettings(Network.Main, keyType) { AllowedParameters = ParameterTypeFlags.All };
+			Assert.False(Miniscript.TryParse(miniscript, settings, out var error, out _));
+			Assert.IsType<MiniscriptError.CountExpected>(error);
+		}
+
+		[Theory]
 		[InlineData(ParameterTypeFlags.All, "pkh(A)", true)]
 		[InlineData(ParameterTypeFlags.All, "pkh(@0/**)", true)]
 		[InlineData(ParameterTypeFlags.NamedParameter, "pkh(A)", true)]

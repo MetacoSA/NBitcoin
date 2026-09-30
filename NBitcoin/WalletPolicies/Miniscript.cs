@@ -227,7 +227,7 @@ namespace NBitcoin.WalletPolicies
 				error = new MiniscriptError.CountExpected(ctx.Offset);
 				return false;
 			}
-			if (uint.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v) && v < Int32.MaxValue)
+			if (uint.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var v) && v > 0 && v < Int32.MaxValue)
 			{
 				ctx.Advance(match.Length);
 				node = new Value.CountValue((int)v);
