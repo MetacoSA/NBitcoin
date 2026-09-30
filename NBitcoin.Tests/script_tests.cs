@@ -947,6 +947,18 @@ namespace NBitcoin.Tests
 			AssertEx.StackEquals(pushdata4Stack.Stack, directStack.Stack);
 		}
 
+		[Theory]
+		[InlineData(OpcodeType.OP_CHECKMULTISIG)]
+		[InlineData(OpcodeType.OP_CHECKMULTISIGVERIFY)]
+		public void TapscriptRejectsCheckMultiSig(OpcodeType opcode)
+		{
+			var script = new Script(new byte[] { 0, 0, 0, (byte)opcode });
+			var context = new ScriptEvaluationContext();
+
+			Assert.False(context.EvalScript(script, new TransactionChecker(Network.CreateTransaction(), 0), HashVersion.Tapscript));
+			Assert.Equal(ScriptError.TapscriptCheckMultiSig, context.Error);
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void script_OPNIP()

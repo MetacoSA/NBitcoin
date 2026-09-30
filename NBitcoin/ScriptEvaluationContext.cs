@@ -72,7 +72,8 @@ namespace NBitcoin
 		DiscourageUpgradableTaprootVersion,
 		TapscriptValidationWeight,
 		DiscourageUpgradablePubKeyType,
-		DiscourageOpSuccess
+		DiscourageOpSuccess,
+		TapscriptCheckMultiSig
 	}
 #nullable enable
 	public class TransactionChecker
@@ -1608,6 +1609,9 @@ namespace NBitcoin
 							case OpcodeType.OP_CHECKMULTISIG:
 							case OpcodeType.OP_CHECKMULTISIGVERIFY:
 								{
+									if (hashversion == HashVersion.Tapscript)
+										return SetError(ScriptError.TapscriptCheckMultiSig);
+
 									// ([sig ...] num_of_signatures [pubkey ...] num_of_pubkeys -- bool)
 
 									int i = 1;
