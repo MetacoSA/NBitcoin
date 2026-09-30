@@ -868,6 +868,36 @@ namespace NBitcoin
 		static readonly byte[] vchZero = new byte[0];
 		static readonly byte[] vchTrue = new byte[] { 1 };
 		const int MAX_OPS_PER_SCRIPT = 201;
+		private sealed class ConditionStack
+		{
+			private int _size;
+			private int _firstFalsePosition = -1;
+
+			public int Count => _size;
+			public bool AllTrue => _firstFalsePosition == -1;
+
+			public void Push(bool value)
+			{
+				if (_firstFalsePosition == -1 && !value)
+					_firstFalsePosition = _size;
+				_size++;
+			}
+
+			public void Pop()
+			{
+				_size--;
+				if (_firstFalsePosition == _size)
+					_firstFalsePosition = -1;
+			}
+
+			public void ToggleTop()
+			{
+				if (_firstFalsePosition == -1)
+					_firstFalsePosition = _size - 1;
+				else if (_firstFalsePosition == _size - 1)
+					_firstFalsePosition = -1;
+			}
+		}
 
 		private const int MAX_SCRIPT_ELEMENT_SIZE = 520;
 		const int MAX_SCRIPT_SIZE = 10000;
@@ -881,7 +911,7 @@ namespace NBitcoin
 			var script = s.CreateReader();
 			var pbegincodehash = 0;
 
-			var vfExec = new Stack<bool>();
+			var vfExec = new ConditionStack();
 			var altstack = new ContextStack<byte[]>();
 			uint opcode_pos = 0xffffffff; // So the first opcode will bump it to 1
 			ExecutionData.CodeseparatorPosition = 0xFFFFFFFFU;
@@ -928,7 +958,7 @@ namespace NBitcoin
 						return SetError(ScriptError.DisabledOpCode);
 					}
 
-					bool fExec = vfExec.All(o => o); //!count(vfExec.begin(), vfExec.end(), false);
+					bool fExec = vfExec.AllTrue;
 					if (fExec && opcode.IsInvalid)
 						return SetError(ScriptError.BadOpCode);
 
@@ -1117,8 +1147,7 @@ namespace NBitcoin
 									if (vfExec.Count == 0)
 										return SetError(ScriptError.UnbalancedConditional);
 
-									var v = vfExec.Pop();
-									vfExec.Push(!v);
+									vfExec.ToggleTop();
 									break;
 								}
 							case OpcodeType.OP_ENDIF:

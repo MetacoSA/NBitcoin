@@ -960,6 +960,26 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void TapscriptHandlesDeepConditionals()
+		{
+			const int depth = 10_000;
+			var bytes = new byte[depth * 3 + 1];
+			var offset = 0;
+			for (var i = 0; i < depth; i++)
+			{
+				bytes[offset++] = (byte)OpcodeType.OP_1;
+				bytes[offset++] = (byte)OpcodeType.OP_IF;
+			}
+			for (var i = 0; i < depth; i++)
+				bytes[offset++] = (byte)OpcodeType.OP_ENDIF;
+			bytes[offset] = (byte)OpcodeType.OP_1;
+
+			var context = new ScriptEvaluationContext();
+			Assert.True(context.EvalScript(new Script(bytes), new TransactionChecker(Network.CreateTransaction(), 0), HashVersion.Tapscript));
+			Assert.Equal(ScriptError.OK, context.Error);
+		}
+
+		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void script_OPNIP()
 		{
