@@ -4031,6 +4031,39 @@ namespace NBitcoin.Tests
 				Assert.True(ctx.Verify(sk.CreatePubKey(), sig.PubNonce, sig.Signature));
 			}
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void musig_deterministic_nonce_binds_adaptor()
+		{
+			var keys = Enumerable.Range(0, 2).Select(_ => new ECPrivKey(random_scalar_order(), ctx, true)).ToArray();
+			var pubKeys = keys.Select(k => k.CreatePubKey()).ToArray();
+			var msg = RandomUtils.GetBytes(32);
+			var otherContext = new MusigContext(pubKeys, msg, pubKeys[0]);
+			var otherNonce = otherContext.GenerateNonce(0, keys[0]).CreatePubNonce();
+			var adaptorScalar = random_scalar_order();
+			var adaptor = ctx.CreateECPrivKey(adaptorScalar).CreatePubKey();
+			var negatedAdaptor = ctx.CreateECPrivKey(adaptorScalar.Negate()).CreatePubKey();
+
+			MusigPubNonce GeneratePubNonce(ECPubKey adaptorPoint)
+			{
+				var musig = new MusigContext(pubKeys, msg, pubKeys[1]);
+				if (adaptorPoint is not null)
+					musig.UseAdaptor(adaptorPoint);
+				musig.Process(otherNonce);
+				musig = musig.Clone();
+				return musig.DeterministicSign(keys[1]).PubNonce;
+			}
+
+			var withoutAdaptor = GeneratePubNonce(null);
+			var withAdaptor = GeneratePubNonce(adaptor);
+			var withNegatedAdaptor = GeneratePubNonce(negatedAdaptor);
+
+			Assert.Equal(adaptor.ToXOnlyPubKey(), negatedAdaptor.ToXOnlyPubKey());
+			Assert.NotEqual(Encoders.Hex.EncodeData(withoutAdaptor.ToBytes()), Encoders.Hex.EncodeData(withAdaptor.ToBytes()));
+			Assert.NotEqual(Encoders.Hex.EncodeData(withAdaptor.ToBytes()), Encoders.Hex.EncodeData(withNegatedAdaptor.ToBytes()));
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		// https://github.com/bitcoin/bips/blob/master/bip-0327.mediawiki#modifications-to-nonce-generation

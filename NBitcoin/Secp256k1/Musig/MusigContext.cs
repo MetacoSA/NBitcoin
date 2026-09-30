@@ -104,6 +104,7 @@ namespace NBitcoin.Secp256k1.Musig
 			scalar_tweak = musigContext.scalar_tweak;
 			gacc = musigContext.gacc;
 			tacc = musigContext.tacc;
+			adaptor = musigContext.adaptor;
 			SessionCache = musigContext.SessionCache?.Clone();
 			aggregateNonce = musigContext.aggregateNonce;
 			aggregatePubKey = musigContext.aggregatePubKey;
@@ -338,8 +339,8 @@ namespace NBitcoin.Secp256k1.Musig
 
 			var sk_ = rand is null ? privKey.sec.ToBytes() : xor32(privKey.sec.ToBytes(), tagged_hash("MuSig/aux", rand));
 			var aggothernonce = aggregateNonce;
-			var k_1 = det_nonce_hash(sk_, aggothernonce, aggregatePubKey, msg32, 0);
-			var k_2 = det_nonce_hash(sk_, aggothernonce, aggregatePubKey, msg32, 1);
+			var k_1 = det_nonce_hash(sk_, aggothernonce, aggregatePubKey, msg32, adaptor, 0);
+			var k_2 = det_nonce_hash(sk_, aggothernonce, aggregatePubKey, msg32, adaptor, 1);
 			Array.Clear(sk_, 0, sk_.Length);
 
 			if (k_1 == Scalar.Zero || k_2 == Scalar.Zero)
@@ -351,7 +352,7 @@ namespace NBitcoin.Secp256k1.Musig
 			return secnonce;
 		}
 
-		private Scalar det_nonce_hash(byte[] sk_, MusigPubNonce aggothernonce, ECPubKey aggregatePubKey, ReadOnlySpan<byte> msg, int i)
+		private Scalar det_nonce_hash(byte[] sk_, MusigPubNonce aggothernonce, ECPubKey aggregatePubKey, ReadOnlySpan<byte> msg, ECPubKey? adaptor, int i)
 		{
 			Span<byte> buff = stackalloc byte[66];
 			using var sha = new SHA256();
@@ -364,6 +365,13 @@ namespace NBitcoin.Secp256k1.Musig
 			MusigPrivNonce.ToBE(buff, msg.Length);
 			sha.Write(buff.Slice(0, 8));
 			sha.Write(msg);
+			// The adaptor changes the nonce coefficient and challenge.
+			if (adaptor is not null)
+			{
+				sha.Write((byte)1);
+				adaptor.WriteToSpan(true, buff, out var length);
+				sha.Write(buff.Slice(0, length));
+			}
 			sha.Write((byte)i);
 			sha.GetHash(buff);
 			return new Scalar(buff.Slice(0, 32));
