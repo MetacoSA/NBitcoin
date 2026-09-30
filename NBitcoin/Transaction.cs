@@ -1104,7 +1104,7 @@ namespace NBitcoin
 			var pubKey = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(this);
 			if (pubKey != null)
 			{
-				return pubKey.PublicKey.WitHash;
+				return pubKey.PublicKey.IsCompressed ? pubKey.PublicKey.WitHash : null;
 			}
 			var p2sh = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(this);
 			return p2sh is not null ? p2sh.WitHash : null;
@@ -1654,6 +1654,8 @@ namespace NBitcoin
 				return IsFinal(Utils.UnixTimeToDateTime(0), 0);
 			if (block.Header == null)
 				throw new InvalidOperationException("ChainedBlock.Header must be available");
+			if (nLockTime == 0 || nLockTime < LockTime.LOCKTIME_THRESHOLD)
+				return IsFinal(Utils.UnixTimeToDateTime(0), block.Height);
 			if (block.Previous is null && block.Height != 0)
 				throw new InvalidOperationException("ChainedBlock.Previous must be available to calculate median time past");
 			var blockTime = block.Previous is null ? Utils.UnixTimeToDateTime(0) : block.Previous.GetMedianTimePast();

@@ -234,6 +234,7 @@ namespace NBitcoin
 		{
 			get
 			{
+				AssertCompressedForSegwit();
 				if (_WitID is null)
 				{
 					Span<byte> tmp = stackalloc byte[65];
@@ -263,6 +264,7 @@ namespace NBitcoin
 		{
 			get
 			{
+				AssertCompressedForSegwit();
 				if (_WitID == null)
 				{
 					_WitID = new WitKeyId(Hashes.Hash160(vch, 0, vch.Length));
@@ -504,6 +506,9 @@ namespace NBitcoin
 #else
 			BigInteger r = new BigInteger(1, compactSignature.Signature.SafeSubarray(0, 32));
 			BigInteger s = new BigInteger(1, compactSignature.Signature.SafeSubarray(32, 32));
+			if (r.SignValue <= 0 || r.CompareTo(ECKey.CURVE.N) >= 0 ||
+				s.SignValue <= 0 || s.CompareTo(ECKey.CURVE.N) >= 0)
+				throw new InvalidOperationException("Impossible to recover the public key");
 #pragma warning disable 618
 			var sig = new ECDSASignature(r, s);
 #pragma warning restore 618

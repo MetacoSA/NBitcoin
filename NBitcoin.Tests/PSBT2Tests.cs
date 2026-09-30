@@ -143,6 +143,39 @@ namespace NBitcoin.Tests
 			Assert.Throws<FormatException>(() => PSBT.Parse(tooLarge, Network.Main));
 		}
 
+		[Fact]
+		public void PSBT2RejectsInvalidConstraintsBeforeSerialization()
+		{
+			var tx = Network.Main.CreateTransaction();
+			tx.Inputs.Add(new TxIn(new OutPoint(uint256.One, 0)));
+			tx.Inputs.Add(new TxIn(new OutPoint(uint256.One, 1)));
+			tx.Outputs.Add(new TxOut(Money.Coins(10_500_000m), Script.Empty));
+			tx.Outputs.Add(new TxOut(Money.Coins(10_500_000m), Script.Empty));
+			var psbt = Assert.IsType<PSBT2>(PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv2));
+
+			var firstInput = Assert.IsType<PSBT2Input>(psbt.Inputs[0]);
+			var secondInput = Assert.IsType<PSBT2Input>(psbt.Inputs[1]);
+			firstInput.LockTimeHeight = 1;
+			secondInput.LockTime = DateTimeOffset.FromUnixTimeSeconds(LockTime.LOCKTIME_THRESHOLD);
+			Assert.Throws<InvalidOperationException>(() => psbt.ToHex());
+
+			secondInput.LockTime = null;
+			var firstOutput = Assert.IsType<PSBT2Output>(psbt.Outputs[0]);
+			firstOutput.Value += Money.Satoshis(1);
+			Assert.Throws<InvalidOperationException>(() => psbt.ToHex());
+		}
+
+		[Fact]
+		public void PSBT2RejectsAggregateOutputAmountWhenParsing()
+		{
+			var tx = Network.Main.CreateTransaction();
+			tx.Inputs.Add(new TxIn(new OutPoint(uint256.One, 0)));
+			tx.Outputs.Add(new TxOut(Money.Coins(10_500_000m), Script.Empty));
+			tx.Outputs.Add(new TxOut(Money.Coins(10_500_000m) + Money.Satoshis(1), Script.Empty));
+
+			Assert.Throws<FormatException>(() => PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv2));
+		}
+
 
 		[Theory]
 		[InlineData("70736274ff01007102000000010b0ad921419c1c8719735d72dc739f9ea9e0638d1fe4c1eef0f9944084815fc80000000000feffffff020008af2f00000000160014c430f64c4756da310dbd1a085572ef299926272c8bbdeb0b00000000160014a07dac8ab6ca942d379ed795f835ba71c9cc68850000000001fb0402000000000100520200000001c1aa256e214b96a1822f93de42bff3b5f3ff8d0519306e3515d7515a5e805b120000000000ffffffff0118c69a3b00000000160014b0a3af144208412693ca7d166852b52db0aef06e0000000001011f18c69a3b00000000160014b0a3af144208412693ca7d166852b52db0aef06e01086b02473044022005275a485734e0ae1f3b971237586f0e72dc85833d278c0e474cd23112c0fa5e02206b048c83cebc3c41d0b93cc7da76185cedbd030d005b08018be2b98bbacbdf7b012103760dcca05f3997dc65b293060f7f29f1514c8c527048e12802b041d4fc340a2700220202d601f84846a6755f776be00e3d9de8fb10acc935fb83c45fb0162d4cad5ab79218f69d873e540000800100008000000080000000002a000000002202036efe2c255621986553ba9d65c3ddc64165ca1436e05aa35a4c6eb02451cf796d18f69d873e540000800100008000000080010000006200000000")]

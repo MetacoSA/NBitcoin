@@ -484,7 +484,7 @@ namespace NBitcoin
 		{
 			if (pubKey == null)
 				throw new ArgumentNullException(nameof(pubKey));
-			return TryToScriptCoin(pubKey.WitHash.ScriptPubKey) ?? TryToScriptCoin(pubKey.ScriptPubKey);
+			return (pubKey.IsCompressed ? TryToScriptCoin(pubKey.WitHash.ScriptPubKey) : null) ?? TryToScriptCoin(pubKey.ScriptPubKey);
 		}
 
 		public ColoredCoin ToColoredCoin(AssetId asset, ulong quantity)

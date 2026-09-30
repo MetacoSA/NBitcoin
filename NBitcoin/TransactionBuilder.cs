@@ -1009,7 +1009,8 @@ namespace NBitcoin
 			foreach (var pk in keyPairs.Select(k => k.PubKey).OfType<PubKey>())
 			{
 				AddKnownRedeems(pk.ScriptPubKey);
-				AddKnownRedeems(pk.WitHash.ScriptPubKey);
+				if (pk.IsCompressed)
+					AddKnownRedeems(pk.WitHash.ScriptPubKey);
 				AddKnownRedeems(pk.Hash.ScriptPubKey);
 			}
 			return this;

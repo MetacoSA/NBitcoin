@@ -85,12 +85,25 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void InvalidCompactSignatureRecoveryFailsCleanly()
 		{
-			var signature = Encoders.Hex.DecodeData(
+			var invalidSignatures = new[]
+			{
 				"fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f" +
-				"0000000000000000000000000000000000000000000000000000000000000001");
-			var compact = new CompactSignature(0, signature);
+				"0000000000000000000000000000000000000000000000000000000000000001",
+				"0000000000000000000000000000000000000000000000000000000000000000" +
+				"0000000000000000000000000000000000000000000000000000000000000001",
+				"0000000000000000000000000000000000000000000000000000000000000001" +
+				"0000000000000000000000000000000000000000000000000000000000000000",
+				"fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141" +
+				"0000000000000000000000000000000000000000000000000000000000000001",
+				"0000000000000000000000000000000000000000000000000000000000000001" +
+				"fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"
+			};
 
-			Assert.Throws<InvalidOperationException>(() => PubKey.RecoverCompact(uint256.Zero, compact));
+			foreach (var signature in invalidSignatures)
+			{
+				var compact = new CompactSignature(0, Encoders.Hex.DecodeData(signature));
+				Assert.Throws<InvalidOperationException>(() => PubKey.RecoverCompact(uint256.One, compact));
+			}
 		}
 
 		[Fact]

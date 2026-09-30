@@ -90,7 +90,7 @@ namespace NBitcoin
 			hd_keypaths.AddOrReplace(pubKey, rootedKeyPath);
 
 			// Let's try to be smart, if the added key match the scriptPubKey then we are in p2psh p2wpkh
-			if (Parent.Settings.IsSmart && redeem_script == null)
+			if (Parent.Settings.IsSmart && redeem_script == null && pubKey.IsCompressed)
 			{
 				var output = GetTxOut();
 				if (output != null)

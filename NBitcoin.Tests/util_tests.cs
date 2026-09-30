@@ -237,6 +237,12 @@ namespace NBitcoin.Tests
 			Assert.Throws<InvalidOperationException>(() => pubkey.GetAddress(ScriptPubKeyType.SegwitP2SH, Network.Main));
 			Assert.Throws<InvalidOperationException>(() => pubkey.GetDestination(ScriptPubKeyType.Segwit));
 			Assert.Throws<InvalidOperationException>(() => pubkey.GetScriptPubKey(ScriptPubKeyType.SegwitP2SH));
+			Assert.Throws<InvalidOperationException>(() => pubkey.WitHash);
+			Assert.Throws<InvalidOperationException>(() => PayToWitPubKeyHashTemplate.Instance.GenerateScriptPubKey(pubkey));
+			Assert.Throws<InvalidOperationException>(() => new PayToWitPubkeyHashScriptSigParameters(null, pubkey).Hash);
+			Network.Main.CreateTransactionBuilder().AddKeys(new KeyPair(new Key(), pubkey));
+			var legacyCoin = new Coin(new OutPoint(uint256.One, 0), new TxOut(Money.Coins(1), pubkey.ScriptPubKey.Hash));
+			Assert.NotNull(legacyCoin.TryToScriptCoin(pubkey));
 
 
 			//Test .ToNetwork()

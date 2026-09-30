@@ -5,7 +5,7 @@ namespace NBitcoin.BIP370;
 
 public class PSBT2Output : PSBTOutput
 {
-	private const long MaxMoney = 21_000_000L * Money.COIN;
+	internal const long MaxMoney = 21_000_000L * Money.COIN;
 
 	internal PSBT2Output(Money value, Script scriptPubKey, PSBT parent, uint index) : base(new Map(), parent, index)
 	{

@@ -195,10 +195,17 @@ namespace NBitcoin.Tests
 			for (int i = -5; i <= 5; i++)
 				chain.SetTip(CreateBlock(medianTime, i, chain));
 			var candidate = CreateBlock(medianTime, 10_000, chain);
+			var headerOnlyCandidate = new ChainedBlock(candidate.Header, candidate.Height);
+			tx.LockTime = LockTime.Zero;
+			Assert.True(tx.IsFinal(headerOnlyCandidate));
+			tx.LockTime = new LockTime(candidate.Height - 1);
+			Assert.True(tx.IsFinal(headerOnlyCandidate));
+			tx.LockTime = new LockTime(candidate.Height);
+			Assert.False(tx.IsFinal(headerOnlyCandidate));
 			tx.LockTime = new LockTime(medianTime.AddSeconds(1));
 			Assert.False(tx.IsFinal(candidate));
 			Assert.True(tx.IsFinal(candidate.Header.BlockTime, candidate.Height));
-			Assert.Throws<InvalidOperationException>(() => tx.IsFinal(new ChainedBlock(candidate.Header, candidate.Height)));
+			Assert.Throws<InvalidOperationException>(() => tx.IsFinal(headerOnlyCandidate));
 		}
 
 		private OutPoint CanParseOutpointCore(string str, bool valid)
