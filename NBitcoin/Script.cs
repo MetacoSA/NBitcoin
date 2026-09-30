@@ -503,25 +503,7 @@ namespace NBitcoin
 			_Script = data.ToArray();
 		}
 
-		public Script(byte[] data, bool compressed)
-		{
-			if (!compressed)
-				_Script = data.ToArray();
-			else
-			{
-				ScriptCompressor compressor = new ScriptCompressor();
-				compressor.ReadWrite(new BitcoinStream(data));
-				_Script = compressor.GetScript()._Script;
-			}
-		}
-
-		public int Length
-		{
-			get
-			{
-				return _Script.Length;
-			}
-		}
+		public int Length => _Script.Length;
 
 		/// <summary>
 		/// Extract the ScriptCode delimited by the codeSeparatorIndex th OP_CODESEPARATOR.
@@ -888,11 +870,6 @@ namespace NBitcoin
 #if HAS_SPAN
 		public TapScript ToTapScript(TapLeafVersion version) => new TapScript(this, version);
 #endif
-		public byte[] ToCompressedBytes()
-		{
-			var compressor = new ScriptCompressor(this);
-			return compressor.ToBytes();
-		}
 
 		public bool IsUnspendable
 		{

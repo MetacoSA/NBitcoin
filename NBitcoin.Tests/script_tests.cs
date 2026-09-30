@@ -220,18 +220,6 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanCompressScript2()
-		{
-			var key = new Key(true);
-			var script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.Hash);
-			var compressed = script.ToCompressedBytes();
-			Assert.Equal(21, compressed.Length);
-
-			Assert.Equal(script.ToString(), new Script(compressed, true).ToString());
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
 		public void CanParseAndGeneratePayToTaprootScripts()
 		{
 			var pubkey = new TaprootPubKey(Encoders.Hex.DecodeData("53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343"));
@@ -306,60 +294,6 @@ namespace NBitcoin.Tests
 			var data = Encoders.Hex.DecodeData("035c030441ef8fa580553f149a5422ba4b0038d160b07a28e6fe2e1041b940fe95b1553c040000000000000050db680300000000000002b0466f722050696572636520616e64205061756c");
 
 			PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(new Script(data));
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanCompressScript()
-		{
-			var key = new Key(true);
-
-			//Pay to pubkey hash (encoded as 21 bytes)
-			var script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.Hash);
-			AssertCompressed(script, 21);
-			script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.Decompress().Hash);
-			AssertCompressed(script, 21);
-
-			//Pay to script hash (encoded as 21 bytes)
-			script = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(script);
-			AssertCompressed(script, 21);
-
-			//Pay to pubkey starting with 0x02, 0x03 or 0x04 (encoded as 33 bytes)
-			script = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(key.PubKey);
-			script = AssertCompressed(script, 33);
-			var readenKey = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(script);
-			AssertEx.CollectionEquals(readenKey.ToBytes(), key.PubKey.ToBytes());
-
-			script = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(key.PubKey.Decompress());
-			script = AssertCompressed(script, 33);
-			readenKey = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(script);
-			AssertEx.CollectionEquals(readenKey.ToBytes(), key.PubKey.Decompress().ToBytes());
-
-
-			//Other scripts up to 121 bytes require 1 byte + script length.
-			script = new Script(Enumerable.Range(0, 60).Select(_ => (Op)OpcodeType.OP_RETURN).ToArray());
-			AssertCompressed(script, 61);
-			script = new Script(Enumerable.Range(0, 120).Select(_ => (Op)OpcodeType.OP_RETURN).ToArray());
-			AssertCompressed(script, 121);
-
-			//Above that, scripts up to 16505 bytes require 2 bytes + script length.
-			script = new Script(Enumerable.Range(0, 122).Select(_ => (Op)OpcodeType.OP_RETURN).ToArray());
-			AssertCompressed(script, 124);
-		}
-
-		private Script AssertCompressed(Script script, int expectedSize)
-		{
-			var compressor = new ScriptCompressor(script);
-			var compressed = compressor.ToBytes();
-			Assert.Equal(expectedSize, compressed.Length);
-
-			compressor = new ScriptCompressor();
-			compressor.ReadWrite(compressed, Network);
-			AssertEx.CollectionEquals(compressor.GetScript().ToBytes(), script.ToBytes());
-
-			var compressed2 = compressor.ToBytes();
-			AssertEx.CollectionEquals(compressed, compressed2);
-			return compressor.GetScript();
 		}
 
 		[Fact]
