@@ -504,12 +504,7 @@ namespace NBitcoin.Secp256k1.Musig
 				throw new ArgumentNullException(nameof(partialSignatures));
 			if (SessionCache is null)
 				throw new InvalidOperationException("You need to run MusigContext.Process first");
-			var t = signature.s;
-			t = t.Negate();
-			foreach (var sig in partialSignatures)
-			{
-				t = t + sig.E;
-			}
+			var t = signature.s.Negate() + AggregateSignatures(partialSignatures).s;
 			if (!SessionCache.r.y.IsOdd)
 			{
 				t = t.Negate();
