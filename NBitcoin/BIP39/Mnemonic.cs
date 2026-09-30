@@ -148,6 +148,8 @@ namespace NBitcoin
 			var bytes = Normalize(_Mnemonic);
 #if NO_NATIVE_RFC2898_HMACSHA512
 			return NBitcoin.Crypto.Pbkdf2.ComputeDerivedKey(new System.Security.Cryptography.HMACSHA512(bytes), salt, 2048, 64);
+#elif NET10_0_OR_GREATER
+			return System.Security.Cryptography.Rfc2898DeriveBytes.Pbkdf2(bytes, salt, 2048, System.Security.Cryptography.HashAlgorithmName.SHA512, 64);
 #else
 			using System.Security.Cryptography.Rfc2898DeriveBytes derive = new System.Security.Cryptography.Rfc2898DeriveBytes(bytes, salt, 2048, System.Security.Cryptography.HashAlgorithmName.SHA512);
 			return derive.GetBytes(64);

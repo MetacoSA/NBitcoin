@@ -82,9 +82,14 @@ namespace NBitcoin.Crypto
 			}
 #else
 			byte[] B = GetEffectivePbkdf2Salt(key, salt, cost, blockSize, parallel, maxThreads);
+#if NET10_0_OR_GREATER
+			byte[] derivedKey = System.Security.Cryptography.Rfc2898DeriveBytes.Pbkdf2(key, B, 1, System.Security.Cryptography.HashAlgorithmName.SHA256, derivedKeyLength);
+#else
 			using System.Security.Cryptography.Rfc2898DeriveBytes derive = new System.Security.Cryptography.Rfc2898DeriveBytes(key, B, 1, System.Security.Cryptography.HashAlgorithmName.SHA256);
+			byte[] derivedKey = derive.GetBytes(derivedKeyLength);
+#endif
 			Security.Clear(B);
-			return derive.GetBytes(derivedKeyLength);
+			return derivedKey;
 #endif
 		}
 
@@ -184,8 +189,12 @@ namespace NBitcoin.Crypto
 			if (S.Length >= 8)
 			{
 				// While we should be able to use Rfc2898DeriveBytes if salt is less than 8 bytes, it sadly does not accept salt less than 8 bytes needed for BIP38
+#if NET10_0_OR_GREATER
+				B = System.Security.Cryptography.Rfc2898DeriveBytes.Pbkdf2(P, S, 1, System.Security.Cryptography.HashAlgorithmName.SHA256, parallel * MFLen);
+#else
 				using System.Security.Cryptography.Rfc2898DeriveBytes derive = new System.Security.Cryptography.Rfc2898DeriveBytes(P, S, 1, System.Security.Cryptography.HashAlgorithmName.SHA256);
 				B = derive.GetBytes(parallel * MFLen);
+#endif
 			}
 			else
 			{
