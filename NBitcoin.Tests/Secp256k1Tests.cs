@@ -3821,7 +3821,10 @@ namespace NBitcoin.Tests
 					var schnorrSig = musig[0].AggregateSignatures(sigs);
 
 					if (useAdaptor)
+					{
 						schnorrSig = musig[0].Adapt(schnorrSig, adaptor);
+						Assert.Equal(adaptor, musig[0].Extract(schnorrSig, sigs));
+					}
 					// Verify resulting signature
 					// SigningPubKey is the tweaked key if tweaked, or the combined key if not
 					Assert.True(musig[0].AggregatePubKey.ToXOnlyPubKey().SigVerifyBIP340(schnorrSig, msg32));
