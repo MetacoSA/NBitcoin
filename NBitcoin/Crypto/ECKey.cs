@@ -40,6 +40,8 @@ namespace NBitcoin.Crypto
 			else
 			{
 				var q = Secp256k1.Curve.DecodePoint(vch);
+				if (q.IsInfinity)
+					throw new ArgumentException("Public key must not be the point at infinity", nameof(vch));
 				_Key = new ECPublicKeyParameters("EC", q, DomainParameter);
 			}
 		}
