@@ -669,6 +669,8 @@ namespace NBitcoin.DataEncoders
 				throw new ArgumentNullException(nameof(addr));
 			CheckCase(addr);
 			var data = DecodeDataCore(addr, out var encodingType);
+			if (data.Length == 0)
+				throw new FormatException("Invalid decoded data length");
 #if HAS_SPAN
 			var decoded = ConvertBits(data.AsSpan().Slice(1), 5, 8, false);
 #else

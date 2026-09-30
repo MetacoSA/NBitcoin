@@ -3562,6 +3562,20 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void raw_pubkey_format_rejects_off_curve_coordinates()
+		{
+			Assert.False(ECPubKey.TryCreateRawFormat(new byte[64], ctx, out var invalid));
+			Assert.Null(invalid);
+
+			var generator = Encoders.Hex.DecodeData(
+				"79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798" +
+				"483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8");
+			Assert.True(ECPubKey.TryCreateRawFormat(generator, ctx, out var valid));
+			Assert.NotNull(valid);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void test_xonly_pubkey_comparison()
 		{
 			byte[] pk1_ser = new byte[32] {

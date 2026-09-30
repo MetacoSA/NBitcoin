@@ -38,23 +38,7 @@ namespace NBitcoin
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
-			bool isValid = true;
-			int count = 0;
-			var indices =
-				path
-				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-				.Where(p => p != "m")
-				.Select(p =>
-				{
-					isValid &= TryParseCore(p, out var i);
-					count++;
-					if (count > 255)
-						isValid = false;
-					return i;
-				})
-				.Where(_ => isValid)
-				.ToArray();
-			if (!isValid)
+			if (!TryParseIndexes(path, out var indices))
 			{
 				keyPath = null;
 				return false;
@@ -65,21 +49,36 @@ namespace NBitcoin
 
 		public KeyPath(string path)
 		{
-			int count = 0;
-			_Indexes =
-				path
-				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-				.Where(p => p != "m")
-				.Select(p =>
+			if (path == null)
+				throw new ArgumentNullException(nameof(path));
+			if (!TryParseIndexes(path, out _Indexes))
+				throw new FormatException("KeyPath uncorrectly formatted");
+		}
+
+		private static bool TryParseIndexes(string path, out uint[] indices)
+		{
+			var result = new List<uint>();
+			int start = 0;
+			while (start < path.Length)
+			{
+				int separator = path.IndexOf('/', start);
+				int end = separator == -1 ? path.Length : separator;
+				int length = end - start;
+				if (length != 0 && !(length == 1 && path[start] == 'm'))
 				{
-					if (!TryParseCore(p, out var i))
-						throw new FormatException("KeyPath uncorrectly formatted");
-					count++;
-					if (count > 255)
-						throw new FormatException("KeyPath uncorrectly formatted");
-					return i;
-				})
-				.ToArray();
+					if (result.Count == 255 || !TryParseCore(path.Substring(start, length), out var index))
+					{
+						indices = Array.Empty<uint>();
+						return false;
+					}
+					result.Add(index);
+				}
+				if (separator == -1)
+					break;
+				start = separator + 1;
+			}
+			indices = result.ToArray();
+			return true;
 		}
 
 		public static KeyPath FromBytes(byte[] data)

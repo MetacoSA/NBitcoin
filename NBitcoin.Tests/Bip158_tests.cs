@@ -293,7 +293,7 @@ namespace NBitcoin.Tests
 				.AddEntries(scripts.Select(x => x.ToBytes()))
 				.Build();
 
-			Assert.Equal("017821b8", filter.ToString());
+			Assert.Equal("0114ebc0", filter.ToString());
 			foreach (var tx in block.Transactions)
 			{
 				for (int i = 0; i < tx.Outputs.Count; i++)

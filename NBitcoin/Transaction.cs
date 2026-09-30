@@ -1654,7 +1654,12 @@ namespace NBitcoin
 				return IsFinal(Utils.UnixTimeToDateTime(0), 0);
 			if (block.Header == null)
 				throw new InvalidOperationException("ChainedBlock.Header must be available");
-			return IsFinal(block.Header.BlockTime, block.Height);
+			if (nLockTime == 0 || nLockTime < LockTime.LOCKTIME_THRESHOLD)
+				return IsFinal(Utils.UnixTimeToDateTime(0), block.Height);
+			if (block.Previous is null && block.Height != 0)
+				throw new InvalidOperationException("ChainedBlock.Previous must be available to calculate median time past");
+			var blockTime = block.Previous is null ? Utils.UnixTimeToDateTime(0) : block.Previous.GetMedianTimePast();
+			return IsFinal(blockTime, block.Height);
 		}
 		public bool IsFinal(DateTimeOffset blockTime, int blockHeight)
 		{

@@ -589,10 +589,12 @@ namespace NBitcoin
 		protected override bool FastCheckScriptPubKey(Script scriptPubKey, out bool needMoreCheck)
 		{
 			needMoreCheck = false;
+			var bytes = scriptPubKey.ToBytes(true);
 			return
 				 scriptPubKey.Length > 3 &&
-				 PubKey.SanityCheck(scriptPubKey.ToBytes(true), 1, scriptPubKey.Length - 2) &&
-				 scriptPubKey.ToBytes(true)[scriptPubKey.Length - 1] == 0xac;
+				 bytes[0] == scriptPubKey.Length - 2 &&
+				 PubKey.SanityCheck(bytes, 1, scriptPubKey.Length - 2) &&
+				 bytes[scriptPubKey.Length - 1] == 0xac;
 		}
 
 		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
@@ -966,7 +968,7 @@ namespace NBitcoin
 		{
 			if (!CheckWitScriptCore(witScript))
 				return null;
-			if (PubKey.TryCreatePubKey(witScript[1], out var pk))
+			if (PubKey.TryCreatePubKey(witScript[1], out var pk) && pk.IsCompressed)
 				return new PayToWitPubkeyHashScriptSigParameters((witScript[0].Length == 0) ? null : new TransactionSignature(witScript[0]), pk);
 			return null;
 		}

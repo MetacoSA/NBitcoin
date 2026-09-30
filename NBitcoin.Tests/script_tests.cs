@@ -970,6 +970,12 @@ namespace NBitcoin.Tests
 			pub = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(new Script(scriptPubKey));
 			Assert.Null(pub);
 
+			var malformedBytes = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(new Key().PubKey).ToBytes();
+			malformedBytes[0] = (byte)OpcodeType.OP_NOP;
+			var malformed = Script.FromBytesUnsafe(malformedBytes);
+			Assert.False(PayToPubkeyTemplate.Instance.CheckScriptPubKey(malformed));
+			Assert.Null(PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(malformed));
+
 			string scriptSig = "3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301";
 			var sig = PayToPubkeyTemplate.Instance.ExtractScriptSigParameters(new Script(scriptSig));
 			Assert.NotNull(sig);
@@ -1048,6 +1054,9 @@ namespace NBitcoin.Tests
 			var actualParam2 = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(script);
 			Assert.NotNull(actualParam2);
 			Assert.Equal(pubkey, actualParam2.PublicKey);
+			var uncompressedPubKey = pubkey.Decompress();
+			var uncompressedWitScript = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(null, uncompressedPubKey);
+			Assert.Null(PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(uncompressedWitScript));
 
 			var scriptSig = new Script("304402206b782f095f52f12133a96c078b558458b84c925afdb620d96c5f5bbf483e28d502206206796ff45d80216b83c77bafc4e7951fdb10a5bf3e4041c0e6c0938079b22b01 2103");
 			var redeem = new Script(Encoders.Hex.DecodeData("2103a65786c1a48d4167aca08cf6eb8eed081e13f45c02dc6000fd8f3bb16242579aac"));

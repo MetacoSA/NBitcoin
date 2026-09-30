@@ -136,6 +136,7 @@ namespace NBitcoin.Tests
 		private ChainedBlock CreateBlock(DateTimeOffset now, int offset, ChainBase chain = null)
 		{
 			Block b = Consensus.Main.ConsensusFactory.CreateBlock();
+			b.Header.BlockTime = now.AddSeconds(offset);
 			if (chain != null)
 			{
 				b.Header.HashPrevBlock = chain.Tip.HashBlock;
@@ -188,6 +189,23 @@ namespace NBitcoin.Tests
 			Assert.True(tx.IsFinal(time - TimeSpan.FromSeconds(1), 0));
 			tx.Inputs[0].Sequence = 1;
 			//////////
+
+			var chain = new ConcurrentChain(Network.Main);
+			var medianTime = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero);
+			for (int i = -5; i <= 5; i++)
+				chain.SetTip(CreateBlock(medianTime, i, chain));
+			var candidate = CreateBlock(medianTime, 10_000, chain);
+			var headerOnlyCandidate = new ChainedBlock(candidate.Header, candidate.Height);
+			tx.LockTime = LockTime.Zero;
+			Assert.True(tx.IsFinal(headerOnlyCandidate));
+			tx.LockTime = new LockTime(candidate.Height - 1);
+			Assert.True(tx.IsFinal(headerOnlyCandidate));
+			tx.LockTime = new LockTime(candidate.Height);
+			Assert.False(tx.IsFinal(headerOnlyCandidate));
+			tx.LockTime = new LockTime(medianTime.AddSeconds(1));
+			Assert.False(tx.IsFinal(candidate));
+			Assert.True(tx.IsFinal(candidate.Header.BlockTime, candidate.Height));
+			Assert.Throws<InvalidOperationException>(() => tx.IsFinal(headerOnlyCandidate));
 		}
 
 		private OutPoint CanParseOutpointCore(string str, bool valid)

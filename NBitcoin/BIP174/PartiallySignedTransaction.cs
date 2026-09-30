@@ -1331,6 +1331,8 @@ namespace NBitcoin
 			var tx = GetGlobalTransaction(true);
 			maps[0].Remove([PSBTConstants.PSBT_GLOBAL_UNSIGNED_TX]);
 			maps[0].Add(PSBT2Constants.PSBT_GLOBAL_TX_VERSION, tx.Version);
+			if (tx.LockTime != LockTime.Zero)
+				maps[0].Add(PSBT2Constants.PSBT_GLOBAL_FALLBACK_LOCKTIME, (uint)tx.LockTime);
 			maps[0].Add(PSBT2Constants.PSBT_GLOBAL_INPUT_COUNT, new VarInt((uint)tx.Inputs.Count));
 			maps[0].Add(PSBT2Constants.PSBT_GLOBAL_OUTPUT_COUNT, new VarInt((uint)tx.Outputs.Count));
 			int i = 1;

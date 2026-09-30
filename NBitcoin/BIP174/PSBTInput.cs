@@ -945,7 +945,7 @@ namespace NBitcoin
 			if (GetTransaction() is not IHasForkId)
 				return false;
 			a = ((uint)a & ~(0x40u));
-			b = ((uint)a & ~(0x40u));
+			b = ((uint)b & ~(0x40u));
 			return a == b;
 		}
 		private void CheckCompatibleSigHash(uint sigHash)

@@ -52,8 +52,8 @@ public class PSBT2Input : PSBTInput
 		}
 		set
 		{
-			if (value is { } d && !new LockTime(d).IsHeightLock)
-				throw new ArgumentOutOfRangeException("PSBT v2 input locktime must be a height lock", nameof(value));
+			if (value is { } d && (d == 0 || !new LockTime(d).IsHeightLock))
+				throw new ArgumentOutOfRangeException(nameof(value), "PSBT v2 input locktime must be a non-zero height lock");
 			_LockTimeHeight = value;
 		}
 	}
@@ -118,8 +118,8 @@ public class PSBT2Input : PSBTInput
 		if (map.TryRemove<uint>(PSBT2Constants.PSBT_IN_REQUIRED_HEIGHT_LOCKTIME, out var locktimeV))
 		{
 			var locktime = new LockTime(locktimeV);
-			if (!locktime.IsHeightLock)
-				throw new FormatException("PSBT v2 input locktime must be a height lock");
+			if (locktimeV == 0 || !locktime.IsHeightLock)
+				throw new FormatException("PSBT v2 input locktime must be a non-zero height lock");
 			LockTimeHeight = locktime.Height;
 		}
 	}
@@ -156,7 +156,7 @@ public class PSBT2Input : PSBTInput
 		if (LockTimeHeight is not null)
 		{
 			var h = new LockTime(LockTimeHeight.Value);
-			if (!h.IsHeightLock)
+			if (LockTimeHeight.Value == 0 || !h.IsHeightLock)
 				throw new FormatException("LockTimeHeight is out of bounds");
 			map.Add([PSBT2Constants.PSBT_IN_REQUIRED_HEIGHT_LOCKTIME], h.ToBytes());
 		}

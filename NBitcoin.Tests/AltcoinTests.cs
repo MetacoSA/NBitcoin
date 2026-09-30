@@ -686,6 +686,29 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void ForkIdPSBTRejectsConflictingSigHash()
+		{
+			var network = Altcoins.AltNetworkSets.BCash.Regtest;
+			var key = new Key();
+			var funding = network.CreateTransaction();
+			funding.Inputs.Add(new TxIn(new OutPoint(uint256.One, 0)));
+			funding.Outputs.Add(new TxOut(Money.Coins(1), key.PubKey.Hash.ScriptPubKey));
+			var coin = funding.Outputs.AsCoins().Single();
+			var spending = network.CreateTransaction();
+			spending.Inputs.Add(new TxIn(coin.Outpoint));
+			spending.Outputs.Add(new TxOut(Money.Coins(0.9m), new Key().PubKey.Hash.ScriptPubKey));
+			var psbt = PSBT.FromTransaction(spending, network, PSBTVersion.PSBTv0).AddCoins(funding);
+			Assert.IsAssignableFrom<IHasForkId>(psbt.GetGlobalTransaction());
+			Assert.NotNull(psbt.Inputs[0].GetSignableCoin());
+			psbt.Settings.SigningOptions = new SigningOptions(SigHash.All);
+			psbt.SignWithKeys(key);
+			Assert.Single(psbt.Inputs[0].PartialSigs);
+			psbt.Settings.SigningOptions = new SigningOptions(SigHash.None);
+
+			Assert.Throws<InvalidOperationException>(() => psbt.SignWithKeys(key));
+		}
+
+		[Fact]
 		public async Task CorrectCoinMaturity()
 		{
 			using (var builder = NodeBuilderEx.Create())

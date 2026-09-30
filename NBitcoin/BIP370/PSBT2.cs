@@ -76,6 +76,15 @@ public class PSBT2 : PSBT
 			Outputs.Add(new PSBT2Output(map, this, (uint)outputIndex));
 		}
 		maps.ThrowIfInvalidKeysLeft();
+		try
+		{
+			EffectiveLockTime();
+			ValidateOutputAmounts();
+		}
+		catch (InvalidOperationException ex)
+		{
+			throw new FormatException("PSBT v2 contains invalid transaction constraints", ex);
+		}
 	}
 
 	internal override Transaction GetGlobalTransaction(bool @unsafe)
@@ -171,6 +180,17 @@ public class PSBT2 : PSBT
 		return lockTime ?? LockTime.Zero;
 	}
 
+	private void ValidateOutputAmounts()
+	{
+		long total = 0;
+		foreach (var output in Outputs.Cast<PSBT2Output>())
+		{
+			if (output.Value.Satoshi > PSBT2Output.MaxMoney - total)
+				throw new InvalidOperationException("PSBT v2 output total is out of range");
+			total += output.Value.Satoshi;
+		}
+	}
+
 	public uint TransactionVersion { get; set; }
 
 	public LockTime? FallbackLockTime { get; set; }
@@ -220,6 +240,8 @@ public class PSBT2 : PSBT
 
 	internal override void FillMap(Map map)
 	{
+		EffectiveLockTime();
+		ValidateOutputAmounts();
 		base.FillMap(map);
 		map.Add([PSBTConstants.PSBT_GLOBAL_VERSION],  PSBT2Constants.PSBT2Version.ToBytes());
 		map.Add([PSBT2Constants.PSBT_GLOBAL_TX_VERSION],  TransactionVersion.ToBytes());

@@ -471,7 +471,7 @@ namespace NBitcoin
 		{
 			// overflow safe.
 			// decimal operations are checked by default
-			return new Money(bits * CENT, MoneyUnit.Satoshi);
+			return new Money(bits, MoneyUnit.Bit);
 		}
 
 		public static Money Cents(decimal cents)
