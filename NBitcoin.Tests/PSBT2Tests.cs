@@ -234,5 +234,29 @@ namespace NBitcoin.Tests
 			// Verify that the UnsignedTransaction is preserved during serializtion roundtrip.
 			Assert.Equal(psbt.GetGlobalTransaction().ToHex(), parsed.GetGlobalTransaction().ToHex());
 		}
+
+		[Fact]
+		public void PSBT2_CanCloneAndCoinJoin()
+		{
+			var firstTransaction = Network.Main.CreateTransaction();
+			firstTransaction.Inputs.Add(new TxIn(new OutPoint(uint256.One, 0)));
+			firstTransaction.Outputs.Add(new TxOut(Money.Coins(1.0m), new Script()));
+			var first = Assert.IsType<PSBT2>(PSBT.FromTransaction(firstTransaction, Network.Main, PSBTVersion.PSBTv2));
+
+			var clone = first.Clone();
+			Assert.NotSame(first, clone);
+			Assert.Equal(first, clone);
+
+			var secondTransaction = Network.Main.CreateTransaction();
+			secondTransaction.Inputs.Add(new TxIn(new OutPoint(uint256.One, 1)));
+			secondTransaction.Outputs.Add(new TxOut(Money.Coins(2.0m), new Script()));
+			var second = Assert.IsType<PSBT2>(PSBT.FromTransaction(secondTransaction, Network.Main, PSBTVersion.PSBTv2));
+
+			var coinJoin = Assert.IsType<PSBT2>(first.CoinJoin(second));
+			Assert.Equal(2, coinJoin.Inputs.Count);
+			Assert.Equal(2, coinJoin.Outputs.Count);
+			Assert.Single(first.Inputs);
+			Assert.Single(first.Outputs);
+		}
 	}
 }

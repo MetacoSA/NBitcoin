@@ -119,7 +119,7 @@ public class PSBT2 : PSBT
 		return result;
 	}
 
-	public new PSBT2 Clone() => (PSBT2)Clone();
+	public new PSBT2 Clone() => (PSBT2)base.Clone();
 
 
 	public LockTime EffectiveLockTime()
