@@ -83,6 +83,16 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Core", "Core")]
+		public void RejectsPointAtInfinityAsPubKey()
+		{
+			var infinity = new byte[] { 0x00 };
+
+			Assert.Throws<FormatException>(() => new PubKey(infinity));
+			Assert.False(PubKey.TryCreatePubKey(infinity, out _));
+		}
+
+		[Fact]
+		[Trait("Core", "Core")]
 		public void QuickTestsOnKeyIdBytes()
 		{
 			var a = new KeyId("93e5d305cad2588d5fb254065fe48ce446028ba3");
