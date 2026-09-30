@@ -191,6 +191,8 @@ namespace NBitcoin
 
 		public ExtPubKey Derive(uint index)
 		{
+			if (nDepth == byte.MaxValue)
+				throw new InvalidOperationException("Cannot derive a child key at depth 255.");
 			var childPubKey = pubkey.Derivate(this.vchChainCode, index, out var chainCode);
 			var result = new ExtPubKey(childPubKey, chainCode, (byte)(nDepth + 1), PubKey.GetHDFingerPrint(), index);
 			return result;

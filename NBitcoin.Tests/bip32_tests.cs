@@ -111,6 +111,18 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CannotDeriveBeyondMaximumDepth()
+		{
+			var key = new ExtKey().Derive(1);
+			var deepestKey = new ExtKey(key.PrivateKey, key.ChainCode, byte.MaxValue, key.ParentFingerprint, key.Child);
+			var deepestPubKey = deepestKey.Neuter();
+
+			Assert.Throws<InvalidOperationException>(() => deepestKey.Derive(0));
+			Assert.Throws<InvalidOperationException>(() => deepestPubKey.Derive(0));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanRecoverExtKeyFromExtPubKeyAndOneChildExtKey()
 		{
 			ExtKey key = ExtKey.Parse("xprv9s21ZrQH143K3Z9EwCXrA5VbypnvWGiE9z22S1cLLPi7r8DVUkTabBvMjeirS8KCyppw24KoD4sFmja8UDU4VL32SBdip78LY6sz3X2GPju", Network.Main)

@@ -375,6 +375,8 @@ namespace NBitcoin
 		/// </summary>
 		public ExtKey Derive(uint index)
 		{
+			if (nDepth == byte.MaxValue)
+				throw new InvalidOperationException("Cannot derive a child key at depth 255.");
 			var childkey = key.Derivate(this.vchChainCode, index, out var childcc);
 			return new ExtKey(childkey, childcc, (byte)(nDepth + 1), this.key.PubKey.GetHDFingerPrint(), index);
 		}
