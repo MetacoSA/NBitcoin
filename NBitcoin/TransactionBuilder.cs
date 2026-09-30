@@ -1068,13 +1068,7 @@ namespace NBitcoin
 		{
 			if (psbt == null)
 				throw new ArgumentNullException(nameof(psbt));
-			foreach (var input in psbt.Inputs)
-			{
-				var coin = input.GetSignableCoin();
-				if (coin is not null && FindCoin(coin.Outpoint) is null)
-					AddCoin(coin);
-			}
-			return this;
+			return AddCoins(psbt.Inputs.Select(p => p.GetSignableCoin()).Where(p => p != null).ToArray());
 		}
 
 		/// <summary>
