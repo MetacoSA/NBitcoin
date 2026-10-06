@@ -177,7 +177,7 @@ namespace NBitcoin.DataEncoders
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		static byte IsDigitCore(char c)
 		{
-			return CharToHexLookup[c];
+			return c < 256 ? CharToHexLookup[c] : (byte)0xff;
 		}
 
 		public static bool IsWellFormed(string str)

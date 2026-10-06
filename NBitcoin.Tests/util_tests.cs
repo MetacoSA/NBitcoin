@@ -784,6 +784,7 @@ namespace NBitcoin.Tests
 			Assert.True(!HexEncoder.IsWellFormed("eleven"));
 			Assert.True(!HexEncoder.IsWellFormed("00xx00"));
 			Assert.True(!HexEncoder.IsWellFormed("0x0000"));
+			Assert.True(!HexEncoder.IsWellFormed("\u0100\u0100"));
 		}
 #if !HAS_SPAN
 		[Fact]
