@@ -1135,6 +1135,34 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void TransactionBuilderRefundsFeeAfterMergingOutputs()
+		{
+			var sender = new Key().PubKey.GetScriptPubKey(ScriptPubKeyType.Segwit);
+			var destination = new Key();
+			var c1 = new Coin(new OutPoint(uint256.Zero, 0), new TxOut(Money.Coins(1.0m), sender));
+			var c2 = new Coin(new OutPoint(uint256.Zero, 1), new TxOut(Money.Coins(2.0m), sender));
+			var selector = new SpyCoinSelector();
+			selector.AddSelections(new[] { c1, c2 });
+			selector.AddSelections(new[] { c1 });
+
+			var feeRate = new FeeRate(5.0m);
+			var builder = Network.Main.CreateTransactionBuilder()
+				.AddCoins(c1, c2)
+				.SetCoinSelector(selector)
+				.Send(destination, Money.Coins(0.5m))
+				.SetChange(destination)
+				.SendEstimatedFees(feeRate);
+
+			var tx = builder.BuildTransaction(false);
+			var expectedFee = feeRate.GetFee(builder.EstimateSize(tx, true));
+
+			Assert.Single(tx.Outputs);
+			Assert.Equal(expectedFee, tx.GetFee(builder.FindSpentCoins(tx)));
+			Assert.Equal(c1.Amount - expectedFee, tx.Outputs[0].Value);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void TransactionBuilderFuzzying()
 		{
 			var seed = RandomUtils.GetInt32();
