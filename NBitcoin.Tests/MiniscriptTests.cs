@@ -337,6 +337,21 @@ namespace NBitcoin.Tests
 				Assert.IsType<MiniscriptError.TooDeep>(error);
 		}
 
+		[Fact]
+		public void CombinedExpressionAndWrapperNestingIsBounded()
+		{
+			var miniscript = $"{new string('n', 51)}:0";
+			for (var i = 0; i < 50; i++)
+				miniscript = $"and_v(v:1,{miniscript})";
+			var settings = new MiniscriptParsingSettings(Network.Main, KeyType.Classic)
+			{
+				Dialect = MiniscriptDialect.Strict
+			};
+
+			Assert.False(Miniscript.TryParse(miniscript, settings, out var error, out _));
+			Assert.IsType<MiniscriptError.TooDeep>(error);
+		}
+
 		[Theory]
 		[InlineData(98, true)]
 		[InlineData(200, false)]

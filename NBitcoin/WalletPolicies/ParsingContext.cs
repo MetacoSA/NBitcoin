@@ -66,6 +66,7 @@ namespace NBitcoin.WalletPolicies
 		public string Remaining => Miniscript[Offset..];
 		Stack<Frame> _frames = new();
 		public Frame CurrentFrame => _frames.Peek();
+		public int AncestorNestingDepth => _frames.Count;
 		public bool TryPushFrame([NotNullWhen(true)] out Frame? frame)
 		{
 			if (_frames.Count > MaxNestingDepth)
