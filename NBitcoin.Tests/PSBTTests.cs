@@ -175,6 +175,74 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void TransactionBuilderRejectsConflictingCoinsFromPSBT()
+		{
+			var outpoint = new OutPoint(RandomUtils.GetUInt256(), 0);
+			var trustedTxOut = new TxOut(Money.Coins(1.0m), new Key());
+
+			foreach (var conflictingTxOut in new[]
+			{
+				new TxOut(Money.Coins(2.0m), trustedTxOut.ScriptPubKey),
+				new TxOut(trustedTxOut.Value, new Key())
+			})
+			{
+				var transaction = Network.Main.CreateTransaction();
+				transaction.Inputs.Add(outpoint);
+				transaction.Outputs.Add(Money.Coins(0.5m), new Key());
+				var psbt = PSBT.FromTransaction(transaction, Network.Main);
+				psbt.Inputs[0].WitnessUtxo = conflictingTxOut;
+
+				var builder = Network.Main.CreateTransactionBuilder();
+				builder.AddCoin(new Coin(outpoint, trustedTxOut));
+				var exception = Assert.Throws<InvalidOperationException>(() => builder.AddCoins(psbt));
+				Assert.Contains("different amount or scriptPubKey", exception.Message);
+				Assert.Same(trustedTxOut, builder.FindCoin(outpoint).TxOut);
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TransactionBuilderAllowsIdenticalCoinFromPSBT()
+		{
+			var outpoint = new OutPoint(RandomUtils.GetUInt256(), 0);
+			var trustedTxOut = new TxOut(Money.Coins(1.0m), new Key());
+			var identicalTxOut = trustedTxOut.Clone();
+			var transaction = Network.Main.CreateTransaction();
+			transaction.Inputs.Add(outpoint);
+			transaction.Outputs.Add(Money.Coins(0.5m), new Key());
+			var psbt = PSBT.FromTransaction(transaction, Network.Main);
+			psbt.Inputs[0].WitnessUtxo = identicalTxOut;
+
+			var builder = Network.Main.CreateTransactionBuilder();
+			builder.AddCoin(new Coin(outpoint, trustedTxOut));
+			builder.AddCoins(psbt);
+
+			Assert.Same(identicalTxOut, builder.FindCoin(outpoint).TxOut);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TransactionBuilderCanUpdateOptionsForIdenticalCoin()
+		{
+			var key = new Key();
+			var coin = new Coin(new OutPoint(RandomUtils.GetUInt256(), 0), new TxOut(Money.Coins(1.0m), key));
+			var identicalCoin = new Coin(coin.Outpoint, coin.TxOut.Clone());
+			var updatedSequence = new Sequence(42);
+			var builder = Network.Main.CreateTransactionBuilder();
+			builder.AddCoin(coin, new CoinOptions { Sequence = new Sequence(21) });
+			builder.AddCoin(identicalCoin, new CoinOptions { Sequence = updatedSequence });
+			builder.Send(new Key(), Money.Coins(0.5m));
+			builder.SendFees(Money.Coins(0.001m));
+			builder.SetChange(key);
+
+			var transaction = builder.BuildTransaction(false);
+
+			Assert.Same(identicalCoin, builder.FindCoin(coin.Outpoint));
+			Assert.Equal(updatedSequence, transaction.Inputs.Single().Sequence);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void PSBTParsingShouldUseTheRightConsensusFactory()
 		{
 			var psbt = PSBT.Parse("cHNidP8BAKABAAAAAjzOZOqTmzoqy7rQ1KHnIkaak0mSVzPv5DtvPTvCjAzKAAAAAAD9////RNxEkYoZ/DN8b5DqBHJyUlqw+YOPV2y//wY3S8Z/Ig4BAAAAAP3///8C3JQwAQAAAAAZdqkUwH39zhYQLTpA+yZ9SSHkq9y1rEGIrADh9QUAAAAAGXapFBv+ozFlGBoA7+st28C45qrqFdp8iKwAAAAAAAEA/XQBAgAAAAL+IKvJIVWjWY0mFK0l1+bcEV3NJ1DR9a6BVgxPopR1AwEAAABqRzBEAiBKMOFJ7341UHGSq2mMsu7Tuup/WrWcG3opc4qCizsZEQIgWfbIISu7W1iRKlXgAODKCKxu2pGuGcwsl2Ke2tXExJoBIQOZcYGogH0HL1t2R5WnhUBgEYChDJRerjr6LsZmZy7t0/7///+tNbQ5jJd/4ZXJszKPaLa/RRRoLxbfTFiO6UKdTyiVdAAAAABqRzBEAiBYvo6rVsaNEqtJcXttj0rg+hTjxGkAUlATmqr57SrWlwIgTaYBzvfyPooGjY3LN0NX71cAgZL+jBmAa6nOsrlUpbkBIQOZcYGogH0HL1t2R5WnhUBgEYChDJRerjr6LsZmZy7t0/7///8CcN/1BQAAAAAZdqkUsOguNJiSLxXVqfzkyYiFcJv0vgiIrADh9QUAAAAAGXapFK831Px/KVRlHDKICTeChruGMg/JiKzG0B8AIgICFN+otSuSoj/5zbp0H1MtD+edEx7WwLsvnrLEfbCjErRIMEUCIQD2yd+PvhvjpxmFcFDFv3owFleCr4IzRwHwTovk/S7y7wIgCWgmH6WHRuf0++LouAJuWKJ7pjPD4W53UXkz7WmtfvQBIgYCFN+otSuSoj/5zbp0H1MtD+edEx7WwLsvnrLEfbCjErQYChHi6CwAAIABAACAAAAAgAEAAAAKAAAAAAEA/XUBAQAAAALcjOdC7uRb/bqGnrU6Il6jcdZFeePGFZmkB4UNnwrfGgEAAABqRzBEAiB4ubLFsMIdUKl2SmGhNKdT1fTc46Ir4m2cFM9D8dtB7AIgL4cD2sSqPAdqPldtviV8dHqkjjrdXNrDkAbxjAZQzgABIQONBtYWZOSeDXT/eNAQoIcQYSwtwvkfse9m5wEgxkz4n/3////cjOdC7uRb/bqGnrU6Il6jcdZFeePGFZmkB4UNnwrfGgAAAABrSDBFAiEAndyxtsqQ+aB6s5FaGBhmQhOwhm35TOImMBEDF9jjV5oCIBg+0GQYIGvUWqXaGGxCDsngiWy5P0Tk+ngtuDCWzREpASEC55mD+vA5xSJmYvfcsYH5sykhFnsJdujFPhn2Fg+5HL39////AgDh9QUAAAAAGXapFKBSbBywL1pp4x1JqqX4jFKm2ZTdiKyEKDEBAAAAABl2qRS+dL66EpzsCxfpNVycmI5NNtKDWIisAAAAACICAkOieg7z1fAIG2cfcLj+ZFJ3L3L+yVk1tRApOHz8UwOQSDBFAiEA1bv9YiUDip8YfrBZjv76N783CQSzhj8ykdOQvpALOsECIHKAkrHCNhkF7hN6Eng11IJeqDgxEtZpFt0mGvP5xokKASIGAkOieg7z1fAIG2cfcLj+ZFJ3L3L+yVk1tRApOHz8UwOQGAoR4ugsAACAAQAAgAAAAIABAAAABwAAAAAiAgJbvS/OS/2Jnwd/aGbOJmqXrgL9YcYFarUm+ahIBAuwQBgKEeLoLAAAgAEAAIAAAACAAQAAAAsAAAAAIgID37dgjfw4pjjnV4nSdpZ4XTGqMYRLYeNuQaCD0YMtOOIYChHi6CwAAIABAACAAAAAgAAAAAAQAAAAAA==",
