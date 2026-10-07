@@ -63,9 +63,12 @@ internal class MockScriptVisitor(Network Network, KeyType KeyType) : MiniscriptR
 			replacements.Add((Encoders.Hex.EncodeData(bytes), $"<{p.Name}>"));
 			modifiedParameter = new Value.HashValue(bytes);
 		}
-		else if (p.Requirement is MiniscriptNode.ParameterRequirement.Locktime l)
+		else if (p.Requirement is MiniscriptNode.ParameterRequirement.Locktime or MiniscriptNode.ParameterRequirement.RelativeLocktime)
 		{
-			var rand = new LockTime(RandomUtils.GetUInt32());
+			var value = RandomUtils.GetUInt32();
+			if (p.Requirement is MiniscriptNode.ParameterRequirement.RelativeLocktime)
+				value = (value & ~Sequence.SEQUENCE_LOCKTIME_DISABLE_FLAG) | 1U;
+			var rand = new LockTime(value);
 			replacements.Add((Encoders.Hex.EncodeData(Op.GetPushOp(rand.Value).PushData), $"<{p.Name}>"));
 			modifiedParameter = new Value.LockTimeValue(rand);
 		}

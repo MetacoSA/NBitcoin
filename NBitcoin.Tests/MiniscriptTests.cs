@@ -77,13 +77,64 @@ namespace NBitcoin.Tests
 		[InlineData("older(01)", false)]
 		[InlineData("after(01)", false)]
 		[InlineData("multi(01,A,B)", false)]
-		[InlineData("older(0)", true)]
+		[InlineData("older(0)", false)]
 		[InlineData("older(1000)", true)]
 		[InlineData("after(1000)", true)]
 		public void RejectsNonCanonicalNumbers(string miniscript, bool expected)
 		{
 			var settings = new MiniscriptParsingSettings(Network.RegTest, KeyType.Classic) { AllowedParameters = ParameterTypeFlags.All };
 			Assert.Equal(expected, Miniscript.TryParse(miniscript, settings, out _));
+		}
+
+		[Theory]
+		[InlineData("older(0)")]
+		[InlineData("older(2147483648)")]
+		public void RejectsInvalidOlderSequence(string miniscript)
+		{
+			var settings = new MiniscriptParsingSettings(Network.RegTest, KeyType.Classic);
+			Assert.False(Miniscript.TryParse(miniscript, settings, out var error, out _));
+			Assert.IsType<MiniscriptError.LocktimeExpected>(error);
+		}
+
+		[Theory]
+		[InlineData("older(1)")]
+		[InlineData("older(65535)")]
+		[InlineData("older(4194304)")]
+		[InlineData("older(4259839)")]
+		[InlineData("older(2147483647)")]
+		public void AcceptsValidOlderSequence(string miniscript)
+		{
+			var settings = new MiniscriptParsingSettings(Network.RegTest, KeyType.Classic);
+			var parsed = Miniscript.Parse(miniscript, settings);
+			Assert.Equal(miniscript, parsed.ToString());
+		}
+
+		[Theory]
+		[InlineData(0U)]
+		[InlineData(0x80000000U)]
+		public void RejectsInvalidOlderSequenceReplacement(uint sequence)
+		{
+			var settings = new MiniscriptParsingSettings(Network.RegTest, KeyType.Classic) { AllowedParameters = ParameterTypeFlags.NamedParameter };
+			var parsed = Miniscript.Parse("older(A)", settings);
+			var exception = Assert.Throws<MiniscriptReplacementException>(() => parsed.ReplaceParameters(new()
+			{
+				["A"] = new MiniscriptNode.Value.LockTimeValue(sequence)
+			}));
+			Assert.IsType<MiniscriptNode.ParameterRequirement.RelativeLocktime>(exception.Requirement);
+		}
+
+		[Theory]
+		[InlineData(1U)]
+		[InlineData(0x00400000U)]
+		[InlineData(0x7fffffffU)]
+		public void AcceptsValidOlderSequenceReplacement(uint sequence)
+		{
+			var settings = new MiniscriptParsingSettings(Network.RegTest, KeyType.Classic) { AllowedParameters = ParameterTypeFlags.NamedParameter };
+			var parsed = Miniscript.Parse("older(A)", settings).ReplaceParameters(new()
+			{
+				["A"] = new MiniscriptNode.Value.LockTimeValue(sequence)
+			});
+			Assert.Equal($"older({sequence})", parsed.ToString());
 		}
 
 		[Theory]

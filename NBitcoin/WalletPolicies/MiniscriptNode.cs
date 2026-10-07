@@ -868,6 +868,19 @@ namespace NBitcoin.WalletPolicies
 					return "A LockTimeValue is expected";
 				}
 			}
+			public record RelativeLocktime : ParameterRequirement
+			{
+				public readonly static RelativeLocktime Instance = new();
+				public override bool Check(MiniscriptNode node)
+				{
+					return node is Value.LockTimeValue locktime && locktime.LockTime.Value != 0 &&
+						(locktime.LockTime.Value & NBitcoin.Sequence.SEQUENCE_LOCKTIME_DISABLE_FLAG) == 0;
+				}
+				public sealed override string ToString()
+				{
+					return "A relative LockTimeValue between 1 and 2147483647 is expected";
+				}
+			}
 		}
 		public record Parameter(string Name, ParameterRequirement Requirement) : MiniscriptNode
 		{
