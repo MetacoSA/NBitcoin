@@ -52,6 +52,7 @@ namespace NBitcoin
 	}
 	public partial class BitcoinStream
 	{
+		const int MaxInitialListCapacity = 1024;
 		int _MaxArraySize = 1024 * 1024 * 4;
 		public int MaxArraySize
 		{
@@ -260,7 +261,7 @@ namespace NBitcoin
 				if (len > (uint)MaxArraySize)
 					throw new ArgumentOutOfRangeException("Array size too big");
 				listLen = (int)len;
-				list = new List<T>();
+				list = new List<T>(Math.Min(listLen, MaxInitialListCapacity));
 				for (int i = 0; i < listLen; i++)
 				{
 					T obj = default;
@@ -292,7 +293,7 @@ namespace NBitcoin
 				if (len > (uint)MaxArraySize)
 					throw new ArgumentOutOfRangeException("Array size too big");
 				listLen = (int)len;
-				list = new TxInList();
+				list = new TxInList(Math.Min(listLen, MaxInitialListCapacity));
 				for (int i = 0; i < listLen; i++)
 				{
 					TxIn obj = default;
@@ -324,7 +325,7 @@ namespace NBitcoin
 				if (len > (uint)MaxArraySize)
 					throw new ArgumentOutOfRangeException("Array size too big");
 				listLen = (int)len;
-				list = new TxOutList();
+				list = new TxOutList(Math.Min(listLen, MaxInitialListCapacity));
 				for (int i = 0; i < listLen; i++)
 				{
 					TxOut obj = default;
