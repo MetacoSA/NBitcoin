@@ -576,10 +576,11 @@ namespace NBitcoin.WalletPolicies
 
 			var wrapperGroup = match.Groups[1];
 			var fragmentName = match.Groups[2];
+			var wrapperCount = wrapperGroup.Success ? wrapperGroup.Value.Length - 1 : 0;
 
 			if (fragmentName.Success)
 			{
-				if (!ctx.TryPushFrame(out var frame))
+				if (!ctx.TryPushFrame(out var frame, wrapperCount))
 				{
 					error = new MiniscriptError.TooDeep(ctx.Offset);
 					return false;

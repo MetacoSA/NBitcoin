@@ -320,6 +320,39 @@ namespace NBitcoin.Tests
 		}
 
 		[Theory]
+		[InlineData(100, true)]
+		[InlineData(101, false)]
+		public void WrapperNestingIsBounded(int depth, bool expected)
+		{
+			var miniscript = $"{new string('n', depth)}:0";
+			var settings = new MiniscriptParsingSettings(Network.Main, KeyType.Classic)
+			{
+				Dialect = MiniscriptDialect.Strict
+			};
+
+			var parsed = Miniscript.TryParse(miniscript, settings, out var error, out _);
+
+			Assert.Equal(expected, parsed);
+			if (!expected)
+				Assert.IsType<MiniscriptError.TooDeep>(error);
+		}
+
+		[Fact]
+		public void CombinedExpressionAndWrapperNestingIsBounded()
+		{
+			var miniscript = $"{new string('n', 51)}:0";
+			for (var i = 0; i < 50; i++)
+				miniscript = $"and_v(v:1,{miniscript})";
+			var settings = new MiniscriptParsingSettings(Network.Main, KeyType.Classic)
+			{
+				Dialect = MiniscriptDialect.Strict
+			};
+
+			Assert.False(Miniscript.TryParse(miniscript, settings, out var error, out _));
+			Assert.IsType<MiniscriptError.TooDeep>(error);
+		}
+
+		[Theory]
 		[InlineData(98, true)]
 		[InlineData(200, false)]
 		public void TaprootTreeNestingIsBounded(int depth, bool expected)
