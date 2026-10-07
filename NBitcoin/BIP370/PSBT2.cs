@@ -103,6 +103,9 @@ public class PSBT2 : PSBT
 		}
 
 		tx.LockTime = EffectiveLockTime();
+		if (Inputs.Any(input => input is PSBT2Input { UnifiedTimeLock: not null }) &&
+			tx.Inputs.All(input => input.Sequence == Sequence.Final))
+			throw new InvalidOperationException("Required lock time is disabled because all input sequences are final");
 		tx.Version = TransactionVersion;
 
 		return tx;
