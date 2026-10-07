@@ -280,6 +280,24 @@ namespace NBitcoin.WalletPolicies
 			error = new MiniscriptError.LocktimeExpected(ctx.Offset);
 			return false;
 		}
+		private static bool TryParseSequence(ParsingContext ctx, [MaybeNullWhen(true)] out MiniscriptError error, [MaybeNullWhen(false)] out MiniscriptNode node)
+		{
+			var offset = ctx.Offset;
+			if (!TryParseLocktime(ctx, out error, out node))
+				return false;
+			if (node is Parameter parameter)
+			{
+				node = parameter with { Requirement = ParameterRequirement.RelativeLocktime.Instance };
+				return true;
+			}
+			if (!ParameterRequirement.RelativeLocktime.Instance.Check(node))
+			{
+				node = null;
+				error = new MiniscriptError.LocktimeExpected(offset);
+				return false;
+			}
+			return true;
+		}
 
 		private static bool TryParseNamedParameter(ParsingContext ctx, ParameterRequirement requirement, [MaybeNullWhen(false)] out MiniscriptNode node)
 		{
@@ -562,7 +580,7 @@ namespace NBitcoin.WalletPolicies
 					"pk_h" => TryParseParameters(ctx, 1, TryParseKey, out error, out var p) ? FragmentSingleParameter.pk_h(p[0]) : null,
 					"pk" => TryParseParameters(ctx, 1, TryParseKey, out error, out var p) ? FragmentSingleParameter.pk(p[0]) : null,
 					"pkh" => TryParseParameters(ctx, 1, TryParseKey, out error, out var p) ? FragmentSingleParameter.pkh(p[0]) : null,
-					"older" => TryParseParameters(ctx, 1, TryParseLocktime, out error, out var p) ? FragmentSingleParameter.older(p[0]) : null,
+					"older" => TryParseParameters(ctx, 1, TryParseSequence, out error, out var p) ? FragmentSingleParameter.older(p[0]) : null,
 					"after" => TryParseParameters(ctx, 1, TryParseLocktime, out error, out var p) ? FragmentSingleParameter.after(p[0]) : null,
 					"sha256" => TryParseParameters(ctx, 1, TryParse32Bytes, out error, out var p) ? FragmentSingleParameter.sha256(p[0]) : null,
 					"ripemd160" => TryParseParameters(ctx, 1, TryParse20Bytes, out error, out var p) ? FragmentSingleParameter.ripemd160(p[0]) : null,
