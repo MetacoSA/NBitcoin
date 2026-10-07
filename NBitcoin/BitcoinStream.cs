@@ -260,7 +260,7 @@ namespace NBitcoin
 				if (len > (uint)MaxArraySize)
 					throw new ArgumentOutOfRangeException("Array size too big");
 				listLen = (int)len;
-				list = new List<T>(listLen);
+				list = new List<T>();
 				for (int i = 0; i < listLen; i++)
 				{
 					T obj = default;
@@ -292,7 +292,7 @@ namespace NBitcoin
 				if (len > (uint)MaxArraySize)
 					throw new ArgumentOutOfRangeException("Array size too big");
 				listLen = (int)len;
-				list = new TxInList(listLen);
+				list = new TxInList();
 				for (int i = 0; i < listLen; i++)
 				{
 					TxIn obj = default;
@@ -324,7 +324,7 @@ namespace NBitcoin
 				if (len > (uint)MaxArraySize)
 					throw new ArgumentOutOfRangeException("Array size too big");
 				listLen = (int)len;
-				list = new TxOutList(listLen);
+				list = new TxOutList();
 				for (int i = 0; i < listLen; i++)
 				{
 					TxOut obj = default;
