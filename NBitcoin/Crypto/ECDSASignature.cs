@@ -429,8 +429,6 @@ namespace NBitcoin.Crypto
 		}
 		public static bool IsValidDER(ReadOnlySpan<byte> bytes)
 		{
-			if (bytes == null)
-				throw new ArgumentNullException(nameof(bytes));
 			return ecdsa_signature_parse_der_lax(bytes, out _);
 		}
 		public static bool IsValidDER(byte[] bytes)
