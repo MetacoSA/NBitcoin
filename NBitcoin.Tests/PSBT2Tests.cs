@@ -123,6 +123,30 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void PSBT2DoesNotConstructIneffectiveRequiredLockTime()
+		{
+			var tx = Network.Main.CreateTransaction();
+			tx.Inputs.Add(new TxIn(new OutPoint(uint256.One, 0)));
+			tx.Inputs.Add(new TxIn(new OutPoint(uint256.One, 1)));
+			var psbt = Assert.IsType<PSBT2>(PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv2));
+			var firstInput = Assert.IsType<PSBT2Input>(psbt.Inputs[0]);
+			var secondInput = Assert.IsType<PSBT2Input>(psbt.Inputs[1]);
+
+			firstInput.LockTimeHeight = 1;
+			Assert.Equal(new LockTime(1), psbt.EffectiveLockTime());
+			Assert.Throws<InvalidOperationException>(() => psbt.GetGlobalTransaction());
+
+			var parsed = Assert.IsType<PSBT2>(PSBT.Parse(psbt.ToHex(), Network.Main));
+			Assert.Equal(new LockTime(1), parsed.EffectiveLockTime());
+			Assert.Throws<InvalidOperationException>(() => parsed.GetGlobalTransaction());
+
+			secondInput.Sequence = 1;
+			var globalTransaction = psbt.GetGlobalTransaction();
+			Assert.Equal(new LockTime(1), globalTransaction.LockTime);
+			Assert.Equal(new Sequence(1), globalTransaction.Inputs[1].Sequence);
+		}
+
+		[Fact]
 		public void PSBT2RejectsOutputAmountsOutsideConsensusRange()
 		{
 			var tx = Network.Main.CreateTransaction();
