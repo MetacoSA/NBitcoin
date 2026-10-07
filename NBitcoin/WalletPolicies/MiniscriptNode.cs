@@ -473,7 +473,12 @@ namespace NBitcoin.WalletPolicies
 				}
 		
 				// musig(KEY, KEY, ..., KEY)
-				using var frame = ctx.PushFrame();
+				if (!ctx.TryPushFrame(out var frame))
+				{
+					error = new MiniscriptError.TooDeep(ctx.Offset);
+					return false;
+				}
+				using var _ = frame;
 				frame.FragmentIndex = ctx.Offset;
 				var initialKeyType = ctx.ExpectedKeyType;
 				var wasNested = ctx.NetstedMusig;

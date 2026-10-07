@@ -447,7 +447,12 @@ namespace NBitcoin.WalletPolicies
 					"sh" => FragmentDescriptor.sh,
 					_ => null
 				};
-				using (var frame = ctx.PushFrame())
+				if (!ctx.TryPushFrame(out var frame))
+				{
+					error = new MiniscriptError.TooDeep(ctx.Offset);
+					return false;
+				}
+				using (frame)
 				{
 					frame.FragmentIndex = ctx.Offset;
 					ctx.Advance(match.Index + match.Length);
@@ -480,7 +485,12 @@ namespace NBitcoin.WalletPolicies
 						match = Regex.Match(ctx.Remaining, "^((wsh)|(wpkh))");
 						if (ctx.Network.Consensus.SupportSegwit && match.Success)
 						{
-							using (var frame2 = ctx.PushFrame())
+							if (!ctx.TryPushFrame(out var frame2))
+							{
+								error = new MiniscriptError.TooDeep(ctx.Offset);
+								return false;
+							}
+							using (frame2)
 							{
 								frame2.FragmentIndex = ctx.Offset;
 								ctx.Advance(match.Index + match.Length);
@@ -569,7 +579,12 @@ namespace NBitcoin.WalletPolicies
 
 			if (fragmentName.Success)
 			{
-				using var frame = ctx.PushFrame();
+				if (!ctx.TryPushFrame(out var frame))
+				{
+					error = new MiniscriptError.TooDeep(ctx.Offset);
+					return false;
+				}
+				using var _ = frame;
 				frame.FragmentIndex = ctx.Offset + fragmentName.Index;
 				ctx.Advance(fragmentName.Index + fragmentName.Length);
 				node = fragmentName.Value switch
@@ -689,6 +704,12 @@ namespace NBitcoin.WalletPolicies
 		{
 			error = null;
 			node = null;
+			if (!ctx.TryPushFrame(out var frame))
+			{
+				error = new MiniscriptError.TooDeep(ctx.Offset);
+				return false;
+			}
+			using var _ = frame;
 			if (!ctx.Peek(out var c, out error))
 				return false;
 			if (c == '{')
@@ -966,6 +987,10 @@ namespace NBitcoin.WalletPolicies
 		public record TooManyKeys(int Index, int Maximum) : MiniscriptError
 		{
 			public override string ToString() => $"Too many keys at index {Index}, maximum {Maximum}";
+		}
+		public record TooDeep(int Index) : MiniscriptError
+		{
+			public override string ToString() => $"Miniscript is nested too deeply at index {Index}";
 		}
 		public record TooFewParameters(int Index, int Expected) : MiniscriptError
 		{
