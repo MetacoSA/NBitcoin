@@ -17,18 +17,21 @@ namespace NBitcoin.WalletPolicies
 
 		internal class Frame : IDisposable
 		{
-			internal Frame(ParsingContext ctx)
+			internal Frame(ParsingContext ctx, int additionalNestingDepth)
 			{
 				this.ctx = ctx;
+				this.additionalNestingDepth = additionalNestingDepth;
 			}
 			public int ExpectedParameterCount;
 			public List<MiniscriptNode> Parameters = new List<MiniscriptNode>();
 			private ParsingContext ctx;
+			private readonly int additionalNestingDepth;
 
 			public int FragmentIndex { get; internal set; }
 			public void Dispose()
 			{
 				ctx._frames.Pop();
+				ctx._additionalNestingDepth -= additionalNestingDepth;
 			}
 		}
 		public ParsingContext(string miniscript, MiniscriptParsingSettings settings)
@@ -65,17 +68,18 @@ namespace NBitcoin.WalletPolicies
 		public int RemainingChars => Miniscript.Length - Offset;
 		public string Remaining => Miniscript[Offset..];
 		Stack<Frame> _frames = new();
+		int _additionalNestingDepth;
 		public Frame CurrentFrame => _frames.Peek();
-		public int AncestorNestingDepth => _frames.Count;
-		public bool TryPushFrame([NotNullWhen(true)] out Frame? frame)
+		public bool TryPushFrame([NotNullWhen(true)] out Frame? frame, int additionalNestingDepth = 0)
 		{
-			if (_frames.Count > MaxNestingDepth)
+			if (_frames.Count + _additionalNestingDepth + additionalNestingDepth > MaxNestingDepth)
 			{
 				frame = null;
 				return false;
 			}
-			frame = new Frame(this);
+			frame = new Frame(this, additionalNestingDepth);
 			_frames.Push(frame);
+			_additionalNestingDepth += additionalNestingDepth;
 			return true;
 		}
 		public KeyType? ExpectedKeyType { get; internal set; }
