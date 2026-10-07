@@ -527,6 +527,13 @@ namespace NBitcoin.WalletPolicies
 				TryParseExpression(ctx, out error, out node);
 			}
 
+			if (node is not null && !HasValidNestingDepth(node))
+			{
+				error = new MiniscriptError.TooDeep(ctx.Offset);
+				miniscript = null;
+				return false;
+			}
+
 			ctx.ExpectedKeyType ??= ctx.DefaultKeyType;
 			if (node is not null &&
 				ParametersVisitor.TryCreateParameters(node, out error, out var parameters) &&
@@ -563,6 +570,34 @@ namespace NBitcoin.WalletPolicies
 			error ??= new IncompleteExpression(ctx.Offset);
 			miniscript = null;
 			return false;
+		}
+
+		private static bool HasValidNestingDepth(MiniscriptNode node)
+		{
+			var pending = new Stack<(MiniscriptNode Node, int Depth)>();
+			pending.Push((node, 0));
+			while (pending.Count is not 0)
+			{
+				var (current, depth) = pending.Pop();
+				if (depth > ParsingContext.MaxNestingDepth)
+					return false;
+
+				if (current is Fragment fragment)
+				{
+					foreach (var parameter in fragment.Parameters)
+						pending.Push((parameter, depth + 1));
+				}
+				else if (current is TaprootBranchNode branch)
+				{
+					pending.Push((branch.Left, depth + 1));
+					pending.Push((branch.Right, depth + 1));
+				}
+				else if (current is MultipathNode multipath)
+				{
+					pending.Push((multipath.Target, depth + 1));
+				}
+			}
+			return true;
 		}
 
 		private static bool TryParseExpression(ParsingContext ctx, [MaybeNullWhen(true)] out MiniscriptError error, [MaybeNullWhen(false)] out MiniscriptNode node)

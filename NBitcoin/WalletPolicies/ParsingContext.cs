@@ -13,6 +13,8 @@ namespace NBitcoin.WalletPolicies
 {
 	class ParsingContext
 	{
+		internal const int MaxNestingDepth = 100;
+
 		internal class Frame : IDisposable
 		{
 			internal Frame(ParsingContext ctx)
@@ -66,7 +68,7 @@ namespace NBitcoin.WalletPolicies
 		public Frame CurrentFrame => _frames.Peek();
 		public bool TryPushFrame([NotNullWhen(true)] out Frame? frame)
 		{
-			if (_frames.Count > 100)
+			if (_frames.Count > MaxNestingDepth)
 			{
 				frame = null;
 				return false;
