@@ -64,13 +64,16 @@ namespace NBitcoin.WalletPolicies
 		public string Remaining => Miniscript[Offset..];
 		Stack<Frame> _frames = new();
 		public Frame CurrentFrame => _frames.Peek();
-		public Frame PushFrame()
+		public bool TryPushFrame([NotNullWhen(true)] out Frame? frame)
 		{
-			Frame f = new Frame(this);
 			if (_frames.Count > 100)
-				throw new FormatException("Too many frames");
-			_frames.Push(f);
-			return f;
+			{
+				frame = null;
+				return false;
+			}
+			frame = new Frame(this);
+			_frames.Push(frame);
+			return true;
 		}
 		public KeyType? ExpectedKeyType { get; internal set; }
 

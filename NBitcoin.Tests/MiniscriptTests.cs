@@ -251,7 +251,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void DeriveRejectsDeeplyNestedMiniscript()
+		public void ParseRejectsDeeplyNestedMiniscript()
 		{
 			var miniscript = "0";
 			for (var i = 0; i < 200; i++)
@@ -261,8 +261,32 @@ namespace NBitcoin.Tests
 			{
 				Dialect = MiniscriptDialect.Strict
 			};
-			var ex = Assert.Throws<FormatException>(() =>  Miniscript.Parse(miniscript, settings));
-			Assert.Contains("Too many frames", ex.Message);
+			Assert.False(Miniscript.TryParse(miniscript, settings, out var error, out _));
+			Assert.IsType<MiniscriptError.TooDeep>(error);
+
+			var ex = Assert.Throws<MiniscriptFormatException>(() => Miniscript.Parse(miniscript, settings));
+			Assert.IsType<MiniscriptError.TooDeep>(ex.Error);
+		}
+
+		[Theory]
+		[InlineData(98, true)]
+		[InlineData(200, false)]
+		public void TaprootTreeNestingIsBounded(int depth, bool expected)
+		{
+			var tree = "pk(A)";
+			for (var i = 0; i < depth; i++)
+				tree = $"{{{tree},pk(A)}}";
+
+			var settings = new MiniscriptParsingSettings(Network.RegTest)
+			{
+				Dialect = MiniscriptDialect.BIP388,
+				AllowedParameters = ParameterTypeFlags.NamedParameter
+			};
+			var parsed = Miniscript.TryParse($"tr(A,{tree})", settings, out var error, out _);
+
+			Assert.Equal(expected, parsed);
+			if (!expected)
+				Assert.IsType<MiniscriptError.TooDeep>(error);
 		}
 
 		[Fact]
