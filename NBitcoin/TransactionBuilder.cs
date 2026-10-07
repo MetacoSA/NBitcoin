@@ -1791,6 +1791,11 @@ namespace NBitcoin
 				{
 					ctx.Transaction.Outputs.Clear();
 					ctx.Transaction.Outputs.AddRange(collapsedOutputs);
+					foreach (var gctx in ctx.GroupContexts)
+					{
+						if (gctx.FeeTxOut is TxOut feeTxOut)
+							gctx.FeeTxOut = collapsedOutputs.Single(o => o.ScriptPubKey == feeTxOut.ScriptPubKey);
+					}
 				}
 			}
 			ctx.InsertOpenAssetMarker();
