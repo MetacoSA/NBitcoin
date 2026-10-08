@@ -356,11 +356,12 @@ namespace NBitcoin.DataEncoders
 			{
 				encodingType = null;
 
-				var epos = Bech32EncodingType.All
-											.Select(e => locate_errors(polymod ^ (uint)e.EncodingConstant, bechStringLen - 1))
-											.Where(e => e.Length != 0)
-											.OrderByDescending(e => e.Length)
-											.FirstOrDefault();
+				var epos = bechStringLen - 1 > GF1024_EXP.Length ? null :
+					Bech32EncodingType.All
+						.Select(e => locate_errors(polymod ^ (uint)e.EncodingConstant, bechStringLen - 1))
+						.Where(e => e.Length != 0)
+						.OrderByDescending(e => e.Length)
+						.FirstOrDefault();
 				errorPosition = epos;
 				if (epos is null || epos.Length == 0)
 					return false;

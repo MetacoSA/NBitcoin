@@ -146,8 +146,9 @@ namespace NBitcoin.OpenAsset
 
 			for (int i = 0; i < parts; i++)
 			{
-				yield return new AssetMoney(_Id, result + (remain > 0 ? 1 : 0));
-				remain--;
+				var remainder = Math.Sign(remain);
+				yield return new AssetMoney(_Id, result + remainder);
+				remain -= remainder;
 			}
 		}
 

@@ -212,7 +212,9 @@ namespace NBitcoin.DataEncoders
 			while (psz < encoded.Length && !IsSpace(encoded[psz]))
 			{
 				// Decode base58 character
-				int carry = mapBase58[(byte)encoded[psz]];
+				if (encoded[psz] > 127)
+					throw new FormatException("Invalid base58 data");
+				int carry = mapBase58[encoded[psz]];
 				if (carry == -1)  // Invalid b58 character
 					throw new FormatException("Invalid base58 data");
 				int i = 0;

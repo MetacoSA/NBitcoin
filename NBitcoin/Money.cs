@@ -422,8 +422,9 @@ namespace NBitcoin
 
 			for (int i = 0; i < parts; i++)
 			{
-				yield return Money.Satoshis(result + (remain > 0 ? 1 : 0));
-				remain--;
+				var remainder = Math.Sign(remain);
+				yield return Money.Satoshis(result + remainder);
+				remain -= remainder;
 			}
 		}
 

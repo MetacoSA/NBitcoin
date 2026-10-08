@@ -51,6 +51,14 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void LegacyMessageHashUsesUtf8ByteLength()
+		{
+			Assert.Equal(
+				"0cce5b32754cc1b4b53ef6b9884f1e634c0d798089ad8d83546c0db3c7fe15aa",
+				BIP322Signature.CreateMessageHash("\u00e9", legacy: true).ToString());
+		}
+
+		[Fact]
 		public void CanSign()
 		{
 			var k = new Key();

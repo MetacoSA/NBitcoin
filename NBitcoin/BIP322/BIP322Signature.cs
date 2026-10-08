@@ -108,7 +108,7 @@ namespace NBitcoin.BIP322
 				ms.WriteByte((byte)BITCOIN_SIGNED_MESSAGE_HEADER_BYTES.Length);
 				ms.Write(BITCOIN_SIGNED_MESSAGE_HEADER_BYTES, 0, BITCOIN_SIGNED_MESSAGE_HEADER_BYTES.Length);
 
-				var size = new VarInt((ulong)message.Length).ToBytes();
+				var size = new VarInt((ulong)bytes.Length).ToBytes();
 				ms.Write(size, 0, size.Length);
 				ms.Write(bytes, 0, bytes.Length);
 				return Hashes.DoubleSHA256(ms.ToArray());
