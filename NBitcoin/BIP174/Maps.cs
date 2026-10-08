@@ -83,10 +83,6 @@ public class Map : System.Collections.Generic.SortedDictionary<byte[], byte[]>
 	{
 
 	}
-	public Map(IComparer<byte[]> comparer) : base(comparer)
-	{
-
-	}
 	public void Add<T>(byte key, T val) => Add<T>([key], val);
 	public void Add<T>(byte[] key, T val)
 	{
