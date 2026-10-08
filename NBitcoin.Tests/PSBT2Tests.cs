@@ -147,6 +147,22 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void AddOutputUsesOutputIndex()
+		{
+			var tx = Network.Main.CreateTransaction();
+			tx.Inputs.Add(new TxIn(new OutPoint(uint256.One, 0)));
+			tx.Inputs.Add(new TxIn(new OutPoint(uint256.One, 1)));
+			var psbt = Assert.IsType<PSBT2>(PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv2));
+
+			var firstOutput = psbt.AddOutput(Money.Coins(1), Script.Empty);
+			psbt.Outputs.Add(firstOutput);
+			var secondOutput = psbt.AddOutput(Money.Coins(2), Script.Empty);
+
+			Assert.Equal(0U, firstOutput.Index);
+			Assert.Equal(1U, secondOutput.Index);
+		}
+
+		[Fact]
 		public void PSBT2RejectsOutputAmountsOutsideConsensusRange()
 		{
 			var tx = Network.Main.CreateTransaction();
