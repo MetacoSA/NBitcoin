@@ -356,7 +356,7 @@ namespace NBitcoin
 				var sigCountExpected = scriptPubKeyOps[0].GetInt();
 				if (sigCountExpected == null)
 					return false;
-				return sigCountExpected == scriptSigOps.Length + 1;
+				return sigCountExpected == scriptSigOps.Length - 1;
 			}
 			return true;
 

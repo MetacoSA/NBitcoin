@@ -1107,6 +1107,20 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void PayToMultiSigTemplateChecksSignatureCount()
+		{
+			var scriptPubKey = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, Enumerable.Range(0, 5).Select(_ => new Key().PubKey).ToArray());
+			var signature = new TransactionSignature(Encoders.Hex.DecodeData("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301"));
+
+			var validShape = PayToMultiSigTemplate.Instance.GenerateScriptSig(Enumerable.Repeat(signature, 3));
+			var undersignedShape = PayToMultiSigTemplate.Instance.GenerateScriptSig(new[] { signature });
+
+			Assert.True(PayToMultiSigTemplate.Instance.CheckScriptSig(validShape, scriptPubKey));
+			Assert.False(PayToMultiSigTemplate.Instance.CheckScriptSig(undersignedShape, scriptPubKey));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		[Obsolete]
 		public void CanExtractAddressesFromScript()
 		{
