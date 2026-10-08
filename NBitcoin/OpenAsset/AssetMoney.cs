@@ -141,14 +141,15 @@ namespace NBitcoin.OpenAsset
 		{
 			if (parts <= 0)
 				throw new ArgumentOutOfRangeException("Parts should be more than 0", "parts");
+			if (_Quantity < 0)
+				throw new InvalidOperationException("Cannot split a negative amount");
 			long remain;
 			long result = DivRem(_Quantity, parts, out remain);
 
 			for (int i = 0; i < parts; i++)
 			{
-				var remainder = Math.Sign(remain);
-				yield return new AssetMoney(_Id, result + remainder);
-				remain -= remainder;
+				yield return new AssetMoney(_Id, result + (remain > 0 ? 1 : 0));
+				remain--;
 			}
 		}
 

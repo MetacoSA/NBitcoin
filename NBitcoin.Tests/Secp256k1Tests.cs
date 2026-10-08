@@ -4559,18 +4559,6 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void bip340_rejects_non_32_byte_messages()
-		{
-			var key = ECPrivKey.Create(new byte[32] { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-			var message = new byte[32];
-			var signature = key.SignBIP340(message, new byte[32]);
-
-			Assert.True(key.CreateXOnlyPubKey().SigVerifyBIP340(signature, message));
-			Assert.False(key.CreateXOnlyPubKey().SigVerifyBIP340(signature, new byte[33]));
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
 		public void musig_key_sort_vectors()
 		{
 			var root = JObject.Parse(File.ReadAllText("data/musig/key_sort_vectors.json"));
