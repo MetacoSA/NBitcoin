@@ -214,7 +214,7 @@ public class PSBT2 : PSBT
 		var txOut = this.Network.Consensus.ConsensusFactory.CreateTxOut();
 		txOut.Value = value;
 		txOut.ScriptPubKey = scriptPubKey;
-		return new PSBT2Output(value, scriptPubKey, this, (uint)Inputs.Count);
+		return new PSBT2Output(value, scriptPubKey, this, (uint)Outputs.Count);
 	}
 	public override PSBT UpdateFrom(PSBT other)
 	{
