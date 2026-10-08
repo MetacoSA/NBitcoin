@@ -1215,7 +1215,7 @@ namespace NBitcoin
 			return this;
 		}
 
-		internal Script? GetScriptCode(PSBTCoin coin, PubKey pubKey)
+		private Script? GetScriptCode(PSBTCoin coin, PubKey pubKey)
 		{
 			var input = coin switch
 			{
