@@ -1045,14 +1045,11 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(coin));
 			if (coin.TxOut.ScriptPubKey.IsUnspendable)
 				throw new InvalidOperationException("You cannot add an unspendable coin");
-			var currentGroup = CurrentGroup;
-			if (_BuilderGroups.Any(g => g != currentGroup && g.CoinsWithOptions.ContainsKey(coin.Outpoint)))
-				throw new InvalidOperationException($"A coin with outpoint {coin.Outpoint} was already added to a different group");
-			var existing = currentGroup.CoinsWithOptions.TryGet(coin.Outpoint);
+			var existing = _BuilderGroups.Select(g => g.CoinsWithOptions.TryGet(coin.Outpoint)).FirstOrDefault(c => c != null);
 			if (existing != null &&
 				(existing.Coin.TxOut.Value != coin.TxOut.Value || existing.Coin.TxOut.ScriptPubKey != coin.TxOut.ScriptPubKey))
 				throw new InvalidOperationException($"A coin with outpoint {coin.Outpoint} was already added with a different amount or scriptPubKey");
-			currentGroup.CoinsWithOptions.AddOrReplace(coin.Outpoint, new CoinWithOptions(coin, options));
+			CurrentGroup.CoinsWithOptions.AddOrReplace(coin.Outpoint, new CoinWithOptions(coin, options));
 			return this;
 		}
 
