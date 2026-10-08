@@ -137,7 +137,10 @@ namespace NBitcoin
 
 		internal IEnumerable<T> GetPSBTCoins(IHDScriptPubKey? accountHDScriptPubKey, IHDKey accountKey, RootedKeyPath? accountKeyPath = null)
 		{
-			return GetHDKeys(accountHDScriptPubKey, accountKey, accountKeyPath)
+			var matches = GetHDKeys(accountHDScriptPubKey, accountKey, accountKeyPath);
+			if (accountHDScriptPubKey is null)
+				matches = matches.Where(m => m.Coin.IsCompatibleKey(m.PubKey));
+			return matches
 							.Select(c => c.Coin)
 							.Distinct();
 		}

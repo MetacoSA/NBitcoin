@@ -210,6 +210,17 @@ namespace NBitcoin
 			}
 		}
 
+		internal bool IsCompatibleKey(IPubKey pubKey)
+		{
+			var scriptPubKey = GetTxOut()?.ScriptPubKey;
+			if (scriptPubKey is null)
+				return false;
+			var transactionBuilder = Parent.CreateTransactionBuilder();
+			return transactionBuilder.IsCompatibleKeyFromScriptCode(pubKey, scriptPubKey) ||
+				pubKey is PubKey ecdsa && Parent.GetScriptCode(this, ecdsa) is Script scriptCode &&
+				transactionBuilder.IsCompatibleKeyFromScriptCode(ecdsa, scriptCode);
+		}
+
 		protected abstract PSBTHDKeyMatch CreateHDKeyMatch(IHDKey accountKey, KeyPath addressKeyPath, KeyValuePair<IPubKey, RootedKeyPath> kv);
 
 		public abstract TxOut? GetTxOut();

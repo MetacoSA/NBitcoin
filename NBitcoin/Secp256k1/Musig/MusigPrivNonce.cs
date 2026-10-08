@@ -41,6 +41,8 @@ namespace NBitcoin.Secp256k1.Musig
 		{
 			if (signingPubKey is null)
 				throw new ArgumentNullException(nameof(signingPubKey));
+			if (sessionId is not null && sessionId.Length != 32)
+				throw new ArgumentException("sessionId should be 32 bytes", nameof(sessionId));
 			byte[]? key32;
 			if (signingKey is null)
 			{
