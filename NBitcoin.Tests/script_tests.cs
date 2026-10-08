@@ -840,6 +840,35 @@ namespace NBitcoin.Tests
 			Assert.True(combined == partial3c);
 		}
 
+		[Theory]
+		[InlineData(3, true)]
+		[InlineData(417, false)]
+		[Trait("Core", "Core")]
+		public void script_combineSigs_handles_nested_redeem_scripts(int nestingDepth, bool includeP2Wsh)
+		{
+			var nestedScript = new Script().Hash.ScriptPubKey;
+			var nestedWitnessScript = new Script().WitHash.ScriptPubKey;
+			var terminalScript = new Script(OpcodeType.OP_RETURN);
+
+			Script CreateScriptSig(byte value)
+			{
+				var scriptSig = new Script(Op.GetPushOp(new[] { value }), Op.GetPushOp(terminalScript.ToBytes()));
+				for (var i = 1; i < nestingDepth; i++)
+					scriptSig += Op.GetPushOp((includeP2Wsh && i % 2 != 0 ? nestedWitnessScript : nestedScript).ToBytes());
+				return scriptSig;
+			}
+
+			var transaction = Network.Main.CreateTransaction();
+			transaction.Inputs.Add(new TxIn());
+			var scriptSig1 = CreateScriptSig(1);
+			var scriptSig2 = CreateScriptSig(2);
+
+			// 417 is the deepest chain of 23-byte P2SH programs that fits in EvalScript's
+			// 10,000-byte script limit. Combining it must not consume call-stack depth.
+			Assert.True(scriptSig1.Length <= 10_000);
+			Assert.Equal(scriptSig1, Script.CombineSignatures(nestedScript, transaction, 0, scriptSig1, scriptSig2));
+		}
+
 		private void SignSignature(Key[] keys, Transaction txFrom, Transaction txTo, int n, params Script[] knownRedeems)
 		{
 			Network.Main.CreateTransactionBuilder()

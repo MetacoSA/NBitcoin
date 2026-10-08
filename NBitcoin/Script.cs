@@ -974,44 +974,53 @@ namespace NBitcoin
 
 		private static Script? CombineSignatures(Script scriptPubKey, TransactionChecker checker, byte[][] sigs1, byte[][] sigs2, HashVersion hashVersion)
 		{
-			var template = StandardScripts.GetTemplateFromScriptPubKey(scriptPubKey);
+			var sigs1Length = sigs1.Length;
+			var sigs2Length = sigs2.Length;
+			var redeemScripts = new List<byte[]>();
+			Script? result;
 
-			if (template is PayToWitPubKeyHashTemplate)
+			while (true)
 			{
-				scriptPubKey = new KeyId(scriptPubKey.ToBytes(true).SafeSubarray(1, 20)).ScriptPubKey;
-				template = StandardScripts.GetTemplateFromScriptPubKey(scriptPubKey);
-			}
-			if (template == null || template is TxNullDataTemplate)
-				return PushAll(Max(sigs1, sigs2));
+				var template = StandardScripts.GetTemplateFromScriptPubKey(scriptPubKey);
 
-			if (template is PayToPubkeyTemplate || template is PayToPubkeyHashTemplate)
-				if (sigs1.Length == 0 || sigs1[0].Length == 0)
-					return PushAll(sigs2);
+				if (template is PayToWitPubKeyHashTemplate)
+				{
+					scriptPubKey = new KeyId(scriptPubKey.ToBytes(true).SafeSubarray(1, 20)).ScriptPubKey;
+					template = StandardScripts.GetTemplateFromScriptPubKey(scriptPubKey);
+				}
+
+				if (template is PayToScriptHashTemplate || template is PayToWitTemplate)
+				{
+					if (sigs1Length != 0 && sigs1[sigs1Length - 1].Length != 0 &&
+						sigs2Length != 0 && sigs2[sigs2Length - 1].Length != 0)
+					{
+						var redeemBytes = sigs1[--sigs1Length];
+						--sigs2Length;
+						redeemScripts.Add(redeemBytes);
+						scriptPubKey = new Script(redeemBytes);
+						continue;
+					}
+				}
+
+				var currentSigs1 = sigs1Length == sigs1.Length ? sigs1 : sigs1.Take(sigs1Length).ToArray();
+				var currentSigs2 = sigs2Length == sigs2.Length ? sigs2 : sigs2.Take(sigs2Length).ToArray();
+
+				if (template == null || template is TxNullDataTemplate)
+					result = PushAll(Max(currentSigs1, currentSigs2));
+				else if (template is PayToPubkeyTemplate || template is PayToPubkeyHashTemplate)
+					result = currentSigs1.Length == 0 || currentSigs1[0].Length == 0 ? PushAll(currentSigs2) : PushAll(currentSigs1);
+				else if (template is PayToScriptHashTemplate || template is PayToWitTemplate)
+					result = sigs1Length == 0 || sigs1[sigs1Length - 1].Length == 0 ? PushAll(currentSigs2) : PushAll(currentSigs1);
+				else if (template is PayToMultiSigTemplate)
+					result = CombineMultisig(scriptPubKey, checker, currentSigs1, currentSigs2, hashVersion);
 				else
-					return PushAll(sigs1);
-			if (template is PayToScriptHashTemplate || template is PayToWitTemplate)
-			{
-				if (sigs1.Length == 0 || sigs1[sigs1.Length - 1].Length == 0)
-					return PushAll(sigs2);
-
-				if (sigs2.Length == 0 || sigs2[sigs2.Length - 1].Length == 0)
-					return PushAll(sigs1);
-
-				var redeemBytes = sigs1[sigs1.Length - 1];
-				var redeem = new Script(redeemBytes);
-				sigs1 = sigs1.Take(sigs1.Length - 1).ToArray();
-				sigs2 = sigs2.Take(sigs2.Length - 1).ToArray();
-				var result = CombineSignatures(redeem, checker, sigs1, sigs2, hashVersion);
-				result += Op.GetPushOp(redeemBytes);
-				return result;
+					result = null;
+				break;
 			}
 
-			if (template is PayToMultiSigTemplate)
-			{
-				return CombineMultisig(scriptPubKey, checker, sigs1, sigs2, hashVersion);
-			}
-
-			return null;
+			for (var i = redeemScripts.Count - 1; i >= 0; i--)
+				result += Op.GetPushOp(redeemScripts[i]);
+			return result;
 		}
 
 		private static Script CombineMultisig(Script scriptPubKey, TransactionChecker checker, byte[][] sigs1, byte[][] sigs2, HashVersion hashVersion)
