@@ -417,6 +417,8 @@ namespace NBitcoin
 		{
 			if (parts <= 0)
 				throw new ArgumentOutOfRangeException(nameof(parts), "Parts should be more than 0");
+			if (_Satoshis < 0)
+				throw new InvalidOperationException("Cannot split a negative amount");
 			long remain;
 			long result = DivRem(_Satoshis, parts, out remain);
 

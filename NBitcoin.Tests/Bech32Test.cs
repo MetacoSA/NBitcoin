@@ -124,6 +124,24 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void LongRawDataHandlesInvalidChecksums()
+		{
+			var encoder = Encoders.Bech32("x");
+			encoder.StrictLength = false;
+			encoder.SquashBytes = true;
+			var data = Enumerable.Range(0, 700).Select(i => (byte)i).ToArray();
+			var encoded = encoder.EncodeRaw(data, Bech32EncodingType.BECH32);
+
+			Assert.Equal(data, encoder.DecodeDataRaw(encoded, out var encodingType));
+			Assert.Equal(Bech32EncodingType.BECH32, encodingType);
+
+			var invalid = encoded.ToCharArray();
+			foreach (var index in new[] { 10, 400, 800 })
+				invalid[index] = invalid[index] == 'q' ? 'p' : 'q';
+			Assert.Throws<FormatException>(() => encoder.DecodeDataRaw(new string(invalid), out _));
+		}
+
+		[Fact]
 		public void ValidAddress()
 		{
 			foreach (var address in VALID_ADDRESS)

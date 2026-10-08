@@ -25,6 +25,13 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void GetRewardRejectsNegativeHeight()
+		{
+			Assert.Throws<ArgumentOutOfRangeException>(() => Network.Main.GetReward(-1));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanGetNetworkFromName()
 		{
 			Assert.Equal(Network.GetNetwork("main"), Network.Main);

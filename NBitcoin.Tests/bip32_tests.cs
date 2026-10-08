@@ -138,6 +138,11 @@ namespace NBitcoin.Tests
 
 			childKey = key.Derive(1).Derive(1);
 			Assert.Throws<ArgumentException>(() => childKey.GetParentExtKey(pubkey));
+
+			var unrelatedParent = new ExtKey(key.Derive(2).PrivateKey, key.ChainCode, key.Depth, key.ParentFingerprint, key.Child);
+			var child = unrelatedParent.Derive(1);
+			var tamperedChild = new ExtKey(key.Derive(1).PrivateKey, child.ChainCode, child.Depth, child.ParentFingerprint, child.Child);
+			Assert.Throws<ArgumentException>(() => tamperedChild.GetParentExtKey(unrelatedParent.Neuter()));
 		}
 
 		[Fact]
@@ -163,6 +168,7 @@ namespace NBitcoin.Tests
 			var pubKey = key.Neuter().GetWif(Network.Main);
 			ExtKey key2 = new ExtKey(pubKey, underlying);
 			Assert.Equal(key.ToString(Network.Main), key2.ToString(Network.Main));
+			Assert.Throws<ArgumentException>(() => new ExtKey(pubKey.ExtPubKey, key.Derive(2).PrivateKey));
 		}
 
 		[Fact]

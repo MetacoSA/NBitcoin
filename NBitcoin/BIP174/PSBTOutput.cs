@@ -144,7 +144,7 @@ namespace NBitcoin
 
 		public byte[] ToBytes()
 		{
-			var m = new Map();
+			var m = new Map(BytesComparer.Instance);
 			this.FillMap(m);
 			return m.ToBytes();
 		}

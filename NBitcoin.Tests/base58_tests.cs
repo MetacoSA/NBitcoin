@@ -68,6 +68,7 @@ namespace NBitcoin.Tests
 		public void ShouldThrowFormatExceptionOnInvalidBase58()
 		{
 			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData("invalid"));
+			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData("\u0141"));
 			Encoders.Base58.DecodeData(" ");
 
 			// check that DecodeBase58 skips whitespace, but still fails with unexpected non-whitespace at the end.

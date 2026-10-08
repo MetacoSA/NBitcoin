@@ -410,7 +410,9 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(fromTx));
 			if (fromOutput == null)
 				throw new ArgumentNullException(nameof(fromOutput));
-			uint outputIndex = (uint)fromTx.Outputs.FindIndex(r => Object.ReferenceEquals(fromOutput, r));
+			int outputIndex = fromTx.Outputs.FindIndex(r => Object.ReferenceEquals(fromOutput, r));
+			if (outputIndex < 0)
+				throw new ArgumentException("The output is not present in the transaction", nameof(fromOutput));
 			Outpoint = new OutPoint(fromTx, outputIndex);
 			TxOut = fromOutput;
 		}

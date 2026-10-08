@@ -547,6 +547,7 @@ namespace NBitcoin.Tests
 			CanSplitMoneyCore(Money.Satoshis(1234), 2);
 			CanSplitMoneyCore(Money.Satoshis(1234), 10);
 			CanSplitMoneyCore(Money.Satoshis(1), 3);
+			Assert.Throws<InvalidOperationException>(() => Money.Satoshis(-1).Split(3).ToArray());
 			Assert.Throws<ArgumentOutOfRangeException>(() => CanSplitMoneyCore(Money.Satoshis(1000), 0));
 			CanSplitMoneyCore(Money.Satoshis(0), 10);
 
@@ -589,6 +590,7 @@ namespace NBitcoin.Tests
 			CanSplitAssetMoneyCore(gold, 1234, 2);
 			CanSplitAssetMoneyCore(gold, 1234, 10);
 			CanSplitAssetMoneyCore(gold, 1, 3);
+			Assert.Throws<InvalidOperationException>(() => new AssetMoney(gold, -1).Split(3).ToArray());
 			Assert.Throws<ArgumentOutOfRangeException>(() => CanSplitAssetMoneyCore(gold, 1000, 0));
 			CanSplitAssetMoneyCore(gold, 0, 10);
 

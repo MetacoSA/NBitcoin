@@ -1378,6 +1378,8 @@ namespace NBitcoin
 
 		public Money GetReward(int nHeight)
 		{
+			if (nHeight < 0)
+				throw new ArgumentOutOfRangeException(nameof(nHeight), "Height can't be negative");
 			long nSubsidy = new Money(50 * Money.COIN);
 			int halvings = nHeight / consensus.SubsidyHalvingInterval;
 

@@ -1045,7 +1045,8 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(coin));
 			if (coin.TxOut.ScriptPubKey.IsUnspendable)
 				throw new InvalidOperationException("You cannot add an unspendable coin");
-			if (CurrentGroup.CoinsWithOptions.TryGetValue(coin.Outpoint, out var existing) &&
+			var existing = _BuilderGroups.Select(g => g.CoinsWithOptions.TryGet(coin.Outpoint)).FirstOrDefault(c => c != null);
+			if (existing != null &&
 				(existing.Coin.TxOut.Value != coin.TxOut.Value || existing.Coin.TxOut.ScriptPubKey != coin.TxOut.ScriptPubKey))
 				throw new InvalidOperationException($"A coin with outpoint {coin.Outpoint} was already added with a different amount or scriptPubKey");
 			CurrentGroup.CoinsWithOptions.AddOrReplace(coin.Outpoint, new CoinWithOptions(coin, options));
@@ -1850,11 +1851,10 @@ namespace NBitcoin
 				var bytesPerInput = (double)estimatedSize / (double)ctx.Transaction.Inputs.Count;
 				var maxInputCount = (int)((double)MAX_TX_VSIZE / bytesPerInput);
 				var inputsToDelete = ctx.Transaction.Inputs.Count - maxInputCount;
-				var minValue = ctx.Selection.OfType<Coin>()
-										.OrderBy(c => c.Amount)
-										.Skip(inputsToDelete - 1)
-										.Select(c => c.Amount + Money.Satoshis(1))
-										.First();
+				var coins = ctx.Selection.OfType<Coin>().OrderBy(c => c.Amount).ToArray();
+				if (inputsToDelete <= 0 || coins.Length < inputsToDelete)
+					throw new NotEnoughFundsException("You may have enough funds to cover the target, but the transaction's size would be too high.", null, Money.Zero);
+				var minValue = coins[inputsToDelete - 1].Amount + Money.Satoshis(1);
 				ctx.SmallInputsExcluded = true;
 				foreach (var group in _BuilderGroups)
 				{

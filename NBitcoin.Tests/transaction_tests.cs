@@ -2316,6 +2316,26 @@ namespace NBitcoin.Tests
 			Assert.Equal(new FeeRate(1.0m).SatoshiPerByte, rate.SatoshiPerByte, 1);
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void OversizedColoredTransactionThrowsNotEnoughFundsException()
+		{
+			var destination = new Key();
+			var asset = new AssetId(new Key());
+			var coins = Enumerable.Range(0, 5000)
+				.Select(i => new ColoredCoin(
+					new AssetMoney(asset, 1),
+					new Coin(new OutPoint(uint256.Zero, i), new TxOut(Money.Satoshis(1000), destination))))
+				.ToArray();
+			var builder = Network.Main.CreateTransactionBuilder()
+				.AddCoins(coins)
+				.SendAsset(destination, new AssetMoney(asset, coins.Length))
+				.SetChange(destination);
+
+			var exception = Assert.Throws<NotEnoughFundsException>(() => builder.BuildTransaction(false));
+			Assert.Contains("transaction's size would be too high", exception.Message);
+		}
+
 		[Theory]
 		[InlineData(PSBTVersion.PSBTv0)]
 		[InlineData(PSBTVersion.PSBTv2)]
@@ -3463,6 +3483,19 @@ namespace NBitcoin.Tests
 
 
 			Assert.Throws<ArgumentException>(() => new ScriptCoin(c, key.PubKey.ScriptPubKey.WitHash.ScriptPubKey));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TransactionOutputHelpersRejectInvalidOutputReferences()
+		{
+			var previous = Network.CreateTransaction();
+			var output = previous.Outputs.Add(Money.Coins(1.0m), new Key());
+			var spending = Network.CreateTransaction();
+
+			Assert.Throws<InvalidOperationException>(() => spending.Inputs.Add(previous, -1));
+			Assert.Throws<ArgumentException>(() => new Coin(previous, output.Clone()));
+			Assert.Same(output, new Coin(previous, output).TxOut);
 		}
 
 		[Fact]

@@ -141,6 +141,8 @@ namespace NBitcoin.OpenAsset
 		{
 			if (parts <= 0)
 				throw new ArgumentOutOfRangeException("Parts should be more than 0", "parts");
+			if (_Quantity < 0)
+				throw new InvalidOperationException("Cannot split a negative amount");
 			long remain;
 			long result = DivRem(_Quantity, parts, out remain);
 

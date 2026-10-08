@@ -51,6 +51,14 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void LegacyMessageHashUsesUtf8ByteLength()
+		{
+			Assert.Equal(
+				"0cce5b32754cc1b4b53ef6b9884f1e634c0d798089ad8d83546c0db3c7fe15aa",
+				BIP322Signature.CreateMessageHash("\u00e9", legacy: true).ToString());
+		}
+
+		[Fact]
 		public void CanSign()
 		{
 			var k = new Key();
@@ -263,7 +271,7 @@ namespace NBitcoin.Tests
 
 			var toSpend = p2shAddress.Network.CreateTransaction();
 			toSpend.Inputs.Add(new TxIn(new OutPoint(uint256.Zero, 0xFFFFFFFF), new Script(OpcodeType.OP_0))); ;
-			toSpend.Outputs.Add(new TxOut(Money.Zero, p2shAddress.ScriptPubKey));
+			toSpend.Outputs.Add(new TxOut(Money.Coins(1), p2shAddress.ScriptPubKey));
 
 			var coins = new Coin[]
 			{
