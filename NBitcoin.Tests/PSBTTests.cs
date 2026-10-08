@@ -201,6 +201,52 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void PSBTInputRejectsConflictingWitnessUtxo()
+		{
+			var funding = Network.Main.CreateTransaction();
+			funding.Inputs.Add(OutPoint.Zero);
+			funding.Outputs.Add(Money.Coins(1), new Key().PubKey.WitHash.ScriptPubKey);
+			var spending = Network.Main.CreateTransaction();
+			spending.Inputs.Add(funding, 0);
+			spending.Outputs.Add(Money.Coins(0.5m), new Key());
+			var input = PSBT.FromTransaction(spending, Network.Main).Inputs[0];
+			input.NonWitnessUtxo = funding;
+
+			foreach (var conflicting in new[]
+			{
+				new TxOut(Money.Coins(2), funding.Outputs[0].ScriptPubKey),
+				new TxOut(funding.Outputs[0].Value, new Key())
+			})
+			{
+				input.WitnessUtxo = conflicting;
+				Assert.Contains(input.CheckSanity(), e => e.Message.Contains("witness_utxo does not match"));
+			}
+
+			input.WitnessUtxo = funding.Outputs[0].Clone();
+			Assert.Empty(input.CheckSanity());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TrySlimUtxoUsesNonWitnessUtxoOutput()
+		{
+			var funding = Network.Main.CreateTransaction();
+			funding.Inputs.Add(OutPoint.Zero);
+			funding.Outputs.Add(Money.Coins(1), new Key().PubKey.WitHash.ScriptPubKey);
+			var spending = Network.Main.CreateTransaction();
+			spending.Inputs.Add(funding, 0);
+			spending.Outputs.Add(Money.Coins(0.5m), new Key());
+			var input = PSBT.FromTransaction(spending, Network.Main).Inputs[0];
+			input.NonWitnessUtxo = funding;
+			input.WitnessUtxo = new TxOut(Money.Coins(2), new Key());
+
+			Assert.True(input.TrySlimUTXO());
+			Assert.Null(input.NonWitnessUtxo);
+			Assert.Equal(funding.Outputs[0].ToBytes(), input.WitnessUtxo.ToBytes());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void TransactionBuilderRejectsConflictingCoinsFromPSBT()
 		{
 			var outpoint = new OutPoint(RandomUtils.GetUInt256(), 0);

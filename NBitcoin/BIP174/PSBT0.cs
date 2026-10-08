@@ -56,12 +56,16 @@ public class PSBT0 : PSBT
 		for (int i = 0; i < other.Inputs.Count; i++)
 		{
 			result.tx.Inputs.Add(otx.Inputs[i]);
-			result.Inputs.Add(other.Inputs[i]);
+			var map = new NBitcoin.Map();
+			other.Inputs[i].FillMap(map);
+			result.Inputs.Add(new PSBT0Input(map, result, (uint)result.Inputs.Count));
 		}
 		for (int i = 0; i < other.Outputs.Count; i++)
 		{
 			result.tx.Outputs.Add(otx.Outputs[i]);
-			result.Outputs.Add(other.Outputs[i]);
+			var map = new NBitcoin.Map();
+			other.Outputs[i].FillMap(map);
+			result.Outputs.Add(new PSBT0Output(map, result, (uint)result.Outputs.Count, result.tx.Outputs[result.tx.Outputs.Count - 1]));
 		}
 		return result;
 	}

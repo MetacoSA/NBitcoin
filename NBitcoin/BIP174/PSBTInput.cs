@@ -460,6 +460,12 @@ namespace NBitcoin
 					errors.Add(new PSBTError(Index, "Global transaction referencing an out of bound output in non_witness_utxo"));
 					validOutpoint = false;
 				}
+				if (witness_utxo != null && validOutpoint)
+				{
+					var expected = NonWitnessUtxo.Outputs[PrevOut.N];
+					if (witness_utxo.Value != expected.Value || witness_utxo.ScriptPubKey != expected.ScriptPubKey)
+						errors.Add(new PSBTError(Index, "witness_utxo does not match the referenced output in non_witness_utxo"));
+				}
 				if (redeem_script != null && validOutpoint)
 				{
 					if (redeem_script.Hash.ScriptPubKey != NonWitnessUtxo.Outputs[PrevOut.N].ScriptPubKey)
@@ -969,11 +975,7 @@ namespace NBitcoin
 			if (Parent.Network.Consensus.NeverNeedPreviousTxForSigning ||
 				!coin.IsMalleable)
 			{
-				if (WitnessUtxo == null)
-				{
-					if (PrevOut.N < NonWitnessUtxo.Outputs.Count)
-						WitnessUtxo = NonWitnessUtxo.Outputs[PrevOut.N];
-				}
+				WitnessUtxo = NonWitnessUtxo.Outputs[PrevOut.N];
 				NonWitnessUtxo = null;
 				return true;
 			}

@@ -345,6 +345,21 @@ namespace NBitcoin.Tests
 			// Assert
 			// Verify that the UnsignedTransaction is preserved during serializtion roundtrip.
 			Assert.Equal(psbt.GetGlobalTransaction().ToHex(), parsed.GetGlobalTransaction().ToHex());
+			Assert.Equal(new uint[] { 0, 1 }, parsed.Outputs.Select(o => o.Index));
+		}
+
+		[Fact]
+		public void PSBT2OutputEqualityIncludesValue()
+		{
+			var tx = Network.Main.CreateTransaction();
+			tx.Outputs.Add(Money.Coins(1), Script.Empty);
+			var psbt = PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv2);
+			var output = psbt.Outputs[0];
+			var copy = psbt.Clone().Outputs[0];
+
+			Assert.Equal(output, copy);
+			copy.Value = Money.Coins(2);
+			Assert.NotEqual(output, copy);
 		}
 
 		[Fact]
@@ -384,6 +399,37 @@ namespace NBitcoin.Tests
 			Assert.Equal(2, coinJoin.Outputs.Count);
 			Assert.Single(first.Inputs);
 			Assert.Single(first.Outputs);
+		}
+
+		[Theory]
+		[InlineData(PSBTVersion.PSBTv0)]
+		[InlineData(PSBTVersion.PSBTv2)]
+		public void CoinJoinReconstructsCoinsWithSequentialIndexes(PSBTVersion version)
+		{
+			var firstTransaction = Network.Main.CreateTransaction();
+			firstTransaction.Inputs.Add(new OutPoint(uint256.One, 0));
+			firstTransaction.Inputs.Add(new OutPoint(uint256.One, 1));
+			firstTransaction.Outputs.Add(Money.Coins(1), Script.Empty);
+			firstTransaction.Outputs.Add(Money.Coins(2), Script.Empty);
+			var first = PSBT.FromTransaction(firstTransaction, Network.Main, version);
+
+			var secondTransaction = Network.Main.CreateTransaction();
+			secondTransaction.Inputs.Add(new OutPoint(uint256.One, 2));
+			secondTransaction.Inputs.Add(new OutPoint(uint256.One, 3));
+			secondTransaction.Outputs.Add(Money.Coins(3), Script.Empty);
+			secondTransaction.Outputs.Add(Money.Coins(4), Script.Empty);
+			var second = PSBT.FromTransaction(secondTransaction, Network.Main, version);
+
+			var coinJoin = first.CoinJoin(second);
+
+			Assert.Equal(new uint[] { 0, 1, 2, 3 }, coinJoin.Inputs.Select(i => i.Index));
+			Assert.Equal(new uint[] { 0, 1, 2, 3 }, coinJoin.Outputs.Select(o => o.Index));
+			Assert.Equal(new uint[] { 0, 1, 2, 3 }, coinJoin.Inputs.Select(i => i.PrevOut.N));
+			Assert.Equal(new Money[] { Money.Coins(1), Money.Coins(2), Money.Coins(3), Money.Coins(4) }, coinJoin.Outputs.Select(o => o.Value));
+			Assert.All(coinJoin.Inputs, input => Assert.Same(coinJoin, input.PSBT));
+			Assert.All(coinJoin.Outputs, output => Assert.Same(coinJoin, output.PSBT));
+			Assert.NotSame(second.Inputs[0], coinJoin.Inputs[2]);
+			Assert.NotSame(second.Outputs[0], coinJoin.Outputs[2]);
 		}
 	}
 }
