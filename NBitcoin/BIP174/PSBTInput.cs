@@ -96,10 +96,7 @@ namespace NBitcoin
 				if (hd_taprootkeypaths.ContainsKey(pubkey3))
 					throw new FormatException(
 						"Invalid PSBTOutput, duplicate key for PSBT_IN_TAP_BIP32_DERIVATION");
-				var bs = new BitcoinStream(kv.Value);
-				List<uint256> hashes = null!;
-				bs.ReadWrite(ref hashes);
-				var pos = (int)bs.Inner.Position;
+				var hashes = ReadTaprootKeyPathHashes(kv.Value, out var pos);
 				KeyPath path2 = KeyPath.FromBytes(kv.Value.Skip(pos + 4).ToArray());
 				hd_taprootkeypaths.Add(pubkey3,
 					new TaprootKeyPath(
