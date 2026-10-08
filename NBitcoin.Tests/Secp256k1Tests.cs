@@ -3780,6 +3780,17 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void musig_nonce_rejects_invalid_session_id_length()
+		{
+			using var key = ECPrivKey.Create(new byte[32] { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+			var pubKey = key.CreatePubKey();
+
+			Assert.Throws<ArgumentException>(() => MusigPrivNonce.GenerateMusigNonce(pubKey, ctx, new byte[31], key, null, null, null));
+			Assert.Throws<ArgumentException>(() => MusigPrivNonce.GenerateMusigNonce(pubKey, ctx, new byte[33], key, null, null, null));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void musig_MusigTest()
 		{
 			foreach (var useTweak in new[] { false, true })
