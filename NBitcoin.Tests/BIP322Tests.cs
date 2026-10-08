@@ -271,7 +271,7 @@ namespace NBitcoin.Tests
 
 			var toSpend = p2shAddress.Network.CreateTransaction();
 			toSpend.Inputs.Add(new TxIn(new OutPoint(uint256.Zero, 0xFFFFFFFF), new Script(OpcodeType.OP_0))); ;
-			toSpend.Outputs.Add(new TxOut(Money.Zero, p2shAddress.ScriptPubKey));
+			toSpend.Outputs.Add(new TxOut(Money.Coins(1), p2shAddress.ScriptPubKey));
 
 			var coins = new Coin[]
 			{
