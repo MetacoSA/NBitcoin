@@ -322,7 +322,9 @@ namespace NBitcoin.Tests
 			var builder = Network.Main.CreateTransactionBuilder();
 			builder.CoinFinder = _ => throw new InvalidOperationException("CoinFinder should not be called");
 			builder.AddCoin(new Coin(outpoint, txOut));
-			builder.Then().AddCoin(new Coin(outpoint, txOut.Clone()));
+			var exception = Assert.Throws<InvalidOperationException>(() =>
+				builder.Then().AddCoin(new Coin(outpoint, txOut.Clone())));
+			Assert.Contains("different group", exception.Message);
 
 			foreach (var conflictingTxOut in new[]
 			{
@@ -331,8 +333,8 @@ namespace NBitcoin.Tests
 			})
 			{
 				builder.Then();
-				var exception = Assert.Throws<InvalidOperationException>(() => builder.AddCoin(new Coin(outpoint, conflictingTxOut)));
-				Assert.Contains("different amount or scriptPubKey", exception.Message);
+				exception = Assert.Throws<InvalidOperationException>(() => builder.AddCoin(new Coin(outpoint, conflictingTxOut)));
+				Assert.Contains("different group", exception.Message);
 			}
 		}
 
