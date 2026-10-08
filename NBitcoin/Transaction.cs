@@ -728,7 +728,7 @@ namespace NBitcoin
 
 		public TxIn Add(Transaction prevTx, int outIndex)
 		{
-			if (outIndex >= prevTx.Outputs.Count)
+			if (outIndex < 0 || outIndex >= prevTx.Outputs.Count)
 				throw new InvalidOperationException("Output " + outIndex + " is not present in the prevTx");
 			var @in = CreateNewTxIn();
 			@in.PrevOut.Hash = prevTx.GetHash();
