@@ -26,6 +26,26 @@ namespace NBitcoin
 			Parent = parent;
 		}
 
+		protected static List<uint256> ReadTaprootKeyPathHashes(byte[] value, out int position)
+		{
+			var stream = new BitcoinStream(value);
+			ulong hashCount = 0;
+			stream.ReadWriteAsVarInt(ref hashCount);
+			var remaining = stream.Inner.Length - stream.Inner.Position;
+			if (remaining < 4 || hashCount > (ulong)(remaining - 4) / 32)
+				throw new FormatException("Invalid PSBT. Taproot BIP32 derivation has an invalid leaf hash count");
+
+			var hashes = new List<uint256>((int)hashCount);
+			for (ulong i = 0; i < hashCount; i++)
+			{
+				uint256 hash = null!;
+				stream.ReadWrite(ref hash);
+				hashes.Add(hash);
+			}
+			position = (int)stream.Inner.Position;
+			return hashes;
+		}
+
 		public SortedDictionary<byte[], byte[]> Unknown => unknown;
 
 		public HDKeyPathKVMap HDKeyPaths
