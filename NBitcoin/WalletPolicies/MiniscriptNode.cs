@@ -834,7 +834,8 @@ namespace NBitcoin.WalletPolicies
 						(PubKeyValue, KeyType.Classic) => true,
 						(TaprootPubKeyValue, KeyType.Taproot) => true,
 						(TaprootPubKeyValue or PubKeyValue, null) => true,
-						(HDKeyValue, _) => true,
+						(HDKeyValue, null) => true,
+						(HDKeyValue hdKey, KeyType requiredType) => hdKey.KeyType == requiredType,
 						(MultipathNode, _) => true,
 						_ => false
 					};

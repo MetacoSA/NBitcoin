@@ -502,6 +502,7 @@ namespace NBitcoin
 		{
 			scriptSig = scriptSig ?? Script.Empty;
 			witness = witness ?? WitScript.Empty;
+			Stack.Clear();
 			ExecutionData = new ExecutionData();
 			SetError(ScriptError.UnknownError);
 			if ((ScriptVerify & ScriptVerify.SigPushOnly) != 0 && !scriptSig.IsPushOnly)

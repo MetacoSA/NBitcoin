@@ -644,6 +644,22 @@ namespace NBitcoin.Tests
 			Assert.Empty(parsed.Parameters);
 		}
 
+		[Fact]
+		public void HDKeyValueMustMatchRequiredKeyType()
+		{
+			var hdKey = new ExtKey();
+			var classic = new Value.HDKeyValue(hdKey, KeyType.Classic);
+			var taproot = new Value.HDKeyValue(hdKey, KeyType.Taproot);
+			var multipath = new MultipathNode(0, 1, classic, true);
+
+			Assert.True(new ParameterRequirement.Key(KeyType.Classic).Check(classic));
+			Assert.False(new ParameterRequirement.Key(KeyType.Classic).Check(taproot));
+			Assert.True(new ParameterRequirement.Key(KeyType.Taproot).Check(taproot));
+			Assert.False(new ParameterRequirement.Key(KeyType.Taproot).Check(classic));
+			Assert.True(new ParameterRequirement.Key(null).Check(classic));
+			Assert.True(new ParameterRequirement.Key(KeyType.Taproot).Check(multipath));
+		}
+
 		[Theory]
 		[InlineData("", typeof(MiniscriptError.IncompleteExpression))]
 		[InlineData("and_v(v:pk(A),older(A))", typeof(MiniscriptError.MixedParameterType))]

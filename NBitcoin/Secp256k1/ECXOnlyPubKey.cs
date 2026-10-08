@@ -85,7 +85,7 @@ namespace NBitcoin.Secp256k1
 		{
 			if (signature is null)
 				return false;
-			if (msg32.Length < 32)
+			if (msg32.Length != 32)
 				return false;
 			Span<byte> buf = stackalloc byte[32];
 			SHA256 sha = new SHA256();
@@ -95,7 +95,7 @@ namespace NBitcoin.Secp256k1
 			sha.Write(buf);
 			Q.x.WriteToSpan(buf);
 			sha.Write(buf);
-			sha.Write(msg32.Slice(0, 32));
+			sha.Write(msg32);
 			sha.GetHash(buf);
 			var e = new Scalar(buf, out _);
 

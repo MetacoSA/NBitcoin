@@ -228,6 +228,8 @@ namespace NBitcoin.Tests
 			Assert.Equal(scriptPubKey, PayToTaprootTemplate.Instance.GenerateScriptPubKey(pubkey));
 #pragma warning restore CS0618 // Type or member is obsolete
 			Assert.Equal(pubkey, PayToTaprootTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey));
+			Assert.True(PayToTaprootTemplate.Instance.CheckScriptSig(Script.Empty, scriptPubKey));
+			Assert.False(PayToTaprootTemplate.Instance.CheckScriptSig(new Script("0"), scriptPubKey));
 
 			// signature has wrong length
 			scriptPubKey = new Script("1 53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda34300");
@@ -908,6 +910,22 @@ namespace NBitcoin.Tests
 			var pushdata4Stack = context.Clone();
 			Assert.True(pushdata4Stack.EvalScript(pushdata4, new TransactionChecker(Network.CreateTransaction(), 0), HashVersion.Original));
 			AssertEx.StackEquals(pushdata4Stack.Stack, directStack.Stack);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void VerifyScriptClearsStackButEvalScriptDoesNot()
+		{
+			var context = new ScriptEvaluationContext();
+			var checker = new TransactionChecker(Network.CreateTransaction(), 0);
+
+			Assert.True(context.EvalScript(new Script("1"), checker, HashVersion.Original));
+			Assert.Single(context.Stack);
+			Assert.True(context.VerifyScript(Script.Empty, WitScript.Empty, new Script("OP_DEPTH 0 OP_EQUAL"), checker));
+			Assert.Single(context.Stack);
+
+			Assert.True(context.EvalScript(new Script("1"), checker, HashVersion.Original));
+			Assert.Equal(2, context.Stack.Count);
 		}
 
 		[Theory]

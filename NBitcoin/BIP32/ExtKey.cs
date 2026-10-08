@@ -122,6 +122,8 @@ namespace NBitcoin
 				throw new ArgumentNullException(nameof(extPubKey));
 			if (privateKey is null)
 				throw new ArgumentNullException(nameof(privateKey));
+			if (extPubKey.PubKey != privateKey.PubKey)
+				throw new ArgumentException("The private key does not match the extended public key", nameof(privateKey));
 			this.nChild = extPubKey.nChild;
 			this.nDepth = extPubKey.nDepth;
 			this.vchChainCode = extPubKey.vchChainCode;
@@ -493,11 +495,14 @@ namespace NBitcoin
 			if (!l.Slice(32, 32).SequenceEqual(vchChainCode))
 				throw new InvalidOperationException("The derived chain code of the parent is not equal to this child chain code");
 			var kPar = this.PrivateKey._ECKey.sec + parse256LL.Negate();
-			return new ExtKey(new Key(new Secp256k1.ECPrivKey(kPar, this.PrivateKey._ECKey.ctx, true), true),
+			var parentExtKey = new ExtKey(new Key(new Secp256k1.ECPrivKey(kPar, this.PrivateKey._ECKey.ctx, true), true),
 				parent.vchChainCode,
 				parent.Depth,
 				parent.ParentFingerprint,
 				parent.nChild);
+			if (parentExtKey.PrivateKey.PubKey != parent.PubKey)
+				throw new ArgumentException("The supplied parent public key does not correspond to this child key", nameof(parent));
+			return parentExtKey;
 #else
 			byte[] ll = new byte[32];
 			byte[] lr = new byte[32];
@@ -527,6 +532,8 @@ namespace NBitcoin
 				parent.Depth,
 				parent.ParentFingerprint,
 				parent.nChild);
+			if (parentExtKey.PrivateKey.PubKey != parent.PubKey)
+				throw new ArgumentException("The supplied parent public key does not correspond to this child key", nameof(parent));
 			return parentExtKey;
 #endif
 		}
