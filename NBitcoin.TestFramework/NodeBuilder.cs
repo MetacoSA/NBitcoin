@@ -170,7 +170,18 @@ namespace NBitcoin.Tests
 
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
-				ZipFile.ExtractToDirectory(zip, extractDirectory);
+				// From https://feedback.telerik.com/document-processing/1518667-ziplibrary-allow-zipfile-extracttodirectory-to-overwrite-existing-files-when-extract-zip
+
+				using var source = ZipFile.Open(zip, ZipArchiveMode.Read, null);
+				foreach (var entry in source.Entries)
+				{
+					var fullPath = Path.GetFullPath(Path.Combine(extractDirectory, entry.FullName));
+
+					if (Path.GetFileName(fullPath).Length == 0) continue;
+					Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+					// The boolean parameter determines whether an existing file that has the same name as the destination file should be overwritten
+					entry.ExtractToFile(fullPath, true);
+				}
 			}
 			else
 			{
