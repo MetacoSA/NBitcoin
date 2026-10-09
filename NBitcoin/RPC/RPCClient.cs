@@ -1352,6 +1352,7 @@ namespace NBitcoin.RPC
 				ChainWork = new uint256(result.Value<string>("chainwork")),
 				SizeOnDisk = result.Value<ulong?>("size_on_disk") ?? 0,
 				Pruned = result.Value<bool>("pruned"),
+				PruneHeight = result.Value<ulong?>("pruneheight") ?? 0,
 				SoftForks = softForks,
 				Bip9SoftForks = bip9SoftForks
 			};
@@ -2680,6 +2681,7 @@ namespace NBitcoin.RPC
 		public uint256 ChainWork { get; set; }
 		public ulong SizeOnDisk { get; set; }
 		public bool Pruned { get; set; }
+		public ulong PruneHeight { get; set; }
 
 		[Obsolete]
 		public List<SoftFork> SoftForks { get; set; }
