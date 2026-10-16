@@ -93,6 +93,7 @@ namespace NBitcoin.RPC
 		combinepsbt,
 		finalizepsbt,
 		createpsbt,
+		[Obsolete("Use converttopsbt instead")]
 		convertopsbt,
 		walletprocesspsbt,
 		walletcreatefundedpsbt,
@@ -127,6 +128,13 @@ namespace NBitcoin.RPC
 		savemempool,
 		getblockfrompeer,
 		disconnectnode,
-		importdescriptors
+		importdescriptors,
+		getopenrpcinfo,
+		exportasmap,
+		addhdkey,
+		derivehdkey,
+		exportwatchonlywallet,
+		converttopsbt,
+		psbtbumpfee
 	}
 }

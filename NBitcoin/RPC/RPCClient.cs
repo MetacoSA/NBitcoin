@@ -1272,6 +1272,46 @@ namespace NBitcoin.RPC
 			}
 		}
 
+		public JObject GetOpenRPCInfo(bool showHidden = false)
+		{
+			return GetOpenRPCInfoAsync(showHidden).GetAwaiter().GetResult();
+		}
+
+		public async Task<JObject> GetOpenRPCInfoAsync(bool showHidden = false, CancellationToken cancellationToken = default)
+		{
+			var response = await SendCommandAsync(RPCOperations.getopenrpcinfo, cancellationToken, showHidden).ConfigureAwait(false);
+			return (JObject)response.Result;
+		}
+
+		public JObject DiscoverRPC()
+		{
+			return DiscoverRPCAsync().GetAwaiter().GetResult();
+		}
+
+		public async Task<JObject> DiscoverRPCAsync(CancellationToken cancellationToken = default)
+		{
+			var response = await SendCommandAsync("rpc.discover", cancellationToken).ConfigureAwait(false);
+			return (JObject)response.Result;
+		}
+
+		public ExportAsMapResponse ExportAsMap(string path)
+		{
+			return ExportAsMapAsync(path).GetAwaiter().GetResult();
+		}
+
+		public async Task<ExportAsMapResponse> ExportAsMapAsync(string path, CancellationToken cancellationToken = default)
+		{
+			if (path == null)
+				throw new ArgumentNullException(nameof(path));
+			var response = await SendCommandAsync(RPCOperations.exportasmap, cancellationToken, path).ConfigureAwait(false);
+			return new ExportAsMapResponse
+			{
+				Path = response.Result.Value<string>("path"),
+				BytesWritten = response.Result.Value<long>("bytes_written"),
+				FileHash = uint256.Parse(response.Result.Value<string>("file_hash"))
+			};
+		}
+
 #endregion
 
 #region Block chain and UTXO
@@ -1353,7 +1393,16 @@ namespace NBitcoin.RPC
 				SizeOnDisk = result.Value<ulong?>("size_on_disk") ?? 0,
 				Pruned = result.Value<bool>("pruned"),
 				SoftForks = softForks,
-				Bip9SoftForks = bip9SoftForks
+				Bip9SoftForks = bip9SoftForks,
+				BackgroundValidation = result["backgroundvalidation"] is JObject backgroundValidation ? new BackgroundValidationInfo
+				{
+					SnapshotHeight = backgroundValidation.Value<ulong>("snapshotheight"),
+					Blocks = backgroundValidation.Value<ulong>("blocks"),
+					BestBlockHash = uint256.Parse(backgroundValidation.Value<string>("bestblockhash")),
+					ChainWork = uint256.Parse(backgroundValidation.Value<string>("chainwork")),
+					MedianTime = backgroundValidation.Value<ulong>("mediantime"),
+					VerificationProgress = backgroundValidation.Value<float>("verificationprogress")
+				} : null
 			};
 #pragma warning restore CS0612 // Type or member is obsolete
 
@@ -1786,10 +1835,13 @@ namespace NBitcoin.RPC
 				return null;
 
 			var jobj = (JObject)response.Result;
+			var legacyVirtualSize = (jobj["size"] ?? jobj["vsize"]).Value<int>();
 			return new MempoolEntry
 			{
 				TransactionId = txid,
-				VirtualSizeBytes = (jobj["size"] ?? jobj["vsize"]).Value<int>(),
+				VirtualSizeBytes = legacyVirtualSize,
+				AdjustedVirtualSizeBytes = jobj.Value<int?>("vsize_adjusted") ?? legacyVirtualSize,
+				BIP141VirtualSizeBytes = jobj.Value<int?>("vsize_bip141"),
 				Time = Utils.UnixTimeToDateTime(jobj["time"].Value<long>()),
 				Height = jobj["height"].Value<int>(),
 				DescendantCount = jobj["descendantcount"].Value<int>(),
@@ -1876,9 +1928,13 @@ namespace NBitcoin.RPC
 			return new MempoolAcceptResult
 			{
 				TxId = uint256.Parse(first["txid"]!.Value<string>()),
+				TransactionIdWithWitness = first["wtxid"] is JToken wtxid ? uint256.Parse(wtxid.Value<string>()) : null,
 				IsAllowed = allowed,
 				RejectCode = rejectedCode,
-				RejectReason = rejectedReason
+				RejectReason = rejectedReason,
+				RejectDetails = first.Value<string>("reject-details"),
+				AdjustedVirtualSizeBytes = first.Value<int?>("vsize_adjusted") ?? first.Value<int?>("vsize"),
+				BIP141VirtualSizeBytes = first.Value<int?>("vsize_bip141")
 			};
 		}
 #nullable restore
@@ -2068,6 +2124,7 @@ namespace NBitcoin.RPC
 				Hash = json["hash"] is JToken token ? uint256.Parse(token.Value<string>()) : null,
 				Size = json.Value<uint>("size"),
 				VirtualSize = json.Value<uint>("vsize"),
+				AdjustedVirtualSize = json.Value<uint?>("vsize_adjusted"),
 				Version = json.Value<uint>("version"),
 				LockTime = new LockTime(json.Value<uint>("locktime")),
 				BlockHash = json["blockhash"] != null ? uint256.Parse(json.Value<string>("blockhash")) : null,
@@ -2142,6 +2199,11 @@ namespace NBitcoin.RPC
 			return EstimateSmartFeeAsync(confirmationTarget, estimateMode).GetAwaiter().GetResult();
 		}
 
+		public EstimateSmartFeeResponse EstimateSmartFeeWithOptions(int confirmationTarget, EstimateSmartFeeOptions options, EstimateSmartFeeMode? estimateMode = null)
+		{
+			return EstimateSmartFeeWithOptionsAsync(confirmationTarget, options, estimateMode).GetAwaiter().GetResult();
+		}
+
 		/// <summary>
 		/// (>= Bitcoin Core v0.14) Tries to get the estimated fee per kb for being confirmed in nblock
 		/// If Capabilities is set and estimatesmartfee is not supported, will fallback on estimatefee
@@ -2151,7 +2213,7 @@ namespace NBitcoin.RPC
 		/// <returns>The estimated fee rate, block number where estimate was found or null</returns>
 		public async Task<EstimateSmartFeeResponse> TryEstimateSmartFeeAsync(int confirmationTarget, EstimateSmartFeeMode? estimateMode = null, CancellationToken cancellationToken = default)
 		{
-			return await EstimateSmartFeeImplAsync(confirmationTarget, estimateMode, cancellationToken).ConfigureAwait(false);
+			return await EstimateSmartFeeImplAsync(confirmationTarget, estimateMode, null, cancellationToken).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -2176,16 +2238,29 @@ namespace NBitcoin.RPC
 		/// <exception cref="NoEstimationException">when fee couldn't be estimated</exception>
 		public async Task<EstimateSmartFeeResponse> EstimateSmartFeeAsync(int confirmationTarget, EstimateSmartFeeMode? estimateMode = null, CancellationToken cancellationToken = default)
 		{
-			var feeRate = await EstimateSmartFeeImplAsync(confirmationTarget, estimateMode, cancellationToken);
+			var feeRate = await EstimateSmartFeeImplAsync(confirmationTarget, estimateMode, null, cancellationToken).ConfigureAwait(false);
 			if (feeRate == null)
 				throw new NoEstimationException(confirmationTarget);
 			return feeRate;
 		}
 
+		public async Task<EstimateSmartFeeResponse> EstimateSmartFeeWithOptionsAsync(int confirmationTarget, EstimateSmartFeeOptions options, EstimateSmartFeeMode? estimateMode = null, CancellationToken cancellationToken = default)
+		{
+			if (options == null)
+				throw new ArgumentNullException(nameof(options));
+			return await EstimateSmartFeeCoreAsync(confirmationTarget, estimateMode, options, cancellationToken).ConfigureAwait(false);
+		}
+
 		/// <summary>
 		/// (>= Bitcoin Core v0.14)
 		/// </summary>
-		private async Task<EstimateSmartFeeResponse> EstimateSmartFeeImplAsync(int confirmationTarget, EstimateSmartFeeMode? estimateMode = null, CancellationToken cancellationToken = default)
+		private async Task<EstimateSmartFeeResponse> EstimateSmartFeeImplAsync(int confirmationTarget, EstimateSmartFeeMode? estimateMode, EstimateSmartFeeOptions options, CancellationToken cancellationToken)
+		{
+			var response = await EstimateSmartFeeCoreAsync(confirmationTarget, estimateMode, options, cancellationToken).ConfigureAwait(false);
+			return response?.FeeRate is null ? null : response;
+		}
+
+		private async Task<EstimateSmartFeeResponse> EstimateSmartFeeCoreAsync(int confirmationTarget, EstimateSmartFeeMode? estimateMode, EstimateSmartFeeOptions options, CancellationToken cancellationToken)
 		{
 			if (Capabilities == null || Capabilities.SupportEstimateSmartFee)
 			{
@@ -2193,6 +2268,19 @@ namespace NBitcoin.RPC
 				if (estimateMode != null)
 				{
 					parameters.Add(estimateMode.ToString().ToUpperInvariant());
+				}
+				else if (options != null)
+				{
+					parameters.Add("ECONOMICAL");
+				}
+				if (options != null)
+				{
+					var jOptions = new JObject();
+					if (options.FeeRateEstimator is FeeRateEstimator estimator)
+						jOptions.Add("fee_rate_estimator", FeeRateEstimatorToString(estimator));
+					if (options.Verbosity is int verbosity)
+						jOptions.Add("verbosity", verbosity);
+					parameters.Add(jOptions);
 				}
 
 				var request = new RPCRequest(RPCOperations.estimatesmartfee.ToString(), parameters.ToArray());
@@ -2204,17 +2292,21 @@ namespace NBitcoin.RPC
 					return null;
 				}
 				var resultJToken = response.Result;
-				var feeRateDecimal = resultJToken.Value<decimal>("feerate"); // estimate fee-per-kilobyte (in BTC)
+				var feeRateDecimal = resultJToken.Value<decimal?>("feerate"); // estimate fee-per-kilobyte (in BTC)
 				var blocks = resultJToken.Value<int>("blocks"); // block number where estimate was found
-				var money = Money.Coins(feeRateDecimal);
-				if (money.Satoshi <= 0)
-				{
-					return null;
-				}
+				var money = feeRateDecimal is decimal feeRate ? Money.Coins(feeRate) : null;
 				return new EstimateSmartFeeResponse
 				{
-					FeeRate = new FeeRate(money),
-					Blocks = blocks
+					FeeRate = money is null || money.Satoshi <= 0 ? null : new FeeRate(money),
+					Blocks = blocks,
+					Estimator = ParseFeeRateEstimator(resultJToken.Value<string>("estimator")),
+					Errors = resultJToken["errors"]?.Values<string>().ToArray(),
+					MempoolHealthStatistics = resultJToken["mempool_health_statistics"]?.Select(s => new MempoolHealthStatistics
+					{
+						BlockHeight = s.Value<int>("block_height"),
+						BlockWeight = s.Value<long>("block_weight"),
+						MempoolTransactionsWeight = s.Value<long>("mempool_txs_weight")
+					}).ToArray()
 				};
 			}
 			else
@@ -2238,6 +2330,28 @@ namespace NBitcoin.RPC
 					return null;
 				return new EstimateSmartFeeResponse() { FeeRate = new FeeRate(money), Blocks = confirmationTarget };
 			}
+		}
+
+		private static string FeeRateEstimatorToString(FeeRateEstimator estimator)
+		{
+			return estimator switch
+			{
+				FeeRateEstimator.Auto => "auto",
+				FeeRateEstimator.BlockPolicy => "block_policy",
+				FeeRateEstimator.MempoolPolicy => "mempool_policy",
+				_ => throw new ArgumentOutOfRangeException(nameof(estimator))
+			};
+		}
+
+		private static FeeRateEstimator? ParseFeeRateEstimator(string estimator)
+		{
+			return estimator switch
+			{
+				"auto" => FeeRateEstimator.Auto,
+				"block_policy" => FeeRateEstimator.BlockPolicy,
+				"mempool_policy" => FeeRateEstimator.MempoolPolicy,
+				_ => null
+			};
 		}
 
 #endregion
@@ -2650,6 +2764,16 @@ namespace NBitcoin.RPC
 
 	public class BlockchainInfo
 	{
+		public class BackgroundValidationInfo
+		{
+			public ulong SnapshotHeight { get; set; }
+			public ulong Blocks { get; set; }
+			public uint256 BestBlockHash { get; set; }
+			public uint256 ChainWork { get; set; }
+			public ulong MedianTime { get; set; }
+			public float VerificationProgress { get; set; }
+		}
+
 		public class SoftFork
 		{
 			public string Bip { get; set; }
@@ -2680,6 +2804,7 @@ namespace NBitcoin.RPC
 		public uint256 ChainWork { get; set; }
 		public ulong SizeOnDisk { get; set; }
 		public bool Pruned { get; set; }
+		public BackgroundValidationInfo BackgroundValidation { get; set; }
 
 		[Obsolete]
 		public List<SoftFork> SoftForks { get; set; }
@@ -2694,6 +2819,7 @@ namespace NBitcoin.RPC
 		public uint256 Hash { get; internal set; }
 		public uint Size { get; internal set; }
 		public uint VirtualSize { get; internal set; }
+		public uint? AdjustedVirtualSize { get; internal set; }
 		public uint Version { get; internal set; }
 		public LockTime LockTime { get; internal set; }
 		public uint256 BlockHash { get; internal set; }
@@ -2725,9 +2851,17 @@ namespace NBitcoin.RPC
 		/// </summary>
 		public uint256 TransactionId { get; set; }
 		/// <summary>
-		/// Virtual transaction size as defined in BIP 141. This is different from actual serialized size for witness transactions as witness data is discounted.
+		/// Legacy virtual size field. This is the sigop-adjusted virtual size used for policy.
 		/// </summary>
 		public int VirtualSizeBytes { get; set; }
+		/// <summary>
+		/// Sigop-adjusted virtual size used for policy. On older nodes this falls back to <see cref="VirtualSizeBytes"/>.
+		/// </summary>
+		public int AdjustedVirtualSizeBytes { get; set; }
+		/// <summary>
+		/// Raw virtual transaction size as defined in BIP 141, or null when the node does not report it.
+		/// </summary>
+		public int? BIP141VirtualSizeBytes { get; set; }
 		/// <summary>
 		/// Local time transaction entered pool in seconds since 1 Jan 1970 GMT.
 		/// </summary>
@@ -2830,9 +2964,20 @@ namespace NBitcoin.RPC
 	public class MempoolAcceptResult
 	{
 		public uint256 TxId { get; internal set; }
+		public uint256 TransactionIdWithWitness { get; internal set; }
 		public bool IsAllowed { get; internal set; }
 		public RejectCode RejectCode { get; internal set; }
 		public string RejectReason { get; internal set; }
+		public string RejectDetails { get; internal set; }
+		public int? AdjustedVirtualSizeBytes { get; internal set; }
+		public int? BIP141VirtualSizeBytes { get; internal set; }
+	}
+
+	public class ExportAsMapResponse
+	{
+		public string Path { get; internal set; }
+		public long BytesWritten { get; internal set; }
+		public uint256 FileHash { get; internal set; }
 	}
 
 	public class BlockFilter
