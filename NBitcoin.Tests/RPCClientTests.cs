@@ -469,6 +469,7 @@ namespace NBitcoin.Tests
 				Assert.NotNull(derived.ExtendedPrivateKey);
 				Assert.StartsWith("[", derived.Origin);
 				rpc.Generate(1);
+				await rpc.SendCommandAsync("syncwithvalidationinterfacequeue");
 
 				var destination = Path.Combine(Path.GetTempPath(), $"nbitcoin-watchonly-{Guid.NewGuid():N}.dat");
 				try
