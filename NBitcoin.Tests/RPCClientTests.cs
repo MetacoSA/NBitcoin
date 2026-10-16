@@ -468,6 +468,7 @@ namespace NBitcoin.Tests
 				Assert.NotNull(derived.ExtendedPublicKey);
 				Assert.NotNull(derived.ExtendedPrivateKey);
 				Assert.StartsWith("[", derived.Origin);
+				rpc.Generate(1);
 
 				var destination = Path.Combine(Path.GetTempPath(), $"nbitcoin-watchonly-{Guid.NewGuid():N}.dat");
 				try
