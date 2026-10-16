@@ -782,5 +782,20 @@ namespace NBitcoin.Tests
 			Assert.NotNull(testnetAddressParsed);
 			Assert.NotNull(testnetAddressParsed.ScriptPubKey);
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void DigiByteHasCorrectGenesisBlocks()
+		{
+			// Hashes asserted in DigiByte Core v9.26 src/kernel/chainparams.cpp
+			Assert.Equal(uint256.Parse("7497ea1b465eb39f1c8f507bc877078fe016d6fcb6dfad3a64c98dcc6e1e8496"), AltNetworkSets.DigiByte.Mainnet.GenesisHash);
+			Assert.Equal(uint256.Parse("0c9af936f28f7bd0e90c8f6235399063a026ed267bb53da398313b5d7aa55d82"), AltNetworkSets.DigiByte.Testnet.GenesisHash);
+			Assert.Equal(uint256.Parse("4598a0f2b823aaf9e77ee6d5e46f1edb824191dcd48b08437b7cec17e6ae6e26"), AltNetworkSets.DigiByte.Regtest.GenesisHash);
+			foreach (var network in new[] { AltNetworkSets.DigiByte.Mainnet, AltNetworkSets.DigiByte.Testnet, AltNetworkSets.DigiByte.Regtest })
+			{
+				var genesis = network.GetGenesis();
+				Assert.Equal(genesis.Header.HashMerkleRoot, genesis.GetMerkleRoot().Hash);
+			}
+		}
 	}
 }

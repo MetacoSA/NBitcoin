@@ -33,11 +33,13 @@ namespace NBitcoin.Altcoins
 		        .SetMagic(0xDAB6C3FA)
 		        .SetPort(12024)
 		        .SetRPCPort(14022)
-		        .SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c")
+		        .SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000ad0f7d7518fc1e90ed28bd0e444ccd8e24d94688355705ed2142006b49d9dd726a62d052f0ff0f1e245925000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d01044555534120546f6461793a2031302f4a616e2f323031342c205461726765743a20446174612073746f6c656e2066726f6d20757020746f203131304d20637573746f6d657273ffffffff01401f0000000000000200ac00000000")
 		        .AddDNSSeeds([
-			        new DNSSeedData("seed.digibyte.org", "seed.digibyte.org"),
-			        new DNSSeedData("seed.digibyte.co", "seed.digibyte.co"),
-			        new DNSSeedData("digiexplorer.info", "digiexplorer.info")
+			        new DNSSeedData("seed.digibyte.io", "seed.digibyte.io"),
+			        new DNSSeedData("seed.diginode.tools", "seed.diginode.tools"),
+			        new DNSSeedData("seed.digibyte.link", "seed.digibyte.link"),
+			        new DNSSeedData("seed.aroundtheblock.app", "seed.aroundtheblock.app"),
+			        new DNSSeedData("seed.tuyul.cc", "seed.tuyul.cc")
 		        ]);
 
 	        return builder;
@@ -63,13 +65,14 @@ namespace NBitcoin.Altcoins
 		        .SetBase58Bytes(Base58Type.EXT_SECRET_KEY, [0x04, 0x35, 0x83, 0x94])
 		        .SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("dgbt"))
 		        .SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("dgbt"))
-		        .SetMagic(0xDDB6C3FA)
-		        .SetPort(12026)
-		        .SetRPCPort(14023)
-		        .SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c")
+		        .SetMagic(0xE7B9C6FE)
+		        .SetPort(12033)
+		        .SetRPCPort(14026)
+		        .SetGenesis("01000000000000000000000000000000000000000000000000000000000000000000000097c108c537584d093dec35631a8dc487fe01a98226b702c60672476a9fa5ec7680091b6af0ff0f1e899613000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4304ffff001d01043b44696769446f6c6c617220546573746e657432363a205243343420372d6f662d3335204f7261636c65205265736574206f6e204469676942797465ffffffff010040b743ba0000000200ac00000000")
 		        .AddDNSSeeds([
-			        new DNSSeedData("seed.testnet-1.us.digibyteservers.io", "seed.testnet-1.us.digibyteservers.io"),
-			        new DNSSeedData("seed.testnetexplorer.digibyteservers.io", "seed.testnetexplorer.digibyteservers.io")
+			        new DNSSeedData("testnetseed.digibyte.io", "testnetseed.digibyte.io"),
+			        new DNSSeedData("testnetseed.digibyte.link", "testnetseed.digibyte.link"),
+			        new DNSSeedData("testnetseed.digibyte.services", "testnetseed.digibyte.services")
 		        ]);
 
 	        return builder;
@@ -99,7 +102,7 @@ namespace NBitcoin.Altcoins
 	            .SetPort(18444)
 	            .SetRPCPort(18443)
 	            .SetGenesis(
-		            "01000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d01045468652054696d65732030332f4a616e2f32303039204368616e63656c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff010040b743ba000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
+		            "010000000000000000000000000000000000000000000000000000000000000000000000ad0f7d7518fc1e90ed28bd0e444ccd8e24d94688355705ed2142006b49d9dd723a22915affff7f20040000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d01044555534120546f6461793a2031302f4a616e2f323031342c205461726765743a20446174612073746f6c656e2066726f6d20757020746f203131304d20637573746f6d657273ffffffff01401f0000000000000200ac00000000");
 
             return builder;
         }
