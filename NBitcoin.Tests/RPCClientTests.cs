@@ -447,6 +447,44 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public async Task CanUseCore32RPCs()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+
+				var openRPC = await rpc.GetOpenRPCInfoAsync();
+				Assert.Equal("1.4.1", openRPC.Value<string>("openrpc"));
+				Assert.Equal(openRPC.Value<string>("openrpc"), (await rpc.DiscoverRPCAsync()).Value<string>("openrpc"));
+				var asmap = await rpc.ExportAsMapAsync("exported-asmap.dat");
+				Assert.True(asmap.BytesWritten > 0);
+				Assert.NotEqual(uint256.Zero, asmap.FileHash);
+
+				var xpub = await rpc.AddHDKeyAsync();
+				var derived = await rpc.DeriveHDKeyAsync(
+					KeyPath.Parse("87'/1'/0'"),
+					new DeriveHDKeyOptions { HDKey = xpub, Private = true });
+				Assert.NotNull(derived.ExtendedPublicKey);
+				Assert.NotNull(derived.ExtendedPrivateKey);
+				Assert.StartsWith("[", derived.Origin);
+				rpc.Generate(1);
+				await rpc.SendCommandAsync("syncwithvalidationinterfacequeue");
+
+				var destination = Path.Combine(Path.GetTempPath(), $"nbitcoin-watchonly-{Guid.NewGuid():N}.dat");
+				try
+				{
+					Assert.Equal(destination, await rpc.ExportWatchOnlyWalletAsync(destination));
+					Assert.True(File.Exists(destination));
+				}
+				finally
+				{
+					File.Delete(destination);
+				}
+			}
+		}
+
+		[Fact]
 		public void CanGetTransactionInfo()
 		{
 			using (var builder = NodeBuilderEx.Create())
@@ -479,6 +517,7 @@ namespace NBitcoin.Tests
 				Assert.Null(txInfo.BlockHash);
 				Assert.Null(txInfo.BlockTime);
 				Assert.Equal(0U, txInfo.Confirmations);
+				Assert.NotNull(txInfo.AdjustedVirtualSize);
 			}
 		}
 
@@ -619,6 +658,14 @@ namespace NBitcoin.Tests
 				node.Generate(101);
 				var rpc = node.CreateRPCClient();
 				Assert.Null(rpc.TryEstimateSmartFee(1));
+				var detailed = rpc.EstimateSmartFeeWithOptions(1, new EstimateSmartFeeOptions
+				{
+					FeeRateEstimator = FeeRateEstimator.BlockPolicy,
+					Verbosity = 2
+				});
+				Assert.Null(detailed.FeeRate);
+				Assert.NotEmpty(detailed.Errors);
+				Assert.NotNull(detailed.MempoolHealthStatistics);
 			}
 		}
 
@@ -970,6 +1017,8 @@ namespace NBitcoin.Tests
 				Assert.NotEqual(0, mempoolEntry.ChunkFees.Satoshi);
 				Assert.NotEqual(0, mempoolEntry.Weight);
 				Assert.NotEqual(0, mempoolEntry.ChunkWeight);
+				Assert.NotEqual(0, mempoolEntry.AdjustedVirtualSizeBytes);
+				Assert.NotNull(mempoolEntry.BIP141VirtualSizeBytes);
 
 				// Here we spend the change of the second transaction
 				var funding = rpc.GetRawTransaction(txs[1]);
@@ -1195,6 +1244,9 @@ namespace NBitcoin.Tests
 
 				result = rpc.TestMempoolAccept(signedTx.SignedTransaction);
 				Assert.True(result.IsAllowed);
+				Assert.Equal(signedTx.SignedTransaction.GetWitHash(), result.TransactionIdWithWitness);
+				Assert.NotNull(result.AdjustedVirtualSizeBytes);
+				Assert.NotNull(result.BIP141VirtualSizeBytes);
 				Assert.Equal(Protocol.RejectCode.INVALID, result.RejectCode);
 				Assert.Equal(string.Empty, result.RejectReason);
 			}
@@ -1415,6 +1467,31 @@ namespace NBitcoin.Tests
 				var resp = await client.WalletProcessPSBTAsync(psbt, false);
 				Assert.NotNull(resp.PSBT.Inputs[0].NonWitnessUtxo);
 				Assert.NotNull(resp.PSBT.Inputs[0].WitnessUtxo);
+			}
+		}
+
+		[Theory]
+		[InlineData("31.0", false)]
+		[InlineData("latest", true)]
+		public void WalletCreateFundedPSBTIsBackwardCompatible(string version, bool supportsPSBTv2)
+		{
+			using (var builder = NodeBuilderEx.Create(NodeDownloadData.Bitcoin.FromVersion(version)))
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				var rpc = node.CreateRPCClient();
+				rpc.Generate(101);
+				var outputs = new Dictionary<BitcoinAddress, Money>
+				{
+					{ new Key().PubKey.GetAddress(ScriptPubKeyType.Segwit, builder.Network), Money.Coins(1) }
+				};
+
+				Assert.Equal(PSBTVersion.PSBTv0, rpc.WalletCreateFundedPSBT(null, outputs, 0).PSBT.Version);
+				Assert.Equal(PSBTVersion.PSBTv0, rpc.WalletCreateFundedPSBT(null, outputs, 0, null, false, PSBTVersion.PSBTv0).PSBT.Version);
+				if (supportsPSBTv2)
+					Assert.Equal(PSBTVersion.PSBTv2, rpc.WalletCreateFundedPSBT(null, outputs, 0, null, false, PSBTVersion.PSBTv2).PSBT.Version);
+				else
+					Assert.Throws<RPCException>(() => rpc.WalletCreateFundedPSBT(null, outputs, 0, null, false, PSBTVersion.PSBTv2));
 			}
 		}
 
@@ -1656,7 +1733,10 @@ namespace NBitcoin.Tests
 				var outputs = new Dictionary<BitcoinAddress, Money>();
 				outputs.Add(aSend, Money.Coins(10));
 				var fundOptions = new FundRawTransactionOptions() { SubtractFeeFromOutputs = new int[] { 0 }, IncludeWatching = true };
+				var psbtV2 = carol.WalletCreateFundedPSBT(null, outputs, 0, fundOptions, false, PSBTVersion.PSBTv2).PSBT;
+				Assert.Equal(PSBTVersion.PSBTv2, psbtV2.Version);
 				PSBT psbt = carol.WalletCreateFundedPSBT(null, outputs, 0, fundOptions).PSBT;
+				Assert.Equal(PSBTVersion.PSBTv0, psbt.Version);
 				psbt = (await carol.WalletProcessPSBTAsync(psbt)).PSBT;
 
 				// second, Bob checks and process psbt.

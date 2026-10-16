@@ -61,6 +61,19 @@ namespace NBitcoin.RPC
 		}
 	}
 
+	public class DeriveHDKeyOptions
+	{
+		public bool Private { get; set; }
+		public BitcoinExtPubKey HDKey { get; set; }
+	}
+
+	public class DeriveHDKeyResponse
+	{
+		public string Origin { get; internal set; }
+		public BitcoinExtPubKey ExtendedPublicKey { get; internal set; }
+		public BitcoinExtKey ExtendedPrivateKey { get; internal set; }
+	}
+
 	/*
 		Category			Name						Implemented
 		------------------ --------------------------- -----------------------
@@ -960,6 +973,58 @@ namespace NBitcoin.RPC
 			return response;
 		}
 
+		public BitcoinExtPubKey AddHDKey(BitcoinExtKey hdKey = null)
+		{
+			return AddHDKeyAsync(hdKey).GetAwaiter().GetResult();
+		}
+
+		public async Task<BitcoinExtPubKey> AddHDKeyAsync(BitcoinExtKey hdKey = null, CancellationToken cancellationToken = default)
+		{
+			var response = hdKey is null
+				? await SendCommandAsync(RPCOperations.addhdkey, cancellationToken).ConfigureAwait(false)
+				: await SendCommandAsync(RPCOperations.addhdkey, cancellationToken, hdKey.ToString()).ConfigureAwait(false);
+			return new BitcoinExtPubKey(response.Result.Value<string>("xpub"), Network);
+		}
+
+		public DeriveHDKeyResponse DeriveHDKey(KeyPath path, DeriveHDKeyOptions options = null)
+		{
+			return DeriveHDKeyAsync(path, options).GetAwaiter().GetResult();
+		}
+
+		public async Task<DeriveHDKeyResponse> DeriveHDKeyAsync(KeyPath path, DeriveHDKeyOptions options = null, CancellationToken cancellationToken = default)
+		{
+			if (path is null)
+				throw new ArgumentNullException(nameof(path));
+			var parameters = new Dictionary<string, object>
+			{
+				{ "path", "m/" + path }
+			};
+			if (options?.Private is true)
+				parameters.Add("private", true);
+			if (options?.HDKey is BitcoinExtPubKey hdKey)
+				parameters.Add("hdkey", hdKey.ToString());
+			var response = await SendCommandWithNamedArgsAsync(RPCOperations.derivehdkey.ToString(), parameters, cancellationToken).ConfigureAwait(false);
+			return new DeriveHDKeyResponse
+			{
+				Origin = response.Result.Value<string>("origin"),
+				ExtendedPublicKey = new BitcoinExtPubKey(response.Result.Value<string>("xpub"), Network),
+				ExtendedPrivateKey = response.Result["xprv"] is JToken xprv ? Network.CreateBitcoinExtKey(xprv.Value<string>()) : null
+			};
+		}
+
+		public string ExportWatchOnlyWallet(string destination)
+		{
+			return ExportWatchOnlyWalletAsync(destination).GetAwaiter().GetResult();
+		}
+
+		public async Task<string> ExportWatchOnlyWalletAsync(string destination, CancellationToken cancellationToken = default)
+		{
+			if (destination is null)
+				throw new ArgumentNullException(nameof(destination));
+			var response = await SendCommandAsync(RPCOperations.exportwatchonlywallet, cancellationToken, destination).ConfigureAwait(false);
+			return response.Result.Value<string>("exported_file");
+		}
+
 		public WalletProcessPSBTResponse WalletProcessPSBT(PSBT psbt, bool sign = true, SigHash hashType = SigHash.All, bool bip32derivs = false)
 			 => WalletProcessPSBTAsync(psbt, sign, hashType, bip32derivs).GetAwaiter().GetResult();
 		public async Task<WalletProcessPSBTResponse> WalletProcessPSBTAsync(PSBT psbt, bool sign = true, SigHash sighashType = SigHash.All, bool bip32derivs = false)
@@ -969,7 +1034,7 @@ namespace NBitcoin.RPC
 
 			var response = await SendCommandAsync(RPCOperations.walletprocesspsbt, psbt.ToBase64(), sign, SigHashToString(sighashType), bip32derivs).ConfigureAwait(false);
 			var result = (JObject)response.Result;
-			var psbt2 = PSBT.Parse(result.Property("psbt").Value.Value<string>(), Network.Main);
+			var psbt2 = PSBT.Parse(result.Property("psbt").Value.Value<string>(), Network);
 			var complete = result.Property("complete").Value.Value<bool>();
 
 			return new WalletProcessPSBTResponse(psbt2, complete);
@@ -984,6 +1049,16 @@ namespace NBitcoin.RPC
 			)
 			=> WalletCreateFundedPSBTAsync(inputs, outputs, locktime, options, bip32derivs).GetAwaiter().GetResult();
 
+		public WalletCreateFundedPSBTResponse WalletCreateFundedPSBT(
+			TxIn[] inputs,
+			Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>> outputs,
+			LockTime locktime,
+			FundRawTransactionOptions options,
+			bool bip32derivs,
+			PSBTVersion psbtVersion
+			)
+			=> WalletCreateFundedPSBTAsync(inputs, outputs, locktime, options, bip32derivs, psbtVersion).GetAwaiter().GetResult();
+
 		public async Task<WalletCreateFundedPSBTResponse> WalletCreateFundedPSBTAsync(
 		TxIn[] inputs,
 		Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>> outputs,
@@ -992,8 +1067,30 @@ namespace NBitcoin.RPC
 		bool bip32derivs = false,
 		CancellationToken cancellationToken = default
 		)
+			=> await WalletCreateFundedPSBTAsync(inputs, outputs, locktime, options, bip32derivs, PSBTVersion.PSBTv0, true, cancellationToken).ConfigureAwait(false);
+
+		public async Task<WalletCreateFundedPSBTResponse> WalletCreateFundedPSBTAsync(
+		TxIn[] inputs,
+		Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>> outputs,
+		LockTime locktime,
+		FundRawTransactionOptions options,
+		bool bip32derivs,
+		PSBTVersion psbtVersion,
+		CancellationToken cancellationToken = default
+		)
+			=> await WalletCreateFundedPSBTAsync(inputs, outputs, locktime, options, bip32derivs, psbtVersion, psbtVersion == PSBTVersion.PSBTv0, cancellationToken).ConfigureAwait(false);
+
+		private async Task<WalletCreateFundedPSBTResponse> WalletCreateFundedPSBTAsync(
+		TxIn[] inputs,
+		Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>> outputs,
+		LockTime locktime,
+		FundRawTransactionOptions options,
+		bool bip32derivs,
+		PSBTVersion psbtVersion,
+		bool fallbackToLegacyRPC,
+		CancellationToken cancellationToken
+		)
 		{
-			var values = new object[] { };
 			if (inputs == null)
 				inputs = new TxIn[] { };
 			if (outputs == null)
@@ -1016,25 +1113,35 @@ namespace NBitcoin.RPC
 					outputToSend.Add(kv.Key, kv.Value);
 				}
 			}
-			JObject jOptions;
+			var parameters = new Dictionary<string, object>
+			{
+				{ "inputs", rpcInputs },
+				{ "outputs", outputToSend },
+				{ "locktime", locktime.Value },
+				{ "bip32derivs", bip32derivs },
+				{ "psbt_version", (int)psbtVersion }
+			};
 			if (options != null)
+				parameters.Add("options", FundRawTransactionOptionsToJson(options));
+
+			RPCResponse response;
+			try
 			{
-				jOptions = FundRawTransactionOptionsToJson(options);
+				response = await SendCommandWithNamedArgsAsync(RPCOperations.walletcreatefundedpsbt.ToString(), parameters, cancellationToken).ConfigureAwait(false);
 			}
-			else
+			catch (RPCException ex) when (fallbackToLegacyRPC && ex.RPCCode is RPCErrorCode.RPC_INVALID_PARAMETER or RPCErrorCode.RPC_INVALID_PARAMS)
 			{
-				jOptions = (JObject)"";
+				response = await SendCommandAsync(
+					RPCOperations.walletcreatefundedpsbt,
+					cancellationToken,
+					rpcInputs,
+					outputToSend,
+					locktime.Value,
+					options is null ? new JObject() : FundRawTransactionOptionsToJson(options),
+					bip32derivs).ConfigureAwait(false);
 			}
-			RPCResponse response = await SendCommandAsync(
-				"walletcreatefundedpsbt",
-				cancellationToken,
-				rpcInputs,
-				outputToSend,
-				locktime.Value,
-				jOptions,
-				bip32derivs).ConfigureAwait(false);
 			var result = (JObject)response.Result;
-			var psbt = PSBT.Parse(result.Property("psbt").Value.Value<string>(), Network.Main);
+			var psbt = PSBT.Parse(result.Property("psbt").Value.Value<string>(), Network);
 			var fee = Money.Coins(result.Property("fee").Value.Value<decimal>());
 			var changePos = result.Property("changepos").Value.Value<int>();
 			var tmp = changePos == -1 ? (int?)null : (int?)changePos;
@@ -1055,6 +1162,21 @@ namespace NBitcoin.RPC
 
 		public WalletCreateFundedPSBTResponse WalletCreateFundedPSBT(
 			TxIn[] inputs,
+			Dictionary<BitcoinAddress, Money> outputs,
+			LockTime locktime,
+			FundRawTransactionOptions options,
+			bool bip32derivs,
+			PSBTVersion psbtVersion
+		) => WalletCreateFundedPSBT(
+			inputs,
+			Tuple.Create<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>>(outputs, null),
+			locktime,
+			options,
+			bip32derivs,
+			psbtVersion);
+
+		public WalletCreateFundedPSBTResponse WalletCreateFundedPSBT(
+			TxIn[] inputs,
 			Dictionary<string, string> outputs,
 			LockTime locktime,
 			FundRawTransactionOptions options = null,
@@ -1065,6 +1187,21 @@ namespace NBitcoin.RPC
 			locktime,
 			options,
 			bip32derivs);
+
+		public WalletCreateFundedPSBTResponse WalletCreateFundedPSBT(
+			TxIn[] inputs,
+			Dictionary<string, string> outputs,
+			LockTime locktime,
+			FundRawTransactionOptions options,
+			bool bip32derivs,
+			PSBTVersion psbtVersion
+		) => WalletCreateFundedPSBT(
+			inputs,
+			Tuple.Create<Dictionary<BitcoinAddress, Money>, Dictionary<string, string>>(null, outputs),
+			locktime,
+			options,
+			bip32derivs,
+			psbtVersion);
 
 		public string SigHashToString(SigHash value)
 		{
