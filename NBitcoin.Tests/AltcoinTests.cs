@@ -797,5 +797,22 @@ namespace NBitcoin.Tests
 				Assert.Equal(genesis.Header.HashMerkleRoot, genesis.GetMerkleRoot().Hash);
 			}
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void DigiByteSupportsSegwitAndModernPeers()
+		{
+			var key = new Key();
+			foreach (var network in new[] { AltNetworkSets.DigiByte.Mainnet, AltNetworkSets.DigiByte.Testnet, AltNetworkSets.DigiByte.Regtest })
+			{
+				// DigiByte Core v8.22+ disconnects peers below protocol version 70017
+				Assert.True(network.MaxP2PVersion >= 70017);
+				Assert.True(network.Consensus.SupportSegwit);
+				Assert.True(network.Consensus.SupportTaproot);
+			}
+			Assert.StartsWith("dgb1q", key.PubKey.GetAddress(ScriptPubKeyType.Segwit, AltNetworkSets.DigiByte.Mainnet).ToString());
+			Assert.StartsWith("dgb1p", key.PubKey.GetAddress(ScriptPubKeyType.TaprootBIP86, AltNetworkSets.DigiByte.Mainnet).ToString());
+			Assert.StartsWith("dgbrt1q", key.PubKey.GetAddress(ScriptPubKeyType.Segwit, AltNetworkSets.DigiByte.Regtest).ToString());
+		}
 	}
 }
