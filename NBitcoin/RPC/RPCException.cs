@@ -89,6 +89,10 @@ namespace NBitcoin.RPC
 		/// RPC method is deprecated
 		/// </summary>
 		RPC_METHOD_DEPRECATED = -32,
+		/// <summary>
+		/// A resource limit was exceeded.
+		/// </summary>
+		RPC_LIMIT_EXCEEDED = -37,
 
 		//! Aliases for backward compatibility
 		RPC_TRANSACTION_ERROR = RPC_VERIFY_ERROR,
