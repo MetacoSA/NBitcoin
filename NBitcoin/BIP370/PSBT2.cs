@@ -118,6 +118,10 @@ public class PSBT2 : PSBT
 		if (other is not PSBT2)
 			throw new ArgumentException("PSBT2 can only coinjoin with PSBT2", nameof(other));
 		other.AssertSanity();
+		if (other.Inputs.Count > 0 && ModifiableFlags is { } inputFlags && !inputFlags.HasFlag(PSBTModifiable.InputsModifiable))
+			throw new InvalidOperationException("Inputs are not modifiable");
+		if (other.Outputs.Count > 0 && ModifiableFlags is { } outputFlags && !outputFlags.HasFlag(PSBTModifiable.OutputsModifiable))
+			throw new InvalidOperationException("Outputs are not modifiable");
 
 		var result = this.Clone();
 		for (int i = 0; i < other.Inputs.Count; i++)
