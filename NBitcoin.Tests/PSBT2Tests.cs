@@ -155,11 +155,49 @@ namespace NBitcoin.Tests
 			var psbt = Assert.IsType<PSBT2>(PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv2));
 
 			var firstOutput = psbt.AddOutput(Money.Coins(1), Script.Empty);
-			psbt.Outputs.Add(firstOutput);
 			var secondOutput = psbt.AddOutput(Money.Coins(2), Script.Empty);
 
 			Assert.Equal(0U, firstOutput.Index);
 			Assert.Equal(1U, secondOutput.Index);
+			Assert.Equal(new PSBTOutput[] { firstOutput, secondOutput }, psbt.Outputs);
+		}
+
+		[Fact]
+		public void AddInputAndAddOutputAttachToThePSBT()
+		{
+			var tx = Network.Main.CreateTransaction();
+			var psbt = Assert.IsType<PSBT2>(PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv2));
+			psbt.ModifiableFlags = PSBTModifiable.InputsModifiable | PSBTModifiable.OutputsModifiable;
+
+			var input = psbt.AddInput(new OutPoint(uint256.One, 3));
+			var output = psbt.AddOutput(Money.Coins(1), Script.Empty);
+
+			Assert.Same(input, Assert.Single(psbt.Inputs));
+			Assert.Same(output, Assert.Single(psbt.Outputs));
+			Assert.Equal(0U, input.Index);
+			Assert.Equal(0U, output.Index);
+
+			var reparsed = Assert.IsType<PSBT2>(PSBT.Parse(psbt.ToBase64(), Network.Main));
+			Assert.Equal(new OutPoint(uint256.One, 3), Assert.Single(reparsed.Inputs).PrevOut);
+			Assert.Equal(Money.Coins(1), Assert.Single(reparsed.Outputs).Value);
+		}
+
+		[Fact]
+		public void AddInputAndAddOutputRespectModifiableFlags()
+		{
+			var tx = Network.Main.CreateTransaction();
+			var psbt = Assert.IsType<PSBT2>(PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv2));
+
+			psbt.ModifiableFlags = PSBTModifiable.OutputsModifiable;
+			var inputError = Assert.Throws<InvalidOperationException>(() => psbt.AddInput(new OutPoint(uint256.One, 0)));
+			Assert.Equal("Inputs are not modifiable", inputError.Message);
+
+			psbt.ModifiableFlags = PSBTModifiable.InputsModifiable;
+			var outputError = Assert.Throws<InvalidOperationException>(() => psbt.AddOutput(Money.Coins(1), Script.Empty));
+			Assert.Equal("Outputs are not modifiable", outputError.Message);
+
+			Assert.Empty(psbt.Inputs);
+			Assert.Empty(psbt.Outputs);
 		}
 
 		[Fact]
