@@ -811,7 +811,9 @@ namespace NBitcoin.Tests
 				Assert.True(network.Consensus.SupportTaproot);
 			}
 			Assert.StartsWith("dgb1q", key.PubKey.GetAddress(ScriptPubKeyType.Segwit, AltNetworkSets.DigiByte.Mainnet).ToString());
+#if HAS_SPAN
 			Assert.StartsWith("dgb1p", key.PubKey.GetAddress(ScriptPubKeyType.TaprootBIP86, AltNetworkSets.DigiByte.Mainnet).ToString());
+#endif
 			Assert.StartsWith("dgbrt1q", key.PubKey.GetAddress(ScriptPubKeyType.Segwit, AltNetworkSets.DigiByte.Regtest).ToString());
 		}
 	}
