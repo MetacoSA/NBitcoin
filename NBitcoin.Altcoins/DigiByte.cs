@@ -9,6 +9,11 @@ namespace NBitcoin.Altcoins
 
         private DigiByte() { }
 
+        protected override void PostInit()
+        {
+            RegisterDefaultCookiePath("DigiByte", new FolderName() { TestnetFolder = "testnet26" });
+        }
+
         protected override NetworkBuilder CreateMainnet()
         {
 	        var builder = new NetworkBuilder();

@@ -816,5 +816,16 @@ namespace NBitcoin.Tests
 #endif
 			Assert.StartsWith("dgbrt1q", key.PubKey.GetAddress(ScriptPubKeyType.Segwit, AltNetworkSets.DigiByte.Regtest).ToString());
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void DigiByteHasDefaultCookiePaths()
+		{
+			if (Network.GetDefaultDataFolder("DigiByte") is not string folder)
+				return;
+			Assert.Equal(Path.Combine(folder, ".cookie"), RPC.RPCClient.TryGetDefaultCookieFilePath(AltNetworkSets.DigiByte.Mainnet));
+			Assert.Equal(Path.Combine(folder, "testnet26", ".cookie"), RPC.RPCClient.TryGetDefaultCookieFilePath(AltNetworkSets.DigiByte.Testnet));
+			Assert.Equal(Path.Combine(folder, "regtest", ".cookie"), RPC.RPCClient.TryGetDefaultCookieFilePath(AltNetworkSets.DigiByte.Regtest));
+		}
 	}
 }
