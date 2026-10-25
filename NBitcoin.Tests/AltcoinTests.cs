@@ -809,6 +809,8 @@ namespace NBitcoin.Tests
 				Assert.True(network.MaxP2PVersion >= 70017);
 				Assert.True(network.Consensus.SupportSegwit);
 				Assert.True(network.Consensus.SupportTaproot);
+				// Used to convert durations to block counts (e.g. by NBXplorer when pruning)
+				Assert.Equal(TimeSpan.FromSeconds(15), network.Consensus.PowTargetSpacing);
 			}
 			Assert.StartsWith("dgb1q", key.PubKey.GetAddress(ScriptPubKeyType.Segwit, AltNetworkSets.DigiByte.Mainnet).ToString());
 #if HAS_SPAN

@@ -29,6 +29,7 @@ namespace NBitcoin.Altcoins
 			        MajorityWindow = 1000,
 			        SupportSegwit = true,
 			        SupportTaproot = true,
+			        PowTargetSpacing = System.TimeSpan.FromSeconds(15),
 		        })
 		        .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [30])
 		        .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, [63])
@@ -67,7 +68,8 @@ namespace NBitcoin.Altcoins
 			        MajorityRejectBlockOutdated = 950,
 			        MajorityWindow = 1000,
 			        SupportSegwit = true,
-			        SupportTaproot = true
+			        SupportTaproot = true,
+			        PowTargetSpacing = System.TimeSpan.FromSeconds(15)
 		        })
 		        .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [0x7E])  // tD
 		        .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, [0x8C]) // tS
@@ -104,7 +106,8 @@ namespace NBitcoin.Altcoins
 		            MajorityRejectBlockOutdated = 950,
 		            MajorityWindow = 1000,
 		            SupportSegwit = true,
-		            SupportTaproot = true
+		            SupportTaproot = true,
+		            PowTargetSpacing = System.TimeSpan.FromSeconds(15)
 	            })
 	            .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, [126])
 	            .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, [140])
