@@ -782,5 +782,52 @@ namespace NBitcoin.Tests
 			Assert.NotNull(testnetAddressParsed);
 			Assert.NotNull(testnetAddressParsed.ScriptPubKey);
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void DigiByteHasCorrectGenesisBlocks()
+		{
+			// Hashes asserted in DigiByte Core v9.26 src/kernel/chainparams.cpp
+			Assert.Equal(uint256.Parse("7497ea1b465eb39f1c8f507bc877078fe016d6fcb6dfad3a64c98dcc6e1e8496"), AltNetworkSets.DigiByte.Mainnet.GenesisHash);
+			Assert.Equal(uint256.Parse("0c9af936f28f7bd0e90c8f6235399063a026ed267bb53da398313b5d7aa55d82"), AltNetworkSets.DigiByte.Testnet.GenesisHash);
+			Assert.Equal(uint256.Parse("4598a0f2b823aaf9e77ee6d5e46f1edb824191dcd48b08437b7cec17e6ae6e26"), AltNetworkSets.DigiByte.Regtest.GenesisHash);
+			foreach (var network in new[] { AltNetworkSets.DigiByte.Mainnet, AltNetworkSets.DigiByte.Testnet, AltNetworkSets.DigiByte.Regtest })
+			{
+				var genesis = network.GetGenesis();
+				Assert.Equal(genesis.Header.HashMerkleRoot, genesis.GetMerkleRoot().Hash);
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void DigiByteSupportsSegwitAndModernPeers()
+		{
+			var key = new Key();
+			foreach (var network in new[] { AltNetworkSets.DigiByte.Mainnet, AltNetworkSets.DigiByte.Testnet, AltNetworkSets.DigiByte.Regtest })
+			{
+				// DigiByte Core v8.22+ disconnects peers below protocol version 70017
+				Assert.True(network.MaxP2PVersion >= 70017);
+				Assert.True(network.Consensus.SupportSegwit);
+				Assert.True(network.Consensus.SupportTaproot);
+				// Used to convert durations to block counts (e.g. by NBXplorer when pruning)
+				Assert.Equal(TimeSpan.FromSeconds(15), network.Consensus.PowTargetSpacing);
+			}
+			Assert.StartsWith("dgb1q", key.PubKey.GetAddress(ScriptPubKeyType.Segwit, AltNetworkSets.DigiByte.Mainnet).ToString());
+#if HAS_SPAN
+			Assert.StartsWith("dgb1p", key.PubKey.GetAddress(ScriptPubKeyType.TaprootBIP86, AltNetworkSets.DigiByte.Mainnet).ToString());
+#endif
+			Assert.StartsWith("dgbrt1q", key.PubKey.GetAddress(ScriptPubKeyType.Segwit, AltNetworkSets.DigiByte.Regtest).ToString());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void DigiByteHasDefaultCookiePaths()
+		{
+			if (Network.GetDefaultDataFolder("DigiByte") is not string folder)
+				return;
+			Assert.Equal(Path.Combine(folder, ".cookie"), RPC.RPCClient.TryGetDefaultCookieFilePath(AltNetworkSets.DigiByte.Mainnet));
+			Assert.Equal(Path.Combine(folder, "testnet26", ".cookie"), RPC.RPCClient.TryGetDefaultCookieFilePath(AltNetworkSets.DigiByte.Testnet));
+			Assert.Equal(Path.Combine(folder, "regtest", ".cookie"), RPC.RPCClient.TryGetDefaultCookieFilePath(AltNetworkSets.DigiByte.Regtest));
+		}
 	}
 }
