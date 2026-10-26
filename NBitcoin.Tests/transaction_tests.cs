@@ -1169,6 +1169,7 @@ namespace NBitcoin.Tests
 			log.WriteLine("Seed " + seed);
 			TransactionBuilderFuzzyingCore(seed);
 			TransactionBuilderFuzzyingCore(659623968);
+			TransactionBuilderFuzzyingCore(503175992);
 		}
 
 		private void TransactionBuilderFuzzyingCore(int seed)
@@ -1252,7 +1253,15 @@ namespace NBitcoin.Tests
 					var actualFee = tx.GetFee(builder.FindSpentCoins(tx));
 					if (fee != null)
 					{
-						Assert.Equal(fee, actualFee);
+						if (tx.Outputs.Any(o => o.ScriptPubKey == carolScript))
+						{
+							Assert.Equal(fee, actualFee);
+						}
+						// It is possible that no change was calculated, and thus the actual fee ends up more than expected
+						else
+						{
+							Assert.True(fee <= actualFee);
+						}
 					}
 					if (feeRate != null)
 					{
