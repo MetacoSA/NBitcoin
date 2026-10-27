@@ -643,7 +643,7 @@ namespace NBitcoin.Tests
 				},
 				UseSectionInConfigFile = true,
 				CreateWallet = true,
-				AdditionalRegtestConfig = "unsafesqlitesync=1"
+				AdditionalRegtestConfig = "unsafesqlitesync=1\nfastprune=1"
 			};
 		}
 
