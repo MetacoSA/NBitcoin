@@ -208,17 +208,17 @@ public class PSBT2 : PSBT
 	{
 		if (ModifiableFlags is { } v && !v.HasFlag(PSBTModifiable.InputsModifiable))
 			throw new InvalidOperationException("Inputs are not modifiable");
-		return new PSBT2Input(prevOut, this, (uint)Inputs.Count);
+		var input = new PSBT2Input(prevOut, this, (uint)Inputs.Count);
+		Inputs.Add(input);
+		return input;
 	}
 	public PSBT2Output AddOutput(Money value, Script scriptPubKey)
 	{
 		if (ModifiableFlags is { } v && !v.HasFlag(PSBTModifiable.OutputsModifiable))
-			throw new InvalidOperationException("Inputs are not modifiable");
-
-		var txOut = this.Network.Consensus.ConsensusFactory.CreateTxOut();
-		txOut.Value = value;
-		txOut.ScriptPubKey = scriptPubKey;
-		return new PSBT2Output(value, scriptPubKey, this, (uint)Outputs.Count);
+			throw new InvalidOperationException("Outputs are not modifiable");
+		var output = new PSBT2Output(value, scriptPubKey, this, (uint)Outputs.Count);
+		Outputs.Add(output);
+		return output;
 	}
 	public override PSBT UpdateFrom(PSBT other)
 	{
