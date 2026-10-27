@@ -439,6 +439,53 @@ namespace NBitcoin.Tests
 			Assert.Single(first.Outputs);
 		}
 
+		[Fact]
+		public void PSBT2CoinJoinRespectsModifiableFlags()
+		{
+			PSBT2 Create(uint n, PSBTModifiable? flags)
+			{
+				var tx = Network.Main.CreateTransaction();
+				tx.Inputs.Add(new OutPoint(uint256.One, n));
+				tx.Outputs.Add(Money.Coins(n + 1), Script.Empty);
+				var psbt = Assert.IsType<PSBT2>(PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv2));
+				psbt.ModifiableFlags = flags;
+				return psbt;
+			}
+			var other = Create(1, PSBTModifiable.InputsModifiable | PSBTModifiable.OutputsModifiable);
+
+			var closedInputs = Create(0, PSBTModifiable.OutputsModifiable);
+			var inputError = Assert.Throws<InvalidOperationException>(() => closedInputs.CoinJoin(other));
+			Assert.Equal("Inputs are not modifiable", inputError.Message);
+
+			var closedOutputs = Create(0, PSBTModifiable.InputsModifiable);
+			var outputError = Assert.Throws<InvalidOperationException>(() => closedOutputs.CoinJoin(other));
+			Assert.Equal("Outputs are not modifiable", outputError.Message);
+
+			var open = Create(0, PSBTModifiable.InputsModifiable | PSBTModifiable.OutputsModifiable);
+			var coinJoin = Assert.IsType<PSBT2>(open.CoinJoin(other));
+			Assert.Equal(2, coinJoin.Inputs.Count);
+			Assert.Equal(2, coinJoin.Outputs.Count);
+		}
+
+		[Fact]
+		public void PSBT2CoinJoinAllowsClosedSideWhenNothingIsAddedToIt()
+		{
+			var tx = Network.Main.CreateTransaction();
+			tx.Inputs.Add(new OutPoint(uint256.One, 0));
+			tx.Outputs.Add(Money.Coins(1), Script.Empty);
+			var first = Assert.IsType<PSBT2>(PSBT.FromTransaction(tx, Network.Main, PSBTVersion.PSBTv2));
+			first.ModifiableFlags = PSBTModifiable.InputsModifiable;
+
+			var outputsOnly = Network.Main.CreateTransaction();
+			var second = Assert.IsType<PSBT2>(PSBT.FromTransaction(outputsOnly, Network.Main, PSBTVersion.PSBTv2));
+			var inputsOnlyTx = Network.Main.CreateTransaction();
+			inputsOnlyTx.Inputs.Add(new OutPoint(uint256.One, 1));
+			var inputsOnly = Assert.IsType<PSBT2>(PSBT.FromTransaction(inputsOnlyTx, Network.Main, PSBTVersion.PSBTv2));
+
+			Assert.Equal(1, first.CoinJoin(second).Inputs.Count);
+			Assert.Equal(2, first.CoinJoin(inputsOnly).Inputs.Count);
+		}
+
 		[Theory]
 		[InlineData(PSBTVersion.PSBTv0)]
 		[InlineData(PSBTVersion.PSBTv2)]
