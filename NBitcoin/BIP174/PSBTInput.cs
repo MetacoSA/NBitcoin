@@ -799,11 +799,6 @@ namespace NBitcoin
 			try
 			{
 				transactionBuilder.FinalizePSBTInput(this);
-				if (!finalizedInput.IsFinalized() && Parent.Settings.IsSmart)
-				{
-					transactionBuilder.ExtractSignatures(finalizedInput.PSBT, Parent.ForceExtractTransaction());
-					transactionBuilder.FinalizePSBTInput(finalizedInput);
-				}
 			}
 			catch (Exception ex)
 			{

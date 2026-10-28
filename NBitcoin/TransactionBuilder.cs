@@ -554,10 +554,15 @@ namespace NBitcoin
 
 			public IEnumerable<InputSigningContext> GetInputSigningContexts()
 			{
-				foreach (var input in PSBT.Inputs)
+				IEnumerable<PSBTInput> inputs = PSBT.Inputs;
+				if (SignOnlyInputIndex is uint index)
 				{
-					if (SignOnlyInputIndex is uint i && i != input.Index)
-						continue;
+					if (index >= PSBT.Inputs.Count)
+						yield break;
+					inputs = new[] { PSBT.Inputs[(int)index] };
+				}
+				foreach (var input in inputs)
+				{
 					ICoin? coin = null;
 					TxIn? txin = null;
 					coin = input.GetSignableCoin();
