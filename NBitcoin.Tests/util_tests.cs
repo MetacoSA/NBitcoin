@@ -21,11 +21,11 @@ namespace NBitcoin.Tests
 	public class util_tests
 	{
 		static byte[] ParseHex_expected = new byte[]{
-	0x04, 0x67, 0x8a, 0xfd, 0xb0, 0xfe, 0x55, 0x48, 0x27, 0x19, 0x67, 0xf1, 0xa6, 0x71, 0x30, 0xb7,
-	0x10, 0x5c, 0xd6, 0xa8, 0x28, 0xe0, 0x39, 0x09, 0xa6, 0x79, 0x62, 0xe0, 0xea, 0x1f, 0x61, 0xde,
-	0xb6, 0x49, 0xf6, 0xbc, 0x3f, 0x4c, 0xef, 0x38, 0xc4, 0xf3, 0x55, 0x04, 0xe5, 0x1e, 0xc1, 0x12,
-	0xde, 0x5c, 0x38, 0x4d, 0xf7, 0xba, 0x0b, 0x8d, 0x57, 0x8a, 0x4c, 0x70, 0x2b, 0x6b, 0xf1, 0x1d,
-	0x5f};
+			0x04, 0x67, 0x8a, 0xfd, 0xb0, 0xfe, 0x55, 0x48, 0x27, 0x19, 0x67, 0xf1, 0xa6, 0x71, 0x30, 0xb7,
+			0x10, 0x5c, 0xd6, 0xa8, 0x28, 0xe0, 0x39, 0x09, 0xa6, 0x79, 0x62, 0xe0, 0xea, 0x1f, 0x61, 0xde,
+			0xb6, 0x49, 0xf6, 0xbc, 0x3f, 0x4c, 0xef, 0x38, 0xc4, 0xf3, 0x55, 0x04, 0xe5, 0x1e, 0xc1, 0x12,
+			0xde, 0x5c, 0x38, 0x4d, 0xf7, 0xba, 0x0b, 0x8d, 0x57, 0x8a, 0x4c, 0x70, 0x2b, 0x6b, 0xf1, 0x1d,
+			0x5f};
 
 		[Fact]
 		[Trait("Core", "Core")]
@@ -294,15 +294,6 @@ namespace NBitcoin.Tests
 		//https://en.bitcoin.it/wiki/Difficulty
 		public void CanReadConvertTargetToDifficulty()
 		{
-#if NO_NATIVE_BIGNUM
-			var max = NBitcoin.Target.ToBigInteger(new uint256("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-			Assert.True(max.CompareTo(BigInteger.Zero) > 0);
-			var maxExpected = new BigInteger(Encoders.Hex.DecodeData("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00").Reverse().ToArray());
-			Assert.Equal(maxExpected, max);
-			var maxminusone = NBitcoin.Target.ToBigInteger(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-			maxExpected = new BigInteger(Encoders.Hex.DecodeData("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f").Reverse().ToArray());
-			Assert.Equal(maxExpected, maxminusone);
-#else
 			var max = NBitcoin.Target.ToBigInteger(new uint256("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			Assert.True(max > System.Numerics.BigInteger.Zero);
 			Assert.Equal(new uint256("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"), NBitcoin.Target.ToUInt256(max));
@@ -312,7 +303,7 @@ namespace NBitcoin.Tests
 			maxExpected = new System.Numerics.BigInteger(Encoders.Hex.DecodeData("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f"));
 			Assert.Equal(maxExpected, maxminusone);
 			Assert.Equal(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"), NBitcoin.Target.ToUInt256(maxminusone));
-#endif
+
 			var limit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			Assert.Equal(0x1D00FFFFU, (uint)limit);
 			Assert.Equal("00000000ffff0000000000000000000000000000000000000000000000000000", limit.ToString());
@@ -325,11 +316,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(packed, new Target(0x1b0404cb));
 
 			packed = new Target(TestUtils.ParseHex("1b8404cb"));
-#if NO_NATIVE_BIGNUM
-			Assert.True(packed.ToBigInteger().CompareTo(BigInteger.Zero) > 0);
-#else
 			Assert.True(packed > System.Numerics.BigInteger.Zero);
-#endif
 			Assert.Equal(packed, new Target(0x1b8404cb));
 
 			packed = new Target(TestUtils.ParseHex("1d00ffff"));

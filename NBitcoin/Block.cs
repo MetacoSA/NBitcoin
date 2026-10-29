@@ -1,8 +1,4 @@
-﻿#if NO_NATIVE_BIGNUM
-using NBitcoin.BouncyCastle.Math;
-#else
-using System.Numerics;
-#endif
+﻿using System.Numerics;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.RPC;
@@ -265,7 +261,6 @@ namespace NBitcoin
 				_Hashes[0] = GetHash();
 		}
 
-
 		uint256[] _Hashes;
 
 		public DateTimeOffset BlockTime
@@ -280,25 +275,18 @@ namespace NBitcoin
 			}
 		}
 
-#if NO_NATIVE_BIGNUM
-		static BigInteger Pow256 = BigInteger.ValueOf(2).Pow(256);
-#else
 		static BigInteger Pow256 = BigInteger.Pow(new BigInteger(2), 256);
-#endif
+
 		public bool CheckProofOfWork()
 		{
 			var bits = Bits.ToBigInteger();
-#if NO_NATIVE_BIGNUM
-			if (bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
-				return false;
-#else
+
 			if (bits <= BigInteger.Zero || bits >= Pow256)
 				return false;
-#endif
+
 			// Check proof of work matches claimed amount
 			return GetPoWHash() <= Bits.ToUInt256();
 		}
-
 
 		public override string ToString()
 		{
