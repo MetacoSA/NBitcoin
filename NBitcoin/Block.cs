@@ -26,8 +26,7 @@ namespace NBitcoin
 	/// </summary>
 	public class BlockHeader : IBitcoinSerializable
 	{
-		internal const int Size = 80;
-
+		public const int Size = 80;
 
 		public static BlockHeader Parse(string hex, Network network)
 		{
