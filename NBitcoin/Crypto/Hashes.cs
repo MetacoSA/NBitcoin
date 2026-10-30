@@ -100,13 +100,8 @@ namespace NBitcoin.Crypto
 		}
 		public static byte[] SHA1(byte[] data, int offset, int count)
 		{
-#if NO_NATIVESHA1
-			var sha1 = new Sha1Digest();
-			sha1.BlockUpdate(data, offset, count);
-			byte[] rv = new byte[20];
-			sha1.DoFinal(rv, 0);
-			return rv;
-#elif NET10_0_OR_GREATER
+
+#if NET10_0_OR_GREATER
 			return System.Security.Cryptography.SHA1.HashData(data.AsSpan(offset, count));
 #else
 			using (var sha1 = System.Security.Cryptography.SHA1.Create())
