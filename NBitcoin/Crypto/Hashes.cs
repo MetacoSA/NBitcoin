@@ -46,11 +46,11 @@ namespace NBitcoin.Crypto
 		{
 			return Hash160(data, 0, data.Length);
 		}
+
 #if HAS_SPAN
 		public static uint160 Hash160(ReadOnlySpan<byte> data)
 		{
-			// TODO: optimize
-			return Hash160(data.ToArray());
+			return new uint160(Hash160RawBytes(data));
 		}
 #endif
 
@@ -63,8 +63,17 @@ namespace NBitcoin.Crypto
 		{
 			return new uint160(Hash160RawBytes(data, offset, count));
 		}
+
 		public static byte[] Hash160RawBytes(byte[] data)
-		=> Hash160RawBytes(data, 0, data.Length);
+			=> Hash160RawBytes(data, 0, data.Length);
+
+#if HAS_SPAN
+		public static byte[] Hash160RawBytes(ReadOnlySpan<byte> data)
+		{
+			return RIPEMD160(SHA256(data));
+		}
+#endif
+
 		public static byte[] Hash160RawBytes(byte[] data, int offset, int count)
 		{
 			return RIPEMD160(SHA256(data, offset, count));
