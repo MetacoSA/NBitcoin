@@ -697,7 +697,7 @@ namespace NBitcoin.Tests
 			fee = new FeeRate(0.521748274m);
 			Assert.Equal("0.521 Sat/B", fee.ToString());
 		}
-#if !NO_SOCKET
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public async Task CanConvertEndpointToIPEndpoint()
@@ -718,7 +718,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(test.ExpectedOutput + ":10", result.ToEndpointString().Replace("[", "").Replace("]", ""));
 			}
 		}
-#endif
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void FeeRateComparison()

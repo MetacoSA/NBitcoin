@@ -164,7 +164,6 @@ namespace NBitcoin
 
 		internal static string NormalizeString(string word)
 		{
-#if !NOSTRNORMALIZE
 			if (!SupportOsNormalization())
 			{
 				return KDTable.NormalizeKD(word);
@@ -173,12 +172,8 @@ namespace NBitcoin
 			{
 				return word.Normalize(NormalizationForm.FormKD);
 			}
-#else
-			return KDTable.NormalizeKD(word);
-#endif
 		}
 
-#if !NOSTRNORMALIZE
 		static bool? _SupportOSNormalization;
 		internal static bool SupportOsNormalization()
 		{
@@ -201,7 +196,6 @@ namespace NBitcoin
 			}
 			return _SupportOSNormalization.Value;
 		}
-#endif
 
 		public ExtKey DeriveExtKey(string passphrase = null)
 		{
