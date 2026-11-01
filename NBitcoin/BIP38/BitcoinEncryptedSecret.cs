@@ -338,8 +338,8 @@ namespace NBitcoin
 		/// Get the decrypted private key
 		/// </summary>
 		/// <param name="password">The password</param>
-		/// <param name="key">The decrypted key if successfull</param>
-		/// <returns>True if successfull</returns>
+		/// <param name="key">The decrypted key if successful</param>
+		/// <returns>True if successful</returns>
 		public abstract bool TryGetKey(string password, [MaybeNullWhen(false)] out Key key);
 		public BitcoinSecret GetSecret(string password)
 		{
