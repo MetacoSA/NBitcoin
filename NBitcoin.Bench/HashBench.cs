@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+using System;
 
 namespace NBitcoin.Bench;
 
@@ -13,6 +14,12 @@ public class HashBench
 	public void Setup()
 	{
 		bytes = Encoders.Hex.DecodeData("d54994ece1d11b19785c7248868696250ab195605b469632b7bd68130e880c9a");
+	}
+
+	[Benchmark]
+	public void Hash160()
+	{
+		Hashes.Hash160(bytes.AsSpan());
 	}
 
 	[Benchmark]
