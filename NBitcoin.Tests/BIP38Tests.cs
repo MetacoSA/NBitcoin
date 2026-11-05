@@ -192,14 +192,28 @@ namespace NBitcoin.Tests
 		}
 
 
-		[Fact]
+		[Theory]
+		[InlineData(0, 0)]
+		[InlineData(1048575, 1024)]
+		[InlineData(1048575, 1025)]
+		[InlineData(1048575, 4095)]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanParseLotSequence()
+		public void CanParseLotSequence(int lot, int sequenceNumber)
 		{
-			var sequence = new LotSequence(1048575, 1024);
+			var sequence = new LotSequence(lot, sequenceNumber);
 			var bytes = sequence.ToBytes();
 			var sequence2 = new LotSequence(bytes);
-			Assert.True(sequence.Lot == sequence2.Lot && sequence.Sequence == sequence.Sequence);
+			Assert.Equal(sequence.Lot, sequence2.Lot);
+			Assert.Equal(sequence.Sequence, sequence2.Sequence);
+		}
+
+		[Theory]
+		[InlineData(-1)]
+		[InlineData(4096)]
+		[Trait("UnitTest", "UnitTest")]
+		public void RejectsInvalidSequence(int sequence)
+		{
+			Assert.Throws<ArgumentOutOfRangeException>(() => new LotSequence(0, sequence));
 		}
 
 		[Fact]
