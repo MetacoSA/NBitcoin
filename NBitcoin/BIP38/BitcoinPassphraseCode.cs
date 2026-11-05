@@ -68,7 +68,7 @@ namespace NBitcoin
 		{
 			if (lot > 1048575 || lot < 0)
 				throw new ArgumentOutOfRangeException("lot");
-			if (sequence > 1024 || sequence < 0)
+			if (sequence > 4095 || sequence < 0)
 				throw new ArgumentOutOfRangeException("sequence");
 
 			_Lot = lot;
