@@ -199,7 +199,8 @@ namespace NBitcoin.Tests
 			var sequence = new LotSequence(1048575, 1024);
 			var bytes = sequence.ToBytes();
 			var sequence2 = new LotSequence(bytes);
-			Assert.True(sequence.Lot == sequence2.Lot && sequence.Sequence == sequence.Sequence);
+			Assert.Equal(sequence.Lot, sequence2.Lot);
+			Assert.Equal(sequence.Sequence, sequence2.Sequence);
 		}
 
 		[Fact]

@@ -93,7 +93,7 @@ namespace NBitcoin
 				((uint)_Bytes[3] << 0);
 
 			_Lot = (int)(lotSequence / 4096);
-			_Sequence = (int)(lotSequence - _Lot);
+			_Sequence = (int)(lotSequence % 4096);
 		}
 
 		private readonly int _Lot;
