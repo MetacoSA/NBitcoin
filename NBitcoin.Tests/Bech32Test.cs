@@ -209,6 +209,55 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void RejectsCharactersOutOfRange()
+		{
+			// BIP 173 and BIP 350 test vectors with an HRP character outside of [33-126]
+			foreach (var test in new[]
+			{
+				(char)0x20 + "1nwldj5",
+				(char)0x7F + "1axkwrx",
+				(char)0x80 + "1eym55h",
+				(char)0x20 + "1xj0phk",
+				(char)0x7F + "1g6xzxy",
+				(char)0x80 + "1vctc34",
+			})
+			{
+				var encoder = Bech32Encoder.ExtractEncoderFromString(test);
+				Assert.Throws<FormatException>(() => encoder.DecodeDataRaw(test, out _));
+			}
+		}
+
+		[Fact]
+		public void RejectsNonAsciiAliasOfValidAddress()
+		{
+			var valid = "bcrt1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvseswlauz7";
+			var encoder = Encoders.Bech32("bcrt");
+			var program = encoder.Decode(valid, out var witVersion);
+			Assert.Equal(0, witVersion);
+			Assert.Equal(32, program.Length);
+			Assert.IsType<BitcoinWitScriptAddress>(BitcoinAddress.Create(valid, Network.RegTest));
+
+			// U+0171 has 0x71 ('q') as its low byte
+			var alias = "bcrt1ű" + valid.Substring(6);
+			Assert.Throws<FormatException>(() => encoder.DecodeDataRaw(alias, out _));
+			Assert.Throws<FormatException>(() => encoder.Decode(alias, out _));
+			Assert.Throws<FormatException>(() => BitcoinAddress.Create(alias, Network.RegTest));
+		}
+
+		[Fact]
+		public void RejectsKelvinSignInHrp()
+		{
+			var encoder = Encoders.Bech32("k");
+			var data = new byte[] { 0, 1, 2, 3 };
+			var encoded = encoder.EncodeRaw(data, Bech32EncodingType.BECH32).ToUpperInvariant();
+			Assert.Equal(data, encoder.DecodeDataRaw(encoded, out _));
+
+			// U+212A KELVIN SIGN lowercases to 'k'
+			var alias = "K" + encoded.Substring(1);
+			Assert.Throws<FormatException>(() => encoder.DecodeDataRaw(alias, out _));
+		}
+
+		[Fact]
 		public void EmptyWitnessPayloadThrowsFormatException()
 		{
 			var encoder = Encoders.Bech32("bc");

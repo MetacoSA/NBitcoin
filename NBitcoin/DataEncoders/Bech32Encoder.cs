@@ -508,6 +508,12 @@ namespace NBitcoin.DataEncoders
 		{
 			if (encoded == null)
 				throw new ArgumentNullException(nameof(encoded));
+			// Must run before ToLowerInvariant and the ASCII conversion, which can map non-ASCII characters to valid ones
+			foreach (var c in encoded)
+			{
+				if (c < 33 || c > 126)
+					throw new FormatException("bech chars are out of range");
+			}
 			CheckCase(encoded);
 			encoded = encoded.ToLowerInvariant();
 #if HAS_SPAN

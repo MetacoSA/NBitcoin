@@ -151,13 +151,13 @@ namespace NBitcoin.Altcoins.Elements
 			if (encoded == null)
 				throw new ArgumentNullException(nameof(encoded));
 			CheckCase(encoded);
-			var buffer = DataEncoders.Encoders.ASCII.DecodeData(encoded);
-			if (buffer.Any(b => b < 33 || b > 126))
+			// Check the characters, not the bytes: the ASCII conversion keeps only the low byte of each character
+			if (encoded.Any(c => c < 33 || c > 126))
 			{
 				throw new FormatException("bech chars are out of range");
 			}
 			encoded = encoded.ToLowerInvariant();
-			buffer = DataEncoders.Encoders.ASCII.DecodeData(encoded);
+			var buffer = DataEncoders.Encoders.ASCII.DecodeData(encoded);
 			var pos = encoded.LastIndexOf("1", StringComparison.OrdinalIgnoreCase);
 			if (encoded.Length > 1000 || pos == -1 || pos == 0 || pos + 13 > encoded.Length)
 			{ // ELEMENTS: 90->1000, 7->13
