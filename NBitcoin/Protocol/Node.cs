@@ -185,7 +185,7 @@ namespace NBitcoin.Protocol
 			internal bool IsVerbose => Logs.NodeServer.IsEnabled(LogLevel.Trace);
 
 
-			internal BlockingCollection<SentMessage> Messages = new BlockingCollection<SentMessage>(new ConcurrentQueue<SentMessage>());
+			internal readonly BlockingCollection<SentMessage> Messages = new BlockingCollection<SentMessage>(new ConcurrentQueue<SentMessage>());
 			public void BeginListen()
 			{
 				new Thread(() =>
@@ -261,18 +261,19 @@ namespace NBitcoin.Protocol
 						ar?.Dispose();
 					}
 
+					// Close the queue before draining it so a concurrent send cannot be left without a consumer.
+					Messages.CompleteAdding();
 					if (processing != null)
-						Messages.Add(processing);
+						processing.Completion.TrySetException(new InvalidOperationException("The peer has been disconnected"));
 
-					foreach (var pending in Messages)
+					while (Messages.TryTake(out var pending))
 					{
 						if (IsVerbose)
 						{
 							Logs.NodeServer.LogTrace("The connection cancelled before the message was sent");
 						}
-						pending.Completion.SetException(new InvalidOperationException("The peer has been disconnected"));
+						pending.Completion.TrySetException(new InvalidOperationException("The peer has been disconnected"));
 					}
-					Messages = new BlockingCollection<SentMessage>(new ConcurrentQueue<SentMessage>());
 					Logs.NodeServer.LogInformation("Stop sending");
 					Cleanup(unhandledException);
 				}).Start();
@@ -947,12 +948,20 @@ namespace NBitcoin.Protocol
 
 			Action final = () =>
 			{
-				_Connection.Messages.Add(new SentMessage()
+				try
 				{
-					Payload = payload,
-					ActivityId = activity,
-					Completion = completion
-				});
+					_Connection.Messages.Add(new SentMessage()
+					{
+						Payload = payload,
+						ActivityId = activity,
+						Completion = completion
+					});
+				}
+				catch (InvalidOperationException)
+				{
+					// The sender may have stopped after the IsConnected check, including while a filter ran.
+					completion.TrySetException(new InvalidOperationException("The peer has been disconnected"));
+				}
 			};
 			OnSendingMessage(payload, final);
 			return completion.Task;
@@ -1104,7 +1113,7 @@ namespace NBitcoin.Protocol
 												p.Message.Payload is VerAckPayload))
 			{
 
-				await SendMessageAsync(MyVersion).ConfigureAwait(false);
+				await SendMessageAsync(MyVersion).WithCancellation(cancellationToken).ConfigureAwait(false);
 				#if !NO_CHANNELS
 				var version = await listener.ReceivePayloadAsync<VersionPayload>(cancellationToken).ConfigureAwait(false);
 				#else
@@ -1135,10 +1144,10 @@ namespace NBitcoin.Protocol
 				if (ProtocolCapabilities.SupportAddrv2)
 				{
 					// Signal ADDRv2 support (BIP155).
-					await SendMessageAsync(new SendAddrV2Payload()).ConfigureAwait(false);
+					await SendMessageAsync(new SendAddrV2Payload()).WithCancellation(cancellationToken).ConfigureAwait(false);
 				}
 
-				await SendMessageAsync(new VerAckPayload()).ConfigureAwait(false);
+				await SendMessageAsync(new VerAckPayload()).WithCancellation(cancellationToken).ConfigureAwait(false);
 
 				#if !NO_CHANNELS
 				await listener.ReceivePayloadAsync<VerAckPayload>(cancellationToken).ConfigureAwait(false);
@@ -1156,7 +1165,7 @@ namespace NBitcoin.Protocol
 					await SendMessageAsync(new AddrPayload(new NetworkAddress(MyVersion.AddressFrom)
 					{
 						Time = DateTimeOffset.UtcNow
-					})).ConfigureAwait(false);
+					})).WithCancellation(cancellationToken).ConfigureAwait(false);
 				}
 			}
 		}
