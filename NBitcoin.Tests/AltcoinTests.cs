@@ -225,6 +225,20 @@ namespace NBitcoin.Tests
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void ElementsBlindedAddressRejectsNonAsciiCharacters()
+		{
+			var network = Altcoins.Liquid.Instance.Regtest;
+			var address =
+				"el1qqvx2mprx8re8pd7xjeg9tu8w3jllhcty05l0hlyvlsaj0rce90nk97ze47dv3sy356nuxhjlpms73ztf8lalkerz9ndvg0rva";
+			Assert.Equal(address, new BitcoinBlindedAddress(address, network).ToString());
+
+			// U+0171 has 0x71 ('q') as its low byte
+			var alias = "el1ű" + address.Substring(4);
+			Assert.ThrowsAny<FormatException>(() => new BitcoinBlindedAddress(alias, network));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void ElementsAddressSerializationTest()
 		{
 
