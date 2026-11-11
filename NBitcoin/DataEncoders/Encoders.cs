@@ -98,6 +98,15 @@ namespace NBitcoin.DataEncoders
 			}
 		}
 
+		static readonly Base64UrlSafeEncoder _Base64UrlSafe = new Base64UrlSafeEncoder();
+		public static DataEncoder Base64UrlSafe
+		{
+			get
+			{
+				return _Base64UrlSafe;
+			}
+		}
+
 		public static Bech32Encoder Bech32(string hrp)
 		{
 			return new Bech32Encoder(hrp);
