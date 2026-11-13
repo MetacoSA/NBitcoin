@@ -81,12 +81,13 @@ namespace NBitcoin
 
 			builder.AddDNSSeeds(new[]
 			{
-				new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be"), // Pieter Wuille
-				new DNSSeedData("bluematt.me", "dnsseed.bluematt.me"), // Matt Corallo
-				new DNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org"), // Luke Dashjr
-				new DNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com"), // Christian Decker
-				new DNSSeedData("xf2.org", "bitseed.xf2.org"), // Jeff Garzik
-				new DNSSeedData("bitcoin.jonasschnelli.ch", "seed.bitcoin.jonasschnelli.ch") // Jonas Schnelli
+				new DNSSeedData("bluematt.me", "dnsseed.bluematt.me."), // Matt Corallo
+				new DNSSeedData("petertodd.org", "seed.btc.petertodd.net."), // Peter Todd
+				new DNSSeedData("sprovoost.nl", "seed.bitcoin.sprovoost.nl."), // Sjors Provoost
+				new DNSSeedData("emzy.de", "dnsseed.emzy.de."), // Stephan Oeste
+				new DNSSeedData("bitcoin.wiz.biz", "seed.bitcoin.wiz.biz."), // Jason Maurice
+				new DNSSeedData("achow101.com", "seed.mainnet.achownodes.xyz."), // Ava Chow
+				new DNSSeedData("bitcoin.jonasschnelli.ch", "seed.bitcoin.jonasschnelli.ch."), // Jonas Schnelli
 			});
 
 			builder.AddSeeds(LoadNetworkAddresses(GetMainnetSeeds(), builder));
