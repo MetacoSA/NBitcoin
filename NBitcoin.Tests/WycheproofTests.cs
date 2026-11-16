@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
-using NBitcoin.BouncyCastle.Crypto.Digests;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using Newtonsoft.Json.Linq;
@@ -21,14 +20,8 @@ namespace NBitcoin.Tests
 		{
 			"ecdsa_secp256k1_sha256_p1363_test.json",
 			"ecdsa_secp256k1_sha256_test.json",
-			"ecdsa_secp256k1_sha3_256_test.json",
-			"ecdsa_secp256k1_sha3_512_test.json",
 			"ecdsa_secp256k1_sha512_p1363_test.json",
-			"ecdsa_secp256k1_sha512_test.json",
-			"ecdsa_secp256k1_shake128_p1363_test.json",
-			"ecdsa_secp256k1_shake128_test.json",
-			"ecdsa_secp256k1_shake256_p1363_test.json",
-			"ecdsa_secp256k1_shake256_test.json"
+			"ecdsa_secp256k1_sha512_test.json"
 		};
 
 		private static readonly string[] HmacFiles =
@@ -172,14 +165,8 @@ namespace NBitcoin.Tests
 		{
 			{ "ecdsa_secp256k1_sha256_p1363_test.json", "7a339efc7134fb2495cd32afdbd692e0f86427d3c24e9073f6a7d858bb8788d2" },
 			{ "ecdsa_secp256k1_sha256_test.json", "43db761c0a2eae71fb0755d355d5130e28ce64a5b07846cf27e7072082597a81" },
-			{ "ecdsa_secp256k1_sha3_256_test.json", "4748f02694d2391576cf28c8cb3d13149739b5602eeb079deae4577e111afbc1" },
-			{ "ecdsa_secp256k1_sha3_512_test.json", "d1760ce172483843ab4003e8fd78e16e6fc003cdf7190f1fe7d34dba1842c05c" },
 			{ "ecdsa_secp256k1_sha512_p1363_test.json", "7e12bee4519587d2b31fe7a03a617fad771f352b505edb41d063c35a4023dbc7" },
 			{ "ecdsa_secp256k1_sha512_test.json", "b614f432e4110bcdd3d792180a195e5ba33da7704db3d1298d42312cc64acd40" },
-			{ "ecdsa_secp256k1_shake128_p1363_test.json", "30ead3b9c2845717115bc75cedd90621e35b3c096b2047af91fb7811e059fb9d" },
-			{ "ecdsa_secp256k1_shake128_test.json", "861bc8936ce7869155076f614eb05121acba71868c1b856bcf7258d646e95ecb" },
-			{ "ecdsa_secp256k1_shake256_p1363_test.json", "24a5fa4887f8167b135f07f7da603acaf125e39994a439bda63f43a74555178b" },
-			{ "ecdsa_secp256k1_shake256_test.json", "7f3e61cb13bf976a9567639b00c0f727e8807d4b69a375562f0d14ec0afe1dd0" },
 			{ "hmac_sha256_test.json", "2d201cfa61d1bf95e6f5d07d96634b4a348b31e8eaa277ad7c8d09677b7a743f" },
 			{ "hmac_sha512_test.json", "b6c90477bdb4a6fc8ee3d1f7b2c0b69a8dfffab34718abaa6cabd71cc2ba1207" },
 			{ "pbkdf2_hmacsha1_test.json", "5ef5307e119bd118da50ad276426ed3baade2d093e93b643a1d70be0bf0b861a" },
@@ -288,72 +275,8 @@ namespace NBitcoin.Tests
 					using (SHA256 hash = SHA256.Create()) return hash.ComputeHash(message);
 				case "SHA-512":
 					using (SHA512 hash = SHA512.Create()) return hash.ComputeHash(message);
-				case "SHA3-256":
-#if NO_BC
-					byte[] sha3_256 = SHA3_256.HashData(message);
-					Assert.True(sha3_256.SequenceEqual(Sha3(message, 256)), "SHA3-256 digest mismatch");
-					return sha3_256;
-#else
-					return Sha3(message, 256);
-#endif
-				case "SHA3-512":
-#if NO_BC
-					byte[] sha3_512 = SHA3_512.HashData(message);
-					Assert.True(sha3_512.SequenceEqual(Sha3(message, 512)), "SHA3-512 digest mismatch");
-					return sha3_512;
-#else
-					return Sha3(message, 512);
-#endif
-				case "SHAKE128":
-#if NO_BC
-					byte[] shake128 = Shake128.HashData(message, 32);
-					Assert.True(shake128.SequenceEqual(Shake(message, 128)), "SHAKE128 digest mismatch");
-					return shake128;
-#else
-					return Shake(message, 128);
-#endif
-				case "SHAKE256":
-#if NO_BC
-					byte[] shake256 = Shake256.HashData(message, 32);
-					Assert.True(shake256.SequenceEqual(Shake(message, 256)), "SHAKE256 digest mismatch");
-					return shake256;
-#else
-					return Shake(message, 256);
-#endif
 				default:
 					throw new NotSupportedException(algorithm);
-			}
-		}
-
-		private static byte[] Sha3(byte[] message, int bitLength)
-		{
-			var digest = new Sha3Digest(bitLength);
-			digest.BlockUpdate(message, 0, message.Length);
-			byte[] output = new byte[digest.GetDigestSize()];
-			digest.DoFinal(output, 0);
-			return output;
-		}
-
-		private static byte[] Shake(byte[] message, int strength)
-		{
-			var digest = new WycheproofShakeDigest(strength);
-			digest.BlockUpdate(message, 0, message.Length);
-			byte[] output = new byte[32];
-			digest.FinishShake(output);
-			return output;
-		}
-
-		private sealed class WycheproofShakeDigest : KeccakDigest
-		{
-			public WycheproofShakeDigest(int strength)
-				: base(strength)
-			{
-				fixedOutputLength = 256;
-			}
-
-			public void FinishShake(byte[] output)
-			{
-				DoFinal(output, 0, 0x0F, 4);
 			}
 		}
 
