@@ -38,12 +38,87 @@ namespace NBitcoin.Tests
 			"pbkdf2_hmacsha512_test.json"
 		};
 
-		private static readonly HashSet<string> LaxDerFlags = new HashSet<string>(StringComparer.Ordinal)
+		// NBitcoin parses each case to the r and s of valid tcId 7 in the same file.
+		private static readonly Dictionary<string, HashSet<int>> LaxDerCases = new Dictionary<string, HashSet<int>>(StringComparer.Ordinal)
 		{
-			"BerEncodedSignature",
-			"InvalidEncoding",
-			"MissingZero",
-			"ModifiedSignature"
+			{ "ecdsa_secp256k1_sha256_test.json", new HashSet<int>
+				{
+					6, // Legacy: ASN encoding of r misses leading 0
+					8, // length of sequence [r, s] uses long form encoding
+					9, // length of sequence [r, s] contains a leading 0
+					10, // length of sequence [r, s] uses 70 instead of 69
+					11, // length of sequence [r, s] uses 68 instead of 69
+					12, // uint32 overflow in length of sequence [r, s]
+					13, // uint64 overflow in length of sequence [r, s]
+					14, // length of sequence [r, s] = 2**31 - 1
+					15, // length of sequence [r, s] = 2**31
+					16, // length of sequence [r, s] = 2**32 - 1
+					17, // length of sequence [r, s] = 2**40 - 1
+					18, // length of sequence [r, s] = 2**64 - 1
+					20, // replaced sequence [r, s] by an indefinite length tag without termination
+					23, // appending 0's to sequence [r, s]
+					25, // appending unused 0's to sequence [r, s]
+					26, // appending null value to sequence [r, s]
+					47, // sequence [r, s] of size 4166 to check for overflows
+					48, // indefinite length
+					49, // indefinite length with truncated delimiter
+					50, // indefinite length with additional element
+					51, // indefinite length with truncated element
+					52, // indefinite length with garbage
+					53, // indefinite length with nonempty EOC
+					55, // append empty sequence
+					56, // append zero
+					57, // append garbage with high tag number
+					58, // append null with explicit tag
+					59, // append null with implicit tag
+					62, // repeating element in sequence
+					67, // length of r uses long form encoding
+					68, // length of r contains a leading 0
+					84, // prepending 0's to r
+					113, // length of s uses long form encoding
+					114, // length of s contains a leading 0
+					127, // prepending 0's to s
+				}
+			},
+			{ "ecdsa_secp256k1_sha512_test.json", new HashSet<int>
+				{
+					6, // Legacy: ASN encoding of s misses leading 0
+					8, // length of sequence [r, s] uses long form encoding
+					9, // length of sequence [r, s] contains a leading 0
+					10, // length of sequence [r, s] uses 70 instead of 69
+					11, // length of sequence [r, s] uses 68 instead of 69
+					12, // uint32 overflow in length of sequence [r, s]
+					13, // uint64 overflow in length of sequence [r, s]
+					14, // length of sequence [r, s] = 2**31 - 1
+					15, // length of sequence [r, s] = 2**31
+					16, // length of sequence [r, s] = 2**32 - 1
+					17, // length of sequence [r, s] = 2**40 - 1
+					18, // length of sequence [r, s] = 2**64 - 1
+					20, // replaced sequence [r, s] by an indefinite length tag without termination
+					23, // appending 0's to sequence [r, s]
+					25, // appending unused 0's to sequence [r, s]
+					26, // appending null value to sequence [r, s]
+					47, // sequence [r, s] of size 4166 to check for overflows
+					48, // indefinite length
+					49, // indefinite length with truncated delimiter
+					50, // indefinite length with additional element
+					51, // indefinite length with truncated element
+					52, // indefinite length with garbage
+					53, // indefinite length with nonempty EOC
+					55, // append empty sequence
+					56, // append zero
+					57, // append garbage with high tag number
+					58, // append null with explicit tag
+					59, // append null with implicit tag
+					62, // repeating element in sequence
+					67, // length of r uses long form encoding
+					68, // length of r contains a leading 0
+					84, // prepending 0's to r
+					114, // length of s uses long form encoding
+					115, // length of s contains a leading 0
+					128, // prepending 0's to s
+				}
+			},
 		};
 
 		[WycheproofFact("ecdsa")]
@@ -98,7 +173,7 @@ namespace NBitcoin.Tests
 							actual = false;
 						}
 
-						if (!p1363 && actual && test["flags"]!.Values<string>().Any(flag => LaxDerFlags.Contains(flag))) continue; // NBitcoin intentionally accepts historical lax DER encodings.
+						if (!p1363 && LaxDerCases.TryGetValue(file, out HashSet<int> exempted) && exempted.Contains(test.Value<int>("tcId"))) continue;
 						AssertResult(test, actual, context);
 					}
 				}
