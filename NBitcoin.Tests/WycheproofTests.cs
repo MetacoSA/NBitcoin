@@ -171,7 +171,12 @@ namespace NBitcoin.Tests
 							actual = false;
 						}
 
-						if (!p1363 && LaxDerCases.TryGetValue(file, out HashSet<int> exempted) && exempted.Contains(test.Value<int>("tcId"))) continue;
+						if (!p1363 && LaxDerCases.TryGetValue(file, out HashSet<int> exempted) && exempted.Contains(test.Value<int>("tcId")))
+						{
+							// These encodings are intentionally accepted by Bitcoin Core's lax parser.
+							Assert.True(actual, context);
+							continue;
+						}
 						AssertResult(test, actual, context);
 					}
 				}
