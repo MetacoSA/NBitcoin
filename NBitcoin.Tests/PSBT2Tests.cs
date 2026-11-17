@@ -482,7 +482,7 @@ namespace NBitcoin.Tests
 			inputsOnlyTx.Inputs.Add(new OutPoint(uint256.One, 1));
 			var inputsOnly = Assert.IsType<PSBT2>(PSBT.FromTransaction(inputsOnlyTx, Network.Main, PSBTVersion.PSBTv2));
 
-			Assert.Equal(1, first.CoinJoin(second).Inputs.Count);
+			Assert.Single(first.CoinJoin(second).Inputs);
 			Assert.Equal(2, first.CoinJoin(inputsOnly).Inputs.Count);
 		}
 
