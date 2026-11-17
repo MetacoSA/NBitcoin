@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using NBitcoin.Crypto;
@@ -121,13 +119,13 @@ namespace NBitcoin.Tests
 			},
 		};
 
-		[WycheproofFact("ecdsa")]
+		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void EcdsaSecp256k1()
+		public async Task EcdsaSecp256k1()
 		{
 			foreach (string file in EcdsaFiles)
 			{
-				JObject vector = ReadVector(file);
+				JObject vector = await ReadVectorAsync(file);
 				foreach (JObject group in vector["testGroups"]!.Children<JObject>())
 				{
 					bool p1363 = group.Value<string>("type") == "EcdsaP1363Verify";
@@ -180,13 +178,13 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[WycheproofFact("hmac")]
+		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void HmacSha256AndSha512()
+		public async Task HmacSha256AndSha512()
 		{
 			foreach (string file in HmacFiles)
 			{
-				JObject vector = ReadVector(file);
+				JObject vector = await ReadVectorAsync(file);
 				string algorithm = vector.Value<string>("algorithm")!;
 				foreach (JObject group in vector["testGroups"]!.Children<JObject>())
 				{
@@ -204,13 +202,13 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[WycheproofFact("pbkdf2")]
+		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void Pbkdf2HmacSha1Sha256Sha384AndSha512()
+		public async Task Pbkdf2HmacSha1Sha256Sha384AndSha512()
 		{
 			foreach (string file in Pbkdf2Files)
 			{
-				JObject vector = ReadVector(file);
+				JObject vector = await ReadVectorAsync(file);
 				string algorithm = vector.Value<string>("algorithm")!;
 				foreach (JObject group in vector["testGroups"]!.Children<JObject>())
 				{
@@ -250,74 +248,56 @@ namespace NBitcoin.Tests
 			{ "pbkdf2_hmacsha512_test.json", "6a764a448b7a283478340d58f5dc20455524e8589a935fb0d66fb851e997b1c8" },
 		};
 
-		// xUnit v2 cannot dynamically skip during test execution. Fetch during discovery so
-		// a connection failure can be reported as a real skipped fact.
-		public sealed class WycheproofFactAttribute : FactAttribute
-		{
-			public WycheproofFactAttribute(string family)
-			{
-				string[] files = family == "ecdsa" ? EcdsaFiles : family == "hmac" ? HmacFiles : Pbkdf2Files;
-				try
-				{
-					foreach (string file in files) EnsureDownloaded(file);
-				}
-				catch (Exception ex) when (IsUnavailable(ex))
-				{
-					Skip = "Wycheproof vectors unavailable (network connection failed or timed out).";
-				}
-				catch (Exception)
-				{
-					// Let the test report HTTP, disk and other errors as failures.
-				}
-			}
-		}
-
-		private static bool IsUnavailable(Exception ex)
-		{
-			for (Exception? cause = ex; cause != null; cause = cause.InnerException)
-			{
-				if (cause is SocketException || cause is TaskCanceledException) return true;
-				if (cause is WebException web && (web.Status == WebExceptionStatus.ConnectFailure ||
-					web.Status == WebExceptionStatus.NameResolutionFailure || web.Status == WebExceptionStatus.ProxyNameResolutionFailure ||
-					web.Status == WebExceptionStatus.Timeout)) return true;
-			}
-			return false;
-		}
+		private static readonly HttpClient VectorClient = new HttpClient();
 
 		private static string VectorPath(string file)
 		{
 			return Path.Combine(AppContext.BaseDirectory, "wycheproof", file);
 		}
 
-		private static void EnsureDownloaded(string file)
+		private static async Task EnsureDownloadedAsync(string file)
 		{
 			string path = VectorPath(file);
 			if (File.Exists(path)) return;
-			using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(15) })
+			byte[] bytes = await VectorClient.GetByteArrayAsync(VectorUrl + file);
+			VerifyVectorHash(file, bytes);
+			Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+			string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+			try
 			{
-				byte[] bytes = client.GetByteArrayAsync(VectorUrl + file).GetAwaiter().GetResult();
-				Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-				string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
-				try
+				using (var stream = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, useAsync: true))
 				{
-					File.WriteAllBytes(temporary, bytes);
-					try { File.Move(temporary, path); }
-					catch (IOException) when (File.Exists(path)) { }
+					await stream.WriteAsync(bytes, 0, bytes.Length);
 				}
-				finally { if (File.Exists(temporary)) File.Delete(temporary); }
+				try { File.Move(temporary, path); }
+				catch (IOException) when (File.Exists(path)) { }
 			}
+			finally { if (File.Exists(temporary)) File.Delete(temporary); }
 		}
 
-		private static JObject ReadVector(string file)
+		private static async Task<JObject> ReadVectorAsync(string file)
 		{
-			EnsureDownloaded(file);
-			byte[] bytes = File.ReadAllBytes(VectorPath(file));
+			// Keep discovery free of network I/O. An unavailable uncached vector fails
+			// the test rather than silently losing cryptographic regression coverage.
+			await EnsureDownloadedAsync(file);
+			byte[] bytes;
+			using (var stream = new FileStream(VectorPath(file), FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync: true))
+			using (var buffer = new MemoryStream())
+			{
+				await stream.CopyToAsync(buffer);
+				bytes = buffer.ToArray();
+			}
+			VerifyVectorHash(file, bytes);
+			return JObject.Parse(System.Text.Encoding.UTF8.GetString(bytes));
+		}
+
+		private static void VerifyVectorHash(string file, byte[] bytes)
+		{
 			using (SHA256 hash = SHA256.Create())
 			{
 				string actual = BitConverter.ToString(hash.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
 				Assert.True(actual == VectorHashes[file], file + ": SHA-256 mismatch: expected " + VectorHashes[file] + ", got " + actual);
 			}
-			return JObject.Parse(System.Text.Encoding.UTF8.GetString(bytes));
 		}
 
 		private static byte[] Hex(JToken value)
