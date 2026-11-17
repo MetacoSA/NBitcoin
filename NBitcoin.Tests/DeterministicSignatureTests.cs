@@ -116,11 +116,11 @@ namespace NBitcoin.Tests
 			dsa.update(Encoding.UTF8.GetBytes(test.Message));
 			var result = dsa.sign();
 
-			var signature = ECDSASignature.FromDER(result);
-#pragma warning disable 618
-			Assert.Equal(test.S, signature.S);
-			Assert.Equal(test.R, signature.R);
-#pragma warning restore 618
+			// These RFC6979 vectors include non-Bitcoin curves with scalars wider
+			// than 256 bits. Decode their ASN.1 directly, not as secp256k1 signatures.
+			var signature = (DerSequence)Asn1Object.FromByteArray(result);
+			Assert.Equal(test.S, ((DerInteger)signature[1]).Value);
+			Assert.Equal(test.R, ((DerInteger)signature[0]).Value);
 		}
 
 		private Func<BouncyCastle.Crypto.IDigest> GetHash(string hash)

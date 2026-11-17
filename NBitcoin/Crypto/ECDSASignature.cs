@@ -15,7 +15,6 @@ namespace NBitcoin.Crypto
 {
 	public class ECDSASignature
 	{
-#if HAS_SPAN
 		/* This function is taken from the libsecp256k1 distribution and implements
  *  DER parsing for ECDSA signatures, while supporting an arbitrary subset of
  *  format violations.
@@ -26,14 +25,22 @@ namespace NBitcoin.Crypto
  *  strict DER before being passed to this module, and we know it supports all
  *  violations present in the blockchain before that point.
  */
+#if HAS_SPAN
 		static bool ecdsa_signature_parse_der_lax(ReadOnlySpan<byte> input, out Secp256k1.SecpECDSASignature sig)
+#else
+		static bool ecdsa_signature_parse_der_lax(byte[] input, out BigInteger[] sig)
+#endif
 		{
 			int inputlen = input.Length;
 			int rpos, rlen, spos, slen;
 			int pos = 0;
 			int lenbyte;
+#if HAS_SPAN
 			Span<byte> tmpsig = stackalloc byte[64];
 			tmpsig.Clear();
+#else
+			byte[] tmpsig = new byte[64];
+#endif
 			sig = null;
 			int overflow = 0;
 
@@ -168,8 +175,11 @@ namespace NBitcoin.Crypto
 			}
 			else
 			{
+#if HAS_SPAN
 				input.Slice(rpos, rlen).CopyTo(tmpsig.Slice(32 - rlen));
-				//memcpy(tmpsig + 32 - rlen, input + rpos, rlen);
+#else
+				Buffer.BlockCopy(input, rpos, tmpsig, 32 - rlen, rlen);
+#endif
 			}
 
 			/* Ignore leading zeroes in S */
@@ -185,10 +195,14 @@ namespace NBitcoin.Crypto
 			}
 			else
 			{
+#if HAS_SPAN
 				input.Slice(spos, slen).CopyTo(tmpsig.Slice(64 - slen));
-				//memcpy(tmpsig + 64 - slen, input + spos, slen);
+#else
+				Buffer.BlockCopy(input, spos, tmpsig, 64 - slen, slen);
+#endif
 			}
 
+#if HAS_SPAN
 			if (overflow == 0)
 			{
 				overflow = Secp256k1.SecpECDSASignature.TryCreateFromCompact(tmpsig, out sig) ? 0 : 1;
@@ -200,8 +214,20 @@ namespace NBitcoin.Crypto
 				tmpsig.Clear();
 				Secp256k1.SecpECDSASignature.TryCreateFromCompact(tmpsig, out sig);
 			}
+#else
+			var r = new BigInteger(1, tmpsig, 0, 32);
+			var s = new BigInteger(1, tmpsig, 32, 32);
+			if (overflow != 0 || r.CompareTo(ECKey.CURVE_ORDER) >= 0 || s.CompareTo(ECKey.CURVE_ORDER) >= 0)
+			{
+				// Like Core, represent scalar overflow as a parsed but invalid signature.
+				r = BigInteger.Zero;
+				s = BigInteger.Zero;
+			}
+			sig = new[] { r, s };
+#endif
 			return true;
 		}
+#if HAS_SPAN
 		private readonly Secp256k1.Scalar r, s;
 		internal ECDSASignature(in Secp256k1.Scalar r, in Secp256k1.Scalar s)
 		{
@@ -334,35 +360,68 @@ namespace NBitcoin.Crypto
 #else
 		public ECDSASignature(byte[] derSig)
 		{
-			try
+			if (derSig != null && ecdsa_signature_parse_der_lax(derSig, out var sig))
 			{
-				Asn1InputStream decoder = new Asn1InputStream(derSig);
-				var seq = decoder.ReadObject() as DerSequence;
-				if (seq == null || seq.Count != 2)
-					throw new FormatException(InvalidDERSignature);
-				_R = ((DerInteger)seq[0]).Value;
-				_S = ((DerInteger)seq[1]).Value;
+				_R = sig[0];
+				_S = sig[1];
+				return;
 			}
-			catch (Exception ex)
-			{
-				throw new FormatException(InvalidDERSignature, ex);
-			}
+			throw new FormatException(InvalidDERSignature);
 		}
 
-		public ECDSASignature(Stream derSig)
+		public ECDSASignature(Stream derSig) : this(ReadSignatureBytes(derSig))
 		{
-			try
+		}
+
+		private static byte[] ReadSignatureBytes(Stream stream)
+		{
+			if (stream == null)
+				throw new ArgumentNullException(nameof(stream));
+			using (var buffer = new MemoryStream())
 			{
-				Asn1InputStream decoder = new Asn1InputStream(derSig);
-				var seq = decoder.ReadObject() as DerSequence;
-				if (seq == null || seq.Count != 2)
+				// Read only through s, leaving any following data in the caller's stream.
+				// Do not use ASN.1 framing: Core ignores the SEQUENCE length.
+				int ReadByte()
+				{
+					int b = stream.ReadByte();
+					if (b < 0)
+						throw new FormatException(InvalidDERSignature);
+					buffer.WriteByte((byte)b);
+					return b;
+				}
+
+				if (ReadByte() != 0x30)
 					throw new FormatException(InvalidDERSignature);
-				_R = ((DerInteger)seq[0]).Value;
-				_S = ((DerInteger)seq[1]).Value;
-			}
-			catch (Exception ex)
-			{
-				throw new FormatException(InvalidDERSignature, ex);
+				int sequenceLength = ReadByte();
+				if ((sequenceLength & 0x80) != 0)
+				{
+					for (int i = 0; i < sequenceLength - 0x80; i++)
+						ReadByte();
+				}
+				for (int integer = 0; integer < 2; integer++)
+				{
+					if (ReadByte() != 0x02)
+						throw new FormatException(InvalidDERSignature);
+					int length = ReadByte();
+					if ((length & 0x80) != 0)
+					{
+						int lengthBytes = length - 0x80;
+						length = 0;
+						for (int i = 0; i < lengthBytes; i++)
+						{
+							int b = ReadByte();
+							// Ignore leading zero length bytes, as in the shared parser.
+							if (length == 0 && b == 0)
+								continue;
+							if (lengthBytes - i >= 4)
+								throw new FormatException(InvalidDERSignature);
+							length = (length << 8) + b;
+						}
+					}
+					for (int i = 0; i < length; i++)
+						ReadByte();
+				}
+				return buffer.ToArray();
 			}
 		}
 		/**
