@@ -1949,6 +1949,7 @@ namespace NBitcoin.RPC
 			return GetTxOutAsync(txid, index, includeMempool).GetAwaiter().GetResult();
 		}
 
+#nullable enable
 		/// <summary>
 		/// Returns details about an unspent transaction output.
 		/// </summary>
@@ -1956,27 +1957,31 @@ namespace NBitcoin.RPC
 		/// <param name="index">vout number</param>
 		/// <param name="includeMempool">Whether to include the mempool. Note that an unspent output that is spent in the mempool won't appear.</param>
 		/// <returns>null if spent or never existed</returns>
-		public async Task<GetTxOutResponse> GetTxOutAsync(uint256 txid, int index, bool includeMempool = true, CancellationToken cancellationToken = default)
+		public async Task<GetTxOutResponse?> GetTxOutAsync(uint256 txid, int index, bool includeMempool = true, CancellationToken cancellationToken = default)
 		{
 			var response = await SendCommandAsync(RPCOperations.gettxout, cancellationToken, txid, index, includeMempool).ConfigureAwait(false);
-			if (string.IsNullOrWhiteSpace(response?.ResultString))
+			if (response is null || string.IsNullOrWhiteSpace(response.ResultString))
 			{
 				return null;
 			}
 
 			var result = response.Result;
 			var value = result.Value<decimal>("value"); // The transaction value in BTC
-			var txOut = new TxOut(Money.Coins(value), new Script(result["scriptPubKey"].Value<string>("asm")));
+			var scriptPubKey = result["scriptPubKey"] ?? throw new InvalidDataException("Expected 'scriptPubKey' property");
+			var asm = scriptPubKey.Value<string>("asm") ?? throw new InvalidDataException("Expected 'asm' property");
+
+			var txOut = new TxOut(Money.Coins(value), new Script(asm));
 
 			return new GetTxOutResponse
 			{
 				BestBlock = new uint256(result.Value<string>("bestblock")), // the block hash
 				Confirmations = result.Value<int>("confirmations"), // The number of confirmations
 				IsCoinBase = result.Value<bool>("coinbase"), // Coinbase or not
-				ScriptPubKeyType = result["scriptPubKey"].Value<string>("type"),  // The type, eg pubkeyhash
+				ScriptPubKeyType = scriptPubKey.Value<string>("type"),  // The type, eg pubkeyhash
 				TxOut = txOut
 			};
 		}
+#nullable disable
 
 		/// <summary>
 		/// Returns statistics about the unspent transaction output (UTXO) set

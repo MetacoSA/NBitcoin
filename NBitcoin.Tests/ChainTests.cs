@@ -277,7 +277,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(expectedFork, fork);
 		}
 
-		[Fact]
+		[Fact(Skip = "MainChain1.dat download is unavailable.")]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCalculateDifficulty()
 		{
@@ -297,7 +297,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		[Fact(Skip = "MainChain1.dat download is unavailable.")]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanValidateChain()
 		{
@@ -307,7 +307,7 @@ namespace NBitcoin.Tests
 				Assert.True(h.Validate(Network.Main));
 			}
 		}
-		[Fact]
+		[Fact(Skip = "MainChain1.dat download is unavailable.")]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCreateBigSlimChain()
 		{
@@ -326,7 +326,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(main.GetBlock(main.Tip.HashBlock).HashBlock, c.GetBlock(c.Tip).Hash);
 		}
 
-		[Fact]
+		[Fact(Skip = "MainChain1.dat download is unavailable.")]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanPersistMainchain()
 		{
