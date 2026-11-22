@@ -926,8 +926,16 @@ namespace NBitcoin.RPC
 				{
 					if (httpResponse.IsSuccessStatusCode)
 					{
-						response = JArray.Load(new JsonTextReader(
-						new StreamReader(await httpResponse.Content.ReadAsStreamAsync().ConfigureAwait(false), NoBOMUTF8)));
+						var responseStream = await httpResponse.Content.ReadAsStreamAsync().ConfigureAwait(false);
+						var streamReader = new StreamReader(responseStream, NoBOMUTF8);
+
+						var jsonTextReader = new JsonTextReader(streamReader)
+						{
+							FloatParseHandling = FloatParseHandling.Decimal,
+						};
+
+						response = JArray.Load(jsonTextReader);
+
 						foreach (var jobj in response.OfType<JObject>())
 						{
 							try

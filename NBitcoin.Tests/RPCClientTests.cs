@@ -1228,27 +1228,7 @@ namespace NBitcoin.Tests
 		[InlineData(2_099_999_997_690_000)]  // 20,999,999.9769 BTC
 		public async Task GetTxOutAmountIsExactAsync(long expectedSats)
 		{
-			var btcDecimal = (expectedSats / 100_000_000m).ToString("0.00000000", CultureInfo.InvariantCulture);
-
-			var response = $$"""
-				{
-					"result": {
-						"bestblock": "00000000000000000000929780ed8cdfd723cf35687103d620f5508af7752d7c",
-						"confirmations": 155,
-						"value": {{btcDecimal}},
-						"scriptPubKey": {
-							"asm": "0 525c922358e6234cb5918d44fb76988e63ec49e7",
-							"desc": "addr(bc1q2fwfyg6cuc35edv334z0ka5c3e37cj08d6mugp)#hgcsw4f8",
-							"hex": "0014525c922358e6234cb5918d44fb76988e63ec49e7",
-							"address": "bc1q2fwfyg6cuc35edv334z0ka5c3e37cj08d6mugp",
-							"type": "witness_v0_keyhash"
-						},
-						"coinbase": false
-					},
-					"error": null,
-					"id": 1
-				}
-				""";
+			var response = GetTxOutResponseJson(expectedSats, requestId: 1);
 
 			using var httpClient = new HttpClient(new HardcodedResponseClientHandler(response));
 			var rpcClient = new RPCClient(Network.Main) { HttpClient = httpClient };
@@ -1263,7 +1243,7 @@ namespace NBitcoin.Tests
 		/// Roundtrip test similar to <see cref="GetTxOutAmountIsExactAsync"/> for RPC batches.
 		/// </summary>
 		[Fact]
-		public async Task GetTxOutAmountIsExactForRpcBatchAsync()
+		public async Task GetTxOutAmountsAreExactForRpcBatchesAsync()
 		{
 			long[] expectedSats = [
 				1,                       // 1 sat
@@ -1282,15 +1262,15 @@ namespace NBitcoin.Tests
 
 			using var httpClient = new HttpClient(new HardcodedResponseClientHandler(batchResponse));
 			var rpcClient = new RPCClient(Network.Main) { HttpClient = httpClient };
-			var rpcBatch = rpcClient.PrepareBatch();
 
-			var tasks = expectedSats
+			var rpcBatch = rpcClient.PrepareBatch();
+			var rpcTasks = expectedSats
 				.Select((_, i) => rpcBatch.GetTxOutAsync(txid: uint256.One, index: i))
 				.ToArray();
 
 			await rpcBatch.SendBatchAsync();
 
-			var txOutResponses = await Task.WhenAll(tasks);
+			var txOutResponses = await Task.WhenAll(rpcTasks);
 			Assert.Equal(expectedSats.Length, txOutResponses.Length);
 
 			for (var i = 0; i < expectedSats.Length; i++)
