@@ -1259,6 +1259,72 @@ namespace NBitcoin.Tests
 			Assert.Equal(Money.Satoshis(expectedSats), txOut.TxOut.Value);
 		}
 
+		/// <summary>
+		/// Roundtrip test similar to <see cref="GetTxOutAmountIsExactAsync"/> for RPC batches.
+		/// </summary>
+		[Fact]
+		public async Task GetTxOutAmountIsExactForRpcBatchAsync()
+		{
+			long[] expectedSats = [
+				1,                       // 1 sat
+				10_000_000,              // 0.1 BTC
+				29_000_000,              // 0.29 BTC
+				57_000_000,              // 0.57 BTC
+				115_000_000,             // 1.15 BTC
+				4_999_999_999,           // 49.99999999 BTC
+				2_099_999_997_690_000,   // 20,999,999.9769 BTC
+			];
+
+			// The order matters here.
+			var batchResponse = "["
+				+ string.Join(",", expectedSats.Select((sats, i) => GetTxOutResponseJson(sats, requestId: i + 1)))
+				+ "]";
+
+			using var httpClient = new HttpClient(new HardcodedResponseClientHandler(batchResponse));
+			var rpcClient = new RPCClient(Network.Main) { HttpClient = httpClient };
+			var rpcBatch = rpcClient.PrepareBatch();
+
+			var tasks = expectedSats
+				.Select((_, i) => rpcBatch.GetTxOutAsync(txid: uint256.One, index: i))
+				.ToArray();
+
+			await rpcBatch.SendBatchAsync();
+
+			var txOutResponses = await Task.WhenAll(tasks);
+			Assert.Equal(expectedSats.Length, txOutResponses.Length);
+
+			for (var i = 0; i < expectedSats.Length; i++)
+			{
+				Assert.NotNull(txOutResponses[i]);
+				Assert.Equal(Money.Satoshis(expectedSats[i]), txOutResponses[i].TxOut.Value);
+			}
+		}
+
+		private static string GetTxOutResponseJson(long valueSats, int requestId)
+		{
+			var valueBtc = (valueSats / 100_000_000m).ToString("0.00000000", CultureInfo.InvariantCulture);
+
+			return $$"""
+				{
+					"result": {
+						"bestblock": "00000000000000000000929780ed8cdfd723cf35687103d620f5508af7752d7c",
+						"confirmations": 155,
+						"value": {{valueBtc}},
+						"scriptPubKey": {
+							"asm": "0 525c922358e6234cb5918d44fb76988e63ec49e7",
+							"desc": "addr(bc1q2fwfyg6cuc35edv334z0ka5c3e37cj08d6mugp)#hgcsw4f8",
+							"hex": "0014525c922358e6234cb5918d44fb76988e63ec49e7",
+							"address": "bc1q2fwfyg6cuc35edv334z0ka5c3e37cj08d6mugp",
+							"type": "witness_v0_keyhash"
+						},
+						"coinbase": false
+					},
+					"error": null,
+					"id": {{requestId}}
+				}
+				""";
+		}
+
 		[Fact]
 		public void CanTestMempoolAccept()
 		{
