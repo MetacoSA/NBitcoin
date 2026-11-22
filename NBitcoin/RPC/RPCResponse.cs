@@ -76,7 +76,11 @@ namespace NBitcoin.RPC
 
 		public static RPCResponse Load(Stream stream)
 		{
-			JsonTextReader reader = new JsonTextReader(new StreamReader(stream, Encoding.UTF8));
+			JsonTextReader reader = new JsonTextReader(new StreamReader(stream, Encoding.UTF8))
+			{
+				FloatParseHandling = FloatParseHandling.Decimal
+			};
+
 			return new RPCResponse(JObject.Load(reader));
 		}
 

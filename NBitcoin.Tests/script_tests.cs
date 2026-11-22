@@ -1460,7 +1460,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		[Fact(Skip = "script_tests.zip download is unavailable.")]
 		[Trait("UnitTest", "UnitTest")]
 		// docker image gcc
 		// git clone https://github.com/bitcoin/bitcoin
