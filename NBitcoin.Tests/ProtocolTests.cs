@@ -1023,7 +1023,7 @@ namespace NBitcoin.Tests
 		{
 			var resolver = new DnsSocksResolver(Utils.ParseEndpoint("localhost", 9050));
 			var ex1 = await Assert.ThrowsAsync<SocketException>(async () => await resolver.GetHostAddressesAsync("googlekefwjefjfwqk.com", default));
-			var ex2 = await Assert.ThrowsAsync<SocketException>(async () => await DnsResolver.Instance.GetHostAddressesAsync("googlekefwjefjfwqk.com", default));
+			var ex2 = await Assert.ThrowsAsync<SocketException>(async () => await Protocol.DnsResolver.Instance.GetHostAddressesAsync("googlekefwjefjfwqk.com", default));
 			Assert.Equal(ex1.ErrorCode, ex2.ErrorCode);
 			var ip = await resolver.GetHostAddressesAsync("google.com", default);
 			Assert.NotNull(ip);

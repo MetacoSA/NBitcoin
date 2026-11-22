@@ -383,7 +383,7 @@ namespace NBitcoin
 		/// <exception cref="System.NotSupportedException">The endpoint passed can't be converted into an Ip (eg. An onion host which is not TorV2)</exception>
 		public static Task<IPEndPoint[]> ResolveToIPEndpointsAsync(this EndPoint endpoint)
 		{
-			return ResolveToIPEndpointsAsync(endpoint, DnsResolver.Instance, default);
+			return ResolveToIPEndpointsAsync(endpoint, NBitcoin.Protocol.DnsResolver.Instance, default);
 		}
 
 		/// <summary>
@@ -415,7 +415,7 @@ namespace NBitcoin
 			{
 				if (dns.IsTor())
 					throw new NotSupportedException($"{endpoint} is not a Tor v2 address, and can't be converted into an IPEndpoint");
-				var ips = await (dnsResolver ?? DnsResolver.Instance).GetHostAddressesAsync(dns.Host, cancellationToken).ConfigureAwait(false);
+				var ips = await (dnsResolver ?? NBitcoin.Protocol.DnsResolver.Instance).GetHostAddressesAsync(dns.Host, cancellationToken).ConfigureAwait(false);
 				return ips.Select(i => new IPEndPoint(i, dns.Port)).ToArray();
 			}
 			else
